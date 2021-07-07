@@ -1,0 +1,159 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+##############################################################################
+# Hook configuration
+##############################################################################
+# - Create /var/lib/one/remotes/hooks/autostart folder if it doesn't exist
+# - Create hook template as follows:
+#     $ cat > autostart-vm.tmpl <<EOF
+#     NAME            = autostart-vm
+#     TYPE            = state
+#     COMMAND         = autostart/vm
+#     ARGUMENTS       = \$TEMPLATE
+#     ARGUMENTS_STDIN = yes
+#     RESOURCE        = VM
+#     STATE           = POWEROFF
+#     LCM_STATE       = LCM_INIT
+#     ON              = CUSTOM
+#     EOF
+# - Create hook as follows:
+#     $ onehook create autostart-vm.tmpl
+##############################################################################
+
+##############################################################################
+# Environment Configuration
+##############################################################################
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    LOG_FILE          = '/var/log/one/autostart-vm.log'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    LOG_FILE          = ONE_LOCATION + '/var/autostart-vm.log'
+end
+
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'opennebula'
+include OpenNebula
+
+require 'getoptlong'
+require 'base64'
+require 'open3'
+
+
+################################################################################
+# Arguments
+################################################################################
+
+# Get arguments from standard input
+standard_input = STDIN.read
+ARGV.replace(standard_input.split(' '))
+
+
+raw_vm_template = Base64.decode64(ARGV[0])
+xml_vm_template = Nokogiri::XML(raw_vm_template)
+
+VM_ID = xml_vm_template.xpath('VM/ID').text
+
+
+################################################################################
+# Methods
+################################################################################
+
+def log(msg, level="I")
+    File.open(LOG_FILE, 'a') do |f|
+        msg.lines do |l|
+            f.puts "[#{Time.now}][VM #{VM_ID}][#{level}] #{l}"
+        end
+    end
+end
+
+def log_error(msg)
+    log(msg, "E")
+end
+
+def exit_error
+    log_error("Exiting due to previous error.")
+    exit(-1)
+end
+
+################################################################################
+# Main
+################################################################################
+
+log "OpenNebula Autostart VM Hook launched"
+
+begin
+    client = Client.new()
+rescue Exception => e
+    log_error e.to_s
+    exit_error
+end
+
+vm = OpenNebula::VirtualMachine.new_with_id(VM_ID, client)
+
+rc   = vm.info
+if OpenNebula.is_error?(rc)
+    log_error "#{rc.message}"
+    exit_error
+end
+
+log "#{vm.name}"
+
+# Skip if AUTOSTART not enabled
+autostart = vm['USER_TEMPLATE/AUTOSTART']
+if !autostart || (autostart != "true" && autostart != "yes")
+    log "skip: autostart not enabled"
+    exit 0
+end
+
+# ACTION in last history record of guest is equal to 'monitor' if an active VM
+# was powered off by monitor.
+# Skip if VM is not poweroff by monitor
+last_action = vm["HISTORY_RECORDS/HISTORY[last()]/ACTION"]
+last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
+if last_action_str != 'monitor'
+    log "skip: last_action (#{last_action_str}) is not 'monitor'"
+    exit 0
+end
+
+# Autostart VM
+log "resume"
+rc = vm.resume
+
+log_error "#{rc.message}" if OpenNebula.is_error?(rc)
+
+exit 0

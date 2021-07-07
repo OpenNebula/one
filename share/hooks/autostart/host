@@ -1,0 +1,188 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+##############################################################################
+# Hook configuration
+##############################################################################
+# - Create /var/lib/one/remotes/hooks/autostart folder if it doesn't exist
+# - Create hook template as follows:
+#     $ cat > autostart-host.tmpl <<EOF
+#     NAME            = autostart-host
+#     TYPE            = state
+#     COMMAND         = autostart/host
+#     ARGUMENTS       = \$TEMPLATE
+#     ARGUMENTS_STDIN = yes
+#     RESOURCE        = HOST
+#     STATE           = MONITORED
+#     EOF
+# - Create hook as follows:
+#     $ onehook create autostart-hook.tmpl
+##############################################################################
+
+##############################################################################
+# Environment Configuration
+##############################################################################
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    LOG_FILE          = '/var/log/one/autostart-host.log'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    LOG_FILE          = ONE_LOCATION + '/var/autostart-host.log'
+end
+
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'opennebula'
+include OpenNebula
+
+require 'getoptlong'
+require 'base64'
+require 'open3'
+
+
+################################################################################
+# Arguments
+################################################################################
+
+# Get arguments from standard input
+standard_input = STDIN.read
+ARGV.replace(standard_input.split(' '))
+
+
+raw_host_template = Base64.decode64(ARGV[0])
+xml_host_template = Nokogiri::XML(raw_host_template)
+
+HOST_ID = xml_host_template.xpath('HOST/ID').text
+
+
+################################################################################
+# Methods
+################################################################################
+
+def log(msg, level="I")
+    File.open(LOG_FILE, 'a') do |f|
+        msg.lines do |l|
+            f.puts "[#{Time.now}][HOST #{HOST_ID}][#{level}] #{l}"
+        end
+    end
+end
+
+def log_error(msg)
+    log(msg, "E")
+end
+
+def exit_error
+    log_error("Exiting due to previous error.")
+    exit(-1)
+end
+
+################################################################################
+# Main
+################################################################################
+
+log "OpenNebula Autostart Host Hook launched"
+
+begin
+    client = Client.new()
+rescue Exception => e
+    log_error e.to_s
+    exit_error
+end
+
+host = OpenNebula::Host.new_with_id(HOST_ID, client)
+
+rc   = host.info
+if OpenNebula.is_error?(rc)
+    log_error "#{rc.message}"
+    exit_error
+end
+
+log "#{host.name}"
+
+# Iterate over guest VMs
+xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
+    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+
+    rc = vm.info
+    if OpenNebula.is_error?(rc)
+        log_error "vm #{vm_id}: error: #{rc.message}"
+        next
+    end
+
+    # Skip if VM AUTOSTART not enabled
+    autostart = vm['USER_TEMPLATE/AUTOSTART']
+    if !autostart || (autostart != "true" && autostart != "yes")
+        log "vm #{vm_id}: skip: autostart not enabled"
+        next
+    end
+
+    # UNKNOWN state is set for active VMs when the host went to error state.
+    # After the host comes back to ONLINE state if OpenNeubula monitor cannot
+    # determine the state of active VMs, UNKNOWN state is kept.
+    # Skip if LCM State is not UNKNOWN
+    if vm.lcm_state_str != 'UNKNOWN'
+        log "vm #{vm_id}: skip: lcm_state (#{vm.lcm_state_str}) is not 'UNKNOWN'"
+        next
+    end
+
+    last_history_xpath = 'HISTORY_RECORDS/HISTORY[last()]'
+
+    # HID (Host ID) in last history record of guest should match the host name.
+    # Skip if HID in last history record of guest doesn't match the Host ID
+    last_hid = vm["#{last_history_xpath}/HID"]
+    if last_hid.to_i != host.id
+        log "vm #{vm_id}: skip: last Host ID (#{last_hid}) "<<
+            "does not match the Host ID (#{host.id})"
+        next
+    end
+
+    # ACTION in last history record of guest is equal to 'none' if VM was
+    # RUNNING before a host error or host reboot.
+    # Skip if action in last history record of guest is not 'none'
+    last_action = vm["#{last_history_xpath}/ACTION"]
+    last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
+    if not %w{none live-migrate}.include?(last_action_str)
+        log "vm #{vm_id}: skip: last_action (#{last_action_str}) is not 'none' or 'live-migrate'"
+        next
+    end
+
+    # Autostart VM
+    log "vm #{vm_id}: resume"
+    rc = vm.resume
+
+    log_error "vm: #{vm_id}: #{rc.message}" if OpenNebula.is_error?(rc)
+end
+
+exit 0

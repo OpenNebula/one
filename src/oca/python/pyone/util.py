@@ -94,7 +94,7 @@ def child2dict(element):
     '''
 
     xml = tostring(element)
-    ret = xmltodict.parse(xml)
+    ret = xmltodict.parse(xml, strip_whitespace=False)
 
     # get the tag name and remove the ns attribute if present
     if "}" in element.tag:

@@ -50,7 +50,7 @@
         </xs:element>
         <xs:element name="MONITORING">
           <xs:complexType>
-            <xs:all>
+            <xs:sequence>
               <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 2.0) -->
               <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
               <!-- Amount of bytes read from disk-->
@@ -74,10 +74,10 @@
               <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Consumption in kilobytes -->
               <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <!-- Sent bytes to the network -->
-              <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Received bytes from the network -->
               <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Sent bytes to the network -->
+              <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Exact time when monitoring info were retieved -->
               <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- vCetner information -->
@@ -88,7 +88,7 @@
               <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            </xs:all>
+            </xs:sequence>
           </xs:complexType>
         </xs:element>
         <xs:element name="TEMPLATE">

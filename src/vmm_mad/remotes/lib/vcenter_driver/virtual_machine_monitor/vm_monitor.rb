@@ -175,8 +175,6 @@ module VirtualMachineMonitor
         @monitor[:diskwrbytes] = previous_diskwrbytes +
                                  (write_kbpersec * 1024 * refresh_rate).to_i
     end
-    # rubocop:enable Naming/VariableName
-    # rubocop:enable Style/FormatStringToken
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info

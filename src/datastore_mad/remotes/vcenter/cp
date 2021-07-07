@@ -104,7 +104,9 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
     # if the original file doesnt have the vmdk extension, add it
-    if !temp_file.match(/\.vmdk$/) && !temp_file.match(/\.iso$/) && !VCenterDriver::FileHelper.from_s3?(img_path)
+    if !temp_file.match(/\.vmdk$/) &&
+       !temp_file.match(/\.iso$/) &&
+       !VCenterDriver::FileHelper.from_s3?(img_path)
         temp_file += '.vmdk'
     end
 

@@ -158,6 +158,14 @@ int AddressRange::init_ipv6_static(string& error_msg)
         return -1;
     }
 
+    if ( attr->vector_value("SIZE").empty() )
+    {
+        unsigned long int size = pl <= 64 ? std::numeric_limits<unsigned long int>::max()
+            : 1UL << (128 - pl);
+
+        attr->replace("SIZE", size);
+    }
+
     return 0;
 }
 
@@ -203,7 +211,7 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     attr = vattr;
 
-    /* ------------------------- AR Type & Size ---------------------------- */
+    /* ------------------------- AR Type ----------------------------------- */
 
     value = vattr->vector_value("TYPE");
     type  = str_to_type(value);
@@ -211,12 +219,6 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     if (type == NONE)
     {
         error_msg = "Unknown or missing address range TYPE.";
-        return -1;
-    }
-
-    if ( vattr->vector_value("SIZE", size) != 0 || size <= 0 )
-    {
-        error_msg = "Wrong SIZE for address range";
         return -1;
     }
 
@@ -239,6 +241,14 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     if ( init_mac(error_msg) != 0 )
     {
+        return -1;
+    }
+
+    /* ------------------------- AR Size ----------------------------------- */
+
+    if ( vattr->vector_value("SIZE", size) != 0 )
+    {
+        error_msg = "Wrong SIZE for address range";
         return -1;
     }
 
@@ -378,33 +388,6 @@ int AddressRange::update_attributes(
 
     /* ----------------- update known attributes ----------------- */
 
-    unsigned int new_size;
-
-    if (vup->vector_value("SIZE", new_size) == 0)
-    {
-        if (is_reservation && new_size != size)
-        {
-            error_msg = "The SIZE of a reservation cannot be changed.";
-            return -1;
-        }
-
-        if (allocated.upper_bound(new_size-1) != allocated.end())
-        {
-            error_msg = "New SIZE cannot be applied. There are used leases"
-                    " that would fall outside the range.";
-
-            return -1;
-        }
-    }
-    else
-    {
-        new_size = size;
-    }
-
-    size = new_size;
-
-    vup->replace("SIZE", size);
-
     if ( is_ipv6_static() )
     {
         int new_pl;
@@ -437,6 +420,38 @@ int AddressRange::update_attributes(
 
         vup->replace("ULA_PREFIX", new_ula);
     }
+
+    unsigned long int new_size;
+
+    if (vup->vector_value("SIZE").empty())
+    {
+        new_size = size;
+    }
+    else if (vup->vector_value("SIZE", new_size) == 0)
+    {
+        if (is_reservation && new_size != size)
+        {
+            error_msg = "The SIZE of a reservation cannot be changed.";
+            return -1;
+        }
+
+        if (allocated.upper_bound(new_size-1) != allocated.end())
+        {
+            error_msg = "New SIZE cannot be applied. There are used leases"
+                    " that would fall outside the range.";
+
+            return -1;
+        }
+    }
+    else
+    {
+        error_msg = "Unable to read the SIZE attribute, it must be number >= 0";
+        return -1;
+    }
+
+    size = new_size;
+
+    vup->replace("SIZE", size);
 
     string value = vup->vector_value("SECURITY_GROUPS");
 

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 require 'curb'
 require 'base64'
+require 'nokogiri'
 
 # Too hard to get rid of $conf variable
 # rubocop:disable Style/GlobalVars
@@ -244,58 +245,47 @@ end
 
 # Returns latest available version
 get '/support/check/version' do
-    $conf[:one_version_time] = 0 if $conf[:one_version_time].nil?
-    $conf[:one_last_version] = '0' if $conf[:one_last_version].nil?
+    token = $conf[:token_remote_support]
 
     def return_route(version, http_code = 200)
         [http_code, JSON.pretty_generate(:version => version)]
     end
 
-    find = 'release-'
-    validate_time = Time.now.to_i - $conf[:one_version_time]
-
-    if validate_time < 86400
-        return return_route($conf[:one_last_version])
-    end
-
     begin
-        http = Curl.get(GITHUB_TAGS_URL) do |request|
-            if !$conf[:proxy].nil? && !$conf[:proxy].empty?
-                request.proxy_url = $conf[:proxy]
-            end
-            request.headers['User-Agent'] = 'OpenNebula Version Validation'
+        http = Curl::Easy.new
+        if token.nil?
+            http.url = 'https://downloads.opennebula.io/repo/'
+        else
+            http.url = 'https://enterprise.opennebula.io/repo/'
+            http.http_auth_types = :basic
+            http.username = token.split(':')[0]
+            http.password = token.split(':')[1]
         end
+
+        # support behind proxy
+        if !$conf[:proxy].nil? && !$conf[:proxy].empty?
+            http.proxy_url = $conf[:proxy]
+        end
+        http.headers['User-Agent'] = 'OpenNebula Version Validation'
+
+        http.perform
+
+        if http.nil? || http.response_code != 200
+            return return_route(0, 400)
+        end
+
+        html = http.body_str
     rescue StandardError
         return return_route(0, 400)
     end
 
-    if !http.nil? && http.response_code == 200
-        JSON.parse(http.body_str).each  do |tag|
-            next unless tag &&
-                        tag['name'] &&
-                        !tag['name'].nil? &&
-                        !tag['name'].empty? &&
-                        tag['name'].start_with?(find)
+    doc = Nokogiri::HTML(html)
+    values = doc.xpath('//table/tr/td/a/text()')
+    data = values.map {|value| value.to_s.delete('/') }
 
-            git_version = tag['name'].tr(find, '')
-            split_version = git_version.split('.')
+    data = data.grep(/[0-9]/)
 
-            gem_git_version = Gem::Version.new(git_version)
-            gem_local_version = Gem::Version.new($conf[:one_last_version])
-
-            next unless split_version &&
-                        split_version[1] &&
-                        split_version[1].to_i &&
-                        split_version[1].to_i.even?
-
-            if gem_git_version > gem_local_version
-                $conf[:one_last_version] = git_version
-                $conf[:one_version_time] = Time.now.to_i
-            end
-            return return_route($conf[:one_last_version])
-        end
-    end
-    return return_route(0, 400)
+    return_route(data.max)
 end
 
 post '/support/request/:id/action' do

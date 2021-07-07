@@ -35,6 +35,7 @@ public class MarketPlace extends PoolElement
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String RENAME   = METHOD_PREFIX + "rename";
+    private static final String ENABLE   = METHOD_PREFIX + "enable";
 
     /**
      * Creates a new MarketPlace representation.
@@ -205,6 +206,19 @@ public class MarketPlace extends PoolElement
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * Enable or disable the Marketplace.
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param enable True for enabling, false for disabling
+     * @return If successful the message contains the MarketPlace id.
+     */
+    public static OneResponse enable(Client client, int id, boolean enable)
+    {
+        return client.call(ENABLE, id, enable);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -345,6 +359,18 @@ public class MarketPlace extends PoolElement
     {
         return rename(client, id, name);
     }
+
+    /**
+     * Enable or disable this Marketplace.
+     *
+     * @param enable True for enabling, false for disabling
+     * @return If successful the message contains the MarketPlace id.
+     */
+    public OneResponse enable(boolean enable)
+    {
+        return enable(client, id, enable);
+    }
+
 
     // =================================
     // Helpers

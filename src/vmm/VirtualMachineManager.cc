@@ -123,7 +123,7 @@ int VirtualMachineManager::start()
             bind(&VirtualMachineManager::_resize, this, _1));
 
     register_action(VMManagerMessages::LOG,
-            &VirtualMachineManager::_log);
+            bind(&VirtualMachineManager::_log, this, _1));
 
     string error;
     if ( DriverManager::start(error) != 0 )

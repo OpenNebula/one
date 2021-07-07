@@ -292,7 +292,7 @@ private:
     /**
      *
      */
-    static void _log(std::unique_ptr<vm_msg_t> msg);
+    void _log(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *

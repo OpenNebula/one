@@ -67,7 +67,6 @@ module OneProvision
             i['internal_ip']
         end
 
-
     end
 
 end

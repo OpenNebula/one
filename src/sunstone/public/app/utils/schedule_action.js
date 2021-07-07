@@ -239,13 +239,13 @@ define(function (require) {
       switch (value) {
         case "week":
           input_html = "<div id=\"days_week_value\" style=\"margin: 10px 0 10px 0;\">\
-                    <input type=\"checkbox\" id=\"mon\" name=\"days\" value=\"0\"><label for=\"mon\">" + Locale.tr("Mo") + "</label>\
-                    <input type=\"checkbox\" id=\"tue\" name=\"days\" value=\"1\"><label for=\"tue\">" + Locale.tr("Tu") + "</label>\
-                    <input type=\"checkbox\" id=\"wed\" name=\"days\" value=\"2\"><label for=\"wed\">" + Locale.tr("We") + "</label>\
-                    <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"3\"><label for=\"thu\">" + Locale.tr("Th") + "</label>\
-                    <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"4\"><label for=\"fri\">" + Locale.tr("Fr") + "</label>\
-                    <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"5\"><label for=\"sat\">" + Locale.tr("Sa") + "</label>\
-                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"6\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
+                    <input type=\"checkbox\" id=\"mon\" name=\"days\" value=\"1\"><label for=\"mon\">" + Locale.tr("Mo") + "</label>\
+                    <input type=\"checkbox\" id=\"tue\" name=\"days\" value=\"2\"><label for=\"tue\">" + Locale.tr("Tu") + "</label>\
+                    <input type=\"checkbox\" id=\"wed\" name=\"days\" value=\"3\"><label for=\"wed\">" + Locale.tr("We") + "</label>\
+                    <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"4\"><label for=\"thu\">" + Locale.tr("Th") + "</label>\
+                    <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"5\"><label for=\"fri\">" + Locale.tr("Fr") + "</label>\
+                    <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"6\"><label for=\"sat\">" + Locale.tr("Sa") + "</label>\
+                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"7\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
                 </div>";
           break;
         case "month":

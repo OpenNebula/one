@@ -6,24 +6,18 @@
       <xs:sequence>
         <xs:element name="MONITORING" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
-            <xs:all>
+            <xs:sequence>
+              <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 2.0) -->
               <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+              <!-- Amount of bytes read from disk-->
               <xs:element name="DISKRDBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO read operations -->
               <xs:element name="DISKRDIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Amount of bytes written to disk -->
               <xs:element name="DISKWRBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO write operations -->
               <xs:element name="DISKWRIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_ESX_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_GUEST_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_RP_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_RUNNING_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <!-- Disk size details -->
               <xs:element name="DISK_SIZE" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
@@ -32,7 +26,25 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-            </xs:all>
+              <!-- ID of the VM -->
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Consumption in kilobytes -->
+              <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Received bytes from the network -->
+              <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Sent bytes to the network -->
+              <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Exact time when monitoring info were retieved -->
+              <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- vCetner information -->
+              <xs:element name="VCENTER_ESX_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_GUEST_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_RP_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_RUNNING_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

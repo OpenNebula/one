@@ -651,7 +651,7 @@ public class VirtualMachine extends PoolElement{
      * Create new scheduled action
      * @param client XML-RPC Client.
      * @param id The VM id of the target VM.
-     * @param new_add New scheduled action
+     * @param new_sched New scheduled action
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse schedadd(Client client, int id, String new_sched)
@@ -1186,7 +1186,7 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Create new scheduled action
-     * @param new_add New scheduled action
+     * @param new_sched New scheduled action
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse schedadd(String new_sched)

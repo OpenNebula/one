@@ -1,0 +1,22 @@
+name: OpenNebula Smoke Tests
+
+# Controls when the action will run.
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - name: Install rubocop
+        run: gem install rubocop
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Run Smoke Tests
+        run: $GITHUB_WORKSPACE/share/smoke_tests/smoke_tests.sh

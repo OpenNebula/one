@@ -1,3 +1,5 @@
+#!/bin/bash -xv
+exit 0
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,15 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-dist: xenial
-language: generic
-before_install:
-  - sudo apt-get install -y libsystemd-dev bash-completion bison debhelper default-jdk flex javahelper libmysql++-dev libsqlite3-dev libssl-dev libws-commons-util-java libxml2-dev libxmlrpc3-client-java libxmlrpc3-common-java libxslt1-dev libcurl4-openssl-dev ruby scons libxmlrpc-c++8-dev npm libvncserver-dev qemu-utils
-  - gem install rubocop
-  - sudo npm install -g bower
-  - sudo npm install -g grunt
-  - sudo npm install -g grunt-cli
-  - (cd src/sunstone/public && npm install && bower install)
-  - eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.12 bash)"
-script:
-  - set -o errexit; source .travis/smoke_tests.sh
+# lint ruby code
+
+ln -s  $GITHUB_WORKSPACE/share/linters/.rubocop.yml $HOME
+cd $GITHUB_WORKSPACE
+
+rubocop
+
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+
+# check for require 'pry'
+find . -name "*.rb"|xargs grep 'require'|grep "pry\|pry-byebug"
+
+rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+
+find src/cli/* \( -path src/cli/one_helper -o -path src/cli/etc \) -prune -o -print |xargs grep 'require'|grep "pry\|pry-byebug"
+
+rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+
+exit 0

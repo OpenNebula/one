@@ -550,6 +550,10 @@ module VCenterDriver
                     net.ipConfig.ipAddress.each do |ip_config|
                         ip = IPAddr.new(ip_config.ipAddress)
 
+                        if ip.ipv6? && get_ipv6_prefix(ip.to_s, 10) == 'fe80'
+                            next
+                        end
+
                         if force
                             ipv4 = ip.to_s if ip.ipv4?
                             ipv6 = ip.to_s if ip.ipv6?

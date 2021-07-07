@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,19 +16,35 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# lint ruby code
+#-------------------------------------------------------------------------------
+# Smoke tests for OpenNebula, to be triggered by travis or manually
+# It executes all scripts in 'tests' folder and expects 0 exit code
+#-------------------------------------------------------------------------------
 
-ln -s share/linters/.rubocop.yml . && rubocop
+# default parameters values
 
-rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+LOG_FILE='smoke_tests.results'
 
-# check for require 'pry'
-find . -name "*.rb"|xargs grep 'require'|grep "pry\|pry-byebug"
+check_test() {
+    local TEST=$1
 
-rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+    echo "Executing test $TEST" >> ${LOG_FILE}
+    eval $TEST >> ${LOG_FILE} 2>&1
+    RC=$?
+    echo "RC for $TEST is $RC"
+    return $RC
+}
 
-find src/cli/* \( -path src/cli/one_helper -o -path src/cli/etc \) -prune -o -print |xargs grep 'require'|grep "pry\|pry-byebug"
+for smoke_test in share/smoke_tests/tests/*.sh; do
+  check_test "$smoke_test" || break
+done
 
-rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+if [ $RC == 0 ]; then
+   echo "All tests OK!"
+else
+   echo "Test failed: "$smoke_test
+   echo "Log follows:"
+   cat $LOG_FILE
+fi
 
-exit 0
+exit $RC
