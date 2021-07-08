@@ -21,6 +21,12 @@ import ProvisionApp from 'client/apps/provision'
 import { isDevelopment, isBackend } from 'client/utils'
 import { _APPS, APPS } from 'client/constants'
 
+/**
+ * Render App by url: http://<host:port>/fireedge/<APP>.
+ *
+ * @param {object} props - Props from server
+ * @returns {React.JSXElementConstructor} Returns App
+ */
 const DevelopmentApp = props => {
   let appName = ''
 
@@ -36,12 +42,10 @@ const DevelopmentApp = props => {
     })
   }
 
-  return (
-    <>
-      {appName === _APPS.provision.name && <ProvisionApp {...props} />}
-      {appName === _APPS.sunstone.name && <SunstoneApp {...props} />}
-    </>
-  )
+  return {
+    [_APPS.provision.name]: <ProvisionApp {...props} />,
+    [_APPS.sunstone.name]: <SunstoneApp {...props} />
+  }[appName]
 }
 
 DevelopmentApp.displayName = 'DevelopmentApp'
