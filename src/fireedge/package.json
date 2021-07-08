@@ -34,6 +34,7 @@
     "eslint-import-resolver-alias": "1.1.2",
     "eslint-import-resolver-webpack": "0.13.0",
     "eslint-plugin-babel": "5.3.1",
+    "eslint-plugin-header": "3.1.1",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "35.4.1",
     "eslint-plugin-node": "11.1.0",
