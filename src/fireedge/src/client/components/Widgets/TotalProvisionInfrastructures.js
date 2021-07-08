@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import * as React from 'react'
 
 import {
@@ -9,7 +24,7 @@ import {
 import { makeStyles } from '@material-ui/core'
 
 import { useProvision } from 'client/features/One'
-import Count from 'client/components/Count'
+import NumberEasing from 'client/components/NumberEasing'
 import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
@@ -53,25 +68,25 @@ const TotalProvisionInfrastructures = () => {
     >
       <WavesCard
         text={T.Clusters}
-        value={<Count number={`${totals.clusters}`} />}
+        value={<NumberEasing number={`${totals.clusters}`} />}
         bgColor='#fa7892'
         icon={ClusterIcon}
       />
       <WavesCard
         text={T.Hosts}
-        value={<Count number={`${totals.hosts}`} />}
+        value={<NumberEasing number={`${totals.hosts}`} />}
         bgColor='#b25aff'
         icon={HostIcon}
       />
       <WavesCard
         text={T.Datastores}
-        value={<Count number={`${totals.datastores}`} />}
+        value={<NumberEasing number={`${totals.datastores}`} />}
         bgColor='#1fbbc6'
         icon={DatastoreIcon}
       />
       <WavesCard
         text={T.Networks}
-        value={<Count number={`${totals.networks}`} />}
+        value={<NumberEasing number={`${totals.networks}`} />}
         bgColor='#f09d42'
         icon={NetworkIcon}
       />
