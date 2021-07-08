@@ -15,7 +15,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["react"],
+  "plugins": ["jsdoc","react"],
   "rules": {
     "import/no-extraneous-dependencies": [
       "error",
@@ -25,7 +25,16 @@
         ]
       }
     ],
-    "default-case": 0
+    "default-case": 0,
+    "require-jsdoc": ["error", {
+      "require": {
+          "FunctionDeclaration": true,
+          "MethodDefinition": true,
+          "ClassDeclaration": true,
+          "ArrowFunctionExpression": true,
+          "FunctionExpression": true
+      }
+    }]
   },
   "settings": {
     "react" : {
