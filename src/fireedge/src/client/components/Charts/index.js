@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import SimpleCircle from 'client/components/Charts/SimpleCircle'
+import CircleChart from 'client/components/Charts/CircleChart'
 import SingleBar from 'client/components/Charts/SingleBar'
 
 export {
-  SimpleCircle,
+  CircleChart,
   SingleBar
 }

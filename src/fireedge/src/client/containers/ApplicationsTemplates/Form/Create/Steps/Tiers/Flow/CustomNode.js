@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React, { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
@@ -10,11 +25,23 @@ import {
 
 import { TierCard } from 'client/components/Cards'
 
-const CustomNode = memo(({ data, selected, ...nodeProps }) => {
+/**
+ * Custom Node component
+ *
+ * @param {object} props - Props
+ * @param {object} props.data - Node values
+ * @param {Function} props.selected - If `true`, the node is selected
+ * @returns {React.JSXElementConstructor} Node component
+ */
+const CustomNode = memo(({ data, selected }) => {
   const { tier, handleEdit } = data
   const elements = useStoreState(state => state.elements)
   const nodes = useStoreState(state => state.nodes)
 
+  /**
+   * Algorithm to detect if a sequence of vertices starting
+   * and ending at the same vertex.
+   */
   const detectCycleUtil = useCallback(
     (node, elementsTemp, visited, recStack) => {
       const { id: nodeId } = node.data
@@ -24,6 +51,7 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
         recStack[nodeId] = true
 
         const children = getOutgoers(node, elementsTemp)
+
         for (let index = 0; index < children.length; index += 1) {
           const child = children[index]
           const { id: childId } = child.data
@@ -44,6 +72,15 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
     []
   )
 
+  /**
+   * Detect if the new link is a cycle.
+   * If `true`, don't allow it.
+   *
+   * @param {{ source: string, target: string }} params - Edge of 2 Nodes
+   * @constant {object} visited - List of checked Nodes
+   * @constant {object} rectStack - Temporal list of Nodes
+   * @returns {boolean} Returns `true` if the edge is a cycle
+   */
   const detectCycle = useCallback(
     params => {
       const elementsTemp = addEdge(params, elements)
@@ -62,6 +99,12 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
     [nodes, elements, detectCycleUtil]
   )
 
+  /**
+   * Validate the connection with other Node
+   *
+   * @param {string} source - Node id
+   * @param {string} target - Node id
+   */
   const isValidConnection = useCallback(
     ({ source, target }) =>
       source !== target ? detectCycle({ source, target }) : false,
@@ -79,13 +122,13 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
         }}
       />
       <Handle
-        type="target"
-        position="top"
+        type='target'
+        position='top'
         isValidConnection={isValidConnection}
       />
       <Handle
-        type="source"
-        position="bottom"
+        type='source'
+        position='bottom'
         isValidConnection={isValidConnection}
       />
     </>

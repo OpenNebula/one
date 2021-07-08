@@ -17,46 +17,41 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 /**
- * @param root0
- * @param root0.start
- * @param root0.number
- * @param root0.duration
+ * React component for fancy number transitions.
+ *
+ * @param {object} props - Props
+ * @param {string} props.value - The value to display at the end of the animation
+ * @param {number} [props.speed] - Duration of animation effect in ms
+ * @returns {string} Returns a count number
  */
-const Count = ({ start, number, duration }) => {
+const NumberEasing = ({ value = '0', speed = 200 }) => {
   const [count, setCount] = React.useState('0')
 
   React.useEffect(() => {
-    const end = parseInt(String(number).substring(0, 3))
+    let start = 0
+    const end = parseInt(String(value).substring(0, 3))
 
     if (start === end) return
 
-    const totalMilSecDur = parseInt(duration)
-    const incrementTime = (totalMilSecDur / end) * 1000
-
     const timer = setInterval(() => {
       start += 1
-      setCount(String(start) + String(number).substring(3))
+
+      setCount(String(start) + String(value).substring(3))
+
       if (start === end) clearInterval(timer)
-    }, incrementTime)
+    }, speed)
 
     return () => clearInterval(timer)
-  }, [start, number, duration])
+  }, [value, speed])
 
   return count
 }
 
-Count.propTypes = {
-  start: PropTypes.number,
-  number: PropTypes.string,
-  duration: PropTypes.string
+NumberEasing.propTypes = {
+  value: PropTypes.string,
+  speed: PropTypes.number
 }
 
-Count.defaultProps = {
-  start: 0,
-  number: '0',
-  duration: '1'
-}
+NumberEasing.displayName = 'NumberEasing'
 
-Count.displayName = 'Count'
-
-export default Count
+export default NumberEasing

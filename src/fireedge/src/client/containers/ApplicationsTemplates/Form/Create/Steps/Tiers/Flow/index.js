@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React, { memo, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
@@ -7,7 +22,7 @@ import { AddCircledOutline as AddIcon, Selection as SelectAllIcon } from 'iconoi
 import ReactFlow, { Background } from 'react-flow-renderer'
 import { useFormContext } from 'react-hook-form'
 
-import SpeedDials from 'client/components/SpeedDials'
+import SpeedDial from 'client/components/SpeedDial'
 import { STEP_ID as TIER_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 
 import CustomNode from './CustomNode'
@@ -34,6 +49,16 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
+/**
+ * Create a flow node-based graph
+ *
+ * @param {object} props - Props
+ * @param {Array} props.dataFields - List of keys
+ * @param {Function} props.handleCreate - Create a new Node
+ * @param {Function} props.handleEdit - Edit a current Node
+ * @param {boolean} props.handleSetData - Set new list of nodes
+ * @returns {React.JSXElementConstructor} ReactFlow component
+ */
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
   const { watch } = useFormContext()
   const classes = useStyles()
@@ -47,9 +72,10 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
   } = useFlowGraph({ nodeFields: dataFields, setList: handleSetData })
 
   useEffect(() => {
-    handleRefreshFlow(watch(TIER_ID), ({ id }) => ({
-      handleEdit: () => handleEdit(id)
-    }))
+    handleRefreshFlow(
+      watch(TIER_ID),
+      ({ id }) => ({ handleEdit: () => handleEdit(id) })
+    )
   }, [watch])
 
   const actions = useMemo(
@@ -78,8 +104,8 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       onElementsRemove={handleRemoveElements}
       selectionKeyCode={NOT_KEY_CODE}
     >
-      <SpeedDials actions={actions} />
-      <Background color="#aaa" gap={16} />
+      <SpeedDial actions={actions} />
+      <Background color='#aaa' gap={16} />
     </ReactFlow>
   )
 })

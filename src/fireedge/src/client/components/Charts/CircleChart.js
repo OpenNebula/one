@@ -17,9 +17,16 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, CircularProgress, Typography } from '@material-ui/core'
-import Count from 'client/components/Count'
+import NumberEasing from 'client/components/NumberEasing'
 
-const Circle = React.memo(() => {
+/**
+ * Circular progress bar with animation
+ *
+ * @param {object} props - Props
+ * @param {string} props.color - Color of component: primary, secondary or inherit
+ * @returns {React.JSXElementConstructor} Circular progress bar component
+ */
+const Circle = React.memo(({ color = 'secondary' }) => {
   const [progress, setProgress] = React.useState(0)
 
   React.useEffect(() => {
@@ -36,7 +43,7 @@ const Circle = React.memo(() => {
 
   return (
     <CircularProgress
-      color='secondary'
+      color={color}
       size={150}
       thickness={5}
       value={progress}
@@ -46,14 +53,21 @@ const Circle = React.memo(() => {
 }, (prev, next) => prev.color === next.color)
 
 Circle.propTypes = { color: PropTypes.string }
-Circle.defaultProps = { color: 'primary' }
 Circle.displayName = 'Circle'
 
 // -------------------------------------
 // CHART
 // -------------------------------------
 
-const SimpleCircle = React.memo(({ label, onClick }) => (
+/**
+ * Circular chart with a label in the middle
+ *
+ * @param {object} props - Props
+ * @param {string} props.label - Text in the middle
+ * @param {object} props.labelProps - Props of text
+ * @returns {React.JSXElementConstructor} Circular chart component
+ */
+const CircleChart = React.memo(({ label, labelProps }) => (
   <Box position='relative' display='inline-flex' width={1}>
     <Box display='flex' flexDirection='column' alignItems='center' width={1}>
       <Circle />
@@ -64,18 +78,23 @@ const SimpleCircle = React.memo(({ label, onClick }) => (
       alignItems='center'
       justifyContent='center'
     >
-      <Typography variant='h4' component='div' onClick={onClick} style={{ cursor: 'pointer' }}>
-        <Count number={label} />
+      <Typography
+        variant='h4'
+        component='div'
+        style={{ cursor: 'pointer' }}
+        {...labelProps}
+      >
+        <NumberEasing number={label} />
       </Typography>
     </Box>
   </Box>
 ), (prev, next) => prev.label === next.label)
 
-SimpleCircle.propTypes = {
+CircleChart.propTypes = {
   label: PropTypes.string,
-  onClick: PropTypes.func
+  labelProps: PropTypes.object
 }
 
-SimpleCircle.displayName = 'SimpleCircle'
+CircleChart.displayName = 'CircleChart'
 
-export default SimpleCircle
+export default CircleChart
