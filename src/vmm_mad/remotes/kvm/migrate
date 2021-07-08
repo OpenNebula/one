@@ -237,7 +237,9 @@ if [ $RC -ne 0 ]; then
         virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system "${CLEAN_OP}" $DEPLOY_ID >/dev/null 2>&1
     done
 
-    ssh $DEST_HOST "rm -rf $VM_DIR"
+    if [ "$SHARED" != "YES" ]; then
+        ssh $DEST_HOST "rm -rf $VM_DIR"
+    fi
 
     error_message "Could not migrate $DEPLOY_ID to $DEST_HOST"
     exit $RC
