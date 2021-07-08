@@ -30,7 +30,7 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography className={classes.titleText} component='span'>
+          <Typography component='span'>
             {NAME}
           </Typography>
           {LOCK && <Lock size={20} />}

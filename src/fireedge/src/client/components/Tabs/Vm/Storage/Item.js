@@ -57,7 +57,7 @@ const StorageItem = ({ disk, actions = [] }) => {
     <div className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography className={classes.titleText} component='span'>
+          <Typography component='span'>
             {image}
           </Typography>
           <span className={classes.labels}>

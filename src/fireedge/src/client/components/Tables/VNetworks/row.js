@@ -22,7 +22,7 @@ const Row = ({ original, value, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography className={classes.titleText} component='span'>
+          <Typography component='span'>
             {NAME}
           </Typography>
           <span className={classes.labels}>
