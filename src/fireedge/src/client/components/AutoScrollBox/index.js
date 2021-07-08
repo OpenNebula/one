@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React, { memo, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
@@ -47,7 +62,9 @@ const AutoScrollBox = memo(({
     pointerEvents: preventInteraction ? 'none' : 'auto'
   }
 
-  // Handle mousewheel events on the scroll container.
+  /**
+   * Handle mousewheel events on the scroll container.
+   */
   const onWheel = () => {
     const { current } = containerElement
 
@@ -121,7 +138,7 @@ AutoScrollBox.propTypes = {
   ]),
   // Text to use for the auto scroll option.
   autoButtonText: PropTypes.string,
-  // Prevent all mouse interaction with the scroll conatiner.
+  // Prevent all mouse interaction with the scroll container.
   preventInteraction: PropTypes.bool,
   // Ability to disable the smooth scrolling behavior.
   scrollBehavior: PropTypes.oneOf(['smooth', 'auto']),

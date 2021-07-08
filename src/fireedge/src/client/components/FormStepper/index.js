@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -11,6 +26,12 @@ import { groupBy } from 'client/utils'
 
 const FIRST_STEP = 0
 
+/**
+ * @param root0
+ * @param root0.steps
+ * @param root0.schema
+ * @param root0.onSubmit
+ */
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
@@ -27,6 +48,9 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     reset({ ...formData }, { errors: false })
   }, [formData])
 
+  /**
+   * @param step
+   */
   const validateSchema = step => {
     const { id, resolver, optionsValidate } = steps[step]
     const stepData = watch(id)
@@ -37,6 +61,10 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       .then(() => ({ id, data: stepData }))
   }
 
+  /**
+   * @param root0
+   * @param root0.inner
+   */
   const setErrors = ({ inner = [], ...rest }) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
@@ -53,6 +81,9 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     )
   }
 
+  /**
+   * @param stepToAdvance
+   */
   const handleStep = stepToAdvance => {
     const isBackAction = activeStep > stepToAdvance
 
@@ -74,6 +105,9 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       })
   }
 
+  /**
+   *
+   */
   const handleNext = () => {
     validateSchema(activeStep)
       .then(({ id, data }) => {

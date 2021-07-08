@@ -1,18 +1,18 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
-
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React, { useContext, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
@@ -24,6 +24,10 @@ import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
 
+/**
+ * @param language
+ * @param setHash
+ */
 const GenerateScript = (
   language = DEFAULT_LANGUAGE,
   setHash = () => undefined
@@ -32,6 +36,9 @@ const GenerateScript = (
     const script = root.document.createElement('script')
     script.src = `${LANGUAGES_URL}/${language}.js`
     script.async = true
+    /**
+     *
+     */
     script.onload = () => {
       setHash(root.locale)
     }
@@ -42,10 +49,17 @@ const GenerateScript = (
   }
 }
 
+/**
+ *
+ */
 const RemoveScript = () => {
   root.document.body.removeChild(languageScript)
 }
 
+/**
+ * @param root0
+ * @param root0.children
+ */
 const TranslateProvider = ({ children }) => {
   const [hash, setHash] = useState({})
   const { settings: { lang } = {} } = useAuth()
@@ -55,6 +69,9 @@ const TranslateProvider = ({ children }) => {
     return () => { RemoveScript() }
   }, [lang])
 
+  /**
+   * @param language
+   */
   const changeLang = (language = DEFAULT_LANGUAGE) => {
     RemoveScript()
     GenerateScript(language, setHash)
@@ -73,6 +90,10 @@ const TranslateProvider = ({ children }) => {
   )
 }
 
+/**
+ * @param str
+ * @param values
+ */
 const translate = (str = '', values) => {
   const context = useContext(TranslateContext)
   let key = str
@@ -88,6 +109,9 @@ const translate = (str = '', values) => {
   return key
 }
 
+/**
+ * @param str
+ */
 const Tr = (str = '') => {
   let key = str
   let values
@@ -102,6 +126,11 @@ const Tr = (str = '') => {
   return translate(key, valuesTr)
 }
 
+/**
+ * @param root0
+ * @param root0.word
+ * @param root0.values
+ */
 const Translate = ({ word = '', values }) => {
   const valuesTr = !Array.isArray(values) ? [values] : values
   return translate(word, valuesTr)

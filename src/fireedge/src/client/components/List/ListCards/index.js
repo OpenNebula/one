@@ -1,3 +1,18 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 import React from 'react'
 import PropTypes from 'prop-types'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
@@ -11,6 +26,20 @@ import { EmptyCard } from 'client/components/Cards'
 import FloatingActionButton from 'client/components/Fab'
 import listCardsStyles from 'client/components/List/ListCards/styles'
 
+/**
+ * @param root0
+ * @param root0.list
+ * @param root0.keyProp
+ * @param root0.breakpoints
+ * @param root0.handleCreate
+ * @param root0.ButtonCreateComponent
+ * @param root0.CardComponent
+ * @param root0.cardsProps
+ * @param root0.EmptyComponent
+ * @param root0.displayEmpty
+ * @param root0.isLoading
+ * @param root0.gridProps
+ */
 const ListCards = ({
   list,
   keyProp,
