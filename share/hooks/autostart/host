@@ -71,7 +71,6 @@ require 'getoptlong'
 require 'base64'
 require 'open3'
 
-
 ################################################################################
 # Arguments
 ################################################################################
@@ -80,18 +79,16 @@ require 'open3'
 standard_input = STDIN.read
 ARGV.replace(standard_input.split(' '))
 
-
 raw_host_template = Base64.decode64(ARGV[0])
 xml_host_template = Nokogiri::XML(raw_host_template)
 
 HOST_ID = xml_host_template.xpath('HOST/ID').text
 
-
 ################################################################################
 # Methods
 ################################################################################
 
-def log(msg, level="I")
+def log(msg, level = 'I')
     File.open(LOG_FILE, 'a') do |f|
         msg.lines do |l|
             f.puts "[#{Time.now}][HOST #{HOST_ID}][#{level}] #{l}"
@@ -100,11 +97,11 @@ def log(msg, level="I")
 end
 
 def log_error(msg)
-    log(msg, "E")
+    log(msg, 'E')
 end
 
 def exit_error
-    log_error("Exiting due to previous error.")
+    log_error('Exiting due to previous error.')
     exit(-1)
 end
 
@@ -112,11 +109,11 @@ end
 # Main
 ################################################################################
 
-log "OpenNebula Autostart Host Hook launched"
+log 'OpenNebula Autostart Host Hook launched'
 
 begin
-    client = Client.new()
-rescue Exception => e
+    client = Client.new
+rescue StandardError => e
     log_error e.to_s
     exit_error
 end
@@ -125,11 +122,11 @@ host = OpenNebula::Host.new_with_id(HOST_ID, client)
 
 rc   = host.info
 if OpenNebula.is_error?(rc)
-    log_error "#{rc.message}"
+    log_error rc.message.to_s
     exit_error
 end
 
-log "#{host.name}"
+log host.name.to_s
 
 # Iterate over guest VMs
 xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
@@ -143,7 +140,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
 
     # Skip if VM AUTOSTART not enabled
     autostart = vm['USER_TEMPLATE/AUTOSTART']
-    if !autostart || (autostart != "true" && autostart != "yes")
+    if !autostart || (autostart != 'true' && autostart != 'yes')
         log "vm #{vm_id}: skip: autostart not enabled"
         next
     end
@@ -153,7 +150,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     # determine the state of active VMs, UNKNOWN state is kept.
     # Skip if LCM State is not UNKNOWN
     if vm.lcm_state_str != 'UNKNOWN'
-        log "vm #{vm_id}: skip: lcm_state (#{vm.lcm_state_str}) is not 'UNKNOWN'"
+        log "vm #{vm_id}: skip: lcm_state (#{vm.lcm_state_str}) is not UNKNOWN"
         next
     end
 
@@ -173,8 +170,9 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     # Skip if action in last history record of guest is not 'none'
     last_action = vm["#{last_history_xpath}/ACTION"]
     last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
-    if not %w{none live-migrate}.include?(last_action_str)
-        log "vm #{vm_id}: skip: last_action (#{last_action_str}) is not 'none' or 'live-migrate'"
+    if !%w[none live-migrate].include?(last_action_str)
+        log "vm #{vm_id}: skip: last_action (#{last_action_str}) "<<
+            'is not none or live-migrate'
         next
     end
 

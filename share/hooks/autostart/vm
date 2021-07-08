@@ -73,7 +73,6 @@ require 'getoptlong'
 require 'base64'
 require 'open3'
 
-
 ################################################################################
 # Arguments
 ################################################################################
@@ -82,18 +81,16 @@ require 'open3'
 standard_input = STDIN.read
 ARGV.replace(standard_input.split(' '))
 
-
 raw_vm_template = Base64.decode64(ARGV[0])
 xml_vm_template = Nokogiri::XML(raw_vm_template)
 
 VM_ID = xml_vm_template.xpath('VM/ID').text
 
-
 ################################################################################
 # Methods
 ################################################################################
 
-def log(msg, level="I")
+def log(msg, level = 'I')
     File.open(LOG_FILE, 'a') do |f|
         msg.lines do |l|
             f.puts "[#{Time.now}][VM #{VM_ID}][#{level}] #{l}"
@@ -102,11 +99,11 @@ def log(msg, level="I")
 end
 
 def log_error(msg)
-    log(msg, "E")
+    log(msg, 'E')
 end
 
 def exit_error
-    log_error("Exiting due to previous error.")
+    log_error('Exiting due to previous error.')
     exit(-1)
 end
 
@@ -114,11 +111,11 @@ end
 # Main
 ################################################################################
 
-log "OpenNebula Autostart VM Hook launched"
+log 'OpenNebula Autostart VM Hook launched'
 
 begin
-    client = Client.new()
-rescue Exception => e
+    client = Client.new
+rescue StandardError => e
     log_error e.to_s
     exit_error
 end
@@ -127,23 +124,23 @@ vm = OpenNebula::VirtualMachine.new_with_id(VM_ID, client)
 
 rc   = vm.info
 if OpenNebula.is_error?(rc)
-    log_error "#{rc.message}"
+    log_error rc.message.to_s
     exit_error
 end
 
-log "#{vm.name}"
+log vm.name.to_s
 
 # Skip if AUTOSTART not enabled
 autostart = vm['USER_TEMPLATE/AUTOSTART']
-if !autostart || (autostart != "true" && autostart != "yes")
-    log "skip: autostart not enabled"
+if !autostart || (autostart != 'true' && autostart != 'yes')
+    log 'skip: autostart not enabled'
     exit 0
 end
 
 # ACTION in last history record of guest is equal to 'monitor' if an active VM
 # was powered off by monitor.
 # Skip if VM is not poweroff by monitor
-last_action = vm["HISTORY_RECORDS/HISTORY[last()]/ACTION"]
+last_action = vm['HISTORY_RECORDS/HISTORY[last()]/ACTION']
 last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
 if last_action_str != 'monitor'
     log "skip: last_action (#{last_action_str}) is not 'monitor'"
@@ -151,9 +148,9 @@ if last_action_str != 'monitor'
 end
 
 # Autostart VM
-log "resume"
+log 'resume'
 rc = vm.resume
 
-log_error "#{rc.message}" if OpenNebula.is_error?(rc)
+log_error rc.message.to_s if OpenNebula.is_error?(rc)
 
 exit 0
