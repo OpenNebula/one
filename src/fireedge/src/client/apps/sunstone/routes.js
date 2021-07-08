@@ -51,6 +51,11 @@ export const ENDPOINTS = [
  * @returns {Array} Returns all endpoints available.
  */
 export const getEndpointsByView = (view, endpoints = []) => {
+  /**
+   * @param {object} route - Route from view yaml.
+   * @param {string} [route.path] - Pathname route.
+   * @returns {boolean | object} If user view yaml contains the route, return it.
+   */
   const hasRoutePermission = route =>
     view?.some(({ resource_name: name }) =>
       route?.path.toLowerCase().endsWith(name.toLowerCase())

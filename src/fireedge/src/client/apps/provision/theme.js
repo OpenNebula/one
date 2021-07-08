@@ -19,7 +19,7 @@ import Color from 'client/constants/color'
  * @param {string} scheme - Scheme type: 'dark' or 'light'
  * @returns {object} Provision theme
  */
-export default (scheme = 'dark') => ({
+const theme = (scheme = 'dark') => ({
   palette: {
     type: scheme,
     common: {
@@ -45,3 +45,5 @@ export default (scheme = 'dark') => ({
     ...Color
   }
 })
+
+export default theme

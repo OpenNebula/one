@@ -18,6 +18,7 @@ import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
+import { Store } from 'redux'
 
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
@@ -30,10 +31,11 @@ import { _APPS, APP_URL } from 'client/constants'
 const APP_NAME = _APPS.sunstone.name
 
 /**
- * @param root0
- * @param root0.store
- * @param root0.location
- * @param root0.context
+ * @param {object} props - Props
+ * @param {Store} props.store - Redux store
+ * @param {string|object} props.location - The URL the server received
+ * @param {object} props.context - Context object contains the results of the render
+ * @returns {React.JSXElementConstructor} Sunstone App
  */
 const Provision = ({ store, location, context }) => (
   <ReduxProvider store={store}>
