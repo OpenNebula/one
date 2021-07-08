@@ -1,5 +1,4 @@
 #!/bin/bash -xv
-exit 0
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
