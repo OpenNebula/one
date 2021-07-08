@@ -17,9 +17,11 @@ import React, { memo } from 'react'
 import { number, string, bool, oneOfType } from 'prop-types'
 import { useTheme } from '@material-ui/core'
 
+import { SCHEMES } from 'client/constants'
+
 const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
   const { palette: { type } } = useTheme()
-  const isDarkMode = type === 'dark'
+  const isDarkMode = type === SCHEMES.DARK
 
   const cloudColor = {
     child1: { from: '#bfe6f2', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#bfe6f2' },

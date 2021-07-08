@@ -15,6 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { makeStyles } from '@material-ui/core'
 
+import { SCHEMES } from 'client/constants'
+
 const styles = makeStyles(theme => ({
   root: ({ isSelected }) => ({
     height: '100%',
@@ -62,7 +64,7 @@ const styles = makeStyles(theme => ({
     filter: ({ isSelected, disableFilterImage }) =>
       disableFilterImage
         ? 'none'
-        : (theme.palette.type === 'dark' || isSelected)
+        : (theme.palette.type === SCHEMES.DARK || isSelected)
           ? 'contrast(0) brightness(2)'
           : 'contrast(0) brightness(0.8)'
   },

@@ -14,12 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import Color from 'client/constants/color'
+import { SCHEMES } from 'client/constants'
 
 /**
- * @param {string} scheme - Scheme type: 'dark' or 'light'
- * @returns {object} Sunstone theme
+ * @param {SCHEMES} scheme - Scheme type
+ * @returns {object} Provision theme
  */
-const theme = (scheme = 'dark') => ({
+const theme = (scheme = SCHEMES.DARK) => ({
   palette: {
     type: scheme,
     common: {
@@ -27,8 +28,8 @@ const theme = (scheme = 'dark') => ({
       white: '#ffffff'
     },
     background: {
-      paper: scheme === 'dark' ? '#2a2d3d' : '#ffffff',
-      default: scheme === 'dark' ? '#222431' : '#f2f4f8'
+      paper: scheme === SCHEMES.DARK ? '#2a2d3d' : '#ffffff',
+      default: scheme === SCHEMES.DARK ? '#222431' : '#f2f4f8'
     },
     primary: {
       light: '#2a2d3d',

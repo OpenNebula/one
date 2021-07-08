@@ -18,10 +18,11 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, Typography, lighten, darken } from '@material-ui/core'
 import { addOpacityToColor } from 'client/utils'
+import { SCHEMES } from 'client/constants'
 
 const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.type === 'dark' ? lighten : darken
-  const defaultStateColor = theme.palette.grey[theme.palette.type === 'dark' ? 300 : 700]
+  const getBackgroundColor = theme.palette.type === SCHEMES.DARK ? lighten : darken
+  const defaultStateColor = theme.palette.grey[theme.palette.type === SCHEMES.DARK ? 300 : 700]
 
   return {
     root: ({ stateColor = defaultStateColor }) => ({

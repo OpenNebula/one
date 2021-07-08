@@ -20,10 +20,11 @@ import clsx from 'clsx'
 import { Paper, Typography, makeStyles, lighten, darken } from '@material-ui/core'
 
 import { addOpacityToColor } from 'client/utils'
+import { SCHEMES } from 'client/constants'
 
 const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.type === 'dark' ? darken : lighten
-  const getContrastBackgroundColor = theme.palette.type === 'light' ? darken : lighten
+  const getBackgroundColor = theme.palette.type === SCHEMES.DARK ? darken : lighten
+  const getContrastBackgroundColor = theme.palette.type === SCHEMES.LIGHT ? darken : lighten
 
   return {
     root: {
