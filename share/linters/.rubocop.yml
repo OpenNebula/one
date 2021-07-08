@@ -753,6 +753,9 @@ Style/QuotedSymbols:
 Style/HashConversion:
   Enabled: false
 
+Style/MixinUsage:
+  Enabled: false
+
 ######
 # LINT
 ######
