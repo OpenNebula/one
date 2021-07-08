@@ -11,9 +11,3 @@ plain:
 connection:
   token: 'DigitalOcean token'
   region: 'sgp1'
-
-inputs:
-   - name: 'digitalocean_droplet'
-     type: 'list'
-     options:
-       - 'centos-8-x64'
