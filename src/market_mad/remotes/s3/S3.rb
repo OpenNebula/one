@@ -35,7 +35,6 @@ class S3
                 :bucket => @bucket
             })
         rescue Aws::S3::Errors::NotFound
-            puts "create"
             @client.create_bucket({
                 :bucket => @bucket
             })
