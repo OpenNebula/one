@@ -1,3 +1,4 @@
+# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -20,6 +21,7 @@ require 'aws-sdk-s3'
 # It can either handle simple or multipart uploads, but the logic to decide
 # which uploader to use is not included in this class.
 class S3
+
     attr_accessor :name, :client
 
     def initialize(h)
@@ -31,13 +33,9 @@ class S3
 
         # Implicit creation of the bucket
         begin
-            @client.head_bucket({
-                :bucket => @bucket
-            })
+            @client.head_bucket({ :bucket => @bucket })
         rescue Aws::S3::Errors::NotFound
-            @client.create_bucket({
-                :bucket => @bucket
-            })
+            @client.create_bucket({ :bucket => @bucket })
         end
     end
 
@@ -45,39 +43,47 @@ class S3
         @parts = []
         @part_number = 1
 
-        resp = @client.create_multipart_upload({
-            :bucket => @bucket,
-            :key    => @name
-        })
+        resp = @client.create_multipart_upload(
+            {
+                :bucket => @bucket,
+                :key    => @name
+            }
+        )
 
         @upload_id = resp.upload_id
     end
 
     def complete_multipart_upload
-        @client.complete_multipart_upload({
-          :bucket           => @bucket,
-          :key              => @name,
-          :upload_id        => @upload_id,
-          :multipart_upload => {:parts => @parts}
-        })
+        @client.complete_multipart_upload(
+            {
+                :bucket           => @bucket,
+                :key              => @name,
+                :upload_id        => @upload_id,
+                :multipart_upload => { :parts => @parts }
+            }
+        )
     end
 
     def abort_multipart_upload
-        @client.abort_multipart_upload({
-            :upload_id   => @upload_id,
-            :key         => @name,
-            :bucket      => @bucket
-        })
+        @client.abort_multipart_upload(
+            {
+                :upload_id   => @upload_id,
+                :key         => @name,
+                :bucket      => @bucket
+            }
+        )
     end
 
     def upload_part(body)
-        resp = @client.upload_part({
-            :body        => body,
-            :upload_id   => @upload_id,
-            :part_number => @part_number,
-            :key         => @name,
-            :bucket      => @bucket
-        })
+        resp = @client.upload_part(
+            {
+                :body        => body,
+                :upload_id   => @upload_id,
+                :part_number => @part_number,
+                :key         => @name,
+                :bucket      => @bucket
+            }
+        )
 
         @parts << {
             :etag => resp.etag,
@@ -88,41 +94,48 @@ class S3
     end
 
     def put_object(body)
-        @client.put_object({
-            :body   => body,
-            :bucket => @bucket,
-            :key    => @name
-        })
+        @client.put_object(
+            {
+                :body   => body,
+                :bucket => @bucket,
+                :key    => @name
+
+            }
+        )
     end
 
     def delete_object
-        @client.delete_object({
-            :bucket => @bucket,
-            :key    => @name
-        })
+        @client.delete_object(
+            {
+                :bucket => @bucket,
+                :key    => @name
+            }
+        )
     end
 
     def exists?
         begin
-            !!@client.head_object({
-                :bucket => @bucket,
-                :key    => @name
-            })
+            !@client.head_object(
+                {
+                    :bucket => @bucket,
+                    :key    => @name
+                }
+            ).nil?
         rescue Aws::S3::Errors::NotFound
             false
         end
     end
 
-    def get_bucket_size
-        resp = @client.list_objects({
-            bucket: @bucket
-        })
+    def bucket_size
+        resp = @client.list_objects({ :bucket => @bucket })
 
         size = 0
         resp.contents.each do |o|
             size += o.size
         end
 
-        return size
+        size
     end
+
 end
+# rubocop:enable Naming/FileName
