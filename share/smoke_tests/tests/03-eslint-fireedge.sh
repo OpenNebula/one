@@ -14,3 +14,12 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+# Get to the FireEdge folder
+cd src/fireedge
+
+# Install dependencies
+npm i
+
+# Run linter
+npm run lint
