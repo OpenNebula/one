@@ -169,8 +169,12 @@ private
                 end
             }
 
-            i.write stdin_data
-            i.close
+            begin
+                i.write stdin_data
+                i.close
+            rescue Errno::EPIPE
+                # the cmd doesn't read the input, ignore error
+            end
 
             # blocking wait for process termination
             t.value
