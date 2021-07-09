@@ -99,7 +99,7 @@ s3 = S3.new(s3_config)
 
 s3.bucket = bucket
 
-used_mb = (s3.get_bucket_size.to_f/1024/1024).ceil
+used_mb = (s3.bucket_size.to_f/1024/1024).ceil
 free_mb = total_mb - used_mb
 
 puts <<EOF
