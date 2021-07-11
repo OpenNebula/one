@@ -23,15 +23,20 @@ import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import Commands from 'server/utils/constants/commands'
 
-import testapiStyles from 'client/containers/TestApi/styles'
+import testApiStyles from 'client/containers/TestApi/styles'
 
-const TestApi = () => {
-  const classes = testapiStyles()
+/**
+ * @returns {React.JSXElementConstructor} - Component that allows you
+ * to fetch, resolve, and interact with OpenNebula API.
+ */
+function TestApi () {
+  const classes = testApiStyles()
   const [name, setName] = useState('acl.addrule')
   const [response, setResponse] = useState('')
 
   const handleChangeCommand = evt => setName(evt?.target?.value)
   const handleChangeResponse = res => setResponse(res)
+
   return (
     <Container
       disableGutters

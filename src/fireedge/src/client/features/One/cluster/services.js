@@ -15,26 +15,44 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/cluster'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const clusterService = ({
-  getCluster: ({ filter, id }) => {
+  /**
+   * Retrieves information for the cluster.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Cluster id
+   * @returns {object} Get cluster identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getCluster: async ({ id }) => {
     const name = Actions.CLUSTER_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data?.CLUSTER ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.CLUSTER ?? {}
   },
-  getClusters: data => {
+
+  /**
+   * Retrieves information for all the clusters in the pool.
+   *
+   * @returns {Array} List of clusters
+   * @throws Fails when response isn't code 200
+   */
+  getClusters: async () => {
     const name = Actions.CLUSTER_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'CLUSTER')
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.CLUSTER_POOL?.CLUSTER ?? []].flat()
   }
 })

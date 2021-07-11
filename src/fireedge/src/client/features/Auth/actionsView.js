@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
 
 import { authService } from 'client/features/Auth/services'
@@ -26,9 +27,10 @@ export const getSunstoneViews = createAsyncThunk(
   async (_, { dispatch }) => {
     try {
       const views = await authService.getSunstoneViews() ?? {}
-      // const config = await authService.getSunstoneConfig()
+      const config = await authService.getSunstoneConfig() ?? {}
 
       return {
+        config,
         views,
         view: Object.keys(views)[0]
       }

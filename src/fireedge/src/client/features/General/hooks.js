@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import { useDispatch, useSelector } from 'react-redux'
 
 import * as actions from 'client/features/General/actions'

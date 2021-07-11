@@ -15,46 +15,84 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/user'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const userService = ({
-  getUser: ({ filter, id }) => {
+  /**
+   * Retrieves information for the user.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - User id
+   * @returns {object} Get user identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getUser: async ({ id }) => {
     const name = Actions.USER_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data?.USER ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.USER ?? {}
   },
-  getUsers: data => {
+
+  /**
+   * Retrieves information for all the users in the pool.
+   *
+   * @returns {Array} List of users
+   * @throws Fails when response isn't code 200
+   */
+  getUsers: async () => {
     const name = Actions.USER_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'USER')
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.USER_POOL?.USER ?? []].flat()
   },
-  changeGroup: ({ data }) => {
+
+  /**
+   * Changes the group of the given user.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.data - Form data
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  changeGroup: async ({ data }) => {
     const name = Actions.USER_CHGRP
-    const { url, options } = requestParams(data, { name, ...Commands[name] })
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(data, command)
 
-    return RestClient.put(url, options.data).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
   },
+
+  /**
+   * Replaces the user template contents.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.data - Form data
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
   updateUser: ({ data }) => {
     const name = Actions.USER_UPDATE
-    const { url, options } = requestParams(data, { name, ...Commands[name] })
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(data, command)
 
-    return RestClient.put(url, options.data).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = RestClient.request(config)
 
-      return res?.data ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
   }
 })

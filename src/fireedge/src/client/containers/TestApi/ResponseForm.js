@@ -17,31 +17,33 @@ import * as React from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
-import {
-  TextField,
-  Grid,
-  Typography,
-  FormControlLabel,
-  Checkbox
-} from '@material-ui/core'
+import { TextField, Grid, Typography, FormControlLabel, Checkbox } from '@material-ui/core'
 
 import { SubmitButton } from 'client/components/FormControl'
-import { RestClient, requestParams } from 'client/utils'
+import { RestClient, requestConfig } from 'client/utils'
 
+/**
+ * @param {object} props - Component props
+ * @param {Function} props.handleChangeResponse - Change after
+ * @param {object} props.command - Resource command action
+ * @param {string} props.command.name - Name of command
+ * @param {('GET'|'POST'|'DELETE'|'PUT')} props.command.httpMethod - Http method
+ * @param {object} props.command.params - Parameters for the action
+ * @returns {React.JSXElementConstructor} Form with command parameters
+ */
 const ResponseForm = ({
   handleChangeResponse,
   command: { name, httpMethod, params }
 }) => {
   const { control, handleSubmit, errors, formState } = useForm()
 
-  const onSubmit = dataForm => {
-    const command = { name, httpMethod, params }
-    const { url, options: { method, data } } = requestParams(dataForm, command)
+  const onSubmit = async dataForm => {
+    const config = requestConfig(dataForm, { name, httpMethod, params })
 
-    RestClient[method.toLowerCase()](url, data).then(({ id, ...res }) => {
-      id === 401 && console.log('ERROR')
-      id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
-    })
+    const { id, ...res } = await RestClient.request(config) ?? {}
+
+    id === 401 && console.log('ERROR')
+    id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
   }
 
   return (

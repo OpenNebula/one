@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JWT_NAME } from 'client/constants'
-import { removeStoreData } from 'client/utils'
-import { from as resourceFrom } from 'server/utils/constants/defaults'
+import { AxiosRequestConfig, Method } from 'axios'
+import { defaults } from 'server/utils/constants'
 
-export const getQueries = params =>
+const { from: resourceFrom } = defaults
+
+const getQueries = params =>
   Object.entries(params)
     ?.filter(
       ([, { from, value }]) =>
@@ -26,30 +27,38 @@ export const getQueries = params =>
     ?.map(([name, { value }]) => `${name}=${encodeURI(value)}`)
     ?.join('&')
 
-export const getResources = params =>
+const getResources = params =>
   Object.values(params)
     ?.filter(({ from }) => from === resourceFrom.resource)
     ?.map(({ value }) => value)
     ?.join('/')
 
-export const getDataBody = params =>
+const getDataBody = params =>
   Object.entries(params)
     ?.filter(([, { from }]) => from === resourceFrom.postBody)
     ?.reduce((acc, [name, { value }]) => ({ ...acc, [name]: value }), {})
 
-export const requestParams = (data, command) => {
+/**
+ * @param {object} data - Data for the request
+ * @param {object} command - Command request
+ * @param {object} command.name - Command name
+ * @param {Method} command.httpMethod - Method http
+ * @param {object} command.params - Params to map
+ * @returns {AxiosRequestConfig} Request configuration
+ */
+export const requestConfig = (data, command) => {
   if (command === undefined) throw new Error('command not exists')
-  const { name, httpMethod, params } = command
+  const { name, httpMethod, params = {} } = command
 
   /* Spread 'from' values in current params */
   const mappedParams =
     Object.entries(params)?.reduce(
-      (acc, [param, { from }]) => ({
+      (acc, [paraName, { from }]) => ({
         ...acc,
-        [param]: { from, value: data[param] }
+        [paraName]: { from, value: data[paraName] }
       }),
       {}
-    ) ?? {}
+    )
 
   const queries = getQueries(mappedParams)
   const resources = getResources(mappedParams)
@@ -59,14 +68,7 @@ export const requestParams = (data, command) => {
 
   return {
     url: `${url}/${resources}?${queries}`,
-    options: {
-      data: body,
-      method: httpMethod,
-      authenticate: true,
-      error: err => {
-        removeStoreData(JWT_NAME)
-        return err?.message
-      }
-    }
+    data: body,
+    method: httpMethod
   }
 }

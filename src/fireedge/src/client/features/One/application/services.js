@@ -16,19 +16,39 @@
 import { SERVICE } from 'server/routes/api/oneflow/string-routes'
 import { httpCodes } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
 
 export const applicationService = ({
-  getApplication: ({ filter, id }) => RestClient
-    .get(`/api/${SERVICE}/list/${id}`, { filter })
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+  /**
+   * Retrieves information for the service.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Service id
+   * @returns {object} Get service identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getApplication: async ({ id }) => {
+    const res = await RestClient.request({
+      url: `/api/${SERVICE}/list/${id}`
+    })
 
-      return res?.data?.DOCUMENT ?? {}
-    }),
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-  getApplications: data => {
-    const command = { name: `${SERVICE}.list`, params: {} }
-    return poolRequest(data, command, 'DOCUMENT')
+    return res?.data?.DOCUMENT ?? {}
+  },
+
+  /**
+   * Retrieves information for all services.
+   *
+   * @returns {object} Get list of services
+   * @throws Fails when response isn't code 200
+   */
+  getApplications: async () => {
+    const res = await RestClient.request({
+      url: `/api/${SERVICE}/list`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   }
 })

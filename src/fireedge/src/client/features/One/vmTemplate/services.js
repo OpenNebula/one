@@ -15,26 +15,49 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/template'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const vmTemplateService = ({
-  getVmTemplate: ({ filter, id }) => {
+  /**
+   * Retrieves information for the vm template.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Template id
+   * @returns {object} Get template identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getVmTemplate: async ({ id }) => {
     const name = Actions.TEMPLATE_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data?.VMTEMPLATE ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.VMTEMPLATE ?? {}
   },
-  getVmTemplates: data => {
+
+  /**
+   * Retrieves information for all or part of
+   * the virtual machine templates in the pool.
+   *
+   * @param {object} data - Request params
+   * @param {string} data.filter - Filter flag
+   * @param {number} data.start - Range start ID
+   * @param {number} data.end - Range end ID
+   * @returns {Array} List of marketplace apps
+   * @throws Fails when response isn't code 200
+   */
+  getVmTemplates: async ({ filter, start, end }) => {
     const name = Actions.TEMPLATE_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'VMTEMPLATE')
+    const config = requestConfig({ filter, start, end }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.VMTEMPLATE_POOL?.VMTEMPLATE ?? []].flat()
   }
 })

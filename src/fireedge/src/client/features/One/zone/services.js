@@ -15,26 +15,44 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/zone'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const zoneService = ({
-  getZone: ({ filter, id }) => {
+  /**
+   * Retrieves information for the zone.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Zone id
+   * @returns {object} Get zone identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getZone: async ({ id }) => {
     const name = Actions.ZONE_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data?.ZONE ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.ZONE ?? {}
   },
-  getZones: data => {
+
+  /**
+   * Retrieves information for all the zones in the pool.
+   *
+   * @returns {Array} List of zone
+   * @throws Fails when response isn't code 200
+   */
+  getZones: async () => {
     const name = Actions.ZONE_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'ZONE')
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.ZONE_POOL?.ZONE ?? []].flat()
   }
 })

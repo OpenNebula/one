@@ -36,15 +36,15 @@ const NIC_ALIAS_IP_ATTRS = [
 ]
 
 /**
- * @param {Array} vms List of virtual machines
+ * @param {Array} vms - List of virtual machines
  * @returns {Array} Clean list of vms with done state
  */
 export const filterDoneVms = (vms = []) =>
   vms.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE)
 
 /**
- * @param {Object} vm Virtual machine
- * @returns {Object} Last history record from resource
+ * @param {object} vm - Virtual machine
+ * @returns {object} Last history record from resource
  */
 export const getLastHistory = vm => {
   const history = vm?.HISTORY_RECORDS?.HISTORY ?? {}
@@ -53,28 +53,27 @@ export const getLastHistory = vm => {
 }
 
 /**
- * @param {Object} vm Virtual machine
- * @returns {String} Resource type: VR, FLOW or VM
+ * @param {object} vm - Virtual machine
+ * @returns {string} Resource type: VR, FLOW or VM
  */
 export const getType = vm => vm.TEMPLATE?.VROUTER_ID
   ? 'VR' : vm?.USER_TEMPLATE?.USER_TEMPLATE?.SERVICE_ID ? 'FLOW' : 'VM'
 
 /**
- * @param {Object} vm Virtual machine
- * @returns {String} Resource hypervisor
+ * @param {object} vm - Virtual machine
+ * @returns {string} Resource hypervisor
  */
 export const getHypervisor = vm => String(getLastHistory(vm)?.VM_MAD).toLowerCase()
 
 /**
- * @param {Object} vm Virtual machine
- * @returns {Boolean} If the hypervisor is vCenter
+ * @param {object} vm - Virtual machine
+ * @returns {boolean} If the hypervisor is vCenter
  */
 export const isVCenter = vm => getHypervisor(vm) === 'vcenter'
 
 /**
  * @type {{color: string, name: string, meaning: string}} StateInfo
- *
- * @param {Object} vm Virtual machine
+ * @param {object} vm - Virtual machine
  * @returns {StateInfo} State information from resource
  */
 export const getState = ({ STATE, LCM_STATE } = {}) => {
@@ -84,7 +83,7 @@ export const getState = ({ STATE, LCM_STATE } = {}) => {
 }
 
 /**
- * @param {Object} vm Virtual machine
+ * @param {object} vm - Virtual machine
  * @returns {Array} List of disks from resource
  */
 export const getDisks = vm => {
@@ -119,8 +118,9 @@ export const getDisks = vm => {
 }
 
 /**
- * @param {Object} vm Virtual machine
- * @param {Boolean} [options.groupAlias] Map ALIAS_IDS attribute with NIC_ALIAS
+ * @param {object} vm - Virtual machine
+ * @param {object} [options] - Options
+ * @param {boolean} [options.groupAlias] - Map ALIAS_IDS attribute with NIC_ALIAS
  * @returns {Array} List of nics from resource
  */
 export const getNics = (vm, options = {}) => {
@@ -145,7 +145,7 @@ export const getNics = (vm, options = {}) => {
 }
 
 /**
- * @param {Object} vm Virtual machine
+ * @param {object} vm - Virtual machine
  * @returns {Array} List of ips from resource
  */
 export const getIps = vm => {
@@ -155,7 +155,7 @@ export const getIps = vm => {
 }
 
 /**
- * @param {Object} vm Virtual machine
+ * @param {object} vm - Virtual machine
  * @returns {{ nics: Array, alias: Array }} Lists of nics and alias from resource
  */
 export const splitNicAlias = vm =>

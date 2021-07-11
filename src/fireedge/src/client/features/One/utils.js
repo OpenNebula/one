@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createAsyncThunk } from '@reduxjs/toolkit'
+import { createAsyncThunk, AsyncThunkAction } from '@reduxjs/toolkit'
 
 import { logout } from 'client/features/Auth/actions'
-import { ATTRIBUTES_EDITABLE } from 'client/features/One/slice'
-import { requestParams, RestClient } from 'client/utils'
 
 import { T } from 'client/constants'
 import { httpCodes } from 'server/utils/constants'
 
+const ATTRIBUTES_EDITABLE = ['NAME', 'STATE', 'LCM_STATE']
+
+/**
+ * @param {string} type - Name of redux action
+ * @param {Promise} service - Request from service
+ * @param {Function} [wrapResult] - Function to wrapping the response
+ * @returns {AsyncThunkAction} Asynchronous redux action
+ */
 export const createAction = (type, service, wrapResult) =>
   createAsyncThunk(type, async (payload, { dispatch, getState, rejectWithValue }) => {
     try {
@@ -32,7 +38,7 @@ export const createAction = (type, service, wrapResult) =>
         filter: filterPool
       })
 
-      return wrapResult ? wrapResult(response, one) : response
+      return wrapResult?.(response, one) ?? response
     } catch (error) {
       const { message, data, status, statusText } = error
 
@@ -44,20 +50,9 @@ export const createAction = (type, service, wrapResult) =>
     condition: (_, { getState }) => !getState().one.requests[type]
   })
 
-export const poolRequest = async (data = {}, command, element) => {
-  const { filter, end, start } = data
-  const { url, options } = requestParams({ filter, end, start }, command)
-
-  const response = await RestClient.get(url, { ...options })
-
-  if (!response?.id || response?.id !== httpCodes.ok.id) throw response
-
-  return [response?.data?.[`${element}_POOL`]?.[element] ?? []].flat()
-}
-
 /**
- * @param {Object} currentList Current list of resources from redux
- * @param {Object} value OpenNebula resource
+ * @param {object} currentList - Current list of resources from redux
+ * @param {object} value - OpenNebula resource
  * @returns {Array} Returns a new list with the attributes editable modified
  */
 export const updateResourceList = (currentList, value) => {

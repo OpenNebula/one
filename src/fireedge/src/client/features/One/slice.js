@@ -22,8 +22,6 @@ import { updateResourceFromFetch } from 'client/features/One/actions'
 
 const getNameListFromType = type => RESOURCES[type.split('/')[0]]
 
-const ATTRIBUTES_EDITABLE = ['NAME', 'STATE', 'LCM_STATE']
-
 const RESOURCES = {
   acl: 'acl',
   app: 'apps',
@@ -129,4 +127,4 @@ const { actions, reducer } = createSlice({
   }
 })
 
-export { actions, reducer, RESOURCES, ATTRIBUTES_EDITABLE }
+export { actions, reducer, RESOURCES }

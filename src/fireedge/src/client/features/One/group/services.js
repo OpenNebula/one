@@ -15,26 +15,44 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/group'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const groupService = ({
-  getGroup: ({ filter, id }) => {
+  /**
+   * Retrieves information for the group.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Group id
+   * @returns {object} Get group identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getGroup: async ({ id }) => {
     const name = Actions.GROUP_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const { url, options } = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.get(url, options)
 
-      return res?.data?.GROUP ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.GROUP ?? {}
   },
-  getGroups: data => {
+
+  /**
+   * Retrieves information for all the groups in the pool.
+   *
+   * @returns {object} Get list of groups
+   * @throws Fails when response isn't code 200
+   */
+  getGroups: async () => {
     const name = Actions.GROUP_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'GROUP')
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.GROUP_POOL?.GROUP ?? []].flat()
   }
 })

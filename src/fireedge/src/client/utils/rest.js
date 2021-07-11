@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 import { httpCodes } from 'server/utils/constants'
 import { messageTerminal } from 'server/utils/general'
@@ -29,6 +29,10 @@ http.interceptors.request.use(config => {
 
   return {
     ...config,
+    headers: {
+      ...config.headers,
+      'Content-Type': 'application/json'
+    },
     timeout: 45_000,
     timeoutErrorMessage: T.Timeout,
     withCredentials: true,
@@ -61,45 +65,9 @@ http.interceptors.response.use(
 )
 
 export const RestClient = {
-  get: (url, options) => {
-    const headers = {
-      credentials: 'include'
-    }
-
-    return http.get(url, { headers, ...options })
-  },
-
-  post: (url, body, options) => {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    if (options && typeof options.headers === 'object') {
-      Object.assign(headers, options.headers)
-    }
-
-    return http.post(url, body, { headers })
-  },
-
-  put: (url, body, options) => {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    if (options && typeof options.headers === 'object') {
-      Object.assign(headers, options.headers)
-    }
-
-    return http.put(url, body, { headers })
-  },
-
-  delete: (url, options) => {
-    const headers = {}
-
-    if (options && typeof options.headers === 'object') {
-      Object.assign(headers, options.headers)
-    }
-
-    return http.delete(url, { headers })
-  }
+  /**
+   * @param {AxiosRequestConfig} options - Request configuration
+   * @returns {AxiosResponse} Response from server
+   */
+  request: options => http.request(options)
 }

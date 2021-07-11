@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { createContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
@@ -45,7 +46,7 @@ const SocketProvider = ({ children }) => {
     setSocket(client)
 
     client.on(SOCKETS.PROVISION, data => {
-      dispatch(sockets.socketCreateProvision(data))
+      dispatch(sockets.onCreateProvision(data))
     })
 
     return () => {

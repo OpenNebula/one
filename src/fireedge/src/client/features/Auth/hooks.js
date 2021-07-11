@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import { useCallback } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
@@ -33,6 +34,18 @@ export const useAuth = () => {
 
   const isLogged = !!jwt && !!userGroups?.length
 
+  /**
+   * Looking for resource view of user authenticated.
+   *
+   * @param {string} resourceName - Name of resource: VM, HOST, IMAGE, etc
+   * @returns {{
+   * resource_name: string,
+   * actions: object[],
+   * filters: object[],
+   * info-tabs: object[],
+   * dialogs: object[]
+   * }} Returns view of resource
+   */
   const getResourceView = resourceName => views?.[view]
     ?.find(({ resource_name: name }) => name === resourceName)
 

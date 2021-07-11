@@ -14,123 +14,248 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { PROVISION } from 'server/routes/api/provision/string-routes'
-import { httpCodes } from 'server/utils/constants'
+import { httpCodes, defaults } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+
+const { POST, PUT, DELETE } = defaults?.httpMethod || {}
 
 export const provisionService = ({
   // --------------------------------------------
-  // ALL PROVISION TEMPLATES REQUESTS
+  // PROVISION TEMPLATE requests
   // --------------------------------------------
 
-  getProvisionsTemplates: ({ filter }) => RestClient
-    .get(`/api/${PROVISION}/defaults`, { data: { filter } })
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+  /**
+   * Retrieves information for all the
+   * provision templates.
+   *
+   * @returns {Array} List of provision templates
+   * @throws Fails when response isn't code 200
+   */
+  getProvisionsTemplates: async () => {
+    const res = await RestClient.request({
+      url: `/api/${PROVISION}/defaults`
+    })
 
-      return res?.data ?? []
-    }),
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-  createProvisionTemplate: ({ data = {} }) =>
-    Promise.resolve().then(res => res?.data?.DOCUMENT ?? {}),
-
-  // --------------------------------------------
-  // PROVISIONS REQUESTS
-  // --------------------------------------------
-
-  getProvision: ({ filter, id }) => RestClient
-    .get(`/api/${PROVISION}/list/${id}`, { filter })
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-      return res?.data?.DOCUMENT ?? {}
-    }),
-
-  getProvisions: data => {
-    const command = { name: `${PROVISION}.list`, params: {} }
-    return poolRequest(data, command, 'DOCUMENT')
+    return res?.data ?? []
   },
 
-  createProvision: ({ data = {} }) => RestClient
-    .post(`/api/${PROVISION}/create`, data)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) {
-        if (res?.id === httpCodes.accepted.id) return res?.data
-        throw res
-      }
-
-      return res?.data
-    }),
-
-  configureProvision: ({ id }) => RestClient
-    .put(`/api/${PROVISION}/configure/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) {
-        if (res?.id === httpCodes.accepted.id) return res
-        throw res
-      }
-
-      return res?.data ?? {}
-    }),
-
-  deleteProvision: ({ id }) => RestClient
-    .delete(`/api/${PROVISION}/delete/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) {
-        if (res?.id === httpCodes.accepted.id) return res
-        throw res
-      }
-
-      return res?.data ?? {}
-    }),
-
-  getProvisionLog: ({ id }) => RestClient
-    .get(`/api/${PROVISION}/log/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) {
-        if (res?.id === httpCodes.accepted.id) return res
-        throw res
-      }
-
-      return res?.data ?? {}
-    }),
+  /**
+   * TODO: Create a provision template.
+   *
+   * @returns {Promise} TODO
+   */
+  createProvisionTemplate: () => {
+    return Promise.resolve().then(res => res?.data?.DOCUMENT ?? {})
+  },
 
   // --------------------------------------------
-  // INFRASTRUCTURES REQUESTS
+  // PROVISION requests
   // --------------------------------------------
 
-  deleteDatastore: ({ id }) => RestClient
-    .delete(`/api/${PROVISION}/datastore/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-      return res?.data ?? {}
-    }),
-
-  deleteVNetwork: ({ id }) => RestClient
-    .delete(`/api/${PROVISION}/network/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-      return res?.data ?? {}
-    }),
-
-  deleteHost: ({ id }) => RestClient
-    .delete(`/api/${PROVISION}/host/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-      return res?.data ?? {}
-    }),
-
-  configureHost: ({ id }) => RestClient
-    .put(`/api/${PROVISION}/host/${id}`)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) {
-        if (res?.id === httpCodes.accepted.id) return res
-        throw res
-      }
-
-      return res?.data ?? {}
+  /**
+   * Retrieves information for the provision.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Provision id
+   * @returns {object} Get provision identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getProvision: async ({ id }) => {
+    const res = await RestClient.request({
+      url: `/api/${PROVISION}/list/${id}`
     })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.DOCUMENT ?? {}
+  },
+
+  /**
+   * Retrieves information for all providers.
+   *
+   * @returns {Array} List of providers
+   * @throws Fails when response isn't code 200
+   */
+  getProvisions: async () => {
+    const res = await RestClient.request({
+      url: `/api/${PROVISION}/list`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+  },
+
+  /**
+   * Create a provision.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.data - Form data
+   * @returns {object} Object of document created
+   * @throws Fails when response isn't code 200
+   */
+  createProvision: async ({ data = {} }) => {
+    const res = await RestClient.request({
+      data,
+      method: POST,
+      url: `/api/${PROVISION}/create`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res?.data
+      throw res
+    }
+
+    return res?.data
+  },
+
+  /**
+   * Configure the provision hosts.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Provision id
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  configureProvision: async ({ id }) => {
+    const res = await RestClient.request({
+      method: PUT,
+      url: `/api/${PROVISION}/configure/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Delete the provision and OpenNebula objects.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Provider id
+   * @returns {object} Object of document deleted
+   * @throws Fails when response isn't code 200
+   */
+  deleteProvision: async ({ id }) => {
+    const res = await RestClient.request({
+      method: DELETE,
+      url: `/api/${PROVISION}/delete/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Retrieves debug log for the provision.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Provision id
+   * @returns {object} Get provision log identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getProvisionLog: async ({ id }) => {
+    const res = await RestClient.request({
+      url: `/api/${PROVISION}/log/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  },
+
+  // --------------------------------------------
+  // INFRASTRUCTURE requests
+  // --------------------------------------------
+
+  /**
+   * Delete the datastore from the provision.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Datastore id
+   * @returns {object} Object of document deleted
+   * @throws Fails when response isn't code 200
+   */
+  deleteDatastore: async ({ id }) => {
+    const res = await RestClient.request({
+      method: DELETE,
+      url: `/api/${PROVISION}/datastore/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Delete the virtual network from the provision.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Virtual network id
+   * @returns {object} Object of document deleted
+   * @throws Fails when response isn't code 200
+   */
+  deleteVNetwork: async ({ id }) => {
+    const res = await RestClient.request({
+      method: DELETE,
+      url: `/api/${PROVISION}/network/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Delete the host from the provision.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Host id
+   * @returns {object} Object of document deleted
+   * @throws Fails when response isn't code 200
+   */
+  deleteHost: async ({ id }) => {
+    const res = await RestClient.request({
+      method: DELETE,
+      url: `/api/${PROVISION}/host/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Configure the provision host.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Host id
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  configureHost: async ({ id }) => {
+    const res = await RestClient.request({
+      method: PUT,
+      url: `/api/${PROVISION}/host/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  }
 })

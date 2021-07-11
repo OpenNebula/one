@@ -14,52 +14,108 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { SERVICE_TEMPLATE } from 'server/routes/api/oneflow/string-routes'
-import { httpCodes } from 'server/utils/constants'
+import { httpCodes, defaults } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+
+const { POST, PUT } = defaults?.httpMethod || {}
 
 export const applicationTemplateService = ({
-  getApplicationTemplate: ({ filter, id }) => RestClient
-    .get(`/api/${SERVICE_TEMPLATE}/list/${id}`, { filter })
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+  /**
+   * Retrieves information for the service template.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Service template id
+   * @returns {object} Get service template identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getApplicationTemplate: ({ id }) => {
+    const res = RestClient.request({
+      url: `/api/${SERVICE_TEMPLATE}/list/${id}`
+    })
 
-      return res?.data?.DOCUMENT ?? {}
-    }),
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-  getApplicationsTemplates: data => {
-    const command = { name: `${SERVICE_TEMPLATE}.list`, params: {} }
-    return poolRequest(data, command, 'DOCUMENT')
+    return res?.data?.DOCUMENT ?? {}
   },
 
-  createApplicationTemplate: ({ data = {} }) => RestClient
-    .post(`/api/${SERVICE_TEMPLATE}/create`, data)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+  /**
+   * @returns {object} Get list of service templates
+   * @throws Fails when response isn't code 200
+   */
+  getApplicationsTemplates: async () => {
+    const res = await RestClient.request({
+      url: `/api/${SERVICE_TEMPLATE}/list`
+    })
 
-      return res?.data?.DOCUMENT ?? {}
-    }),
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-  updateApplicationTemplate: ({ id, data = {} }) => RestClient
-    .put(`/api/${SERVICE_TEMPLATE}/update/${id}`, data)
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+  },
 
-      return res?.data?.DOCUMENT ?? {}
-    }),
+  /**
+   * Retrieves information for all service templates.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.data - Data of new application template
+   * @returns {object} Object of document created
+   * @throws Fails when response isn't code 200
+   */
+  createApplicationTemplate: async ({ data = {} }) => {
+    const res = await RestClient.request({
+      data,
+      method: POST,
+      url: `/api/${SERVICE_TEMPLATE}/create`
+    })
 
-  instantiateApplicationTemplate: ({ id, data = {} }) => RestClient
-    .post(`/api/${SERVICE_TEMPLATE}/action/${id}`, {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.DOCUMENT ?? {}
+  },
+
+  /**
+   * Update the service template.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Service template id
+   * @param {object} params.data - Updated data
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  updateApplicationTemplate: ({ id, data = {} }) => {
+    const res = RestClient.request({
+      data,
+      method: PUT,
+      url: `/api/${SERVICE_TEMPLATE}/update/${id}`
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.DOCUMENT ?? {}
+  },
+
+  /**
+   * Perform instantiate action on the service template.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Service template id
+   * @param {object} params.data - Additional parameters to be passed inside `params`
+   * @returns {Response} Response 201
+   * @throws Fails when response isn't code 200
+   */
+  instantiateApplicationTemplate: ({ id, data = {} }) => {
+    const res = RestClient.request({
       data: {
         action: {
           perform: 'instantiate',
           params: { merge_template: data }
         }
-      }
+      },
+      method: PUT,
+      url: `/api/${SERVICE_TEMPLATE}/action/${id}`
     })
-    .then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-      return res?.data?.DOCUMENT ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  }
 })

@@ -15,26 +15,49 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vntemplate'
 import { httpCodes } from 'server/utils/constants'
-import { requestParams, RestClient } from 'client/utils'
-import { poolRequest } from 'client/features/One/utils'
+import { requestConfig, RestClient } from 'client/utils'
 
 export const vNetworkTemplateService = ({
-  getVNetworkTemplate: ({ filter, id }) => {
+  /**
+   * Retrieves information for the virtual network template.
+   *
+   * @param {object} data - Request parameters
+   * @param {string} data.id - Virtual Network Template id
+   * @returns {object} Get virtual network template identified by id
+   * @throws Fails when response isn't code 200
+   */
+  getVNetworkTemplate: async ({ id }) => {
     const name = Actions.VNTEMPLATE_INFO
-    const { url, options } = requestParams(
-      { filter, id },
-      { name, ...Commands[name] }
-    )
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id }, command)
 
-    return RestClient.get(url, options).then(res => {
-      if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    const res = await RestClient.request(config)
 
-      return res?.data?.VNTEMPLATE ?? {}
-    })
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.VNTEMPLATE ?? {}
   },
-  getVNetworkTemplates: data => {
+
+  /**
+   * Retrieves information for all or part of th
+   * virtual network templates in the pool.
+   *
+   * @param {object} data - Request params
+   * @param {string} data.filter - Filter flag
+   * @param {number} data.start - Range start ID
+   * @param {number} data.end - Range end ID
+   * @returns {Array} List of virtual network templates
+   * @throws Fails when response isn't code 200
+   */
+  getVNetworkTemplates: async ({ filter, start, end }) => {
     const name = Actions.VNTEMPLATE_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'VNTEMPLATE')
+    const config = requestConfig({ filter, start, end }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.VNTEMPLATE_POOL?.VNTEMPLATE ?? []].flat()
   }
 })
