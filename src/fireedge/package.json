@@ -11,9 +11,10 @@
     "start": "cross-env NODE_ENV=production babel-node ./dist/index.js",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
-    "lint": "eslint ./src/client/",
+    "lint": "npm run lint-client && npm run lint-server",
+    "lint-client": "eslint ./src/client/",
     "lint-server": "eslint ./src/server/",
-    "lint-fix": "eslint ./src/client/ --fix"
+    "lint-fix": "eslint ./src/ --fix"
   },
   "author": "opennebula.io",
   "license": "ISC",
