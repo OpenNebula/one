@@ -20,6 +20,12 @@ const sanitizeKey = key => key?.trim().toLowerCase()
 
 const sanitizeValue = value => value?.trim().replaceAll(/[\\"]/g, '')
 
+/**
+ * Parses OpenNebula resource template to json.
+ *
+ * @param {string} template - OpenNebula resource template
+ * @returns {object} JSON of template
+ */
 const parseTemplateToObject = template => {
   const stringWithoutNewLines = JSON.stringify(template).replaceAll(/\\n/g, '')
 

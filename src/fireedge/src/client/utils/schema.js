@@ -29,6 +29,39 @@ const getValuesFromArray = (options, separator = ';') => options?.split(separato
 const getOptionsFromList = (options, separator = ',') =>
   options?.split(separator).map(value => ({ text: value, value }))
 
+/**
+ * @typedef {(
+ * 'text'|
+ * 'text64'|
+ * 'password'|
+ * 'number'|
+ * 'number-float'|
+ * 'range'|
+ * 'range-float'|
+ * 'boolean'|
+ * 'list'|
+ * 'array'|
+ * 'list-multiple'
+ * )} TypeInput - OpenNebula types for user inputs
+ */
+
+/**
+ * Get input schema for the user input defined in OpenNebula resource.
+ *
+ * @param {object} userInput - User input from OpenNebula document
+ * @param {boolean} userInput.mandatory - If `true`, the input will be required
+ * @param {string} userInput.name - Name of input
+ * @param {userInput} userInput.type - Input type
+ * @param {string} [userInput.options] - Options available for the input
+ * @param {number|string|string[]} [userInput.defaultValue] - Default value for the input
+ * @returns {{
+ * type: INPUT_TYPES,
+ * htmlType: string,
+ * multiple: boolean,
+ * validation: yup.AnyObjectSchema,
+ * fieldProps: object
+ * }} Schema properties
+ */
 export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }) => {
   switch (type) {
     case 'text':
@@ -134,7 +167,17 @@ const parseUserInputValue = value => {
   } else return value
 }
 
-export const mapUserInputs = userInputs =>
+/**
+ * Parse JS values to OpenNebula values.
+ *
+ * @param {object} userInputs - List of user inputs
+ * @example <caption>Example of parsed</caption>
+ * // { user_ssh: true } => { user_ssh: 'YES' }
+ * // { groups: [1, 2, 3] } => { groups: '1,2,3' }
+ * @returns {object}
+ * - Returns same object with values can be operated by OpenNebula
+ */
+export const mapUserInputs = (userInputs = {}) =>
   Object.entries(userInputs)?.reduce((res, [key, value]) => ({
     ...res, [key]: parseUserInputValue(value)
   }), {})

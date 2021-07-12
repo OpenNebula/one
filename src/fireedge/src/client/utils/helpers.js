@@ -15,25 +15,52 @@
  * ------------------------------------------------------------------------- */
 import DOMPurify from 'dompurify'
 
+/**
+ * Simulate a delay in a function.
+ *
+ * @param {number} ms - Delay in milliseconds
+ * @returns {Promise} Promise resolved with a delay
+ */
 export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+/**
+ * Determines if url is external.
+ *
+ * @param {string} url - URL
+ * @returns {boolean} `true` if url is external
+ */
 export const isExternalURL = url => RegExp(/^(http|https):/g).test(url)
 
-export const generateKey = () => new Date().getTime() + Math.random()
+/**
+ * Generates a random key.
+ *
+ * @returns {string} Random key
+ */
+export const generateKey = () =>
+  String(new Date().getTime() + Math.random()).replace('.', '')
 
-export function sanitize (strings, ...values) {
-  const dirty = strings.reduce((prev, next, i) =>
+/**
+ * Sanitizes HTML and prevents XSS attacks.
+ *
+ * @param {string} text - Text
+ * @param {...string} values - Rest of text
+ * @returns {string} Clean and secure string
+ */
+export function sanitize (text, ...values) {
+  const dirty = text.reduce((prev, next, i) =>
     `${prev}${next}${values[i] || ''}`, '')
 
   return DOMPurify.sanitize(dirty)
 }
 
 /**
- * Converts a long string of units into a readable format e.g KB, MB, GB, TB, YB
+ * Converts a long string of units into a readable format e.g KB, MB, GB, TB, YB.
  *
- * @param {Int} value The quantity of units.
- * @param {String} unit The unit of value.
- * @param {Int} fractionDigits — Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
+ * @param {number} value - The quantity of units.
+ * @param {string} unit - The unit of value.
+ * @param {number} fractionDigits
+ * - Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
+ * @returns {string} Returns an string displaying sizes for humans.
  */
 export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
   const UNITS = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
@@ -50,21 +77,54 @@ export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
   return `${value.toFixed(fractionDigits)} ${UNITS[idxUnit]}`
 }
 
+/**
+ * Add opacity value to a HEX color.
+ *
+ * @param {string} color - HEX color
+ * @param {number} opacity - Opacity range: 0 to 1
+ * @returns {string} The color with opacity
+ */
 export const addOpacityToColor = (color, opacity) => {
   const opacityHex = Math.round(opacity * 255).toString(16)
   return `${color}${opacityHex}`
 }
 
+/**
+ * Capitalize the first letter of a string.
+ *
+ * @param {string} word - Word
+ * @returns {string} The word capitalized
+ */
 export const capitalize = ([firstLetter, ...restOfWord]) =>
   firstLetter.toUpperCase() + restOfWord.join('')
 
+/**
+ * Converts an string to camel case.
+ *
+ * @param {string} s - String
+ * @example permissions_panel => permissionsPanel
+ * @returns {string} String with camel case format
+ */
 export const stringToCamelCase = s => s.replace(
   /([-_\s][a-z])/ig,
   $1 => $1.toUpperCase().replace(/[-_\s]/g, '')
 )
 
+/**
+ * Converts an string in camel case to camel space.
+ *
+ * @param {string} s - String
+ * @example permissionsPanel => 'permissions panel'
+ * @returns {string} String with camel space format
+ */
 export const stringToCamelSpace = s => s.replace(/([a-z])([A-Z])/g, '$1 $2')
 
+/**
+ * Returns the validation by name from the form schema.
+ *
+ * @param {Array} fields - Field schemas
+ * @returns {object} List of validations
+ */
 export const getValidationFromFields = fields =>
   fields.reduce(
     (schema, field) => ({
@@ -74,6 +134,13 @@ export const getValidationFromFields = fields =>
     {}
   )
 
+/**
+ * Filter an object list by property.
+ *
+ * @param {Array} arr - Object list
+ * @param {string} predicate - Property
+ * @returns {Array} List filtered by predicate
+ */
 export const filterBy = (arr, predicate) => {
   const callback =
     typeof predicate === 'function' ? predicate : output => output[predicate]
@@ -91,6 +158,14 @@ export const filterBy = (arr, predicate) => {
   ]
 }
 
+/**
+ * Get the value from an object by the path of property.
+ *
+ * @param {object} obj - Object
+ * @param {string} path - Path of property
+ * @param {*} [defaultValue] - Default value of property
+ * @returns {*} Value of property
+ */
 export const get = (obj, path, defaultValue = undefined) => {
   const travel = regexp =>
     String.prototype.split
@@ -102,6 +177,14 @@ export const get = (obj, path, defaultValue = undefined) => {
   return result === undefined || result === obj ? defaultValue : result
 }
 
+/**
+ * Set a value of property in object by his path.
+ *
+ * @param {object} obj - Object
+ * @param {string} path - Path of property
+ * @param {*} value - New value of property
+ * @returns {object} Object with the new property
+ */
 export const set = (obj, path, value) => {
   if (Object(obj) !== obj) return obj // When obj is not an object
 
@@ -124,8 +207,15 @@ export const set = (obj, path, value) => {
   return result
 }
 
-export const groupBy = (array, key) =>
-  array.reduce((objectsByKeyValue, obj) => {
+/**
+ * Group a list of objects by a key.
+ *
+ * @param {object[]} list - List
+ * @param {string} key - Property
+ * @returns {object} Objects group by the property
+ */
+export const groupBy = (list, key) =>
+  list.reduce((objectsByKeyValue, obj) => {
     const keyValue = get(obj, key)
     const newValue = (objectsByKeyValue[keyValue] || []).concat(obj)
 
@@ -134,14 +224,21 @@ export const groupBy = (array, key) =>
     return objectsByKeyValue
   }, {})
 
+/**
+ * Clone an object.
+ *
+ * @param {object} obj - Object
+ * @returns {object} Object cloned
+ */
 export const cloneObject = obj => JSON.parse(JSON.stringify(obj))
 
 /**
- * Check if value is in base64
+ * Check if value is in base64.
  *
- * @param {String} stringToValidate String to check
- * @param {Boolean} options.exact Only match and exact string
- * @returns {Boolean}
+ * @param {string} stringToValidate - String to check
+ * @param {object} options - Options
+ * @param {boolean} options.exact - Only match and exact string
+ * @returns {boolean} Returns `true` if string is a base64
  */
 export const isBase64 = (stringToValidate, options = {}) => {
   if (stringToValidate === '') return false

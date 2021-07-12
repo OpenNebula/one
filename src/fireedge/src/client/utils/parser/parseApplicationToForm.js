@@ -50,9 +50,7 @@ const parseCluster = tiers => {
   const NUM_REG = /(\d+)/g
 
   const clusters = tiers?.map(({ vm_template_contents: content = '' }) => {
-    const { sched_requirements: schedRequirements } = templateToObject(
-      content
-    )
+    const { sched_requirements: schedRequirements } = templateToObject(content)
 
     return schedRequirements?.match(NUM_REG)?.join()
   })
@@ -135,6 +133,12 @@ const parseTiers = (roles, networking) =>
       return [...res, { ...tier, parents }]
     }, [])
 
+/**
+ * Parses service application data to form structure.
+ *
+ * @param {object} data - OpenNebula service
+ * @returns {object} Form data
+ */
 const mapApplicationToForm = data => {
   const {
     NAME,

@@ -29,6 +29,15 @@ const mapNetworkToUserInput = network => {
   return `${mandatoryValue}|network|${descriptionValue}| |${type}:${idVnetValue}${extraValue}`
 }
 
+/**
+ * Map tiers defined in the form and transforms
+ * to OpenNebula service template role.
+ *
+ * @param {Array} tiers - Tiers defined in the form
+ * @param {Array} networking - List of networks
+ * @param {string|number} cluster - Cluster id
+ * @returns {Array} Roles
+ */
 export const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
     const { template, networks, parents, policies, position, tier } = data
@@ -74,13 +83,19 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
     }
   })
 
-const mapFormToApplication = data => {
+/**
+ * Formats form data to create or update an OpenNebula service template.
+ *
+ * @param {object} formData - Form data
+ * @returns {object} Formatted data ready to create or update the template.
+ */
+const mapFormToApplication = formData => {
   const {
     [APPLICATION_ID]: application,
     [NETWORKING_ID]: networking,
     [CLUSTER_ID]: cluster,
     [TIERS_ID]: tiers
-  } = data
+  } = formData
 
   const { shutdown_action: action, ...information } = application
 

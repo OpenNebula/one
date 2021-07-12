@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/** @enum {string} Mode */
 const MODE = {
   development: 'development',
   production: 'production'
 }
 
+/** @returns {boolean} `true` if is load in the server */
 const isBackend = () => typeof window === 'undefined'
 
+/** @returns {boolean} `true` if production mode enabled */
 const isProduction = () => process.env.NODE_ENV === 'production'
 
+/** @returns {boolean} `true` if development mode enabled */
 const isDevelopment = () => process.env.NODE_ENV === 'development'
 
+/** @returns {MODE} Mode enabled in NODE_ENV */
 export default MODE[process.env.NODE_ENV]
 
 export { isProduction, isDevelopment, isBackend }

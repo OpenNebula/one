@@ -20,6 +20,15 @@ import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/F
 
 import { mapUserInputs, deepmerge } from 'client/utils'
 
+/**
+ * Map tiers defined in the form and transforms
+ * to OpenNebula service role.
+ *
+ * @param {Array} tiers - Tiers defined in the form
+ * @param {Array} networking - List of networks
+ * @param {string|number} cluster - Cluster id
+ * @returns {Array} Roles
+ */
 export const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
     const { template, parents, networks, user_inputs_values = {}, tier } = data
@@ -48,7 +57,14 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
     }
   })
 
-const mapFormparseFormToDeployApplication = (formData, template) => {
+/**
+ * Formats form data to deploy OpenNebula service.
+ *
+ * @param {object} formData - Form data
+ * @param {object} template - Current template
+ * @returns {object} Formatted data ready to deploy.
+ */
+const parseFormToDeployApplication = (formData, template) => {
   const {
     [BASIC_ID]: application,
     [NETWORKING_ID]: networking,
@@ -66,4 +82,4 @@ const mapFormparseFormToDeployApplication = (formData, template) => {
   }
 }
 
-export default mapFormparseFormToDeployApplication
+export default parseFormToDeployApplication
