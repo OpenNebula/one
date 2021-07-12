@@ -32,11 +32,25 @@ const createWebsocket = (path, query) => socketIO({
   reconnectionAttempts: 5
 })
 
-export default function useSocket () {
+/**
+ * Hook to manage the OpenNebula sockets.
+ *
+ * @returns {{
+ * getHooksSocket: Function,
+ * getProvisionSocket: Function
+ * }} - List of functions to interactive with FireEdge sockets
+ */
+const useSocket = () => {
   const dispatch = useDispatch()
   const { jwt } = useAuth()
   const { zone } = useGeneral()
 
+  /**
+   * @param {('vm'|'host'|'image')} resource - Resource name
+   * @param {string} id - Resource id
+   * @returns {{ connect: Function, disconnect: Function }}
+   * - Functions to manage the socket connections
+   */
   const getHooksSocket = useCallback(({ resource, id }) => {
     const socket = createWebsocket(
       SOCKETS.HOOKS,
@@ -46,7 +60,7 @@ export default function useSocket () {
     return {
       connect: ({ dataFromFetch, callback }) => {
         dataFromFetch && socket.on(SOCKETS.CONNECT, () => {
-          // update from data fetched
+          // update redux state from data fetched
           dispatch(updateResourceFromFetch({ data: dataFromFetch, resource }))
         })
 
@@ -63,10 +77,15 @@ export default function useSocket () {
     }
   }, [jwt, zone])
 
-  const getProvisionSocket = useCallback(func => {
+  /**
+   * @param {Function} callback - Callback from socket
+   * @returns {{ on: Function, off: Function }}
+   * - Functions to manage the socket connections
+   */
+  const getProvisionSocket = useCallback(callback => {
     const socket = createWebsocket(SOCKETS.PROVISION, { token: jwt, zone })
 
-    socket.on(SOCKETS.PROVISION, func)
+    socket.on(SOCKETS.PROVISION, callback)
 
     return {
       on: () => socket.connect(),
@@ -79,3 +98,5 @@ export default function useSocket () {
     getProvisionSocket
   }
 }
+
+export default useSocket

@@ -14,12 +14,23 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, useCallback } from 'react'
-import PropTypes from 'prop-types'
 
 import { debounce } from '@material-ui/core'
 import Fuse from 'fuse.js'
 
-function useSearch ({ list, listOptions }) {
+/**
+ * Hook to manage a search in a list.
+ *
+ * @param {object} params - Search parameters
+ * @param {Array} params.list - List of elements
+ * @param {Fuse.IFuseOptions} params.listOptions - Search options
+ * @returns {{
+ * query: string,
+ * result: Array,
+ * handleChange: Function
+ * }} - Returns information about the search
+ */
+const useSearch = ({ list, listOptions }) => {
   const [query, setQuery] = useState('')
   const [result, setResult] = useState(undefined)
 
@@ -45,21 +56,6 @@ function useSearch ({ list, listOptions }) {
   }
 
   return { query, result, handleChange }
-}
-
-useSearch.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.object).isRequired,
-  listOptions: PropTypes.shape({
-    isCaseSensitive: PropTypes.bool,
-    shouldSort: PropTypes.bool,
-    sortFn: PropTypes.func,
-    keys: PropTypes.arrayOf(PropTypes.string)
-  })
-}
-
-useSearch.defaultProps = {
-  list: [],
-  listOptions: { keys: [] }
 }
 
 export default useSearch

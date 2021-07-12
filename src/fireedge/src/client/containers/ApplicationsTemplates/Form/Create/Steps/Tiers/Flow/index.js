@@ -56,7 +56,7 @@ const useStyles = makeStyles(() => ({
  * @param {Array} props.dataFields - List of keys
  * @param {Function} props.handleCreate - Create a new Node
  * @param {Function} props.handleEdit - Edit a current Node
- * @param {boolean} props.handleSetData - Set new list of nodes
+ * @param {Function} props.handleSetData - Set new list of nodes
  * @returns {React.JSXElementConstructor} ReactFlow component
  */
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {

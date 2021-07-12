@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useCallback, useState } from 'react'
+import { useCallback, useState, SetStateAction } from 'react'
 import { set } from 'client/utils'
 
 const NEXT_INDEX = index => index + 1
@@ -22,36 +22,98 @@ const EXISTS_INDEX = index => index !== -1
 const getIndexById = (list, id) =>
   list.findIndex(({ id: itemId }) => itemId === id)
 
+/**
+ * Hook to manage a list with selectable elements in a form data.
+ *
+ * @param {object} props - Props
+ * @param {boolean} props.multiple - If `true`, can be more than one select elements
+ * @param {string} props.key - Key of list in the form
+ * @param {object[]} props.list - Form data
+ * @param {SetStateAction} props.setList - State action from the form
+ * @param {{ id: string|number }} props.defaultValue - Default value of element
+ * @example <caption>Example usage.</caption>
+ * // const INITIAL_STATE = { listKey: [{ id: 'item1' }, { id: 'item2' }] }
+ * // const [formData, setFormData] = useState(INITIAL_STATE)
+ * //
+ * // const listFunctions = useListForm({
+ * //   key: 'listKey',
+ * //   list: formData,
+ * //   setList: setFormData
+ * //   defaultValue: { id: 'default' }
+ * // })
+ * @returns {{
+ * editingData: Function,
+ * handleSelect: Function,
+ * handleUnselect: Function,
+ * handleClear: Function,
+ * handleClone: Function,
+ * handleRemove: Function,
+ * handleSetList: Function,
+ * handleSave: Function,
+ * handleEdit: Function
+ * }} - Functions to manage the list
+ */
 const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   const [editingData, setEditingData] = useState({})
 
   const handleSetList = useCallback(
-    newList => setList(data => ({ ...set(data, key, newList) })),
+    /**
+     * Resets the list with a new value.
+     *
+     * @param {Array} newList - New list
+     */
+    newList => {
+      setList(data => ({ ...set(data, key, newList) }))
+    },
     [key, setList, list]
   )
 
   const handleSelect = useCallback(
-    id =>
+  /**
+   * Add an item to data form list.
+   *
+   * @param {string|number} id - Element id
+   */
+    id => {
       setList(prevList => ({
         ...prevList,
         [key]: multiple ? [...(prevList[key] ?? []), id] : [id]
-      })),
+      }))
+    },
     [key, setList, multiple]
   )
 
   const handleUnselect = useCallback(
-    (id, filter = item => item !== id) =>
+    /**
+     * Removes an item from data form list.
+     *
+     * @param {string|number} id - Element id
+     * @param {Function} [filter] - Filter function to remove the item.
+     */
+    (id, filter) => {
       setList(prevList => ({
         ...prevList,
-        [key]: prevList[key]?.filter(filter)
-      })),
+        [key]: prevList[key]?.filter(filter ?? (item => item !== id))
+      }))
+    },
     [key, setList]
   )
 
   const handleClear = useCallback(
-    () => setList(prevList => ({ ...prevList, [key]: [] })), [key]
+    /** Clear the data form list. */
+    () => {
+      setList(prevList => ({ ...prevList, [key]: [] }))
+    },
+    [key]
   )
 
+  /**
+   * Clones an item and change two attributes:
+   * - id: id from default value
+   * - name: same name of element cloned, with the suffix '_clone'
+   *
+   * @param {string|number} id - Element id
+   */
   const handleClone = useCallback(
     id => {
       const itemIndex = getIndexById(list, id)
@@ -71,16 +133,16 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
     [list]
   )
 
-  const handleRemove = useCallback(
-    id => {
-      const newList = list?.filter(item => item.id !== id)
-
-      handleSetList(newList)
-    },
-    [key, list]
-  )
+  /** Removes an item from data form list. */
+  const handleRemove = useCallback(handleUnselect, [key, list])
 
   const handleSave = useCallback(
+    /**
+     * Saves the data from editing state.
+     *
+     * @param {object} values - New element data
+     * @param {string|number} [id] - Element id
+     */
     (values, id = editingData?.id) => {
       const itemIndex = getIndexById(list, id)
       const index = EXISTS_INDEX(itemIndex) ? itemIndex : list.length
@@ -93,6 +155,11 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   )
 
   const handleEdit = useCallback(
+  /**
+   * Find the element by id and set value to editing state.
+   *
+   * @param {string|number} id - Element id
+   */
     id => {
       const index = list.findIndex(item => item.id === id)
       const openData = list[index] ?? defaultValue

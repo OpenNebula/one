@@ -17,7 +17,23 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { fakeDelay } from 'client/utils'
 
-function useList ({ list, initLength }) {
+/**
+ * Hook to manage an infinite list.
+ * TODO: Make the hook with a reducer.
+ *
+ * @param {object} props - Props
+ * @param {Array} props.list - List of elements
+ * @param {number} [props.initLength=50] - Initial length of the list
+ * @returns {{
+ * loading: boolean,
+ * loadingNextPage: boolean,
+ * shortList: Array,
+ * finish: boolean,
+ * reset: Function,
+ * setLength: Function
+ * }} - Properties to manage the infinite list
+ */
+const useList = ({ list, initLength }) => {
   const [fullList, setFullList] = useState([])
   const [shortList, setShortList] = useState([])
   const [finish, setFinish] = useState(false)
@@ -63,13 +79,11 @@ function useList ({ list, initLength }) {
 
 useList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.object).isRequired,
-  fetchList: PropTypes.func.isRequired,
   initLength: PropTypes.string
 }
 
 useList.defaultProps = {
   list: [],
-  fetchList: () => undefined,
   initLength: 50
 }
 

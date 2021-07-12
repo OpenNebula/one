@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, RefObject } from 'react'
 
+/**
+ * Hook to manage the intersection of a target element with
+ * an ancestor element or with a top-level document's viewport.
+ *
+ * @param {object} props - Props
+ * @param {RefObject} props.externalRef - Element to be observed
+ * @param {string} props.distance - Margin around the element
+ * @param {boolean} props.once - If `true`, the observer will be triggered once
+ * @returns {{
+ * isNearScreen: boolean,
+ * fromRef: RefObject
+ * }} - Intersection observer information
+ */
 const useNearScreen = ({ externalRef, distance, once = true }) => {
   const [isNearScreen, setShow] = useState(false)
   const fromRef = useRef()

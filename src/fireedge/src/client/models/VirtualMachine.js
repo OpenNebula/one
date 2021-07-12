@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { STATES, VM_STATES, VM_LCM_STATES } from 'client/constants'
+import { STATES, VM_STATES, VM_LCM_STATES, StateInfo } from 'client/constants'
 
 /* const EXTERNAL_IP_ATTRS = [
   'GUEST_IP',
@@ -72,11 +72,11 @@ export const getHypervisor = vm => String(getLastHistory(vm)?.VM_MAD).toLowerCas
 export const isVCenter = vm => getHypervisor(vm) === 'vcenter'
 
 /**
- * @type {{color: string, name: string, meaning: string}} StateInfo
  * @param {object} vm - Virtual machine
  * @returns {StateInfo} State information from resource
  */
-export const getState = ({ STATE, LCM_STATE } = {}) => {
+export const getState = vm => {
+  const { STATE, LCM_STATE } = vm ?? {}
   const state = VM_STATES[+STATE]
 
   return state?.name === STATES.ACTIVE ? VM_LCM_STATES[+LCM_STATE] : state

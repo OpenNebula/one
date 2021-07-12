@@ -16,6 +16,7 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
+/** @type {STATES.StateInfo[]} Virtual machine states */
 export const VM_STATES = [
   { // 0
     name: STATES.INIT,

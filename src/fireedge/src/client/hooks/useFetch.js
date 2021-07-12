@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useReducer, useCallback, useEffect, useRef } from 'react'
+import { useReducer, useCallback, useEffect, useRef, ReducerState, ReducerAction } from 'react'
 import { fakeDelay } from 'client/utils'
 
+/** @enum {string} Status of request */
 const STATUS = {
   INIT: 'INIT',
   PENDING: 'PENDING',
@@ -23,6 +24,7 @@ const STATUS = {
   FETCHED: 'FETCHED'
 }
 
+/** @enum {string} Type of action */
 const ACTIONS = {
   REQUEST: 'REQUEST',
   SUCCESS: 'SUCCESS',
@@ -37,6 +39,11 @@ const INITIAL_STATE = {
   reloading: false
 }
 
+/**
+ * @param {ReducerState} state - Current state of reducer
+ * @param {ReducerAction} action - Action will be triggered
+ * @returns {ReducerState} The reducer state modified with payload
+ */
 const fetchReducer = (state, action) => {
   const { type, payload, reload = false } = action
   const { data: currentData } = state
@@ -62,6 +69,24 @@ const fetchReducer = (state, action) => {
   }[type] ?? state
 }
 
+/**
+ * Hook to manage a request.
+ *
+ * @param {Promise} request - Request to fetch
+ * @param {object} socket - Socket to update the global state after success
+ * @param {Function} socket.connect - Connect to socket
+ * @param {Function} socket.disconnect - Disconnect to socket
+ * @returns {{
+ * status: STATUS,
+ * error: object|string,
+ * data: object|Array,
+ * loading: boolean,
+ * reloading: boolean,
+ * fetchRequest: Function,
+ * STATUS: STATUS,
+ * ACTIONS: ACTIONS
+ * }} - List of functions to interactive with FireEdge sockets
+ */
 const useFetch = (request, socket) => {
   const cancelRequest = useRef(false)
   const [state, dispatch] = useReducer(fetchReducer, INITIAL_STATE)
@@ -101,22 +126,33 @@ const useFetch = (request, socket) => {
       const errorMessage = typeof error === 'string' ? error : error?.message
 
       dispatch({ type: ACTIONS.FAILURE, payload: errorMessage })
+
+      return error
     }
   }, [request, cancelRequest.current, dispatch])
 
-  const fetchRequest = useCallback((payload, options = {}) => {
-    const { reload = false, delay = 0 } = options
+  const fetchRequest = useCallback(
+    /**
+     * @param {Array|string|number|object} [payload] - Payload to request
+     * @param {object} options - Options to trigger the request
+     * @param {boolean} options.reload
+     * - If `true`, the state will be change `reloading` instead of `loading`
+     * @param {number} options.delay - Delay to trigger the request
+     * @returns {Promise} - Returns a promise with response or error
+     */
+    (payload, options = {}) => {
+      const { reload = false, delay = 0 } = options
 
-    if (!(Number.isInteger(delay) && delay >= 0)) {
-      console.error(`
+      if (!(Number.isInteger(delay) && delay >= 0)) {
+        console.error(`
           Delay must be a number >= 0!
           If you're using it as a function, it must also return a number >= 0.`)
-    }
+      }
 
-    return fakeDelay(delay).then(() => doFetch(payload, reload))
-  }, [request])
+      return fakeDelay(delay).then(() => doFetch(payload, reload))
+    }, [request])
 
-  return { ...state, fetchRequest, STATUS, ACTIONS, INITIAL_STATE }
+  return { ...state, fetchRequest, STATUS, ACTIONS }
 }
 
 export default useFetch

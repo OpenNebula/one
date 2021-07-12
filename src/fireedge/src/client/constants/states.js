@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
+/** @typedef {{color: string, name: string, meaning: string}} StateInfo */
+
 export const ACTIVE = 'ACTIVE'
 export const BOOT = 'BOOT'
 export const BOOT_FAILURE = 'BOOT_FAILURE'
