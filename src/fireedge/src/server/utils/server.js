@@ -1,21 +1,23 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
-const { dirname, resolve } = require('path')
+const { resolve } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
 const { existsSync, readFileSync, createWriteStream, readdirSync, statSync } = require('fs-extra')
@@ -47,23 +49,42 @@ const {
 let cert = ''
 let key = ''
 
-const fillFunctionRoute = (method, endpoint, action) => ({
+/**
+ * Set functions as routes.
+ *
+ * @param {string} method - http methof
+ * @param {string} endpoint - http endpoint
+ * @param {string} action - opennebula action
+ * @returns {object} object function
+ */
+const setFunctionRoute = (method, endpoint, action) => ({
   httpMethod: method,
   endpoint,
   action
 })
 
-const addFunctionToRoute = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
+/**
+ * Add function as express route.
+ *
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} routes - new routes
+ * @param {object} user - user Data
+ * @param {Function} oneConnection - function one XMLRPC
+ * @param {string} index - resource index
+ */
+const addFunctionAsRoute = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
   const resources = Object.keys(req[fromData.resource])
   if (req && res && next && routes) {
     const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
     if (req && fromData && fromData.resource && req[fromData.resource] && route) {
       if (Object.keys(route).length > 0 && route.constructor === Object) {
         if (route.action && route.params && typeof route.action === 'function') {
-          const params = getParamsForObject(route.params, req)
+          const params = getRequestParameters(route.params, req)
           route.action(res, next, params, user, oneConnection)
         } else {
-          addFunctionToRoute(req, res, next, route, user, oneConnection, index + 1)
+          addFunctionAsRoute(req, res, next, route, user, oneConnection, index + 1)
         }
       } else {
         next()
@@ -76,6 +97,11 @@ const addFunctionToRoute = (req = {}, res = {}, next = defaultEmptyFunction, rou
   }
 }
 
+/**
+ * Validate if server app have certs.
+ *
+ * @returns {boolean} file certs
+ */
 const validateServerIsSecure = () => {
   const folder = 'cert/'
   const dirCerts = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../', folder] : ['../', folder]
@@ -84,11 +110,29 @@ const validateServerIsSecure = () => {
   key = `${pathfile}key.pem`
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
 }
-
+/**
+ * Get certificate SSL.
+ *
+ * @returns {string} ssl path
+ */
 const getCert = () => cert
+
+/**
+ * Get key of certificate SSL.
+ *
+ * @returns {string} key ssl path
+ */
 const getKey = () => key
 
-const httpResponse = (response, data, message) => {
+/**
+ * Response http.
+ *
+ * @param {object} response - response http
+ * @param {string} data - data for response http
+ * @param {string} message - message
+ * @returns {object} {data, message, id}
+ */
+const httpResponse = (response = null, data = '', message = '') => {
   let rtn = Map(internalServerError).toObject()
   rtn.data = data
   if (response) {
@@ -102,7 +146,14 @@ const httpResponse = (response, data, message) => {
   }
   return rtn
 }
-const returnQueryData = (server = {}) => {
+
+/**
+ * Get Query data for websockets.
+ *
+ * @param {object} server - express app
+ * @returns {object} queries http
+ */
+const getQueryData = (server = {}) => {
   let rtn = {}
   if (
     server &&
@@ -114,9 +165,15 @@ const returnQueryData = (server = {}) => {
   return rtn
 }
 
+/**
+ * Validate Authentication for websocket.
+ *
+ * @param {object} server - express app
+ * @returns {boolean} if token is valid
+ */
 const validateAuthWebsocket = (server = {}) => {
   let rtn
-  const { token } = returnQueryData(server)
+  const { token } = getQueryData(server)
   if (token) {
     rtn = validateAuth({
       headers: { authorization: token }
@@ -125,14 +182,26 @@ const validateAuthWebsocket = (server = {}) => {
   return rtn
 }
 
-const getResourceForHookConnection = (server = {}) => {
-  const { id, resource } = returnQueryData(server)
+/**
+ * Get resource data for http request.
+ *
+ * @param {object} server - express app
+ * @returns {object} request data
+ */
+const getResourceDataForRequest = (server = {}) => {
+  const { id, resource } = getQueryData(server)
   const { aud: username } = validateAuthWebsocket(server)
   return { id, resource, username }
 }
 
+/**
+ * MIDDLEWARE Websockets, validates if the user has permissions for the resource hook.
+ *
+ * @param {object} server - express app
+ * @param {Function} next - express stepper
+ */
 const middlewareValidateResourceForHookConnection = (server = {}, next = () => undefined) => {
-  const { id, resource, username } = getResourceForHookConnection(server)
+  const { id, resource, username } = getResourceDataForRequest(server)
   if (
     id &&
     resource &&
@@ -150,6 +219,12 @@ const middlewareValidateResourceForHookConnection = (server = {}, next = () => u
   }
 }
 
+/**
+ * MIDDLEWARE Websockets, authenticate user.
+ *
+ * @param {object} server - express app
+ * @param {Function} next - express stepper
+ */
 const middlewareValidateAuthWebsocket = (server = {}, next = () => undefined) => {
   if (validateAuthWebsocket(server)) {
     next()
@@ -158,6 +233,14 @@ const middlewareValidateAuthWebsocket = (server = {}, next = () => undefined) =>
   }
 }
 
+/**
+ * Encrypt.
+ *
+ * @param {string} data - data to encrypt
+ * @param {string} key - key to encrypt data
+ * @param {string} iv - initialization vector to encrypt data
+ * @returns {string} data encrypt
+ */
 const encrypt = (data = '', key = '', iv = '') => {
   let rtn
   if (data && key) {
@@ -178,6 +261,14 @@ const encrypt = (data = '', key = '', iv = '') => {
   return rtn
 }
 
+/**
+ * Decrypt.
+ *
+ * @param {string} data - data to decrypt
+ * @param {string} key - key to decrypt data
+ * @param {string} iv - initialization vector to decrypt data
+ * @returns {string} data decrypt
+ */
 const decrypt = (data = '', key = '', iv = '') => {
   let rtn
   if (data && key) {
@@ -198,7 +289,15 @@ const decrypt = (data = '', key = '', iv = '') => {
   return rtn
 }
 
-const existsFile = (path = '', success = () => undefined, error = () => undefined) => {
+/**
+ * Check if file exist.
+ *
+ * @param {string} path - path of file
+ * @param {Function} success - function executed when file exist
+ * @param {Function} error - function executed when file no exists
+ * @returns {boolean} validate if file exists
+ */
+const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEmptyFunction) => {
   let rtn = false
   let file
   let errorData
@@ -224,6 +323,15 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
   return rtn
 }
 
+/**
+ * Create a file.
+ *
+ * @param {string} path - path of file
+ * @param {string} data - content of file
+ * @param {Function} callback - run function when file is created
+ * @param {Function} error - run function when file creation failed
+ * @returns {boolean} check if file is created
+ */
 const createFile = (path = '', data = '', callback = () => undefined, error = () => undefined) => {
   let rtn = false
   try {
@@ -237,6 +345,9 @@ const createFile = (path = '', data = '', callback = () => undefined, error = ()
   return rtn
 }
 
+/**
+ * Generate fireedge key file.
+ */
 const genFireedgeKey = () => {
   if (global && !global.FIREEDGE_KEY) {
     const { v4 } = require('uuid')
@@ -266,6 +377,12 @@ const genFireedgeKey = () => {
   }
 }
 
+/**
+ * Replace escape sequence.
+ *
+ * @param {string} text - string to clean
+ * @returns {string} clean string
+ */
 const replaceEscapeSequence = (text = '') => {
   let rtn = text
   if (text) {
@@ -274,6 +391,11 @@ const replaceEscapeSequence = (text = '') => {
   return rtn
 }
 
+/**
+ * Get sunstone auth.
+ *
+ * @returns {object} credentials of serveradmin
+ */
 const getSunstoneAuth = () => {
   let rtn
   if (global && global.SUNSTONE_AUTH_PATH) {
@@ -302,6 +424,13 @@ const getSunstoneAuth = () => {
   return rtn
 }
 
+/**
+ * Get data of zone.
+ *
+ * @param {string} zone - zone id
+ * @param {string} configuredZones - default zones
+ * @returns {object} data zone
+ */
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
   const zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
@@ -316,6 +445,9 @@ const getDataZone = (zone = '0', configuredZones) => {
   return rtn
 }
 
+/**
+ * Generate a resource paths.
+ */
 const genPathResources = () => {
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
@@ -361,7 +493,14 @@ const genPathResources = () => {
   }
 }
 
-const getParamsForObject = (params = {}, req = {}) => {
+/**
+ * Get http params.
+ *
+ * @param {object} params - finder params
+ * @param {object} req - http request
+ * @returns {object} params by functions
+ */
+const getRequestParameters = (params = {}, req = {}) => {
   const rtn = {}
   if (params && Object.keys(params).length > 0 && params.constructor === Object) {
     Object.entries(params).forEach(([param, value]) => {
@@ -373,12 +512,27 @@ const getParamsForObject = (params = {}, req = {}) => {
   return rtn
 }
 
+/**
+ * Error format template (console.log).
+ *
+ * @param {string} err - error message
+ * @param {string} message - format
+ * @returns {object} {color, message, error} format for the messageTerminal function
+ */
 const defaultError = (err = '', message = 'Error: %s') => ({
   color: 'red',
   message,
   error: err || ''
 })
 
+/**
+ * Get files by path.
+ *
+ * @param {string} path - path of files
+ * @param {boolean} recursive - find all files into path
+ * @param {Array} files - for recursion
+ * @returns {Array} files
+ */
 const getFiles = (path = '', recursive = false, files = []) => {
   if (path) {
     try {
@@ -403,7 +557,15 @@ const getFiles = (path = '', recursive = false, files = []) => {
   return files
 }
 
-const getFilesbyEXT = (dir = '', ext = '', errorCallback = () => undefined) => {
+/**
+ * Get files by ext.
+ *
+ * @param {string} dir - path
+ * @param {string} ext - ext
+ * @param {Function} errorCallback - run this function if it cant read directory
+ * @returns {Array} array of pathfiles
+ */
+const getFilesbyEXT = (dir = '', ext = '', errorCallback = defaultEmptyFunction) => {
   const pathFiles = []
   if (dir && ext) {
     const exp = new RegExp('\\w*\\.' + ext + '+$\\b', 'gi')
@@ -428,6 +590,13 @@ const getFilesbyEXT = (dir = '', ext = '', errorCallback = () => undefined) => {
   return pathFiles
 }
 
+/**
+ * Get directories for path.
+ *
+ * @param {string} dir - path
+ * @param {Function} errorCallback - run this function if it cant read directory
+ * @returns {Array} directories
+ */
 const getDirectories = (dir = '', errorCallback = () => undefined) => {
   const directories = []
   if (dir) {
@@ -448,6 +617,12 @@ const getDirectories = (dir = '', errorCallback = () => undefined) => {
   return directories
 }
 
+/**
+ * Parse post data.
+ *
+ * @param {object} postData - port data
+ * @returns {object} data parsed
+ */
 const parsePostData = (postData = {}) => {
   const rtn = {}
   Object.entries(postData).forEach(([key, value]) => {
@@ -466,8 +641,8 @@ const parsePostData = (postData = {}) => {
   return rtn
 }
 module.exports = {
-  fillFunctionRoute,
-  addFunctionToRoute,
+  setFunctionRoute,
+  addFunctionAsRoute,
   encrypt,
   decrypt,
   getDataZone,
@@ -482,9 +657,9 @@ module.exports = {
   getCert,
   getKey,
   parsePostData,
-  getParamsForObject,
-  returnQueryData,
-  getResourceForHookConnection,
+  getRequestParameters,
+  getQueryData,
+  getResourceDataForRequest,
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,
   defaultError,

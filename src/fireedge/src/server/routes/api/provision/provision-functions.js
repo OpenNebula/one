@@ -1,17 +1,18 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const { parse } = require('yaml')
 const { v4 } = require('uuid')
@@ -65,7 +66,7 @@ const logFile = {
   name: 'stdouterr',
   ext: 'log'
 }
-const configFile = {
+const provisionFile = {
   name: 'provision',
   ext: 'yaml'
 }
@@ -77,6 +78,14 @@ const relName = 'provision-mapping'
 const ext = 'yml'
 const appendError = '.ERROR'
 
+/**
+ * Execute command Async and emit in WS.
+ *
+ * @param {string} command - command to execute
+ * @param {object} actions - external functions when command emit in stderr, stdout and finalize
+ * @param {*} dataForLog - data
+ * @returns {boolean} check if emmit data
+ */
 const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
   let rtn = false
   if (
@@ -99,12 +108,23 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
 
     let pendingMessages = ''
 
-    // send data of command
+    /**
+     * Emit data of command.
+     *
+     * @param {string} message - line of command CLI
+     * @param {Function} callback - function when recieve a information
+     */
     const emit = (message, callback = defaultEmptyFunction) => {
+      /**
+       * Publisher data to WS.
+       *
+       * @param {string} line - command CLI line
+       */
       const publisher = (line = '') => {
         const resposeData = callback(line, uuid) || { id, data: line, command: commandName, commandId: uuid }
         publish(defaultCommandProvision, resposeData)
       }
+
       message.toString().split(regexpSplitLine).map(line => {
         if (line) {
           if (
@@ -147,6 +167,13 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
   return rtn
 }
 
+/**
+ * Find log data.
+ *
+ * @param {string} id - id of provision
+ * @param {boolean} fullPath - if need return the path of log
+ * @returns {object} data of log
+ */
 const logData = (id, fullPath = false) => {
   let rtn = false
   if (typeof id !== 'undefined') {
@@ -154,9 +181,20 @@ const logData = (id, fullPath = false) => {
     const relFile = `${basePath}/${relName}`
     const relFileYML = `${relFile}.${ext}`
     const find = findRecursiveFolder(basePath, id)
+
+    /**
+     * Not found log.
+     */
     const rtnNotFound = () => {
       rtn = false
     }
+
+    /**
+     * Found log.
+     *
+     * @param {string} path - path of log
+     * @param {string} uuid - uuid of log
+     */
     const rtnFound = (path = '', uuid) => {
       if (path) {
         const stringPath = `${path}/${logFile.name}.${logFile.ext}`
@@ -203,6 +241,14 @@ const logData = (id, fullPath = false) => {
   return rtn
 }
 
+/**
+ * Get default provisions.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const extFiles = 'yml'
   const { user, password } = userData
@@ -217,11 +263,22 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
     let description = ''
     let providers = {}
     let provisions = {}
+    /**
+     * Fill description of provision.
+     *
+     * @param {string} content - content of description provision
+     */
     const fillDescription = (content = '') => {
       if (content) {
         description = content
       }
     }
+    /**
+     * Fill providers.
+     *
+     * @param {string} content - content of provider
+     * @param {string} name - name of provider
+     */
     const fillProviders = (content = '', name = '') => {
       if (content && name) {
         if (!providers[name]) {
@@ -233,6 +290,13 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
         }
       }
     }
+    /**
+     * Fill provisions.
+     *
+     * @param {string} content - content of provision
+     * @param {string} filePath - path of provision yamls
+     * @param {string} path - path for command
+     */
     const fillProvisions = (content = '', filePath = '', path = '') => {
       if (content && filePath && path) {
         const name = basename(filePath).replace(`.${extFiles}`, '')
@@ -307,7 +371,15 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
   next()
 }
 
-const getList = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+/**
+ * Get list for resource provisions.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const getListResourceProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -327,6 +399,14 @@ const getList = (res = {}, next = defaultEmptyFunction, params = {}, userData = 
   next()
 }
 
+/**
+ * Get list provisions.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const getListProvisions = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -360,6 +440,14 @@ const getListProvisions = (res = {}, next = defaultEmptyFunction, params = {}, u
   next()
 }
 
+/**
+ * Delete resource provisions.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const deleteResource = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -379,6 +467,15 @@ const deleteResource = (res = {}, next = defaultEmptyFunction, params = {}, user
   next()
 }
 
+/**
+ * Delete provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function xmlrpc
+ */
 const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const basePath = `${global.CPI}/provision`
   const relFile = `${basePath}/${relName}`
@@ -398,13 +495,23 @@ const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
     // create stream for write into file
     const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
 
-    // This function is performed for each command line response
+    /**
+     * This function is performed for each command line response.
+     *
+     * @param {string} lastLine - last line command
+     * @param {string} uuid - uuid commnand
+     */
     const emit = (lastLine, uuid) => {
       const renderLine = { id: params.id, data: lastLine, command: command, commandId: uuid }
       stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
 
-    // This function is only executed if the command is completed
+    /**
+     * This function is only executed if the command is completed.
+     *
+     * @param {boolean} success - check in command complete succefully
+     * @param {string} lastLine - last line command
+     */
     const close = (success, lastLine) => {
       if (success) {
         stream && stream.end && stream.end()
@@ -463,6 +570,14 @@ const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
   next()
 }
 
+/**
+ * Execute command of host into provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const hostCommand = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -484,6 +599,14 @@ const hostCommand = (res = {}, next = defaultEmptyFunction, params = {}, userDat
   next()
 }
 
+/**
+ * SSH command of host into provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const hostCommandSSH = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -505,6 +628,15 @@ const hostCommandSSH = (res = {}, next = defaultEmptyFunction, params = {}, user
   next()
 }
 
+/**
+ * Create a provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ */
 const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const basePath = `${global.CPI}/provision`
   const relFile = `${basePath}/${relName}`
@@ -520,19 +652,39 @@ const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
       const command = 'create'
       const authCommand = ['--user', user, '--password', password]
       const endpoint = getEndpoint()
-      const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
+      const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: provisionFile.name, ext: provisionFile.ext, content }])
       if (files && files.name && files.files) {
+        /**
+         * Find file in created files.
+         *
+         * @param {string} val - filename
+         * @param {string} ext - file extension
+         * @param {Array} arr - array of files
+         * @returns {Array} path file
+         */
         const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
-        const config = find(configFile.name, configFile.ext)
+
+        const config = find(provisionFile.name, provisionFile.ext)
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
+          /**
+           * Create provision.
+           *
+           * @param {string} filedata - provision data
+           */
           const create = (filedata = '') => {
             const paramsCommand = [command, config.path, '--batch', '--debug', '--json', ...optionalCommand, ...authCommand, ...endpoint]
 
             // stream file log
             var stream = createWriteStream(log.path, { flags: 'a' })
 
-            // This function is performed for each command line response
+            /**
+             * This function is performed for each command line response.
+             *
+             * @param {string} lastLine - last line command
+             * @param {string} uuid - UUID command
+             * @returns {object} string line of command
+             */
             const emit = (lastLine, uuid) => {
               if (lastLine && uuid) {
                 if (regexp.test(lastLine) && !checkSync(relFileLOCK)) {
@@ -552,7 +704,12 @@ const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
               }
             }
 
-            // This function is only executed if the command is completed
+            /**
+             * This function is only executed if the command is completed.
+             *
+             * @param {boolean} success - check if command finish successfully
+             * @param {string} lastLine - last line command finish
+             */
             const close = (success, lastLine) => {
               stream.end()
               if (success && regexp.test(lastLine)) {
@@ -618,6 +775,14 @@ const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
   next()
 }
 
+/**
+ * Configure provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const configureProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   const rtn = httpInternalError
@@ -633,12 +798,23 @@ const configureProvision = (res = {}, next = defaultEmptyFunction, params = {}, 
     // create stream for write into file
     const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
 
-    // This function is performed for each command line response
+    /**
+     * This function is performed for each command line response.
+     *
+     * @param {string} lastLine - last line command
+     * @param {string} uuid - UUID command
+     */
     const emit = (lastLine, uuid) => {
       const renderLine = { id: params.id, data: lastLine, command: command, commandId: uuid }
       stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
 
+    /**
+     * This function is only executed if the command is completed.
+     *
+     * @param {boolean} success - check if command complete without errors
+     * @param {string} lastLine - last line command
+     */
     const close = (success, lastLine) => {
       stream && stream.end && stream.end()
     }
@@ -659,6 +835,14 @@ const configureProvision = (res = {}, next = defaultEmptyFunction, params = {}, 
   next()
 }
 
+/**
+ * Configure host provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const configureHost = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   const rtn = httpInternalError
@@ -674,12 +858,23 @@ const configureHost = (res = {}, next = defaultEmptyFunction, params = {}, userD
     // create stream for write into file
     const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
 
-    // This function is performed for each command line response
+    /**
+     * This function is performed for each command line response.
+     *
+     * @param {string} lastLine - last line command
+     * @param {string} uuid - uuid command
+     */
     const emit = (lastLine, uuid) => {
       const renderLine = { id: params.id, data: lastLine, command: `host ${command}`, commandId: uuid }
       stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
 
+    /**
+     * This function is only executed if the command is completed.
+     *
+     * @param {boolean} success - check if command complete without error
+     * @param {string} lastLine - last line command
+     */
     const close = (success, lastLine) => {
       stream && stream.end && stream.end()
     }
@@ -700,6 +895,14 @@ const configureHost = (res = {}, next = defaultEmptyFunction, params = {}, userD
   next()
 }
 
+/**
+ * Validate provision file.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
 const validate = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -740,6 +943,13 @@ const validate = (res = {}, next = defaultEmptyFunction, params = {}, userData =
   next()
 }
 
+/**
+ * Get provision log.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ */
 const getLogProvisions = (res = {}, next = defaultEmptyFunction, params = {}) => {
   let rtn = httpInternalError
   if (params && params.id) {
@@ -757,7 +967,7 @@ const getLogProvisions = (res = {}, next = defaultEmptyFunction, params = {}) =>
 const provisionFunctionsApi = {
   getProvisionDefaults,
   getLogProvisions,
-  getList,
+  getListResourceProvision,
   getListProvisions,
   deleteResource,
   deleteProvision,

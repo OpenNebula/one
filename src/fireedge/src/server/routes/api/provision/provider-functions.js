@@ -1,24 +1,26 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
 const {
   defaultFolderTmpProvision,
   defaultCommandProvider,
   defaultHideCredentials,
-  defaultHideCredentialReplacer
+  defaultHideCredentialReplacer,
+  defaultEmptyFunction
 } = require('server/utils/constants/defaults')
 
 const {
@@ -31,7 +33,15 @@ const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
-const getConnectionProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Get connection providers.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const getConnectionProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
@@ -63,7 +73,15 @@ const getConnectionProviders = (res = {}, next = () => undefined, params = {}, u
   next()
 }
 
-const getListProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Get list providers.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const getListProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
@@ -77,12 +95,20 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     try {
       const response = executedCommand.success ? ok : internalServerError
       const data = JSON.parse(executedCommand.data)
+
+      /**
+       * Parse provision.TEMPLATE.PLAIN to JSON.
+       *
+       * @param {object} provision - provision
+       * @returns {object} provision with TEMPLATE.PLAIN in JSON
+       */
       const parseTemplatePlain = provision => {
         if (provision && provision.TEMPLATE && provision.TEMPLATE.PLAIN) {
           provision.TEMPLATE.PLAIN = JSON.parse(provision.TEMPLATE.PLAIN)
         }
         return provision
       }
+
       if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
         data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
       }
@@ -119,7 +145,15 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
   next()
 }
 
-const createProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Create provider.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const createProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -164,7 +198,15 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const updateProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Update provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const updateProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
@@ -200,7 +242,15 @@ const updateProviders = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const deleteProvider = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Delete provider.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const deleteProvider = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {

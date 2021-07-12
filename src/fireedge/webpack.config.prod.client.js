@@ -26,6 +26,11 @@ const js = {
   include: path.resolve(__dirname, 'src')
 }
 
+/**
+ * bundle app
+ * @param {object} {assets, appname}
+ * @returns {object} webpack config
+ */
 const bundle = ({ assets = false, name = 'flow' }) => {
   const plugins = [
     new TimeFixPlugin(),

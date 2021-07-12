@@ -1,17 +1,18 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const upcast = require('upcast')
 // eslint-disable-next-line node/no-deprecated-api
@@ -20,12 +21,12 @@ const rpc = require('xmlrpc')
 const xml2js = require('xml2js')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
-const speakeasy = require('speakeasy')
 const { global } = require('window-or-global')
 const httpCodes = require('./constants/http-codes')
 const commandsParams = require('./constants/commands')
 const {
   from,
+  defaultEmptyFunction,
   defaultNamespace,
   defaultMessageProblemOpennebula
 } = require('./constants/defaults')
@@ -39,6 +40,13 @@ const { getConfig } = require('./yml')
 const appConfig = getConfig()
 const namespace = appConfig.namespace || defaultNamespace
 
+/**
+ * Authorizes if the user has access to the resource, for their connection to the HOOK.
+ *
+ * @param {string} username - username
+ * @param {string} action - action (only valid i the action terminate in .info)
+ * @param {Array} parameters - parameters of xmlrpc. If parameters[0] >=0 is a id of resource
+ */
 const fillResourceforHookConection = (username = '', action = '', parameters = '') => {
   let match
   // parameters[0] is the resource ID
@@ -56,16 +64,24 @@ const fillResourceforHookConection = (username = '', action = '', parameters = '
   }
 }
 
-const opennebulaConnect = (username = '', password = '', path = '') => {
-  let rtn = () => null
-  if (username && password && path) {
+/**
+ * Opennebula XMLRPC function.
+ *
+ * @param {string} username - opennebula user
+ * @param {string} password - opennebula password
+ * @param {string} zoneURL - opennebula zone URL
+ * @returns {Function} executer XMLRPC function
+ */
+const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
+  let rtn = defaultEmptyFunction
+  if (username && password && zoneURL) {
     let xmlClient = null
-    const parsedHostname = parse(path)
+    const parsedHostname = parse(zoneURL)
     const protocol = parsedHostname.protocol
     if (protocol === 'https:') {
-      xmlClient = rpc.createSecureClient(path)
+      xmlClient = rpc.createSecureClient(zoneURL)
     } else {
-      xmlClient = rpc.createClient(path)
+      xmlClient = rpc.createClient(zoneURL)
     }
     if (xmlClient && xmlClient.methodCall) {
       rtn = (action = '', parameters = [], callback = () => undefined, fillHookResource = true) => {
@@ -160,6 +176,15 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
   return rtn
 }
 
+/**
+ * Set http response.
+ *
+ * @param {object} res - http response
+ * @param {object} err - error
+ * @param {object} value - data if no has a error
+ * @param {Function} response - callback function, run when has value
+ * @param {Function} next - express stepper
+ */
 const responseOpennebula = (res, err, value, response, next) => {
   if (err && res && typeof res === 'function') {
     const { internalServerError } = httpCodes
@@ -172,6 +197,11 @@ const responseOpennebula = (res, err, value, response, next) => {
   }
 }
 
+/**
+ * Get the method valid by the opennebula command.
+ *
+ * @returns {Array} opennebula command
+ */
 const getMethodForOpennebulaCommand = () => {
   const rtn = []
   if (commandsParams) {
@@ -188,7 +218,15 @@ const getMethodForOpennebulaCommand = () => {
   return rtn
 }
 
-const commandXML = (resource = '', method = '', defaultMethod = '') => {
+/**
+ * Get a command to XMLRPC.
+ *
+ * @param {string} resource - resource
+ * @param {string} method - method
+ * @param {string} defaultMethod - default method
+ * @returns {string} command to XMLRPC
+ */
+const commandXMLRPC = (resource = '', method = '', defaultMethod = '') => {
   let command = ''
   const allowedActions = getMethodForOpennebulaCommand()
   if (resource && resource.length) {
@@ -205,6 +243,11 @@ const commandXML = (resource = '', method = '', defaultMethod = '') => {
   return command
 }
 
+/**
+ * Get allowed query parameters.
+ *
+ * @returns {Array} query parameters
+ */
 const getAllowedQueryParams = () => {
   const rtn = []
   const allowedQuerys = Object.keys(commandsParams)
@@ -230,6 +273,11 @@ const getAllowedQueryParams = () => {
   return rtn
 }
 
+/**
+ * Get route for opennebula command.
+ *
+ * @returns {Array} command
+ */
 const getRouteForOpennebulaCommand = () => {
   const rtn = []
   if (commandsParams) {
@@ -238,6 +286,13 @@ const getRouteForOpennebulaCommand = () => {
       if (command && command.length) {
         let commandString = command.split('.')
         commandString = commandString[0]
+
+        /**
+         * Finder command.
+         *
+         * @param {object} rtnCommand - command to validate
+         * @returns {string} - command
+         */
         const finderCommand = rtnCommand =>
           rtnCommand &&
           rtnCommand.endpoint &&
@@ -251,6 +306,12 @@ const getRouteForOpennebulaCommand = () => {
   return rtn
 }
 
+/**
+ * Check position in data source.
+ *
+ * @param {object} dataSource - source data
+ * @returns {boolean} check if exists
+ */
 const checkPositionInDataSource = dataSource => {
   let rtn = true
   if (dataSource && from) {
@@ -263,7 +324,14 @@ const checkPositionInDataSource = dataSource => {
   }
   return rtn
 }
-
+/**
+ * Check if http command exist in commands.js.
+ *
+ * @param {string} command - openenbula command
+ * @param {string} method - method of opennebula command
+ * @param {boolean} commandParams - commands
+ * @returns {object} command opennebula
+ */
 const checkOpennebulaCommand = (
   command = '',
   method = '',
@@ -315,7 +383,14 @@ const checkOpennebulaCommand = (
   return rtn
 }
 
-const paramsDefaultByCommandOpennebula = (command = '', httpCode = '') => {
+/**
+ * Get default params of opennebula command.
+ *
+ * @param {string} command - opennebula command
+ * @param {object} httpCode - http code
+ * @returns {Array} array defaults of command
+ */
+const getDefaultParamsOfOpennebulaCommand = (command = '', httpCode = '') => {
   const rtn = []
   if (command && httpCode) {
     const getDefaultValues = checkOpennebulaCommand(command, httpCode, false)
@@ -336,7 +411,16 @@ const paramsDefaultByCommandOpennebula = (command = '', httpCode = '') => {
   return rtn
 }
 
-const generateNewTemplate = (
+/**
+ * Generate a new resource template opennebula.
+ *
+ * @param {object} current - actual resource template
+ * @param {object} addPositions - new positions of resource template
+ * @param {object} removedPositions - delete positions of resource template
+ * @param {string} wrapper - wrapper data of template
+ * @returns {string} opennebula template
+ */
+const generateNewResourceTemplate = (
   current = {},
   addPositions = {},
   removedPositions = [],
@@ -355,28 +439,15 @@ const generateNewTemplate = (
   return sprintf(wrapper, positions)
 }
 
-const check2Fa = (secret = '', token = '') => {
-  let rtn = false
-  if (secret && token) {
-    rtn = speakeasy.totp.verify({
-      secret,
-      encoding: 'base32',
-      token
-    })
-  }
-  return rtn
-}
-
 module.exports = {
   opennebulaConnect,
   responseOpennebula,
   getMethodForOpennebulaCommand,
-  commandXML,
+  commandXMLRPC,
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkPositionInDataSource,
   checkOpennebulaCommand,
-  paramsDefaultByCommandOpennebula,
-  generateNewTemplate,
-  check2Fa
+  getDefaultParamsOfOpennebulaCommand,
+  generateNewResourceTemplate
 }

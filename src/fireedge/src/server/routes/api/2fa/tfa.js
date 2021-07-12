@@ -15,35 +15,31 @@
  * ------------------------------------------------------------------------- */
 
 const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
-const { auth } = require('./auth-functions')
-const { POST } = httpMethod
+const { setup, qr, del } = require('./tfa-functions')
+const { POST, DELETE, GET } = httpMethod
 
 const routes = {
   [POST]: {
     null: {
-      action: auth,
+      action: setup,
       params: {
-        user: {
-          from: fromData.postBody,
-          name: 'user'
-        },
         token: {
           from: fromData.postBody,
           name: 'token'
-        },
-        type: {
-          from: fromData.postBody,
-          name: 'type'
-        },
-        token2fa: {
-          from: fromData.postBody,
-          name: 'token2fa'
-        },
-        extended: {
-          from: fromData.postBody,
-          name: 'extended'
         }
       }
+    }
+  },
+  [GET]: {
+    null: {
+      action: qr,
+      params: {}
+    }
+  },
+  [DELETE]: {
+    null: {
+      action: del,
+      params: {}
     }
   }
 }

@@ -12,6 +12,7 @@
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
     "lint": "eslint ./src/client/",
+    "lint-server": "eslint ./src/server/",
     "lint-fix": "eslint ./src/client/ --fix"
   },
   "author": "opennebula.io",

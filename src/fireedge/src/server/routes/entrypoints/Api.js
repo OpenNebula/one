@@ -1,17 +1,18 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const express = require('express')
 const { defaults, httpCodes, params } = require('server/utils/constants')
@@ -20,7 +21,7 @@ const { getConfig } = require('server/utils/yml')
 const {
   opennebulaConnect,
   checkIfIsARouteFunction,
-  commandXML,
+  commandXMLRPC,
   checkOpennebulaCommand,
   checkMethodRouteFunction,
   responseOpennebula,
@@ -30,8 +31,8 @@ const {
 
 const {
   validateResourceAndSession,
-  optionalParameters,
-  optionalQueries,
+  setOptionalParameters,
+  setOptionalQueries,
   clearStates,
   getParamsState,
   getQueriesState,
@@ -52,15 +53,20 @@ const router = express.Router()
 
 express()
 
-const paramsToRoutes = () =>
+/**
+ * Get route parameters.
+ *
+ * @returns {Array} valid express route
+ */
+const routeParameters = () =>
   Object.keys(params).reduce(
     (resources, param) => String(resources).concat(`/:${params[param]}?`),
     '/:resource?'
   )
 
 router.all(
-  paramsToRoutes(),
-  [validateResourceAndSession, optionalParameters, optionalQueries],
+  routeParameters(),
+  [validateResourceAndSession, setOptionalParameters, setOptionalQueries],
   (req, res, next) => {
     const { internalServerError, ok, methodNotAllowed, notFound } = httpCodes
     const { method: httpMethod } = req
@@ -79,6 +85,13 @@ router.all(
     const zoneData = getDataZone(zone, defaultOpennebulaZones)
     if (zoneData) {
       const { rpc } = zoneData
+      /**
+       * Instance of connection to opennebula.
+       *
+       * @param {string} user - opennegula user
+       * @param {string} pass - opennebula pass
+       * @returns {Function} opennebula executer calls to XMLRPC
+       */
       const connectOpennebula = (
         user = getUserOpennebula(),
         pass = getPassOpennebula()
@@ -120,13 +133,18 @@ router.all(
          *********************************************************/
 
         const { method } = getParamsState()
-        const command = commandXML(
+        const command = commandXMLRPC(
           resource,
           method,
           httpMethod === httpMethods.GET && defaultGetMethod
         )
         const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
         if (getOpennebulaMethod) {
+          /**
+           * Http response.
+           *
+           * @param {object} val - response http code
+           */
           const response = (val = {}) => {
             switch (typeof val) {
               case 'string':
@@ -144,6 +162,11 @@ router.all(
             next()
           }
 
+          /**
+           * Updater http response.
+           *
+           * @param {object} code - http code
+           */
           const updaterResponse = code => {
             if ('id' in code && 'message' in code) {
               res.locals.httpCode = code

@@ -1,19 +1,20 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+
 const { DateTime } = require('luxon')
-const { Map } = require('immutable')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { global, Array } = require('window-or-global')
@@ -23,7 +24,8 @@ const {
   httpMethod,
   defaultOpennebulaExpiration,
   default2FAOpennebulaVar,
-  defaultNamespace
+  defaultNamespace,
+  defaultEmptyFunction
 } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const {
@@ -32,21 +34,18 @@ const {
   accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { createToken } = require('server/utils/jwt')
+const { createJWT, check2Fa } = require('server/utils/jwt')
 const { httpResponse, encrypt, getSunstoneAuth } = require('server/utils/server')
 const {
   responseOpennebula,
-  checkOpennebulaCommand,
-  check2Fa
+  getDefaultParamsOfOpennebulaCommand
 } = require('server/utils/opennebula')
 
 const appConfig = getConfig()
 
 const namespace = appConfig.namespace || defaultNamespace
 
-const { POST } = httpMethod
-
-const getOpennebulaMethod = checkOpennebulaCommand(ActionUsers.USER_LOGIN, POST)
+const { GET } = httpMethod
 
 let user = ''
 let key = ''
@@ -55,75 +54,174 @@ let pass = ''
 let type = ''
 let tfatoken = ''
 let extended = ''
-let next = () => undefined
+let next = defaultEmptyFunction
 let req = {}
 let res = {}
-let nodeConnect = () => undefined
+let nodeConnect = defaultEmptyFunction
 let now = ''
 let nowUnix = ''
 let nowWithMinutes = ''
 let relativeTime = ''
 
-const dataSourceWithExpirateDate = () => Map(req).toObject()
-
+/**
+ * Get key opennebula.
+ *
+ * @returns {string} get key
+ */
 const getKey = () => key
+
+/**
+ * Get initialization vector.
+ *
+ * @returns {string} get initialization vector
+ */
 const getIV = () => iv
+
+/**
+ * Get user opennebula.
+ *
+ * @returns {string} user opennebula
+ */
 const getUser = () => user
+
+/**
+ * Get user password openebula.
+ *
+ * @returns {string} get password user opennebula
+ */
 const getPass = () => pass
+
+/**
+ * Get relative time.
+ *
+ * @returns {string} date
+ */
 const getRelativeTime = () => relativeTime
 
+/**
+ * Opennebula encode-decode key.
+ *
+ * @param {string} newKey - new key
+ * @returns {string} get key
+ */
 const setKey = newKey => {
   key = newKey
   return key
 }
 
+/**
+ * Initialization vector (encrypt).
+ *
+ * @param {string} newIV - //16 characters
+ * @returns {string} get IV
+ */
 const setIV = newIV => {
   iv = newIV
   return iv
 }
 
+/**
+ * Username opennebula.
+ *
+ * @param {string} newUser - new user data
+ * @returns {string} get user
+ */
 const setUser = newUser => {
   user = newUser
   return user
 }
 
+/**
+ * User  password opennebula.
+ *
+ * @param {string} newPass - set new opennebula password user
+ * @returns {string} password user
+ */
 const setPass = newPass => {
   pass = newPass
   return pass
 }
 
+/**
+ * Type app.
+ *
+ * @param {string} newtype - new type (application)
+ * @returns {string} get type
+ */
 const setType = newtype => {
   type = newtype
   return type
 }
 
+/**
+ * Set 2FA token.
+ *
+ * @param {string} newTfaToken - new TFA token
+ * @returns {string} get TFA token
+ */
 const setTfaToken = newTfaToken => {
   tfatoken = newTfaToken
   return tfatoken
 }
 
+/**
+ * Set extended.
+ *
+ * @param {boolean} newExtended - new extended
+ * @returns {boolean} extended
+ */
 const setExtended = newExtended => {
   extended = newExtended
   return extended
 }
-const setNext = newNext => {
+
+/**
+ * Set express stepper.
+ *
+ * @param {Function} newNext - new stepper
+ * @returns {Function} http response
+ */
+const setNext = (newNext = defaultEmptyFunction) => {
   next = newNext
   return next
 }
-const setReq = newReq => {
+
+/**
+ * Set http resquest.
+ *
+ * @param {object} newReq - new request
+ * @returns {object} http resquest
+ */
+const setReq = (newReq = {}) => {
   req = newReq
   return req
 }
-const setNodeConnect = newConnect => {
+
+/**
+ * Set xlmrpc connection function.
+ *
+ * @param {Function} newConnect - new connect opennebula
+ * @returns {Function} xmlrpc function
+ */
+const setNodeConnect = (newConnect = defaultEmptyFunction) => {
   nodeConnect = newConnect
   return nodeConnect
 }
 
-const setRes = newRes => {
+/**
+ * Set http response.
+ *
+ * @param {object} newRes - new response
+ * @returns {object} http response
+ */
+const setRes = (newRes = {}) => {
   res = newRes
   return res
 }
 
+/**
+ * Set dates.
+ */
 const setDates = () => {
   const limitToken = appConfig.opennebula_expiration || defaultOpennebulaExpiration
   now = DateTime.local()
@@ -133,12 +231,24 @@ const setDates = () => {
   relativeTime = diff.seconds
 }
 
+/**
+ * Connect to function xmlrpc.
+ *
+ * @param {string} usr - user
+ * @param {string} pss - password
+ * @returns {Function} xmlrpc function
+ */
 const connectOpennebula = (usr = '', pss = '') => {
   const connectUser = usr || user
   const connectPass = pss || pass
   return nodeConnect(connectUser, connectPass)
 }
 
+/**
+ * Updater http request.
+ *
+ * @param {string} code - http code
+ */
 const updaterResponse = code => {
   if (
     'id' in code &&
@@ -151,6 +261,12 @@ const updaterResponse = code => {
   }
 }
 
+/**
+ * Validate 2FA.
+ *
+ * @param {object} informationUser - user data
+ * @returns {boolean} return if data is valid
+ */
 const validate2faAuthentication = informationUser => {
   let rtn = false
   if (
@@ -182,12 +298,18 @@ const validate2faAuthentication = informationUser => {
   return rtn
 }
 
+/**
+ * Generate a JWT.
+ *
+ * @param {string} token - opennebula token
+ * @param {object} informationUser - user data
+ */
 const genJWT = (token, informationUser) => {
   if (token && token.token && informationUser && informationUser.ID && informationUser.NAME) {
     const { ID: id, TEMPLATE: userTemplate, NAME: user } = informationUser
     const dataJWT = { id, user, token: token.token }
     const addTime = token.expiration_time || nowWithMinutes.toSeconds()
-    const jwt = createToken(dataJWT, nowUnix, addTime)
+    const jwt = createJWT(dataJWT, nowUnix, addTime)
     if (jwt) {
       if (!global.users) {
         global.users = {}
@@ -202,13 +324,15 @@ const genJWT = (token, informationUser) => {
   }
 }
 
+/**
+ * Get zones.
+ */
 const setZones = () => {
   if (global && !global.zones) {
     const oneConnect = connectOpennebula()
-    const dataSource = dataSourceWithExpirateDate()
     oneConnect(
       ActionZones.ZONEPOOL_INFO,
-      getOpennebulaMethod(dataSource),
+      getDefaultParamsOfOpennebulaCommand(ActionZones.ZONEPOOL_INFO, GET),
       (err, value) => {
         // res, err, value, response, next
         responseOpennebula(
@@ -245,6 +369,13 @@ const setZones = () => {
   }
 }
 
+/**
+ * Create token server admin.
+ *
+ * @param {string} serverAdmin - serveradmin name
+ * @param {string} username - user name
+ * @returns {string} data encrypted serveradmin
+ */
 const createTokenServerAdmin = (serverAdmin = '', username = '') => {
   let rtn
   const key = getKey()
@@ -259,6 +390,12 @@ const createTokenServerAdmin = (serverAdmin = '', username = '') => {
   return rtn
 }
 
+/**
+ * Wrap user with serveradmin.
+ *
+ * @param {object} serverAdminData - opennebula serveradmin data
+ * @param {object} userData - opennebula user data
+ */
 const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
   const relativeTime = getRelativeTime()
   let serverAdminName = ''
@@ -303,6 +440,11 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
   }
 }
 
+/**
+ * Get server admin and wrap user.
+ *
+ * @param {object} userData - opennebula user data
+ */
 const getServerAdminAndWrapUser = (userData = {}) => {
   const serverAdminData = getSunstoneAuth()
   if (serverAdminData &&
@@ -316,7 +458,7 @@ const getServerAdminAndWrapUser = (userData = {}) => {
     const oneConnect = connectOpennebula(`${serverAdminData.username}:${serverAdminData.username}`, tokenWithServerAdmin)
     oneConnect(
       ActionUsers.USER_INFO,
-      [-1, false],
+      getDefaultParamsOfOpennebulaCommand(ActionUsers.USER_INFO, GET),
       (err, value) => {
         responseOpennebula(
           updaterResponse,
@@ -330,6 +472,11 @@ const getServerAdminAndWrapUser = (userData = {}) => {
   }
 }
 
+/**
+ * Login route function.
+ *
+ * @param {object} userData - opennebula user data
+ */
 const login = userData => {
   let rtn = false
   if (userData) {

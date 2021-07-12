@@ -1,33 +1,34 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const GROUP_ALLOCATE = 'group.allocate';
-const GROUP_DELETE = 'group.delete';
-const GROUP_INFO = 'group.info';
-const GROUP_UPDATE = 'group.update';
-const GROUP_ADDADMIN = 'group.addadmin';
-const GROUP_DELADMIN = 'group.deladmin';
-const GROUP_QUOTA = 'group.quota';
-const GROUP_POOL_INFO = 'grouppool.info';
-const GROUP_QUOTA_INFO = 'groupquota.info';
-const GROUP_QUOTA_UPDATE = 'groupquota.update';
+const GROUP_ALLOCATE = 'group.allocate'
+const GROUP_DELETE = 'group.delete'
+const GROUP_INFO = 'group.info'
+const GROUP_UPDATE = 'group.update'
+const GROUP_ADDADMIN = 'group.addadmin'
+const GROUP_DELADMIN = 'group.deladmin'
+const GROUP_QUOTA = 'group.quota'
+const GROUP_POOL_INFO = 'grouppool.info'
+const GROUP_QUOTA_INFO = 'groupquota.info'
+const GROUP_QUOTA_UPDATE = 'groupquota.update'
 
 const Actions = {
   GROUP_ALLOCATE,
@@ -40,7 +41,7 @@ const Actions = {
   GROUP_POOL_INFO,
   GROUP_QUOTA_INFO,
   GROUP_QUOTA_UPDATE
-};
+}
 
 module.exports = {
   Actions,
@@ -160,4 +161,4 @@ module.exports = {
       }
     }
   }
-};
+}

@@ -1,22 +1,23 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
 const { action } = require('./schemas')
 const { oneFlowConection } = require('./functions')
-const { httpMethod } = require('server/utils/constants/defaults')
+const { httpMethod, defaultEmptyFunction } = require('server/utils/constants/defaults')
 const { httpResponse, parsePostData } = require('server/utils/server')
 const {
   ok,
@@ -26,41 +27,69 @@ const {
 const { returnSchemaError } = require('./functions')
 const { GET, POST, DELETE } = httpMethod
 
-const service = (res = {}, next = () => undefined, params = {}, userData = {}) => {
-  const { user, password } = userData
-  const success = data => {
+/**
+ * Response http when have information.
+ *
+ * @param {Function} next - express stepper
+ * @param {object} res - response http
+ * @param {string} data - data response http
+ */
+const success = (next = defaultEmptyFunction, res = {}, data = '') => {
+  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
     res.locals.httpCode = httpResponse(ok, data)
     next()
   }
-  const error = data => {
+}
+
+/**
+ * Response http when no have information.
+ *
+ * @param {Function} next - express stepper
+ * @param {object} res - response http
+ * @param {string} data - data response http
+ */
+const error = (next = defaultEmptyFunction, res = {}, data = '') => {
+  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
     res.locals.httpCode = httpResponse(internalServerError, data && data.message)
     next()
   }
+}
+
+/**
+ * Get service.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ */
+const service = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+  const { user, password } = userData
   if (user && password) {
     const config = { method: GET, path: '/service', user, password }
     if (params && params.id) {
       config.path = '/service/{0}'
       config.request = params.id
-      oneFlowConection(config, success, error)
+      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
     } else {
-      oneFlowConection(config, success, error)
+      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
     }
   }
 }
 
-const serviceDelete = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Delete service.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ */
+const serviceDelete = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  const success = data => {
-    res.locals.httpCode = httpResponse(ok, data)
-    next()
-  }
-  const error = data => {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
-    next()
-  }
   if (params && params.id && user && password) {
     const config = { method: DELETE, path: '/service/{0}', user, password, request: params.id }
-    oneFlowConection(config, success, error)
+    oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
   } else {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,
@@ -71,16 +100,16 @@ const serviceDelete = (res = {}, next = () => undefined, params = {}, userData =
   }
 }
 
-const serviceAddAction = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Add action service.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ */
+const serviceAddAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  const success = data => {
-    res.locals.httpCode = httpResponse(ok, data)
-    next()
-  }
-  const error = data => {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
-    next()
-  }
   if (params && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
@@ -94,7 +123,7 @@ const serviceAddAction = (res = {}, next = () => undefined, params = {}, userDat
         request: params.id,
         post: postAction
       }
-      oneFlowConection(config, success, error)
+      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -113,16 +142,16 @@ const serviceAddAction = (res = {}, next = () => undefined, params = {}, userDat
   }
 }
 
-const serviceAddScale = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Add scale service.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ */
+const serviceAddScale = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  const success = data => {
-    res.locals.httpCode = httpResponse(ok, data)
-    next()
-  }
-  const error = data => {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
-    next()
-  }
   if (params && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
@@ -136,7 +165,7 @@ const serviceAddScale = (res = {}, next = () => undefined, params = {}, userData
         request: params.id,
         post: postAction
       }
-      oneFlowConection(config, success, error)
+      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -155,16 +184,16 @@ const serviceAddScale = (res = {}, next = () => undefined, params = {}, userData
   }
 }
 
-const serviceAddRoleAction = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+/**
+ * Add service role action.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {object} userData - user data
+ */
+const serviceAddRoleAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  const success = data => {
-    res.locals.httpCode = httpResponse(ok, data)
-    next()
-  }
-  const error = data => {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
-    next()
-  }
   if (params && params.role && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
@@ -178,7 +207,7 @@ const serviceAddRoleAction = (res = {}, next = () => undefined, params = {}, use
         request: [params.role, params.id],
         post: postAction
       }
-      oneFlowConection(config, success, error)
+      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,

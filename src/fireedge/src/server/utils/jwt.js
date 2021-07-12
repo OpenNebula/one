@@ -1,22 +1,35 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const jwt = require('jwt-simple')
 const { messageTerminal } = require('./general')
+const speakeasy = require('speakeasy')
 
-const createToken = (
+/**
+ * Create a JWT.
+ *
+ * @param {object} param0 - object of data to JWT {ID, USER, Opennebula_token}
+ * @param {string} param0.id - user ID
+ * @param {string} param0.user - username
+ * @param {string} param0.token - token opennebula
+ * @param {number} iat - epoch create time (now)
+ * @param {number} exp - epoch expire time
+ * @returns {string} JWT
+ */
+const createJWT = (
   { id: iss, user: aud, token: jti },
   iat = '',
   exp = ''
@@ -35,7 +48,13 @@ const createToken = (
   return rtn
 }
 
-const validateAuth = req => {
+/**
+ * Validate auth (JWT).
+ *
+ * @param {object} req - http request
+ * @returns {object} return data of JWT
+ */
+const validateAuth = (req = {}) => {
   let rtn = false
   if (req && req.headers && req.headers.authorization) {
     const authorization = req.headers.authorization
@@ -78,7 +97,27 @@ const validateAuth = req => {
   return rtn
 }
 
+/**
+ * Check 2FA.
+ *
+ * @param {string} secret - secret key
+ * @param {string} token - token JWT
+ * @returns {string} data decoded
+ */
+const check2Fa = (secret = '', token = '') => {
+  let rtn = false
+  if (secret && token) {
+    rtn = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token
+    })
+  }
+  return rtn
+}
+
 module.exports = {
-  createToken,
-  validateAuth
+  createJWT,
+  validateAuth,
+  check2Fa
 }

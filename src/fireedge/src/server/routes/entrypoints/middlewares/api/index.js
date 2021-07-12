@@ -1,17 +1,19 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+
 const { Map } = require('immutable')
 const { env } = require('process')
 const { global } = require('window-or-global')
@@ -37,14 +39,50 @@ let queriesState = defaultQueries.toObject()
 let idUserOpennebula = ''
 let userOpennebula = ''
 let passOpennebula = ''
-
+/**
+ * Get params state.
+ *
+ * @returns {object} params state
+ */
 const getParamsState = () => paramsState
+
+/**
+ * Get query state.
+ *
+ * @returns {object} query state
+ */
 const getQueriesState = () => queriesState
+
+/**
+ * Get id opennebula user.
+ *
+ * @returns {number} id opennebula user
+ */
 const getIdUserOpennebula = () => idUserOpennebula
+
+/**
+ * Get user opennebula.
+ *
+ * @returns {string} opennebula username
+ */
 const getUserOpennebula = () => userOpennebula
+
+/**
+ * Get pass opennebula.
+ *
+ * @returns {string} opennebula user password
+ */
 const getPassOpennebula = () => passOpennebula
 
-const passUserValidation = (user = '', token = '') => {
+/**
+ * Validate user in global state.
+ *
+ * @param {string} user - username
+ * @param {string} token - token of user
+ * @returns {boolean} user valid data
+ */
+const userValidation = (user = '', token = '') => {
+  let rtn = false
   if (user &&
     token &&
     global &&
@@ -52,16 +90,31 @@ const passUserValidation = (user = '', token = '') => {
     global.users[user] &&
     global.users[user].token &&
     global.users[user].token === token) {
-    return true
+    rtn = true
   }
+  return rtn
 }
 
+/**
+ * MIDDLEWARE validate resource and session.
+ *
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ */
 const validateResourceAndSession = (req, res, next) => {
   const { badRequest, unauthorized, serviceUnavailable } = httpCodes
   let status = badRequest
   if (req && req.params && req.params.resource) {
     const resource = req.params.resource
     status = serviceUnavailable
+
+    /**
+     * Finder command.
+     *
+     * @param {object} rtnCommand - command
+     * @returns {object} command
+     */
     const finderCommand = rtnCommand =>
       rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource
     if (authenticated.some(finderCommand)) {
@@ -75,7 +128,7 @@ const validateResourceAndSession = (req, res, next) => {
             * Validate user in production mode
           *********************************************************/
 
-          if (passUserValidation(userOpennebula, passOpennebula)) {
+          if (userValidation(userOpennebula, passOpennebula)) {
             next()
             return
           }
@@ -90,7 +143,7 @@ const validateResourceAndSession = (req, res, next) => {
           if (!global.users[userOpennebula]) {
             global.users[userOpennebula] = { token: passOpennebula }
           }
-          if (passUserValidation(userOpennebula, passOpennebula)) {
+          if (userValidation(userOpennebula, passOpennebula)) {
             next()
             return
           }
@@ -105,8 +158,14 @@ const validateResourceAndSession = (req, res, next) => {
   }
   res.status(status.id).json(status)
 }
-
-const optionalParameters = (req, res, next) => {
+/**
+ * MIDDLEWARE set optional parameters.
+ *
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ */
+const setOptionalParameters = (req, res, next) => {
   if (req && req.params) {
     let start = true
     const keys = Object.keys(req.params)
@@ -141,8 +200,14 @@ const optionalParameters = (req, res, next) => {
   }
   next()
 }
-
-const optionalQueries = (req, res, next) => {
+/**
+ * MIDDLEWARE set optional queries.
+ *
+ * @param {object} req - http request
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ */
+const setOptionalQueries = (req, res, next) => {
   if (req && req.query) {
     const keys = Object.keys(req.query)
     const queries = getAllowedQueryParams()
@@ -155,6 +220,9 @@ const optionalQueries = (req, res, next) => {
   next()
 }
 
+/**
+ * Clear states.
+ */
 const clearStates = () => {
   paramsState = defaultParams.toObject()
   queriesState = defaultQueries.toObject()
@@ -165,8 +233,8 @@ const clearStates = () => {
 
 module.exports = {
   validateResourceAndSession,
-  optionalParameters,
-  optionalQueries,
+  setOptionalParameters,
+  setOptionalQueries,
   clearStates,
   getParamsState,
   getQueriesState,
