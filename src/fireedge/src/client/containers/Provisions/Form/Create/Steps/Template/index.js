@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
 import { NavArrowRight } from 'iconoir-react'

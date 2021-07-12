@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useCallback, useState, useEffect, useMemo } from 'react'
 
 import { makeStyles, IconButton, Button, Fade } from '@material-ui/core'
