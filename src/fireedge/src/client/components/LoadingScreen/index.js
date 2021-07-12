@@ -16,7 +16,7 @@
 import * as React from 'react'
 
 import { makeStyles, Box } from '@material-ui/core'
-import Logo from 'client/icons/logo'
+import { OpenNebulaLogo } from 'client/components/Icons'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -41,7 +41,7 @@ const LoadingScreen = () => {
 
   return (
     <Box className={classes.root}>
-      <Logo width={360} height={360} spinner withText />
+      <OpenNebulaLogo width={360} height={360} spinner withText />
     </Box>
   )
 }

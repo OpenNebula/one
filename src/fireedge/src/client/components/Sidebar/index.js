@@ -32,7 +32,7 @@ import { useGeneral, useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
-import Logo from 'client/icons/logo'
+import { OpenNebulaLogo } from 'client/components/Icons'
 
 const Sidebar = ({ endpoints }) => {
   const classes = sidebarStyles()
@@ -69,7 +69,7 @@ const Sidebar = ({ endpoints }) => {
       open={isFixMenu}
     >
       <Box className={classes.header}>
-        <Logo
+        <OpenNebulaLogo
           width='100%'
           height={50}
           withText

@@ -22,13 +22,13 @@ import {
   SimpleCart as MarketplaceIcon,
   EmptyPage as TemplateIcon
 } from 'iconoir-react'
-import DockerLogo from 'client/icons/docker'
 
+import { DockerLogo } from 'client/components/Icons'
+import ListTemplates from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers/Steps/Template/List/Templates'
+import ListMarketApps from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers/Steps/Template/List/MarketApps'
+import DockerFile from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers/Steps/Template/List/Docker'
+import { STEP_FORM_SCHEMA } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers/Steps/Template/schema'
 import { T } from 'client/constants'
-import ListTemplates from './List/Templates'
-import ListMarketApps from './List/MarketApps'
-import DockerFile from './List/Docker'
-import { STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'template'
 

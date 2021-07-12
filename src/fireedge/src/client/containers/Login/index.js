@@ -21,7 +21,7 @@ import { Paper, Box, Container, LinearProgress, useMediaQuery } from '@material-
 import { useFetch } from 'client/hooks'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 
-import Logo from 'client/icons/logo'
+import { OpenNebulaLogo } from 'client/components/Icons'
 import Form from 'client/containers/Login/Form'
 import * as FORMS from 'client/containers/Login/schema'
 import loginStyles from 'client/containers/Login/styles'
@@ -79,7 +79,12 @@ function Login () {
       {isLoading && <LinearProgress color='secondary' className={classes.loading} />}
       <Paper variant="outlined" className={classes.paper}>
         {useMemo(() => (
-          <Logo width='100%' height={100} withText data-cy='opennebula-logo' />
+          <OpenNebulaLogo
+            data-cy='opennebula-logo'
+            height={100}
+            width='100%'
+            withText
+          />
         ), [])}
         <Box className={classes.wrapperForm}>
           {step === STEPS.USER_FORM && <Form

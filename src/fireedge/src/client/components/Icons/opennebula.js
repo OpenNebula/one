@@ -19,7 +19,7 @@ import { useTheme } from '@material-ui/core'
 
 import { SCHEMES } from 'client/constants'
 
-const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
+const OpenNebulaLogo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
   const { palette: { type } } = useTheme()
   const isDarkMode = type === SCHEMES.DARK
 
@@ -129,7 +129,7 @@ const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
   )
 })
 
-Logo.propTypes = {
+OpenNebulaLogo.propTypes = {
   width: oneOfType([number, string]).isRequired,
   height: oneOfType([number, string]).isRequired,
   viewBox: string,
@@ -137,7 +137,7 @@ Logo.propTypes = {
   withText: bool
 }
 
-Logo.defaultProps = {
+OpenNebulaLogo.defaultProps = {
   width: 360,
   height: 360,
   viewBox: '0 0 425 167',
@@ -145,6 +145,6 @@ Logo.defaultProps = {
   withText: false
 }
 
-Logo.displayName = 'LogoOne'
+OpenNebulaLogo.displayName = 'OpenNebulaLogo'
 
-export default Logo
+export default OpenNebulaLogo
