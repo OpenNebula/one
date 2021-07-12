@@ -16,7 +16,7 @@
         <xs:element name="STATE" type="xs:string"/>
         <xs:element name="LCM_STATE" type="xs:string" maxOccurs="1" minOccurs="0"/>
         <xs:element name="REMOTE_HOST" type="xs:string" maxOccurs="1" minOccurs="0"/>
-         <!-- The template of the resource (VM or Host) is inlcuded here -->
+         <!-- The template of the resource (VM or Host) is included here -->
          <xs:element ref="HOST" maxOccurs="1" minOccurs="0"/>
          <xs:element ref="VM" maxOccurs="1" minOccurs="0"/>
       </xs:sequence>

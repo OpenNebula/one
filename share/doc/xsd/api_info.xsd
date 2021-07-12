@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The information sent to the hook when $API is used in an API Hook follos the following schema   -->
+<!-- The information sent to the hook when $API is used in an API Hook follow the following schema   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
   <xs:element name="CALL_INFO">
     <xs:complexType>
@@ -13,7 +13,7 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="POSITION" type="xs:integer"/>
-                    <xs:element name="TYPE" type="xs:integer">
+                    <xs:element name="TYPE" type="xs:string">
                       <xs:simpleType>
                         <xs:restriction base="xs:string">
                         <xs:enumeration value="IN"/>

@@ -6,7 +6,7 @@
       <xs:sequence>
         <xs:element name="HOOK_TYPE" type="xs:string" fixed="API"/>
         <xs:element name="CALL" type="xs:string"/>
-         <!-- CALL_INFO type is defined in call_info.xsd   -->
+         <!-- CALL_INFO type is defined in api_info.xsd   -->
         <xs:element ref="CALL_INFO" maxOccurs="unbounded" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
