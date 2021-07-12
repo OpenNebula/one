@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -36,10 +37,6 @@ import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import headerStyles from 'client/components/Header/styles'
 
-/**
- * @param root0
- * @param root0.scrollContainer
- */
 const Header = ({ scrollContainer }) => {
   const { isOneAdmin } = useAuth()
   const { title } = useGeneral()

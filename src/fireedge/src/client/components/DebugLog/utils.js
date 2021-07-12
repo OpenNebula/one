@@ -52,12 +52,12 @@ export const getMessageInfo = (data = '') => {
 /**
  * Returns a new log with a new message concatenated.
  *
- * @param {Array} log - Current log data
+ * @param {object} log - Current log data
  * @param {object} message - New message to concat
  * @param {string} message.command - Message's command: create, configure, etc
  * @param {string} message.commandId - Message's command id
  * @param {string} message.data - Message's information data
- * @returns {Array} New log
+ * @returns {object} New log
  */
 export const concatNewMessageToLog = (log, message = {}) => {
   if (typeof message !== 'object') return log

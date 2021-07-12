@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -20,14 +21,6 @@ import { TextField, Box } from '@material-ui/core'
 import { useSearch } from 'client/hooks'
 import { ListInfiniteScroll } from 'client/components/List'
 
-/**
- * @param root0
- * @param root0.list
- * @param root0.listOptions
- * @param root0.renderResult
- * @param root0.startAdornment
- * @param root0.searchBoxProps
- */
 const Search = ({
   list,
   listOptions,

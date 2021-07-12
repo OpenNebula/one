@@ -42,10 +42,13 @@ const useStyles = makeStyles(theme => ({
 }))
 
 /**
- * @param root0
- * @param root0.legend
- * @param root0.data
- * @param root0.total
+ * Represents a chart bar with legend.
+ *
+ * @param {object} props - Props
+ * @param {{ name: string, color: string }[]} props.legend - Legend
+ * @param {number[]} props.data - Chart data
+ * @param {number} props.total - Total value of chart, equals to 100% of bar
+ * @returns {React.JSXElementConstructor} Chart bar component
  */
 const SingleBar = ({ legend, data, total }) => {
   const fragments = data.map(data => Math.floor(data * 10 / (total || 1)))

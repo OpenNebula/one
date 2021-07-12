@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -32,12 +33,6 @@ import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
 
-/**
- * @param root0
- * @param root0.label
- * @param root0.routes
- * @param root0.icon
- */
 const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
   const classes = sidebarStyles()
   const { isFixMenu } = useGeneral()

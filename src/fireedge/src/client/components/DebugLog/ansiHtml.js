@@ -61,8 +61,8 @@ const _closeTags = {
 /**
  * Converts text with ANSI color codes to HTML markup.
  *
- * @param {string} text
- * @returns {*}
+ * @param {string} text - Text
+ * @returns {string} HTML as string
  */
 export default function ansiHTML (text) {
   // Returns the text if the string has no ANSI escape code.
@@ -172,7 +172,7 @@ if (Object.defineProperty) {
   ansiHTML.tags.close = _closeTags
 }
 
-function _setTags (colors) {
+const _setTags = (colors) => {
   // reset all
   _openTags['0'] = 'font-weight:normal;opacity:1;color:#' + colors.reset[0] + ';background:#' + colors.reset[1]
   // inverse

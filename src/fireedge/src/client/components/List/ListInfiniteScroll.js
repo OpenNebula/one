@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useRef, useEffect, useCallback, createRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { debounce, LinearProgress } from '@material-ui/core'
 import { useList, useNearScreen } from 'client/hooks'
 
-/**
- * @param root0
- * @param root0.list
- * @param root0.renderResult
- */
 const ListInfiniteScroll = ({ list, renderResult }) => {
   const gridRef = createRef()
   const { loading, shortList, finish, reset, setLength } = useList({

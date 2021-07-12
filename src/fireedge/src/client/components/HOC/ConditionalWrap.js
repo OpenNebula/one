@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { cloneElement } from 'react'
+import { cloneElement, Component, ReactElement, JSXElementConstructor } from 'react'
 
 /**
- * @param root0
- * @param root0.condition
- * @param root0.children
- * @param root0.wrap
+ * @param {object} props - Props
+ * @param {boolean} props.condition - Condition
+ * @param {JSXElementConstructor} props.children - Children
+ * @param {Component|ReactElement} props.wrap - Wrapper
+ * @returns {JSXElementConstructor} Returns children with wrapper component
  */
 const ConditionalWrap = ({ condition, children, wrap }) =>
   condition ? cloneElement(wrap(children)) : children

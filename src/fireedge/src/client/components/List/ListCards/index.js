@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React from 'react'
 import PropTypes from 'prop-types'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
@@ -26,20 +27,6 @@ import { EmptyCard } from 'client/components/Cards'
 import FloatingActionButton from 'client/components/Fab'
 import listCardsStyles from 'client/components/List/ListCards/styles'
 
-/**
- * @param root0
- * @param root0.list
- * @param root0.keyProp
- * @param root0.breakpoints
- * @param root0.handleCreate
- * @param root0.ButtonCreateComponent
- * @param root0.CardComponent
- * @param root0.cardsProps
- * @param root0.EmptyComponent
- * @param root0.displayEmpty
- * @param root0.isLoading
- * @param root0.gridProps
- */
 const ListCards = ({
   list,
   keyProp,

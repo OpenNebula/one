@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
+import { UseTableInstanceProps } from 'react-table'
 
 const Header = ({ useTableProps }) => {
-  /** @type {import('react-table').UseTableInstanceProps} */
+  /** @type {UseTableInstanceProps} */
   const { headerGroups } = useTableProps
 
   const renderHeaderColumn = React.useCallback(column => (

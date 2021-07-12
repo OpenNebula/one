@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -31,14 +32,6 @@ import { DevTypography } from 'client/components/Typography'
 
 const STATIC_LABEL_PROPS = { 'data-cy': 'main-menu-item-text' }
 
-/**
- * @param root0
- * @param root0.label
- * @param root0.path
- * @param root0.icon
- * @param root0.devMode
- * @param root0.isSubItem
- */
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const classes = sidebarStyles()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })

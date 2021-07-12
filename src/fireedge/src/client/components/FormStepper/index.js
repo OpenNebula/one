@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -26,12 +27,6 @@ import { groupBy } from 'client/utils'
 
 const FIRST_STEP = 0
 
-/**
- * @param root0
- * @param root0.steps
- * @param root0.schema
- * @param root0.onSubmit
- */
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
@@ -48,9 +43,6 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     reset({ ...formData }, { errors: false })
   }, [formData])
 
-  /**
-   * @param step
-   */
   const validateSchema = step => {
     const { id, resolver, optionsValidate } = steps[step]
     const stepData = watch(id)
@@ -61,10 +53,6 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       .then(() => ({ id, data: stepData }))
   }
 
-  /**
-   * @param root0
-   * @param root0.inner
-   */
   const setErrors = ({ inner = [], ...rest }) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
@@ -81,9 +69,6 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     )
   }
 
-  /**
-   * @param stepToAdvance
-   */
   const handleStep = stepToAdvance => {
     const isBackAction = activeStep > stepToAdvance
 
@@ -105,9 +90,6 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       })
   }
 
-  /**
-   *
-   */
   const handleNext = () => {
     validateSchema(activeStep)
       .then(({ id, data }) => {

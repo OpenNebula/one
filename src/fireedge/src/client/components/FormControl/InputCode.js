@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import { Box } from '@material-ui/core'
 import AceEditor from 'react-ace'
@@ -20,11 +21,6 @@ import PropTypes from 'prop-types'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
 
-/**
- * @param root0
- * @param root0.code
- * @param root0.language
- */
 const InputCode = ({ code, language, ...props }) => {
   const handleChange = newValue => {
     console.log('change', newValue)

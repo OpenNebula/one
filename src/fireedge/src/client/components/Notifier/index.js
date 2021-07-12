@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -22,10 +23,6 @@ import { Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
-/**
- * @param root0
- * @param root0.handleClick
- */
 const CloseButton = ({ handleClick }) => (
   <IconButton onClick={handleClick} component="span">
     <CloseIcon size='1em' />
@@ -34,25 +31,16 @@ const CloseButton = ({ handleClick }) => (
 
 let displayed = []
 
-/**
- *
- */
 const Notifier = () => {
   const { notifications } = useGeneral()
   const { deleteSnackbar } = useGeneralApi()
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  /**
-   * @param id
-   */
   const storeDisplayed = id => {
     displayed = [...displayed, id]
   }
 
-  /**
-   * @param id
-   */
   const removeDisplayed = id => {
     displayed = [...displayed.filter(key => id !== key)]
   }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Button } from '@material-ui/core'
 import { Filter as FilterIcon } from 'iconoir-react'
+import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'react-table'
 
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 
@@ -38,10 +40,10 @@ const useToolbarStyles = makeStyles(theme => ({
 const Toolbar = ({ useTableProps }) => {
   const classes = useToolbarStyles()
 
-  /** @type {import('react-table').UseGlobalFiltersInstanceProps} */
+  /** @type {UseGlobalFiltersInstanceProps} */
   const { preGlobalFilteredRows, setGlobalFilter, state } = useTableProps
 
-  /** @type {import('react-table').UseFiltersState} */
+  /** @type {UseFiltersState} */
   const { globalFilter } = state
 
   return (

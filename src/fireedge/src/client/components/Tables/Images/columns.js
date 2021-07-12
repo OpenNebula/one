@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as ImageModel from 'client/models/Image'
 

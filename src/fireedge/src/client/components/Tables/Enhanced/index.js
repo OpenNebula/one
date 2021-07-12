@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -24,7 +25,9 @@ import {
   usePagination,
   useRowSelect,
   useSortBy,
-  useTable
+  useTable,
+  // types
+  UseRowSelectRowProps
 } from 'react-table'
 
 import SplitPane from 'client/components/SplitPane'
@@ -156,7 +159,7 @@ const EnhancedTable = ({
             {page.map(row => {
               prepareRow(row)
 
-              /** @type {import('react-table').UseRowSelectRowProps} */
+              /** @type {UseRowSelectRowProps} */
               const { getRowProps, original, values, toggleRowSelected, isSelected } = row
               const { key, ...rowProps } = getRowProps()
 

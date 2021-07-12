@@ -19,7 +19,11 @@ import { Redirect, Route } from 'react-router-dom'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 
 /**
- * @param props
+ * Private route.
+ *
+ * @param {object} props - Route props
+ * @returns {Redirect|Route}
+ * - If current user isn't authenticated, then redirect to landing page
  */
 const ProtectedRoute = props => {
   const { isLogged, jwt } = useAuth()

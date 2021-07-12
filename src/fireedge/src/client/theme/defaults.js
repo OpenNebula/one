@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ThemeOptions } from '@material-ui/core'
 import { UbuntuFont } from 'client/theme/fonts'
 
 export const breakpoints = {
@@ -42,7 +43,7 @@ export const sidebar = {
   fixed: 250
 }
 
-/** @type {import('@material-ui/core').ThemeOptions} */
+/** @type {ThemeOptions} */
 export default {
   breakpoints: {
     values: breakpoints,

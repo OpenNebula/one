@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@material-ui/core'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
+import { UsePaginationState } from 'react-table'
 
 import { T } from 'client/constants'
 
@@ -27,7 +29,7 @@ const Pagination = ({
   useTableProps,
   showPageCount = true
 }) => {
-  /** @type {import('react-table').UsePaginationState} */
+  /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
 
   const pageCount = React.useMemo(() => Math.ceil(count / pageSize), [count])

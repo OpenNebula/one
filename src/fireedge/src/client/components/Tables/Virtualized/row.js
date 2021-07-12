@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box } from '@material-ui/core'
 import clsx from 'clsx'
+import { makeStyles, Box } from '@material-ui/core'
+import { UseTableInstanceProps, UseTableRowProps } from 'react-table'
+import { VirtualItem } from 'react-virtual'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,15 +37,15 @@ const useStyles = makeStyles(() => ({
 }))
 
 const Row = ({ virtualRow, useTableProps }) => {
-  /** @type {import('react-virtual').VirtualItem} */
+  /** @type {VirtualItem} */
   const { index, measureRef, size, start } = virtualRow
 
   const classes = useStyles({ size, start })
 
-  /** @type {import('react-table').UseTableInstanceProps} */
+  /** @type {UseTableInstanceProps} */
   const { rows, prepareRow } = useTableProps
 
-  /** @type {import('react-table').UseTableRowProps} */
+  /** @type {UseTableRowProps} */
   const row = rows[index]
 
   prepareRow(row)

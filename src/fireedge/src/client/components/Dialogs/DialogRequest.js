@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -34,13 +35,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-/**
- * @param root0
- * @param root0.withTabs
- * @param root0.request
- * @param root0.dialogProps
- * @param root0.children
- */
 const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
   const classes = useStyles()
   const fetchProps = useFetch(request)

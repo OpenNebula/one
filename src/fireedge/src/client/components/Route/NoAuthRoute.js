@@ -20,8 +20,13 @@ import { Redirect, Route } from 'react-router-dom'
 import { useAuth } from 'client/features/Auth'
 
 /**
- * @param root0
- * @param root0.redirectWhenAuth
+ * Public route.
+ *
+ * @param {object} props - Route props
+ * @param {React.JSXElementConstructor} props.redirectWhenAuth
+ * - Route to redirect in case of user is authenticated
+ * @returns {Redirect|Route}
+ * - If current user is authenticated, then redirect to private route
  */
 const NoAuthRoute = ({ redirectWhenAuth, ...props }) => {
   const { isLogged, isLoginInProgress, isLoading } = useAuth()

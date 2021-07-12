@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -20,10 +21,6 @@ import { Box } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { Tr } from 'client/components/HOC'
 
-/**
- * @param root0
- * @param root0.children
- */
 const AlertError = ({ children, ...props }) => (
   <Box pt={3} display="flex" justifyContent="center" {...props}>
     <Alert severity="error" icon={false} variant="filled">

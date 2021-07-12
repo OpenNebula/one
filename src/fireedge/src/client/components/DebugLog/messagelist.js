@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import Message from 'client/components/DebugLog/message'
 import { getMessageInfo } from 'client/components/DebugLog/utils'
 
-/**
- * @param root0
- * @param root0.log
- * @param root0.filters
- */
 const MessageList = ({ log = {}, filters = {} }) =>
   Object.entries(log)?.map(([command, entries]) => (
   // filter by command

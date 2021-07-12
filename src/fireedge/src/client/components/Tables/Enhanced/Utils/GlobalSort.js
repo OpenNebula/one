@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable jsdoc/check-types */
+/* eslint-disable jsdoc/valid-types */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -37,9 +40,11 @@ const GlobalSort = ({ useTableProps }) => {
   React.useEffect(() => () => setSortBy([]), [])
 
   /**
-   * @type {import('react-table').UseSortByInstanceProps &
-   *        import('react-table').TableInstance &
-   * { state: import('react-table').UseSortByState }}
+   * @type {
+   * import('react-table').UseSortByInstanceProps &
+   * import('react-table').TableInstance &
+   * { state: import('react-table').UseSortByState }
+   * }
    */
   const { headers, setSortBy, state: { sortBy } } = useTableProps
 

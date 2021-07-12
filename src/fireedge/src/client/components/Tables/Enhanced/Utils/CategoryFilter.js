@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { List, ListSubheader, ListItem, Typography, IconButton } from '@material-ui/core'
 import { Cancel } from 'iconoir-react'
+import { UseFiltersInstanceProps } from 'react-table'
 
 import { Tr } from 'client/components/HOC'
 
 const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
-  /** @type {import('react-table').UseFiltersInstanceProps} */
+  /** @type {UseFiltersInstanceProps} */
   const {
     setFilter,
     id,

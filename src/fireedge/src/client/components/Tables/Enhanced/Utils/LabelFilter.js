@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Cancel } from 'iconoir-react'
 import { List, ListSubheader, IconButton } from '@material-ui/core'
 import { TreeView, TreeItem } from '@material-ui/lab'
+import { UseFiltersInstanceProps } from 'react-table'
 
 import { Tr } from 'client/components/HOC'
 
@@ -57,7 +59,7 @@ const buildTree = (data = [], separator = '/') => {
 }
 
 const LabelFilter = ({ title, column }) => {
-  /** @type {import('react-table').UseFiltersInstanceProps} */
+  /** @type {UseFiltersInstanceProps} */
   const { setFilter, id, preFilteredRows, filterValue = [] } = column
 
   React.useEffect(() => () => setFilter([]), [])
@@ -94,8 +96,6 @@ const LabelFilter = ({ title, column }) => {
         ? children.map(node => renderTree(node)) : null}
     </TreeItem>
   )
-
-  console.log({ filterValue })
 
   return (
     <List dense disablePadding>

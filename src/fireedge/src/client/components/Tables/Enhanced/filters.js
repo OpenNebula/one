@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { makeStyles, useMediaQuery, Card, CardContent } from '@material-ui/core'
+import { UseTableInstanceProps } from 'react-table'
 
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 
@@ -49,7 +51,7 @@ const Filters = ({ useTableProps }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
-  /** @type {import('react-table').UseTableInstanceProps} */
+  /** @type {UseTableInstanceProps} */
   const { rows, columns } = useTableProps
 
   const filters = React.useMemo(() => (

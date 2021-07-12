@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 
 import { Button } from '@material-ui/core'
@@ -27,9 +28,6 @@ import headerStyles from 'client/components/Header/styles'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
-/**
- *
- */
 const Group = () => {
   const classes = headerStyles()
   const { user, groups, filterPool } = useAuth()

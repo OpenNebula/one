@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -45,17 +46,6 @@ const useStyles = makeStyles(theme => ({
   stepper: { background: 'transparent' }
 }))
 
-/**
- * @param root0
- * @param root0.steps
- * @param root0.totalSteps
- * @param root0.activeStep
- * @param root0.lastStep
- * @param root0.disabledBack
- * @param root0.handleNext
- * @param root0.handleBack
- * @param root0.errors
- */
 const CustomMobileStepper = ({
   steps,
   totalSteps,

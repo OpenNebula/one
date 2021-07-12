@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -25,10 +26,6 @@ import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
-/**
- * @param root0
- * @param root0.children
- */
 const InternalLayout = ({ children }) => {
   const classes = internalStyles()
   const container = React.useRef()

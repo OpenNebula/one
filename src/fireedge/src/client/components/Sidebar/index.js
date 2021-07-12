@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
@@ -33,10 +34,6 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
 import Logo from 'client/icons/logo'
 
-/**
- * @param root0
- * @param root0.endpoints
- */
 const Sidebar = ({ endpoints }) => {
   const classes = sidebarStyles()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -32,20 +33,10 @@ const InputController = {
   [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
   [INPUT_TYPES.FILE]: FC.FileController
 }
-/**
- * @param root0
- * @param root0.isHidden
- * @param root0.children
- */
+
 const HiddenInput = ({ isHidden, children }) =>
   isHidden ? <Box display="none">{children}</Box> : children
 
-/**
- * @param root0
- * @param root0.id
- * @param root0.cy
- * @param root0.fields
- */
 const FormWithSchema = ({ id, cy, fields }) => {
   const { control, errors, ...formContext } = useFormContext()
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 
 import { Button } from '@material-ui/core'
@@ -24,9 +25,6 @@ import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
 import headerStyles from 'client/components/Header/styles'
 
-/**
- *
- */
 const View = () => {
   const classes = headerStyles()
   const { view, views = {} } = useAuth()
@@ -36,10 +34,6 @@ const View = () => {
     newView && newView !== view && changeView(newView)
   }
 
-  /**
-   * @param viewName
-   * @param handleClose
-   */
   const renderResult = (viewName, handleClose) => (
     <Button
       key={`view-${viewName}`}
