@@ -47,6 +47,7 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att) = 0;
 
+    // Authorize the request, set failure_response message
     bool vm_authorization(int id,
                           ImageTemplate *         tmpl,
                           VirtualMachineTemplate* vtmpl,
@@ -55,15 +56,11 @@ protected:
                           PoolObjectAuth *        ds_perm,
                           PoolObjectAuth *        img_perm);
 
+    // Check user and group quotas. Do not set failure_response on failure
     bool quota_resize_authorization(
             Template *          deltas,
             RequestAttributes&  att,
             PoolObjectAuth&     vm_perms);
-
-    bool quota_resize_authorization(
-            int                 oid,
-            Template *          deltas,
-            RequestAttributes&  att);
 
     int get_host_information(
         int                hid,
