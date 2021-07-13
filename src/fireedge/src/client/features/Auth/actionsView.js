@@ -27,10 +27,9 @@ export const getSunstoneViews = createAsyncThunk(
   async (_, { dispatch }) => {
     try {
       const views = await authService.getSunstoneViews() ?? {}
-      const config = await authService.getSunstoneConfig() ?? {}
+      // const config = await authService.getSunstoneConfig() ?? {}
 
       return {
-        config,
         views,
         view: Object.keys(views)[0]
       }

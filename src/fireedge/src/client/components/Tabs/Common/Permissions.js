@@ -69,7 +69,7 @@ const Permissions = React.memo(({
     const newPermission = { [name]: Helper.stringToBoolean(value) ? '0' : '1' }
     const response = await changePermissions(id, newPermission)
 
-    String(response?.data) === String(id) &&
+    String(response) === String(id) &&
       setPermissions(prev => ({ ...prev, ...newPermission }))
   }
 
