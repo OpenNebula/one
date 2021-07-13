@@ -13,41 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
 import { prettyBytes } from 'client/utils'
 import { DATASTORE_STATES, DATASTORE_TYPES, StateInfo } from 'client/constants'
 
 /**
- * This gets the Datastore type object.
+ * Returns the datastore type name.
  *
- * @param {object} datastore - Datastore.
- * @param {number} datastore.TYPE - Datastore type.
- * @returns {{
- * name: string,
- * shortName: string
- * }} - Datastore type object.
+ * @param {object} datastore - Datastore
+ * @param {number} datastore.TYPE - Datastore type
+ * @returns {DATASTORE_TYPES} - Datastore type object
  */
 export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
 
 /**
- * This gets the Datastore state object.
+ * Returns information about datastore state.
  *
- * @param {object} datastore - Datastore.
- * @param {number} datastore.STATE - Datastore state ID.
- * @returns {StateInfo} - Datastore state object.
+ * @param {object} datastore - Datastore
+ * @param {number} datastore.STATE - Datastore state ID
+ * @returns {StateInfo} - Datastore state object
  */
 export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 
 /**
- * This gets the Datasore use percentage and the corresponding label.
+ * Returns information about datastore capacity.
  *
- * @param {object} props - Props object.
- * @param {number} props.TOTAL_MB - Datastore total space in MB.
- * @param {number} props.USED_MB - Datastore used space in MB.
+ * @param {object} props - Props object
+ * @param {number} props.TOTAL_MB - Datastore total space in MB
+ * @param {number} props.USED_MB - Datastore used space in MB
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
- * }} - Datastore use percentage and label.
+ * }} - Datastore used percentage and label.
  */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
   const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0

@@ -13,26 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import * as STATES from 'client/constants/states'
-import COLOR from 'client/constants/color'
-
-const ZONE_STATES = [
-  { // 0
-    name: STATES.ENABLED,
-    color: COLOR.success.main
-  },
-  { // 1
-    name: STATES.DISABLED,
-    color: COLOR.debug.main
-  }
-]
+import { ZONE_STATES, StateInfo } from 'client/constants'
 
 /**
- * This function gets the zone state.
+ * Returns state information about the zone.
  *
- * @param {object} zone - Zone.
- * @param {number|string} zone.STATE - Zone state numeric code.
- * @returns {STATES.StateInfo} - Zone state information.
+ * @param {object} zone - Zone
+ * @param {number|string} zone.STATE - State
+ * @returns {StateInfo} State information
  */
 export const getState = ({ STATE = 0 } = {}) => ZONE_STATES[+STATE]

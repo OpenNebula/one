@@ -16,35 +16,53 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-/**
- * @type {{name: string, shortName: string}}
- * Datastore type information
- */
-export const DATASTORE_TYPES = [
-  {
-    name: 'IMAGE',
-    shortName: 'img'
+/** @type {STATES.StateInfo[]} Marketplace states */
+export const MARKETPLACE_STATES = [
+  { // 0
+    name: STATES.ENABLED,
+    color: COLOR.success.main
   },
-  {
-    name: 'SYSTEM',
-    shortName: 'sys'
-  },
-  {
-    name: 'FILE',
-    shortName: 'fil'
+  { // 1
+    name: STATES.DISABLED,
+    color: COLOR.debug.main
   }
 ]
 
-/** @type {STATES.StateInfo[]} Datastore states */
-export const DATASTORE_STATES = [
-  {
+/**
+ * @enum {(
+ * 'UNKNOWN'|
+ * 'IMAGE'|
+ * 'VM TEMPLATE'|
+ * 'SERVICE TEMPLATE'
+ * )} Marketplace app type
+ */
+export const MARKETPLACE_APP_TYPES = [
+  'UNKNOWN',
+  'IMAGE',
+  'VM TEMPLATE',
+  'SERVICE TEMPLATE'
+]
+
+/** @type {STATES.StateInfo[]} Marketplace app states */
+export const MARKETPLACE_APP_STATES = [
+  { // 0
+    name: STATES.INIT,
+    color: COLOR.info.main
+  },
+  { // 1
     name: STATES.READY,
-    shortName: 'on',
     color: COLOR.success.main
   },
-  {
+  { // 2
+    name: STATES.LOCKED,
+    color: COLOR.debug.main
+  },
+  { // 3
+    name: STATES.ERROR,
+    color: COLOR.error.main
+  },
+  { // 4
     name: STATES.DISABLED,
-    shortName: 'off',
-    color: COLOR.error.dark
+    color: COLOR.debug.light
   }
 ]

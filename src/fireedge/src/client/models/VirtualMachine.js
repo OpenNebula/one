@@ -13,29 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import { STATES, VM_STATES, VM_LCM_STATES, StateInfo } from 'client/constants'
+import { STATES, VM_STATES, VM_LCM_STATES, NIC_ALIAS_IP_ATTRS, StateInfo } from 'client/constants'
 import { getSecurityGroupsFromResource, prettySecurityGroup } from 'client/models/SecurityGroup'
-
-/* const EXTERNAL_IP_ATTRS = [
-  'GUEST_IP',
-  'GUEST_IP_ADDRESSES',
-  'AWS_IP_ADDRESS',
-  'AWS_PUBLIC_IP_ADDRESS',
-  'AWS_PRIVATE_IP_ADDRESS',
-  'AZ_IPADDRESS',
-  'SL_PRIMARYIPADDRESS'
-] */
-
-const NIC_ALIAS_IP_ATTRS = [
-  'IP',
-  'IP6',
-  'IP6_GLOBAL',
-  'IP6_ULA',
-  'VROUTER_IP',
-  'VROUTER_IP6_GLOBAL',
-  'VROUTER_IP6_ULA'
-]
 
 /**
  * This function removes, from the given list,

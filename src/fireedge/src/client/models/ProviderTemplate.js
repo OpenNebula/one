@@ -13,11 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/**
+ * @typedef {object} ProviderTemplate
+ * @property {string} name - Name
+ * @property {string} [description] - Description
+ * @property {string} provider - Provider type
+ * @property {object} plain - Information in plain format
+ * @property {string} [plain.image] - Image to card
+ * @property {string} plain.provision_type - Provision type
+ * @property {string|string[]} plain.location_key - Location key/s
+ * @property {object} connection - Connections
+ * @property {Array} inputs - Inputs to provision form
+ */
 
-/* eslint-disable jsdoc/require-jsdoc */
-
-export const isValidProviderTemplate = ({ name, provider, plain = {}, connection }) => {
-  const { provision_type: provisionType, location_key: locationKey } = plain
+/**
+ * Check if the provider template is valid format.
+ *
+ * @param {ProviderTemplate} template - Provider template
+ * @returns {boolean} Returns `true` if template is valid
+ */
+export const isValidProviderTemplate = ({ name, provider, plain, connection }) => {
+  const { provision_type: provisionType, location_key: locationKey } = plain ?? {}
 
   const keys = typeof locationKey === 'string' ? locationKey.split(',') : locationKey
 
@@ -33,17 +49,23 @@ export const isValidProviderTemplate = ({ name, provider, plain = {}, connection
 }
 
 /**
- * This function gets the provider locations string.
+ * Returns the locked connection from the provider template.
  *
- * @param {object} props - Props object.
- * @param {string|string[]} props.location_key - Location key.
- * @returns {string[]} - Provider's location keys.
+ * @param {ProviderTemplate} template - Provider template object
+ * @returns {string[]} Location keys
  */
-export const getLocationKeys = ({ location_key: locationKey }) =>
+export const getLocationKeys = ({ plain: { location_key: locationKey } = {} }) =>
   typeof locationKey === 'string' ? locationKey.split(',') : locationKey
 
+/**
+ * Returns the not editable connections from provider template.
+ * Are defined at `plain.location_key`.
+ *
+ * @param {ProviderTemplate} template - Provider template
+ * @returns {object} Not editable connections
+ */
 export const getConnectionFixed = ({ connection = {}, ...template }) => {
-  const keys = getLocationKeys(template?.plain)
+  const keys = getLocationKeys(template)
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,
@@ -51,8 +73,14 @@ export const getConnectionFixed = ({ connection = {}, ...template }) => {
   }), {})
 }
 
-export const getConnectionEditable = ({ connection = {}, ...template }) => {
-  const keys = getLocationKeys(template?.plain)
+/**
+ * Returns the editable connections from provider template.
+ *
+ * @param {ProviderTemplate} template - Provider template
+ * @returns {object} Editable connections
+ */
+export const getConnectionEditable = ({ connection = {}, ...template } = {}) => {
+  const keys = getLocationKeys(template)
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,

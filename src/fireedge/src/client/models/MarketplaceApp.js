@@ -13,52 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import * as STATES from 'client/constants/states'
-import COLOR from 'client/constants/color'
-
-const MARKETPLACE_APP_TYPES = [
-  'UNKNOWN',
-  'IMAGE',
-  'VM TEMPLATE',
-  'SERVICE TEMPLATE'
-]
-
-const MARKETPLACE_APP_STATES = [
-  { // 0
-    name: STATES.INIT,
-    color: COLOR.info.main
-  },
-  { // 1
-    name: STATES.READY,
-    color: COLOR.success.main
-  },
-  { // 2
-    name: STATES.LOCKED,
-    color: COLOR.debug.main
-  },
-  { // 3
-    name: STATES.ERROR,
-    color: COLOR.error.main
-  },
-  { // 4
-    name: STATES.DISABLED,
-    color: COLOR.debug.light
-  }
-]
+import { MARKETPLACE_APP_STATES, MARKETPLACE_APP_TYPES, StateInfo } from 'client/constants'
 
 /**
- * @param {object} marketplaceApp - Marketplace app.
- * @param {number|string} marketplaceApp.TYPE - Marketplace app type numeric code.
- * @returns {string} - Marketplace app type.
+ * Returns the name of marketplace app type.
+ *
+ * @param {object} marketplaceApp - Marketplace app
+ * @param {number|string} marketplaceApp.TYPE - Type
+ * @returns {MARKETPLACE_APP_TYPES} Marketplace app type name
  */
 export const getType = ({ TYPE = 0 } = {}) => MARKETPLACE_APP_TYPES[+TYPE]
 
 /**
- * This function gets the marketplace app state information.
+ * Returns the marketplace app state information.
  *
- * @param {object} marketplaceApp - Marketplace app.
- * @param {number|string} marketplaceApp.STATE - Marketplace app state numeric code.
- * @returns {STATES.StateInfo} - Marketplace App state information.
+ * @param {object} marketplaceApp - Marketplace app
+ * @param {number|string} marketplaceApp.STATE - State
+ * @returns {StateInfo} Marketplace app state information
  */
 export const getState = ({ STATE = 0 } = {}) => MARKETPLACE_APP_STATES[+STATE]

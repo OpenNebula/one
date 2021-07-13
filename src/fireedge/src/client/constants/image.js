@@ -17,34 +17,76 @@ import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
 /**
- * @type {{name: string, shortName: string}}
- * Datastore type information
+ * @enum {(
+ * 'OS'|
+ * 'CD ROM'|
+ * 'DATABLOCK'|
+ * 'KERNEL'|
+ * 'RAMDISK'|
+ * 'CONTEXT'
+ * )} Image type
  */
-export const DATASTORE_TYPES = [
-  {
-    name: 'IMAGE',
-    shortName: 'img'
-  },
-  {
-    name: 'SYSTEM',
-    shortName: 'sys'
-  },
-  {
-    name: 'FILE',
-    shortName: 'fil'
-  }
+export const IMAGE_TYPES = [
+  'OS',
+  'CD ROM',
+  'DATABLOCK',
+  'KERNEL',
+  'RAMDISK',
+  'CONTEXT'
 ]
 
-/** @type {STATES.StateInfo[]} Datastore states */
-export const DATASTORE_STATES = [
-  {
+/** @enum {('FILE'|'CD ROM'|'BLOCK'|'RBD')} Disk type */
+export const DISK_TYPES = [
+  'FILE',
+  'CD ROM',
+  'BLOCK',
+  'RBD'
+]
+
+/** @type {STATES.StateInfo[]} Image states */
+export const IMAGE_STATES = [
+  { // 0
+    name: STATES.INIT,
+    color: COLOR.debug.main
+  },
+  { // 1
     name: STATES.READY,
-    shortName: 'on',
     color: COLOR.success.main
   },
-  {
+  { // 2
+    name: STATES.USED,
+    color: COLOR.success.main
+  },
+  { // 3
     name: STATES.DISABLED,
-    shortName: 'off',
-    color: COLOR.error.dark
+    color: COLOR.debug.light
+  },
+  { // 4
+    name: STATES.LOCKED,
+    color: COLOR.warning.main
+  },
+  { // 5
+    name: STATES.ERROR,
+    color: COLOR.error.main
+  },
+  { // 6
+    name: STATES.CLONE,
+    color: COLOR.info.light
+  },
+  { // 7
+    name: STATES.DELETE,
+    color: COLOR.error.main
+  },
+  { // 8
+    name: STATES.USED_PERS,
+    color: COLOR.error.light
+  },
+  { // 9
+    name: STATES.LOCKED_USED,
+    color: COLOR.warning.light
+  },
+  { // 10
+    name: STATES.LOCKED_USED_PERS,
+    color: COLOR.error.light
   }
 ]

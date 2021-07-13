@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
+import { T } from 'client/constants'
 import { DateTime } from 'luxon'
 
 /**
- * This converts the boolean value into a string.
+ * Converts the boolean value into a readable format.
  *
  * @param {boolean} bool - Boolean value.
  * @returns {'Yes'|'No'} - If true return 'Yes', in other cases, return 'No'.
@@ -25,7 +25,7 @@ import { DateTime } from 'luxon'
 export const booleanToString = bool => bool ? 'Yes' : 'No'
 
 /**
- * This converts the string value into a boolean.
+ * Converts the string value into a boolean.
  *
  * @param {string} str - String value.
  * @returns {boolean} - If str is "yes" or 1 then returns true,
@@ -35,16 +35,17 @@ export const stringToBoolean = str =>
   String(str).toLowerCase() === 'yes' || +str === 1
 
 /**
- * This converts the time values to string.
+ * Converts the time values into "mm/dd/yyyy, hh:mm:ss" format.
  *
  * @param {number|string} time - Time to convert.
  * @returns {string} - Time string.
+ * @example 02521251251 =>  "4/23/1981, 11:04:41 AM"
  */
 export const timeToString = time =>
   +time ? new Date(+time * 1000).toLocaleString() : '-'
 
 /**
- * This function converts the given time into DateTime.
+ * Converts the given time into DateTime luxon type.
  *
  * @param {number|string} time - Time to convert
  * @returns {DateTime} - Datetime object.
@@ -53,22 +54,21 @@ export const timeFromMilliseconds = time =>
   DateTime.fromMillis(+time * 1000)
 
 /**
- * This function converts the lock level to its string value.
+ * Converts the lock level to its string value.
  *
  * @param {number} level - Level code number.
  * @returns {string} - Lock level text.
  */
 export const levelLockToString = level => ({
-  0: 'None',
-  1: 'Use',
-  2: 'Manage',
-  3: 'Admin',
-  4: 'All'
+  0: T.None,
+  1: T.Use,
+  2: T.Manage,
+  3: T.Admin,
+  4: T.All
 }[level] || '-')
 
 /**
- * This function gets the permission string given the
- * owner, group and owner permissions strings.
+ * Transform the permission from OpenNebula template to octal format.
  *
  * @param {object} permissions - Permissions object.
  * @param {('YES'|'NO')} permissions.OWNER_U - Owner use permission.
@@ -80,7 +80,7 @@ export const levelLockToString = level => ({
  * @param {('YES'|'NO')} permissions.OTHER_U - Other use permission.
  * @param {('YES'|'NO')} permissions.OTHER_M - Other manage permission.
  * @param {('YES'|'NO')} permissions.OTHER_A - Other access permission.
- * @returns {string} - Permissions string.
+ * @returns {string} - Permissions in octal format.
  */
 export const permissionsToOctal = permissions => {
   const {
@@ -90,13 +90,12 @@ export const permissionsToOctal = permissions => {
   } = permissions
 
   /**
-   * This function will return the permission numeric code.
+   * Returns the permission numeric code.
    *
-   * @param {string[]} props - Array with Use, Manage and Access
-   * permissions.
-   * @param {('YES'|'NO')} props.0 - Is use permission allowed?
-   * @param {('YES'|'NO')} props.1 - Is manage permission allowed?
-   * @param {('YES'|'NO')} props.2 - Is access permission allowed?
+   * @param {string[]} props - Array with Use, Manage and Access permissions.
+   * @param {('YES'|'NO')} props.0 - `true` if use permission is allowed
+   * @param {('YES'|'NO')} props.1 - `true` if manage permission is allowed
+   * @param {('YES'|'NO')} props.2 - `true` if access permission is allowed
    * @returns {number} Permission code number.
    */
   const getCategoryValue = ([u, m, a]) => (
@@ -113,7 +112,7 @@ export const permissionsToOctal = permissions => {
 }
 
 /**
- * This returns the resource available actions.
+ * Returns the resource available actions.
  *
  * @param {object} actions - Actions from view yaml
  * @param {string} [hypervisor] - Resource hypervisor

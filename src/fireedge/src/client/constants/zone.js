@@ -16,35 +16,14 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-/**
- * @type {{name: string, shortName: string}}
- * Datastore type information
- */
-export const DATASTORE_TYPES = [
-  {
-    name: 'IMAGE',
-    shortName: 'img'
-  },
-  {
-    name: 'SYSTEM',
-    shortName: 'sys'
-  },
-  {
-    name: 'FILE',
-    shortName: 'fil'
-  }
-]
-
-/** @type {STATES.StateInfo[]} Datastore states */
-export const DATASTORE_STATES = [
-  {
-    name: STATES.READY,
-    shortName: 'on',
+/** @type {STATES.StateInfo[]} Zone states */
+export const ZONE_STATES = [
+  { // 0
+    name: STATES.ENABLED,
     color: COLOR.success.main
   },
-  {
+  { // 1
     name: STATES.DISABLED,
-    shortName: 'off',
-    color: COLOR.error.dark
+    color: COLOR.debug.main
   }
 ]

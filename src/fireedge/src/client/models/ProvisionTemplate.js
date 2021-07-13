@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/**
+ * @typedef {object} ProvisionTemplate
+ * @property {string} name - Name
+ * @property {string} image - Image to card
+ * @property {string} provider - Provider type
+ * @property {string} provision_type - Provision type
+ * @property {object} defaults - Common configuration attributes
+ * @property {object} [defaults.provision] - Provision information
+ * @property {string} [defaults.provision.provider_name] - Provider name
+ * @property {{
+ * provision: { provider_name: string }
+ * }[]} [hosts] - Provision hosts
+ * @property {object} cluster - Provision cluster
+ * @property {object[]} datastores - Provision datastores
+ * @property {object[]} networks - Provision networks
+ * @property {object[]} vnetTemplate - Provision network templates
+ * @property {Array} inputs - Inputs to provision form
+ */
 
 /**
- * This function indicates if the provision template is valid.
+ * Check if the provision template is valid format.
  *
- * @param {object} props - Props object.
- * @param {object} props.defaults - Provision defaults object.
- * @param {object} props.hosts - Provision host object.
- * @param {string} props.name - Provider name.
- * @param {string} props.provider - Provider code name.
- * @param {string} props.provision_type - Provision type name.
- * @returns {boolean} - Valid provision template.
+ * @param {ProvisionTemplate} template - Provision template
+ * @returns {boolean} Returns `true` if template is valid
  */
 export const isValidProvisionTemplate = ({
   defaults,
@@ -32,7 +45,9 @@ export const isValidProvisionTemplate = ({
   provider,
   provision_type: provisionType
 }) => {
-  const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
+  const providerName =
+    defaults?.provision?.provider_name ??
+    hosts?.[0]?.provision.provider_name
 
   return !(
     providerName === undefined ||

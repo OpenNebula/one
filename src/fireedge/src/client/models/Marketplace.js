@@ -13,41 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
 import { prettyBytes } from 'client/utils'
-import * as STATES from 'client/constants/states'
-import COLOR from 'client/constants/color'
-
-const MARKETPLACE_STATES = [
-  { // 0
-    name: STATES.ENABLED,
-    color: COLOR.success.main
-  },
-  { // 1
-    name: STATES.DISABLED,
-    color: COLOR.debug.main
-  }
-]
+import { MARKETPLACE_STATES, StateInfo } from 'client/constants'
 
 /**
- * This function gets the marketplace state.
+ * Returns the marketplace state.
  *
- * @param {object} marketplace - Marketplace.
- * @param {number|string} marketplace.STATE - Marketplace state numeric code.
- * @returns {STATES.StateInfo} - Marketplace state information.
+ * @param {object} marketplace - Marketplace
+ * @param {number|string} marketplace.STATE - Marketplace state numeric code
+ * @returns {StateInfo} Marketplace state information
  */
 export const getState = ({ STATE } = {}) => MARKETPLACE_STATES[+STATE]
 
 /**
- * This function gets the marketplace capacity information.
+ * Returns the marketplace capacity information.
  *
- * @param {object} props - Props object.
- * @param {number|string} props.TOTAL_MB - Marketplace total MB available.
- * @param {number|string} props.USED_MB - Marketplace used MB.
+ * @param {object} marketplace - Marketplace
+ * @param {number|string} marketplace.TOTAL_MB - Total capacity MB available
+ * @param {number|string} marketplace.USED_MB - Capacity used MB
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
- * }} - Marketplace capacity information.
+ * }} Marketplace capacity information
  */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
   const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0

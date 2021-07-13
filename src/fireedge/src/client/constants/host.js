@@ -16,6 +16,7 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
+/** @type {STATES.StateInfo[]} Host states */
 export const HOST_STATES = [
   {
     name: STATES.INIT,

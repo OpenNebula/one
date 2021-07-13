@@ -80,6 +80,7 @@ export const VM_STATES = [
   }
 ]
 
+/** @type {STATES.StateInfo[]} Virtual machine lcm states */
 export const VM_LCM_STATES = [
   { // 0
     name: STATES.LCM_INIT,
@@ -428,6 +429,7 @@ export const VM_LCM_STATES = [
   }
 ]
 
+/** @enum {string} Virtual machine actions */
 export const VM_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   DEPLOY: 'deploy',
@@ -502,3 +504,45 @@ export const VM_ACTIONS = {
   // CONFIGURATION
   UPDATE_CONF: 'update_configuration'
 }
+
+/**
+ * @enum {(
+ * 'IP'|
+ * 'IP6'|
+ * 'IP6_GLOBAL'|
+ * 'IP6_ULA'|
+ * 'VROUTER_IP'|
+ * 'VROUTER_IP6_GLOBAL'|
+ * 'VROUTER_IP6_ULA'
+ * )} Possible attribute names for nic alias ip
+ */
+export const NIC_ALIAS_IP_ATTRS = [
+  'IP',
+  'IP6',
+  'IP6_GLOBAL',
+  'IP6_ULA',
+  'VROUTER_IP',
+  'VROUTER_IP6_GLOBAL',
+  'VROUTER_IP6_ULA'
+]
+
+/**
+ * @enum {(
+ * 'GUEST_IP'|
+ * 'GUEST_IP_ADDRESSES'|
+ * 'AWS_IP_ADDRESS'|
+ * 'AWS_PUBLIC_IP_ADDRESS'|
+ * 'AWS_PRIVATE_IP_ADDRESS'|
+ * 'AZ_IPADDRESS'|
+ * 'SL_PRIMARYIPADDRESS'
+ * )} Possible attribute names for external ip
+ */
+export const EXTERNAL_IP_ATTRS = [
+  'GUEST_IP',
+  'GUEST_IP_ADDRESSES',
+  'AWS_IP_ADDRESS',
+  'AWS_PUBLIC_IP_ADDRESS',
+  'AWS_PRIVATE_IP_ADDRESS',
+  'AZ_IPADDRESS',
+  'SL_PRIMARYIPADDRESS'
+]

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
 /**
- * This function get the total number of leases in the Address Range.
+ * Returns the total number of leases in the virtual network.
  *
- * @param {object} virtualNetwork - Virtual network.
- * @param {object} virtualNetwork.AR_POOL - Virtual network Address Range Pool.
- * @returns {number} - Total leases.
+ * @param {object} virtualNetwork - Virtual network
+ * @param {object} virtualNetwork.AR_POOL - Address range pool
+ * @returns {number} Total leases
  */
 export const getTotalLeases = ({ AR_POOL } = {}) => {
   const addressRanges = [AR_POOL?.AR ?? []].flat()
@@ -28,14 +27,14 @@ export const getTotalLeases = ({ AR_POOL } = {}) => {
 }
 
 /**
- * This function gets the virtual network leases information.
+ * Returns the virtual network leases information.
  *
- * @param {object} virtualNetwork - Virtual network.
- * @param {object} virtualNetwork.USED_LEASES - Used network leases.
+ * @param {object} virtualNetwork - Virtual network
+ * @param {object} virtualNetwork.USED_LEASES - Used network leases
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
- * }} - Leases information.
+ * }} Leases information
  */
 export const getLeasesInfo = ({ USED_LEASES, ...virtualNetwork } = {}) => {
   const totalLeases = getTotalLeases(virtualNetwork)

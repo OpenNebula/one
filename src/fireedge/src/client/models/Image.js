@@ -13,96 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import * as STATES from 'client/constants/states'
-import COLOR from 'client/constants/color'
-
-const IMAGE_TYPES = [
-  'OS',
-  'CD ROM',
-  'DATABLOCK',
-  'KERNEL',
-  'RAMDISK',
-  'CONTEXT'
-]
-
-const IMAGE_STATES = [
-  { // 0
-    name: STATES.INIT,
-    color: COLOR.debug.main
-  },
-  { // 1
-    name: STATES.READY,
-    color: COLOR.success.main
-  },
-  { // 2
-    name: STATES.USED,
-    color: COLOR.success.main
-  },
-  { // 3
-    name: STATES.DISABLED,
-    color: COLOR.debug.light
-  },
-  { // 4
-    name: STATES.LOCKED,
-    color: COLOR.warning.main
-  },
-  { // 5
-    name: STATES.ERROR,
-    color: COLOR.error.main
-  },
-  { // 6
-    name: STATES.CLONE,
-    color: COLOR.info.light
-  },
-  { // 7
-    name: STATES.DELETE,
-    color: COLOR.error.main
-  },
-  { // 8
-    name: STATES.USED_PERS,
-    color: COLOR.error.light
-  },
-  { // 9
-    name: STATES.LOCKED_USED,
-    color: COLOR.warning.light
-  },
-  { // 10
-    name: STATES.LOCKED_USED_PERS,
-    color: COLOR.error.light
-  }
-]
-
-const DISK_TYPES = [
-  'FILE',
-  'CD ROM',
-  'BLOCK',
-  'RBD'
-]
+import { IMAGE_TYPES, DISK_TYPES, IMAGE_STATES, StateInfo } from 'client/constants'
 
 /**
- * This function gets the image type.
+ * Returns the image type.
  *
- * @param {object} image - Image.
- * @param {number|string} image.TYPE - Type numeric code.
- * @returns {string} - Image type.
+ * @param {object} image - Image
+ * @param {number|string} image.TYPE - Type numeric code
+ * @returns {IMAGE_TYPES} - Image type
  */
 export const getType = ({ TYPE } = {}) => IMAGE_TYPES[+TYPE]
 
 /**
- * This function gets the disk type.
+ * Returns the image state.
  *
- * @param {object} image - Image.
- * @param {number|string} image.DISK_TYPE - Disk type numeric code.
- * @returns {string} - Disk type.
- */
-export const getDiskType = ({ DISK_TYPE } = {}) => DISK_TYPES[+DISK_TYPE]
-
-/**
- * This function gets the image state.
- *
- * @param {object} image - Image.
- * @param {number|string} image.STATE - State code.
- * @returns {STATES.StateInfo} - Image state information.
+ * @param {object} image - Image
+ * @param {number|string} image.STATE - State code
+ * @returns {StateInfo} - Image state information
  */
 export const getState = ({ STATE } = {}) => IMAGE_STATES[+STATE]
+
+/**
+ * Returns the disk type.
+ *
+ * @param {object} image - Image
+ * @param {number|string} image.DISK_TYPE - Disk type numeric code
+ * @returns {DISK_TYPES} - Disk type
+ */
+export const getDiskType = ({ DISK_TYPE } = {}) => DISK_TYPES[+DISK_TYPE]
