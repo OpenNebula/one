@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import { STATES, VM_STATES, VM_LCM_STATES, StateInfo } from 'client/constants'
 
 /* const EXTERNAL_IP_ATTRS = [
@@ -36,6 +37,9 @@ const NIC_ALIAS_IP_ATTRS = [
 ]
 
 /**
+ * This function removes, from the given list,
+ * the Virtual machines in state DONE.
+ *
  * @param {Array} vms - List of virtual machines
  * @returns {Array} Clean list of vms with done state
  */

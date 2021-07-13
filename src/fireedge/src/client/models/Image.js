@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
@@ -79,8 +80,29 @@ const DISK_TYPES = [
   'RBD'
 ]
 
+/**
+ * This function gets the image type.
+ *
+ * @param {object} image - Image.
+ * @param {number|string} image.TYPE - Type numeric code.
+ * @returns {string} - Image type.
+ */
 export const getType = ({ TYPE } = {}) => IMAGE_TYPES[+TYPE]
 
+/**
+ * This function gets the disk type.
+ *
+ * @param {object} image - Image.
+ * @param {number|string} image.DISK_TYPE - Disk type numeric code.
+ * @returns {string} - Disk type.
+ */
 export const getDiskType = ({ DISK_TYPE } = {}) => DISK_TYPES[+DISK_TYPE]
 
+/**
+ * This function gets the image state.
+ *
+ * @param {object} image - Image.
+ * @param {number|string} image.STATE - State code.
+ * @returns {STATES.StateInfo} - Image state information.
+ */
 export const getState = ({ STATE } = {}) => IMAGE_STATES[+STATE]

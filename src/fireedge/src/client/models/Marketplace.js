@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import { prettyBytes } from 'client/utils'
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
@@ -28,13 +29,34 @@ const MARKETPLACE_STATES = [
   }
 ]
 
+/**
+ * This function gets the marketplace state.
+ *
+ * @param {object} marketplace - Marketplace.
+ * @param {number|string} marketplace.STATE - Marketplace state numeric code.
+ * @returns {STATES.StateInfo} - Marketplace state information.
+ */
 export const getState = ({ STATE } = {}) => MARKETPLACE_STATES[+STATE]
 
+/**
+ * This function gets the marketplace capacity information.
+ *
+ * @param {object} props - Props object.
+ * @param {number|string} props.TOTAL_MB - Marketplace total MB available.
+ * @param {number|string} props.USED_MB - Marketplace used MB.
+ * @returns {{
+ * percentOfUsed: number,
+ * percentLabel: string
+ * }} - Marketplace capacity information.
+ */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
   const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
   const usedBytes = prettyBytes(+USED_MB, 'MB')
   const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
   const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
 
-  return { percentOfUsed, percentLabel }
+  return {
+    percentOfUsed,
+    percentLabel
+  }
 }

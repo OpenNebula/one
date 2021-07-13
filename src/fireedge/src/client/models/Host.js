@@ -13,11 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { prettyBytes } from 'client/utils'
-import { HOST_STATES } from 'client/constants'
 
+import { prettyBytes } from 'client/utils'
+import { HOST_STATES, StateInfo } from 'client/constants'
+
+/**
+ * This function gets the host state.
+ *
+ * @param {object} host - Host.
+ * @param {number} host.STATE - Host state.
+ * @returns {StateInfo} - Host state object.
+ */
 export const getState = ({ STATE } = {}) => HOST_STATES[STATE]
 
+/**
+ * This function get the allocate information.
+ *
+ * @param {object} host - Host.
+ * @param {object} host.HOST_SHARE - Host share object.
+ * @returns {{
+ * percentCpuUsed: number,
+ * percentCpuLabel: string,
+ * percentMemUsed: number,
+ * percentMemLabel: string
+ * }} - Allocated information object.
+ */
 export const getAllocatedInfo = ({ HOST_SHARE = {} } = {}) => {
   const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = HOST_SHARE
 

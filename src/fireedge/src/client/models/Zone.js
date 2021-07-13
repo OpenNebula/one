@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
@@ -27,4 +28,11 @@ const ZONE_STATES = [
   }
 ]
 
+/**
+ * This function gets the zone state.
+ *
+ * @param {object} zone - Zone.
+ * @param {number|string} zone.STATE - Zone state numeric code.
+ * @returns {STATES.StateInfo} - Zone state information.
+ */
 export const getState = ({ STATE = 0 } = {}) => ZONE_STATES[+STATE]

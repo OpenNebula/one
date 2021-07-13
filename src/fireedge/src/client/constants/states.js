@@ -14,7 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-/** @typedef {{color: string, name: string, meaning: string}} StateInfo */
+/**
+ * @typedef {object} StateInfo
+ * @property {string} color - Color.
+ * @property {string} name - Name.
+ * @property {string} [meaning] - Meaning.
+ * @property {string} [shortName] - Short name.
+ */
 
 export const ACTIVE = 'ACTIVE'
 export const BOOT = 'BOOT'

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
+/* eslint-disable jsdoc/require-jsdoc */
+
 export const isValidProviderTemplate = ({ name, provider, plain = {}, connection }) => {
   const { provision_type: provisionType, location_key: locationKey } = plain
 
@@ -29,6 +32,13 @@ export const isValidProviderTemplate = ({ name, provider, plain = {}, connection
   )
 }
 
+/**
+ * This function gets the provider locations string.
+ *
+ * @param {object} props - Props object.
+ * @param {string|string[]} props.location_key - Location key.
+ * @returns {string[]} - Provider's location keys.
+ */
 export const getLocationKeys = ({ location_key: locationKey }) =>
   typeof locationKey === 'string' ? locationKey.split(',') : locationKey
 

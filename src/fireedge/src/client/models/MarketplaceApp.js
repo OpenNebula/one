@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
@@ -46,6 +47,18 @@ const MARKETPLACE_APP_STATES = [
   }
 ]
 
+/**
+ * @param {object} marketplaceApp - Marketplace app.
+ * @param {number|string} marketplaceApp.TYPE - Marketplace app type numeric code.
+ * @returns {string} - Marketplace app type.
+ */
 export const getType = ({ TYPE = 0 } = {}) => MARKETPLACE_APP_TYPES[+TYPE]
 
+/**
+ * This function gets the marketplace app state information.
+ *
+ * @param {object} marketplaceApp - Marketplace app.
+ * @param {number|string} marketplaceApp.STATE - Marketplace app state numeric code.
+ * @returns {STATES.StateInfo} - Marketplace App state information.
+ */
 export const getState = ({ STATE = 0 } = {}) => MARKETPLACE_APP_STATES[+STATE]

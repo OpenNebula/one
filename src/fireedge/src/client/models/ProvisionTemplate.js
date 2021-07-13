@@ -13,6 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
+/**
+ * This function indicates if the provision template is valid.
+ *
+ * @param {object} props - Props object.
+ * @param {object} props.defaults - Provision defaults object.
+ * @param {object} props.hosts - Provision host object.
+ * @param {string} props.name - Provider name.
+ * @param {string} props.provider - Provider code name.
+ * @param {string} props.provision_type - Provision type name.
+ * @returns {boolean} - Valid provision template.
+ */
 export const isValidProvisionTemplate = ({
   defaults,
   hosts,
