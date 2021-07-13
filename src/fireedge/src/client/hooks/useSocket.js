@@ -64,7 +64,7 @@ const useSocket = () => {
           dispatch(updateResourceFromFetch({ data: dataFromFetch, resource }))
         })
 
-        socket.on(SOCKETS.HOOKS, data => {
+        socket.on(SOCKETS.HOOKS, ({ data } = {}) => {
           // update the list on redux state
           dispatch(eventUpdateResourceState(data))
           // return data from event

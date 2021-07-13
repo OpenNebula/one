@@ -18,69 +18,159 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import {
+  withStyles,
+  makeStyles,
+  Typography,
+  Accordion,
+  AccordionSummary as MAccordionSummary,
+  AccordionDetails,
+  useMediaQuery,
+  Paper
+} from '@material-ui/core'
 
-// import { useVmApi } from 'client/features/One'
+import { useVmApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
-import { StatusChip } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
+import Multiple from 'client/components/Tables/Vms/multiple'
 
-import { VM_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
-const NetworkItem = ({ nic = {}, actions }) => {
-  const classes = rowStyles()
+const AccordionSummary = withStyles({
+  root: {
+    backgroundColor: 'rgba(0, 0, 0, .03)',
+    borderBottom: '1px solid rgba(0, 0, 0, .125)',
+    marginBottom: -1,
+    minHeight: 56,
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, .07)'
+    },
+    '&$expanded': {
+      backgroundColor: 'rgba(0, 0, 0, .07)',
+      minHeight: 56
+    }
+  },
+  content: {
+    overflow: 'hidden',
+    '&$expanded': {
+      margin: '12px 0'
+    }
+  },
+  expanded: {}
+})(MAccordionSummary)
 
-  const {
-    NIC_ID,
-    NETWORK = '-',
-    BRIDGE,
-    IP,
-    MAC,
-    PCI_ID,
-    ALIAS
-  } = nic
+const useStyles = makeStyles(({
+  row: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'nowrap'
+  },
+  labels: {
+    display: 'inline-flex',
+    gap: '0.5em',
+    alignItems: 'center'
+  },
+  details: {
+    marginLeft: '1em',
+    flexDirection: 'column',
+    gap: '0.5em'
+  },
+  securityGroups: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5em',
+    padding: '0.8em'
+  }
+}))
+
+const NetworkItem = ({ vmId, nic = {}, actions }) => {
+  const classes = useStyles()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const { detachNic, getVm } = useVmApi()
+
+  const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
+
+  const hasDetails = React.useMemo(() =>
+    !!ALIAS.length || !!SECURITY_GROUPS?.length,
+  [ALIAS.length, SECURITY_GROUPS?.length]
+  )
 
   const detachAction = () => actions.includes(VM_ACTIONS.DETACH_NIC) && (
     <Action
       cy={`${VM_ACTIONS.DETACH_NIC}-${NIC_ID}`}
       icon={<Trash size={18} />}
-      handleClick={() => undefined}
+      stopPropagation
+      handleClick={async () => {
+        const response = await detachNic(vmId, NIC_ID)
+
+        String(response) === String(vmId) && getVm(vmId)
+      }}
     />
   )
 
-  const renderLabels = labels => labels
-    ?.filter(Boolean)
-    ?.map(label => (
-      <StatusChip key={label} text={label} style={{ marginInline: '0.5em' }}/>
-    ))
-
   return (
-    <div className={classes.root}>
-      <div className={classes.main}>
-        <div style={{ borderBottom: ALIAS.length ? '1px solid #c6c6c6' : '' }}>
-          <Typography className={classes.titleText}>
+    <Accordion variant='outlined'>
+      <AccordionSummary>
+        <div className={classes.row}>
+          <Typography noWrap>
             {`${NIC_ID} | ${NETWORK}`}
-            {renderLabels([IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID])}
-            {detachAction()}
           </Typography>
+          <span className={classes.labels}>
+            <Multiple
+              limitTags={isMobile ? 1 : 4}
+              tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID].filter(Boolean)}
+            />
+          </span>
+          {!isMobile && detachAction()}
         </div>
-        <div style={{ marginLeft: '1em' }}>
+      </AccordionSummary>
+      {hasDetails && (
+        <AccordionDetails className={classes.details}>
           {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
-            <Typography variant='body2' key={NIC_ID}>
-              {`${NIC_ID} | ${NETWORK}`}
-              {renderLabels([IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`])}
-              {detachAction()}
-            </Typography>
+            <div key={NIC_ID} className={classes.row}>
+              <Typography noWrap variant='body2'>
+                {`Alias ${NIC_ID} | ${NETWORK}`}
+              </Typography>
+              <span className={classes.labels}>
+                <Multiple
+                  limitTags={isMobile ? 1 : 4}
+                  tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
+                />
+              </span>
+              {!isMobile && detachAction()}
+            </div>
           ))}
-        </div>
-      </div>
-    </div>
+          {!!SECURITY_GROUPS?.length && (
+            <Paper variant='outlined' className={classes.securityGroups}>
+              <Typography variant='body1'>{Tr(T.SecurityGroups)}</Typography>
+
+              {SECURITY_GROUPS
+                ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
+                  <div key={`${idx}-${NAME}`} className={classes.row}>
+                    <Typography noWrap variant='body2'>
+                      {`${ID} | ${NAME}`}
+                    </Typography>
+                    <span className={classes.labels}>
+                      <Multiple
+                        limitTags={isMobile ? 2 : 5}
+                        tags={[PROTOCOL, RULE_TYPE, RANGE, NETWORK_ID, ICMP_TYPE].filter(Boolean)}
+                      />
+                    </span>
+                  </div>
+                ))}
+            </Paper>
+          )}
+        </AccordionDetails>
+      )}
+    </Accordion>
   )
 }
 
 NetworkItem.propTypes = {
-  nic: PropTypes.object,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
+  vmId: PropTypes.string,
+  nic: PropTypes.object
 }
 
 NetworkItem.displayName = 'NetworkItem'

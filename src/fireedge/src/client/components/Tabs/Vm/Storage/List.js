@@ -20,12 +20,7 @@ import PropTypes from 'prop-types'
 import StorageItem from 'client/components/Tabs/Vm/Storage/Item'
 
 const StorageList = ({ disks, actions }) => (
-  <div style={{
-    display: 'grid',
-    gap: '1em',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(49%, 1fr))',
-    paddingBlock: '0.8em'
-  }}>
+  <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
     {disks.map((disk, idx) => (
       <StorageItem
         key={idx}
@@ -38,7 +33,7 @@ const StorageList = ({ disks, actions }) => (
 
 StorageList.propTypes = {
   disks: PropTypes.array,
-  actions: PropTypes.object
+  actions: PropTypes.arrayOf(PropTypes.string)
 }
 
 StorageList.displayName = 'StorageList'

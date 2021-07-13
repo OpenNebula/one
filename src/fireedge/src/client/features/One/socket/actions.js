@@ -140,13 +140,13 @@ export const eventApi = createAsyncThunk(
  */
 export const eventUpdateResourceState = createAsyncThunk(
   'socket/event-state',
-  ({ data } = {}) => {
+  (data = {}) => {
     const { name, value } = getResourceFromEventState(data)
 
     return { type: name, data: value }
   },
   {
-    condition: ({ data } = {}) => {
+    condition: (data = {}) => {
       const { name, value } = getResourceFromEventState(data)
 
       return (

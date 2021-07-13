@@ -21,7 +21,7 @@ import {
   DatabaseSettings, Folder, ModernTv,
   Trash, SaveActionFloppy, Camera, Expand
 } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography, Paper } from '@material-ui/core'
 
 // import { useVmApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
@@ -70,7 +70,7 @@ const StorageItem = ({ disk, actions = [] }) => {
   ])].filter(Boolean)
 
   return (
-    <div className={classes.root}>
+    <Paper variant='outlined' className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography component='span'>
@@ -136,7 +136,7 @@ const StorageItem = ({ disk, actions = [] }) => {
           )}
         </div>
       )}
-    </div>
+    </Paper>
   )
 }
 

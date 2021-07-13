@@ -102,7 +102,7 @@ export const vmService = ({
    * Changes the permission bits of a virtual machine.
    *
    * @param {object} params - Request parameters
-   * @param {string} params.id - Virtual machine id
+   * @param {string|number} params.id - Virtual machine id
    * @param {{
    * ownerUse: number,
    * ownerManage: number,
@@ -113,19 +113,40 @@ export const vmService = ({
    * otherUse: number,
    * otherManage: number,
    * otherAdmin: number
-   * }} params.data - Permissions data
-   * @returns {Response} Response
+   * }} params.permissions - Permissions data
+   * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  changePermissions: async ({ id, data }) => {
+  changePermissions: async ({ id, permissions }) => {
     const name = Actions.VM_CHMOD
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, data }, command)
+    const config = requestConfig({ id, ...permissions }, command)
 
     const res = await RestClient.request(config)
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
-    return res
+    return res?.data
+  },
+
+  /**
+   * Detaches a network interface from a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.nic - NIC id
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  detachNic: async ({ id, nic }) => {
+    const name = Actions.VM_NIC_DETACH
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, nic }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
   }
 })

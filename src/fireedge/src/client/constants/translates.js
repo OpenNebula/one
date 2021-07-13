@@ -20,6 +20,7 @@ module.exports = {
   Next: 'Next',
   SortBy: 'Sort by',
   Filter: 'Filter',
+  All: 'All',
 
   /* actions */
   Accept: 'Accept',
@@ -123,6 +124,8 @@ module.exports = {
   VirtualNetworks: 'Virtual networks',
   NetworkTopology: 'Network topology',
   NetworksTopologies: 'Networks topologies',
+  SecurityGroup: 'Security group',
+  SecurityGroups: 'Security groups',
 
   /* sections - storage */
   Datastore: 'Datastore',
@@ -188,5 +191,14 @@ module.exports = {
   /* ownership */
   Ownership: 'Ownership',
   Owner: 'Owner',
-  Other: 'Other'
+  Other: 'Other',
+
+  /* security group schema */
+  TCP: 'TCP',
+  UDP: 'UDP',
+  ICMP: 'ICMP',
+  ICMPV6: 'ICMPv6',
+  IPSEC: 'IPsec',
+  Outbound: 'Outbound',
+  Inbound: 'Inbound'
 }

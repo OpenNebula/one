@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import { STATES, VM_STATES, VM_LCM_STATES, StateInfo } from 'client/constants'
+import { getSecurityGroupsFromResource, prettySecurityGroup } from 'client/models/SecurityGroup'
 
 /* const EXTERNAL_IP_ATTRS = [
   'GUEST_IP',
@@ -124,11 +125,14 @@ export const getDisks = vm => {
 /**
  * @param {object} vm - Virtual machine
  * @param {object} [options] - Options
- * @param {boolean} [options.groupAlias] - Map ALIAS_IDS attribute with NIC_ALIAS
- * @returns {Array} List of nics from resource
+ * @param {boolean} [options.groupAlias]
+ * - Create ALIAS attribute with result to mapping NIC_ALIAS and ALIAS_IDS
+ * @param {boolean} [options.securityGroupsFromTemplate]
+ * - Create SECURITY_GROUPS attribute with rules from TEMPLATE.SECURITY_GROUP_RULE
+ * @returns {object[]} List of nics from resource
  */
 export const getNics = (vm, options = {}) => {
-  const { groupAlias = false } = options
+  const { groupAlias = false, securityGroupsFromTemplate = false } = options
   const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
 
   const { NIC = [], NIC_ALIAS = [], PCI = [] } = TEMPLATE
@@ -138,14 +142,29 @@ export const getNics = (vm, options = {}) => {
     .filter(Boolean)
     .map(ip => ({ NIC_ID: '-', IP: ip, NETWORK: 'Additional IP', BRIDGE: '-' }))
 
-  const nics = [NIC, PCI, extraIps].flat().filter(Boolean)
+  let nics = [NIC, NIC_ALIAS, PCI, extraIps].flat().filter(Boolean)
 
-  return groupAlias
-    ? nics.map(({ ALIAS_IDS, ...nic }) => ({
+  if (groupAlias) {
+    nics = nics
+      .filter(({ PARENT }) => PARENT === undefined)
+      .map(({ ALIAS_IDS, ...nic }) => ({
+        ...nic,
+        ALIAS: [NIC_ALIAS]
+          .flat()
+          .filter(({ NIC_ID }) => ALIAS_IDS?.split(',')?.includes?.(NIC_ID))
+      }))
+  }
+
+  if (securityGroupsFromTemplate) {
+    nics = nics.map(({ SECURITY_GROUPS, ...nic }) => ({
       ...nic,
-      ALIAS: NIC_ALIAS?.filter(({ NIC_ID }) => ALIAS_IDS?.includes(NIC_ID))
+      SECURITY_GROUPS:
+        getSecurityGroupsFromResource(vm, SECURITY_GROUPS)
+          ?.map(prettySecurityGroup)
     }))
-    : nics.concat(NIC_ALIAS)
+  }
+
+  return nics
 }
 
 /**

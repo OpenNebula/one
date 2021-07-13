@@ -23,9 +23,7 @@ import { prettyBytes } from 'client/utils'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: '1em'
-  },
-  grid: {
+    marginBlock: '0.8em',
     padding: '1em',
     display: 'grid',
     gap: '1em',
@@ -80,30 +78,28 @@ const VmCapacityTab = data => {
   ].filter(Boolean)
 
   return (
-    <div className={classes.root}>
-      <Paper variant='outlined' className={classes.grid}>
-        <div className={classes.actions}>
-          <Action
-            cy='resize'
-            icon={false}
-            label={'Resize'}
-            size='small'
-            color='secondary'
-            handleClick={() => undefined}
-          />
+    <Paper variant='outlined' className={classes.root}>
+      <div className={classes.actions}>
+        <Action
+          cy='resize'
+          icon={false}
+          label={'Resize'}
+          size='small'
+          color='secondary'
+          handleClick={() => undefined}
+        />
+      </div>
+      {capacity.map(({ key, value }) => (
+        <div key={key} className={classes.item}>
+          <Typography className={classes.title} noWrap title={key}>
+            {key}
+          </Typography>
+          <Typography variant='body2' noWrap title={value}>
+            {value}
+          </Typography>
         </div>
-        {capacity.map(({ key, value }) => (
-          <div key={key} className={classes.item}>
-            <Typography className={classes.title} noWrap title={key}>
-              {key}
-            </Typography>
-            <Typography variant='body2' noWrap title={value}>
-              {value}
-            </Typography>
-          </div>
-        ))}
-      </Paper>
-    </div>
+      ))}
+    </Paper>
   )
 }
 

@@ -41,3 +41,4 @@ export const terminateVm = createAction(
 )
 
 export const changePermissions = createAction('vm/chmod', vmService.changePermissions)
+export const detachNic = createAction('vm/detach/nic', vmService.detachNic)

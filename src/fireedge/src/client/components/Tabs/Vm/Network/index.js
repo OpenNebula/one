@@ -25,7 +25,11 @@ import * as Helper from 'client/models/Helper'
 const VmNetworkTab = ({ tabProps, ...vm }) => {
   const { actions = [] } = tabProps
 
-  const nics = VirtualMachine.getNics(vm, { groupAlias: true })
+  const nics = VirtualMachine.getNics(vm, {
+    groupAlias: true,
+    securityGroupsFromTemplate: true
+  })
+
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 

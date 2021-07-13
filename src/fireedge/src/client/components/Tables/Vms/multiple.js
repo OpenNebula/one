@@ -28,17 +28,24 @@ const Multiple = ({ tags, limitTags = 1 }) => {
 
   const more = tags.length - limitTags
 
-  const Tags = tags.splice(0, limitTags).map(tag => (
-    <StatusChip key={tag} text={tag} />
-  ))
+  const Tags = tags
+    .splice(0, limitTags)
+    .map((tag, idx) => <StatusChip key={`${idx}-${tag}`} text={tag} />)
 
   return (
     <>
       {Tags}
       {more > 0 && (
-        <Tooltip arrow
-          title={tags.map(tag => (
-            <Typography key={tag} variant='subtitle2'>{tag}</Typography>
+        <Tooltip
+          arrow
+          title={tags.map((tag, idx) => (
+            <Typography
+              key={`${idx}-${tag}`}
+              variant='subtitle2'
+              style={{ height: 'max-content' }}
+            >
+              {tag}
+            </Typography>
           ))}
         >
           <span style={{ marginLeft: 6 }}>

@@ -96,7 +96,8 @@ const useFetch = (request, socket) => {
   useEffect(() => {
     isFetched && socket?.connect({
       dataFromFetch: state.data,
-      callback: socketData => dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
+      callback: socketData =>
+        socketData && dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
     })
 
     return () => {

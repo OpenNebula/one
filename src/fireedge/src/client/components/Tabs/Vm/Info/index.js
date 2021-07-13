@@ -28,7 +28,7 @@ const VmInfoTab = ({ tabProps, ...data }) => {
       display: 'grid',
       gap: '1em',
       gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '1em'
+      padding: '0.8em'
     }}>
       {tabProps?.information_panel?.enabled &&
         <Information {...data} />
