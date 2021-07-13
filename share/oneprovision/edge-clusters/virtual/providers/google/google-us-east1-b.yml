@@ -12,7 +12,7 @@ plain:
 
 connection:
   credentials: 'JSON credentials file'
-  project: 'Google Cloud Plataform project ID'
+  project: 'Google Cloud Platform project ID'
   region: 'us-east1'
   zone: 'us-east1-b'
 
