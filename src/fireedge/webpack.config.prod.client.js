@@ -31,7 +31,7 @@ const js = {
  * @param {object} {assets, appname}
  * @returns {object} webpack config
  */
-const bundle = ({ assets = false, name = 'flow' }) => {
+const bundle = ({ assets = false, name = 'sunstone' }) => {
   const plugins = [
     new TimeFixPlugin(),
     new webpack.DefinePlugin({

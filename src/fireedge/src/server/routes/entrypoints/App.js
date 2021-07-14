@@ -57,9 +57,6 @@ router.get('*', (req, res) => {
 
   // production
   if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
-    const App = require('../../../client/dev/_app.js').default
-    const sheets = new ServerStyleSheets()
-    const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
     const apps = Object.keys(defaultApps)
     const parseUrl = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)
 
@@ -69,6 +66,10 @@ router.get('*', (req, res) => {
         title = element
       }
     })
+
+    const App = require(`../../../client/apps/${app}/index.js`).default
+    const sheets = new ServerStyleSheets()
+    const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
     // loadable
     const statsFile = path.resolve(__dirname, 'client', app + defaultFileStats)
