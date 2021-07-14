@@ -152,6 +152,15 @@ void Nebula::start(bool bootstrap_only)
         throw runtime_error("Could not load nebula configuration file.");
     }
 
+    // OpenNebula 6.0.3 ALLOW_ORPHANS patch for oned configuration file
+    const VectorAttribute * tm_qcow2;
+
+    if ( get_tm_conf_attribute("qcow2", tm_qcow2) == 0 )
+    {
+        const_cast<VectorAttribute *>(tm_qcow2)->replace("ALLOW_ORPHANS",
+                "FORMAT");
+    }
+
     string   config_fname = var_location + "config";
     ofstream config_file(config_fname.c_str(), ios_base::trunc & ios_base::out);
 
