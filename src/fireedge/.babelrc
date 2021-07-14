@@ -5,6 +5,10 @@
       {
         "targets": {
           "node": "10"
+        },
+        "useBuiltIns": "usage",
+        "corejs": {
+          "version": "3.15"
         }
       }
     ],
