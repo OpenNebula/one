@@ -22,7 +22,7 @@ import NetworkList from 'client/components/Tabs/Vm/Network/List'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const VmNetworkTab = ({ tabProps, ...vm }) => {
+const VmNetworkTab = ({ tabProps, handleRefetch, ...vm }) => {
   const { actions = [] } = tabProps
 
   const nics = VirtualMachine.getNics(vm, {
@@ -34,14 +34,18 @@ const VmNetworkTab = ({ tabProps, ...vm }) => {
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   return (
-    <NetworkList vmId={vm.ID} actions={actionsAvailable} nics={nics} />
+    <NetworkList
+      vmId={vm.ID}
+      actions={actionsAvailable}
+      nics={nics}
+      handleRefetch={handleRefetch}
+    />
   )
 }
 
 VmNetworkTab.propTypes = {
-  tabProps: PropTypes.shape({
-    actions: PropTypes.object
-  })
+  tabProps: PropTypes.object,
+  handleRefetch: PropTypes.func
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'

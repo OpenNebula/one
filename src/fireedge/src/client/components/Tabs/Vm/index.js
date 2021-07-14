@@ -44,7 +44,7 @@ const loadTab = tabName => ({
   storage: Storage
 }[tabName])
 
-const VmTabs = ({ data }) => {
+const VmTabs = ({ data, handleRefetch }) => {
   const [tabsAvailable, setTabs] = React.useState(() => [])
   const { view, getResourceView } = useAuth()
 
@@ -59,7 +59,8 @@ const VmTabs = ({ data }) => {
 
         return TabContent && {
           name: stringToCamelSpace(nameSanitize),
-          renderContent: props => TabContent({ ...props, tabProps })
+          renderContent:
+            props => TabContent({ ...props, tabProps, handleRefetch })
         }
       })
       ?.filter(Boolean))
@@ -69,7 +70,8 @@ const VmTabs = ({ data }) => {
 }
 
 VmTabs.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
+  handleRefetch: PropTypes.func
 }
 
 VmTabs.displayName = 'VmTabs'

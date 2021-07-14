@@ -20,8 +20,6 @@ import { logout } from 'client/features/Auth/actions'
 import { T } from 'client/constants'
 import { httpCodes } from 'server/utils/constants'
 
-const ATTRIBUTES_EDITABLE = ['NAME', 'STATE', 'LCM_STATE']
-
 /**
  * @param {string} type - Name of redux action
  * @param {Promise} service - Request from service
@@ -58,16 +56,11 @@ export const createAction = (type, service, wrapResult) =>
 export const updateResourceList = (currentList, value) => {
   const id = value.ID
 
-  const newItem = currentList?.find(({ ID }) => ID === id)
-
-  const editedItem = ATTRIBUTES_EDITABLE.reduce(
-    (item, attr) => value[attr] ? ({ ...item, [attr]: value[attr] }) : item,
-    newItem || {}
-  )
+  const currentItem = currentList?.find(({ ID }) => ID === id)
 
   // update if exists in current list, if not add it to list
-  const updatedList = newItem
-    ? currentList?.map(item => item?.ID === id ? editedItem : item)
+  const updatedList = currentItem
+    ? currentList?.map(item => item?.ID === id ? value : item)
     : [value, currentList]
 
   return updatedList

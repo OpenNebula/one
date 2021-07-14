@@ -32,20 +32,12 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    backgroundColor: theme.palette.background.default,
-    width: '80%',
-    height: '80%',
-    [theme.breakpoints.only('xs')]: {
-      width: '100%',
-      height: '100%'
-    }
-  },
-  closeButton: {
-    position: 'absolute',
-    right: '0.5em',
-    top: '0.5em'
+const useStyles = makeStyles(({
+  title: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    gap: '2em'
   }
 }))
 
@@ -74,16 +66,15 @@ const DialogConfirmation = memo(
         maxWidth='lg'
         scroll='paper'
         classes={{
-          paper: classes.root
+          // paper: classes.root
         }}
       >
-        <DialogTitle disableTypography>
+        <DialogTitle disableTypography className={classes.title}>
           <Typography variant='h6'>{title}</Typography>
           {subheader && <Typography variant='subtitle1'>{subheader}</Typography>}
           {handleCancel && (
             <IconButton
-              aria-label="close"
-              className={classes.closeButton}
+              aria-label='close'
               onClick={handleCancel}
               data-cy='dg-cancel-button'
               {...cancelButtonProps}

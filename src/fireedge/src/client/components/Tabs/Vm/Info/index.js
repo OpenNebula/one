@@ -17,11 +17,19 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
+import { useVmApi } from 'client/features/One'
 import { Permissions, Ownership } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
-const VmInfoTab = ({ tabProps, ...data }) => {
-  const { ID, UNAME, GNAME, PERMISSIONS } = data
+const VmInfoTab = ({ tabProps, handleRefetch, ...data }) => {
+  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = data
+  const { changeOwnership } = useVmApi()
+
+  const handleChangeOwnership = async newOwnership => {
+    const response = await changeOwnership(ID, newOwnership)
+
+    String(response) === String(ID) && await handleRefetch?.()
+  }
 
   return (
     <div style={{
@@ -37,14 +45,21 @@ const VmInfoTab = ({ tabProps, ...data }) => {
         <Permissions id={ID} {...PERMISSIONS} />
       }
       {tabProps?.ownership_panel?.enabled &&
-        <Ownership userName={UNAME} groupName={GNAME} />
+        <Ownership
+          userId={UID}
+          userName={UNAME}
+          groupId={GID}
+          groupName={GNAME}
+          handleEdit={handleChangeOwnership}
+        />
       }
     </div>
   )
 }
 
 VmInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
+  handleRefetch: PropTypes.func
 }
 
 VmInfoTab.displayName = 'VmInfoTab'

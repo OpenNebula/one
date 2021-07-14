@@ -33,6 +33,8 @@ const VmDetail = React.memo(({ id }) => {
     error
   } = useFetch(getVm, getHooksSocket({ resource: 'vm', id }))
 
+  const handleRefetch = () => fetchRequest(id, { reload: true })
+
   React.useEffect(() => {
     fetchRequest(id)
   }, [id])
@@ -45,7 +47,7 @@ const VmDetail = React.memo(({ id }) => {
     return <div>{error || 'Error'}</div>
   }
 
-  return <VmTabs data={data} />
+  return <VmTabs data={data} handleRefetch={handleRefetch} />
 })
 
 VmDetail.propTypes = {

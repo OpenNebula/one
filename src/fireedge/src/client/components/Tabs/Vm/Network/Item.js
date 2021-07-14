@@ -84,10 +84,10 @@ const useStyles = makeStyles(({
   }
 }))
 
-const NetworkItem = ({ vmId, nic = {}, actions }) => {
+const NetworkItem = ({ vmId, handleRefetch, nic = {}, actions }) => {
   const classes = useStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
-  const { detachNic, getVm } = useVmApi()
+  const { detachNic } = useVmApi()
 
   const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
 
@@ -104,7 +104,7 @@ const NetworkItem = ({ vmId, nic = {}, actions }) => {
       handleClick={async () => {
         const response = await detachNic(vmId, NIC_ID)
 
-        String(response) === String(vmId) && getVm(vmId)
+        String(response) === String(vmId) && handleRefetch?.(vmId)
       }}
     />
   )
@@ -169,6 +169,7 @@ const NetworkItem = ({ vmId, nic = {}, actions }) => {
 
 NetworkItem.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
+  handleRefetch: PropTypes.func,
   vmId: PropTypes.string,
   nic: PropTypes.object
 }

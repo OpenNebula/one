@@ -13,33 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import Attribute from 'client/components/Tabs/Common/Attribute/Attribute'
 
-import * as actions from 'client/features/One/vm/actions'
-
-export const useVm = () => (
-  useSelector(state => state.one.vms)
-)
-
-export const useVmApi = () => {
-  const dispatch = useDispatch()
-
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
-
-  return {
-    getVm: id => unwrapDispatch(actions.getVm({ id })),
-    getVms: options => unwrapDispatch(actions.getVms(options)),
-    terminateVm: id => unwrapDispatch(actions.terminateVm({ id })),
-    changePermissions: (id, permissions) =>
-      unwrapDispatch(actions.changePermissions({ id, permissions })),
-    changeOwnership: (id, ownership) =>
-      unwrapDispatch(actions.changeOwnership({ id, ownership })),
-    detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic }))
-  }
-}
+export default Attribute

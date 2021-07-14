@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import useDialog from 'client/hooks/useDialog'
 import useFetch from 'client/hooks/useFetch'
 import useFetchAll from 'client/hooks/useFetchAll'
 import useList from 'client/hooks/useList'
@@ -22,6 +23,7 @@ import useSearch from 'client/hooks/useSearch'
 import useSocket from 'client/hooks/useSocket'
 
 export {
+  useDialog,
   useFetch,
   useFetchAll,
   useList,

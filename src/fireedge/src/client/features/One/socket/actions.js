@@ -17,6 +17,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/General/actions'
 import { RESOURCES } from 'client/features/One/slice'
+import { HookStateData, HookApiData } from 'client/features/One/socket/types'
 import { generateKey } from 'client/utils'
 
 const MESSAGE_PROVISION_SUCCESS_CREATED = 'Provision successfully created'
@@ -28,30 +29,7 @@ const COMMANDS = {
 }
 
 /**
- * @param {object} data
- * - Event data from socket
- * @param {object} data.HOOK_MESSAGE
- * - Hook message from OpenNebula API
- * @param {'STATE'} data.HOOK_MESSAGE.HOOK_TYPE
- * - Type of event API
- * @param {('VM'|'HOST'|'IMAGE')} data.HOOK_MESSAGE.HOOK_OBJECT
- * - Type name of the resource
- * @param {string} data.HOOK_MESSAGE.STATE
- * - The state that triggers the hook.
- * @param {string} [data.HOOK_MESSAGE.LCM_STATE]
- * - The LCM state that triggers the hook (Only for VM hooks)
- * @param {string} [data.HOOK_MESSAGE.REMOTE_HOST]
- * - If ``yes`` the hook will be executed in the host that triggered
- * the hook (for Host hooks) or in the host where the VM is running (for VM hooks).
- * Not used for Image hooks.
- * @param {string} data.HOOK_MESSAGE.RESOURCE_ID
- * - ID of resource
- * @param {object} [data.HOOK_MESSAGE.VM]
- * - New data of the VM
- * @param {object} [data.HOOK_MESSAGE.HOST]
- * - New data of the HOST
- * @param {object} [data.HOOK_MESSAGE.IMAGE]
- * - New data of the IMAGE
+ * @param {HookStateData} data - Event data from hook event STATE
  * @returns {{name: ('vm'|'host'|'image'), value: object}}
  * - Name and new value of resource
  */
@@ -62,31 +40,7 @@ export const getResourceFromEventState = data => {
 }
 
 /**
- * API call parameter.
- *
- * @typedef {object} Parameter
- * @property {number} POSITION - Parameter position in the list
- * @property {('IN'|'OUT')} TYPE - Parameter type
- * @property {string} VALUE - Parameter value as string
- */
-
-/**
- * @param {object} data
- * - Event data from socket
- * @param {object} data.HOOK_MESSAGE
- * - Hook message from OpenNebula API
- * @param {'API'} data.HOOK_MESSAGE.HOOK_TYPE
- * - Type of event API
- * @param {string} data.HOOK_MESSAGE.CALL
- * - Action name: 'one.resourceName.action'
- * @param {object} [data.HOOK_MESSAGE.CALL_INFO]
- * - Information about result of action
- * @param {(0|1)} data.HOOK_MESSAGE.CALL_INFO.RESULT
- * - `1` for success and `0` for error result
- * @param {Parameter[]|Parameter} [data.HOOK_MESSAGE.CALL_INFO.PARAMETERS]
- * - The list of IN and OUT parameters will match the API call parameters
- * @param {object} [data.HOOK_MESSAGE.CALL_INFO.EXTRA]
- * - Extra information returned for API Hooks
+ * @param {HookApiData} data - Event data from hook event API
  * @returns {{
  * action: string,
  * name: string,

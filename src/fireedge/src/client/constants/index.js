@@ -46,6 +46,7 @@ export const DEFAULT_LANGUAGE = 'en'
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
 export const ONEADMIN_ID = '0'
+export const SERVERADMIN_ID = '1'
 
 export const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',

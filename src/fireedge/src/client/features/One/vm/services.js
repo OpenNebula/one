@@ -130,6 +130,27 @@ export const vmService = ({
   },
 
   /**
+   * Changes the ownership bits of a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {{user: number, group: number}} params.ownership - Ownership data
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  changeOwnership: async ({ id, ownership }) => {
+    const name = Actions.VM_CHOWN
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, ...ownership }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Detaches a network interface from a virtual machine.
    *
    * @param {object} params - Request parameters

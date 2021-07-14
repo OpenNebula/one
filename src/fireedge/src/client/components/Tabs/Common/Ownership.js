@@ -18,13 +18,14 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, List, ListItem, Typography, Paper, Divider } from '@material-ui/core'
 
+import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
+import Attribute from 'client/components/Tabs/Common/Attribute'
 import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { T, SERVERADMIN_ID } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
-  list: {
-    '& p': {
-      ...theme.typography.body2,
+  item: {
+    '& > *': {
       width: '50%'
     }
   },
@@ -33,23 +34,62 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const Ownership = React.memo(({ userName, groupName }) => {
+const Ownership = React.memo(({
+  userId,
+  userName,
+  groupId,
+  groupName,
+  handleEdit
+}) => {
   const classes = useStyles()
+  const { getUsers } = useUserApi()
+  const { getGroups } = useGroupApi()
+
+  const getUserOptions = async () => {
+    const response = await getUsers()
+
+    return response
+      ?.[RESOURCES.user]
+      ?.filter?.(({ ID } = {}) => ID !== SERVERADMIN_ID)
+      ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID })
+      )
+  }
+
+  const getGroupOptions = async () => {
+    const response = await getGroups()
+
+    return response
+      ?.[RESOURCES.group]
+      ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID })
+      )
+  }
 
   return (
     <Paper variant='outlined'>
-      <List className={classes.list}>
+      <List>
         <ListItem className={classes.title}>
           <Typography noWrap>{Tr(T.Ownership)}</Typography>
         </ListItem>
         <Divider />
-        <ListItem>
-          <Typography noWrap>{Tr(T.Owner)}</Typography>
-          <Typography noWrap>{userName}</Typography>
+        <ListItem className={classes.item}>
+          <Attribute
+            canEdit
+            name={T.Owner}
+            value={userName}
+            valueInOptionList={userId}
+            handleGetOptionList={getUserOptions}
+            handleEdit={user => handleEdit?.({ user })}
+          />
         </ListItem>
-        <ListItem>
-          <Typography>{Tr(T.Group)}</Typography>
-          <Typography>{groupName}</Typography>
+        <ListItem className={classes.item}>
+          <Attribute
+            canEdit
+            name={T.Group}
+            value={groupName}
+            valueInOptionList={groupId}
+            handleGetOptionList={getGroupOptions}
+            handleEdit={group => handleEdit?.({ group })}
+          />
         </ListItem>
       </List>
     </Paper>
@@ -57,8 +97,11 @@ const Ownership = React.memo(({ userName, groupName }) => {
 })
 
 Ownership.propTypes = {
+  userId: PropTypes.string.isRequired,
   userName: PropTypes.string.isRequired,
-  groupName: PropTypes.string.isRequired
+  groupId: PropTypes.string.isRequired,
+  groupName: PropTypes.string.isRequired,
+  handleEdit: PropTypes.func
 }
 
 Ownership.displayName = 'Ownership'

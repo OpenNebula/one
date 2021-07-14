@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import NetworkItem from 'client/components/Tabs/Vm/Network/Item'
 
-const NetworkList = ({ vmId, nics, actions }) => (
+const NetworkList = ({ vmId, handleRefetch, nics, actions }) => (
   <div style={{
     display: 'flex',
     flexDirection: 'column',
@@ -27,13 +27,20 @@ const NetworkList = ({ vmId, nics, actions }) => (
     paddingBlock: '0.8em'
   }}>
     {nics.map((nic, idx) => (
-      <NetworkItem key={idx} vmId={vmId} nic={nic} actions={actions} />
+      <NetworkItem
+        key={idx}
+        actions={actions}
+        handleRefetch={handleRefetch}
+        nic={nic}
+        vmId={vmId}
+      />
     ))}
   </div>
 )
 
 NetworkList.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
+  handleRefetch: PropTypes.func,
   vmId: PropTypes.string,
   nics: PropTypes.array
 }

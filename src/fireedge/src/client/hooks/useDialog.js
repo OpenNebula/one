@@ -13,33 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import { useState } from 'react'
 
-import * as actions from 'client/features/One/vm/actions'
+const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn?.(...args))
 
-export const useVm = () => (
-  useSelector(state => state.one.vms)
-)
+/**
+ * Hook to manage a dialog.
+ *
+ * @returns {{
+ * on: boolean,
+ * show: Function,
+ * hide: Function,
+ * toggle: Function,
+ * getToggleProps: Function,
+ * getContainerProps: Function
+ * }} - Returns management function to dialog
+ */
+const useDialog = () => {
+  const [display, setDisplay] = useState(false)
+  const show = () => setDisplay(true)
+  const hide = () => setDisplay(false)
+  const toggle = () => setDisplay(prev => !prev)
 
-export const useVmApi = () => {
-  const dispatch = useDispatch()
+  const getToggleProps = (props = {}) => ({
+    'aria-controls': 'target',
+    'aria-expanded': Boolean(display),
+    ...props,
+    onClick: callAll(props.onClick, toggle)
+  })
 
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
+  const getContainerProps = (props = {}) => ({
+    ...props,
+    onClick: callAll(props.onClick, toggle),
+    onKeyDown: callAll(
+      props.onKeyDown,
+      ({ keyCode }) => keyCode === 27 && hide()
+    )
+  })
 
   return {
-    getVm: id => unwrapDispatch(actions.getVm({ id })),
-    getVms: options => unwrapDispatch(actions.getVms(options)),
-    terminateVm: id => unwrapDispatch(actions.terminateVm({ id })),
-    changePermissions: (id, permissions) =>
-      unwrapDispatch(actions.changePermissions({ id, permissions })),
-    changeOwnership: (id, ownership) =>
-      unwrapDispatch(actions.changeOwnership({ id, ownership })),
-    detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic }))
+    display,
+    show,
+    hide,
+    toggle,
+    getToggleProps,
+    getContainerProps
   }
 }
+
+export default useDialog
