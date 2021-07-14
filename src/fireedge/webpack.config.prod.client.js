@@ -1,17 +1,18 @@
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
 
 const path = require('path')
 const webpack = require('webpack')
@@ -27,9 +28,10 @@ const js = {
 }
 
 /**
- * bundle app
- * @param {object} {assets, appname}
- * @returns {object} webpack config
+ * Bundle app.
+ *
+ * @param {{ assets: boolean, name: string }} params - webpack build app
+ * @returns {webpack.Configuration} webpack config
  */
 const bundle = ({ assets = false, name = 'sunstone' }) => {
   const plugins = [
@@ -78,6 +80,9 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
   }
 }
 
+/**
+ * @returns {webpack.Configuration[]} - list of configuration
+ */
 module.exports = () => Object.entries(defaultApps).map(([key, values]) =>
   bundle({ ...values, name: key })
 )
