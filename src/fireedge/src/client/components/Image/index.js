@@ -29,19 +29,15 @@ const INITIAL_STATE = { fail: false, retries: 0 }
  * @param {string} props.imgProps - Properties to image element
  * @returns {React.JSXElementConstructor} Picture with all images format
  */
-const Image = memo(({ src = DEFAULT_IMAGE, withSources, imgProps }) => {
+const Image = memo(({ src, imageInError, withSources, imgProps }) => {
   const [error, setError] = useState(INITIAL_STATE)
 
-  /**
-   * Increment retries by one in error state.
-   */
+  /** Increment retries by one in error state. */
   const addRetry = () => {
     setError(prev => ({ ...prev, retries: prev.retries + 1 }))
   }
 
-  /**
-   * Set failed state.
-   */
+  /** Set failed state. */
   const onImageFail = () => {
     setError(prev => ({ fail: true, retries: prev.retries + 1 }))
   }
@@ -51,7 +47,7 @@ const Image = memo(({ src = DEFAULT_IMAGE, withSources, imgProps }) => {
   }
 
   if (error.fail) {
-    return <img src={DEFAULT_IMAGE} draggable={false} onError={addRetry} />
+    return <img src={imageInError} draggable={false} onError={addRetry} />
   }
 
   return (
@@ -69,6 +65,7 @@ const Image = memo(({ src = DEFAULT_IMAGE, withSources, imgProps }) => {
 
 Image.propTypes = {
   src: PropTypes.string,
+  imageInError: PropTypes.string,
   withSources: PropTypes.bool,
   imgProps: PropTypes.shape({
     decoding: PropTypes.oneOf(['sync', 'async', 'auto']),
@@ -79,6 +76,7 @@ Image.propTypes = {
 
 Image.defaultProps = {
   src: undefined,
+  imageInError: DEFAULT_IMAGE,
   withSources: false,
   imgProps: {
     decoding: 'async',

@@ -47,7 +47,12 @@ const ProvisionTemplateCard = memo(
         isSelected={isSelected}
         mediaProps={{
           component: 'div',
-          children: <Image src={imageUrl} withSources={image && !isExternalImage} />
+          children: (
+            <Image
+              src={imageUrl}
+              withSources={image && !isExternalImage}
+            />
+          )
         }}
         subheader={description}
         title={name}
