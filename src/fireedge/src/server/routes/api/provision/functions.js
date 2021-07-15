@@ -270,6 +270,7 @@ const addOptionalCreateCommand = () => {
   const appConfig = getConfig()
   const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
   return [optionalCreateCommand]
+    .filter(Boolean) // remove following strings: '', 0, undefined, null
 }
 
 /**
