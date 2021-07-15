@@ -21,11 +21,11 @@ import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID } from 'client/constants'
 
 const Ownership = React.memo(({
-  userId,
-  userName,
   groupId,
   groupName,
-  handleEdit
+  handleEdit,
+  userId,
+  userName
 }) => {
   const { getUsers } = useUserApi()
   const { getGroups } = useGroupApi()

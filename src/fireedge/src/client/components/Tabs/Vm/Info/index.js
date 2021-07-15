@@ -23,12 +23,18 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
 const VmInfoTab = ({ tabProps }) => {
-  const { changeOwnership } = useVmApi()
+  const { changeOwnership, changePermissions } = useVmApi()
   const { handleRefetch, data } = React.useContext(TabContext)
   const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = data
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
+
+    String(response) === String(ID) && await handleRefetch?.()
+  }
+
+  const handleChangePermission = async newPermission => {
+    const response = await changePermissions(ID, newPermission)
 
     String(response) === String(ID) && await handleRefetch?.()
   }
@@ -44,7 +50,18 @@ const VmInfoTab = ({ tabProps }) => {
         <Information {...data} />
       }
       {tabProps?.permissions_panel?.enabled &&
-        <Permissions id={ID} {...PERMISSIONS} />
+        <Permissions
+          ownerUse={PERMISSIONS.OWNER_U}
+          ownerManage={PERMISSIONS.OWNER_M}
+          ownerAdmin={PERMISSIONS.OWNER_A}
+          groupUse={PERMISSIONS.GROUP_U}
+          groupManage={PERMISSIONS.GROUP_M}
+          groupAdmin={PERMISSIONS.GROUP_A}
+          otherUse={PERMISSIONS.OTHER_U}
+          otherManage={PERMISSIONS.OTHER_M}
+          otherAdmin={PERMISSIONS.OTHER_A}
+          handleEdit={handleChangePermission}
+        />
       }
       {tabProps?.ownership_panel?.enabled &&
         <Ownership

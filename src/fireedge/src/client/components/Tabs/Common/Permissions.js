@@ -19,7 +19,6 @@ import PropTypes from 'prop-types'
 import { makeStyles, List, ListItem, Typography, Paper } from '@material-ui/core'
 import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
-import { useVmApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -44,33 +43,15 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const Permissions = React.memo(({
-  id,
-  OWNER_U, OWNER_M, OWNER_A,
-  GROUP_U, GROUP_M, GROUP_A,
-  OTHER_U, OTHER_M, OTHER_A
-}) => {
+const Permissions = React.memo(({ handleEdit, ...permissions }) => {
   const classes = useStyles()
-  const { changePermissions } = useVmApi()
-
-  const [permissions, setPermissions] = React.useState(() => ({
-    ownerUse: OWNER_U,
-    ownerManage: OWNER_M,
-    ownerAdmin: OWNER_A,
-    groupUse: GROUP_U,
-    groupManage: GROUP_M,
-    groupAdmin: GROUP_A,
-    otherUse: OTHER_U,
-    otherManage: OTHER_M,
-    otherAdmin: OTHER_A
-  }))
 
   const handleChange = async (name, value) => {
-    const newPermission = { [name]: Helper.stringToBoolean(value) ? '0' : '1' }
-    const response = await changePermissions(id, newPermission)
+    const newPermission = {
+      [name]: Helper.stringToBoolean(value) ? '0' : '1'
+    }
 
-    String(response) === String(id) &&
-      setPermissions(prev => ({ ...prev, ...newPermission }))
+    await handleEdit?.(newPermission)
   }
 
   return (
@@ -91,7 +72,7 @@ const Permissions = React.memo(({
 
             {/* PERMISSIONS */}
             {Object.entries(permissions)
-              .filter(([key, _]) => key.toLowerCase().includes(category))
+              .filter(([key, _]) => key.toLowerCase().startsWith(category))
               .map(([key, permission]) => (
                 <span key={key}>
                   <Action
@@ -113,16 +94,16 @@ const Permissions = React.memo(({
 })
 
 Permissions.propTypes = {
-  id: PropTypes.string.isRequired,
-  OWNER_U: PropTypes.string.isRequired,
-  OWNER_M: PropTypes.string.isRequired,
-  OWNER_A: PropTypes.string.isRequired,
-  GROUP_U: PropTypes.string.isRequired,
-  GROUP_M: PropTypes.string.isRequired,
-  GROUP_A: PropTypes.string.isRequired,
-  OTHER_U: PropTypes.string.isRequired,
-  OTHER_M: PropTypes.string.isRequired,
-  OTHER_A: PropTypes.string.isRequired
+  groupAdmin: PropTypes.string.isRequired,
+  groupManage: PropTypes.string.isRequired,
+  groupUse: PropTypes.string.isRequired,
+  handleEdit: PropTypes.func,
+  otherAdmin: PropTypes.string.isRequired,
+  otherManage: PropTypes.string.isRequired,
+  otherUse: PropTypes.string.isRequired,
+  ownerAdmin: PropTypes.string.isRequired,
+  ownerManage: PropTypes.string.isRequired,
+  ownerUse: PropTypes.string.isRequired
 }
 
 Permissions.displayName = 'Permissions'
