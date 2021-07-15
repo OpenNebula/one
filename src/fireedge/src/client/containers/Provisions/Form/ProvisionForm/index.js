@@ -22,14 +22,12 @@ import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/ProvisionForm/Steps'
-import LogAfterCreateAction from 'client/containers/Provisions/Form/ProvisionForm/Log'
 
 import { useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
 import { set, cloneObject, mapUserInputs } from 'client/utils'
 
-const ProvisionForm = () => {
-  const [uuid, setUuid] = useState(undefined)
+const ProvisionForm = ({ handleAfterCreate }) => {
   const { createProvision } = useProvisionApi()
   const { enqueueInfo } = useGeneralApi()
 
@@ -41,7 +39,7 @@ const ProvisionForm = () => {
     resolver: yupResolver(resolvers())
   })
 
-  const onSubmit = formData => {
+  const onSubmit = async formData => {
     const { template, provider, configuration, inputs } = formData
     const { name, description } = configuration
     const providerName = provider?.[0]?.NAME
@@ -68,13 +66,10 @@ const ProvisionForm = () => {
         ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }
 
-    createProvision(formatData)
-      .then(res => res && setUuid(res))
-      .then(() => enqueueInfo('Creating provision'))
-  }
+    const response = await createProvision(formatData)
+    enqueueInfo('Creating provision')
 
-  if (uuid) {
-    return <LogAfterCreateAction uuid={uuid} />
+    handleAfterCreate?.(response)
   }
 
   return (
@@ -85,9 +80,7 @@ const ProvisionForm = () => {
 }
 
 ProvisionForm.propTypes = {
-  id: PropTypes.string,
-  preloadedData: PropTypes.object,
-  initialValues: PropTypes.object
+  handleAfterCreate: PropTypes.func
 }
 
 export default ProvisionForm

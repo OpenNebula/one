@@ -14,29 +14,48 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
-import { Redirect } from 'react-router'
+import React, { useEffect, useState, memo } from 'react'
+import { Redirect, useHistory } from 'react-router'
 
-import { makeStyles, Container, LinearProgress } from '@material-ui/core'
+import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
+import { makeStyles, Container, LinearProgress, IconButton, Typography } from '@material-ui/core'
 
-import { useFetch } from 'client/hooks'
+import { useFetch, useSocket } from 'client/hooks'
 import { useProviderApi } from 'client/features/One'
+import DebugLog from 'client/components/DebugLog'
 import ProvisionForm from 'client/containers/Provisions/Form/ProvisionForm'
 import { PATH } from 'client/apps/provision/routes'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles({
   container: {
     display: 'flex',
     flexDirection: 'column'
+  },
+  title: {
+    marginBottom: '1em',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.8em'
   }
 })
 
 function ProvisionCreateForm () {
   const classes = useStyles()
+  const [uuid, setUuid] = useState(undefined)
+
+  const { getProvisionSocket: socket } = useSocket()
   const { getProviders } = useProviderApi()
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
+  const handleSetUuid = response => response && setUuid(response)
+
   useEffect(() => { fetchRequest() }, [])
+
+  if (uuid) {
+    return <DebugLog {...{ uuid, socket, title: <Title /> }} />
+  }
 
   if (error) {
     return <Redirect to={PATH.PROVISIONS.LIST} />
@@ -46,9 +65,28 @@ function ProvisionCreateForm () {
     <LinearProgress color='secondary' />
   ) : (
     <Container className={classes.container} disableGutters>
-      <ProvisionForm />
+      <ProvisionForm handleAfterCreate={handleSetUuid} />
     </Container>
   )
 }
+
+const Title = memo(() => {
+  const classes = useStyles()
+  const history = useHistory()
+  const backToProvisionList = () => history.push(PATH.PROVISIONS.LIST)
+
+  return (
+    <div className={classes.title}>
+      <IconButton size='medium' onClick={backToProvisionList}>
+        <ArrowBackIcon />
+      </IconButton>
+      <Typography variant='body1' component='span'>
+        <Translate word={T.BackToList} values={T.Provisions} />
+      </Typography>
+    </div>
+  )
+})
+
+Title.displayName = 'BackToProvisionList'
 
 export default ProvisionCreateForm
