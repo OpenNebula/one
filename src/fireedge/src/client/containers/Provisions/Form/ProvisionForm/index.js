@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useState } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { useForm, FormProvider } from 'react-hook-form'

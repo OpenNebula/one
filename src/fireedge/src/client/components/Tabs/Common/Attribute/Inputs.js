@@ -20,6 +20,19 @@ import { makeStyles, TextField } from '@material-ui/core'
 
 import * as Actions from 'client/components/Tabs/Common/Attribute/Actions'
 
+/**
+ * @typedef {object} Option
+ * @property {string|number|React.JSXElementConstructor} text - Options text to show
+ * @property {string|number} value - Option value
+ */
+
+/**
+ * @typedef {object} InputProps
+ * @property {string} name - Attribute name
+ * @property {string} value - Attribute name
+ * @property {Option[]} [options] - Options
+ */
+
 const useStyles = makeStyles({
   select: {
     textOverflow: 'ellipsis'
@@ -28,17 +41,11 @@ const useStyles = makeStyles({
 
 const Select = React.forwardRef(
   /**
-   * @param {object} props - Props
-   * @param {string} props.name - Attribute name
-   * @param {string} props.value - Attribute value
-   * @param {{
-   * text:string,
-   * value:string}[]
-   * } props.options - Options available
+   * @param {InputProps} props - Props
    * @param {React.ForwardedRef} ref - Forward reference
    * @returns {React.JSXElementConstructor} Select field
    */
-  ({ name, value, options }, ref) => {
+  ({ name = '', value = '', options }, ref) => {
     const classes = useStyles()
     const [newValue, setNewValue] = React.useState(() => value)
 
@@ -69,29 +76,13 @@ const Select = React.forwardRef(
   }
 )
 
-Select.displayName = 'Select'
-
-Select.propTypes = {
-  name: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string.isRequired,
-      value: PropTypes.string
-    })
-  )
-}
-
 const Text = React.forwardRef(
   /**
-   * @param {object} props - Props
-   * @param {string} props.name - Attribute name
-   * @param {string} props.value - Attribute value
+   * @param {InputProps} props - Props
    * @param {React.ForwardedRef} ref - Forward reference
    * @returns {React.JSXElementConstructor} Text field
    */
   ({ name = '', value = '' }, ref) => {
-    console.log({ name, value })
     const [newValue, setNewValue] = React.useState(() => value)
 
     const handleChange = event => setNewValue(event.target.value)
@@ -112,11 +103,20 @@ const Text = React.forwardRef(
   }
 )
 
-Text.displayName = 'Text'
-
-Text.propTypes = {
+const InputPropTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired
+  value: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      value: PropTypes.string
+    })
+  )
 }
+
+Select.displayName = 'Select'
+Select.propTypes = InputPropTypes
+Text.displayName = 'Text'
+Text.propTypes = InputPropTypes
 
 export { Select, Text }

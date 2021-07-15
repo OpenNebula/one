@@ -16,23 +16,9 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, List, ListItem, Typography, Paper, Divider } from '@material-ui/core'
-
 import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
-import Attribute from 'client/components/Tabs/Common/Attribute'
-import { Tr } from 'client/components/HOC'
+import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID } from 'client/constants'
-
-const useStyles = makeStyles(theme => ({
-  item: {
-    '& > *': {
-      width: '50%'
-    }
-  },
-  title: {
-    fontWeight: theme.typography.fontWeightBold
-  }
-}))
 
 const Ownership = React.memo(({
   userId,
@@ -41,7 +27,6 @@ const Ownership = React.memo(({
   groupName,
   handleEdit
 }) => {
-  const classes = useStyles()
   const { getUsers } = useUserApi()
   const { getGroups } = useGroupApi()
 
@@ -66,16 +51,18 @@ const Ownership = React.memo(({
 
   const ownership = [
     {
-      key: T.Owner,
+      name: T.Owner,
       value: userName,
       valueInOptionList: userId,
+      canEdit: true,
       handleGetOptionList: getUserOptions,
       handleEdit: user => handleEdit?.({ user })
     },
     {
-      key: T.Group,
+      name: T.Group,
       value: groupName,
       valueInOptionList: groupId,
+      canEdit: true,
       handleGetOptionList: getGroupOptions,
       handleEdit: group => handleEdit?.({ group })
     }
