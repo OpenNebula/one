@@ -80,8 +80,7 @@ function Providers () {
               isProvider: true,
               handleClick: () => setShowDialog({
                 id: ID,
-                title: NAME,
-                subheader: `#${ID}`
+                title: `#${ID} ${NAME}`
               }),
               actions: [
                 {
@@ -93,8 +92,7 @@ function Providers () {
                 {
                   handleClick: () => setShowDialog({
                     id: ID,
-                    title: `DELETE - ${NAME}`,
-                    subheader: `#${ID}`,
+                    title: `DELETE | #${ID} ${NAME}`,
                     handleAccept: () => {
                       setShowDialog(false)
 

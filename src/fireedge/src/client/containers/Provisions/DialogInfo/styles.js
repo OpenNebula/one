@@ -16,6 +16,10 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
+  root: {
+    minWidth: '80vw',
+    minHeight: '80vw'
+  },
   permissions: {
     marginBottom: theme.spacing(2)
   },

@@ -64,7 +64,7 @@ export const getLocationKeys = ({ plain: { location_key: locationKey } = {} }) =
  * @param {ProviderTemplate} template - Provider template
  * @returns {object} Not editable connections
  */
-export const getConnectionFixed = ({ connection = {}, ...template }) => {
+export const getConnectionFixed = ({ connection = {}, ...template } = {}) => {
   const keys = getLocationKeys(template)
 
   return Object.entries(connection).reduce((res, [name, value]) => ({

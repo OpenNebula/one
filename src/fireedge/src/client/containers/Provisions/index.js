@@ -85,8 +85,7 @@ function Provisions () {
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => setShowDialog({
                 id: ID,
-                title: NAME,
-                subheader: `#${ID}`,
+                title: `#${ID} ${NAME}`,
                 content: props => createElement(DialogInfo, {
                   ...props,
                   displayName: 'DialogDetailProvision'
@@ -108,8 +107,7 @@ function Provisions () {
                       disableAllActions: true,
                       displayName: 'DialogDeleteProvision'
                     }),
-                    title: `DELETE - ${NAME}`,
-                    subheader: `#${ID}`,
+                    title: `DELETE - #${ID} ${NAME}`,
                     handleAccept: () => {
                       handleCloseDialog()
 

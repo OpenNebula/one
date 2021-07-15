@@ -32,14 +32,17 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(({
+const useStyles = makeStyles({
   title: {
     display: 'flex',
     flexWrap: 'nowrap',
     alignItems: 'center',
     gap: '2em'
+  },
+  titleText: {
+    flexGrow: 1
   }
-}))
+})
 
 const DialogConfirmation = memo(
   ({
@@ -65,13 +68,12 @@ const DialogConfirmation = memo(
         onClose={handleCancel}
         maxWidth='lg'
         scroll='paper'
-        classes={{
-          // paper: classes.root
-        }}
       >
         <DialogTitle disableTypography className={classes.title}>
-          <Typography variant='h6'>{title}</Typography>
-          {subheader && <Typography variant='subtitle1'>{subheader}</Typography>}
+          <div className={classes.titleText}>
+            <Typography variant='h6'>{Tr(title)}</Typography>
+            {subheader && <Typography variant='subtitle1'>{Tr(subheader)}</Typography>}
+          </div>
           {handleCancel && (
             <IconButton
               aria-label='close'
