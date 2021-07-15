@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+/* eslint-disable jsdoc/require-jsdoc */
+import React, { useCallback } from 'react'
 
-export default makeStyles(theme => ({
-  root: {
-    display: 'flex',
-    flexFlow: 'column'
-  },
-  rootLog: {
-    display: 'flex',
-    flexFlow: 'column',
-    height: '100%'
-  },
-  titleWrapper: {
-    marginBottom: '1em',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.8em'
-  },
-  titleText: {
-    ...theme.typography.body1
-  }
-}))
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { T } from 'client/constants'
+
+import {
+  FORM_FIELDS, STEP_FORM_SCHEMA
+} from 'client/containers/Provisions/Form/ProvisionForm/Steps/BasicConfiguration/schema'
+
+export const STEP_ID = 'configuration'
+
+const BasicConfiguration = () => ({
+  id: STEP_ID,
+  label: T.ProvisionOverview,
+  resolver: () => STEP_FORM_SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: useCallback(
+    () => <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />,
+    []
+  )
+})
+
+export default BasicConfiguration

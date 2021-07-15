@@ -14,26 +14,41 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback } from 'react'
+import React, { useEffect } from 'react'
+import { Redirect } from 'react-router'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { T } from 'client/constants'
+import { makeStyles, Container, LinearProgress } from '@material-ui/core'
 
-import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Provisions/Form/Create/Steps/BasicConfiguration/schema'
+import { useFetch } from 'client/hooks'
+import { useProviderApi } from 'client/features/One'
+import ProvisionForm from 'client/containers/Provisions/Form/ProvisionForm'
+import { PATH } from 'client/apps/provision/routes'
 
-export const STEP_ID = 'configuration'
-
-const BasicConfiguration = () => ({
-  id: STEP_ID,
-  label: T.ProvisionOverview,
-  resolver: () => STEP_FORM_SCHEMA,
-  optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />,
-    []
-  )
+const useStyles = makeStyles({
+  container: {
+    display: 'flex',
+    flexDirection: 'column'
+  }
 })
 
-export default BasicConfiguration
+function ProvisionCreateForm () {
+  const classes = useStyles()
+  const { getProviders } = useProviderApi()
+  const { data, fetchRequest, loading, error } = useFetch(getProviders)
+
+  useEffect(() => { fetchRequest() }, [])
+
+  if (error) {
+    return <Redirect to={PATH.PROVISIONS.LIST} />
+  }
+
+  return !data || loading ? (
+    <LinearProgress color='secondary' />
+  ) : (
+    <Container className={classes.container} disableGutters>
+      <ProvisionForm />
+    </Container>
+  )
+}
+
+export default ProvisionCreateForm

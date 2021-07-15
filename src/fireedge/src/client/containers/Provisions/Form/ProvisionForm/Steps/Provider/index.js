@@ -23,9 +23,9 @@ import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
-import { STEP_ID as TEMPLATE_ID } from 'client/containers/Provisions/Form/Create/Steps/Template'
-import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/Create/Steps/Provider/schema'
+import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Inputs'
+import { STEP_ID as TEMPLATE_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Template'
+import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Provider/schema'
 
 export const STEP_ID = 'provider'
 

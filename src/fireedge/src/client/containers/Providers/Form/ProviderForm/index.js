@@ -29,7 +29,7 @@ import { useGeneralApi } from 'client/features/General'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
 
-const ProviderCreateForm = ({ id, preloadedData, initialValues }) => {
+const ProviderForm = ({ id, preloadedData, initialValues }) => {
   const history = useHistory()
   const isUpdate = id !== undefined
 
@@ -106,10 +106,10 @@ const ProviderCreateForm = ({ id, preloadedData, initialValues }) => {
   )
 }
 
-ProviderCreateForm.propTypes = {
+ProviderForm.propTypes = {
   id: PropTypes.string,
   preloadedData: PropTypes.object,
   initialValues: PropTypes.object
 }
 
-export default ProviderCreateForm
+export default ProviderForm

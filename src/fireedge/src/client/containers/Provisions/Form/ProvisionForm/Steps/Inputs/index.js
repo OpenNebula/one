@@ -26,11 +26,11 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
-import { STEP_ID as TEMPLATE_ID } from 'client/containers/Provisions/Form/Create/Steps/Template'
+import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Provider'
+import { STEP_ID as TEMPLATE_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Template'
 import {
   FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Provisions/Form/Create/Steps/Inputs/schema'
+} from 'client/containers/Provisions/Form/ProvisionForm/Steps/Inputs/schema'
 
 export const STEP_ID = 'inputs'
 

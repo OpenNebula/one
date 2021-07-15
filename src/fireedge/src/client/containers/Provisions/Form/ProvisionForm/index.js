@@ -14,41 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useState, useEffect } from 'react'
-import { Redirect, useHistory } from 'react-router'
-
-import { Container, IconButton, LinearProgress } from '@material-ui/core'
-import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
-import Steps from 'client/containers/Provisions/Form/Create/Steps'
-import formCreateStyles from 'client/containers/Provisions/Form/Create/styles'
-import DebugLog from 'client/components/DebugLog'
+import Steps from 'client/containers/Provisions/Form/ProvisionForm/Steps'
+import LogAfterCreateAction from 'client/containers/Provisions/Form/ProvisionForm/Log'
 
-import { useSocket, useFetch } from 'client/hooks'
-import { useProviderApi, useProvisionApi } from 'client/features/One'
+import { useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import { PATH } from 'client/apps/provision/routes'
 import { set, cloneObject, mapUserInputs } from 'client/utils'
 
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
-
-function ProvisionCreateForm () {
-  const classes = formCreateStyles()
-  const history = useHistory()
-
+const ProvisionForm = () => {
   const [uuid, setUuid] = useState(undefined)
-
-  const { getProvisionSocket } = useSocket()
-  const { getProviders } = useProviderApi()
   const { createProvision } = useProvisionApi()
   const { enqueueInfo } = useGeneralApi()
-
-  const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
   const { steps, defaultValues, resolvers } = Steps()
 
@@ -90,46 +73,21 @@ function ProvisionCreateForm () {
       .then(() => enqueueInfo('Creating provision'))
   }
 
-  useEffect(() => { fetchRequest() }, [])
-
   if (uuid) {
-    return (
-      <DebugLog
-        uuid={uuid}
-        socket={getProvisionSocket}
-        title={(
-          <div className={classes.titleWrapper}>
-            <IconButton aria-label='back-to-list' size='medium'
-              onClick={() => history.push(PATH.PROVISIONS.LIST)}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <span className={classes.titleText}>
-              <Translate word={T.BackToList} values={T.Provisions} />
-            </span>
-          </div>
-        )}
-      />
-    )
+    return <LogAfterCreateAction uuid={uuid} />
   }
 
-  if (error) {
-    return <Redirect to={PATH.PROVISIONS.LIST} />
-  }
-
-  return (!data) || loading ? (
-    <LinearProgress color='secondary' />
-  ) : (
-    <Container className={classes.root} disableGutters>
-      <FormProvider {...methods}>
-        <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
-      </FormProvider>
-    </Container>
+  return (
+    <FormProvider {...methods}>
+      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+    </FormProvider>
   )
 }
 
-ProvisionCreateForm.propTypes = {}
+ProvisionForm.propTypes = {
+  id: PropTypes.string,
+  preloadedData: PropTypes.object,
+  initialValues: PropTypes.object
+}
 
-ProvisionCreateForm.defaultProps = {}
-
-export default ProvisionCreateForm
+export default ProvisionForm

@@ -27,10 +27,10 @@ import { sanitize, groupBy } from 'client/utils'
 import * as ProvisionTemplateModel from 'client/models/ProvisionTemplate'
 import { T, PROVISIONS_TYPES, PROVIDERS_TYPES } from 'client/constants'
 
-import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
-import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/Create/Steps/BasicConfiguration'
-import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
-import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/Create/Steps/Template/schema'
+import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Provider'
+import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/BasicConfiguration'
+import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Inputs'
+import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Template/schema'
 
 export const STEP_ID = 'template'
 
