@@ -330,8 +330,9 @@ const executeCommand = (command = '', resource = '', options = {}) => {
   let rtn = { success: false, data: null }
   const { cmd, rsc } = addPrependCommand(command, resource)
   const execute = spawnSync(cmd, rsc, options)
+
   if (execute) {
-    if (execute.stdout) {
+    if (execute.stdout && execute.status === 0) {
       rtn = { success: true, data: execute.stdout.toString() }
     } else if (execute.stderr && execute.stderr.length > 0) {
       rtn = { success: false, data: execute.stderr.toString() }

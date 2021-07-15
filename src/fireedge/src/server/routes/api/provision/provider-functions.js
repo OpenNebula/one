@@ -261,11 +261,9 @@ const deleteProvider = (res = {}, next = defaultEmptyFunction, params = {}, user
     const data = executedCommand.data || ''
     try {
       if (executedCommand && executedCommand.success) {
-        if (executedCommand.data.length === 0) {
-          res.locals.httpCode = httpResponse(ok)
-        } else {
-          res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
-        }
+        res.locals.httpCode = httpResponse(ok)
+      } else {
+        res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
       }
       next()
       return
