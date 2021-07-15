@@ -27,10 +27,10 @@ import { sanitize, groupBy } from 'client/utils'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { T, PROVISIONS_TYPES, PROVIDERS_TYPES } from 'client/constants'
 
-import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Template/schema'
+import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/ProviderForm/Steps/Template/schema'
 
-import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Providers/Form/Create/Steps/BasicConfiguration'
-import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
+import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Providers/Form/ProviderForm/Steps/BasicConfiguration'
+import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/ProviderForm/Steps/Connection'
 
 export const STEP_ID = 'template'
 

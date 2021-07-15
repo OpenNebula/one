@@ -14,42 +14,33 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
-import { Redirect, useHistory, useParams } from 'react-router'
+import * as React from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
 
-import { Container, LinearProgress } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
-import Steps from 'client/containers/Providers/Form/Create/Steps'
+import Steps from 'client/containers/Providers/Form/ProviderForm/Steps'
 
-import { useFetchAll } from 'client/hooks'
 import { useProviderApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
 
-function ProviderCreateForm () {
+const ProviderCreateForm = ({ id, preloadedData, initialValues }) => {
   const history = useHistory()
-  const { id } = useParams()
   const isUpdate = id !== undefined
 
-  const {
-    getProvider,
-    createProvider,
-    updateProvider,
-    getProviderConnection
-  } = useProviderApi()
-
+  const { createProvider, updateProvider } = useProviderApi()
   const { enqueueError, enqueueSuccess, changeLoading } = useGeneralApi()
 
-  const { data, fetchRequestAll, loading, error } = useFetchAll()
   const { steps, defaultValues, resolvers } = Steps({ isUpdate })
 
   const methods = useForm({
     mode: 'onSubmit',
-    defaultValues,
+    defaultValues: initialValues ?? defaultValues,
     resolver: yupResolver(resolvers())
   })
 
@@ -88,7 +79,7 @@ function ProviderCreateForm () {
   const callUpdateProvider = formData => {
     const { configuration, connection: connectionEditable } = formData
     const { description } = configuration
-    const [provider = {}, connection = []] = data
+    const [provider = {}, connection = []] = preloadedData
 
     const { PROVISION_BODY: currentBodyTemplate } = provider?.TEMPLATE
 
@@ -108,46 +99,17 @@ function ProviderCreateForm () {
     isUpdate ? callUpdateProvider(formData) : callCreateProvider(formData)
   }
 
-  useEffect(() => {
-    isUpdate && fetchRequestAll([
-      getProvider(id),
-      getProviderConnection(id)
-    ])
-  }, [isUpdate])
-
-  useEffect(() => {
-    if (data) {
-      const [provider = {}, connection = []] = data
-
-      const {
-        PLAIN = {},
-        PROVISION_BODY: { description, ...currentBodyTemplate }
-      } = provider?.TEMPLATE
-
-      const connectionEditable = ProviderTemplateModel
-        .getConnectionEditable({ plain: PLAIN, connection })
-
-      methods.reset({
-        template: [currentBodyTemplate],
-        connection: connectionEditable,
-        configuration: { description }
-      }, { errors: false })
-    }
-  }, [data])
-
-  if (error) {
-    return <Redirect to={PATH.PROVIDERS.LIST} />
-  }
-
-  return (isUpdate && !data) || loading ? (
-    <LinearProgress color='secondary' />
-  ) : (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <FormProvider {...methods}>
-        <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
-      </FormProvider>
-    </Container>
+  return (
+    <FormProvider {...methods}>
+      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+    </FormProvider>
   )
+}
+
+ProviderCreateForm.propTypes = {
+  id: PropTypes.string,
+  preloadedData: PropTypes.object,
+  initialValues: PropTypes.object
 }
 
 export default ProviderCreateForm

@@ -21,7 +21,7 @@ import { T } from 'client/constants'
 
 import {
   FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Providers/Form/Create/Steps/BasicConfiguration/schema'
+} from 'client/containers/Providers/Form/ProviderForm/Steps/BasicConfiguration/schema'
 
 export const STEP_ID = 'configuration'
 

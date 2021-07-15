@@ -25,11 +25,11 @@ import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 
 import {
   FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Providers/Form/Create/Steps/Connection/schema'
+} from 'client/containers/Providers/Form/ProviderForm/Steps/Connection/schema'
 
 import {
   STEP_ID as TEMPLATE_ID
-} from 'client/containers/Providers/Form/Create/Steps/Template'
+} from 'client/containers/Providers/Form/ProviderForm/Steps/Template'
 
 export const STEP_ID = 'connection'
 
@@ -46,9 +46,12 @@ const Connection = ({ isUpdate }) => ({
     const { watch } = useFormContext()
 
     useEffect(() => {
-      const { [TEMPLATE_ID]: templateSelected, [STEP_ID]: currentConnection } = watch()
+      const {
+        [TEMPLATE_ID]: templateSelected,
+        [STEP_ID]: currentConnection = {}
+      } = watch()
 
-      const { provider, ...template } = templateSelected?.[0]
+      const { provider, ...template } = templateSelected?.[0] ?? {}
 
       providerType = provider
 
@@ -56,11 +59,11 @@ const Connection = ({ isUpdate }) => ({
         // when is updating, connections have the name as input label
         ? Object.keys(currentConnection)
           .reduce((res, name) => ({ ...res, [name]: capitalize(name) }), {})
-        // set connections from template, to take value as input labels
+        // set connections from template, to take values as input labels
         : ProviderTemplateModel.getConnectionEditable(template)
 
       setFields(FORM_FIELDS({ connection, providerType }))
-    }, [data])
+    }, [])
 
     return (fields?.length === 0) ? (
       <EmptyCard title={"There aren't connections to fill"} />
@@ -70,5 +73,5 @@ const Connection = ({ isUpdate }) => ({
   }, [])
 })
 
-export * from 'client/containers/Providers/Form/Create/Steps/Connection/schema'
+export * from 'client/containers/Providers/Form/ProviderForm/Steps/Connection/schema'
 export default Connection
