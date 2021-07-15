@@ -99,6 +99,27 @@ export const vmService = ({
   },
 
   /**
+   * Renames a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.name - New name
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  rename: async ({ id, name: newName }) => {
+    const name = Actions.VM_RENAME
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, name: newName }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Changes the permission bits of a virtual machine.
    *
    * @param {object} params - Request parameters

@@ -18,9 +18,10 @@ import PropTypes from 'prop-types'
 
 import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
 import { List } from 'client/components/Tabs/Common'
-import { T, SERVERADMIN_ID } from 'client/constants'
+import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
 
 const Ownership = React.memo(({
+  actions,
   groupId,
   groupName,
   handleEdit,
@@ -54,7 +55,7 @@ const Ownership = React.memo(({
       name: T.Owner,
       value: userName,
       valueInOptionList: userId,
-      canEdit: true,
+      canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
       handleGetOptionList: getUserOptions,
       handleEdit: user => handleEdit?.({ user })
     },
@@ -62,7 +63,7 @@ const Ownership = React.memo(({
       name: T.Group,
       value: groupName,
       valueInOptionList: groupId,
-      canEdit: true,
+      canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
       handleGetOptionList: getGroupOptions,
       handleEdit: group => handleEdit?.({ group })
     }
@@ -74,6 +75,7 @@ const Ownership = React.memo(({
 })
 
 Ownership.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
   userId: PropTypes.string.isRequired,
   userName: PropTypes.string.isRequired,
   groupId: PropTypes.string.isRequired,

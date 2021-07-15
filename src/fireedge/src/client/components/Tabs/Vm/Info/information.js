@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
@@ -22,27 +23,25 @@ import Multiple from 'client/components/Tables/Vms/multiple'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, VM_ACTIONS } from 'client/constants'
 
-const InformationPanel = data => {
-  const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = data
+const InformationPanel = ({ vm = {}, handleRename, actions }) => {
+  const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
 
-  const { name: stateName, color: stateColor } = VirtualMachine.getState(data)
+  const { name: stateName, color: stateColor } = VirtualMachine.getState(vm)
 
-  const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = VirtualMachine.getLastHistory(data)
+  const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = VirtualMachine.getLastHistory(vm)
   const clusterName = clusterId === '-1' ? 'default' : '--' // TODO: get from cluster list
 
-  const ips = VirtualMachine.getIps(data)
+  const ips = VirtualMachine.getIps(vm)
 
   const info = [
     { name: T.ID, value: ID },
     {
       name: T.Name,
       value: NAME,
-      canEdit: true,
-      handleEdit: newName => {
-
-      }
+      canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
+      handleEdit: handleRename
     },
     {
       name: T.State,
@@ -88,5 +87,11 @@ const InformationPanel = data => {
 }
 
 InformationPanel.displayName = 'InformationPanel'
+
+InformationPanel.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
+  handleRename: PropTypes.func,
+  vm: PropTypes.object
+}
 
 export default InformationPanel

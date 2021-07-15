@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as STATES from 'client/constants/states'
+import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
 
 /** @type {STATES.StateInfo[]} Virtual machine states */
@@ -465,15 +466,10 @@ export const VM_ACTIONS = {
   SAVE_RDP: 'save_rdp',
   SAVE_VIRT_VIEWER: 'save_virt_viewer',
 
-  // INFORMATION
-  RENAME: 'rename',
-
-  // PERMISSION
-  CHMOD: 'chmod',
-
-  // OWNERSHIP
-  CHOWN: 'chown',
-  CHANGE_GROUP: 'chgrp',
+  RENAME: ACTIONS.RENAME,
+  CHANGE_MODE: ACTIONS.CHANGE_MODE,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 
   // CAPACITY
   RESIZE_CAPACITY: 'resize_capacity',

@@ -13,34 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createAction } from 'client/features/One/utils'
-import { vmService } from 'client/features/One/vm/services'
-import { filterBy } from 'client/utils'
 
-export const getVm = createAction('vm/detail', vmService.getVm)
+// INFORMATION
+export const RENAME = 'rename'
 
-export const getVms = createAction(
-  'vm/pool',
-  vmService.getVms,
-  (response, { vms: currentVms }) => {
-    const vms = filterBy([...currentVms, ...response], 'ID')
+// PERMISSION
+export const CHANGE_MODE = 'chmod'
 
-    return { vms }
-  }
-)
-
-export const terminateVm = createAction(
-  'vm/delete',
-  payload => vmService.actionVm({
-    ...payload,
-    action: {
-      params: { hard: false },
-      perform: 'terminate'
-    }
-  })
-)
-
-export const rename = createAction('vm/rename', vmService.rename)
-export const changePermissions = createAction('vm/chmod', vmService.changePermissions)
-export const changeOwnership = createAction('vm/chown', vmService.changeOwnership)
-export const detachNic = createAction('vm/detach/nic', vmService.detachNic)
+// OWNERSHIP
+export const CHANGE_OWNER = 'chown'
+export const CHANGE_GROUP = 'chgrp'

@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, List as MList, ListItem, Typography, Paper } from '@material-ui/core'
 
-import Attribute from 'client/components/Tabs/Common/Attribute'
+import Attribute, { AttributePropType } from 'client/components/Tabs/Common/Attribute'
 import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
@@ -65,16 +65,9 @@ const List = ({ title, list = [], ...props }) => {
 
 List.propTypes = {
   title: PropTypes.string,
-  list: PropTypes.arrayOf(PropTypes.shape({
-    canDelete: PropTypes.bool,
-    canEdit: PropTypes.bool,
-    handleEdit: PropTypes.func,
-    handleDelete: PropTypes.func,
-    handleGetOptionList: PropTypes.func,
-    name: PropTypes.string.isRequired,
-    value: PropTypes.any.isRequired,
-    valueInOptionList: PropTypes.string.isRequired
-  }))
+  list: PropTypes.arrayOf(
+    PropTypes.shape(AttributePropType)
+  )
 }
 
 List.displayName = 'List'

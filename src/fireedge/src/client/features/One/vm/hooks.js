@@ -36,6 +36,7 @@ export const useVmApi = () => {
     getVm: id => unwrapDispatch(actions.getVm({ id })),
     getVms: options => unwrapDispatch(actions.getVms(options)),
     terminateVm: id => unwrapDispatch(actions.terminateVm({ id })),
+    rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
     changePermissions: (id, permissions) =>
       unwrapDispatch(actions.changePermissions({ id, permissions })),
     changeOwnership: (id, ownership) =>

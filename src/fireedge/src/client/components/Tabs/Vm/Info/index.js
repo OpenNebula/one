@@ -18,26 +18,41 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
-import { Permissions, Ownership } from 'client/components/Tabs/Common'
 import { TabContext } from 'client/components/Tabs/TabProvider'
+import { Permissions, Ownership } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
-const VmInfoTab = ({ tabProps }) => {
-  const { changeOwnership, changePermissions } = useVmApi()
-  const { handleRefetch, data } = React.useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = data
+import * as VirtualMachine from 'client/models/VirtualMachine'
+import * as Helper from 'client/models/Helper'
+
+const VmInfoTab = ({ tabProps = {} }) => {
+  const {
+    information_panel: informationPanel,
+    permissions_panel: permissionsPanel,
+    ownership_panel: ownershipPanel
+  } = tabProps
+
+  const { changeOwnership, changePermissions, rename } = useVmApi()
+  const { handleRefetch, data: vm } = React.useContext(TabContext)
+  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = vm
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
-
     String(response) === String(ID) && await handleRefetch?.()
   }
 
   const handleChangePermission = async newPermission => {
     const response = await changePermissions(ID, newPermission)
-
     String(response) === String(ID) && await handleRefetch?.()
   }
+
+  const handleRename = async newName => {
+    const response = await rename(ID, newName)
+    String(response) === String(ID) && await handleRefetch?.()
+  }
+
+  const hypervisor = VirtualMachine.getHypervisor(vm)
+  const getActions = actions => Helper.getActionsAvailable(actions, hypervisor)
 
   return (
     <div style={{
@@ -46,11 +61,16 @@ const VmInfoTab = ({ tabProps }) => {
       gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
       padding: '0.8em'
     }}>
-      {tabProps?.information_panel?.enabled &&
-        <Information {...data} />
+      {informationPanel?.enabled &&
+        <Information
+          actions={getActions(informationPanel?.actions)}
+          handleRename={handleRename}
+          vm={vm}
+        />
       }
-      {tabProps?.permissions_panel?.enabled &&
+      {permissionsPanel?.enabled &&
         <Permissions
+          actions={getActions(permissionsPanel?.actions)}
           ownerUse={PERMISSIONS.OWNER_U}
           ownerManage={PERMISSIONS.OWNER_M}
           ownerAdmin={PERMISSIONS.OWNER_A}
@@ -63,8 +83,9 @@ const VmInfoTab = ({ tabProps }) => {
           handleEdit={handleChangePermission}
         />
       }
-      {tabProps?.ownership_panel?.enabled &&
+      {ownershipPanel?.enabled &&
         <Ownership
+          actions={getActions(ownershipPanel?.actions)}
           userId={UID}
           userName={UNAME}
           groupId={GID}

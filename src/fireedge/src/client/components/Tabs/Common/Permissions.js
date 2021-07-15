@@ -21,7 +21,7 @@ import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
 import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { T, ACTIONS } from 'client/constants'
 
 import * as Helper from 'client/models/Helper'
 
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const Permissions = React.memo(({ handleEdit, ...permissions }) => {
+const Permissions = React.memo(({ handleEdit, actions, ...permissions }) => {
   const classes = useStyles()
 
   const handleChange = async (name, value) => {
@@ -53,6 +53,8 @@ const Permissions = React.memo(({ handleEdit, ...permissions }) => {
 
     await handleEdit?.(newPermission)
   }
+
+  const getIcon = checked => +checked ? <CheckIcon size={18} /> : <BlankSquareIcon size={18} />
 
   return (
     <Paper variant='outlined'>
@@ -75,14 +77,14 @@ const Permissions = React.memo(({ handleEdit, ...permissions }) => {
               .filter(([key, _]) => key.toLowerCase().startsWith(category))
               .map(([key, permission]) => (
                 <span key={key}>
-                  <Action
-                    cy={`permission-${key}`}
-                    disabled={permission === undefined}
-                    icon={
-                      +permission ? <CheckIcon size={18} /> : <BlankSquareIcon size={18} />
-                    }
-                    handleClick={() => handleChange(key, permission)}
-                  />
+                  {actions?.includes?.(ACTIONS.CHANGE_MODE) ? (
+                    <Action
+                      cy={`permission-${key}`}
+                      disabled={permission === undefined}
+                      icon={getIcon(permission)}
+                      handleClick={() => handleChange(key, permission)}
+                    />
+                  ) : getIcon(permission)}
                 </span>
               ))
             }
@@ -94,6 +96,7 @@ const Permissions = React.memo(({ handleEdit, ...permissions }) => {
 })
 
 Permissions.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
   groupAdmin: PropTypes.string.isRequired,
   groupManage: PropTypes.string.isRequired,
   groupUse: PropTypes.string.isRequired,
