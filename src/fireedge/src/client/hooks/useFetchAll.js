@@ -16,7 +16,6 @@
 import { useReducer, useCallback, useEffect, useRef, ReducerState, ReducerAction } from 'react'
 import { fakeDelay } from 'client/utils'
 
-/** @enum {string} Status of request */
 const STATUS = {
   INIT: 'INIT',
   PENDING: 'PENDING',
@@ -123,7 +122,7 @@ const useFetchAll = () => {
      * @param {number} options.delay - Delay to trigger the request
      * @returns {Promise} - Returns a promise with responses or error
      */
-    (requests, options = {}) => {
+    async (requests, options = {}) => {
       const { reload = false, delay = 0 } = options
 
       if (!(Number.isInteger(delay) && delay >= 0)) {
@@ -132,10 +131,11 @@ const useFetchAll = () => {
           If you're using it as a function, it must also return a number >= 0.`)
       }
 
-      return fakeDelay(delay).then(() => doFetches(requests, reload))
+      await fakeDelay(delay)
+      return await doFetches(requests, reload)
     }, [])
 
-  return { ...state, fetchRequestAll, STATUS, ACTIONS }
+  return { ...state, fetchRequestAll, STATUS }
 }
 
 export default useFetchAll

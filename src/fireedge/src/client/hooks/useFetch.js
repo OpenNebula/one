@@ -16,7 +16,6 @@
 import { useReducer, useCallback, useEffect, useRef, ReducerState, ReducerAction } from 'react'
 import { fakeDelay } from 'client/utils'
 
-/** @enum {string} Status of request */
 const STATUS = {
   INIT: 'INIT',
   PENDING: 'PENDING',
@@ -153,7 +152,7 @@ const useFetch = (request, socket) => {
       return fakeDelay(delay).then(() => doFetch(payload, reload))
     }, [request])
 
-  return { ...state, fetchRequest, STATUS, ACTIONS }
+  return { ...state, fetchRequest, STATUS }
 }
 
 export default useFetch
