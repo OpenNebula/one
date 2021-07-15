@@ -82,4 +82,41 @@ Select.propTypes = {
   )
 }
 
-export { Select }
+const Text = React.forwardRef(
+  /**
+   * @param {object} props - Props
+   * @param {string} props.name - Attribute name
+   * @param {string} props.value - Attribute value
+   * @param {React.ForwardedRef} ref - Forward reference
+   * @returns {React.JSXElementConstructor} Text field
+   */
+  ({ name = '', value = '' }, ref) => {
+    console.log({ name, value })
+    const [newValue, setNewValue] = React.useState(() => value)
+
+    const handleChange = event => setNewValue(event.target.value)
+
+    return (
+      <TextField
+        color='secondary'
+        inputProps={{
+          'data-cy': Actions.getAttributeCy('text', name)
+        }}
+        inputRef={ref}
+        margin='dense'
+        onChange={handleChange}
+        value={newValue}
+        variant='outlined'
+      />
+    )
+  }
+)
+
+Text.displayName = 'Text'
+
+Text.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired
+}
+
+export { Select, Text }

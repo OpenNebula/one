@@ -32,6 +32,7 @@ import {
 import { useVmApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
 import Multiple from 'client/components/Tables/Vms/multiple'
+import { TabContext } from 'client/components/Tabs/TabProvider'
 
 import { T, VM_ACTIONS } from 'client/constants'
 import { Tr } from 'client/components/HOC'
@@ -84,9 +85,11 @@ const useStyles = makeStyles(({
   }
 }))
 
-const NetworkItem = ({ vmId, handleRefetch, nic = {}, actions }) => {
+const NetworkItem = ({ nic = {}, actions }) => {
   const classes = useStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+
+  const { handleRefetch, data: vm } = React.useContext(TabContext)
   const { detachNic } = useVmApi()
 
   const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
@@ -96,15 +99,15 @@ const NetworkItem = ({ vmId, handleRefetch, nic = {}, actions }) => {
   [ALIAS.length, SECURITY_GROUPS?.length]
   )
 
-  const detachAction = () => actions.includes(VM_ACTIONS.DETACH_NIC) && (
+  const detachAction = () => actions?.includes?.(VM_ACTIONS.DETACH_NIC) && (
     <Action
       cy={`${VM_ACTIONS.DETACH_NIC}-${NIC_ID}`}
       icon={<Trash size={18} />}
       stopPropagation
       handleClick={async () => {
-        const response = await detachNic(vmId, NIC_ID)
+        const response = await detachNic(vm.ID, NIC_ID)
 
-        String(response) === String(vmId) && handleRefetch?.(vmId)
+        String(response) === String(vm.ID) && handleRefetch?.(vm.ID)
       }}
     />
   )
@@ -169,8 +172,6 @@ const NetworkItem = ({ vmId, handleRefetch, nic = {}, actions }) => {
 
 NetworkItem.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  handleRefetch: PropTypes.func,
-  vmId: PropTypes.string,
   nic: PropTypes.object
 }
 

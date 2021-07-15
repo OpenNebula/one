@@ -18,11 +18,12 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import NetworkList from 'client/components/Tabs/Vm/Network/List'
-
+import { TabContext } from 'client/components/Tabs/TabProvider'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const VmNetworkTab = ({ tabProps, handleRefetch, ...vm }) => {
+const VmNetworkTab = ({ tabProps }) => {
+  const { data: vm } = React.useContext(TabContext)
   const { actions = [] } = tabProps
 
   const nics = VirtualMachine.getNics(vm, {
@@ -34,18 +35,12 @@ const VmNetworkTab = ({ tabProps, handleRefetch, ...vm }) => {
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   return (
-    <NetworkList
-      vmId={vm.ID}
-      actions={actionsAvailable}
-      nics={nics}
-      handleRefetch={handleRefetch}
-    />
+    <NetworkList actions={actionsAvailable} nics={nics} />
   )
 }
 
 VmNetworkTab.propTypes = {
-  tabProps: PropTypes.object,
-  handleRefetch: PropTypes.func
+  tabProps: PropTypes.object
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'

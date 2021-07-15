@@ -63,10 +63,10 @@ const Attribute = React.memo(({
   }
 
   const handleActiveEditForm = async () => {
-    const response = await handleGetOptionList?.()
+    const response = await handleGetOptionList?.() ?? []
     const isFormatValid = response?.every?.(({ text, value } = {}) => !!text && !!value)
 
-    if (isFormatValid) {
+    if (!handleGetOptionList || isFormatValid) {
       setOptions(response)
       setIsEditing(true)
     }
@@ -79,25 +79,31 @@ const Attribute = React.memo(({
 
   return (
     <>
-      <Typography noWrap variant='body2'>
+      <Typography noWrap variant='body2' title={Tr(name)}>
         {Tr(name)}
       </Typography>
       <div className={classes.wrapper}>
         {isEditing ? (
           <>
-            {handleGetOptionList && (
+            {handleGetOptionList ? (
               <Inputs.Select
                 name={name}
                 value={valueInOptionList}
                 ref={inputRef}
                 options={options} />
+            ) : (
+              <Inputs.Text name={name} value={value} ref={inputRef} />
             )}
             <Actions.Accept name={name} handleClick={handleEditAttribute} />
             <Actions.Cancel name={name} handleClick={handleCancel} />
           </>
         ) : (
           <>
-            <Typography noWrap variant='body2'>
+            <Typography
+              noWrap
+              variant='body2'
+              title={typeof value === 'string' ? value : undefined}
+            >
               {value}
             </Typography>
             {canEdit && (

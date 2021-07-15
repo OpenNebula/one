@@ -64,35 +64,25 @@ const Ownership = React.memo(({
       )
   }
 
+  const ownership = [
+    {
+      key: T.Owner,
+      value: userName,
+      valueInOptionList: userId,
+      handleGetOptionList: getUserOptions,
+      handleEdit: user => handleEdit?.({ user })
+    },
+    {
+      key: T.Group,
+      value: groupName,
+      valueInOptionList: groupId,
+      handleGetOptionList: getGroupOptions,
+      handleEdit: group => handleEdit?.({ group })
+    }
+  ]
+
   return (
-    <Paper variant='outlined'>
-      <List>
-        <ListItem className={classes.title}>
-          <Typography noWrap>{Tr(T.Ownership)}</Typography>
-        </ListItem>
-        <Divider />
-        <ListItem className={classes.item}>
-          <Attribute
-            canEdit
-            name={T.Owner}
-            value={userName}
-            valueInOptionList={userId}
-            handleGetOptionList={getUserOptions}
-            handleEdit={user => handleEdit?.({ user })}
-          />
-        </ListItem>
-        <ListItem className={classes.item}>
-          <Attribute
-            canEdit
-            name={T.Group}
-            value={groupName}
-            valueInOptionList={groupId}
-            handleGetOptionList={getGroupOptions}
-            handleEdit={group => handleEdit?.({ group })}
-          />
-        </ListItem>
-      </List>
-    </Paper>
+    <List title={T.Ownership} list={ownership} />
   )
 })
 

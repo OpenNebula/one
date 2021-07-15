@@ -14,46 +14,32 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
-import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
+import React, { createContext, useState } from 'react'
+import PropTypes from 'prop-types'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+export const TabContext = createContext(null)
 
-const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
+const TabProvider = ({ initialState = {}, children }) => {
+  const [information, setTabInformation] = useState(() => initialState)
+  const { data } = initialState
 
-const VmConfigurationTab = data => {
-  const { data: { TEMPLATE, USER_TEMPLATE } = {} } = React.useContext(TabContext)
+  React.useEffect(() => {
+    data && setTabInformation(prev => ({ ...prev, data }))
+  }, [data])
 
   return (
-    <div>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'User Template'}
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code>
-              {JSON.stringify(USER_TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'Template'}
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code>
-              {JSON.stringify(TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-    </div>
+    <TabContext.Provider value={{ ...information, setTabInformation }}>
+      {children}
+    </TabContext.Provider>
   )
 }
 
-VmConfigurationTab.displayName = 'VmConfigurationTab'
+TabProvider.propTypes = {
+  initialState: PropTypes.object,
+  children: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.arrayOf(PropTypes.node)
+  ])
+}
 
-export default VmConfigurationTab
+export default TabProvider

@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import { Tabs as MTabs, Tab as MTab } from '@material-ui/core'
 
-const Content = ({ name, renderContent: Content, hidden, data }) => (
+const Content = ({ name, renderContent: Content, hidden }) => (
   <div key={`tab-${name}`}
     style={{
       padding: 2,
@@ -28,11 +28,11 @@ const Content = ({ name, renderContent: Content, hidden, data }) => (
       display: hidden ? 'none' : 'block'
     }}
   >
-    {typeof Content === 'function' ? <Content {...data} /> : Content}
+    {typeof Content === 'function' ? <Content /> : Content}
   </div>
 )
 
-const Tabs = ({ tabs = [], renderHiddenTabs = false, data }) => {
+const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
   const [tabSelected, setTab] = useState(0)
 
   const renderTabs = useMemo(() => (
@@ -68,7 +68,7 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false, data }) => {
       {renderHiddenTabs ? (
         renderAllHiddenTabContents
       ) : (
-        <Content data={data} {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
+        <Content {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
       )}
     </>
   )
@@ -79,8 +79,7 @@ Content.displayName = 'Content'
 
 Tabs.propTypes = {
   tabs: PropTypes.array,
-  renderHiddenTabs: PropTypes.bool,
-  data: PropTypes.object
+  renderHiddenTabs: PropTypes.bool
 }
 
 Content.propTypes = {
@@ -89,8 +88,7 @@ Content.propTypes = {
     PropTypes.object,
     PropTypes.func
   ]),
-  hidden: PropTypes.bool,
-  data: PropTypes.object
+  hidden: PropTypes.bool
 }
 
 export default Tabs

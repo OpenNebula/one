@@ -35,42 +35,49 @@ const InformationPanel = data => {
   const ips = VirtualMachine.getIps(data)
 
   const info = [
-    { key: T.ID, value: ID },
-    { key: T.Name, value: NAME },
+    { name: T.ID, value: ID },
     {
-      key: T.State,
+      name: T.Name,
+      value: NAME,
+      canEdit: true,
+      handleEdit: newName => {
+
+      }
+    },
+    {
+      name: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />
     },
     {
-      key: T.Reschedule,
+      name: T.Reschedule,
       value: Helper.booleanToString(+RESCHED)
     },
     {
-      key: T.Locked,
+      name: T.Locked,
       value: Helper.levelLockToString(LOCK?.LOCKED)
     },
     {
-      key: T.IP,
+      name: T.IP,
       value: ips?.length ? <Multiple tags={ips} /> : '--'
     },
     {
-      key: T.StartTime,
+      name: T.StartTime,
       value: Helper.timeToString(STIME)
     },
     {
-      key: T.EndTime,
+      name: T.EndTime,
       value: Helper.timeToString(ETIME)
     },
     {
-      key: T.Host,
+      name: T.Host,
       value: hostId ? `#${hostId} ${hostname}` : ''
     },
     {
-      key: T.Cluster,
+      name: T.Cluster,
       value: clusterId ? `#${clusterId} ${clusterName}` : ''
     },
     {
-      key: T.DeployID,
+      name: T.DeployID,
       value: DEPLOY_ID
     }
   ]

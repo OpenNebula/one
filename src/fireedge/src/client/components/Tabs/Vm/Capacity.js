@@ -17,6 +17,7 @@
 import * as React from 'react'
 import { makeStyles, Paper, Typography } from '@material-ui/core'
 
+import { TabContext } from 'client/components/Tabs/TabProvider'
 import { Action } from 'client/components/Cards/SelectCard'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import { prettyBytes } from 'client/utils'
@@ -56,12 +57,13 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const VmCapacityTab = data => {
+const VmCapacityTab = () => {
   const classes = useStyles()
 
-  const { TEMPLATE } = data
+  const { data: vm = {} } = React.useContext(TabContext)
+  const { TEMPLATE } = vm
 
-  const isVCenter = VirtualMachine.isVCenter(data)
+  const isVCenter = VirtualMachine.isVCenter(vm)
 
   const capacity = [
     { key: 'Physical CPU', value: TEMPLATE?.CPU },

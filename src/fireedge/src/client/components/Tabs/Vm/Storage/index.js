@@ -18,15 +18,17 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import StorageList from 'client/components/Tabs/Vm/Storage/List'
-
+import { TabContext } from 'client/components/Tabs/TabProvider'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const VmStorageTab = ({ tabProps, ...data }) => {
+const VmStorageTab = ({ tabProps = {} }) => {
+  const { data: vm } = React.useContext(TabContext)
   const { actions = [] } = tabProps
 
-  const disks = VirtualMachine.getDisks(data)
-  const hypervisor = VirtualMachine.getHypervisor(data)
+  const disks = VirtualMachine.getDisks(vm)
+
+  const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   return (
@@ -35,10 +37,7 @@ const VmStorageTab = ({ tabProps, ...data }) => {
 }
 
 VmStorageTab.propTypes = {
-  tabProps: PropTypes.shape({
-    actions: PropTypes.object
-  }),
-  actions: PropTypes.array
+  tabProps: PropTypes.object
 }
 
 VmStorageTab.displayName = 'VmStorageTab'

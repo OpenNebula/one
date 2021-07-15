@@ -22,11 +22,7 @@ import StorageItem from 'client/components/Tabs/Vm/Storage/Item'
 const StorageList = ({ disks, actions }) => (
   <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
     {disks.map((disk, idx) => (
-      <StorageItem
-        key={idx}
-        disk={disk}
-        actions={actions}
-      />
+      <StorageItem key={idx} disk={disk} actions={actions} />
     ))}
   </div>
 )

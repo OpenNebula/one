@@ -22,6 +22,7 @@ import { useAuth } from 'client/features/Auth'
 import Tabs from 'client/components/Tabs'
 import { stringToCamelCase, stringToCamelSpace } from 'client/utils'
 
+import TabProvider from 'client/components/Tabs/TabProvider'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
 import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
@@ -59,14 +60,17 @@ const VmTabs = ({ data, handleRefetch }) => {
 
         return TabContent && {
           name: stringToCamelSpace(nameSanitize),
-          renderContent:
-            props => TabContent({ ...props, tabProps, handleRefetch })
+          renderContent: props => TabContent({ ...props, tabProps })
         }
       })
       ?.filter(Boolean))
   }, [view])
 
-  return <Tabs tabs={tabsAvailable} data={data} />
+  return (
+    <TabProvider initialState={{ data, handleRefetch }}>
+      <Tabs tabs={tabsAvailable} />
+    </TabProvider>
+  )
 }
 
 VmTabs.propTypes = {

@@ -19,11 +19,13 @@ import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
 import { Permissions, Ownership } from 'client/components/Tabs/Common'
+import { TabContext } from 'client/components/Tabs/TabProvider'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
-const VmInfoTab = ({ tabProps, handleRefetch, ...data }) => {
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = data
+const VmInfoTab = ({ tabProps }) => {
   const { changeOwnership } = useVmApi()
+  const { handleRefetch, data } = React.useContext(TabContext)
+  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = data
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
@@ -58,8 +60,7 @@ const VmInfoTab = ({ tabProps, handleRefetch, ...data }) => {
 }
 
 VmInfoTab.propTypes = {
-  tabProps: PropTypes.object,
-  handleRefetch: PropTypes.func
+  tabProps: PropTypes.object
 }
 
 VmInfoTab.displayName = 'VmInfoTab'
