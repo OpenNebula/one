@@ -15,12 +15,18 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
-import { makeStyles, Paper, Typography } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import { makeStyles, Paper, Typography, Button } from '@material-ui/core'
 
+import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { Action } from 'client/components/Cards/SelectCard'
-import * as VirtualMachine from 'client/models/VirtualMachine'
+import { DialogConfirmation } from 'client/components/Dialogs'
+import { Tr } from 'client/components/HOC'
+
 import { prettyBytes } from 'client/utils'
+import * as VirtualMachine from 'client/models/VirtualMachine'
+import * as Helper from 'client/models/Helper'
+import { T, VM_ACTIONS } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,52 +63,90 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const VmCapacityTab = () => {
+const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
   const classes = useStyles()
+  const { display, show, hide } = useDialog()
 
   const { data: vm = {} } = React.useContext(TabContext)
   const { TEMPLATE } = vm
 
   const isVCenter = VirtualMachine.isVCenter(vm)
+  const hypervisor = VirtualMachine.getHypervisor(vm)
+  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   const capacity = [
-    { key: 'Physical CPU', value: TEMPLATE?.CPU },
-    { key: 'Virtual CPU', value: TEMPLATE?.VCPU ?? '-' },
+    {
+      name: T.PhysicalCpu,
+      value: TEMPLATE?.CPU
+    },
+    {
+      name: T.VirtualCpu,
+      value: TEMPLATE?.VCPU ?? '-'
+    },
     (isVCenter && {
-      key: 'Virtual Cores',
-      value: `
-      Cores x ${TEMPLATE?.TOPOLOGY?.CORES || '-'} |
-      Sockets ${TEMPLATE?.TOPOLOGY?.SOCKETS || '-'}`
+      name: T.VirtualCores,
+      value: (
+        <>
+          {`${Tr(T.Cores)} x ${TEMPLATE?.TOPOLOGY?.CORES || '-'} |
+          ${Tr(T.Sockets)} ${TEMPLATE?.TOPOLOGY?.SOCKETS || '-'}`}
+        </>
+      )
     }),
-    { key: 'Memory', value: prettyBytes(+TEMPLATE?.MEMORY, 'MB') },
-    { key: 'Cost / CPU', value: TEMPLATE?.CPU_COST || 0 },
-    { key: 'Cost / MByte', value: TEMPLATE?.MEMORY_COST || 0 }
+    {
+      name: T.Memory,
+      value: prettyBytes(+TEMPLATE?.MEMORY, 'MB')
+    },
+    {
+      name: T.CostCpu,
+      value: TEMPLATE?.CPU_COST || 0
+    },
+    {
+      name: T.CostMByte,
+      value: TEMPLATE?.MEMORY_COST || 0
+    }
   ].filter(Boolean)
 
   return (
     <Paper variant='outlined' className={classes.root}>
       <div className={classes.actions}>
-        <Action
-          cy='resize'
-          icon={false}
-          label={'Resize'}
-          size='small'
-          color='secondary'
-          handleClick={() => undefined}
-        />
+        {actionsAvailable?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
+          <Button
+            data-cy='resize'
+            size='small'
+            color='secondary'
+            onClick={show}
+            variant='contained'
+          >
+            {Tr(T.Resize)}
+          </Button>
+        )}
       </div>
-      {capacity.map(({ key, value }) => (
-        <div key={key} className={classes.item}>
-          <Typography className={classes.title} noWrap title={key}>
-            {key}
+      {capacity.map(({ name, value }) => (
+        <div key={name} className={classes.item}>
+          <Typography className={classes.title} noWrap title={name}>
+            {name}
           </Typography>
           <Typography variant='body2' noWrap title={value}>
             {value}
           </Typography>
         </div>
       ))}
+
+      {display && (
+        <DialogConfirmation
+          title={T.ResizeCapacity}
+          handleAccept={hide}
+          handleCancel={hide}
+        >
+          <p>TODO: should define in view yaml ??</p>
+        </DialogConfirmation>
+      )}
     </Paper>
   )
+}
+
+VmCapacityTab.propTypes = {
+  tabProps: PropTypes.object
 }
 
 VmCapacityTab.displayName = 'VmCapacityTab'

@@ -15,10 +15,9 @@
  * ------------------------------------------------------------------------- */
 import * as React from 'react'
 import PropTypes from 'prop-types'
-
 import { makeStyles, TextField } from '@material-ui/core'
 
-import * as Actions from 'client/components/Tabs/Common/Attribute/Actions'
+import { Actions } from 'client/components/Tabs/Common/Attribute'
 
 /**
  * @typedef {object} Option
@@ -104,8 +103,8 @@ const Text = React.forwardRef(
 )
 
 const InputPropTypes = {
-  name: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  value: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       text: PropTypes.string.isRequired,
@@ -119,4 +118,4 @@ Select.propTypes = InputPropTypes
 Text.displayName = 'Text'
 Text.propTypes = InputPropTypes
 
-export { Select, Text }
+export { Select, Text, InputPropTypes }

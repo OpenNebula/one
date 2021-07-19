@@ -25,7 +25,7 @@ import {
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC/Translate'
+import { Tr } from 'client/components/HOC'
 
 const CheckboxController = memo(
   ({ control, cy, name, label, tooltip, error, fieldProps }) => (

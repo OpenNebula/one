@@ -17,6 +17,11 @@
 // INFORMATION
 export const RENAME = 'rename'
 
+// ATTRIBUTES
+export const ADD_ATTRIBUTE = 'add'
+export const EDIT_ATTRIBUTE = 'edit'
+export const DELETE_ATTRIBUTE = 'delete'
+
 // PERMISSION
 export const CHANGE_MODE = 'chmod'
 

@@ -19,7 +19,9 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, List as MList, ListItem, Typography, Paper } from '@material-ui/core'
 
-import Attribute, { AttributePropType } from 'client/components/Tabs/Common/Attribute'
+import { Attribute, AttributePropTypes } from 'client/components/Tabs/Common/Attribute'
+import AttributeCreateForm from 'client/components/Tabs/Common/AttributeCreateForm'
+
 import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
@@ -28,25 +30,26 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.palette.divider}`
   },
   item: {
+    gap: '1em',
     '& > *': {
       width: '50%'
     }
   },
-  typo: {
-    ...theme.typography.body2
-  }
+  typo: theme.typography.body2
 }))
 
-const List = ({ title, list = [], ...props }) => {
+const List = ({ title, list = [], handleAdd, containerProps }) => {
   const classes = useStyles()
 
   return (
-    <Paper variant='outlined' {...props}>
+    <Paper variant='outlined' {...containerProps}>
       <MList className={classes.list}>
         {/* TITLE */}
         {title && (
           <ListItem className={classes.title}>
-            <Typography noWrap>{Tr(title)}</Typography>
+            <Typography noWrap>
+              {Tr(title)}
+            </Typography>
           </ListItem>
         )}
         {/* LIST */}
@@ -58,15 +61,23 @@ const List = ({ title, list = [], ...props }) => {
             <Attribute {...attribute}/>
           </ListItem>
         ))}
+        {/* ADD ACTION */}
+        {handleAdd && (
+          <ListItem className={classes.item}>
+            <AttributeCreateForm handleAdd={handleAdd} />
+          </ListItem>
+        )}
       </MList>
     </Paper>
   )
 }
 
 List.propTypes = {
-  title: PropTypes.string,
+  containerProps: PropTypes.object,
+  handleAdd: PropTypes.func,
+  title: PropTypes.any,
   list: PropTypes.arrayOf(
-    PropTypes.shape(AttributePropType)
+    PropTypes.shape(AttributePropTypes)
   )
 }
 

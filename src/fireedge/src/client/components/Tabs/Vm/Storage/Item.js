@@ -40,6 +40,7 @@ const StorageItem = ({ disk, actions = [] }) => {
     DATASTORE,
     TARGET,
     IMAGE,
+    IMAGE_ID,
     TYPE,
     FORMAT,
     SIZE,
@@ -54,6 +55,7 @@ const StorageItem = ({ disk, actions = [] }) => {
   const size = +SIZE ? prettyBytes(+SIZE, 'MB') : '-'
   const monitorSize = +MONITOR_SIZE ? prettyBytes(+MONITOR_SIZE, 'MB') : '-'
 
+  const isImage = IMAGE_ID !== undefined
   const type = String(TYPE).toLowerCase()
 
   const image = IMAGE ?? ({
@@ -106,28 +108,28 @@ const StorageItem = ({ disk, actions = [] }) => {
       </div>
       {!IS_CONTEXT && !!actions.length && (
         <div className={classes.actions}>
-          {actions.includes(VM_ACTIONS.DISK_SAVEAS) && (
+          {actions?.includes?.(VM_ACTIONS.DISK_SAVEAS) && isImage && (
             <Action
               cy={`${VM_ACTIONS.DISK_SAVEAS}-${DISK_ID}`}
               icon={<SaveActionFloppy size={18} />}
               handleClick={() => undefined}
             />
           )}
-          {actions.includes(VM_ACTIONS.SNAPSHOT_DISK_CREATE) && (
+          {actions?.includes?.(VM_ACTIONS.SNAPSHOT_DISK_CREATE) && isImage && (
             <Action
               cy={`${VM_ACTIONS.SNAPSHOT_DISK_CREATE}-${DISK_ID}`}
               icon={<Camera size={18} />}
               handleClick={() => undefined}
             />
           )}
-          {actions.includes(VM_ACTIONS.RESIZE_DISK) && (
+          {actions?.includes?.(VM_ACTIONS.RESIZE_DISK) && (
             <Action
               cy={`${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`}
               icon={<Expand size={18} />}
               handleClick={() => undefined}
             />
           )}
-          {actions.includes(VM_ACTIONS.DETACH_DISK) && (
+          {actions?.includes?.(VM_ACTIONS.DETACH_DISK) && (
             <Action
               cy={`${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`}
               icon={<Trash size={18} />}

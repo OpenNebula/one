@@ -77,7 +77,10 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
 
 SidebarCollapseItem.propTypes = {
   label: PropTypes.string.isRequired,
-  icon: PropTypes.node,
+  icon: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.object
+  ]),
   routes: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string,

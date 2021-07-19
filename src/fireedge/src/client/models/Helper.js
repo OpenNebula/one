@@ -92,10 +92,10 @@ export const permissionsToOctal = permissions => {
   /**
    * Returns the permission numeric code.
    *
-   * @param {string[]} props - Array with Use, Manage and Access permissions.
-   * @param {('YES'|'NO')} props.0 - `true` if use permission is allowed
-   * @param {('YES'|'NO')} props.1 - `true` if manage permission is allowed
-   * @param {('YES'|'NO')} props.2 - `true` if access permission is allowed
+   * @param {string[]} category - Array with Use, Manage and Access permissions.
+   * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
+   * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
+   * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
    * @returns {number} Permission code number.
    */
   const getCategoryValue = ([u, m, a]) => (
@@ -128,3 +128,37 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
       return !!enabled && !notOn?.includes?.(hypervisor)
     })
     .map(([actionName, _]) => actionName)
+
+/**
+ *
+ * @param {object} list - List of attributes
+ * @param {object} options - Filter options
+ * @param {object} [options.extra] - List of extra RegExp to filter
+ * @param {RegExp} [options.hidden] - RegExp of hidden attributes
+ * @returns {{attributes: object}} List of filtered attributes
+ */
+export const filterAttributes = (list, options = {}) => {
+  const { extra = {}, hidden = /^$/ } = options
+  const response = {}
+
+  const addAttributeToList = (listName, [attributeName, attributeValue]) => {
+    response[listName] = {
+      ...response[listName],
+      [attributeName]: attributeValue
+    }
+  }
+
+  Object.entries(list)
+    .filter(attribute => {
+      const [filterName] = Object.entries(extra)
+        .find(([_, regexp]) => attribute[0].match(regexp)) ?? []
+
+      return filterName ? addAttributeToList(filterName, attribute) : true
+    })
+    .forEach(attribute => {
+      !attribute[0].match(hidden) &&
+        addAttributeToList('attributes', attribute)
+    })
+
+  return response
+}

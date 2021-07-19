@@ -78,24 +78,36 @@ info-tabs:
     permissions_panel:
       enabled: true
       actions:
-        chmod: true
+        chmod: false
     ownership_panel:
       enabled: true
       actions:
         chown: true
         chgrp: true
-    vcenter_information_panel:
+    vcenter_panel:
       enabled: true
-      parent: USER_TEMPLATE
-      prefix: VCENTER_
-    lxc_information_panel:
+      actions:
+        add: false
+        edit: false
+        delete: false
+    lxc_panel:
       enabled: true
-    general_attributes_panel:
+      actions:
+        add: false
+        edit: false
+        delete: false
+    monitoring_panel:
       enabled: true
-      parent: USER_TEMPLATE
-    monitor_panel:
+      actions:
+        add: false
+        edit: false
+        delete: false
+    attributes_panel:
       enabled: true
-      parent: MONITORING
+      actions:
+        add: true
+        edit: false
+        delete: false
 
   capacity:
     enabled: true

@@ -20,7 +20,7 @@ import { Typography, TextField, Slider, FormHelperText, Grid } from '@material-u
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC/Translate'
+import { Tr } from 'client/components/HOC'
 
 const SliderController = memo(
   ({ control, cy, name, label, error, fieldProps }) => (

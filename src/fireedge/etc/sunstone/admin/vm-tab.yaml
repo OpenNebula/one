@@ -84,18 +84,30 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
-    vcenter_information_panel:
+    vcenter_panel:
       enabled: true
-      parent: USER_TEMPLATE
-      prefix: VCENTER_
-    lxc_information_panel:
+      actions:
+        add: true
+        edit: true
+        delete: true
+    lxc_panel:
       enabled: true
-    general_attributes_panel:
+      actions:
+        add: true
+        edit: true
+        delete: true
+    monitoring_panel:
       enabled: true
-      parent: USER_TEMPLATE
-    monitor_panel:
+      actions:
+        add: false
+        edit: false
+        delete: false
+    attributes_panel:
       enabled: true
-      parent: MONITORING
+      actions:
+        add: true
+        edit: true
+        delete: true
 
   capacity:
     enabled: true

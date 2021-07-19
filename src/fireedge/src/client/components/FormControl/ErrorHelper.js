@@ -18,7 +18,7 @@ import { string } from 'prop-types'
 
 import { Box, makeStyles, Typography } from '@material-ui/core'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
-import { Tr } from 'client/components/HOC/Translate'
+import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
   root: {

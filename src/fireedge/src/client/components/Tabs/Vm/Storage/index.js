@@ -16,13 +16,20 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
+import { Button } from '@material-ui/core'
 
-import StorageList from 'client/components/Tabs/Vm/Storage/List'
+import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
+import { DialogConfirmation } from 'client/components/Dialogs'
+import StorageList from 'client/components/Tabs/Vm/Storage/List'
+import { Tr } from 'client/components/HOC'
+
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
+import { T, VM_ACTIONS } from 'client/constants'
 
 const VmStorageTab = ({ tabProps = {} }) => {
+  const { display, show, hide } = useDialog()
   const { data: vm } = React.useContext(TabContext)
   const { actions = [] } = tabProps
 
@@ -32,7 +39,31 @@ const VmStorageTab = ({ tabProps = {} }) => {
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   return (
-    <StorageList actions={actionsAvailable} disks={disks} />
+    <>
+      {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_DISK) && (
+        <Button
+          data-cy='resize'
+          size='small'
+          color='secondary'
+          onClick={show}
+          variant='contained'
+        >
+          {Tr(T.AttachDisk)}
+        </Button>
+      )}
+
+      <StorageList actions={actionsAvailable} disks={disks} />
+
+      {display && (
+        <DialogConfirmation
+          title={T.AttachDisk}
+          handleAccept={hide}
+          handleCancel={hide}
+        >
+          <p>TODO: should define in view yaml ??</p>
+        </DialogConfirmation>
+      )}
+    </>
   )
 }
 

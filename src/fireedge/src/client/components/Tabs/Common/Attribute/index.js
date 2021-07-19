@@ -13,138 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
-import PropTypes from 'prop-types'
+import Attribute, { AttributePropTypes } from 'client/components/Tabs/Common/Attribute/Attribute'
 
-import { makeStyles, Typography } from '@material-ui/core'
-
-import { useDialog } from 'client/hooks'
-import { DialogConfirmation } from 'client/components/Dialogs'
-import { Tr } from 'client/components/HOC'
 import * as Actions from 'client/components/Tabs/Common/Attribute/Actions'
 import * as Inputs from 'client/components/Tabs/Common/Attribute/Inputs'
 
-const useStyles = makeStyles({
-  wrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    '& > *:first-child': {
-      flexGrow: 1
-    }
-  },
-  select: {
-    textOverflow: 'ellipsis'
-  }
-})
-
-const Attribute = React.memo(({
-  canDelete,
-  canEdit,
-  handleEdit,
-  handleDelete,
-  handleGetOptionList,
-  name,
-  value,
-  valueInOptionList
-}) => {
-  const classes = useStyles()
-  const [isEditing, setIsEditing] = React.useState(() => false)
-  const [options, setOptions] = React.useState(() => [])
-  const { display, show, hide } = useDialog()
-  const inputRef = React.createRef()
-
-  const handleEditAttribute = async () => {
-    await handleEdit?.(inputRef.current.value)
-    setIsEditing(false)
-  }
-
-  const handleCancel = () => {
-    setIsEditing(false)
-  }
-
-  const handleActiveEditForm = async () => {
-    const response = await handleGetOptionList?.() ?? []
-    const isFormatValid = response?.every?.(({ text, value } = {}) => !!text && !!value)
-
-    if (!handleGetOptionList || isFormatValid) {
-      setOptions(response)
-      setIsEditing(true)
-    }
-  }
-
-  const handleDeleteAttribute = async () => {
-    await handleDelete?.()
-    hide()
-  }
-
-  return (
-    <>
-      <Typography noWrap variant='body2' title={Tr(name)}>
-        {Tr(name)}
-      </Typography>
-      <div className={classes.wrapper}>
-        {isEditing ? (
-          <>
-            {handleGetOptionList ? (
-              <Inputs.Select
-                name={name}
-                value={valueInOptionList}
-                ref={inputRef}
-                options={options} />
-            ) : (
-              <Inputs.Text name={name} value={value} ref={inputRef} />
-            )}
-            <Actions.Accept name={name} handleClick={handleEditAttribute} />
-            <Actions.Cancel name={name} handleClick={handleCancel} />
-          </>
-        ) : (
-          <>
-            <Typography
-              noWrap
-              variant='body2'
-              title={typeof value === 'string' ? value : undefined}
-            >
-              {value}
-            </Typography>
-            {canEdit && (
-              <Actions.Edit name={name} handleClick={handleActiveEditForm} />
-            )}
-            {canDelete && (
-              <Actions.Delete name={name} handleClick={show} />
-            )}
-          </>
-        )}
-
-        {display && (
-          <DialogConfirmation
-            title={`Delete attribute: ${name}`}
-            handleAccept={handleDeleteAttribute}
-            handleCancel={hide}
-          >
-            <p>Are you sure?</p>
-          </DialogConfirmation>
-        )}
-      </div>
-    </>
-  )
-})
-
-export const AttributePropType = {
-  canDelete: PropTypes.bool,
-  canEdit: PropTypes.bool,
-  handleEdit: PropTypes.func,
-  handleDelete: PropTypes.func,
-  handleGetOptionList: PropTypes.func,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]).isRequired,
-  valueInOptionList: PropTypes.string
+export {
+  Actions,
+  Attribute,
+  AttributePropTypes,
+  Inputs
 }
-
-Attribute.propTypes = AttributePropType
-
-Attribute.displayName = 'Attribute'
-
-export default Attribute

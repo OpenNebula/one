@@ -17,7 +17,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core'
-import { Tr } from 'client/components/HOC/Translate'
+import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({

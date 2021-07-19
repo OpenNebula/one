@@ -17,6 +17,7 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
+  AddSquare as AddIcon,
   Edit as EditIcon,
   Trash as DeleteIcon,
   Check as AcceptIcon,
@@ -65,6 +66,12 @@ ActionButton.propTypes = {
  * @param {ActionButtonProps} props - Action button props
  * @returns {React.JSXElementConstructor} Action button with props
  */
+const Add = props => <ActionButton action='add' icon={AddIcon} {...props}/>
+
+/**
+ * @param {ActionButtonProps} props - Action button props
+ * @returns {React.JSXElementConstructor} Action button with props
+ */
 const Edit = props => <ActionButton action='edit' icon={EditIcon} {...props}/>
 
 /**
@@ -88,8 +95,9 @@ const Cancel = props => <ActionButton action='cancel' icon={CancelIcon} {...prop
 export {
   getAttributeCy,
   ActionButton,
-  Edit,
-  Delete,
+  Add,
   Accept,
-  Cancel
+  Cancel,
+  Delete,
+  Edit
 }

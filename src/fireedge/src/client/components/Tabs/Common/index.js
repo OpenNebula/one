@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
 import List from 'client/components/Tabs/Common/List'
-import Permissions from 'client/components/Tabs/Common/Permissions'
 import Ownership from 'client/components/Tabs/Common/Ownership'
+import Permissions from 'client/components/Tabs/Common/Permissions'
+
+export * from 'client/components/Tabs/Common/Attribute'
 
 export {
+  AttributePanel,
   List,
-  Permissions,
-  Ownership
+  Ownership,
+  Permissions
 }

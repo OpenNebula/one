@@ -82,7 +82,11 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
   ]
 
   return (
-    <List title={T.Information} list={info} style={{ gridRow: 'span 3' }} />
+    <List
+      title={T.Information}
+      list={info}
+      containerProps={{ style: { gridRow: 'span 3' } }}
+    />
   )
 }
 

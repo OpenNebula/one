@@ -28,7 +28,7 @@ import {
 } from '@material-ui/core'
 import { Cancel as CancelIcon } from 'iconoir-react'
 
-import { SubmitButton } from 'client/components/FormControl'
+import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -90,11 +90,12 @@ const DialogConfirmation = memo(
         </DialogContent>
         {handleAccept && (
           <DialogActions>
-            <SubmitButton
+            <Action
               color='secondary'
               data-cy='dg-accept-button'
-              onClick={handleAccept}
-              label={Tr(T.Accept)}
+              handleClick={handleAccept}
+              icon={false}
+              label={T.Accept}
               {...acceptButtonProps}
             />
           </DialogActions>

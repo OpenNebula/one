@@ -44,6 +44,14 @@ module.exports = {
   SignIn: 'Sign In',
   SignOut: 'Sign Out',
   Submit: 'Submit',
+  Resize: 'Resize',
+  ResizeCapacity: 'Resize capacity',
+  AttachDisk: 'Attach disk',
+  AttachNic: 'Attach nic',
+  Detach: 'Detach',
+
+  /* questions */
+  DoYouWantProceed: 'Do you want proceed?',
 
   /* dashboard */
   InTotal: 'In Total',
@@ -171,16 +179,7 @@ module.exports = {
   StartTime: 'Start time',
   EndTime: 'End time',
   Locked: 'Locked',
-
-  /* instances schema */
-  IP: 'IP',
-  Reschedule: 'Reschedule',
-  DeployID: 'Deploy ID',
-
-  /* flow schema */
-  Strategy: 'Strategy',
-  ShutdownAction: 'Shutdown action',
-  ReadyStatusGate: 'Ready status gate',
+  Attributes: 'Attributes',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -192,6 +191,31 @@ module.exports = {
   Ownership: 'Ownership',
   Owner: 'Owner',
   Other: 'Other',
+
+  /* instances schema */
+  IP: 'IP',
+  Reschedule: 'Reschedule',
+  DeployID: 'Deploy ID',
+  Monitoring: 'Monitoring',
+
+  /* flow schema */
+  Strategy: 'Strategy',
+  ShutdownAction: 'Shutdown action',
+  ReadyStatusGate: 'Ready status gate',
+
+  /* VM schema */
+  /* VM schema - capacity */
+  PhysicalCpu: 'Physical CPU',
+  VirtualCpu: 'Virtual CPU',
+  VirtualCores: 'Virtual Cores',
+  Cores: 'Cores',
+  Sockets: 'Sockets',
+  Memory: 'Memory',
+  CostCpu: 'Cost / CPU',
+  CostMByte: 'Cost / MByte',
+  /* VM schema - network */
+  NIC: 'NIC',
+  Alias: 'Alias',
 
   /* security group schema */
   TCP: 'TCP',

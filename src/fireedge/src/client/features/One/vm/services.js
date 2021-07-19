@@ -120,6 +120,31 @@ export const vmService = ({
   },
 
   /**
+   * Replaces the user template contents.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.template - The new user template contents.
+   * @param {0|1} params.replace -
+   * Update type:
+   * ``0``: Replace the whole template.
+   * ``1``: Merge new template with the existing one.
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  updateUserTemplate: async ({ id, template, replace }) => {
+    const name = Actions.VM_UPDATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, template, replace }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Changes the permission bits of a virtual machine.
    *
    * @param {object} params - Request parameters

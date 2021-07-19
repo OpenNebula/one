@@ -30,12 +30,14 @@ import {
 } from '@material-ui/core'
 
 import { useVmApi } from 'client/features/One'
-import { Action } from 'client/components/Cards/SelectCard'
-import Multiple from 'client/components/Tables/Vms/multiple'
+import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
+import { Action } from 'client/components/Cards/SelectCard'
+import { DialogConfirmation } from 'client/components/Dialogs'
+import Multiple from 'client/components/Tables/Vms/multiple'
 
-import { T, VM_ACTIONS } from 'client/constants'
 import { Tr } from 'client/components/HOC'
+import { T, VM_ACTIONS } from 'client/constants'
 
 const AccordionSummary = withStyles({
   root: {
@@ -89,84 +91,108 @@ const NetworkItem = ({ nic = {}, actions }) => {
   const classes = useStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
-  const { handleRefetch, data: vm } = React.useContext(TabContext)
+  const { display, show, hide, values } = useDialog()
   const { detachNic } = useVmApi()
+
+  const { handleRefetch, data: vm } = React.useContext(TabContext)
+  const { ID: vmId } = vm
 
   const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
 
-  const hasDetails = React.useMemo(() =>
-    !!ALIAS.length || !!SECURITY_GROUPS?.length,
-  [ALIAS.length, SECURITY_GROUPS?.length]
+  const hasDetails = React.useMemo(
+    () => !!ALIAS.length || !!SECURITY_GROUPS?.length,
+    [ALIAS.length, SECURITY_GROUPS?.length]
   )
 
-  const detachAction = () => actions?.includes?.(VM_ACTIONS.DETACH_NIC) && (
-    <Action
-      cy={`${VM_ACTIONS.DETACH_NIC}-${NIC_ID}`}
-      icon={<Trash size={18} />}
-      stopPropagation
-      handleClick={async () => {
-        const response = await detachNic(vm.ID, NIC_ID)
+  const handleDetach = async () => {
+    const response = values?.id && await detachNic(vmId, values.id)
 
-        String(response) === String(vm.ID) && handleRefetch?.(vm.ID)
-      }}
-    />
-  )
+    String(response) === String(vmId) && await handleRefetch?.(vmId)
+    hide()
+  }
+
+  const detachAction = (id, isAlias) =>
+    actions?.includes?.(VM_ACTIONS.DETACH_NIC) && (
+      <Action
+        cy={`${VM_ACTIONS.DETACH_NIC}-${id}`}
+        icon={<Trash size={18} />}
+        stopPropagation
+        handleClick={() => show({ id, isAlias })}
+      />
+    )
 
   return (
-    <Accordion variant='outlined'>
-      <AccordionSummary>
-        <div className={classes.row}>
-          <Typography noWrap>
-            {`${NIC_ID} | ${NETWORK}`}
-          </Typography>
-          <span className={classes.labels}>
-            <Multiple
-              limitTags={isMobile ? 1 : 4}
-              tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID].filter(Boolean)}
-            />
-          </span>
-          {!isMobile && detachAction()}
-        </div>
-      </AccordionSummary>
-      {hasDetails && (
-        <AccordionDetails className={classes.details}>
-          {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
-            <div key={NIC_ID} className={classes.row}>
-              <Typography noWrap variant='body2'>
-                {`Alias ${NIC_ID} | ${NETWORK}`}
-              </Typography>
-              <span className={classes.labels}>
-                <Multiple
-                  limitTags={isMobile ? 1 : 4}
-                  tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
-                />
-              </span>
-              {!isMobile && detachAction()}
-            </div>
-          ))}
-          {!!SECURITY_GROUPS?.length && (
-            <Paper variant='outlined' className={classes.securityGroups}>
-              <Typography variant='body1'>{Tr(T.SecurityGroups)}</Typography>
+    <>
+      <Accordion variant='outlined'>
+        <AccordionSummary>
+          <div className={classes.row}>
+            <Typography noWrap>
+              {`${NIC_ID} | ${NETWORK}`}
+            </Typography>
+            <span className={classes.labels}>
+              <Multiple
+                limitTags={isMobile ? 1 : 4}
+                tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID].filter(Boolean)}
+              />
+            </span>
+            {!isMobile && detachAction(NIC_ID)}
+          </div>
+        </AccordionSummary>
+        {hasDetails && (
+          <AccordionDetails className={classes.details}>
+            {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
+              <div key={NIC_ID} className={classes.row}>
+                <Typography noWrap variant='body2'>
+                  {`${Tr(T.Alias)} ${NIC_ID} | ${NETWORK}`}
+                </Typography>
+                <span className={classes.labels}>
+                  <Multiple
+                    limitTags={isMobile ? 1 : 4}
+                    tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
+                  />
+                </span>
+                {!isMobile && detachAction(NIC_ID, true)}
+              </div>
+            ))}
+            {!!SECURITY_GROUPS?.length && (
+              <Paper variant='outlined' className={classes.securityGroups}>
+                <Typography variant='body1'>{Tr(T.SecurityGroups)}</Typography>
 
-              {SECURITY_GROUPS
-                ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
-                  <div key={`${idx}-${NAME}`} className={classes.row}>
-                    <Typography noWrap variant='body2'>
-                      {`${ID} | ${NAME}`}
-                    </Typography>
-                    <span className={classes.labels}>
-                      <Multiple
-                        limitTags={isMobile ? 2 : 5}
-                        tags={[PROTOCOL, RULE_TYPE, RANGE, NETWORK_ID, ICMP_TYPE].filter(Boolean)}
-                      />
-                    </span>
-                  </div>
-                ))}
-            </Paper>
-          )}
-        </AccordionDetails>
+                {SECURITY_GROUPS
+                  ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
+                    <div key={`${idx}-${NAME}`} className={classes.row}>
+                      <Typography noWrap variant='body2'>
+                        {`${ID} | ${NAME}`}
+                      </Typography>
+                      <span className={classes.labels}>
+                        <Multiple
+                          limitTags={isMobile ? 2 : 5}
+                          tags={[PROTOCOL, RULE_TYPE, RANGE, NETWORK_ID, ICMP_TYPE].filter(Boolean)}
+                        />
+                      </span>
+                    </div>
+                  ))}
+              </Paper>
+            )}
+          </AccordionDetails>
+        )}
+      </Accordion>
+
+      {display && (
+        <DialogConfirmation
+          title={T.Detach}
+          handleAccept={handleDetach}
+          handleCancel={hide}
+        >
+          <p>{`
+            ${Tr(T.Detach)}
+            ${Tr(values?.isAlias ? T.Alias : T.NIC)}
+            #${values?.id}
+          `}</p>
+          <p>{Tr(T.DoYouWantProceed)}</p>
+        </DialogConfirmation>
       )}
-    </Accordion>
+    </>
   )
 }
 

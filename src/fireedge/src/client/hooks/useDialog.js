@@ -31,9 +31,19 @@ const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn?.(...args))
  */
 const useDialog = () => {
   const [display, setDisplay] = useState(false)
-  const show = () => setDisplay(true)
-  const hide = () => setDisplay(false)
+  const [values, setValues] = useState(null)
+
   const toggle = () => setDisplay(prev => !prev)
+
+  const show = newValues => {
+    setDisplay(true)
+    newValues && setValues(newValues)
+  }
+
+  const hide = () => {
+    setDisplay(false)
+    setValues(null)
+  }
 
   const getToggleProps = (props = {}) => ({
     'aria-controls': 'target',
@@ -53,6 +63,7 @@ const useDialog = () => {
 
   return {
     display,
+    values,
     show,
     hide,
     toggle,

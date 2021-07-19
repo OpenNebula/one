@@ -21,7 +21,7 @@ import { Autocomplete } from '@material-ui/lab'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC/Translate'
+import { Tr } from 'client/components/HOC'
 
 const AutocompleteController = memo(
   ({ control, cy, name, label, multiple, values, error, fieldProps }) => (

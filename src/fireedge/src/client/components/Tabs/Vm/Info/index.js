@@ -19,22 +19,32 @@ import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { Permissions, Ownership } from 'client/components/Tabs/Common'
+import { Permissions, Ownership, AttributePanel } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
+
+const LXC_ATTRIBUTES_REG = /^LXC_/
+const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
+const HIDDEN_ATTRIBUTES_REG = /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
 const VmInfoTab = ({ tabProps = {} }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
-    ownership_panel: ownershipPanel
+    ownership_panel: ownershipPanel,
+    vcenter_panel: vcenterPanel,
+    lxc_panel: lxcPanel,
+    monitoring_panel: monitoringPanel,
+    attributes_panel: attributesPanel
   } = tabProps
 
-  const { changeOwnership, changePermissions, rename } = useVmApi()
+  const { changeOwnership, changePermissions, rename, updateUserTemplate } = useVmApi()
   const { handleRefetch, data: vm } = React.useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = vm
+  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
@@ -51,8 +61,34 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && await handleRefetch?.()
   }
 
+  const handleCreateAttribute = async (newName, newValue) => {
+    const newAttribute = `${String(newName).toUpperCase()} = "${newValue}"`
+
+    // 1: Merge the new attribute to existing user template
+    const response = await updateUserTemplate(ID, newAttribute, 1)
+    console.log({ response })
+
+    String(response) === String(ID) && await handleRefetch?.()
+  }
+
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const getActions = actions => Helper.getActionsAvailable(actions, hypervisor)
+
+  const filteredAttributes = Helper.filterAttributes(USER_TEMPLATE, {
+    extra: {
+      vcenter: VCENTER_ATTRIBUTES_REG,
+      lxc: LXC_ATTRIBUTES_REG
+    },
+    hidden: HIDDEN_ATTRIBUTES_REG
+  })
+
+  const { vcenter: vcenterAttributes, lxc: lxcAttributes, attributes } = filteredAttributes
+
+  const ATTRIBUTE_FUNCTION = {
+    handleAdd: handleCreateAttribute,
+    handleEdit: console.log,
+    handleDelete: console.log
+  }
 
   return (
     <div style={{
@@ -93,6 +129,35 @@ const VmInfoTab = ({ tabProps = {} }) => {
           handleEdit={handleChangeOwnership}
         />
       }
+      {attributesPanel?.enabled && attributes && (
+        <AttributePanel
+          {...ATTRIBUTE_FUNCTION}
+          actions={getActions(attributesPanel?.actions)}
+          title={Tr(T.Attributes)}
+          attributes={attributes} />
+      )}
+      {vcenterPanel?.enabled && vcenterAttributes && (
+        <AttributePanel
+          {...ATTRIBUTE_FUNCTION}
+          actions={getActions(vcenterPanel?.actions)}
+          title={`vCenter ${Tr(T.Information)}`}
+          attributes={vcenterAttributes} />
+      )}
+      {lxcPanel?.enabled && lxcAttributes && (
+        <AttributePanel
+          {...ATTRIBUTE_FUNCTION}
+          actions={getActions(lxcPanel?.actions)}
+          title={`LXC ${Tr(T.Information)}`}
+          attributes={lxcAttributes} />
+      )}
+      {monitoringPanel?.enabled && (
+        <AttributePanel
+          {...ATTRIBUTE_FUNCTION}
+          actions={getActions(monitoringPanel?.actions)}
+          title={Tr(T.Monitoring)}
+          attributes={MONITORING}
+        />
+      )}
     </div>
   )
 }
