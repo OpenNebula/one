@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { env } = require('process')
 const express = require('express')
+const { resolve } = require('path')
+const Worker = require('tiny-worker')
 const { defaults, httpCodes, params } = require('server/utils/constants')
 const { getConfig } = require('server/utils/yml')
 
@@ -26,7 +29,8 @@ const {
   checkMethodRouteFunction,
   responseOpennebula,
   httpResponse,
-  getDataZone
+  getDataZone,
+  fillResourceforHookConnection
 } = require('../../utils')
 
 const {
@@ -46,7 +50,8 @@ const {
   defaultGetMethod,
   httpMethod: httpMethods,
   from: fromData,
-  defaultOpennebulaZones
+  defaultOpennebulaZones,
+  defaultWebpackMode
 } = defaults
 
 const router = express.Router()
@@ -172,9 +177,35 @@ router.all(
               res.locals.httpCode = code
             }
           }
-          const connect = connectOpennebula()
-          connect(command, getOpennebulaMethod(dataSources), (err, value) =>
+
+          //* worker thread */
+          const user = getUserOpennebula()
+          const paramsCommand = getOpennebulaMethod(dataSources)
+          let workerPath = ['dist']
+          if (env && env.NODE_ENV === defaultWebpackMode) {
+            workerPath = ['src', 'server', 'utils']
+          } else {
+            require('server/utils/index.worker')
+          }
+          const worker = new Worker(resolve(...workerPath, 'index.worker.js'))
+          worker.onmessage = function (result) {
+            const err = result && result.data && result.data.err
+            const value = result && result.data && result.data.value
+            if (!err) {
+              fillResourceforHookConnection(user, command, paramsCommand)
+            }
             responseOpennebula(updaterResponse, err, value, response, next)
+            worker.terminate()
+          }
+          worker.postMessage(
+            {
+              globalState: (global && global.paths) || {},
+              user,
+              password: getPassOpennebula(),
+              rpc,
+              command,
+              paramsCommand
+            }
           )
         } else {
           next()

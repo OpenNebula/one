@@ -14,40 +14,32 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { env } = require('process')
-const { resolve } = require('path')
-const { parse } = require('yaml')
-const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults')
-const { existsFile } = require('server/utils/server')
-const { messageTerminal } = require('server/utils/general')
-const { global } = require('window-or-global')
+const {
+  opennebulaConnect
+} = require('../../../src/server/utils/opennebula')
 
-/**
- * Get fireedge configurations.
- *
- * @returns {object} fireedge configurations
- */
-const getConfig = () => {
-  let rtn = {}
+// eslint-disable-next-line no-undef
+onmessage = function (ev = {}) {
+  let pass = true
 
-  const defaultPath = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
-
-  const pathfile = (global && global.paths && global.paths.FIREEDGE_CONFIG) || resolve(__dirname, ...defaultPath, 'etc', defaultConfigFile)
-  if (pathfile) {
-    existsFile(pathfile, filedata => {
-      rtn = parse(filedata)
-    }, err => {
-      const config = {
-        color: 'red',
-        message: 'Error: %s',
-        error: err.message || ''
-      }
-      messageTerminal(config)
-    })
+  const returnData = (data = '') => {
+    if (pass) {
+      // eslint-disable-next-line no-undef
+      postMessage(data)
+    }
   }
-  return rtn
-}
 
-module.exports = {
-  getConfig
+  if (ev && ev.data) {
+    const { globalState = {}, user = '', password = '', rpc = '', command = '', paramsCommand = [] } = ev.data
+    if (globalState && user && password && rpc && command) {
+      pass = false
+      global.paths = globalState
+      const connect = opennebulaConnect(user, password, rpc)
+      connect(command, paramsCommand, (err, value) => {
+        pass = true
+        returnData({ err, value })
+      })
+    }
+  }
+  returnData()
 }

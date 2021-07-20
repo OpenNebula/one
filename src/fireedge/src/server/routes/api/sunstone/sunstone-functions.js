@@ -69,7 +69,7 @@ const responseHttp = (res = {}, next = defaultEmptyFunction, httpCode) => {
  */
 const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const { user, password } = userData
-  if (user && password && global && global.SUNSTONE_VIEWS && global.SUNSTONE_PATH) {
+  if (user && password && global && global.paths && global.paths.SUNSTONE_VIEWS && global.paths.SUNSTONE_PATH) {
     const connect = oneConnection(user, password)
     connect(
       ActionsUser.USER_INFO,
@@ -82,7 +82,7 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
             (err = {}, vmgroupData = {}) => {
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
                 existsFile(
-                  global.SUNSTONE_VIEWS,
+                  global.paths.SUNSTONE_VIEWS,
                   filedata => {
                     const jsonFileData = parse(filedata) || {}
                     if (jsonFileData && jsonFileData.groups && jsonFileData.default) {
@@ -90,7 +90,7 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
                       const rtn = {}
                       views.forEach(view => {
                         getFiles(
-                          `${global.SUNSTONE_PATH}${view}`
+                          `${global.paths.SUNSTONE_PATH}${view}`
                         ).forEach(viewPath => {
                           existsFile(
                             viewPath,
@@ -142,9 +142,9 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
  * @param {object} userData - user of http request
  */
 const getConfig = (res = {}, next = () => undefined, params = {}, userData = {}) => {
-  if (global && global.SUNSTONE_CONFIG) {
+  if (global && global.paths && global.paths.SUNSTONE_CONFIG) {
     existsFile(
-      global.SUNSTONE_CONFIG,
+      global.paths.SUNSTONE_CONFIG,
       filedata => {
         const jsonFileData = parse(filedata) || {}
         responseHttp(

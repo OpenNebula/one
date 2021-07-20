@@ -39,7 +39,7 @@ const configError = (error) => ({
 const clientOptions = {
   crypt: {
     cypher: 'AES-256-CBC',
-    key: global.FIREEDGE_KEY || ''
+    key: (global && global.path && global.paths.FIREEDGE_KEY) || ''
   },
   allowedUnencryptedConnectionSettings: {
     rdp: ['width', 'height', 'dpi'],

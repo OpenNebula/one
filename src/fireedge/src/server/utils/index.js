@@ -28,7 +28,8 @@ const {
   commandXMLRPC,
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
-  checkOpennebulaCommand
+  checkOpennebulaCommand,
+  fillResourceforHookConnection
 } = require('./opennebula')
 
 /**
@@ -135,5 +136,6 @@ module.exports = {
   getConfig,
   httpResponse,
   getDataZone,
-  checkEmptyObject
+  checkEmptyObject,
+  fillResourceforHookConnection
 }

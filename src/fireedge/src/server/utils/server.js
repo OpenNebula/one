@@ -349,13 +349,13 @@ const createFile = (path = '', data = '', callback = () => undefined, error = ()
  * Generate fireedge key file.
  */
 const genFireedgeKey = () => {
-  if (global && !global.FIREEDGE_KEY) {
+  if (global && global.paths && !global.paths.FIREEDGE_KEY) {
     const { v4 } = require('uuid')
     let uuidv4 = v4()
-    if (global.FIREEDGE_KEY_PATH && uuidv4) {
+    if (global.paths.FIREEDGE_KEY_PATH && uuidv4) {
       uuidv4 = uuidv4.replace(/-/g, '').toUpperCase()
       existsFile(
-        global.FIREEDGE_KEY_PATH,
+        global.paths.FIREEDGE_KEY_PATH,
         filedata => {
           if (filedata) {
             uuidv4 = filedata
@@ -363,7 +363,7 @@ const genFireedgeKey = () => {
         },
         () => {
           createFile(
-            global.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
+            global.paths.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
               messageTerminal({
                 color: 'red',
                 message: 'Error: %s',
@@ -373,7 +373,7 @@ const genFireedgeKey = () => {
         }
       )
     }
-    global.FIREEDGE_KEY = uuidv4
+    global.paths.FIREEDGE_KEY = uuidv4
   }
 }
 
@@ -398,8 +398,8 @@ const replaceEscapeSequence = (text = '') => {
  */
 const getSunstoneAuth = () => {
   let rtn
-  if (global && global.SUNSTONE_AUTH_PATH) {
-    existsFile(global.SUNSTONE_AUTH_PATH,
+  if (global && global.paths && global.paths.SUNSTONE_AUTH_PATH) {
+    existsFile(global.paths.SUNSTONE_AUTH_PATH,
       filedata => {
         if (filedata) {
           const serverAdminData = filedata.split(':')
@@ -457,38 +457,41 @@ const genPathResources = () => {
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
-    if (!global.FIREEDGE_CONFIG) {
-      global.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
+    if (!global.paths) {
+      global.paths = {}
     }
-    if (!global.VMRC_TOKENS) {
-      global.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
+    if (!global.paths.FIREEDGE_CONFIG) {
+      global.paths.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
     }
-    if (!global.FIREEDGE_LOG) {
-      global.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
+    if (!global.paths.VMRC_TOKENS) {
+      global.paths.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
     }
-    if (!global.SUNSTONE_AUTH_PATH) {
-      global.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
+    if (!global.paths.FIREEDGE_LOG) {
+      global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
     }
-    if (!global.SUNSTONE_PATH) {
-      global.SUNSTONE_PATH = `${ETC_LOCATION}/${defaultSunstonePath}/`
+    if (!global.paths.SUNSTONE_AUTH_PATH) {
+      global.paths.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
     }
-    if (!global.SUNSTONE_CONFIG) {
-      global.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneConfig}`
+    if (!global.paths.SUNSTONE_PATH) {
+      global.paths.SUNSTONE_PATH = `${ETC_LOCATION}/${defaultSunstonePath}/`
     }
-    if (!global.SUNSTONE_VIEWS) {
-      global.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
+    if (!global.paths.SUNSTONE_CONFIG) {
+      global.paths.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneConfig}`
     }
-    if (!global.FIREEDGE_KEY_PATH) {
-      global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
+    if (!global.paths.SUNSTONE_VIEWS) {
+      global.paths.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
     }
-    if (!global.CPI) {
-      global.CPI = `${VAR_LOCATION}/${defaultAppName}`
+    if (!global.paths.FIREEDGE_KEY_PATH) {
+      global.paths.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
-    if (!global.ETC_CPI) {
-      global.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
+    if (!global.paths.CPI) {
+      global.paths.CPI = `${VAR_LOCATION}/${defaultAppName}`
     }
-    if (!global.SHARE_CPI) {
-      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/edge-clusters`
+    if (!global.paths.ETC_CPI) {
+      global.paths.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
+    }
+    if (!global.paths.SHARE_CPI) {
+      global.paths.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/edge-clusters`
     }
   }
 }

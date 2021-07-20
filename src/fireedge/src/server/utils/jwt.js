@@ -35,7 +35,7 @@ const createJWT = (
   exp = ''
 ) => {
   let rtn = null
-  if (iss && aud && jti && iat && exp && global && global.FIREEDGE_KEY) {
+  if (iss && aud && jti && iat && exp && global && global.paths && global.paths.FIREEDGE_KEY) {
     const payload = {
       iss,
       aud,
@@ -43,7 +43,7 @@ const createJWT = (
       iat,
       exp
     }
-    rtn = jwt.encode(payload, global.FIREEDGE_KEY)
+    rtn = jwt.encode(payload, global.paths.FIREEDGE_KEY)
   }
   return rtn
 }
@@ -60,7 +60,7 @@ const validateAuth = (req = {}) => {
     const authorization = req.headers.authorization
     const removeBearer = new RegExp('^Bearer ', 'i')
     const token = authorization.replace(removeBearer, '')
-    const fireedgeKey = global && global.FIREEDGE_KEY
+    const fireedgeKey = global && global.paths && global.paths.FIREEDGE_KEY
     if (token && fireedgeKey) {
       try {
         const payload = jwt.decode(token, fireedgeKey)

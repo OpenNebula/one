@@ -26,6 +26,14 @@ const js = {
   include: path.resolve(__dirname, 'src')
 }
 
+const worker = {
+  test: /\.worker\.js$/,
+  loader: 'worker-loader',
+  options: {
+    filename: '[name].js'
+  }
+}
+
 module.exports = {
   mode: defaultProductionWebpackMode,
   entry: path.resolve(__dirname, 'src', 'server'),
@@ -53,6 +61,6 @@ module.exports = {
     })
   ],
   module: {
-    rules: [js]
+    rules: [js, worker]
   }
 }

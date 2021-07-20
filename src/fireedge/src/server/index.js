@@ -14,47 +14,40 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import path from 'path'
-import express from 'express'
-import webpack from 'webpack'
-import helmet from 'helmet'
-import morgan from 'morgan'
-import cors from 'cors'
 import compression from 'compression'
-import { env } from 'process'
+import cors from 'cors'
+import express from 'express'
 import {
   accessSync,
   constants,
   createWriteStream,
   readFileSync
 } from 'fs-extra'
+import helmet from 'helmet'
 import http from 'http'
 import https from 'https'
-import {
-  defaultAppName,
-  defaultTypeLog,
-  defaultHost,
-  defaultPort,
-  defaultWebpackMode,
-  defaultApps,
-  defaultEvents
-} from './utils/constants/defaults'
-import {
-  validateServerIsSecure,
-  getCert,
-  getKey,
-  genPathResources,
-  genFireedgeKey
-} from './utils/server'
+import morgan from 'morgan'
+import { resolve } from 'path'
+import { env } from 'process'
+import webpack from 'webpack'
 import {
   entrypoint404,
   entrypointApi,
   entrypointApp
 } from './routes/entrypoints'
 import { websockets } from './routes/websockets'
-import { vmrc } from './routes/websockets/vmrc'
 import { guacamole } from './routes/websockets/guacamole'
-import { messageTerminal, getConfig } from './utils'
+import { vmrc } from './routes/websockets/vmrc'
+import { getConfig, messageTerminal } from './utils'
+import {
+  defaultAppName, defaultApps,
+  defaultEvents, defaultHost,
+  defaultPort, defaultTypeLog, defaultWebpackMode
+} from './utils/constants/defaults'
+import {
+  genFireedgeKey, genPathResources, getCert,
+  getKey, validateServerIsSecure
+} from './utils/server'
 
 // set paths
 genPathResources()
@@ -110,10 +103,10 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
 }
 
 let log = morgan('dev')
-if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
+if (userLog === defaultTypeLog && global && global.paths && global.paths.FIREEDGE_LOG) {
   try {
-    accessSync(global.FIREEDGE_LOG, constants.W_OK)
-    const logStream = createWriteStream(global.FIREEDGE_LOG, {
+    accessSync(global.paths.FIREEDGE_LOG, constants.W_OK)
+    const logStream = createWriteStream(global.paths.FIREEDGE_LOG, {
       flags: 'a'
     })
     log = morgan('combined', { stream: logStream })
@@ -129,8 +122,8 @@ if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
 
 app.use(helmet.hidePoweredBy())
 app.use(compression())
-app.use(`${basename}/client`, express.static(path.resolve(__dirname, frontPath)))
-app.use(`${basename}/client/*`, express.static(path.resolve(__dirname, frontPath)))
+app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
+app.use(`${basename}/client/*`, express.static(resolve(__dirname, frontPath)))
 // log request
 app.use(log)
 // cors
@@ -152,13 +145,7 @@ app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
 app.get('*', entrypoint404)
 
 const appServer = validateServerIsSecure()
-  ? secureServer(
-    {
-      key: readFileSync(getKey(), 'utf8'),
-      cert: readFileSync(getCert(), 'utf8')
-    },
-    app
-  )
+  ? secureServer({ key: readFileSync(getKey(), 'utf8'), cert: readFileSync(getCert(), 'utf8') }, app)
   : unsecureServer(app)
 
 const sockets = websockets(appServer) || []

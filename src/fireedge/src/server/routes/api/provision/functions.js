@@ -269,8 +269,7 @@ const addPrependCommand = (command = '', resource = '') => {
 const addOptionalCreateCommand = () => {
   const appConfig = getConfig()
   const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
-  return [optionalCreateCommand]
-    .filter(Boolean) // remove following strings: '', 0, undefined, null
+  return [optionalCreateCommand].filter(Boolean) // return array position valids, no undefined or nulls
 }
 
 /**
@@ -332,7 +331,7 @@ const executeCommand = (command = '', resource = '', options = {}) => {
   const execute = spawnSync(cmd, rsc, options)
 
   if (execute) {
-    if (execute.stdout && execute.status === 0) {
+    if (execute.stdout && !execute.stderr) {
       rtn = { success: true, data: execute.stdout.toString() }
     } else if (execute.stderr && execute.stderr.length > 0) {
       rtn = { success: false, data: execute.stderr.toString() }

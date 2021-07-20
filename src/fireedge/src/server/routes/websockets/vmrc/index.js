@@ -52,7 +52,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
         const ticket = parseURL.pathname.split('/')[3]
         try {
           const esxi = readFileSync(
-            `${global.VMRC_TOKENS || ''}/${ticket}`
+            `${global.paths.VMRC_TOKENS || ''}/${ticket}`
           ).toString()
           return esxi
         } catch (error) {

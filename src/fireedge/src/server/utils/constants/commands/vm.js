@@ -47,6 +47,9 @@ const VM_DISK_DETACH = 'vm.detach'
 const VM_DISK_RESIZE = 'vm.diskresize'
 const VM_NIC_ATTACH = 'vm.attachnic'
 const VM_NIC_DETACH = 'vm.detachnic'
+const VM_SCHED_ADD = 'vm.schedadd'
+const VM_SCHED_UPDATE = 'vm.schedupdate'
+const VM_SCHED_DELETE = 'vm.scheddelete'
 const VM_POOL_INFO = 'vmpool.info'
 const VM_POOL_INFO_EXTENDED = 'vmpool.infoextended'
 const VM_POOL_MONITORING = 'vmpool.monitoring'
@@ -83,6 +86,9 @@ const Actions = {
   VM_DISK_RESIZE,
   VM_NIC_ATTACH,
   VM_NIC_DETACH,
+  VM_SCHED_ADD,
+  VM_SCHED_UPDATE,
+  VM_SCHED_DELETE,
   VM_POOL_INFO,
   VM_POOL_INFO_EXTENDED,
   VM_POOL_MONITORING,
@@ -578,6 +584,49 @@ module.exports = {
       params: {
         id: {
           from: resource,
+          default: 0
+        }
+      }
+    },
+    [VM_SCHED_ADD]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
+      }
+    },
+    [VM_SCHED_UPDATE]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        id_sched: {
+          from: postBody,
+          default: 0
+        },
+        template: {
+          from: postBody,
+          default: ''
+        }
+      }
+    },
+    [VM_SCHED_DELETE]: {
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0
+        },
+        id_sched: {
+          from: postBody,
           default: 0
         }
       }

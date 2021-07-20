@@ -79,7 +79,7 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
@@ -155,7 +155,7 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)

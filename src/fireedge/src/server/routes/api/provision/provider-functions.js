@@ -165,7 +165,7 @@ const createProviders = (res = {}, next = defaultEmptyFunction, params = {}, use
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
@@ -216,7 +216,7 @@ const updateProviders = (res = {}, next = defaultEmptyFunction, params = {}, use
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, providerUpdate)
     if (valSchema.valid) {
-      const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'json', JSON.stringify(resource))
+      const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'json', JSON.stringify(resource))
       if (file && file.name && file.path) {
         const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
         const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)

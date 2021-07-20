@@ -31,14 +31,10 @@ const {
   defaultMessageProblemOpennebula
 } = require('./constants/defaults')
 
-// regex for separate the commands .info
-const regexInfoAction = /^(\w+).info$/
-
-// user config
 const { getConfig } = require('./yml')
 
-const appConfig = getConfig()
-const namespace = appConfig.namespace || defaultNamespace
+// regex for separate the commands .info
+const regexInfoAction = /^(\w+).info$/
 
 /**
  * Authorizes if the user has access to the resource, for their connection to the HOOK.
@@ -47,7 +43,7 @@ const namespace = appConfig.namespace || defaultNamespace
  * @param {string} action - action (only valid i the action terminate in .info)
  * @param {Array} parameters - parameters of xmlrpc. If parameters[0] >=0 is a id of resource
  */
-const fillResourceforHookConection = (username = '', action = '', parameters = '') => {
+const fillResourceforHookConnection = (username = '', action = '', parameters = '') => {
   let match
   // parameters[0] is the resource ID
   if (username && action && (match = action.match(regexInfoAction)) && match[1] && parameters[0] >= 0) {
@@ -86,6 +82,9 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
     if (xmlClient && xmlClient.methodCall) {
       rtn = (action = '', parameters = [], callback = () => undefined, fillHookResource = true) => {
         if (action && parameters && Array.isArray(parameters) && callback) {
+          // user config
+          const appConfig = getConfig()
+          const namespace = appConfig.namespace || defaultNamespace
           const xmlParameters = [`${username}:${password}`, ...parameters]
           xmlClient.methodCall(
             namespace + action,
@@ -132,7 +131,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                         errorData[0].STRING
                       ) {
                         // success
-                        fillHookResource && fillResourceforHookConection(username, action, parameters)
+                        fillHookResource && fillResourceforHookConnection(username, action, parameters)
                         callback(undefined, errorData[0].STRING)
                       }
                     }
@@ -156,7 +155,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                         return
                       }
                       // success
-                      fillHookResource && fillResourceforHookConection(username, action, parameters)
+                      fillHookResource && fillResourceforHookConnection(username, action, parameters)
                       callback(
                         undefined,
                         error === null && result === null ? messageCall : result
@@ -449,5 +448,6 @@ module.exports = {
   checkPositionInDataSource,
   checkOpennebulaCommand,
   getDefaultParamsOfOpennebulaCommand,
-  generateNewResourceTemplate
+  generateNewResourceTemplate,
+  fillResourceforHookConnection
 }

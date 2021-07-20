@@ -177,7 +177,7 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
 const logData = (id, fullPath = false) => {
   let rtn = false
   if (typeof id !== 'undefined') {
-    const basePath = `${global.CPI}/provision`
+    const basePath = `${global.paths.CPI}/provision`
     const relFile = `${basePath}/${relName}`
     const relFileYML = `${relFile}.${ext}`
     const find = findRecursiveFolder(basePath, id)
@@ -254,7 +254,7 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
   const { user, password } = userData
   let rtn = httpInternalError
   const files = {}
-  const path = `${global.SHARE_CPI}`
+  const path = `${global.paths.SHARE_CPI}`
 
   const endpoint = getEndpoint()
   if (user && password) {
@@ -477,7 +477,7 @@ const deleteResource = (res = {}, next = defaultEmptyFunction, params = {}, user
  * @param {Function} oneConnection - function xmlrpc
  */
 const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
-  const basePath = `${global.CPI}/provision`
+  const basePath = `${global.paths.CPI}/provision`
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
@@ -537,16 +537,16 @@ const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
               unlockSync(relFileLOCK)
               if (uuid) {
                 // provisions in deploy
-                const findFolder = findRecursiveFolder(`${global.CPI}/provision`, uuid)
+                const findFolder = findRecursiveFolder(`${global.paths.CPI}/provision`, uuid)
                 findFolder && removeFile(findFolder)
                 // provisions in error
-                const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid + appendError)
+                const findFolderERROR = findRecursiveFolder(`${global.paths.CPI}/provision`, uuid + appendError)
                 findFolderERROR && removeFile(findFolderERROR)
               }
             }
           }
         )
-        const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
+        const findFolder = findRecursiveFolder(`${global.paths.CPI}/provision`, params.id)
         findFolder && removeFile(findFolder)
       } else {
         const connect = oneConnection(user, password)
@@ -638,7 +638,7 @@ const hostCommandSSH = (res = {}, next = defaultEmptyFunction, params = {}, user
  * @param {Function} oneConnection - function of xmlrpc
  */
 const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
-  const basePath = `${global.CPI}/provision`
+  const basePath = `${global.paths.CPI}/provision`
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
@@ -652,7 +652,7 @@ const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
       const command = 'create'
       const authCommand = ['--user', user, '--password', password]
       const endpoint = getEndpoint()
-      const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: provisionFile.name, ext: provisionFile.ext, content }])
+      const files = createFolderWithFiles(`${global.paths.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: provisionFile.name, ext: provisionFile.ext, content }])
       if (files && files.name && files.files) {
         /**
          * Find file in created files.
@@ -915,7 +915,7 @@ const validate = (res = {}, next = defaultEmptyFunction, params = {}, userData =
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['validate', '--dump', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
