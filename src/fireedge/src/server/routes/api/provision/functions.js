@@ -331,7 +331,7 @@ const executeCommand = (command = '', resource = '', options = {}) => {
   const execute = spawnSync(cmd, rsc, options)
 
   if (execute) {
-    if (execute.stdout && !execute.stderr) {
+    if (execute.stdout && execute.status === 0) {
       rtn = { success: true, data: execute.stdout.toString() }
     } else if (execute.stderr && execute.stderr.length > 0) {
       rtn = { success: false, data: execute.stderr.toString() }

@@ -8,7 +8,7 @@
     "build-client": "rimraf dist/client && webpack --config ./webpack.config.prod.client.js",
     "build-server": "rimraf dist/index.js dist/index.worker.js && webpack --config ./webpack.config.prod.server.js",
     "build": "npm run build-client && npm run build-server",
-    "start": "cross-env NODE_ENV=production babel-node ./dist/index.js",
+    "start": "NODE_ENV=production node ./dist/index.js",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
     "lint": "npm run lint-client && npm run lint-server",
@@ -30,6 +30,7 @@
     "vms"
   ],
   "devDependencies": {
+    "cross-env": "7.0.2",
     "eslint": "7.11.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-config-standard": "14.1.1",
@@ -80,7 +81,6 @@
     "copy-webpack-plugin": "9.0.1",
     "core-js": "3.15.2",
     "cors": "2.8.5",
-    "cross-env": "7.0.2",
     "dagre": "0.8.5",
     "dompurify": "2.2.6",
     "express": "4.17.1",
