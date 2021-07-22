@@ -17,16 +17,10 @@
 import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
-import {
-  accessSync,
-  constants,
-  createWriteStream,
-  readFileSync
-} from 'fs-extra'
+import { readFileSync } from 'fs-extra'
 import helmet from 'helmet'
 import http from 'http'
 import https from 'https'
-import morgan from 'morgan'
 import { resolve } from 'path'
 import { env } from 'process'
 import webpack from 'webpack'
@@ -42,11 +36,11 @@ import { getConfig, messageTerminal } from './utils'
 import {
   defaultAppName, defaultApps,
   defaultEvents, defaultHost,
-  defaultPort, defaultTypeLog, defaultWebpackMode
+  defaultPort, defaultWebpackMode
 } from './utils/constants/defaults'
+import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
-  genFireedgeKey, genPathResources, getCert,
-  getKey, validateServerIsSecure
+  genFireedgeKey, genPathResources, getCert, getKey, validateServerIsSecure
 } from './utils/server'
 
 // set paths
@@ -54,6 +48,9 @@ genPathResources()
 
 // set fireedge_key
 genFireedgeKey()
+
+// set logger
+initLogger()
 
 // destructure imports
 const unsecureServer = http.createServer
@@ -68,7 +65,6 @@ let frontPath = 'client'
 const appConfig = getConfig()
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
-const userLog = appConfig.log || 'dev'
 
 if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   try {
@@ -101,31 +97,16 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   }
   frontPath = '../client'
 }
-
-let log = morgan('dev')
-if (userLog === defaultTypeLog && global && global.paths && global.paths.FIREEDGE_LOG) {
-  try {
-    accessSync(global.paths.FIREEDGE_LOG, constants.W_OK)
-    const logStream = createWriteStream(global.paths.FIREEDGE_LOG, {
-      flags: 'a'
-    })
-    log = morgan('combined', { stream: logStream })
-  } catch (err) {
-    const config = {
-      color: 'red',
-      message: 'Error: %s',
-      error: err.message || ''
-    }
-    messageTerminal(config)
-  }
-}
-
 app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
 app.use(`${basename}/client/*`, express.static(resolve(__dirname, frontPath)))
-// log request
-app.use(log)
+
+const loggerMiddleware = getLoggerMiddleware()
+if (loggerMiddleware) {
+  app.use(loggerMiddleware)
+}
+
 // cors
 if (appConfig.cors) {
   app.use(cors())
@@ -136,7 +117,7 @@ app.use(express.json())
 
 app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
 const frontApps = Object.keys(defaultApps)
-frontApps.map(frontApp => {
+frontApps.forEach(frontApp => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })

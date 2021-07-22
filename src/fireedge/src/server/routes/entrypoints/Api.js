@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable indent */
 
 const { env } = require('process')
 const express = require('express')
@@ -32,6 +33,8 @@ const {
   getDataZone,
   fillResourceforHookConnection
 } = require('../../utils')
+
+const { writeInLogger } = require('../../utils/logger')
 
 const {
   validateResourceAndSession,
@@ -189,13 +192,14 @@ router.all(
           }
           const worker = new Worker(resolve(...workerPath, 'index.worker.js'))
           worker.onmessage = function (result) {
+            worker.terminate()
             const err = result && result.data && result.data.err
             const value = result && result.data && result.data.value
             if (!err) {
               fillResourceforHookConnection(user, command, paramsCommand)
             }
+            writeInLogger(`command: ${command} response for worker: ${JSON.stringify(value)}`)
             responseOpennebula(updaterResponse, err, value, response, next)
-            worker.terminate()
           }
           worker.postMessage(
             {

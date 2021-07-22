@@ -24,6 +24,7 @@ const { existsSync, readFileSync, createWriteStream, readdirSync, statSync } = r
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
+const { writeInLogger } = require('server/utils/logger')
 const {
   from: fromData,
   defaultAppName,
@@ -251,6 +252,7 @@ const encrypt = (data = '', key = '', iv = '') => {
       rtn = encryptData
     } catch (err) {
       const errorData = (err && err.message) || ''
+      writeInLogger(errorData)
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
@@ -279,6 +281,7 @@ const decrypt = (data = '', key = '', iv = '') => {
       rtn = decryptData
     } catch (err) {
       const errorData = (err && err.message) || ''
+      writeInLogger(errorData)
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
@@ -309,6 +312,7 @@ const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEm
     }
   } catch (err) {
     errorData = (err && err.message) || ''
+    writeInLogger(errorData)
     messageTerminal({
       color: 'red',
       message: 'Error: %s',
@@ -364,10 +368,12 @@ const genFireedgeKey = () => {
         () => {
           createFile(
             global.paths.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
+              const errorData = (err && err.message) || ''
+              writeInLogger(errorData)
               messageTerminal({
                 color: 'red',
                 message: 'Error: %s',
-                error: (err && err.message) || ''
+                error: errorData
               })
             })
         }
@@ -413,11 +419,13 @@ const getSunstoneAuth = () => {
           }
         }
       }, err => {
+        const errorData = err.message || ''
         const config = {
           color: 'red',
           message: 'Error: %s',
-          error: err.message || ''
+          error: errorData
         }
+        writeInLogger(errorData)
         messageTerminal(config)
       })
   }
@@ -554,7 +562,9 @@ const getFiles = (path = '', recursive = false, files = []) => {
         }
       })
     } catch (error) {
-      messageTerminal(defaultError(error && error.message))
+      const errorData = (error && error.message) || ''
+      writeInLogger(errorData)
+      messageTerminal(defaultError(errorData))
     }
   }
   return files
@@ -586,6 +596,7 @@ const getFilesbyEXT = (dir = '', ext = '', errorCallback = defaultEmptyFunction)
       })
     } catch (error) {
       const errorMsg = (error && error.message) || ''
+      writeInLogger(errorMsg)
       messageTerminal(defaultError(errorMsg))
       errorCallback(errorMsg)
     }
@@ -613,6 +624,7 @@ const getDirectories = (dir = '', errorCallback = () => undefined) => {
       })
     } catch (error) {
       const errorMsg = (error && error.message) || ''
+      writeInLogger(errorMsg)
       messageTerminal(defaultError(errorMsg))
       errorCallback(errorMsg)
     }

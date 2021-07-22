@@ -19,7 +19,7 @@ const { Router } = require('express')
 const { env } = require('process')
 const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
-const path = require('path')
+const { resolve } = require('path')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
@@ -72,7 +72,7 @@ router.get('*', (req, res) => {
     const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
     // loadable
-    const statsFile = path.resolve(__dirname, 'client', app + defaultFileStats)
+    const statsFile = resolve(__dirname, 'client', app + defaultFileStats)
     const extractor = new ChunkExtractor({ statsFile })
 
     // SSR redux store
