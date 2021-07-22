@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'open3'
+
 module VNMMAD
 
     module VNMNetwork
@@ -88,6 +90,26 @@ module VNMMAD
                 clear
 
                 out
+            end
+
+        end
+
+        # Command helper class
+        class Command
+
+            # Executes a command
+            #   @return [String, String, Process::Status] the standard output,
+            #                                             standard error and
+            #                                             status returned by
+            #                                             Open3.capture3
+            def self.run(cmd, *args)
+                if COMMANDS.keys.include?(cmd.to_sym)
+                    cmd_str = "#{COMMANDS[cmd.to_sym]} #{args.join(' ')}"
+                else
+                    cmd_str = "#{cmd} #{args.join(' ')}"
+                end
+
+                Open3.capture3(cmd_str)
             end
 
         end

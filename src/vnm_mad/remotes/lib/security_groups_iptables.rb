@@ -396,33 +396,46 @@ module SGIPTables
         commands.add :ip6tables, "-N #{chain_in}"  # inbound
         commands.add :ip6tables, "-N #{chain_out}" # outbound
 
-        ip = nic[:ip] || nic[:ip6_global]
-
         # Send traffic to the NIC chains
         base_br = "-I #{GLOBAL_CHAIN} -m physdev --physdev-is-bridged "
-        if nic[:alias_id]
-            nro = "#{base_br} --physdev-in #{nic[:parent_nic][:tap]} -s #{ip} -j #{chain_out}"
-        else
-            nro = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
-        end
+        nro = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+
+        nris = []
+        nri6s = []
 
         if bridged
-            if nic[:alias_id]
-                nri = "#{base_br} --physdev-out #{nic[:parent_nic][:tap]} -d #{ip} -j #{chain_in}"
-            else
-                nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
-            end
+            nris << "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
         else
-            nri = "-I #{GLOBAL_CHAIN} -d #{ip} -j #{chain_in}"
+            if !nic[:ip].nil?
+                nris << "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
+            end
+
+            [:ip6, :ip6_global, :ip6_ula].each do |ip6|
+                if !nic[ip6].nil?
+                    nri6s << "-I #{GLOBAL_CHAIN} -d #{nic[ip6]} -j #{chain_in}"
+                end
+            end
+
+            vars[:nics_alias].each do |nic_alias|
+                if !nic_alias[:ip].nil?
+                    nris << "-I #{GLOBAL_CHAIN} -d #{nic_alias[:ip]} "\
+                            "-j #{chain_in}"
+                end
+
+                [:ip6, :ip6_global, :ip6_ula].each do |ip6|
+                    if !nic_alias[ip6].nil?
+                        nri6s << "-I #{GLOBAL_CHAIN} -d #{nic_alias[ip6]} "\
+                                 "-j #{chain_in}"
+                    end
+                end
+            end
         end
 
-        if !ip.nil? && IPAddr.new(ip).ipv4?
-            commands.add :iptables, nri
-            commands.add :iptables, nro
-        elsif !ip.nil? && IPAddr.new(ip).ipv6?
-            commands.add :ip6tables, nri
-            commands.add :ip6tables, nro
-        end
+        nris.each {|nri| commands.add :iptables, nri }
+        commands.add :iptables, nro
+
+        nri6s.each {|nri| commands.add :ip6tables, nri }
+        commands.add :ip6tables, nro if nri6s.any?
 
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
@@ -454,7 +467,8 @@ module SGIPTables
             "-j RETURN"
 
         # Mac-spofing
-        if nic[:filter_mac_spoofing] == "YES" && nic[:alias_id].nil?
+        if !nic[:filter_mac_spoofing].nil? &&
+           nic[:filter_mac_spoofing].upcase == 'YES'
             commands.add :iptables, "-A #{chain_out} -m mac ! "\
                 "--mac-source #{nic[:mac]} -j DROP"
             commands.add :ip6tables, "-A #{chain_out} -m mac ! "\
@@ -462,7 +476,8 @@ module SGIPTables
         end
 
         # IP-spoofing
-        if nic[:filter_ip_spoofing] == "YES" && nic[:alias_id].nil?
+        if !nic[:filter_ip_spoofing].nil? &&
+           nic[:filter_ip_spoofing].upcase == 'YES'
             ipv4s = Array.new
 
             [:ip, :vrouter_ip].each do |key|
@@ -474,26 +489,22 @@ module SGIPTables
                 end
             end
 
-            if !ipv4s.empty?
-                #bootp
-                commands.add :iptables, "-A #{chain_out} -p udp "\
-                    "--source 0.0.0.0/32 --sport 68 --destination "\
-                    "255.255.255.255/32 --dport 67 -j RETURN"
 
-                set = "#{vars[:chain]}-ip-spoofing"
+            #bootp
+            commands.add :iptables, "-A #{chain_out} -p udp "\
+                                    "--source 0.0.0.0/32 --sport 68 --destination "\
+                                    "255.255.255.255/32 --dport 67 -j RETURN"
 
-                commands.add :ipset, "create #{set} hash:ip family inet"
+            set = "#{vars[:chain]}-ip-spoofing"
 
-                ipv4s.each do |ip|
-                    commands.add :ipset, "add -exist #{set} #{ip}"
-                end
+            commands.add :ipset, "create #{set} hash:ip family inet"
 
-                commands.add :iptables, "-A #{chain_out} -m set ! "\
-                    "--match-set #{set} src -j DROP"
-            else # If there are no IPv4 addresses allowed, block all
-                commands.add :iptables, "-A #{chain_out} --source 0.0.0.0/0 "\
-                    "-j DROP"
+            ipv4s.each do |ip|
+                commands.add :ipset, "add -exist #{set} #{ip}"
             end
+
+            commands.add :iptables, "-A #{chain_out} -m set ! "\
+                                    "--match-set #{set} src -j DROP"
 
             ipv6s = Array.new
 
@@ -506,20 +517,16 @@ module SGIPTables
                 end
             end
 
-            if !ipv6s.empty?
-                set = "#{vars[:chain]}-ip6-spoofing"
+            set = "#{vars[:chain]}-ip6-spoofing"
 
-                commands.add :ipset, "create #{set} hash:ip family inet6"
+            commands.add :ipset, "create #{set} hash:ip family inet6"
 
-                ipv6s.each do |ip|
-                    commands.add :ipset, "add -exist #{set} #{ip}"
-                end
-
-                commands.add :ip6tables, "-A #{chain_out} -m set ! "\
-                    "--match-set #{set} src -j DROP"
-            else # If there are no IPv6 addresses allowed, block all
-                commands.add :ip6tables, "-A #{chain_out} --source ::/0 -j DROP"
+            ipv6s.each do |ip|
+                commands.add :ipset, "add -exist #{set} #{ip}"
             end
+
+            commands.add :ip6tables, "-A #{chain_out} -m set ! "\
+                                     "--match-set #{set} src -j DROP"
         end
 
         # Related, Established
@@ -624,8 +631,72 @@ module SGIPTables
         commands = VNMNetwork::Commands.new
 
         # Enable IP-spoofing
+
         set = "#{chain}-ip-spoofing"
-        commands.add :ipset, "-q add -exist #{set} #{nic[:ip]} | true"
+        if !nic[:ip].nil?
+            commands.add :ipset, "-q add -exist #{set} #{nic[:ip]} | true"
+        end
+
+        set = "#{chain}-ip6-spoofing"
+        [:ip6, :ip6_global, :ip6_ula].each do |ip6|
+            next if nic[ip6].nil?
+
+            commands.add :ipset, "-q add -exist #{set} #{nic[ip6]} | true"
+        end
+
+        # Enable SG. Only needed for routed chain input jump since destination
+        # IP is used in the forward rule. Not needed for bridged chain input
+        # and chain output (always bridged) jumps since no source IP is used
+        # in the forward rule.
+
+        info = self.info
+        insert_shift = 0
+
+        if !nic[:ip].nil?
+            _, _, s = VNMNetwork::Command.run(:iptables,
+                                              "-C #{GLOBAL_CHAIN} "\
+                                              "-d #{nic[:ip]} "\
+                                              "-j #{vars[:chain_in]}")
+
+            if !s.success?
+                chain_in_jumps = info[:iptables_forwards].lines.select do |line|
+                    fields = line.split
+                    fields[1] == vars[:chain_in] && fields[5] != 'anywhere'
+                end
+
+                if chain_in_jumps.any?
+                    n = chain_in_jumps[-1].split[0].to_i
+                    commands.add :iptables,
+                                 "-I #{GLOBAL_CHAIN} #{n+1} "\
+                                 "-d #{nic[:ip]} -j #{vars[:chain_in]}"
+                    insert_shift = 1
+                end
+            end
+        end
+
+        [:ip6, :ip6_global, :ip6_ula].each do |ip6|
+            next if nic[ip6].nil?
+
+            _, _, s = VNMNetwork::Command.run(:iptables,
+                                              "-C #{GLOBAL_CHAIN} "\
+                                              "-d #{nic[ip6]} "\
+                                              "-j #{vars[:chain_in]}")
+
+            next if s.success?
+
+            chain_in_jumps = info[:iptables_forwards].lines.select do |line|
+                fields = line.split
+                fields[1] == vars[:chain_in] && fields[5] != 'anywhere'
+            end
+
+            next if chain_in_jumps.empty?
+
+            n = chain_in_jumps[-1].split[0].to_i + insert_shift
+            commands.add :iptables,
+                         "-I #{GLOBAL_CHAIN} #{n+1} "\
+                         "-d #{nic[ip6]} -j #{vars[:chain_in]}"
+            insert_shift += 1
+        end
 
         commands.run!
     end
@@ -638,7 +709,19 @@ module SGIPTables
 
         # Disable IP-spoofing
         set = "#{chain}-ip-spoofing"
-        commands.add :ipset, "-q del -exist #{set} #{nic[:ip]} | true"
+        if !nic[:ip].nil?
+            commands.add :ipset, "-q del -exist #{set} #{nic[:ip]} | true"
+        end
+        set = "#{chain}-ip6-spoofing"
+        [:ip6, :ip6_global, :ip6_ula].each do |ip6|
+            next if nic[ip6].nil?
+
+            commands.add :ipset, "-q del -exist #{set} #{nic[ip6]} | true"
+        end
+
+        # Disable SG. Only needed for routed chain input jump.
+        commands.add :iptables, "-D #{GLOBAL_CHAIN} -d #{nic[:ip]} "\
+                                "-j #{vars[:chain_in]} | true"
 
         commands.run!
     end
