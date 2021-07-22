@@ -37,35 +37,48 @@
 ##############################################################################
 # Environment Configuration
 ##############################################################################
-ONE_LOCATION = ENV['ONE_LOCATION']
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-    LOG_FILE          = '/var/log/one/autostart-host.log'
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    LOG_LOCATION      ||= '/var/log/one'
+    LOG_FILE          ||= '/var/log/one/autostart-host.log'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    VMDIR             = ONE_LOCATION + '/var'
-    CONFIG_FILE       = ONE_LOCATION + '/var/config'
-    LOG_FILE          = ONE_LOCATION + '/var/autostart-host.log'
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    LOG_LOCATION      ||= ONE_LOCATION + '/var'
+    LOG_FILE          ||= ONE_LOCATION + 'autostart-host.log'
 end
 
+# %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]
         $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-        require 'rubygems'
-        Gem.use_paths(real_gems_path)
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
     end
 end
+# %%RUBYGEMS_SETUP_END%%
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
+# rubocop:disable Style/MixinUsage
 include OpenNebula
+# rubocop:enable Style/MixinUsage
 
 require 'getoptlong'
 require 'base64'
@@ -76,7 +89,7 @@ require 'open3'
 ################################################################################
 
 # Get arguments from standard input
-standard_input = STDIN.read
+standard_input = $stdin.read
 ARGV.replace(standard_input.split(' '))
 
 raw_host_template = Base64.decode64(ARGV[0])
@@ -140,7 +153,8 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
 
     # Skip if VM AUTOSTART not enabled
     autostart = vm['USER_TEMPLATE/AUTOSTART']
-    if !autostart || (autostart != 'true' && autostart != 'yes')
+    if !autostart ||
+       (autostart.downcase != 'true' && autostart.downcase != 'yes')
         log "vm #{vm_id}: skip: autostart not enabled"
         next
     end
@@ -160,7 +174,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     # Skip if HID in last history record of guest doesn't match the Host ID
     last_hid = vm["#{last_history_xpath}/HID"]
     if last_hid.to_i != host.id
-        log "vm #{vm_id}: skip: last Host ID (#{last_hid}) "<<
+        log "vm #{vm_id}: skip: last Host ID (#{last_hid}) " \
             "does not match the Host ID (#{host.id})"
         next
     end
@@ -171,7 +185,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     last_action = vm["#{last_history_xpath}/ACTION"]
     last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
     if !%w[none live-migrate].include?(last_action_str)
-        log "vm #{vm_id}: skip: last_action (#{last_action_str}) "<<
+        log "vm #{vm_id}: skip: last_action (#{last_action_str}) " \
             'is not none or live-migrate'
         next
     end

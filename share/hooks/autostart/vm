@@ -39,35 +39,48 @@
 ##############################################################################
 # Environment Configuration
 ##############################################################################
-ONE_LOCATION = ENV['ONE_LOCATION']
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    VMDIR             = '/var/lib/one'
-    CONFIG_FILE       = '/var/lib/one/config'
-    LOG_FILE          = '/var/log/one/autostart-vm.log'
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    LOG_LOCATION      ||= '/var/log/one'
+    LOG_FILE          ||= '/var/log/one/autostart-vm.log'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    VMDIR             = ONE_LOCATION + '/var'
-    CONFIG_FILE       = ONE_LOCATION + '/var/config'
-    LOG_FILE          = ONE_LOCATION + '/var/autostart-vm.log'
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    LOG_LOCATION      ||= ONE_LOCATION + '/var'
+    LOG_FILE          ||= ONE_LOCATION + 'autostart-vm.log'
 end
 
+# %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]
         $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-        require 'rubygems'
-        Gem.use_paths(real_gems_path)
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
     end
 end
+# %%RUBYGEMS_SETUP_END%%
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
+# rubocop:disable Style/MixinUsage
 include OpenNebula
+# rubocop:enable Style/MixinUsage
 
 require 'getoptlong'
 require 'base64'
@@ -78,7 +91,7 @@ require 'open3'
 ################################################################################
 
 # Get arguments from standard input
-standard_input = STDIN.read
+standard_input = $stdin.read
 ARGV.replace(standard_input.split(' '))
 
 raw_vm_template = Base64.decode64(ARGV[0])
@@ -132,7 +145,8 @@ log vm.name.to_s
 
 # Skip if AUTOSTART not enabled
 autostart = vm['USER_TEMPLATE/AUTOSTART']
-if !autostart || (autostart != 'true' && autostart != 'yes')
+if !autostart ||
+   (autostart.downcase != 'true' && autostart.downcase != 'yes')
     log 'skip: autostart not enabled'
     exit 0
 end

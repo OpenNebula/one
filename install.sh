@@ -479,6 +479,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/vcenter \
           $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
+          $VAR_LOCATION/remotes/hooks/autostart \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/hooks/vcenter \
           $VAR_LOCATION/remotes/hooks/vcenter/templates \
@@ -748,6 +749,7 @@ INSTALL_FILES=(
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
+    HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
@@ -2272,6 +2274,13 @@ WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
 
 ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
                         share/esx-fw-vnc/fw-vnc.zip"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/autostart
+#-------------------------------------------------------------------------------
+
+HOOK_AUTOSTART_FILES="share/hooks/autostart/host \
+               share/hooks/autostart/vm"
 
 #-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/ft
