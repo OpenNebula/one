@@ -342,6 +342,19 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
             error = "Invalid RANGE specification.";
             return false;
         }
+
+        // Check all port numbers are between 0-65535
+        const char *big_port_pattern = "([1-9][[:digit:]]{5,}|"
+                                       "[7-9][[:digit:]]{4,}|"
+                                       "6[6-9][[:digit:]]{3,}|"
+                                       "65[6-9][[:digit:]]{2,}|"
+                                       "655[4-9][[:digit:]]|"
+                                       "6553[6-9])";
+        if (one_util::regex_match(big_port_pattern, value.c_str()) == 0)
+        {
+            error = "RANGE out of bounds 0-65536.";
+            return false;
+        }
     }
 
     value = rule->vector_value("ICMP_TYPE");
