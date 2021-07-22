@@ -2904,14 +2904,34 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
     }
     else if ( context_bck != 0 && context_new != 0 )
     {
-        string files_ds     = context_bck->vector_value("FILES_DS");
-        string files_ds_new = context_new->vector_value("FILES_DS");
-
         context_new = context_new->clone();
 
-        if (files_ds == files_ds_new)
+        // Remove equal values from the new context
+        map<string, string> equal_values;
+        for (auto in = context_new->value().cbegin(),
+             ib = context_bck->value().cbegin(),
+             endn = context_new->value().cend(),
+             endb = context_bck->value().cend();
+             in != endn && ib != endb;)
         {
-            context_new->remove("FILES_DS");
+            if (in->first < ib->first)
+                ++in;
+            else if (ib->first < in->first)
+                ++ib;
+            else
+            {
+                if (in->second == ib->second)
+                {
+                    equal_values.insert(make_pair(in->first, in->second));
+                }
+                ++in;
+                ++ib;
+            }
+        }
+
+        for (const auto& attr : equal_values)
+        {
+            context_new->remove(attr.first);
         }
 
         context_new->replace("TARGET",  context_bck->vector_value("TARGET"));
@@ -2930,9 +2950,9 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
 
         context_new = obj_template->get("CONTEXT");
 
-        if ((files_ds == files_ds_new) && !files_ds.empty())
+        for (const auto& attr : equal_values)
         {
-            context_new->replace("FILES_DS", files_ds);
+            context_new->replace(attr.first, attr.second);
         }
 
         delete context_bck;
