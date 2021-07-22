@@ -29,6 +29,9 @@ class ElasticDriver < VNMMAD::VNMDriver
     # Filter to look for NICs managed by this diver
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='elastic']"
 
+    XPATH_FILTER_ATTACH_NIC = 'TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'
+    XPATH_FILTER_ATTACH_NIC_ALIAS = 'TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID'
+
     def initialize(vm, hostname, deploy_id = nil)
         super(vm, XPATH_FILTER, deploy_id)
 
@@ -54,6 +57,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         provision.info
 
         @provider = provision.provider
+
+        @assigned = []
+        @unassigned = []
     end
 
     def self.from_base64(vm64, hostname, deploy_id = nil)
@@ -62,16 +68,19 @@ class ElasticDriver < VNMMAD::VNMDriver
         new(vm_xml, hostname, deploy_id)
     end
 
+    def hot_attach?
+        @vm[XPATH_FILTER_ATTACH_NIC] || @vm[XPATH_FILTER_ATTACH_NIC_ALIAS]
+    end
+
     #  Create route and arp proxy
     def activate
         cmds     = VNMMAD::VNMNetwork::Commands.new
         provider = ElasticDriver.provider(@provider, @host)
 
-        attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+        return 0 unless @assigned.any?
 
         process_all do |nic|
-            next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            next unless @assigned.include?([nic[:ip], nic[:external_ip]])
 
             cmds.add :ip, "route add #{nic[:ip]}/32 dev #{nic[:bridge]} ||:"
             cmds.add :ip,
@@ -90,11 +99,10 @@ class ElasticDriver < VNMMAD::VNMDriver
         cmds     = VNMMAD::VNMNetwork::Commands.new
         provider = ElasticDriver.provider(@provider, @host)
 
-        attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+        return 0 unless @unassigned.any?
 
         process_all do |nic|
-            next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            next unless @unassigned.include?([nic[:ip], nic[:external_ip]])
 
             cmds.add :ip,
                      "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
@@ -121,13 +129,11 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         return true if provider.nil?
 
-        assigned = []
-
-        attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-
         rc = @vm.each_nic_all do |nic|
-            next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            next if nic[:vn_mad] != DRIVER
+
+            next if hot_attach? &&
+                    (nic[:attach].nil? || nic[:attach].upcase != 'YES')
 
             # pass aws_allocation_id if present
             # pass vultr_ip_id if present
@@ -137,13 +143,17 @@ class ElasticDriver < VNMMAD::VNMDriver
             break false \
                 unless provider.assign(nic[:ip], nic[:external_ip], opts) == 0
 
-            assigned << [nic[:ip], nic[:external_ip]]
+            @assigned << [nic[:ip], nic[:external_ip]]
         end
 
-        # rollback
-        assigned.each do |ip, ext|
-            provider.unassign(ip, ext)
-        end unless rc
+        unless rc
+            # rollback
+            @assigned.each do |ip, ext|
+                provider.unassign(ip, ext)
+            end
+
+            @assigned = []
+        end
 
         !rc
     end
@@ -154,16 +164,18 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         return if provider.nil?
 
-        attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-
         @vm.each_nic_all do |nic|
-            next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            next if nic[:vn_mad] != DRIVER
+
+            next if hot_attach? &&
+                    (nic[:attach].nil? || nic[:attach].upcase != 'YES')
 
             # pass vultr_ip_id if present
             opts = { :vultr_id => nic[:vultr_ip_id] }
 
             provider.unassign(nic[:ip], nic[:external_ip], opts)
+
+            @unassigned << [nic[:ip], nic[:external_ip]]
         end
     end
 
