@@ -184,7 +184,7 @@ router.all(
           //* worker thread */
           const user = getUserOpennebula()
           const paramsCommand = getOpennebulaMethod(dataSources)
-          let workerPath = ['dist']
+          let workerPath = [__dirname]
           if (env && env.NODE_ENV === defaultWebpackMode) {
             workerPath = ['src', 'server', 'utils']
           } else {
