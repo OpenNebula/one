@@ -405,6 +405,7 @@ module SGIPTables
 
         if bridged
             nris << "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
+            nri6s << "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
         else
             if !nic[:ip].nil?
                 nris << "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
