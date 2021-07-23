@@ -53,7 +53,27 @@
               <xs:element name="PCI_DEVICES">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="PCI" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="PCI" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="ADDRESS" type="xs:string"/>
+                          <xs:element name="BUS" type="xs:string"/>
+                          <xs:element name="CLASS" type="xs:string"/>
+                          <xs:element name="CLASS_NAME" type="xs:string"/>
+                          <xs:element name="DEVICE" type="xs:string"/>
+                          <xs:element name="DEVICE_NAME" type="xs:string"/>
+                          <xs:element name="DOMAIN" type="xs:string"/>
+                          <xs:element name="FUNCTION" type="xs:string"/>
+                          <xs:element name="NUMA_NODE" type="xs:string"/>
+                          <xs:element name="SHORT_ADDRESS" type="xs:string"/>
+                          <xs:element name="SLOT" type="xs:string"/>
+                          <xs:element name="TYPE" type="xs:string"/>
+                          <xs:element name="VENDOR" type="xs:string"/>
+                          <xs:element name="VENDOR_NAME" type="xs:string"/>
+                          <xs:element name="VMID" type="xs:integer"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
