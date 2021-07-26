@@ -63,6 +63,11 @@
     dest: /etc/frr/staticd.conf
   when: frr_zebra == true
 
+- name: Remove frr.conf
+  file:
+    path: /etc/frr/frr.conf
+    state: absent
+
 - name: Enable BGP daemon
   replace:
     path: /etc/frr/daemons

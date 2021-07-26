@@ -3,7 +3,7 @@
 !
 hostname {{ ansible_nodename }}
 !
-log file /var/log/frr/bgpd.log
+log file /var/log/frr/bgpd.log informational
 !
 router bgp {{ frr_as }}
   bgp router-id {{ vars['ansible_' + frr_iface].ipv4.address }}
