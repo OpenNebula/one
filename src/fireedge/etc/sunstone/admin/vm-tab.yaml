@@ -151,6 +151,7 @@ info-tabs:
     enabled: true
     actions:
       sched_action_create: true
+      sched_action_update: true
       sched_action_delete: true
       charter_create: true
 

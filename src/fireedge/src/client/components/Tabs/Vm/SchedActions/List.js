@@ -15,15 +15,29 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
-const VmSchedulingTab = data => {
-  return (
-    <div>
-      <p>WIP - SCHED ACTIONS</p>
-    </div>
-  )
+import SchedulingItem from 'client/components/Tabs/Vm/SchedActions/Item'
+
+const SchedulingList = ({ vmStartTime, scheduling, actions }) => (
+  <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
+    {scheduling.map((schedule, idx) => (
+      <SchedulingItem
+        key={idx}
+        vmStartTime={vmStartTime}
+        schedule={schedule}
+        actions={actions}
+      />
+    ))}
+  </div>
+)
+
+SchedulingList.propTypes = {
+  vmStartTime: PropTypes.string,
+  scheduling: PropTypes.array,
+  actions: PropTypes.arrayOf(PropTypes.string)
 }
 
-VmSchedulingTab.displayName = 'VmSchedulingTab'
+SchedulingList.displayName = 'SchedulingList'
 
-export default VmSchedulingTab
+export default SchedulingList

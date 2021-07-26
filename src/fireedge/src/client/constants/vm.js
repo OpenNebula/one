@@ -494,6 +494,7 @@ export const VM_ACTIONS = {
 
   // SCHEDULING ACTION
   SCHED_ACTION_CREATE: 'sched_action_create',
+  SCHED_ACTION_UPDATE: 'sched_action_update',
   SCHED_ACTION_DELETE: 'sched_action_delete',
   CHARTER_CREATE: 'charter_create',
 

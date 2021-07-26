@@ -16,50 +16,63 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
+
+import { ClockOutline } from 'iconoir-react'
 import { Button } from '@material-ui/core'
 
 import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import { DialogConfirmation } from 'client/components/Dialogs'
-import NetworkList from 'client/components/Tabs/Vm/Network/List'
+import SchedulingList from 'client/components/Tabs/Vm/SchedActions/List'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const VmNetworkTab = ({ tabProps = {} }) => {
+const VmSchedulingTab = ({ tabProps = {} }) => {
   const { display, show, hide } = useDialog()
   const { data: vm } = React.useContext(TabContext)
   const { actions = [] } = tabProps
 
-  const nics = VirtualMachine.getNics(vm, {
-    groupAlias: true,
-    securityGroupsFromTemplate: true
-  })
+  const scheduling = VirtualMachine.getScheduleActions(vm)
 
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   return (
     <>
-      {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_NIC) && (
+      {actionsAvailable?.includes?.(VM_ACTIONS.SCHED_ACTION_CREATE) && (
         <Button
-          data-cy='attach-nic'
+          data-cy='sched-action-create'
           size='small'
           color='secondary'
           onClick={show}
           variant='contained'
         >
-          {Tr(T.AttachNic)}
+          {Tr(T.AddAction)}
         </Button>
       )}
+      {actionsAvailable?.includes?.(VM_ACTIONS.CHARTER_CREATE) && (
+        <SubmitButton
+          data-cy='charter-create'
+          color='secondary'
+          icon
+          label={<ClockOutline />}
+          onClick={show}
+        />
+      )}
 
-      <NetworkList actions={actionsAvailable} nics={nics} />
+      <SchedulingList
+        actions={actionsAvailable}
+        scheduling={scheduling}
+        vmStartTime={vm?.STIME}
+      />
 
       {display && (
         <DialogConfirmation
-          title={T.AttachNic}
+          title={T.AddAction}
           handleAccept={hide}
           handleCancel={hide}
         >
@@ -70,10 +83,10 @@ const VmNetworkTab = ({ tabProps = {} }) => {
   )
 }
 
-VmNetworkTab.propTypes = {
+VmSchedulingTab.propTypes = {
   tabProps: PropTypes.object
 }
 
-VmNetworkTab.displayName = 'VmNetworkTab'
+VmSchedulingTab.displayName = 'VmSchedulingTab'
 
-export default VmNetworkTab
+export default VmSchedulingTab

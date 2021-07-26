@@ -42,7 +42,7 @@ const VmStorageTab = ({ tabProps = {} }) => {
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_DISK) && (
         <Button
-          data-cy='resize'
+          data-cy='attach-disk'
           size='small'
           color='secondary'
           onClick={show}

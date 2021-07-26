@@ -21,6 +21,7 @@ module.exports = {
   SortBy: 'Sort by',
   Filter: 'Filter',
   All: 'All',
+  On: 'On',
 
   /* actions */
   Accept: 'Accept',
@@ -50,9 +51,31 @@ module.exports = {
   AttachNic: 'Attach nic',
   Detach: 'Detach',
   TakeSnapshot: 'Take snapshot',
+  AddAction: 'Add action',
 
   /* questions */
   DoYouWantProceed: 'Do you want proceed?',
+
+  /* Scheduling */
+  Mon: 'Mon',
+  Monday: 'Monday',
+  Tue: 'Tue',
+  Tuesday: 'Tuesday',
+  Wed: 'Wed',
+  Wednesday: 'Wednesday',
+  Thu: 'Thu',
+  Thursday: 'Thursday',
+  Fri: 'Fri',
+  Friday: 'Friday',
+  Sat: 'Sat',
+  Saturday: 'Saturday',
+  Sun: 'Sun',
+  Sunday: 'Sunday',
+  Weekly: 'Weekly',
+  Monthly: 'Monthly',
+  Yearly: 'Yearly',
+  EachHours: 'Each %s hours',
+  AfterTimes: 'After %s times',
 
   /* dashboard */
   InTotal: 'In Total',

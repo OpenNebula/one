@@ -46,13 +46,14 @@ export const vmService = ({
    * @param {string} data.filter - Filter flag
    * @param {number} data.start - Range start ID
    * @param {number} data.end - Range end ID
+   * @param {string|number} data.state - Filter state
    * @returns {Array} List of VMs
    * @throws Fails when response isn't code 200
    */
-  getVms: async ({ filter, start, end }) => {
+  getVms: async ({ filter, start, end, state }) => {
     const name = Actions.VM_POOL_INFO
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ filter, start, end }, command)
+    const config = requestConfig({ filter, start, end, state }, command)
 
     const res = await RestClient.request(config)
 

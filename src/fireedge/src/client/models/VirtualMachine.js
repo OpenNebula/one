@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { getSecurityGroupsFromResource, prettySecurityGroup } from 'client/models/SecurityGroup'
+import { timeToString } from 'client/models/Helper'
+import { Tr } from 'client/components/HOC'
 
 import {
   STATES,
@@ -21,14 +23,9 @@ import {
   VM_LCM_STATES,
   NIC_ALIAS_IP_ATTRS,
   HISTORY_ACTIONS,
+  T,
   StateInfo
 } from 'client/constants'
-
-/**
- * @param {string|number} action - Action code
- * @returns {HISTORY_ACTIONS} History action name
- */
-export const getHistoryAction = action => HISTORY_ACTIONS[+action]
 
 /**
  * This function removes, from the given list,
@@ -39,6 +36,12 @@ export const getHistoryAction = action => HISTORY_ACTIONS[+action]
  */
 export const filterDoneVms = (vms = []) =>
   vms.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE)
+
+/**
+ * @param {string|number} action - Action code
+ * @returns {HISTORY_ACTIONS} History action name
+ */
+export const getHistoryAction = action => HISTORY_ACTIONS[+action]
 
 /**
  * @param {object} vm - Virtual machine
@@ -195,5 +198,43 @@ export const splitNicAlias = vm =>
 export const getSnapshotList = vm => {
   const { TEMPLATE = {} } = vm ?? {}
 
-  return [TEMPLATE.SNAPSHOT].flat()
+  return [TEMPLATE.SNAPSHOT].filter(Boolean).flat()
+}
+
+/**
+ * @param {object} vm - Virtual machine
+ * @returns {Array} List of schedule actions from resource
+ */
+export const getScheduleActions = vm => {
+  const { TEMPLATE = {} } = vm ?? {}
+
+  return [TEMPLATE.SCHED_ACTION].filter(Boolean).flat()
+}
+
+/**
+ * Converts the periodicity of the action to string value.
+ *
+ * @param {object} scheduleAction - Schedule action
+ * @returns {{repeat: string|string[], end: string}} - Periodicity of the action.
+ */
+export const periodicityToString = scheduleAction => {
+  const { REPEAT, DAYS = '', END_TYPE, END_VALUE = '' } = scheduleAction ?? {}
+
+  const daysOfWeek = [T.Sun, T.Mon, T.Tue, T.Wed, T.Thu, T.Fri, T.Sat]
+  const days = DAYS?.split(',')?.map(day => Tr(daysOfWeek[day])) ?? []
+
+  const repeat = {
+    0: `${Tr(T.Weekly)} ${days.join(',')}`,
+    1: `${Tr(T.Monthly)} ${DAYS}`,
+    2: `${Tr(T.Yearly)} ${DAYS}`,
+    3: Tr([T.EachHours, DAYS])
+  }[+REPEAT]
+
+  const end = {
+    0: Tr(T.None),
+    1: Tr([T.AfterTimes, END_VALUE]),
+    2: `${Tr(T.On)} ${timeToString(END_VALUE)}`
+  }[+END_TYPE]
+
+  return { repeat, end }
 }
