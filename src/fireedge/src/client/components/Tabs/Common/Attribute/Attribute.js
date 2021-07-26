@@ -33,7 +33,10 @@ const useStyles = makeStyles({
   },
   select: {
     textOverflow: 'ellipsis'
-  }
+  },
+  nested: ({ numberOfParents }) => numberOfParents > 0 && ({
+    paddingLeft: `${numberOfParents}em`
+  })
 })
 
 const Attribute = React.memo(({
@@ -43,17 +46,20 @@ const Attribute = React.memo(({
   handleDelete,
   handleGetOptionList,
   name,
+  path = name,
   value,
   valueInOptionList
 }) => {
-  const classes = useStyles()
+  const numberOfParents = React.useMemo(() => path.split('.').length - 1, [path])
+  const classes = useStyles({ numberOfParents })
+
   const [isEditing, setIsEditing] = React.useState(() => false)
   const [options, setOptions] = React.useState(() => [])
   const { display, show, hide } = useDialog()
   const inputRef = React.createRef()
 
   const handleEditAttribute = async () => {
-    await handleEdit?.(inputRef.current.value)
+    await handleEdit?.(inputRef.current.value, path)
     setIsEditing(false)
   }
 
@@ -72,13 +78,13 @@ const Attribute = React.memo(({
   }
 
   const handleDeleteAttribute = async () => {
-    await handleDelete?.(name)
+    await handleDelete?.(path)
     hide()
   }
 
   return (
     <>
-      <Typography noWrap variant='body2' title={Tr(name)}>
+      <Typography noWrap variant='body2' title={Tr(name)} className={classes.nested}>
         {Tr(name)}
       </Typography>
       <div className={classes.wrapper}>
@@ -116,7 +122,7 @@ const Attribute = React.memo(({
 
         {display && (
           <DialogConfirmation
-            title={`Delete attribute: ${name}`}
+            title={`Delete attribute: ${path}`}
             handleAccept={handleDeleteAttribute}
             handleCancel={hide}
           >
@@ -139,6 +145,7 @@ export const AttributePropTypes = {
     PropTypes.string,
     PropTypes.object
   ]).isRequired,
+  path: PropTypes.string,
   valueInOptionList: PropTypes.string
 }
 

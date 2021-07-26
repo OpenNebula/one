@@ -84,6 +84,7 @@
     "dagre": "0.8.5",
     "dompurify": "2.2.6",
     "express": "4.17.1",
+    "fast-xml-parser": "3.19.0",
     "fs-extra": "9.0.1",
     "fuse.js": "6.4.1",
     "helmet": "4.1.1",

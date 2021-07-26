@@ -15,6 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { T } from 'client/constants'
 import { DateTime } from 'luxon'
+import { j2xParser as Parser } from 'fast-xml-parser'
+
+/**
+ * @param {object} json - JSON
+ * @returns {string} Xml in string format
+ */
+export const jsonToXml = json => {
+  const parser = new Parser()
+  return parser.parse(json)
+}
 
 /**
  * Converts the boolean value into a readable format.
@@ -48,10 +58,38 @@ export const timeToString = time =>
  * Converts the given time into DateTime luxon type.
  *
  * @param {number|string} time - Time to convert
- * @returns {DateTime} - Datetime object.
+ * @returns {DateTime} - DateTime object.
  */
 export const timeFromMilliseconds = time =>
   DateTime.fromMillis(+time * 1000)
+
+/**
+ * Get the diff from two times and it converts them
+ * into string with format: ``dd hh mm ss``.
+ *
+ * @param {number|string} start - Time to convert
+ * @param {number|string} end - Time to convert
+ * @returns {string} - Duration time with format.
+ */
+export const timeDiff = (start, end) => {
+  const startTime = timeFromMilliseconds(start)
+  const endTime = timeFromMilliseconds(end)
+
+  const diff = endTime.diff(startTime, ['days', 'hours', 'minutes', 'seconds'])
+
+  const { days, hours, minutes, seconds } = diff.toObject()
+
+  let total = ''
+  days > 0 && (total = total.concat(`${days}d `))
+  hours > 0 && (total = total.concat(`${hours}h`))
+  minutes > 0 && (total = total.concat(`${minutes}m`))
+
+  if (seconds > 0 || !total.length) {
+    total = total.concat(`${seconds}s`)
+  }
+
+  return total
+}
 
 /**
  * Converts the lock level to its string value.

@@ -26,10 +26,12 @@ import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
+import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
-const HIDDEN_ATTRIBUTES_REG = /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
+const HIDDEN_ATTRIBUTES_REG = /^(USER_INPUTS|BACKUP|HOT_RESIZE)$|SCHED_|ERROR/
+const HIDDEN_MONITORING_REG = /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
 const VmInfoTab = ({ tabProps = {} }) => {
   const {
@@ -61,12 +63,15 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && await handleRefetch?.()
   }
 
-  const handleCreateAttribute = async (newName, newValue) => {
-    const newAttribute = `${String(newName).toUpperCase()} = "${newValue}"`
+  const handleAttributeInXml = async (newValue, path) => {
+    const newTemplate = cloneObject({ USER_TEMPLATE })
 
-    // 1: Merge the new attribute to existing user template
-    const response = await updateUserTemplate(ID, newAttribute, 1)
-    console.log({ response })
+    set(newTemplate, `USER_TEMPLATE.${path}`, newValue)
+
+    const xml = Helper.jsonToXml(newTemplate)
+
+    // 0: Replace the whole user template
+    const response = await updateUserTemplate(ID, xml, 0)
 
     String(response) === String(ID) && await handleRefetch?.()
   }
@@ -74,7 +79,11 @@ const VmInfoTab = ({ tabProps = {} }) => {
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const getActions = actions => Helper.getActionsAvailable(actions, hypervisor)
 
-  const filteredAttributes = Helper.filterAttributes(USER_TEMPLATE, {
+  const {
+    attributes,
+    lxc: lxcAttributes,
+    vcenter: vcenterAttributes
+  } = Helper.filterAttributes(USER_TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
       lxc: LXC_ATTRIBUTES_REG
@@ -82,12 +91,14 @@ const VmInfoTab = ({ tabProps = {} }) => {
     hidden: HIDDEN_ATTRIBUTES_REG
   })
 
-  const { vcenter: vcenterAttributes, lxc: lxcAttributes, attributes } = filteredAttributes
+  const {
+    attributes: monitoringAttributes
+  } = Helper.filterAttributes(MONITORING, { hidden: HIDDEN_MONITORING_REG })
 
   const ATTRIBUTE_FUNCTION = {
-    handleAdd: handleCreateAttribute,
-    handleEdit: console.log,
-    handleDelete: console.log
+    handleAdd: handleAttributeInXml,
+    handleEdit: handleAttributeInXml,
+    handleDelete: path => handleAttributeInXml(undefined, path)
   }
 
   return (
@@ -132,30 +143,31 @@ const VmInfoTab = ({ tabProps = {} }) => {
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
-          attributes={attributes} />
+        />
       )}
       {vcenterPanel?.enabled && vcenterAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
           actions={getActions(vcenterPanel?.actions)}
+          attributes={vcenterAttributes}
           title={`vCenter ${Tr(T.Information)}`}
-          attributes={vcenterAttributes} />
+        />
       )}
       {lxcPanel?.enabled && lxcAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
           actions={getActions(lxcPanel?.actions)}
+          attributes={lxcAttributes}
           title={`LXC ${Tr(T.Information)}`}
-          attributes={lxcAttributes} />
+        />
       )}
-      {monitoringPanel?.enabled && (
+      {monitoringPanel?.enabled && monitoringAttributes && (
         <AttributePanel
-          {...ATTRIBUTE_FUNCTION}
-          actions={getActions(monitoringPanel?.actions)}
+          attributes={monitoringAttributes}
           title={Tr(T.Monitoring)}
-          attributes={MONITORING}
         />
       )}
     </div>

@@ -43,8 +43,8 @@ const AttributeCreateForm = React.memo(({ handleAdd }) => {
 
     await fakeDelay(2000)
     await handleAdd?.(
-      inputNameRef.current.value,
-      inputValueRef.current.value
+      inputValueRef.current.value,
+      inputNameRef.current.value
     )
 
     inputNameRef.current.disabled = false

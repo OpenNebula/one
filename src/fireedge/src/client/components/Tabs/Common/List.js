@@ -17,6 +17,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
+import clsx from 'clsx'
 import { makeStyles, List as MList, ListItem, Typography, Paper } from '@material-ui/core'
 
 import { Attribute, AttributePropTypes } from 'client/components/Tabs/Common/Attribute'
@@ -32,18 +33,59 @@ const useStyles = makeStyles(theme => ({
   item: {
     gap: '1em',
     '& > *': {
-      width: '50%'
+      flex: '1 1 50%',
+      overflow: 'hidden'
     }
   },
   typo: theme.typography.body2
 }))
 
-const List = ({ title, list = [], handleAdd, containerProps }) => {
+const AttributeList = ({
+  title,
+  list = [],
+  handleAdd,
+  containerProps = {},
+  itemProps = {},
+  listProps = {},
+  subListProps = {}
+}) => {
   const classes = useStyles()
+  const { className: itemClassName, ...restOfItemProps } = itemProps
+
+  const renderList = (attribute, parentPath = false) => {
+    const { name, value } = attribute
+    const isParent = typeof value === 'object' && !React.isValidElement(value)
+
+    return (
+      <>
+        <ListItem
+          key={`${title}.${parentPath || name}`}
+          className={clsx(classes.item, itemClassName)}
+          {...restOfItemProps}
+        >
+          <Attribute
+            path={parentPath || name}
+            {...attribute}
+            { ...(isParent && { canEdit: false, value: undefined })}
+          />
+        </ListItem>
+        {isParent && (
+          <MList {...subListProps}>
+            {Object.entries(value).map(([childName, childValue]) => {
+              const subAttributeProps = { ...attribute, name: childName, value: childValue }
+              const attributePath = `${parentPath || name}.${childName}`
+
+              return renderList(subAttributeProps, attributePath)
+            })}
+          </MList>
+        )}
+      </>
+    )
+  }
 
   return (
     <Paper variant='outlined' {...containerProps}>
-      <MList className={classes.list}>
+      <MList {...listProps}>
         {/* TITLE */}
         {title && (
           <ListItem className={classes.title}>
@@ -53,14 +95,7 @@ const List = ({ title, list = [], handleAdd, containerProps }) => {
           </ListItem>
         )}
         {/* LIST */}
-        {list.map((attribute, idx) => (
-          <ListItem
-            key={`${attribute.name}-${idx}`}
-            className={classes.item}
-          >
-            <Attribute {...attribute}/>
-          </ListItem>
-        ))}
+        {list.map(attr => renderList(attr))}
         {/* ADD ACTION */}
         {handleAdd && (
           <ListItem className={classes.item}>
@@ -72,15 +107,21 @@ const List = ({ title, list = [], handleAdd, containerProps }) => {
   )
 }
 
-List.propTypes = {
+AttributeList.propTypes = {
   containerProps: PropTypes.object,
-  handleAdd: PropTypes.func,
+  handleAdd: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.bool
+  ]),
+  itemProps: PropTypes.object,
   title: PropTypes.any,
   list: PropTypes.arrayOf(
     PropTypes.shape(AttributePropTypes)
-  )
+  ),
+  listProps: PropTypes.object,
+  subListProps: PropTypes.object
 }
 
-List.displayName = 'List'
+AttributeList.displayName = 'AttributeList'
 
-export default List
+export default AttributeList

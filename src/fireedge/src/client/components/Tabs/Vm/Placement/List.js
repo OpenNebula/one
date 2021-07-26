@@ -15,15 +15,23 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
-const VmPlacementTab = data => {
-  return (
-    <div>
-      <p>WIP - PLACEMENT</p>
-    </div>
-  )
+import HistoryItem from 'client/components/Tabs/Vm/Placement/Item'
+
+const HistoryList = ({ records, actions }) => (
+  <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
+    {records.map((history, idx) => (
+      <HistoryItem key={idx} history={history} actions={actions} />
+    ))}
+  </div>
+)
+
+HistoryList.propTypes = {
+  records: PropTypes.array,
+  actions: PropTypes.arrayOf(PropTypes.string)
 }
 
-VmPlacementTab.displayName = 'VmPlacementTab'
+HistoryList.displayName = 'HistoryList'
 
-export default VmPlacementTab
+export default HistoryList

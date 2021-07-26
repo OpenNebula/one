@@ -15,45 +15,23 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
-import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
+import PropTypes from 'prop-types'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import SnapshotItem from 'client/components/Tabs/Vm/Snapshot/Item'
 
-const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
+const SnapshotList = ({ snapshots, actions }) => (
+  <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
+    {snapshots.map((snapshot, idx) => (
+      <SnapshotItem key={idx} snapshot={snapshot} actions={actions} />
+    ))}
+  </div>
+)
 
-const VmConfigurationTab = data => {
-  const { data: { TEMPLATE, USER_TEMPLATE } = {} } = React.useContext(TabContext)
-
-  return (
-    <div>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'User Template'}
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code style={{ whiteSpace: 'break-spaces' }}>
-              {JSON.stringify(USER_TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'Template'}
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code>
-              {JSON.stringify(TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-    </div>
-  )
+SnapshotList.propTypes = {
+  snapshots: PropTypes.array,
+  actions: PropTypes.arrayOf(PropTypes.string)
 }
 
-VmConfigurationTab.displayName = 'VmConfigurationTab'
+SnapshotList.displayName = 'SnapshotList'
 
-export default VmConfigurationTab
+export default SnapshotList

@@ -13,8 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { STATES, VM_STATES, VM_LCM_STATES, NIC_ALIAS_IP_ATTRS, StateInfo } from 'client/constants'
 import { getSecurityGroupsFromResource, prettySecurityGroup } from 'client/models/SecurityGroup'
+
+import {
+  STATES,
+  VM_STATES,
+  VM_LCM_STATES,
+  NIC_ALIAS_IP_ATTRS,
+  HISTORY_ACTIONS,
+  StateInfo
+} from 'client/constants'
+
+/**
+ * @param {string|number} action - Action code
+ * @returns {HISTORY_ACTIONS} History action name
+ */
+export const getHistoryAction = action => HISTORY_ACTIONS[+action]
 
 /**
  * This function removes, from the given list,
@@ -28,12 +42,19 @@ export const filterDoneVms = (vms = []) =>
 
 /**
  * @param {object} vm - Virtual machine
+ * @returns {object} History records from resource
+ */
+export const getHistoryRecords = vm =>
+  [vm?.HISTORY_RECORDS?.HISTORY ?? {}].flat()
+
+/**
+ * @param {object} vm - Virtual machine
  * @returns {object} Last history record from resource
  */
 export const getLastHistory = vm => {
-  const history = vm?.HISTORY_RECORDS?.HISTORY ?? {}
+  const records = getHistoryRecords(vm)
 
-  return Array.isArray(history) ? history[history.length - 1] : history
+  return records[records.length - 1]
 }
 
 /**
@@ -166,3 +187,13 @@ export const splitNicAlias = vm =>
 
     return result
   }, { nics: [], alias: [] })
+
+/**
+ * @param {object} vm - Virtual machine
+ * @returns {Array} List of snapshots from resource
+ */
+export const getSnapshotList = vm => {
+  const { TEMPLATE = {} } = vm ?? {}
+
+  return [TEMPLATE.SNAPSHOT].flat()
+}

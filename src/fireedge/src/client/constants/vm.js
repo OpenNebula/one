@@ -503,6 +503,113 @@ export const VM_ACTIONS = {
 
 /**
  * @enum {(
+ * 'none' |
+ * 'migrate' |
+ * 'live-migrate' |
+ * 'shutdown' |
+ * 'shutdown-hard' |
+ * 'undeploy' |
+ * 'undeploy-hard' |
+ * 'hold' |
+ * 'release' |
+ * 'stop' |
+ * 'suspend' |
+ * 'resume' |
+ * 'boot' |
+ * 'delete' |
+ * 'delete-recreate' |
+ * 'reboot' |
+ * 'reboot-hard' |
+ * 'resched' |
+ * 'unresched' |
+ * 'poweroff' |
+ * 'poweroff-hard' |
+ * 'disk-attach' |
+ * 'disk-detach' |
+ * 'nic-attach' |
+ * 'nic-detach' |
+ * 'disk-snapshot-create' |
+ * 'disk-snapshot-delete' |
+ * 'terminate' |
+ * 'terminate-hard' |
+ * 'disk-resize' |
+ * 'deploy' |
+ * 'chown' |
+ * 'chmod' |
+ * 'updateconf' |
+ * 'rename' |
+ * 'resize' |
+ * 'update' |
+ * 'snapshot-resize' |
+ * 'snapshot-delete' |
+ * 'snapshot-revert' |
+ * 'disk-saveas' |
+ * 'disk-snapshot-revert' |
+ * 'recover' |
+ * 'retry' |
+ * 'monitor' |
+ * 'disk-snapshot-rename' |
+ * 'alias-attach' |
+ * 'alias-detach' |
+ * 'poweroff-migrate' |
+ * 'poweroff-hard-migrate'
+ * )} History actions
+ */
+export const HISTORY_ACTIONS = [
+  'none',
+  'migrate',
+  'live-migrate',
+  'shutdown',
+  'shutdown-hard',
+  'undeploy',
+  'undeploy-hard',
+  'hold',
+  'release',
+  'stop',
+  'suspend',
+  'resume',
+  'boot',
+  'delete',
+  'delete-recreate',
+  'reboot',
+  'reboot-hard',
+  'resched',
+  'unresched',
+  'poweroff',
+  'poweroff-hard',
+  'disk-attach',
+  'disk-detach',
+  'nic-attach',
+  'nic-detach',
+  'disk-snapshot-create',
+  'disk-snapshot-delete',
+  'terminate',
+  'terminate-hard',
+  'disk-resize',
+  'deploy',
+  'chown',
+  'chmod',
+  'updateconf',
+  'rename',
+  'resize',
+  'update',
+  'snapshot-resize',
+  'snapshot-delete',
+  'snapshot-revert',
+  'disk-saveas',
+  'disk-snapshot-revert',
+  'recover',
+  'retry',
+  'monitor',
+  'disk-snapshot-rename',
+  'alias-attach',
+  'alias-detach',
+  'poweroff-migrate',
+  'poweroff-hard-migrate'
+]
+
+/**
+ * @enum {(
  * 'IP'|
  * 'IP6'|
  * 'IP6_GLOBAL'|

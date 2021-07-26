@@ -15,15 +15,32 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
-const VmSnapshotTab = data => {
+import { TabContext } from 'client/components/Tabs/TabProvider'
+import HistoryList from 'client/components/Tabs/Vm/Placement/List'
+
+import * as VirtualMachine from 'client/models/VirtualMachine'
+import * as Helper from 'client/models/Helper'
+
+const VmPlacementTab = ({ tabProps = {} }) => {
+  const { data: vm } = React.useContext(TabContext)
+  const { actions = [] } = tabProps
+
+  const records = VirtualMachine.getHistoryRecords(vm)
+
+  const hypervisor = VirtualMachine.getHypervisor(vm)
+  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+
   return (
-    <div>
-      <p>WIP - SNAPSHOT</p>
-    </div>
+    <HistoryList actions={actionsAvailable} records={records} />
   )
 }
 
-VmSnapshotTab.displayName = 'VmSnapshotTab'
+VmPlacementTab.propTypes = {
+  tabProps: PropTypes.object
+}
 
-export default VmSnapshotTab
+VmPlacementTab.displayName = 'VmPlacementTab'
+
+export default VmPlacementTab

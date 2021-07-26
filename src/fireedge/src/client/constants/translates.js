@@ -49,6 +49,7 @@ module.exports = {
   AttachDisk: 'Attach disk',
   AttachNic: 'Attach nic',
   Detach: 'Detach',
+  TakeSnapshot: 'Take snapshot',
 
   /* questions */
   DoYouWantProceed: 'Do you want proceed?',

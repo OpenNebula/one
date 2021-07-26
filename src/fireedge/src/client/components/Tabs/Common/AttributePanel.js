@@ -34,27 +34,46 @@ import PropTypes from 'prop-types'
 import { List } from 'client/components/Tabs/Common'
 import { ACTIONS } from 'client/constants'
 
-const AttributePanel = React.memo((
-  { title, attributes, handleEdit, handleDelete, handleAdd, actions }
-) => {
+// This attributes has special restrictions
+const SPECIAL_ATTRIBUTES = {
+  VCENTER_CCR_REF: { edit: false, delete: false },
+  VCENTER_HOST: { edit: false, delete: false },
+  VCENTER_INSTANCE_ID: { edit: false, delete: false },
+  VCENTER_PASSWORD: { edit: true, delete: false },
+  VCENTER_USER: { edit: false, delete: false },
+  VCENTER_VERSION: { edit: false, delete: false }
+}
+
+const AttributePanel = React.memo(({
+  title,
+  attributes = {},
+  handleEdit,
+  handleDelete,
+  handleAdd,
+  actions
+}) => {
   const formatAttributes = Object.entries(attributes)
-    .filter(([_, value]) => typeof value === 'string')
     .map(([name, value]) => ({
       name,
       value,
-      canEdit: actions?.includes?.(ACTIONS.EDIT_ATTRIBUTE),
-      canDelete: actions?.includes?.(ACTIONS.DELETE_ATTRIBUTE),
+      canEdit:
+        actions?.includes?.(ACTIONS.EDIT_ATTRIBUTE) &&
+        SPECIAL_ATTRIBUTES[name]?.edit !== false,
+      canDelete:
+        actions?.includes?.(ACTIONS.DELETE_ATTRIBUTE) &&
+        SPECIAL_ATTRIBUTES[name]?.delete !== false,
       handleEdit,
       handleDelete
     }))
 
   return (
     <List
+      containerProps={{ style: { gridColumn: '1 / -1' } }}
+      subListProps={{ disablePadding: true }}
+      itemProps={{ dense: true }}
       title={title}
       list={formatAttributes}
-      {...(actions?.includes?.(ACTIONS.ADD_ATTRIBUTE) && {
-        handleAdd
-      })}
+      handleAdd={actions?.includes?.(ACTIONS.ADD_ATTRIBUTE) && handleAdd}
     />
   )
 })
