@@ -219,7 +219,7 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes& att)
+int RequestManagerChown::check_name_unique(int oid, int nuid, RequestAttributes& att)
 {
     string          name;
     int             obj_oid;
@@ -236,11 +236,11 @@ int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes&
         return -1;
     }
 
-    obj_oid = pool->exist(name, noid);
+    obj_oid = pool->exist(name, nuid);
 
     if ( obj_oid != -1 )
     {
-        oss << object_name(PoolObjectSQL::USER) << " ["<<noid<<"] already owns "
+        oss << object_name(PoolObjectSQL::USER) << " ["<<nuid<<"] already owns "
             << object_name(auth_object) << " ["<<obj_oid<<"] with NAME " << name;
 
         att.resp_msg = oss.str();
@@ -259,7 +259,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
                                           RequestAttributes& att)
 {
     int oid  = xmlrpc_c::value_int(paramList.getInt(1));
-    int noid = xmlrpc_c::value_int(paramList.getInt(2));
+    int nuid = xmlrpc_c::value_int(paramList.getInt(2));
     int ngid = xmlrpc_c::value_int(paramList.getInt(3));
 
     int rc;
@@ -278,9 +278,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Check new user and group id's ---------------------
 
-    if ( noid > -1  )
+    if ( nuid > -1  )
     {
-        rc = get_info(upool,noid,PoolObjectSQL::USER,att,nuperms,nuname,true);
+        rc = get_info(upool,nuid,PoolObjectSQL::USER,att,nuperms,nuname,true);
 
         if ( rc == -1 )
         {
@@ -309,9 +309,20 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    // Ingore chown to the same user or the same group
+    if (nuid == operms.uid)
+    {
+        nuid = -1;
+    }
+
+    if (ngid == operms.gid)
+    {
+        ngid = -1;
+    }
+
     ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
 
-    if ( noid > -1  )
+    if ( nuid > -1  )
     {
         ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
     }
@@ -331,9 +342,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // --------------- Check name uniqueness -----------------------------------
 
-    if ( noid != -1 )
+    if ( nuid != -1 )
     {
-        if ( check_name_unique(oid, noid, att) != 0 )
+        if ( check_name_unique(oid, nuid, att) != 0 )
         {
             return;
         }
@@ -345,7 +356,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
          auth_object == PoolObjectSQL::IMAGE ||
          auth_object == PoolObjectSQL::NET)
     {
-        object = get_and_quota(oid, noid, ngid, att);
+        object = get_and_quota(oid, nuid, ngid, att);
     }
     else
     {
@@ -367,9 +378,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( noid != -1 )
+    if ( nuid != -1 )
     {
-        object->set_user(noid, nuname);
+        object->set_user(nuid, nuname);
     }
 
     if ( ngid != -1 )
@@ -408,7 +419,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     for (auto vm_id : vms)
     {
-        auto vm = get_and_quota(vm_id, noid, ngid, att, vm_pool, PoolObjectSQL::VM);
+        auto vm = get_and_quota(vm_id, nuid, ngid, att, vm_pool, PoolObjectSQL::VM);
 
         if ( vm == nullptr )
         {
@@ -417,9 +428,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
             continue;
         }
 
-        if ( noid != -1 )
+        if ( nuid != -1 )
         {
-            vm->set_user(noid, nuname);
+            vm->set_user(nuid, nuname);
         }
 
         if ( ngid != -1 )
