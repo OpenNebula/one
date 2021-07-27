@@ -22,14 +22,14 @@ resource "digitalocean_firewall" "device_<%= obj['ID'] %>" {
     inbound_rule {
         protocol         = "tcp"
         port_range       = "179"
-        source_addresses = ["10.10.10.0/24"]
+        source_addresses = [digitalocean_vpc.device_<%= c['ID'] %>.ip_range]
     }
 
     # VXLAN traffic from VPC droplets. IP range MUST be consistent with cluster.erb
     inbound_rule {
         protocol         = "udp"
         port_range       = "8472"
-        source_addresses = ["10.10.10.0/24"]
+        source_addresses = [digitalocean_vpc.device_<%= c['ID'] %>.ip_range]
     }
 
     # Client Ports for VMs. Port range MUST be consistent with VNET definition
