@@ -420,20 +420,34 @@ func (t *Template) AddPairToVec(vecKey, key string, value interface{}) error {
 
 // Del remove an element from Template objects
 func (t *Template) Del(key string) {
-	for i := 0; i < len(t.Elements); i++ {
+
+	size := len(t.Elements)
+	for i := 0; i < size; {
+
 		if t.Elements[i].Key() != key {
+			i++
 			continue
 		}
+
 		t.Elements = append(t.Elements[:i], t.Elements[i+1:]...)
+		size--
+
 	}
 }
 
 // Del remove a pair from Template
 func (t *Vector) Del(key string) {
-	for i := 0; i < len(t.Pairs); i++ {
-		if t.Pairs[i].XMLName.Local != key {
+
+	size := len(t.Pairs)
+	for i := 0; i < size; {
+
+		if t.Pairs[i].Key() != key {
+			i++
 			continue
 		}
+
 		t.Pairs = append(t.Pairs[:i], t.Pairs[i+1:]...)
+		size--
+
 	}
 }
