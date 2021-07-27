@@ -18,14 +18,10 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles, Paper, Typography, Button } from '@material-ui/core'
 
-import { useDialog } from 'client/hooks'
-import { TabContext } from 'client/components/Tabs/TabProvider'
-import { DialogConfirmation } from 'client/components/Dialogs'
 import { Tr } from 'client/components/HOC'
 
-import { prettyBytes } from 'client/utils'
 import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { prettyBytes } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
@@ -63,16 +59,11 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
+const InformationPanel = ({ actions, vm = {}, handleOpenResizeDialog }) => {
   const classes = useStyles()
-  const { display, show, hide } = useDialog()
-
-  const { data: vm = {} } = React.useContext(TabContext)
   const { TEMPLATE } = vm
 
   const isVCenter = VirtualMachine.isVCenter(vm)
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
   const capacity = [
     {
@@ -109,12 +100,12 @@ const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
   return (
     <Paper variant='outlined' className={classes.root}>
       <div className={classes.actions}>
-        {actionsAvailable?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
+        {actions?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
           <Button
             data-cy='resize'
             size='small'
             color='secondary'
-            onClick={show}
+            onClick={handleOpenResizeDialog}
             variant='contained'
           >
             {Tr(T.Resize)}
@@ -131,24 +122,16 @@ const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
           </Typography>
         </div>
       ))}
-
-      {display && (
-        <DialogConfirmation
-          title={T.ResizeCapacity}
-          handleAccept={hide}
-          handleCancel={hide}
-        >
-          <p>TODO: should define in view yaml ??</p>
-        </DialogConfirmation>
-      )}
     </Paper>
   )
 }
 
-VmCapacityTab.propTypes = {
-  tabProps: PropTypes.object
+InformationPanel.propTypes = {
+  handleOpenResizeDialog: PropTypes.function,
+  actions: PropTypes.array,
+  vm: PropTypes.object
 }
 
-VmCapacityTab.displayName = 'VmCapacityTab'
+InformationPanel.displayName = 'InformationPanel'
 
-export default VmCapacityTab
+export default InformationPanel

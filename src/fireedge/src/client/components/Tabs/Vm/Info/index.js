@@ -45,7 +45,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
   } = tabProps
 
   const { changeOwnership, changePermissions, rename, updateUserTemplate } = useVmApi()
-  const { handleRefetch, data: vm } = React.useContext(TabContext)
+  const { handleRefetch, data: vm = {} } = React.useContext(TabContext)
   const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
 
   const handleChangeOwnership = async newOwnership => {

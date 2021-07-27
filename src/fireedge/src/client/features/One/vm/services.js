@@ -121,6 +121,29 @@ export const vmService = ({
   },
 
   /**
+   * Changes the capacity of the virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.template - Template containing the new capacity
+   * @param {boolean} params.enforce
+   * - `true` to enforce the Host capacity isn't over committed.
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  resize: async ({ id, template, enforce }) => {
+    const name = Actions.VM_RESIZE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, template, enforce }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Replaces the user template contents.
    *
    * @param {object} params - Request parameters

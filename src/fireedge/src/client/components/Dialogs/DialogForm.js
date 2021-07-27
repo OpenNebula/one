@@ -92,7 +92,7 @@ const DialogForm = memo(
   }
 )
 
-DialogForm.propTypes = {
+export const DialogFormPropTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   values: PropTypes.oneOfType([
@@ -108,6 +108,8 @@ DialogForm.propTypes = {
     PropTypes.node
   ])
 }
+
+DialogForm.propTypes = DialogFormPropTypes
 
 DialogForm.defaultProps = {
   open: true,

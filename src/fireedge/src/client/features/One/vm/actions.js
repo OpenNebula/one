@@ -42,6 +42,7 @@ export const terminateVm = createAction(
 
 export const updateUserTemplate = createAction('vm/update', vmService.updateUserTemplate)
 export const rename = createAction('vm/rename', vmService.rename)
+export const resize = createAction('vm/resize', vmService.resize)
 export const changePermissions = createAction('vm/chmod', vmService.changePermissions)
 export const changeOwnership = createAction('vm/chown', vmService.changeOwnership)
 export const detachNic = createAction('vm/detach/nic', vmService.detachNic)

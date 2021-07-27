@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import DialogForm from 'client/components/Dialogs/DialogForm'
+import DialogForm, { DialogFormPropTypes } from 'client/components/Dialogs/DialogForm'
 import DialogRequest from 'client/components/Dialogs/DialogRequest'
 import DialogConfirmation from 'client/components/Dialogs/DialogConfirmation'
 
 export {
   DialogForm,
+  DialogFormPropTypes,
   DialogRequest,
   DialogConfirmation
 }
