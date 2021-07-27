@@ -38,7 +38,7 @@ define(function(require) {
   var XML_ROOT = "DOCUMENT";
   var TAB_NAME = require("./tabId");
   var LABELS_COLUMN = 7;
-  var SEARCH_COLUMN = 8;
+  var SEARCH_COLUMN = 9;
   var TEMPLATE_ATTR = "TEMPLATE";
 
   /*
