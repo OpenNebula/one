@@ -21,13 +21,16 @@ const requiredSchema = (mandatory, name, schema) =>
     ? schema.required(`${name} field is required`)
     : schema.notRequired().nullable()
 
-const getRange = (options) =>
-  options.split('..').map(option => parseFloat(option))
+const getRange = options => options?.split('..').map(option => parseFloat(option))
 
 const getValuesFromArray = (options, separator = ';') => options?.split(separator)
 
-const getOptionsFromList = (options, separator = ',') =>
-  options?.split(separator).map(value => ({ text: value, value }))
+const getOptionsFromList = options => options
+  ?.map(option => typeof option === 'string'
+    ? ({ text: option, value: option })
+    : option
+  )
+  ?.filter(({ text, value } = {}) => text && value)
 
 /**
  * @typedef {(

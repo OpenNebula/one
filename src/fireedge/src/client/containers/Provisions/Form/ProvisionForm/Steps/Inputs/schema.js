@@ -27,7 +27,7 @@ export const FORM_FIELDS = inputs =>
     max_value: max,
     options
   }) => {
-    const optionsValue = options?.join(',') ?? `${min}..${max}`
+    const optionsValue = options ?? `${min}..${max}`
 
     return {
       name,
