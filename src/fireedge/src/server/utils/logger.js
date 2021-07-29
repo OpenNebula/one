@@ -27,28 +27,39 @@ let logger = null
  */
 const initLogger = () => {
   if (global && global.paths && global.paths.FIREEDGE_LOG) {
-    logger = winston.createLogger({
-      transports: [
+    const transports = []
+
+    if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
+      transports.push(
+        new winston.transports.Console({
+          format: winston.format.simple()
+        }))
+    } else {
+      transports.push(
         new winston.transports.File({
+          silent: true,
           level: 'info',
           filename: global.paths.FIREEDGE_LOG,
           handleExceptions: true,
-          json: true,
+          json: false,
           maxsize: 5242880, // 5MB
-          maxFiles: 5,
           colorize: false
         })
-      ],
+      )
+    }
+
+    logger = winston.createLogger({
+      transports,
       exitOnError: false
     })
 
     logger.stream = {
-      write: function (message, encoding) {
-        logger.info(message)
+      write: (message = '') => {
+        writeInLogger(message)
       }
     }
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-      logger.add(new winston.transports.Console({
+      logger.clear().add(new winston.transports.Console({
         format: winston.format.simple()
       }))
     }
@@ -69,7 +80,7 @@ const getLogger = () => logger
  */
 const getLoggerMiddleware = () => {
   const logger = getLogger()
-  if (logger) {
+  if (logger && logger.stream) {
     return morgan('combined', { stream: logger.stream })
   }
 }

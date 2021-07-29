@@ -14,22 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
-
+import { createAction, createAsyncThunk } from '@reduxjs/toolkit'
+import { FILTER_POOL, JWT_NAME, ONEADMIN_ID, T } from 'client/constants'
 import { authService } from 'client/features/Auth/services'
-import { userService } from 'client/features/One/user/services'
-import { getGroups } from 'client/features/One/group/actions'
 import { dismissSnackbar } from 'client/features/General/actions'
-
+import { getGroups } from 'client/features/One/group/actions'
+import { userService } from 'client/features/One/user/services'
+import { removeStoreData, storage } from 'client/utils'
 import { httpCodes } from 'server/utils/constants'
-import { T, JWT_NAME, ONEADMIN_ID, FILTER_POOL } from 'client/constants'
-import { storage, removeStoreData } from 'client/utils'
 
 export const login = createAsyncThunk(
   'auth/login',
   async ({ remember, ...user }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await authService.login(user)
+      const response = await authService.login({ ...user, remember })
       const { id, token } = response
       const isOneAdmin = id === ONEADMIN_ID
 

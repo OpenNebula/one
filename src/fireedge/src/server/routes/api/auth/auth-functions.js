@@ -21,7 +21,7 @@ const {
   setPass,
   setType,
   setTfaToken,
-  setExtended,
+  setRemember,
   setNext,
   setRes,
   setNodeConnect,
@@ -41,6 +41,8 @@ const { GET } = httpMethod
 const {
   getDefaultParamsOfOpennebulaCommand
 } = require('server/utils/opennebula')
+
+const { writeInLogger } = require('server/utils/logger')
 
 /**
  * Login user.
@@ -68,7 +70,7 @@ const loginUser = (err = '', value = '', success = defaultEmptyFunction, error =
  * @param {Function} oneConnection - function of xmlrpc
  */
 const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
-  const { user, token, type, token2fa, extended } = params
+  const { user, token, type, token2fa, remember } = params
   setRes(res)
   setNext(next)
   setNodeConnect(oneConnection)
@@ -86,7 +88,7 @@ const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
       setPass(token || '')
       setType(type || '')
       setTfaToken(token2fa || '')
-      setExtended(extended || '')
+      setRemember(remember || false)
       login(oneValue)
     }
 
@@ -95,6 +97,7 @@ const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
      */
     const error = () => {
       updaterResponse(new Map(unauthorized).toObject())
+      writeInLogger(unauthorized)
       next()
     }
 

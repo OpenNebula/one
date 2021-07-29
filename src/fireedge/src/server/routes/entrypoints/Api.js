@@ -198,7 +198,7 @@ router.all(
             if (!err) {
               fillResourceforHookConnection(user, command, paramsCommand)
             }
-            writeInLogger(`command: ${command} response for worker: ${JSON.stringify(value)}`)
+            writeInLogger(`worker: ${command} : ${JSON.stringify(value)}`)
             responseOpennebula(updaterResponse, err, value, response, next)
           }
           worker.postMessage(

@@ -88,8 +88,10 @@ const userValidation = (user = '', token = '') => {
     global &&
     global.users &&
     global.users[user] &&
-    global.users[user].token &&
-    global.users[user].token === token) {
+    global.users[user].tokens &&
+    Array.isArray(global.users[user].tokens) &&
+    global.users[user].tokens.some(x => x && x.token === token)
+  ) {
     rtn = true
   }
   return rtn
@@ -141,7 +143,7 @@ const validateResourceAndSession = (req, res, next) => {
             global.users = {}
           }
           if (!global.users[userOpennebula]) {
-            global.users[userOpennebula] = { token: passOpennebula }
+            global.users[userOpennebula] = { tokens: [{ token: passOpennebula, time: session.exp }] }
           }
           if (userValidation(userOpennebula, passOpennebula)) {
             next()

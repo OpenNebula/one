@@ -39,9 +39,9 @@ const routes = {
           from: fromData.postBody,
           name: 'token2fa'
         },
-        extended: {
+        remember: {
           from: fromData.postBody,
-          name: 'extended'
+          name: 'remember'
         }
       }
     }

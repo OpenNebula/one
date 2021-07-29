@@ -16,14 +16,14 @@
 
 const atob = require('atob')
 const { socket: socketZeroMQ } = require('zeromq')
-const xml2js = require('xml2js')
 const { messageTerminal } = require('server/utils/general')
 const {
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,
   getResourceDataForRequest,
   getDataZone,
-  getQueryData
+  getQueryData,
+  xml2json
 } = require('server/utils/server')
 
 /**
@@ -55,15 +55,8 @@ const main = (app = {}, type = '') => {
               mssgs.push(arg.toString())
             })
             if (mssgs[0] && mssgs[1]) {
-              xml2js.parseString(
+              xml2json(
                 atob(mssgs[1]),
-                {
-                  explicitArray: false,
-                  trim: true,
-                  normalize: true,
-                  includeWhiteChars: true,
-                  strict: false
-                },
                 (error, result) => {
                   if (error) {
                     const configErrorParser = {

@@ -17,6 +17,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
+const TerserPlugin = require('terser-webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
 const { defaultProductionWebpackMode } = require('./src/server/utils/constants/defaults')
 
@@ -60,6 +61,11 @@ module.exports = {
       maxChunks: 1
     })
   ],
+  optimization: {
+    minimizer: [
+      new TerserPlugin({ extractComments: false })
+    ]
+  },
   module: {
     rules: [js, worker]
   }

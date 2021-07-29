@@ -42,7 +42,9 @@ const defaults = {
    */
   defaultEmptyFunction: () => undefined,
   defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
-  defaultOpennebulaExpiration: 180,
+  defaultSessionExpiration: 180,
+  defaultSessionLimitExpiration: 30,
+  defaultRememberSessionExpiration: 43200,
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
@@ -93,6 +95,16 @@ const defaults = {
       zeromq: `tcp://${defaultIp}:2101`
     }
   ],
+  defaultConfigParseXML: {
+    attributeNamePrefix: '',
+    attrNodeName: '',
+    ignoreAttributes: false,
+    ignoreNameSpace: true,
+    allowBooleanAttributes: false,
+    parseNodeValue: false,
+    parseAttributeValue: true,
+    trimValues: true
+  },
   defaultCommandProvision: 'oneprovision',
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
@@ -119,7 +131,7 @@ const defaults = {
   defaultBaseURL: '',
   endpointVmrc: `${baseUrl}vmrc`,
   endpointGuacamole: `${baseUrl}guacamole`,
-  defaultNamespace: 'one.',
+  defaultNamespace: 'one',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,
   default2FAOpennebulaVar,

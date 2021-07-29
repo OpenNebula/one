@@ -153,17 +153,12 @@ guacamole(appServer)
  * Handle sigterm and sigint.
  */
 const handleBreak = () => {
-  if (appServer && appServer.close && typeof appServer.close === 'function') {
-    appServer.close(() => {
-      // this close sockets
-      sockets.forEach((socket) => {
-        if (socket && socket.close && typeof socket.close === 'function') {
-          socket.close()
-        }
-      })
-      process.exit(0)
-    })
-  }
+  sockets.forEach((socket) => {
+    if (socket && socket.close && typeof socket.close === 'function') {
+      socket.close()
+    }
+  })
+  process.exit(0)
 }
 defaultEvents.forEach((nameEvent = '') => {
   if (nameEvent) {

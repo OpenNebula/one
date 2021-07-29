@@ -14,17 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useMemo, useState } from 'react'
-
-import { Paper, Box, Container, LinearProgress, useMediaQuery } from '@material-ui/core'
-
-import { useFetch } from 'client/hooks'
-import { useAuth, useAuthApi } from 'client/features/Auth'
-
+import { Box, Container, LinearProgress, Paper, useMediaQuery } from '@material-ui/core'
 import { OpenNebulaLogo } from 'client/components/Icons'
 import Form from 'client/containers/Login/Form'
 import * as FORMS from 'client/containers/Login/schema'
 import loginStyles from 'client/containers/Login/styles'
+import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useFetch } from 'client/hooks'
+import React, { useMemo, useState } from 'react'
 
 const STEPS = {
   USER_FORM: 0,

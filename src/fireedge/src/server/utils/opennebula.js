@@ -18,7 +18,7 @@ const upcast = require('upcast')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
-const xml2js = require('xml2js')
+const parser = require('fast-xml-parser')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const { global } = require('window-or-global')
@@ -27,6 +27,7 @@ const commandsParams = require('./constants/commands')
 const {
   from,
   defaultEmptyFunction,
+  defaultConfigParseXML,
   defaultNamespace,
   defaultMessageProblemOpennebula
 } = require('./constants/defaults')
@@ -35,6 +36,25 @@ const { getConfig } = require('./yml')
 
 // regex for separate the commands .info
 const regexInfoAction = /^(\w+).info$/
+
+/**
+ * Parse xml to JSON.
+ *
+ * @param {string} xml - xml data in  string
+ * @param {Function} callback - callback data
+ */
+const xml2json = (xml = '', callback = defaultEmptyFunction) => {
+  let rtn = []
+  try {
+    const jsonObj = parser.parse(xml, defaultConfigParseXML)
+    rtn = [null, jsonObj]
+  } catch (error) {
+    rtn = [error]
+  }
+
+  // eslint-disable-next-line standard/no-callback-literal
+  callback(...rtn)
+}
 
 /**
  * Authorizes if the user has access to the resource, for their connection to the HOOK.
@@ -87,56 +107,44 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
           const namespace = appConfig.namespace || defaultNamespace
           const xmlParameters = [`${username}:${password}`, ...parameters]
           xmlClient.methodCall(
-            namespace + action,
+            `${namespace}.${action}`,
             xmlParameters,
             (err, value) => {
-              const configParseXML = {
-                explicitArray: false,
-                trim: true,
-                normalize: true,
-                includeWhiteChars: true,
-                strict: false
-              }
-
               if (err && err.body) {
-                xml2js.parseString(
-                  err.body,
-                  configParseXML,
-                  (error, result) => {
-                    if (error) {
-                      callback(error, undefined) // error parse xml
-                      return
-                    }
-                    if (
-                      result &&
-                      result.METHODRESPONSE &&
-                      result.METHODRESPONSE.PARAMS &&
-                      result.METHODRESPONSE.PARAMS.PARAM &&
-                      result.METHODRESPONSE.PARAMS.PARAM.VALUE &&
-                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY &&
-                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA &&
+                xml2json(err.body, (error, result) => {
+                  if (error) {
+                    callback(error, undefined) // error parse xml
+                    return
+                  }
+                  if (
+                    result &&
+                    result.METHODRESPONSE &&
+                    result.METHODRESPONSE.PARAMS &&
+                    result.METHODRESPONSE.PARAMS.PARAM &&
+                    result.METHODRESPONSE.PARAMS.PARAM.VALUE &&
+                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY &&
+                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA &&
+                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
+                      .VALUE &&
+                    Array.isArray(
                       result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
-                        .VALUE &&
-                      Array.isArray(
-                        result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
-                          .VALUE
-                      )
+                        .VALUE
+                    )
+                  ) {
+                    const errorData = result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA.VALUE.filter(
+                      element => element.STRING
+                    )
+                    if (
+                      Array.isArray(errorData) &&
+                      errorData[0] &&
+                      errorData[0].STRING
                     ) {
-                      const errorData = result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA.VALUE.filter(
-                        element => element.STRING
-                      )
-                      if (
-                        Array.isArray(errorData) &&
-                        errorData[0] &&
-                        errorData[0].STRING
-                      ) {
-                        // success
-                        fillHookResource && fillResourceforHookConnection(username, action, parameters)
-                        callback(undefined, errorData[0].STRING)
-                      }
+                      // success
+                      fillHookResource && fillResourceforHookConnection(username, action, parameters)
+                      callback(undefined, errorData[0].STRING)
                     }
                   }
-                )
+                })
                 return
               } else if (value && value[0] && value[1]) {
                 let messageCall
@@ -146,22 +154,18 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                   messageCall = value
                 }
                 if (typeof messageCall === 'string' && messageCall.length > 0) {
-                  xml2js.parseString(
-                    messageCall,
-                    configParseXML,
-                    (error, result) => {
-                      if (error) {
-                        callback(error, undefined) // error parse xml
-                        return
-                      }
-                      // success
-                      fillHookResource && fillResourceforHookConnection(username, action, parameters)
-                      callback(
-                        undefined,
-                        error === null && result === null ? messageCall : result
-                      )
+                  xml2json(messageCall, (error, result) => {
+                    if (error) {
+                      callback(error, undefined) // error parse xml
+                      return
                     }
-                  )
+                    // success
+                    fillHookResource && fillResourceforHookConnection(username, action, parameters)
+                    callback(
+                      undefined,
+                      error === null && result === null ? messageCall : result
+                    )
+                  })
                   return
                 }
               }
@@ -449,5 +453,6 @@ module.exports = {
   checkOpennebulaCommand,
   getDefaultParamsOfOpennebulaCommand,
   generateNewResourceTemplate,
-  fillResourceforHookConnection
+  fillResourceforHookConnection,
+  xml2json
 }

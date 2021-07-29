@@ -58,7 +58,7 @@ const validateAuth = (req = {}) => {
   let rtn = false
   if (req && req.headers && req.headers.authorization) {
     const authorization = req.headers.authorization
-    const removeBearer = new RegExp('^Bearer ', 'i')
+    const removeBearer = /^Bearer /i
     const token = authorization.replace(removeBearer, '')
     const fireedgeKey = global && global.paths && global.paths.FIREEDGE_KEY
     if (token && fireedgeKey) {

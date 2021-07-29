@@ -22,10 +22,12 @@ const { Actions: ActionUsers } = require('server/utils/constants/commands/user')
 const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
 const {
   httpMethod,
-  defaultOpennebulaExpiration,
+  defaultSessionExpiration,
   default2FAOpennebulaVar,
   defaultNamespace,
-  defaultEmptyFunction
+  defaultEmptyFunction,
+  defaultSessionLimitExpiration,
+  defaultRememberSessionExpiration
 } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const {
@@ -53,15 +55,17 @@ let iv = ''
 let pass = ''
 let type = ''
 let tfatoken = ''
-let extended = ''
+let remember = false
 let next = defaultEmptyFunction
 let req = {}
 let res = {}
 let nodeConnect = defaultEmptyFunction
 let now = ''
 let nowUnix = ''
-let nowWithMinutes = ''
+let expireTime = ''
 let relativeTime = ''
+let limitToken = defaultSessionExpiration
+let limitExpirationReuseToken = defaultSessionLimitExpiration
 
 /**
  * Get key opennebula.
@@ -165,14 +169,15 @@ const setTfaToken = newTfaToken => {
 }
 
 /**
- * Set extended.
+ * Set remember.
  *
- * @param {boolean} newExtended - new extended
- * @returns {boolean} extended
+ * @param {boolean} remember - new remember
+ * @param newRemember
+ * @returns {boolean} remember
  */
-const setExtended = newExtended => {
-  extended = newExtended
-  return extended
+const setRemember = newRemember => {
+  remember = newRemember
+  return remember
 }
 
 /**
@@ -223,11 +228,12 @@ const setRes = (newRes = {}) => {
  * Set dates.
  */
 const setDates = () => {
-  const limitToken = appConfig.opennebula_expiration || defaultOpennebulaExpiration
+  limitToken = remember ? (appConfig.session__remember_expiration || defaultRememberSessionExpiration) : (appConfig.session_expiration || defaultSessionExpiration)
+  limitExpirationReuseToken = parseInt(appConfig.session_reuse_token_time, 10) || defaultSessionLimitExpiration
   now = DateTime.local()
   nowUnix = now.toSeconds()
-  nowWithMinutes = now.plus({ minutes: limitToken })
-  const diff = nowWithMinutes.diff(now, 'seconds')
+  expireTime = now.plus({ minutes: limitToken })
+  const diff = expireTime.diff(now, 'seconds')
   relativeTime = diff.seconds
 }
 
@@ -305,21 +311,49 @@ const validate2faAuthentication = informationUser => {
  * @param {object} informationUser - user data
  */
 const genJWT = (token, informationUser) => {
-  if (token && token.token && informationUser && informationUser.ID && informationUser.NAME) {
+  if (token && token.token && token.time && informationUser && informationUser.ID && informationUser.NAME) {
     const { ID: id, TEMPLATE: userTemplate, NAME: user } = informationUser
     const dataJWT = { id, user, token: token.token }
-    const addTime = token.expiration_time || nowWithMinutes.toSeconds()
-    const jwt = createJWT(dataJWT, nowUnix, addTime)
+    const expire = token.time || expireTime.toSeconds()
+    const jwt = createJWT(dataJWT, nowUnix, expire)
     if (jwt) {
-      if (!global.users) {
-        global.users = {}
-      }
-      global.users[user] = { token: token.token }
       const rtn = { token: jwt, id }
       if (userTemplate && userTemplate.SUNSTONE && userTemplate.SUNSTONE.LANG) {
         rtn.language = userTemplate.SUNSTONE.LANG
       }
       updaterResponse(httpResponse(ok, rtn))
+    }
+  }
+}
+
+/**
+ * Get created user tokens.
+ *
+ * @param {string} username - username
+ * @returns {object} - user token
+ */
+const getCreatedTokenOpennebula = (username = '') => {
+  if (global && global.users && username && global.users[username] && global.users[username].tokens) {
+    var acc = { token: '', time: 0 }
+    global.users[username].tokens.forEach((curr = {}, index = 0) => {
+      const currentTime = parseInt(curr.time, 10)
+
+      // this delete expired tokens of global.users[username]
+      if (currentTime < nowUnix) {
+        delete global.users[username].tokens[index]
+      }
+
+      // this select a valid token
+      if (
+        DateTime.fromSeconds(currentTime).minus({ minutes: limitExpirationReuseToken }) >= now &&
+        currentTime >= acc.time
+      ) {
+        acc = { token: curr.token, time: curr.time }
+      }
+    })
+
+    if (acc.token && acc.time) {
+      return acc
     }
   }
 }
@@ -381,11 +415,15 @@ const createTokenServerAdmin = (serverAdmin = '', username = '') => {
   const key = getKey()
   const iv = getIV()
   if (serverAdmin && username && key && iv) {
-    rtn = encrypt(
-      `${serverAdmin}:${username}:${parseInt(nowWithMinutes.toSeconds())}`,
-      key,
-      iv
-    )
+    const expire = parseInt(expireTime.toSeconds(), 10)
+    rtn = {
+      token: encrypt(
+        `${serverAdmin}:${username}:${expire}`,
+        key,
+        iv
+      ),
+      time: expire
+    }
   }
   return rtn
 }
@@ -420,18 +458,38 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
     setKey(serverAdminPassword.substring(0, 32))
     setIV(serverAdminPassword.substring(0, 16))
 
-    const tokenWithServerAdmin = createTokenServerAdmin(serverAdminName, userName)
+    const JWTusername = `${serverAdminName}:${userName}`
+
+    let tokenWithServerAdmin
+    let setGlobalNewToken = false
+    const validToken = getCreatedTokenOpennebula(JWTusername)
+    if (validToken) {
+      tokenWithServerAdmin = validToken
+    } else {
+      setGlobalNewToken = true
+      tokenWithServerAdmin = createTokenServerAdmin(serverAdminName, userName)
+    }
+
     if (tokenWithServerAdmin) {
       genJWT(
+        tokenWithServerAdmin,
         {
-          token: tokenWithServerAdmin
-        },
-        {
-          NAME: `${serverAdminName}:${userName}`,
+          NAME: JWTusername,
           ID: userData.ID,
           TEMPLATE: userData.TEMPLATE
         }
       )
+
+      // set global state
+      if (setGlobalNewToken) {
+        if (!global.users) {
+          global.users = {}
+        }
+        if (!global.users[JWTusername]) {
+          global.users[JWTusername] = { tokens: [] }
+        }
+        global.users[JWTusername].tokens.push({ token: tokenWithServerAdmin.token, time: parseInt(expireTime.toSeconds(), 10) })
+      }
       next()
     }
   } else {
@@ -455,20 +513,22 @@ const getServerAdminAndWrapUser = (userData = {}) => {
     setKey(serverAdminData.key)
     setIV(serverAdminData.iv)
     const tokenWithServerAdmin = createTokenServerAdmin(serverAdminData.username, serverAdminData.username)
-    const oneConnect = connectOpennebula(`${serverAdminData.username}:${serverAdminData.username}`, tokenWithServerAdmin)
-    oneConnect(
-      ActionUsers.USER_INFO,
-      getDefaultParamsOfOpennebulaCommand(ActionUsers.USER_INFO, GET),
-      (err, value) => {
-        responseOpennebula(
-          updaterResponse,
-          err,
-          value,
-          (serverAdminData = {}) => wrapUserWithServerAdmin(serverAdminData, userData),
-          next)
-      },
-      false
-    )
+    if (tokenWithServerAdmin.token) {
+      const oneConnect = connectOpennebula(`${serverAdminData.username}:${serverAdminData.username}`, tokenWithServerAdmin.token)
+      oneConnect(
+        ActionUsers.USER_INFO,
+        getDefaultParamsOfOpennebulaCommand(ActionUsers.USER_INFO, GET),
+        (err, value) => {
+          responseOpennebula(
+            updaterResponse,
+            err,
+            value,
+            (serverAdminData = {}) => wrapUserWithServerAdmin(serverAdminData, userData),
+            next)
+        },
+        false
+      )
+    }
   }
 }
 
@@ -480,7 +540,7 @@ const getServerAdminAndWrapUser = (userData = {}) => {
 const login = userData => {
   let rtn = false
   if (userData) {
-    const findTextError = `[${namespace}${ActionUsers.USER_INFO}]`
+    const findTextError = `[${namespace}.${ActionUsers.USER_INFO}]`
     if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
       updaterResponse(httpResponse(unauthorized))
     } else {
@@ -508,7 +568,7 @@ const functionRoutes = {
   setUser,
   setPass,
   setTfaToken,
-  setExtended,
+  setRemember,
   setNext,
   setReq,
   setRes,

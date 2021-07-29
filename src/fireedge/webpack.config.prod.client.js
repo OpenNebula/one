@@ -16,6 +16,7 @@
 
 const path = require('path')
 const webpack = require('webpack')
+const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
@@ -74,6 +75,11 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
       }
     },
     plugins,
+    optimization: {
+      minimizer: [
+        new TerserPlugin({ extractComments: false })
+      ]
+    },
     module: {
       rules: [js]
     }
