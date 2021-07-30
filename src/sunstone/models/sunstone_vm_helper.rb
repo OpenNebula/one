@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# Sunstone VMHelper module
 module SunstoneVMHelper
 
     class << self

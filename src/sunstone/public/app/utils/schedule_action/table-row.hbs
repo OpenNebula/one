@@ -14,37 +14,32 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<style>
-	.title_label{
-		font-weight: bold;
-		color:#555;
-	}
-</style>
-
-<table id="sched_{{res}}_actions_table" class="info_table dataTable">
-  <thead>
-      <tr>
-        <th> {{tr "ID"}}</th>
-        <th> {{tr "Action"}} </th>
-        <th> {{tr "Time"}} </th>
-        <th> {{tr "Rep"}} </th>
-        <th> {{tr "Ends"}} </th>
-        <th> {{tr "Done" }} </th>
-        {{#if isVM}} <th> {{tr "Message" }} </th> {{/if}}
-        <th colspan=""> </th>
-        {{#if canAdd}}
-        <th>
-          <button id="add_sched_{{res}}_action" class="button small success right radius"> {{tr "Add action"}} </button>
-        </th>
-        {{/if}}
-        {{#if leases}}
-        <th>
-          <button id="leases_btn" class="small button leases right radius" type="button"><i class="fa fa-clock"></i></button>
-        </th>
-        {{/if}}
-      </tr>
-  </thead>
-	<tbody id="sched_{{res}}_actions_body" class="sched_place">
-    {{#if body}} {{{body}}} {{/if}}
-  </tbody>
-</table>
+<tr class='tr_action_{{id}}' data='{{action}}'>
+    <td class='id_row'>{{id}}</td>
+    <td nowrap class='action_row'>{{name}}</td>
+    <td nowrap class='time_row'>{{time}}</td>
+    <td nowrap class='rep_row'>{{rep_str}}</td>
+    <td nowrap class='end_row'>{{end_str}}</td>
+    <td nowrap class='done_row'>{{done_str}}</td>
+    <td class='message_row'>{{message_str}}</td>
+    {{#if canEditOrDelete}}
+    <td colspan='3' style='text-align: right;'>
+        <div style='display: flex;justify-content: flex-end;'>
+            {{#if canDelete}}
+            <div>
+                <button id='minus' class='small button btn-danger remove_action_x' data_id='{{id}}'>
+                    <i class='fas fa-trash-alt'></i>
+                </button>
+            </div>
+            {{/if}}
+            {{#if canEdit}}
+            <div>
+                <button id='edit' class='small button btn-warning edit_action_x' data_id='{{id}}'>
+                    <i class='fas fa-edit'></i>
+                </button>
+            </div>
+            {{/if}}
+        </div>
+    </td>
+    {{/if}}
+</tr>

@@ -62,7 +62,15 @@ define(function(require) {
     }
   };
 
-  var week_days_str = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var week_days_str = [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+  ];
 
   /*
     CONSTRUCTOR

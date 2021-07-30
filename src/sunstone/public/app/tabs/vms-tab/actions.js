@@ -116,6 +116,9 @@ define(function(require) {
     "VM.disk_snapshot_rename": _commonActions.singleAction('disk_snapshot_rename'),
     "VM.disk_snapshot_delete": _commonActions.singleAction('disk_snapshot_delete'),
     "VM.disk_saveas" : _commonActions.singleAction('disk_saveas'),
+    "VM.sched_action_add" : _commonActions.singleAction('sched_action_add'),
+    "VM.sched_action_delete" : _commonActions.singleAction('sched_action_delete'),
+    "VM.sched_action_update" : _commonActions.singleAction('sched_action_update'),
 
     "VM.create_dialog" : {
       type: "custom",

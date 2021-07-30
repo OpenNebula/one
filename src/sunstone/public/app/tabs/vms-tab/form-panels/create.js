@@ -23,7 +23,6 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
   var TemplatesTable = require("tabs/templates-tab/datatable");
-  var Leases = require("utils/leases");
   var OpenNebulaAction = require("opennebula/action");
 
   /*
@@ -114,7 +113,6 @@ define(function(require) {
           }
         }
         leasesThat.__proto__ = FormPanel.prototype;
-        Leases.actions(leasesThat);
       }
     });
     Tips.setup(context);

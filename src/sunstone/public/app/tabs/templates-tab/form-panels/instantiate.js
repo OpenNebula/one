@@ -26,7 +26,6 @@ define(function(require) {
   var DisksResize = require("utils/disks-resize");
   var GroupTable = require("tabs/groups-tab/datatable");
   var HostsTable = require("tabs/hosts-tab/datatable");
-  var Leases = require("utils/leases");
   var Locale = require("utils/locale");
   var NicsSection = require("utils/nics-section");
   var Notifier = require("utils/notifier");
@@ -56,8 +55,6 @@ define(function(require) {
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
   var RESOURCE = "inst";
-  var CREATE = true;
-  var contextRow;
 
   var distinct = function(value, index, self){
     return self.indexOf(value)===index;
@@ -106,15 +103,10 @@ define(function(require) {
   }
 
   function _setup(context) {
-    if(!CREATE){
-      CREATE = true;
-    }
-    var actions = ScheduleActions.defaultActions;
     var that = this;
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
     objLeases.__proto__ = FormPanel.prototype;
-    Leases.actions(objLeases);
 
     if(Config.isFeatureEnabled("instantiate_persistent")){
       $("input.instantiate_pers", context).on("change", function(){
@@ -141,73 +133,9 @@ define(function(require) {
       $("#vm_n_times", context).show();
     }
 
-    function renderCreateForm() {
-      if(CREATE){
-        ScheduleActions.htmlNewAction(actions, context, RESOURCE);
-        ScheduleActions.setup(context);
-        CREATE=false;
-      }
-    }
-
-    context.off("click", "#add_scheduling_inst_action");
-    context.on("click", "#add_scheduling_inst_action", function(e){
-      e.preventDefault();
-      renderCreateForm();
-      $("#edit_"+RESOURCE+"_action_json").hide();
-      $("#add_"+RESOURCE+"_action_json").show();
-    });
-
-    context.off("click", "#add_inst_action_json");
-    context.on("click", "#add_inst_action_json", function(){
-      var sched_action = ScheduleActions.retrieveNewAction(context);
-      if (sched_action != false) {
-        $("#no_actions_tr", context).remove();
-        $("#sched_inst_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
-      }
-      $("#input_sched_action_form").remove();
-      clear();
-      return false;
-    });
-
     context.on("focusout" , "#time_input", function(){
       $("#time_input").removeAttr("data-invalid");
       $("#time_input").removeAttr("class");
-    });
-
-    context.off("click" , "#edit_inst_action_json")
-    context.on("click" , "#edit_inst_action_json", function(e){
-      e.preventDefault();
-      var id = $(this).attr("data_id");
-      if(id && id.length && contextRow){
-        $(".wickedpicker").hide();
-        var sched_action = ScheduleActions.retrieveNewAction(context);
-        if (sched_action != false) {
-          sched_action.ID = id;
-          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
-          contextRow = undefined;
-          $("#input_sched_action_form").remove();
-        }
-        clear();
-      }
-      return false;
-    });
-
-    context.off("click", ".remove_action_x");
-    context.on("click", ".remove_action_x", function(){
-      $(this).parents("tr").remove();
-    });
-
-    context.off("click", ".edit_action_x");
-    context.on("click", ".edit_action_x", function(e){
-      e.preventDefault();
-      var id = $(this).attr("data_id");
-      if(id && id.length){
-        contextRow = $(this).closest("tr.tr_action");
-        renderCreateForm();
-        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
-        $("#add_"+RESOURCE+"_action_json").hide();
-        ScheduleActions.fill($(this),context);
-      }
     });
 
     //----------------------------------------------------------------------------
@@ -537,30 +465,42 @@ define(function(require) {
           that.groupTable = new GroupTable("GroupTable" + UniqueId.id(), options_unique);
 
           templatesContext.append(
-            TemplateRowHTML(
-              { element: template_json.VMTEMPLATE,
+            TemplateRowHTML({
+                element: template_json.VMTEMPLATE,
                 capacityInputsHTML: CapacityInputs.html(),
                 hostsDatatable: that.hostsTable.dataTableHTML,
                 dsDatatable: that.datastoresTable.dataTableHTML,
                 usersDatatable: that.usersTable.dataTableHTML,
                 groupDatatable: that.groupTable.dataTableHTML,
-                table_sched_actions: ScheduleActions.htmlTable(RESOURCE, Leases.html())
+                table_sched_actions: ScheduleActions.htmlTable(
+                  resource = RESOURCE,
+                  leases = true,
+                  body = ScheduleActions.getScheduleActionTableContent(
+                    template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION
+                  ),
+                  isVM = true,
+                  canAdd = true
+                )
               }
             )
           );
+
+          ScheduleActions.setupButtons(
+            RESOURCE,
+            context,
+            that,
+            template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION
+          );
+
           var objLeases = $.extend(true, {}, that);
           objLeases.formContext = templatesContext;
           objLeases.resource = "template";
           objLeases.__proto__ = FormPanel.prototype;
-          Leases.actions(objLeases);
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
           $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable", that.datastoresTable);
           $(".provision_uid_selector" + template_json.VMTEMPLATE.ID, context).data("usersTable", that.usersTable);
           $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
-
-          var actions = ScheduleActions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
-          $("#sched_inst_actions_body").prepend(actions);
 
           var selectOptions = {
             "selectOptions": {
@@ -757,12 +697,7 @@ define(function(require) {
       var form = context.find("#sched_inst_actions_body");
       form.find("tr.create,tr#schedule_base,tr#input_sched_action_form,tr#relative_time_form,tr#no_relative_time_form").remove();
     }
-    clear();
     return false;
-  }
-
-  function clear(){
-    CREATE = true;
   }
 
   function generateRequirements(hosts_table, ds_table, context, id) {

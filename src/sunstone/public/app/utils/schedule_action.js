@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
@@ -16,17 +15,59 @@
 /* -------------------------------------------------------------------------- */
 
 define(function (require) {
+  /*
+    IMPORTS
+  */
   var Config = require("sunstone-config");
   var Humanize = require("utils/humanize");
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
   var TemplateUtils = require("utils/template-utils");
   var Tips = require("utils/tips");
+  var Sunstone = require("sunstone");
+  var OpenNebulaVM = require('opennebula/vm');
 
+  /*
+    TEMPLATES
+  */
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
+  var TemplateTableRowHTML = require("hbs!./schedule_action/table-row");
 
+  /*
+    GLOBAL VARIABLES
+  */
+  var currentSchedID = 0;
+  var scheduleActionsArray = [];
+
+  /*
+    CONSTANTS
+  */
+  var CONFIRM_DIALOG_LEASES = require("utils/dialogs/leases/dialogId");
   var defaultHour = "12:30";
+
+  var defaultActions = [
+    "terminate",
+    "terminate-hard",
+    "hold",
+    "release",
+    "stop",
+    "suspend",
+    "resume",
+    "reboot",
+    "reboot-hard",
+    "poweroff",
+    "poweroff-hard",
+    "undeploy",
+    "undeploy-hard",
+    "snapshot-create",
+    "snapshot-delete",
+    "snapshot-revert",
+    "disk-snapshot-create",
+    "disk-snapshot-delete",
+    "disk-snapshot-revert"
+  ];
+
   var actionsWithARGS = [
     'snapshot-create',
     'snapshot-revert',
@@ -36,12 +77,48 @@ define(function (require) {
     'disk-snapshot-delete'
   ];
 
-  function _html(resource, leases = null, header = true) {
+  var clearEmptySpaces = function(e){
+    var value = e.val().replace(/\s/g, "");
+    e.val(value);
+  };
+
+  var options_date_picker={
+    dateFormat: "yy-mm-dd",
+    minDate: new Date(),
+    showOptions: { direction: "down" }
+  };
+  
+  var options_hour_picker = {
+    title: Locale.tr("Hour"),
+    twentyFour: "true",
+    timeSeparator: ":",
+    beforeShow: clearEmptySpaces,
+    now: defaultHour
+  };
+
+  /*
+    FUNCTIONS
+  */
+
+  /**
+   * This functions returns the HTML string for the Schedule Action Table.
+   * 
+   * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
+   * @param {boolean} leases - Can add leases?
+   * @param {boolean} header - Should generate the table header? 
+   * @param {string} body - Body HTML string.
+   * @param {boolean} isVM - is it the VM view?
+   * @param {boolean} canAdd - Can add schedule actions?
+   * @returns - HTML string with the schedule action table.
+   */
+  function _html(resource, leases = true, body = null, isVM = false, canAdd=true) {
     this.res = resource;
     return TemplateTableHTML({
-      header: header,
       res: resource,
-      leases: leases
+      leases: leases,
+      body: body,
+      isVM: isVM,
+      canAdd: canAdd
     });
   }
 
@@ -74,24 +151,6 @@ define(function (require) {
     }
     return date.join('-');
   }
-
-  var clearEmpySpaces = function(e){
-    var value = e.val().replace(/\s/g, "");
-    e.val(value);
-  };
-
-  var options_date_picker={
-    dateFormat: "yy-mm-dd",
-    minDate: new Date(),
-    showOptions: { direction: "down" }
-  };
-  var options_hour_picker = {
-    title: Locale.tr("Hour"),
-    twentyFour: "true",
-    timeSeparator: ":",
-    beforeShow: clearEmpySpaces,
-    now: defaultHour
-  };
 
   function addPickers(schedule,context){
     if(schedule && context){
@@ -145,7 +204,7 @@ define(function (require) {
       }
     });
 
-    var schedule = $("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
+    var schedule = $("#sched_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
       "actions": options,
       "res": this.res
     }));
@@ -253,7 +312,7 @@ define(function (require) {
 					<span class=\"tip\">"+ Locale.tr("Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month") + " </span></div>";
           break;
         case "year":
-          input_html = "<div style=\"display: -webkit-box;\"><input style=\"margin-right: 4px;\" id=\"days_year_value\" type=\"text\" placeholder=\"0,365\"/>\
+          input_html = "<div style=\"display: -webkit-box;\"><input style=\"margin-right: 4px;\" id=\"days_year_value\" type=\"text\" placeholder=\"1,365\"/>\
 					<span class=\"tip\">"+ Locale.tr("Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year") + " </span></div>";
           break;
         case "hour":
@@ -300,9 +359,7 @@ define(function (require) {
         $("#time_input").removeAttr("data-invalid");
         $("#time_input").removeAttr("class");
       });
-    } catch (error) {
-
-    }
+    } catch (error) {}
   }
 
   function _fill(element, context){
@@ -462,7 +519,7 @@ define(function (require) {
                 $("#end_type_ever").prop("checked",true).click();
               break;
               case "1":
-                $("#end_type_n_rep[value=n_rep]").click();
+                $("#end_type_date[value=n_rep]").click();
                 if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
                   $("#end_value_n_rep").val(dataJSON.END_VALUE);
                 }
@@ -520,11 +577,11 @@ define(function (require) {
     $("#time_input").val(defaultHour);
   }
 
-  function _retrieve(context) {
-    $("#scheduling_" + this.res + "_actions_table .create", context).remove();
+  function _retrieve(context, isService=false) {
+    $("#sched_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
 
-    $("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
+    $("#sched_" + this.res + "_actions_table tbody tr").each(function (index) {
       var first = $(this).children("td")[0];
       if (!$("select", first).html()) { //table header
         var actionJSON = {};
@@ -533,7 +590,14 @@ define(function (require) {
           actionJSON.ID = String(index);
         }
       }
-      if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
+      if (!$.isEmptyObject(actionJSON)) { 
+        var sched_action = isService ? 
+          { SCHED_ACTION: actionJSON}
+        :
+          actionJSON;
+        
+        actionsJSON.push(sched_action);
+      };
     });
     return actionsJSON;
   }
@@ -662,11 +726,11 @@ define(function (require) {
       var rawData = [disk_id_val,snap_id_val,snap_name_val];
       sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
     }
-    $("#scheduling_" + this.res + "_actions_table .create", context).remove();
-    $("#scheduling_" + this.res + "_actions_table #relative_time_form", context).remove();
-    $("#scheduling_" + this.res + "_actions_table #no_relative_time_form", context).remove();
+    $("#sched_" + this.res + "_actions_table .create", context).remove();
+    $("#sched_" + this.res + "_actions_table #relative_time_form", context).remove();
+    $("#sched_" + this.res + "_actions_table #no_relative_time_form", context).remove();
     $("#no_relative_time_form", context).addClass("hide");
-    $("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
+    $("#add_sched_" + this.res + "_action", context).removeAttr("disabled");
     return sched_action;
   }
 
@@ -697,7 +761,8 @@ define(function (require) {
     return rtn;
   }
 
-  function _fromJSONtoActionsTable(actions_array, action_id, minus) {
+  function _fromJSONtoActionsTable(actions_array, canEdit=true, canDelete=true) {
+    currentSchedID = 0;
     var str = "";
 
     if (!actions_array) {
@@ -714,8 +779,8 @@ define(function (require) {
       return "";
     }
 
-    $.each(actions_array, function (index, scheduling_action) {
-      str += _fromJSONtoActionRow(scheduling_action, action_id, minus);
+    $.each(actions_array, function (_, schedule_action) {
+      str += _fromJSONtoActionRow(schedule_action, canEdit, canDelete);
     });
 
     return str;
@@ -757,101 +822,559 @@ define(function (require) {
       }
     }
   }
+ 
+  /**
+   * This functions creates the HTML for the schedule actions rows.
+   * 
+   * @param {object} schedule_action - Schedule action object.
+   * @param {boolean} canEdit - Is edit allowed?
+   * @param {bool ean} canDelete - Is delete allowed?
+   * @returns {string} - Row HTML for the given schedule action.
+   */
+  function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true) {
+    var sched_obj = {};
+    var time_str = Humanize.prettyTime(schedule_action.TIME);
 
-  function _fromJSONtoActionRow(scheduling_action, action_id, minus) {
-    var time_str = Humanize.prettyTime(scheduling_action.TIME);
-    var rep_str = "";
-    var end_str = "";
-
-    if (scheduling_action.REPEAT !== undefined) {
-      if (scheduling_action.REPEAT == 0) {
-        rep_str = "Weekly ";
-      } else if (scheduling_action.REPEAT == 1) {
-        rep_str = "Monthly ";
-      } else if (scheduling_action.REPEAT == 2) {
-        rep_str = "Yearly ";
-      } else if (scheduling_action.REPEAT == 3) {
-        rep_str = "Each " + scheduling_action.DAYS + " hours";
-      }
-
-      if (scheduling_action.REPEAT != 3) {
-        if (scheduling_action.REPEAT != 0) {
-          rep_str += scheduling_action.DAYS;
-        } else {
-          rep_str += Humanize.week_days(scheduling_action.DAYS);
-        }
-      }
+    switch (schedule_action.REPEAT) {
+      case "0":
+        sched_obj.rep_str = Locale.tr("Weekly") +
+          " " +
+          Humanize.week_days(schedule_action.DAYS);
+        break;
+      case "1":
+        sched_obj.rep_str = Locale.tr("Monthly") +
+          " " +
+          schedule_action.DAYS;
+        break;
+      case "2":
+        sched_obj.rep_str = Locale.tr("Yearly") +
+          " " +
+          Humanize.week_days(schedule_action.DAYS);
+        break;
+      case "3":
+        sched_obj.rep_str = Locale.tr("Each") +
+          " " +
+          schedule_action.DAYS +
+          " " +
+          Locale.tr("hours");
+        break;
+      default:
+        break;
     }
 
-    if (scheduling_action.END_TYPE !== undefined) {
-      if (scheduling_action.END_TYPE == 0) {
-        end_str = "None";
-      } else if (scheduling_action.END_TYPE == 1) {
-        end_str = "After " + scheduling_action.END_VALUE + " times";
-      } else if (scheduling_action.END_TYPE == 2) {
-        end_str = "on " + Humanize.prettyTime(scheduling_action.END_VALUE);
-      }
+    switch (schedule_action.END_TYPE) {
+      case "0":
+        sched_obj.end_str = Locale.tr("None");
+        break;
+      case "1":
+        sched_obj.end_str = Locale.tr("After") + 
+          " " +
+          schedule_action.END_VALUE +
+          " " +
+          Locale.tr("times");
+        break;
+      case "2":
+        sched_obj.end_str = Locale.tr("On") + 
+          " " +
+          Humanize.prettyTime(schedule_action.END_VALUE);
+        break;
+      default:
+        break;
     }
 
-    var str = "";
-    if (action_id === undefined) {
-      str += "<tr class='tr_action' data='" + JSON.stringify(scheduling_action) + "'>";
+    if (schedule_action.ID){
+      sched_obj.id = schedule_action.ID;
+    } else{
+      sched_obj.id = currentSchedID.toString();
     }
+    currentSchedID++;
 
-    var time = String(scheduling_action.TIME);
-    time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
+    var time = String(schedule_action.TIME);
+    sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
+    sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
+    sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
 
-    str += "<td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
-        <td nowrap class='time_row'>" + time + "</td>\
-        <td nowrap class='rep_row'>" + rep_str + "</td>\
-        <td nowrap class='end_row'>" + end_str + "</td>";
-    if (minus === undefined) {
-      var action_id = scheduling_action.ID || '';
-      var update_sched = '';
-      if(action_id){
-        update_sched = "<button id='edit' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
-      }
-      str += "<td colspan='3' style='text-align: right;'>\
-              <div style='display: flex;justify-content: flex-end;'>\
-                <div>\
-                  <button id='minus' class='small button btn-danger remove_action_x'><i class='fas fa-trash-alt'></i></button>\
-                </div>\
-                <div>\
-                  "+update_sched+"\
-                </div>\
-              </div>\
-            </td>\
-            </tr>";
-    }
-
-    return str;
+    sched_obj.action = JSON.stringify(schedule_action);
+    sched_obj.name = schedule_action.ACTION;
+    
+    sched_obj.canEdit = canEdit && sched_obj.id;
+    sched_obj.canDelete = canDelete && sched_obj.id;
+    sched_obj.canEditOrDelete = (canEdit || canDelete) && sched_obj.id; 
+    
+    return TemplateTableRowHTML(sched_obj);
   }
 
+  /**
+   * This function gets the function 
+   * 
+   * @param {object} data - Schedule action information.
+   * @returns {string} - Schedule action string.
+   */
   function parseToRequestString(data) {
     return data ? TemplateUtils.templateToString({ SCHED_ACTION: data }) : "";
   }
 
-  var defaultActions = [
-    "terminate",
-    "terminate-hard",
-    "hold",
-    "release",
-    "stop",
-    "suspend",
-    "resume",
-    "reboot",
-    "reboot-hard",
-    "poweroff",
-    "poweroff-hard",
-    "undeploy",
-    "undeploy-hard",
-    "snapshot-create",
-    "snapshot-delete",
-    "snapshot-revert",
-    "disk-snapshot-create",
-    "disk-snapshot-delete",
-    "disk-snapshot-revert"
-  ];
+  /**
+   * This function send the schedule action to each role.
+   * 
+   * @param {Array} roles - Service Roles.
+   * @param {string} action - Action name.
+   * @param {object} sched_obj -  Schedule action object.
+   * @param {{
+   * sched_id: string,
+   * callback: Function
+   * }} extraParams - Extra parameters with functions to execute after
+   * runAction and schedule action id.
+   */
+  function sendSchedActionToServiceRoles(roles, action, sched_obj, extraParams={}) {
+    var {sched_id, callback} = extraParams;
+    roles.forEach(function(role){
+      var nodes = Array.isArray(role.nodes)? role.nodes : [role.nodes];
+      nodes.forEach(function(node) {
+        if (node && node.vm_info && node.vm_info.VM && node.vm_info.VM.ID){
+          switch (action) {
+            case "VM.sched_action_add":
+            case "VM.sched_action_update":
+              Sunstone.runAction(action, node.vm_info.VM.ID , sched_obj, callback);
+              break
+            case "VM.sched_action_delete":
+              Sunstone.runAction(action, node.vm_info.VM.ID, sched_id, callback);
+              break;
+            default:
+              break;
+          }
+        }
+      })
+    });
+  }
+
+  /**
+   * This function updates the Service datatable with the services information
+   * of the first service vm. 
+   * 
+   * @param {object} that - Service object.
+   * @param {string} selector - JQuery selector text.
+   * @param {Function} htmlFunction - Function to execute to get the HTML.
+   */
+  function _updateServiceHTMLTable(that, selector, htmlFunction){
+    if (that.data &&
+      that.data[0] &&
+      that.data[0].nodes &&
+      that.data[0].nodes[0] &&
+      that.data[0].nodes[0].deploy_id >= 0){
+        OpenNebulaVM.show({
+          data : {
+              id: that.data[0].nodes[0].deploy_id
+          },
+          success: function(_, vmTemplate){
+            $(selector).html(
+              htmlFunction(vmTemplate.VM.TEMPLATE.SCHED_ACTION)
+            );
+          },
+          error: function(error){
+            Notifier.onError("VM: " +error);
+          }
+        });
+    }
+  }
+
+  /**
+   * This function setup the buttons in the Actions view.
+   * 
+   * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
+   * @param {object} context - Context object.
+   * @param {object} that - Object.
+   */
+  function _setupButtons(resource, context, that){
+    scheduleActionsArray = [];
+    var CREATE = true;
+
+    function clear(){
+      CREATE = true;
+    }
+
+    function renderCreateForm(){
+      if(CREATE){
+        _htmlNewAction(defaultActions, context, resource);
+        _setup(context);
+        CREATE = false;
+      }
+      return false;
+    };
+
+    // Show options to add a new Schedule Action
+    context.off("click", "#add_sched_"+resource+"_action");
+    context.on("click" , "#add_sched_"+resource+"_action", function(e){
+      e.preventDefault();
+      renderCreateForm();
+      $("#edit_"+resource+"_action_json").hide();
+      $("#add_"+resource+"_action_json").show();
+    });
+
+    // Add new Schedule action
+    context.off("click", "#add_"+resource+"_action_json");
+    context.on("click" , "#add_"+resource+"_action_json", function(e) {
+      e.preventDefault();
+      var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
+      
+      if (sched_action['SCHED_ACTION'] == false) {
+        return false;
+      }
+
+      var sched_template = TemplateUtils.templateToString(sched_action);
+      switch (resource) {
+        case "vms":
+          Sunstone.runAction("VM.sched_action_add", that.element.ID, sched_template);
+          break;
+        case "inst":
+        case "inst_flow":
+        case "service_create":
+        case "temp":
+          validateAndInitVariables(resource);
+          scheduleActionsArray.push(sched_action['SCHED_ACTION']);
+          $("#sched_" + resource + "_actions_body").html(
+            _getScheduleActionTableContent(scheduleActionsArray)
+          );
+          break;
+        case "flow":
+          var roles = Array.isArray(that.data)? that.data : [that.data];
+          var extraParams = {
+            callback: function() {
+              var selector = "#sched_" + resource + "_actions_body";
+              _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+            } 
+          }
+          sendSchedActionToServiceRoles(roles, "VM.sched_action_add", sched_template, extraParams);
+          break;
+        default:
+          break;
+      }
+      clear();
+    });
+
+    // Show options to edit a Schedule Action
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function(e) {
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        renderCreateForm();
+        $("#edit_"+resource+"_action_json").show().attr("data_id", id);
+        $("#add_"+resource+"_action_json").hide();
+        _fill($(this),context);
+      }
+    });
+
+    // Edit Schedule action
+    context.off("click" , "#edit_"+ resource +"_action_json")
+    context.on("click" , "#edit_"+ resource +"_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        $(".wickedpicker").hide();
+        var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
+        if (sched_action['SCHED_ACTION'] != false) {
+          sched_action.SCHED_ACTION.ID = id;
+          var obj = {
+            "sched_id" : id,
+            "sched_template" : TemplateUtils.templateToString(sched_action)
+          }
+          switch (resource) {
+            case "vms":
+              Sunstone.runAction("VM.sched_action_update", that.element.ID, obj);
+              break;
+            case "inst":
+            case "inst_flow":
+            case "service_create":
+            case "temp":
+              validateAndInitVariables(resource);
+              delete sched_action.SCHED_ACTION.ID;
+              scheduleActionsArray[id] = sched_action['SCHED_ACTION'];
+              $("#sched_" + resource + "_actions_body").html(
+                _getScheduleActionTableContent(scheduleActionsArray)
+              );
+              break;
+            case "flow":
+              var roles = Array.isArray(that.data)? that.data : [that.data];
+              var extraParams = {
+                callback: function() {
+                  var selector = "#sched_" + resource + "_actions_body";
+                  _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+                } 
+              }
+              sendSchedActionToServiceRoles(roles, "VM.sched_action_update", obj, extraParams);
+              break;
+            default:
+              break;
+          }
+        }
+        clear();
+      }
+      return false;
+    });
+
+    // Remove Schedule Action
+    context.off("click", ".remove_action_x");
+    context.on("click", ".remove_action_x", function(e) {
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      switch (resource) {
+        case "vms":
+          Sunstone.runAction("VM.sched_action_delete", that.element.ID, id); 
+          break;
+        case "inst":
+        case "inst_flow":
+        case "service_create":
+        case "temp":
+          validateAndInitVariables(resource);
+          scheduleActionsArray.splice(id, 1);
+          $("#sched_" + resource + "_actions_body").html(
+            _getScheduleActionTableContent(scheduleActionsArray)
+          );
+          break;
+        case "flow":
+          var roles = Array.isArray(that.data)? that.data : [that.data];
+          var extraParams = {
+            sched_id: id,
+            callback: function() {
+              var selector = "#sched_" + resource + "_actions_body";
+              _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+            } 
+          }
+          sendSchedActionToServiceRoles(roles, "VM.sched_action_delete", null, extraParams);  
+          break;
+        default:
+          break;
+      }
+    });
+
+    context.off("click", "#leases_btn");
+    context.on("click", "#leases_btn", function(e) {
+      var confLeases = config.system_config.leases;
+      displayAlertCreateLeases(resource, that, confLeases);  
+    });
+  }
+
+  /**
+   * Returns an HTML string with the json keys and values
+   * 
+   * @param {Object[]} actions_array - Schedule action array.
+   * @returns {string} - HTML string with the json keys and values
+   */
+  function _getScheduleActionTableContent(actions_array, template={}) {
+    scheduleActionsArray = actions_array || [];
+    var empty = "\
+      <tr id=\"no_actions_tr\">\
+          <td colspan=\"6\">" + Locale.tr("No actions to show") + "</td>\
+      </tr>";
+
+    if (!actions_array) {
+      return empty;
+    }
+    
+    var sched_actions = Array.isArray(actions_array) ? actions_array : [actions_array];
+    if (!sched_actions.length) {
+      return empty;
+    }
+
+    var canEditOrDelete = !(
+      template &&
+      template.USER_TEMPLATE &&
+      template.USER_TEMPLATE.SERVICE_ID
+    );
+
+    return _fromJSONtoActionsTable(sched_actions, canEditOrDelete, canEditOrDelete);
+  }
+
+  /*
+   * LEASES FUNCTIONS
+   * This functions are here because in the end they add schedule actions
+   * to elements.
+   */
+
+
+  /**
+   * This function adds the leases to an instantiated VM.
+   * 
+   * @param {object[]} leasesArray - Array with all the actions to be added.
+   * @param {string} vm_id - ID from the VM to send the action.
+   */
+   function addLeasesToVM(leasesArray, vm_id){
+    $.each(leasesArray, function(_, sched_action){
+      var sched_template = TemplateUtils.templateToString(sched_action);
+      Sunstone.runAction("VM.sched_action_add", vm_id, sched_template);
+    });
+  }
+
+  /**
+   * This function adds the leases to an instantiated Service.
+   * 
+   * @param {Object[]} leassesArray - Array with all the actions to be added.
+   * @param {Object[]} roles - Service roles.
+   */
+  function addLeasesToService(leassesArray, roles){
+    $.each(leassesArray, function(_, sched_action){
+      var sched_template = TemplateUtils.templateToString(sched_action);
+      var extraParams = {
+        callback: function() {
+          Sunstone.runAction("Service.refresh");
+        } 
+      }
+      sendSchedActionToServiceRoles(
+        roles,
+        "VM.sched_action_add",
+        sched_template,
+        extraParams
+      );
+    });
+  }
+
+  /**
+   * This function converts the current date to epoch.
+   *  
+   * @returns - Current date and hour in epoch format.
+   */
+  function nowEpoch(){
+    epochStr = new Date();
+    return parseInt(epochStr.getTime(),10) / 1000;
+  };
+
+  function _leasesToScheduleActions(confLeases, now){
+    var last = 0; 
+    var newSchedActions =[];
+    var confLeasesKeys = Object.keys(confLeases);
+    confLeasesKeys.forEach(function(schedAction){
+      if(confLeases[schedAction].time){
+        var schedActionTime = parseInt(confLeases[schedAction].time,10);
+        var startTime = Math.round(now) + schedActionTime;
+        var newAction = {
+          SCHED_ACTION : {
+            TIME: "+"+ (startTime+last).toString(),
+            ACTION: schedAction
+          }
+        };
+
+        newSchedActions.push(newAction);
+        
+        last = schedActionTime;
+      }
+    });
+    return newSchedActions;
+  }
+
+  function addSchedActionTable(leasesArray, resource){
+    $.each(leasesArray, function(_, sched_action){
+      scheduleActionsArray.push(sched_action['SCHED_ACTION']);
+    });
+
+    $("#sched_" + resource + "_actions_body").html(
+      _getScheduleActionTableContent(scheduleActionsArray)
+    );
+  }
+
+  /**
+   * This function shows the modal to confirm the leases creation.
+   * 
+   * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
+   * @param {object} template - Resource template.
+   */
+   function displayAlertCreateLeases(resource, that, confLeases){
+    var template = that.element;
+    var now = template && template.STIME? nowEpoch() - parseInt(template.STIME,10) : 0;
+    if (resource === "inst" ||
+      resource === "inst_flow" ||
+      resource === "service_create" ||
+      resource === "temp"
+    ){
+      validateAndInitVariables(resource);
+      addSchedActionTable(
+        _leasesToScheduleActions(confLeases, now),
+        resource
+      );
+    }
+    else{
+      Sunstone.getDialog(CONFIRM_DIALOG_LEASES).setParams({
+        header: Locale.tr("Scheduled actions to add"),
+        body : renderLeasesForModal(now, confLeases),
+        submit : function(params) {
+          switch (resource) {
+            case 'vms':
+              addLeasesToVM(
+                _leasesToScheduleActions(confLeases, now),
+                template.ID
+              );
+              break;
+            case 'flow':
+              var roles = Array.isArray(that.data)? that.data : [that.data];
+              addLeasesToService(
+                _leasesToScheduleActions(confLeases, now),
+                roles
+              );
+              break;
+            default:
+              break;
+          }
+          return false;
+        }
+      });
+      Sunstone.getDialog(CONFIRM_DIALOG_LEASES).reset();
+      Sunstone.getDialog(CONFIRM_DIALOG_LEASES).show();
+    }
+  }
+
+  /**
+   * This function generates the content for the confirm dialog body.
+   * 
+   * @param {number} now - Now time.
+   * @param {Object} confLeases - Object with the configured leases.
+   * @returns - HTML content for the modal.
+   */
+   function renderLeasesForModal(now, confLeases) {
+    var rtn = "";
+    var last = 0;
+    var confLeasesKeys = Object.keys(confLeases);
+
+    if(confLeasesKeys && Array.isArray(confLeasesKeys)){
+      rtn = $("<table/>");
+      confLeasesKeys.forEach(function(actionName){
+        if(confLeases[actionName] && confLeases[actionName].time){
+          var schedActionTime = parseInt(confLeases[actionName].time,10);
+          var startTime = Math.round(now) + schedActionTime;
+          var time =  "+"+(last === 0? startTime.toString() : startTime+last);
+          rtn = rtn.append(
+            $("<tr/>").append(
+              $("<td/>").text(actionName).add(
+                $("<td/>").text(_time(time))
+              )
+            )
+          );
+          last = schedActionTime;
+        }
+      });
+      rtn = rtn.prop("outerHTML");
+    }
+
+    return rtn;
+  }
+
+  /**
+   * This functions initializes the global variables with the current
+   * schedule actions.
+   * 
+   * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
+   */
+  function validateAndInitVariables(resource){
+    if (!scheduleActionsArray.length){
+      $("#sched_" + resource + "_actions_body tr").each(function(_, sched_action){
+        data = sched_action.getAttribute("data");
+        if (data){
+          scheduleActionsArray.push(
+            JSON.parse(data)
+          );
+        }
+      });
+    }
+  }
 
   return {
     "fromJSONtoActionRow": _fromJSONtoActionRow,
@@ -865,6 +1388,10 @@ define(function (require) {
     "parseTime": _time,
     "parseToRequestString": parseToRequestString,
     "reset": _reset,
-    "defaultActions": defaultActions
+    "defaultActions": defaultActions,
+    "setupButtons": _setupButtons,
+    "updateServiceHTMLTable": _updateServiceHTMLTable,
+    "getScheduleActionTableContent": _getScheduleActionTableContent,
+    "sendSchedActionToServiceRoles": sendSchedActionToServiceRoles,
   };
 });

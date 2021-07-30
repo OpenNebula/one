@@ -27,7 +27,6 @@ define(function(require) {
   var TemplateUtils = require("utils/template-utils");
   var UserInputs = require("utils/user-inputs");
   var ScheduleActions = require("utils/schedule_action");
-  var Leases = require("utils/leases");
 
   /*
     TEMPLATES
@@ -43,11 +42,7 @@ define(function(require) {
   var FORM_PANEL_ID = require("./create/formPanelId");
   var TAB_ID = require("../tabId");
   var RESOURCE = "service_create";
-  var CREATE = true;
-  var actions = ScheduleActions.defaultActions;
-  function clear(){
-    CREATE = true;
-  }
+
   /*
     CONSTRUCTOR
    */
@@ -102,102 +97,36 @@ define(function(require) {
     });
   }
 
-  function renderCreateForm(context) {
-    if(CREATE){
-      ScheduleActions.htmlNewAction(actions, context, RESOURCE);
-      ScheduleActions.setup(context);
-      CREATE=false;
-    }
-  }
-
-  function sched_actions_events(context){
-    $(".edit_action_x").off("click").on("click", function(e){
-      e.preventDefault();
-      var id = $(this).attr("data_id");
-      if(id && id.length){
-        contextRow = $(this).closest("tr.tr_action");
-        renderCreateForm(context);
-        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
-        $("#add_"+RESOURCE+"_action_json").hide();
-        ScheduleActions.fill($(this),context);
-        sched_actions_events(context);
-      }
-    });
-
-    $("#add_scheduling_"+RESOURCE+"_action").off("click");
-    $("#add_scheduling_"+RESOURCE+"_action").on("click", function(e){
-      e.preventDefault();
-      renderCreateForm(context);
-      $("#edit_"+RESOURCE+"_action_json").hide();
-      $("#add_"+RESOURCE+"_action_json").show();
-      sched_actions_events(context);
-    });
-
-    $(".remove_action_x").off("click").on("click", function(){
-      $(this).parents("tr").remove();
-      sched_actions_events(context);
-    });
-
-    $("#add_"+RESOURCE+"_action_json").off("click").on("click", function(){
-      var sched_action = ScheduleActions.retrieveNewAction(context);
-      if (sched_action) {
-        $("#no_actions_tr", context).remove();
-        $("#sched_"+RESOURCE+"_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
-      }
-      $("#input_sched_action_form").remove();
-      sched_actions_events(context);
-      clear();
-      return false;
-    });
-
-    $("#edit_"+RESOURCE+"_action_json").off("click").on("click", function(e){
-      e.preventDefault();
-      var id = $(this).attr("data_id");
-      if(id && id.length && contextRow){
-        $(".wickedpicker").hide();
-        var sched_action = ScheduleActions.retrieveNewAction(context);
-        if (sched_action != false) {
-          sched_action.ID = id;
-          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
-          contextRow = undefined;
-          $("#input_sched_action_form").remove();
-        }
-        sched_actions_events(context);
-        clear();
-      }
-      return false;
-    });
-  }
-
   function _setup(context) {
-    clear();
     this.networksType = [
       { value: "template_id", text: "Create", select: "vntemplates", extra: true },
       { value: "reserve_from", text: "Reserve", select: "networks", extra: true },
       { value: "id", text: "Existing", select: "networks", extra: false },
     ];
-
+    
     // reset global variables on form
     this.roleTabObjects = {};
     var numberOfNetworks = 0;
     var roles_index = 0;
-
     var that = this;
 
     //this render a schedule action form
-    $(".service_schedule_actions").append(ScheduleActions.htmlTable(RESOURCE, Leases.html()));
-    //this are actions of Leases button
-    var objLeases = $.extend(true, {}, that);
-    objLeases.resource = "template";
-    objLeases.__proto__ = FormPanel.prototype;
-    Leases.actions(objLeases, "", "", function(){
-      sched_actions_events(context);
-    });
-
-    //end of render a schedule action form
+    $(".service_schedule_actions").append(
+      ScheduleActions.htmlTable(
+        resource = RESOURCE,
+        leases = true,
+        body = ScheduleActions.getScheduleActionTableContent(),
+        isVM = false,
+        canAdd = true
+      )
+    );
 
     // this is a logic to add, remove and edit schedule_action
-    sched_actions_events(context);
+    ScheduleActions.setupButtons(
+      RESOURCE,
+      context,
+      that
+    );
     // end of logic to add, remove and edit schedule_action
 
     $(".add_service_network", context).unbind("click");
@@ -449,7 +378,6 @@ define(function(require) {
       json_template["labels"] = currentInfo.TEMPLATE.BODY.labels;
     }
 
-    clear();
     if (this.action == "create") {
       Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;
@@ -489,22 +417,28 @@ define(function(require) {
     this.resourceId = element.ID;
     this.old_template = element.TEMPLATE.BODY;
 
+    var arraySchedActions = [];
+
     //fill schedule actions
-    if(this.old_template && this.old_template.roles && this.old_template.roles[0] && this.old_template.roles[0].vm_template_contents){
+    if(this.old_template && 
+      this.old_template.roles &&
+      this.old_template.roles[0] &&
+      this.old_template.roles[0].vm_template_contents
+    ){
       var vm_template_contents = TemplateUtils.stringToTemplate(this.old_template.roles[0].vm_template_contents);
       if(vm_template_contents && vm_template_contents.SCHED_ACTION){
-        var arraySchedActions = Array.isArray(vm_template_contents.SCHED_ACTION)? vm_template_contents.SCHED_ACTION : [vm_template_contents.SCHED_ACTION];
-        arraySchedActions.forEach(function(schedAction){
-          $("#no_actions_tr", context).remove();
-          $("#sched_"+RESOURCE+"_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(schedAction));
-        });
-        sched_actions_events(context);
+        arraySchedActions = Array.isArray(vm_template_contents.SCHED_ACTION)? vm_template_contents.SCHED_ACTION : [vm_template_contents.SCHED_ACTION];
       }
+
+      $("#sched_service_create_actions_body").html(
+        ScheduleActions.getScheduleActionTableContent(
+          arraySchedActions
+        )
+      );
     }
 
     // Populates the Avanced mode Tab
     $("#template", context).val(JSON.stringify(element.TEMPLATE.BODY, null, "  "));
-
 
     $("#service_name", context).attr("disabled", "disabled");
     $("#service_name", context).val(element.NAME);

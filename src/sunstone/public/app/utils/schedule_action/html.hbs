@@ -1,11 +1,18 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems }} {{! }} 
-{{! Licensed under the Apache License, Version 2.0 (the "License"); you may }} {{! not use this
-file except in compliance with the License. You may obtain }} {{! a copy of the License at }} {{! }} {{! http://www.apache.org/licenses/LICENSE-2.0
-}} {{! }} {{! Unless required by applicable law or agreed to in writing, software }} {{! distributed under the License is
-distributed on an "AS IS" BASIS, }} {{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }} {{! See
-the License for the specific language governing permissions and }} {{! limitations under the License. }} {{! --------------------------------------------------------------------------
-}}
+{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
 
 <tr class="create">
 	<td id="title">
@@ -58,7 +65,7 @@ the License for the specific language governing permissions and }} {{! limitatio
 	</td>
 	<td>
 		<input id="schedule_type" type="checkbox">
-		<label>{{tr "Periodic"}}</label>
+		<label for="schedule_type">{{tr "Periodic"}}</label>
 	</td>
 </tr>
 <tr class="periodic create">
@@ -106,7 +113,7 @@ the License for the specific language governing permissions and }} {{! limitatio
 </tr>
 <tr class="periodic create">
 	<td>
-		<input type="radio" name="end_type" id="end_type_n_rep" value="date">
+		<input type="radio" name="end_type" id="end_type_date" value="date">
 		<label for="end_type_date">{{tr "On"}}</label>
 	</td>
 	<td id="td_end_value_date">
@@ -129,6 +136,6 @@ the License for the specific language governing permissions and }} {{! limitatio
 <tr class="create">
 	<td>
 		<button style="margin-top: 15px;" id="add_{{res}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
-    <button style="margin-top: 15px;" id="edit_{{res}}_action_json" class="button small warning radius">{{tr "Edit"}}</button>
+    	<button style="margin-top: 15px;" id="edit_{{res}}_action_json" class="button small warning radius">{{tr "Edit"}}</button>
 	</td>
 </tr>

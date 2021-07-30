@@ -254,7 +254,6 @@ AllCops:
     - src/sunstone/models/OpenNebulaJSON/UserJSON.rb
     - src/sunstone/models/OpenNebulaJSON/AclJSON.rb
     - src/sunstone/models/OpenNebulaJSON/JSONUtils.rb
-    - src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb
     - src/sunstone/models/OpenNebulaJSON/MarketPlaceAppJSON.rb
     - src/sunstone/models/OpenNebulaJSON/ImageJSON.rb
     - src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb

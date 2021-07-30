@@ -148,16 +148,16 @@ define(function(require) {
     if(
       element &&
       element.STIME &&
-      element.USER_TEMPLATE &&
-      element.USER_TEMPLATE.SCHED_ACTION &&
+      element.TEMPLATE &&
+      element.TEMPLATE.SCHED_ACTION &&
       config &&
       config.system_config &&
       config.system_config.leases
     ){
       var actionsArray = [];
-      var actions = element.USER_TEMPLATE.SCHED_ACTION;
+      var actions = element.TEMPLATE.SCHED_ACTION;
       var leases = config.system_config.leases;
-      if(Array.isArray(element.USER_TEMPLATE.SCHED_ACTION)){
+      if(Array.isArray(actions)){
         actionsArray = actions;
       }else{
         actionsArray.push(actions);

@@ -827,6 +827,18 @@ define(function(require) {
       return OpenNebulaAction.getName(id, RESOURCE);
     },
     "isvCenterVM": isVCenterVM,
+    "sched_action_add" : function(params) {
+      var action_obj = {"sched_template": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "sched_action_add", action_obj);
+    },
+    "sched_action_update" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "sched_action_update", action_obj);
+    },
+    "sched_action_delete" : function(params) {
+      var action_obj = { "sched_id" : params.data.extra_param };
+      OpenNebulaAction.simple_action(params, RESOURCE, "sched_action_delete", action_obj);
+    }
   };
 
   function hostnameStr(element, navigationLink = false) {

@@ -33,6 +33,7 @@ define(function(require) {
   var Config = require("sunstone-config");
   var TemplateUtils = require("utils/template-utils");
   var ServiceUtils = require("utils/service-utils");
+  var ScheduleActions = require("utils/schedule_action");
 
   /*
     TEMPLATES
@@ -48,6 +49,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var vm_group = "VM_GROUP";
   var classButton = "small button leases right radius";
+  var RESOURCE_SCHED_ACTIONS = "inst_flow";
 
   /*
     CONSTRUCTOR
@@ -89,15 +91,13 @@ define(function(require) {
       "userInputsHTML": UserInputs.html(),
     };
     if(config && config.system_config && config.system_config.leases){
-      values_hbs.userInputsCharters = $("<div/>").append(
-        $("<div/>",{style:"display:inline-block;clear:both;width:100%"}).append(
-          $("<button />", {class: classButton, id:"addCharters"}).append(
-            $("<i/>", {class: "fa fa-clock"})
-          )
-        ).add(
-          $("<table/>", {class: "service-charters"})
-        )
-      ).prop("outerHTML");
+      values_hbs.userInputsCharters = ScheduleActions.htmlTable(
+        resource = RESOURCE_SCHED_ACTIONS,
+        leases = true,
+        body = ScheduleActions.getScheduleActionTableContent(),
+        isVM = false,
+        canAdd = true
+      );
     }
     return TemplateHTML(values_hbs);
   }
@@ -105,50 +105,15 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Tips.setup(context);
+    ScheduleActions.setupButtons(
+      RESOURCE_SCHED_ACTIONS,
+      context,
+      that
+    );
     return false;
   }
 
   function _onShow(context) {
-    $(".service-charters", context).empty();
-    if(config && config.system_config && config.system_config.leases ){
-      function remove_leases(){
-        $(".remove-lease", context).off("click").on("click", function(e){
-          e.preventDefault();
-          e.stopPropagation();
-          $(this).closest("tr").remove();
-        });
-      }
-      remove_leases();
-      $("#addCharters",context).off("click").on("click", function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        var leases = config.system_config.leases;
-        var confLeasesKeys = Object.keys(leases);
-        var last = 0;
-        confLeasesKeys.forEach(function(schedAction){
-          if(leases[schedAction] && leases[schedAction].time){
-            var schedActionTime = parseInt(leases[schedAction].time,10);
-            last = last + schedActionTime;
-            var time = (last>=0? "+":"-")+last;
-            $(".service-charters", context).append(
-              $("<tr/>").attr("data-time", time).attr("data-action", schedAction).append(
-                $("<td/>").text(schedAction).add(
-                  $("<td/>").text(time)
-                ).add(
-                  $("<td>").append(
-                    $("<button/>", {class: "remove-lease"}).append(
-                      $("<i>",{class: "fas fa-trash-alt"})
-                    )
-                  )
-                )
-              )
-            );
-            remove_leases();
-          }
-        });
-      });
-    }
-
     var vmgroups = OpenNebulaAction.cache(vm_group);
     if(!vmgroups){
       Sunstone.runAction("VMGroup.list");
@@ -202,6 +167,19 @@ define(function(require) {
               $("#"+div_id, context).empty();
               //if (role.vm_template_contents){
                 roleTemplate = TemplateUtils.stringToTemplate(role.vm_template_contents);
+                if (roleTemplate.SCHED_ACTION){
+                  $(".schedule_actions_values", context).html(
+                    ScheduleActions.htmlTable(
+                      resource = RESOURCE_SCHED_ACTIONS,
+                      leases = true,
+                      body = ScheduleActions.getScheduleActionTableContent(
+                        roleTemplate.SCHED_ACTION
+                      ),
+                      isVM = false,
+                      canAdd = true
+                    )
+                  );
+                }
                 if(roleTemplate && roleTemplate.APPEND){
                   var append = roleTemplate.APPEND.split(",");
                   $.each(append, function(key, value){
@@ -313,15 +291,10 @@ define(function(require) {
       }
       if(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles){
         var charters = "";
-        if(config && config.system_config && config.system_config.leases ){
-          $(".service-charters", context).find("tr").each(function(index){
-            var time = $(this).attr("data-time");
-            var action = $(this).attr("data-action");
-            if(time.length>0 && action.length>0){
-              charters += TemplateUtils.templateToString({SCHED_ACTION:{ACTION:action, TIME: time, ID: index.toString()}});
-            }
-          });
-        }
+        var scheduleActionsList = ScheduleActions.retrieve(context, true)
+        $.each(scheduleActionsList, function(_,sched_action){
+          charters += TemplateUtils.templateToString(sched_action);
+        });
         $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var temp_role = {};
           $.extend( temp_role, role);

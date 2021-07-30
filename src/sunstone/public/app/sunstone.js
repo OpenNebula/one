@@ -941,7 +941,7 @@ define(function(require) {
   //can be use to run action depending on conditions and notify them
   //if desired. Returns 1 if some problem has been detected: i.e
   //the condition to run the action is not met, the action is not found
-  var _runAction = function(action, dataArg, extraParam) {
+  var _runAction = function(action, dataArg, extraParam, callback) {
     var actions = SunstoneCfg["actions"];
     if (!actions[action]) {
       Notifier.notifyError("Action " + action + " not defined");
@@ -962,7 +962,7 @@ define(function(require) {
     }
 
     var call = actionCfg["call"];
-    var callback = actionCfg["callback"];
+    var callback = callback || actionCfg["callback"];
     var err = actionCfg["error"];
 
     switch (actionCfg.type){

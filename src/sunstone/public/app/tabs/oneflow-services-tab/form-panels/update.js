@@ -59,8 +59,6 @@ define(function(require) {
   FormPanel.prototype.fill = _fill;
   FormPanel.prototype.addRoleTab = _add_role_tab;
 
-
-
   return FormPanel;
 
   /*
