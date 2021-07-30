@@ -940,6 +940,9 @@ Naming/MethodParameterName:
 Naming/InclusiveLanguage:
     Enabled: false
 
+Naming/FileName:
+    Enabled: false
+
 ###
 # Bundler
 ####
