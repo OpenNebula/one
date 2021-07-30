@@ -16,51 +16,19 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, Paper, Typography, Button } from '@material-ui/core'
+import { Paper, Typography } from '@material-ui/core'
 
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { ResizeCapacityForm } from 'client/components/Forms/Vm'
 import { Tr } from 'client/components/HOC'
+import useCapacityTabStyles from 'client/components/Tabs/Vm/Capacity/styles'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import { prettyBytes } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    marginBlock: '0.8em',
-    padding: '1em',
-    display: 'grid',
-    gap: '1em',
-    gridAutoFlow: 'column',
-    [theme.breakpoints.down('sm')]: {
-      gridAutoFlow: 'initial'
-    }
-  },
-  item: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'flex',
-      gap: '1em',
-      '& > *': {
-        width: '50%'
-      }
-    }
-  },
-  actions: {
-    [theme.breakpoints.down('sm')]: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: '1em'
-    },
-    [theme.breakpoints.up('md')]: {
-      order: 1,
-      textAlign: 'end'
-    }
-  },
-  title: {
-    fontWeight: theme.typography.fontWeightBold
-  }
-}))
-
-const InformationPanel = ({ actions, vm = {}, handleOpenResizeDialog }) => {
-  const classes = useStyles()
+const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
+  const classes = useCapacityTabStyles()
   const { TEMPLATE } = vm
 
   const isVCenter = VirtualMachine.isVCenter(vm)
@@ -101,15 +69,12 @@ const InformationPanel = ({ actions, vm = {}, handleOpenResizeDialog }) => {
     <Paper variant='outlined' className={classes.root}>
       <div className={classes.actions}>
         {actions?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
-          <Button
-            data-cy='resize'
-            size='small'
-            color='secondary'
-            onClick={handleOpenResizeDialog}
-            variant='contained'
-          >
-            {Tr(T.Resize)}
-          </Button>
+          <ButtonToTriggerForm
+            buttonProps={{ 'data-cy': 'resize-capacity' }}
+            handleSubmit={handleResizeCapacity}
+            title={T.Resize}
+            options={[{ form: ResizeCapacityForm({ vm }) }]}
+          />
         )}
       </div>
       {capacity.map(({ name, value }) => (
@@ -127,7 +92,7 @@ const InformationPanel = ({ actions, vm = {}, handleOpenResizeDialog }) => {
 }
 
 InformationPanel.propTypes = {
-  handleOpenResizeDialog: PropTypes.function,
+  handleResizeCapacity: PropTypes.func,
   actions: PropTypes.array,
   vm: PropTypes.object
 }

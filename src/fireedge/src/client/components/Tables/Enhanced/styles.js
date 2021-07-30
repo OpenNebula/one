@@ -15,14 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { makeStyles } from '@material-ui/core'
 
-import { addOpacityToColor } from 'client/utils'
-
 export default makeStyles(
   ({ palette, typography, breakpoints, shadows }) => ({
     root: {
       height: '100%',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      overflow: 'auto'
     },
     toolbar: {
       ...typography.body1,
@@ -68,15 +67,14 @@ export default makeStyles(
         backgroundColor: palette.background.paper,
         fontWeight: typography.fontWeightMedium,
         fontSize: '1em',
+        border: `1px solid ${palette.divider}`,
         borderRadius: 6,
         display: 'flex',
         gap: 8,
-        boxShadow: shadows[1],
         '&:hover': {
           backgroundColor: palette.action.hover
         },
         '&.selected': {
-          backgroundColor: addOpacityToColor(palette.secondary.main, 0.2),
           border: `2px solid ${palette.secondary.main}`
         }
       }

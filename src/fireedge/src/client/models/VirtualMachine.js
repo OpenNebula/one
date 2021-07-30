@@ -23,6 +23,7 @@ import {
   VM_LCM_STATES,
   NIC_ALIAS_IP_ATTRS,
   HISTORY_ACTIONS,
+  HYPERVISORS,
   T,
   StateInfo
 } from 'client/constants'
@@ -77,7 +78,7 @@ export const getHypervisor = vm => String(getLastHistory(vm)?.VM_MAD).toLowerCas
  * @param {object} vm - Virtual machine
  * @returns {boolean} If the hypervisor is vCenter
  */
-export const isVCenter = vm => getHypervisor(vm) === 'vcenter'
+export const isVCenter = vm => getHypervisor(vm) === HYPERVISORS.vcenter
 
 /**
  * @param {object} vm - Virtual machine

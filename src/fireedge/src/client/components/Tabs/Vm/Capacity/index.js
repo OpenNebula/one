@@ -18,56 +18,35 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
-import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { DialogForm } from 'client/components/Dialogs'
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { SCHEMA, FIELDS } from 'client/formSchema/Vm/resize'
-
 import InformationPanel from 'client/components/Tabs/Vm/Capacity/information'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
-import { T } from 'client/constants'
 
 const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
-  const { display, show, hide } = useDialog()
   const { resize } = useVmApi()
 
   const { handleRefetch, data: vm = {} } = React.useContext(TabContext)
-  const { ID, TEMPLATE } = vm
+  const { ID } = vm
 
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
-  const handleResize = async formData => {
+  const handleResizeCapacity = async formData => {
     const { enforce, ...restOfData } = formData
-    const template = Helper.jsonToXml({ ROOT: restOfData })
+    const template = Helper.jsonToXml(restOfData)
 
     const response = await resize(ID, { enforce, template })
     String(response) === String(ID) && await handleRefetch?.()
-    hide()
   }
 
   return (
-    <>
-      <InformationPanel
-        actions={actionsAvailable}
-        handleOpenResizeDialog={show}
-        vm={vm}
-      />
-      {display && (
-        <DialogForm
-          title={`${T.ResizeCapacity}`}
-          resolver={() => SCHEMA}
-          values={SCHEMA.cast(TEMPLATE, { stripUnknown: true })}
-          onCancel={hide}
-          onSubmit={handleResize}
-        >
-          <FormWithSchema cy='form-dg-vm-resize' fields={FIELDS} />
-        </DialogForm>
-      )}
-    </>
+    <InformationPanel
+      actions={actionsAvailable}
+      handleResizeCapacity={handleResizeCapacity}
+      vm={vm}
+    />
   )
 }
 

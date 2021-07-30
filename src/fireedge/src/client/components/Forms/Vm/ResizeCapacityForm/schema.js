@@ -65,7 +65,6 @@ const PHYSICAL_CPU = {
     .required('Physical CPU field is required')
     .positive()
     .default(undefined)
-    .resolve()
 }
 
 const VIRTUAL_CPU = {
@@ -74,8 +73,8 @@ const VIRTUAL_CPU = {
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: `
-  Number of virtual cpus. This value is optional, the default
-  hypervisor behavior is used, usually one virtual CPU.`,
+    Number of virtual cpus. This value is optional, the default
+    hypervisor behavior is used, usually one virtual CPU.`,
   validation: yup
     .number()
     .typeError('Virtual CPU value must be a number')

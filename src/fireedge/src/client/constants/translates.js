@@ -20,6 +20,7 @@ module.exports = {
   Next: 'Next',
   SortBy: 'Sort by',
   Filter: 'Filter',
+  Filters: 'Filters',
   All: 'All',
   On: 'On',
 
@@ -54,6 +55,8 @@ module.exports = {
   AddAction: 'Add action',
 
   /* questions */
+  Yes: 'Yes',
+  No: 'No',
   DoYouWantProceed: 'Do you want proceed?',
 
   /* Scheduling */
@@ -101,6 +104,7 @@ module.exports = {
   NoDataAvailable: 'There is no data available',
 
   /* steps form */
+  AdvancedOptions: 'Advanced options',
   /* steps form - flow */
   ApplicationOverview: 'Application overview',
   WhereWillItRun: 'Where will it run?',
@@ -237,6 +241,8 @@ module.exports = {
   Memory: 'Memory',
   CostCpu: 'Cost / CPU',
   CostMByte: 'Cost / MByte',
+  /* VM schema - storage */
+  Volatile: 'Volatile',
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',

@@ -59,7 +59,9 @@ const HeaderPopover = React.memo(({
         aria-controls={anchorId}
         aria-describedby={anchorId}
         aria-haspopup='true'
+        variant='outlined'
         onClick={handleOpen}
+        size='small'
         {...buttonProps}
         style={{ margin: '0 2px' }}
       >

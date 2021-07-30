@@ -61,7 +61,7 @@ const Select = React.forwardRef(
         margin='dense'
         onChange={handleChange}
         select
-        SelectProps={{ displayEmpty: true, native: true }}
+        SelectProps={{ native: true }}
         value={newValue}
         variant='outlined'
       >

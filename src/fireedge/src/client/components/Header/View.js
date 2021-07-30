@@ -55,7 +55,7 @@ const View = () => {
     <HeaderPopover
       id='view-list'
       icon={<ViewIcon />}
-      buttonProps={{ 'data-cy': 'header-view-button', variant: 'outlined' }}
+      buttonProps={{ 'data-cy': 'header-view-button' }}
       headerTitle='Switch view'
     >
       {({ handleClose }) => (

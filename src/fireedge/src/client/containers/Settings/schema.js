@@ -31,9 +31,7 @@ const SCHEME = {
     .trim()
     .required('Scheme field is required')
     .default(DEFAULT_SCHEME),
-  grid: { md: 12 },
-  native: true,
-  fieldProps: { variant: 'outlined' }
+  grid: { md: 12 }
 }
 
 const LANGUAGES = {
@@ -47,9 +45,7 @@ const LANGUAGES = {
     .trim()
     .required('Language field is required')
     .default(DEFAULT_LANGUAGE),
-  grid: { md: 12 },
-  native: true,
-  fieldProps: { variant: 'outlined' }
+  grid: { md: 12 }
 }
 
 const DISABLE_ANIMATIONS = {

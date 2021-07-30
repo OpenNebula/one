@@ -16,8 +16,11 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
+import { LinearProgress } from '@material-ui/core'
 
+import { useFetch, useSocket } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
+import { useVmApi } from 'client/features/One'
 
 import Tabs from 'client/components/Tabs'
 import { stringToCamelCase, stringToCamelSpace } from 'client/utils'
@@ -45,9 +48,25 @@ const loadTab = tabName => ({
   storage: Storage
 }[tabName])
 
-const VmTabs = ({ data, handleRefetch }) => {
+const VmTabs = React.memo(({ id }) => {
+  const { getHooksSocket } = useSocket()
+  const { getVm } = useVmApi()
+
+  const {
+    data,
+    fetchRequest,
+    loading,
+    error
+  } = useFetch(getVm, getHooksSocket({ resource: 'vm', id }))
+
+  const handleRefetch = () => fetchRequest(id, { reload: true })
+
   const [tabsAvailable, setTabs] = React.useState(() => [])
   const { view, getResourceView } = useAuth()
+
+  React.useEffect(() => {
+    fetchRequest(id)
+  }, [id])
 
   React.useEffect(() => {
     const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
@@ -66,16 +85,19 @@ const VmTabs = ({ data, handleRefetch }) => {
       ?.filter(Boolean))
   }, [view])
 
+  if ((!data && !error) || loading) {
+    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+  }
+
   return (
     <TabProvider initialState={{ data, handleRefetch }}>
       <Tabs tabs={tabsAvailable} />
     </TabProvider>
   )
-}
+})
 
 VmTabs.propTypes = {
-  data: PropTypes.object.isRequired,
-  handleRefetch: PropTypes.func
+  id: PropTypes.string.isRequired
 }
 
 VmTabs.displayName = 'VmTabs'

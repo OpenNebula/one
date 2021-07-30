@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
+import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as ZoneModel from 'client/models/Zone'
 
 export default [

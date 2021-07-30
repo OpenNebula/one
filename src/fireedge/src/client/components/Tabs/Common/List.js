@@ -98,7 +98,7 @@ const AttributeList = ({
         {list.map(attr => renderList(attr))}
         {/* ADD ACTION */}
         {handleAdd && (
-          <ListItem className={classes.item}>
+          <ListItem className={clsx(classes.item, itemClassName)}>
             <AttributeCreateForm handleAdd={handleAdd} />
           </ListItem>
         )}

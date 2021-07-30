@@ -68,6 +68,8 @@ const AutocompleteController = memo(
                 label={Tr(label)}
                 inputProps={{ ...inputProps, 'data-cy': cy }}
                 error={Boolean(error)}
+                variant='outlined'
+                margin='dense'
                 helperText={
                   Boolean(error) && <ErrorHelper label={error?.message} />
                 }

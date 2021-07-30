@@ -18,9 +18,18 @@ import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { ImagesTable } from 'client/components/Tables'
+import Detail from 'client/components/Tables/Images/detail'
+import SplitPane from 'client/components/SplitPane'
 
 function Images () {
+  const [selectedRows, onSelectedRowsChange] = React.useState()
+
+  const selectedRowIds = React.useMemo(
+    () => selectedRows?.map(row => row.id),
+    [selectedRows]
+  )
+
   return (
     <Box
       height={1}
@@ -30,7 +39,24 @@ function Images () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.ImagesTable />
+      <SplitPane>
+        <ImagesTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            {selectedRows?.length === 1
+              ? <Detail id={selectedRows[0]?.values.ID} />
+              : (
+                <pre>
+                  <code>
+                    {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
+                  </code>
+                </pre>
+              )
+            }
+          </div>
+        )}
+      </SplitPane>
     </Box>
   )
 }

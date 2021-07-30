@@ -64,9 +64,9 @@ const VmInfoTab = ({ tabProps = {} }) => {
   }
 
   const handleAttributeInXml = async (newValue, path) => {
-    const newTemplate = cloneObject({ USER_TEMPLATE })
+    const newTemplate = cloneObject(USER_TEMPLATE)
 
-    set(newTemplate, `USER_TEMPLATE.${path}`, newValue)
+    set(newTemplate, path, newValue)
 
     const xml = Helper.jsonToXml(newTemplate)
 

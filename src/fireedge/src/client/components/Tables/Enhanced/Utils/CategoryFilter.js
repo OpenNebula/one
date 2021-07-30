@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
@@ -23,8 +22,17 @@ import { UseFiltersInstanceProps } from 'react-table'
 
 import { Tr } from 'client/components/HOC'
 
-const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
-  /** @type {UseFiltersInstanceProps} */
+/**
+ * Render category filter to table.
+ *
+ * @param {object} props - Props
+ * @param {string} props.title - Title category
+ * @param {UseFiltersInstanceProps} props.column - Column to filter by
+ * @param {string} [props.accessorOption] - Name of property option
+ * @param {boolean} [props.multiple] - If `true`, can be more than one filter
+ * @returns {React.JSXElementConstructor} Component JSX
+ */
+const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => {
   const {
     setFilter,
     id,

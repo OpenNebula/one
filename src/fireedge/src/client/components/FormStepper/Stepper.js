@@ -102,15 +102,21 @@ const CustomStepper = ({
         ))}
       </Stepper>
       <Box marginY={2} textAlign='end'>
-        <Button onClick={handleBack} disabled={disabledBack} data-cy='stepper-back-button'>
+        <Button
+          data-cy='stepper-back-button'
+          disabled={disabledBack}
+          onClick={handleBack}
+          size='small'
+        >
           {Tr(T.Back)}
         </Button>
         <SubmitButton
           color='secondary'
           data-cy='stepper-next-button'
-          onClick={handleNext}
           isSubmitting={isSubmitting}
           label={activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
+          onClick={handleNext}
+          size='small'
         />
       </Box>
     </>

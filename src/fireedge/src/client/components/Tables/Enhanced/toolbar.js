@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, useMediaQuery } from '@material-ui/core'
 
-import GlobalSort from 'client/components/Tables/Enhanced/Utils/GlobalSort'
+import { GlobalSelectedRows, GlobalSort } from 'client/components/Tables/Enhanced/Utils'
 
 const useToolbarStyles = makeStyles({
   root: {
@@ -30,12 +30,12 @@ const useToolbarStyles = makeStyles({
   }
 })
 
-const Toolbar = ({ useTableProps }) => {
+const Toolbar = ({ onlyGlobalSelectedRows = false, useTableProps = {} }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
-  if (isMobile) {
-    return null
+  if (isMobile || onlyGlobalSelectedRows) {
+    return <GlobalSelectedRows useTableProps={useTableProps} />
   }
 
   return (
@@ -46,11 +46,8 @@ const Toolbar = ({ useTableProps }) => {
 }
 
 Toolbar.propTypes = {
+  onlyGlobalSelectedRows: PropTypes.bool,
   useTableProps: PropTypes.object
-}
-
-Toolbar.defaultProps = {
-  useTableProps: {}
 }
 
 export default Toolbar

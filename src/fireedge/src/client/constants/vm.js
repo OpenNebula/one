@@ -502,6 +502,14 @@ export const VM_ACTIONS = {
   UPDATE_CONF: 'update_configuration'
 }
 
+/** @enum {string} Hypervisors  */
+export const HYPERVISORS = {
+  kvm: 'kvm',
+  vcenter: 'vcenter',
+  firecracker: 'firecracker',
+  lxc: 'lxc'
+}
+
 /**
  * @enum {(
  * 'none' |

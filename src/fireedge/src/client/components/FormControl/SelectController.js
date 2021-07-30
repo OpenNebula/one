@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo, createElement } from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TextField, MenuItem } from '@material-ui/core'
+import { TextField } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 
 const SelectController = memo(
-  ({ control, cy, name, label, multiple, native, values, error, fieldProps }) => {
+  ({ control, cy, name, label, multiple, values, error, fieldProps }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
     return (
@@ -36,7 +36,9 @@ const SelectController = memo(
             color='secondary'
             select
             fullWidth
-            SelectProps={{ displayEmpty: true, multiple, native }}
+            variant='outlined'
+            margin='dense'
+            SelectProps={{ native: true, multiple }}
             label={Tr(label)}
             inputProps={{ 'data-cy': cy }}
             error={Boolean(error)}
@@ -44,11 +46,11 @@ const SelectController = memo(
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
             {...fieldProps}
           >
-            {values?.map(({ text, value = '' }) => createElement(
-              native ? 'option' : MenuItem,
-              { key: `${name}-${value}`, value },
-              text
-            ))}
+            {values?.map(({ text, value = '' }) =>
+              <option key={`${name}-${value}`} value={value}>
+                {text}
+              </option>
+            )}
           </TextField>
         )}
         name={name}
@@ -67,7 +69,6 @@ SelectController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   multiple: PropTypes.bool,
-  native: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   error: PropTypes.oneOfType([
     PropTypes.bool,
@@ -82,7 +83,6 @@ SelectController.defaultProps = {
   name: '',
   label: '',
   multiple: false,
-  native: false,
   values: [],
   error: false,
   fieldProps: undefined

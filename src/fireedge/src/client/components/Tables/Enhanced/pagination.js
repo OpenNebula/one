@@ -45,9 +45,10 @@ const Pagination = ({
   return (
     <>
       <Button
-        onClick={handleBackButtonClick}
-        disabled={pageIndex === 0}
         aria-label='previous page'
+        disabled={pageIndex === 0}
+        onClick={handleBackButtonClick}
+        size='small'
       >
         <NavArrowLeft />
         {T.Previous}
@@ -56,9 +57,10 @@ const Pagination = ({
         {`${pageIndex + 1} of ${showPageCount ? pageCount : 'many'}`}
       </span>
       <Button
-        onClick={handleNextButtonClick}
-        disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
         aria-label='next page'
+        disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
+        onClick={handleNextButtonClick}
+        size='small'
       >
         {T.Next}
         <NavArrowRight />

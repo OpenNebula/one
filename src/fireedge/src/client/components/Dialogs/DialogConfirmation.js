@@ -46,8 +46,8 @@ const useStyles = makeStyles({
 
 const DialogConfirmation = memo(
   ({
-    open,
-    title,
+    open = true,
+    title = '',
     subheader,
     contentProps,
     handleAccept,
@@ -105,7 +105,7 @@ const DialogConfirmation = memo(
   }
 )
 
-DialogConfirmation.propTypes = {
+export const DialogPropTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   subheader: PropTypes.string,
@@ -121,18 +121,7 @@ DialogConfirmation.propTypes = {
   ])
 }
 
-DialogConfirmation.defaultProps = {
-  open: true,
-  title: 'Confirmation dialog',
-  subheader: undefined,
-  contentProps: undefined,
-  handleAccept: undefined,
-  acceptButtonProps: undefined,
-  handleCancel: undefined,
-  cancelButtonProps: undefined,
-  handleEntering: undefined,
-  children: undefined
-}
+DialogConfirmation.propTypes = DialogPropTypes
 
 DialogConfirmation.displayName = 'DialogConfirmation'
 

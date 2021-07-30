@@ -20,16 +20,15 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useVm, useVmApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
 import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
-import VmDetail from 'client/components/Tables/Vms/detail'
 
 const INITIAL_ELEMENT = 0
 const INTERVAL_ON_FIRST_RENDER = 2_000
 
-const VmsTable = () => {
+const VmsTable = props => {
   const vms = useVm()
   const { getVms } = useVmApi()
   const { view, getResourceView, filterPool } = useAuth()
@@ -75,9 +74,12 @@ const VmsTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={VmRow}
-      renderDetail={row => <VmDetail id={row.ID} />}
+      {...props}
     />
   )
 }
+
+VmsTable.propTypes = EnhancedTableProps
+VmsTable.displayName = 'VmsTable'
 
 export default VmsTable

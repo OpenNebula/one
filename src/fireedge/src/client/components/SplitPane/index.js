@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     height: '100%'
   },
+  topPane: {
+    flex: 1
+  },
   separator: {
     position: 'relative',
     cursor: 'row-resize',
@@ -103,24 +106,28 @@ const SplitPane = ({ children, containerProps }) => {
   })
 
   React.useEffect(() => {
-    if (!topHeight) {
+    if (!topHeight && children[1]) {
       setTopHeight(document.body.clientHeight / 2)
       topRef.current.style.flex = 'none'
     }
 
-    topRef.current.style.height = `${topHeight}px`
-  }, [topHeight])
+    topRef.current.style.height = children[1]
+      ? `${topHeight}px`
+      : `${splitPaneRef.current?.clientHeight}px`
+  }, [topHeight, children[1]])
 
   return (
     <div {...containerProps} className={classes.splitPane} ref={splitPaneRef}>
-      <div style={{ flex: 1 }} ref={topRef}>
+      <div className={classes.topPane} ref={topRef}>
         {children[0]}
       </div>
-      <Divider
-        className={classes.separator}
-        onTouchStart={onMouseDown}
-        onMouseDown={onMouseDown}
-      />
+      {!!children[1] && (
+        <Divider
+          className={classes.separator}
+          onTouchStart={onMouseDown}
+          onMouseDown={onMouseDown}
+        />
+      )}
       {children[1]}
     </div>
   )

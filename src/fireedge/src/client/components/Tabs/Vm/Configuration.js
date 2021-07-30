@@ -21,8 +21,9 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 
 const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
 
-const VmConfigurationTab = data => {
-  const { data: { TEMPLATE, USER_TEMPLATE } = {} } = React.useContext(TabContext)
+const VmConfigurationTab = () => {
+  const { data: vm = {} } = React.useContext(TabContext)
+  const { TEMPLATE, USER_TEMPLATE } = vm
 
   return (
     <div>
@@ -44,7 +45,7 @@ const VmConfigurationTab = data => {
         </AccordionSummary>
         <AccordionDetails>
           <pre>
-            <code>
+            <code style={{ whiteSpace: 'break-spaces' }}>
               {JSON.stringify(TEMPLATE, null, 2)}
             </code>
           </pre>

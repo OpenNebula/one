@@ -32,7 +32,7 @@ const CheckboxController = memo(
     <Controller
       render={({ onChange, value = false }) => (
         <Tooltip title={Tr(tooltip) ?? ''}>
-          <FormControl error={Boolean(error)}>
+          <FormControl error={Boolean(error)} margin='dense'>
             <FormControlLabel
               control={
                 <Checkbox

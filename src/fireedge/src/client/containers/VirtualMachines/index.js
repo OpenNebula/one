@@ -18,9 +18,16 @@ import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { VmsTable } from 'client/components/Tables'
+import VmTabs from 'client/components/Tabs/Vm'
+import SplitPane from 'client/components/SplitPane'
 
 function VirtualMachines () {
+  const [selectedRows, onSelectedRowsChange] = React.useState([])
+
+  const getRowIds = () =>
+    JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
+
   return (
     <Box
       height={1}
@@ -30,7 +37,18 @@ function VirtualMachines () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.VmsTable />
+      <SplitPane>
+        <VmsTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            {selectedRows?.length === 1
+              ? <VmTabs id={selectedRows[0]?.values.ID} />
+              : <pre><code>{getRowIds()}</code></pre>
+            }
+          </div>
+        )}
+      </SplitPane>
     </Box>
   )
 }

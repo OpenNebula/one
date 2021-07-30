@@ -37,7 +37,7 @@ export const USERNAME = {
     autoFocus: true,
     required: true,
     autoComplete: 'username',
-    variant: 'outlined'
+    margin: 'normal'
   }
 }
 
@@ -54,7 +54,7 @@ export const PASSWORD = {
   fieldProps: {
     required: true,
     autoComplete: 'current-password',
-    variant: 'outlined'
+    margin: 'normal'
   }
 }
 
@@ -81,7 +81,7 @@ export const TOKEN = {
   fieldProps: {
     autoFocus: true,
     required: true,
-    variant: 'outlined'
+    margin: 'normal'
   }
 }
 
@@ -116,7 +116,9 @@ export const GROUP = {
     .nullable()
     .default(FILTER_POOL.ALL_RESOURCES),
   grid: { md: 12 },
-  fieldProps: { variant: 'outlined' }
+  fieldProps: {
+    margin: 'normal'
+  }
 }
 
 export const FORM_USER_FIELDS = [USERNAME, PASSWORD, REMEMBER]

@@ -32,6 +32,8 @@ const TextController = memo(
           color='secondary'
           value={value ?? ''}
           type={type}
+          variant='outlined'
+          margin='dense'
           {...(label && { label: Tr(label) })}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}

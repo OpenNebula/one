@@ -42,7 +42,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
 
   return (
     <Grid container spacing={1}>
-      {fields?.map(
+      {fields?.map?.(
         ({ name, type, htmlType, values, dependOf, grid, ...restOfProps }) => {
           const dataCy = `${cy}-${name}`
           const inputName = id ? `${id}.${name}` : name

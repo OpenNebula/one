@@ -27,8 +27,7 @@ const Zone = memo(() => (
     id='zone-menu'
     icon={<ZoneIcon />}
     buttonProps={{
-      'data-cy': 'header-zone-button',
-      variant: 'outlined'
+      'data-cy': 'header-zone-button'
     }}
     disablePadding
   >

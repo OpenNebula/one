@@ -19,11 +19,12 @@ import { j2xParser as Parser } from 'fast-xml-parser'
 
 /**
  * @param {object} json - JSON
+ * @param {boolean} [addRoot] - Add ROOT element as parent
  * @returns {string} Xml in string format
  */
-export const jsonToXml = json => {
+export const jsonToXml = (json, addRoot = true) => {
   const parser = new Parser()
-  return parser.parse(json)
+  return parser.parse(addRoot ? { ROOT: json } : json)
 }
 
 /**

@@ -13,47 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
-import PropTypes from 'prop-types'
-import { LinearProgress } from '@material-ui/core'
+/* eslint-disable jsdoc/require-jsdoc */
+import * as yup from 'yup'
 
-import { useFetch, useSocket } from 'client/hooks'
-import { useVmApi } from 'client/features/One'
+import ImagesTable from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
+import AdvancedOptions from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions'
 
-import VmTabs from 'client/components/Tabs/Vm'
+const Steps = stepProps => {
+  const image = ImagesTable(stepProps)
+  const advanced = AdvancedOptions(stepProps)
 
-const VmDetail = React.memo(({ id }) => {
-  const { getHooksSocket } = useSocket()
-  const { getVm } = useVmApi()
+  const steps = [image, advanced]
 
-  const {
-    data,
-    fetchRequest,
-    loading,
-    error
-  } = useFetch(getVm, getHooksSocket({ resource: 'vm', id }))
+  const resolver = () => yup.object({
+    [image.id]: image.resolver(),
+    [advanced.id]: advanced.resolver()
+  })
 
-  const handleRefetch = () => fetchRequest(id, { reload: true })
+  const defaultValues = resolver().default()
 
-  React.useEffect(() => {
-    fetchRequest(id)
-  }, [id])
-
-  if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
-  }
-
-  if (error) {
-    return <div>{error || 'Error'}</div>
-  }
-
-  return <VmTabs data={data} handleRefetch={handleRefetch} />
-})
-
-VmDetail.propTypes = {
-  id: PropTypes.string.isRequired
+  return { steps, defaultValues, resolver }
 }
 
-VmDetail.displayName = 'VmDetail'
-
-export default VmDetail
+export default Steps

@@ -21,7 +21,9 @@ import { makeStyles, Button } from '@material-ui/core'
 import { Filter as FilterIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'react-table'
 
-import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
+import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useToolbarStyles = makeStyles(theme => ({
   filterWrapper: {
@@ -51,7 +53,7 @@ const Toolbar = ({ useTableProps }) => {
       <Button startIcon={<FilterIcon />}
         className={classes.filterButton}
       >
-        Filters
+        {Tr(T.Filters)}
       </Button>
       <GlobalFilter
         preGlobalFilteredRows={preGlobalFilteredRows}

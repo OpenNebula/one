@@ -16,53 +16,62 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
-import { Button } from '@material-ui/core'
 
-import { useDialog } from 'client/hooks'
+import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { DialogConfirmation } from 'client/components/Dialogs'
+
 import StorageList from 'client/components/Tabs/Vm/Storage/List'
-import { Tr } from 'client/components/HOC'
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const VmStorageTab = ({ tabProps = {} }) => {
-  const { display, show, hide } = useDialog()
-  const { data: vm } = React.useContext(TabContext)
-  const { actions = [] } = tabProps
+const VmStorageTab = ({ tabProps: { actions = [] } = {} }) => {
+  const { attachDisk } = useVmApi()
+
+  const { handleRefetch, data: vm = {} } = React.useContext(TabContext)
+  const { ID } = vm
 
   const disks = VirtualMachine.getDisks(vm)
-
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+
+  const handleAttachDisk = async ({ image, advanced, configuration }) => {
+    const imageSelected = image?.[0]
+    const root = { ...imageSelected, ...advanced, ...configuration }
+
+    const template = Helper.jsonToXml({ DISK: root })
+
+    const response = await attachDisk(ID, template)
+    String(response) === String(ID) && await handleRefetch?.()
+  }
 
   return (
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_DISK) && (
-        <Button
-          data-cy='attach-disk'
-          size='small'
-          color='secondary'
-          onClick={show}
-          variant='contained'
-        >
-          {Tr(T.AttachDisk)}
-        </Button>
+        <ButtonToTriggerForm
+          buttonProps={{ 'data-cy': 'attach-disk' }}
+          title={T.AttachDisk}
+          options={[
+            {
+              cy: 'attach-image-disk',
+              name: T.Image,
+              form: ImageSteps({ hypervisor }),
+              onSubmit: handleAttachDisk
+            },
+            {
+              cy: 'attach-volatile-disk',
+              name: T.Volatile,
+              form: VolatileSteps({ hypervisor }),
+              onSubmit: handleAttachDisk
+            }
+          ]}
+        />
       )}
 
       <StorageList actions={actionsAvailable} disks={disks} />
-
-      {display && (
-        <DialogConfirmation
-          title={T.AttachDisk}
-          handleAccept={hide}
-          handleCancel={hide}
-        >
-          <p>TODO: should define in view yaml ??</p>
-        </DialogConfirmation>
-      )}
     </>
   )
 }

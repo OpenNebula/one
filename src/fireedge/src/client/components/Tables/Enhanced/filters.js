@@ -21,16 +21,16 @@ import clsx from 'clsx'
 import { makeStyles, useMediaQuery, Card, CardContent } from '@material-ui/core'
 import { UseTableInstanceProps } from 'react-table'
 
-import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
+import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
 
 const useToolbarStyles = makeStyles({
   root: {
     display: 'flex'
   },
   rootNoFilters: {
-    gridColumn: '1/3',
+    gridColumn: '1 / -1',
     '& ~ div': {
-      gridColumn: '1/3'
+      gridColumn: '1 / -1'
     }
   },
   content: {
@@ -47,7 +47,7 @@ const useToolbarStyles = makeStyles({
   }
 })
 
-const Filters = ({ useTableProps }) => {
+const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
@@ -64,8 +64,13 @@ const Filters = ({ useTableProps }) => {
       ) : null)
   ), [rows])
 
-  if (isMobile) {
-    return <GlobalFilter useTableProps={useTableProps} />
+  if (isMobile || onlyGlobalSearch) {
+    return (
+      <GlobalFilter
+        className={classes.rootNoFilters}
+        useTableProps={useTableProps}
+      />
+    )
   }
 
   const noFilters = filters.length === 0
@@ -86,10 +91,12 @@ const Filters = ({ useTableProps }) => {
 }
 
 Filters.propTypes = {
+  onlyGlobalSearch: PropTypes.bool,
   useTableProps: PropTypes.object
 }
 
 Filters.defaultProps = {
+  onlyGlobalSearch: false,
   useTableProps: {}
 }
 

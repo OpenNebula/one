@@ -21,6 +21,7 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, MenuItem, MenuList, Chip } from '@material-ui/core'
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
+import { TableInstance, UseSortByInstanceProps, UseSortByState } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { T } from 'client/constants'
@@ -34,19 +35,25 @@ const useStyles = makeStyles({
   }
 })
 
+/**
+ * Render all selected sorters.
+ *
+ * @param {object} props - Props
+ * @param {TableInstance} props.useTableProps - Table props
+ * @returns {React.JSXElementConstructor} Component JSX
+ */
 const GlobalSort = ({ useTableProps }) => {
   const classes = useStyles()
 
-  React.useEffect(() => () => setSortBy([]), [])
+  const { headers, state } = useTableProps
 
-  /**
-   * @type {
-   * import('react-table').UseSortByInstanceProps &
-   * import('react-table').TableInstance &
-   * { state: import('react-table').UseSortByState }
-   * }
-   */
-  const { headers, setSortBy, state: { sortBy } } = useTableProps
+  /** @type {UseSortByInstanceProps} */
+  const { setSortBy } = useTableProps
+
+  /** @type {UseSortByState} */
+  const { sortBy } = state
+
+  React.useEffect(() => () => setSortBy([]), [])
 
   const headersNotSorted = React.useMemo(() =>
     headers.filter(({ isSorted, canSort, isVisible }) =>
@@ -74,8 +81,7 @@ const GlobalSort = ({ useTableProps }) => {
           buttonLabel={T.SortBy}
           buttonProps={{
             'data-cy': 'sort-by-button',
-            disabled: headersNotSorted.length === 0,
-            variant: 'outlined'
+            disabled: headersNotSorted.length === 0
           }}
           popoverProps= {{
             anchorOrigin: {

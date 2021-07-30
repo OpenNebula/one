@@ -26,17 +26,17 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
+  useMountedLayoutEffect,
   // types
   UseRowSelectRowProps
 } from 'react-table'
 
-import SplitPane from 'client/components/SplitPane'
 import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
 import Filters from 'client/components/Tables/Enhanced/filters'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
-import { Translate, ConditionalWrap } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const EnhancedTable = ({
@@ -45,12 +45,15 @@ const EnhancedTable = ({
   data,
   fetchMore,
   getRowId,
+  initialState,
   isLoading,
+  onlyGlobalSearch,
+  onlyGlobalSelectedRows,
+  onSelectedRowsChange,
   pageSize = 10,
-  renderAllSelected = true,
-  renderDetail,
   RowComponent,
-  showPageCount
+  showPageCount,
+  singleSelect = false
 }) => {
   const classes = EnhancedTableStyles()
 
@@ -85,7 +88,8 @@ const EnhancedTable = ({
       autoResetSortBy: false,
       // -------------------------------------
       initialState: {
-        pageSize
+        pageSize,
+        ...initialState
       }
     },
     useGlobalFilter,
@@ -98,6 +102,7 @@ const EnhancedTable = ({
   const {
     getTableProps,
     prepareRow,
+    toggleAllRowsSelected,
     preFilteredRows,
     rows,
     page,
@@ -106,10 +111,11 @@ const EnhancedTable = ({
     state: { pageIndex, selectedRowIds }
   } = useTableProps
 
-  const selectedRows = React.useMemo(
-    () => preFilteredRows.filter(row => !!selectedRowIds[row.id]),
-    [preFilteredRows, selectedRowIds]
-  )
+  useMountedLayoutEffect(() => {
+    const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+
+    onSelectedRowsChange?.(selectedRows)
+  }, [selectedRowIds])
 
   const handleChangePage = newPage => {
     gotoPage(newPage)
@@ -120,98 +126,100 @@ const EnhancedTable = ({
   }
 
   return (
-    <ConditionalWrap
-      condition={selectedRows?.length > 0}
-      wrap={children => <SplitPane>{children}</SplitPane>}
-    >
-      <Box {...getTableProps()} className={classes.root}>
-        <div className={classes.toolbar}>
-          {!isFetching && <Toolbar useTableProps={useTableProps} />}
-          <div className={classes.pagination}>
-            {page?.length > 0 && (
-              <Pagination
-                handleChangePage={handleChangePage}
-                useTableProps={useTableProps}
-                count={rows.length}
-                showPageCount={showPageCount}
-              />
-            )}
-          </div>
-        </div>
-
-        {isLoading && (
-          <LinearProgress size='1em' color='secondary' className={classes.loading} />
+    <Box {...getTableProps()} className={classes.root}>
+      <div className={classes.toolbar}>
+        {/* TOOLBAR */}
+        {!isFetching && (
+          <Toolbar
+            onlyGlobalSelectedRows={onlyGlobalSelectedRows}
+            useTableProps={useTableProps}
+          />
         )}
 
-        <div className={classes.table}>
-          {!isFetching && <Filters useTableProps={useTableProps} />}
-
-          <div className={classes.body}>
-            {/* NO DATA MESSAGE */}
-            {!isFetching && page?.length === 0 && (
-              <span className={classes.noDataMessage}>
-                <InfoEmpty />
-                <Translate word={T.NoDataAvailable} />
-              </span>
-            )}
-
-            {/* DATALIST PER PAGE */}
-            {page.map(row => {
-              prepareRow(row)
-
-              /** @type {UseRowSelectRowProps} */
-              const { getRowProps, original, values, toggleRowSelected, isSelected } = row
-              const { key, ...rowProps } = getRowProps()
-
-              return (
-                <RowComponent
-                  {...rowProps}
-                  key={key}
-                  original={original}
-                  value={values}
-                  className={isSelected ? 'selected' : ''}
-                  onClick={() => toggleRowSelected(!isSelected)}
-                />
-              )
-            })}
-          </div>
+        {/* PAGINATION */}
+        <div className={classes.pagination}>
+          {page?.length > 0 && (
+            <Pagination
+              handleChangePage={handleChangePage}
+              useTableProps={useTableProps}
+              count={rows.length}
+              showPageCount={showPageCount}
+            />
+          )}
         </div>
-      </Box>
+      </div>
 
-      {selectedRows?.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-          {selectedRows?.length === 1 && renderDetail
-            ? renderDetail?.(selectedRows[0]?.values)
-            : renderAllSelected && (
-              <pre>
-                <code>
-                  {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
-                </code>
-              </pre>
-            )
-          }
-        </div>
+      {isLoading && (
+        <LinearProgress size='1em' color='secondary' className={classes.loading} />
       )}
-    </ConditionalWrap>
+
+      <div className={classes.table}>
+        {/* FILTERS */}
+        {!isFetching && (
+          <Filters
+            onlyGlobalSearch={onlyGlobalSearch}
+            useTableProps={useTableProps}
+          />
+        )}
+
+        <div className={classes.body}>
+          {/* NO DATA MESSAGE */}
+          {!isFetching && page?.length === 0 && (
+            <span className={classes.noDataMessage}>
+              <InfoEmpty />
+              <Translate word={T.NoDataAvailable} />
+            </span>
+          )}
+
+          {/* DATALIST PER PAGE */}
+          {page.map(row => {
+            prepareRow(row)
+
+            /** @type {UseRowSelectRowProps} */
+            const { getRowProps, original, values, toggleRowSelected, isSelected } = row
+            const { key, ...rowProps } = getRowProps()
+
+            return (
+              <RowComponent
+                {...rowProps}
+                key={key}
+                original={original}
+                value={values}
+                className={isSelected ? 'selected' : ''}
+                onClick={() => {
+                  singleSelect && toggleAllRowsSelected(false)
+                  toggleRowSelected(!isSelected)
+                }}
+              />
+            )
+          })}
+        </div>
+      </div>
+    </Box>
   )
 }
 
-EnhancedTable.propTypes = {
+export const EnhancedTableProps = {
   canFetchMore: PropTypes.bool,
   columns: PropTypes.array,
   data: PropTypes.array,
   fetchMore: PropTypes.func,
   getRowId: PropTypes.func,
+  initialState: PropTypes.object,
   isLoading: PropTypes.bool,
+  onlyGlobalSearch: PropTypes.bool,
+  onlyGlobalSelectedRows: PropTypes.bool,
+  onSelectedRowsChange: PropTypes.func,
   pageSize: PropTypes.number,
-  renderAllSelected: PropTypes.bool,
-  renderDetail: PropTypes.func,
   RowComponent: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
     PropTypes.func
   ]),
-  showPageCount: PropTypes.bool
+  showPageCount: PropTypes.bool,
+  singleSelect: PropTypes.bool
 }
+
+EnhancedTable.propTypes = EnhancedTableProps
 
 export default EnhancedTable

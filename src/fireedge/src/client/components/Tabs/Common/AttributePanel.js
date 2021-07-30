@@ -30,6 +30,7 @@
  * ------------------------------------------------------------------------- */
 import * as React from 'react'
 import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/core'
 
 import { List } from 'client/components/Tabs/Common'
 import { ACTIONS } from 'client/constants'
@@ -44,6 +45,17 @@ const SPECIAL_ATTRIBUTES = {
   VCENTER_VERSION: { edit: false, delete: false }
 }
 
+const useStyles = makeStyles({
+  container: {
+    gridColumn: '1 / -1'
+  },
+  item: {
+    '& > *:first-child': {
+      flex: '1 1 20%'
+    }
+  }
+})
+
 const AttributePanel = React.memo(({
   title,
   attributes = {},
@@ -52,6 +64,8 @@ const AttributePanel = React.memo(({
   handleAdd,
   actions
 }) => {
+  const classes = useStyles()
+
   const formatAttributes = Object.entries(attributes)
     .map(([name, value]) => ({
       name,
@@ -68,9 +82,9 @@ const AttributePanel = React.memo(({
 
   return (
     <List
-      containerProps={{ style: { gridColumn: '1 / -1' } }}
+      containerProps={{ className: classes.container }}
+      itemProps={{ dense: true, className: classes.item }}
       subListProps={{ disablePadding: true }}
-      itemProps={{ dense: true }}
       title={title}
       list={formatAttributes}
       handleAdd={actions?.includes?.(ACTIONS.ADD_ATTRIBUTE) && handleAdd}

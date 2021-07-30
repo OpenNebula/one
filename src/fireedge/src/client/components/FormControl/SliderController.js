@@ -33,7 +33,6 @@ const SliderController = memo(
           <Grid container spacing={2} alignItems="center">
             <Grid item xs>
               <Slider
-
                 color='secondary'
                 value={typeof value === 'number' ? value : 0}
                 aria-labelledby={`slider-${name}`}
@@ -50,6 +49,8 @@ const SliderController = memo(
                 value={value ?? ''}
                 error={Boolean(error)}
                 type='number'
+                variant='outlined'
+                margin='dense'
                 inputProps={{
                   'data-cy': `${cy}-input`,
                   'aria-labelledby': `slider-${name}`,

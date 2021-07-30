@@ -17,11 +17,11 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+import clsx from 'clsx'
 import { makeStyles, Backdrop, CircularProgress } from '@material-ui/core'
 
 import { useFetch } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
-import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
   backdrop: {

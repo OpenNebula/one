@@ -34,7 +34,7 @@ const User = React.memo(() => {
       id='user-menu'
       buttonLabel={user?.NAME}
       icon={<UserIcon />}
-      buttonProps={{ 'data-cy': 'header-user-button', variant: 'outlined' }}
+      buttonProps={{ 'data-cy': 'header-user-button' }}
       disablePadding
     >
       {() => (

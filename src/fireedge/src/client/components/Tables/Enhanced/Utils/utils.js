@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { Column } from 'react-table'
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 
+/**
+ * Add filters defined in view yaml to columns.
+ *
+ * @param {object} config -
+ * @param {object[]} config.filters
+ * - List of criteria to filter the columns.
+ * @param {Column[]} config.columns - Columns
+ * @returns {object} Column with filters
+ */
 export const createColumns = ({ filters = {}, columns = [] }) => {
   if (Object.keys(filters).length === 0) return columns
 
@@ -25,18 +34,23 @@ export const createColumns = ({ filters = {}, columns = [] }) => {
     const filterById = !!filters[String(id.toLowerCase())]
 
     const filterByAccessor =
-    typeof accessor === 'string' &&
-    !!filters[String(accessor.toLowerCase())]
+      typeof accessor === 'string' &&
+      !!filters[String(accessor.toLowerCase())]
 
     return {
       ...column,
-      ...((filterById || filterByAccessor) &&
-      createCategoryFilter(Header)
+      ...((filterById || filterByAccessor) && createCategoryFilter(Header)
       )
     }
   })
 }
 
+/**
+ * Create category filter as column.
+ *
+ * @param {string} title - Title
+ * @returns {Column} - Category filter
+ */
 export const createCategoryFilter = title => ({
   disableFilters: false,
   Filter: ({ column }) => CategoryFilter({

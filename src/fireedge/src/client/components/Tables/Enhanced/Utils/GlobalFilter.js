@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-/* eslint-disable jsdoc/check-types */
-/* eslint-disable jsdoc/valid-types */
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
+import clsx from 'clsx'
 import { makeStyles, fade, debounce, InputBase } from '@material-ui/core'
 import { Search as SearchIcon } from 'iconoir-react'
+import { UseGlobalFiltersInstanceProps, UseGlobalFiltersState } from 'react-table'
 
 const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   search: {
@@ -55,14 +54,21 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   }
 }))
 
-const GlobalFilter = ({ useTableProps }) => {
+/**
+ * Render search input.
+ *
+ * @param {object} props - Props
+ * @param {string} props.className - Class to wrapper root
+ * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
+ * @returns {React.JSXElementConstructor} Component JSX
+ */
+const GlobalFilter = ({ useTableProps, className }) => {
   const classes = useStyles()
 
-  /**
-   * @type {import('react-table').UseGlobalFiltersInstanceProps &
-   * { state: import('react-table').UseGlobalFiltersState }}
-   */
-  const { setGlobalFilter, state: { globalFilter } } = useTableProps
+  const { setGlobalFilter, state } = useTableProps
+
+  /** @type {UseGlobalFiltersState} */
+  const { globalFilter } = state
 
   const [value, setValue] = React.useState(() => globalFilter)
 
@@ -72,7 +78,7 @@ const GlobalFilter = ({ useTableProps }) => {
   )
 
   return (
-    <div className={classes.search}>
+    <div className={clsx(classes.search, className)}>
       <div className={classes.searchIcon}>
         <SearchIcon />
       </div>
@@ -94,6 +100,7 @@ const GlobalFilter = ({ useTableProps }) => {
 }
 
 GlobalFilter.propTypes = {
+  className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired
 }
 
