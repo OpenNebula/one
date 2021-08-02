@@ -13,11 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
-import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
-export * from 'client/components/Forms/Vm/AttachDiskForm'
+/* eslint-disable jsdoc/require-jsdoc */
+import * as yup from 'yup'
 
-export {
-  AttachNicForm,
-  ResizeCapacityForm
+import NetworksTable from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
+import AdvancedOptions from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
+
+const Steps = stepProps => {
+  const network = NetworksTable(stepProps)
+  const advanced = AdvancedOptions(stepProps)
+
+  const steps = [network, advanced]
+
+  const resolver = () => yup.object({
+    [network.id]: network.resolver(),
+    [advanced.id]: advanced.resolver()
+  })
+
+  const defaultValues = resolver().default()
+
+  return { steps, defaultValues, resolver }
 }
+
+export default Steps

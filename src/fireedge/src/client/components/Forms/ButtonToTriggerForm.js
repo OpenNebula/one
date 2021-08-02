@@ -44,12 +44,12 @@ const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
   const { steps, defaultValues, resolver, fields, onSubmit: handleSubmit } = Form ?? {}
 
   const handleTriggerSubmit = async formData => {
-    await handleSubmit(formData)
+    await handleSubmit?.(formData)
     hide()
   }
 
-  const openDialogForm = form => {
-    show(form)
+  const openDialogForm = ({ form = {}, onSubmit }) => {
+    show({ ...form, onSubmit })
     handleClose()
   }
 
@@ -65,8 +65,9 @@ const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
         aria-describedby={buttonProps.cy ?? 'main-button-form'}
         disabled={!options.length}
         endIcon={isGroupButton && <NavArrowDown />}
-        onClick={evt =>
-          !isGroupButton ? openDialogForm(options[0].form) : handleToggle(evt)
+        onClick={evt => !isGroupButton
+          ? openDialogForm(options[0])
+          : handleToggle(evt)
         }
         {...buttonProps}
       >
@@ -86,11 +87,11 @@ const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
               <Paper variant='outlined'>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList disablePadding>
-                    {options.map(({ cy, name, form = {}, onSubmit }) => (
+                    {options.map(({ cy, name, ...option }) => (
                       <MenuItem
                         key={name}
                         data-cy={cy}
-                        onClick={() => openDialogForm({ ...form, onSubmit })}
+                        onClick={() => openDialogForm(option)}
                       >
                         <Translate word={name} />
                       </MenuItem>

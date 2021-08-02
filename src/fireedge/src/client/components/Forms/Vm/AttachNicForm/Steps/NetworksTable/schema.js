@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
-import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
-export * from 'client/components/Forms/Vm/AttachDiskForm'
+import * as yup from 'yup'
 
-export {
-  AttachNicForm,
-  ResizeCapacityForm
-}
+export const SCHEMA = yup
+  .array(yup.object())
+  .min(1, 'Select network')
+  .max(1, 'Max. one network selected')
+  .required('Network field is required')
+  .default([])

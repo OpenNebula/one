@@ -19,11 +19,11 @@ import React, { useEffect } from 'react'
 import { useFetch } from 'client/hooks'
 import { useVNetwork, useVNetworkApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
 import VNetworkColumns from 'client/components/Tables/VNetworks/columns'
 import VNetworkRow from 'client/components/Tables/VNetworks/row'
 
-const VNetworksTable = () => {
+const VNetworksTable = props => {
   const columns = React.useMemo(() => VNetworkColumns, [])
 
   const vNetworks = useVNetwork()
@@ -45,8 +45,12 @@ const VNetworksTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={VNetworkRow}
+      {...props}
     />
   )
 }
+
+VNetworksTable.propTypes = EnhancedTableProps
+VNetworksTable.displayName = 'VNetworksTable'
 
 export default VNetworksTable

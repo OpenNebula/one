@@ -45,6 +45,7 @@ export const useVmApi = () => {
     changeOwnership: (id, ownership) =>
       unwrapDispatch(actions.changeOwnership({ id, ownership })),
     attachDisk: (id, template) => unwrapDispatch(actions.attachDisk({ id, template })),
+    attachNic: (id, template) => unwrapDispatch(actions.attachNic({ id, template })),
     detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic }))
   }
 }

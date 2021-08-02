@@ -101,7 +101,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
 
   const hasDetails = React.useMemo(
     () => !!ALIAS.length || !!SECURITY_GROUPS?.length,
-    [ALIAS.length, SECURITY_GROUPS?.length]
+    [ALIAS?.length, SECURITY_GROUPS?.length]
   )
 
   const handleDetach = async () => {

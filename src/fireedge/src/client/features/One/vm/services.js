@@ -243,6 +243,28 @@ export const vmService = ({
   },
 
   /**
+   * Attaches a new network interface to the virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.template
+   * - A string containing a single NIC vector attribute
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  attachNic: async ({ id, template }) => {
+    const name = Actions.VM_NIC_ATTACH
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ id, template }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Detaches a network interface from a virtual machine.
    *
    * @param {object} params - Request parameters

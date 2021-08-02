@@ -16,21 +16,23 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as React from 'react'
 import PropTypes from 'prop-types'
-import { Button } from '@material-ui/core'
 
-import { useDialog } from 'client/hooks'
+import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { DialogConfirmation } from 'client/components/Dialogs'
+
 import NetworkList from 'client/components/Tabs/Vm/Network/List'
-import { Tr } from 'client/components/HOC'
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { AttachNicForm } from 'client/components/Forms/Vm'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
+import { mapUserInputs } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const VmNetworkTab = ({ tabProps = {} }) => {
-  const { display, show, hide } = useDialog()
-  const { data: vm } = React.useContext(TabContext)
+  const { attachNic } = useVmApi()
+
+  const { handleRefetch, data: vm } = React.useContext(TabContext)
   const { actions = [] } = tabProps
 
   const nics = VirtualMachine.getNics(vm, {
@@ -41,31 +43,33 @@ const VmNetworkTab = ({ tabProps = {} }) => {
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
+  const handleAttachNic = async ({ network, advanced }) => {
+    const networkSelected = network?.[0]
+    const isAlias = !!advanced?.PARENT?.length
+    const root = { ...networkSelected, ...mapUserInputs(advanced) }
+
+    const template = Helper.jsonToXml({
+      [isAlias ? 'NIC_ALIAS' : 'NIC']: root
+    })
+
+    const response = await attachNic(vm.ID, template)
+    String(response) === String(vm.ID) && await handleRefetch?.()
+  }
+
   return (
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_NIC) && (
-        <Button
-          data-cy='attach-nic'
-          size='small'
-          color='secondary'
-          onClick={show}
-          variant='contained'
-        >
-          {Tr(T.AttachNic)}
-        </Button>
+        <ButtonToTriggerForm
+          buttonProps={{ 'data-cy': 'attach-nic' }}
+          title={T.AttachNic}
+          options={[{
+            form: AttachNicForm({ nics }),
+            onSubmit: handleAttachNic
+          }]}
+        />
       )}
 
       <NetworkList actions={actionsAvailable} nics={nics} />
-
-      {display && (
-        <DialogConfirmation
-          title={T.AttachNic}
-          handleAccept={hide}
-          handleCancel={hide}
-        >
-          <p>TODO: should define in view yaml ??</p>
-        </DialogConfirmation>
-      )}
     </>
   )
 }

@@ -13,11 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
-import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
-export * from 'client/components/Forms/Vm/AttachDiskForm'
-
-export {
-  AttachNicForm,
-  ResizeCapacityForm
-}
+export { default } from 'client/components/Forms/Vm/AttachNicForm/Steps'
