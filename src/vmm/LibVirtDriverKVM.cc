@@ -536,12 +536,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * graphics;
 
-    string  listen        = "";
-    string  port          = "";
-    string  passwd        = "";
-    string  keymap        = "";
-    string  spice_options = "";
-
     const VectorAttribute * input;
 
     vector<const VectorAttribute *> pci;
@@ -1589,11 +1583,33 @@ int LibVirtDriver::deployment_description_kvm(
 
     if ( graphics != 0 )
     {
-        type   = graphics->vector_value("TYPE");
-        listen = graphics->vector_value("LISTEN");
+        string  listen;
+        string  port;
+        string  passwd;
+        string  keymap;
+        string  spice_options;
+        bool    random_passwrd;
+
+        get_attribute(vm, host, cluster, "GRAPHICS", "TYPE", type);
+        get_attribute(vm, host, cluster, "GRAPHICS", "LISTEN", listen);
+        get_attribute(vm, host, cluster, "GRAPHICS", "PASSWD", passwd);
+        get_attribute(vm, host, cluster, "GRAPHICS", "KEYMAP", keymap);
+        get_attribute(vm, host, cluster, "GRAPHICS", "RANDOM_PASSWD", random_passwrd);
+
         port   = graphics->vector_value("PORT");
-        passwd = graphics->vector_value("PASSWD");
-        keymap = graphics->vector_value("KEYMAP");
+
+        if ( random_passwrd && passwd.empty())
+        {
+            passwd = one_util::random_password();
+
+            if ( graphics->vector_value("TYPE") == "SPICE" )
+            {
+                // Spice password must be 60 characters maximum
+                passwd = passwd.substr(0, 59);
+            }
+
+            const_cast<VectorAttribute*>(graphics)->replace("PASSWD", passwd);
+        }
 
         one_util::tolower(type);
 

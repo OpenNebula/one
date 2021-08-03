@@ -418,10 +418,11 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
         }
     }
 
-    string random_passwd = graphics->vector_value("RANDOM_PASSWD");
+    bool random_passwd;
+    graphics->vector_value("RANDOM_PASSWD", random_passwd);
     string password = graphics->vector_value("PASSWD");
 
-    if ( !random_passwd.empty() && password.empty() )
+    if ( random_passwd && password.empty() )
     {
         password = one_util::random_password();
 
