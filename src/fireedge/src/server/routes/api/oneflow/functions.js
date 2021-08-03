@@ -55,7 +55,7 @@ const parseToNumber = validate =>
  * @param {Function} success - callback success function
  * @param {Function} error - callback error function
  */
-const oneFlowConection = (requestData = {}, success = () => undefined, error = () => undefined) => {
+const oneFlowConnection = (requestData = {}, success = () => undefined, error = () => undefined) => {
   const { method, path, user, password, request, post } = requestData
   const optionMethod = method || GET
   const optionPath = path || '/'
@@ -103,7 +103,7 @@ const oneFlowConection = (requestData = {}, success = () => undefined, error = (
 }
 
 const functionRoutes = {
-  oneFlowConection,
+  oneFlowConnection,
   returnSchemaError
 }
 

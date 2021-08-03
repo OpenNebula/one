@@ -20,16 +20,19 @@ const {
   serviceDelete,
   serviceAddAction,
   serviceAddScale,
-  serviceAddRoleAction
+  serviceAddRoleAction,
+  serviceAddSchedAction,
+  serviceUpdateSchedAction,
+  serviceDeleteSchedAction
 } = require('./service-functions')
-const { GET, POST, DELETE } = httpMethod
+const { GET, POST, DELETE, PUT } = httpMethod
 
 const routes = {
   [GET]: {
     list: {
       action: service,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
+        id: { from: fromData.resource, name: 'id' }
       }
     }
   },
@@ -38,22 +41,39 @@ const routes = {
       action: serviceAddAction,
       params: {
         id: { from: fromData.resource, name: 'id' },
-        action: { from: fromData.postBody, front: true }
+        action: { from: fromData.postBody }
       }
     },
     scale: {
       action: serviceAddScale,
       params: {
         id: { from: fromData.resource, name: 'id' },
-        action: { from: fromData.postBody, front: true }
+        action: { from: fromData.postBody }
       }
     },
     'role-action': {
       action: serviceAddRoleAction,
       params: {
-        role: { from: fromData.resource, name: 'id', front: true },
-        id: { from: fromData.resource, name: 'id2', front: true },
-        action: { from: fromData.postBody, front: true }
+        role: { from: fromData.resource, name: 'id' },
+        id: { from: fromData.resource, name: 'id2' },
+        action: { from: fromData.postBody }
+      }
+    },
+    sched_action: {
+      action: serviceAddSchedAction,
+      params: {
+        id: { from: fromData.resource, name: 'id' },
+        sched_action: { from: fromData.postBody, name: 'sched_action' }
+      }
+    }
+  },
+  [PUT]: {
+    sched_action: {
+      action: serviceUpdateSchedAction,
+      params: {
+        id: { from: fromData.resource, name: 'id' },
+        id_sched: { from: fromData.resource, name: 'id2' },
+        sched_action: { from: fromData.postBody, name: 'sched_action' }
       }
     }
   },
@@ -61,6 +81,13 @@ const routes = {
     delete: {
       action: serviceDelete,
       params: { id: { from: fromData.resource, name: 'id', front: true } }
+    },
+    sched_action: {
+      action: serviceDeleteSchedAction,
+      params: {
+        id: { from: fromData.resource, name: 'id' },
+        id_sched: { from: fromData.resource, name: 'id2' }
+      }
     }
   }
 }
