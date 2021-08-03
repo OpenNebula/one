@@ -397,6 +397,11 @@ int AddressRange::update_attributes(
             vup->replace("PREFIX_LENGTH", attr->vector_value("PREFIX_LENGTH"));
         }
     }
+    else
+    {
+        vup->remove("PREFIX_LENGTH");
+    }
+
 
     if ( is_ipv6() )
     {
@@ -420,6 +425,12 @@ int AddressRange::update_attributes(
 
         vup->replace("ULA_PREFIX", new_ula);
     }
+    else
+    {
+        vup->remove("GLOBAL_PREFIX");
+        vup->remove("ULA_PREFIX");
+    }
+
 
     unsigned long int new_size;
 
