@@ -14,8 +14,7 @@
 # limitations under the License.
 
 # Use full path to ensure virtualenv compatibility
-PYTHON = $(shell which python2)
-PYTHON3 = $(shell which python3)
+PYTHON = $(shell which python3)
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
 
@@ -45,9 +44,6 @@ dist:
 
 install:
 	${PYTHON} setup.py install ${root}
-
-install3:
-	${PYTHON3} setup.py install ${root}
 
 doc:
 	mkdir -p doc

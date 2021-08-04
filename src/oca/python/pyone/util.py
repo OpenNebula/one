@@ -137,6 +137,6 @@ class TemplatedType(object):
     '''
     Mixin class for Templated bindings
     '''
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if not build_template_node(self, nodeName_, child_):
-            super(TemplatedType, self).buildChildren(child_,node,nodeName_,fromsubclass_,gds_collector_)
+            super(TemplatedType, self)._buildChildren(child_,node,nodeName_,fromsubclass_,gds_collector_)
