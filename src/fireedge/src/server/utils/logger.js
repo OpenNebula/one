@@ -16,7 +16,8 @@
 
 const { env } = require('process')
 const { global } = require('window-or-global')
-const winston = require('winston')
+const { transports, format, createLogger } = require('winston')
+const { sprintf } = require('sprintf-js')
 const morgan = require('morgan')
 const { defaultWebpackMode } = require('./constants/defaults')
 
@@ -27,29 +28,29 @@ let logger = null
  */
 const initLogger = () => {
   if (global && global.paths && global.paths.FIREEDGE_LOG) {
-    const transports = []
+    const trans = []
 
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-      transports.push(
-        new winston.transports.Console({
-          format: winston.format.simple()
+      trans.push(
+        new transports.Console({
+          format: format.simple()
         }))
     } else {
-      transports.push(
-        new winston.transports.File({
-          silent: true,
+      trans.push(
+        new transports.File({
+          silent: false,
           level: 'info',
           filename: global.paths.FIREEDGE_LOG,
           handleExceptions: true,
-          json: false,
+          format: format.simple(),
           maxsize: 5242880, // 5MB
           colorize: false
         })
       )
     }
 
-    logger = winston.createLogger({
-      transports,
+    logger = createLogger({
+      transports: trans,
       exitOnError: false
     })
 
@@ -59,8 +60,8 @@ const initLogger = () => {
       }
     }
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-      logger.clear().add(new winston.transports.Console({
-        format: winston.format.simple()
+      logger.clear().add(new transports.Console({
+        format: format.simple()
       }))
     }
   }
@@ -89,14 +90,13 @@ const getLoggerMiddleware = () => {
  * Write in logger.
  *
  * @param {string} message - message for logger file
+ * @param {string } format - message format
  */
-const writeInLogger = (message = '') => {
+const writeInLogger = (message = '', format = '%s') => {
   const logger = getLogger()
   if (logger) {
-    logger.log({
-      level: 'info',
-      message
-    })
+    const parseMessage = Array.isArray(message) ? message : [message]
+    logger.info(sprintf(format, ...parseMessage))
   }
 }
 

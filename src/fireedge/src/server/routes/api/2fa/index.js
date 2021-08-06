@@ -18,6 +18,8 @@ const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
 const { routes: tfaRoutes } = require('./tfa')
 const { TFA } = require('./string-routes')
 
+const { defaultEmptyFunction } = require('server/utils/constants/defaults')
+
 const privateRoutes = []
 const publicRoutes = []
 
@@ -28,7 +30,7 @@ const publicRoutes = []
  * @param {string} path - principal route
  * @param {Function} action - function of route
  */
-const setPrivateRoutes = (routes = {}, path = '', action = () => undefined) => {
+const setPrivateRoutes = (routes = {}, path = '', action = defaultEmptyFunction) => {
   if (Object.keys(routes).length > 0 && routes.constructor === Object) {
     Object.keys(routes).forEach((route) => {
       privateRoutes.push(

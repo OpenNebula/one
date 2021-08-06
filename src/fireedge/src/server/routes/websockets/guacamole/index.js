@@ -18,11 +18,13 @@ const GuacamoleOpennebula = require('opennebula-guacamole')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey } = require('server/utils/server')
+const { writeInLogger } = require('server/utils/logger')
 const { endpointGuacamole } = require('server/utils/constants/defaults')
 
 // set fireedge_key
 genFireedgeKey()
 
+const formatError = 'Error: %s'
 /**
  * Object http error.
  *
@@ -31,7 +33,7 @@ genFireedgeKey()
  */
 const configError = (error) => ({
   color: 'red',
-  message: 'Error: %s',
+  message: formatError,
   error: error && error.message
 })
 
@@ -85,6 +87,7 @@ const guacamole = appServer => {
       clientCallbacks
     )
     guacamoleServer.on('error', (clientConnection, error) => {
+      writeInLogger(error, formatError)
       messageTerminal(configError(error))
     })
   }

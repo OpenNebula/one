@@ -171,8 +171,7 @@ const setTfaToken = newTfaToken => {
 /**
  * Set remember.
  *
- * @param {boolean} remember - new remember
- * @param newRemember
+ * @param {boolean} newRemember - new remember
  * @returns {boolean} remember
  */
 const setRemember = newRemember => {

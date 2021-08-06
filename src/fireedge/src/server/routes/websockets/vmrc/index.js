@@ -21,6 +21,7 @@ const { readFileSync } = require('fs-extra')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genPathResources, validateServerIsSecure } = require('server/utils/server')
+const { writeInLogger } = require('server/utils/logger')
 const { endpointVmrc, defaultPort } = require('server/utils/constants/defaults')
 
 genPathResources()
@@ -50,15 +51,14 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
       const parseURL = parse(req.url)
       if (parseURL && parseURL.pathname) {
         const ticket = parseURL.pathname.split('/')[3]
+        writeInLogger(ticket, 'path to vmrc token: %s')
         try {
           const esxi = readFileSync(
             `${global.paths.VMRC_TOKENS || ''}/${ticket}`
           ).toString()
           return esxi
         } catch (error) {
-          config.error = error.message
-          config.message = 'Error read vmrc token: %s'
-          messageTerminal(config)
+          writeInLogger(ticket, 'Error to read vmrc token file: %s')
         }
       }
     }
