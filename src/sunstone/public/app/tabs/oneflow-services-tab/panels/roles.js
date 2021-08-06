@@ -19,17 +19,17 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var DomDataTable = require('utils/dom-datatable');
-  var Locale = require('utils/locale');
-  var OpenNebulaRole = require('opennebula/role');
+  var DomDataTable = require("utils/dom-datatable");
+  var Locale = require("utils/locale");
+  var OpenNebulaRole = require("opennebula/role");
   var OpenNebulaVM = require("opennebula/vm");
-  var RolesButtons = require('./roles/roles-buttons');
-  var RolesVmButtons = require('./roles/roles-vm-buttons');
-  var StateRolesButtons = require('./roles/state-roles-buttons');
-  var StateRolesVmButtons = require('./roles/state-roles-vm-buttons');
-  var Sunstone = require('sunstone');
-  var Tips = require('utils/tips');
-  var VMRemoteActions = require('utils/remote-actions');
+  var RolesButtons = require("./roles/roles-buttons");
+  var RolesVmButtons = require("./roles/roles-vm-buttons");
+  var StateRolesButtons = require("./roles/state-roles-buttons");
+  var StateRolesVmButtons = require("./roles/state-roles-vm-buttons");
+  var Sunstone = require("sunstone");
+  var Tips = require("utils/tips");
+  var VMRemoteActions = require("utils/remote-actions");
 
   /*
     TEMPLATES
@@ -152,9 +152,7 @@ define(function(require) {
 
     Tips.setup(context);
 
-    console.log()
-
-    $('#addRoleBtn').on('click', function(event){
+    $("#addRoleBtn").on("click", function(event){
       event.preventDefault();
       Sunstone.runAction("Role.add_dialog");
     });
@@ -169,11 +167,11 @@ define(function(require) {
           customTabContext: $("#role_actions", context),
           customTrListener: function(tableObj, tr){
             var rowData = tableObj.dataTable.fnGetData(tr);
-            var roleName = $(rowData[0]).data().name
-            
+            var roleName = $(rowData[0]).data().name;
+
             var roleIndexSelected = roles.findIndex(function(role) {
-              return role.name === String(roleName)
-            })
+              return role.name === String(roleName);
+            });
 
             var roleSelected = roles[roleIndexSelected];
             var isEqualLastIndex = lastRoleIndexSelected === roleIndexSelected;
@@ -227,12 +225,14 @@ define(function(require) {
         function successCallback (data) {
           if (data && data.ID === id) {
             var ready = "";
-            if (ready_status_gate) {
-              ready = (data.USER_TEMPLATE && data.USER_TEMPLATE.READY == "YES")
-                ? "<span class=\"has-tip\" title=\""+
-                  Locale.tr("The VM is ready")+"\"><i class=\"fas fa-check\"/></span>"
+            var check = "<span class=\"has-tip\" title=\""+Locale.tr("The VM is ready")+"\"><i class=\"fas fa-check\"/></span>";
+            if (ready_status_gate && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY){
+                ready = (data.VM.USER_TEMPLATE.READY === "YES")
+                ? check
                 : "<span class=\"has-tip\" title=\""+
                   Locale.tr("Waiting for the VM to be ready")+"\"><i class=\"fas fa-clock\"/></span>";
+            }else if(data.VM && data.VM.LCM_STATE && data.VM.LCM_STATE === "3"){
+              ready = check;
             }
             ips = OpenNebulaVM.ipsDropdown(data);
 
@@ -333,7 +333,7 @@ define(function(require) {
         var prevIdsSelected = $.map(prevRowsSelected, function(row) {
           return $(row).attr("id");
         });
-        
+
         var roleSelected = that.roles[lastRoleIndexSelected];
 
         that.roleHTML(context, roleSelected, function() {
