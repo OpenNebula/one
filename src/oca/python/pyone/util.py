@@ -20,6 +20,7 @@ from lxml.etree import tostring
 from collections import OrderedDict
 from aenum import IntEnum
 
+TEMPLATE_ALWAYS_LIST_ELEM = ['SNAPSHOT']
 
 def cast2one(param):
 
@@ -86,6 +87,16 @@ def none2emptystr(d):
             d[k] = ""
 
 
+def fix_dict(d, tag):
+    if tag == 'TEMPLATE':
+        tmpl = d['TEMPLATE']
+
+        # wrap single entry as a list
+        for elem in TEMPLATE_ALWAYS_LIST_ELEM:
+            if elem in tmpl and type(tmpl[elem]) != list:
+                tmpl[elem] = [ tmpl[elem] ]
+
+
 def child2dict(element):
     '''
     Creates a dictionary from the documentTree obtained from a binding Element.
@@ -95,6 +106,9 @@ def child2dict(element):
 
     xml = tostring(element)
     ret = xmltodict.parse(xml, strip_whitespace=False)
+
+    # process dict, do ad-hoc fixes
+    fix_dict(ret, element.tag)
 
     # get the tag name and remove the ns attribute if present
     if "}" in element.tag:
