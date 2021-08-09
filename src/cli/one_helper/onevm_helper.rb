@@ -1228,7 +1228,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :SCHEDULED, '', :adjust => true do |d|
-                    OpenNebulaHelper.time_to_str(d['TIME'], false) \
+                    t2 = d['TIME'].to_i
+                    t2 += vm['STIME'].to_i unless d['TIME'] =~ /^[0-9].*/
+
+                    OpenNebulaHelper.time_to_str(t2, false) \
                         unless d.nil?
                 end
 
@@ -1279,7 +1282,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                 column :CHARTER, '', :left, :adjust, :size => 15 do |d|
                     t1 = Time.now
-                    t2 = Time.at(vm['STIME'].to_i + d['TIME'].to_i)
+                    t2 = d['TIME'].to_i
+                    t2 += vm['STIME'].to_i unless d['TIME'] =~ /^[0-9].*/
+
+                    t2 = Time.at(t2)
 
                     days    = ((t2 - t1) / (24 * 3600)).round(2)
                     hours   = ((t2 - t1) / 3600).round(2)
@@ -1287,7 +1293,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                     if days > 1
                         show = "In #{days} days"
-                    elsif days < 1 && hours > 1
+                    elsif days <= 1 && hours > 1
                         show = "In #{hours} hours"
                     elsif minutes > 0
                         show = "In #{minutes} minutes"
@@ -1295,7 +1301,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                         show = 'Already done'
                     end
 
-                    if (t1 - vm['STIME'].to_i).to_i > d['WARNING'].to_i
+                    wrn = d['WARNING']
+                    if !wrn.nil? && (t1 - vm['STIME'].to_i).to_i > wrn.to_i
                         "#{show} *"
                     else
                         show
