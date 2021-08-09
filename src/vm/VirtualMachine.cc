@@ -2769,7 +2769,7 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
  * Replaces the values of a vector value, preserving the existing ones
  */
 static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
-        const char * name)
+        const char * name, bool append)
 {
     string value;
 
@@ -2778,7 +2778,10 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 
     if ( new_attr == 0 )
     {
-        old_tmpl->erase(name);
+        if ( !append )
+        {
+            old_tmpl->erase(name);
+        }
     }
     else if ( old_attr == 0 )
     {
@@ -2792,7 +2795,10 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
         {
             if ( new_attr->vector_value(vname, value) == -1 )
             {
-                old_attr->remove(vname);
+                if ( !append )
+                {
+                    old_attr->remove(vname);
+                }
             }
             else
             {
@@ -2800,12 +2806,13 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
             }
         }
     }
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
+int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
+        bool append)
 {
     switch (state)
     {
@@ -2873,22 +2880,22 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
-    replace_vector_values(obj_template.get(), tmpl, "OS");
+    replace_vector_values(obj_template.get(), tmpl, "OS", append);
 
     if ( set_boot_order(obj_template.get(), err) != 0 )
     {
         return -1;
     }
 
-    replace_vector_values(obj_template.get(), tmpl, "FEATURES");
+    replace_vector_values(obj_template.get(), tmpl, "FEATURES", append);
 
-    replace_vector_values(obj_template.get(), tmpl, "INPUT");
+    replace_vector_values(obj_template.get(), tmpl, "INPUT", append);
 
-    replace_vector_values(obj_template.get(), tmpl, "GRAPHICS");
+    replace_vector_values(obj_template.get(), tmpl, "GRAPHICS", append);
 
-    replace_vector_values(obj_template.get(), tmpl, "RAW");
+    replace_vector_values(obj_template.get(), tmpl, "RAW", append);
 
-    replace_vector_values(obj_template.get(), tmpl, "CPU_MODEL");
+    replace_vector_values(obj_template.get(), tmpl, "CPU_MODEL", append);
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
@@ -2950,12 +2957,24 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
 
         context_new = obj_template->get("CONTEXT");
 
-        for (const auto& attr : equal_values)
+        if (append)
         {
-            context_new->replace(attr.first, attr.second);
-        }
+            obj_template->remove(context_new);
+            obj_template->set(context_bck);
 
-        delete context_bck;
+            context_bck->merge(context_new, false);
+
+            delete context_new;
+        }
+        else
+        {
+            for (const auto& attr : equal_values)
+            {
+                context_new->replace(attr.first, attr.second);
+            }
+
+            delete context_bck;
+        }
     }
 
     // -------------------------------------------------------------------------

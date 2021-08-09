@@ -1305,7 +1305,8 @@ CommandParser::CmdParser.new(ARGV) do
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 
-    command :updateconf, updateconf_desc, :vmid, [:file, nil] do
+    command :updateconf, updateconf_desc, :vmid, [:file, nil],
+            :options => OpenNebulaHelper::APPEND do
         template = ''
 
         begin
@@ -1332,7 +1333,7 @@ CommandParser::CmdParser.new(ARGV) do
                 template = OpenNebulaHelper.editor_input(template)
             end
 
-            vm.updateconf(template)
+            vm.updateconf(template, options[:append])
         end
     end
 

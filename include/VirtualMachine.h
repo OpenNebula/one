@@ -1188,10 +1188,11 @@ public:
      *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
      *      CONTEXT and GRAPHICS.
      *    @param err description if any
+     *    @param append true append, false replace
      *
      *    @return 0 on success
      */
-    int updateconf(VirtualMachineTemplate* tmpl, std::string &err);
+    int updateconf(VirtualMachineTemplate* tmpl, std::string &err, bool append);
 
     /**
      *  Check if the template includes any restricted attribute, different from

@@ -713,18 +713,20 @@ module OpenNebula
             end
         end
 
-        #  Changes the attributes of a VM in power off, failure and undeploy
-        #  states
-        #  @param new_conf, string describing the new attributes. Each attribute
+        # Changes the attributes of a VM in power off, failure and undeploy
+        #   states
+        #
+        # @param new_conf, string describing the new attributes. Each attribute
         #  will replace the existing ones or delete it if empty. Attributes that
         #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
         #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
         #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT},
         #  and GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP}
+        # @param append, append template, do not delete empty attributes
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def updateconf(new_conf)
-            return call(VM_METHODS[:updateconf], @pe_id, new_conf)
+        def updateconf(new_conf, append = false)
+            return call(VM_METHODS[:updateconf], @pe_id, new_conf, append ? 1 : 0)
         end
 
         # Add sched actions

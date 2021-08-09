@@ -3030,6 +3030,19 @@ void VirtualMachineUpdateConf::request_execute(
 {
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+    int     update_type = 0;
+
+    if ( paramList.size() > 3 )
+    {
+        update_type = xmlrpc_c::value_int(paramList.getInt(3));
+    }
+
+    if ( update_type < 0 || update_type > 1 )
+    {
+        att.resp_msg = "Wrong update type";
+        failure_response(XML_RPC_API, att);
+        return;
+    }
 
     VirtualMachineTemplate tmpl;
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
@@ -3080,7 +3093,8 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    if ( vm->updateconf(uc_tmpl.get(), att.resp_msg) != 0 )
+    if (vm->updateconf(uc_tmpl.get(), att.resp_msg,
+                       update_type == 1 ? true : false ) != 0 )
     {
         failure_response(INTERNAL, att);
 
