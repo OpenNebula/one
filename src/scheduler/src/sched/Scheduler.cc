@@ -894,7 +894,9 @@ void Scheduler::match_schedule()
                 {
                     log_match(vm->get_oid(), "Cannot schedule VM. "+ m_error);
 
-                    vm->log("Cannot schedule VM. "+ m_error);
+                    vm->log("Cannot dispatch VM: "+ m_error);
+
+                    vmpool->remove_vm_resources(vm->get_oid());
 
                     continue;
                 }
@@ -947,17 +949,17 @@ void Scheduler::match_schedule()
             {
                 if (hosts.size() == 0)
                 {
-                    vm->log("No hosts enabled to run VMs");
+                    vm->log("Cannot dispatch VM: No hosts enabled to run VMs");
                 }
                 else if (n_auth == 0)
                 {
-                    vm->log("User is not authorized to use any host");
+                    vm->log("Cannot dispatch VM: User is not authorized to use any host");
                 }
                 else if (n_fits == 0)
                 {
                     ostringstream oss;
 
-                    oss << "No host with enough capacity to deploy the VM";
+                    oss << "Cannot dispatch VM: No host with enough capacity to deploy the VM";
 
                     vm->log(oss.str());
                 }
@@ -965,7 +967,7 @@ void Scheduler::match_schedule()
                 {
                     ostringstream oss;
 
-                    oss << "No host meets capacity and SCHED_REQUIREMENTS: "
+                    oss << "Cannot dispatch VM: No host meets capacity and SCHED_REQUIREMENTS: "
                         << vm->get_requirements();
 
                     vm->log(oss.str());
@@ -974,6 +976,8 @@ void Scheduler::match_schedule()
 
             log_match(vm->get_oid(),
                     "Cannot schedule VM, there is no suitable host.");
+
+            vmpool->remove_vm_resources(vm->get_oid());
 
             continue;
         }
@@ -1060,16 +1064,16 @@ void Scheduler::match_schedule()
                 {
                     if (datastores.size() == 0)
                     {
-                        vm->log("No system datastores found to run VMs");
+                        vm->log("Cannot dispatch VM: No system datastores found to run VMs");
                     }
                     else if (n_auth == 0)
                     {
-                        vm->log("User is not authorized to use any system datastore");
+                        vm->log("Cannot dispatch VM: User is not authorized to use any system datastore");
                     }
                     else if (n_fits == 0)
                     {
                         ostringstream oss;
-                        oss <<  "No system datastore with enough capacity for the VM";
+                        oss <<  "Cannot dispatch VM: No system datastore with enough capacity for the VM";
 
                         vm->log(oss.str());
                     }
@@ -1077,7 +1081,7 @@ void Scheduler::match_schedule()
                     {
                         ostringstream oss;
 
-                        oss << "No system datastore meets capacity "
+                        oss << "Cannot dispatch VM: No system datastore meets capacity "
                             << "and SCHED_DS_REQUIREMENTS: "
                             << vm->get_ds_requirements();
 
@@ -1089,6 +1093,8 @@ void Scheduler::match_schedule()
 
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no suitable "
                     "system ds.");
+
+                vmpool->remove_vm_resources(vm->get_oid());
 
                 continue;
             }
@@ -1164,21 +1170,21 @@ void Scheduler::match_schedule()
                 {
                     if (nets.size() == 0)
                     {
-                        vm->log("No networks found to run VMs");
+                        vm->log("Cannot dispatch VM: No networks found to run VMs");
                     }
                     else if (n_auth == 0)
                     {
-                        vm->log("User is not authorized to use any network");
+                        vm->log("Cannot dispatch VM: User is not authorized to use any network");
                     }
                     else if (n_fits == 0)
                     {
-                        vm->log("No network with enough capacity for the VM");
+                        vm->log("Cannot dispatch VM: No network with enough capacity for the VM");
                     }
                     else if (n_matched == 0)
                     {
                         ostringstream oss;
 
-                        oss << "No network meet leases "
+                        oss << "Cannot dispatch VM: No network meet leases "
                             << "and SCHED_NIC_REQUIREMENTS: "
                             << vm->get_nic_requirements(nic_id);
 
@@ -1191,6 +1197,8 @@ void Scheduler::match_schedule()
 
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no "
                     "suitable network.");
+
+                vmpool->remove_vm_resources(vm->get_oid());
 
                 break;
 

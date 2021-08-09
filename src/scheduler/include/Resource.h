@@ -64,6 +64,23 @@ public:
     }
 
     /**
+     *  Removes resource
+     *    @param oid of the resource
+     */
+    virtual void remove_resource(int oid)
+    {
+        auto it = std::find_if(resources.begin(), resources.end(), [oid](const auto val) {
+            return oid == val->oid;
+        });
+
+        if (it != resources.end())
+        {
+            delete *it;
+            resources.erase(it);
+        }
+    }
+
+    /**
      *  Sort the matched resources in the vector
      */
     virtual void sort_resources()

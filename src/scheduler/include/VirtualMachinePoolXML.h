@@ -106,6 +106,14 @@ public:
         vm_resources.sort_resources();
     }
 
+    /**
+     *  Sort the VMs in the pool
+     */
+    void remove_vm_resources(int oid)
+    {
+        vm_resources.remove_resource(oid);
+    }
+
 protected:
 
     int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
