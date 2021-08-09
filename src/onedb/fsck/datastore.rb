@@ -115,7 +115,7 @@ module OneDBFsck
                                   "It will be changed to #{ds_entry[:name]}")
 
                         doc.root.xpath('DATASTORE').each do |e|
-                            e.text = ds_entry[:name]
+                            e.content = ds_entry[:name]
                         end
 
                         @fixes_datastore_image[row[:oid]] = doc.root.to_s
