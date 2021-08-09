@@ -216,7 +216,7 @@ define(function(require) {
             var ready = "";
             var check = "<span class=\"has-tip\" title=\""+Locale.tr("The VM is ready")+"\"><i class=\"fas fa-check\"/></span>";
             if (ready_status_gate && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY){
-                ready = (data.VM.USER_TEMPLATE.READY === "YES")
+                ready = (data.VM.USER_TEMPLATE.READY.trim().toUpperCase() === "YES")
                 ? check
                 : "<span class=\"has-tip\" title=\""+
                   Locale.tr("Waiting for the VM to be ready")+"\"><i class=\"fas fa-clock\"/></span>";
