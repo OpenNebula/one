@@ -263,7 +263,7 @@ module OpenNebula
         # +id+ the id of the vm
         #
         # Example:
-        #   vnet = VirtualMachine.new(VirtualMachine.build_xml(3),rpc_client)
+        #   vm = VirtualMachine.new(VirtualMachine.build_xml(3),rpc_client)
         #
         def VirtualMachine.build_xml(pe_id=nil)
             if pe_id
