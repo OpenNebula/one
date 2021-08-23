@@ -920,15 +920,11 @@ EOT
             elsif options[:json]
                 list_pool_format(pool, options, filter_flag) do |pool|
                     hash        = check_resource_xsd(pool, pname)
-                    hash[pname] = check_resource_xsd(hash[pname], ename)
-
                     puts ::JSON.pretty_generate(hash)
                 end
             elsif options[:yaml]
                 list_pool_format(pool, options, filter_flag) do |pool|
                     hash        = check_resource_xsd(pool, pname)
-                    hash[pname] = check_resource_xsd(hash[pname], ename)
-
                     puts hash.to_yaml(:indent => 4)
                 end
             else
@@ -1223,10 +1219,40 @@ EOT
 
             return hash unless xsd
 
-            hash[ename] = check_xsd(hash[ename], nil, ename, xsd)
+            if xsd.keys.include?('complexType')
+                xsd = xsd['complexType']['sequence']['element']
+            else
+                xsd = xsd['element']
+            end
+
+            xsd = [ xsd ] unless xsd.is_a? Array
+
+            check_xsd(hash[ename], xsd)
 
             hash
         end
+
+
+        # Replaces refs in xsd definition
+        # limited func: only traverse hashes (not arrays), but works well for pools
+        #
+        # @param h [Hash] XSD in hash format
+        #
+        # @return [Object] XSD but where ref were, there inner XSD is loaded
+        def replace_refs(h)
+            return h unless h.is_a? Hash
+
+            if h.keys.include? 'ref'
+                ref_xsd = read_xsd(h['ref'])
+                return ref_xsd unless ref_xsd.nil?
+                return h
+            else
+                h.each do |k,v|
+                    h[k] = replace_refs(v)
+                end
+            end
+        end
+
 
         # Read XSD file and parse to XML
         #
@@ -1250,141 +1276,95 @@ EOT
             end
 
             hash = Hash.from_xml(Nokogiri::XML(File.read(file)).to_s)
+
             hash = hash['schema']['element']
 
-            if hash.keys.include?('complexType')
-                hash['complexType']['sequence']['element']
-            else
-                hash['element']
-            end
+            hash = replace_refs(hash)
+
+            hash
         end
 
-        # Check values XSD
+        # Decides if given xsd definiton should be array in xml
+        # Must be hash and contain either 'maxOccurs' => unbounded'
+        #                              or 'maxOccurs' => >1
         #
-        # @param hash     [Object] Resource information in hash format
-        # @param elements [Array]  Keys to check
-        # @param ename    [String] Element name to take XSD
-        # @param xsd      [Hash]   XSD file content
-        # @param parents  [Array]  Parent keys of current hash
-        def check_xsd(hash, elements, ename, xsd, parents = [])
-            return unless hash
+        # @param e [Hash] XSD definition transfomred in hash
+        #
+        # @return [Boolean]
+        #
+        def is_array?(e)
+            return false if e.nil?
+            return false unless e.is_a? Hash
+            e['maxOccurs'] == 'unbounded' || e['maxOccurs'].to_i > 1
+        end
 
-            if (hash.is_a? Hash) && !hash.empty?
-                hash.map do |ki, vi|
-                    vi = [vi].flatten if is_array?(xsd, [ki])
+        # Decides if given xsd definiton is complex type sequence
+        # Must be hash and contain nested hash
+        #   ['complexType']['sequence']['element']
+        #
+        # @param  [Hash] XSD definition transfomred in hash
+        #
+        # @return [Boolean]
+        #
+        def xsd_complex_sequence?(x)
+            x['complexType']['sequence']['element'] rescue return false
+            true
+        end
 
-                    if (vi.is_a? Hash) && !vi.empty?
-                        parents << ki
+        # Decides if given xsd definiton is complex type all
+        # Must be hash and contain nested hash
+        #   ['complexType']['all']['element']
+        #
+        # @param  [Hash] XSD definition transfomred in hash
+        #
+        # @return [Boolean]
+        #
+        def xsd_complex_all?(x)
+            x['complexType']['all']['element'] rescue return false
+            true
+        end
 
-                        vi.map do |kj, vj|
-                            parents << kj
+        # Recursively traverse the OpenNebula resource (in Hash) and it's XSD
+        # Where array is required in XSD, there encapsulate the entry into [ ]
+        # Typically usefull for single disk, snapshots etc.
+        #
+        # @param hash     [Hash]   Resource information in hash format
+        # @param xsd      [Hash]   XSD of the resource, transformed into hash
+        #
+        def check_xsd(hash, xsd)
+            return unless hash or hash.empty?
 
-                            path = (parents + [ki, kj]).uniq
-                            vj   = [vj].flatten if is_array?(xsd, path)
+            hash.each do |k, v|
 
-                            hash[ki][kj] = check_xsd(vj,
-                                                     [ki, kj],
-                                                     ename,
-                                                     xsd,
-                                                     parents)
+                # find the elem definition in xsd array
+                xsd_elem = xsd.select { |e| e['name'] == k }.first unless xsd.nil?
+
+                if xsd_complex_sequence?(xsd_elem) || xsd_complex_all?(xsd_elem)
+
+                    # go deeper in xsd, xsd is ehter complex sequence or all
+                    begin
+                        inner_xsd = xsd_elem['complexType']['sequence']['element']
+                    rescue
+                        inner_xsd = xsd_elem['complexType']['all']['element']
+                    end
+
+                    # recursively traverse resource - hash
+                    if v.is_a? Hash
+                        hash[k] = check_xsd(v, inner_xsd)
+
+                    # recursively traverse resource - array
+                    elsif v.is_a? Array
+                        hash[k] = []
+                        v.each do |e|
+                            hash[k] << check_xsd(e, inner_xsd)
                         end
-
-                        parents.clear
-                    elsif vi.is_a? Array
-                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
-                    else
-                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
                     end
                 end
 
-                hash
-            elsif hash.is_a? Array
-                ret = []
-
-                hash.each do |v|
-                    ret << check_xsd(v, elements, ename, xsd, parents)
+                # if XSD requires array, do so in resource if missing
+                if is_array?(xsd_elem) && (! v.is_a? Array)
+                    hash[k] = [ v ]
                 end
-
-                ret
-            else
-                check_type(hash) do
-                    type = get_xsd_path(xsd, elements)
-                    type['type'] unless type.nil?
-                end
-            end
-        end
-
-        # Get xsd path value
-        #
-        # @param xsd      [Hash]  XSD information
-        # @param elements [Array] Path to get
-        #
-        # @return [Hash] Path information
-        def get_xsd_path(xsd, elements)
-            return unless elements
-
-            element = elements.shift
-
-            # Return nil, because is an empty complexType
-            return unless element
-
-            element = [xsd].flatten.find do |v|
-                v['name'] == element || v['ref'] == element
-            end
-
-            # Return nil, because element was not find in XSD
-            return unless element
-
-            if element.keys.include?('complexType') && !elements.empty?
-                if element['complexType']['all']
-                    element = element['complexType']['all']['element']
-                else
-                    element = element['complexType']['sequence']['element']
-                end
-
-                get_xsd_path(element, elements)
-            else
-                element
-            end
-        end
-
-        # CHeck if current element is an array
-        #
-        # @param xsd      [Hash]  XSD information
-        # @param elements [Array] Path to check
-        #
-        # @return [Boolean] True if it's an array, false otherwise
-        def is_array?(xsd, elements)
-            max = get_xsd_path(xsd, elements)
-            max = max['maxOccurs'] if max
-
-            max == 'unbounded' || max.to_i > 1
-        end
-
-        # Check XSD type for especific value
-        #
-        # @param value [Object] Value to check
-        #
-        # @return [Object] nil if the type is not correct, value otherwise
-        def check_type(value)
-            type = yield if block_given?
-
-            # If there is no type, return current value
-            return value unless type
-
-            types = %w[string decimal integer boolean date time]
-            type  = type.split(':')[1]
-
-            if types.include?(type)
-                # If the current type is different, return string
-                # because this value doesn't respect the type
-                if (value.is_a? Hash) || (value.is_a? Array)
-                    ''
-                else
-                    value
-                end
-            else
-                value
             end
         end
     end
