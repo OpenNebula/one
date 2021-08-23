@@ -1,4 +1,5 @@
 ARGUMENTS = "$TEMPLATE -m -p 5"
+ARGUMENTS_STDIN = "yes"
 COMMAND   = "ft/host_error.rb"
 NAME      = "host_error"
 STATE     = "ERROR"
