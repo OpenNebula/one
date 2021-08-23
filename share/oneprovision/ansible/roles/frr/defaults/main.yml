@@ -1,7 +1,7 @@
 ---
 
 # frr-stable will be the latest official stable release
-frr_frrver: 'frr-stable'
+frr_frrver: 'frr-7'
 
 # Number of route reflectors in the cluster
 frr_rr_num: 1
