@@ -94,17 +94,17 @@ module OneDBFsck
             retime  = history_doc.root.at_xpath('RETIME')
             estime  = history_doc.root.at_xpath('ESTIME').text.to_i
 
-            if retime.text.to_i == 0 then
-                log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} " \
+            if retime.text.to_i == 0
+                log_error("History for VM #{row[:vid]} seq # #{row[:seq]} "\
                     'is closed (etime != 0), but retime = 0')
 
-                if estime != 0 then
+                if estime != 0
                     retime.content = estime
                 else
                     retime.content = row[:etime]
                 end
 
-                row[:body]  = history_doc.root.to_s
+                row[:body] = history_doc.root.to_s
 
                 history_fix.push(row)
             end
@@ -114,10 +114,10 @@ module OneDBFsck
         @db.fetch('SELECT * ' \
                   'FROM vm_showback') do |row|
             showback_doc = nokogiri_doc(row[:body])
-            hours  = showback_doc.root.at_xpath('HOURS').text.to_f
+            hours = showback_doc.root.at_xpath('HOURS').text.to_f
 
-            if hours == 0.0 then
-                log_error("Showback record for VM #{row[:vmid]} year # #{row[:year]} " \
+            if hours == 0.0
+                log_error("Showback for VM #{row[:vmid]} year # #{row[:year]} "\
                     "month # #{row[:month]} is 0 hours, deleting")
 
                 @showback_delete.push(row)
@@ -141,7 +141,7 @@ module OneDBFsck
             @showback_delete.each do |row|
                 @db[:vm_showback].where(:vmid => row[:vmid],
                                         :year => row[:year],
-                                        :month => row[:month]).delete()
+                                        :month => row[:month]).delete
             end
         end
     end
