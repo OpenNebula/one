@@ -91,7 +91,7 @@ fi
 LN_CMD=$(cat <<EOF
     RBD="${RBD}"
 
-    rbd_rm_snap $SRC_PATH
+    rbd_rm_snap $SRC_PATH ||:
 EOF
 )
 
