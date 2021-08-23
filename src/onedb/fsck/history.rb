@@ -8,6 +8,10 @@ module OneDBFsck
         log_time
 
         check_history_opened
+
+        log_time
+
+        check_history_retime
     end
 
     # Check that etime from non last seq is 0
@@ -75,6 +79,52 @@ module OneDBFsck
         end
     end
 
+    # Check that RETIME is 0 and ETIME is not 0
+    def check_history_retime
+        history_fix = @fixes_history
+        @showback_delete = []
+
+        # DATA: go through all history records with ETIME != 0
+        # DATA: check if RETIME != 0
+
+        @db.fetch('SELECT * ' \
+                  'FROM history ' \
+                  'WHERE etime > 0') do |row|
+            history_doc = nokogiri_doc(row[:body])
+            retime  = history_doc.root.at_xpath('RETIME')
+            estime  = history_doc.root.at_xpath('ESTIME').text.to_i
+
+            if retime.text.to_i == 0 then
+                log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} " \
+                    'is closed (etime != 0), but retime = 0')
+
+                if estime != 0 then
+                    retime.content = estime
+                else
+                    retime.content = row[:etime]
+                end
+
+                row[:body]  = history_doc.root.to_s
+
+                history_fix.push(row)
+            end
+        end
+
+        # DATA: Find all showback rows with hours == 0
+        @db.fetch('SELECT * ' \
+                  'FROM vm_showback') do |row|
+            showback_doc = nokogiri_doc(row[:body])
+            hours  = showback_doc.root.at_xpath('HOURS').text.to_f
+
+            if hours == 0.0 then
+                log_error("Showback record for VM #{row[:vmid]} year # #{row[:year]} " \
+                    "month # #{row[:month]} is 0 hours, deleting")
+
+                @showback_delete.push(row)
+            end
+        end
+    end
+
     # Fix the broken history records
     def fix_history
         # DATA: FIX: update history records with fixed data
@@ -83,6 +133,15 @@ module OneDBFsck
             @fixes_history.each do |row|
                 @db[:history].where(:vid => row[:vid],
                                     :seq => row[:seq]).update(row)
+            end
+        end
+
+        # DATA: FIX: Remove showback values with 0 hours
+        @db.transaction do
+            @showback_delete.each do |row|
+                @db[:vm_showback].where(:vmid => row[:vmid],
+                                        :year => row[:year],
+                                        :month => row[:month]).delete()
             end
         end
     end
