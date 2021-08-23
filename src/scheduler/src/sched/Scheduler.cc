@@ -669,13 +669,21 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
 
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
-    // checked in a per host basis during dispatch). Resume actions do not
+    // checked in a per host basis during dispatch). Resume/Resched actions don't
     // add to shared system DS usage, and are skipped also
     // -------------------------------------------------------------------------
-    if (ds->is_shared() && ds->is_monitored() && !vm->is_resume() &&
-        !ds->test_capacity(vdisk, error))
+    if (ds->is_shared() && !vm->is_resched() && !vm->is_resume() )
     {
-        return false;
+        if (!ds->is_monitored())
+        {
+            error = "Not monitored.";
+            return false;
+        }
+        else if (!ds->test_capacity(vdisk, error))
+        {
+            error = "Not enough capacity.";
+            return false;
+        }
     }
 
     n_fits++;
