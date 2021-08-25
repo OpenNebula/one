@@ -65,7 +65,7 @@ type Share struct {
 
 	RunningVMs int          `xml:"RUNNING_VMS,omitempty"`
 	Datastores []Datastores `xml:"DATASTORES>DS,omitempty"`
-	PCIDevices interface{}  `xml:"PCI_DEVICES>PCI,omitempty"`
+	PCIDevices []PCIDevices  `xml:"PCI_DEVICES>PCI,omitempty"`
 }
 
 type Datastores struct {
@@ -73,4 +73,22 @@ type Datastores struct {
 	UsedMB  int `xml:"USED_MB,omitempty"`
 	FreeMB  int `xml:"FREE_MB,omitempty"`
 	TotalMB int `xml:"TOTAL_MB,omitempty"`
+}
+
+type PCIDevices struct {
+	Address      string `xml:"ADDRESS,omitempty"`
+	Bus          string `xml:"BUS,omitempty"`
+	Class        string `xml:"CLASS,omitempty"`
+	ClassName    string `xml:"CLASS_NAME,omitempty"`
+	Device       string `xml:"DEVICE,omitempty"`
+	DeviceName   string `xml:"DEVICE_NAME,omitempty"`
+	Domain       string `xml:"DOMAIN,omitempty"`
+	Function     string `xml:"FUNCTION,omitempty"`
+	NumaNode     string `xml:"NUMA_NODE,omitempty"`
+	ShortAddress string `xml:"SHORT_ADDRESS,omitempty"`
+	Slot         string `xml:"SLOT,omitempty"`
+	Type         string `xml:"TYPE,omitempty"`
+	Vendor       string `xml:"VENDOR,omitempty"`
+	VendorName   string `xml:"VENDOR_NAME,omitempty"`
+	VMID         int    `xml:"VMID,omitempty"`
 }
