@@ -274,6 +274,7 @@ def get_server_order(opts, user)
                 user = m[1] if m[1]
 
                 order << to_array(server)
+                break
             end
         end
 
