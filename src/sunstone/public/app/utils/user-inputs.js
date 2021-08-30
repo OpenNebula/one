@@ -765,7 +765,7 @@ define(function(require) {
         baseCal = base;
         unit = "GB";
       }
-      if (value && value.length > 0) {
+      if (value >= 0) {
         valueInMB = value;
         if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
           valueInMB = min;
@@ -799,7 +799,7 @@ define(function(require) {
           unit = "MB";
         break;
       }
-      if (value && value.length > 0) {
+      if (value >= 0) {
         valueInMB = value * baseCal;
         if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
           valueInMB = min;
