@@ -320,9 +320,6 @@ define(function(require) {
       $("#provision_dashboard").html("");
       if (Config.provision.dashboard.isEnabled("vms")) {
         $("#provision_dashboard").append(TemplateDashboardVms());
-        if(!Config.isFeatureEnabled("cloud_vm_create")){
-          $(".provision_create_vm_button").hide();
-        }
         var start_time =  Math.floor(new Date().getTime() / 1000);
         // ms to s
         // 604800 = 7 days = 7*24*60*60
@@ -613,6 +610,10 @@ define(function(require) {
             }
           }
         });
+      }
+
+      if(!Config.isFeatureEnabled("cloud_vm_create")){
+        $(".provision_create_vm_button").hide();
       }
     }
     function show_provision_create_vm() {
