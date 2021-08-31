@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Button, MobileStepper, Typography, Box } from '@material-ui/core'
-import { makeStyles, fade } from '@material-ui/core/styles'
+import { makeStyles, alpha } from '@material-ui/core/styles'
 import {
   NavArrowLeft as PreviousIcon,
   NavArrowRight as NextIcon
@@ -31,7 +30,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     position: 'sticky',
     top: -15,
-    background: fade(theme.palette.primary.light, 0.65),
+    background: alpha(theme.palette.primary.light, 0.65),
     zIndex: theme.zIndex.mobileStepper,
     margin: theme.spacing(2, 0)
   },

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -23,17 +23,17 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import NetworkList from 'client/components/Tabs/Vm/Network/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AttachNicForm } from 'client/components/Forms/Vm'
+import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { mapUserInputs } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const VmNetworkTab = ({ tabProps = {} }) => {
+const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
   const { attachNic } = useVmApi()
 
-  const { handleRefetch, data: vm } = React.useContext(TabContext)
-  const { actions = [] } = tabProps
+  const { handleRefetch, data: vm } = useContext(TabContext)
 
   const nics = VirtualMachine.getNics(vm, {
     groupAlias: true,
@@ -46,22 +46,28 @@ const VmNetworkTab = ({ tabProps = {} }) => {
   const handleAttachNic = async ({ network, advanced }) => {
     const networkSelected = network?.[0]
     const isAlias = !!advanced?.PARENT?.length
-    const root = { ...networkSelected, ...mapUserInputs(advanced) }
+    const newNic = { ...networkSelected, ...mapUserInputs(advanced) }
 
     const template = Helper.jsonToXml({
-      [isAlias ? 'NIC_ALIAS' : 'NIC']: root
+      [isAlias ? 'NIC_ALIAS' : 'NIC']: newNic
     })
 
     const response = await attachNic(vm.ID, template)
-    String(response) === String(vm.ID) && await handleRefetch?.()
+    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
   }
 
   return (
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_NIC) && (
         <ButtonToTriggerForm
-          buttonProps={{ 'data-cy': 'attach-nic' }}
-          title={T.AttachNic}
+          buttonProps={{
+            color: 'secondary',
+            'data-cy': 'attach-nic',
+            label: `${Tr(T.Attach)} ${Tr(T.NIC)}`
+          }}
+          dialogProps={{
+            title: `${Tr(T.Attach)} ${Tr(T.NIC)}`
+          }}
           options={[{
             form: AttachNicForm({ nics }),
             onSubmit: handleAttachNic

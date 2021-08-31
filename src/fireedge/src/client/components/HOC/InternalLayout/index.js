@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useRef } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -28,7 +28,7 @@ import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
 const InternalLayout = ({ children }) => {
   const classes = internalStyles()
-  const container = React.useRef()
+  const container = useRef()
   const { isFixMenu } = useGeneral()
 
   return (

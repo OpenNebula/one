@@ -14,53 +14,80 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
-import { Box } from '@material-ui/core'
-import AceEditor from 'react-ace'
+import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import 'ace-builds/src-noconflict/mode-json'
-import 'ace-builds/src-noconflict/theme-github'
+import loadable from '@loadable/component'
 
-const InputCode = ({ code, language, ...props }) => {
-  const handleChange = newValue => {
-    console.log('change', newValue)
-  }
+const Ace = loadable.lib(() => import('react-ace'), { ssr: false })
 
-  return (
-    <Box height="100%" minHeight={200}>
-      <AceEditor
-        style={{ border: '1px solid lightgray' }}
-        wrapEnabled
-        value={code}
-        fontSize={16}
-        mode="json"
-        theme="github"
-        width="100%"
-        height="100%"
-        // maxLines={Infinity}
-        minLines={10}
-        onChange={handleChange}
-        name="form-control-code"
-        showPrintMargin={false}
-        editorProps={{ $blockScrolling: true }}
-        setOptions={{
-          useWorker: false,
-          tabSize: 2
-        }}
-        {...props}
-      />
-    </Box>
-  )
+const WrapperToLoadMode = ({ children, mode }) => {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      await import(`ace-builds/src-noconflict/mode-${mode}`)
+      await import('ace-builds/src-noconflict/theme-github')
+
+      setLoading(false)
+    }
+
+    load()
+
+    return () => {
+      // remove all styles when component will be unmounted
+      document
+        .querySelectorAll('[id^=ace]')
+        .forEach(child => child.parentNode.removeChild(child))
+    }
+  }, [])
+
+  return loading ? null : children
 }
+
+const InputCode = ({ code, mode, ...props }) => (
+  <Ace>
+    {({ default: Editor }) => (
+      <WrapperToLoadMode mode={mode}>
+        <Editor
+          style={{ border: '1px solid lightgray' }}
+          wrapEnabled
+          value={code}
+          fontSize={16}
+          mode={mode}
+          theme="github"
+          width="100%"
+          height="100%"
+          // maxLines={Infinity}
+          minLines={10}
+          name="form-control-code"
+          showPrintMargin={false}
+          editorProps={{ $blockScrolling: true }}
+          setOptions={{
+            useWorker: false,
+            tabSize: 2
+          }}
+          {...props}
+        />
+      </WrapperToLoadMode>
+    )}
+  </Ace>
+)
 
 InputCode.propTypes = {
   code: PropTypes.string,
-  language: PropTypes.string
+  mode: PropTypes.oneOf([
+    'json',
+    'apache_conf',
+    'css',
+    'dockerfile',
+    'markdown',
+    'xml'
+  ])
 }
 
 InputCode.defaultProps = {
   code: '',
-  language: 'json'
+  mode: 'json'
 }
 
 export default InputCode

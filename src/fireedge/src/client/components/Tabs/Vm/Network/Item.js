@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo, useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash } from 'iconoir-react'
@@ -36,7 +36,7 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import Multiple from 'client/components/Tables/Vms/multiple'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const AccordionSummary = withStyles({
@@ -93,21 +93,19 @@ const NetworkItem = ({ nic = {}, actions }) => {
 
   const { display, show, hide, values } = useDialog()
   const { detachNic } = useVmApi()
-
-  const { handleRefetch, data: vm } = React.useContext(TabContext)
-  const { ID: vmId } = vm
+  const { handleRefetch, data: vm } = useContext(TabContext)
 
   const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
 
-  const hasDetails = React.useMemo(
+  const hasDetails = useMemo(
     () => !!ALIAS.length || !!SECURITY_GROUPS?.length,
     [ALIAS?.length, SECURITY_GROUPS?.length]
   )
 
   const handleDetach = async () => {
-    const response = values?.id && await detachNic(vmId, values.id)
+    const response = values?.id !== undefined && await detachNic(vm.ID, values.id)
 
-    String(response) === String(vmId) && await handleRefetch?.(vmId)
+    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
     hide()
   }
 
@@ -156,7 +154,9 @@ const NetworkItem = ({ nic = {}, actions }) => {
             ))}
             {!!SECURITY_GROUPS?.length && (
               <Paper variant='outlined' className={classes.securityGroups}>
-                <Typography variant='body1'>{Tr(T.SecurityGroups)}</Typography>
+                <Typography variant='body1'>
+                  <Translate word={T.SecurityGroups} />
+                </Typography>
 
                 {SECURITY_GROUPS
                   ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
@@ -167,7 +167,13 @@ const NetworkItem = ({ nic = {}, actions }) => {
                       <span className={classes.labels}>
                         <Multiple
                           limitTags={isMobile ? 2 : 5}
-                          tags={[PROTOCOL, RULE_TYPE, RANGE, NETWORK_ID, ICMP_TYPE].filter(Boolean)}
+                          tags={[
+                            PROTOCOL,
+                            RULE_TYPE,
+                            RANGE,
+                            NETWORK_ID,
+                            ICMP_TYPE
+                          ].filter(Boolean)}
                         />
                       </span>
                     </div>
@@ -180,16 +186,17 @@ const NetworkItem = ({ nic = {}, actions }) => {
 
       {display && (
         <DialogConfirmation
-          title={T.Detach}
+          title={
+            <Translate
+              word={T.DetachSomething}
+              values={`${values?.isAlias ? T.Alias : T.NIC} #${values?.id}`} />
+          }
           handleAccept={handleDetach}
           handleCancel={hide}
         >
-          <p>{`
-            ${Tr(T.Detach)}
-            ${Tr(values?.isAlias ? T.Alias : T.NIC)}
-            #${values?.id}
-          `}</p>
-          <p>{Tr(T.DoYouWantProceed)}</p>
+          <p>
+            <Translate word={T.DoYouWantProceed} />
+          </p>
         </DialogConfirmation>
       )}
     </>

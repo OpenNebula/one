@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -26,7 +26,7 @@ import HostRow from 'client/components/Tables/Hosts/row'
 import HostDetail from 'client/components/Tables/Hosts/detail'
 
 const HostsTable = () => {
-  const columns = React.useMemo(() => HostColumns, [])
+  const columns = useMemo(() => HostColumns, [])
 
   const hosts = useHost()
   const { getHosts } = useHostApi()

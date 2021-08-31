@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { MarketplaceAppsTable } from 'client/components/Tables'
 
 function MarketplaceApps () {
   return (
@@ -30,7 +29,7 @@ function MarketplaceApps () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.MarketplaceAppsTable />
+      <MarketplaceAppsTable />
     </Box>
   )
 }

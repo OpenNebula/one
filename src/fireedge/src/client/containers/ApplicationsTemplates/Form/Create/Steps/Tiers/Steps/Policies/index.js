@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback, useState, useMemo } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 import { useTheme, Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'

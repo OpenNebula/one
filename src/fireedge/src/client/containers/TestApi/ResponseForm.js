@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -29,7 +29,7 @@ import { RestClient, requestConfig } from 'client/utils'
  * @param {string} props.command.name - Name of command
  * @param {('GET'|'POST'|'DELETE'|'PUT')} props.command.httpMethod - Http method
  * @param {object} props.command.params - Parameters for the action
- * @returns {React.JSXElementConstructor} Form with command parameters
+ * @returns {JSXElementConstructor} Form with command parameters
  */
 const ResponseForm = ({
   handleChangeResponse,
@@ -59,7 +59,7 @@ const ResponseForm = ({
       <Grid
         container
         spacing={3}
-        justify='flex-start'
+        justifyContent='flex-start'
         component='form'
         onSubmit={handleSubmit(onSubmit)}
         autoComplete='off'

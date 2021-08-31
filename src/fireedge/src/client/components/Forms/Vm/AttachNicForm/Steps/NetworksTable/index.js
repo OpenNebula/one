@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { useListForm } from 'client/hooks'
 import { VNetworksTable } from 'client/components/Tables'

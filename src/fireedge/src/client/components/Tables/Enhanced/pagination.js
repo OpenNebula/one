@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React from 'react'
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@material-ui/core'
@@ -32,7 +32,7 @@ const Pagination = ({
   /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
 
-  const pageCount = React.useMemo(() => Math.ceil(count / pageSize), [count])
+  const pageCount = useMemo(() => Math.ceil(count / pageSize), [count])
 
   const handleBackButtonClick = () => {
     handleChangePage(pageIndex - 1)

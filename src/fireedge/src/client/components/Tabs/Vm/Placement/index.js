@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
@@ -23,9 +23,8 @@ import HistoryList from 'client/components/Tabs/Vm/Placement/List'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const VmPlacementTab = ({ tabProps = {} }) => {
-  const { data: vm } = React.useContext(TabContext)
-  const { actions = [] } = tabProps
+const VmPlacementTab = ({ tabProps: { actions } = {} }) => {
+  const { data: vm } = useContext(TabContext)
 
   const records = VirtualMachine.getHistoryRecords(vm)
 

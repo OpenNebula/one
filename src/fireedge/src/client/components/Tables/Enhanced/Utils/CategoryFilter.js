@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { List, ListSubheader, ListItem, Typography, IconButton } from '@material-ui/core'
@@ -30,7 +30,7 @@ import { Tr } from 'client/components/HOC'
  * @param {UseFiltersInstanceProps} props.column - Column to filter by
  * @param {string} [props.accessorOption] - Name of property option
  * @param {boolean} [props.multiple] - If `true`, can be more than one filter
- * @returns {React.JSXElementConstructor} Component JSX
+ * @returns {JSXElementConstructor} Component JSX
  */
 const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => {
   const {
@@ -40,10 +40,10 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
     filterValue = multiple ? [] : undefined
   } = column
 
-  React.useEffect(() => () => setFilter(undefined), [])
+  useEffect(() => () => setFilter(undefined), [])
 
   // Calculate the options for filtering using the preFilteredRows
-  const options = React.useMemo(() => {
+  const options = useMemo(() => {
     const options = {}
 
     preFilteredRows?.forEach(row => {
@@ -68,7 +68,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
 
   const handleClear = () => setFilter(multiple ? [] : undefined)
 
-  const isFiltered = React.useMemo(() => (
+  const isFiltered = useMemo(() => (
     multiple ? filterValue?.length > 0 : filterValue !== undefined
   ), [filterValue])
 

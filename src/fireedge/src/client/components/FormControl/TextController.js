@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
-import { Tr } from 'client/components/HOC'
 
 import { ErrorHelper } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
 
 const TextController = memo(
   ({ control, cy, type, multiline, name, label, error, fieldProps }) => (
@@ -35,7 +35,7 @@ const TextController = memo(
           variant='outlined'
           margin='dense'
           {...(label && { label: Tr(label) })}
-          inputProps={{ 'data-cy': cy }}
+          inputProps={{ 'data-cy': cy, ...fieldProps }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
@@ -48,7 +48,9 @@ const TextController = memo(
     />
   ),
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error && prevProps.type === nextProps.type
+    prevProps.error === nextProps.error &&
+    prevProps.type === nextProps.type &&
+    prevProps.label === nextProps.label
 )
 
 TextController.propTypes = {
@@ -62,7 +64,14 @@ TextController.propTypes = {
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
   ]),
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
+  formContext: PropTypes.shape({
+    setValue: PropTypes.func,
+    setError: PropTypes.func,
+    clearErrors: PropTypes.func,
+    watch: PropTypes.func,
+    register: PropTypes.func
+  })
 }
 
 TextController.defaultProps = {

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useState, useMemo } from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
@@ -23,9 +23,9 @@ import Detail from 'client/components/Tables/Images/detail'
 import SplitPane from 'client/components/SplitPane'
 
 function Images () {
-  const [selectedRows, onSelectedRowsChange] = React.useState()
+  const [selectedRows, onSelectedRowsChange] = useState()
 
-  const selectedRowIds = React.useMemo(
+  const selectedRowIds = useMemo(
     () => selectedRows?.map(row => row.id),
     [selectedRows]
   )

@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-export { FormWithSchema }
+export {
+  ButtonToTriggerForm,
+  FormWithSchema
+}

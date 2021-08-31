@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useZone, useZoneApi } from 'client/features/One'
@@ -24,7 +24,7 @@ import ZoneColumns from 'client/components/Tables/Zones/columns'
 import ZoneRow from 'client/components/Tables/Zones/row'
 
 const ZonesTable = () => {
-  const columns = React.useMemo(() => ZoneColumns, [])
+  const columns = useMemo(() => ZoneColumns, [])
 
   const zones = useZone()
   const { getZones } = useZoneApi()

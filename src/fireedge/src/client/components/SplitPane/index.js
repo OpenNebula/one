@@ -14,9 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useState, createRef, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
-
 import { makeStyles, Divider } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
@@ -54,11 +53,11 @@ const useStyles = makeStyles(theme => ({
 
 const SplitPane = ({ children, containerProps }) => {
   const classes = useStyles()
-  const [topHeight, setTopHeight] = React.useState(null)
+  const [topHeight, setTopHeight] = useState(null)
 
-  const splitPaneRef = React.createRef()
-  const topRef = React.createRef()
-  const separatorYPosition = React.useRef(null)
+  const splitPaneRef = createRef()
+  const topRef = createRef()
+  const separatorYPosition = useRef(null)
 
   const onMouseDown = event => {
     separatorYPosition.current = event?.touches?.[0]?.clientY ?? event.clientY
@@ -89,7 +88,7 @@ const SplitPane = ({ children, containerProps }) => {
     separatorYPosition.current = null
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener('mousemove', onMouseMove)
     document.addEventListener('mouseup', onMouseUp)
     // on mobile device
@@ -105,7 +104,7 @@ const SplitPane = ({ children, containerProps }) => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!topHeight && children[1]) {
       setTopHeight(document.body.clientHeight / 2)
       topRef.current.style.flex = 'none'

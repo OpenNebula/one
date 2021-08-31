@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { UseTableInstanceProps } from 'react-table'
 
@@ -22,13 +22,13 @@ const Header = ({ useTableProps }) => {
   /** @type {UseTableInstanceProps} */
   const { headerGroups } = useTableProps
 
-  const renderHeaderColumn = React.useCallback(column => (
+  const renderHeaderColumn = useCallback(column => (
     <div {...column.getHeaderProps()}>
       {column.render('Header')}
     </div>
   ), [])
 
-  const renderHeaderGroup = React.useCallback(headerGroup => (
+  const renderHeaderGroup = useCallback(headerGroup => (
     <div {...headerGroup.getHeaderGroupProps()}>
       {headerGroup.headers.map(renderHeaderColumn)}
     </div>

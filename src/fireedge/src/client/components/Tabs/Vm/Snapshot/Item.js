@@ -14,14 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
-
-import { Trash, UndoAction } from 'iconoir-react'
 import { Typography, Paper } from '@material-ui/core'
 
-// import { useVmApi } from 'client/features/One'
-import { Action } from 'client/components/Cards/SelectCard'
+import * as Actions from 'client/components/Tabs/Vm/Snapshot/Actions'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import * as Helper from 'client/models/Helper'
@@ -52,18 +48,10 @@ const SnapshotItem = ({ snapshot, actions = [] }) => {
       {!!actions.length && (
         <div className={classes.actions}>
           {actions?.includes?.(VM_ACTIONS.SNAPSHOT_REVERT) && (
-            <Action
-              cy={`${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`}
-              icon={<UndoAction size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.RevertAction snapshot={snapshot} />
           )}
           {actions?.includes?.(VM_ACTIONS.SNAPSHOT_DELETE) && (
-            <Action
-              cy={`${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`}
-              icon={<Trash size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.DeleteAction snapshot={snapshot} />
           )}
         </div>
       )}

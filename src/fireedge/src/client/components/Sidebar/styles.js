@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import { makeStyles, alpha } from '@material-ui/core'
 import { sidebar, toolbar } from 'client/theme/defaults'
 
 export default makeStyles(theme => ({
@@ -148,7 +148,6 @@ export default makeStyles(theme => ({
   },
   itemSelected: {
     color: theme.palette.text.primary,
-    backgroundColor: theme.palette.primary.light,
-    '&:hover': { backgroundColor: theme.palette.primary.light }
+    backgroundColor: `${alpha(theme.palette.secondary.main, 0.60)} !important`
   }
 }))

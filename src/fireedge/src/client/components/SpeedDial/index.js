@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useState, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { SpeedDial as MSpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab'
@@ -43,11 +43,11 @@ const useStyles = makeStyles(theme => ({
  * name: string,
  * icon: object,
  * handleClick: Function}[]} props.actions - List of actions
- * @returns {React.JSXElementConstructor} SpeedDial component
+ * @returns {JSXElementConstructor} SpeedDial component
  */
 const SpeedDial = ({ hidden = false, actions = [] }) => {
   const classes = useStyles()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const handleClose = () => {
     setOpen(false)

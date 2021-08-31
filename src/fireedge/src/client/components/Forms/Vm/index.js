@@ -13,11 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
 import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
+import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
+import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
+import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
+import ResizeDiskForm from 'client/components/Forms/Vm/ResizeDiskForm'
+import SaveAsDiskForm from 'client/components/Forms/Vm/SaveAsDiskForm'
 export * from 'client/components/Forms/Vm/AttachDiskForm'
+export * from 'client/components/Forms/Vm/CreateSchedActionForm'
 
 export {
   AttachNicForm,
-  ResizeCapacityForm
+  CreateDiskSnapshotForm,
+  CreateSnapshotForm,
+  ResizeCapacityForm,
+  ResizeDiskForm,
+  SaveAsDiskForm
 }

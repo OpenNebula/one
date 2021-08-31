@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useGroup, useGroupApi } from 'client/features/One'
@@ -24,7 +24,7 @@ import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
 
 const GroupsTable = () => {
-  const columns = React.useMemo(() => GroupColumns, [])
+  const columns = useMemo(() => GroupColumns, [])
 
   const groups = useGroup()
   const { getGroups } = useGroupApi()

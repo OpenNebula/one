@@ -14,55 +14,55 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { Button } from '@material-ui/core'
 
-import { useDialog } from 'client/hooks'
+import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { DialogConfirmation } from 'client/components/Dialogs'
+
 import SnapshotList from 'client/components/Tabs/Vm/Snapshot/List'
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { CreateSnapshotForm } from 'client/components/Forms/Vm'
 import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const VmSnapshotTab = ({ tabProps = {} }) => {
-  const { display, show, hide } = useDialog()
-  const { data: vm } = React.useContext(TabContext)
-  const { actions = [] } = tabProps
+const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
+  const { createSnapshot } = useVmApi()
+
+  const { data: vm = {} } = useContext(TabContext)
 
   const snapshots = VirtualMachine.getSnapshotList(vm)
-
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+
+  const handleSnapshotCreate = async ({ NAME } = {}) => {
+    const data = { name: NAME }
+    await createSnapshot(vm.ID, data)
+  }
 
   return (
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.SNAPSHOT_CREATE) && (
-        <Button
-          data-cy='snapshot-create'
-          size='small'
-          color='secondary'
-          onClick={show}
-          variant='contained'
-        >
-          {Tr(T.TakeSnapshot)}
-        </Button>
+        <ButtonToTriggerForm
+          buttonProps={{
+            color: 'secondary',
+            'data-cy': 'snapshot-create',
+            label: Tr(T.TakeSnapshot)
+          }}
+          dialogProps={{
+            title: Tr(T.TakeSnapshot)
+          }}
+          options={[{
+            form: CreateSnapshotForm(),
+            onSubmit: handleSnapshotCreate
+          }]}
+        />
       )}
 
       <SnapshotList actions={actionsAvailable} snapshots={snapshots} />
-
-      {display && (
-        <DialogConfirmation
-          title={T.TakeSnapshot}
-          handleAccept={hide}
-          handleCancel={hide}
-        >
-          <p>TODO: should define in view yaml ??</p>
-        </DialogConfirmation>
-      )}
     </>
   )
 }

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider, useMediaQuery } from '@material-ui/core'
@@ -35,16 +35,16 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     return createTheme(appTheme(newScheme))
   }
 
-  const [muitheme, setTheme] = React.useState(changeScheme)
+  const [muitheme, setTheme] = useState(changeScheme)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
     if (jssStyles) {
       jssStyles.parentElement.removeChild(jssStyles)
     }
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTheme(changeScheme)
   }, [scheme, prefersDarkMode])
 

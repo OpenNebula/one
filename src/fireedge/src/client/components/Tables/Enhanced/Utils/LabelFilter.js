@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Cancel } from 'iconoir-react'
@@ -62,9 +62,9 @@ const LabelFilter = ({ title, column }) => {
   /** @type {UseFiltersInstanceProps} */
   const { setFilter, id, preFilteredRows, filterValue = [] } = column
 
-  React.useEffect(() => () => setFilter([]), [])
+  useEffect(() => () => setFilter([]), [])
 
-  const labels = React.useMemo(() => {
+  const labels = useMemo(() => {
     const labels = new Set()
 
     preFilteredRows?.forEach(row => {
@@ -76,7 +76,7 @@ const LabelFilter = ({ title, column }) => {
     return [...labels.values()]
   }, [id, preFilteredRows])
 
-  const tree = React.useMemo(() => buildTree(labels), [labels])
+  const tree = useMemo(() => buildTree(labels), [labels])
 
   const handleSelect = value =>
     setFilter([...filterValue, value])
@@ -86,7 +86,7 @@ const LabelFilter = ({ title, column }) => {
 
   const handleClear = () => setFilter(undefined)
 
-  const isFiltered = React.useMemo(() => (
+  const isFiltered = useMemo(() => (
     filterValue?.length > 0
   ), [filterValue])
 

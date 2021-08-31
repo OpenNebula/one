@@ -14,13 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { VNetworkTemplatesTable } from 'client/components/Tables'
 
-function VirtualMachines () {
+function VNetworkTemplates () {
   return (
     <Box
       height={1}
@@ -30,9 +29,9 @@ function VirtualMachines () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.VNetworkTemplatesTable />
+      <VNetworkTemplatesTable />
     </Box>
   )
 }
 
-export default VirtualMachines
+export default VNetworkTemplates

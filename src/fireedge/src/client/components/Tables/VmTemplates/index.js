@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
@@ -25,7 +25,7 @@ import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
 import VmTemplateDetail from 'client/components/Tables/VmTemplates/detail'
 
 const VmTemplatesTable = () => {
-  const columns = React.useMemo(() => VmTemplateColumns, [])
+  const columns = useMemo(() => VmTemplateColumns, [])
 
   const vmTemplates = useVmTemplate()
   const { getVmTemplates } = useVmTemplateApi()

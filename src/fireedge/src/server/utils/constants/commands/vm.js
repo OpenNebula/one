@@ -218,7 +218,7 @@ module.exports = {
           from: postBody,
           default: 0
         },
-        description: {
+        name: {
           from: postBody,
           default: ''
         }

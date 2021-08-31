@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useVRouter, useVRouterApi } from 'client/features/One'
@@ -24,7 +24,7 @@ import VRouterColumns from 'client/components/Tables/VRouters/columns'
 import VRouterRow from 'client/components/Tables/VRouters/row'
 
 const VRoutersTable = () => {
-  const columns = React.useMemo(() => VRouterColumns, [])
+  const columns = useMemo(() => VRouterColumns, [])
 
   const vRouters = useVRouter()
   const { getVRouters } = useVRouterApi()

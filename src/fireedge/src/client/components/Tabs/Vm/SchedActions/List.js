@@ -14,17 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import SchedulingItem from 'client/components/Tabs/Vm/SchedActions/Item'
 
-const SchedulingList = ({ vmStartTime, scheduling, actions }) => (
+const SchedulingList = ({ scheduling, actions }) => (
   <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
-    {scheduling.map((schedule, idx) => (
+    {scheduling.map(schedule => (
       <SchedulingItem
-        key={idx}
-        vmStartTime={vmStartTime}
+        key={schedule.ID}
         schedule={schedule}
         actions={actions}
       />
@@ -33,7 +31,6 @@ const SchedulingList = ({ vmStartTime, scheduling, actions }) => (
 )
 
 SchedulingList.propTypes = {
-  vmStartTime: PropTypes.string,
   scheduling: PropTypes.array,
   actions: PropTypes.arrayOf(PropTypes.string)
 }

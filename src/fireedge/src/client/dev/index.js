@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
 import { render } from 'react-dom'
 
 import { createStore } from 'client/store'
-import rootReducer from 'client/store/reducers'
 import App from 'client/dev/_app'
 
 const { store } = createStore({ initState: window.REDUX_DATA })
 
 render(<App store={store} />, document.getElementById('root'))
-
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept('./_app', () => {
-    const SyncApp = require('./_app').default
-    render(<SyncApp store={store} />, document.getElementById('root'))
-  })
-
-  module.hot.accept('../store/reducers', () => store.replaceReducer(rootReducer))
-}

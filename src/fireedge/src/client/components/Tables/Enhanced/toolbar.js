@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, useMediaQuery } from '@material-ui/core'
@@ -34,11 +33,11 @@ const Toolbar = ({ onlyGlobalSelectedRows = false, useTableProps = {} }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
-  if (isMobile || onlyGlobalSelectedRows) {
+  if (onlyGlobalSelectedRows) {
     return <GlobalSelectedRows useTableProps={useTableProps} />
   }
 
-  return (
+  return isMobile ? null : (
     <div className={classes.root}>
       <GlobalSort useTableProps={useTableProps} />
     </div>

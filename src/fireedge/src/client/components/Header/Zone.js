@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 
 import { MenuItem, MenuList } from '@material-ui/core'
 import { Language as ZoneIcon } from 'iconoir-react'

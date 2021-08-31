@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { createContext, useState } from 'react'
+import { useEffect, createContext, useState } from 'react'
 import PropTypes from 'prop-types'
 
 export const TabContext = createContext(null)
@@ -23,7 +23,7 @@ const TabProvider = ({ initialState = {}, children }) => {
   const [information, setTabInformation] = useState(() => initialState)
   const { data } = initialState
 
-  React.useEffect(() => {
+  useEffect(() => {
     data && setTabInformation(prev => ({ ...prev, data }))
   }, [data])
 

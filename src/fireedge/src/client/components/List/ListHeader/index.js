@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, Typography, InputBase } from '@material-ui/core'
@@ -44,7 +44,7 @@ const ListHeader = memo(({
     <Box className={classes.root}>
       <Box className={classes.title}>
         {!!(hasReloadButton || reloadButtonProps) && (
-          <SubmitButton icon label={<RefreshIcon />} {...reloadButtonProps} />
+          <SubmitButton icon={<RefreshIcon />} {...reloadButtonProps} />
         )}
         {title && (
           <Typography variant='h5' className={classes.titleText}>
@@ -54,7 +54,7 @@ const ListHeader = memo(({
       </Box>
       <Box className={classes.actions}>
         {!!(hasAddButton || addButtonProps) && (
-          <SubmitButton color='secondary' icon label={<AddIcon />} {...addButtonProps} />
+          <SubmitButton color='secondary' icon={<AddIcon />} {...addButtonProps} />
         )}
         {!!(hasSearch || searchProps) && (
           <Box className={classes.search}>

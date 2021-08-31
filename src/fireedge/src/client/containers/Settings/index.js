@@ -14,23 +14,25 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useEffect } from 'react'
 
 import { makeStyles, Container, Paper, Box, Typography } from '@material-ui/core'
 
 import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useUserApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
 import { mapUserInputs } from 'client/utils'
+import * as Helper from 'client/models/Helper'
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -60,6 +62,7 @@ const Settings = () => {
   const { user, settings } = useAuth()
   const { getAuthUser } = useAuthApi()
   const { updateUser } = useUserApi()
+  const { enqueueError } = useGeneralApi()
 
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
@@ -67,23 +70,22 @@ const Settings = () => {
     resolver: yupResolver(FORM_SCHEMA)
   })
 
-  React.useEffect(() => {
-    // set user settings values
+  useEffect(() => {
     reset(
       FORM_SCHEMA.cast(settings),
       { isSubmitted: false, error: false }
     )
   }, [settings])
 
-  const onSubmit = dataForm => {
-    const inputs = mapUserInputs(dataForm)
+  const onSubmit = async dataForm => {
+    try {
+      const inputs = mapUserInputs(dataForm)
+      const template = Helper.jsonToXml({ FIREEDGE: inputs })
 
-    const values = Object.entries(inputs)
-      .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
-      .join(',')
-
-    return updateUser({ id: user.ID, template: `FIREEDGE = [${values}]\n` })
-      .then(getAuthUser)
+      await updateUser(user.ID, { template }).then(getAuthUser)
+    } catch {
+      enqueueError(Tr(T.SomethingWrong))
+    }
   }
 
   return (
@@ -110,6 +112,7 @@ const Settings = () => {
               data-cy='settings-submit-button'
               label={Tr(T.Save)}
               onClick={handleSubmit}
+              disabled={!formState.isDirty}
               isSubmitting={formState.isSubmitting}
             />
           </div>

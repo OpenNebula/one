@@ -72,5 +72,4 @@ export const rowStyles = makeStyles(
       flexShrink: 0
     }
   })
-
 )

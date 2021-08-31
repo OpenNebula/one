@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/ResizeCapacityForm/schema'
 
 const ResizeCapacityForm = ({ vm } = {}) => {
@@ -26,11 +25,5 @@ const ResizeCapacityForm = ({ vm } = {}) => {
     fields: FIELDS
   }
 }
-
-ResizeCapacityForm.propTypes = {
-  vm: PropTypes.object
-}
-
-ResizeCapacityForm.displayName = 'ResizeCapacityForm'
 
 export default ResizeCapacityForm

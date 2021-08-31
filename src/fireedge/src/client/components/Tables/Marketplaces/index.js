@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -25,7 +25,7 @@ import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
 
 const MarketplacesTable = () => {
-  const columns = React.useMemo(() => MarketplaceColumns, [])
+  const columns = useMemo(() => MarketplaceColumns, [])
 
   const marketplaces = useMarketplace()
   const { getMarketplaces } = useMarketplaceApi()

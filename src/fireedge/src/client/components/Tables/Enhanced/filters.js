@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo, Fragment } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -54,13 +54,13 @@ const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   /** @type {UseTableInstanceProps} */
   const { rows, columns } = useTableProps
 
-  const filters = React.useMemo(() => (
+  const filters = useMemo(() => (
     columns
       .filter(({ canFilter }) => canFilter)
       .map((column, idx) => column.canFilter ? (
-        <React.Fragment key={idx}>
+        <Fragment key={idx}>
           {column.render('Filter')}
-        </React.Fragment>
+        </Fragment>
       ) : null)
   ), [rows])
 

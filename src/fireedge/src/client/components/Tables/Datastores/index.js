@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -25,7 +25,7 @@ import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
 
 const DatastoresTable = () => {
-  const columns = React.useMemo(() => DatastoreColumns, [])
+  const columns = useMemo(() => DatastoreColumns, [])
 
   const datastores = useDatastore()
   const { getDatastores } = useDatastoreApi()

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useEffect, useMemo, JSXElementConstructor } from 'react'
 
 import Router from 'client/router'
 import { ENDPOINTS, PATH } from 'client/apps/provision/routes'
@@ -34,7 +34,7 @@ const APP_NAME = _APPS.provision.name
 /**
  * Provision App component.
  *
- * @returns {React.JSXElementConstructor} App rendered.
+ * @returns {JSXElementConstructor} App rendered.
  */
 const ProvisionApp = () => {
   const { isLogged, jwt, firstRender } = useAuth()
@@ -44,7 +44,7 @@ const ProvisionApp = () => {
   const { getProvisionsTemplates } = useProvisionApi()
   const { changeTitle } = useGeneralApi()
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         if (jwt) {
@@ -58,7 +58,7 @@ const ProvisionApp = () => {
     })()
   }, [jwt])
 
-  const endpoints = React.useMemo(() => [
+  const endpoints = useMemo(() => [
     ...ENDPOINTS,
     ...(isDevelopment() ? DEV_ENDPOINTS : [])
   ], [])

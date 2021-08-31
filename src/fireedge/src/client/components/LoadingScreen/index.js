@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 
 import { makeStyles, Box } from '@material-ui/core'
 import { OpenNebulaLogo } from 'client/components/Icons'
@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 /**
  * Component with OpenNebula logo as spinner in full width and height.
  *
- * @returns {React.JSXElementConstructor} Container with logo inside
+ * @returns {JSXElementConstructor} Container with logo inside
  */
 const LoadingScreen = () => {
   const classes = useStyles()

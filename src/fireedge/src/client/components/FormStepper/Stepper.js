@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -26,7 +25,7 @@ import {
   Typography,
   StepButton
 } from '@material-ui/core'
-import { makeStyles, fade } from '@material-ui/core/styles'
+import { makeStyles, alpha } from '@material-ui/core/styles'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
@@ -37,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     position: 'sticky',
     top: -15,
     minHeight: 100,
-    background: fade(theme.palette.background.paper, 0.95),
+    background: alpha(theme.palette.background.paper, 0.95),
     zIndex: theme.zIndex.mobileStepper
   },
   icon: {

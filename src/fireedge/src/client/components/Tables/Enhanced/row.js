@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { Row as RowType } from 'react-table'
 
@@ -22,7 +22,7 @@ const Row = ({ row, handleClick }) => {
   /** @type {RowType} */
   const { getRowProps, cells, isSelected } = row
 
-  const renderCell = React.useCallback(cell => (
+  const renderCell = useCallback(cell => (
     <div {...cell.getCellProps()} data-header={cell.column.Header}>
       {cell.render('Cell')}
     </div>

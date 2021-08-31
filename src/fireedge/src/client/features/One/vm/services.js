@@ -21,15 +21,15 @@ export const vmService = ({
   /**
    * Retrieves information for the virtual machine.
    *
-   * @param {object} data - Request parameters
-   * @param {string} data.id - User id
+   * @param {object} params - Request parameters
+   * @param {string} params.id - User id
    * @returns {object} Get user identified by id
    * @throws Fails when response isn't code 200
    */
-  getVm: async ({ id }) => {
+  getVm: async params => {
     const name = Actions.VM_INFO
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -42,18 +42,18 @@ export const vmService = ({
    * Retrieves information for all or part of
    * the VMs in the pool.
    *
-   * @param {object} data - Request params
-   * @param {string} data.filter - Filter flag
-   * @param {number} data.start - Range start ID
-   * @param {number} data.end - Range end ID
-   * @param {string|number} data.state - Filter state
+   * @param {object} params - Request parameters
+   * @param {string} params.filter - Filter flag
+   * @param {number} params.start - Range start ID
+   * @param {number} params.end - Range end ID
+   * @param {string|number} params.state - Filter state
    * @returns {Array} List of VMs
    * @throws Fails when response isn't code 200
    */
-  getVms: async ({ filter, start, end, state }) => {
+  getVms: async params => {
     const name = Actions.VM_POOL_INFO
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ filter, start, end, state }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -87,10 +87,10 @@ export const vmService = ({
    * @returns {Response} Response
    * @throws Fails when response isn't code 200
    */
-  actionVm: async ({ id, action }) => {
+  actionVm: async params => {
     const name = Actions.VM_ACTION
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, action }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -108,10 +108,10 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  rename: async ({ id, name: newName }) => {
+  rename: async params => {
     const name = Actions.VM_RENAME
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, name: newName }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -131,10 +131,10 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  resize: async ({ id, template, enforce }) => {
+  resize: async params => {
     const name = Actions.VM_RESIZE
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, template, enforce }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -148,18 +148,18 @@ export const vmService = ({
    *
    * @param {object} params - Request parameters
    * @param {string|number} params.id - Virtual machine id
-   * @param {string} params.template - The new user template contents.
-   * @param {0|1} params.replace -
-   * Update type:
+   * @param {string} params.template - The new user template contents
+   * @param {0|1} params.replace
+   * - Update type:
    * ``0``: Replace the whole template.
    * ``1``: Merge new template with the existing one.
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  updateUserTemplate: async ({ id, template, replace }) => {
+  updateUserTemplate: async params => {
     const name = Actions.VM_UPDATE
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, template, replace }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -230,10 +230,169 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  attachDisk: async ({ id, template }) => {
+  attachDisk: async params => {
     const name = Actions.VM_DISK_ATTACH
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, template }, command)
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Detaches a disk from a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  detachDisk: async params => {
+    const name = Actions.VM_DISK_DETACH
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Sets the disk to be saved in the given image.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string} params.name - Name for the new Image
+   * @param {string} params.type - Type for the new Image.
+   * If it is an empty string, then the default one will be used
+   * @param {string|number} params.snapshot - Id of the snapshot to export.
+   * If -1 the current image state will be used.
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  saveAsDisk: async params => {
+    const name = Actions.VM_DISK_SAVEAS
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Resizes a disk of a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string} params.size - The new size string
+   * - Options to perform action
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  resizeDisk: async params => {
+    const name = Actions.VM_DISK_RESIZE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Takes a new snapshot of the disk image.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string} params.description - Description for the snapshot
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  createDiskSnapshot: async params => {
+    const name = Actions.VM_DISK_SNAP_CREATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Renames a disk snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string|number} params.snapshot - Snapshot id
+   * @param {string} params.name - New snapshot name
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  renameDiskSnapshot: async params => {
+    const name = Actions.VM_DISK_SNAP_RENAME
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Reverts disk state to a previously taken snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string|number} params.snapshot - Snapshot id
+   * @returns {number} The snapshot id used
+   * @throws Fails when response isn't code 200
+   */
+  revertDiskSnapshot: async params => {
+    const name = Actions.VM_DISK_SNAP_REVERT
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Deletes a disk snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.disk - Disk id
+   * @param {string|number} params.snapshot - Snapshot id
+   * @returns {number} The id of the snapshot deleted
+   * @throws Fails when response isn't code 200
+   */
+  deleteDiskSnapshot: async params => {
+    const name = Actions.VM_DISK_SNAP_DELETE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -252,10 +411,10 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  attachNic: async ({ id, template }) => {
+  attachNic: async params => {
     const name = Actions.VM_NIC_ATTACH
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, template }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -273,10 +432,137 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  detachNic: async ({ id, nic }) => {
+  detachNic: async params => {
     const name = Actions.VM_NIC_DETACH
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id, nic }, command)
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Creates a new virtual machine snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.name - The new snapshot name
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  createSnapshot: async params => {
+    const name = Actions.VM_SNAP_CREATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Reverts a virtual machine to a snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.snapshot - The snapshot id
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  revertSnapshot: async params => {
+    const name = Actions.VM_SNAP_REVERT
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Deletes a virtual machine snapshot.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.snapshot - The snapshot id
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  deleteSnapshot: async params => {
+    const name = Actions.VM_SNAP_DELETE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Add scheduled action to VM.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.template - Template containing the new scheduled action
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  addScheduledAction: async params => {
+    const name = Actions.VM_SCHED_ADD
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Update scheduled VM action.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.id_sched - The ID of the scheduled action
+   * @param {string} params.template - Template containing the updated scheduled action
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  updateScheduledAction: async params => {
+    const name = Actions.VM_SCHED_UPDATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Delete scheduled action from VM.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.id_sched - The ID of the scheduled action
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  deleteScheduledAction: async params => {
+    const name = Actions.VM_SCHED_DELETE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 

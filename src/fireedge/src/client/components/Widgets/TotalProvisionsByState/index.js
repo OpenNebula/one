@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 
 import { Paper, Typography } from '@material-ui/core'
 
@@ -30,7 +30,7 @@ const TotalProvisionsByState = () => {
   const classes = useStyles()
   const { provisions } = useOne()
 
-  const chartData = React.useMemo(() => {
+  const chartData = useMemo(() => {
     const groups = groupBy(provisions, 'TEMPLATE.BODY.state')
 
     return PROVISIONS_STATES.map((_, stateIndex) =>
@@ -40,7 +40,7 @@ const TotalProvisionsByState = () => {
 
   const totalProvisions = provisions.length
 
-  const title = React.useMemo(() => (
+  const title = useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
         <NumberEasing number={`${totalProvisions}`} />
@@ -52,7 +52,7 @@ const TotalProvisionsByState = () => {
     </div>
   ), [classes, totalProvisions])
 
-  return React.useMemo(() => (
+  return useMemo(() => (
     <Paper
       data-cy='dashboard-widget-provisions-by-states'
       className={classes.root}

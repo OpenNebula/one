@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 
 import {
   Server as ClusterIcon,
@@ -42,7 +42,7 @@ const TotalProvisionInfrastructures = () => {
   const classes = useStyles()
   const provisions = useProvision()
 
-  const provisionsByProvider = React.useMemo(() =>
+  const provisionsByProvider = useMemo(() =>
     provisions
       ?.map(provision => ({
         provider: get(provision, 'TEMPLATE.BODY.provider'),
@@ -53,7 +53,7 @@ const TotalProvisionInfrastructures = () => {
       }))
   , [provisions])
 
-  const totals = React.useMemo(() =>
+  const totals = useMemo(() =>
     provisionsByProvider?.reduce((total, { clusters, hosts, datastores, networks }) => ({
       clusters: clusters + total.clusters,
       hosts: hosts + total.hosts,
@@ -62,7 +62,7 @@ const TotalProvisionInfrastructures = () => {
     }), { clusters: 0, hosts: 0, datastores: 0, networks: 0 })
   , [provisionsByProvider])
 
-  return React.useMemo(() => (
+  return useMemo(() => (
     <div
       data-cy='dashboard-widget-total-infrastructures'
       className={classes.root}

@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 import { Paper, Typography } from '@material-ui/core'
 
@@ -70,10 +69,18 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
       <div className={classes.actions}>
         {actions?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
           <ButtonToTriggerForm
-            buttonProps={{ 'data-cy': 'resize-capacity' }}
-            handleSubmit={handleResizeCapacity}
-            title={T.Resize}
-            options={[{ form: ResizeCapacityForm({ vm }) }]}
+            buttonProps={{
+              color: 'secondary',
+              'data-cy': 'resize-capacity',
+              label: T.Resize
+            }}
+            dialogProps={{
+              title: T.ResizeCapacity
+            }}
+            options={[{
+              form: ResizeCapacityForm({ vm }),
+              onSubmit: handleResizeCapacity
+            }]}
           />
         )}
       </div>

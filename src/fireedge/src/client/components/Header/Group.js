@@ -14,8 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
-
 import { Button } from '@material-ui/core'
 import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
@@ -33,10 +31,6 @@ const Group = () => {
   const { user, groups, filterPool } = useAuth()
   const { changeGroup } = useAuthApi()
 
-  const handleChangeGroup = group => {
-    group && changeGroup({ id: user.ID, group })
-  }
-
   const renderResult = ({ ID, NAME }, handleClose) => {
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
@@ -44,11 +38,11 @@ const Group = () => {
 
     return (
       <Button
-        key={`term-${ID}`}
+        key={`switcher-group-${ID}`}
         fullWidth
         className={classes.groupButton}
         onClick={() => {
-          handleChangeGroup(ID)
+          ID && changeGroup({ id: user.ID, group: ID })
           handleClose()
         }}
       >
@@ -73,10 +67,10 @@ const Group = () => {
 
   return (
     <HeaderPopover
-      id="group-list"
+      id='group-list'
       icon={<GroupIcon />}
       buttonProps={{ 'data-cy': 'header-group-button' }}
-      headerTitle="Switch group"
+      headerTitle='Switch group'
     >
       {({ handleClose }) => (
         <Search

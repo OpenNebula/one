@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -33,7 +33,7 @@ const VmsTable = props => {
   const { getVms } = useVmApi()
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = React.useMemo(() => createColumns({
+  const columns = useMemo(() => createColumns({
     filters: getResourceView('VM')?.filters,
     columns: VmColumns
   }), [view])
@@ -41,7 +41,7 @@ const VmsTable = props => {
   const { status, data, fetchRequest, loading, reloading, error, STATUS } = useFetch(getVms)
   const { INIT, PENDING } = STATUS
 
-  React.useEffect(() => {
+  useEffect(() => {
     const requests = {
       INIT: () => fetchRequest({
         start: INITIAL_ELEMENT,

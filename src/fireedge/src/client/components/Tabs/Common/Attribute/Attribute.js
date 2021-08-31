@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles, Typography } from '@material-ui/core'
 
 import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
-import { Tr } from 'client/components/HOC'
-
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
+
+import { Tr, Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles({
   wrapper: {
@@ -39,7 +40,7 @@ const useStyles = makeStyles({
   })
 })
 
-const Attribute = React.memo(({
+const Attribute = memo(({
   canDelete,
   canEdit,
   handleEdit,
@@ -50,22 +51,20 @@ const Attribute = React.memo(({
   value,
   valueInOptionList
 }) => {
-  const numberOfParents = React.useMemo(() => path.split('.').length - 1, [path])
+  const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
   const classes = useStyles({ numberOfParents })
 
-  const [isEditing, setIsEditing] = React.useState(() => false)
-  const [options, setOptions] = React.useState(() => [])
+  const [isEditing, setIsEditing] = useState(() => false)
+  const [options, setOptions] = useState(() => [])
   const { display, show, hide } = useDialog()
-  const inputRef = React.createRef()
+  const inputRef = createRef()
 
   const handleEditAttribute = async () => {
     await handleEdit?.(inputRef.current.value, path)
     setIsEditing(false)
   }
 
-  const handleCancel = () => {
-    setIsEditing(false)
-  }
+  const handleCancel = () => setIsEditing(false)
 
   const handleActiveEditForm = async () => {
     const response = await handleGetOptionList?.() ?? []
@@ -78,8 +77,11 @@ const Attribute = React.memo(({
   }
 
   const handleDeleteAttribute = async () => {
-    await handleDelete?.(path)
-    hide()
+    try {
+      await handleDelete?.(path)
+    } finally {
+      hide()
+    }
   }
 
   return (
@@ -93,11 +95,14 @@ const Attribute = React.memo(({
             {handleGetOptionList ? (
               <Inputs.Select
                 name={name}
-                value={valueInOptionList}
+                initialValue={valueInOptionList}
                 ref={inputRef}
                 options={options} />
             ) : (
-              <Inputs.Text name={name} value={value} ref={inputRef} />
+              <Inputs.Text
+                name={name}
+                initialValue={value}
+                ref={inputRef} />
             )}
             <Actions.Accept name={name} handleClick={handleEditAttribute} />
             <Actions.Cancel name={name} handleClick={handleCancel} />
@@ -122,11 +127,13 @@ const Attribute = React.memo(({
 
         {display && (
           <DialogConfirmation
-            title={`Delete attribute: ${path}`}
+            title={<Translate word={T.DeleteSomething} values={path} />}
             handleAccept={handleDeleteAttribute}
             handleCancel={hide}
           >
-            <p>Are you sure?</p>
+            <p>
+              <Translate word={T.DoYouWantProceed} />
+            </p>
           </DialogConfirmation>
         )}
       </div>
@@ -144,7 +151,7 @@ export const AttributePropTypes = {
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
-  ]).isRequired,
+  ]),
   path: PropTypes.string,
   valueInOptionList: PropTypes.string
 }

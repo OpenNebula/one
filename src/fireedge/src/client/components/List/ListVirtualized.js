@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVirtual } from 'react-virtual'
@@ -59,7 +59,7 @@ const ListVirtualized = ({
   const classes = useStyles()
 
   // OBSERVER
-  const loaderRef = React.useRef()
+  const loaderRef = useRef()
   const { isNearScreen } = useNearScreen({
     distance: '100px',
     externalRef: isLoading ? null : loaderRef,
@@ -67,18 +67,18 @@ const ListVirtualized = ({
   })
 
   // VIRTUALIZER
-  const parentRef = React.useRef()
+  const parentRef = useRef()
   const rowVirtualizer = useVirtual({
     size: data.length,
     parentRef,
     overscan: 20,
-    estimateSize: React.useCallback(() => 40, []),
+    estimateSize: useCallback(() => 40, []),
     keyExtractor: index => data[index]?.id
   })
 
-  const debounceHandleNextPage = React.useCallback(debounce(fetchMore, 200), [])
+  const debounceHandleNextPage = useCallback(debounce(fetchMore, 200), [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isNearScreen && !canFetchMore) debounceHandleNextPage()
   }, [isNearScreen, canFetchMore, debounceHandleNextPage])
 

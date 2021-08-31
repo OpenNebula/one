@@ -14,13 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-/* eslint-disable jsdoc/check-types */
-/* eslint-disable jsdoc/valid-types */
-import * as React from 'react'
+import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, MenuItem, MenuList, Chip } from '@material-ui/core'
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
+import { makeStyles, MenuItem, MenuList, Chip } from '@material-ui/core'
 import { TableInstance, UseSortByInstanceProps, UseSortByState } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
@@ -40,7 +38,7 @@ const useStyles = makeStyles({
  *
  * @param {object} props - Props
  * @param {TableInstance} props.useTableProps - Table props
- * @returns {React.JSXElementConstructor} Component JSX
+ * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalSort = ({ useTableProps }) => {
   const classes = useStyles()
@@ -53,9 +51,9 @@ const GlobalSort = ({ useTableProps }) => {
   /** @type {UseSortByState} */
   const { sortBy } = state
 
-  React.useEffect(() => () => setSortBy([]), [])
+  useEffect(() => () => setSortBy([]), [])
 
-  const headersNotSorted = React.useMemo(() =>
+  const headersNotSorted = useMemo(() =>
     headers.filter(({ isSorted, canSort, isVisible }) =>
       !isSorted && canSort && isVisible
     ), [sortBy.length])
@@ -74,7 +72,7 @@ const GlobalSort = ({ useTableProps }) => {
 
   return (
     <div className={classes.root}>
-      {React.useMemo(() => (
+      {useMemo(() => (
         <HeaderPopover
           id='sort-by-button'
           icon={<SortDown />}
@@ -109,7 +107,7 @@ const GlobalSort = ({ useTableProps }) => {
         </HeaderPopover>
       ), [headersNotSorted.length])}
 
-      {React.useMemo(() => sortBy?.map(({ name, id, desc }) => (
+      {useMemo(() => sortBy?.map(({ name, id, desc }) => (
         <Chip
           key={`${id}-${desc ? 'desc' : 'asc'}`}
           icon={desc ? <ArrowUp /> : <ArrowDown />}

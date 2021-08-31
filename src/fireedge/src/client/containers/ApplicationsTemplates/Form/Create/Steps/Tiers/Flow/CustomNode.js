@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo, useCallback } from 'react'
+import { memo, useCallback, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -31,7 +31,7 @@ import { TierCard } from 'client/components/Cards'
  * @param {object} props - Props
  * @param {object} props.data - Node values
  * @param {Function} props.selected - If `true`, the node is selected
- * @returns {React.JSXElementConstructor} Node component
+ * @returns {JSXElementConstructor} Node component
  */
 const CustomNode = memo(({ data, selected }) => {
   const { tier, handleEdit } = data

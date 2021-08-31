@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo, useState, useRef, useEffect } from 'react'
+import { memo, useState, useRef, useEffect, ChangeEvent } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -78,7 +78,7 @@ const FileController = memo(
     /**
      * Handle change to validate the files.
      *
-     * @param {React.ChangeEvent} event - Change event object
+     * @param {ChangeEvent} event - Change event object
      */
     const handleChange = async event => {
       try {

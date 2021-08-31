@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
 import { Container, Box } from '@material-ui/core'

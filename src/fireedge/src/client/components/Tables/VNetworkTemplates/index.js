@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useVNetworkTemplate, useVNetworkTemplateApi } from 'client/features/One'
@@ -24,7 +24,7 @@ import VNetworkTemplateColumns from 'client/components/Tables/VNetworkTemplates/
 import VNetworkTemplateRow from 'client/components/Tables/VNetworkTemplates/row'
 
 const VNetworkTemplatesTable = () => {
-  const columns = React.useMemo(() => VNetworkTemplateColumns, [])
+  const columns = useMemo(() => VNetworkTemplateColumns, [])
 
   const vNetworkTemplates = useVNetworkTemplate()
   const { getVNetworkTemplates } = useVNetworkTemplateApi()

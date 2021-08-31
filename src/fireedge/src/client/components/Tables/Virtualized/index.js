@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Box, CircularProgress } from '@material-ui/core'
@@ -81,7 +81,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const DefaultCell = React.memo(({ value }) => value ?? '--')
+const DefaultCell = memo(({ value }) => value ?? '--')
 DefaultCell.propTypes = { value: PropTypes.any }
 DefaultCell.displayName = 'DefaultCell'
 
@@ -94,7 +94,7 @@ const VirtualizedTable = ({
 }) => {
   const classes = useStyles()
 
-  const defaultColumn = React.useMemo(() => ({
+  const defaultColumn = useMemo(() => ({
     // Filter: DefaultFilter,
     Cell: DefaultCell
   }), [])

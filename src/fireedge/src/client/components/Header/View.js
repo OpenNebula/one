@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 
 import { Button } from '@material-ui/core'
 import { ViewGrid as ViewIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
@@ -30,26 +30,22 @@ const View = () => {
   const { view, views = {} } = useAuth()
   const { changeView } = useAuthApi()
 
-  const handleChangeView = newView => {
-    newView && newView !== view && changeView(newView)
-  }
-
-  const renderResult = (viewName, handleClose) => (
+  const renderResult = (newView, handleClose) => (
     <Button
-      key={`view-${viewName}`}
+      key={`view-${newView}`}
       fullWidth
       className={classes.groupButton}
       onClick={() => {
-        handleChangeView(viewName)
+        newView && newView !== view && changeView(newView)
         handleClose()
       }}
     >
-      {viewName}
-      {viewName === view && <SelectIcon size='1em' />}
+      {newView}
+      {newView === view && <SelectIcon size='1em' />}
     </Button>
   )
 
-  const viewNames = React.useMemo(() => Object.keys(views), [view])
+  const viewNames = useMemo(() => Object.keys(views), [view])
 
   return (
     <HeaderPopover

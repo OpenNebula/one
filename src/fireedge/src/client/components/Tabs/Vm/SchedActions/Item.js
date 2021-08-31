@@ -14,41 +14,43 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
-
-import { Edit, Trash, WarningTriangleOutline } from 'iconoir-react'
+import { WarningTriangleOutline as WarningIcon } from 'iconoir-react'
 import { useTheme, Typography, Paper } from '@material-ui/core'
 
-// import { useVmApi } from 'client/features/One'
-import { Action } from 'client/components/Cards/SelectCard'
+import { TabContext } from 'client/components/Tabs/TabProvider'
+import * as Actions from 'client/components/Tabs/Vm/SchedActions/Actions'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
-import { VM_ACTIONS } from 'client/constants'
+import { timeFromMilliseconds } from 'client/models/Helper'
+import { capitalize, clearString } from 'client/utils'
+import { T, VM_ACTIONS } from 'client/constants'
 
-const SchedulingItem = ({ vmStartTime, schedule, actions = [] }) => {
+const SchedulingItem = ({ schedule, actions = [] }) => {
   const classes = rowStyles()
   const { palette } = useTheme()
 
+  const { data: vm } = useContext(TabContext)
+  const vmStartTime = +vm?.STIME
   const { ID, ACTION, TIME, MESSAGE, DONE, WARNING } = schedule
 
+  const titleAction = `#${ID} ${capitalize(clearString(ACTION))}`
   const isRelative = String(TIME).includes('+')
 
-  const time = Helper.timeFromMilliseconds(
-    isRelative ? (+vmStartTime + +TIME) : +TIME
+  const time = timeFromMilliseconds(
+    isRelative ? (vmStartTime + +TIME) : +TIME
   )
 
-  const doneTime = Helper.timeFromMilliseconds(+DONE)
+  const doneTime = timeFromMilliseconds(+DONE)
 
   const now = Math.round(Date.now() / 1000)
-  const isWarning = WARNING && (now - +vmStartTime) > +WARNING
+  const isWarning = WARNING && (now - vmStartTime) > +WARNING
 
-  const labels = [...new Set([
-    Helper.stringToBoolean(MESSAGE)
-  ])].filter(Boolean)
+  const labels = [...new Set([MESSAGE])].filter(Boolean)
 
   const { repeat, end } = VirtualMachine.periodicityToString(schedule)
 
@@ -57,7 +59,7 @@ const SchedulingItem = ({ vmStartTime, schedule, actions = [] }) => {
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography component='span'>
-            {`#${ID} ${ACTION}`}
+            {titleAction}
           </Typography>
           {!!labels.length && (
             <span className={classes.labels}>
@@ -68,38 +70,28 @@ const SchedulingItem = ({ vmStartTime, schedule, actions = [] }) => {
           )}
         </div>
         <div className={classes.caption}>
-          {repeat && <span>{repeat}</span>}
-          {end && <span>{`| ${end}`}</span>}
+          {repeat && <span>{`${repeat} |`}</span>}
+          {end && <span>{`${end} |`}</span>}
           {DONE && (
             <span title={doneTime.toFormat('ff')}>
-              {`| done ${doneTime.toRelative()}`}
+              {`${Tr(T.Done)} ${doneTime.toRelative()} |`}
             </span>
           )}
           <span style={{ display: 'flex', gap: '0.5em' }}>
             <span title={time.toFormat('ff')}>
-              {`| ${time.toRelative()}`}
+              {`${time.toRelative()}`}
             </span>
-            {isWarning && (
-              <WarningTriangleOutline size={18} color={palette.warning.main} />
-            )}
+            {isWarning && <WarningIcon size={18} color={palette.warning.main} />}
           </span>
         </div>
       </div>
       {!!actions.length && (
         <div className={classes.actions}>
           {actions?.includes?.(VM_ACTIONS.SCHED_ACTION_UPDATE) && (
-            <Action
-              cy={`${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`}
-              icon={<Edit size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.UpdateSchedAction schedule={schedule} name={titleAction} />
           )}
           {actions?.includes?.(VM_ACTIONS.SCHED_ACTION_DELETE) && (
-            <Action
-              cy={`${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`}
-              icon={<Trash size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.DeleteSchedAction schedule={schedule} name={titleAction} />
           )}
         </div>
       )}
@@ -108,7 +100,6 @@ const SchedulingItem = ({ vmStartTime, schedule, actions = [] }) => {
 }
 
 SchedulingItem.propTypes = {
-  vmStartTime: PropTypes.string.isRequired,
   schedule: PropTypes.object.isRequired,
   actions: PropTypes.arrayOf(PropTypes.string)
 }

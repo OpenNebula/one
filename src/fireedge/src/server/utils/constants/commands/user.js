@@ -134,7 +134,7 @@ module.exports = {
           from: postBody,
           default: ''
         },
-        update: {
+        replace: {
           from: postBody,
           default: 1
         }

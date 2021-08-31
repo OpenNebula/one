@@ -478,6 +478,7 @@ export const VM_ACTIONS = {
   ATTACH_DISK: 'attach_disk',
   DETACH_DISK: 'detach_disk',
   SNAPSHOT_DISK_CREATE: 'snapshot_disk_create',
+  SNAPSHOT_DISK_RENAME: 'snapshot_disk_rename',
   SNAPSHOT_DISK_REVERT: 'snapshot_disk_revert',
   SNAPSHOT_DISK_DELETE: 'snapshot_disk_delete',
   RESIZE_DISK: 'resize_disk',
@@ -502,13 +503,36 @@ export const VM_ACTIONS = {
   UPDATE_CONF: 'update_configuration'
 }
 
-/** @enum {string} Hypervisors  */
+/** @enum {string} Hypervisors */
 export const HYPERVISORS = {
   kvm: 'kvm',
   vcenter: 'vcenter',
   firecracker: 'firecracker',
   lxc: 'lxc'
 }
+
+/** @type {string} Actions that can be scheduled */
+export const VM_ACTIONS_WITH_SCHEDULE = [
+  VM_ACTIONS.TERMINATE,
+  VM_ACTIONS.TERMINATE_HARD,
+  VM_ACTIONS.UNDEPLOY,
+  VM_ACTIONS.UNDEPLOY_HARD,
+  VM_ACTIONS.HOLD,
+  VM_ACTIONS.RELEASE,
+  VM_ACTIONS.STOP,
+  VM_ACTIONS.SUSPEND,
+  VM_ACTIONS.RESUME,
+  VM_ACTIONS.REBOOT,
+  VM_ACTIONS.REBOOT_HARD,
+  VM_ACTIONS.POWEROFF,
+  VM_ACTIONS.POWEROFF_HARD,
+  VM_ACTIONS.SNAPSHOT_DISK_CREATE,
+  VM_ACTIONS.SNAPSHOT_DISK_REVERT,
+  VM_ACTIONS.SNAPSHOT_DISK_DELETE,
+  VM_ACTIONS.SNAPSHOT_CREATE,
+  VM_ACTIONS.SNAPSHOT_REVERT,
+  VM_ACTIONS.SNAPSHOT_DELETE
+]
 
 /**
  * @enum {(

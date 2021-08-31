@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 import { number, string, oneOfType } from 'prop-types'
 
-const DockerLogo = React.memo(({ viewBox, width, height, color, ...props }) => {
+const DockerLogo = memo(({ viewBox, width, height, color, ...props }) => {
   return (
     <svg viewBox={viewBox} width={width} height={height} {...props} {...props}>
       <path

@@ -14,8 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
+import { useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 
 import {
@@ -27,7 +28,11 @@ import {
   ListItemIcon,
   useMediaQuery
 } from '@material-ui/core'
-import { NavArrowRight as CollapseIcon, NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
+
+import {
+  Minus as CollapseIcon,
+  Plus as ExpandMoreIcon
+} from 'iconoir-react'
 
 import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
@@ -35,11 +40,20 @@ import sidebarStyles from 'client/components/Sidebar/styles'
 
 const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
   const classes = sidebarStyles()
+  const { pathname } = useLocation()
   const { isFixMenu } = useGeneral()
-  const [expanded, setExpanded] = useState(false)
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
 
+  const [expanded, setExpanded] = useState(() => false)
+
   const handleExpand = () => setExpanded(!expanded)
+
+  useEffect(() => {
+    if (isFixMenu && !expanded) {
+      const hasRouteSelected = routes.some(({ path }) => pathname === path)
+      hasRouteSelected && setExpanded(true)
+    }
+  }, [isFixMenu])
 
   return (
     <>

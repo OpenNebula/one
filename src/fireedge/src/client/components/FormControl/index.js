@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import TextController from 'client/components/FormControl/TextController'
+import AutocompleteController from 'client/components/FormControl/AutocompleteController'
+import CheckboxController from 'client/components/FormControl/CheckboxController'
+import FileController from 'client/components/FormControl/FileController'
 import PasswordController from 'client/components/FormControl/PasswordController'
 import SelectController from 'client/components/FormControl/SelectController'
 import SliderController from 'client/components/FormControl/SliderController'
-import CheckboxController from 'client/components/FormControl/CheckboxController'
-import AutocompleteController from 'client/components/FormControl/AutocompleteController'
-import FileController from 'client/components/FormControl/FileController'
+import TextController from 'client/components/FormControl/TextController'
+import TimeController from 'client/components/FormControl/TimeController'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
 import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 
 export {
-  TextController,
+  AutocompleteController,
+  CheckboxController,
+  FileController,
   PasswordController,
   SelectController,
   SliderController,
-  CheckboxController,
-  AutocompleteController,
-  FileController,
+  TextController,
+  TimeController,
 
   SubmitButton,
+  SubmitButtonPropTypes,
   InputCode,
   ErrorHelper
 }

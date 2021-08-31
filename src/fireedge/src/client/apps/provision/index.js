@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
@@ -36,9 +36,9 @@ const APP_NAME = _APPS.provision.name
  * @param {Store} props.store - Redux store
  * @param {string|object} props.location - The URL the server received
  * @param {object} props.context - Context object contains the results of the render
- * @returns {React.JSXElementConstructor} Provision App
+ * @returns {JSXElementConstructor} Provision App
  */
-const Provision = ({ store, location, context }) => (
+const Provision = ({ store = {}, location = '', context = {} }) => (
   <ReduxProvider store={store}>
     <SocketProvider>
       <TranslateProvider>
@@ -64,14 +64,8 @@ const Provision = ({ store, location, context }) => (
 
 Provision.propTypes = {
   location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
-}
-
-Provision.defaultProps = {
-  location: '',
-  context: {},
-  store: {}
+  context: PropTypes.object,
+  store: PropTypes.object
 }
 
 Provision.displayName = 'ProvisionApp'

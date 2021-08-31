@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -71,8 +71,14 @@ const DialogConfirmation = memo(
       >
         <DialogTitle disableTypography className={classes.title}>
           <div className={classes.titleText}>
-            <Typography variant='h6'>{Tr(title)}</Typography>
-            {subheader && <Typography variant='subtitle1'>{Tr(subheader)}</Typography>}
+            <Typography variant='h6'>
+              {typeof title === 'string' ? Tr(title) : title}
+            </Typography>
+            {subheader && (
+              <Typography variant='subtitle1'>
+                {typeof subheader === 'string' ? Tr(subheader) : subheader}
+              </Typography>
+            )}
           </div>
           {handleCancel && (
             <IconButton
@@ -85,16 +91,18 @@ const DialogConfirmation = memo(
             </IconButton>
           )}
         </DialogTitle>
-        <DialogContent dividers {...contentProps}>
-          {children}
-        </DialogContent>
+        {children && (
+          <DialogContent dividers {...contentProps}>
+            {children}
+          </DialogContent>
+        )}
         {handleAccept && (
           <DialogActions>
             <Action
+              aria-label='accept'
               color='secondary'
               data-cy='dg-accept-button'
               handleClick={handleAccept}
-              icon={false}
               label={T.Accept}
               {...acceptButtonProps}
             />
@@ -106,19 +114,19 @@ const DialogConfirmation = memo(
 )
 
 export const DialogPropTypes = {
-  open: PropTypes.bool.isRequired,
-  title: PropTypes.string.isRequired,
-  subheader: PropTypes.string,
-  contentProps: PropTypes.objectOf(PropTypes.any),
-  handleAccept: PropTypes.func,
-  acceptButtonProps: PropTypes.objectOf(PropTypes.any),
-  handleCancel: PropTypes.func,
-  cancelButtonProps: PropTypes.objectOf(PropTypes.any),
-  handleEntering: PropTypes.func,
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
+  open: PropTypes.bool,
+  title: PropTypes.oneOfType([
+    PropTypes.string,
     PropTypes.node
-  ])
+  ]).isRequired,
+  subheader: PropTypes.string,
+  contentProps: PropTypes.object,
+  handleAccept: PropTypes.func,
+  acceptButtonProps: PropTypes.object,
+  handleCancel: PropTypes.func,
+  cancelButtonProps: PropTypes.object,
+  handleEntering: PropTypes.func,
+  children: PropTypes.any
 }
 
 DialogConfirmation.propTypes = DialogPropTypes

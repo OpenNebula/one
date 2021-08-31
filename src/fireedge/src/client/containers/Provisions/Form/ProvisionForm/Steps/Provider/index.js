@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
@@ -38,7 +38,7 @@ const Provider = () => ({
     const provisionTemplate = useWatch({ name: TEMPLATE_ID })
     const provisionTemplateSelected = provisionTemplate?.[0] ?? {}
 
-    const providersByTypeAndService = React.useMemo(() =>
+    const providersByTypeAndService = useMemo(() =>
       providers.filter(({ TEMPLATE: { PLAIN = {} } = {} }) =>
         PLAIN.provider === provisionTemplateSelected.provider &&
         PLAIN.provision_type === provisionTemplateSelected.provision_type

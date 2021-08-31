@@ -27,12 +27,24 @@ export const getSunstoneViews = createAsyncThunk(
   async (_, { dispatch }) => {
     try {
       const views = await authService.getSunstoneViews() ?? {}
-      // const config = await authService.getSunstoneConfig() ?? {}
 
       return {
         views,
         view: Object.keys(views)[0]
       }
+    } catch (error) {
+      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+    }
+  }
+)
+
+export const getSunstoneConfig = createAsyncThunk(
+  'sunstone/config',
+  async (_, { dispatch }) => {
+    try {
+      const config = await authService.getSunstoneConfig() ?? {}
+
+      return { config }
     } catch (error) {
       status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
     }

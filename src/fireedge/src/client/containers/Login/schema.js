@@ -14,13 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
-
-import { VerifiedBadge as SelectIcon } from 'iconoir-react'
 import * as yup from 'yup'
 
 import { useAuth } from 'client/features/Auth'
 import { getValidationFromFields } from 'client/utils'
+import { Tr } from 'client/components/HOC'
 import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
 
 export const USERNAME = {
@@ -95,14 +93,10 @@ export const GROUP = {
     const sortedGroupsById = groups?.sort((a, b) => a.ID - b.ID)
 
     const formatGroups = sortedGroupsById.map(({ ID, NAME }) => {
-      const markAsPrimary = user?.GID === ID ? (
-        <span style={{ marginLeft: 16 }}>
-          <SelectIcon size='1em' />
-        </span>
-      ) : null
+      const isPrimary = user?.GID === ID ? `(${Tr(T.Primary)})` : ''
 
       return {
-        text: <>{`${ID} - ${String(NAME)}`}{markAsPrimary}</>,
+        text: `${ID} - ${NAME} ${isPrimary}`,
         value: String(ID)
       }
     })

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 
 import { Divider, Paper, Typography } from '@material-ui/core'
 

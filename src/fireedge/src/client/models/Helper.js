@@ -65,6 +65,24 @@ export const timeFromMilliseconds = time =>
   DateTime.fromMillis(+time * 1000)
 
 /**
+ * Returns the epoch milliseconds of the date.
+ *
+ * @param {number|string} date - Date
+ * @returns {number} - Total milliseconds.
+ */
+export const dateToMilliseconds = date =>
+  DateTime.fromJSDate(date).toMillis() / 1000
+
+/**
+ * Returns the epoch milliseconds of the date.
+ *
+ * @param {number|string} date - Date
+ * @returns {number} - Total milliseconds.
+ */
+export const isoDateToMilliseconds = date =>
+  DateTime.fromISO(date).toMillis() / 1000
+
+/**
  * Get the diff from two times and it converts them
  * into string with format: ``dd hh mm ss``.
  *

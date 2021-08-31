@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -25,7 +25,7 @@ import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
 
 const ClustersTable = () => {
-  const columns = React.useMemo(() => ClusterColumns, [])
+  const columns = useMemo(() => ClusterColumns, [])
 
   const clusters = useCluster()
   const { getClusters } = useClusterApi()

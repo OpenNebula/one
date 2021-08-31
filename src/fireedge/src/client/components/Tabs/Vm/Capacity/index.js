@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -24,10 +24,10 @@ import InformationPanel from 'client/components/Tabs/Vm/Capacity/information'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const VmCapacityTab = ({ tabProps: { actions = [] } = {} }) => {
+const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
   const { resize } = useVmApi()
 
-  const { handleRefetch, data: vm = {} } = React.useContext(TabContext)
+  const { handleRefetch, data: vm = {} } = useContext(TabContext)
   const { ID } = vm
 
   const hypervisor = VirtualMachine.getHypervisor(vm)

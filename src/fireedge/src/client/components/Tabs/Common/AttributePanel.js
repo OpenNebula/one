@@ -28,7 +28,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core'
 
@@ -56,7 +56,7 @@ const useStyles = makeStyles({
   }
 })
 
-const AttributePanel = React.memo(({
+const AttributePanel = memo(({
   title,
   attributes = {},
   handleEdit,

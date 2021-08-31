@@ -14,13 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import DialogConfirmation, { DialogPropTypes } from 'client/components/Dialogs/DialogConfirmation'
 
@@ -63,6 +62,9 @@ const DialogForm = ({ values, resolver, handleSubmit, dialogProps, children }) =
       acceptButtonProps={{
         isSubmitting: methods.formState.isSubmitting
       }}
+      cancelButtonProps={{
+        disabled: methods.formState.isSubmitting
+      }}
       {...dialogProps}
     >
       <FormProvider {...methods}>
@@ -79,7 +81,7 @@ DialogForm.propTypes = {
   ]),
   resolver: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func,
-  dialogProps: DialogPropTypes,
+  dialogProps: PropTypes.shape(DialogPropTypes),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,

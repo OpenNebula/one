@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -50,7 +50,7 @@ const Row = ({ virtualRow, useTableProps }) => {
 
   prepareRow(row)
 
-  const renderCell = React.useCallback(cell => (
+  const renderCell = useCallback(cell => (
     <Box {...cell.getCellProps()}>
       {cell.render('Cell')}
     </Box>

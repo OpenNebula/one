@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'

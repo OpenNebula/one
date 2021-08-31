@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
 import { NavArrowRight } from 'iconoir-react'
 import Marked from 'marked'
@@ -44,11 +44,11 @@ const Template = () => ({
 
       const templateSelected = data?.[0]
 
-      const [provisionSelected, setProvision] = React.useState(
+      const [provisionSelected, setProvision] = useState(
         () => templateSelected?.plain?.provision_type
       )
 
-      const [providerSelected, setProvider] = React.useState(
+      const [providerSelected, setProvider] = useState(
         () => templateSelected?.provider
       )
 
@@ -171,7 +171,7 @@ const Template = () => ({
           </Breadcrumbs>
 
           {/* -- DESCRIPTION -- */}
-          {React.useMemo(() => provisionDescription && (
+          {useMemo(() => provisionDescription && (
             <RenderDescription description={provisionDescription} />
           ), [provisionDescription])}
 

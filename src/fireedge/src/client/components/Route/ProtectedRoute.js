@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useEffect } from 'react'
 import { Redirect, Route } from 'react-router-dom'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
@@ -29,7 +29,7 @@ const ProtectedRoute = props => {
   const { isLogged, jwt } = useAuth()
   const { getAuthUser } = useAuthApi()
 
-  React.useEffect(() => {
+  useEffect(() => {
     jwt && getAuthUser()
   }, [])
 

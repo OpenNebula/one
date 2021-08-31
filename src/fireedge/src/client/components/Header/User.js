@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 
 import { MenuItem, MenuList, Link } from '@material-ui/core'
 import { ProfileCircled as UserIcon } from 'iconoir-react'
@@ -25,7 +25,7 @@ import { Tr } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { T, APPS, APP_URL } from 'client/constants'
 
-const User = React.memo(() => {
+const User = memo(() => {
   const { user } = useAuth()
   const { logout } = useAuthApi()
 
@@ -45,7 +45,11 @@ const User = React.memo(() => {
           {isDevelopment() &&
             APPS?.map(appName => (
               <MenuItem key={appName}>
-                <Link color='secondary' href={`${APP_URL}/${appName}`} style={{ width: '100%' }}>
+                <Link
+                  color='secondary'
+                  href={`${APP_URL}/${appName}`}
+                  style={{ width: '100%' }}
+                >
                   <DevTypography label={appName} />
                 </Link>
               </MenuItem>

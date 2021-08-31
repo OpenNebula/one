@@ -45,7 +45,30 @@ export const useVmApi = () => {
     changeOwnership: (id, ownership) =>
       unwrapDispatch(actions.changeOwnership({ id, ownership })),
     attachDisk: (id, template) => unwrapDispatch(actions.attachDisk({ id, template })),
+    detachDisk: (id, disk) => unwrapDispatch(actions.detachDisk({ id, disk })),
+    saveAsDisk: (id, data) => unwrapDispatch(actions.saveAsDisk({ id, ...data })),
+    resizeDisk: (id, data) => unwrapDispatch(actions.resizeDisk({ id, ...data })),
+    createDiskSnapshot: (id, data) =>
+      unwrapDispatch(actions.createDiskSnapshot({ id, ...data })),
+    renameDiskSnapshot: (id, data) =>
+      unwrapDispatch(actions.renameDiskSnapshot({ id, ...data })),
+    revertDiskSnapshot: (id, data) =>
+      unwrapDispatch(actions.revertDiskSnapshot({ id, ...data })),
+    deleteDiskSnapshot: (id, data) =>
+      unwrapDispatch(actions.deleteDiskSnapshot({ id, ...data })),
     attachNic: (id, template) => unwrapDispatch(actions.attachNic({ id, template })),
-    detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic }))
+    detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic })),
+    createSnapshot: (id, data) =>
+      unwrapDispatch(actions.createSnapshot({ id, ...data })),
+    revertSnapshot: (id, snapshot) =>
+      unwrapDispatch(actions.revertSnapshot({ id, snapshot })),
+    deleteSnapshot: (id, snapshot) =>
+      unwrapDispatch(actions.deleteSnapshot({ id, snapshot })),
+    addScheduledAction: (id, data) =>
+      unwrapDispatch(actions.addScheduledAction({ id, ...data })),
+    updateScheduledAction: (id, data) =>
+      unwrapDispatch(actions.updateScheduledAction({ id, ...data })),
+    deleteScheduledAction: (id, data) =>
+      unwrapDispatch(actions.deleteScheduledAction({ id, ...data }))
   }
 }

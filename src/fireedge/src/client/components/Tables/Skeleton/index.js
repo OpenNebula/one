@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 
 import { Skeleton } from '@material-ui/lab'
 import { useMediaQuery, Card } from '@material-ui/core'
@@ -21,7 +21,7 @@ import { useMediaQuery, Card } from '@material-ui/core'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 import { rowStyles } from 'client/components/Tables/styles'
 
-const SkeletonTable = React.memo(() => {
+const SkeletonTable = memo(() => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const classes = EnhancedTableStyles()
   const rowClasses = rowStyles()

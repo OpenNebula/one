@@ -56,14 +56,15 @@ export const FILTER_POOL = {
 }
 
 export const INPUT_TYPES = {
-  TEXT: 'text',
-  PASSWORD: 'password',
-  HIDDEN: 'hidden',
-  SELECT: 'select',
-  CHECKBOX: 'checkbox',
-  SLIDER: 'slider',
   AUTOCOMPLETE: 'autocomplete',
-  FILE: 'file'
+  CHECKBOX: 'checkbox',
+  FILE: 'file',
+  TIME: 'time',
+  HIDDEN: 'hidden',
+  PASSWORD: 'password',
+  SELECT: 'select',
+  SLIDER: 'slider',
+  TEXT: 'text'
 }
 
 export const DEBUG_LEVEL = {

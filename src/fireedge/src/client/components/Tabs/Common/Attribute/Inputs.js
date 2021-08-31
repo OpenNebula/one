@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { forwardRef, useState, ForwardedRef, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles, TextField } from '@material-ui/core'
 
@@ -21,7 +21,7 @@ import { Actions } from 'client/components/Tabs/Common/Attribute'
 
 /**
  * @typedef {object} Option
- * @property {string|number|React.JSXElementConstructor} text - Options text to show
+ * @property {string|number|JSXElementConstructor} text - Options text to show
  * @property {string|number} value - Option value
  */
 
@@ -38,15 +38,15 @@ const useStyles = makeStyles({
   }
 })
 
-const Select = React.forwardRef(
+const Select = forwardRef(
   /**
    * @param {InputProps} props - Props
-   * @param {React.ForwardedRef} ref - Forward reference
-   * @returns {React.JSXElementConstructor} Select field
+   * @param {ForwardedRef} ref - Forward reference
+   * @returns {JSXElementConstructor} Select field
    */
-  ({ name = '', value = '', options }, ref) => {
+  ({ name = '', initialValue = '', options }, ref) => {
     const classes = useStyles()
-    const [newValue, setNewValue] = React.useState(() => value)
+    const [newValue, setNewValue] = useState(() => initialValue)
 
     const handleChange = event => setNewValue(event.target.value)
 
@@ -75,14 +75,14 @@ const Select = React.forwardRef(
   }
 )
 
-const Text = React.forwardRef(
+const Text = forwardRef(
   /**
    * @param {InputProps} props - Props
-   * @param {React.ForwardedRef} ref - Forward reference
-   * @returns {React.JSXElementConstructor} Text field
+   * @param {ForwardedRef} ref - Forward reference
+   * @returns {JSXElementConstructor} Text field
    */
-  ({ name = '', value = '' }, ref) => {
-    const [newValue, setNewValue] = React.useState(() => value)
+  ({ name = '', initialValue = '', ...props }, ref) => {
+    const [newValue, setNewValue] = useState(() => initialValue)
 
     const handleChange = event => setNewValue(event.target.value)
 
@@ -97,6 +97,8 @@ const Text = React.forwardRef(
         onChange={handleChange}
         value={newValue}
         variant='outlined'
+        name={name}
+        {...props}
       />
     )
   }
@@ -104,7 +106,7 @@ const Text = React.forwardRef(
 
 const InputPropTypes = {
   name: PropTypes.string,
-  value: PropTypes.string,
+  initialValue: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       text: PropTypes.string.isRequired,

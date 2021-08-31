@@ -21,6 +21,8 @@
     "import/no-extraneous-dependencies": ["error", {
       "devDependencies": ["*.js"]
     }],
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
     "default-case": 0,
     "jsdoc/require-jsdoc": ["error", {
       "publicOnly": true,

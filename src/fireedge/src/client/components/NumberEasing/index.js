@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 /**
@@ -25,9 +25,9 @@ import PropTypes from 'prop-types'
  * @returns {string} Returns a count number
  */
 const NumberEasing = ({ value = '0', speed = 200 }) => {
-  const [count, setCount] = React.useState('0')
+  const [count, setCount] = useState('0')
 
-  React.useEffect(() => {
+  useEffect(() => {
     let start = 0
     const end = parseInt(String(value).substring(0, 3))
 

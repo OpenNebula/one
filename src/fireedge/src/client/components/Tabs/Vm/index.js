@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@material-ui/core'
 
@@ -48,7 +48,7 @@ const loadTab = tabName => ({
   storage: Storage
 }[tabName])
 
-const VmTabs = React.memo(({ id }) => {
+const VmTabs = memo(({ id }) => {
   const { getHooksSocket } = useSocket()
   const { getVm } = useVmApi()
 
@@ -61,14 +61,14 @@ const VmTabs = React.memo(({ id }) => {
 
   const handleRefetch = () => fetchRequest(id, { reload: true })
 
-  const [tabsAvailable, setTabs] = React.useState(() => [])
+  const [tabsAvailable, setTabs] = useState(() => [])
   const { view, getResourceView } = useAuth()
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchRequest(id)
   }, [id])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
 
     setTabs(() => Object.entries(infoTabs)

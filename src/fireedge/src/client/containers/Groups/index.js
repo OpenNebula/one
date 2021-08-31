@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { GroupsTable } from 'client/components/Tables'
 
 function Groups () {
   return (
@@ -30,7 +29,7 @@ function Groups () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.GroupsTable />
+      <GroupsTable />
     </Box>
   )
 }

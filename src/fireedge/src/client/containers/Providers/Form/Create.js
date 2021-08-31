@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Redirect, useParams } from 'react-router'
 
 import { Container, LinearProgress } from '@material-ui/core'

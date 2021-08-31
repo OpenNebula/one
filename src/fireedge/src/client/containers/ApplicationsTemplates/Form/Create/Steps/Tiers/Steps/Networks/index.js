@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback, useContext } from 'react'
+import { useCallback, useContext } from 'react'
 
 import { useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'

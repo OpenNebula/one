@@ -14,12 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 
 import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/ProviderForm/Steps'

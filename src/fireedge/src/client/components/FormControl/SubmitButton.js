@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { forwardRef, memo } from 'react'
 import PropTypes from 'prop-types'
-
-import { makeStyles, CircularProgress, Button, IconButton } from '@material-ui/core'
 import clsx from 'clsx'
 
-import { Tr } from 'client/components/HOC'
+import {
+  makeStyles,
+  CircularProgress,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography
+} from '@material-ui/core'
+
+import { Tr, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
@@ -34,37 +41,60 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const ButtonComponent = ({ icon, children, ...props }) => icon ? (
-  <IconButton {...props}>{children}</IconButton>
-) : (
-  <Button type='submit' variant='contained' {...props}>
-    {children}
-  </Button>
-)
-
-ButtonComponent.propTypes = {
-  icon: PropTypes.bool,
-  children: PropTypes.any
-}
-
-const SubmitButton = React.memo(
-  ({ isSubmitting, disabled, label, icon, color, size, className, ...props }) => {
-    const classes = useStyles()
-
-    return (
-      <ButtonComponent
-        className={clsx(classes.root, className, {
-          [classes.disabled]: disabled
-        })}
-        color={color}
-        disabled={disabled || isSubmitting}
-        icon={icon}
+const ButtonComponent = forwardRef(
+  ({ icon, endicon, children, size = 'small', ...props }, ref) =>
+    icon ? (
+      <IconButton ref={ref} {...props}>{children}</IconButton>
+    ) : (
+      <Button ref={ref}
+        type='submit'
+        endIcon={endicon}
+        variant='contained'
         size={size}
         {...props}
       >
-        {isSubmitting && <CircularProgress color='secondary' size={24} />}
-        {!isSubmitting && (label ?? Tr(T.Submit))}
-      </ButtonComponent>
+        {children}
+      </Button>
+    )
+)
+
+const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
+  <ConditionalWrap
+    condition={tooltip && tooltip !== ''}
+    wrap={wrapperChildren => (
+      <Tooltip
+        arrow
+        placement='bottom'
+        title={<Typography variant='subtitle2'>{tooltip}</Typography>}
+        {...tooltipProps}
+      >{wrapperChildren}</Tooltip>
+    )}
+  >
+    {children}
+  </ConditionalWrap>
+)
+
+const SubmitButton = memo(
+  ({ isSubmitting, disabled, label, icon, className, ...props }) => {
+    const classes = useStyles()
+
+    return (
+      <TooltipComponent {...props}>
+        <ButtonComponent
+          className={clsx(
+            classes.root,
+            className,
+            { [classes.disabled]: disabled }
+          )}
+          disabled={disabled || isSubmitting}
+          icon={icon}
+          aria-label={label ?? T.Submit}
+          {...props}
+        >
+          {isSubmitting && <CircularProgress color='secondary' size={24} />}
+          {!isSubmitting && (icon ?? label ?? Tr(T.Submit))}
+        </ButtonComponent>
+      </TooltipComponent>
     )
   },
   (prev, next) =>
@@ -74,9 +104,13 @@ const SubmitButton = React.memo(
     prev.onClick === next.onClick
 )
 
-SubmitButton.propTypes = {
-  icon: PropTypes.bool,
+export const SubmitButtonPropTypes = {
+  children: PropTypes.any,
+  icon: PropTypes.node,
+  endicon: PropTypes.node,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  tooltipProps: PropTypes.object,
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   className: PropTypes.string,
@@ -84,13 +118,11 @@ SubmitButton.propTypes = {
   size: PropTypes.oneOf(['large', 'medium', 'small'])
 }
 
-SubmitButton.defaultProps = {
-  icon: false,
-  label: undefined,
-  isSubmitting: false,
-  disabled: false,
-  className: undefined,
-  color: 'default'
-}
+TooltipComponent.propTypes = SubmitButtonPropTypes
+SubmitButton.propTypes = SubmitButtonPropTypes
+ButtonComponent.propTypes = SubmitButtonPropTypes
+
+ButtonComponent.displayName = 'SubmitButtonComponent'
+SubmitButton.displayName = 'SubmitButton'
 
 export default SubmitButton

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import useFetch from 'client/hooks/useFetch'
@@ -22,7 +22,6 @@ import { SubmitButton } from 'client/components/FormControl'
 const Action = memo(({
   cy,
   handleClick,
-  icon,
   stopPropagation,
   ...props
 }) => {
@@ -33,9 +32,7 @@ const Action = memo(({
   return (
     <SubmitButton
       data-cy={cy}
-      icon={!!icon}
       isSubmitting={loading}
-      label={icon}
       onClick={evt => {
         stopPropagation && evt?.stopPropagation?.()
         fetchRequest()
@@ -49,7 +46,7 @@ const Action = memo(({
 Action.propTypes = {
   cy: PropTypes.string,
   handleClick: PropTypes.func.isRequired,
-  icon: PropTypes.node.isRequired,
+  icon: PropTypes.node,
   stopPropagation: PropTypes.bool
 }
 

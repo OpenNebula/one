@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -31,7 +31,7 @@ import clsx from 'clsx'
 import { Tr } from 'client/components/HOC'
 import headerStyles from 'client/components/Header/styles'
 
-const HeaderPopover = React.memo(({
+const HeaderPopover = memo(({
   id,
   icon,
   buttonLabel,
@@ -44,7 +44,7 @@ const HeaderPopover = React.memo(({
   const classes = headerStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [anchorEl, setAnchorEl] = useState(null)
 
   const handleOpen = event => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)

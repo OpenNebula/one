@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 

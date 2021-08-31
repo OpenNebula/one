@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -54,12 +54,11 @@ const AttributeList = ({
 
   const renderList = (attribute, parentPath = false) => {
     const { name, value } = attribute
-    const isParent = typeof value === 'object' && !React.isValidElement(value)
+    const isParent = typeof value === 'object' && !isValidElement(value)
 
     return (
-      <>
+      <Fragment key={`${title}.${parentPath || name}`}>
         <ListItem
-          key={`${title}.${parentPath || name}`}
           className={clsx(classes.item, itemClassName)}
           {...restOfItemProps}
         >
@@ -79,7 +78,7 @@ const AttributeList = ({
             })}
           </MList>
         )}
-      </>
+      </Fragment>
     )
   }
 

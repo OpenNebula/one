@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { useState, useMemo } from 'react'
-import { Container, TextField, Grid, MenuItem } from '@material-ui/core'
+import { useState, useMemo, JSXElementConstructor } from 'react'
+import { Container, TextField, Grid, MenuItem, Box } from '@material-ui/core'
 
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
 import { InputCode } from 'client/components/FormControl'
@@ -26,7 +26,7 @@ import Commands from 'server/utils/constants/commands'
 import testApiStyles from 'client/containers/TestApi/styles'
 
 /**
- * @returns {React.JSXElementConstructor} - Component that allows you
+ * @returns {JSXElementConstructor} - Component that allows you
  * to fetch, resolve, and interact with OpenNebula API.
  */
 function TestApi () {
@@ -76,7 +76,9 @@ function TestApi () {
           )}
         </Grid>
         <Grid item xs={12} md={6}>
-          <InputCode code={response} readOnly />
+          <Box height="100%" minHeight={200}>
+            <InputCode code={response} readOnly />
+          </Box>
         </Grid>
       </Grid>
     </Container>

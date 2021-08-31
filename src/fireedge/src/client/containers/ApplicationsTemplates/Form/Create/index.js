@@ -14,12 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Redirect, useHistory, useParams } from 'react-router-dom'
 
 import { LinearProgress, Container } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
@@ -89,9 +89,5 @@ function ApplicationsTemplatesCreateForm () {
     </Container>
   )
 }
-
-ApplicationsTemplatesCreateForm.propTypes = {}
-
-ApplicationsTemplatesCreateForm.defaultProps = {}
 
 export default ApplicationsTemplatesCreateForm

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -38,13 +38,13 @@ const getAttributeCy = (action, attr) => `${action}-${stringToCamelCase(attr.toL
  * @typedef {object} ActionButtonProps
  * @property {string} action - Action name
  * @property {string} name - Attribute name
- * @property {React.FunctionComponent} icon - Icon
+ * @property {JSXElementConstructor} icon - Icon
  * @property {Function} handleClick - Click event
  */
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const ActionButton = ({ action, name, icon: Icon, handleClick, ...props }) => (
   <Action
@@ -64,31 +64,31 @@ ActionButton.propTypes = {
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const Add = props => <ActionButton action='add' icon={AddIcon} {...props}/>
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const Edit = props => <ActionButton action='edit' icon={EditIcon} {...props}/>
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const Delete = props => <ActionButton action='delete' icon={DeleteIcon} {...props}/>
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const Accept = props => <ActionButton action='accept' icon={AcceptIcon} {...props}/>
 
 /**
  * @param {ActionButtonProps} props - Action button props
- * @returns {React.JSXElementConstructor} Action button with props
+ * @returns {JSXElementConstructor} Action button with props
  */
 const Cancel = props => <ActionButton action='cancel' icon={CancelIcon} {...props}/>
 

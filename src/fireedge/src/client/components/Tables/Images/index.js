@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
@@ -25,7 +25,7 @@ import ImageColumns from 'client/components/Tables/Images/columns'
 import ImageRow from 'client/components/Tables/Images/row'
 
 const ImagesTable = props => {
-  const columns = React.useMemo(() => ImageColumns, [])
+  const columns = useMemo(() => ImageColumns, [])
 
   const images = useImage()
   const { getImages } = useImageApi()

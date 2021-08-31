@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core'
+import { useForm, Controller } from 'react-hook-form'
 
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
-import { generateKey, fakeDelay } from 'client/utils'
+import { generateKey } from 'client/utils'
 
 const useStyles = makeStyles({
   wrapper: {
@@ -30,40 +31,50 @@ const useStyles = makeStyles({
   }
 })
 
-const AttributeCreateForm = React.memo(({ handleAdd }) => {
+const AttributeCreateForm = memo(({ handleAdd }) => {
   const classes = useStyles()
-  const inputNameRef = React.createRef()
-  const inputValueRef = React.createRef()
+  const key = useMemo(() => generateKey(), [])
+  const nameInputKey = useMemo(() => `name-${key}`, [key])
+  const valueInputKey = useMemo(() => `value-${key}`, [key])
 
-  const key = React.useMemo(() => generateKey(), [])
+  const { handleSubmit, reset, control, formState } = useForm({
+    defaultValues: { [nameInputKey]: '', [valueInputKey]: '' }
+  })
 
-  const handleCreateAttribute = async () => {
-    inputNameRef.current.disabled = true
-    inputValueRef.current.disabled = true
+  const handleCreateAttribute = async data => {
+    const { [nameInputKey]: name, [valueInputKey]: value } = data
 
-    await fakeDelay(2000)
     await handleAdd?.(
-      inputValueRef.current.value,
-      inputNameRef.current.value
+      String(name).toUpperCase(),
+      String(value).toUpperCase()
     )
 
-    inputNameRef.current.disabled = false
-    inputValueRef.current.disabled = false
-    inputNameRef.current.value = ''
-    inputValueRef.current.value = ''
+    reset()
   }
 
   return (
     <>
       {/* NAME ATTRIBUTE */}
-      <Inputs.Text name={`name-${key}`} ref={inputNameRef} />
+      <Controller
+        control={control}
+        name={nameInputKey}
+        render={fieldProps =>
+          <Inputs.Text {...fieldProps} disabled={formState.isSubmitting} />
+        }
+      />
 
       {/* VALUE ATTRIBUTE */}
       <div className={classes.wrapper}>
-        <Inputs.Text name={`value-${key}`} ref={inputValueRef} />
+        <Controller
+          control={control}
+          name={valueInputKey}
+          render={fieldProps =>
+            <Inputs.Text {...fieldProps} disabled={formState.isSubmitting} />
+          }
+        />
         <Actions.Add
           name={'action-add'}
-          handleClick={handleCreateAttribute}
+          handleClick={handleSubmit(handleCreateAttribute)}
         />
       </div>
     </>

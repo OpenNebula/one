@@ -15,13 +15,17 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit'
-import { FILTER_POOL, JWT_NAME, ONEADMIN_ID, T } from 'client/constants'
+
 import { authService } from 'client/features/Auth/services'
 import { dismissSnackbar } from 'client/features/General/actions'
+
+import { RESOURCES } from 'client/features/One'
 import { getGroups } from 'client/features/One/group/actions'
 import { userService } from 'client/features/One/user/services'
-import { removeStoreData, storage } from 'client/utils'
+
 import { httpCodes } from 'server/utils/constants'
+import { removeStoreData, storage } from 'client/utils'
+import { FILTER_POOL, JWT_NAME, ONEADMIN_ID, T } from 'client/constants'
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -56,14 +60,20 @@ export const getUser = createAsyncThunk(
   'auth/user',
   async (_, { dispatch, getState }) => {
     try {
-      const user = await authService.getUser()
-      await dispatch(getGroups())
+      const { auth = {}, one: { [RESOURCES.group]: groups } = {} } = getState()
 
+      const user = await authService.getUser()
       const isOneAdmin = user?.ID === ONEADMIN_ID
       const userSettings = user?.TEMPLATE?.FIREEDGE ?? {}
+      const userGroupIds = [user?.GROUPS?.ID].flat()
 
+      if (!groups.some(group => userGroupIds.includes(group?.ID))) {
+        await dispatch(getGroups())
+      }
+
+      // Merge user settings with the existing one
       const settings = {
-        ...getState().auth?.settings,
+        ...auth?.settings,
         ...Object.entries(userSettings).reduce((res, [key, value]) =>
           ({ ...res, [String(key).toLowerCase()]: value })
         , {})
@@ -103,9 +113,10 @@ export const changeGroup = createAsyncThunk(
         const { user } = getState().auth
 
         const data = { id: user?.ID, group }
-        await userService.changeGroup({ data })
+        await userService.changeGroup(data)
 
         dispatch(changeFilter(FILTER_POOL.PRIMARY_GROUP_RESOURCES))
+
         return {
           user: {
             ...user,

@@ -14,9 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
-
 import { Tooltip, Typography } from '@material-ui/core'
 
 const StatusCircle = ({ color, tooltip, size }) => (

@@ -14,17 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  DatabaseSettings, Folder, ModernTv,
-  Trash, SaveActionFloppy, Camera, Expand
-} from 'iconoir-react'
+import { DatabaseSettings, Folder, ModernTv } from 'iconoir-react'
 import { Typography, Paper } from '@material-ui/core'
 
-// import { useVmApi } from 'client/features/One'
-import { Action } from 'client/components/Cards/SelectCard'
+import * as Actions from 'client/components/Tabs/Vm/Storage/Actions'
+import StorageSubItem from 'client/components/Tabs/Vm/Storage/SubItem'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -49,7 +45,8 @@ const StorageItem = ({ disk, actions = [] }) => {
     PERSISTENT,
     SAVE,
     CLONE,
-    IS_CONTEXT
+    IS_CONTEXT,
+    SNAPSHOTS
   } = disk
 
   const size = +SIZE ? prettyBytes(+SIZE, 'MB') : '-'
@@ -109,33 +106,29 @@ const StorageItem = ({ disk, actions = [] }) => {
       {!IS_CONTEXT && !!actions.length && (
         <div className={classes.actions}>
           {actions?.includes?.(VM_ACTIONS.DISK_SAVEAS) && isImage && (
-            <Action
-              cy={`${VM_ACTIONS.DISK_SAVEAS}-${DISK_ID}`}
-              icon={<SaveActionFloppy size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.SaveAsAction disk={disk} name={image} />
           )}
           {actions?.includes?.(VM_ACTIONS.SNAPSHOT_DISK_CREATE) && isImage && (
-            <Action
-              cy={`${VM_ACTIONS.SNAPSHOT_DISK_CREATE}-${DISK_ID}`}
-              icon={<Camera size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.SnapshotCreateAction disk={disk} name={image} />
           )}
           {actions?.includes?.(VM_ACTIONS.RESIZE_DISK) && (
-            <Action
-              cy={`${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`}
-              icon={<Expand size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.ResizeAction disk={disk} name={image} />
           )}
           {actions?.includes?.(VM_ACTIONS.DETACH_DISK) && (
-            <Action
-              cy={`${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`}
-              icon={<Trash size={18} />}
-              handleClick={() => undefined}
-            />
+            <Actions.DetachAction disk={disk} name={image} />
           )}
+        </div>
+      )}
+      {SNAPSHOTS && (
+        <div style={{ flexBasis: '100%' }}>
+          {SNAPSHOTS?.map(snapshot => (
+            <StorageSubItem
+              key={`${DISK_ID}-${snapshot.ID}`}
+              disk={disk}
+              snapshot={snapshot}
+              actions={actions}
+            />
+          ))}
         </div>
       )}
     </Paper>

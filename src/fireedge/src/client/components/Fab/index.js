@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const FloatingActionButton = React.memo(
+const FloatingActionButton = memo(
   ({ icon, className, ...props }) => {
     const classes = useStyles()
 

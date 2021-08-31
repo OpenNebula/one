@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import * as Tables from 'client/components/Tables'
+import { HostsTable } from 'client/components/Tables'
 
 function Hosts () {
   return (
@@ -30,7 +29,7 @@ function Hosts () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.HostsTable />
+      <HostsTable />
     </Box>
   )
 }

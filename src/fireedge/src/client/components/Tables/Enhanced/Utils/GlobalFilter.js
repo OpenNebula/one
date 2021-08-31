@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, fade, debounce, InputBase } from '@material-ui/core'
+import { makeStyles, alpha, debounce, InputBase } from '@material-ui/core'
 import { Search as SearchIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps, UseGlobalFiltersState } from 'react-table'
 
@@ -25,9 +25,9 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   search: {
     position: 'relative',
     borderRadius: shape.borderRadius,
-    backgroundColor: fade(palette.divider, 0.15),
+    backgroundColor: alpha(palette.divider, 0.15),
     '&:hover': {
-      backgroundColor: fade(palette.divider, 0.25)
+      backgroundColor: alpha(palette.divider, 0.25)
     },
     width: '100%',
     [breakpoints.up('sm')]: {
@@ -60,7 +60,7 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
  * @param {object} props - Props
  * @param {string} props.className - Class to wrapper root
  * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
- * @returns {React.JSXElementConstructor} Component JSX
+ * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalFilter = ({ useTableProps, className }) => {
   const classes = useStyles()
@@ -70,9 +70,9 @@ const GlobalFilter = ({ useTableProps, className }) => {
   /** @type {UseGlobalFiltersState} */
   const { globalFilter } = state
 
-  const [value, setValue] = React.useState(() => globalFilter)
+  const [value, setValue] = useState(() => globalFilter)
 
-  const handleChange = React.useCallback(
+  const handleChange = useCallback(
     // Set undefined to remove the filter entirely
     debounce(value => { setGlobalFilter(value || undefined) }, 200)
   )

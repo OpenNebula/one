@@ -96,10 +96,34 @@ export const getState = vm => {
  * @returns {Array} List of disks from resource
  */
 export const getDisks = vm => {
-  const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
+  const { TEMPLATE = {}, MONITORING = {}, SNAPSHOTS = {} } = vm ?? {}
+  const diskSnapshots = [SNAPSHOTS].flat().filter(Boolean)
 
   const { DISK, CONTEXT } = TEMPLATE
-  const { DISK_SIZE = [] } = MONITORING
+  const monitoringDiskSize = [MONITORING?.DISK_SIZE].flat().filter(Boolean)
+  const monitoringSnapshotSize = [MONITORING?.SNAPSHOT_SIZE].flat().filter(Boolean)
+
+  const addExtraData = disk => {
+    const diskSnapshot = diskSnapshots
+      .find(({ DISK_ID }) => DISK_ID === disk.DISK_ID)?.SNAPSHOT || []
+
+    const snapshotsWithMonitoringData = [diskSnapshot]
+      .flat()
+      .map(snapshot => ({
+        ...snapshot,
+        MONITOR_SIZE: monitoringSnapshotSize
+          .find(({ DISK_ID }) => DISK_ID === disk.DISK_ID)?.SIZE || '-'
+      }))
+
+    const diskSizeFromMonitoring = monitoringDiskSize
+      .find(({ ID }) => ID === disk.DISK_ID)?.SIZE || '-'
+
+    return {
+      ...disk,
+      SNAPSHOTS: snapshotsWithMonitoringData,
+      MONITOR_SIZE: diskSizeFromMonitoring
+    }
+  }
 
   const contextDisk = CONTEXT && !isVCenter(vm) && {
     ...CONTEXT,
@@ -112,18 +136,10 @@ export const getDisks = vm => {
     SAVE_AS: '-'
   }
 
-  const addMonitoringData = disk => ({
-    ...disk,
-    // get monitoring data
-    MONITOR_SIZE: [DISK_SIZE ?? []]
-      ?.flat()
-      ?.find(({ ID }) => ID === disk.DISK_ID)?.SIZE || '-'
-  })
-
   return [DISK, contextDisk]
     .flat()
     .filter(Boolean)
-    .map(addMonitoringData)
+    .map(addExtraData)
 }
 
 /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@material-ui/core'
@@ -32,7 +32,22 @@ const SelectController = memo(
           <TextField
             value={optionSelected ?? defaultValue}
             onBlur={onBlur}
-            onChange={onChange}
+            onChange={
+              multiple
+                ? event => {
+                  const { options } = event.target
+                  const newValue = []
+
+                  for (let i = 0, l = options.length; i < l; i += 1) {
+                    if (options[i].selected) {
+                      newValue.push(options[i].value)
+                    }
+                  }
+
+                  onChange(newValue)
+                }
+                : onChange
+            }
             color='secondary'
             select
             fullWidth
@@ -55,6 +70,7 @@ const SelectController = memo(
         )}
         name={name}
         control={control}
+        multiple={multiple}
       />
     )
   },

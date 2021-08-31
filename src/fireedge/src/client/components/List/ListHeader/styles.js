@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles, fade } from '@material-ui/core'
+import { makeStyles, alpha } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   root: {
@@ -54,9 +54,9 @@ export default makeStyles(theme => ({
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.primary.dark, 0.15),
+    backgroundColor: alpha(theme.palette.primary.dark, 0.15),
     '&:hover': {
-      backgroundColor: fade(theme.palette.primary.dark, 0.25)
+      backgroundColor: alpha(theme.palette.primary.dark, 0.25)
     },
     margin: theme.spacing(1, 0),
     width: '100%',

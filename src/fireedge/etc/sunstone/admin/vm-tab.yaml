@@ -130,6 +130,7 @@ info-tabs:
         enabled: true
         not_on:
           - vcenter
+          - firecracker
 
   network:
     enabled: true

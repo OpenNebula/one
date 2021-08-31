@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -23,16 +23,16 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import StorageList from 'client/components/Tabs/Vm/Storage/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
+import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const VmStorageTab = ({ tabProps: { actions = [] } = {} }) => {
+const VmStorageTab = ({ tabProps: { actions } = {} }) => {
   const { attachDisk } = useVmApi()
 
-  const { handleRefetch, data: vm = {} } = React.useContext(TabContext)
-  const { ID } = vm
+  const { data: vm = {} } = useContext(TabContext)
 
   const disks = VirtualMachine.getDisks(vm)
   const hypervisor = VirtualMachine.getHypervisor(vm)
@@ -44,16 +44,21 @@ const VmStorageTab = ({ tabProps: { actions = [] } = {} }) => {
 
     const template = Helper.jsonToXml({ DISK: root })
 
-    const response = await attachDisk(ID, template)
-    String(response) === String(ID) && await handleRefetch?.()
+    await attachDisk(vm.ID, template)
   }
 
   return (
     <>
       {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_DISK) && (
         <ButtonToTriggerForm
-          buttonProps={{ 'data-cy': 'attach-disk' }}
-          title={T.AttachDisk}
+          buttonProps={{
+            color: 'secondary',
+            'data-cy': 'attach-disk',
+            label: `${Tr(T.Attach)} ${Tr(T.Disk)}`
+          }}
+          dialogProps={{
+            title: `${Tr(T.Attach)} ${Tr(T.Disk)}`
+          }}
           options={[
             {
               cy: 'attach-image-disk',

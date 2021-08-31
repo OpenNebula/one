@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 
 import {
   User as UserIcon,
@@ -40,6 +40,7 @@ const useStyles = makeStyles({
 
 const TotalProvisionInfrastructures = ({ isLoading }) => {
   const classes = useStyles()
+
   const {
     [RESOURCES.user]: users = [],
     [RESOURCES.group]: groups = [],
@@ -47,7 +48,7 @@ const TotalProvisionInfrastructures = ({ isLoading }) => {
     [RESOURCES.vn]: vNetworks = []
   } = useOne()
 
-  return React.useMemo(() => (
+  return useMemo(() => (
     <div
       data-cy='dashboard-widget-total-sunstone-resources'
       className={classes.root}
@@ -88,7 +89,7 @@ const TotalProvisionInfrastructures = ({ isLoading }) => {
         </>
       )}
     </div>
-  ), [users?.length, isLoading])
+  ), [users?.length, isLoading, classes])
 }
 
 TotalProvisionInfrastructures.displayName = 'TotalProvisionInfrastructures'

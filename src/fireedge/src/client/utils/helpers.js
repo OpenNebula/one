@@ -96,7 +96,19 @@ export const addOpacityToColor = (color, opacity) => {
  * @returns {string} The word capitalized
  */
 export const capitalize = ([firstLetter, ...restOfWord]) =>
-  firstLetter.toUpperCase() + restOfWord.join('')
+  firstLetter.toUpperCase() + restOfWord.map(s => s.toLowerCase()).join('')
+
+/**
+ * Clear an string of special characters.
+ *
+ * @param {string} s - String
+ * @example permissions_panel => 'permissions panel'
+ * @returns {string} String with clear format
+ */
+export const clearString = s => s.replace(
+  /([-_][a-z])/ig,
+  $1 => $1.toUpperCase().replace(/[-_]/g, ' ')
+)
 
 /**
  * Converts an string to camel case.

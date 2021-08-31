@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 
 import { useListForm, useFetch } from 'client/hooks'
 import { useCluster, useClusterApi } from 'client/features/One'

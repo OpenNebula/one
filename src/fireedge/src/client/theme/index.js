@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import {
-  createMuiTheme,
+  createTheme as createMuiTheme,
   responsiveFontSizes,
   createGenerateClassName
 } from '@material-ui/core'

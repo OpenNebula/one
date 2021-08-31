@@ -61,13 +61,13 @@ export const userService = ({
    *
    * @param {object} params - Request parameters
    * @param {object} params.data - Form data
-   * @returns {object} Object of document updated
+   * @returns {number} User id
    * @throws Fails when response isn't code 200
    */
-  changeGroup: async ({ data }) => {
+  changeGroup: async params => {
     const name = Actions.USER_CHGRP
     const command = { name, ...Commands[name] }
-    const config = requestConfig(data, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -80,16 +80,21 @@ export const userService = ({
    * Replaces the user template contents.
    *
    * @param {object} params - Request parameters
-   * @param {object} params.data - Form data
-   * @returns {object} Object of document updated
+   * @param {string|number} params.id - User id
+   * @param {string} params.template - The new user template contents
+   * @param {0|1} params.replace
+   * - Update type:
+   * ``0``: Replace the whole template.
+   * ``1``: Merge new template with the existing one.
+   * @returns {number} User id
    * @throws Fails when response isn't code 200
    */
-  updateUser: ({ data }) => {
+  updateUser: async params => {
     const name = Actions.USER_UPDATE
     const command = { name, ...Commands[name] }
-    const config = requestConfig(data, command)
+    const config = requestConfig(params, command)
 
-    const res = RestClient.request(config)
+    const res = await RestClient.request(config)
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 

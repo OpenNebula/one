@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 
 import { PieChart } from 'react-minimal-pie-chart'
 import { Typography, Paper } from '@material-ui/core'
@@ -31,9 +31,9 @@ const TotalProviders = () => {
   const classes = useStyles()
   const { providers } = useOne()
 
-  const totalProviders = React.useMemo(() => providers.length, [providers.length])
+  const totalProviders = useMemo(() => providers.length, [providers.length])
 
-  const chartData = React.useMemo(() => {
+  const chartData = useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
     return Object.values(PROVIDERS_TYPES).map(({ id, name, color }) => ({
@@ -43,7 +43,7 @@ const TotalProviders = () => {
     }))
   }, [totalProviders])
 
-  const title = React.useMemo(() => (
+  const title = useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
         <NumberEasing number={`${totalProviders}`} />
@@ -55,7 +55,7 @@ const TotalProviders = () => {
     </div>
   ), [classes, totalProviders])
 
-  const legend = React.useMemo(() => (
+  const legend = useMemo(() => (
     <div>
       {chartData?.map(({ title: titleLegend, value, color }) =>
         <TypographyWithPoint key={titleLegend} pointColor={color}>
@@ -68,7 +68,7 @@ const TotalProviders = () => {
     </div>
   ), [classes, chartData])
 
-  const chart = React.useMemo(() => (
+  const chart = useMemo(() => (
     <PieChart
       className={classes.chart}
       background={totalProviders === 0 && '#c3c3c3'}

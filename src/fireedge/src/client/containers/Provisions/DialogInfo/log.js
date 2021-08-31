@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { LinearProgress } from '@material-ui/core'
@@ -22,7 +22,7 @@ import { useFetch, useSocket } from 'client/hooks'
 import { useProvisionApi } from 'client/features/One'
 import DebugLog, { LogUtils } from 'client/components/DebugLog'
 
-const Log = React.memo(({ hidden, data: { ID } }) => {
+const Log = memo(({ hidden, data: { ID } }) => {
   const { getProvisionSocket } = useSocket()
   const { getProvisionLog } = useProvisionApi()
 
@@ -32,11 +32,11 @@ const Log = React.memo(({ hidden, data: { ID } }) => {
     loading
   } = useFetch(getProvisionLog)
 
-  React.useEffect(() => {
+  useEffect(() => {
     (!log && !hidden) && fetchRequest(ID)
   }, [hidden])
 
-  const parsedLog = React.useMemo(() =>
+  const parsedLog = useMemo(() =>
     log
       ?.map(entry => {
         try { return JSON.parse(entry) } catch { return entry }

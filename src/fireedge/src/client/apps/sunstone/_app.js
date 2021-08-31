@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useEffect, useMemo, JSXElementConstructor } from 'react'
 
 import Router from 'client/router'
 import { ENDPOINTS, PATH, getEndpointsByView } from 'client/apps/sunstone/routes'
@@ -34,20 +34,21 @@ const APP_NAME = _APPS.sunstone.name
 /**
  * Sunstone App component.
  *
- * @returns {React.JSXElementConstructor} App rendered.
+ * @returns {JSXElementConstructor} App rendered.
  */
 const SunstoneApp = () => {
   const { isLogged, jwt, firstRender, view, views } = useAuth()
-  const { getAuthUser, logout, getSunstoneViews } = useAuthApi()
+  const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } = useAuthApi()
   const { changeTitle } = useGeneralApi()
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         if (jwt) {
           changeTitle(APP_NAME)
           getAuthUser()
           await getSunstoneViews()
+          await getSunstoneConfig()
         }
       } catch {
         logout()
@@ -55,7 +56,7 @@ const SunstoneApp = () => {
     })()
   }, [jwt])
 
-  const endpoints = React.useMemo(() => [
+  const endpoints = useMemo(() => [
     ...ENDPOINTS,
     ...(view ? getEndpointsByView(views?.[view], ONE_ENDPOINTS) : []),
     ...(isDevelopment() ? DEV_ENDPOINTS : [])

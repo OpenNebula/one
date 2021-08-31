@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { Redirect, Route, Switch } from 'react-router-dom'
@@ -37,6 +36,13 @@ const renderRoute = ({ Component, ...rest }, index) => (
   </ProtectedRoute>
 )
 
+/**
+ * @param {object} props - Props
+ * @param {string} props.redirectWhenAuth
+ * - Pathname to redirect when user isn authenticated
+ * @param {object[]} props.endpoints - App endpoints
+ * @returns {JSXElementConstructor} Router
+ */
 const Router = ({ redirectWhenAuth, endpoints }) => (
   <TransitionGroup>
     <Switch>

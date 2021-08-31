@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import {
-  Button,
   ClickAwayListener,
   Grow,
   Paper,
@@ -29,27 +28,43 @@ import {
 import { NavArrowDown } from 'iconoir-react'
 
 import { useDialog } from 'client/hooks'
-import { DialogForm } from 'client/components/Dialogs'
-import { FormWithSchema } from 'client/components/Forms'
+import { DialogConfirmation, DialogForm, DialogPropTypes } from 'client/components/Dialogs'
+import { SubmitButton, SubmitButtonPropTypes } from 'client/components/FormControl'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
 
-const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
+const ButtonToTriggerForm = ({
+  buttonProps = {},
+  isConfirmDialog = false,
+  dialogProps = {},
+  options = []
+}) => {
+  const buttonId = buttonProps['data-cy'] ?? 'main-button-form'
   const isGroupButton = options.length > 1
 
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { steps, defaultValues, resolver, fields, onSubmit: handleSubmit } = Form ?? {}
+  const {
+    steps,
+    defaultValues,
+    resolver,
+    fields,
+    onSubmit: handleSubmit
+  } = Form ?? {}
 
   const handleTriggerSubmit = async formData => {
-    await handleSubmit?.(formData)
-    hide()
+    try {
+      await handleSubmit?.(formData)
+    } finally {
+      hide()
+    }
   }
 
-  const openDialogForm = ({ form = {}, onSubmit }) => {
-    show({ ...form, onSubmit })
+  const openDialogForm = ({ form = {}, ...rest }) => {
+    show({ ...form, ...rest })
     handleClose()
   }
 
@@ -58,29 +73,24 @@ const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
 
   return (
     <>
-      <Button
-        color='secondary'
-        size='small'
-        variant='contained'
-        aria-describedby={buttonProps.cy ?? 'main-button-form'}
+      <SubmitButton
+        aria-describedby={buttonId}
         disabled={!options.length}
-        endIcon={isGroupButton && <NavArrowDown />}
+        endicon={isGroupButton ? <NavArrowDown /> : undefined}
         onClick={evt => !isGroupButton
           ? openDialogForm(options[0])
           : handleToggle(evt)
         }
         {...buttonProps}
-      >
-        <Translate word={title} />
-      </Button>
+      />
 
       {isGroupButton && (
         <Popper
-          open={open}
           anchorEl={anchorEl}
-          id={buttonProps.cy ?? 'main-button-form'}
-          transition
           disablePortal
+          id={buttonId}
+          open={open}
+          transition
         >
           {({ TransitionProps }) => (
             <Grow {...TransitionProps}>
@@ -105,26 +115,39 @@ const ButtonToTriggerForm = ({ buttonProps = {}, title, options = [] }) => {
       )}
 
       {display && (
-        <DialogForm
-          resolver={resolver}
-          values={defaultValues}
-          handleSubmit={!steps ? handleTriggerSubmit : undefined}
-          dialogProps={{ title, handleCancel: hide }}
-        >
-          {steps ? (
-            <FormStepper steps={steps} schema={resolver} onSubmit={handleTriggerSubmit}/>
-          ) : (
-            <FormWithSchema cy='form-dg' fields={fields} />
-          )}
-        </DialogForm>
+        isConfirmDialog ? (
+          <DialogConfirmation
+            handleAccept={handleTriggerSubmit}
+            handleCancel={hide}
+            {...dialogProps}
+          />
+        ) : (
+          <DialogForm
+            resolver={resolver}
+            values={defaultValues}
+            handleSubmit={!steps ? handleTriggerSubmit : undefined}
+            dialogProps={{ handleCancel: hide, ...dialogProps }}
+          >
+            {steps ? (
+              <FormStepper
+                steps={steps}
+                schema={resolver}
+                onSubmit={handleTriggerSubmit}
+              />
+            ) : (
+              <FormWithSchema cy='form-dg' fields={fields} />
+            )}
+          </DialogForm>
+        )
       )}
     </>
   )
 }
 
 ButtonToTriggerForm.propTypes = {
-  buttonProps: PropTypes.object,
-  title: PropTypes.string,
+  buttonProps: PropTypes.shape(SubmitButtonPropTypes),
+  dialogProps: PropTypes.shape(DialogPropTypes),
+  isConfirmDialog: PropTypes.bool,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       cy: PropTypes.string,
@@ -135,6 +158,6 @@ ButtonToTriggerForm.propTypes = {
   handleSubmit: PropTypes.func
 }
 
-ButtonToTriggerForm.displayName = 'VmStorageTab'
+ButtonToTriggerForm.displayName = 'ButtonToTriggerForm'
 
 export default ButtonToTriggerForm

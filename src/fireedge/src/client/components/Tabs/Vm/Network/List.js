@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import NetworkItem from 'client/components/Tabs/Vm/Network/Item'
@@ -26,9 +25,12 @@ const NetworkList = ({ nics, actions }) => (
     gap: '1em',
     paddingBlock: '0.8em'
   }}>
-    {nics.map((nic, idx) => (
-      <NetworkItem key={idx} actions={actions} nic={nic} />
-    ))}
+    {nics.map(nic => {
+      const { IP, MAC } = nic
+      const key = IP ?? MAC
+
+      return <NetworkItem key={key} actions={actions} nic={nic} />
+    })}
   </div>
 )
 

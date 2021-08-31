@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -63,7 +62,11 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       <ListItemText
         disableTypography={devMode}
         primaryTypographyProps={STATIC_LABEL_PROPS}
-        primary={devMode ? <DevTypography label={label} labelProps={STATIC_LABEL_PROPS}/> : label}
+        primary={
+          devMode ? (
+            <DevTypography label={label} labelProps={STATIC_LABEL_PROPS}/>
+          ) : label
+        }
       />
     </ListItem>
   )

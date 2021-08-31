@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
 import { useUser, useUserApi } from 'client/features/One'
@@ -24,7 +24,7 @@ import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
 
 const UsersTable = () => {
-  const columns = React.useMemo(() => UserColumns, [])
+  const columns = useMemo(() => UserColumns, [])
 
   const users = useUser()
   const { getUsers } = useUserApi()

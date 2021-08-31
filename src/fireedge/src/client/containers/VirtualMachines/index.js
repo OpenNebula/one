@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useState } from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
@@ -23,7 +23,7 @@ import VmTabs from 'client/components/Tabs/Vm'
 import SplitPane from 'client/components/SplitPane'
 
 function VirtualMachines () {
-  const [selectedRows, onSelectedRowsChange] = React.useState([])
+  const [selectedRows, onSelectedRowsChange] = useState([])
 
   const getRowIds = () =>
     JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)

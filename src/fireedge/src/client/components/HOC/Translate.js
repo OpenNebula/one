@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useContext, useState, useEffect, createContext } from 'react'
+import { useContext, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
 import { sprintf } from 'sprintf-js'

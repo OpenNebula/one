@@ -34,9 +34,9 @@ export const useUserApi = () => {
   )
 
   return {
-    changeGroup: data => unwrapDispatch(actions.changeGroup({ data })),
     getUser: id => unwrapDispatch(actions.getUser({ id })),
     getUsers: () => unwrapDispatch(actions.getUsers()),
-    updateUser: data => unwrapDispatch(actions.updateUser({ data }))
+    changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
+    updateUser: (id, data) => unwrapDispatch(actions.updateUser({ id, ...data }))
   }
 }

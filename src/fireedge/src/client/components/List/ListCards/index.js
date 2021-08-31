@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React from 'react'
 import PropTypes from 'prop-types'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
@@ -74,7 +73,7 @@ const ListCards = ({
 
               return (
                 <CSSTransition
-                // use key to render transition (default: id or ID)
+                  // use key to render transition (default: id or ID)
                   key={`card-${key.replace(/\s/g, '')}`}
                   classNames={classes.item}
                   timeout={400}

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { createElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, Grid } from '@material-ui/core'
@@ -31,11 +31,12 @@ const InputController = {
   [INPUT_TYPES.SLIDER]: FC.SliderController,
   [INPUT_TYPES.CHECKBOX]: FC.CheckboxController,
   [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
-  [INPUT_TYPES.FILE]: FC.FileController
+  [INPUT_TYPES.FILE]: FC.FileController,
+  [INPUT_TYPES.TIME]: FC.TimeController
 }
 
 const HiddenInput = ({ isHidden, children }) =>
-  isHidden ? <Box display="none">{children}</Box> : children
+  isHidden ? <Box display='none'>{children}</Box> : children
 
 const FormWithSchema = ({ id, cy, fields }) => {
   const { control, errors, ...formContext } = useFormContext()
@@ -43,37 +44,44 @@ const FormWithSchema = ({ id, cy, fields }) => {
   return (
     <Grid container spacing={1}>
       {fields?.map?.(
-        ({ name, type, htmlType, values, dependOf, grid, ...restOfProps }) => {
+        ({ dependOf, ...props }) => {
+          let valueOfDependField = null
+          if (dependOf) {
+            const nameOfDependField = id
+              ? Array.isArray(dependOf) ? dependOf.map(d => `${id}.${d}`) : `${id}.${dependOf}`
+              : dependOf
+
+            valueOfDependField = useWatch({ control, name: nameOfDependField })
+          }
+
+          const { name, type, htmlType, grid, ...fieldProps } = Object
+            .entries(props)
+            .reduce((field, property) => {
+              const [key, value] = property
+              const finalValue = typeof value === 'function' ? value(valueOfDependField) : value
+
+              return { ...field, [key]: finalValue }
+            }, {})
+
           const dataCy = `${cy}-${name}`
           const inputName = id ? `${id}.${name}` : name
 
           const inputError = get(errors, inputName) ?? false
 
-          const dependValue = dependOf
-            ? useWatch({ control, name: id ? `${id}.${dependOf}` : dependOf })
-            : null
-
-          const htmlTypeValue = typeof htmlType === 'function'
-            ? htmlType(dependValue)
-            : htmlType
-
-          const isHidden = htmlTypeValue === INPUT_TYPES.HIDDEN
+          const isHidden = htmlType === INPUT_TYPES.HIDDEN
 
           return (
             InputController[type] && (
               <HiddenInput key={`${cy}-${name}`} isHidden={isHidden}>
                 <Grid item xs={12} md={6} {...grid}>
-                  {React.createElement(InputController[type], {
+                  {createElement(InputController[type], {
                     control,
                     cy: dataCy,
                     error: inputError,
                     formContext,
                     name: inputName,
-                    type: htmlTypeValue,
-                    values: typeof values === 'function'
-                      ? values(dependValue)
-                      : values,
-                    ...restOfProps
+                    type: htmlType,
+                    ...fieldProps
                   })}
                 </Grid>
               </HiddenInput>

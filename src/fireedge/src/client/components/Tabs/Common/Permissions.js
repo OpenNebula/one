@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, List, ListItem, Typography, Paper } from '@material-ui/core'
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const Permissions = React.memo(({ handleEdit, actions, ...permissions }) => {
+const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
   const classes = useStyles()
 
   const handleChange = async (name, value) => {

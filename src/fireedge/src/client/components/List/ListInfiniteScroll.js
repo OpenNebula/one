@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import React, { useRef, useEffect, useCallback, createRef } from 'react'
+import { useRef, useEffect, useCallback, createRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { debounce, LinearProgress } from '@material-ui/core'

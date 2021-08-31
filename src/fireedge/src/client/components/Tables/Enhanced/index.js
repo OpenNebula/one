@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { InfoEmpty } from 'iconoir-react'
@@ -59,11 +59,11 @@ const EnhancedTable = ({
 
   const isFetching = isLoading && data === undefined
 
-  const defaultColumn = React.useMemo(() => ({
+  const defaultColumn = useMemo(() => ({
     disableFilters: true
   }), [])
 
-  const sortTypes = React.useMemo(() => ({
+  const sortTypes = useMemo(() => ({
     length: (rowA, rowB, columnId, desc) => desc
       ? rowB.values[columnId].length - rowA.values[columnId].length
       : rowA.values[columnId].length - rowB.values[columnId].length

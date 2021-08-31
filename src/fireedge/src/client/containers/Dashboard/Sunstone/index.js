@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useEffect } from 'react'
 
 import clsx from 'clsx'
 import { Container, Box, Grid } from '@material-ui/core'
@@ -39,7 +39,7 @@ function Dashboard () {
 
   const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchRequestAll([
       getUsers(),
       getImages(),

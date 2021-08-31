@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { memo, useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/core'
@@ -57,7 +57,7 @@ const useStyles = makeStyles(() => ({
  * @param {Function} props.handleCreate - Create a new Node
  * @param {Function} props.handleEdit - Edit a current Node
  * @param {Function} props.handleSetData - Set new list of nodes
- * @returns {React.JSXElementConstructor} ReactFlow component
+ * @returns {JSXElementConstructor} ReactFlow component
  */
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
   const { watch } = useFormContext()

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/core'

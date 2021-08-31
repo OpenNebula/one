@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Tooltip } from '@material-ui/core'
@@ -48,9 +48,9 @@ const useStyles = makeStyles(theme => ({
  * @param {{ name: string, color: string }[]} props.legend - Legend
  * @param {number[]} props.data - Chart data
  * @param {number} props.total - Total value of chart, equals to 100% of bar
- * @returns {React.JSXElementConstructor} Chart bar component
+ * @returns {JSXElementConstructor} Chart bar component
  */
-const SingleBar = ({ legend, data, total }) => {
+const SingleBar = ({ legend, data, total = 0 }) => {
   const fragments = data.map(data => Math.floor(data * 10 / (total || 1)))
 
   const classes = useStyles({ fragments })
@@ -99,12 +99,6 @@ SingleBar.propTypes = {
     ])
   ),
   total: PropTypes.number
-}
-
-SingleBar.defaultProps = {
-  legend: undefined,
-  data: undefined,
-  total: 0
 }
 
 SingleBar.displayName = 'SingleBar'

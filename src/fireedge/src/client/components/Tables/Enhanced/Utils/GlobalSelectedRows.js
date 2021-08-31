@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { TableProps } from 'react-table'
@@ -33,7 +33,7 @@ const useStyles = makeStyles({
  *
  * @param {object} props - Props
  * @param {TableProps} props.useTableProps - Table props
- * @returns {React.JSXElementConstructor} Component JSX
+ * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalSelectedRows = ({ useTableProps }) => {
   const classes = useStyles()
@@ -43,7 +43,7 @@ const GlobalSelectedRows = ({ useTableProps }) => {
 
   return (
     <div className={classes.root}>
-      {React.useMemo(() =>
+      {useMemo(() =>
         selectedRows?.map(({ original, id, toggleRowSelected }) => (
           <Chip key={id}
             label={original?.NAME ?? id}

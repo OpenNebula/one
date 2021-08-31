@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
 import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
 
-const Ownership = React.memo(({
+const Ownership = memo(({
   actions,
   groupId,
   groupName,

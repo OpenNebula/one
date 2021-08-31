@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as React from 'react'
+import { useContext } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
@@ -22,7 +22,7 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
 
 const VmConfigurationTab = () => {
-  const { data: vm = {} } = React.useContext(TabContext)
+  const { data: vm = {} } = useContext(TabContext)
   const { TEMPLATE, USER_TEMPLATE } = vm
 
   return (

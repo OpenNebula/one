@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { useState, memo } from 'react'
+import { useState, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { DEFAULT_IMAGE, IMAGE_FORMATS } from 'client/constants'
@@ -27,7 +27,7 @@ const INITIAL_STATE = { fail: false, retries: 0 }
  * @param {string} props.src - Image source
  * @param {boolean} props.withSources - Add image formats to picture: webp, png and jpg
  * @param {string} props.imgProps - Properties to image element
- * @returns {React.JSXElementConstructor} Picture with all images format
+ * @returns {JSXElementConstructor} Picture with all images format
  */
 const Image = memo(({ src, imageInError, withSources, imgProps }) => {
   const [error, setError] = useState(INITIAL_STATE)

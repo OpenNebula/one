@@ -26,17 +26,29 @@ module.exports = {
 
   /* actions */
   Accept: 'Accept',
+  Active: 'Active',
+  AddAction: 'Add action',
+  Attach: 'Attach',
   BackToList: 'Back to %s list',
   Cancel: 'Cancel',
   Clone: 'Clone',
   Configuration: 'Configuration',
   Delete: 'Delete',
+  DeleteSomething: 'Delete %s',
   Deploy: 'Deploy',
+  Detach: 'Detach',
+  DetachSomething: 'Detach %s',
+  Done: 'Done',
   Edit: 'Edit',
   Finish: 'Finish',
   Info: 'Info',
   Remove: 'Remove',
+  Rename: 'Rename',
+  Resize: 'Resize',
+  ResizeCapacity: 'Resize capacity',
+  Revert: 'Revert',
   Save: 'Save',
+  SaveAs: 'Save as',
   Search: 'Search',
   Select: 'Select',
   SelectGroup: 'Select a group',
@@ -46,13 +58,10 @@ module.exports = {
   SignIn: 'Sign In',
   SignOut: 'Sign Out',
   Submit: 'Submit',
-  Resize: 'Resize',
-  ResizeCapacity: 'Resize capacity',
-  AttachDisk: 'Attach disk',
-  AttachNic: 'Attach nic',
-  Detach: 'Detach',
+  Take: 'Take',
   TakeSnapshot: 'Take snapshot',
-  AddAction: 'Add action',
+  TakeSnapshotOf: 'Take snapshot of %s',
+  Update: 'Update',
 
   /* questions */
   Yes: 'Yes',
@@ -60,6 +69,8 @@ module.exports = {
   DoYouWantProceed: 'Do you want proceed?',
 
   /* Scheduling */
+  ScheduledAction: 'Scheduled action',
+  Charter: 'Charter',
   Mon: 'Mon',
   Monday: 'Monday',
   Tue: 'Tue',
@@ -93,6 +104,7 @@ module.exports = {
 
   /* errors */
   SessionExpired: 'Sorry, your session has expired',
+  SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
   ErrorOneProvisionGUI: 'FireEdge is not correctly configured to operate the OneProvision GUI',
@@ -219,6 +231,8 @@ module.exports = {
   Ownership: 'Ownership',
   Owner: 'Owner',
   Other: 'Other',
+  Primary: 'Primary',
+  Secondary: 'Secondary',
 
   /* instances schema */
   IP: 'IP',
@@ -242,7 +256,10 @@ module.exports = {
   CostCpu: 'Cost / CPU',
   CostMByte: 'Cost / MByte',
   /* VM schema - storage */
+  Disk: 'Disk',
   Volatile: 'Volatile',
+  Snapshot: 'Snapshot',
+  DiskSnapshot: 'Disk snapshot',
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',

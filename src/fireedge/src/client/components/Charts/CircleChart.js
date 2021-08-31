@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as React from 'react'
+import { memo, useState, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, CircularProgress, Typography } from '@material-ui/core'
@@ -24,12 +24,12 @@ import NumberEasing from 'client/components/NumberEasing'
  *
  * @param {object} props - Props
  * @param {string} props.color - Color of component: primary, secondary or inherit
- * @returns {React.JSXElementConstructor} Circular progress bar component
+ * @returns {JSXElementConstructor} Circular progress bar component
  */
-const Circle = React.memo(({ color = 'secondary' }) => {
-  const [progress, setProgress] = React.useState(0)
+const Circle = memo(({ color = 'secondary' }) => {
+  const [progress, setProgress] = useState(0)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setProgress(prevProgress => {
         const nextProgress = prevProgress + 2
@@ -65,9 +65,9 @@ Circle.displayName = 'Circle'
  * @param {object} props - Props
  * @param {string} props.label - Text in the middle
  * @param {object} props.labelProps - Props of text
- * @returns {React.JSXElementConstructor} Circular chart component
+ * @returns {JSXElementConstructor} Circular chart component
  */
-const CircleChart = React.memo(({ label, labelProps }) => (
+const CircleChart = memo(({ label, labelProps }) => (
   <Box position='relative' display='inline-flex' width={1}>
     <Box display='flex' flexDirection='column' alignItems='center' width={1}>
       <Circle />

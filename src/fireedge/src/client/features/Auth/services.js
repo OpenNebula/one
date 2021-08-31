@@ -63,7 +63,7 @@ export const authService = ({
    * @throws Fails when response isn't code 200
    */
   getSunstoneConfig: async () => {
-    const res = await RestClient.request({ url: '/api/user/config' })
+    const res = await RestClient.request({ url: '/api/sunstone/config' })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
