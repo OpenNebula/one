@@ -88,7 +88,7 @@ def none2emptystr(d):
 
 
 def fix_dict(d, tag):
-    if tag == 'TEMPLATE':
+    if tag == 'TEMPLATE' and hasattr(d['TEMPLATE'], '__iter__'):
         tmpl = d['TEMPLATE']
 
         # wrap single entry as a list
