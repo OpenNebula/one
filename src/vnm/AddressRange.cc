@@ -450,7 +450,7 @@ int AddressRange::update_attributes(
 
         if ( new_size == 0 )
         {
-            it = allocated.find(0);
+            it = allocated.lower_bound(0);
         }
         else
         {
