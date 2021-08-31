@@ -446,7 +446,18 @@ int AddressRange::update_attributes(
             return -1;
         }
 
-        if (allocated.upper_bound(new_size-1) != allocated.end())
+        std::map<unsigned int, long long>::iterator it;
+
+        if ( new_size == 0 )
+        {
+            it = allocated.find(0);
+        }
+        else
+        {
+            it = allocated.upper_bound(new_size - 1);
+        }
+
+        if (it != allocated.end())
         {
             error_msg = "New SIZE cannot be applied. There are used leases"
                     " that would fall outside the range.";
