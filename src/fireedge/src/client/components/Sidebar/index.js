@@ -67,6 +67,7 @@ const Sidebar = ({ endpoints }) => {
       }}
       anchor='left'
       open={isFixMenu}
+      PaperProps={{ 'data-cy': 'sidebar' }}
     >
       <Box className={classes.header}>
         <OpenNebulaLogo

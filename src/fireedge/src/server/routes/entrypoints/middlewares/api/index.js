@@ -105,6 +105,7 @@ const userValidation = (user = '', token = '') => {
  * @param {Function} next - express stepper
  */
 const validateResourceAndSession = (req, res, next) => {
+  clearStates()
   const { badRequest, unauthorized, serviceUnavailable } = httpCodes
   let status = badRequest
   if (req && req.params && req.params.resource) {

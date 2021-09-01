@@ -109,8 +109,10 @@ const getListProviders = (res = {}, next = defaultEmptyFunction, params = {}, us
         return provision
       }
 
-      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
-        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
+      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT) {
+        data.DOCUMENT_POOL.DOCUMENT = Array.isArray(data.DOCUMENT_POOL.DOCUMENT)
+          ? data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
+          : parseTemplatePlain(data.DOCUMENT_POOL.DOCUMENT)
       }
       // hide connections
       if (

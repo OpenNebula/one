@@ -66,6 +66,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
         <ListItemText
           className={classes.itemText}
           data-max-label={label}
+          data-cy={label}
           data-min-label={label.slice(0, 3)}
         />
         <MIcon className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}>
