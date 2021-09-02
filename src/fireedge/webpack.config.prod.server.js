@@ -27,6 +27,11 @@ const js = {
   include: path.resolve(__dirname, 'src')
 }
 
+const css = {
+  test: /\.css$/i,
+  use: ['style-loader', 'css-loader']
+}
+
 const worker = {
   test: /\.worker\.js$/,
   loader: 'worker-loader',
@@ -67,6 +72,6 @@ module.exports = {
     ]
   },
   module: {
-    rules: [js, worker]
+    rules: [js, worker, css]
   }
 }

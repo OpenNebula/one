@@ -27,6 +27,10 @@ const js = {
   loader: 'babel-loader',
   include: path.resolve(__dirname, 'src')
 }
+const css = {
+  test: /\.css$/i,
+  use: ['style-loader', 'css-loader']
+}
 
 /**
  * Bundle app.
@@ -81,7 +85,7 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
       ]
     },
     module: {
-      rules: [js]
+      rules: [js, css]
     }
   }
 }
