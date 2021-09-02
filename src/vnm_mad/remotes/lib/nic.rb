@@ -118,10 +118,12 @@ module VNMMAD
                     deploy_id = vm['DEPLOY_ID']
                 end
 
-                return if !deploy_id || !vm.vm_info[:dumpxml].nil?
+                return if !deploy_id || !vm.vm_info[:dumpxml].nil? || deploy_id.empty?
 
                 cmd = "#{@lxc_cmd} config show #{deploy_id}"
-                config, _e, _s = Open3.capture3(cmd)
+                config, _e, s = Open3.capture3(cmd)
+
+                return unless s.exitstatus.zero?
 
                 vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
