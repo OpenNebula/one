@@ -129,10 +129,10 @@ class Container
         end
 
         # Clean bindpoint
-        FileUtils.rm_rf(@one.bind_folder)
+        FileUtils.rm_rf(@one.bind_folder) if Dir.exist?(@one.bind_folder)
 
         # Destroy container
-        @client.destroy(@one.vm_name)
+        @client.destroy(@one.vm_name) if @client.list.include?(@one.vm_name)
     end
 
     #---------------------------------------------------------------------------

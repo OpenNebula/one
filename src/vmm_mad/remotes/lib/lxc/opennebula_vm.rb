@@ -377,10 +377,7 @@ class Disk
             break unless device.empty?
         end
 
-        if device.empty?
-            msg = "Cannot detect block device from #{@mountpoint}"
-            OpenNebula.log_error(msg)
-        end
+        OpenNebula.log("No block device on #{@mountpoint}") if device.empty?
 
         device
     end
