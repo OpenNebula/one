@@ -14,28 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import * as yup from 'yup'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { FIELDS as INFORMATION_FIELDS, SCHEMA as INFORMATION_SCHEMA } from './informationSchema'
+import { FIELDS as CAPACITY_FIELDS, SCHEMA as CAPACITY_SCHEMA } from './capacitySchema'
+import { FIELDS as DISK_FIELDS, SCHEMA as DISK_SCHEMA } from './diskSchema'
 
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
-
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
-
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
-
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
-  }
+export const FIELDS = {
+  INFORMATION: INFORMATION_FIELDS,
+  CAPACITY: CAPACITY_FIELDS,
+  DISK: vmTemplate => DISK_FIELDS(vmTemplate)
 }
+
+export const SCHEMA = yup.object()
+  .concat(INFORMATION_SCHEMA)
+  .concat(CAPACITY_SCHEMA)
+  .concat(DISK_SCHEMA)

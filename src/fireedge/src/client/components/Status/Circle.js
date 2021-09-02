@@ -14,29 +14,41 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
-import { Tooltip, Typography } from '@material-ui/core'
+import { makeStyles, Tooltip, Typography } from '@material-ui/core'
 
-const StatusCircle = ({ color, tooltip, size }) => (
-  <Tooltip arrow placement='right-end'
-    title={<Typography variant='subtitle2'>{tooltip}</Typography>}
-  >
-    <svg
-      viewBox='0 0 100 100'
-      version='1.1'
-      width={size}
-      height={size}
-      aria-hidden='true'
-      style={{
-        color,
-        fill: 'currentColor',
-        verticalAlign: 'text-bottom'
-      }}
+const useStyles = makeStyles({
+  circle: ({ color }) => ({
+    color,
+    fill: 'currentColor',
+    verticalAlign: 'text-bottom',
+    pointerEvents: 'auto'
+  })
+})
+
+const StatusCircle = memo(({ color, tooltip, size }) => {
+  const classes = useStyles({ color })
+
+  return (
+    <Tooltip
+      arrow
+      placement='right-end'
+      title={<Typography variant='subtitle2'>{tooltip}</Typography>}
     >
-      <circle cx='50' cy='50' r='50' />
-    </svg>
-  </Tooltip>
-)
+      <svg
+        viewBox='0 0 100 100'
+        version='1.1'
+        width={size}
+        height={size}
+        aria-hidden='true'
+        className={classes.circle}
+      >
+        <circle cx='50' cy='50' r='50' />
+      </svg>
+    </Tooltip>
+  )
+}, (prev, next) => prev.color === next.color && prev.tooltip === next.tooltip)
 
 StatusCircle.propTypes = {
   tooltip: PropTypes.string,

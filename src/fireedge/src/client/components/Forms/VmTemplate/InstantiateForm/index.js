@@ -14,28 +14,33 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import PropTypes from 'prop-types'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
+import FormStepper from 'client/components/FormStepper'
+import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
+const InstantiateForm = ({ initialValues, onSubmit }) => {
+  const { steps, defaultValues, resolvers } = Steps(initialValues)
 
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+  const methods = useForm({
+    mode: 'onSubmit',
+    defaultValues,
+    resolver: yupResolver(resolvers())
+  })
+
+  return (
+    <FormProvider {...methods}>
+      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+    </FormProvider>
   )
-
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
-  }
 }
+
+InstantiateForm.propTypes = {
+  initialValues: PropTypes.object,
+  onSubmit: PropTypes.func
+}
+
+export default InstantiateForm

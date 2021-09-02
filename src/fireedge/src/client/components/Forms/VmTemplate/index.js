@@ -13,29 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import InstantiateForm from 'client/components/Forms/VmTemplate/InstantiateForm'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
-
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
-
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
-
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
-
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
-  }
+export {
+  InstantiateForm
 }

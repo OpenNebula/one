@@ -30,7 +30,16 @@ import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const mapToSchedAction = formData => {
-  const { PERIOD, TIME: time, END_VALUE, END_TYPE, ...restOfData } = formData
+  const {
+    // punctual
+    PERIOD,
+    TIME: time,
+    END_VALUE,
+    END_TYPE,
+    // relative
+    PERIODIC: _,
+    ...restOfData
+  } = formData
 
   const newSchedAction = {
     SCHED_ACTION: {

@@ -103,7 +103,7 @@ const CustomStepper = ({
       <Box marginY={2} textAlign='end'>
         <Button
           data-cy='stepper-back-button'
-          disabled={disabledBack}
+          disabled={disabledBack || isSubmitting}
           onClick={handleBack}
           size='small'
         >

@@ -48,6 +48,8 @@ const VirtualMachines = loadable(() => import('client/containers/VirtualMachines
 const VirtualRouters = loadable(() => import('client/containers/VirtualRouters'), { ssr: false })
 
 const VmTemplates = loadable(() => import('client/containers/VmTemplates'), { ssr: false })
+const InstantiateVmTemplates =
+  loadable(() => import('client/containers/VmTemplates/Instantiate'), { ssr: false })
 // const VrTemplates = loadable(() => import('client/containers/VrTemplates'), { ssr: false })
 // const VmGroups = loadable(() => import('client/containers/VmGroups'), { ssr: false })
 
@@ -82,7 +84,8 @@ export const PATH = {
   },
   TEMPLATE: {
     VMS: {
-      LIST: '/vm-template'
+      LIST: '/vm-template',
+      INSTANTIATE: '/vm-template/instantiate'
     }
   },
   STORAGE: {
@@ -162,11 +165,18 @@ export const ENDPOINTS = [
     icon: TemplatesIcon,
     routes: [
       {
-        label: 'VMs',
+        label: 'VM Templates',
         path: PATH.TEMPLATE.VMS.LIST,
         sidebar: true,
         icon: TemplateIcon,
         Component: VmTemplates
+      },
+      {
+        label: 'Instantiate VM Template',
+        sidebar: true,
+        icon: TemplateIcon,
+        path: PATH.TEMPLATE.VMS.INSTANTIATE,
+        Component: InstantiateVmTemplates
       }
     ]
   },

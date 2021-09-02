@@ -14,28 +14,34 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import * as yup from 'yup'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import VmTemplatesTable, { STEP_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
+import BasicConfiguration from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
+import ExtraConfiguration from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
+const Steps = initialValues => {
+  const { [STEP_ID]: initialTemplate } = initialValues ?? {}
 
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
+  const steps = [
+    BasicConfiguration(),
+    ExtraConfiguration()
+  ]
 
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
+  !initialTemplate?.ID && steps.unshift(VmTemplatesTable())
 
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
+  const schema = {}
+  for (const { id, resolver } of steps) {
+    schema[id] = typeof resolver === 'function' ? resolver() : resolver
   }
+
+  const resolvers = () => yup.object(schema)
+
+  const defaultValues = initialTemplate?.ID
+    ? resolvers().cast(initialValues, { stripUnknown: true })
+    : resolvers().default()
+
+  return { steps, defaultValues, resolvers }
 }
+
+export default Steps

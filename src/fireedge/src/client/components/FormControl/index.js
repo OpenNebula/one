@@ -25,6 +25,7 @@ import TimeController from 'client/components/FormControl/TimeController'
 import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
 import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import Tooltip from 'client/components/FormControl/Tooltip'
 
 export {
   AutocompleteController,
@@ -39,5 +40,6 @@ export {
   SubmitButton,
   SubmitButtonPropTypes,
   InputCode,
-  ErrorHelper
+  ErrorHelper,
+  Tooltip
 }

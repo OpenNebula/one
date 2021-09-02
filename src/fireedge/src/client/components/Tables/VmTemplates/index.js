@@ -22,9 +22,8 @@ import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
-import VmTemplateDetail from 'client/components/Tables/VmTemplates/detail'
 
-const VmTemplatesTable = () => {
+const VmTemplatesTable = props => {
   const columns = useMemo(() => VmTemplateColumns, [])
 
   const vmTemplates = useVmTemplate()
@@ -46,7 +45,7 @@ const VmTemplatesTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={VmTemplateRow}
-      renderDetail={row => <VmTemplateDetail id={row.ID} />}
+      {...props}
     />
   )
 }

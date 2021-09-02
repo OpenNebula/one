@@ -19,13 +19,13 @@ import PropTypes from 'prop-types'
 import { TextField } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 
-import { ErrorHelper } from 'client/components/FormControl'
+import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 
 const TextController = memo(
-  ({ control, cy, type, multiline, name, label, error, fieldProps }) => (
+  ({ control, cy, type, multiline, name, label, tooltip, error, fieldProps }) => (
     <Controller
-      render={({ value, ...props }) =>
+      render={({ value, ...controllerProps }) =>
         <TextField
           fullWidth
           multiline={multiline}
@@ -34,12 +34,15 @@ const TextController = memo(
           type={type}
           variant='outlined'
           margin='dense'
-          {...(label && { label: Tr(label) })}
+          label={typeof label === 'string' ? Tr(label) : label}
+          InputProps={{
+            endAdornment: tooltip && <Tooltip title={tooltip} />
+          }}
           inputProps={{ 'data-cy': cy, ...fieldProps }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-          {...props}
+          {...controllerProps}
           {...fieldProps}
         />
       }
@@ -50,7 +53,8 @@ const TextController = memo(
   (prevProps, nextProps) =>
     prevProps.error === nextProps.error &&
     prevProps.type === nextProps.type &&
-    prevProps.label === nextProps.label
+    prevProps.label === nextProps.label &&
+    prevProps.tooltip === nextProps.tooltip
 )
 
 TextController.propTypes = {
@@ -59,7 +63,11 @@ TextController.propTypes = {
   type: PropTypes.string,
   multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node
+  ]),
+  tooltip: PropTypes.string,
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
@@ -81,8 +89,7 @@ TextController.defaultProps = {
   multiline: false,
   name: '',
   label: '',
-  error: false,
-  fieldProps: undefined
+  error: false
 }
 
 TextController.displayName = 'TextController'

@@ -21,15 +21,17 @@ export const vmTemplateService = ({
   /**
    * Retrieves information for the vm template.
    *
-   * @param {object} data - Request parameters
-   * @param {string} data.id - Template id
+   * @param {object} params - Request parameters
+   * @param {string} params.id - Template id
+   * @param {boolean} params.extended - True to include extended information
+   * @param {boolean} params.decrypt - True to decrypt contained secrets (only admin)
    * @returns {object} Get template identified by id
    * @throws Fails when response isn't code 200
    */
-  getVmTemplate: async ({ id }) => {
+  getVmTemplate: async params => {
     const name = Actions.TEMPLATE_INFO
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ id }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
@@ -42,22 +44,46 @@ export const vmTemplateService = ({
    * Retrieves information for all or part of
    * the virtual machine templates in the pool.
    *
-   * @param {object} data - Request params
-   * @param {string} data.filter - Filter flag
-   * @param {number} data.start - Range start ID
-   * @param {number} data.end - Range end ID
-   * @returns {Array} List of marketplace apps
+   * @param {object} params - Request params
+   * @param {string} params.filter - Filter flag
+   * @param {number} params.start - Range start ID
+   * @param {number} params.end - Range end ID
+   * @returns {Array} List of VM templates
    * @throws Fails when response isn't code 200
    */
-  getVmTemplates: async ({ filter, start, end }) => {
+  getVmTemplates: async params => {
     const name = Actions.TEMPLATE_POOL_INFO
     const command = { name, ...Commands[name] }
-    const config = requestConfig({ filter, start, end }, command)
+    const config = requestConfig(params, command)
 
     const res = await RestClient.request(config)
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.VMTEMPLATE_POOL?.VMTEMPLATE ?? []].flat()
+  },
+
+  /**
+   * Instantiates a new virtual machine from a template.
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Template id
+   * @param {string} params.name - Name for the new VM instance
+   * @param {boolean} params.hold - True to create it on hold state
+   * @param {boolean} params.persistent - True to create a private persistent copy
+   * @param {string} params.template - Extra template to be merged with the one being instantiated
+   * @returns {number} Template id
+   * @throws Fails when response isn't code 200
+   */
+  instantiate: async params => {
+    const name = Actions.TEMPLATE_INSTANTIATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
   }
 })

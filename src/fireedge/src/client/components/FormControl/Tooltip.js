@@ -13,29 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
+import { memo } from 'react'
+import PropTypes from 'prop-types'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { QuestionMarkCircle } from 'iconoir-react'
+import { InputAdornment, Typography, Tooltip } from '@material-ui/core'
 
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
+const AdornmentWithTooltip = memo(({ title, children }) => (
+  <Tooltip
+    arrow
+    placement='bottom'
+    title={
+      <Typography variant='subtitle2'>
+        {title}
+      </Typography>
+    }
+  >
+    <InputAdornment position='end' style={{ cursor: 'help' }}>
+      {children ?? <QuestionMarkCircle size={18} />}
+    </InputAdornment>
+  </Tooltip>
+), (prevProps, nextProps) => prevProps.title === nextProps.title)
 
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
-
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
-  )
-
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
-  }
+AdornmentWithTooltip.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.any
 }
+
+AdornmentWithTooltip.displayName = 'AdornmentWithTooltip'
+
+export default AdornmentWithTooltip

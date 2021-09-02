@@ -15,27 +15,24 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
 
-import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import { T } from 'client/constants'
 
-export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
-)
+export const STEP_ID = 'extra'
 
-export const useVmTemplateApi = () => {
-  const dispatch = useDispatch()
-
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+const Content = () => {
+  return (
+    <div>TODO: Tabs with extra configuration</div>
   )
-
-  return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
-    getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
-  }
 }
+
+const ExtraConfiguration = () => ({
+  id: STEP_ID,
+  label: T.AdvancedOptions,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: useCallback(Content, [])
+})
+
+export default ExtraConfiguration

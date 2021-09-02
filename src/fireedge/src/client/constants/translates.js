@@ -42,6 +42,7 @@ module.exports = {
   Edit: 'Edit',
   Finish: 'Finish',
   Info: 'Info',
+  Instantiate: 'Instantiate',
   Remove: 'Remove',
   Rename: 'Rename',
   Resize: 'Resize',
@@ -192,8 +193,10 @@ module.exports = {
   VMs: 'VMs',
   VirtualRouter: 'VirtualRouter',
   VirtualRouters: 'VirtualRouters',
-  VMGroup: 'VMGroup',
-  VMGroups: 'VMGroups',
+  VMGroup: 'VM Group',
+  VMGroups: 'VM Groups',
+  VMTemplate: 'VM Template',
+  VMTemplates: 'VM Templates',
 
   /* sections - flow */
   ApplicationsTemplates: 'Applications templates',
@@ -247,6 +250,7 @@ module.exports = {
 
   /* VM schema */
   /* VM schema - capacity */
+  Capacity: 'Capacity',
   PhysicalCpu: 'Physical CPU',
   VirtualCpu: 'Virtual CPU',
   VirtualCores: 'Virtual Cores',
@@ -257,7 +261,9 @@ module.exports = {
   CostMByte: 'Cost / MByte',
   /* VM schema - storage */
   Disk: 'Disk',
+  Disks: 'Disks',
   Volatile: 'Volatile',
+  VolatileDisk: 'Volatile disk',
   Snapshot: 'Snapshot',
   DiskSnapshot: 'Disk snapshot',
   /* VM schema - network */

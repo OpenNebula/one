@@ -46,7 +46,9 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   const validateSchema = step => {
     const { id, resolver, optionsValidate } = steps[step]
     const stepData = watch(id)
-    const stepSchema = typeof resolver === 'function' ? resolver() : resolver
+
+    const allData = { ...formData, [id]: stepData }
+    const stepSchema = typeof resolver === 'function' ? resolver(allData) : resolver
 
     return stepSchema
       .validate(stepData, optionsValidate)

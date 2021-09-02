@@ -97,12 +97,11 @@ const REPEAT_FIELD = {
   validation: yup
     .string()
     .trim()
+    .default(REPEAT_OPTIONS[0].value)
     .when(
       PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip()
+      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
     )
-    .notRequired()
-    .default(REPEAT_OPTIONS[0].value)
 }
 
 const DAYS_FIELD = {
@@ -165,7 +164,11 @@ const DAYS_FIELD = {
           .trim()
           .matches(HOURS_REG, { message: 'Hours should be between 0 and 168' })
           .required('Hours field is required: between 0 and 168')
-      }[repeatType])
+      }[repeatType] ?? schema)
+    )
+    .when(
+      PERIODIC_FIELD.name,
+      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
     ),
   fieldProps: { min: 0, max: 168, step: 1 }
 }
@@ -180,12 +183,11 @@ const END_TYPE_FIELD = {
   validation: yup
     .string()
     .trim()
+    .default(END_TYPE_OPTIONS[0].value)
     .when(
       PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip()
+      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
     )
-    .notRequired()
-    .default(END_TYPE_OPTIONS[0].value)
 }
 
 const END_VALUE_FIELD = {
@@ -200,10 +202,9 @@ const END_VALUE_FIELD = {
   htmlType: (dependValues = {}) => {
     const { [PERIODIC_FIELD.name]: isPeriodic, [END_TYPE_FIELD.name]: endType } = dependValues
 
-    if (!isPeriodic) return INPUT_TYPES.HIDDEN
+    if (!isPeriodic || END_TYPE_VALUES.NEVER === endType) return INPUT_TYPES.HIDDEN
 
     return {
-      [END_TYPE_VALUES.NEVER]: INPUT_TYPES.HIDDEN,
       [END_TYPE_VALUES.REPETITION]: 'number',
       [END_TYPE_VALUES.DATE]: 'datetime-local'
     }[endType]
@@ -213,19 +214,14 @@ const END_VALUE_FIELD = {
     .trim()
     .default(undefined)
     .when(
-      PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip()
-    )
-    .when(
       END_TYPE_FIELD.name,
       (endType, schema) => ({
-        [END_TYPE_VALUES.NEVER]: schema.strip(),
         [END_TYPE_VALUES.REPETITION]: schema
           .required('Number of repetitions is required'),
         [END_TYPE_VALUES.DATE]: schema
           .concat(isoDateValidation('Date'))
           .required('Date to finish the action is required')
-      }[endType])
+      }[endType] ?? schema)
     )
 }
 

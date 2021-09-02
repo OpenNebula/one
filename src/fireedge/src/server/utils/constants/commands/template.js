@@ -104,7 +104,7 @@ module.exports = {
           from: postBody,
           default: ''
         },
-        pending: {
+        hold: {
           from: postBody,
           default: false
         },
@@ -112,7 +112,7 @@ module.exports = {
           from: postBody,
           default: ''
         },
-        image: {
+        persistent: {
           from: postBody,
           default: false
         }

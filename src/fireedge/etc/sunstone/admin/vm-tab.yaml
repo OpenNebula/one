@@ -24,7 +24,6 @@ resource_name: "VM"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  create_dialog: true
   deploy: true
   migrate: true
   migrate_live: true
@@ -160,20 +159,3 @@ info-tabs:
     enabled: true
     actions:
       update_configuration: true
-
-# Dialogs
-
-dialogs:
-  create_dialog:
-    general: true
-    vcenter:
-      enabled: true
-      hypervisor:
-        - vcenter
-    storage:
-      enabled: true
-    numa:
-      enabled: true
-      hypervisors:
-        - vcenter
-        - kvm

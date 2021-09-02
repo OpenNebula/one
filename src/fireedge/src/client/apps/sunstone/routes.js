@@ -46,19 +46,41 @@ export const ENDPOINTS = [
 ]
 
 /**
- * @param {string} view - Current view selected in redux (auth-reducer).
- * @param {Array} endpoints - All endpoints of app.
- * @returns {Array} Returns all endpoints available.
+ * YAML file describes the information and actions available in the resource.
+ *
+ * @typedef {object} ResourceView - Resource view file selected in redux (auth-reducer)
+ * @property {string} resource_name - Resource view name
+ * @property {object} actions - Bulk actions, including dialogs
+ * Which buttons are visible to operate over the resources
+ * @property {object} filters - List of criteria to filter the resources
+ * @property {object} info-tabs - Which info tabs are used to show extended information
  */
-export const getEndpointsByView = (view, endpoints = []) => {
+
+/**
+ * @param {ResourceView[]} views - View of resources
+ * @param {Array} endpoints - All endpoints of app
+ * @returns {Array} Returns all endpoints available
+ */
+export const getEndpointsByView = (views, endpoints = []) => {
   /**
-   * @param {object} route - Route from view yaml.
-   * @param {string} [route.path] - Pathname route.
-   * @returns {boolean | object} If user view yaml contains the route, return it.
+   * @param {object} route - Route from view yaml
+   * @param {string} [route.path] - Pathname route
+   * @returns {boolean | object} If user view yaml contains the route, return it
    */
   const hasRoutePermission = route =>
-    view?.some(({ resource_name: name }) =>
-      route?.path.toLowerCase().endsWith(name.toLowerCase())
+    views?.some(({ resource_name: name = '', actions: bulkActions = [] }) => {
+      // eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
+      const paths = route?.path
+        ?.toLowerCase?.()
+        ?.split?.('/')
+        ?.filter?.(Boolean)
+
+      const [resource, dialogName] = paths
+
+      return dialogName
+        ? bulkActions[`${dialogName}_dialog`]
+        : resource === name.toLowerCase()
+    }
     ) && route
 
   return endpoints

@@ -24,3 +24,5 @@ export const getVmTemplates = createAction(
   vmTemplateService.getVmTemplates,
   response => ({ [RESOURCES.template]: response })
 )
+
+export const instantiate = createAction('vm-template/instantiate', vmTemplateService.instantiate)

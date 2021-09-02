@@ -31,6 +31,7 @@ const SCHED_ACTION_OPTIONS = VM_ACTIONS_WITH_SCHEDULE
     text: capitalize(clearString(action)),
     value: action
   }))
+  .sort()
 
 const ARGS_BY_ACTION = action => {
   const { DISK_ID, NAME, SNAPSHOT_ID } = ARGS_TYPES
@@ -74,14 +75,13 @@ export const ARGS_DISK_ID_FIELD = vm => {
     validation: yup
       .string()
       .trim()
+      .default(() => diskOptions[0]?.value)
       .when(
         ACTION_FIELD.name,
         (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.DISK_ID)
-          ? schema
-          : schema.strip()
+          ? schema.required('Disk field is required')
+          : schema.notRequired().strip()
       )
-      .notRequired()
-      .default(() => diskOptions[0]?.value)
   }
 }
 
@@ -96,14 +96,13 @@ export const ARGS_NAME_FIELD = () => ({
   validation: yup
     .string()
     .trim()
+    .default(() => undefined)
     .when(
       ACTION_FIELD.name,
       (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.NAME)
-        ? schema
-        : schema.strip()
+        ? schema.required('Snapshot name field is required')
+        : schema.notRequired().strip()
     )
-    .notRequired()
-    .default(undefined)
 })
 
 export const ARGS_SNAPSHOT_ID_FIELD = vm => {
@@ -122,14 +121,13 @@ export const ARGS_SNAPSHOT_ID_FIELD = vm => {
     validation: yup
       .string()
       .trim()
+      .default(() => snapshotOptions[0]?.value)
       .when(
         ACTION_FIELD.name,
         (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.SNAPSHOT_ID)
-          ? schema
-          : schema.strip()
+          ? schema.required('Snapshot field is required')
+          : schema.notRequired().strip()
       )
-      .notRequired()
-      .default(() => snapshotOptions[0]?.value)
   }
 }
 
@@ -155,7 +153,7 @@ export const COMMON_SCHEMA = vm => yup
     let argsValues = {}
 
     if (ARGS) {
-      // IMPORTANT - String data from ARGS has strict order: DISK_ID,NAME,SNAPSHOT_ID
+      // IMPORTANT - String data from ARGS has strict order: DISK_ID, NAME, SNAPSHOT_ID
       const splittedArgs = ARGS.split(',')
 
       argsValues = {
@@ -179,7 +177,7 @@ export const COMMON_SCHEMA = vm => yup
         .filter(Boolean)
         .join(',')
 
-      argsValues = { ARGS: argsAsString }
+      argsAsString !== '' && (argsValues = { ARGS: argsAsString })
     }
 
     return { ...rest, ACTION, ...argsValues }
