@@ -1109,18 +1109,21 @@ class ServiceLCM
             nodes, up = role.recover_scale(service.report_ready?)
 
             if up
-                action = :wait_scaleup
+                @event_manager.trigger_action(:wait_scaleup,
+                                              service.id,
+                                              client,
+                                              service.id,
+                                              name,
+                                              nodes,
+                                              service.report_ready?)
             else
-                action = :wait_scaledown
+                @event_manager.trigger_action(:wait_scaledown,
+                                              service.id,
+                                              client,
+                                              service.id,
+                                              name,
+                                              nodes)
             end
-
-            @event_manager.trigger_action(action,
-                                          service.id,
-                                          client,
-                                          service.id,
-                                          name,
-                                          nodes,
-                                          service.report_ready?)
         end
     end
 
