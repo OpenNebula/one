@@ -74,10 +74,11 @@ export const FIELDS = vmTemplate => {
   return disks?.map(SIZE)
 }
 
-export const SCHEMA = yup.object({
-  DISK: yup
-    .array(yup.object({
-      SIZE: SIZE().validation
-    }))
-    .transform(DISK => [DISK].flat().filter(Boolean))
-})
+export const SCHEMA = yup
+  .object({
+    DISK: yup.array(yup.object({ SIZE: SIZE().validation }))
+  })
+  .transform(({ DISK, ...rest }) => ({
+    ...rest,
+    DISK: [DISK].flat().filter(Boolean)
+  }))

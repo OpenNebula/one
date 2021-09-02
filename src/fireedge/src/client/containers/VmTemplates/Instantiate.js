@@ -46,8 +46,6 @@ function InstantiateVmTemplate () {
       })
     )
 
-    console.log(formData)
-
     history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
     enqueueInfo(`VM Template instantiated x${instances} - ${NAME}`)
   }
