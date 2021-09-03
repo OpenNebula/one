@@ -18,15 +18,15 @@ import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import loadable from '@loadable/component'
 
-const Ace = loadable.lib(() => import('react-ace'), { ssr: false })
+const Ace = loadable.lib(() => import('react-opennebula-ace'), { ssr: false })
 
 const WrapperToLoadMode = ({ children, mode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
-      await import(`ace-builds/src-noconflict/mode-${mode}`)
-      await import('ace-builds/src-noconflict/theme-github')
+      await import(`react-opennebula-ace/src-noconflict/mode-${mode}`)
+      await import('react-opennebula-ace/src-noconflict/theme-github')
 
       setLoading(false)
     }
