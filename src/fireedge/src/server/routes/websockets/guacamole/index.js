@@ -17,9 +17,12 @@
 const GuacamoleOpennebula = require('opennebula-guacamole')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
-const { genFireedgeKey } = require('server/utils/server')
+const { genFireedgeKey, genPathResources } = require('server/utils/server')
 const { writeInLogger } = require('server/utils/logger')
 const { endpointGuacamole } = require('server/utils/constants/defaults')
+
+// set paths
+genPathResources()
 
 // set fireedge_key
 genFireedgeKey()
@@ -41,7 +44,7 @@ const configError = (error) => ({
 const clientOptions = {
   crypt: {
     cypher: 'AES-256-CBC',
-    key: (global && global.path && global.paths.FIREEDGE_KEY) || ''
+    key: (global && global.paths && global.paths.FIREEDGE_KEY) || ''
   },
   allowedUnencryptedConnectionSettings: {
     rdp: ['width', 'height', 'dpi'],
