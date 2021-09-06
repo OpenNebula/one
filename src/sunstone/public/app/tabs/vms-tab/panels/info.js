@@ -34,6 +34,7 @@ define(function(require) {
    */
 
   var TemplateInfo = require("hbs!./info/html");
+  var TemplateInfoError = require("hbs!utils/info-error/html");
 
   /*
     CONSTANTS
@@ -118,26 +119,31 @@ define(function(require) {
     if (this.element &&
         this.element.USER_TEMPLATE &&
         this.element.USER_TEMPLATE.ERROR){
-          errorMessageHTML =
-            "<div class='row'>" +
-              "<div class='large-9 columns'>" +
-                "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable>" +
-                  "<div class='row'>"+
-                    "<div class='columns large-1'>" +
-                      "<i class='fas fa-exclamation-circle'></i>"+
-                    "</div>"+
-                    "<div class='columns large-9'>"+
-                      "<p>" + this.element.USER_TEMPLATE.ERROR + "</p>" +
-                    "</div>"+
-                    "<div class='columns large-2'>" +
-                        "<a id='close_vm_async_error' data-close>" +
-                          "<u>Dismiss</u>"+
-                        "</a>" +
-                    "</div>" +
-                  "</div>" +
-                "</div>" +
-              "</div>" +
-            "</div>";
+          errorMessageHTML = TemplateInfoError(
+            {
+              error_msg: this.element.USER_TEMPLATE.ERROR,
+              error_title: Locale.tr("Driver Error"),
+              canDismiss: true,
+              dismisId: "close_vm_async_error"
+            }
+          );
+    }
+
+    if (this.element &&
+        this.element.TEMPLATE &&
+        this.element.TEMPLATE.SCHED_ACTION){
+          var arraySchedActions = Array.isArray(this.element.TEMPLATE.SCHED_ACTION) ?
+            this.element.TEMPLATE.SCHED_ACTION :
+            [this.element.TEMPLATE.SCHED_ACTION];
+          var lastErrorAndId = getLastSchedErrorAndId(arraySchedActions);
+          errorMessageHTML += TemplateInfoError(
+            {
+              error_msg: lastErrorAndId.error,
+              error_title: Locale.tr("Scheduled Action Error") + " (ID: #" + lastErrorAndId.id + ")",
+              canDismiss: false,
+              dismisId: ""
+            }
+          );
     }
 
     return TemplateInfo({
@@ -160,6 +166,24 @@ define(function(require) {
       "vrouterHTML": vrouterHTML,
       "errorMessageHTML": errorMessageHTML
     });
+  }
+
+  function getLastSchedErrorAndId(sched_array){
+    var lastErrorAndId = {
+      error: "",
+      id: 0
+    }
+    var lastEnd = 0;
+    $.each(sched_array, function(_, sched_action){
+      if (sched_action.MESSAGE &&
+        sched_action.END_VALUE &&
+        parseInt(sched_action.END_VALUE) > lastEnd){
+        lastErrorAndId.error = sched_action.MESSAGE;
+        lastErrorAndId.id = parseInt(sched_action.ID);
+        lastEnd = parseInt(sched_action.END_VALUE);
+      }
+    });
+    return lastErrorAndId;
   }
 
   function _setup(context) {
