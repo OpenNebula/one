@@ -505,7 +505,8 @@ helpers do
     def parse_flow_url(endpoint)
       if endpoint
         uri = URI(endpoint.to_s)
-        return "#{uri.scheme}://#{uri.host}:2474"
+        flow_uri = URI($conf[:oneflow_server])
+        return "#{uri.scheme}://#{uri.host}:#{flow_uri.port}"
       end
     end
 end
