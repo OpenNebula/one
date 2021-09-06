@@ -558,8 +558,12 @@ module VCenterDriver
                 raise 'Could not get file size or capacity' if size.nil?
 
                 size
-            rescue StandardError
-                raise 'Could not find file.'
+            rescue StandardError => e
+                message = "Could not find file. Reason: \"#{e.message}\"."
+                if VCenterDriver::CONFIG[:debug_information]
+                    message += ' ' + e.backtrace
+                end
+                raise message
             end
         end
 
