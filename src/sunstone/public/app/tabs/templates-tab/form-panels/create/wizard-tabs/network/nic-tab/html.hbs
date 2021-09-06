@@ -367,6 +367,17 @@
       </span>
     </div>
   </fieldset>
+  <fieldset class="not_firecracker">
+    <legend>{{tr "Guest Options"}}</legend>
+    <div class="row nic-model-row">
+      <div class="medium-6 columns">
+        <label for="GUEST_MTU">
+          {{tr "Guest MTU"}}
+        </label>
+        <input type="text" wizard_field="GUEST_MTU" id="GUEST_MTU" name="GUEST_MTU" />
+      </div>
+    </div>
+  </fieldset>
   {{! Hidden inputs for white/black ports and icmp drop. These inputs are
           deprecated, but keeping them hidden allows to preserve the values for
           previous templates in the update wizard. }}
