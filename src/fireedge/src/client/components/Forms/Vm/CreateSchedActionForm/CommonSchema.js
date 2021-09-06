@@ -17,8 +17,12 @@
 import * as yup from 'yup'
 
 import { INPUT_TYPES, VM_ACTIONS, VM_ACTIONS_WITH_SCHEDULE } from 'client/constants'
-import { getValidationFromFields, capitalize, clearString } from 'client/utils'
+import { sentenceCase } from 'client/utils'
 import { getSnapshotList, getDisks } from 'client/models/VirtualMachine'
+
+// ----------------------------------------------------------
+// Constants
+// ----------------------------------------------------------
 
 const ARGS_TYPES = {
   DISK_ID: 'DISK_ID',
@@ -27,10 +31,7 @@ const ARGS_TYPES = {
 }
 
 const SCHED_ACTION_OPTIONS = VM_ACTIONS_WITH_SCHEDULE
-  .map(action => ({
-    text: capitalize(clearString(action)),
-    value: action
-  }))
+  .map(action => ({ text: sentenceCase(action), value: action }))
   .sort()
 
 const ARGS_BY_ACTION = action => {
@@ -43,10 +44,22 @@ const ARGS_BY_ACTION = action => {
     [VM_ACTIONS.SNAPSHOT_CREATE]: [NAME],
     [VM_ACTIONS.SNAPSHOT_REVERT]: [SNAPSHOT_ID],
     [VM_ACTIONS.SNAPSHOT_DELETE]: [SNAPSHOT_ID]
-  }[action]
+  }[action] ?? []
 }
 
-export const ACTION_FIELD = {
+// ----------------------------------------------------------
+// Fields
+// ----------------------------------------------------------
+
+const createArgField = type => ({
+  name: `ARGS.${type}`,
+  dependOf: ACTION_FIELD.name,
+  htmlType: action => ARGS_BY_ACTION(action)?.includes(type)
+    ? undefined
+    : INPUT_TYPES.HIDDEN
+})
+
+const ACTION_FIELD = {
   name: 'ACTION',
   label: 'Action',
   type: INPUT_TYPES.SELECT,
@@ -55,130 +68,96 @@ export const ACTION_FIELD = {
     .string()
     .trim()
     .required('Action field is required')
-    .default(SCHED_ACTION_OPTIONS[0]?.value),
+    .default(() => SCHED_ACTION_OPTIONS[0]?.value),
   grid: { xs: 12 }
 }
 
-export const ARGS_DISK_ID_FIELD = vm => {
+const ARGS_DISK_ID_FIELD = vm => {
   const diskOptions = getDisks(vm)
     .map(({ DISK_ID, IMAGE }) => ({ text: IMAGE, value: DISK_ID }))
 
   return {
-    name: ARGS_TYPES.DISK_ID,
+    ...createArgField(ARGS_TYPES.DISK_ID),
     label: 'Disk',
     type: INPUT_TYPES.SELECT,
-    dependOf: ACTION_FIELD.name,
-    htmlType: action => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.DISK_ID)
-      ? undefined
-      : INPUT_TYPES.HIDDEN,
-    values: diskOptions,
-    validation: yup
-      .string()
-      .trim()
-      .default(() => diskOptions[0]?.value)
-      .when(
-        ACTION_FIELD.name,
-        (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.DISK_ID)
-          ? schema.required('Disk field is required')
-          : schema.notRequired().strip()
-      )
+    values: [{ text: '', value: '' }].concat(diskOptions)
   }
 }
 
-export const ARGS_NAME_FIELD = () => ({
-  name: ARGS_TYPES.NAME,
+const ARGS_NAME_FIELD = {
+  ...createArgField(ARGS_TYPES.NAME),
   label: 'Snapshot name',
-  type: INPUT_TYPES.TEXT,
-  dependOf: ACTION_FIELD.name,
-  htmlType: action => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.NAME)
-    ? undefined
-    : INPUT_TYPES.HIDDEN,
-  validation: yup
-    .string()
-    .trim()
-    .default(() => undefined)
-    .when(
-      ACTION_FIELD.name,
-      (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.NAME)
-        ? schema.required('Snapshot name field is required')
-        : schema.notRequired().strip()
-    )
-})
+  type: INPUT_TYPES.TEXT
+}
 
-export const ARGS_SNAPSHOT_ID_FIELD = vm => {
+const ARGS_SNAPSHOT_ID_FIELD = vm => {
   const snapshotOptions = getSnapshotList(vm)
     .map(({ SNAPSHOT_ID, NAME }) => ({ text: NAME, value: SNAPSHOT_ID }))
 
   return {
-    name: ARGS_TYPES.SNAPSHOT_ID,
+    ...createArgField(ARGS_TYPES.SNAPSHOT_ID),
     label: 'Snapshot',
     type: INPUT_TYPES.SELECT,
-    dependOf: ACTION_FIELD.name,
-    htmlType: action => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.SNAPSHOT_ID)
-      ? undefined
-      : INPUT_TYPES.HIDDEN,
-    values: snapshotOptions,
-    validation: yup
-      .string()
-      .trim()
-      .default(() => snapshotOptions[0]?.value)
-      .when(
-        ACTION_FIELD.name,
-        (action, schema) => ARGS_BY_ACTION(action)?.includes(ARGS_TYPES.SNAPSHOT_ID)
-          ? schema.required('Snapshot field is required')
-          : schema.notRequired().strip()
-      )
+    values: [{ text: '', value: '' }].concat(snapshotOptions)
   }
 }
 
 export const COMMON_FIELDS = vm => [
   ACTION_FIELD,
-  ARGS_DISK_ID_FIELD,
+  ARGS_DISK_ID_FIELD(vm),
   ARGS_NAME_FIELD,
-  ARGS_SNAPSHOT_ID_FIELD
+  ARGS_SNAPSHOT_ID_FIELD(vm)
 ].map(field => typeof field === 'function' ? field(vm) : field)
 
-export const COMMON_SCHEMA = vm => yup
-  .object(getValidationFromFields(COMMON_FIELDS(vm)))
-  .transform(value => {
-    const {
-      ARGS,
-      [ACTION_FIELD.name]: ACTION,
-      [ARGS_TYPES.NAME]: NAME,
-      [ARGS_TYPES.SNAPSHOT_ID]: SNAPSHOT_ID,
-      [ARGS_TYPES.DISK_ID]: DISK_ID,
-      ...rest
-    } = value
+// ----------------------------------------------------------
+// Schema
+// ----------------------------------------------------------
 
-    let argsValues = {}
+const transformStringToArgs = ({ ACTION, ARGS = {} }) => {
+  if (typeof ARGS !== 'string') return ARGS
 
-    if (ARGS) {
-      // IMPORTANT - String data from ARGS has strict order: DISK_ID, NAME, SNAPSHOT_ID
-      const splittedArgs = ARGS.split(',')
+  // IMPORTANT - String data from ARGS has strict order: DISK_ID, NAME, SNAPSHOT_ID
+  const [arg1, arg2] = ARGS.split(',')
 
-      argsValues = {
-        [VM_ACTIONS.SNAPSHOT_DISK_CREATE]:
-          { DISK_ID: splittedArgs[0], NAME: splittedArgs[1] },
-        [VM_ACTIONS.SNAPSHOT_DISK_REVERT]:
-          { DISK_ID: splittedArgs[0], SNAPSHOT_ID: splittedArgs[1] },
-        [VM_ACTIONS.SNAPSHOT_DISK_DELETE]:
-          { DISK_ID: splittedArgs[0], SNAPSHOT_ID: splittedArgs[1] },
-        [VM_ACTIONS.SNAPSHOT_CREATE]:
-          { NAME: splittedArgs[0] },
-        [VM_ACTIONS.SNAPSHOT_REVERT]:
-          { SNAPSHOT_ID: splittedArgs[0] },
-        [VM_ACTIONS.SNAPSHOT_DELETE]:
-          { SNAPSHOT_ID: splittedArgs[0] }
-      }[ACTION]
-    } else {
-      // Transform to send form data
-      const argsAsString = Object.entries({ DISK_ID, NAME, SNAPSHOT_ID })
-        .map(([name, val]) => ARGS_BY_ACTION(ACTION)?.includes(name) && val)
-        .filter(Boolean)
-        .join(',')
+  return {
+    [VM_ACTIONS.SNAPSHOT_DISK_CREATE]:
+      { DISK_ID: arg1, NAME: arg2 },
+    [VM_ACTIONS.SNAPSHOT_DISK_REVERT]:
+      { DISK_ID: arg1, SNAPSHOT_ID: arg2 },
+    [VM_ACTIONS.SNAPSHOT_DISK_DELETE]:
+      { DISK_ID: arg1, SNAPSHOT_ID: arg2 },
+    [VM_ACTIONS.SNAPSHOT_CREATE]:
+      { NAME: arg1 },
+    [VM_ACTIONS.SNAPSHOT_REVERT]:
+      { SNAPSHOT_ID: arg1 },
+    [VM_ACTIONS.SNAPSHOT_DELETE]:
+      { SNAPSHOT_ID: arg1 }
+  }[ACTION] ?? {}
+}
 
-      argsAsString !== '' && (argsValues = { ARGS: argsAsString })
-    }
+const createArgSchema = field => yup
+  .string()
+  .trim()
+  .default(() => undefined)
+  .required(`${field} field is required`)
 
-    return { ...rest, ACTION, ...argsValues }
+const ARG_SCHEMAS = {
+  [ARGS_TYPES.DISK_ID]: createArgSchema('Disk'),
+  [ARGS_TYPES.NAME]: createArgSchema('Snapshot name'),
+  [ARGS_TYPES.SNAPSHOT_ID]: createArgSchema('Snapshot')
+}
+
+export const COMMON_SCHEMA = yup
+  .object({
+    [ACTION_FIELD.name]: ACTION_FIELD.validation,
+    ARGS: yup
+      .object()
+      .default(() => undefined)
+      .when(
+        ACTION_FIELD.name,
+        (action, schema) => ARGS_BY_ACTION(action)
+          .map(arg => yup.object({ [arg]: ARG_SCHEMAS[arg] }))
+          .reduce((result, argSchema) => result.concat(argSchema), schema)
+      )
   })
+  .transform(value => ({ ...value, ARGS: transformStringToArgs(value) }))

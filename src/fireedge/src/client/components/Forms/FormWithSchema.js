@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createElement } from 'react'
+import { createElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { styled, Grid } from '@material-ui/core'
@@ -46,12 +46,13 @@ const InputController = {
 
 const FormWithSchema = ({ id, cy, fields, className, legend }) => {
   const { control, errors, ...formContext } = useFormContext()
+  const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
   return (
     <Fieldset className={className}>
       {legend && <Legend>{legend}</Legend>}
       <Grid container spacing={1} alignContent='flex-start'>
-        {fields?.map?.(
+        {getFields?.map?.(
           ({ dependOf, ...props }) => {
             let valueOfDependField = null
             if (dependOf) {
@@ -82,7 +83,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
 
             return (
               InputController[type] && (
-                <Grid key={`${cy}-${name}`} item xs={12} md={6} {...grid}>
+                <Grid key={dataCy} item xs={12} md={6} {...grid}>
                   {createElement(InputController[type], {
                     control,
                     cy: dataCy,
@@ -105,7 +106,10 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
 FormWithSchema.propTypes = {
   id: PropTypes.string,
   cy: PropTypes.string,
-  fields: PropTypes.arrayOf(PropTypes.object),
+  fields: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.arrayOf(PropTypes.object)
+  ]),
   legend: PropTypes.string,
   className: PropTypes.string
 }

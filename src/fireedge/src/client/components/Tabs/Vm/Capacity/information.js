@@ -78,7 +78,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
               title: T.ResizeCapacity
             }}
             options={[{
-              form: ResizeCapacityForm({ vm }),
+              form: () => ResizeCapacityForm({ vm }),
               onSubmit: handleResizeCapacity
             }]}
           />

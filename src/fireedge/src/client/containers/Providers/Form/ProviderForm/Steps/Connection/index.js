@@ -19,7 +19,7 @@ import { useFormContext } from 'react-hook-form'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
-import { capitalize } from 'client/utils'
+import { sentenceCase } from 'client/utils'
 import { T } from 'client/constants'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 
@@ -58,7 +58,7 @@ const Connection = ({ isUpdate }) => ({
       connection = isUpdate
         // when is updating, connections have the name as input label
         ? Object.keys(currentConnection)
-          .reduce((res, name) => ({ ...res, [name]: capitalize(name) }), {})
+          .reduce((res, name) => ({ ...res, [name]: sentenceCase(name) }), {})
         // set connections from template, to take values as input labels
         : ProviderTemplateModel.getConnectionEditable(template)
 

@@ -23,7 +23,7 @@ import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
 
 import Tabs from 'client/components/Tabs'
-import { stringToCamelCase, stringToCamelSpace } from 'client/utils'
+import { sentenceCase, camelCase } from 'client/utils'
 
 import TabProvider from 'client/components/Tabs/TabProvider'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
@@ -36,7 +36,7 @@ import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
 
-const loadTab = tabName => ({
+const getTabComponent = tabName => ({
   capacity: Capacity,
   configuration: Configuration,
   info: Info,
@@ -74,11 +74,11 @@ const VmTabs = memo(({ id }) => {
     setTabs(() => Object.entries(infoTabs)
       ?.filter(([_, { enabled } = {}]) => !!enabled)
       ?.map(([tabName, tabProps]) => {
-        const nameSanitize = stringToCamelCase(tabName)
-        const TabContent = loadTab(nameSanitize)
+        const camelName = camelCase(tabName)
+        const TabContent = getTabComponent(camelName)
 
         return TabContent && {
-          name: stringToCamelSpace(nameSanitize),
+          name: sentenceCase(camelName),
           renderContent: props => TabContent({ ...props, tabProps })
         }
       })

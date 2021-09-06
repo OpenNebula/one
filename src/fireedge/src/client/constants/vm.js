@@ -511,7 +511,7 @@ export const HYPERVISORS = {
   lxc: 'lxc'
 }
 
-/** @type {string} Actions that can be scheduled */
+/** @type {string[]} Actions that can be scheduled */
 export const VM_ACTIONS_WITH_SCHEDULE = [
   VM_ACTIONS.TERMINATE,
   VM_ACTIONS.TERMINATE_HARD,

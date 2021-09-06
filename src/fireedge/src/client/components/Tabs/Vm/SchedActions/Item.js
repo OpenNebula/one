@@ -27,7 +27,7 @@ import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import { timeFromMilliseconds } from 'client/models/Helper'
-import { capitalize, clearString } from 'client/utils'
+import { sentenceCase } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const SchedulingItem = ({ schedule, actions = [] }) => {
@@ -38,7 +38,7 @@ const SchedulingItem = ({ schedule, actions = [] }) => {
   const vmStartTime = +vm?.STIME
   const { ID, ACTION, TIME, MESSAGE, DONE, WARNING } = schedule
 
-  const titleAction = `#${ID} ${capitalize(clearString(ACTION))}`
+  const titleAction = `#${ID} ${sentenceCase(ACTION)}`
   const isRelative = String(TIME).includes('+')
 
   const time = timeFromMilliseconds(

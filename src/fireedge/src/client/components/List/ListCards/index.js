@@ -25,6 +25,7 @@ import { Plus as PlusIcon } from 'iconoir-react'
 import { EmptyCard } from 'client/components/Cards'
 import FloatingActionButton from 'client/components/Fab'
 import listCardsStyles from 'client/components/List/ListCards/styles'
+import { camelCase } from 'client/utils'
 
 const ListCards = ({
   list,
@@ -74,7 +75,7 @@ const ListCards = ({
               return (
                 <CSSTransition
                   // use key to render transition (default: id or ID)
-                  key={`card-${key.replace(/\s/g, '')}`}
+                  key={`card-${camelCase(key)}`}
                   classNames={classes.item}
                   timeout={400}
                 >

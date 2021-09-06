@@ -17,11 +17,11 @@
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
 
 const RelativeForm = ({ vm, schedule } = {}) => ({
-  resolver: () => SCHEMA(vm),
+  resolver: () => SCHEMA,
   defaultValues: schedule
-    ? SCHEMA(vm).cast(schedule, { stripUnknown: true })
-    : SCHEMA(vm).default(),
-  fields: FIELDS(vm)
+    ? SCHEMA.cast(schedule, { stripUnknown: true })
+    : SCHEMA.default(),
+  fields: () => FIELDS(vm)
 })
 
 export default RelativeForm

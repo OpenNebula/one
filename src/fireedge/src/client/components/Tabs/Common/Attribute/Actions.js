@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -25,14 +25,14 @@ import {
 } from 'iconoir-react'
 
 import { Action } from 'client/components/Cards/SelectCard'
-import { stringToCamelCase } from 'client/utils'
+import { camelCase } from 'client/utils'
 
 /**
  * @param {string} action - Action name
  * @param {string} attr - Attribute name
  * @returns {string} Merge action and attributes name
  */
-const getAttributeCy = (action, attr) => `${action}-${stringToCamelCase(attr.toLowerCase())}`
+const getAttributeCy = (action, attr) => `${action}-${camelCase(attr.toLowerCase())}`
 
 /**
  * @typedef {object} ActionButtonProps
@@ -46,14 +46,18 @@ const getAttributeCy = (action, attr) => `${action}-${stringToCamelCase(attr.toL
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
-const ActionButton = ({ action, name, icon: Icon, handleClick, ...props }) => (
-  <Action
-    cy={getAttributeCy(action, name)}
-    icon={<Icon size={18} />}
-    handleClick={handleClick}
-    {...props}
-  />
-)
+const ActionButton = ({ action, name, icon: Icon, handleClick, ...props }) => {
+  const dataCy = useMemo(() => getAttributeCy(action, name), [name])
+
+  return (
+    <Action
+      cy={dataCy}
+      icon={<Icon size={18} />}
+      handleClick={handleClick}
+      {...props}
+    />
+  )
+}
 
 ActionButton.propTypes = {
   action: PropTypes.string.isRequired,

@@ -78,7 +78,7 @@ const SaveAsAction = memo(({ disk, snapshot, name: imageName }) => {
           : `${Tr(T.SaveAs)} ${Tr(T.Image)}: #${diskId} - ${imageName}`
       }}
       options={[{
-        form: SaveAsDiskForm(),
+        form: SaveAsDiskForm,
         onSubmit: handleSaveAs
       }]}
     />
@@ -106,7 +106,7 @@ const ResizeAction = memo(({ disk, name: imageName }) => {
         title: `${Tr(T.Resize)}: #${DISK_ID} - ${imageName}`
       }}
       options={[{
-        form: ResizeDiskForm({ disk }),
+        form: () => ResizeDiskForm({ disk }),
         onSubmit: handleResize
       }]}
     />
@@ -134,7 +134,7 @@ const SnapshotCreateAction = memo(({ disk, name: imageName }) => {
         title: `${Tr(T.TakeSnapshot)}: #${DISK_ID} - ${imageName}`
       }}
       options={[{
-        form: CreateDiskSnapshotForm(),
+        form: CreateDiskSnapshotForm,
         onSubmit: handleSnapshotCreate
       }]}
     />
@@ -165,7 +165,7 @@ const SnapshotRenameAction = memo(({ disk, snapshot }) => {
         title: `${Tr(T.Rename)}: #${ID} - ${NAME}`
       }}
       options={[{
-        form: CreateDiskSnapshotForm({ snapshot }),
+        form: () => CreateDiskSnapshotForm({ snapshot }),
         onSubmit: handleRename
       }]}
     />

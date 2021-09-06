@@ -30,32 +30,23 @@ import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const mapToSchedAction = formData => {
-  const {
-    // punctual
-    PERIOD,
-    TIME: time,
-    END_VALUE,
-    END_TYPE,
-    // relative
-    PERIODIC: _,
-    ...restOfData
-  } = formData
+  const { ARGS, TIME: time, PERIOD, END_VALUE, END_TYPE, PERIODIC: _, ...restOfData } = formData
 
   const newSchedAction = {
-    SCHED_ACTION: {
-      TIME: PERIOD ? `+${time}` : Helper.isoDateToMilliseconds(time),
-      END_TYPE,
-      ...restOfData
-    }
+    TIME: PERIOD ? `+${time}` : Helper.isoDateToMilliseconds(time),
+    END_TYPE,
+    ...restOfData
   }
 
+  ARGS && (newSchedAction.ARGS = Object.values(ARGS).join(','))
+
   if (END_VALUE) {
-    newSchedAction.SCHED_ACTION.END_VALUE = END_TYPE === '1'
+    newSchedAction.END_VALUE = END_TYPE === '1'
       ? END_VALUE
       : Helper.isoDateToMilliseconds(END_VALUE)
   }
 
-  return Helper.jsonToXml(newSchedAction)
+  return Helper.jsonToXml({ SCHED_ACTION: newSchedAction })
 }
 
 const CreateSchedAction = memo(() => {
@@ -84,13 +75,13 @@ const CreateSchedAction = memo(() => {
       options={[{
         cy: 'create-sched-action-punctual',
         name: 'Punctual action',
-        form: PunctualForm({ vm }),
+        form: () => PunctualForm({ vm }),
         onSubmit: handleCreateSchedAction
       },
       {
         cy: 'create-sched-action-relative',
         name: 'Relative action',
-        form: RelativeForm({ vm }),
+        form: () => RelativeForm({ vm }),
         onSubmit: handleCreateSchedAction
       }]}
     />
@@ -123,7 +114,7 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
         title: `${Tr([T.ActionOverSomething, [T.Update, T.ScheduledAction]])}: ${name}`
       }}
       options={[{
-        form: isRelative
+        form: () => isRelative
           ? RelativeForm({ schedule, vm })
           : PunctualForm({ schedule, vm }),
         onSubmit: handleUpdate

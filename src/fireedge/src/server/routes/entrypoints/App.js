@@ -28,7 +28,7 @@ const {
   availableLanguages, defaultWebpackMode, defaultApps, defaultFileStats
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
-const { capitalize } = require('client/utils')
+const { upperCaseFirst } = require('client/utils')
 
 // settings
 const appConfig = getConfig()
@@ -94,7 +94,7 @@ router.get('*', (req, res) => {
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <title>${capitalize(title)} by OpenNebula</title>
+      <title>${upperCaseFirst(title)} by OpenNebula</title>
       <link rel="icon" type="image/png" href="${STATIC_FILES_URL}/favicon/${app}/favicon.ico">
       <link rel="apple-touch-icon" sizes="180x180" href="${STATIC_FILES_URL}/favicon/${app}/apple-touch-icon.png">
       <link rel="icon" type="image/png" sizes="32x32" href="${STATIC_FILES_URL}/favicon/${app}/favicon-32x32.png">

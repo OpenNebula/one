@@ -17,7 +17,7 @@
 import * as yup from 'yup'
 
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields, capitalize } from 'client/utils'
+import { getValidationFromFields, upperCaseFirst } from 'client/utils'
 import { COMMON_FIELDS, COMMON_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
 
 const PERIOD_TYPES = {
@@ -30,7 +30,7 @@ const PERIOD_TYPES = {
 }
 
 const PERIOD_OPTIONS = Object.entries(PERIOD_TYPES)
-  .map(([text, value]) => ({ text: capitalize(text), value }))
+  .map(([text, value]) => ({ text: upperCaseFirst(text), value }))
 
 const TIME_FIELD = {
   name: 'TIME',
@@ -57,15 +57,19 @@ const PERIOD_FIELD = {
     .default(PERIOD_OPTIONS[0].value)
 }
 
-export const FIELDS = vm => [
-  ...COMMON_FIELDS(vm),
+export const RELATIVE_FIELDS = [
   TIME_FIELD,
   PERIOD_FIELD
 ]
 
-export const SCHEMA = vm => yup
-  .object(getValidationFromFields(FIELDS(vm)))
-  .concat(COMMON_SCHEMA(vm))
+export const FIELDS = vm => [
+  ...COMMON_FIELDS(vm),
+  ...RELATIVE_FIELDS
+]
+
+export const SCHEMA = yup
+  .object(getValidationFromFields(RELATIVE_FIELDS))
+  .concat(COMMON_SCHEMA)
   .transform(value => {
     const { [PERIOD_FIELD.name]: PERIOD, [TIME_FIELD.name]: TIME, ...rest } = value
 

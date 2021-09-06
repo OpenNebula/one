@@ -33,7 +33,7 @@ const Content = ({ name, renderContent: Content, hidden }) => (
 )
 
 const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
-  const [tabSelected, setTab] = useState(0)
+  const [tabSelected, setTab] = useState(() => 6)
 
   const renderTabs = useMemo(() => (
     <MTabs

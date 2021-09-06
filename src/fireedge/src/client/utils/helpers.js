@@ -42,7 +42,7 @@ export const generateKey = () =>
 /**
  * Sanitizes HTML and prevents XSS attacks.
  *
- * @param {string} text - Text
+ * @param {string[]} text - Text
  * @param {...string} values - Rest of text
  * @returns {string} Clean and secure string
  */
@@ -88,48 +88,6 @@ export const addOpacityToColor = (color, opacity) => {
   const opacityHex = Math.round(opacity * 255).toString(16)
   return `${color}${opacityHex}`
 }
-
-/**
- * Capitalize the first letter of a string.
- *
- * @param {string} word - Word
- * @returns {string} The word capitalized
- */
-export const capitalize = ([firstLetter, ...restOfWord]) =>
-  firstLetter.toUpperCase() + restOfWord.map(s => s.toLowerCase()).join('')
-
-/**
- * Clear an string of special characters.
- *
- * @param {string} s - String
- * @example permissions_panel => 'permissions panel'
- * @returns {string} String with clear format
- */
-export const clearString = s => s.replace(
-  /([-_][a-z])/ig,
-  $1 => $1.toUpperCase().replace(/[-_]/g, ' ')
-)
-
-/**
- * Converts an string to camel case.
- *
- * @param {string} s - String
- * @example permissions_panel => permissionsPanel
- * @returns {string} String with camel case format
- */
-export const stringToCamelCase = s => s.replace(
-  /([-_\s][a-z])/ig,
-  $1 => $1.toUpperCase().replace(/[-_\s]/g, '')
-)
-
-/**
- * Converts an string in camel case to camel space.
- *
- * @param {string} s - String
- * @example permissionsPanel => 'permissions panel'
- * @returns {string} String with camel space format
- */
-export const stringToCamelSpace = s => s.replace(/([a-z])([A-Z])/g, '$1 $2')
 
 /**
  * Returns the validation by name from the form schema.
@@ -214,7 +172,7 @@ export const set = (obj, path, value) => {
   }, obj)
 
   // Assign the value to the last key
-  result[path[path.length - 1]] = value
+  result[path.at(-1)] = value
 
   return result
 }

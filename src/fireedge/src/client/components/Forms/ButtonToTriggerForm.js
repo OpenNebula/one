@@ -64,7 +64,9 @@ const ButtonToTriggerForm = ({
   }
 
   const openDialogForm = ({ form = {}, ...rest }) => {
-    show({ ...form, ...rest })
+    const formParams = typeof form === 'function' ? form() : form
+
+    show({ ...formParams, ...rest })
     handleClose()
   }
 
@@ -152,7 +154,10 @@ ButtonToTriggerForm.propTypes = {
     PropTypes.shape({
       cy: PropTypes.string,
       name: PropTypes.string,
-      form: PropTypes.object
+      form: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.func
+      ])
     })
   ),
   handleSubmit: PropTypes.func

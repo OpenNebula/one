@@ -69,7 +69,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
             title: `${Tr(T.Attach)} ${Tr(T.NIC)}`
           }}
           options={[{
-            form: AttachNicForm({ nics }),
+            form: () => AttachNicForm({ nics }),
             onSubmit: handleAttachNic
           }]}
         />

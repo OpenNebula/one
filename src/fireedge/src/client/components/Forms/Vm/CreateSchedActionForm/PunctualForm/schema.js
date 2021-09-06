@@ -18,7 +18,7 @@ import * as yup from 'yup'
 import { DateTime } from 'luxon'
 
 import { T, INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields, capitalize } from 'client/utils'
+import { getValidationFromFields, sentenceCase } from 'client/utils'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { COMMON_FIELDS, COMMON_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
 
@@ -42,10 +42,10 @@ const END_TYPE_VALUES = {
 }
 
 const REPEAT_OPTIONS = Object.entries(REPEAT_VALUES)
-  .map(([text, value]) => ({ text: capitalize(text), value }))
+  .map(([text, value]) => ({ text: sentenceCase(text), value }))
 
 const END_TYPE_OPTIONS = Object.entries(END_TYPE_VALUES)
-  .map(([text, value]) => ({ text: capitalize(text), value }))
+  .map(([text, value]) => ({ text: sentenceCase(text), value }))
 
 const isoDateValidation = nameInput => yup
   .string()
@@ -225,8 +225,7 @@ const END_VALUE_FIELD = {
     )
 }
 
-export const FIELDS = vm => [
-  ...COMMON_FIELDS(vm),
+export const PUNCTUAL_FIELDS = [
   TIME_FIELD,
   PERIODIC_FIELD,
   REPEAT_FIELD,
@@ -235,9 +234,14 @@ export const FIELDS = vm => [
   END_VALUE_FIELD
 ]
 
-export const SCHEMA = vm => yup
-  .object(getValidationFromFields(FIELDS(vm)))
-  .concat(COMMON_SCHEMA(vm))
+export const FIELDS = vm => [
+  ...COMMON_FIELDS(vm),
+  ...PUNCTUAL_FIELDS
+]
+
+export const SCHEMA = yup
+  .object(getValidationFromFields(PUNCTUAL_FIELDS))
+  .concat(COMMON_SCHEMA)
   .transform(value => {
     const { [DAYS_FIELD.name]: DAYS, [REPEAT_FIELD.name]: REPEAT, ...rest } = value
 
