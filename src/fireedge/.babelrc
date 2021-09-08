@@ -21,6 +21,7 @@
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
+        "modules": "./node_modules",
         "client": "./src/client",
         "server": "./src/server"
       }

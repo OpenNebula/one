@@ -17,15 +17,13 @@ const { Router } = require('express')
 const { env } = require('process')
 const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
-const { resolve } = require('path')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
-const { ChunkExtractor } = require('@loadable/server')
 const rootReducer = require('client/store/reducers')
 const { getConfig } = require('server/utils/yml')
 const {
-  availableLanguages, defaultWebpackMode, defaultApps, defaultFileStats
+  availableLanguages, defaultWebpackMode, defaultApps
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 const { upperCaseFirst } = require('client/utils')
@@ -69,10 +67,6 @@ router.get('*', (req, res) => {
     const sheets = new ServerStyleSheets()
     const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
-    // loadable
-    const statsFile = resolve(__dirname, 'client', app + defaultFileStats)
-    const extractor = new ChunkExtractor({ statsFile })
-
     // SSR redux store
     store = createStore(rootReducer, composeEnhancer(applyMiddleware(thunk)))
     storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${
@@ -80,10 +74,8 @@ router.get('*', (req, res) => {
     }</script>`
 
     component = renderToString(
-      extractor.collectChunks(
-        sheets.collect(
-          <App location={req.url} context={context} store={store} />
-        )
+      sheets.collect(
+        <App location={req.url} context={context} store={store} />
       )
     )
 

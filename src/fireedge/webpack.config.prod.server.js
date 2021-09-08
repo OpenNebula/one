@@ -29,7 +29,14 @@ const js = {
 
 const css = {
   test: /\.css$/i,
-  use: ['style-loader', 'css-loader']
+  use: [
+    {
+      loader: 'css-loader',
+      options: {
+        esModule: false
+      }
+    }
+  ]
 }
 
 const worker = {
