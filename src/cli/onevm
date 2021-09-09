@@ -1565,6 +1565,11 @@ CommandParser::CmdParser.new(ARGV) do
                 exit(-1)
             end
 
+            if vm.lcm_state_str != 'RUNNING'
+                STDERR.puts 'VM is not RUNNING, cannot SSH to it'
+                exit(-1)
+            end
+
             # Get user to login
             args[1].nil? ? login = 'root' : login = args[1]
 
