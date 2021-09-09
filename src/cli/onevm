@@ -1599,7 +1599,11 @@ CommandParser::CmdParser.new(ARGV) do
 
             options[:ssh_opts].nil? ? opts = '' : opts = options[:ssh_opts]
 
-            system("ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}")
+            if opts.empty?
+                system(*%W[ssh #{login}@#{ip} -p #{port} #{cmd}])
+            else
+                system(*%W[ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}])
+            end
         end
 
         # rubocop:disable Style/SpecialGlobalVars
