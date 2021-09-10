@@ -41,15 +41,18 @@ const (
 
 // Contextualization template keys
 const (
-	NetworkMask      Template = "NETWORK_MASK"
-	NetworkAddress   Template = "NETWORK_ADDRESS"
-	Gateway          Template = "GATEWAY"
-	Gateway6         Template = "GATEWAY6"
-	DNS              Template = "DNS"
-	GuestMTU         Template = "GUEST_MTU"
-	ContextForceIPV4 Template = "CONTEXT_FORCE_IPV4"
-	SearchDomain     Template = "SEARCH_DOMAIN"
-	SecGroups        Template = "SECURITY_GROUPS"
+	NetworkMask    Template = "NETWORK_MASK"
+	NetworkAddress Template = "NETWORK_ADDRESS"
+	Gateway        Template = "GATEWAY"
+	Gateway6       Template = "GATEWAY6"
+	DNS            Template = "DNS"
+	GuestMTU       Template = "GUEST_MTU"
+	SearchDomain   Template = "SEARCH_DOMAIN"
+	SecGroups      Template = "SECURITY_GROUPS"
+	Method         Template = "METHOD"
+	Metric         Template = "METRIC"
+	IP6Method      Template = "IP6_METHOD"
+	IP6Metric      Template = "IP6_METRIC"
 )
 
 // Interface creation options template keys

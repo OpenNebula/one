@@ -93,7 +93,7 @@ RESTRICTED_ACTIONS = [
 # Attrs of the Virtual Network template that will be retrieved
 # with onegate vnet | get /vnet/:id requests.
 VNET_TEMPLATE_ATTRIBUTES = %w[NETWORK_ADDRESS NETWORK_MASK GATEWAY GATEWAY6 DNS
-                              GUEST_MTU CONTEXT_FORCE_IPV4 SEARCH_DOMAIN]
+                              GUEST_MTU SEARCH_DOMAIN METRIC IP6_METRIC]
 
 include OpenNebula
 

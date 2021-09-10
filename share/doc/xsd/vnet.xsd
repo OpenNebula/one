@@ -63,11 +63,14 @@
           <xs:complexType>
             <xs:sequence>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:element name="CONTEXT_FORCE_IPV4" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DNS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="GATEWAY" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="GATEWAY6" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="GUEST_MTU" type="xs:int" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="IP6_METHOD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="IP6_METRIC" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="METHOD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="METRIC" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NETWORK_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NETWORK_MASK" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SEARCH_DOMAIN" type="xs:string" minOccurs="0" maxOccurs="1"/>
