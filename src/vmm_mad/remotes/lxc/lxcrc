@@ -40,3 +40,7 @@
 # Path to the LXC default configuration file. This file will be included in
 # the configuration of every LXC container (lxc.include)
 :default_lxc_config: /usr/share/lxc/config/common.conf
+#
+# Comma separated list of mount options used when shifting the uid/gid with
+# bindfs. See <bindfs -o> command help
+:bindfs_mountopts: suid

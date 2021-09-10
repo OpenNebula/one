@@ -44,7 +44,8 @@ class LXCConfiguration < Hash
             :command => 'sudo lxc-console'
         },
         :datastore_location => '/var/lib/one/datastores',
-        :default_lxc_config => '/usr/share/lxc/config/common.conf'
+        :default_lxc_config => '/usr/share/lxc/config/common.conf',
+        :bindfs_mountopts   => 'suid' # bindfs -o opt1,opt2
     }
 
     # Configuration attributes that are not customizable
@@ -125,8 +126,17 @@ class LXCVM < OpenNebulaVM
 
         # User mapping
         # rubocop:disable Layout/LineLength
-        lxc['lxc.idmap'] = ["u 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}",
-                            "g 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}"]
+
+        if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('FALSE').zero?
+            @lxcrc[:id_map] = 0
+
+            lxc['lxc.include'] = "#{@lxcrc[:profiles_location]}/profile_privileged"
+        else
+            lxc['lxc.idmap'] = ["u 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}",
+                                "g 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}"]
+
+        end
+
         # rubocop:enable Layout/LineLength
 
         # Add profiles

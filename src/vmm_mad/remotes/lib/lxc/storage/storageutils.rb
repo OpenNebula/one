@@ -148,15 +148,22 @@ module Storage
         # options:
         #   - :id_map (Integer): will apply the corresponding offset to UID/GID
         def bind(src, target, options = {})
-            cmd_opts = ''
-
             FileUtils.mkdir_p(target)
 
-            # Add offset options
-            if !options[:id_map].nil?
-                cmd_opts = "--uid-offset=#{options[:id_map]} "\
-                        "--gid-offset=#{options[:id_map]}"
+            # Detect source mount user ids
+            fs = Dir.entries(src)
+            ['.', '..', 'lost+found', 'context'].each do |entry|
+                fs.delete(entry)
             end
+
+            mount_uid = File.stat("#{src}/#{fs[0]}").uid
+
+            # Add offset options
+            offset = options[:id_map] - mount_uid
+
+            cmd_opts = "--uid-offset=#{offset} "\
+            "--gid-offset=#{offset} "\
+            "-o #{options[:bindfs_mountopts]}"
 
             # Bindfs
             cmd = "#{COMMANDS[:bind]} #{cmd_opts} #{src} #{target}"
