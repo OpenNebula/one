@@ -55,17 +55,18 @@ module Storage
                 device_fs = device_fs(device)
             end
 
-            # Resize device if extX like filesystem is used
-            if device_fs.match?(/^ext([2-4])$/)
+            # resize and mount operations according to the used filesystem
+            case device_fs
+            when /^ext([2-4])$/
                 resize_ext(device)
-            end
 
-            # Mount device in mapper folder <sys_ds>/<vm_id>/mapper/disk.id
-            return false unless mount(device, mountpoint)
+                return false unless mount(device, mountpoint)
+            when 'xfs'
+                return false unless mount(device, mountpoint, 'nouuid')
 
-            # Resize device if xfs like filesystem is used
-            if device_fs == 'xfs'
                 resize_xfs(mountpoint)
+            else
+                return false unless mount(device, mountpoint)
             end
 
             # Bind @mountpoint into to the public accesible folder (@bindpoint)
@@ -137,9 +138,11 @@ module Storage
         private
 
         # Mount device in directory
-        def mount(device, directory, _options = {})
+        def mount(device, directory, options = '')
             FileUtils.mkdir_p(directory)
+
             cmd = "#{COMMANDS[:mount]} #{device} #{directory}"
+            cmd << " -o #{options}" unless options.empty?
 
             Command.execute_rc_log(cmd)
         end
