@@ -311,7 +311,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         begin
             VCenterDriver::VcImporter.import_clusters(con_ops, options)
-        rescue StandardError => e
+        rescue StandardError
             exit 1
         end
 
