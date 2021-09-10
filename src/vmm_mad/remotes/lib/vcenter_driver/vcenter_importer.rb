@@ -369,9 +369,11 @@ module VCenterDriver
                 error_msg = "\nError: #{e.message}\n"
                 error_msg << "#{e.backtrace}\n" \
                               if VCenterDriver::CONFIG[:debug_information]
-                STDOUT.puts error_msg
+                STDERR.puts error_msg
+                raise_error = true
             ensure
                 vi_client.close_connection if vi_client
+                raise if raise_error
             end
         end
 

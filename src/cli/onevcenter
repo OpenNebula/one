@@ -178,7 +178,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             helper.list_object(options, list)
         rescue StandardError => e
-            puts e.message
+            STDERR.puts e.message
+            exit 1
         end
 
         exit 0
@@ -209,7 +210,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             helper.list_object(options, list)
         rescue StandardError => e
-            puts e.message
+            STDERR.puts e.message
+            exit 1
         end
 
         exit 0
@@ -256,7 +258,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             importer.stdout
         rescue StandardError => e
-            puts e.message
+            STDERR.puts e.message
+            exit 1
         end
 
         exit 0
@@ -283,7 +286,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             importer.stdout
         rescue StandardError => e
-            puts e.message
+            STDERR.puts e.message
+            exit 1
         end
 
         exit 0
@@ -305,7 +309,11 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [VCENTER, USER, PASS, USE_DEFAULTS, PORT] do
         con_ops = helper.connection_options('Hosts', options)
 
-        VCenterDriver::VcImporter.import_clusters(con_ops, options)
+        begin
+            VCenterDriver::VcImporter.import_clusters(con_ops, options)
+        rescue StandardError => e
+            exit 1
+        end
 
         exit 0
     end
