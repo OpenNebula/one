@@ -889,6 +889,9 @@ Lint/UnexpectedBlockArity:
 Lint/UnmodifiedReduceAccumulator:
   Enabled: true
 
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
 #########
 # METRICS
 ########
