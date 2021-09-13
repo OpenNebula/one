@@ -652,6 +652,78 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         YAML.load_file(self.class.table_conf)[:charters]
     end
 
+    # SSH into a VM
+    #
+    # @param args    [Array] CLI arguments
+    # @param options [Hash]  CLI parameters
+    def ssh(args, options)
+        perform_action(args[0], options, 'SSH') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            if vm.lcm_state_str != 'RUNNING'
+                STDERR.puts 'VM is not RUNNING, cannot SSH to it'
+                exit(-1)
+            end
+
+            # Get user to login
+            username = vm.retrieve_xmlelements('//TEMPLATE/CONTEXT/USERNAME')[0]
+
+            if !username.nil?
+                login = username.text
+            elsif !args[1].nil?
+                login = args[1]
+            else
+                login = 'root'
+            end
+
+            # Get CMD to run
+            options[:cmd].nil? ? cmd = '' : cmd = options[:cmd]
+
+            # Get NIC to connect
+            if options[:nic_id]
+                nic = vm.retrieve_xmlelements(
+                    "//TEMPLATE/NIC[NIC_ID=\"#{options[:nic_id]}\"]"
+                )[0]
+            else
+                nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
+            end
+
+            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0] if nic.nil?
+
+            if nic.nil?
+                STDERR.puts 'No NIC found'
+                exit(-1)
+            end
+
+            # If there is node port
+            if nic['EXTERNAL_PORT_RANGE']
+                ip   = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY']
+                ip   = [ip].flatten[-1]['HOSTNAME']
+                port = Integer(nic['EXTERNAL_PORT_RANGE'].split(':')[0]) + 21
+            else
+                ip   = nic['IP']
+                port = 22
+            end
+
+            options[:ssh_opts].nil? ? opts = '' : opts = options[:ssh_opts]
+
+            if opts.empty?
+                exec(*%W[ssh #{login}@#{ip} -p #{port} #{cmd}])
+            else
+                exec(*%W[ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}])
+            end
+        end
+
+        # rubocop:disable Style/SpecialGlobalVars
+        $?.exitstatus
+        # rubocop:enable Style/SpecialGlobalVars
+    end
+
     private
 
     def factory(id = nil)
