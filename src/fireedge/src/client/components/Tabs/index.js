@@ -22,7 +22,7 @@ import { Tabs as MTabs, Tab as MTab } from '@material-ui/core'
 const Content = ({ name, renderContent: Content, hidden }) => (
   <div key={`tab-${name}`}
     style={{
-      padding: 2,
+      padding: '1em 0.5em',
       height: '100%',
       overflow: 'auto',
       display: hidden ? 'none' : 'block'
@@ -33,7 +33,7 @@ const Content = ({ name, renderContent: Content, hidden }) => (
 )
 
 const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
-  const [tabSelected, setTab] = useState(() => 6)
+  const [tabSelected, setTab] = useState(() => 0)
 
   const renderTabs = useMemo(() => (
     <MTabs

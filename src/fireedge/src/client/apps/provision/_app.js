@@ -42,13 +42,13 @@ const ProvisionApp = () => {
 
   const provisionTemplate = useProvisionTemplate()
   const { getProvisionsTemplates } = useProvisionApi()
-  const { changeTitle } = useGeneralApi()
+  const { changeAppTitle } = useGeneralApi()
 
   useEffect(() => {
     (async () => {
       try {
         if (jwt) {
-          changeTitle(APP_NAME)
+          changeAppTitle(APP_NAME)
           getAuthUser()
           !provisionTemplate?.length && await getProvisionsTemplates()
         }

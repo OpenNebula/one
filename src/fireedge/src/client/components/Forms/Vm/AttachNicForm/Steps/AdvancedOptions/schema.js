@@ -19,7 +19,7 @@ import * as yup from 'yup'
 import { getValidationFromFields } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
 
-const RDP = {
+const RDP_FIELD = {
   name: 'RDP',
   label: 'RDP connection',
   type: INPUT_TYPES.CHECKBOX,
@@ -34,14 +34,26 @@ const RDP = {
   grid: { md: 12 }
 }
 
-const ALIAS = nics => ({
+const ALIAS_FIELD = ({ nics = [] } = {}) => ({
   name: 'PARENT',
   label: 'Attach as an alias',
-  type: INPUT_TYPES.SELECT,
-  values: [{ text: '', value: '' }]
-    .concat(nics?.map?.(({ NAME, IP = '', NETWORK = '', NIC_ID = '' } = {}) =>
-      ({ text: `${NIC_ID} - ${NETWORK} ${IP}`, value: NAME })
-    )),
+  dependOf: 'NAME',
+  type: name => {
+    const hasAlias = nics?.some(nic => nic.PARENT === name)
+
+    return name && hasAlias ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SELECT
+  },
+  values: name => [
+    { text: '', value: '' },
+    ...nics
+      .filter(({ PARENT }) => !PARENT) // filter nic alias
+      .filter(({ NAME }) => NAME !== name || !name) // filter it self
+      .map(nic => {
+        const { NAME, IP = '', NETWORK = '', NIC_ID = '' } = nic
+
+        return { text: `${NAME ?? NIC_ID} - ${NETWORK} ${IP}`, value: NAME }
+      })
+  ],
   validation: yup
     .string()
     .trim()
@@ -49,12 +61,12 @@ const ALIAS = nics => ({
     .default(undefined)
 })
 
-const EXTERNAL = {
+const EXTERNAL_FIELD = {
   name: 'EXTERNAL',
   label: 'External',
   type: INPUT_TYPES.CHECKBOX,
   tooltip: 'The NIC will be attached as an external alias of the VM',
-  dependOf: ALIAS.name,
+  dependOf: ALIAS_FIELD().name,
   htmlType: type => !type?.length ? INPUT_TYPES.HIDDEN : undefined,
   validation: yup
     .boolean()
@@ -63,15 +75,13 @@ const EXTERNAL = {
 
       return String(value).toUpperCase() === 'YES'
     })
-    .default(false),
-  grid: { md: 12 }
+    .default(false)
 }
 
-export const FIELDS = nics => [
-  RDP,
-  ALIAS(nics),
-  EXTERNAL
+export const FIELDS = props => [
+  RDP_FIELD,
+  ALIAS_FIELD(props),
+  EXTERNAL_FIELD
 ]
 
-export const SCHEMA = nics =>
-  yup.object(getValidationFromFields(FIELDS(nics)))
+export const SCHEMA = yup.object(getValidationFromFields(FIELDS()))

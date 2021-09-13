@@ -74,11 +74,11 @@ info-tabs:
         edit: true
         delete: true
 
-  monitoring:
-    enabled: true
-  pool:
-    enabled: true
   vms:
+    enabled: true
+  wild:
+    enabled: true
+  zombies:
     enabled: true
   esx:
     enabled: true
@@ -86,22 +86,3 @@ info-tabs:
     enabled: true
   numa:
     enabled: true
-  nsx:
-    enabled: true
-
-# Dialogs
-
-dialogs:
-  create_dialog:
-    general: true
-    vcenter:
-      enabled: true
-      hypervisor:
-        - vcenter
-    storage:
-      enabled: true
-    numa:
-      enabled: true
-      hypervisors:
-        - vcenter
-        - kvm

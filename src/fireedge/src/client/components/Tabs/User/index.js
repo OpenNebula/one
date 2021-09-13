@@ -14,74 +14,69 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@material-ui/core'
 
+import { useFetch } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
+import { useUserApi } from 'client/features/One'
+
 import Tabs from 'client/components/Tabs'
-import { StatusBadge } from 'client/components/Status'
+import { sentenceCase, camelCase } from 'client/utils'
 
-import { useFetch, useSocket } from 'client/hooks'
-import { useHostApi } from 'client/features/One'
+import TabProvider from 'client/components/Tabs/TabProvider'
+import Info from 'client/components/Tabs/User/Info'
 
-import * as HostModel from 'client/models/Host'
+const getTabComponent = tabName => ({
+  info: Info
+}[tabName])
 
-const HostDetail = ({ id }) => {
-  const { getHost } = useHostApi()
+const UserTabs = memo(({ id }) => {
+  const { getUser } = useUserApi()
+  const { data, fetchRequest, loading, error } = useFetch(getUser)
 
-  const { getHooksSocket } = useSocket()
-  const socket = getHooksSocket({ resource: 'host', id })
+  const handleRefetch = () => fetchRequest(id, { reload: true })
 
-  const { data, fetchRequest, loading, error } = useFetch(getHost, socket)
-  const isLoading = (!data && !error) || loading
+  const [tabsAvailable, setTabs] = useState(() => [])
+  const { view, getResourceView } = useAuth()
 
   useEffect(() => {
     fetchRequest(id)
   }, [id])
 
-  if (isLoading) {
+  useEffect(() => {
+    const infoTabs = getResourceView('USER')?.['info-tabs'] ?? {}
+
+    setTabs(() => Object.entries(infoTabs)
+      ?.filter(([_, { enabled } = {}]) => !!enabled)
+      ?.map(([tabName, tabProps]) => {
+        const camelName = camelCase(tabName)
+        const TabContent = getTabComponent(camelName)
+
+        return TabContent && {
+          name: sentenceCase(camelName),
+          renderContent: props => TabContent({ ...props, tabProps })
+        }
+      })
+      ?.filter(Boolean))
+  }, [view])
+
+  if ((!data && !error) || loading) {
     return <LinearProgress color='secondary' style={{ width: '100%' }} />
   }
 
-  if (error) {
-    return <div>{error}</div>
-  }
-
-  const { ID, NAME, IM_MAD, VM_MAD /* VMS, CLUSTER */ } = data
-
-  const { name: stateName, color: stateColor } = HostModel.getState(data)
-
-  const tabs = [
-    {
-      name: 'info',
-      renderContent: (
-        <div>
-          <div>
-            <StatusBadge
-              title={stateName}
-              stateColor={stateColor}
-              customTransform='translate(150%, 50%)'
-            />
-            <span style={{ marginLeft: 20 }}>
-              {`#${ID} - ${NAME}`}
-            </span>
-          </div>
-          <div>
-            <p>IM_MAD: {IM_MAD}</p>
-            <p>VM_MAD: {VM_MAD}</p>
-          </div>
-        </div>
-      )
-    }
-  ]
-
   return (
-    <Tabs tabs={tabs} />
+    <TabProvider initialState={{ data, handleRefetch }}>
+      <Tabs tabs={tabsAvailable} />
+    </TabProvider>
   )
-}
+})
 
-HostDetail.propTypes = {
+UserTabs.propTypes = {
   id: PropTypes.string.isRequired
 }
 
-export default HostDetail
+UserTabs.displayName = 'UserTabs'
+
+export default UserTabs

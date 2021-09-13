@@ -53,6 +53,24 @@ const Content = () => {
         legend={Tr(T.Disks)}
         id={STEP_ID}
       />
+      <FormWithSchema
+        cy='instantiate-vm-template-configuration.ownership'
+        fields={FIELDS.OWNERSHIP}
+        legend={Tr(T.Ownership)}
+        id={STEP_ID}
+      />
+      <FormWithSchema
+        cy='instantiate-vm-template-configuration.vmgroup'
+        fields={FIELDS.VM_GROUP}
+        legend={Tr(T.VMGroup)}
+        id={STEP_ID}
+      />
+      <FormWithSchema
+        cy='instantiate-vm-template-configuration.vcenter'
+        fields={FIELDS.VCENTER}
+        legend={`vCenter ${Tr(T.Deployment)}`}
+        id={STEP_ID}
+      />
     </div>
   )
 }

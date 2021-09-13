@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
 
-const RelativeForm = ({ vm, schedule } = {}) => ({
-  resolver: () => SCHEMA,
-  defaultValues: schedule
-    ? SCHEMA.cast(schedule, { stripUnknown: true })
-    : SCHEMA.default(),
-  fields: () => FIELDS(vm)
+const RelativeForm = createForm(SCHEMA, FIELDS, {
+  transformBeforeSubmit: formData => {
+    const { ARGS, TIME: time, PERIOD: _, ...restOfData } = formData
+    const argValues = Object.values(ARGS)
+
+    const newSchedAction = { TIME: `+${time}`, ...restOfData }
+
+    argValues.length && (newSchedAction.ARGS = argValues.join(','))
+
+    return newSchedAction
+  }
 })
 
 export default RelativeForm

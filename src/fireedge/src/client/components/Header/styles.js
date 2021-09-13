@@ -25,14 +25,18 @@ const styles = makeStyles(theme => ({
   },
   title: {
     userSelect: 'none',
-    flexGrow: 1,
     display: 'inline-flex',
     '& span': { textTransform: 'capitalize' }
   },
   app: {
     color: ({ isScroll }) => isScroll
       ? theme.palette.primary.main
-      : theme.palette.secondary.main
+      : theme.palette.secondary.main,
+    '&::after': {
+      content: '"|"',
+      margin: '0.5em',
+      color: theme.palette.primary.contrastText
+    }
   },
   /* POPOVER */
   backdrop: {

@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/ResizeDiskForm/schema'
 
-const ResizeDiskForm = ({ disk } = {}) => ({
-  resolver: () => SCHEMA,
-  defaultValues: SCHEMA.cast(disk, { stripUnknown: true }),
-  fields: FIELDS
-})
+const ResizeDiskForm = createForm(SCHEMA, FIELDS)
 
 export default ResizeDiskForm

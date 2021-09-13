@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSnapshotForm/schema'
 
-const CreateSnapshotForm = () => ({
-  resolver: () => SCHEMA,
-  defaultValues: SCHEMA.default(),
-  fields: FIELDS
-})
+const CreateSnapshotForm = createForm(SCHEMA, FIELDS)
 
 export default CreateSnapshotForm

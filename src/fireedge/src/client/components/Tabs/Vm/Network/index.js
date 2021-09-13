@@ -27,7 +27,6 @@ import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
-import { mapUserInputs } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
@@ -43,16 +42,13 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
-  const handleAttachNic = async ({ network, advanced }) => {
-    const networkSelected = network?.[0]
-    const isAlias = !!advanced?.PARENT?.length
-    const newNic = { ...networkSelected, ...mapUserInputs(advanced) }
+  const handleAttachNic = async formData => {
+    const isAlias = !!formData?.PARENT?.length
+    const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
 
-    const template = Helper.jsonToXml({
-      [isAlias ? 'NIC_ALIAS' : 'NIC']: newNic
-    })
-
+    const template = Helper.jsonToXml(data)
     const response = await attachNic(vm.ID, template)
+
     String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
   }
 

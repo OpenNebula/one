@@ -23,6 +23,7 @@ import Multiple from 'client/components/Tables/Vms/multiple'
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
+import { PATH } from 'client/apps/sunstone/routesOne'
 
 const InformationPanel = ({ vm = {}, handleRename, actions }) => {
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
@@ -31,6 +32,8 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
 
   const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = VirtualMachine.getLastHistory(vm)
   const clusterName = clusterId === '-1' ? 'default' : '--' // TODO: get from cluster list
+  const pathToHostDetail = PATH.INFRASTRUCTURE.HOSTS.DETAIL.replace(':id', hostId)
+  const pathToClusterDetail = PATH.INFRASTRUCTURE.CLUSTERS.DETAIL.replace(':id', clusterId)
 
   const ips = VirtualMachine.getIps(vm)
 
@@ -68,11 +71,13 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
     },
     {
       name: T.Host,
-      value: hostId ? `#${hostId} ${hostname}` : ''
+      value: hostId ? `#${hostId} ${hostname}` : '',
+      link: !Number.isNaN(+hostId) && pathToHostDetail
     },
     {
       name: T.Cluster,
-      value: clusterId ? `#${clusterId} ${clusterName}` : ''
+      value: clusterId ? `#${clusterId} ${clusterName}` : '',
+      link: !Number.isNaN(+clusterId) && pathToClusterDetail
     },
     {
       name: T.DeployID,

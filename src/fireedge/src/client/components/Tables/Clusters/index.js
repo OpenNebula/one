@@ -24,7 +24,7 @@ import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
 
-const ClustersTable = () => {
+const ClustersTable = props => {
   const columns = useMemo(() => ClusterColumns, [])
 
   const clusters = useCluster()
@@ -47,6 +47,7 @@ const ClustersTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={ClusterRow}
+      {...props}
     />
   )
 }

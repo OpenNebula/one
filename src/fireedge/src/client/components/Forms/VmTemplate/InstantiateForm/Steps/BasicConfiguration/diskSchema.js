@@ -23,7 +23,12 @@ import { getState } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
 import { T, INPUT_TYPES } from 'client/constants'
 
-const SIZE = ({
+export const PARENT = 'DISK'
+
+const addParentToField = ({ name, ...field }, idx) =>
+  ({ ...field, name: [`${PARENT}[${idx}]`, name].join('.') })
+
+const SIZE_FIELD = ({
   DISK_ID,
   IMAGE,
   IMAGE_ID,
@@ -36,7 +41,7 @@ const SIZE = ({
   const state = !isVolatile && getState({ STATE: IMAGE_STATE })
 
   return {
-    name: `DISK[${DISK_ID}].SIZE`,
+    name: 'SIZE',
     label: isVolatile ? (
       <>
         {`DISK ${DISK_ID}: `}
@@ -63,22 +68,24 @@ const SIZE = ({
       .typeError('Disk must be a number')
       .required('Disk size field is required')
       .default(() => +SIZE),
-    grid: { md: 12 }
+    grid: { md: 12 },
+    fieldProps: { disabled: isPersistent }
   }
 }
 
 export const FIELDS = vmTemplate => {
-  const { TEMPLATE: { DISK } = {} } = vmTemplate ?? {}
-  const disks = [DISK].flat().filter(Boolean)
+  const disks = [vmTemplate?.TEMPLATE?.DISK ?? []].flat()
 
-  return disks?.map(SIZE)
+  return disks?.map(SIZE_FIELD).map(addParentToField)
 }
 
 export const SCHEMA = yup
   .object({
-    DISK: yup.array(yup.object({ SIZE: SIZE().validation }))
+    [PARENT]: yup.array(yup.object({
+      [SIZE_FIELD().name]: SIZE_FIELD().validation
+    }))
   })
-  .transform(({ DISK, ...rest }) => ({
+  .transform(({ [PARENT]: disks, ...rest }) => ({
     ...rest,
-    DISK: [DISK].flat().filter(Boolean)
+    [PARENT]: [disks].flat().filter(Boolean)
   }))

@@ -13,26 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-
 import ImagesTable from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
 import AdvancedOptions from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions'
+import { createSteps } from 'client/utils'
 
-const Steps = stepProps => {
-  const image = ImagesTable(stepProps)
-  const advanced = AdvancedOptions(stepProps)
-
-  const steps = [image, advanced]
-
-  const resolver = () => yup.object({
-    [image.id]: image.resolver(),
-    [advanced.id]: advanced.resolver()
-  })
-
-  const defaultValues = resolver().default()
-
-  return { steps, defaultValues, resolver }
-}
+const Steps = createSteps([ImagesTable, AdvancedOptions])
 
 export default Steps

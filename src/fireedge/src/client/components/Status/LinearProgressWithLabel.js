@@ -15,9 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
-
-import { withStyles } from '@material-ui/core/styles'
-import { Typography, LinearProgress } from '@material-ui/core'
+import { withStyles, Typography, LinearProgress } from '@material-ui/core'
 
 const BorderLinearProgress = withStyles(({ palette }) => ({
   root: {

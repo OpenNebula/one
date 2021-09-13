@@ -20,16 +20,21 @@ import { HOST_STATES, StateInfo } from 'client/constants'
  * Returns information about the host state.
  *
  * @param {object} host - Host
- * @param {number} host.STATE - Host state
  * @returns {StateInfo} Host state object
  */
-export const getState = ({ STATE = 0 } = {}) => HOST_STATES[+STATE]
+export const getState = host => HOST_STATES[+host?.STATE ?? 0]
+
+/**
+ * @param {object} host - Host
+ * @returns {Array} List of datastores from resource
+ */
+export const getDatastores = host =>
+  [host?.HOST_SHARE?.DATASTORES?.DS ?? []].flat()
 
 /**
  * Returns the allocate information.
  *
  * @param {object} host - Host
- * @param {object} host.HOST_SHARE - Host share object
  * @returns {{
  * percentCpuUsed: number,
  * percentCpuLabel: string,
@@ -37,17 +42,18 @@ export const getState = ({ STATE = 0 } = {}) => HOST_STATES[+STATE]
  * percentMemLabel: string
  * }} Allocated information object
  */
-export const getAllocatedInfo = ({ HOST_SHARE = {} } = {}) => {
-  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = HOST_SHARE
+export const getAllocatedInfo = host => {
+  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = host?.HOST_SHARE ?? {}
 
   const percentCpuUsed = +CPU_USAGE * 100 / +TOTAL_CPU || 0
   const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} 
     (${Math.round(isFinite(percentCpuUsed) ? percentCpuUsed : '--')}%)`
 
+  const isMemUsageNegative = +MEM_USAGE < 0
   const percentMemUsed = +MEM_USAGE * 100 / +TOTAL_MEM || 0
-  const usedMemBytes = prettyBytes(+MEM_USAGE)
+  const usedMemBytes = prettyBytes(Math.abs(+MEM_USAGE))
   const totalMemBytes = prettyBytes(+TOTAL_MEM)
-  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} 
+  const percentMemLabel = `${isMemUsageNegative ? '-' : ''}${usedMemBytes} / ${totalMemBytes} 
       (${Math.round(isFinite(percentMemUsed) ? percentMemUsed : '--')}%)`
 
   return {

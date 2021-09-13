@@ -49,7 +49,7 @@ export const getHistoryAction = action => HISTORY_ACTIONS[+action]
  * @returns {object} History records from resource
  */
 export const getHistoryRecords = vm =>
-  [vm?.HISTORY_RECORDS?.HISTORY ?? {}].flat()
+  [vm?.HISTORY_RECORDS?.HISTORY ?? []].flat()
 
 /**
  * @param {object} vm - Virtual machine

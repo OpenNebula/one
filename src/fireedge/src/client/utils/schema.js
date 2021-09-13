@@ -13,8 +13,143 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+/* eslint-disable jsdoc/valid-types */
+
+// eslint-disable-next-line no-unused-vars
+import { JSXElementConstructor, SetStateAction } from 'react'
+// eslint-disable-next-line no-unused-vars
+import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@material-ui/core'
+import { string, number, boolean, array, object, BaseSchema } from 'yup'
+
 import { INPUT_TYPES } from 'client/constants'
+
+// ----------------------------------------------------------
+// Types
+// ----------------------------------------------------------
+
+/**
+ * @typedef {object} ValidateOptions
+ * @property {boolean} [strict]
+ * - Only validate the input, and skip and coercion or transformation.
+ * Default - `false`
+ * @property {boolean} [abortEarly]
+ * - Return from validation methods on the first error rather than after all validations run.
+ * Default - `true`
+ * @property {boolean} [stripUnknown]
+ * - Remove unspecified keys from objects.
+ * Default - `false`
+ * @property {boolean} [recursive]
+ * - When `false` validations will not descend into nested schema (relevant for objects or arrays).
+ * Default - `true`
+ * @property {object} [context]
+ * - Any context needed for validating schema conditions
+ */
+
+/**
+ * Callback of field parameter when depend of another field.
+ *
+ * @callback DependOfCallback
+ * @param {string|string[]} value - Value
+ * @returns {any|any[]}
+ */
+
+/**
+ * @typedef {object} Field
+ * @property {string|DependOfCallback} name
+ * - Path name in the form
+ * - IMPORTANT: Name is required and unique
+ * (can not start with a number or use number as key name)
+ * Name also supports dot and bracket syntax.
+ * - For example: 'firstName', 'person.firstName' or 'person[0].firstName'
+ * @property {string|string[]} dependOf
+ * - Path names of other fields on the form.
+ * Can be used by the rest of the properties, receiving it by function parameters
+ * @property {string|DependOfCallback} label
+ * - Label of field
+ * @property {string|DependOfCallback} [tooltip]
+ * - Text description
+ * @property {INPUT_TYPES|DependOfCallback} type
+ * - Field type to draw
+ * @property {string|DependOfCallback} [htmlType]
+ * - Type of the input element. It should be a valid HTML5 input type
+ * @property {{text: string|JSXElementConstructor, value: any}[]|DependOfCallback} [values]
+ * - Type of the input element. It should be a valid HTML5 input type
+ * @property {boolean|DependOfCallback} [multiline]
+ * - If `true`, a textarea element will be rendered instead of an input.
+ * @property {GridProps|DependOfCallback} [grid]
+ * - Grid properties to override in the wrapper element
+ * - Default: { xs: 12, md: 6 }
+ * @property {BaseSchema|DependOfCallback} [validation]
+ * - Schema to validate the field value
+ * @property {TextFieldProps|CheckboxProps|InputBaseComponentProps} [fieldProps]
+ * - Extra properties to material field
+ * @property {{message: string, test: Function}[]|DependOfCallback} [validationBeforeTransform]
+ * - Tests to validate the field value.
+ * - **Only for file inputs.**
+ * @property {Function|DependOfCallback} [transform]
+ * - Transform the file value.
+ * - For example: to save file as string value in base64 format.
+ * - **Only for file inputs.**
+ */
+
+/**
+ * @typedef {object} Form
+ * @property {BaseSchema|function(object):BaseSchema} resolver - Schema
+ * @property {Field[]|function(object):Field[]} fields - Fields to draw at form
+ * @property {object} defaultValues - Default values
+ */
+
+/**
+ * @typedef {object} Step
+ * @property {string} id - Id
+ * @property {string} label - Label
+ * @property {BaseSchema|function(object):BaseSchema} resolver - Schema
+ * @property {function(object, SetStateAction):JSXElementConstructor} content - Content
+ * @property {ValidateOptions|undefined} optionsValidate - Validate options
+ */
+
+/**
+ * @typedef {object} StepsForm
+ * @property {Step[]} steps - Steps
+ * @property {BaseSchema} resolver - Schema
+ * @property {object} defaultValues - Default values
+ */
+
+/**
+ * @typedef {object} ExtraParams
+ * @property {function(object):object} [transformBeforeSubmit] - Transform validated form data after submit
+ * @property {function(object):object} [transformInitialValue] - Transform initial value after load form
+ */
+
+/**
+ * @callback StepComponent
+ * @param {object} stepProps - Properties passes to all Step functions
+ * @returns {function(object):Step}
+ */
+
+/**
+ * @callback CreateStepsCallback
+ * @param {object} stepProps - Properties passes to all Step functions
+ * @param {object} initialValues - Initial values to form
+ * @returns {StepsForm & ExtraParams}
+ */
+
+/**
+ * @callback CreateFormCallback
+ * @param {object} props - Properties passes to schema and field
+ * @param {object} initialValues - Initial values to form
+ * @returns {Form & ExtraParams}
+ */
+
+/**
+ * @typedef {('text'|'text64'|'password'|'number'|'number-float'|'range'|
+ * 'range-float'|'boolean'|'list'|'array'|'list-multiple')} UserInputType
+ * - OpenNebula types for user inputs
+ */
+
+// ----------------------------------------------------------
+// Constants
+// ----------------------------------------------------------
 
 const requiredSchema = (mandatory, name, schema) =>
   mandatory
@@ -32,21 +167,19 @@ const getOptionsFromList = options => options
   )
   ?.filter(({ text, value } = {}) => text && value)
 
-/**
- * @typedef {(
- * 'text'|
- * 'text64'|
- * 'password'|
- * 'number'|
- * 'number-float'|
- * 'range'|
- * 'range-float'|
- * 'boolean'|
- * 'list'|
- * 'array'|
- * 'list-multiple'
- * )} TypeInput - OpenNebula types for user inputs
- */
+const parseUserInputValue = value => {
+  if (value === true) {
+    return 'YES'
+  } else if (value === false) {
+    return 'NO'
+  } else if (Array.isArray(value)) {
+    return value.join(',')
+  } else return value
+}
+
+// ----------------------------------------------------------
+// Function (to export)
+// ----------------------------------------------------------
 
 /**
  * Get input schema for the user input defined in OpenNebula resource.
@@ -54,16 +187,10 @@ const getOptionsFromList = options => options
  * @param {object} userInput - User input from OpenNebula document
  * @param {boolean} userInput.mandatory - If `true`, the input will be required
  * @param {string} userInput.name - Name of input
- * @param {userInput} userInput.type - Input type
+ * @param {UserInputType} userInput.type - Input type
  * @param {string} [userInput.options] - Options available for the input
  * @param {number|string|string[]} [userInput.defaultValue] - Default value for the input
- * @returns {{
- * type: INPUT_TYPES,
- * htmlType: string,
- * multiple: boolean,
- * validation: yup.AnyObjectSchema,
- * fieldProps: object
- * }} Schema properties
+ * @returns {Field} Field properties
  */
 export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }) => {
   switch (type) {
@@ -72,18 +199,18 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
     case 'password': return {
       type: INPUT_TYPES.TEXT,
       htmlType: type === 'password' ? 'password' : 'text',
-      validation: yup.string()
+      validation: string()
         .trim()
-        .concat(requiredSchema(mandatory, name, yup.string()))
+        .concat(requiredSchema(mandatory, name, string()))
         .default(defaultValue || undefined)
     }
     case 'number':
     case 'number-float': return {
       type: INPUT_TYPES.TEXT,
       htmlType: 'number',
-      validation: yup.number()
+      validation: number()
         .typeError(`${name} must be a number`)
-        .concat(requiredSchema(mandatory, name, yup.number()))
+        .concat(requiredSchema(mandatory, name, number()))
         .transform(value => !isNaN(value) ? value : null)
         .default(() => parseFloat(defaultValue) ?? undefined)
     }
@@ -93,9 +220,9 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
 
       return {
         type: INPUT_TYPES.SLIDER,
-        validation: yup.number()
+        validation: number()
           .typeError(`${name} must be a number`)
-          .concat(requiredSchema(mandatory, name, yup.number()))
+          .concat(requiredSchema(mandatory, name, number()))
           .min(min, `${name} must be greater than or equal to ${min}`)
           .max(max, `${name} must be less than or equal to ${max}`)
           .transform(value => !isNaN(value) ? value : undefined)
@@ -105,8 +232,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
     }
     case 'boolean': return {
       type: INPUT_TYPES.CHECKBOX,
-      validation: yup.boolean()
-        .concat(requiredSchema(mandatory, name, yup.boolean()))
+      validation: boolean()
+        .concat(requiredSchema(mandatory, name, boolean()))
         .default(defaultValue === 'YES' ?? false)
     }
     case 'list': {
@@ -116,9 +243,9 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
       return {
         values,
         type: INPUT_TYPES.SELECT,
-        validation: yup.string()
+        validation: string()
           .trim()
-          .concat(requiredSchema(mandatory, name, yup.string()))
+          .concat(requiredSchema(mandatory, name, string()))
           .oneOf(values.map(({ value }) => value))
           .default(defaultValue ?? firstOption)
       }
@@ -129,8 +256,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
       return {
         type: INPUT_TYPES.AUTOCOMPLETE,
         multiple: true,
-        validation: yup.array(yup.string().trim())
-          .concat(requiredSchema(mandatory, name, yup.array()))
+        validation: array(string().trim())
+          .concat(requiredSchema(mandatory, name, array()))
           .default(defaultValues),
         fieldProps: { freeSolo: true }
       }
@@ -143,31 +270,19 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         values,
         type: INPUT_TYPES.SELECT,
         multiple: true,
-        validation: yup.array(yup.string().trim())
-          .concat(requiredSchema(mandatory, name, yup.array()))
+        validation: array(string().trim())
+          .concat(requiredSchema(mandatory, name, array()))
           .default(defaultValues)
       }
     }
     default: return {
       type: INPUT_TYPES.TEXT,
-      validation: yup.string()
+      validation: string()
         .trim()
-        .concat(requiredSchema(mandatory, name, yup.string()))
+        .concat(requiredSchema(mandatory, name, string()))
         .default(defaultValue || undefined)
     }
   }
-}
-
-// Parser USER INPUTS
-
-const parseUserInputValue = value => {
-  if (value === true) {
-    return 'YES'
-  } if (value === false) {
-    return 'NO'
-  } else if (Array.isArray(value)) {
-    return value.join(',')
-  } else return value
 }
 
 /**
@@ -177,10 +292,67 @@ const parseUserInputValue = value => {
  * @example <caption>Example of parsed</caption>
  * // { user_ssh: true } => { user_ssh: 'YES' }
  * // { groups: [1, 2, 3] } => { groups: '1,2,3' }
- * @returns {object}
- * - Returns same object with values can be operated by OpenNebula
+ * @returns {object} - Returns same object with values can be operated by OpenNebula
  */
 export const mapUserInputs = (userInputs = {}) =>
   Object.entries(userInputs)?.reduce((res, [key, value]) => ({
     ...res, [key]: parseUserInputValue(value)
   }), {})
+
+/**
+ * Returns parameters needed to create stepper form.
+ *
+ * @param {StepComponent[]|function(object):StepComponent[]} steps - Step functions list or function to get it
+ * @param {ExtraParams} [extraParams] - Extra parameters
+ * @returns {CreateStepsCallback} Function to get steps
+ */
+export const createSteps = (steps, extraParams = {}) =>
+  (stepProps = {}, initialValues) => {
+    const { transformInitialValue = () => initialValues } = extraParams
+
+    const stepCallbacks = typeof steps === 'function' ? steps(stepProps) : steps
+    const performedSteps = stepCallbacks.map(step => step(stepProps))
+
+    const schemas = object()
+    for (const { id, resolver } of performedSteps) {
+      const schema = typeof resolver === 'function' ? resolver() : resolver
+
+      schemas.concat(object({ [id]: schema }))
+    }
+
+    const defaultValues = initialValues
+      ? transformInitialValue(initialValues, schemas)
+      : schemas.default()
+
+    return {
+      steps: performedSteps,
+      defaultValues,
+      resolver: () => schemas,
+      ...extraParams
+    }
+  }
+
+/**
+ * Returns parameters needed to create a form.
+ *
+ * @param {BaseSchema|function(object):BaseSchema} schema - Schema to validate the form
+ * @param {Field[]|function(object):Field[]} fields - Fields to draw in the form
+ * @param {ExtraParams} [extraParams] - Extra parameters
+ * @returns {CreateFormCallback} Function to get form parameters
+ */
+export const createForm = (schema, fields, extraParams = {}) =>
+  (props = {}, initialValues) => {
+    const schemaCallback = typeof schema === 'function' ? schema(props) : schema
+    const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
+
+    const defaultValues = initialValues
+      ? schemaCallback.cast(initialValues, { stripUnknown: true })
+      : schemaCallback.default()
+
+    return {
+      resolver: () => schemaCallback,
+      fields: () => fieldsCallback,
+      defaultValues,
+      ...extraParams
+    }
+  }

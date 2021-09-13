@@ -77,11 +77,10 @@ export const getEndpointsByView = (views, endpoints = []) => {
 
       const [resource, dialogName] = paths
 
-      return dialogName
+      return dialogName && !dialogName.includes(':') // filter params. eg: '/vm/:id'
         ? bulkActions[`${dialogName}_dialog`]
         : resource === name.toLowerCase()
-    }
-    ) && route
+    }) && route
 
   return endpoints
     .map(({ routes: subRoutes, ...restOfProps }) => {

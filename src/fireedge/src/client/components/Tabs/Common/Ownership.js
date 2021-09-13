@@ -19,6 +19,7 @@ import PropTypes from 'prop-types'
 import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
 import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
+import { PATH } from 'client/apps/sunstone/routesOne'
 
 const Ownership = memo(({
   actions,
@@ -55,6 +56,7 @@ const Ownership = memo(({
       name: T.Owner,
       value: userName,
       valueInOptionList: userId,
+      link: PATH.SYSTEM.USERS.DETAIL.replace(':id', userId),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
       handleGetOptionList: getUserOptions,
       handleEdit: user => handleEdit?.({ user })
@@ -63,6 +65,7 @@ const Ownership = memo(({
       name: T.Group,
       value: groupName,
       valueInOptionList: groupId,
+      link: PATH.SYSTEM.GROUPS.DETAIL.replace(':id', groupId),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
       handleGetOptionList: getGroupOptions,
       handleEdit: group => handleEdit?.({ group })

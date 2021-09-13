@@ -45,6 +45,7 @@ import {
 import loadable from '@loadable/component'
 
 const VirtualMachines = loadable(() => import('client/containers/VirtualMachines'), { ssr: false })
+const VirtualMachineDetail = loadable(() => import('client/containers/VirtualMachines/Detail'), { ssr: false })
 const VirtualRouters = loadable(() => import('client/containers/VirtualRouters'), { ssr: false })
 
 const VmTemplates = loadable(() => import('client/containers/VmTemplates'), { ssr: false })
@@ -65,18 +66,23 @@ const VNetworkTemplates = loadable(() => import('client/containers/VNetworkTempl
 // const SecurityGroups = loadable(() => import('client/containers/SecurityGroups'), { ssr: false })
 
 const Clusters = loadable(() => import('client/containers/Clusters'), { ssr: false })
+const ClusterDetail = loadable(() => import('client/containers/Clusters/Detail'), { ssr: false })
 const Hosts = loadable(() => import('client/containers/Hosts'), { ssr: false })
+const HostDetail = loadable(() => import('client/containers/Hosts/Detail'), { ssr: false })
 const Zones = loadable(() => import('client/containers/Zones'), { ssr: false })
 
 const Users = loadable(() => import('client/containers/Users'), { ssr: false })
+const UserDetail = loadable(() => import('client/containers/Users/Detail'), { ssr: false })
 const Groups = loadable(() => import('client/containers/Groups'), { ssr: false })
+const GroupDetail = loadable(() => import('client/containers/Groups/Detail'), { ssr: false })
 // const VDCs = loadable(() => import('client/containers/VDCs'), { ssr: false })
 // const ACLs = loadable(() => import('client/containers/ACLs'), { ssr: false })
 
 export const PATH = {
   INSTANCE: {
     VMS: {
-      LIST: '/vm'
+      LIST: '/vm',
+      DETAIL: '/vm/:id'
     },
     VROUTERS: {
       LIST: '/virtual-router'
@@ -118,10 +124,12 @@ export const PATH = {
   },
   INFRASTRUCTURE: {
     CLUSTERS: {
-      LIST: '/cluster'
+      LIST: '/cluster',
+      DETAIL: '/cluster/:id'
     },
     HOSTS: {
-      LIST: '/host'
+      LIST: '/host',
+      DETAIL: '/host/:id'
     },
     ZONES: {
       LIST: '/zone'
@@ -129,15 +137,17 @@ export const PATH = {
   },
   SYSTEM: {
     USERS: {
-      LIST: '/user'
+      LIST: '/user',
+      DETAIL: '/user/:id'
     },
     GROUPS: {
-      LIST: '/group'
+      LIST: '/group',
+      DETAIL: '/group/:id'
     }
   }
 }
 
-export const ENDPOINTS = [
+const ENDPOINTS = [
   {
     label: 'Instances',
     sidebar: true,
@@ -149,6 +159,11 @@ export const ENDPOINTS = [
         sidebar: true,
         icon: VmsIcons,
         Component: VirtualMachines
+      },
+      {
+        label: params => `VM #${params.id}`,
+        path: PATH.INSTANCE.VMS.DETAIL,
+        Component: VirtualMachineDetail
       },
       {
         label: 'Virtual Routers',
@@ -173,8 +188,6 @@ export const ENDPOINTS = [
       },
       {
         label: 'Instantiate VM Template',
-        sidebar: true,
-        icon: TemplateIcon,
         path: PATH.TEMPLATE.VMS.INSTANTIATE,
         Component: InstantiateVmTemplates
       }
@@ -249,11 +262,21 @@ export const ENDPOINTS = [
         Component: Clusters
       },
       {
+        label: params => `Clusters #${params.id}`,
+        path: PATH.INFRASTRUCTURE.CLUSTERS.DETAIL,
+        Component: ClusterDetail
+      },
+      {
         label: 'Hosts',
         path: PATH.INFRASTRUCTURE.HOSTS.LIST,
         sidebar: true,
         icon: HostIcon,
         Component: Hosts
+      },
+      {
+        label: params => `Hosts #${params.id}`,
+        path: PATH.INFRASTRUCTURE.HOSTS.DETAIL,
+        Component: HostDetail
       },
       {
         label: 'Zones',
@@ -277,14 +300,26 @@ export const ENDPOINTS = [
         Component: Users
       },
       {
+        label: params => `User #${params.id}`,
+        path: PATH.SYSTEM.USERS.DETAIL,
+        Component: UserDetail
+      },
+      {
         label: 'Groups',
         path: PATH.SYSTEM.GROUPS.LIST,
         sidebar: true,
         icon: GroupIcon,
         Component: Groups
+      },
+      {
+        label: params => `Group #${params.id}`,
+        path: PATH.SYSTEM.GROUPS.DETAIL,
+        Component: GroupDetail
       }
     ]
   }
 ]
+
+export { ENDPOINTS }
 
 export default { PATH, ENDPOINTS }

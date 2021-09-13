@@ -29,34 +29,12 @@ import * as Helper from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const mapToSchedAction = formData => {
-  const { ARGS, TIME: time, PERIOD, END_VALUE, END_TYPE, PERIODIC: _, ...restOfData } = formData
-
-  const newSchedAction = {
-    TIME: PERIOD ? `+${time}` : Helper.isoDateToMilliseconds(time),
-    END_TYPE,
-    ...restOfData
-  }
-
-  ARGS && (newSchedAction.ARGS = Object.values(ARGS).join(','))
-
-  if (END_VALUE) {
-    newSchedAction.END_VALUE = END_TYPE === '1'
-      ? END_VALUE
-      : Helper.isoDateToMilliseconds(END_VALUE)
-  }
-
-  return Helper.jsonToXml({ SCHED_ACTION: newSchedAction })
-}
-
 const CreateSchedAction = memo(() => {
   const { addScheduledAction } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
   const handleCreateSchedAction = async formData => {
-    const template = mapToSchedAction(formData)
-
-    const data = { template }
+    const data = { template: Helper.jsonToXml({ SCHED_ACTION: formData }) }
     const response = await addScheduledAction(vm.ID, data)
 
     String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
@@ -75,13 +53,13 @@ const CreateSchedAction = memo(() => {
       options={[{
         cy: 'create-sched-action-punctual',
         name: 'Punctual action',
-        form: () => PunctualForm({ vm }),
+        form: () => PunctualForm(vm),
         onSubmit: handleCreateSchedAction
       },
       {
         cy: 'create-sched-action-relative',
         name: 'Relative action',
-        form: () => RelativeForm({ vm }),
+        form: () => RelativeForm(vm),
         onSubmit: handleCreateSchedAction
       }]}
     />
@@ -95,9 +73,11 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
   const { handleRefetch, data: vm } = useContext(TabContext)
 
   const handleUpdate = async formData => {
-    const template = mapToSchedAction(formData)
+    const data = {
+      id_sched: ID,
+      template: Helper.jsonToXml({ SCHED_ACTION: formData })
+    }
 
-    const data = { id_sched: ID, template }
     const response = await updateScheduledAction(vm.ID, data)
 
     String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
@@ -111,12 +91,12 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
         tooltip: <Translate word={T.Edit} />
       }}
       dialogProps={{
-        title: `${Tr([T.ActionOverSomething, [T.Update, T.ScheduledAction]])}: ${name}`
+        title: `${Tr(T.Update)} ${T.ScheduledAction}: ${name}`
       }}
       options={[{
         form: () => isRelative
-          ? RelativeForm({ schedule, vm })
-          : PunctualForm({ schedule, vm }),
+          ? RelativeForm(vm, schedule)
+          : PunctualForm(vm, schedule),
         onSubmit: handleUpdate
       }]}
     />
@@ -162,15 +142,14 @@ const CharterAction = memo(() => {
   const handleCreateCharter = async () => {
     const schedActions = leases
       .map(([action, { time, warning: { time: warningTime } = {} } = {}]) => ({
-        PERIOD: true,
-        TIME: +time,
+        TIME: `+${+time}`,
         ACTION: action,
-        ...(warningTime && { WARNING: warningTime })
+        ...(warningTime && { WARNING: `-${+warningTime}` })
       }))
 
     const response = await Promise.all(
       schedActions.map(schedAction => {
-        const data = { template: mapToSchedAction(schedAction) }
+        const data = { template: Helper.jsonToXml({ SCHED_ACTION: schedAction }) }
         return addScheduledAction(vm.ID, data)
       })
     )
@@ -225,7 +204,7 @@ const ActionPropTypes = {
   name: PropTypes.string
 }
 
-CreateSchedAction.propTypes = {}
+CreateSchedAction.propTypes = ActionPropTypes
 CreateSchedAction.displayName = 'CreateSchedActionButton'
 UpdateSchedAction.propTypes = ActionPropTypes
 UpdateSchedAction.displayName = 'UpdateSchedActionButton'

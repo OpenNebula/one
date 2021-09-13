@@ -38,7 +38,7 @@ import headerStyles from 'client/components/Header/styles'
 
 const Header = ({ scrollContainer }) => {
   const { isOneAdmin } = useAuth()
-  const { title } = useGeneral()
+  const { appTitle, title } = useGeneral()
   const { fixMenu } = useGeneralApi()
 
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
@@ -57,24 +57,33 @@ const Header = ({ scrollContainer }) => {
   }
 
   return (
-    <AppBar className={classes.appbar} data-cy="header" elevation={1}>
+    <AppBar className={classes.appbar} data-cy='header' elevation={1}>
       <Toolbar>
         {!isUpLg && (
-          <IconButton onClick={handleFixMenu} edge="start" color="inherit">
+          <IconButton onClick={handleFixMenu} edge='start' color='inherit'>
             <MenuIcon />
           </IconButton>
         )}
-        {!isMobile && (
+        <Box flexGrow={1}>
+          {!isMobile && (
+            <Typography
+              variant='h6'
+              className={classes.title}
+              data-cy='header-app-title'
+            >
+              {'One'}
+              <span className={classes.app}>{appTitle}</span>
+            </Typography>
+          )}
           <Typography
-            variant="h6"
+            variant='h6'
             className={classes.title}
-            data-cy="header-title"
+            data-cy='header-title'
           >
-            {'One'}
-            <span className={classes.app}>{title}</span>
+            {title}
           </Typography>
-        )}
-        <Box flexGrow={isMobile ? 1 : 0} textAlign="end">
+        </Box>
+        <Box flexGrow={isMobile ? 1 : 0} textAlign='end'>
           <User />
           <View />
           {!isOneAdmin && <Group />}

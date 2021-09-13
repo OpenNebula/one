@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateDiskSnapshotForm/schema'
 
-const CreateDiskSnapshotForm = ({ snapshot } = {}) => {
-  return {
-    resolver: () => SCHEMA,
-    defaultValues: SCHEMA.cast(snapshot, { stripUnknown: true }),
-    fields: FIELDS
-  }
-}
+const CreateDiskSnapshotForm = createForm(SCHEMA, FIELDS)
 
 export default CreateDiskSnapshotForm

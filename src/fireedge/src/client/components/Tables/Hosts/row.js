@@ -21,8 +21,10 @@ import { Typography } from '@material-ui/core'
 
 import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import { Tr } from 'client/components/HOC'
 
 import * as HostModel from 'client/models/Host'
+import { T } from 'client/constants'
 
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
@@ -71,8 +73,16 @@ const Row = ({ original, value, ...props }) => {
         </div>
       </div>
       <div className={classes.secondary}>
-        <LinearProgressWithLabel value={percentCpuUsed} label={percentCpuLabel} />
-        <LinearProgressWithLabel value={percentMemUsed} label={percentMemLabel} />
+        <LinearProgressWithLabel
+          value={percentCpuUsed}
+          label={percentCpuLabel}
+          title={`${Tr(T.AllocatedCpu)}`}
+        />
+        <LinearProgressWithLabel
+          value={percentMemUsed}
+          label={percentMemLabel}
+          title={`${Tr(T.AllocatedMemory)}`}
+        />
       </div>
     </div>
   )

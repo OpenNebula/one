@@ -18,13 +18,14 @@ import { useCallback } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
-import { RESOURCES } from 'client/features/One'
 import * as actions from 'client/features/Auth/actions'
 import * as actionsView from 'client/features/Auth/actionsView'
+import { name as authSlice } from 'client/features/Auth/slice'
+import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
 
 export const useAuth = () => {
-  const auth = useSelector(state => state.auth, shallowEqual)
-  const groups = useSelector(state => state.one[RESOURCES.group], shallowEqual)
+  const auth = useSelector(state => state[authSlice], shallowEqual)
+  const groups = useSelector(state => state[oneSlice][RESOURCES.group], shallowEqual)
 
   const { user, jwt, view, views, isLoginInProgress } = auth
 

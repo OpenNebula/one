@@ -38,7 +38,7 @@ const initial = () => ({
   isLoading: false
 })
 
-const { actions, reducer } = createSlice({
+const { name, actions, reducer } = createSlice({
   name: 'auth',
   initialState: ({ ...initial(), firstRender: true }),
   extraReducers: builder => {
@@ -84,4 +84,4 @@ const { actions, reducer } = createSlice({
   }
 })
 
-export { actions, reducer }
+export { name, actions, reducer }

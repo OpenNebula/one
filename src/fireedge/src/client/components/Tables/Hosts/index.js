@@ -20,12 +20,11 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useHost, useHostApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
-import HostDetail from 'client/components/Tables/Hosts/detail'
 
-const HostsTable = () => {
+const HostsTable = props => {
   const columns = useMemo(() => HostColumns, [])
 
   const hosts = useHost()
@@ -47,10 +46,13 @@ const HostsTable = () => {
       data={hosts}
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
-      renderDetail={row => <HostDetail id={row.ID} />}
       RowComponent={HostRow}
+      {...props}
     />
   )
 }
+
+HostsTable.propTypes = EnhancedTableProps
+HostsTable.displayName = 'HostsTable'
 
 export default HostsTable

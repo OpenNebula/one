@@ -56,7 +56,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
             title: Tr(T.TakeSnapshot)
           }}
           options={[{
-            form: CreateSnapshotForm,
+            form: () => CreateSnapshotForm(),
             onSubmit: handleSnapshotCreate
           }]}
         />

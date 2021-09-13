@@ -14,33 +14,35 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import {
-  SCHEMA,
-  FIELDS
-} from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
+import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
-const AdvancedOptions = ({ nics = [] } = {}) => ({
+const Content = props => (
+  <FormWithSchema
+    cy='attach-nic-advanced'
+    id={STEP_ID}
+    fields={FIELDS(props)}
+  />
+)
+
+const AdvancedOptions = props => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
-  resolver: () => SCHEMA(nics),
+  resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => (
-      <FormWithSchema
-        cy='attach-nic-advanced'
-        id={STEP_ID}
-        fields={FIELDS(nics)}
-      />
-    ),
-    [nics?.length, nics?.[0]?.ID]
-  )
+  content: () => Content(props)
 })
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+  nics: PropTypes.array
+}
 
 export default AdvancedOptions

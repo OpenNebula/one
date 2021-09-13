@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, Typography } from '@material-ui/core'
+import { Link as RouterLink } from 'react-router-dom'
+import { makeStyles, Typography, Link } from '@material-ui/core'
 
 import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
@@ -46,6 +47,7 @@ const Attribute = memo(({
   handleEdit,
   handleDelete,
   handleGetOptionList,
+  link,
   name,
   path = name,
   value,
@@ -60,7 +62,7 @@ const Attribute = memo(({
   const inputRef = createRef()
 
   const handleEditAttribute = async () => {
-    await handleEdit?.(inputRef.current.value, path)
+    await handleEdit?.(path, inputRef.current.value)
     setIsEditing(false)
   }
 
@@ -111,10 +113,18 @@ const Attribute = memo(({
           <>
             <Typography
               noWrap
+              component='span'
               variant='body2'
               title={typeof value === 'string' ? value : undefined}
             >
-              {value}
+              {link
+                ? (
+                  <Link color='secondary' component={RouterLink} to={link}>
+                    {value}
+                  </Link>
+                )
+                : value
+              }
             </Typography>
             {canEdit && (
               <Actions.Edit name={name} handleClick={handleActiveEditForm} />
@@ -147,6 +157,7 @@ export const AttributePropTypes = {
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
   handleGetOptionList: PropTypes.func,
+  link: PropTypes.string,
   name: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,

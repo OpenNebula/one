@@ -23,17 +23,21 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
 const InstantiateForm = ({ initialValues, onSubmit }) => {
-  const { steps, defaultValues, resolvers } = Steps(initialValues)
+  const { steps, defaultValues, resolver, transformBeforeSubmit } = Steps(initialValues)
 
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolvers())
+    resolver: yupResolver(resolver())
   })
 
   return (
     <FormProvider {...methods}>
-      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+      <FormStepper
+        steps={steps}
+        schema={resolver}
+        onSubmit={data => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+      />
     </FormProvider>
   )
 }

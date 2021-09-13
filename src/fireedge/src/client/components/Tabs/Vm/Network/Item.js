@@ -36,7 +36,7 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import Multiple from 'client/components/Tables/Vms/multiple'
 
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const AccordionSummary = withStyles({
@@ -141,7 +141,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
             {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
               <div key={NIC_ID} className={classes.row}>
                 <Typography noWrap variant='body2'>
-                  {`${Tr(T.Alias)} ${NIC_ID} | ${NETWORK}`}
+                  <Translate word={T.Alias} />{`${NIC_ID} | ${NETWORK}`}
                 </Typography>
                 <span className={classes.labels}>
                   <Multiple

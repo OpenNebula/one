@@ -39,13 +39,13 @@ const APP_NAME = _APPS.sunstone.name
 const SunstoneApp = () => {
   const { isLogged, jwt, firstRender, view, views } = useAuth()
   const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } = useAuthApi()
-  const { changeTitle } = useGeneralApi()
+  const { changeAppTitle } = useGeneralApi()
 
   useEffect(() => {
     (async () => {
       try {
         if (jwt) {
-          changeTitle(APP_NAME)
+          changeAppTitle(APP_NAME)
           getAuthUser()
           await getSunstoneViews()
           await getSunstoneConfig()

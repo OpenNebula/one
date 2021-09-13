@@ -13,26 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-
 import BasicConfiguration from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration'
 import AdvancedOptions from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
+import { createSteps } from 'client/utils'
 
-const Steps = stepProps => {
-  const configuration = BasicConfiguration(stepProps)
-  const advancedOptions = AdvancedOptions(stepProps)
-
-  const steps = [configuration, advancedOptions]
-
-  const resolver = () => yup.object({
-    [configuration.id]: configuration.resolver(),
-    [advancedOptions.id]: advancedOptions.resolver()
-  })
-
-  const defaultValues = resolver().default()
-
-  return { steps, defaultValues, resolver }
-}
+const Steps = createSteps([BasicConfiguration, AdvancedOptions])
 
 export default Steps

@@ -22,7 +22,7 @@ import { makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles(({ palette }) => ({
   containerRoot: {
     marginLeft: 20,
-    wordBreak: 'break-all'
+    wordBreak: 'break-word'
   },
   variantSuccess: {
     backgroundColor: palette.success.main,

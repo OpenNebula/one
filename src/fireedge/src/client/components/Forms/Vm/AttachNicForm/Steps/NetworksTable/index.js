@@ -14,56 +14,52 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
 import { useListForm } from 'client/hooks'
 import { VNetworksTable } from 'client/components/Tables'
 
-import {
-  SCHEMA
-} from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable/schema'
+import { SCHEMA } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'network'
 
+const Content = ({ data, setFormData }) => {
+  const { NAME } = data?.[0] ?? {}
+
+  const {
+    handleSelect,
+    handleClear
+  } = useListForm({ key: STEP_ID, setList: setFormData })
+
+  const handleSelectedRows = rows => {
+    const { original = {} } = rows?.[0] ?? {}
+
+    original.ID !== undefined ? handleSelect(original) : handleClear()
+  }
+
+  return (
+    <VNetworksTable
+      singleSelect
+      onlyGlobalSearch
+      onlyGlobalSelectedRows
+      getRowId={row => String(row.NAME)}
+      initialState={{ selectedRowIds: { [NAME]: true } }}
+      onSelectedRowsChange={handleSelectedRows}
+    />
+  )
+}
+
 const NetworkStep = () => ({
   id: STEP_ID,
   label: T.Network,
-  resolver: () => SCHEMA,
-  content: useCallback(
-    ({ data, setFormData }) => {
-      const selectedNetwork = data?.[0]
-
-      const {
-        handleSelect,
-        handleClear
-      } = useListForm({ key: STEP_ID, setList: setFormData })
-
-      const handleSelectedRows = rows => {
-        const { original } = rows?.[0] ?? {}
-        const { ID, NAME, UID, UNAME, SECURITY_GROUPS } = original ?? {}
-
-        const network = {
-          NETWORK_ID: ID,
-          NETWORK: NAME,
-          NETWORK_UID: UID,
-          NETWORK_UNAME: UNAME,
-          SECURITY_GROUPS
-        }
-
-        ID !== undefined ? handleSelect(network) : handleClear()
-      }
-
-      return (
-        <VNetworksTable
-          singleSelect
-          onlyGlobalSearch
-          onlyGlobalSelectedRows
-          initialState={{ selectedRowIds: { [selectedNetwork?.ID]: true } }}
-          onSelectedRowsChange={handleSelectedRows}
-        />
-      )
-    }, [])
+  resolver: SCHEMA,
+  content: Content
 })
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func
+}
 
 export default NetworkStep

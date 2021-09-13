@@ -21,7 +21,7 @@ import { Typography, Paper } from '@material-ui/core'
 import * as Actions from 'client/components/Tabs/Vm/Storage/Actions'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import * as Helper from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
@@ -56,8 +56,8 @@ const StorageSubItem = ({ disk, snapshot = {}, actions = [] }) => {
         <div className={classes.title}>
           <Typography component='span'>{NAME}</Typography>
           <span className={classes.labels}>
-            {isActive && <StatusChip text={Tr(T.Active)} />}
-            <StatusChip text={Tr(T.Snapshot)} />
+            {isActive && <StatusChip text={<Translate word={T.Active} />} />}
+            <StatusChip text={<Translate word={T.Snapshot} />} />
           </span>
         </div>
         <div className={classes.caption}>

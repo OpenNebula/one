@@ -22,13 +22,14 @@ import { generateKey } from 'client/utils'
 const initial = {
   zone: 0,
   title: null,
+  appTitle: null,
   isLoading: false,
   isFixMenu: false,
 
   notifications: []
 }
 
-const { reducer } = createSlice({
+const { name, reducer } = createSlice({
   name: 'general',
   initialState: initial,
   extraReducers: builder => {
@@ -42,6 +43,9 @@ const { reducer } = createSlice({
       })
       .addCase(actions.changeTitle, (state, { payload }) => {
         return { ...state, title: payload }
+      })
+      .addCase(actions.changeAppTitle, (state, { payload }) => {
+        return { ...state, appTitle: payload }
       })
       .addCase(actions.changeZone, (state, { payload }) => {
         return { ...state, zone: payload }
@@ -111,4 +115,4 @@ const { reducer } = createSlice({
   }
 })
 
-export { reducer }
+export { name, reducer }

@@ -73,19 +73,22 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
           {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
         </MIcon>
       </ListItem>
-      {routes?.map((subItem, index) => (
-        <Collapse
-          key={`subitem-${index}`}
-          in={expanded}
-          timeout='auto'
-          unmountOnExit
-          className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
-        >
-          <List component='div' disablePadding>
-            <SidebarLink {...subItem} isSubItem />
-          </List>
-        </Collapse>
-      ))}
+      {routes
+        ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')
+        ?.map((subItem, index) => (
+          <Collapse
+            key={`subitem-${index}`}
+            in={expanded}
+            timeout='auto'
+            unmountOnExit
+            className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
+          >
+            <List component='div' disablePadding>
+              <SidebarLink {...subItem} isSubItem />
+            </List>
+          </Collapse>
+        ))
+      }
     </>
   )
 }
@@ -98,7 +101,10 @@ SidebarCollapseItem.propTypes = {
   ]),
   routes: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.string,
+      label: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func
+      ]),
       path: PropTypes.string
     })
   )

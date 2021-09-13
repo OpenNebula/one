@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/ResizeCapacityForm/schema'
 
-const ResizeCapacityForm = ({ vm } = {}) => {
-  const { TEMPLATE = {} } = vm ?? {}
-
-  return {
-    resolver: () => SCHEMA,
-    defaultValues: SCHEMA.cast(TEMPLATE, { stripUnknown: true }),
-    fields: FIELDS
-  }
-}
+const ResizeCapacityForm = createForm(SCHEMA, FIELDS)
 
 export default ResizeCapacityForm

@@ -18,7 +18,7 @@ import { createElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { styled, Grid } from '@material-ui/core'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 
 import * as FC from 'client/components/FormControl'
 import { INPUT_TYPES } from 'client/constants'
@@ -45,7 +45,7 @@ const InputController = {
 }
 
 const FormWithSchema = ({ id, cy, fields, className, legend }) => {
-  const { control, errors, ...formContext } = useFormContext()
+  const { control, errors, watch, ...formContext } = useFormContext()
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
   return (
@@ -60,7 +60,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
                 ? Array.isArray(dependOf) ? dependOf.map(d => `${id}.${d}`) : `${id}.${dependOf}`
                 : dependOf
 
-              valueOfDependField = useWatch({ control, name: nameOfDependField })
+              valueOfDependField = watch(nameOfDependField)
             }
 
             const { name, type, htmlType, grid, ...fieldProps } = Object

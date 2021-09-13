@@ -14,14 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useEffect } from 'react'
 import { useHistory, useParams } from 'react-router'
-
 import { Container } from '@material-ui/core'
 
 import { useGeneralApi } from 'client/features/General'
-import { useVmTemplateApi } from 'client/features/One'
+import { useVmTemplateApi, useUserApi, useVmGroupApi } from 'client/features/One'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { isDevelopment } from 'client/utils'
 
 function InstantiateVmTemplate () {
   const history = useHistory()
@@ -29,26 +30,27 @@ function InstantiateVmTemplate () {
   const initialValues = { template: { ID: templateId } }
 
   const { enqueueInfo } = useGeneralApi()
+  const { getUsers } = useUserApi()
+  const { getVmGroups } = useVmGroupApi()
   const { instantiate } = useVmTemplateApi()
 
-  const onSubmit = async formData => {
-    const {
-      template: [{ ID, NAME }] = [],
-      configuration: { name, instances, ...configuration } = {}
-    } = formData
+  const onSubmit = async ([templateSelected, templates]) => {
+    try {
+      const { ID, NAME } = templateSelected
 
-    await Promise.all([...new Array(instances)]
-      .map((_, idx) => {
-        const replacedName = name?.replace(/%idx/gi, idx)
-        const data = { ...configuration, name: replacedName }
+      await Promise.all(templates.map(template => instantiate(ID, template)))
 
-        return instantiate(ID, data)
-      })
-    )
-
-    history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
-    enqueueInfo(`VM Template instantiated x${instances} - ${NAME}`)
+      history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
+      enqueueInfo(`VM Template instantiated x${templates.length} - #${ID} ${NAME}`)
+    } catch (err) {
+      isDevelopment() && console.error(err)
+    }
   }
+
+  useEffect(() => {
+    getUsers()
+    getVmGroups()
+  }, [])
 
   return (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>

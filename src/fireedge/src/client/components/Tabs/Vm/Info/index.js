@@ -63,7 +63,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && await handleRefetch?.()
   }
 
-  const handleAttributeInXml = async (newValue, path) => {
+  const handleAttributeInXml = async (path, newValue) => {
     const newTemplate = cloneObject(USER_TEMPLATE)
 
     set(newTemplate, path, newValue)
@@ -98,7 +98,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: path => handleAttributeInXml(undefined, path)
+    handleDelete: handleAttributeInXml
   }
 
   return (
@@ -108,14 +108,14 @@ const VmInfoTab = ({ tabProps = {} }) => {
       gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
       padding: '0.8em'
     }}>
-      {informationPanel?.enabled &&
+      {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
           handleRename={handleRename}
           vm={vm}
         />
-      }
-      {permissionsPanel?.enabled &&
+      )}
+      {permissionsPanel?.enabled && (
         <Permissions
           actions={getActions(permissionsPanel?.actions)}
           ownerUse={PERMISSIONS.OWNER_U}
@@ -129,8 +129,8 @@ const VmInfoTab = ({ tabProps = {} }) => {
           otherAdmin={PERMISSIONS.OTHER_A}
           handleEdit={handleChangePermission}
         />
-      }
-      {ownershipPanel?.enabled &&
+      )}
+      {ownershipPanel?.enabled && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
           userId={UID}
@@ -139,7 +139,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
           groupName={GNAME}
           handleEdit={handleChangeOwnership}
         />
-      }
+      )}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}

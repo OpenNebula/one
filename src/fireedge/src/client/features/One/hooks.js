@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useSelector, shallowEqual } from 'react-redux'
+import { name } from 'client/features/One/slice'
 
 export const useOne = () => (
-  useSelector(state => state.one, shallowEqual)
+  useSelector(state => state[name], shallowEqual)
 )
 
 export * from 'client/features/One/application/hooks'
@@ -33,6 +34,7 @@ export * from 'client/features/One/provider/hooks'
 export * from 'client/features/One/provision/hooks'
 export * from 'client/features/One/user/hooks'
 export * from 'client/features/One/vm/hooks'
+export * from 'client/features/One/vmGroup/hooks'
 export * from 'client/features/One/vmTemplate/hooks'
 export * from 'client/features/One/vnetwork/hooks'
 export * from 'client/features/One/vnetworkTemplate/hooks'

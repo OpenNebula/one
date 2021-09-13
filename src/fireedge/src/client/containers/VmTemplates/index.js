@@ -14,12 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useState } from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
 import { VmTemplatesTable } from 'client/components/Tables'
+import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
+import SplitPane from 'client/components/SplitPane'
 
 function VmTemplates () {
+  const [selectedRows, onSelectedRowsChange] = useState([])
+
+  const getRowIds = () =>
+    JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
+
   return (
     <Box
       height={1}
@@ -29,7 +37,18 @@ function VmTemplates () {
       flexDirection='column'
       component={Container}
     >
-      <VmTemplatesTable />
+      <SplitPane>
+        <VmTemplatesTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            {selectedRows?.length === 1
+              ? <VmTemplateTabs id={selectedRows[0]?.values.ID} />
+              : <pre><code>{getRowIds()}</code></pre>
+            }
+          </div>
+        )}
+      </SplitPane>
     </Box>
   )
 }

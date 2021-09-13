@@ -14,12 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-
+import { useState } from 'react'
 import { Container, Box } from '@material-ui/core'
 
 import { ClustersTable } from 'client/components/Tables'
+import ClusterTabs from 'client/components/Tabs/Cluster'
+import SplitPane from 'client/components/SplitPane'
 
 function Clusters () {
+  const [selectedRows, onSelectedRowsChange] = useState([])
+
+  const getRowIds = () =>
+    JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
+
   return (
     <Box
       height={1}
@@ -29,7 +36,18 @@ function Clusters () {
       flexDirection='column'
       component={Container}
     >
-      <ClustersTable />
+      <SplitPane>
+        <ClustersTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            {selectedRows?.length === 1
+              ? <ClusterTabs id={selectedRows[0]?.values.ID} />
+              : <pre><code>{getRowIds()}</code></pre>
+            }
+          </div>
+        )}
+      </SplitPane>
     </Box>
   )
 }

@@ -17,10 +17,11 @@
 import { useDispatch, useSelector } from 'react-redux'
 
 import * as actions from 'client/features/General/actions'
+import { name } from 'client/features/General/slice'
 import { generateKey } from 'client/utils'
 
 export const useGeneral = () => (
-  useSelector(state => state.general)
+  useSelector(state => state[name])
 )
 
 export const useGeneralApi = () => {
@@ -30,6 +31,7 @@ export const useGeneralApi = () => {
     fixMenu: isFixed => dispatch(actions.fixMenu(isFixed)),
     changeLoading: isLoading => dispatch(actions.changeLoading(isLoading)),
     changeTitle: title => dispatch(actions.changeTitle(title)),
+    changeAppTitle: appTitle => dispatch(actions.changeAppTitle(appTitle)),
     changeZone: zone => dispatch(actions.changeZone(zone)),
 
     // dismiss all if no key has been defined

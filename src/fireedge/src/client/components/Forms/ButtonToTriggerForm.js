@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -47,26 +47,22 @@ const ButtonToTriggerForm = ({
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const {
-    steps,
-    defaultValues,
-    resolver,
-    fields,
-    onSubmit: handleSubmit
-  } = Form ?? {}
+  const { onSubmit: handleSubmit, form } = Form ?? {}
+
+  const formConfig = useMemo(() => form?.() ?? {}, [form])
+  const { steps, defaultValues, resolver, fields, transformBeforeSubmit } = formConfig
 
   const handleTriggerSubmit = async formData => {
     try {
-      await handleSubmit?.(formData)
+      const data = transformBeforeSubmit?.(formData) ?? formData
+      await handleSubmit?.(data)
     } finally {
       hide()
     }
   }
 
-  const openDialogForm = ({ form = {}, ...rest }) => {
-    const formParams = typeof form === 'function' ? form() : form
-
-    show({ ...formParams, ...rest })
+  const openDialogForm = formParams => {
+    show(formParams)
     handleClose()
   }
 
@@ -154,13 +150,10 @@ ButtonToTriggerForm.propTypes = {
     PropTypes.shape({
       cy: PropTypes.string,
       name: PropTypes.string,
-      form: PropTypes.oneOfType([
-        PropTypes.object,
-        PropTypes.func
-      ])
+      form: PropTypes.func,
+      handleSubmit: PropTypes.func
     })
-  ),
-  handleSubmit: PropTypes.func
+  )
 }
 
 ButtonToTriggerForm.displayName = 'ButtonToTriggerForm'

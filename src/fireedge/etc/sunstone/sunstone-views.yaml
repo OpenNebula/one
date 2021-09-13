@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# This file describes which Sunstone views are avaiable according to the
+# This file describes which Sunstone views are available according to the
 # primary group a user belongs to
 groups:
     oneadmin:

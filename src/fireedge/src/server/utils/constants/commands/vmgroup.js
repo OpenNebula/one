@@ -19,34 +19,34 @@ const {
   httpMethod: { GET, POST, PUT, DELETE }
 } = require('../defaults')
 
-const VMGROUP_ALLOCATE = 'vmgroup.allocate'
-const VMGROUP_DELETE = 'vmgroup.delete'
-const VMGROUP_UPDATE = 'vmgroup.update'
-const VMGROUP_CHMOD = 'vmgroup.chmod'
-const VMGROUP_CHOWN = 'vmgroup.chown'
-const VMGROUP_RENAME = 'vmgroup.rename'
-const VMGROUP_INFO = 'vmgroup.info'
-const VMGROUP_LOCK = 'vmgroup.lock'
-const VMGROUP_UNLOCK = 'vmgroup.unlock'
-const VMGROUP_POOL_INFO = 'vmgrouppool.info'
+const VM_GROUP_ALLOCATE = 'vmgroup.allocate'
+const VM_GROUP_DELETE = 'vmgroup.delete'
+const VM_GROUP_UPDATE = 'vmgroup.update'
+const VM_GROUP_CHMOD = 'vmgroup.chmod'
+const VM_GROUP_CHOWN = 'vmgroup.chown'
+const VM_GROUP_RENAME = 'vmgroup.rename'
+const VM_GROUP_INFO = 'vmgroup.info'
+const VM_GROUP_LOCK = 'vmgroup.lock'
+const VM_GROUP_UNLOCK = 'vmgroup.unlock'
+const VM_GROUP_POOL_INFO = 'vmgrouppool.info'
 
 const Actions = {
-  VMGROUP_ALLOCATE,
-  VMGROUP_DELETE,
-  VMGROUP_UPDATE,
-  VMGROUP_CHMOD,
-  VMGROUP_CHOWN,
-  VMGROUP_RENAME,
-  VMGROUP_INFO,
-  VMGROUP_LOCK,
-  VMGROUP_UNLOCK,
-  VMGROUP_POOL_INFO
+  VM_GROUP_ALLOCATE,
+  VM_GROUP_DELETE,
+  VM_GROUP_UPDATE,
+  VM_GROUP_CHMOD,
+  VM_GROUP_CHOWN,
+  VM_GROUP_RENAME,
+  VM_GROUP_INFO,
+  VM_GROUP_LOCK,
+  VM_GROUP_UNLOCK,
+  VM_GROUP_POOL_INFO
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [VMGROUP_ALLOCATE]: {
+    [VM_GROUP_ALLOCATE]: {
       // inspected
       httpMethod: POST,
       params: {
@@ -56,7 +56,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_DELETE]: {
+    [VM_GROUP_DELETE]: {
       // inspected
       httpMethod: DELETE,
       params: {
@@ -66,7 +66,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_UPDATE]: {
+    [VM_GROUP_UPDATE]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -84,7 +84,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_CHMOD]: {
+    [VM_GROUP_CHMOD]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -130,7 +130,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_CHOWN]: {
+    [VM_GROUP_CHOWN]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -148,7 +148,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_RENAME]: {
+    [VM_GROUP_RENAME]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -162,7 +162,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_INFO]: {
+    [VM_GROUP_INFO]: {
       // inspected
       httpMethod: GET,
       params: {
@@ -176,7 +176,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_LOCK]: {
+    [VM_GROUP_LOCK]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -190,7 +190,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_UNLOCK]: {
+    [VM_GROUP_UNLOCK]: {
       // inspected
       httpMethod: PUT,
       params: {
@@ -200,7 +200,7 @@ module.exports = {
         }
       }
     },
-    [VMGROUP_POOL_INFO]: {
+    [VM_GROUP_POOL_INFO]: {
       // inspected
       httpMethod: GET,
       params: {

@@ -152,7 +152,7 @@ const SelectCard = memo(({
   )
 })
 
-SelectCard.propTypes = {
+export const SelectCardProps = {
   stylesProps: PropTypes.object,
   action: PropTypes.node,
   actions: PropTypes.arrayOf(
@@ -223,6 +223,7 @@ SelectCard.defaultProps = {
   skeletonHeight: 140
 }
 
+SelectCard.propTypes = SelectCardProps
 SelectCard.displayName = 'SelectCard'
 
 export default SelectCard

@@ -41,9 +41,9 @@ const AutocompleteController = memo(
                 ? newValue?.map(value =>
                   typeof value === 'string' ? value : ({ text: value, value })
                 )
-                : newValue.value
+                : newValue?.value
 
-              return onChange(newValueToChange)
+              return onChange(newValueToChange ?? '')
             }}
             options={values}
             value={selected}

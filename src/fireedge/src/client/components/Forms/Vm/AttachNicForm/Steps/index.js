@@ -13,26 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import NetworksTable, { STEP_ID as NETWORK_STEP } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
+import AdvancedOptions, { STEP_ID as ADVANCED_STEP } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
+import { mapUserInputs, createSteps } from 'client/utils'
 
-import NetworksTable from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
-import AdvancedOptions from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
+const Steps = createSteps(
+  [NetworksTable, AdvancedOptions],
+  {
+    transformBeforeSubmit: formData => {
+      const { [NETWORK_STEP]: network, [ADVANCED_STEP]: advanced } = formData
+      const { ID, NAME, UID, UNAME, SECURITY_GROUPS } = network?.[0]
 
-const Steps = stepProps => {
-  const network = NetworksTable(stepProps)
-  const advanced = AdvancedOptions(stepProps)
+      return {
+        NETWORK_ID: ID,
+        NETWORK: NAME,
+        NETWORK_UID: UID,
+        NETWORK_UNAME: UNAME,
+        SECURITY_GROUPS,
+        ...mapUserInputs(advanced)
+      }
+    },
+    transformInitialValue: initialValue => {
+      const { NETWORK_ID, NETWORK, NETWORK_UID, NETWORK_UNAME, ...rest } = initialValue ?? {}
 
-  const steps = [network, advanced]
-
-  const resolver = () => yup.object({
-    [network.id]: network.resolver(),
-    [advanced.id]: advanced.resolver()
-  })
-
-  const defaultValues = resolver().default()
-
-  return { steps, defaultValues, resolver }
-}
+      return {
+        [NETWORK_STEP]: [{
+          ID: NETWORK_ID,
+          NAME: NETWORK,
+          UID: NETWORK_UID,
+          UNAME: NETWORK_UNAME
+        }],
+        [ADVANCED_STEP]: rest
+      }
+    }
+  }
+)
 
 export default Steps

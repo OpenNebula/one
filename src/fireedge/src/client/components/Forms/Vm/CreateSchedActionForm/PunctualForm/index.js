@@ -13,15 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { isoDateToMilliseconds } from 'client/models/Helper'
+import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm/schema'
 
-const PunctualForm = ({ vm, schedule } = {}) => ({
-  resolver: () => SCHEMA,
-  defaultValues: schedule
-    ? SCHEMA.cast(schedule, { stripUnknown: true })
-    : SCHEMA.default(),
-  fields: () => FIELDS(vm)
+const PunctualForm = createForm(SCHEMA, FIELDS, {
+  transformBeforeSubmit: formData => {
+    const { ARGS, TIME: time, END_VALUE, END_TYPE, PERIODIC: _, ...restOfData } = formData
+    const argValues = Object.values(ARGS)
+
+    const newSchedAction = {
+      TIME: isoDateToMilliseconds(time),
+      END_TYPE,
+      ...restOfData
+    }
+
+    argValues.length && (newSchedAction.ARGS = argValues.join(','))
+
+    if (END_VALUE) {
+      newSchedAction.END_VALUE = END_TYPE === '1'
+        ? END_VALUE
+        : isoDateToMilliseconds(END_VALUE)
+    }
+
+    return newSchedAction
+  }
 })
 
 export default PunctualForm

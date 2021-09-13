@@ -212,6 +212,7 @@ module.exports = {
 
   /* tabs */
   Information: 'Information',
+  Placement: 'Placement',
 
   /* general schema */
   ID: 'ID',
@@ -241,6 +242,7 @@ module.exports = {
   IP: 'IP',
   Reschedule: 'Reschedule',
   DeployID: 'Deploy ID',
+  Deployment: 'Deployment',
   Monitoring: 'Monitoring',
 
   /* flow schema */
@@ -277,5 +279,23 @@ module.exports = {
   ICMPV6: 'ICMPv6',
   IPSEC: 'IPsec',
   Outbound: 'Outbound',
-  Inbound: 'Inbound'
+  Inbound: 'Inbound',
+
+  /* Host schema */
+  IM_MAD: 'IM MAD',
+  VM_MAD: 'VM MAD',
+  Wilds: 'Wilds',
+  Zombies: 'Zombies',
+  Numa: 'Numa',
+  /* Host schema - capacity */
+  AllocatedMemory: 'Allocated Memory',
+  AllocatedCpu: 'Allocated CPU',
+  RealMemory: 'Real Memory',
+  RealCpu: 'Real CPU',
+  Overcommitment: 'Overcommitment',
+
+  /* Cluster schema */
+  /* Cluster schema - capacity */
+  ReservedMemory: 'Allocated Memory',
+  ReservedCpu: 'Allocated CPU'
 }

@@ -24,6 +24,8 @@ import { VmTemplatesTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable/schema'
 import { STEP_ID as CONFIGURATION_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
 import { SCHEMA as CONFIGURATION_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'template'
@@ -45,10 +47,14 @@ const Content = ({ data, setFormData }) => {
 
     const extendedTemplate = ID ? await getVmTemplate(ID, { extended: true }) : {}
 
-    const configuration = CONFIGURATION_SCHEMA
-      .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true })
+    setFormData(prev => ({
+      ...prev,
+      [CONFIGURATION_ID]: CONFIGURATION_SCHEMA
+        .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true }),
+      [EXTRA_ID]: EXTRA_SCHEMA
+        .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true })
+    }))
 
-    setFormData(prev => ({ ...prev, [CONFIGURATION_ID]: configuration }))
     handleSelect(extendedTemplate)
   }
 

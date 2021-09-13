@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { useFormContext } from 'react-hook-form'
@@ -23,10 +22,20 @@ import { useMediaQuery } from '@material-ui/core'
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
-import { groupBy } from 'client/utils'
+import { groupBy, Step, ResolverCallback } from 'client/utils'
 
 const FIRST_STEP = 0
 
+/**
+ * Represents a form with one or more steps.
+ * Finally, it submit the result.
+ *
+ * @param {object} props - Props
+ * @param {Step[]} props.steps - Steps
+ * @param {ResolverCallback} props.schema - Function to get form schema
+ * @param {Function} props.onSubmit - Submit function
+ * @returns {JSXElementConstructor} Stepper form component
+ */
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
@@ -43,16 +52,16 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     reset({ ...formData }, { errors: false })
   }, [formData])
 
-  const validateSchema = step => {
-    const { id, resolver, optionsValidate } = steps[step]
+  const validateSchema = async stepIdx => {
+    const { id, resolver, optionsValidate, ...step } = steps[stepIdx]
     const stepData = watch(id)
 
     const allData = { ...formData, [id]: stepData }
     const stepSchema = typeof resolver === 'function' ? resolver(allData) : resolver
 
-    return stepSchema
-      .validate(stepData, optionsValidate)
-      .then(() => ({ id, data: stepData }))
+    await stepSchema.validate(stepData, optionsValidate)
+
+    return { id, data: stepData, ...step }
   }
 
   const setErrors = ({ inner = [], ...rest }) => {
@@ -76,33 +85,36 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
 
     isBackAction && handleBack(stepToAdvance)
 
-    steps
-      .slice(FIRST_STEP, stepToAdvance)
-      .forEach((_, step, stepsToValidate) => {
-        validateSchema(step)
-          .then(({ id, data }) => {
-            activeStep === step &&
-              setFormData(prev => ({ ...prev, [id]: data }))
+    const stepsForward = steps.slice(FIRST_STEP, stepToAdvance)
 
-            step === stepsToValidate.length - 1 &&
-            Number.isInteger(stepToAdvance) &&
-              setActiveStep(stepToAdvance)
-          })
-          .catch(setErrors)
-      })
+    stepsForward.forEach(async (_, stepIdx, stepsToValidate) => {
+      try {
+        const { id, data } = await validateSchema(stepIdx)
+
+        activeStep === stepIdx && setFormData(prev => ({ ...prev, [id]: data }))
+
+        stepIdx === stepsToValidate.length - 1 && setActiveStep(stepToAdvance)
+      } catch (validateError) {
+        setErrors(validateError)
+      }
+    })
   }
 
-  const handleNext = () => {
-    validateSchema(activeStep)
-      .then(({ id, data }) => {
-        if (activeStep === lastStep) {
-          onSubmit(schema().cast({ ...formData, [id]: data }))
-        } else {
-          setFormData(prev => ({ ...prev, [id]: data }))
-          setActiveStep(prevActiveStep => prevActiveStep + 1)
-        }
-      })
-      .catch(setErrors)
+  const handleNext = async () => {
+    try {
+      const { id, data } = await validateSchema(activeStep)
+
+      if (activeStep === lastStep) {
+        const submitData = schema().cast({ ...formData, [id]: data })
+
+        onSubmit(submitData)
+      } else {
+        setFormData(prev => ({ ...prev, [id]: data }))
+        setActiveStep(prevActiveStep => prevActiveStep + 1)
+      }
+    } catch (validateError) {
+      setErrors(validateError)
+    }
   }
 
   const handleBack = useCallback(stepToBack => {
@@ -112,9 +124,7 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     const stepData = watch(id)
 
     setFormData(prev => ({ ...prev, [id]: stepData }))
-    setActiveStep(prevActiveStep =>
-      Number.isInteger(stepToBack) ? stepToBack : (prevActiveStep - 1)
-    )
+    setActiveStep(prevStep => Number.isInteger(stepToBack) ? stepToBack : (prevStep - 1))
   }, [activeStep])
 
   const { id, content: Content } = useMemo(() => steps[activeStep], [

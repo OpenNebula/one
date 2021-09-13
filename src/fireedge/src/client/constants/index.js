@@ -55,6 +55,7 @@ export const FILTER_POOL = {
   USER_GROUPS_RESOURCES: '-1'
 }
 
+/** @enum {string} Input types */
 export const INPUT_TYPES = {
   AUTOCOMPLETE: 'autocomplete',
   CHECKBOX: 'checkbox',
@@ -86,6 +87,7 @@ export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'
 export * from 'client/constants/flow'
 export * from 'client/constants/provision'
+export * from 'client/constants/cluster'
 export * from 'client/constants/vm'
 export * from 'client/constants/host'
 export * from 'client/constants/image'

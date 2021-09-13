@@ -149,7 +149,6 @@ const FileController = memo(
 FileController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
-  multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   error: PropTypes.oneOfType([

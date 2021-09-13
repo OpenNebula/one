@@ -81,8 +81,8 @@ const initial = {
   [RESOURCES.document.defaults]: []
 }
 
-const { actions, reducer } = createSlice({
-  name: 'pool',
+const { name, actions, reducer } = createSlice({
+  name: 'one',
   initialState: initial,
   extraReducers: builder => {
     builder
@@ -127,4 +127,4 @@ const { actions, reducer } = createSlice({
   }
 })
 
-export { actions, reducer, RESOURCES }
+export { name, actions, reducer, RESOURCES }

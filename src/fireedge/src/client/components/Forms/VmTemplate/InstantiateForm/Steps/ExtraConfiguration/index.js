@@ -14,16 +14,53 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
+import { useFormContext } from 'react-hook-form'
+import { useTheme } from '@material-ui/core'
+import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
+
+import Tabs from 'client/components/Tabs'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import Networking from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
+import Placement from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement'
+import ScheduleAction from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction'
+import Booting from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
-const Content = () => {
+const Content = ({ data, setFormData }) => {
+  const theme = useTheme()
+  const { errors } = useFormContext()
+
+  const tabs = [
+    {
+      name: 'network',
+      renderContent: Networking({ data, setFormData })
+    },
+    {
+      name: 'placement',
+      renderContent: Placement({ data, setFormData })
+    },
+    {
+      name: 'schedule action',
+      renderContent: ScheduleAction({ data, setFormData })
+    },
+    {
+      name: 'os booting',
+      renderContent: Booting({ data, setFormData })
+    }
+  ]
+    .map((tab, idx) => ({
+      ...tab,
+      icon: errors[STEP_ID]?.[idx] && (
+        <WarningIcon color={theme.palette.error.main} />
+      )
+    }))
+
   return (
-    <div>TODO: Tabs with extra configuration</div>
+    <Tabs tabs={tabs} />
   )
 }
 
@@ -32,7 +69,12 @@ const ExtraConfiguration = () => ({
   label: T.AdvancedOptions,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(Content, [])
+  content: Content
 })
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func
+}
 
 export default ExtraConfiguration

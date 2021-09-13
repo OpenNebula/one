@@ -33,7 +33,7 @@ export const jsonToXml = (json, addRoot = true) => {
  * @param {boolean} bool - Boolean value.
  * @returns {'Yes'|'No'} - If true return 'Yes', in other cases, return 'No'.
  */
-export const booleanToString = bool => bool ? 'Yes' : 'No'
+export const booleanToString = bool => bool ? T.Yes : T.No
 
 /**
  * Converts the string value into a boolean.
@@ -194,7 +194,7 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
  * @param {RegExp} [options.hidden] - RegExp of hidden attributes
  * @returns {{attributes: object}} List of filtered attributes
  */
-export const filterAttributes = (list, options = {}) => {
+export const filterAttributes = (list = {}, options = {}) => {
   const { extra = {}, hidden = /^$/ } = options
   const response = {}
 

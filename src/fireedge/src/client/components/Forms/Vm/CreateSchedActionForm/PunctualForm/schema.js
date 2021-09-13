@@ -89,7 +89,7 @@ const TIME_FIELD = {
 
 const REPEAT_FIELD = {
   name: 'REPEAT',
-  label: 'Periodicity',
+  label: 'Granularity of the action',
   type: INPUT_TYPES.SELECT,
   dependOf: PERIODIC_FIELD.name,
   htmlType: isPeriodic => !isPeriodic ? INPUT_TYPES.HIDDEN : undefined,

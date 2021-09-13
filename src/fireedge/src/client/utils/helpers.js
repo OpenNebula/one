@@ -96,13 +96,10 @@ export const addOpacityToColor = (color, opacity) => {
  * @returns {object} List of validations
  */
 export const getValidationFromFields = fields =>
-  fields.reduce(
-    (schema, field) => ({
-      ...schema,
-      [field?.name]: field?.validation
-    }),
-    {}
-  )
+  fields.reduce((schema, field) => ({
+    ...schema,
+    [field?.name]: field?.validation
+  }), {})
 
 /**
  * Filter an object list by property.

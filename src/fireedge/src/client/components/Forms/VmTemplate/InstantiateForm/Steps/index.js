@@ -13,35 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import VmTemplatesTable, { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
+import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
+import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import { jsonToXml } from 'client/models/Helper'
+import { createSteps } from 'client/utils'
 
-import VmTemplatesTable, { STEP_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
-import BasicConfiguration from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
-import ExtraConfiguration from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+const Steps = createSteps(() => {
+  // const { [STEP_ID]: initialTemplate } = initialValues ?? {}
 
-const Steps = initialValues => {
-  const { [STEP_ID]: initialTemplate } = initialValues ?? {}
-
-  const steps = [
-    BasicConfiguration(),
-    ExtraConfiguration()
+  return [
+    VmTemplatesTable,
+    BasicConfiguration,
+    ExtraConfiguration
   ]
+}, {
+  transformBeforeSubmit: formData => {
+    const {
+      [TEMPLATE_ID]: [templateSelected] = [],
+      [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
+      [EXTRA_ID]: extraTemplate = {}
+    } = formData ?? {}
 
-  !initialTemplate?.ID && steps.unshift(VmTemplatesTable())
+    const templates = [...new Array(instances)]
+      .map((_, idx) => {
+        const replacedName = name?.replace(/%idx/gi, idx)
 
-  const schema = {}
-  for (const { id, resolver } of steps) {
-    schema[id] = typeof resolver === 'function' ? resolver() : resolver
+        const template = jsonToXml({ TEMPLATE: { ...extraTemplate, ...restOfConfig } })
+        const data = { name: replacedName, instances, hold, persistent, template }
+
+        return data
+      })
+
+    return [templateSelected, templates]
   }
-
-  const resolvers = () => yup.object(schema)
-
-  const defaultValues = initialTemplate?.ID
-    ? resolvers().cast(initialValues, { stripUnknown: true })
-    : resolvers().default()
-
-  return { steps, defaultValues, resolvers }
-}
+})
 
 export default Steps
