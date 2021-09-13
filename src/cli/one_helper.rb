@@ -576,6 +576,7 @@ EOT
             p_r, p_w = IO.pipe
 
             Signal.trap('PIPE', 'SIG_IGN')
+            Signal.trap('PIPE', 'EXIT')
 
             lpid = fork do
                 $stdin.reopen(p_r)
@@ -899,6 +900,9 @@ EOT
 
 
         def list_pool(options, top=false, filter_flag=nil)
+            # Capture Broken pipe
+            Signal.trap('PIPE', 'EXIT')
+
             table = format_pool(options)
 
             if options[:describe]
@@ -932,6 +936,9 @@ EOT
             end
 
             return 0
+        rescue SystemExit, Interrupt
+            # Rescue ctrl + c when paginated
+            0
         end
 
         # Check if a resource defined by attributes is referenced in pool
