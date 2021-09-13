@@ -271,6 +271,15 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
+    $("input[name='firmware_type']", context).change(function() {
+      if ($("input[name='firmware_type']:checked", context).val() === "custom") {
+        $("#customFirmware", context).show();
+      }
+      else{
+        $("#customFirmware", context).hide();
+      }
+    });
+
     fillMachineTypesAndCPUModel(context);
 
   }
@@ -340,6 +349,13 @@ define(function(require) {
       osJSON["BOOT"] = "";
     }
 
+    if ($("input[name='firmware_type']:checked", context).val() === "custom") {
+      osJSON["FIRMWARE"] = $("#customFirmwarePath", context).val();
+    }
+    else{
+      osJSON["FIRMWARE"] = $("input[name='firmware_type']:checked", context).val();
+    }
+
     if (!$.isEmptyObject(osJSON)) {
       templateJSON["OS"] = osJSON; 
     }
@@ -377,8 +393,12 @@ define(function(require) {
 
       WizardFields.fill(context, osJSON);
 
-      if (osJSON && osJSON["BOOT"]) {
+      if (osJSON["BOOT"]) {
         _fillBootValue(context, osJSON["BOOT"]);
+      }
+
+      if (osJSON["FIRMWARE"]){
+        _fillFirmwareValue(context, osJSON["FIRMWARE"]);
       }
     }
 
@@ -511,6 +531,20 @@ define(function(require) {
       });
 
       _refreshBootValue(context);
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  // Firmware options
+  //----------------------------------------------------------------------------
+
+  function _fillFirmwareValue(context, value) {
+    if ($("input[name='firmware_type'][value='" + value + "']", context).length){
+      $("input[name='firmware_type'][value='" + value + "']", context).click();
+    }
+    else {
+      $("input[name='firmware_type'][value='custom']", context).click();
+      $("#customFirmwarePath", context).val(value);
     }
   }
 });

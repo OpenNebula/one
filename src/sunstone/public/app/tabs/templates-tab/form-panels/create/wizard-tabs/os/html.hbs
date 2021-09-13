@@ -105,6 +105,34 @@
             </label>
           </div>
         </div>
+        <div class="row not_firecracker">
+          <div class="large-12 columns not_lxc">
+            <label>
+              {{tr "Firmware"}}
+              {{{tip (tr "This attribute allows to define the type of firmware used to boot the VM")}}}
+            </label>
+            <div class="large-12 columns text-center">
+              <input id="none{{uniqueId}}" type="radio" name="firmware_type" value="" checked/>
+              <label for="none{{uniqueId}}">{{tr "None"}}</label>
+              <input id="bios{{uniqueId}}" type="radio" name="firmware_type" value="BIOS"/>
+              <label for="bios{{uniqueId}}">{{tr "BIOS"}}</label>
+              <input id="ovmfCode{{uniqueId}}" type="radio" name="firmware_type" value="/usr/share/OVMF/OVMF_CODE.fd" class="only_kvm"/>
+              <label for="ovmfCode{{uniqueId}}" class="only_kvm">{{tr "OVMF_CODE.fd"}}</label>
+              <input id="ovmfCodeSecboot{{uniqueId}}" type="radio" name="firmware_type" value="/usr/share/OVMF/OVMF_CODE.secboot.fd" class="only_kvm"/>
+              <label for="ovmfCodeSecboot{{uniqueId}}" class="only_kvm">{{tr "OVMF_CODE.secboot.fd"}}</label>
+              <input id="custom{{uniqueId}}" type="radio" name="firmware_type" value="custom" class="only_kvm"/>
+              <label for="custom{{uniqueId}}" class="only_kvm">{{tr "Custom"}}</label>
+              <input id="efi{{uniqueId}}" type="radio" name="firmware_type" value="EFI" class="only_vcenter"/>
+              <label for="efi{{uniqueId}}" class="only_vcenter">{{tr "EFI"}}</label>
+            </div>
+            <div id="customFirmware" hidden>
+              <label>
+                {{tr "Custom Firmware Path"}}
+                <input type="text" id="customFirmwarePath"/>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="kernelTab{{uniqueId}}" class="wizard_internal_tab tabs-panel kernelTab">
         <div class="row">
