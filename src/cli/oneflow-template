@@ -104,6 +104,8 @@ CommandParser::CmdParser.new(ARGV) do
                         'deleting service template'
     }
 
+    FORMAT = [OpenNebulaHelper::JSON, OpenNebulaHelper::YAML]
+
     usage '`oneflow-template` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
@@ -141,7 +143,7 @@ CommandParser::CmdParser.new(ARGV) do
         List the available Service Templates
     EOT
 
-    command :list, list_desc, :options => OpenNebulaHelper::FORMAT do
+    command :list, list_desc, :options => FORMAT do
         helper.list_service_template_pool(helper.client(options), options)
     end
 
@@ -169,10 +171,7 @@ CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given Service Template
     EOT
 
-    command :show,
-            show_desc,
-            :templateid,
-            :options => OpenNebulaHelper::FORMAT do
+    command :show, show_desc, :templateid, :options => FORMAT do
         helper.format_resource(helper.client(options), args[0], options)
     end
 

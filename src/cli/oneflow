@@ -82,6 +82,8 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Force flow necover delete'
     }
 
+    FORMAT = [OpenNebulaHelper::JSON, OpenNebulaHelper::YAML]
+
     # create helper object
     helper = OneFlowHelper.new
 
@@ -122,7 +124,7 @@ CommandParser::CmdParser.new(ARGV) do
         List the available services
     EOT
 
-    command :list, list_desc, :options => OpenNebulaHelper::FORMAT do
+    command :list, list_desc, :options => FORMAT do
         helper.list_service_pool(helper.client(options), options)
     end
 
@@ -146,10 +148,7 @@ CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given service
     EOT
 
-    command :show,
-            show_desc,
-            :service_id,
-            :options => OpenNebulaHelper::FORMAT do
+    command :show, show_desc, :service_id, :options => FORMAT do
         helper.format_resource(helper.client(options), args[0], options)
     end
 
