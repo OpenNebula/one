@@ -195,7 +195,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
         show_header(vcenter_host)
 
-        table.show(list)
+        table.show(list, _options)
     end
 
     # handles :cli section of TABLE
