@@ -45,4 +45,4 @@
 :keep_non_persistent_disks: false
 
 # Set to true if you need OpenNebula avoid change imported MAC
-:keep_mac_on_imported: true
+:keep_mac_on_imported: false
