@@ -195,7 +195,8 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
           "KERNEL_CMD",
           "ROOT",
           "SD_DISK_BUS",
-          "UUID"}
+          "UUID",
+          "FIRMWARE"}
     },
     { "FEATURES",
         { "PAE",

@@ -91,3 +91,6 @@ DEFAULT_ATTACH_DISCARD=unmap
 # the hot-attached interfaces.
 DEFAULT_ATTACH_NIC_MODEL=virtio
 #DEFAULT_ATTACH_NIC_FILTER=clean-traffic
+
+# Virtual Machine Firmware path to the NVRAM file
+OVMF_NVRAM="/usr/share/OVMF/OVMF_VARS.fd"

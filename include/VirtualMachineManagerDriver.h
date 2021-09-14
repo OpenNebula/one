@@ -56,7 +56,7 @@ public:
         const std::string&      file_name) const = 0;
 
     /**
-     *  Validates de VM raws section
+     *  Validates the VM raws section
      *    @param raw_section raw section of the VM.
      *    @param error description on error
      *    @return 0 on success
@@ -65,6 +65,19 @@ public:
     {
         return 0;
     }
+
+    /**
+     *  Validates driver specific attributes in VM Template
+     *    @param tmpl Virtual Machine Template
+     *    @param error description on error
+     *    @return 0 on success
+     */
+    virtual int validate_template(const VirtualMachine* vm, int hid, int cluster_id,
+                                  std::string& error) const
+    {
+        return 0;
+    }
+
     /**
      *  Check if action is supported for imported VMs
      *    @param action

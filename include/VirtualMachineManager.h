@@ -23,6 +23,7 @@
 
 class DatastorePool;
 class HostPool;
+class VirtualMachine;
 class VirtualMachinePool;
 
 /* -------------------------------------------------------------------------- */
@@ -147,6 +148,13 @@ public:
      *  @return 0 on success (valid raw)
      */
     int validate_raw(const Template * vmt, std::string& error_str);
+
+    /**
+     *  Validate if the VM template satisfy all driver conditions
+     *  @param vmm_mad is the tm_mad for system datastore chosen
+     */
+    int validate_template(const std::string& vmm_mad, const VirtualMachine* vm,
+                          int hid, int cluster_id, std::string& error);
 
 private:
     /**

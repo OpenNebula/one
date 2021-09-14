@@ -974,6 +974,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( nd.get_vmm()->validate_template(vmm_mad, vm.get(), hid, cluster_id, att.resp_msg) != 0 )
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
     static_cast<VirtualMachinePool *>(pool)->update(vm.get());
 
     // ------------------------------------------------------------------------

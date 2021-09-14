@@ -179,6 +179,26 @@ int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachineManager::validate_template(const string& vmm_mad,
+                                             const VirtualMachine* vm,
+                                             int hid, int cluster_id,
+                                             string& error)
+{
+    const VirtualMachineManagerDriver * vmmd = get(vmm_mad);
+
+    if ( vmmd == nullptr )
+    {
+        error = "Cannot find vmm driver: " + vmm_mad;
+
+        return -1;
+    }
+
+    return vmmd->validate_template(vm, hid, cluster_id, error);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 string VirtualMachineManager::format_message(
     const string& hostname,
     const string& m_hostname,

@@ -30,6 +30,12 @@ if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
     sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
 fi
 
+# Create non-volatile memory to store firmware variables if needed
+nvram="$(xmllint --xpath '/domain/os/nvram/text()' $DEP_FILE 2>/dev/null)"
+if [ -n "${nvram}" ]; then
+    cp -n "${OVMF_NVRAM}" "${nvram}"
+fi
+
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" = "x0" ]; then

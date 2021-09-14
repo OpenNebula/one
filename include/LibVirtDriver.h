@@ -36,6 +36,15 @@ public:
     int validate_raw(const std::string& raw_section,
                      std::string& error) const override;
 
+    /**
+     *  Validates driver specific attributes in VM Template
+     *    @param tmpl Virtual Machine Template
+     *    @param error description on error
+     *    @return 0 on success
+     */
+    int validate_template(const VirtualMachine* vm, int hid, int cluster_id,
+                          std::string& error) const override;
+
 private:
     static const float  CGROUP_BASE_CPU_SHARES;
 

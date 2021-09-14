@@ -404,6 +404,59 @@ int LibVirtDriver::validate_raw(const string& raw_section, string& error) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int LibVirtDriver::validate_template(const VirtualMachine* vm, int hid,
+                                     int cluster_id, std::string& error) const
+{
+    Nebula& nd = Nebula::instance();
+
+    auto host_ptr    = nd.get_hpool()->get_ro(hid);
+    auto cluster_ptr = nd.get_clpool()->get_ro(cluster_id);
+
+    auto host    = host_ptr.get();
+    auto cluster = cluster_ptr.get();
+
+    string firmware;
+
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+
+    string firmware_up = firmware;
+    if ( !firmware.empty() && one_util::toupper(firmware_up) != "BIOS")
+    {
+        string ovmf_uefis;
+
+        get_attribute(nullptr, host, cluster, "OVMF_UEFIS", ovmf_uefis);
+
+        if (ovmf_uefis.empty())
+        {
+            error = "No OVMF_UEFIS defined in configuration.";
+            vm->log("VMM", Log::ERROR, error);
+            return -1;
+        }
+
+        bool found = false;
+        for (auto& f: one_util::split(ovmf_uefis, ' '))
+        {
+            if (f == firmware)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            error = "FIRMWARE '" + firmware + "' not allowed.";
+            vm->log("VMM", Log::ERROR, error);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int LibVirtDriver::deployment_description_kvm(
         const VirtualMachine *  vm,
         const string&           file_name) const
@@ -576,6 +629,10 @@ int LibVirtDriver::deployment_description_kvm(
     std::string sd_bus;
     std::string disk_bus;
 
+    bool pm_defaults = true;
+    std::string pm_suspend_to_disk = "yes";
+    std::string pm_suspend_to_mem  = "yes";
+
     string  vm_xml;
 
     Nebula& nd = Nebula::instance();
@@ -742,7 +799,39 @@ int LibVirtDriver::deployment_description_kvm(
              << "</bootloader>\n";
     }
 
+    string firmware;
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+    string firmware_up = firmware;
+    if ( !firmware.empty() && one_util::toupper(firmware_up) != "BIOS")
+    {
+        file << "\t\t<loader readonly=\"yes\" type=\"pflash\">"
+             << firmware
+             << "</loader>\n";
+        file << "\t\t<nvram>"
+             << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
+             << "</nvram>\n";
+
+        // Suspend to mem and disk disabled to avoid boot problems with UEFI
+        // firmware
+        pm_defaults = false;
+        pm_suspend_to_disk = "no";
+        pm_suspend_to_mem  = "no";
+    }
+
     file << "\t</os>" << endl;
+
+    // ------------------------------------------------------------------------
+    // POWER MANAGEMENT SECTION
+    // ------------------------------------------------------------------------
+    if (!pm_defaults)
+    {
+        file << "\t<pm>\n"
+             << "\t\t<suspend-to-disk enabled=\"" << pm_suspend_to_disk
+             << "\"/>\n"
+             << "\t\t<suspend-to-mem enabled=\"" << pm_suspend_to_mem
+             << "\"/>\n"
+             << "\t</pm>\n";
+    }
 
     // ------------------------------------------------------------------------
     // CPU SECTION
