@@ -188,14 +188,14 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
     # This method will print a list for a vcenter_resource.
     #
-    def list_object(_options, list)
+    def list_object(options, list)
         vcenter_host = list.keys[0]
         list = cli_format(list.values.first)
         table = format_list
 
         show_header(vcenter_host)
 
-        table.show(list, _options)
+        table.show(list, options)
     end
 
     # handles :cli section of TABLE
