@@ -733,6 +733,9 @@ module VCenterDriver
                                                  nic, true)
                 network_found.info
 
+                if nic[:mac]
+                    nic_tmp << "MAC_IMPORTED=\"#{nic[:mac]}\",\n"
+                end
                 # This is the existing nic info
                 if nic[:mac] && ipv4.empty? && ipv6.empty?
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"

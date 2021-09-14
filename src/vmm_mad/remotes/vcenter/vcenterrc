@@ -43,3 +43,6 @@
 # Set to true if you need OpenNebula to detach non persistent disks
 # from VMs on VM terminate but avoid deleting them afterwards
 :keep_non_persistent_disks: false
+
+# Set to true if you need OpenNebula avoid change imported MAC
+:keep_mac_on_imported: true

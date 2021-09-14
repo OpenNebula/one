@@ -1090,14 +1090,22 @@ end
         #
         # @return [Hash ("String" => self.Nic)] Model representation of nics
         def info_nics
+            keep_mac_on_imported = false
+            keep_mac_on_imported = CONFIG[:keep_mac_on_imported] \
+                                     unless CONFIG[:keep_mac_on_imported].nil?
+
             @nics = { :macs => {} }
 
             vc_nics  = vcenter_nics_list
             one_nics = one_nics_get
 
             one_nics.each do |one_nic|
-                index  = one_nic['NIC_ID']
-                mac    = one_nic['MAC']
+                index = one_nic['NIC_ID']
+                if keep_mac_on_imported && one_nic['MAC_IMPORTED']
+                    mac = one_nic['MAC_IMPORTED']
+                else
+                    mac = one_nic['MAC']
+                end
                 vc_dev = query_nic(mac, vc_nics)
 
                 if vc_dev
