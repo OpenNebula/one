@@ -130,7 +130,7 @@ class LXCVM < OpenNebulaVM
         if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('FALSE').zero?
             @lxcrc[:id_map] = 0
 
-            lxc['lxc.include'] = "#{@lxcrc[:profiles_location]}/profile_privileged"
+            lxc['lxc.include'] << "#{@lxcrc[:profiles_location]}/profile_privileged"
         else
             lxc['lxc.idmap'] = ["u 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}",
                                 "g 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}"]
