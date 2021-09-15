@@ -715,7 +715,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             if opts.empty?
                 exec(*%W[ssh #{login}@#{ip} -p #{port} #{cmd}])
             else
-                exec(*%W[ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}])
+                exec('ssh', *opts.split, *%W[#{login}@#{ip} -p #{port} #{cmd}])
             end
         end
 
