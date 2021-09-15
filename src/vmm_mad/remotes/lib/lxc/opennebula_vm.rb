@@ -127,7 +127,7 @@ class LXCVM < OpenNebulaVM
         # User mapping
         # rubocop:disable Layout/LineLength
 
-        if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('FALSE').zero?
+        if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('NO').zero?
             @lxcrc[:id_map] = 0
 
             lxc['lxc.include'] << "#{@lxcrc[:profiles_location]}/profile_privileged"
