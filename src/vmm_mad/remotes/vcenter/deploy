@@ -115,6 +115,10 @@ begin
         spec_hash[:uuid] = drv_action['TEMPLATE/OS/UUID'] \
                                      unless drv_action['TEMPLATE/OS/UUID'].nil?
 
+        unless drv_action['TEMPLATE/OS/FIRMWARE'].nil?
+            spec_hash[:firmware] = drv_action['TEMPLATE/OS/FIRMWARE']
+        end
+
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(
             spec_hash
         )
