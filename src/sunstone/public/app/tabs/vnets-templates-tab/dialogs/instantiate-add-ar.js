@@ -133,11 +133,10 @@ define(function(require) {
         $("#ar_list_datatable", that.context).DataTable().columns.adjust().draw();
 
         $("#ar_list_datatable tbody tr:last", that.context).attr("ar", data.AR_ID);
-
-        Sunstone.getDialog(DIALOG_ID).hide();
       })
       .on("submit", function(ev) {
         ev.preventDefault();
+        Sunstone.getDialog(DIALOG_ID).hide();
       });
 
       $("#instantiate_add_ar_ar_type_ip4", context).prop('checked', true);

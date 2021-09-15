@@ -99,9 +99,7 @@ define(function(require) {
         delete that.element.TEMPLATE.AR_POOL;
 
         Sunstone.runAction('VNTemplate.add_ar', that.vntmplId, TemplateUtils.templateToString(that.element.TEMPLATE));
-      })
-      .on("submit", function(ev) {
-        ev.preventDefault();
+        return false;
       });
   }
 

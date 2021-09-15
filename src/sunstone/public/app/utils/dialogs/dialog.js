@@ -72,7 +72,7 @@ define(function(require) {
   }
 
   function _hide() {
-      this.dialogElement.foundation("close");
+    this.dialogElement.foundation("close");
   }
 
   function _reset() {

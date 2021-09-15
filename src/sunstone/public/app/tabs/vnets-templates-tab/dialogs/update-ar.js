@@ -79,14 +79,18 @@ define(function(require) {
       })
       .on('formvalid.zf.abide', function(ev, frm) {
         var data = that.arTab.retrieve();
-
         data['AR_ID'] = that.arId;
-
-        for (i in that.element.TEMPLATE.AR) {
-          if ( that.element.TEMPLATE.AR[i].AR_ID == that.arId ) {
-            that.element.TEMPLATE.AR[i] = data;
-            break;
+        
+        if (Array.isArray(that.element.TEMPLATE.AR)){
+          for (i in that.element.TEMPLATE.AR) {
+            if ( that.element.TEMPLATE.AR[i].AR_ID == that.arId ) {
+              that.element.TEMPLATE.AR[i] = data;
+              break;
+            }
           }
+        }
+        else {
+          that.element.TEMPLATE.AR = data;
         }
 
         delete that.element.TEMPLATE.AR_POOL;
@@ -97,6 +101,7 @@ define(function(require) {
       })
       .on("submit", function(ev) {
         ev.preventDefault();
+        Sunstone.getDialog(DIALOG_ID).hide();
       }
     );
   }

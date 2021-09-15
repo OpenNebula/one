@@ -64,7 +64,6 @@ define(function(require) {
       call: OpenNebulaResource.update,
       callback: function(req) {
         // Reset the wizard
-        Sunstone.getDialog(ADD_AR_DIALOG_ID).hide();
         Sunstone.getDialog(ADD_AR_DIALOG_ID).reset();
 
         Sunstone.runAction("VNTemplate.show",req.request.data[0]);
@@ -77,7 +76,6 @@ define(function(require) {
       call: OpenNebulaResource.update,
       callback: function(req) {
         // Reset the wizard
-        Sunstone.getDialog(UPDATE_AR_DIALOG_ID).hide();
         Sunstone.getDialog(UPDATE_AR_DIALOG_ID).reset();
 
         Sunstone.runAction("VNTemplate.show",req.request.data[0]);
