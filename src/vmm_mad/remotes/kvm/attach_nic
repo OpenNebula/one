@@ -34,7 +34,7 @@ if [ -z "${BRIDGE}" ]; then
     DEVICE+="<interface type='ethernet'>"
 else
     DEVICE+="<interface type='bridge'>"
-    if [ "${BRIDGE_TYPE}" = 'openvswitch' ]; then
+    if [[ "${BRIDGE_TYPE}" = openvswitch* ]]; then
         DEVICE+=" <virtualport type='openvswitch'/>"
     fi
     DEVICE+=" <source bridge='$(xml_esc "${BRIDGE}")'/>"
