@@ -43,7 +43,7 @@ const TotalProvisionsByState = () => {
   const title = useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
-        <NumberEasing number={`${totalProvisions}`} />
+        <NumberEasing value={`${totalProvisions}`} />
         <span>{T.Provisions}</span>
       </Typography>
       <Typography className={classes.titleSecondary}>

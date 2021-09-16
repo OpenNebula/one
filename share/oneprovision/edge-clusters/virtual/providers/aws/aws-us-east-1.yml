@@ -3,11 +3,6 @@ name: 'aws-north-virginia'
 description: 'Elastic cluster in AWS North Virginia'
 provider: 'aws'
 
-plain:
-  image: 'AWS'
-  location_key: 'region'
-  provision_type: 'virtual'
-
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'

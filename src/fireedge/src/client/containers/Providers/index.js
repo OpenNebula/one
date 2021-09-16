@@ -24,6 +24,7 @@ import { PATH } from 'client/apps/provision/routes'
 import { useProvider, useProviderApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
 import { useFetch, useSearch } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
 
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
@@ -37,6 +38,7 @@ function Providers () {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
+  const { providerConfig } = useAuth()
   const providers = useProvider()
   const { getProviders, getProvider, deleteProvider } = useProviderApi()
   const { enqueueSuccess } = useGeneralApi()
@@ -76,7 +78,8 @@ function Providers () {
             isLoading={providers.length === 0 && loading}
             gridProps={{ 'data-cy': 'providers' }}
             CardComponent={ProvisionCard}
-            cardsProps={({ value: { ID, NAME } }) => ({
+            cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
+              image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
               isProvider: true,
               handleClick: () => setShowDialog({
                 id: ID,
@@ -112,7 +115,7 @@ function Providers () {
       {showDialog !== false && (
         <DialogRequest
           request={() => getProvider(showDialog.id)}
-          dialogProps={{ handleCancel, ...showDialog }}
+          dialogProps={{ fixedWidth: true, handleCancel, ...showDialog }}
         >
           {fetchProps => <Information {...fetchProps} />}
         </DialogRequest>

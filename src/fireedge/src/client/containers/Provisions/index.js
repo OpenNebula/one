@@ -128,7 +128,12 @@ function Provisions () {
         <DialogRequest
           withTabs
           request={() => getProvision(showDialog.id)}
-          dialogProps={{ handleCancel: handleCloseDialog, ...showDialog }}
+          dialogProps={{
+            fixedWidth: true,
+            fixedHeight: true,
+            handleCancel: handleCloseDialog,
+            ...showDialog
+          }}
         >
           {props => content(props)}
         </DialogRequest>

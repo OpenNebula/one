@@ -74,6 +74,8 @@ module OneProvision
         #   - Terraform config in base64
         def delete(tf = nil)
             if tf && !tf.empty?
+                Terraform.p_load
+
                 terraform   = Terraform.singleton(@provider, tf)
                 state, conf = terraform.destroy_cluster(@one.id)
             end

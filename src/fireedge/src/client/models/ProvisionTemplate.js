@@ -33,24 +33,47 @@
  */
 
 /**
+ * Returns the provider name from provision template.
+ *
+ * @param {ProvisionTemplate} template - Provision template
+ * @returns {string} Provider name
+ */
+export const getProviderName = ({ defaults, hosts }) =>
+  defaults?.provision?.provider_name ??
+    hosts?.[0]?.provision.provider_name
+
+/**
  * Check if the provision template is valid format.
  *
  * @param {ProvisionTemplate} template - Provision template
  * @returns {boolean} Returns `true` if template is valid
  */
-export const isValidProvisionTemplate = ({
-  defaults,
-  hosts,
-  name,
-  provider,
-  provision_type: provisionType
-}) => {
-  const providerName =
-    defaults?.provision?.provider_name ??
-    hosts?.[0]?.provision.provider_name
+export const isValidProvisionTemplate = template => {
+  const { name, provider } = template
+  const providerName = getProviderName(template)
 
   return !(
     providerName === undefined ||
-    [name, provisionType, provider].includes(undefined)
+    [name, provider].includes(undefined)
   )
+}
+
+/**
+ * Returns the provision type from a provider template.
+ *
+ * @param {object} provisionTemplates - List of provision templates, from: /provision/defaults
+ * @param {object} template - Provision template
+ * @param {string} template.name - Name
+ * @param {string} template.playbook - Provider type
+ * @returns {string} - Provision type. eg: 'onprem'
+ */
+export const getProvisionTypeFromTemplate = (provisionTemplates, template) => {
+  const { provider } = template ?? {}
+
+  return Object.entries(provisionTemplates)
+    .find(([_, { provisions = {} } = {}]) =>
+      Object.values(provisions)
+        .flat()
+        .some(prov => prov.provider === provider)
+    )?.[0]
 }

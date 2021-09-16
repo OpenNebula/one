@@ -19,34 +19,37 @@ import { useMemo } from 'react'
 import { PieChart } from 'react-minimal-pie-chart'
 import { Typography, Paper } from '@material-ui/core'
 
-import { useOne } from 'client/features/One'
+import { useAuth } from 'client/features/Auth'
+import { useProvider } from 'client/features/One'
 import { TypographyWithPoint } from 'client/components/Typography'
 import NumberEasing from 'client/components/NumberEasing'
 import { groupBy } from 'client/utils'
-import { T, PROVIDERS_TYPES } from 'client/constants'
+import { T } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
 const TotalProviders = () => {
   const classes = useStyles()
-  const { providers } = useOne()
+  const providers = useProvider()
+  const { providerConfig } = useAuth()
 
   const totalProviders = useMemo(() => providers.length, [providers.length])
 
   const chartData = useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
-    return Object.values(PROVIDERS_TYPES).map(({ id, name, color }) => ({
-      color,
-      title: name,
-      value: groups[id]?.length ?? 0
-    }))
+    return Object.entries(providerConfig)
+      .map(([id, { name, color }]) => ({
+        color,
+        title: name,
+        value: groups[id]?.length ?? 0
+      }))
   }, [totalProviders])
 
   const title = useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
-        <NumberEasing number={`${totalProviders}`} />
+        <NumberEasing value={`${totalProviders}`} />
         <span>{T.Providers}</span>
       </Typography>
       <Typography className={classes.titleSecondary}>
@@ -59,7 +62,7 @@ const TotalProviders = () => {
     <div>
       {chartData?.map(({ title: titleLegend, value, color }) =>
         <TypographyWithPoint key={titleLegend} pointColor={color}>
-          <NumberEasing number={`${value}`} />
+          <NumberEasing value={`${value}`} />
           <span className={classes.legendSecondary} title={titleLegend}>
             {titleLegend}
           </span>

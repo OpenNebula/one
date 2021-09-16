@@ -17,4 +17,3 @@
 
 image: 'OPENNEBULA-ON-PREM'
 provider: 'dummy'
-provision_type: 'onprem'

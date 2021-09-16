@@ -1,0 +1,5 @@
+name: 'Vultr Cloud Compute'
+image: 'VULTR'
+provision_type: 'virtual'
+location_key: 'region'
+color: '#7ea3ca'

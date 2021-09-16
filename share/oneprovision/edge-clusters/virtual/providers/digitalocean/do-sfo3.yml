@@ -3,11 +3,6 @@ name: 'digitalocean-sfo3'
 description: 'Virtual Edge Cluster in DigitalOcean datacenter in San Francisco (SFO3)'
 provider: 'digitalocean'
 
-plain:
-  image: 'DIGITALOCEAN'
-  location_key: 'region'
-  provision_type: 'virtual'
-
 connection:
   token: 'DigitalOcean token'
   region: 'sfo3'

@@ -22,6 +22,8 @@ module OneProvision
     # Dummy Provider
     class Dummy < Terraform
 
+        NAME = Terraform.append_provider(__FILE__, name)
+
         # Generate Terraform deployment file
         #
         # @param provision [Provision] Provision information

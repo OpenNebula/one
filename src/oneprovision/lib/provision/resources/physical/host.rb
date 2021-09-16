@@ -123,6 +123,8 @@ module OneProvision
         #
         # @return [String] Public IP which is the NAME of the HOST
         def poll(tf)
+            Terraform.p_load
+
             terraform = Terraform.singleton(@provider, tf)
             terraform.poll(@one['ID']).gsub("\n", '')
         end
@@ -185,6 +187,8 @@ module OneProvision
             end
 
             if tf && !tf.empty?
+                Terraform.p_load
+
                 terraform   = Terraform.singleton(@provider, tf)
                 state, conf = terraform.destroy_host(id)
             end

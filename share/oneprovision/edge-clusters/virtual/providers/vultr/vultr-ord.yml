@@ -3,11 +3,6 @@ name: 'vultr-chicago'
 description: 'Edge cluster in Vultr Chicago'
 provider: 'vultr_virtual'
 
-plain:
-  image: 'VULTR'
-  location_key: 'region'
-  provision_type: 'virtual'
-
 connection:
   key: 'Vultr key'
   region: 'ord'

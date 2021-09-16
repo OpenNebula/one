@@ -179,11 +179,11 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
 
             raise 'Name not found' unless template['name']
 
-            unless OneProvision::Terraform::PROVIDERS.include?(
-                template['provider']
-            )
+            OneProvision::Terraform.p_load
+
+            unless OneProvision::Terraform.exist?(template['provider'])
                 raise 'Invalid provider, available providers: ' \
-                      "#{OneProvision::Terraform::PROVIDERS.join(', ')}"
+                      "#{OneProvision::Terraform.providers.join(', ')}"
             end
 
             return template if template['provider'] == 'dummy'

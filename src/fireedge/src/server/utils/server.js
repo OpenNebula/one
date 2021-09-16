@@ -44,6 +44,7 @@ const {
   defaultSunstonePath,
   defaultSunstoneViews,
   defaultSunstoneConfig,
+  defaultProvisionPath,
   defaultEmptyFunction
 } = require('./constants/defaults')
 
@@ -494,6 +495,9 @@ const genPathResources = () => {
     }
     if (!global.paths.CPI) {
       global.paths.CPI = `${VAR_LOCATION}/${defaultAppName}`
+    }
+    if (!global.paths.PROVISION_PATH) {
+      global.paths.PROVISION_PATH = `${ETC_LOCATION}/${defaultProvisionPath}/`
     }
     if (!global.paths.ETC_CPI) {
       global.paths.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`

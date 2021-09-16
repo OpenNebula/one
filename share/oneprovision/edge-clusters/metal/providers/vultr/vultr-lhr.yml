@@ -3,11 +3,6 @@ name: 'vultr-london'
 description: 'Edge cluster in Vultr London'
 provider: 'vultr_metal'
 
-plain:
-  image: 'VULTR'
-  location_key: 'region'
-  provision_type: 'metal'
-
 connection:
   key: 'Vultr key'
   region: 'lhr'

@@ -421,13 +421,24 @@ const getListProvisions = (res = {}, next = defaultEmptyFunction, params = {}, u
     try {
       const response = executedCommand.success ? ok : internalServerError
       const data = JSON.parse(executedCommand.data)
-      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
-        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(provision => {
-          if (provision && provision.TEMPLATE && provision.TEMPLATE.BODY) {
-            provision.TEMPLATE.BODY = JSON.parse(provision.TEMPLATE.BODY)
-          }
-          return provision
-        })
+
+      /**
+       * Parse provision.TEMPLATE.BODY to JSON.
+       *
+       * @param {object} provision - provision
+       * @returns {object} provision with TEMPLATE.BODY in JSON
+       */
+      const parseTemplateBody = provision => {
+        if (provision && provision.TEMPLATE && provision.TEMPLATE.BODY) {
+          provision.TEMPLATE.BODY = JSON.parse(provision.TEMPLATE.BODY)
+        }
+        return provision
+      }
+
+      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT) {
+        data.DOCUMENT_POOL.DOCUMENT = Array.isArray(data.DOCUMENT_POOL.DOCUMENT)
+          ? data.DOCUMENT_POOL.DOCUMENT.map(parseTemplateBody)
+          : parseTemplateBody(data.DOCUMENT_POOL.DOCUMENT)
       }
       res.locals.httpCode = httpResponse(response, data)
       next()

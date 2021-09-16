@@ -3,11 +3,6 @@ name: 'vultr-amsterdam'
 description: 'Edge cluster in Vultr Amsterdam'
 provider: 'vultr_metal'
 
-plain:
-  image: 'VULTR'
-  location_key: 'region'
-  provision_type: 'metal'
-
 connection:
   key: 'Vultr key'
   region: 'ams'

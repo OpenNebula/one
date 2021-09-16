@@ -199,6 +199,8 @@ module OneProvision
             # @param action    [String]    Action to perform
             # @param tf        [Hash]      Terraform :state and :conf
             def tf_action(provision, action, tf = {})
+                Terraform.p_load
+
                 provider  = provision.provider
                 terraform = Terraform.singleton(provider, tf)
 

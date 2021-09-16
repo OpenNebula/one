@@ -31,7 +31,6 @@ import DatastoresTab from 'client/containers/Provisions/DialogInfo/datastores'
 import NetworksTab from 'client/containers/Provisions/DialogInfo/networks'
 import HostsTab from 'client/containers/Provisions/DialogInfo/hosts'
 import LogTab from 'client/containers/Provisions/DialogInfo/log'
-import useStyles from 'client/containers/Provisions/DialogInfo/styles'
 
 const TABS = [
   { name: 'info', icon: InfoIcon, content: InfoTab },
@@ -42,7 +41,6 @@ const TABS = [
 ]
 
 const DialogInfo = ({ disableAllActions, fetchProps }) => {
-  const classes = useStyles()
   const [tabSelected, setTab] = useState(0)
   const { data, fetchRequest, reloading } = fetchProps
 
@@ -77,7 +75,6 @@ const DialogInfo = ({ disableAllActions, fetchProps }) => {
             hidden={tabSelected !== idx}
             key={`tab-${name}`}
             overflow='auto'
-            className={classes.root}
           >
             <Content
               data={data}

@@ -59,7 +59,7 @@ const Info = memo(({ fetchProps }) => {
   )
 
   return (
-    <Grid container spacing={1} className={classes.root}>
+    <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
         <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-50')}>

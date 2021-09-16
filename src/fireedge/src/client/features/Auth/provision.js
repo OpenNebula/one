@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { authService } from 'client/features/Auth/services'
 import { logout } from 'client/features/Auth/actions'
@@ -22,36 +22,18 @@ import { logout } from 'client/features/Auth/actions'
 import { httpCodes } from 'server/utils/constants'
 import { T } from 'client/constants'
 
-export const getSunstoneViews = createAsyncThunk(
-  'sunstone/views',
+export const getProviderConfig = createAsyncThunk(
+  'provision/provider-config',
   async (_, { dispatch }) => {
     try {
-      const views = await authService.getSunstoneViews() ?? {}
+      const config = await authService.getProviderConfig() ?? {}
 
-      return {
-        views,
-        view: Object.keys(views)[0]
-      }
+      return { providerConfig: config }
     } catch (error) {
-      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+      console.log({ error })
+
+      error?.status === httpCodes.unauthorized.id &&
+        dispatch(logout(T.SessionExpired))
     }
   }
-)
-
-export const getSunstoneConfig = createAsyncThunk(
-  'sunstone/config',
-  async (_, { dispatch }) => {
-    try {
-      const config = await authService.getSunstoneConfig() ?? {}
-
-      return { config }
-    } catch (error) {
-      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
-    }
-  }
-)
-
-export const changeView = createAction(
-  'sunstone/change-view',
-  view => ({ payload: { view } })
 )

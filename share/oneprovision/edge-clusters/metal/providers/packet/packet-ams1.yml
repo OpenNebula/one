@@ -3,11 +3,6 @@ name: 'packet-amsterdam'
 description: 'Edge cluster in Equinix Amsterdam'
 provider: 'packet'
 
-plain:
-  image: 'EQUINIX'
-  location_key: 'facility'
-  provision_type: 'metal'
-
 connection:
   token: 'Packet token'
   project: 'Packet project'

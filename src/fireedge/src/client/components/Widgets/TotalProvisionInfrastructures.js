@@ -69,25 +69,25 @@ const TotalProvisionInfrastructures = () => {
     >
       <WavesCard
         text={T.Clusters}
-        value={<NumberEasing number={`${totals.clusters}`} />}
+        value={<NumberEasing value={`${totals.clusters}`} />}
         bgColor='#fa7892'
         icon={ClusterIcon}
       />
       <WavesCard
         text={T.Hosts}
-        value={<NumberEasing number={`${totals.hosts}`} />}
+        value={<NumberEasing value={`${totals.hosts}`} />}
         bgColor='#b25aff'
         icon={HostIcon}
       />
       <WavesCard
         text={T.Datastores}
-        value={<NumberEasing number={`${totals.datastores}`} />}
+        value={<NumberEasing value={`${totals.datastores}`} />}
         bgColor='#1fbbc6'
         icon={DatastoreIcon}
       />
       <WavesCard
         text={T.Networks}
-        value={<NumberEasing number={`${totals.networks}`} />}
+        value={<NumberEasing value={`${totals.networks}`} />}
         bgColor='#f09d42'
         icon={NetworkIcon}
       />

@@ -64,25 +64,25 @@ const TotalProvisionInfrastructures = ({ isLoading }) => {
         <>
           <WavesCard
             text={T.Users}
-            value={<NumberEasing number={`${users.length}`} />}
+            value={<NumberEasing value={`${users.length}`} />}
             bgColor='#fa7892'
             icon={UserIcon}
           />
           <WavesCard
             text={T.Groups}
-            value={<NumberEasing number={`${groups.length}`} />}
+            value={<NumberEasing value={`${groups.length}`} />}
             bgColor='#b25aff'
             icon={GroupIcon}
           />
           <WavesCard
             text={T.Images}
-            value={<NumberEasing number={`${images.length}`} />}
+            value={<NumberEasing value={`${images.length}`} />}
             bgColor='#1fbbc6'
             icon={ImageIcon}
           />
           <WavesCard
             text={T.VirtualNetwork}
-            value={<NumberEasing number={`${vNetworks.length}`} />}
+            value={<NumberEasing value={`${vNetworks.length}`} />}
             bgColor='#f09d42'
             icon={NetworkIcon}
           />

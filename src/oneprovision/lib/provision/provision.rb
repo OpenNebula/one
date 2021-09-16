@@ -743,6 +743,8 @@ module OneProvision
                 # Add deployment ID
                 host.one.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => id)
 
+                Terraform.p_load
+
                 # Read private IP if any
                 terraform = Terraform.singleton(@provider, {})
 

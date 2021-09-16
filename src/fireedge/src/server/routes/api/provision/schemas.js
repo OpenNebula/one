@@ -14,54 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const providers = [
-  'aws',
-  'packet',
-  'dummy',
-  'google',
-  'digitalocean',
-  'vultr_virtual',
-  'vultr_metal'
-]
-
-const provider = {
-  id: '/Provider',
-  type: 'object',
-  properties: {
-    name: {
-      type: 'string',
-      required: true
-    },
-    connection: {
-      type: 'object',
-      required: true
-    },
-    provider: {
-      type: 'string',
-      enum: providers
-    }
-  }
-}
-
-const providerUpdate = {
-  id: '/Provider',
-  type: 'object',
-  properties: {
-    provider: {
-      type: 'string',
-      enum: providers
-    },
-    connection: {
-      type: 'object',
-      required: true
-    },
-    registration_time: {
-      type: 'integer',
-      required: true
-    }
-  }
-}
-
 const provision = {
   id: '/Provision',
   type: 'object',
@@ -210,9 +162,7 @@ const provision = {
   }
 }
 const schemas = {
-  provider,
-  provision,
-  providerUpdate
+  provision
 }
 
 module.exports = schemas

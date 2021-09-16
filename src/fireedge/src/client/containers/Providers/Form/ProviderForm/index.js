@@ -25,13 +25,15 @@ import Steps from 'client/containers/Providers/Form/ProviderForm/Steps'
 
 import { useProviderApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
+import { isValidProviderTemplate, getConnectionFixed } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
+import { useAuth } from 'client/features/Auth'
 
 const ProviderForm = ({ id, preloadedData, initialValues }) => {
   const history = useHistory()
   const isUpdate = id !== undefined
 
+  const { providerConfig } = useAuth()
   const { createProvider, updateProvider } = useProviderApi()
   const { enqueueError, enqueueSuccess, changeLoading } = useGeneralApi()
 
@@ -53,7 +55,7 @@ const ProviderForm = ({ id, preloadedData, initialValues }) => {
 
     const templateSelected = template?.[0]
 
-    const isValid = ProviderTemplateModel.isValidProviderTemplate(templateSelected)
+    const isValid = isValidProviderTemplate(templateSelected, providerConfig)
 
     !isValid && redirectWithError(`
       The template selected has a bad format.
@@ -61,7 +63,7 @@ const ProviderForm = ({ id, preloadedData, initialValues }) => {
     )
 
     const { name, description } = configuration
-    const connectionFixed = ProviderTemplateModel.getConnectionFixed(templateSelected)
+    const connectionFixed = getConnectionFixed(templateSelected, providerConfig)
 
     const formatData = {
       ...templateSelected,

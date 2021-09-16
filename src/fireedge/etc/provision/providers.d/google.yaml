@@ -1,0 +1,8 @@
+name: 'Google Cloud'
+image: 'GOOGLE'
+provision_type: 'virtual'
+file_credentials: true
+location_key:
+  - 'region'
+  - 'zone'
+color: '#dc382b'

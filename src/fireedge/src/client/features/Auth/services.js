@@ -48,6 +48,17 @@ export const authService = ({
     return res?.data?.USER ?? {}
   },
   /**
+   * @returns {object} Provider configuration
+   * @throws Fails when response isn't code 200
+   */
+  getProviderConfig: async () => {
+    const res = await RestClient.request({ url: '/api/provider/config' })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  },
+  /**
    * @returns {object} Views available for the user authenticated
    * @throws Fails when response isn't code 200
    */

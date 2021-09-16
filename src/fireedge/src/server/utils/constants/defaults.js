@@ -16,7 +16,9 @@
 
 const appName = 'fireedge'
 const appNameSunstone = 'sunstone'
+const appNameProvision = 'provision'
 const internalSunstonePath = `${appName}/${appNameSunstone}`
+const internalProvisionPath = `${appName}/${appNameProvision}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const apps = {
@@ -26,8 +28,8 @@ const apps = {
     assets: true
   },
   provision: {
-    name: 'provision',
-    theme: 'provision'
+    name: appNameProvision,
+    theme: appNameProvision
   }
 }
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
@@ -56,7 +58,7 @@ const defaults = {
       methods: ['GET', 'POST']
     },
     provision: {
-      path: `${baseUrl}${baseUrlWebsockets}provision`,
+      path: `${baseUrl}${baseUrlWebsockets}${appNameProvision}`,
       methods: ['GET', 'POST']
     }
   },
@@ -67,8 +69,8 @@ const defaults = {
     'support',
     'vcenter',
     'zendesk',
-    'provision',
-    'sunstone'
+    appNameProvision,
+    appNameSunstone
   ],
   defaultApps: apps,
   httpMethod: {
@@ -116,6 +118,8 @@ const defaults = {
   defaultSunstonePath: internalSunstonePath,
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
+  defaultProvisionPath: internalProvisionPath,
+  defaultProvidersConfigPath: 'providers.d',
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultProductionWebpackMode: 'production',

@@ -45,14 +45,10 @@ module OneProvision
     # Terraform operations
     class Terraform
 
-        # Providers that are currently available
-        PROVIDERS = %w[aws
-                       digitalocean
-                       dummy
-                       google
-                       packet
-                       vultr_metal
-                       vultr_virtual]
+        # Available providers
+        # rubocop:disable Style/ClassVars
+        @@providers = {}
+        # rubocop:enable Style/ClassVars
 
         # Class constructor
         #
@@ -65,6 +61,48 @@ module OneProvision
             @provider = provider
         end
 
+        # Add new provider to @@providers
+        #
+        # @param p_name  [String] Provider class definition file name
+        # @param p_class [String] Provider class name
+        #
+        # @return [String] File name
+        def self.append_provider(p_name, p_class)
+            # Provider name, this is used for several things:
+            #
+            #   check the provider type
+            #   directory that contains the provider templates
+            name = File.basename(p_name).gsub('.rb', '')
+
+            # Add provider class to available providers hash
+            @@providers[name] = Object.const_get(p_class)
+
+            name
+        end
+
+        # Check if provider is loaded
+        #
+        # @return [Boolean] True if exists
+        def self.exist?(provider)
+            @@providers[provider]
+        end
+
+        # Return avaiable providers list
+        #
+        # @return [Array]
+        def self.providers
+            @@providers.keys
+        end
+
+        # Load providers
+        def self.p_load
+            return unless @@providers.empty?
+
+            Dir["#{PROVIDERS_LOCATION}/**.rb"].sort.each do |file|
+                require file
+            end
+        end
+
         # Get a provider instance
         #
         # @param provider [Provider] Provider information
@@ -72,53 +110,31 @@ module OneProvision
         #
         # @return [Terraform] Terraform provider
         def self.singleton(provider, tf)
-            case provider.body['provider']
-            when 'packet'
-                tf_class = Packet
-            when 'aws'
-                tf_class = AWS
-            when 'google'
-                tf_class = Google
-            when 'digitalocean'
-                tf_class = DigitalOcean
-            when 'dummy'
-                tf_class = Dummy
-            when 'vultr_metal'
-                tf_class = VultrMetal
-            when 'vultr_virtual'
-                tf_class = VultrVirtual
-            else
-                raise OneProvisionLoopException,
-                      "Unknown provider: #{provider.body['provider']}"
+            p_name = provider.body['provider']
+
+            unless exist?(p_name)
+                raise OneProvisionLoopException, "Unknown provider: #{p_name}"
             end
 
-            tf_class.new(provider, tf[:state], tf[:conf])
+            @@providers[p_name].new(provider, tf[:state], tf[:conf])
         end
 
         # Check connection attributes of a provider template
         #
         # @param provider [Provider] Provider information
+        # @param p_class  [Class]    Terraform provider class
+        #
         # @return true or raise exception
         def self.check_connection(provider)
-            case provider['provider']
-            when 'packet'
-                keys = Packet::KEYS
-            when 'aws'
-                keys = AWS::KEYS
-            when 'google'
-                keys = Google::KEYS
-            when 'digitalocean'
-                keys = DigitalOcean::KEYS
-            when 'dummy'
-                return true
-            when 'vultr_metal', 'vultr_virtual'
-                keys = Vultr::KEYS
-            else
-                raise OneProvisionLoopException,
-                      "Unknown provider: #{provider['provider']}"
+            p_name = provider['provider']
+
+            return true if p_name == 'dummy'
+
+            unless exist?(p_name)
+                raise OneProvisionLoopException, "Unknown provider: #{p_name}"
             end
 
-            keys.each do |k|
+            @@providers[p_name]::KEYS.each do |k|
                 if !provider['connection'].key? k
                     raise  OneProvisionLoopException,
                            "Missing provider connection attribute: '#{k}'"
@@ -136,7 +152,10 @@ module OneProvision
 
             @conf = ''
 
-            c = File.read("#{@dir}/provider.erb")
+            c = File.read(
+                "#{PROVIDERS_LOCATION}/templates/#{self.class::NAME}/" \
+                'provider.erb'
+            )
             c = ERBVal.render_from_hash(c, :conn => @provider.connection)
 
             @conf << c
@@ -380,7 +399,9 @@ module OneProvision
 
                 yield(obj) if block_given?
 
-                c = File.read("#{@dir}/#{erb}")
+                c = File.read(
+                    "#{PROVIDERS_LOCATION}/templates/#{self.class::NAME}/#{erb}"
+                )
 
                 next if c.empty?
 

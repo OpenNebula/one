@@ -3,13 +3,6 @@ name: 'google-moncks'
 description: 'Virtual Edge Cluster in Google Moncks (us-east1-b)'
 provider: 'google'
 
-plain:
-  image: 'GOOGLE'
-  location_key:
-    - 'region'
-    - 'zone'
-  provision_type: 'virtual'
-
 connection:
   credentials: 'JSON credentials file'
   project: 'Google Cloud Platform project ID'

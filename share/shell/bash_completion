@@ -518,29 +518,6 @@ _oneprovision() {
     fi
 }
 
-_oneprovision_template() {
-    local cur prev opts cmd
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="create instantiate list show delete update"
-    cmd=oneprovision-template
-    if [ "$COMP_CWORD" == 1 ]; then
-        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-        return 0
-    elif [ "$COMP_CWORD" == 2 ]; then
-        case "$prev" in
-        show|delete|update|instantiate)
-            _complete $cmd ID
-        ;;
-        create)
-            COMPREPLY=( $(compgen -A file -- "${cur}") )
-            return 0
-        ;;
-        esac
-    fi
-}
-
 _oneprovider() {
     local cur prev opts cmd
     COMPREPLY=()
@@ -910,7 +887,6 @@ complete -F _oneimage oneimage
 complete -F _onemarket onemarket
 complete -F _onemarketapp onemarketapp
 complete -F _oneprovision oneprovision
-complete -F _oneprovision_template oneprovision-template
 complete -F _oneprovider oneprovider
 complete -F _onesecgroup onesecgroup
 complete -F _oneshowback oneshowback

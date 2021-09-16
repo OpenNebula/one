@@ -15,15 +15,16 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import * as yup from 'yup'
-import { INPUT_TYPES, CREDENTIALS_FILE } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields, isBase64, prettyBytes } from 'client/utils'
 
 const MAX_SIZE_JSON = 102_400
 const JSON_FORMAT = 'application/json'
+const CREDENTIAL_INPUT = 'credentials'
 
-export const FORM_FIELDS = ({ connection, providerType }) =>
+export const FORM_FIELDS = ({ connection, fileCredentials }) =>
   Object.entries(connection)?.map(([name, label]) => {
-    const isInputFile = CREDENTIALS_FILE[providerType] === String(name).toLowerCase()
+    const isInputFile = fileCredentials && String(name).toLowerCase() === CREDENTIAL_INPUT
 
     let validation = yup
       .string()
@@ -50,7 +51,7 @@ export const FORM_FIELDS = ({ connection, providerType }) =>
           test: value => value?.size > MAX_SIZE_JSON
         }],
         transform: async file => {
-          const json = await new Response(file).json()
+          const json = await new Response(file ?? '{}').json()
           return btoa(JSON.stringify(json))
         }
       })

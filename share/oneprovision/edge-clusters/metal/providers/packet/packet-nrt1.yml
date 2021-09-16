@@ -3,11 +3,6 @@ name: 'packet-nrt1'
 description: 'Edge cluster in Equinix Tokyo, Japan'
 provider: 'packet'
 
-plain:
-  image: 'EQUINIX'
-  location_key: 'facility'
-  provision_type: 'metal'
-
 connection:
   token: 'Packet token'
   project: 'Packet project'

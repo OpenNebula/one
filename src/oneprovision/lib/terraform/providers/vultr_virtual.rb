@@ -22,6 +22,8 @@ module OneProvision
     # Vultr Virtual Terraform Provider
     class VultrVirtual < Vultr
 
+        NAME = Terraform.append_provider(__FILE__, name)
+
         # OpenNebula - Terraform equivalence
         TYPES = {
             :cluster   => 'vultr_private_network',
@@ -29,17 +31,6 @@ module OneProvision
             :host      => 'vultr_instance',
             :network   => ''
         }
-
-        # Class constructor
-        #
-        # @param provider [Provider]
-        # @param state    [String] Terraform state in base64
-        # @param conf     [String] Terraform config state in base64
-        def initialize(provider, state, conf)
-            @dir = "#{PROVIDERS_LOCATION}/templates/vultr_virtual"
-
-            super
-        end
 
         # Add configuration variables to host template
         #

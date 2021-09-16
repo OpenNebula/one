@@ -17,4 +17,3 @@
 
 image: 'OPENNEBULA-GOOGLE'
 provider: 'google'
-provision_type: 'virtual'

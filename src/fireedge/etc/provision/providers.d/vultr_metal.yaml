@@ -1,0 +1,5 @@
+name: 'Vultr Bare Metal'
+image: 'VULTR'
+provision_type: 'metal'
+location_key: 'region'
+color: '#7ea3ca'

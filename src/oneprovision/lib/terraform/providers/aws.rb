@@ -22,6 +22,8 @@ module OneProvision
     # AWS Terraform Provider
     class AWS < Terraform
 
+        NAME = Terraform.append_provider(__FILE__, name)
+
         # OpenNebula - Terraform equivalence
         TYPES = {
             :cluster   => 'aws_vpc',
@@ -38,8 +40,6 @@ module OneProvision
         # @param state    [String] Terraform state in base64
         # @param conf     [String] Terraform config state in base64
         def initialize(provider, state, conf)
-            @dir = "#{PROVIDERS_LOCATION}/templates/aws"
-
             # Credentials are not stored in a file
             @file_credentials = false
 

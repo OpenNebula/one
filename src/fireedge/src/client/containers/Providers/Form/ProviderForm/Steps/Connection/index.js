@@ -17,11 +17,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { useAuth } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
+
+import { getConnectionEditable } from 'client/models/ProviderTemplate'
 import { sentenceCase } from 'client/utils'
 import { T } from 'client/constants'
-import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 
 import {
   FORM_FIELDS, STEP_FORM_SCHEMA
@@ -34,15 +36,16 @@ import {
 export const STEP_ID = 'connection'
 
 let connection = {}
-let providerType
+let fileCredentials = false
 
 const Connection = ({ isUpdate }) => ({
   id: STEP_ID,
   label: T.ConfigureConnection,
-  resolver: () => STEP_FORM_SCHEMA({ connection, providerType }),
+  resolver: () => STEP_FORM_SCHEMA({ connection, fileCredentials }),
   optionsValidate: { abortEarly: false },
-  content: useCallback(({ data }) => {
+  content: useCallback(() => {
     const [fields, setFields] = useState([])
+    const { providerConfig } = useAuth()
     const { watch } = useFormContext()
 
     useEffect(() => {
@@ -51,18 +54,18 @@ const Connection = ({ isUpdate }) => ({
         [STEP_ID]: currentConnection = {}
       } = watch()
 
-      const { provider, ...template } = templateSelected?.[0] ?? {}
+      const template = templateSelected?.[0] ?? {}
 
-      providerType = provider
+      fileCredentials = Boolean(providerConfig?.[template?.provider]?.file_credentials)
 
       connection = isUpdate
         // when is updating, connections have the name as input label
         ? Object.keys(currentConnection)
           .reduce((res, name) => ({ ...res, [name]: sentenceCase(name) }), {})
         // set connections from template, to take values as input labels
-        : ProviderTemplateModel.getConnectionEditable(template)
+        : getConnectionEditable(template, providerConfig)
 
-      setFields(FORM_FIELDS({ connection, providerType }))
+      setFields(FORM_FIELDS({ connection, fileCredentials }))
     }, [])
 
     return (fields?.length === 0) ? (

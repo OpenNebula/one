@@ -44,6 +44,8 @@ module OneProvision
         #
         # @param tf [Hash] Terraform configuration
         def destroy(tf)
+            Terraform.p_load
+
             terraform = Terraform.singleton(@provider, tf)
             terraform.destroy_datastore(@one.id)
         end

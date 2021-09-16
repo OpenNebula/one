@@ -19,16 +19,18 @@ import { Redirect, useParams } from 'react-router'
 
 import { Container, LinearProgress } from '@material-ui/core'
 
+import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
 import { useProviderApi } from 'client/features/One'
 import ProviderForm from 'client/containers/Providers/Form/ProviderForm'
-import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
+import { getConnectionEditable } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
 
 function ProviderCreateForm () {
   const { id } = useParams()
   const [initialValues, setInitialValues] = useState(null)
 
+  const { providerConfig } = useAuth()
   const { getProvider, getProviderConnection } = useProviderApi()
   const { data: preloadedData, fetchRequestAll, loading, error } = useFetchAll()
 
@@ -43,12 +45,14 @@ function ProviderCreateForm () {
         const [provider = {}, connection = []] = data
 
         const {
-          PLAIN = {},
+          PLAIN: { provider: plainProvider } = {},
           PROVISION_BODY: { description, ...currentBodyTemplate }
         } = provider?.TEMPLATE
 
-        const connectionEditable = ProviderTemplateModel
-          .getConnectionEditable({ plain: PLAIN, connection })
+        const connectionEditable = getConnectionEditable(
+          { provider: plainProvider, connection },
+          providerConfig
+        )
 
         setInitialValues({
           template: [currentBodyTemplate],

@@ -19,7 +19,8 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/Auth/actions'
-import * as actionsView from 'client/features/Auth/actionsView'
+import * as provisionActions from 'client/features/Auth/provision'
+import * as sunstoneActions from 'client/features/Auth/sunstone'
 import { name as authSlice } from 'client/features/Auth/slice'
 import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
 
@@ -68,8 +69,14 @@ export const useAuthApi = () => {
     changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
     logout: () => dispatch(actions.logout()),
 
-    getSunstoneViews: () => unwrapDispatch(actionsView.getSunstoneViews()),
-    getSunstoneConfig: () => unwrapDispatch(actionsView.getSunstoneConfig()),
-    changeView: data => dispatch(actionsView.changeView(data))
+    getProviderConfig: () =>
+      unwrapDispatch(provisionActions.getProviderConfig()),
+
+    getSunstoneViews: () =>
+      unwrapDispatch(sunstoneActions.getSunstoneViews()),
+    getSunstoneConfig: () =>
+      unwrapDispatch(sunstoneActions.getSunstoneConfig()),
+    changeView: data =>
+      dispatch(sunstoneActions.changeView(data))
   }
 }

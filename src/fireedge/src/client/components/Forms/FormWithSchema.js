@@ -33,7 +33,9 @@ const Legend = styled('legend')(({ theme }) => ({
   borderBottom: `2px solid ${theme.palette.secondary.main}`
 }))
 
-const InputController = {
+const NOT_DEPEND_ATTRIBUTES = ['transform']
+
+const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: FC.TextController,
   [INPUT_TYPES.PASSWORD]: FC.PasswordController,
   [INPUT_TYPES.SELECT]: FC.SelectController,
@@ -45,7 +47,9 @@ const InputController = {
 }
 
 const FormWithSchema = ({ id, cy, fields, className, legend }) => {
-  const { control, errors, watch, ...formContext } = useFormContext()
+  const formContext = useFormContext()
+  const { control, errors, watch } = formContext
+
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
   return (
@@ -53,7 +57,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
       {legend && <Legend>{legend}</Legend>}
       <Grid container spacing={1} alignContent='flex-start'>
         {getFields?.map?.(
-          ({ dependOf, ...props }) => {
+          ({ dependOf, ...attributes }) => {
             let valueOfDependField = null
             if (dependOf) {
               const nameOfDependField = id
@@ -64,10 +68,14 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
             }
 
             const { name, type, htmlType, grid, ...fieldProps } = Object
-              .entries(props)
-              .reduce((field, property) => {
-                const [key, value] = property
-                const finalValue = typeof value === 'function' ? value(valueOfDependField) : value
+              .entries(attributes)
+              .reduce((field, attribute) => {
+                const [key, value] = attribute
+                const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+
+                const finalValue = typeof value === 'function' && !isNotDependAttribute
+                  ? value(valueOfDependField)
+                  : value
 
                 return { ...field, [key]: finalValue }
               }, {})
@@ -82,9 +90,9 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
             if (isHidden) return null
 
             return (
-              InputController[type] && (
+              INPUT_CONTROLLER[type] && (
                 <Grid key={dataCy} item xs={12} md={6} {...grid}>
-                  {createElement(InputController[type], {
+                  {createElement(INPUT_CONTROLLER[type], {
                     control,
                     cy: dataCy,
                     error: inputError,

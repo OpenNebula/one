@@ -45,7 +45,7 @@ const Inputs = () => ({
     const [fields, setFields] = useState(undefined)
     const { changeLoading } = useGeneralApi()
     const { getProvider } = useProviderApi()
-    const { data: fetchData, fetchRequest, loading } = useFetch(getProvider)
+    const { data: fetchData, fetchRequest } = useFetch(getProvider)
     const { watch, reset } = useFormContext()
 
     useEffect(() => {
@@ -78,7 +78,7 @@ const Inputs = () => ({
       }
     }, [fetchData])
 
-    if (!fields && loading) {
+    if (!fields) {
       return <LinearProgress color='secondary' />
     }
 

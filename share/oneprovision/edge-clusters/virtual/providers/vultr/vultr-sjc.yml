@@ -3,11 +3,6 @@ name: 'vultr-san-francisco'
 description: 'Edge cluster in Vultr San Francisco'
 provider: 'vultr_virtual'
 
-plain:
-  image: 'VULTR'
-  location_key: 'region'
-  provision_type: 'virtual'
-
 connection:
   key: 'Vultr key'
   region: 'sjc'

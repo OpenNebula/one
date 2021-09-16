@@ -43,6 +43,8 @@ module OneProvision
             rc = nil
 
             begin
+                Terraform.p_load
+
                 Terraform.check_connection(template)
 
                 rc = to_json(template)
@@ -93,20 +95,6 @@ module OneProvision
                 return OpenNebula::Error.new(
                     'Provider can not be deleted, it is used by ' \
                     "provision with ID: #{p['ID']}"
-                )
-            end
-
-            pool = ProvisionTemplatePool.new(@client)
-            rc   = pool.info_all
-
-            return rc if OpenNebula.is_error?(rc)
-
-            pool.each do |p|
-                next unless Integer(p.body['provider']) == Integer(self['ID'])
-
-                return OpenNebula::Error.new(
-                    'Provider can not be deleted, it is used by ' \
-                    "provision template with ID: #{p['ID']}"
                 )
             end
 

@@ -16,7 +16,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 import { login, getUser, logout, changeFilter, changeGroup } from 'client/features/Auth/actions'
-import { getSunstoneViews, getSunstoneConfig, changeView } from 'client/features/Auth/actionsView'
+import { getProviderConfig } from 'client/features/Auth/provision'
+import { getSunstoneViews, getSunstoneConfig, changeView } from 'client/features/Auth/sunstone'
 import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
 import { isBackend } from 'client/utils'
 
@@ -54,7 +55,9 @@ const { name, actions, reducer } = createSlice({
             login.fulfilled.type,
             getUser.fulfilled.type,
             changeGroup.fulfilled.type,
-            // sunstone views
+            // provision
+            getProviderConfig.fulfilled.type,
+            // sunstone
             getSunstoneViews.fulfilled.type,
             getSunstoneConfig.fulfilled.type,
             changeView.type

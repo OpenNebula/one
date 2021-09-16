@@ -1,0 +1,4 @@
+name: 'Dummy'
+image: 'ON-PREMISE'
+provision_type: 'onprem'
+color: '#436637'

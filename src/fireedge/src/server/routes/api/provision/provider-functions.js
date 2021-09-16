@@ -14,24 +14,101 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { Validator } = require('jsonschema')
+const { parse } = require('yaml')
+const { basename } = require('path')
 const {
   defaultFolderTmpProvision,
   defaultCommandProvider,
   defaultHideCredentials,
   defaultHideCredentialReplacer,
-  defaultEmptyFunction
+  defaultEmptyFunction,
+  defaultProvidersConfigPath
 } = require('server/utils/constants/defaults')
 
 const {
   ok,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, parsePostData } = require('server/utils/server')
-const { executeCommand, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
-const { provider, providerUpdate } = require('./schemas')
+const {
+  httpResponse,
+  parsePostData,
+  getFilesbyEXT,
+  existsFile
+} = require('server/utils/server')
+const {
+  executeCommand,
+  createTemporalFile,
+  createYMLContent,
+  removeFile,
+  getEndpoint
+} = require('./functions')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
+
+/**
+ * Get provision Config.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ */
+const getConfig = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+  const path = `${global.paths.PROVISION_PATH}${defaultProvidersConfigPath}`
+  const extFiles = 'yaml'
+  let response = internalServerError
+  let message = ''
+
+  /**
+   * Fill Providers.
+   *
+   * @param {string} content - content of provider
+   * @param {string} name - name of provider
+   */
+  const fillProviders = (content = '', name = '') => {
+    if (content && name) {
+      try {
+        message[name] = parse(content)
+      } catch (error) {
+      }
+    }
+  }
+  /**
+   * Fill Error Message.
+   *
+   * @param {string} error - error path
+   */
+  const fillErrorMessage = (error = '') => {
+    message = error
+  }
+
+  const files = getFilesbyEXT(
+    path,
+    extFiles,
+    fillErrorMessage
+  )
+
+  if (files.length) {
+    response = ok
+    files.map(file => {
+      existsFile(
+        file,
+        (content) => {
+          if (typeof message === 'string') {
+            message = {}
+          }
+          fillProviders(
+            content,
+            basename(file, `.${extFiles}`)
+          )
+        }
+      )
+    })
+  }
+
+  res.locals.httpCode = httpResponse(response, message)
+  next()
+}
 
 /**
  * Get connection providers.
@@ -157,42 +234,30 @@ const getListProviders = (res = {}, next = defaultEmptyFunction, params = {}, us
  */
 const createProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  let rtn = httpInternalError
+  const rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
-    const valSchema = schemaValidator.validate(resource, provider)
-    if (valSchema.valid) {
-      const content = createYMLContent(resource)
-      if (content) {
-        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
-        if (file && file.name && file.path) {
-          const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
-          res.locals.httpCode = httpResponse(internalServerError)
-          if (executedCommand && executedCommand.data) {
-            if (executedCommand.success) {
-              const data = executedCommand.data
-              const dataInternal = data && Array.isArray(data.match('\\d+')) ? data.match('\\d+').join() : data
-              res.locals.httpCode = httpResponse(ok, dataInternal)
-            } else {
-              res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
-            }
+    const content = createYMLContent(resource)
+    if (content) {
+      const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+      if (file && file.name && file.path) {
+        const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
+        const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+        res.locals.httpCode = httpResponse(internalServerError)
+        if (executedCommand && executedCommand.data) {
+          if (executedCommand.success) {
+            const data = executedCommand.data
+            const dataInternal = data && Array.isArray(data.match('\\d+')) ? data.match('\\d+').join() : data
+            res.locals.httpCode = httpResponse(ok, dataInternal)
+          } else {
+            res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
           }
-          removeFile(file.path)
-          next()
-          return
         }
-      }
-    } else {
-      const errors = []
-      if (valSchema && valSchema.errors) {
-        valSchema.errors.forEach(error => {
-          errors.push(error.stack.replace(/^instance./, ''))
-        })
-        rtn = httpResponse(internalServerError, '', errors.toString())
+        removeFile(file.path)
+        next()
+        return
       }
     }
   }
@@ -210,34 +275,22 @@ const createProviders = (res = {}, next = defaultEmptyFunction, params = {}, use
  */
 const updateProviders = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
-  let rtn = httpInternalError
+  const rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
-    const valSchema = schemaValidator.validate(resource, providerUpdate)
-    if (valSchema.valid) {
-      const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'json', JSON.stringify(resource))
-      if (file && file.name && file.path) {
-        const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
-        const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
-        res.locals.httpCode = httpResponse(internalServerError)
-        if (executedCommand && executedCommand.success) {
-          res.locals.httpCode = httpResponse(ok)
-        }
-        removeFile(file.path)
-        next()
-        return
+    const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'json', JSON.stringify(resource))
+    if (file && file.name && file.path) {
+      const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
+      const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+      res.locals.httpCode = httpResponse(internalServerError)
+      if (executedCommand && executedCommand.success) {
+        res.locals.httpCode = httpResponse(ok)
       }
-    } else {
-      const errors = []
-      if (valSchema && valSchema.errors) {
-        valSchema.errors.forEach(error => {
-          errors.push(error.stack.replace(/^instance./, ''))
-        })
-        rtn = httpResponse(internalServerError, '', errors.toString())
-      }
+      removeFile(file.path)
+      next()
+      return
     }
   }
   res.locals.httpCode = rtn
@@ -278,6 +331,7 @@ const deleteProvider = (res = {}, next = defaultEmptyFunction, params = {}, user
 }
 
 const providerFunctionsApi = {
+  getConfig,
   getConnectionProviders,
   getListProviders,
   createProviders,

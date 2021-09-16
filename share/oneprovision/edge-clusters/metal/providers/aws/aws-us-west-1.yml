@@ -3,11 +3,6 @@ name: 'aws-north-california'
 description: 'Edge cluster in AWS North California'
 provider: 'aws'
 
-plain:
-  image: 'AWS'
-  location_key: 'region'
-  provision_type: 'metal'
-
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'

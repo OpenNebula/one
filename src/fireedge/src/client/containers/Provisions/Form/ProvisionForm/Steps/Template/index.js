@@ -20,12 +20,13 @@ import { NavArrowRight } from 'iconoir-react'
 import Marked from 'marked'
 
 import { useListForm } from 'client/hooks'
-import { useOne } from 'client/features/One'
+import { useAuth } from 'client/features/Auth'
+import { useProvider, useProvisionTemplate } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
-import { sanitize, groupBy } from 'client/utils'
-import * as ProvisionTemplateModel from 'client/models/ProvisionTemplate'
-import { T, PROVISIONS_TYPES, PROVIDERS_TYPES } from 'client/constants'
+import { sanitize } from 'client/utils'
+import { isValidProvisionTemplate, getProvisionTypeFromTemplate } from 'client/models/ProvisionTemplate'
+import { T } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Provider'
 import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/BasicConfiguration'
@@ -39,43 +40,45 @@ const Template = () => ({
   label: T.ProvisionTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { provisionsTemplates, providers } = useOne()
-
+    const providers = useProvider()
+    const provisionTemplates = useProvisionTemplate()
+    const { providerConfig } = useAuth()
     const templateSelected = data?.[0]
 
-    const [provisionSelected, setProvision] = useState(
-      () => templateSelected?.provision_type
-    )
+    const provisionTypes = useMemo(() => [
+      ...new Set(
+        Object.values(providerConfig)
+          .map(provider => provider?.provision_type).flat()
+      )
+    ], [])
 
-    const [providerSelected, setProvider] = useState(
-      () => templateSelected?.provider
-    )
-
-    const templatesByProvisionType = useMemo(() => (
-      Object.values(provisionsTemplates)
-        .reduce((res, { provisions }) => ({
-          ...res,
-          ...groupBy(Object.values(provisions)?.flat(), 'provision_type')
-        }), {})
+    const provisionTypeSelected = useMemo(() => (
+      getProvisionTypeFromTemplate(provisionTemplates, templateSelected)
     ), [])
 
-    const templatesByProvider = useMemo(() => (
-      groupBy(templatesByProvisionType[provisionSelected] ?? [], 'provider')
-    ), [provisionSelected])
+    const [provisionSelected, setProvision] = useState(() => provisionTypeSelected ?? provisionTypes[0])
+    const [providerSelected, setProvider] = useState(() => templateSelected?.provider)
 
-    const templatesAvailable = templatesByProvider?.[providerSelected] ?? []
-    const provisionDescription = provisionsTemplates?.[provisionSelected]?.description
+    const [templatesByProvisionSelected, providerTypes, description] = useMemo(() => {
+      const templates = Object.values(provisionTemplates[provisionSelected]?.provisions).flat()
+      const types = [...new Set(templates.map(({ provider }) => provider))]
+      const provisionDescription = provisionTemplates?.[provisionSelected]?.description
+
+      return [templates, types, provisionDescription]
+    }, [provisionSelected])
+
+    const templatesAvailable = useMemo(() => (
+      templatesByProvisionSelected.filter(({ provider }) => providerSelected === provider)
+    ), [providerSelected])
 
     useEffect(() => {
-      const firstProvisionType = Object.keys(templatesByProvisionType)[0]
-      !provisionSelected && setProvision(firstProvisionType)
+      // set first provision type
+      !provisionSelected && setProvision(provisionTypes[0])
     }, [])
 
     useEffect(() => {
-      if (provisionSelected && !providerSelected) {
-        const firstProviderType = Object.keys(templatesByProvider)[0]
-        setProvider(firstProviderType)
-      }
+      // set first provider type
+      provisionSelected && !providerSelected && setProvider(providerTypes[0])
     }, [provisionSelected])
 
     const {
@@ -143,9 +146,9 @@ const Template = () => ({
               value={provisionSelected}
               variant='outlined'
             >
-              {Object.keys(templatesByProvisionType).map(key => (
-                <option key={key} value={key}>
-                  {PROVISIONS_TYPES[key]?.name ?? key}
+              {provisionTypes.map(type => (
+                <option key={type} value={type}>
+                  {type}
                 </option>
               ))}
             </Select>
@@ -164,9 +167,9 @@ const Template = () => ({
               value={providerSelected}
               variant='outlined'
             >
-              {Object.keys(templatesByProvider).map(key => (
-                <option key={key} value={key}>
-                  {PROVIDERS_TYPES[key]?.name ?? key}
+              {providerTypes.map(type => (
+                <option key={type} value={type}>
+                  {providerConfig[type]?.name ?? type}
                 </option>
               ))}
             </Select>
@@ -174,9 +177,7 @@ const Template = () => ({
         </Breadcrumbs>
 
         {/* -- DESCRIPTION -- */}
-        {useMemo(() => provisionDescription && (
-          <RenderDescription description={provisionDescription} />
-        ), [provisionDescription])}
+        {useMemo(() => description && <RenderDescription description={description} />, [description])}
 
         <Divider style={{ margin: '1rem 0' }} />
 
@@ -188,10 +189,10 @@ const Template = () => ({
           CardComponent={ProvisionTemplateCard}
           cardsProps={({ value = {} }) => {
             const isSelected = data?.some(selected => selected.name === value.name)
-
-            const isValid = ProvisionTemplateModel.isValidProvisionTemplate(value)
+            const isValid = isValidProvisionTemplate(value)
 
             return {
+              image: value?.image,
               isSelected,
               isValid,
               handleClick: () => handleClick(value, isSelected)

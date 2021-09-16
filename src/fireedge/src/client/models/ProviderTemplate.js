@@ -27,49 +27,69 @@
  */
 
 /**
+ * Returns the locked connection to provider template.
+ *
+ * @param {ProviderTemplate} template - Provider template object
+ * @param {object} providerConfig - Provider config
+ * @returns {string[]} Location keys
+ */
+export const getLocationKeys = (template = {}, providerConfig) => {
+  const { location_key: locationKey } = providerConfig?.[template?.provider] ?? {}
+
+  return typeof locationKey === 'string' ? locationKey.split(',') : locationKey
+}
+
+/**
+ * Returns the provision types available to provider template.
+ *
+ * @param {ProviderTemplate} template - Provider template object
+ * @param {object} providerConfig - Provider config
+ * @returns {string[]} Location keys
+ */
+export const getProvisionTypes = (template = {}, providerConfig) => {
+  const { provision_type: provisionType } = providerConfig?.[template?.provider] ?? {}
+
+  return typeof locationKey === 'string' ? provisionType.split(',') : provisionType
+}
+
+/**
  * Check if the provider template is valid format.
  *
  * @param {ProviderTemplate} template - Provider template
+ * @param {object} providerConfig - Provider config
  * @returns {boolean} Returns `true` if template is valid
  */
-export const isValidProviderTemplate = ({ name, provider, plain, connection }) => {
-  const { provision_type: provisionType, location_key: locationKey } = plain ?? {}
-
-  const keys = typeof locationKey === 'string' ? locationKey.split(',') : locationKey
+export const isValidProviderTemplate = (template, providerConfig) => {
+  const { name, provider, connection } = template
+  const keys = getLocationKeys(template, providerConfig)
+  const provisionTypes = getProvisionTypes(template, providerConfig)
 
   const hasConnection = connection !== undefined
 
   const locationKeyConnectionNotExists =
-    !hasConnection || keys.some(key => connection?.[key] === undefined)
+    !hasConnection || keys?.some(key => connection?.[key] === undefined)
 
   return (
-    !(locationKey && locationKeyConnectionNotExists) ||
-    [name, provisionType, provider].includes(undefined)
+    !(keys && locationKeyConnectionNotExists) ||
+    [name, provisionTypes, provider].includes(undefined)
   )
 }
-
-/**
- * Returns the locked connection from the provider template.
- *
- * @param {ProviderTemplate} template - Provider template object
- * @returns {string[]} Location keys
- */
-export const getLocationKeys = ({ plain: { location_key: locationKey } = {} }) =>
-  typeof locationKey === 'string' ? locationKey.split(',') : locationKey
 
 /**
  * Returns the not editable connections from provider template.
  * Are defined at `plain.location_key`.
  *
  * @param {ProviderTemplate} template - Provider template
+ * @param {object} providerConfig - Provider config
  * @returns {object} Not editable connections
  */
-export const getConnectionFixed = ({ connection = {}, ...template } = {}) => {
-  const keys = getLocationKeys(template)
+export const getConnectionFixed = (template = {}, providerConfig) => {
+  const { connection = {} } = template
+  const keys = getLocationKeys(template, providerConfig)
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,
-    ...keys.includes(name) && { [name]: value }
+    ...keys?.includes(name) && { [name]: value }
   }), {})
 }
 
@@ -77,13 +97,35 @@ export const getConnectionFixed = ({ connection = {}, ...template } = {}) => {
  * Returns the editable connections from provider template.
  *
  * @param {ProviderTemplate} template - Provider template
+ * @param {object} providerConfig - Provider config
  * @returns {object} Editable connections
  */
-export const getConnectionEditable = ({ connection = {}, ...template } = {}) => {
-  const keys = getLocationKeys(template)
+export const getConnectionEditable = (template = {}, providerConfig) => {
+  const { connection = {} } = template
+  const keys = getLocationKeys(template, providerConfig)
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,
-    ...!keys.includes(name) && { [name]: value }
+    ...!keys?.includes(name) && { [name]: value }
   }), {})
+}
+
+/**
+ * Returns the provision type from a provider template.
+ *
+ * @param {object} provisionTemplates - List of provision templates, from: /provision/defaults
+ * @param {object} template - Provider template
+ * @param {string} template.name - Name
+ * @param {string} template.provider - Provider type
+ * @returns {string} - Provision type. eg: 'onprem'
+ */
+export const getProvisionTypeFromTemplate = (provisionTemplates, template) => {
+  const { name, provider } = template ?? {}
+
+  return Object.entries(provisionTemplates)
+    .find(([_, { providers = {} } = {}]) =>
+      Object.values(providers)
+        .flat()
+        .some(prov => prov.name === name && prov.provider === provider)
+    )?.[0]
 }

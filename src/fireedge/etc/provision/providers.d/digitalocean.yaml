@@ -1,0 +1,5 @@
+name: 'Digital Ocean'
+image: 'DIGITALOCEAN'
+provision_type: 'virtual'
+location_key: 'region'
+color: '#2381f5'

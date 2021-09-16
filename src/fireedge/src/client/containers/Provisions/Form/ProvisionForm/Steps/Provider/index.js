@@ -18,9 +18,11 @@ import { useCallback, useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
-import { useOne } from 'client/features/One'
+import { useAuth } from 'client/features/Auth'
+import { useProvider, useProvisionTemplate } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
+import { getProvisionTypeFromTemplate } from 'client/models/ProvisionTemplate'
 import { T } from 'client/constants'
 
 import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Inputs'
@@ -34,16 +36,24 @@ const Provider = () => ({
   label: T.Provider,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { providers } = useOne()
-    const provisionTemplate = useWatch({ name: TEMPLATE_ID })
-    const provisionTemplateSelected = provisionTemplate?.[0] ?? {}
+    const providers = useProvider()
+    const provisionTemplates = useProvisionTemplate()
+    const { providerConfig } = useAuth()
 
-    const providersByTypeAndService = useMemo(() =>
-      providers.filter(({ TEMPLATE: { PLAIN = {} } = {} }) =>
-        PLAIN.provider === provisionTemplateSelected.provider &&
-        PLAIN.provision_type === provisionTemplateSelected.provision_type
-      )
-    , [])
+    const provisionTemplateSelected = useWatch({ name: TEMPLATE_ID })?.[0] ?? {}
+
+    const providersAvailable = useMemo(() => {
+      const templateProvisionType =
+        getProvisionTypeFromTemplate(provisionTemplates, provisionTemplateSelected)
+
+      return providers.filter(provider => {
+        const { TEMPLATE: { PLAIN = {} } } = provider ?? {}
+        const provisionType = [providerConfig[PLAIN.provider]?.provision_type ?? []].flat()
+
+        return PLAIN.provider === provisionTemplateSelected.provider &&
+          provisionType.includes(templateProvisionType)
+      })
+    }, [])
 
     const {
       handleSelect,
@@ -63,14 +73,17 @@ const Provider = () => ({
 
     return (
       <ListCards
-        list={providersByTypeAndService}
+        list={providersAvailable}
         EmptyComponent={<EmptyCard title={'Your providers list is empty'} />}
         CardComponent={ProvisionCard}
         gridProps={{ 'data-cy': 'providers' }}
         cardsProps={({ value = {} }) => {
-          const isSelected = data?.some(selected => selected.ID === value.ID)
+          const { ID, TEMPLATE } = value
+          const isSelected = data?.some(selected => selected.ID === ID)
+          const image = providerConfig?.[TEMPLATE?.PLAIN?.provider]?.image
 
           return {
+            image,
             isProvider: true,
             isSelected,
             handleClick: () => handleClick(value, isSelected)

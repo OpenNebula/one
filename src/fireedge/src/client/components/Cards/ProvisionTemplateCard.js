@@ -24,9 +24,8 @@ import { isExternalURL } from 'client/utils'
 import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
 
 const ProvisionTemplateCard = memo(
-  ({ value, isProvider, isSelected, isValid, handleClick }) => {
-    const { description, name, plain = {} } = value
-    const { image = '' } = isProvider ? plain : value
+  ({ value, image, isProvider, isSelected, isValid, handleClick }) => {
+    const { description, name } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
 
@@ -67,6 +66,7 @@ ProvisionTemplateCard.propTypes = {
   isProvider: PropTypes.bool,
   isSelected: PropTypes.bool,
   isValid: PropTypes.bool,
+  image: PropTypes.string,
   value: PropTypes.object
 }
 
@@ -75,6 +75,7 @@ ProvisionTemplateCard.defaultProps = {
   isProvider: undefined,
   isSelected: false,
   isValid: true,
+  image: undefined,
   value: { name: '', description: '' }
 }
 

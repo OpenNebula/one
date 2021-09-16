@@ -37,8 +37,8 @@ const APP_NAME = _APPS.provision.name
  * @returns {JSXElementConstructor} App rendered.
  */
 const ProvisionApp = () => {
-  const { isLogged, jwt, firstRender } = useAuth()
-  const { getAuthUser, logout } = useAuthApi()
+  const { isLogged, jwt, firstRender, providerConfig } = useAuth()
+  const { getAuthUser, logout, getProviderConfig } = useAuthApi()
 
   const provisionTemplate = useProvisionTemplate()
   const { getProvisionsTemplates } = useProvisionApi()
@@ -50,6 +50,7 @@ const ProvisionApp = () => {
         if (jwt) {
           changeAppTitle(APP_NAME)
           getAuthUser()
+          !providerConfig && await getProviderConfig()
           !provisionTemplate?.length && await getProvisionsTemplates()
         }
       } catch {

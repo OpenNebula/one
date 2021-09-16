@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
 import {
   useMediaQuery,
@@ -41,6 +42,12 @@ const useStyles = makeStyles({
   },
   titleText: {
     flexGrow: 1
+  },
+  fixedWidth: {
+    minWidth: '80vw'
+  },
+  fixedHeight: {
+    minHeight: '80vh'
   }
 })
 
@@ -55,6 +62,8 @@ const DialogConfirmation = memo(
     handleCancel,
     cancelButtonProps,
     handleEntering,
+    fixedWidth,
+    fixedHeight,
     children
   }) => {
     const classes = useStyles()
@@ -64,6 +73,12 @@ const DialogConfirmation = memo(
       <Dialog
         fullScreen={isMobile}
         onEntering={handleEntering}
+        classes={{
+          paper: clsx({
+            [classes.fixedWidth]: fixedWidth,
+            [classes.fixedHeight]: fixedHeight
+          })
+        }}
         open={open}
         onClose={handleCancel}
         maxWidth='lg'
@@ -126,6 +141,8 @@ export const DialogPropTypes = {
   handleCancel: PropTypes.func,
   cancelButtonProps: PropTypes.object,
   handleEntering: PropTypes.func,
+  fixedWidth: PropTypes.bool,
+  fixedHeight: PropTypes.bool,
   children: PropTypes.any
 }
 

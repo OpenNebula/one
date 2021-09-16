@@ -151,7 +151,7 @@ const useListForm = ({
 
       handleSetList(newList)
     },
-    []
+    [list]
   )
 
   const handleClear = useCallback(

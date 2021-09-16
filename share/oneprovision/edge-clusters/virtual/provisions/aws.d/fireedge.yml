@@ -17,4 +17,3 @@
 
 image: 'OPENNEBULA-AWS'
 provider: 'aws'
-provision_type: 'virtual'

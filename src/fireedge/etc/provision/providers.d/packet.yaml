@@ -1,0 +1,5 @@
+name: 'Packet'
+image: 'EQUINIX'
+provision_type: 'metal'
+location_key: 'facility'
+color: '#364562'

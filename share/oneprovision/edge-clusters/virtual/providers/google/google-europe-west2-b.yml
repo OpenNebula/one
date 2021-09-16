@@ -3,13 +3,6 @@ name: 'google-london'
 description: 'Virtual Edge Cluster in Google London (europe-west2-b)'
 provider: 'google'
 
-plain:
-  image: 'GOOGLE'
-  location_key:
-    - 'region'
-    - 'zone'
-  provision_type: 'virtual'
-
 connection:
   credentials: 'JSON credentials file'
   project: 'Google Cloud Platform project ID'

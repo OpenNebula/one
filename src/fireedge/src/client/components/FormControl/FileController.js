@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
 
 const FileController = memo(
   ({ control, cy, name, label, error, fieldProps, validationBeforeTransform, transform, formContext }) => {
-    const { setValue, setError, clearErrors, watch, register } = formContext
+    const { setValue, setError, clearErrors, watch } = formContext
 
     const classes = useStyles()
     const [isLoading, setLoading] = useState(() => false)
@@ -99,9 +99,9 @@ const FileController = memo(
         const parsedValue = transform ? await transform(file) : file
         setValue(name, parsedValue)
         handleDelayState()
-      } catch (message) {
+      } catch (err) {
         setValue(name, undefined)
-        handleDelayState(message)
+        handleDelayState(err?.message ?? err)
       }
     }
 
@@ -110,7 +110,7 @@ const FileController = memo(
         <Controller
           render={() => (
             <input
-              {...register(name)}
+              // {...register(name)}
               className={classes.hide}
               id={cy}
               type='file'

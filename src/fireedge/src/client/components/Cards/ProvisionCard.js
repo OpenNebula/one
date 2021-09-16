@@ -31,14 +31,13 @@ import {
 } from 'client/constants'
 
 const ProvisionCard = memo(
-  ({ value, isSelected, handleClick, isProvider, actions }) => {
-    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
+  ({ value, image: propImage, isSelected, handleClick, isProvider, actions }) => {
+    const { ID, NAME, TEMPLATE: { BODY = {} } } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const bodyData = isProvider ? PLAIN : BODY
 
-    const stateInfo = PROVISIONS_STATES[bodyData?.state]
-    const image = bodyData?.image ?? DEFAULT_IMAGE
+    const stateInfo = PROVISIONS_STATES[BODY.state]
+    const image = propImage ?? BODY?.image ?? DEFAULT_IMAGE
 
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
@@ -89,6 +88,7 @@ ProvisionCard.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
+  image: PropTypes.string,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
@@ -103,6 +103,7 @@ ProvisionCard.defaultProps = {
   handleClick: undefined,
   isProvider: false,
   isSelected: undefined,
+  image: undefined,
   value: {}
 }
 

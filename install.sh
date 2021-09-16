@@ -274,6 +274,8 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/sunstone-views/vcenter \
           $ETC_LOCATION/sunstone-views/mixed \
           $ETC_LOCATION/fireedge \
+          $ETC_LOCATION/fireedge/provision \
+          $ETC_LOCATION/fireedge/provision/providers.d \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/admin \
           $ETC_LOCATION/fireedge/sunstone/user"
@@ -308,7 +310,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual \
           $LIB_LOCATION/oneprovision/lib/provision \
-          $LIB_LOCATION/oneprovision/lib/provision_template \
           $LIB_LOCATION/oneprovision/lib/provider \
           $LIB_LOCATION/oneprovision/lib/provision/resources \
           $LIB_LOCATION/oneprovision/lib/provision/resources/virtual \
@@ -809,7 +810,6 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
     ONEPROVISION_LIB_VIRTUAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/virtual
     ONEPROVISION_LIB_PROVIDER_FILES:$LIB_LOCATION/oneprovision/lib/provider
-    ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES:$LIB_LOCATION/oneprovision/lib/provision_template
 )
 
 INSTALL_ONECFG_FILES=(
@@ -883,6 +883,8 @@ INSTALL_SUNSTONE_ETC_FILES=(
 
 INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
+  PROVISION_ETC:$ETC_LOCATION/fireedge/provision
+  PROVISION_ETC_PROVIDERS:$ETC_LOCTION/fireedge/provision/providers.d
   SUNSTONE_ETC_VIEWS:$ETC_LOCATION/fireedge/sunstone
   SUNSTONE_ETC_VIEWS_ADMIN:$ETC_LOCTION/fireedge/sunstone/admin
   SUNSTONE_ETC_VIEWS_USER:$ETC_LOCTION/fireedge/sunstone/user
@@ -891,6 +893,8 @@ INSTALL_FIREEDGE_FILES=(
 
 INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
+  FIREEDGE_PROVISION_ETC:$ETC_LOCATION/fireedge/provision
+  FIREEDGE_PROVISION_ETC_PROVIDERS:$ETC_LOCATION/fireedge/provision/providers.d
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
@@ -2512,16 +2516,13 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
 #-----------------------------------------------------------------------------
 
 ONEPROVISION_BIN_FILES="src/cli/oneprovision \
-                        src/cli/oneprovider \
-                        src/cli/oneprovision-template"
+                        src/cli/oneprovider"
 
 ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb \
-                            src/cli/one_helper/oneprovider_helper.rb \
-                            src/cli/one_helper/oneprovision_template_helper.rb"
+                            src/cli/one_helper/oneprovider_helper.rb"
 
 ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
-                         src/cli/etc/oneprovider.yaml \
-                         src/cli/etc/oneprovision_template.yaml"
+                         src/cli/etc/oneprovider.yaml"
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
@@ -2562,16 +2563,13 @@ ONEPROVISION_LIB_VIRTUAL_R_FILES="src/oneprovision/lib/provision/resources/virtu
 ONEPROVISION_LIB_PROVIDER_FILES="src/oneprovision/lib/provider/provider.rb \
                                  src/oneprovision/lib/provider/provider_pool.rb"
 
-ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES="src/oneprovision/lib/provision_template/provision_template.rb \
-                                           src/oneprovision/lib/provision_template/provision_template_pool.rb"
-
-ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb \
-                           src/oneprovision/lib/terraform/providers.rb"
+ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb"
 
 ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
                                   src/oneprovision/lib/terraform/providers/google.rb \
                                   src/oneprovision/lib/terraform/providers/digitalocean.rb \
                                   src/oneprovision/lib/terraform/providers/dummy.rb \
+                                  src/oneprovision/lib/terraform/providers/example \
                                   src/oneprovision/lib/terraform/providers/packet.rb \
                                   src/oneprovision/lib/terraform/providers/vultr.rb \
                                   src/oneprovision/lib/terraform/providers/vultr_metal.rb \
@@ -2845,6 +2843,20 @@ FIREEDGE_DEV_FILES="src/fireedge/src \
 FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 
 #----------------------------------------------------------------------------
+# FireEdge Provision files
+#----------------------------------------------------------------------------
+
+FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision.conf"
+
+FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
+                                src/fireedge/etc/provision/providers.d/digitalocean.yaml \
+                                src/fireedge/etc/provision/providers.d/dummy.yaml \
+                                src/fireedge/etc/provision/providers.d/google.yaml \
+                                src/fireedge/etc/provision/providers.d/packet.yaml \
+                                src/fireedge/etc/provision/providers.d/vultr_metal.yaml \
+                                src/fireedge/etc/provision/providers.d/vultr_virtual.yaml"
+
+#----------------------------------------------------------------------------
 # FireEdge Sunstone files
 #----------------------------------------------------------------------------
 
@@ -2992,7 +3004,6 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/oneprovision.1.gz \
         share/man/oneprovider.1.gz \
-        share/man/oneprovision-template.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
         share/man/onevrouter.1.gz \
@@ -3179,7 +3190,7 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
     if [ "$SUNSTONE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
     elif [ "$FIREEDGE" = "yes" ]; then
-        INSTALL_ETC_SET="${INSTALL_FIREDGE_ETC_FILES[@]}"
+        INSTALL_ETC_SET="${INSTALL_FIREEDGE_ETC_FILES[@]}"
     elif [ "$ONEGATE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
     elif [ "$ONEFLOW" = "yes" ]; then

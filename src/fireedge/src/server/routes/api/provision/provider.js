@@ -20,7 +20,8 @@ const {
   getConnectionProviders,
   createProviders,
   updateProviders,
-  deleteProvider
+  deleteProvider,
+  getConfig
 } = require('./provider-functions')
 const { httpMethod } = require('server/utils/constants/defaults')
 
@@ -39,6 +40,10 @@ const routes = {
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
+    },
+    config: {
+      action: getConfig,
+      params: {}
     }
   },
   [POST]: {
