@@ -133,6 +133,12 @@ define(function(require) {
     "winXPPro64Guest",
     "winXPProGues"
   ];
+  var FIRMWARE_VALUES = [
+    "BIOS",
+    "EFI",
+    "/usr/share/OVMF/OVMF_CODE.fd",
+    "/usr/share/OVMF/OVMF_CODE.secboot.fd",
+  ];
 
   var distinct = function(value, index, self){
     return self.indexOf(value)===index;
@@ -205,7 +211,7 @@ define(function(require) {
       _refreshBootValue(context);
 
       return false;
-    });
+    }); 
 
     context.on("click", "button.boot-order-down", function(){
       var tr = $(this).closest("tr");
@@ -271,8 +277,8 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
-    $("input[name='firmware_type']", context).change(function() {
-      if ($("input[name='firmware_type']:checked", context).val() === "custom") {
+    $("#firmwareType", context).change(function() {
+      if ($("#firmwareType", context).val() === "custom") {
         $("#customFirmware", context).show();
       }
       else{
@@ -345,15 +351,19 @@ define(function(require) {
 
     if (boot && boot.length > 0) {
       osJSON["BOOT"] = boot;
-    } else {
-      osJSON["BOOT"] = "";
     }
 
-    if ($("input[name='firmware_type']:checked", context).val() === "custom") {
-      osJSON["FIRMWARE"] = $("#customFirmwarePath", context).val();
-    }
-    else{
-      osJSON["FIRMWARE"] = $("input[name='firmware_type']:checked", context).val();
+    if (osJSON["FIRMWARE"]){
+      switch (osJSON["FIRMWARE"]) {
+        case "custom":
+          osJSON["FIRMWARE"] = $("#customFirmwarePath", context).val();
+          break;
+        case "":
+          delete osJSON["FIRMWARE"];
+          break;
+        default:
+          break;
+      }
     }
 
     if (!$.isEmptyObject(osJSON)) {
@@ -391,14 +401,18 @@ define(function(require) {
         $("input[value=\"initrd_path\"]", context).click();
       }
 
+
+      if (!FIRMWARE_VALUES.includes(osJSON["FIRMWARE"])){
+        $("#firmwareType", context).val("custom");
+        $("#customFirmware", context).show();
+        $("#customFirmwarePath", context).val(osJSON["FIRMWARE"]);
+        delete osJSON["FIRMWARE"];
+      }
+      
       WizardFields.fill(context, osJSON);
 
       if (osJSON["BOOT"]) {
         _fillBootValue(context, osJSON["BOOT"]);
-      }
-
-      if (osJSON["FIRMWARE"]){
-        _fillFirmwareValue(context, osJSON["FIRMWARE"]);
       }
     }
 
@@ -531,20 +545,6 @@ define(function(require) {
       });
 
       _refreshBootValue(context);
-    }
-  }
-
-  //----------------------------------------------------------------------------
-  // Firmware options
-  //----------------------------------------------------------------------------
-
-  function _fillFirmwareValue(context, value) {
-    if ($("input[name='firmware_type'][value='" + value + "']", context).length){
-      $("input[name='firmware_type'][value='" + value + "']", context).click();
-    }
-    else {
-      $("input[name='firmware_type'][value='custom']", context).click();
-      $("#customFirmwarePath", context).val(value);
     }
   }
 });
