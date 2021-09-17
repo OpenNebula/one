@@ -417,7 +417,7 @@ int LibVirtDriver::validate_template(const VirtualMachine* vm, int hid,
 
     string firmware;
 
-    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+    get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
 
     if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
     {
@@ -798,11 +798,24 @@ int LibVirtDriver::deployment_description_kvm(
              << "</bootloader>\n";
     }
 
+    bool boot_secure = false;
+
     string firmware;
-    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
+  
+    get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
+  
     if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
     {
-        file << "\t\t<loader readonly=\"yes\" type=\"pflash\">"
+        string firmware_secure = "no";
+      
+        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE", boot_secure) && 
+             boot_secure)
+        {
+            firmware_secure = "yes";
+        }
+
+        file << "\t\t<loader readonly=\"yes\" type=\"pflash\" "
+             << "secure=\"" << firmware_secure << "\">"
              << firmware
              << "</loader>\n";
         file << "\t\t<nvram>"
@@ -1830,7 +1843,7 @@ int LibVirtDriver::deployment_description_kvm(
     get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
     get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
 
-    if ( acpi || pae || apic || hyperv )
+    if ( acpi || pae || apic || hyperv || boot_secure)
     {
         file << "\t<features>" << endl;
 
@@ -1856,6 +1869,11 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<hyperv>" << endl;
             file << hyperv_options << endl;
             file << "\t\t</hyperv>" << endl;
+        }
+
+        if ( boot_secure )
+        {
+            file << "\t\t<smm state=\"on\"/>" << endl;
         }
 
         file << "\t</features>" << endl;
