@@ -1,0 +1,21 @@
+name: 'equinix-ewr1'
+
+description: 'Edge cluster in Equinix Parsippany, USA, NJ'
+provider: 'equinix'
+
+connection:
+  token: 'Equinix token'
+  project: 'Equinix project'
+  facility: 'ewr1'
+
+inputs:
+   - name: 'equinix_os'
+     type: 'list'
+     options:
+       - 'centos_8'
+   - name: 'equinix_plan'
+     type: 'list'
+     options:
+       - 't1.small'
+       - 'c1.small'
+       - 'm1.xlarge'

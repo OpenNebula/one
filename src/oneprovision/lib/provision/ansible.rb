@@ -336,7 +336,7 @@ module OneProvision
 
                 # Generate "ansible.cfg" file
                 # TODO: what if private_key isn't filename, but content
-                # TODO: store private key / packet
+                # TODO: store private key / equinix
                 #   credentials securely in the ONE
                 roles = "#{ANSIBLE_LOCATION}/roles"
 

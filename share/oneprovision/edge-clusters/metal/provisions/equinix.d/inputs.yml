@@ -15,21 +15,39 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-# hosts: Equinix or AWS metal servers
-# provision:
-#   - count: Number of servers to create
-#   - hostname: kvm-host1, kvm-host2 .... of the server
-#
-# You can define specific OpenNebula configuration attributes for all the hosts:
-#    - reserved_cpu: In percentage. It will be subtracted from the TOTAL CPU
-#    - reserved_memory: In percentage. It will be subtracted from the TOTAL MEM
-#-------------------------------------------------------------------------------
-hosts:
+inputs:
+  - name: 'number_hosts'
+    type: text
+    description: "Number of metal servers to create"
+    default: '1'
 
-  - im_mad: "${input.one_hypervisor}"
-    vm_mad: "${input.one_hypervisor}"
-    provision:
-      count: "${input.number_hosts}"
-      hostname: "edge-host${index}"
+  - name: 'number_public_ips'
+    type: text
+    description: 'Number of public IPs to get'
+    default: '1'
+
+  - name: 'dns'
+    type: text
+    description: 'Comma separated list of DNS servers for public network'
+    default: '1.1.1.1'
+
+  - name: 'equinix_plan'
+    type: text
+    description: "Equinix plan (device type)"
+    default: 'baremetal_0'
+
+  - name: 'equinix_os'
+    type: text
+    description: "Equinix host operating system"
+    default: 'centos_8'
+
+  - name: 'one_hypervisor'
+    type: list
+    description: "Virtualization technology for the cluster hosts"
+    options:
+        - 'kvm'
+        - 'firecracker'
+        - 'lxc'
+    default: 'kvm'
+
 ...

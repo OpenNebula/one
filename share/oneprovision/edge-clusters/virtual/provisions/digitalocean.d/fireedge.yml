@@ -17,4 +17,3 @@
 
 image: 'OPENNEBULA-DIGITALOCEAN'
 provider: 'digitalocean'
-provision_type: 'virtual'

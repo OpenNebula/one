@@ -17,4 +17,3 @@
 
 image: 'OPENNEBULA-VULTR'
 provider: 'vultr_virtual'
-provision_type: 'virtual'

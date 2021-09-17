@@ -63,12 +63,12 @@ AllCops:
     - src/pm_mad/remotes/dummy/deploy
     - src/pm_mad/remotes/dummy/reset
     - src/pm_mad/remotes/dummy/poll
-    - src/pm_mad/remotes/packet/cancel
-    - src/pm_mad/remotes/packet/shutdown
-    - src/pm_mad/remotes/packet/reboot
-    - src/pm_mad/remotes/packet/deploy
-    - src/pm_mad/remotes/packet/reset
-    - src/pm_mad/remotes/packet/poll
+    - src/pm_mad/remotes/equinix/cancel
+    - src/pm_mad/remotes/equinix/shutdown
+    - src/pm_mad/remotes/equinix/reboot
+    - src/pm_mad/remotes/equinix/deploy
+    - src/pm_mad/remotes/equinix/reset
+    - src/pm_mad/remotes/equinix/poll
     - src/pm_mad/remotes/ec2/cancel
     - src/pm_mad/remotes/ec2/shutdown
     - src/pm_mad/remotes/ec2/reboot
@@ -82,7 +82,7 @@ AllCops:
     - src/im_mad/remotes/kvm-probes.d/pci.rb
     - src/im_mad/remotes/kvm.d/monitord-client.rb
     - src/im_mad/remotes/lxd.d/monitord-client.rb
-    - src/im_mad/remotes/packet.d/poll
+    - src/im_mad/remotes/equinix.d/poll
     - src/im_mad/remotes/ec2.d/poll
     - src/im_mad/remotes/one.d/poll
     - src/im_mad/remotes/az.d/poll
@@ -137,12 +137,12 @@ AllCops:
     - src/vmm_mad/remotes/az/save
     - src/vmm_mad/remotes/az/restore
     - src/vmm_mad/remotes/az/poll
-    - src/vmm_mad/remotes/packet/cancel
-    - src/vmm_mad/remotes/packet/shutdown
-    - src/vmm_mad/remotes/packet/reboot
-    - src/vmm_mad/remotes/packet/deploy
-    - src/vmm_mad/remotes/packet/reset
-    - src/vmm_mad/remotes/packet/poll
+    - src/vmm_mad/remotes/equinix/cancel
+    - src/vmm_mad/remotes/equinix/shutdown
+    - src/vmm_mad/remotes/equinix/reboot
+    - src/vmm_mad/remotes/equinix/deploy
+    - src/vmm_mad/remotes/equinix/reset
+    - src/vmm_mad/remotes/equinix/poll
     - src/vmm_mad/remotes/ec2/cancel
     - src/vmm_mad/remotes/ec2/shutdown
     - src/vmm_mad/remotes/ec2/reboot
@@ -386,7 +386,7 @@ AllCops:
     - src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb
     - src/vmm_mad/remotes/lib/lxd/command.rb
     - src/vmm_mad/remotes/lib/poll_common.rb
-    - src/vmm_mad/remotes/packet/packet_driver.rb
+    - src/vmm_mad/remotes/equinix/equinix_driver.rb
     - src/vmm_mad/remotes/ec2/ec2_driver.rb
     - src/mad/ruby/ssh_stream.rb
     - src/mad/ruby/test/MonkeyPatcher.rb

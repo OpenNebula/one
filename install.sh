@@ -306,7 +306,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual \
           $LIB_LOCATION/oneprovision/lib/provision \
@@ -409,13 +409,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/packet.d \
-          $VAR_LOCATION/remotes/im/packet-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/packet-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/packet-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/packet-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/packet-probes.d/vm/snapshot \
+          $VAR_LOCATION/remotes/im/equinix.d \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
@@ -425,7 +425,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/one \
           $VAR_LOCATION/remotes/vmm/lxd \
           $VAR_LOCATION/remotes/vmm/lxc \
-          $VAR_LOCATION/remotes/vmm/packet \
+          $VAR_LOCATION/remotes/vmm/equinix \
           $VAR_LOCATION/remotes/vmm/firecracker \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
@@ -511,7 +511,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
-          $VAR_LOCATION/remotes/ipam/packet \
+          $VAR_LOCATION/remotes/ipam/equinix \
           $VAR_LOCATION/remotes/ipam/vultr \
           $VAR_LOCATION/remotes/ipam/aws"
 
@@ -602,7 +602,7 @@ INSTALL_FILES=(
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
     IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
-    IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
+    IM_PROBES_EQUINIX_FILES:$VAR_LOCATION/remotes/im/equinix.d
     IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
     IM_PROBES_KVM_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
     IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
@@ -651,11 +651,11 @@ INSTALL_FILES=(
     IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
     IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
     IM_PROBES_ONE_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/status
-    IM_PROBES_PACKET_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/beacon
-    IM_PROBES_PACKET_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/monitor
-    IM_PROBES_PACKET_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/host/system
-    IM_PROBES_PACKET_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor
-    IM_PROBES_PACKET_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/packet-probes.d/vm/status
+    IM_PROBES_EQUINIX_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/beacon
+    IM_PROBES_EQUINIX_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/monitor
+    IM_PROBES_EQUINIX_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/system
+    IM_PROBES_EQUINIX_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/monitor
+    IM_PROBES_EQUINIX_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
     IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
@@ -690,7 +690,7 @@ INSTALL_FILES=(
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
     VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
-    VMM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/vmm/packet
+    VMM_EXEC_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/vmm/equinix
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
@@ -724,7 +724,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
     MARKETPLACE_DRIVER_REGISTRY_SCRIPTS:$VAR_LOCATION/remotes/market/docker_registry
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
-    IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
+    IPAM_DRIVER_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/ipam/equinix
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
     IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -802,7 +802,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_AWS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws
     ONEPROVISION_LIB_GOOGLE_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google
     ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean
-    ONEPROVISION_LIB_PACKET_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet
+    ONEPROVISION_LIB_EQUINIX_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix
     ONEPROVISION_LIB_VULTR_METAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal
     ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
@@ -1018,9 +1018,9 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
-                src/vmm_mad/remotes/packet/packet_driver.rb \
+                src/vmm_mad/remotes/equinix/equinix_driver.rb \
                 src/vnm_mad/remotes/elastic/aws_vnm.rb \
-                src/vnm_mad/remotes/elastic/packet_vnm.rb \
+                src/vnm_mad/remotes/elastic/equinix_vnm.rb \
                 src/vnm_mad/remotes/elastic/vultr_vnm.rb"
 
 #-------------------------------------------------------------------------------
@@ -1369,15 +1369,15 @@ VMM_EXEC_ONE_SCRIPTS="src/vmm_mad/remotes/one/cancel \
                      src/vmm_mad/remotes/one/prereconfigure"
 
 #------------------------------------------------------------------------------
-# VMM Driver Packet scripts, to be installed under $REMOTES_LOCATION/vmm/packet
+# VMM Driver Equinix scripts, to be installed under $REMOTES_LOCATION/vmm/equinix
 #------------------------------------------------------------------------------
 
-VMM_EXEC_PACKET_SCRIPTS="src/vmm_mad/remotes/packet/cancel \
-                     src/vmm_mad/remotes/packet/deploy \
-                     src/vmm_mad/remotes/packet/reboot \
-                     src/vmm_mad/remotes/packet/reset \
-                     src/vmm_mad/remotes/packet/poll \
-                     src/vmm_mad/remotes/packet/shutdown"
+VMM_EXEC_EQUINIX_SCRIPTS="src/vmm_mad/remotes/equinix/cancel \
+                     src/vmm_mad/remotes/equinix/deploy \
+                     src/vmm_mad/remotes/equinix/reboot \
+                     src/vmm_mad/remotes/equinix/reset \
+                     src/vmm_mad/remotes/equinix/poll \
+                     src/vmm_mad/remotes/equinix/shutdown"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -1662,28 +1662,28 @@ IM_PROBES_ONE_VM_MONITOR_FILES="\
 IM_PROBES_ONE_VM_STATUS_FILES="\
      src/im_mad/remotes/one-probes.d/vm/status/probe_vm_status.rb"
 
-IM_PROBES_PACKET_FILES="src/im_mad/remotes/packet.d/poll"
+IM_PROBES_EQUINIX_FILES="src/im_mad/remotes/equinix.d/poll"
 
-# PACKET monitord-client
-IM_PROBES_PACKET_FILES="\
-    src/im_mad/remotes/packet.d/monitord-client_control.sh \
-    src/im_mad/remotes/packet.d/monitord-client.rb"
+# EQUINIX monitord-client
+IM_PROBES_EQUINIX_FILES="\
+    src/im_mad/remotes/equinix.d/monitord-client_control.sh \
+    src/im_mad/remotes/equinix.d/monitord-client.rb"
 
-# PACKET probes
-IM_PROBES_PACKET_HOST_BEACON_FILES="\
-     src/im_mad/remotes/packet-probes.d/host/beacon/monitord-client-shepherd_local.sh"
+# EQUINIX probes
+IM_PROBES_EQUINIX_HOST_BEACON_FILES="\
+     src/im_mad/remotes/equinix-probes.d/host/beacon/monitord-client-shepherd_local.sh"
 
-IM_PROBES_PACKET_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/packet-probes.d/host/monitor/probe_host_monitor.rb"
+IM_PROBES_EQUINIX_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/equinix-probes.d/host/monitor/probe_host_monitor.rb"
 
-IM_PROBES_PACKET_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/packet-probes.d/host/system/probe_host_system.rb"
+IM_PROBES_EQUINIX_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/equinix-probes.d/host/system/probe_host_system.rb"
 
-IM_PROBES_PACKET_VM_MONITOR_FILES="\
-     src/im_mad/remotes/packet-probes.d/vm/monitor/probe_vm_monitor.rb"
+IM_PROBES_EQUINIX_VM_MONITOR_FILES="\
+     src/im_mad/remotes/equinix-probes.d/vm/monitor/probe_vm_monitor.rb"
 
-IM_PROBES_PACKET_VM_STATUS_FILES="\
-     src/im_mad/remotes/packet-probes.d/vm/status/probe_vm_status.rb"
+IM_PROBES_EQUINIX_VM_STATUS_FILES="\
+     src/im_mad/remotes/equinix-probes.d/vm/status/probe_vm_status.rb"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
@@ -1807,13 +1807,13 @@ IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
                            src/ipamm_mad/remotes/dummy/free_address"
 
 #-------------------------------------------------------------------------------
-# IPAM Packet drivers to be installed under $REMOTES_LOCATION/ipam
+# IPAM Equinix drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
-IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range \
-                            src/ipamm_mad/remotes/packet/unregister_address_range \
-                            src/ipamm_mad/remotes/packet/allocate_address \
-                            src/ipamm_mad/remotes/packet/get_address \
-                            src/ipamm_mad/remotes/packet/free_address"
+IPAM_DRIVER_EQUINIX_SCRIPTS="src/ipamm_mad/remotes/equinix/register_address_range \
+                            src/ipamm_mad/remotes/equinix/unregister_address_range \
+                            src/ipamm_mad/remotes/equinix/allocate_address \
+                            src/ipamm_mad/remotes/equinix/get_address \
+                            src/ipamm_mad/remotes/equinix/free_address"
 
 #-------------------------------------------------------------------------------
 # IPAM Vultr drivers to be installed under $REMOTES_LOCATION/ipam
@@ -2570,7 +2570,7 @@ ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.r
                                   src/oneprovision/lib/terraform/providers/digitalocean.rb \
                                   src/oneprovision/lib/terraform/providers/dummy.rb \
                                   src/oneprovision/lib/terraform/providers/example \
-                                  src/oneprovision/lib/terraform/providers/packet.rb \
+                                  src/oneprovision/lib/terraform/providers/equinix.rb \
                                   src/oneprovision/lib/terraform/providers/vultr.rb \
                                   src/oneprovision/lib/terraform/providers/vultr_metal.rb \
                                   src/oneprovision/lib/terraform/providers/vultr_virtual.rb"
@@ -2593,11 +2593,11 @@ ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES="src/oneprovision/lib/terraform/provider
                                          src/oneprovision/lib/terraform/providers/templates/digitalocean/network.erb \
                                          src/oneprovision/lib/terraform/providers/templates/digitalocean/provider.erb"
 
-ONEPROVISION_LIB_PACKET_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/packet/cluster.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/packet/datastore.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/packet/host.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/packet/network.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/packet/provider.erb"
+ONEPROVISION_LIB_EQUINIX_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/equinix/cluster.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/equinix/datastore.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/equinix/host.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/equinix/network.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/equinix/provider.erb"
 
 ONEPROVISION_LIB_VULTR_METAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_metal/cluster.erb \
                                         src/oneprovision/lib/terraform/providers/templates/vultr_metal/datastore.erb \
@@ -2852,7 +2852,7 @@ FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yam
                                 src/fireedge/etc/provision/providers.d/digitalocean.yaml \
                                 src/fireedge/etc/provision/providers.d/dummy.yaml \
                                 src/fireedge/etc/provision/providers.d/google.yaml \
-                                src/fireedge/etc/provision/providers.d/packet.yaml \
+                                src/fireedge/etc/provision/providers.d/equinix.yaml \
                                 src/fireedge/etc/provision/providers.d/vultr_metal.yaml \
                                 src/fireedge/etc/provision/providers.d/vultr_virtual.yaml"
 

@@ -112,22 +112,6 @@ CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Allocate a new provider. Configuration file must be written in YAML.
-
-        $ cat packet.yaml
-        name: 'packet_custom'
-        provider: 'packet'
-        connection:
-            packet_token:   "Packet token"
-            packet_project: "Packet project"
-            facility:       "Packet facility"
-
-        $ cat ec2.yaml
-        name: 'aws_custom',
-        provider: 'aws'
-        connection:
-            ec2_access:        "AWS access key"
-            ec2_secret:        "AWS secret key"
-            region_name:       "AWS region name""
     EOT
 
     command :create, create_desc, :template do

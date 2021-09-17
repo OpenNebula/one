@@ -181,15 +181,15 @@ class ElasticDriver < VNMMAD::VNMDriver
 
     # Factory method to create a VNM provider for the host provision
     #   @param host [OpenNebula::Host]
-    #   @return [AWSProvider, PacketProvider, nil] nil
+    #   @return [AWSProvider, EquinixProvider, nil] nil
     def self.provider(provider, host)
         case provider.body['provider']
         when 'aws'
             require 'aws_vnm'
             AWSProvider.new(provider, host)
-        when 'packet'
-            require 'packet_vnm'
-            PacketProvider.new(provider, host)
+        when 'equinix'
+            require 'equinix_vnm'
+            EquinixProvider.new(provider, host)
         when 'vultr_virtual', 'vultr_metal'
             require 'vultr_vnm'
             VultrProvider.new(provider, host)

@@ -15,21 +15,5 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-# hosts: Equinix or AWS metal servers
-# provision:
-#   - count: Number of servers to create
-#   - hostname: kvm-host1, kvm-host2 .... of the server
-#
-# You can define specific OpenNebula configuration attributes for all the hosts:
-#    - reserved_cpu: In percentage. It will be subtracted from the TOTAL CPU
-#    - reserved_memory: In percentage. It will be subtracted from the TOTAL MEM
-#-------------------------------------------------------------------------------
-hosts:
-
-  - im_mad: "${input.one_hypervisor}"
-    vm_mad: "${input.one_hypervisor}"
-    provision:
-      count: "${input.number_hosts}"
-      hostname: "edge-host${index}"
-...
+image: 'OPENNEBULA-EQUINIX'
+provider: 'equinix'

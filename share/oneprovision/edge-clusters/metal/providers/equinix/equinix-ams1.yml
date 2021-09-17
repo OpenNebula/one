@@ -1,0 +1,19 @@
+name: 'equinix-amsterdam'
+
+description: 'Edge cluster in Equinix Amsterdam'
+provider: 'equinix'
+
+connection:
+  token: 'Equinix token'
+  project: 'Equinix project'
+  facility: 'ams1'
+
+inputs:
+   - name: 'equinix_os'
+     type: 'list'
+     options:
+       - 'centos_8'
+   - name: 'equinix_plan'
+     type: 'list'
+     options:
+       - 'baremetal_0'

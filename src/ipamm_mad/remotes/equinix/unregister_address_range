@@ -1,0 +1,121 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to unregister a new IP network in the IPAM.
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <DEPLOY_ID>Equinix AR ID</DEPLOY_ID>
+#      <EQUINIX_TOKEN>Equinix auth token</EQUINIX_TOKEN>
+#    </AR>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+################################################################################
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    EQUINIX_LOCATION  ||= '/usr/lib/one/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    EQUINIX_LOCATION  ||= ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << EQUINIX_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
+
+require 'packet'
+require 'base64'
+require 'nokogiri'
+require 'opennebula'
+require 'oneprovision'
+
+begin
+    data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+    # --------------------------------------------------------------------------
+    # Get connection details for the provider
+    # --------------------------------------------------------------------------
+    provision_id = data.xpath('//AR/PROVISION_ID').text
+
+    if provision_id.empty?
+        STDERR.puts 'Missing provision id in address range'
+        exit(-1)
+    end
+
+    one       = OpenNebula::Client.new
+    provision = OneProvision::Provision.new_with_id(provision_id, one)
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    provider = provision.provider
+    connect  = provider.body['connection']
+    pk_token = connect['token']
+
+    # --------------------------------------------------------------------------
+    # Connect to Equinix and delete the IP
+    # --------------------------------------------------------------------------
+    equinix            = Packet::Client.new
+    equinix.auth_token = pk_token
+
+    equinix_id = data.xpath('//AR/EQUINIX_IP_ID').text.to_s
+
+    if equinix_id.empty?
+        STDERR.puts 'Missing Equinix range ID'
+        exit(-1)
+    end
+
+    equinxi.delete_ip(equinix_id)
+rescue StandardError => e
+    STDERR.puts e.to_s
+    exit(-1)
+end

@@ -41,7 +41,7 @@
   group: oneadmin
   mode: '0640'
 
-- name: /etc/one/packet_driver.default
+- name: /etc/one/equinix_driver.default
   class: Simple
   owner: root
   group: oneadmin
