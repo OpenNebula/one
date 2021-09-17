@@ -125,9 +125,8 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
     string net_mode = "";
 
     net_mode = this->vector_value("NETWORK_MODE");
-    one_util::toupper(net_mode);
 
-    if ( net_mode == "AUTO" )
+    if ( one_util::icasecmp(net_mode, "AUTO") )
     {
         return;
     }
@@ -434,9 +433,8 @@ int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
         int nic_id;
 
         std::string net_mode = (*nic)->vector_value("NETWORK_MODE");
-        one_util::toupper(net_mode);
 
-        if ( net_mode != "AUTO" )
+        if ( !one_util::icasecmp(net_mode, "AUTO") )
         {
             continue;
         }

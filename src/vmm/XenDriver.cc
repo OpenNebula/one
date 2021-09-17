@@ -315,14 +315,9 @@ int XenDriver::deployment_description(
 
         mode = "w";
 
-        if ( !ro.empty() )
+        if ( one_util::icasecmp(ro, "YES") )
         {
-            one_util::toupper(ro);
-
-            if ( ro == "YES" )
-            {
-                mode = "r";
-            }
+            mode = "r";
         }
 
         if ( !driver.empty() )
@@ -689,9 +684,7 @@ int XenDriver::deployment_description(
     {
         type = raw[i]->vector_value("TYPE");
 
-        one_util::toupper(type);
-
-        if ( type == "XEN" )
+        if ( one_util::icasecmp(type, "XEN") )
         {
             data = raw[i]->vector_value("DATA");
             file << data << endl;

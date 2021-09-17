@@ -159,9 +159,8 @@ void VirtualMachineXML::init_attributes()
             nic_template.from_xml_node(*it_nodes);
 
             bool rc = nic_template.get("NETWORK_MODE", net_mode);
-            one_util::toupper(net_mode);
 
-            if ( !rc || net_mode != "AUTO" )
+            if ( !rc || !one_util::icasecmp(net_mode, "AUTO") )
             {
                 continue;
             }

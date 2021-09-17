@@ -123,8 +123,7 @@ int Image::insert(SqlDB *db, string& error_str)
         case OS:
         case DATABLOCK:
         case CDROM:
-            one_util::toupper(persistent_attr);
-            persistent_img = (persistent_attr == "YES");
+            persistent_img = one_util::icasecmp(persistent_attr, "YES");
 
             get_template_attribute("DEV_PREFIX", dev_prefix);
 
@@ -1070,9 +1069,9 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
         {
             persistent = tmpl_persis;
         }
-        else if (one_util::toupper(per_oned) == "YES")
+        else
         {
-            persistent = true;
+            persistent = one_util::icasecmp(per_oned, "YES");
         }
     }
     else

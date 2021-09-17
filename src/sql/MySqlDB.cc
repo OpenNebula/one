@@ -208,7 +208,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         mysql_options(connections[i], MYSQL_SET_CHARSET_NAME, encoding.c_str());
 
         rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
-                password.c_str(), database.c_str(), port, NULL, 
+                password.c_str(), database.c_str(), port, NULL,
                 CLIENT_REMEMBER_OPTIONS);
 
         if ( rc == nullptr)
@@ -293,7 +293,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         {SqlFeature::MULTIPLE_VALUE, true},
         {SqlFeature::LIMIT, true},
         {SqlFeature::FTS, version >= min_fts_version},
-        {SqlFeature::COMPARE_BINARY, one_util::toupper(_compare_binary) == "YES"}
+        {SqlFeature::COMPARE_BINARY, one_util::icasecmp(_compare_binary, "YES")}
     };
 }
 

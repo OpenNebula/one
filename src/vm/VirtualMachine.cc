@@ -3238,11 +3238,10 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
         VirtualMachineNic * nic = get_nic(nic_id);
 
         net_mode = nic->vector_value("NETWORK_MODE");
-        one_util::toupper(net_mode);
 
         string network_id = nic->vector_value("NETWORK_ID");
 
-        if (nic == 0 || net_mode != "AUTO" || !network_id.empty())
+        if (nic == 0 || !one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
         {
             std::ostringstream oss;
 

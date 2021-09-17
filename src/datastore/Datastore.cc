@@ -110,8 +110,8 @@ void Datastore::disk_attribute(
 
     if (!tm_mad.empty())
     {
-        string tm_mad_t = one_util::trim(tm_mad);
-        tm_mad = one_util::toupper(tm_mad_t);
+        tm_mad = one_util::trim(tm_mad);
+        one_util::toupper(tm_mad);
     }
 
     if (!tm_mad.empty())
@@ -437,8 +437,8 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
             for (const auto &mode : modes)
             {
-                string tm_mad_t = one_util::trim(mode);
-                string tm_mad = one_util::toupper(tm_mad_t);
+                string tm_mad = one_util::trim(mode);
+                one_util::toupper(tm_mad);
 
                 st = vatt->vector_value("LN_TARGET_" + tm_mad);
 

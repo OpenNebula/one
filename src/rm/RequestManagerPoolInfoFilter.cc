@@ -237,7 +237,7 @@ void RequestManagerPoolInfoFilter::dump(
                                  where_string,
                                  start_id,
                                  limit_end_id,
-                                 one_util::toupper(desc) == "DESC");
+                                 one_util::icasecmp(desc, "DESC"));
     }
     else
     {
@@ -245,7 +245,7 @@ void RequestManagerPoolInfoFilter::dump(
                         where_string,
                         start_id,
                         limit_end_id,
-                        one_util::toupper(desc) == "DESC");
+                        one_util::icasecmp(desc, "DESC"));
     }
 
     if ( rc != 0 )

@@ -419,8 +419,7 @@ int LibVirtDriver::validate_template(const VirtualMachine* vm, int hid,
 
     get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
 
-    string firmware_up = firmware;
-    if ( !firmware.empty() && one_util::toupper(firmware_up) != "BIOS")
+    if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
     {
         string ovmf_uefis;
 
@@ -801,8 +800,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     string firmware;
     get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
-    string firmware_up = firmware;
-    if ( !firmware.empty() && one_util::toupper(firmware_up) != "BIOS")
+    if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
     {
         file << "\t\t<loader readonly=\"yes\" type=\"pflash\">"
              << firmware
@@ -1913,9 +1911,7 @@ int LibVirtDriver::deployment_description_kvm(
     {
         type = raw[i]->vector_value("TYPE");
 
-        one_util::toupper(type);
-
-        if ( type == "KVM" )
+        if ( one_util::icasecmp(type, "KVM") )
         {
             data = raw[i]->vector_value("DATA");
             file << "\t" << data << endl;

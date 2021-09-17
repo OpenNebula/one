@@ -327,9 +327,8 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
     for(int i=0; i<num_tatts; i++)
     {
         std::string net_mode = vatts[i]->vector_value("NETWORK_MODE");
-        one_util::toupper(net_mode);
 
-        if ( net_mode == "AUTO" && !only_auto )
+        if ( one_util::icasecmp(net_mode, "AUTO") && !only_auto )
         {
             continue;
         }

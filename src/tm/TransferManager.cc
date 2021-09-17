@@ -154,8 +154,6 @@ int TransferManager::prolog_transfer_command(
             goto error_attributes;
         }
 
-        one_util::toupper(clon);
-
         std::string tsys = disk->get_tm_mad_system();
         if (!tsys.empty())
         {
@@ -167,7 +165,7 @@ int TransferManager::prolog_transfer_command(
         // -----------------------------------------------------------------
 
         // <CLONE|LN>(.tm_mad_system) tm_mad fe:SOURCE host:remote_system_ds/disk.i vmid dsid"
-        if (clon == "YES")
+        if (one_util::icasecmp(clon, "YES"))
         {
             xfr << "CLONE";
         }

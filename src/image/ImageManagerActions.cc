@@ -114,7 +114,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
 
     img->get_template_attribute("PERSISTENT_TYPE", persistent_type);
 
-    shareable = one_util::toupper(persistent_type) == "SHAREABLE";
+    shareable = one_util::icasecmp(persistent_type, "SHAREABLE");
 
     switch (img->get_state())
     {

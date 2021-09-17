@@ -88,7 +88,7 @@ void DatastoreXML::init_attributes()
     string shared_st;
     this->xpath(shared_st, "/DATASTORE/TEMPLATE/SHARED", "YES");
 
-    shared = one_util::toupper(shared_st) == "YES";
+    shared = one_util::icasecmp(shared_st, "YES");
 
     ObjectXML::paths     = ds_paths;
     ObjectXML::num_paths = ds_num_paths;

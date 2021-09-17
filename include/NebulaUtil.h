@@ -33,6 +33,13 @@ namespace one_util
 
     std::string& tolower(std::string& st);
 
+    /* Case insensitive string compare
+     * @param str1 First string to compare
+     * @param str2 Second string to compare
+     * @return true if the string are equal, false otherwise
+     */
+    bool icasecmp(const std::string& str1, const std::string& str2);
+
     std::string log_time(time_t the_time);
 
     std::string log_time();

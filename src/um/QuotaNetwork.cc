@@ -45,11 +45,10 @@ bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
     for (nic = nics->begin() ; nic != nics->end() ; ++nic)
     {
         std::string net_mode = (*nic)->vector_value("NETWORK_MODE");
-        one_util::toupper(net_mode);
 
         std::string net_id   = (*nic)->vector_value("NETWORK_ID");
 
-        if ( net_mode == "AUTO" && net_id.empty() )
+        if ( one_util::icasecmp(net_mode, "AUTO") && net_id.empty() )
         {
             continue;
         }

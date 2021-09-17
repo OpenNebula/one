@@ -301,14 +301,7 @@ int VectorAttribute::vector_value(const string& name, bool& value) const
         return -1;
     }
 
-    string tmp = it->second;
-
-    one_util::toupper(tmp);
-
-    if (tmp == "YES")
-    {
-        value = true;
-    }
+    value = one_util::icasecmp(it->second, "YES");
 
     return 0;
 }
