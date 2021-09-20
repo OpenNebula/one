@@ -377,6 +377,10 @@ define(function(require) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context));
       }
     }
+    
+    if (templateJSON["HYPERVISOR"] == "lxc"){
+      templateJSON["LXC_UNPRIVILEGED"] = $("#lxc_security_privileged", context).val().toUpperCase();
+    }
 
     var sunstone_template = {};
 
@@ -502,7 +506,9 @@ define(function(require) {
     }
 
     // LXC specific attributes
-    if (templateJSON["HYPERVISOR"] == "lxc") {}
+    if (templateJSON["HYPERVISOR"] == "lxc") {
+      $("#lxc_security_privileged").val(templateJSON["LXC_UNPRIVILEGED"].toLowerCase());
+    }
 
     if (templateJSON["HYPERVISOR"]) {
       $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click");

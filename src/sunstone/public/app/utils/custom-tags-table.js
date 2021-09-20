@@ -28,7 +28,7 @@ define(function(require) {
 
   var showMandatory = false;
   var showDefault = false;
-  var deleteTags = ["VCENTER_CUSTOMIZATION_SPEC"];
+  var deleteTags = ["VCENTER_CUSTOMIZATION_SPEC", "LXC_UNPRIVILEGED"];
 
   function _reset(){
     showDefault = false;

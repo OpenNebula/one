@@ -121,6 +121,20 @@
     </div>
   </div>
 </fieldset>
+<fieldset class="hypervisor only_lxc" style="display: none;">
+  <legend>{{tr "LXC"}}</legend>
+  <div class="row">
+    <div class="medium-6 columns">
+      <label  for="lxc_security_privileged">
+        {{tr "Security Privileged"}}
+      </label>
+      <select id="lxc_security_privileged">
+         <option selected="selected" value="yes">Yes</option>
+         <option value="no">No</option>
+      </select>
+    </div>
+  </div>
+</fieldset>
 {{#isFeatureEnabled "showback"}}
 <div class="row">
   <div class="medium-12 columns">
