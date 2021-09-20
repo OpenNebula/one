@@ -626,6 +626,8 @@ define(function(require) {
             } else {
               $(".memory_input .mb_input input", context).removeAttr("pattern");
             }
+
+            $(".memory_input .mb_input input.visor").trigger("change");
           });
           mb_input_unit.trigger("change");
 
