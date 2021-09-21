@@ -105,9 +105,11 @@ const DialogConfirmation = memo(
       >
         <DialogTitle disableTypography className={classes.title}>
           <div className={classes.titleText}>
-            <Typography variant='h6'>
-              {typeof title === 'string' ? Tr(title) : title}
-            </Typography>
+            {title && (
+              <Typography variant='h6'>
+                {typeof title === 'string' ? Tr(title) : title}
+              </Typography>
+            )}
             {subheader && (
               <Typography variant='subtitle1'>
                 {typeof subheader === 'string' ? Tr(subheader) : subheader}
@@ -152,7 +154,7 @@ export const DialogPropTypes = {
   title: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node
-  ]).isRequired,
+  ]),
   subheader: PropTypes.string,
   contentProps: PropTypes.object,
   handleAccept: PropTypes.func,

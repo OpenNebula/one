@@ -50,8 +50,9 @@ const ALIAS_FIELD = ({ nics = [] } = {}) => ({
       .filter(({ NAME }) => NAME !== name || !name) // filter it self
       .map(nic => {
         const { NAME, IP = '', NETWORK = '', NIC_ID = '' } = nic
+        const text = [NAME ?? NIC_ID, NETWORK, IP].filter(Boolean).join(' - ')
 
-        return { text: `${NAME ?? NIC_ID} - ${NETWORK} ${IP}`, value: NAME }
+        return { text, value: NAME }
       })
   ],
   validation: yup

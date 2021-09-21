@@ -47,7 +47,7 @@ const ButtonToTriggerForm = ({
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { onSubmit: handleSubmit, form, isConfirmDialog = true } = Form ?? {}
+  const { onSubmit: handleSubmit, form, isConfirmDialog = false } = Form ?? {}
 
   const formConfig = useMemo(() => form?.() ?? {}, [form])
   const { steps, defaultValues, resolver, fields, transformBeforeSubmit } = formConfig

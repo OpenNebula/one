@@ -20,14 +20,14 @@ import PropTypes from 'prop-types'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useUserApi, useVmGroupApi, useVmTemplateApi } from 'client/features/One'
 import { useFetch } from 'client/hooks'
+import { useUserApi, useVmGroupApi, useVmTemplateApi } from 'client/features/One'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
 const InstantiateForm = ({ template, onSubmit }) => {
-  const stepProps = useMemo(() => Steps(template, template), [])
-  const { steps, defaultValues, resolver, transformBeforeSubmit } = stepProps
+  const stepsForm = useMemo(() => Steps(template, template), [])
+  const { steps, defaultValues, resolver, transformBeforeSubmit } = stepsForm
 
   const methods = useForm({
     mode: 'onSubmit',
@@ -46,7 +46,7 @@ const InstantiateForm = ({ template, onSubmit }) => {
   )
 }
 
-const PreFetchingForm = ({ templateId, ...props }) => {
+const PreFetchingForm = ({ templateId, onSubmit }) => {
   const { getUsers } = useUserApi()
   const { getVmGroups } = useVmGroupApi()
   const { getVmTemplate } = useVmTemplateApi()
@@ -62,7 +62,7 @@ const PreFetchingForm = ({ templateId, ...props }) => {
 
   return (templateId && !data)
     ? <SkeletonStepsForm />
-    : <InstantiateForm {...props} template={data} />
+    : <InstantiateForm template={data} onSubmit={onSubmit} />
 }
 
 PreFetchingForm.propTypes = {

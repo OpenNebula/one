@@ -20,7 +20,6 @@
  * @property {string} provider - Provider type
  * @property {object} plain - Information in plain format
  * @property {string} plain.provider - Provider type
- * @property {string|string[]} plain.location_key - Location key/s
  * @property {object} connection - Connections
  * @property {Array} inputs - Inputs to provision form
  */

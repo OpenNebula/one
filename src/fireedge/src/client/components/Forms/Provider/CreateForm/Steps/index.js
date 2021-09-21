@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import Template from 'client/components/Forms/Provider/CreateForm/Steps/Template'
-import BasicConfiguration from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration'
-import Connection from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
+import Template, { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Template'
+import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration'
+import Connection, { STEP_ID as CONNECTION_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
+import { getConnectionEditable, getConnectionFixed } from 'client/models/ProviderTemplate'
 import { createSteps, deepmerge } from 'client/utils'
 
 const Steps = createSteps(stepProps => {
@@ -28,11 +28,31 @@ const Steps = createSteps(stepProps => {
     Connection
   ].filter(Boolean)
 }, {
-  transformBeforeSubmit: formData => {
-    const { template, configuration, connection } = formData
-    const templateSelected = template?.[0]
+  transformInitialValue: ({ provider, connection, providerConfig } = {}) => {
+    const { description, ...currentBodyTemplate } = provider?.TEMPLATE?.PROVISION_BODY ?? {}
 
-    return deepmerge(templateSelected, { ...configuration, connection })
+    // overwrite decrypted connection
+    const fakeProviderTemplate = { ...currentBodyTemplate, connection }
+    const connectionEditable = getConnectionEditable(fakeProviderTemplate, providerConfig)
+
+    return {
+      [TEMPLATE_ID]: [fakeProviderTemplate],
+      [CONNECTION_ID]: connectionEditable,
+      [BASIC_ID]: { description }
+    }
+  },
+  transformBeforeSubmit: (formData, providerConfig) => {
+    const {
+      [TEMPLATE_ID]: [templateSelected] = [],
+      [CONNECTION_ID]: connection = {},
+      [BASIC_ID]: configuration = {}
+    } = formData ?? {}
+
+    const connectionFixed = getConnectionFixed(templateSelected, providerConfig)
+    const allConnections = { ...connection, ...connectionFixed }
+    const editedData = { ...configuration, connection: allConnections }
+
+    return deepmerge(templateSelected, editedData)
   }
 })
 

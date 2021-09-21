@@ -68,7 +68,7 @@ export const reorder = (newBootOrder, setFormData) => {
 const Booting = ({ data, setFormData }) => {
   const classes = useStyles()
   const { watch } = useFormContext()
-  const bootOrder = data?.OS?.BOOT?.split(',').filter(Boolean)
+  const bootOrder = data?.OS?.BOOT?.split(',').filter(Boolean) ?? []
 
   const disks = useMemo(() => {
     const templateSeleted = watch(`${TEMPLATE_ID}[0]`)
@@ -95,12 +95,13 @@ const Booting = ({ data, setFormData }) => {
   }, [])
 
   const nics = data?.[NIC_ID]
+    ?.map((nic, idx) => ({ ...nic, NAME: nic?.NAME ?? `NIC${idx}` }))
     ?.map((nic, idx) => ({
       ID: `nic${idx}`,
       NAME: (
         <>
           <NetworkIcon size={16} />
-          {`NIC ${idx}: ${nic.NETWORK}`}
+          {[nic?.NAME ?? `NIC${idx}`, nic.NETWORK].filter(Boolean).join(': ')}
         </>
       )
     })) ?? []
@@ -173,7 +174,7 @@ const Booting = ({ data, setFormData }) => {
             </div>
           )}
         </Droppable>
-        <Divider />
+        {restOfItems.length > 0 && <Divider />}
         {restOfItems.map(({ ID, NAME }) => (
           <div key={ID} className={classes.item}>
             <Action

@@ -59,7 +59,7 @@ const Ownership = memo(({
       link: PATH.SYSTEM.USERS.DETAIL.replace(':id', userId),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
       handleGetOptionList: getUserOptions,
-      handleEdit: user => handleEdit?.({ user })
+      handleEdit: (_, user) => handleEdit?.({ user })
     },
     {
       name: T.Group,
@@ -68,7 +68,7 @@ const Ownership = memo(({
       link: PATH.SYSTEM.GROUPS.DETAIL.replace(':id', groupId),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
       handleGetOptionList: getGroupOptions,
-      handleEdit: group => handleEdit?.({ group })
+      handleEdit: (_, group) => handleEdit?.({ group })
     }
   ]
 

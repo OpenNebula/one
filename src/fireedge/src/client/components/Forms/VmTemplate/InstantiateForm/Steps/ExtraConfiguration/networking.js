@@ -43,14 +43,14 @@ export const TAB_ID = 'NIC'
 const Networking = ({ data, setFormData }) => {
   const classes = useStyles()
   const nics = data?.[TAB_ID]
-    ?.map((nic, idx) => ({ ...nic, NAME: `NIC${idx}` }))
+    ?.map((nic, idx) => ({ ...nic, NAME: nic?.NAME ?? `NIC${idx}` }))
 
   const { handleRemove, handleSave } = useListForm({
     parent: EXTRA_ID,
     key: TAB_ID,
     list: nics,
     setList: setFormData,
-    getItemId: (item) => item.NAME,
+    getItemId: (item) => item.NAME ?? `NIC${data.length + 1}`,
     addItemId: (item, id) => ({ ...item, NAME: id })
   })
 
@@ -100,7 +100,7 @@ const Networking = ({ data, setFormData }) => {
           return (
             <SelectCard
               key={NAME}
-              title={`${NAME} - ${NETWORK}`}
+              title={[NAME, NETWORK].filter(Boolean).join(' - ')}
               subheader={<>
                 {Object
                   .entries({ RDP, SSH, ALIAS: PARENT, EXTERNAL })

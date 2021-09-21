@@ -58,7 +58,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && await handleRefetch?.()
   }
 
-  const handleRename = async newName => {
+  const handleRename = async (_, newName) => {
     const response = await rename(ID, newName)
     String(response) === String(ID) && await handleRefetch?.()
   }

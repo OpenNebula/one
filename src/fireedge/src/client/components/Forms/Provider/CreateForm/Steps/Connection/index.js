@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
 import { useAuth } from 'client/features/Auth'
@@ -25,56 +26,57 @@ import { getConnectionEditable } from 'client/models/ProviderTemplate'
 import { sentenceCase } from 'client/utils'
 import { T } from 'client/constants'
 
-import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
-
-import {
-  STEP_ID as TEMPLATE_ID
-} from 'client/components/Forms/Provider/CreateForm/Steps/Template'
+import { FORM_FIELDS, STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
+import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Template'
 
 export const STEP_ID = 'connection'
 
 let connection = {}
 let fileCredentials = false
 
+const Content = ({ isUpdate }) => {
+  const [fields, setFields] = useState([])
+  const { providerConfig } = useAuth()
+  const { watch } = useFormContext()
+
+  useEffect(() => {
+    const {
+      [TEMPLATE_ID]: templateSelected,
+      [STEP_ID]: currentConnection = {}
+    } = watch()
+
+    const template = templateSelected?.[0] ?? {}
+
+    fileCredentials = Boolean(providerConfig?.[template?.provider]?.file_credentials)
+
+    connection = isUpdate
+      // when is updating, connections have the name as input label
+      ? Object.keys(currentConnection)
+        .reduce((res, name) => ({ ...res, [name]: sentenceCase(name) }), {})
+        // set connections from template, to take values as input labels
+      : getConnectionEditable(template, providerConfig)
+
+    setFields(FORM_FIELDS({ connection, fileCredentials }))
+  }, [])
+
+  return (fields?.length === 0) ? (
+    <EmptyCard title={"There aren't connections to fill"} />
+  ) : (
+    <FormWithSchema cy='form-provider' fields={fields} id={STEP_ID} />
+  )
+}
+
 const Connection = ({ isUpdate }) => ({
   id: STEP_ID,
   label: T.ConfigureConnection,
   resolver: () => STEP_FORM_SCHEMA({ connection, fileCredentials }),
   optionsValidate: { abortEarly: false },
-  content: useCallback(() => {
-    const [fields, setFields] = useState([])
-    const { providerConfig } = useAuth()
-    const { watch } = useFormContext()
-
-    useEffect(() => {
-      const {
-        [TEMPLATE_ID]: templateSelected,
-        [STEP_ID]: currentConnection = {}
-      } = watch()
-
-      const template = templateSelected?.[0] ?? {}
-
-      fileCredentials = Boolean(providerConfig?.[template?.provider]?.file_credentials)
-
-      connection = isUpdate
-        // when is updating, connections have the name as input label
-        ? Object.keys(currentConnection)
-          .reduce((res, name) => ({ ...res, [name]: sentenceCase(name) }), {})
-        // set connections from template, to take values as input labels
-        : getConnectionEditable(template, providerConfig)
-
-      setFields(FORM_FIELDS({ connection, fileCredentials }))
-    }, [])
-
-    return (fields?.length === 0) ? (
-      <EmptyCard title={"There aren't connections to fill"} />
-    ) : (
-      <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
-    )
-  }, [])
+  content: () => Content({ isUpdate })
 })
+
+Content.propTypes = {
+  isUpdate: PropTypes.bool
+}
 
 export * from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
 export default Connection

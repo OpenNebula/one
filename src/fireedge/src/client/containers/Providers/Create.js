@@ -14,50 +14,37 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
-import { Redirect, useParams, useHistory } from 'react-router'
+import { useParams, useHistory } from 'react-router'
+import { Container } from '@material-ui/core'
 
-import { Container, LinearProgress } from '@material-ui/core'
-
-import { useFetchAll } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
 import { useProviderApi } from 'client/features/One'
 import { CreateForm } from 'client/components/Forms/Provider'
-import { isValidProviderTemplate, getConnectionEditable, getConnectionFixed } from 'client/models/ProviderTemplate'
+import { isValidProviderTemplate } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
-import { isDevelopment, deepmerge } from 'client/utils'
+import { isDevelopment } from 'client/utils'
 
 function ProviderCreateForm () {
-  const [initialValues, setInitialValues] = useState(null)
   const history = useHistory()
   const { id } = useParams()
 
   const { providerConfig } = useAuth()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
-  const { getProvider, getProviderConnection, createProvider, updateProvider } = useProviderApi()
-  const { data: preloadedData, fetchRequestAll, loading, error } = useFetchAll()
+  const { createProvider, updateProvider } = useProviderApi()
 
   const onSubmit = async formData => {
     try {
       if (id !== undefined) {
-        const [provider = {}, connection = []] = preloadedData ?? []
-        const providerId = provider?.ID
-
-        const formatData = deepmerge({ connection }, formData)
-
-        await updateProvider(id, formatData)
-        enqueueSuccess(`Provider updated - ID: ${providerId}`)
+        await updateProvider(id, formData)
+        enqueueSuccess(`Provider updated - ID: ${id}`)
       } else {
         if (!isValidProviderTemplate(formData, providerConfig)) {
           enqueueError('The template selected has a bad format. Ask your cloud administrator')
           history.push(PATH.PROVIDERS.LIST)
         }
 
-        const connectionFixed = getConnectionFixed(formData, providerConfig)
-        const formatData = deepmerge(formData, { connection: connectionFixed })
-
-        const responseId = await createProvider(formatData)
+        const responseId = await createProvider(formData)
         enqueueSuccess(`Provider created - ID: ${responseId}`)
       }
 
@@ -67,51 +54,9 @@ function ProviderCreateForm () {
     }
   }
 
-  useEffect(() => {
-    const preloadFetchData = async () => {
-      const data = await fetchRequestAll([
-        getProvider(id),
-        getProviderConnection(id)
-      ])
-
-      if (data) {
-        const [provider = {}, connection = []] = data
-
-        const {
-          PLAIN: { provider: plainProvider } = {},
-          // remove encrypted connection from body template
-          PROVISION_BODY: { description, connection: _, ...currentBodyTemplate }
-        } = provider?.TEMPLATE
-
-        const connectionEditable = getConnectionEditable(
-          { provider: plainProvider, connection },
-          providerConfig
-        )
-
-        setInitialValues({
-          template: [currentBodyTemplate],
-          connection: connectionEditable,
-          configuration: { description }
-        })
-      }
-    }
-
-    id && preloadFetchData()
-  }, [])
-
-  if (error) {
-    return <Redirect to={PATH.PROVIDERS.LIST} />
-  }
-
-  return (id && !initialValues) || loading ? (
-    <LinearProgress color='secondary' />
-  ) : (
+  return (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <CreateForm
-        stepProps={{ isUpdate: id !== undefined }}
-        onSubmit={onSubmit}
-        initialValues={initialValues}
-      />
+      <CreateForm providerId={id} onSubmit={onSubmit} />
     </Container>
   )
 }

@@ -19,14 +19,19 @@ import PropTypes from 'prop-types'
 import { List } from 'client/components/Tabs/Common'
 
 import * as Helper from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, VM_TEMPLATE_ACTIONS } from 'client/constants'
 
-const InformationPanel = ({ template = {} }) => {
+const InformationPanel = ({ template = {}, handleRename, actions }) => {
   const { ID, NAME, REGTIME, LOCK } = template
 
   const info = [
     { name: T.ID, value: ID },
-    { name: T.Name, value: NAME },
+    {
+      name: T.Name,
+      value: NAME,
+      canEdit: actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME),
+      handleEdit: handleRename
+    },
     {
       name: T.StartTime,
       value: Helper.timeToString(REGTIME)
@@ -45,6 +50,8 @@ const InformationPanel = ({ template = {} }) => {
 InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
+  handleRename: PropTypes.func,
   template: PropTypes.object
 }
 

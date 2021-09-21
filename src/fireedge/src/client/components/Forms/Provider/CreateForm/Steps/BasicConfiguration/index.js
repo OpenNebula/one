@@ -14,26 +14,35 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { FORM_FIELDS, STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration/schema'
 import { T } from 'client/constants'
 
-import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration/schema'
-
 export const STEP_ID = 'configuration'
+
+const Content = ({ isUpdate }) => {
+  return (
+    <FormWithSchema
+      cy='form-provider'
+      id={STEP_ID}
+      fields={FORM_FIELDS({ isUpdate })}
+    />
+  )
+}
 
 const BasicConfiguration = ({ isUpdate }) => ({
   id: STEP_ID,
   label: T.ProviderOverview,
   resolver: () => STEP_FORM_SCHEMA({ isUpdate }),
   optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema cy="form-provider" fields={FORM_FIELDS({ isUpdate })} id={STEP_ID} />,
-    []
-  )
+  content: () => Content({ isUpdate })
 })
 
+Content.propTypes = {
+  isUpdate: PropTypes.bool
+}
+
+export * from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration/schema'
 export default BasicConfiguration

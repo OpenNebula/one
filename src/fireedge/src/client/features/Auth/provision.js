@@ -30,8 +30,6 @@ export const getProviderConfig = createAsyncThunk(
 
       return { providerConfig: config }
     } catch (error) {
-      console.log({ error })
-
       error?.status === httpCodes.unauthorized.id &&
         dispatch(logout(T.SessionExpired))
     }
