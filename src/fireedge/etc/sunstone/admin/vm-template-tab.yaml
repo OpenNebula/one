@@ -24,8 +24,19 @@ resource_name: "VM-TEMPLATE"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
+  refresh: true
   create_dialog: true
+  import_dialog: true
+  update_dialog: true
   instantiate_dialog: true
+  clone: true
+  delete: true
+  chown: true
+  chgrp: true
+  lock: true
+  unlock: true
+  share: true
+  unshare: true
 
 # Filters - List of criteria to filter the resources
 

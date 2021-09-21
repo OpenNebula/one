@@ -15,11 +15,11 @@
  * ------------------------------------------------------------------------- */
 import DialogForm from 'client/components/Dialogs/DialogForm'
 import DialogRequest from 'client/components/Dialogs/DialogRequest'
-import DialogConfirmation, { DialogPropTypes } from 'client/components/Dialogs/DialogConfirmation'
+import DialogConfirmation from 'client/components/Dialogs/DialogConfirmation'
+export * from 'client/components/Dialogs/DialogConfirmation'
 
 export {
-  DialogForm,
-  DialogRequest,
   DialogConfirmation,
-  DialogPropTypes
+  DialogForm,
+  DialogRequest
 }

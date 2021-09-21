@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+import { array, object, string } from 'yup'
 
-export const SCHEMA = yup
-  .array(yup.object())
+const TEMPLATE_SCHEMA = object({
+  ID: string(),
+  NAME: string(),
+  TEMPLATE: object({
+    DISK: array().ensure(),
+    NIC: array().ensure()
+  })
+})
+
+export const SCHEMA = array(TEMPLATE_SCHEMA)
   .min(1, 'Select VM Template')
   .max(1, 'Max. one template selected')
   .required('Template field is required')
-  .default([])
+  .default(undefined)

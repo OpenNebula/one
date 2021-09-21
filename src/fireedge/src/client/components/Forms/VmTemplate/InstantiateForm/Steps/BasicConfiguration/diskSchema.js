@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { object, array, number } from 'yup'
 
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Translate } from 'client/components/HOC'
@@ -61,8 +61,7 @@ const SIZE_FIELD = ({
         the datastore after the VM is terminated (ie goes into DONE state)`
       : `Non-persistent disk. The changes will be lost once
         the VM is terminated (ie goes into DONE state)`,
-    validation: yup
-      .number()
+    validation: number()
       .positive()
       .min(0, 'Disk size field is required')
       .typeError('Disk must be a number')
@@ -79,13 +78,8 @@ export const FIELDS = vmTemplate => {
   return disks?.map(SIZE_FIELD).map(addParentToField)
 }
 
-export const SCHEMA = yup
-  .object({
-    [PARENT]: yup.array(yup.object({
-      [SIZE_FIELD().name]: SIZE_FIELD().validation
-    }))
-  })
-  .transform(({ [PARENT]: disks, ...rest }) => ({
-    ...rest,
-    [PARENT]: [disks].flat().filter(Boolean)
-  }))
+export const SCHEMA = object({
+  [PARENT]: array(object({
+    [SIZE_FIELD().name]: SIZE_FIELD().validation
+  })).ensure()
+})

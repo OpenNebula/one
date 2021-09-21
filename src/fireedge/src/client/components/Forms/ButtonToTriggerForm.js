@@ -23,7 +23,8 @@ import {
   Paper,
   Popper,
   MenuItem,
-  MenuList
+  MenuList,
+  ListItemIcon
 } from '@material-ui/core'
 import { NavArrowDown } from 'iconoir-react'
 
@@ -36,7 +37,6 @@ import { Translate } from 'client/components/HOC'
 
 const ButtonToTriggerForm = ({
   buttonProps = {},
-  isConfirmDialog = false,
   dialogProps = {},
   options = []
 }) => {
@@ -47,7 +47,7 @@ const ButtonToTriggerForm = ({
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { onSubmit: handleSubmit, form } = Form ?? {}
+  const { onSubmit: handleSubmit, form, isConfirmDialog = true } = Form ?? {}
 
   const formConfig = useMemo(() => form?.() ?? {}, [form])
   const { steps, defaultValues, resolver, fields, transformBeforeSubmit } = formConfig
@@ -89,18 +89,24 @@ const ButtonToTriggerForm = ({
           id={buttonId}
           open={open}
           transition
+          style={{ zIndex: 2 }}
         >
           {({ TransitionProps }) => (
-            <Grow {...TransitionProps}>
+            <Grow {...TransitionProps} >
               <Paper variant='outlined'>
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList disablePadding>
-                    {options.map(({ cy, name, ...option }) => (
+                  <MenuList variant='menu' disablePadding dense>
+                    {options.map(({ cy, icon: Icon, name, ...option }) => (
                       <MenuItem
                         key={name}
                         data-cy={cy}
                         onClick={() => openDialogForm(option)}
                       >
+                        {Icon && (
+                          <ListItemIcon>
+                            <Icon size={18} />
+                          </ListItemIcon>
+                        )}
                         <Translate word={name} />
                       </MenuItem>
                     ))}
@@ -142,19 +148,22 @@ const ButtonToTriggerForm = ({
   )
 }
 
-ButtonToTriggerForm.propTypes = {
+export const ButtonToTriggerFormPropTypes = {
   buttonProps: PropTypes.shape(SubmitButtonPropTypes),
   dialogProps: PropTypes.shape(DialogPropTypes),
-  isConfirmDialog: PropTypes.bool,
   options: PropTypes.arrayOf(
     PropTypes.shape({
       cy: PropTypes.string,
+      isConfirmDialog: PropTypes.bool,
       name: PropTypes.string,
+      icon: PropTypes.any,
       form: PropTypes.func,
-      handleSubmit: PropTypes.func
+      onSubmit: PropTypes.func
     })
   )
 }
+
+ButtonToTriggerForm.propTypes = ButtonToTriggerFormPropTypes
 
 ButtonToTriggerForm.displayName = 'ButtonToTriggerForm'
 

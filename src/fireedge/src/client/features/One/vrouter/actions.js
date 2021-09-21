@@ -17,13 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { vRouterService } from 'client/features/One/vrouter/services'
 import { RESOURCES } from 'client/features/One/slice'
 
+/** @see {@link RESOURCES.vrouter}  */
+const VROUTER = 'vrouter'
+
 export const getVRouter = createAction(
-  'vrouter/detail',
+  `${VROUTER}/detail`,
   vRouterService.getVRouter
 )
 
 export const getVRouters = createAction(
-  'vrouter/pool',
+  `${VROUTER}/pool`,
   vRouterService.getVRouters,
   response => ({ [RESOURCES.vrouter]: response })
 )

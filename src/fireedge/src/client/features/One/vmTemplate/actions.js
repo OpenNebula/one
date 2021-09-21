@@ -17,12 +17,27 @@ import { createAction } from 'client/features/One/utils'
 import { vmTemplateService } from 'client/features/One/vmTemplate/services'
 import { RESOURCES } from 'client/features/One/slice'
 
-export const getVmTemplate = createAction('vm-template', vmTemplateService.getVmTemplate)
+/** @see {@link RESOURCES.template}  */
+const TEMPLATE = 'template'
+
+export const getVmTemplate = createAction(
+  `${TEMPLATE}/detail`,
+  vmTemplateService.getVmTemplate
+)
 
 export const getVmTemplates = createAction(
-  'vm-template/pool',
+  `${TEMPLATE}/pool`,
   vmTemplateService.getVmTemplates,
   response => ({ [RESOURCES.template]: response })
 )
 
-export const instantiate = createAction('vm-template/instantiate', vmTemplateService.instantiate)
+export const instantiate = createAction(`${TEMPLATE}/instantiate`, vmTemplateService.instantiate)
+export const allocate = createAction(`${TEMPLATE}/allocate`, vmTemplateService.allocate)
+export const clone = createAction(`${TEMPLATE}/clone`, vmTemplateService.clone)
+export const remove = createAction(`${TEMPLATE}/delete`, vmTemplateService.delete)
+export const update = createAction(`${TEMPLATE}/update`, vmTemplateService.update)
+export const changePermissions = createAction(`${TEMPLATE}/chmod`, vmTemplateService.changePermissions)
+export const changeOwnership = createAction(`${TEMPLATE}/chown`, vmTemplateService.changeOwnership)
+export const rename = createAction(`${TEMPLATE}/rename`, vmTemplateService.rename)
+export const lock = createAction(`${TEMPLATE}/lock`, vmTemplateService.lock)
+export const unlock = createAction(`${TEMPLATE}/unlock`, vmTemplateService.lock)

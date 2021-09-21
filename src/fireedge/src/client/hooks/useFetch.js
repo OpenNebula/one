@@ -140,7 +140,7 @@ const useFetch = (request, socket) => {
      * @param {number} options.delay - Delay to trigger the request
      * @returns {Promise} - Returns a promise with response or error
      */
-    (payload, options = {}) => {
+    async (payload, options = {}) => {
       const { reload = false, delay = 0 } = options
 
       if (!(Number.isInteger(delay) && delay >= 0)) {
@@ -149,7 +149,8 @@ const useFetch = (request, socket) => {
           If you're using it as a function, it must also return a number >= 0.`)
       }
 
-      return fakeDelay(delay).then(() => doFetch(payload, reload))
+      await fakeDelay(delay)
+      await doFetch(payload, reload)
     }, [request])
 
   return { ...state, fetchRequest, STATUS }

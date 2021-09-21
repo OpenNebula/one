@@ -19,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/vrouter/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useVRouter = () => (
-  useSelector(state => state.one[RESOURCES.vrouter])
+  useSelector(state => state[name]?.[RESOURCES.vrouter] ?? [])
 )
 
 export const useVRouterApi = () => {

@@ -14,24 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
-import { useHistory, useParams } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
 import { Container } from '@material-ui/core'
 
 import { useGeneralApi } from 'client/features/General'
-import { useVmTemplateApi, useUserApi, useVmGroupApi } from 'client/features/One'
+import { useVmTemplateApi } from 'client/features/One'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { isDevelopment } from 'client/utils'
 
 function InstantiateVmTemplate () {
   const history = useHistory()
-  const { templateId } = useParams()
-  const initialValues = { template: { ID: templateId } }
+  const { state } = useLocation()
+  const { ID: templateId } = state ?? {}
 
   const { enqueueInfo } = useGeneralApi()
-  const { getUsers } = useUserApi()
-  const { getVmGroups } = useVmGroupApi()
   const { instantiate } = useVmTemplateApi()
 
   const onSubmit = async ([templateSelected, templates]) => {
@@ -47,14 +44,9 @@ function InstantiateVmTemplate () {
     }
   }
 
-  useEffect(() => {
-    getUsers()
-    getVmGroups()
-  }, [])
-
   return (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <InstantiateForm initialValues={initialValues} onSubmit={onSubmit} />
+      <InstantiateForm templateId={templateId} onSubmit={onSubmit} />
     </Container>
   )
 }

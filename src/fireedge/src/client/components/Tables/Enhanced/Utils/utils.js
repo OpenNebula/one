@@ -20,8 +20,7 @@ import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
  * Add filters defined in view yaml to columns.
  *
  * @param {object} config -
- * @param {object[]} config.filters
- * - List of criteria to filter the columns.
+ * @param {object[]} config.filters - List of criteria to filter the columns.
  * @param {Column[]} config.columns - Columns
  * @returns {object} Column with filters
  */
@@ -60,3 +59,36 @@ export const createCategoryFilter = title => ({
   }),
   filter: 'includesValue'
 })
+
+/**
+ * Add filters defined in view yaml to bulk actions.
+ *
+ * @param {object} params - Config parameters
+ * @param {object[]} params.filters - Which buttons are visible to operate over the resources
+ * @param {object[]} params.actions - Actions
+ * @returns {object} Action with filters
+ */
+export const createActions = ({ filters = {}, actions = [] }) => {
+  if (Object.keys(filters).length === 0) return actions
+
+  return actions
+    .filter(({ accessor }) =>
+      !accessor || filters[String(accessor.toLowerCase())] === true
+    )
+    .map(action => {
+      const { accessor, options } = action
+
+      if (accessor) return action
+
+      const groupActions = options?.filter(({ cy }) => {
+        const [, actionName] = cy?.split('.')
+
+        return filters[String(actionName.toLowerCase())] === true
+      })
+
+      return groupActions?.length > 0
+        ? { ...action, options: groupActions }
+        : undefined
+    })
+    .filter(Boolean)
+}

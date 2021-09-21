@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { useMemo, SetStateAction } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -27,7 +27,7 @@ import { Divider, makeStyles } from '@material-ui/core'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { useFormContext } from 'react-hook-form'
 
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { Action } from 'client/components/Cards/SelectCard'
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
@@ -53,10 +53,22 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+/**
+ * @param {string[]} newBootOrder - New boot order
+ * @param {SetStateAction} setFormData - New boot order
+ */
+export const reorder = (newBootOrder, setFormData) => {
+  setFormData(prev => {
+    const newData = set({ ...prev }, 'extra.OS.BOOT', newBootOrder.join(','))
+
+    return { ...prev, extra: { ...prev.extra, OS: newData } }
+  })
+}
+
 const Booting = ({ data, setFormData }) => {
   const classes = useStyles()
   const { watch } = useFormContext()
-  const bootOrder = data?.OS?.BOOT?.split(',')
+  const bootOrder = data?.OS?.BOOT?.split(',').filter(Boolean)
 
   const disks = useMemo(() => {
     const templateSeleted = watch(`${TEMPLATE_ID}[0]`)
@@ -67,7 +79,7 @@ const Booting = ({ data, setFormData }) => {
       const isVolatile = !IMAGE && !IMAGE_ID
 
       const name = isVolatile
-        ? `DISK ${DISK_ID}: ${Tr(T.VolatileDisk)}`
+        ? <>`DISK ${DISK_ID}: `<Translate word={T.VolatileDisk} /></>
         : `DISK ${DISK_ID}: ${IMAGE}`
 
       return {
@@ -91,7 +103,7 @@ const Booting = ({ data, setFormData }) => {
           {`NIC ${idx}: ${nic.NETWORK}`}
         </>
       )
-    }))
+    })) ?? []
 
   const enabledItems = [...disks, ...nics]
     .filter(item => bootOrder.includes(item.ID))
@@ -99,15 +111,6 @@ const Booting = ({ data, setFormData }) => {
 
   const restOfItems = [...disks, ...nics]
     .filter(item => !bootOrder.includes(item.ID))
-
-  /** @param {string[]} newBootOrder - New boot order */
-  const reorder = newBootOrder => {
-    setFormData(prev => {
-      const newData = set({ ...prev }, 'extra.OS.BOOT', newBootOrder.join(','))
-
-      return { ...prev, extra: { ...prev.extra, OS: newData } }
-    })
-  }
 
   /** @param {DropResult} result - Drop result */
   const onDragEnd = result => {
@@ -122,7 +125,7 @@ const Booting = ({ data, setFormData }) => {
       newBootOrder.splice(source.index, 1) // remove current position
       newBootOrder.splice(destination.index, 0, draggableId) // set in new position
 
-      reorder(newBootOrder)
+      reorder(newBootOrder, setFormData)
     }
   }
 
@@ -134,7 +137,7 @@ const Booting = ({ data, setFormData }) => {
       ? newBootOrder.splice(itemIndex, 1)
       : newBootOrder.push(itemId)
 
-    reorder(newBootOrder)
+    reorder(newBootOrder, setFormData)
   }
 
   return (

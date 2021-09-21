@@ -42,6 +42,7 @@ import { T } from 'client/constants'
 const EnhancedTable = ({
   canFetchMore,
   columns,
+  globalActions,
   data,
   fetchMore,
   getRowId,
@@ -131,6 +132,7 @@ const EnhancedTable = ({
         {/* TOOLBAR */}
         {!isFetching && (
           <Toolbar
+            globalActions={globalActions}
             onlyGlobalSelectedRows={onlyGlobalSelectedRows}
             useTableProps={useTableProps}
           />
@@ -201,6 +203,7 @@ const EnhancedTable = ({
 
 export const EnhancedTableProps = {
   canFetchMore: PropTypes.bool,
+  globalActions: PropTypes.array,
   columns: PropTypes.array,
   data: PropTypes.array,
   fetchMore: PropTypes.func,

@@ -21,11 +21,13 @@ import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
 import { makeStyles, Container, LinearProgress, IconButton, Typography } from '@material-ui/core'
 
 import { useFetch, useSocket } from 'client/hooks'
-import { useProviderApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
+import { useProviderApi, useProvisionApi } from 'client/features/One'
 import DebugLog from 'client/components/DebugLog'
-import ProvisionForm from 'client/containers/Provisions/Form/ProvisionForm'
+import { CreateForm } from 'client/components/Forms/Provision'
 import { PATH } from 'client/apps/provision/routes'
 import { Translate } from 'client/components/HOC'
+import { isDevelopment } from 'client/utils'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles({
@@ -46,12 +48,25 @@ function ProvisionCreateForm () {
   const [uuid, setUuid] = useState(undefined)
 
   const { getProvisionSocket: socket } = useSocket()
+  const { enqueueInfo } = useGeneralApi()
+  const { createProvision } = useProvisionApi()
   const { getProviders } = useProviderApi()
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
-  const handleSetUuid = response => response && setUuid(response)
+  const onSubmit = async formData => {
+    try {
+      const response = await createProvision(formData)
+      enqueueInfo('Creating provision')
 
-  useEffect(() => { fetchRequest() }, [])
+      response && setUuid(response)
+    } catch (err) {
+      isDevelopment() && console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   if (uuid) {
     return <DebugLog {...{ uuid, socket, title: <Title /> }} />
@@ -65,7 +80,7 @@ function ProvisionCreateForm () {
     <LinearProgress color='secondary' />
   ) : (
     <Container className={classes.container} disableGutters>
-      <ProvisionForm handleAfterCreate={handleSetUuid} />
+      <CreateForm onSubmit={onSubmit} />
     </Container>
   )
 }

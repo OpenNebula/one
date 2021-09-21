@@ -14,32 +14,45 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import PropTypes from 'prop-types'
 
-import Template from './Template'
-import Provider from './Provider'
-import BasicConfiguration from './BasicConfiguration'
-import Inputs from './Inputs'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
-const Steps = () => {
-  const template = Template()
-  const provider = Provider()
-  const configuration = BasicConfiguration()
-  const inputs = Inputs()
+import FormStepper from 'client/components/FormStepper'
+import Steps from 'client/components/Forms/Provider/CreateForm/Steps'
 
-  const steps = [template, provider, configuration, inputs]
+const CreateForm = ({ stepProps, initialValues, onSubmit }) => {
+  const {
+    steps,
+    defaultValues,
+    resolver,
+    transformBeforeSubmit
+  } = Steps(stepProps, initialValues)
 
-  const resolvers = () => yup
-    .object({
-      [template.id]: template.resolver(),
-      [provider.id]: provider.resolver(),
-      [configuration.id]: configuration.resolver(),
-      [inputs.id]: inputs.resolver()
-    })
+  const methods = useForm({
+    mode: 'onSubmit',
+    defaultValues,
+    resolver: yupResolver(resolver())
+  })
 
-  const defaultValues = resolvers().default()
-
-  return { steps, defaultValues, resolvers }
+  return (
+    <FormProvider {...methods}>
+      <FormStepper
+        steps={steps}
+        schema={resolver}
+        onSubmit={data => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+      />
+    </FormProvider>
+  )
 }
 
-export default Steps
+CreateForm.propTypes = {
+  stepProps: PropTypes.shape({
+    isUpdate: PropTypes.bool
+  }),
+  initialValues: PropTypes.object,
+  onSubmit: PropTypes.func
+}
+
+export default CreateForm

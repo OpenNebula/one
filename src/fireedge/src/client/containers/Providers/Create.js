@@ -15,24 +15,57 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect, useState } from 'react'
-import { Redirect, useParams } from 'react-router'
+import { Redirect, useParams, useHistory } from 'react-router'
 
 import { Container, LinearProgress } from '@material-ui/core'
 
-import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import { useProviderApi } from 'client/features/One'
-import ProviderForm from 'client/containers/Providers/Form/ProviderForm'
-import { getConnectionEditable } from 'client/models/ProviderTemplate'
+import { CreateForm } from 'client/components/Forms/Provider'
+import { isValidProviderTemplate, getConnectionEditable, getConnectionFixed } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
+import { isDevelopment, deepmerge } from 'client/utils'
 
 function ProviderCreateForm () {
-  const { id } = useParams()
   const [initialValues, setInitialValues] = useState(null)
+  const history = useHistory()
+  const { id } = useParams()
 
   const { providerConfig } = useAuth()
-  const { getProvider, getProviderConnection } = useProviderApi()
+  const { enqueueSuccess, enqueueError } = useGeneralApi()
+  const { getProvider, getProviderConnection, createProvider, updateProvider } = useProviderApi()
   const { data: preloadedData, fetchRequestAll, loading, error } = useFetchAll()
+
+  const onSubmit = async formData => {
+    try {
+      if (id !== undefined) {
+        const [provider = {}, connection = []] = preloadedData ?? []
+        const providerId = provider?.ID
+
+        const formatData = deepmerge({ connection }, formData)
+
+        await updateProvider(id, formatData)
+        enqueueSuccess(`Provider updated - ID: ${providerId}`)
+      } else {
+        if (!isValidProviderTemplate(formData, providerConfig)) {
+          enqueueError('The template selected has a bad format. Ask your cloud administrator')
+          history.push(PATH.PROVIDERS.LIST)
+        }
+
+        const connectionFixed = getConnectionFixed(formData, providerConfig)
+        const formatData = deepmerge(formData, { connection: connectionFixed })
+
+        const responseId = await createProvider(formatData)
+        enqueueSuccess(`Provider created - ID: ${responseId}`)
+      }
+
+      history.push(PATH.PROVIDERS.LIST)
+    } catch (err) {
+      isDevelopment() && console.error(err)
+    }
+  }
 
   useEffect(() => {
     const preloadFetchData = async () => {
@@ -46,7 +79,8 @@ function ProviderCreateForm () {
 
         const {
           PLAIN: { provider: plainProvider } = {},
-          PROVISION_BODY: { description, ...currentBodyTemplate }
+          // remove encrypted connection from body template
+          PROVISION_BODY: { description, connection: _, ...currentBodyTemplate }
         } = provider?.TEMPLATE
 
         const connectionEditable = getConnectionEditable(
@@ -73,7 +107,11 @@ function ProviderCreateForm () {
     <LinearProgress color='secondary' />
   ) : (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <ProviderForm {...{ id, preloadedData, initialValues }} />
+      <CreateForm
+        stepProps={{ isUpdate: id !== undefined }}
+        onSubmit={onSubmit}
+        initialValues={initialValues}
+      />
     </Container>
   )
 }

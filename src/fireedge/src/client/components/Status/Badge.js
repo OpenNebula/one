@@ -55,7 +55,7 @@ const StatusBadge = memo(({ stateColor, children, customTransform, ...props }) =
     <Badge
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       classes={{ badge: classes.badge }}
-      overlap='circle'
+      overlap='circular'
       variant='dot'
       {...props}
     >

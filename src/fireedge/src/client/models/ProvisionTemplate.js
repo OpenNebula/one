@@ -18,7 +18,6 @@
  * @property {string} name - Name
  * @property {string} image - Image to card
  * @property {string} provider - Provider type
- * @property {string} provision_type - Provision type
  * @property {object} defaults - Common configuration attributes
  * @property {object} [defaults.provision] - Provision information
  * @property {string} [defaults.provision.provider_name] - Provider name

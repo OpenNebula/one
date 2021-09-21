@@ -19,11 +19,13 @@ import { useState } from 'react'
 import { Container, Box } from '@material-ui/core'
 
 import { VmTemplatesTable } from 'client/components/Tables'
+import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
 import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
 import SplitPane from 'client/components/SplitPane'
 
 function VmTemplates () {
   const [selectedRows, onSelectedRowsChange] = useState([])
+  const actions = VmTemplateActions()
 
   const getRowIds = () =>
     JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
@@ -38,7 +40,10 @@ function VmTemplates () {
       component={Container}
     >
       <SplitPane>
-        <VmTemplatesTable onSelectedRowsChange={onSelectedRowsChange} />
+        <VmTemplatesTable
+          onSelectedRowsChange={onSelectedRowsChange}
+          globalActions={actions}
+        />
 
         {selectedRows?.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>

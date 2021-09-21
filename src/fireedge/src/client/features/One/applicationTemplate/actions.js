@@ -17,28 +17,31 @@ import { createAction } from 'client/features/One/utils'
 import { applicationTemplateService } from 'client/features/One/applicationTemplate/services'
 import { RESOURCES } from 'client/features/One/slice'
 
+/** @see {@link RESOURCES.document}  */
+const SERVICE_TEMPLATE = 'document[101]'
+
 export const getApplicationTemplate = createAction(
-  'application-template',
+  `${SERVICE_TEMPLATE}/detail`,
   applicationTemplateService.getApplicationTemplate
 )
 
 export const getApplicationsTemplates = createAction(
-  'application-template/pool',
+  `${SERVICE_TEMPLATE}/pool`,
   applicationTemplateService.getApplicationsTemplates,
   response => ({ [RESOURCES.document[101]]: response })
 )
 
 export const createApplicationTemplate = createAction(
-  'application-template/create',
+  `${SERVICE_TEMPLATE}/create`,
   applicationTemplateService.createApplicationTemplate
 )
 
 export const updateApplicationTemplate = createAction(
-  'application-template/update',
+  `${SERVICE_TEMPLATE}/update`,
   applicationTemplateService.updateApplicationTemplate
 )
 
 export const instantiateApplicationTemplate = createAction(
-  'application-template/instantiate',
+  `${SERVICE_TEMPLATE}/instantiate`,
   applicationTemplateService.instantiateApplicationTemplate
 )

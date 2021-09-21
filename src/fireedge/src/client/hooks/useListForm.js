@@ -151,7 +151,7 @@ const useListForm = ({
 
       handleSetList(newList)
     },
-    [list]
+    [list, setList]
   )
 
   const handleClear = useCallback(
@@ -174,7 +174,7 @@ const useListForm = ({
     [list, defaultValue]
   )
 
-  const handleRemove = useCallback(handleUnselect, [key, list])
+  const handleRemove = handleUnselect
 
   const handleSave = useCallback(
     (values, id = getItemId(values) ?? uuidv4()) => {

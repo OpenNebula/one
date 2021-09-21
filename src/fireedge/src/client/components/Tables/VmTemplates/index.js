@@ -16,15 +16,22 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo, useEffect } from 'react'
 
+import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
 
 const VmTemplatesTable = props => {
-  const columns = useMemo(() => VmTemplateColumns, [])
+  const { view, getResourceView, filterPool } = useAuth()
+
+  const columns = useMemo(() => createColumns({
+    filters: getResourceView('VM-TEMPLATE')?.filters,
+    columns: VmTemplateColumns
+  }), [view])
 
   const vmTemplates = useVmTemplate()
   const { getVmTemplates } = useVmTemplateApi()
@@ -32,7 +39,7 @@ const VmTemplatesTable = props => {
   const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVmTemplates)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => { fetchRequest() }, [filterPool])
 
   if (vmTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />

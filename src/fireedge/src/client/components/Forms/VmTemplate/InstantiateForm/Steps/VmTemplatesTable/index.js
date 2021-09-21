@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { useListForm } from 'client/hooks'
@@ -76,9 +75,9 @@ Content.propTypes = {
 
 const VmTemplateStep = () => ({
   id: STEP_ID,
-  label: T.VMTemplate,
+  label: T.SelectVmTemplate,
   resolver: SCHEMA,
-  content: useCallback(Content, [])
+  content: Content
 })
 
 export default VmTemplateStep

@@ -35,7 +35,6 @@ const RevertAction = memo(({ snapshot }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
         icon: <UndoAction size={18} />
@@ -44,7 +43,10 @@ const RevertAction = memo(({ snapshot }) => {
         title: `${Tr(T.Revert)}: #${SNAPSHOT_ID} - ${NAME}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleRevert }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleRevert
+      }]}
     />
   )
 })
@@ -58,7 +60,6 @@ const DeleteAction = memo(({ snapshot }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
         icon: <Trash size={18} />
@@ -67,7 +68,10 @@ const DeleteAction = memo(({ snapshot }) => {
         title: `${Tr(T.Delete)}: #${SNAPSHOT_ID} - ${NAME}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleDelete }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleDelete
+      }]}
     />
   )
 })

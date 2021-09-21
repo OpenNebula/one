@@ -17,36 +17,36 @@ import VmTemplatesTable, { STEP_ID as TEMPLATE_ID } from 'client/components/Form
 import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
 import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { jsonToXml } from 'client/models/Helper'
-import { createSteps } from 'client/utils'
+import { createSteps, deepmerge } from 'client/utils'
 
-const Steps = createSteps(() => {
-  // const { [STEP_ID]: initialTemplate } = initialValues ?? {}
+const Steps = createSteps(
+  [VmTemplatesTable, BasicConfiguration, ExtraConfiguration],
+  {
+    transformInitialValue: (vmTemplate, schema) => ({
+      ...schema.cast({
+        [TEMPLATE_ID]: [vmTemplate],
+        [BASIC_ID]: vmTemplate?.TEMPLATE,
+        [EXTRA_ID]: vmTemplate?.TEMPLATE
+      }, { stripUnknown: true })
+    }),
+    transformBeforeSubmit: formData => {
+      const {
+        [TEMPLATE_ID]: [templateSelected] = [],
+        [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
+        [EXTRA_ID]: extraTemplate = {}
+      } = formData ?? {}
 
-  return [
-    VmTemplatesTable,
-    BasicConfiguration,
-    ExtraConfiguration
-  ]
-}, {
-  transformBeforeSubmit: formData => {
-    const {
-      [TEMPLATE_ID]: [templateSelected] = [],
-      [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
-      [EXTRA_ID]: extraTemplate = {}
-    } = formData ?? {}
+      // merge with template disks to get TYPE attribute
+      const DISK = deepmerge(templateSelected.TEMPLATE?.DISK, restOfConfig?.DISK)
+      const templateXML = jsonToXml({ ...extraTemplate, ...restOfConfig, DISK })
+      const data = { instances, hold, persistent, template: templateXML }
 
-    const templates = [...new Array(instances)]
-      .map((_, idx) => {
-        const replacedName = name?.replace(/%idx/gi, idx)
+      const templates = [...new Array(instances)]
+        .map((_, idx) => ({ name: name?.replace(/%idx/gi, idx), ...data }))
 
-        const template = jsonToXml({ TEMPLATE: { ...extraTemplate, ...restOfConfig } })
-        const data = { name: replacedName, instances, hold, persistent, template }
-
-        return data
-      })
-
-    return [templateSelected, templates]
+      return [templateSelected, templates]
+    }
   }
-})
+)
 
 export default Steps

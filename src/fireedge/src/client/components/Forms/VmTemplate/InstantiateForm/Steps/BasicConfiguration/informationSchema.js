@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { string, number, boolean, object } from 'yup'
 
 import { getValidationFromFields } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
@@ -27,10 +27,7 @@ const NAME = {
     When creating several VMs, the wildcard %idx will be
     replaced with a number starting from 0`,
   type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
-    .trim()
-    .default(() => undefined)
+  validation: string().trim().default(() => undefined)
 }
 
 const INSTANCES = {
@@ -38,8 +35,7 @@ const INSTANCES = {
   label: 'Number of instances',
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: yup
-    .number()
+  validation: number()
     .min(1, 'Instances minimum is 1')
     .integer('Instances should be an integer number')
     .required('Instances field is required')
@@ -54,9 +50,7 @@ const HOLD = {
     Sets the new VM to hold state, instead of pending.
     The scheduler will not deploy VMs in this state.
     It can be released later, or deployed manually.`,
-  validation: yup
-    .boolean()
-    .default(() => false),
+  validation: boolean().default(() => false),
   grid: { md: 12 }
 }
 
@@ -67,9 +61,7 @@ const PERSISTENT = {
   tooltip: `
     Creates a private persistent copy of the template
     plus any image defined in DISK, and instantiates that copy.`,
-  validation: yup
-    .boolean()
-    .default(() => false),
+  validation: boolean().default(() => false),
   grid: { md: 12 }
 }
 
@@ -80,4 +72,4 @@ export const FIELDS = [
   PERSISTENT
 ]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS))

@@ -27,11 +27,11 @@ import { T } from 'client/constants'
 
 import {
   FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Providers/Form/ProviderForm/Steps/Connection/schema'
+} from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
 
 import {
   STEP_ID as TEMPLATE_ID
-} from 'client/containers/Providers/Form/ProviderForm/Steps/Template'
+} from 'client/components/Forms/Provider/CreateForm/Steps/Template'
 
 export const STEP_ID = 'connection'
 
@@ -76,5 +76,5 @@ const Connection = ({ isUpdate }) => ({
   }, [])
 })
 
-export * from 'client/containers/Providers/Form/ProviderForm/Steps/Connection/schema'
+export * from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
 export default Connection

@@ -19,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/vmTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useVmTemplate = () => (
-  useSelector(state => state.one[RESOURCES.template])
+  useSelector(state => state[name]?.[RESOURCES.template] ?? [])
 )
 
 export const useVmTemplateApi = () => {
@@ -36,6 +36,18 @@ export const useVmTemplateApi = () => {
   return {
     getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
     getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data }))
+    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data })),
+    allocate: template => unwrapDispatch(actions.allocate(template)),
+    clone: (id, data) => unwrapDispatch(actions.clone({ id, ...data })),
+    remove: (id, image) => unwrapDispatch(actions.remove({ id, image })),
+    update: (id, template, replace) =>
+      unwrapDispatch(actions.update({ id, template, replace })),
+    changePermissions: (id, data) =>
+      unwrapDispatch(actions.changePermissions({ id, ...data })),
+    changeOwnership: (id, ownership) =>
+      unwrapDispatch(actions.changeOwnership({ id, ownership })),
+    rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
+    lock: (id, data) => unwrapDispatch(actions.lock({ id, ...data })),
+    unlock: id => unwrapDispatch(actions.unlock({ id }))
   }
 }

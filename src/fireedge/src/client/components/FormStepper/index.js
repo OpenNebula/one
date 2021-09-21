@@ -16,13 +16,15 @@
 import { useState, useMemo, useCallback, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
+import { BaseSchema } from 'yup'
 import { useFormContext } from 'react-hook-form'
 import { useMediaQuery } from '@material-ui/core'
 
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
-import { groupBy, Step, ResolverCallback } from 'client/utils'
+import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
+import { groupBy, Step } from 'client/utils'
 
 const FIRST_STEP = 0
 
@@ -32,11 +34,11 @@ const FIRST_STEP = 0
  *
  * @param {object} props - Props
  * @param {Step[]} props.steps - Steps
- * @param {ResolverCallback} props.schema - Function to get form schema
+ * @param {function():BaseSchema} props.schema - Function to get form schema
  * @param {Function} props.onSubmit - Submit function
  * @returns {JSXElementConstructor} Stepper form component
  */
-const FormStepper = ({ steps, schema, onSubmit }) => {
+const FormStepper = ({ steps = [], schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
   const { isLoading } = useGeneral()
@@ -53,13 +55,13 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   }, [formData])
 
   const validateSchema = async stepIdx => {
-    const { id, resolver, optionsValidate, ...step } = steps[stepIdx]
+    const { id, resolver, optionsValidate: options, ...step } = steps[stepIdx]
     const stepData = watch(id)
 
     const allData = { ...formData, [id]: stepData }
     const stepSchema = typeof resolver === 'function' ? resolver(allData) : resolver
 
-    await stepSchema.validate(stepData, optionsValidate)
+    await stepSchema.validate(stepData, options)
 
     return { id, data: stepData, ...step }
   }
@@ -105,9 +107,9 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       const { id, data } = await validateSchema(activeStep)
 
       if (activeStep === lastStep) {
-        const submitData = schema().cast({ ...formData, [id]: data })
-
-        onSubmit(submitData)
+        const submitData = { ...formData, [id]: data }
+        const schemaData = schema().cast(submitData, { context: submitData })
+        onSubmit(schemaData)
       } else {
         setFormData(prev => ({ ...prev, [id]: data }))
         setActiveStep(prevActiveStep => prevActiveStep + 1)
@@ -184,15 +186,13 @@ FormStepper.propTypes = {
         context: PropTypes.object
       })
     })
-  ),
-  schema: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
+  ).isRequired,
+  schema: PropTypes.func.isRequired,
   onSubmit: PropTypes.func
 }
 
-FormStepper.defaultProps = {
-  steps: [],
-  schema: {},
-  onSubmit: console.log
+export {
+  SkeletonStepsForm
 }
 
 export default FormStepper

@@ -17,13 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { zoneService } from 'client/features/One/zone/services'
 import { RESOURCES } from 'client/features/One/slice'
 
+/** @see {@link RESOURCES.zone}  */
+const ZONE = 'zone'
+
 export const getZone = createAction(
-  'zone/detail',
+  `${ZONE}/detail`,
   zoneService.getZone
 )
 
 export const getZones = createAction(
-  'zone/pool',
+  `${ZONE}/pool`,
   zoneService.getZones,
   response => ({ [RESOURCES.zone]: response })
 )

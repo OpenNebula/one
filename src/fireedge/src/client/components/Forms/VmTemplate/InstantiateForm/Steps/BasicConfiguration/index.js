@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
@@ -80,7 +80,7 @@ const BasicConfiguration = () => ({
   label: T.Configuration,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(Content, [])
+  content: Content
 })
 
 export default BasicConfiguration

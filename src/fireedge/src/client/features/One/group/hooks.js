@@ -19,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/group/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useGroup = () => (
-  useSelector(state => state.one[RESOURCES.group])
+  useSelector(state => state[name]?.[RESOURCES.group] ?? [])
 )
 
 export const useGroupApi = () => {

@@ -14,26 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import Template from 'client/components/Forms/Provider/CreateForm/Steps/Template'
+import BasicConfiguration from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration'
+import Connection from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
+import { createSteps, deepmerge } from 'client/utils'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { T } from 'client/constants'
+const Steps = createSteps(stepProps => {
+  const { isUpdate } = stepProps
 
-import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Provisions/Form/ProvisionForm/Steps/BasicConfiguration/schema'
+  return [
+    !isUpdate && Template,
+    BasicConfiguration,
+    Connection
+  ].filter(Boolean)
+}, {
+  transformBeforeSubmit: formData => {
+    const { template, configuration, connection } = formData
+    const templateSelected = template?.[0]
 
-export const STEP_ID = 'configuration'
-
-const BasicConfiguration = () => ({
-  id: STEP_ID,
-  label: T.ProvisionOverview,
-  resolver: () => STEP_FORM_SCHEMA,
-  optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />,
-    []
-  )
+    return deepmerge(templateSelected, { ...configuration, connection })
+  }
 })
 
-export default BasicConfiguration
+export default Steps

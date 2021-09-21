@@ -61,7 +61,9 @@ const CustomMobileStepper = ({
   return (
     <Box className={classes.root}>
       <Box minHeight={60}>
-        <Typography className={classes.title}>{label}</Typography>
+        <Typography className={classes.title}>
+          {typeof label === 'string' ? Tr(label) : label}
+        </Typography>
         {Boolean(errors[id]) && (
           <Typography className={classes.error} variant="caption" color="error">
             {errors[id]?.message}

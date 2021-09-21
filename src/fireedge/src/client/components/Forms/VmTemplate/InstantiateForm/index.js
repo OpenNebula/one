@@ -14,21 +14,25 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import FormStepper from 'client/components/FormStepper'
+import { useUserApi, useVmGroupApi, useVmTemplateApi } from 'client/features/One'
+import { useFetch } from 'client/hooks'
+import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
-const InstantiateForm = ({ initialValues, onSubmit }) => {
-  const { steps, defaultValues, resolver, transformBeforeSubmit } = Steps(initialValues)
+const InstantiateForm = ({ template, onSubmit }) => {
+  const stepProps = useMemo(() => Steps(template, template), [])
+  const { steps, defaultValues, resolver, transformBeforeSubmit } = stepProps
 
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver())
+    resolver: yupResolver(resolver?.())
   })
 
   return (
@@ -42,9 +46,33 @@ const InstantiateForm = ({ initialValues, onSubmit }) => {
   )
 }
 
-InstantiateForm.propTypes = {
-  initialValues: PropTypes.object,
+const PreFetchingForm = ({ templateId, ...props }) => {
+  const { getUsers } = useUserApi()
+  const { getVmGroups } = useVmGroupApi()
+  const { getVmTemplate } = useVmTemplateApi()
+  const { fetchRequest, data } = useFetch(
+    () => getVmTemplate(templateId, { extended: true })
+  )
+
+  useEffect(() => {
+    templateId && fetchRequest()
+    getUsers()
+    getVmGroups()
+  }, [])
+
+  return (templateId && !data)
+    ? <SkeletonStepsForm />
+    : <InstantiateForm {...props} template={data} />
+}
+
+PreFetchingForm.propTypes = {
+  templateId: PropTypes.string,
   onSubmit: PropTypes.func
 }
 
-export default InstantiateForm
+InstantiateForm.propTypes = {
+  template: PropTypes.object,
+  onSubmit: PropTypes.func
+}
+
+export default PreFetchingForm

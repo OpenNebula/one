@@ -25,10 +25,10 @@ import loadable from '@loadable/component'
 const Dashboard = loadable(() => import('client/containers/Dashboard/Provision'), { ssr: false })
 
 const Providers = loadable(() => import('client/containers/Providers'), { ssr: false })
-const ProvidersFormCreate = loadable(() => import('client/containers/Providers/Form/Create'), { ssr: false })
+const CreateProvider = loadable(() => import('client/containers/Providers/Create'), { ssr: false })
 
 const Provisions = loadable(() => import('client/containers/Provisions'), { ssr: false })
-const ProvisionsFormCreate = loadable(() => import('client/containers/Provisions/Form/Create'), { ssr: false })
+const CreateProvision = loadable(() => import('client/containers/Provisions/Create'), { ssr: false })
 
 const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
 
@@ -65,12 +65,12 @@ export const ENDPOINTS = [
   {
     label: 'Create Provider',
     path: PATH.PROVIDERS.CREATE,
-    Component: ProvidersFormCreate
+    Component: CreateProvider
   },
   {
     label: 'Edit Provider template',
     path: PATH.PROVIDERS.EDIT,
-    Component: ProvidersFormCreate
+    Component: CreateProvider
   },
   {
     label: 'Provisions',
@@ -82,12 +82,12 @@ export const ENDPOINTS = [
   {
     label: 'Create Provision',
     path: PATH.PROVISIONS.CREATE,
-    Component: ProvisionsFormCreate
+    Component: CreateProvision
   },
   {
     label: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
-    Component: ProvisionsFormCreate
+    Component: CreateProvision
   },
   {
     label: 'Settings',

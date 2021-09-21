@@ -118,7 +118,7 @@ import { INPUT_TYPES } from 'client/constants'
 /**
  * @typedef {object} ExtraParams
  * @property {function(object):object} [transformBeforeSubmit] - Transform validated form data after submit
- * @property {function(object):object} [transformInitialValue] - Transform initial value after load form
+ * @property {function(object, BaseSchema):object} [transformInitialValue] - Transform initial value after load form
  */
 
 /**
@@ -313,21 +313,23 @@ export const createSteps = (steps, extraParams = {}) =>
     const stepCallbacks = typeof steps === 'function' ? steps(stepProps) : steps
     const performedSteps = stepCallbacks.map(step => step(stepProps))
 
-    const schemas = object()
+    const schemas = {}
     for (const { id, resolver } of performedSteps) {
       const schema = typeof resolver === 'function' ? resolver() : resolver
 
-      schemas.concat(object({ [id]: schema }))
+      schemas[id] = schema
     }
 
+    const allResolver = object(schemas)
+
     const defaultValues = initialValues
-      ? transformInitialValue(initialValues, schemas)
-      : schemas.default()
+      ? transformInitialValue(initialValues, allResolver)
+      : allResolver.default()
 
     return {
       steps: performedSteps,
       defaultValues,
-      resolver: () => schemas,
+      resolver: () => allResolver,
       ...extraParams
     }
   }

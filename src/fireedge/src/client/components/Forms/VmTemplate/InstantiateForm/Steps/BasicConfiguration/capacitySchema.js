@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { number, object } from 'yup'
 
 import { getValidationFromFields } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
@@ -25,8 +25,8 @@ const MEMORY = {
   tooltip: 'Amount of RAM required for the VM.',
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: yup
-    .number()
+  validation: number()
+    .integer('Memory should be integer number')
     .positive('Memory should be positive number')
     .typeError('Memory must be a number')
     .required('Memory field is required')
@@ -42,8 +42,7 @@ const PHYSICAL_CPU = {
     the Virtual Machine. Half a processor is written 0.5.`,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: yup
-    .number()
+  validation: number()
     .positive('CPU should be positive number')
     .typeError('CPU must be a number')
     .required('CPU field is required')
@@ -59,8 +58,7 @@ const VIRTUAL_CPU = {
     hypervisor behavior is used, usually one virtual CPU`,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: yup
-    .number()
+  validation: number()
     .positive('Virtual CPU should be positive number')
     .notRequired()
     .default(() => undefined),
@@ -73,4 +71,4 @@ export const FIELDS = [
   VIRTUAL_CPU
 ]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS))

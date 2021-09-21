@@ -67,7 +67,11 @@ const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
         placement='bottom'
         title={<Typography variant='subtitle2'>{tooltip}</Typography>}
         {...tooltipProps}
-      >{wrapperChildren}</Tooltip>
+      >
+        <span>
+          {wrapperChildren}
+        </span>
+      </Tooltip>
     )}
   >
     {children}
@@ -77,6 +81,7 @@ const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
 const SubmitButton = memo(
   ({ isSubmitting, disabled, label, icon, className, ...props }) => {
     const classes = useStyles()
+    const progressSize = icon?.props?.size ?? 24
 
     return (
       <TooltipComponent {...props}>
@@ -91,7 +96,9 @@ const SubmitButton = memo(
           aria-label={label ?? T.Submit}
           {...props}
         >
-          {isSubmitting && <CircularProgress color='secondary' size={24} />}
+          {isSubmitting && (
+            <CircularProgress color='secondary' size={progressSize} />
+          )}
           {!isSubmitting && (icon ?? label ?? Tr(T.Submit))}
         </ButtonComponent>
       </TooltipComponent>

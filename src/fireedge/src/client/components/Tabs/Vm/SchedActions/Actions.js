@@ -117,7 +117,6 @@ const DeleteSchedAction = memo(({ schedule, name }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
         icon: <Trash size={18} />,
@@ -127,7 +126,10 @@ const DeleteSchedAction = memo(({ schedule, name }) => {
         title: `${Tr(T.Delete)} ${Tr(T.ScheduledAction)}: ${name}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleDelete }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleDelete
+      }]}
     />
   )
 })
@@ -159,7 +161,6 @@ const CharterAction = memo(() => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': 'create-charter',
         icon: <ClockOutline />,
@@ -194,7 +195,10 @@ const CharterAction = memo(() => {
           </>
         )
       }}
-      options={[{ onSubmit: handleCreateCharter }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleCreateCharter
+      }]}
     />
   )
 })

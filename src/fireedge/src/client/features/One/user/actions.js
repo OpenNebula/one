@@ -17,13 +17,19 @@ import { createAction } from 'client/features/One/utils'
 import { userService } from 'client/features/One/user/services'
 import { RESOURCES } from 'client/features/One/slice'
 
-export const changeGroup = createAction('user/change-group', userService.changeGroup)
-export const getUser = createAction('user', userService.getUser)
+/** @see {@link RESOURCES.user}  */
+const USER = 'user'
+
+export const getUser = createAction(
+  `${USER}/detail`,
+  userService.getUser
+)
 
 export const getUsers = createAction(
-  'user/pool',
+  `${USER}/pool`,
   userService.getUsers,
   response => ({ [RESOURCES.user]: response })
 )
 
-export const updateUser = createAction('user/update', userService.updateUser)
+export const updateUser = createAction(`${USER}/update`, userService.updateUser)
+export const changeGroup = createAction(`${USER}/change-group`, userService.changeGroup)

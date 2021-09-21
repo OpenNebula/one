@@ -95,7 +95,9 @@ const CustomStepper = ({
                   }
                 }}
                 {...(Boolean(errors[id]?.message) && { error: true })}
-              >{Tr(label)}</StepLabel>
+              >
+                {typeof label === 'string' ? Tr(label) : label}
+              </StepLabel>
             </StepButton>
           </Step>
         ))}

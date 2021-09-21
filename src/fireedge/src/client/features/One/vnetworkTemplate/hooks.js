@@ -19,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/vnetworkTemplate/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useVNetworkTemplate = () => (
-  useSelector(state => state.one[RESOURCES.vntemplate])
+  useSelector(state => state[name]?.[RESOURCES.vntemplate] ?? [])
 )
 
 export const useVNetworkTemplateApi = () => {

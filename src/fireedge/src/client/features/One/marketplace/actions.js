@@ -17,10 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { marketplaceService } from 'client/features/One/marketplace/services'
 import { RESOURCES } from 'client/features/One/slice'
 
-export const getMarketplace = createAction('marketplace', marketplaceService.getMarketplace)
+/** @see {@link RESOURCES.marketplace}  */
+const MARKETPLACE = 'marketplace'
+
+export const getMarketplace = createAction(
+  `${MARKETPLACE}/detail`,
+  marketplaceService.getMarketplace
+)
 
 export const getMarketplaces = createAction(
-  'marketplace/pool',
+  `${MARKETPLACE}/pool`,
   marketplaceService.getMarketplaces,
   response => ({ [RESOURCES.marketplace]: response })
 )

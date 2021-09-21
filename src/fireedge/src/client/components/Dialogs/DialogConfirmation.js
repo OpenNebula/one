@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
@@ -33,6 +33,21 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
+/**
+ * @typedef {object} DialogProps
+ * @property {boolean} [open] - If `true`, the component is shown
+ * @property {string|JSXElementConstructor} title - Title
+ * @property {string|JSXElementConstructor} [subheader] - Subtitle
+ * @property {object} [contentProps] - Content properties
+ * @property {function():Promise} handleAccept - Accept action
+ * @property {Function} handleCancel - Cancel action
+ * @property {object} [acceptButtonProps] - Accept button properties
+ * @property {object} [cancelButtonProps] - Cancel button properties
+ * @property {boolean} [fixedWidth] - Fix minimum with to dialog
+ * @property {boolean} [fixedHeight] - Fix minimum height to dialog
+ * @property {JSXElementConstructor} [children] - Fix minimum height
+ */
+
 const useStyles = makeStyles({
   title: {
     display: 'flex',
@@ -51,6 +66,10 @@ const useStyles = makeStyles({
   }
 })
 
+/**
+ * @param {DialogProps} props - Dialog properties
+ * @returns {JSXElementConstructor} - Dialog with confirmation basic buttons
+ */
 const DialogConfirmation = memo(
   ({
     open = true,

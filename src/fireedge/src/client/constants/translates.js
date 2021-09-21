@@ -52,6 +52,7 @@ module.exports = {
   SaveAs: 'Save as',
   Search: 'Search',
   Select: 'Select',
+  SelectVmTemplate: 'Select a VM Template',
   SelectGroup: 'Select a group',
   SelectRequest: 'Select request',
   Show: 'Show',

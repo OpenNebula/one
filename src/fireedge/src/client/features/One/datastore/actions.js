@@ -17,10 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { datastoreService } from 'client/features/One/datastore/services'
 import { RESOURCES } from 'client/features/One/slice'
 
-export const getDatastore = createAction('datastore', datastoreService.getDatastore)
+/** @see {@link RESOURCES.datastore}  */
+const DATASTORE = 'datastore'
+
+export const getDatastore = createAction(
+  `${DATASTORE}/detail`,
+  datastoreService.getDatastore
+)
 
 export const getDatastores = createAction(
-  'datastore/pool',
+  `${DATASTORE}/pool`,
   datastoreService.getDatastores,
   response => ({ [RESOURCES.datastore]: response })
 )

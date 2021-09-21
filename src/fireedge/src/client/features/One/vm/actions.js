@@ -16,21 +16,25 @@
 import { createAction } from 'client/features/One/utils'
 import { vmService } from 'client/features/One/vm/services'
 import { filterBy } from 'client/utils'
+import { RESOURCES } from 'client/features/One/slice'
 
-export const getVm = createAction('vm/detail', vmService.getVm)
+/** @see {@link RESOURCES.vm}  */
+const VM = 'vm'
+
+export const getVm = createAction(`${VM}/detail`, vmService.getVm)
 
 export const getVms = createAction(
-  'vm/pool',
+  `${VM}/pool`,
   vmService.getVms,
   (response, { vms: currentVms }) => {
     const vms = filterBy([...currentVms, ...response], 'ID')
 
-    return { vms }
+    return { [RESOURCES.vm]: vms }
   }
 )
 
 export const terminateVm = createAction(
-  'vm/delete',
+  `${VM}/delete`,
   payload => vmService.actionVm({
     ...payload,
     action: {
@@ -40,24 +44,24 @@ export const terminateVm = createAction(
   })
 )
 
-export const updateUserTemplate = createAction('vm/update', vmService.updateUserTemplate)
-export const rename = createAction('vm/rename', vmService.rename)
-export const resize = createAction('vm/resize', vmService.resize)
-export const changePermissions = createAction('vm/chmod', vmService.changePermissions)
-export const changeOwnership = createAction('vm/chown', vmService.changeOwnership)
-export const attachDisk = createAction('vm/attach/disk', vmService.attachDisk)
-export const detachDisk = createAction('vm/detach/disk', vmService.detachDisk)
-export const saveAsDisk = createAction('vm/saveas/disk', vmService.saveAsDisk)
-export const resizeDisk = createAction('vm/resize/disk', vmService.resizeDisk)
-export const createDiskSnapshot = createAction('vm/create/disk-snapshot', vmService.createDiskSnapshot)
-export const renameDiskSnapshot = createAction('vm/rename/disk-snapshot', vmService.renameDiskSnapshot)
-export const revertDiskSnapshot = createAction('vm/revert/disk-snapshot', vmService.revertDiskSnapshot)
-export const deleteDiskSnapshot = createAction('vm/delete/disk-snapshot', vmService.deleteDiskSnapshot)
-export const attachNic = createAction('vm/attach/nic', vmService.attachNic)
-export const detachNic = createAction('vm/detach/nic', vmService.detachNic)
-export const createSnapshot = createAction('vm/create/snapshot', vmService.createSnapshot)
-export const revertSnapshot = createAction('vm/revert/snapshot', vmService.revertSnapshot)
-export const deleteSnapshot = createAction('vm/delete/snapshot', vmService.deleteSnapshot)
-export const addScheduledAction = createAction('vm/add/scheduled-action', vmService.addScheduledAction)
-export const updateScheduledAction = createAction('vm/update/scheduled-action', vmService.updateScheduledAction)
-export const deleteScheduledAction = createAction('vm/delete/scheduled-action', vmService.deleteScheduledAction)
+export const updateUserTemplate = createAction(`${VM}/update`, vmService.updateUserTemplate)
+export const rename = createAction(`${VM}/rename`, vmService.rename)
+export const resize = createAction(`${VM}/resize`, vmService.resize)
+export const changePermissions = createAction(`${VM}/chmod`, vmService.changePermissions)
+export const changeOwnership = createAction(`${VM}/chown`, vmService.changeOwnership)
+export const attachDisk = createAction(`${VM}/attach/disk`, vmService.attachDisk)
+export const detachDisk = createAction(`${VM}/detach/disk`, vmService.detachDisk)
+export const saveAsDisk = createAction(`${VM}/saveas/disk`, vmService.saveAsDisk)
+export const resizeDisk = createAction(`${VM}/resize/disk`, vmService.resizeDisk)
+export const createDiskSnapshot = createAction(`${VM}/create/disk-snapshot`, vmService.createDiskSnapshot)
+export const renameDiskSnapshot = createAction(`${VM}/rename/disk-snapshot`, vmService.renameDiskSnapshot)
+export const revertDiskSnapshot = createAction(`${VM}/revert/disk-snapshot`, vmService.revertDiskSnapshot)
+export const deleteDiskSnapshot = createAction(`${VM}/delete/disk-snapshot`, vmService.deleteDiskSnapshot)
+export const attachNic = createAction(`${VM}/attach/nic`, vmService.attachNic)
+export const detachNic = createAction(`${VM}/detach/nic`, vmService.detachNic)
+export const createSnapshot = createAction(`${VM}/create/snapshot`, vmService.createSnapshot)
+export const revertSnapshot = createAction(`${VM}/revert/snapshot`, vmService.revertSnapshot)
+export const deleteSnapshot = createAction(`${VM}/delete/snapshot`, vmService.deleteSnapshot)
+export const addScheduledAction = createAction(`${VM}/add/scheduled-action`, vmService.addScheduledAction)
+export const updateScheduledAction = createAction(`${VM}/update/scheduled-action`, vmService.updateScheduledAction)
+export const deleteScheduledAction = createAction(`${VM}/delete/scheduled-action`, vmService.deleteScheduledAction)

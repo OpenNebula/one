@@ -17,13 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { vmGroupService } from 'client/features/One/vmGroup/services'
 import { RESOURCES } from 'client/features/One/slice'
 
+/** @see {@link RESOURCES.vmgroup}  */
+const VM_GROUP = 'vmgroup'
+
 export const getVmGroup = createAction(
-  'vmgroup/detail',
+  `${VM_GROUP}/detail`,
   vmGroupService.getVmGroup
 )
 
 export const getVmGroups = createAction(
-  'vmgroup/pool',
+  `${VM_GROUP}/pool`,
   vmGroupService.getVmGroups,
   response => ({ [RESOURCES.vmgroup]: response })
 )

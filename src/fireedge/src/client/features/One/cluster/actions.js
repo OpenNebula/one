@@ -17,10 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { clusterService } from 'client/features/One/cluster/services'
 import { RESOURCES } from 'client/features/One/slice'
 
-export const getCluster = createAction('cluster', clusterService.getCluster)
+/** @see {@link RESOURCES.cluster}  */
+const CLUSTER = 'cluster'
+
+export const getCluster = createAction(
+  `${CLUSTER}/detail`,
+  clusterService.getCluster
+)
 
 export const getClusters = createAction(
-  'cluster/pool',
+  `${CLUSTER}/pool`,
   clusterService.getClusters,
   response => ({ [RESOURCES.cluster]: response })
 )

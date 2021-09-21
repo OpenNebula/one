@@ -24,8 +24,9 @@ import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { AttachNicForm } from 'client/components/Forms/Vm'
 import { Tr, Translate } from 'client/components/HOC'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { NIC_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import { reorder } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles({
@@ -45,13 +46,34 @@ const Networking = ({ data, setFormData }) => {
     ?.map((nic, idx) => ({ ...nic, NAME: `NIC${idx}` }))
 
   const { handleRemove, handleSave } = useListForm({
-    parent: STEP_ID,
+    parent: EXTRA_ID,
     key: TAB_ID,
     list: nics,
     setList: setFormData,
     getItemId: (item) => item.NAME,
     addItemId: (item, id) => ({ ...item, NAME: id })
   })
+
+  const reorderBootOrder = nicId => {
+    const getIndexFromNicId = id => String(id).toLowerCase().replace('nic', '')
+    const idxToRemove = getIndexFromNicId(nicId)
+
+    const nicIds = nics
+      .filter(nic => nic.NAME !== nicId)
+      .map(nic => String(nic.NAME).toLowerCase())
+
+    const newBootOrder = [...data?.OS?.BOOT?.split(',').filter(Boolean)]
+      .filter(bootId => !bootId.startsWith('nic') || nicIds.includes(bootId))
+      .map(bootId => {
+        if (!bootId.startsWith('nic')) return bootId
+
+        const nicId = getIndexFromNicId(bootId)
+
+        return nicId < idxToRemove ? bootId : `nic${nicId - 1}`
+      })
+
+    reorder(newBootOrder, setFormData)
+  }
 
   return (
     <>
@@ -92,7 +114,10 @@ const Networking = ({ data, setFormData }) => {
                   {!hasAlias &&
                     <Action
                       data-cy={`remove-${NAME}`}
-                      handleClick={() => handleRemove(NAME)}
+                      handleClick={() => {
+                        handleRemove(NAME)
+                        reorderBootOrder(NAME)
+                      }}
                       icon={<Trash size={18} />}
                     />
                   }

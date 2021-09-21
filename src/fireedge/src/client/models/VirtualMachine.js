@@ -58,7 +58,7 @@ export const getHistoryRecords = vm =>
 export const getLastHistory = vm => {
   const records = getHistoryRecords(vm)
 
-  return records.at(-1)
+  return records.at(-1) ?? {}
 }
 
 /**

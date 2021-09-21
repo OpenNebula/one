@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
+import GlobalActions from 'client/components/Tables/Enhanced/Utils/GlobalActions'
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 import GlobalSelectedRows from 'client/components/Tables/Enhanced/Utils/GlobalSelectedRows'
 import GlobalSort from 'client/components/Tables/Enhanced/Utils/GlobalSort'
@@ -23,6 +24,7 @@ export * from 'client/components/Tables/Enhanced/Utils/utils'
 
 export {
   CategoryFilter,
+  GlobalActions,
   GlobalFilter,
   GlobalSelectedRows,
   GlobalSort,

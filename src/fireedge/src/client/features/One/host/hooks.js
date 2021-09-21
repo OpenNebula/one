@@ -19,9 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/host/actions'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useHost = () => (
-  useSelector(state => state.one.hosts)
+  useSelector(state => state[name]?.[RESOURCES.host])
 )
 
 export const useHostApi = () => {

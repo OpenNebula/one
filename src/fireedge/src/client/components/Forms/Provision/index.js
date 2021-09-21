@@ -13,27 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import CreateForm from 'client/components/Forms/Provision/CreateForm'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { T } from 'client/constants'
-
-import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
-} from 'client/containers/Providers/Form/ProviderForm/Steps/BasicConfiguration/schema'
-
-export const STEP_ID = 'configuration'
-
-const BasicConfiguration = ({ isUpdate }) => ({
-  id: STEP_ID,
-  label: T.ProviderOverview,
-  resolver: () => STEP_FORM_SCHEMA({ isUpdate }),
-  optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema cy="form-provider" fields={FORM_FIELDS({ isUpdate })} id={STEP_ID} />,
-    []
-  )
-})
-
-export default BasicConfiguration
+export {
+  CreateForm
+}

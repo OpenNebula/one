@@ -36,7 +36,6 @@ const DetachAction = memo(({ disk, name: imageName }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
         icon: <Trash size={18} />,
@@ -46,7 +45,10 @@ const DetachAction = memo(({ disk, name: imageName }) => {
         title: `${Tr(T.Detach)}: #${DISK_ID} - ${imageName}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleDetach }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleDetach
+      }]}
     />
   )
 })
@@ -185,7 +187,6 @@ const SnapshotRevertAction = memo(({ disk, snapshot }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_REVERT}-${DISK_ID}-${ID}`,
         icon: <UndoAction size={18} />,
@@ -195,7 +196,10 @@ const SnapshotRevertAction = memo(({ disk, snapshot }) => {
         title: `${Tr(T.Revert)}: #${ID} - ${NAME}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleRevert }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleRevert
+      }]}
     />
   )
 })
@@ -213,7 +217,6 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
 
   return (
     <ButtonToTriggerForm
-      isConfirmDialog
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_DELETE}-${DISK_ID}-${ID}`,
         icon: <Trash size={18} />,
@@ -223,7 +226,10 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
         title: `${Tr(T.Delete)}: #${ID} - ${NAME}`,
         children: <p>{Tr(T.DoYouWantProceed)}</p>
       }}
-      options={[{ onSubmit: handleDelete }]}
+      options={[{
+        isConfirmDialog: true,
+        onSubmit: handleDelete
+      }]}
     />
   )
 })

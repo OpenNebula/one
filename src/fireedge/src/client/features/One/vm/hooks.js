@@ -19,9 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/vm/actions'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useVm = () => (
-  useSelector(state => state.one.vms)
+  useSelector(state => state[name]?.[RESOURCES.vm] ?? [])
 )
 
 export const useVmApi = () => {

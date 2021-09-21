@@ -17,13 +17,16 @@ import { createAction } from 'client/features/One/utils'
 import { vNetworkTemplateService } from 'client/features/One/vnetworkTemplate/services'
 import { RESOURCES } from 'client/features/One/slice'
 
+/** @see {@link RESOURCES.vntemplate}  */
+const VNET_TEMPLATE = 'vntemplate'
+
 export const getVNetworkTemplate = createAction(
-  'vnet-template',
+  `${VNET_TEMPLATE}/detail`,
   vNetworkTemplateService.getVNetworkTemplate
 )
 
 export const getVNetworkTemplates = createAction(
-  'vnet-template/pool',
+  `${VNET_TEMPLATE}/pool`,
   vNetworkTemplateService.getVNetworkTemplates,
   response => ({ [RESOURCES.vntemplate]: response })
 )

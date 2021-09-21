@@ -81,8 +81,8 @@ export const SCHED_ACTION_SCHEMA = lazy(({ TIME } = {}) => {
 })
 
 export const SCHEMA = object({
-  NIC: array(NIC_SCHEMA),
-  SCHED_ACTION: array(SCHED_ACTION_SCHEMA),
+  NIC: array(NIC_SCHEMA).ensure(),
+  SCHED_ACTION: array(SCHED_ACTION_SCHEMA).ensure(),
   OS: object({
     BOOT: string().trim().notRequired()
   }),
@@ -93,8 +93,3 @@ export const SCHEMA = object({
     DS_RANK_FIELD
   ])
 })
-  .transform(({ SCHED_ACTION, NIC, ...rest }) => ({
-    ...rest,
-    SCHED_ACTION: [SCHED_ACTION ?? []].flat(),
-    NIC: [NIC ?? []].flat()
-  }))

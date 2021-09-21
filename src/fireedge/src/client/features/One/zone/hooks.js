@@ -19,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/zone/actions'
-import { RESOURCES } from 'client/features/One/slice'
+import { name, RESOURCES } from 'client/features/One/slice'
 
 export const useZone = () => (
-  useSelector(state => state.one[RESOURCES.zone])
+  useSelector(state => state[name]?.[RESOURCES.zone] ?? [])
 )
 
 export const useZoneApi = () => {

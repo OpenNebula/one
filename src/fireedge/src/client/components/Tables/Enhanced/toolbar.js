@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-
 import { makeStyles, useMediaQuery } from '@material-ui/core'
+import { UseTableInstanceProps, UseRowSelectState, UseFiltersInstanceProps } from 'react-table'
 
-import { GlobalSelectedRows, GlobalSort } from 'client/components/Tables/Enhanced/Utils'
+import { GlobalActions, GlobalSelectedRows, GlobalSort } from 'client/components/Tables/Enhanced/Utils'
 
 const useToolbarStyles = makeStyles({
   root: {
@@ -29,9 +29,25 @@ const useToolbarStyles = makeStyles({
   }
 })
 
-const Toolbar = ({ onlyGlobalSelectedRows = false, useTableProps = {} }) => {
+/**
+ * @param {object} props - Props
+ * @param {object} props.globalActions - Global actions
+ * @param {object} props.onlyGlobalSelectedRows - Show only the selected rows
+ * @param {UseTableInstanceProps} props.useTableProps - Table props
+ * @returns {JSXElementConstructor} Returns table toolbar
+ */
+const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
   const classes = useToolbarStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('xs'))
+  const isSmallDevice = useMediaQuery(theme => theme.breakpoints.down('sm'))
+
+  /** @type {UseRowSelectState} */
+  const { selectedRowIds } = useTableProps?.state ?? {}
+
+  /** @type {UseFiltersInstanceProps} */
+  const { preFilteredRows } = useTableProps ?? {}
+
+  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
 
   if (onlyGlobalSelectedRows) {
     return <GlobalSelectedRows useTableProps={useTableProps} />
@@ -39,12 +55,16 @@ const Toolbar = ({ onlyGlobalSelectedRows = false, useTableProps = {} }) => {
 
   return isMobile ? null : (
     <div className={classes.root}>
-      <GlobalSort useTableProps={useTableProps} />
+      {globalActions?.length > 0 && (
+        <GlobalActions globalActions={globalActions} selectedRows={selectedRows} />
+      )}
+      {!isSmallDevice && <GlobalSort useTableProps={useTableProps} />}
     </div>
   )
 }
 
 Toolbar.propTypes = {
+  globalActions: PropTypes.array,
   onlyGlobalSelectedRows: PropTypes.bool,
   useTableProps: PropTypes.object
 }

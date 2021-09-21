@@ -28,10 +28,10 @@ import { sanitize } from 'client/utils'
 import { isValidProvisionTemplate, getProvisionTypeFromTemplate } from 'client/models/ProvisionTemplate'
 import { T } from 'client/constants'
 
-import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Provider'
-import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/BasicConfiguration'
-import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Inputs'
-import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/ProvisionForm/Steps/Template/schema'
+import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
+import { STEP_ID as CONFIGURATION_ID } from 'client/components/Forms/Provision/CreateForm/Steps/BasicConfiguration'
+import { STEP_ID as INPUTS_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
+import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provision/CreateForm/Steps/Template/schema'
 
 export const STEP_ID = 'template'
 

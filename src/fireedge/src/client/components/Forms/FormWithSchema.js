@@ -52,6 +52,8 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
 
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
+  if (getFields.length === 0) return null
+
   return (
     <Fieldset className={className}>
       {legend && <Legend>{legend}</Legend>}
