@@ -115,6 +115,11 @@ class Container
     def reboot
         rc = @client.stop(@one.vm_name)
 
+        # Remove nic from ovs-switch if needed
+        @one.get_nics.each do |nic|
+            del_bridge_port(nic) # network driver matching implemented here
+        end
+
         return false unless rc
 
         @client.start(@one.vm_name)
@@ -159,6 +164,20 @@ class Container
                    (@client.info(@one.vm_name)['State'] != STATES[:running])
 
         @client.info(@one.vm_name)['State'] == STATES[:running]
+    end
+
+    def del_bridge_port(nic)
+        return true unless /ovswitch/ =~ nic['VN_MAD']
+
+        cmd = 'sudo -n ovs-vsctl --if-exists del-port '\
+        "#{nic['BRIDGE']} #{nic['TARGET']}"
+
+        rc, _o, e = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error "#{__method__}: #{e}"
+        false
     end
 
 end
