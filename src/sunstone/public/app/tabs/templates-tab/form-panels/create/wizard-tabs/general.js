@@ -379,7 +379,7 @@ define(function(require) {
     }
     
     if (templateJSON["HYPERVISOR"] == "lxc"){
-      templateJSON["LXC_UNPRIVILEGED"] = $("#lxc_security_privileged", context).val().toUpperCase();
+      templateJSON["LXC_UNPRIVILEGED"] = $("#lxc_security_unprivileged", context).val().toUpperCase();
     }
 
     var sunstone_template = {};
@@ -507,7 +507,7 @@ define(function(require) {
 
     // LXC specific attributes
     if (templateJSON["HYPERVISOR"] == "lxc") {
-      $("#lxc_security_privileged").val(templateJSON["LXC_UNPRIVILEGED"].toLowerCase());
+      $("#lxc_security_unprivileged").val(templateJSON["LXC_UNPRIVILEGED"].toLowerCase());
     }
 
     if (templateJSON["HYPERVISOR"]) {
