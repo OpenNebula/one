@@ -83,7 +83,7 @@ define(function(require) {
         $(".submit_support_credentials_button", context).html("<i class=\"fas fa-spinner fa-spin\"></i>");
         var data = {
           email : $("#support_email", this).val(),
-          password : $("#support_password", this).val()
+          password : btoa($("#support_password", this).val())
         };
         $.ajax({
           url: "support/credentials",

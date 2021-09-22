@@ -355,7 +355,7 @@ post '/support/credentials' do
     end
 
     session['zendesk_email'] = body_hash['email']
-    session['zendesk_password'] = body_hash['password']
+    session['zendesk_password'] = Base64.decode64(body_hash['password'])
 
     zendesk_client
 
