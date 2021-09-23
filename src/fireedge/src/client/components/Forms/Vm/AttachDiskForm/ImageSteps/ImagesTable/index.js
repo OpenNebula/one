@@ -14,55 +14,50 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
 import { useListForm } from 'client/hooks'
 import { ImagesTable } from 'client/components/Tables'
-
-import {
-  SCHEMA
-} from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable/schema'
+import { SCHEMA } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'image'
 
+const Content = ({ data, setFormData }) => {
+  const { ID } = data?.[0] ?? {}
+
+  const {
+    handleSelect,
+    handleClear
+  } = useListForm({ key: STEP_ID, setList: setFormData })
+
+  const handleSelectedRows = rows => {
+    const { original = {} } = rows?.[0] ?? {}
+
+    original.ID !== undefined ? handleSelect(original) : handleClear()
+  }
+
+  return (
+    <ImagesTable
+      singleSelect
+      onlyGlobalSearch
+      onlyGlobalSelectedRows
+      initialState={{ selectedRowIds: { [ID]: true } }}
+      onSelectedRowsChange={handleSelectedRows}
+    />
+  )
+}
+
 const ImageStep = () => ({
   id: STEP_ID,
   label: T.Image,
-  resolver: () => SCHEMA,
-  content: useCallback(
-    ({ data, setFormData }) => {
-      const selectedImage = data?.[0]
-
-      const {
-        handleSelect,
-        handleClear
-      } = useListForm({ key: STEP_ID, setList: setFormData })
-
-      const handleSelectedRows = rows => {
-        const { original } = rows?.[0] ?? {}
-        const { ID, NAME, UID, UNAME } = original ?? {}
-
-        const image = {
-          IMAGE_ID: ID,
-          IMAGE: NAME,
-          IMAGE_UID: UID,
-          IMAGE_UNAME: UNAME
-        }
-
-        ID !== undefined ? handleSelect(image) : handleClear()
-      }
-
-      return (
-        <ImagesTable
-          singleSelect
-          onlyGlobalSearch
-          onlyGlobalSelectedRows
-          initialState={{ selectedRowIds: { [selectedImage?.IMAGE_ID]: true } }}
-          onSelectedRowsChange={handleSelectedRows}
-        />
-      )
-    }, [])
+  resolver: SCHEMA,
+  content: Content
 })
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func
+}
 
 export default ImageStep

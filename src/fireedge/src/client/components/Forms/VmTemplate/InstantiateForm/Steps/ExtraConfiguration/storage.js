@@ -14,20 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useFormContext } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core'
 import { Edit, Trash } from 'iconoir-react'
 
 import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { AttachNicForm } from 'client/components/Forms/Vm'
+import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr, Translate } from 'client/components/HOC'
 
+import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
+import { getState, getDiskType } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
+import { prettyBytes } from 'client/utils'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles({
@@ -39,22 +45,24 @@ const useStyles = makeStyles({
   }
 })
 
-export const TAB_ID = 'NIC'
+export const TAB_ID = 'DISK'
 
-const Networking = ({ data, setFormData }) => {
+const Storage = ({ data, setFormData }) => {
   const classes = useStyles()
-  const nics = data?.[TAB_ID]
+  const { watch } = useFormContext()
+  const { HYPERVISOR } = useMemo(() => watch(`${TEMPLATE_ID}[0]`) ?? {}, [])
+  const disks = data?.[TAB_ID]
 
   const { handleSetList, handleRemove, handleSave } = useListForm({
     parent: EXTRA_ID,
     key: TAB_ID,
-    list: nics,
+    list: disks,
     setList: setFormData,
     getItemId: item => item.NAME,
     addItemId: (item, _, itemIndex) => ({ ...item, NAME: `${TAB_ID}${itemIndex}` })
   })
 
-  const reorderNics = () => {
+  const reorderDisks = () => {
     const diskSchema = EXTRA_SCHEMA.pick([TAB_ID])
     const { [TAB_ID]: newList } = diskSchema.cast({ [TAB_ID]: data?.[TAB_ID] })
 
@@ -66,33 +74,72 @@ const Networking = ({ data, setFormData }) => {
       <ButtonToTriggerForm
         buttonProps={{
           color: 'secondary',
-          'data-cy': 'add-nic',
-          label: 'Add nic'
+          'data-cy': 'add-disk',
+          label: 'Add disk'
         }}
         dialogProps={{
-          title: `Add new: ${Tr(T.NIC)}`
+          title: `Add new: ${Tr(T.Disk)}`
         }}
-        options={[{
-          form: () => AttachNicForm({ nics }),
-          onSubmit: handleSave
-        }]}
+        options={[
+          {
+            cy: 'attach-image-disk',
+            name: T.Image,
+            form: () => ImageSteps({ hypervisor: HYPERVISOR }),
+            onSubmit: handleSave
+          },
+          {
+            cy: 'attach-volatile-disk',
+            name: T.Volatile,
+            form: () => VolatileSteps({ hypervisor: HYPERVISOR }),
+            onSubmit: handleSave
+          }
+        ]}
       />
       <div className={classes.root}>
-        {nics?.map(item => {
-          const { NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
-          const hasAlias = nics?.some(nic => nic.PARENT === NAME)
+        {disks?.map(item => {
+          const {
+            NAME,
+            TYPE,
+            IMAGE,
+            IMAGE_ID,
+            IMAGE_STATE,
+            ORIGINAL_SIZE,
+            SIZE = ORIGINAL_SIZE,
+            READONLY,
+            DATASTORE,
+            PERSISTENT
+          } = item
+
+          const isVolatile = !IMAGE && !IMAGE_ID
+          const isPersistent = stringToBoolean(PERSISTENT)
+          const state = !isVolatile && getState({ STATE: IMAGE_STATE })
+          const type = isVolatile ? TYPE : getDiskType(item)
+          const originalSize = +ORIGINAL_SIZE ? prettyBytes(+ORIGINAL_SIZE, 'MB') : '-'
+          const size = prettyBytes(+SIZE, 'MB')
 
           return (
             <SelectCard
               key={NAME}
-              title={[NAME, NETWORK].filter(Boolean).join(' - ')}
+              title={isVolatile ? (
+                <>
+                  {`${NAME} - `}
+                  <Translate word={T.VolatileDisk} />
+                </>
+              ) : (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                  <StatusCircle color={state?.color} tooltip={state?.name} />
+                  {`${NAME}: ${IMAGE}`}
+                  {isPersistent && <StatusChip text='PERSISTENT' />}
+                </span>
+              )}
               subheader={<>
                 {Object
                   .entries({
-                    RDP: stringToBoolean(RDP),
-                    SSH: stringToBoolean(SSH),
-                    EXTERNAL: stringToBoolean(EXTERNAL),
-                    ALIAS: PARENT
+                    [DATASTORE]: DATASTORE,
+                    READONLY: stringToBoolean(READONLY),
+                    PERSISTENT: stringToBoolean(PERSISTENT),
+                    [isVolatile || ORIGINAL_SIZE === SIZE ? size : `${originalSize}/${size}`]: true,
+                    [type]: type
                   })
                   .map(([k, v]) => v ? `${k}` : '')
                   .filter(Boolean)
@@ -101,17 +148,16 @@ const Networking = ({ data, setFormData }) => {
               </>}
               action={
                 <>
-                  {!hasAlias &&
-                    <Action
-                      data-cy={`remove-${NAME}`}
-                      handleClick={() => {
-                        handleRemove(NAME)
-                        reorderNics()
-                        reorderBootAfterRemove(NAME, nics, data, setFormData)
-                      }}
-                      icon={<Trash size={18} />}
-                    />
-                  }
+                  <Action
+                    data-cy={`remove-${NAME}`}
+                    tooltip={<Translate word={T.Remove} />}
+                    handleClick={() => {
+                      handleRemove(NAME)
+                      reorderDisks()
+                      reorderBootAfterRemove(NAME, disks, data, setFormData)
+                    }}
+                    icon={<Trash size={18} />}
+                  />
                   <ButtonToTriggerForm
                     buttonProps={{
                       'data-cy': `edit-${NAME}`,
@@ -119,10 +165,12 @@ const Networking = ({ data, setFormData }) => {
                       tooltip: <Translate word={T.Edit} />
                     }}
                     dialogProps={{
-                      title: <><Translate word={T.Edit} />{`: ${NAME} - ${NETWORK}`}</>
+                      title: <><Translate word={T.Edit} />{`: ${NAME}`}</>
                     }}
                     options={[{
-                      form: () => AttachNicForm({ nics }, item),
+                      form: () => isVolatile
+                        ? VolatileSteps({ hypervisor: HYPERVISOR }, item)
+                        : ImageSteps({ hypervisor: HYPERVISOR }, item),
                       onSubmit: newValues => handleSave(newValues, NAME)
                     }]}
                   />
@@ -136,11 +184,11 @@ const Networking = ({ data, setFormData }) => {
   )
 }
 
-Networking.propTypes = {
+Storage.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func
 }
 
-Networking.displayName = 'Networking'
+Storage.displayName = 'Storage'
 
-export default Networking
+export default Storage

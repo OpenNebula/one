@@ -31,9 +31,25 @@ export const rowStyles = makeStyles(
         flexWrap: 'wrap'
       }
     },
+    figure: {
+      flexBasis: '20%',
+      paddingTop: '12.5%',
+      overflow: 'hidden',
+      position: 'relative'
+    },
+    image: {
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+      position: 'absolute',
+      userSelect: 'none'
+    },
     main: {
       flex: 'auto',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      alignSelf: 'center'
     },
     title: {
       color: palette.text.primary,
@@ -52,8 +68,12 @@ export const rowStyles = makeStyles(
       color: palette.text.secondary,
       marginTop: 4,
       display: 'flex',
-      gap: 8,
-      wordWrap: 'break-word'
+      gap: '0.5em',
+      flexWrap: 'wrap',
+      wordWrap: 'break-word',
+      '& > .full-width': {
+        flexBasis: '100%'
+      }
     },
     secondary: {
       width: '25%',

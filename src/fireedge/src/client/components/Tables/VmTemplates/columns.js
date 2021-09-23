@@ -16,6 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as Helper from 'client/models/Helper'
+import { } from 'client/constants'
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -24,6 +25,11 @@ export default [
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Start Time', accessor: 'REGTIME' },
   { Header: 'Locked', accessor: 'LOCK' },
+  {
+    Header: 'Logo',
+    id: 'LOGO',
+    accessor: row => row?.TEMPLATE?.LOGO
+  },
   {
     Header: 'Virtual Router',
     id: 'VROUTER',

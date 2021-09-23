@@ -16,31 +16,51 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-/**
- * @enum {(
- * 'OS'|
- * 'CD ROM'|
- * 'DATABLOCK'|
- * 'KERNEL'|
- * 'RAMDISK'|
- * 'CONTEXT'
- * )} Image type
- */
+/** @enum {string} Image type */
+export const IMAGE_TYPES_STR = {
+  OS: 'OS',
+  CDROM: 'CDROM',
+  DATABLOCK: 'DATABLOCK',
+  KERNEL: 'KERNEL',
+  RAMDISK: 'RAMDISK',
+  CONTEXT: 'CONTEXT'
+}
+
+/** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type */
 export const IMAGE_TYPES = [
-  'OS',
-  'CD ROM',
-  'DATABLOCK',
-  'KERNEL',
-  'RAMDISK',
-  'CONTEXT'
+  IMAGE_TYPES_STR.OS,
+  IMAGE_TYPES_STR.CDROM,
+  IMAGE_TYPES_STR.DATABLOCK,
+  IMAGE_TYPES_STR.KERNEL,
+  IMAGE_TYPES_STR.RAMDISK,
+  IMAGE_TYPES_STR.CONTEXT
 ]
 
-/** @enum {('FILE'|'CD ROM'|'BLOCK'|'RBD')} Disk type */
+/** @enum {string} Disk type */
+export const DISK_TYPES_STR = {
+  FILE: 'FILE',
+  CDROM: 'CDROM',
+  BLOCK: 'BLOCK',
+  RBD: 'RBD',
+  RBD_CDROM: 'RBD CDROM',
+  GLUSTER: 'GLUSTER',
+  GLUSTER_CDROM: 'GLUSTER CDROM',
+  SHEEPDOG: 'SHEEPDOG',
+  SHEEPDOG_CDROM: 'SHEEPDOG CDROM',
+  ISCSI: 'ISCII'
+}
+/** @enum {DISK_TYPES_STR[]} Return the string representation of a Disk type */
 export const DISK_TYPES = [
-  'FILE',
-  'CD ROM',
-  'BLOCK',
-  'RBD'
+  DISK_TYPES_STR.FILE,
+  DISK_TYPES_STR.CDROM,
+  DISK_TYPES_STR.BLOCK,
+  DISK_TYPES_STR.RBD,
+  DISK_TYPES_STR.RBD_CDROM,
+  DISK_TYPES_STR.GLUSTER,
+  DISK_TYPES_STR.GLUSTER_CDROM,
+  DISK_TYPES_STR.SHEEPDOG,
+  DISK_TYPES_STR.SHEEPDOG_CDROM,
+  DISK_TYPES_STR.ISCSI
 ]
 
 /** @type {STATES.StateInfo[]} Image states */

@@ -14,31 +14,34 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-
-import {
-  SCHEMA,
-  FIELDS
-} from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration/schema'
+import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'configuration'
+
+const Content = ({ hypervisor }) => (
+  <FormWithSchema
+    cy='attach-disk-configuration'
+    fields={FIELDS(hypervisor)}
+    id={STEP_ID}
+  />
+)
 
 const BasicConfiguration = ({ hypervisor } = {}) => ({
   id: STEP_ID,
   label: T.Configuration,
   resolver: () => SCHEMA(hypervisor),
   optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema
-      cy='attach-disk-configuration'
-      fields={FIELDS(hypervisor)}
-      id={STEP_ID}
-    />,
-    [hypervisor]
-  )
+  content: () => Content({ hypervisor })
 })
+
+Content.propTypes = {
+  hypervisor: PropTypes.any,
+  data: PropTypes.any,
+  setFormData: PropTypes.func
+}
 
 export default BasicConfiguration

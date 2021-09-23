@@ -61,7 +61,7 @@ import { set } from 'client/utils'
  * @property {SimpleCallback} handleSelect - Add an item to data form list
  * @property {SimpleCallback} handleClone - Clones an item and change two attributes
  * @property {SimpleCallback} handleEdit - Find the element by id and set value to editing state
- * @property {function(newValues, id)} handleSave - Saves the data from editing state
+ * @property {SaveCallback} handleSave - Saves the data from editing state
  */
 
 // ----------------------------------------------------------
@@ -182,7 +182,7 @@ const useListForm = ({
       const index = EXISTS_INDEX(itemIndex) ? itemIndex : list.length
 
       const newList = Object.assign([], [...list],
-        { [index]: getItemId(values) ? values : addItemId(values, id, itemIndex) }
+        { [index]: getItemId(values) ? values : addItemId(values, id, index) }
       )
 
       handleSetList(newList)

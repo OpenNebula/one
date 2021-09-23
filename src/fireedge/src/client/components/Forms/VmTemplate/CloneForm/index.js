@@ -13,28 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration'
-import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
-import { mapUserInputs, createSteps } from 'client/utils'
+import { createForm } from 'client/utils'
+import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/CloneForm/schema'
 
-const Steps = createSteps(
-  [BasicConfiguration, AdvancedOptions],
-  {
-    transformInitialValue: (disk = {}, schema) => ({
-      ...schema.cast({
-        [BASIC_ID]: disk,
-        [ADVANCED_ID]: disk
-      }, { stripUnknown: true })
-    }),
-    transformBeforeSubmit: formData => {
-      const {
-        [BASIC_ID]: configuration = {},
-        [ADVANCED_ID]: advanced = {}
-      } = formData ?? {}
+const CloneForm = createForm(SCHEMA, FIELDS)
 
-      return { ...mapUserInputs(advanced), ...mapUserInputs(configuration) }
-    }
-  }
-)
-
-export default Steps
+export default CloneForm

@@ -20,4 +20,5 @@ export const SCHEMA = yup
   .min(1, 'Select image')
   .max(1, 'Max. one image selected')
   .required('Image field is required')
-  .default([])
+  .ensure()
+  .default(() => [])

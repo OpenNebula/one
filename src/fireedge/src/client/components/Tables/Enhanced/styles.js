@@ -58,6 +58,7 @@ export default makeStyles(
       display: 'grid',
       gap: '1em',
       gridTemplateColumns: 'minmax(0, 1fr)',
+      // gridTemplateRows: 'repeat(auto-fill, 10em)',
       gridAutoRows: 'max-content',
       paddingBlock: '0.8em',
       '& > [role=row]': {
@@ -68,9 +69,9 @@ export default makeStyles(
         fontWeight: typography.fontWeightMedium,
         fontSize: '1em',
         border: `1px solid ${palette.divider}`,
-        borderRadius: 6,
+        borderRadius: '0.5em',
         display: 'flex',
-        gap: 8,
+        gap: '1em',
         '&:hover': {
           backgroundColor: palette.action.hover
         },

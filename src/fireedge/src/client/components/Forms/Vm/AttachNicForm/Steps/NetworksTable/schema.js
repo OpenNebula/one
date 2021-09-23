@@ -20,4 +20,5 @@ export const SCHEMA = yup
   .min(1, 'Select network')
   .max(1, 'Max. one network selected')
   .required('Network field is required')
-  .default([])
+  .ensure()
+  .default(() => [])

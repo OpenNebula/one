@@ -14,13 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
-
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -29,8 +25,6 @@ export const STEP_ID = 'configuration'
 
 const Content = () => {
   const classes = useStyles()
-  const { watch } = useFormContext()
-  const selectedVmTemplate = useMemo(() => watch(`${TEMPLATE_ID}[0]`), [])
 
   return (
     <div className={classes.root}>
@@ -45,12 +39,6 @@ const Content = () => {
         cy='instantiate-vm-template-configuration.capacity'
         fields={FIELDS.CAPACITY}
         legend={Tr(T.Capacity)}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='instantiate-vm-template-configuration.disk'
-        fields={FIELDS.DISK(selectedVmTemplate)}
-        legend={Tr(T.Disks)}
         id={STEP_ID}
       />
       <FormWithSchema

@@ -111,7 +111,7 @@ import { INPUT_TYPES } from 'client/constants'
 /**
  * @typedef {object} StepsForm
  * @property {Step[]} steps - Steps
- * @property {BaseSchema} resolver - Schema
+ * @property {BaseSchema|function():BaseSchema} resolver - Schema
  * @property {object} defaultValues - Default values
  */
 
@@ -347,8 +347,13 @@ export const createForm = (schema, fields, extraParams = {}) =>
     const schemaCallback = typeof schema === 'function' ? schema(props) : schema
     const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
 
+    const defaultTransformInitialValue = (values, schema) =>
+      schema.cast(values, { stripUnknown: true })
+
+    const { transformInitialValue = defaultTransformInitialValue } = extraParams
+
     const defaultValues = initialValues
-      ? schemaCallback.cast(initialValues, { stripUnknown: true })
+      ? transformInitialValue(initialValues, schemaCallback)
       : schemaCallback.default()
 
     return {

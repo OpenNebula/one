@@ -22,7 +22,8 @@ import { IMAGE_TYPES, DISK_TYPES, IMAGE_STATES, StateInfo } from 'client/constan
  * @param {number|string} image.TYPE - Type numeric code
  * @returns {IMAGE_TYPES} - Image type
  */
-export const getType = ({ TYPE } = {}) => IMAGE_TYPES[+TYPE]
+export const getType = ({ TYPE } = {}) =>
+  isNaN(+TYPE) ? TYPE : IMAGE_TYPES[+TYPE]
 
 /**
  * Returns the image state.
@@ -40,4 +41,5 @@ export const getState = ({ STATE } = {}) => IMAGE_STATES[+STATE]
  * @param {number|string} image.DISK_TYPE - Disk type numeric code
  * @returns {DISK_TYPES} - Disk type
  */
-export const getDiskType = ({ DISK_TYPE } = {}) => DISK_TYPES[+DISK_TYPE]
+export const getDiskType = ({ DISK_TYPE } = {}) =>
+  isNaN(+DISK_TYPE) ? DISK_TYPE : DISK_TYPES[+DISK_TYPE]

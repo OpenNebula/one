@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/core'
 
 import { useListForm } from 'client/hooks'
 import { useVmTemplateApi } from 'client/features/One'
@@ -29,7 +30,14 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'template'
 
+const useStyles = makeStyles({
+  body: {
+    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))'
+  }
+})
+
 const Content = ({ data, setFormData }) => {
+  const classes = useStyles()
   const selectedTemplate = data?.[0]
   const { getVmTemplate } = useVmTemplateApi()
 
@@ -62,6 +70,7 @@ const Content = ({ data, setFormData }) => {
       singleSelect
       onlyGlobalSearch
       onlyGlobalSelectedRows
+      classes={classes}
       initialState={{ selectedRowIds: { [selectedTemplate?.ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />

@@ -13,10 +13,51 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ImagesTable from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
-import AdvancedOptions from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions'
-import { createSteps } from 'client/utils'
+import ImagesTable, { STEP_ID as STEP_IMAGE } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
+import AdvancedOptions, { STEP_ID as STEP_ADVANCED } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions'
+import { mapUserInputs, createSteps } from 'client/utils'
 
-const Steps = createSteps([ImagesTable, AdvancedOptions])
+const Steps = createSteps(
+  [ImagesTable, AdvancedOptions],
+  {
+    transformInitialValue: initialValue => {
+      const {
+        IMAGE,
+        IMAGE_ID,
+        IMAGE_UID,
+        IMAGE_UNAME,
+        IMAGE_STATE,
+        ...diskProps
+      } = initialValue ?? {}
+
+      return {
+        [STEP_IMAGE]: [{
+          ...diskProps,
+          NAME: IMAGE,
+          ID: IMAGE_ID,
+          UID: IMAGE_UID,
+          UNAME: IMAGE_UNAME,
+          STATE: IMAGE_STATE
+        }],
+        [STEP_ADVANCED]: initialValue
+      }
+    },
+    transformBeforeSubmit: formData => {
+      const { [STEP_IMAGE]: [image] = [], [STEP_ADVANCED]: advanced } = formData
+      const { ID, NAME, UID, UNAME, STATE, SIZE, ...imageProps } = image ?? {}
+
+      return {
+        ...imageProps,
+        IMAGE: NAME,
+        IMAGE_ID: ID,
+        IMAGE_UID: UID,
+        IMAGE_UNAME: UNAME,
+        IMAGE_STATE: STATE,
+        ORIGINAL_SIZE: SIZE,
+        ...mapUserInputs(advanced)
+      }
+    }
+  }
+)
 
 export default Steps

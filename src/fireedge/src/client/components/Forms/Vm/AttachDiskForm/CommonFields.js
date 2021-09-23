@@ -39,7 +39,6 @@ export const READONLY = {
   notOnHypervisors: [vcenter],
   type: INPUT_TYPES.SELECT,
   values: [
-    { text: '', value: '' },
     { text: T.Yes, value: 'YES' },
     { text: T.No, value: 'NO' }
   ],
@@ -47,7 +46,7 @@ export const READONLY = {
     .string()
     .trim()
     .notRequired()
-    .default(undefined)
+    .default(() => 'NO')
 }
 
 export const DEV_PREFIX = {

@@ -33,6 +33,7 @@ import {
 import { useAuth } from 'client/features/Auth'
 import { useVmTemplateApi } from 'client/features/One'
 
+import { CloneForm } from 'client/components/Forms/VmTemplate'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { VM_TEMPLATE_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
@@ -40,7 +41,14 @@ import { VM_TEMPLATE_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useAuth()
-  const { getVmTemplate, getVmTemplates, lock, unlock, remove } = useVmTemplateApi()
+  const {
+    getVmTemplate,
+    getVmTemplates,
+    lock,
+    unlock,
+    clone,
+    remove
+  } = useVmTemplateApi()
 
   const vmTemplateActions = useMemo(() => createActions({
     filters: getResourceView('VM-TEMPLATE')?.actions,
@@ -106,8 +114,42 @@ const Actions = () => {
         label: 'Clone',
         tooltip: 'Clone',
         selected: true,
-        disabled: true,
-        options: [{ onSubmit: () => undefined }]
+        dialogProps: {
+          title: rows => {
+            const isMultiple = rows?.length > 1
+            const { ID, NAME } = rows?.[0]?.original
+
+            return [
+              isMultiple ? 'Clone several Templates' : 'Clone Template',
+              !isMultiple && `#${ID} ${NAME}`
+            ].filter(Boolean).join(' - ')
+          }
+        },
+        options: [{
+          form: rows => {
+            const vmTemplates = rows?.map(({ original }) => original)
+            const stepProps = { isMultiple: vmTemplates.length > 1 }
+            const initialValues = { name: `Copy of ${vmTemplates?.[0]?.NAME}` }
+
+            return CloneForm(stepProps, initialValues)
+          },
+          onSubmit: async (formData, rows) => {
+            try {
+              const { prefix } = formData
+
+              const vmTemplates = rows?.map?.(({ original: { ID, NAME } = {} }) => {
+                // overwrite all names with prefix+NAME
+                const formatData = prefix ? { name: `${prefix} ${NAME}` } : {}
+
+                return { id: ID, data: { ...formData, ...formatData } }
+              })
+
+              await Promise.all(vmTemplates.map(({ id, data }) => clone(id, data)))
+            } finally {
+              await getVmTemplates()
+            }
+          }
+        }]
       },
       {
         tooltip: 'Change ownership',
@@ -157,7 +199,7 @@ const Actions = () => {
           isConfirmDialog: true,
           onSubmit: async (_, rows) => {
             const templateIds = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all([...new Array(templateIds)].map(id => lock(id)))
+            await Promise.all(templateIds.map(id => lock(id)))
             await Promise.all(templateIds.map(id => getVmTemplate(id)))
           }
         }]
@@ -178,7 +220,7 @@ const Actions = () => {
         options: [{
           isConfirmDialog: true,
           onSubmit: async (_, rows) => {
-            const templateIds = [...new Array(rows?.map?.(({ original }) => original?.ID))]
+            const templateIds = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(templateIds.map(id => unlock(id)))
             await Promise.all(templateIds.map(id => getVmTemplate(id)))
           }
@@ -199,7 +241,7 @@ const Actions = () => {
         options: [{
           isConfirmDialog: true,
           onSubmit: async (_, rows) => {
-            const templateIds = [...new Array(rows?.map?.(({ original }) => original?.ID))]
+            const templateIds = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(templateIds.map(id => remove(id)))
             await getVmTemplates()
           }

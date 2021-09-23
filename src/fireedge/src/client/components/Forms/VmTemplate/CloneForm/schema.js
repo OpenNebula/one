@@ -13,28 +13,47 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration'
-import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
-import { mapUserInputs, createSteps } from 'client/utils'
+/* eslint-disable jsdoc/require-jsdoc */
+import { string, boolean, object } from 'yup'
+import { INPUT_TYPES } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
 
-const Steps = createSteps(
-  [BasicConfiguration, AdvancedOptions],
-  {
-    transformInitialValue: (disk = {}, schema) => ({
-      ...schema.cast({
-        [BASIC_ID]: disk,
-        [ADVANCED_ID]: disk
-      }, { stripUnknown: true })
-    }),
-    transformBeforeSubmit: formData => {
-      const {
-        [BASIC_ID]: configuration = {},
-        [ADVANCED_ID]: advanced = {}
-      } = formData ?? {}
+const PREFIX = {
+  name: 'prefix',
+  label: 'Prefix',
+  tooltip: `
+    Several templates are selected,
+    please choose prefix to name the new copies.`,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required('Prefix field is required')
+    .default(() => 'Copy of ')
+}
 
-      return { ...mapUserInputs(advanced), ...mapUserInputs(configuration) }
-    }
-  }
-)
+const NAME = {
+  name: 'name',
+  label: 'Name',
+  tooltip: 'Name for the new template.',
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required('Name field is required')
+    .default(() => '')
+}
 
-export default Steps
+const IMAGES = {
+  name: 'image',
+  label: 'Clone with images',
+  tooltip: `
+    You can also clone any Image referenced inside this Template.
+    They will be cloned to a new Image, and made persistent.`,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { md: 12 }
+}
+
+export const FIELDS = ({ isMultiple } = {}) =>
+  [isMultiple ? PREFIX : NAME, IMAGES]
+
+export const SCHEMA = props => object(getValidationFromFields(FIELDS(props)))

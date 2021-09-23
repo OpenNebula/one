@@ -17,7 +17,6 @@
 import { array, object, string, lazy } from 'yup'
 import { v4 as uuidv4 } from 'uuid'
 
-import { SCHEMA as NETWORK_SCHEMA } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
 import { SCHEMA as PUNCTUAL_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm/schema'
 import { SCHEMA as RELATIVE_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
 import { INPUT_TYPES } from 'client/constants'
@@ -65,14 +64,6 @@ export const DS_RANK_FIELD = {
   validation: string().trim().notRequired()
 }
 
-export const NIC_SCHEMA = object({
-  NAME: string().trim(),
-  NETWORK_ID: string().trim(),
-  NETWORK: string().trim(),
-  NETWORK_UNAME: string().trim(),
-  SECURITY_GROUPS: string().trim()
-}).concat(NETWORK_SCHEMA)
-
 export const SCHED_ACTION_SCHEMA = lazy(({ TIME } = {}) => {
   const isRelative = String(TIME).includes('+')
   const schema = isRelative ? RELATIVE_SCHEMA : PUNCTUAL_SCHEMA
@@ -81,7 +72,22 @@ export const SCHED_ACTION_SCHEMA = lazy(({ TIME } = {}) => {
 })
 
 export const SCHEMA = object({
-  NIC: array(NIC_SCHEMA).ensure(),
+  DISK: array()
+    .ensure()
+    .transform(disks => disks?.map((disk, idx) => ({
+      ...disk,
+      NAME: disk?.NAME?.startsWith('DISK') || !disk?.NAME
+        ? `DISK${idx}`
+        : disk?.NAME
+    }))),
+  NIC: array()
+    .ensure()
+    .transform(nics => nics?.map((nic, idx) => ({
+      ...nic,
+      NAME: nic?.NAME?.startsWith('NIC') || !nic?.NAME
+        ? `NIC${idx}`
+        : nic?.NAME
+    }))),
   SCHED_ACTION: array(SCHED_ACTION_SCHEMA).ensure(),
   OS: object({
     BOOT: string().trim().notRequired()
@@ -92,4 +98,4 @@ export const SCHEMA = object({
     DS_REQ_FIELD,
     DS_RANK_FIELD
   ])
-})
+}).noUnknown(false)

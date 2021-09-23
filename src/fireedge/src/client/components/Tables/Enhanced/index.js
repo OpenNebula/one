@@ -17,6 +17,7 @@
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import clsx from 'clsx'
 import { InfoEmpty } from 'iconoir-react'
 import { Box, LinearProgress } from '@material-ui/core'
 import {
@@ -54,9 +55,10 @@ const EnhancedTable = ({
   pageSize = 10,
   RowComponent,
   showPageCount,
-  singleSelect = false
+  singleSelect = false,
+  classes = {}
 }) => {
-  const classes = EnhancedTableStyles()
+  const styles = EnhancedTableStyles()
 
   const isFetching = isLoading && data === undefined
 
@@ -127,8 +129,8 @@ const EnhancedTable = ({
   }
 
   return (
-    <Box {...getTableProps()} className={classes.root}>
-      <div className={classes.toolbar}>
+    <Box {...getTableProps()} className={clsx(styles.root, classes.root)}>
+      <div className={styles.toolbar}>
         {/* TOOLBAR */}
         {!isFetching && (
           <Toolbar
@@ -139,7 +141,7 @@ const EnhancedTable = ({
         )}
 
         {/* PAGINATION */}
-        <div className={classes.pagination}>
+        <div className={styles.pagination}>
           {page?.length > 0 && (
             <Pagination
               handleChangePage={handleChangePage}
@@ -152,10 +154,10 @@ const EnhancedTable = ({
       </div>
 
       {isLoading && (
-        <LinearProgress size='1em' color='secondary' className={classes.loading} />
+        <LinearProgress size='1em' color='secondary' className={styles.loading} />
       )}
 
-      <div className={classes.table}>
+      <div className={styles.table}>
         {/* FILTERS */}
         {!isFetching && (
           <Filters
@@ -164,10 +166,10 @@ const EnhancedTable = ({
           />
         )}
 
-        <div className={classes.body}>
+        <div className={clsx(styles.body, classes.body)}>
           {/* NO DATA MESSAGE */}
           {!isFetching && page?.length === 0 && (
-            <span className={classes.noDataMessage}>
+            <span className={styles.noDataMessage}>
               <InfoEmpty />
               <Translate word={T.NoDataAvailable} />
             </span>
@@ -209,6 +211,10 @@ export const EnhancedTableProps = {
   fetchMore: PropTypes.func,
   getRowId: PropTypes.func,
   initialState: PropTypes.object,
+  classes: PropTypes.shape({
+    root: PropTypes.string,
+    body: PropTypes.string
+  }),
   isLoading: PropTypes.bool,
   onlyGlobalSearch: PropTypes.bool,
   onlyGlobalSelectedRows: PropTypes.bool,

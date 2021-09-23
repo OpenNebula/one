@@ -22,6 +22,7 @@ import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
 import Tabs from 'client/components/Tabs'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import Storage from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import Networking from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
 import Placement from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement'
 import ScheduleAction from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction'
@@ -35,6 +36,10 @@ const Content = ({ data, setFormData }) => {
   const { errors } = useFormContext()
 
   const tabs = [
+    {
+      name: 'storage',
+      renderContent: Storage({ data, setFormData })
+    },
     {
       name: 'network',
       renderContent: Networking({ data, setFormData })

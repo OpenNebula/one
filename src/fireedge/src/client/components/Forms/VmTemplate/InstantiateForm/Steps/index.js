@@ -17,7 +17,7 @@ import VmTemplatesTable, { STEP_ID as TEMPLATE_ID } from 'client/components/Form
 import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
 import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { jsonToXml } from 'client/models/Helper'
-import { createSteps, deepmerge } from 'client/utils'
+import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
   [VmTemplatesTable, BasicConfiguration, ExtraConfiguration],
@@ -27,7 +27,7 @@ const Steps = createSteps(
         [TEMPLATE_ID]: [vmTemplate],
         [BASIC_ID]: vmTemplate?.TEMPLATE,
         [EXTRA_ID]: vmTemplate?.TEMPLATE
-      }, { stripUnknown: true })
+      }, { stripUnknown: true, context: { [TEMPLATE_ID]: [vmTemplate] } })
     }),
     transformBeforeSubmit: formData => {
       const {
@@ -37,8 +37,7 @@ const Steps = createSteps(
       } = formData ?? {}
 
       // merge with template disks to get TYPE attribute
-      const DISK = deepmerge(templateSelected.TEMPLATE?.DISK, restOfConfig?.DISK)
-      const templateXML = jsonToXml({ ...extraTemplate, ...restOfConfig, DISK })
+      const templateXML = jsonToXml({ ...extraTemplate, ...restOfConfig })
       const data = { instances, hold, persistent, template: templateXML }
 
       const templates = [...new Array(instances)]

@@ -47,7 +47,12 @@ const Image = memo(({ src, imageInError, withSources, imgProps }) => {
   }
 
   if (error.fail) {
-    return <img src={imageInError} draggable={false} onError={addRetry} />
+    return <img
+      {...imgProps}
+      src={imageInError}
+      draggable={false}
+      onError={addRetry}
+    />
   }
 
   return (

@@ -40,4 +40,4 @@ export const changePermissions = createAction(`${TEMPLATE}/chmod`, vmTemplateSer
 export const changeOwnership = createAction(`${TEMPLATE}/chown`, vmTemplateService.changeOwnership)
 export const rename = createAction(`${TEMPLATE}/rename`, vmTemplateService.rename)
 export const lock = createAction(`${TEMPLATE}/lock`, vmTemplateService.lock)
-export const unlock = createAction(`${TEMPLATE}/unlock`, vmTemplateService.lock)
+export const unlock = createAction(`${TEMPLATE}/unlock`, vmTemplateService.unlock)

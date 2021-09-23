@@ -38,11 +38,8 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
   const hypervisor = VirtualMachine.getHypervisor(vm)
   const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
 
-  const handleAttachDisk = async ({ image, advanced, configuration }) => {
-    const imageSelected = image?.[0]
-    const root = { ...imageSelected, ...advanced, ...configuration }
-
-    const template = Helper.jsonToXml({ DISK: root })
+  const handleAttachDisk = async formData => {
+    const template = Helper.jsonToXml({ DISK: formData })
 
     await attachDisk(vm.ID, template)
   }

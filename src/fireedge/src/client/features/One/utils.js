@@ -61,7 +61,7 @@ export const updateResourceList = (currentList, value) => {
   // update if exists in current list, if not add it to list
   const updatedList = currentItem
     ? currentList?.map(item => item?.ID === id ? value : item)
-    : [value, currentList]
+    : [value, ...currentList]
 
   return updatedList
 }

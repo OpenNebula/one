@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, SetStateAction } from 'react'
+import { SetStateAction } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -25,11 +25,10 @@ import {
 } from 'iconoir-react'
 import { Divider, makeStyles } from '@material-ui/core'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { useFormContext } from 'react-hook-form'
 
 import { Translate } from 'client/components/HOC'
 import { Action } from 'client/components/Cards/SelectCard'
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
+import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
 import { set } from 'client/utils'
 import { T } from 'client/constants'
@@ -54,10 +53,40 @@ const useStyles = makeStyles(theme => ({
 }))
 
 /**
- * @param {string[]} newBootOrder - New boot order
- * @param {SetStateAction} setFormData - New boot order
+ * @param {string} id - Resource id: 'NIC<index>' or 'DISK<index>'
+ * @param {Array} list - List of resources
+ * @param {object} formData - Form data
+ * @param {SetStateAction} setFormData - React set state action
  */
-export const reorder = (newBootOrder, setFormData) => {
+export const reorderBootAfterRemove = (id, list, formData, setFormData) => {
+  const type = String(id).toLowerCase().replace(/\d+/g, '') // nic | disk
+  const getIndexFromId = id => String(id).toLowerCase().replace(type, '')
+  const idxToRemove = getIndexFromId(id)
+
+  const ids = list
+    .filter(resource => resource.NAME !== id)
+    .map(resource => String(resource.NAME).toLowerCase())
+
+  const newBootOrder = [...formData?.OS?.BOOT?.split(',').filter(Boolean)]
+    .filter(bootId => !bootId.startsWith(type) || ids.includes(bootId))
+    .map(bootId => {
+      if (!bootId.startsWith(type)) return bootId
+
+      const resourceId = getIndexFromId(bootId)
+
+      return resourceId < idxToRemove
+        ? bootId
+        : `${type}${resourceId - 1}`
+    })
+
+  reorder(newBootOrder, setFormData)
+}
+
+/**
+ * @param {string[]} newBootOrder - New boot order
+ * @param {SetStateAction} setFormData - React set state action
+ */
+const reorder = (newBootOrder, setFormData) => {
   setFormData(prev => {
     const newData = set({ ...prev }, 'extra.OS.BOOT', newBootOrder.join(','))
 
@@ -67,41 +96,32 @@ export const reorder = (newBootOrder, setFormData) => {
 
 const Booting = ({ data, setFormData }) => {
   const classes = useStyles()
-  const { watch } = useFormContext()
   const bootOrder = data?.OS?.BOOT?.split(',').filter(Boolean) ?? []
 
-  const disks = useMemo(() => {
-    const templateSeleted = watch(`${TEMPLATE_ID}[0]`)
-    const listOfDisks = [templateSeleted?.TEMPLATE?.DISK ?? []].flat()
-
-    return listOfDisks?.map(disk => {
-      const { DISK_ID, IMAGE, IMAGE_ID } = disk
-      const isVolatile = !IMAGE && !IMAGE_ID
-
-      const name = isVolatile
-        ? <>`DISK ${DISK_ID}: `<Translate word={T.VolatileDisk} /></>
-        : `DISK ${DISK_ID}: ${IMAGE}`
+  const disks = data?.[STORAGE_ID]
+    ?.map((disk, idx) => {
+      const isVolatile = !disk?.IMAGE && !disk?.IMAGE_ID
 
       return {
-        ID: `disk${DISK_ID}`,
+        ID: `disk${idx}`,
         NAME: (
           <>
             <ImageIcon size={16} />
-            {name}
+            {isVolatile
+              ? <>{`${disk?.NAME}: `}<Translate word={T.VolatileDisk} /></>
+              : [disk?.NAME, disk?.IMAGE].filter(Boolean).join(': ')}
           </>
         )
       }
-    })
-  }, [])
+    }) ?? []
 
   const nics = data?.[NIC_ID]
-    ?.map((nic, idx) => ({ ...nic, NAME: nic?.NAME ?? `NIC${idx}` }))
     ?.map((nic, idx) => ({
       ID: `nic${idx}`,
       NAME: (
         <>
           <NetworkIcon size={16} />
-          {[nic?.NAME ?? `NIC${idx}`, nic.NETWORK].filter(Boolean).join(': ')}
+          {[nic?.NAME, nic.NETWORK].filter(Boolean).join(': ')}
         </>
       )
     })) ?? []
