@@ -96,7 +96,7 @@ def create_dpg(one_vnet, dc, cluster, vi_client)
     begin
         # Get parameters needed to create the network
         pnics   = one_vnet['TEMPLATE/PHYDEV']
-        pg_name = one_vnet['NAME']
+        pg_name = one_vnet['BRIDGE']
         sw_name = one_vnet['TEMPLATE/VCENTER_SWITCH_NAME']
         mtu     = one_vnet['TEMPLATE/MTU']
         vlan_id = one_vnet['VLAN_ID'] || 0
@@ -167,7 +167,7 @@ def create_pg(one_vnet, esx_host)
     begin
         # Get parameters needed to create the network
         pnics   = one_vnet['TEMPLATE/PHYDEV']
-        pg_name = one_vnet['NAME']
+        pg_name = one_vnet['BRIDGE']
         sw_name = one_vnet['TEMPLATE/VCENTER_SWITCH_NAME']
         mtu     = one_vnet['TEMPLATE/MTU']
         vlan_id = one_vnet['VLAN_ID'] || 0
