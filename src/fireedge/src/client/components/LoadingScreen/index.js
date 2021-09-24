@@ -41,7 +41,13 @@ const LoadingScreen = () => {
 
   return (
     <Box className={classes.root}>
-      <OpenNebulaLogo width={360} height={360} spinner withText />
+      <OpenNebulaLogo
+        width={360}
+        height={360}
+        spinner
+        withText
+        withBeta
+      />
     </Box>
   )
 }

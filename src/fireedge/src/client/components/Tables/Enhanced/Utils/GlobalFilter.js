@@ -44,13 +44,13 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
     justifyContent: 'center'
   },
   inputRoot: {
-    color: 'inherit'
+    color: 'inherit',
+    width: '100%'
   },
   inputInput: {
     padding: spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${spacing(4)}px)`,
-    width: '100%'
+    paddingLeft: `calc(1em + ${spacing(4)}px)`
   }
 }))
 

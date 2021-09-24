@@ -83,6 +83,7 @@ function Login () {
             height={100}
             width='100%'
             withText
+            withBeta
           />
         ), [])}
         <Box className={classes.wrapperForm}>
