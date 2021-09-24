@@ -22,7 +22,22 @@ import { INPUT_TYPES } from 'client/constants'
 const RDP_FIELD = {
   name: 'RDP',
   label: 'RDP connection',
-  type: INPUT_TYPES.CHECKBOX,
+  type: INPUT_TYPES.SWITCH,
+  validation: yup
+    .boolean()
+    .transform(value => {
+      if (typeof value === 'boolean') return value
+
+      return String(value).toUpperCase() === 'YES'
+    })
+    .default(false),
+  grid: { md: 12 }
+}
+
+const SSH_FIELD = {
+  name: 'SSH',
+  label: 'SSH connection',
+  type: INPUT_TYPES.SWITCH,
   validation: yup
     .boolean()
     .transform(value => {
@@ -65,7 +80,7 @@ const ALIAS_FIELD = ({ nics = [] } = {}) => ({
 const EXTERNAL_FIELD = {
   name: 'EXTERNAL',
   label: 'External',
-  type: INPUT_TYPES.CHECKBOX,
+  type: INPUT_TYPES.SWITCH,
   tooltip: 'The NIC will be attached as an external alias of the VM',
   dependOf: ALIAS_FIELD().name,
   htmlType: type => !type?.length ? INPUT_TYPES.HIDDEN : undefined,
@@ -81,6 +96,7 @@ const EXTERNAL_FIELD = {
 
 export const FIELDS = props => [
   RDP_FIELD,
+  SSH_FIELD,
   ALIAS_FIELD(props),
   EXTERNAL_FIELD
 ]

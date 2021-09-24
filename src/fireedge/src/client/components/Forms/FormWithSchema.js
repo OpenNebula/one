@@ -40,6 +40,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.PASSWORD]: FC.PasswordController,
   [INPUT_TYPES.SELECT]: FC.SelectController,
   [INPUT_TYPES.SLIDER]: FC.SliderController,
+  [INPUT_TYPES.SWITCH]: FC.SwitchController,
   [INPUT_TYPES.CHECKBOX]: FC.CheckboxController,
   [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
   [INPUT_TYPES.FILE]: FC.FileController,

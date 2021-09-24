@@ -60,6 +60,7 @@ export const FILTER_POOL = {
 export const INPUT_TYPES = {
   AUTOCOMPLETE: 'autocomplete',
   CHECKBOX: 'checkbox',
+  SWITCH: 'switch',
   FILE: 'file',
   TIME: 'time',
   HIDDEN: 'hidden',

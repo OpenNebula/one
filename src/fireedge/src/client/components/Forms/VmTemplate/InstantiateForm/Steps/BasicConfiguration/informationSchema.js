@@ -45,7 +45,7 @@ const INSTANCES = {
 const HOLD = {
   name: 'hold',
   label: 'Start VM on hold state',
-  type: INPUT_TYPES.CHECKBOX,
+  type: INPUT_TYPES.SWITCH,
   tooltip: `
     Sets the new VM to hold state, instead of pending.
     The scheduler will not deploy VMs in this state.
@@ -57,7 +57,7 @@ const HOLD = {
 const PERSISTENT = {
   name: 'persistent',
   label: 'Instantiate as persistent',
-  type: INPUT_TYPES.CHECKBOX,
+  type: INPUT_TYPES.SWITCH,
   tooltip: `
     Creates a private persistent copy of the template
     plus any image defined in DISK, and instantiates that copy.`,
