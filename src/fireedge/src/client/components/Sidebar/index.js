@@ -46,6 +46,7 @@ const Sidebar = ({ endpoints }) => {
   const SidebarEndpoints = useMemo(
     () => endpoints
       ?.filter(({ sidebar = false }) => sidebar)
+      ?.sort(({ position: posA = 1 }, { position: posB = 1 }) => posB - posA)
       ?.map((endpoint, index) =>
         endpoint.routes ? (
           <SidebarCollapseItem key={`item-${index}`} {...endpoint} />

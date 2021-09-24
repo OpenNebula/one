@@ -34,6 +34,7 @@ export const ENDPOINTS = [
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
+    position: 1,
     Component: Dashboard
   },
   {
@@ -41,6 +42,7 @@ export const ENDPOINTS = [
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,
+    position: -1,
     Component: Settings
   }
 ]
