@@ -30,8 +30,8 @@ import { NavArrowDown } from 'iconoir-react'
 
 import { useDialog } from 'client/hooks'
 import { DialogConfirmation, DialogForm, DialogPropTypes } from 'client/components/Dialogs'
-import { SubmitButton, SubmitButtonPropTypes } from 'client/components/FormControl'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
 

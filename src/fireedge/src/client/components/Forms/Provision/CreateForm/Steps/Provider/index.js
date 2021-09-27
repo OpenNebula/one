@@ -57,18 +57,14 @@ const Provider = () => ({
 
     const {
       handleSelect,
-      handleUnselect
+      handleClear
     } = useListForm({ key: STEP_ID, setList: setFormData })
 
     const handleClick = (provider, isSelected) => {
-      const { ID } = provider
-
       // reset inputs when selected provider changes
       setFormData(prev => ({ ...prev, [INPUTS_ID]: undefined }))
 
-      isSelected
-        ? handleUnselect(ID, item => item.ID !== ID)
-        : handleSelect(provider)
+      isSelected ? handleClear() : handleSelect(provider)
     }
 
     return (

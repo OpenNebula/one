@@ -142,7 +142,8 @@ const routes = {
     delete: {
       action: deleteProvision,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
+        id: { from: fromData.resource, name: 'id', front: true },
+        cleanup: { from: fromData.postBody, name: 'cleanup', front: true }
       },
       websocket: true
     },

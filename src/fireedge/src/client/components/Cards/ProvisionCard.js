@@ -18,6 +18,7 @@ import PropTypes from 'prop-types'
 
 import { Db as ProviderIcon, Cloud as ProvisionIcon } from 'iconoir-react'
 
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge } from 'client/components/Status'
 import Image from 'client/components/Image'
@@ -31,7 +32,7 @@ import {
 } from 'client/constants'
 
 const ProvisionCard = memo(
-  ({ value, image: propImage, isSelected, handleClick, isProvider, actions }) => {
+  ({ value, image: propImage, isSelected, handleClick, isProvider, actions, deleteAction }) => {
     const { ID, NAME, TEMPLATE: { BODY = {} } } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
@@ -48,8 +49,15 @@ const ProvisionCard = memo(
 
     return (
       <SelectCard
-        action={actions?.map(action =>
-          <Action key={action?.cy} {...action} />
+        action={(actions?.length > 0 || deleteAction) && (
+          <>
+            {actions?.map(action =>
+              <Action key={action?.cy} {...action} />
+            )}
+            {deleteAction && (
+              <ButtonToTriggerForm {...deleteAction} />
+            )}
+          </>
         )}
         dataCy={isProvider ? 'provider' : 'provision'}
         handleClick={handleClick}
@@ -89,6 +97,7 @@ ProvisionCard.propTypes = {
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
   image: PropTypes.string,
+  deleteAction: PropTypes.func,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
@@ -104,6 +113,7 @@ ProvisionCard.defaultProps = {
   isProvider: false,
   isSelected: undefined,
   image: undefined,
+  deleteAction: undefined,
   value: {}
 }
 

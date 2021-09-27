@@ -498,7 +498,8 @@ const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, use
     const command = 'delete'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = [command, params.id, '--batch', '--debug', '--json', ...authCommand, ...endpoint]
+    const cleanup = params.cleanup ? ['--cleanup'] : []
+    const paramsCommand = [command, params.id, '--batch', '--debug', '--json', ...cleanup, ...authCommand, ...endpoint]
 
     // get Log file
     const dataLog = logData(params.id, true)

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/Provision/CreateForm'
-import DeleteForm from 'client/components/Forms/Provision/DeleteForm'
+import { createForm } from 'client/utils'
+import { SCHEMA, FIELDS } from 'client/components/Forms/Provision/DeleteForm/schema'
 
-export {
-  CreateForm,
-  DeleteForm
-}
+const DeleteForm = createForm(SCHEMA, FIELDS)
+
+export default DeleteForm

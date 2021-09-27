@@ -25,9 +25,11 @@ import { useFetch, useSearch } from 'client/hooks'
 import { useProvision, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
 
+import { DeleteForm } from 'client/components/Forms/Provision'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
+import { Translate } from 'client/components/HOC'
 
 import { DialogRequest } from 'client/components/Dialogs'
 import DialogInfo from 'client/containers/Provisions/DialogInfo'
@@ -98,28 +100,34 @@ function Provisions () {
                     .then(() => fetchRequest(undefined, { reload: true })),
                   icon: <EditIcon />,
                   cy: 'provision-configure'
-                },
-                {
-                  handleClick: () => setShowDialog({
-                    id: ID,
-                    content: props => createElement(DialogInfo, {
-                      ...props,
-                      disableAllActions: true,
-                      displayName: 'DialogDeleteProvision'
-                    }),
-                    title: `DELETE - #${ID} ${NAME}`,
-                    handleAccept: () => {
-                      handleCloseDialog()
-
-                      return deleteProvision(ID)
-                        .then(() => enqueueInfo(`Deleting provision - ID: ${ID}`))
-                        .then(() => fetchRequest(undefined, { reload: true }))
-                    }
-                  }),
-                  icon: <DeleteIcon color={theme.palette.error.dark} />,
-                  cy: 'provision-delete'
                 }
-              ]
+              ],
+              deleteAction: {
+                buttonProps: {
+                  'data-cy': 'provision-delete',
+                  icon: <DeleteIcon color={theme.palette.error.dark} />
+                },
+                options: [{
+                  dialogProps: {
+                    title: (
+                      <Translate
+                        word={T.DeleteSomething}
+                        values={`#${ID} ${NAME}`}
+                      />
+                    )
+                  },
+                  form: DeleteForm,
+                  onSubmit: async formData => {
+                    try {
+                      await deleteProvision(ID, formData)
+                      enqueueInfo(`Deleting provision - ID: ${ID}`)
+                    } finally {
+                      handleCloseDialog()
+                      fetchRequest(undefined, { reload: true })
+                    }
+                  }
+                }]
+              }
             })}
           />
         )}

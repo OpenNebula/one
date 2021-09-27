@@ -138,13 +138,17 @@ export const provisionService = ({
    *
    * @param {object} params - Request parameters
    * @param {object} params.id - Provider id
+   * @param {object} params.cleanup
+   * - If `true`, force to terminate VMs running
+   * on provisioned Hosts and delete all images in the datastores
    * @returns {object} Object of document deleted
    * @throws Fails when response isn't code 200
    */
-  deleteProvision: async ({ id }) => {
+  deleteProvision: async ({ id, ...data }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVISION}/delete/${id}`
+      url: `/api/${PROVISION}/delete/${id}`,
+      data
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {

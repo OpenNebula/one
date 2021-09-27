@@ -13,10 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/Provision/CreateForm'
-import DeleteForm from 'client/components/Forms/Provision/DeleteForm'
+/* eslint-disable jsdoc/require-jsdoc */
+import * as yup from 'yup'
+import { INPUT_TYPES } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
 
-export {
-  CreateForm,
-  DeleteForm
+const CLEANUP = {
+  name: 'cleanup',
+  label: 'Cleanup',
+  type: INPUT_TYPES.SWITCH,
+  tooltip: `
+    Force to terminate VMs running on provisioned Hosts
+    and delete all images in the datastores.`,
+  validation: yup.boolean().notRequired().default(() => false)
 }
+
+export const FIELDS = [
+  CLEANUP
+]
+
+export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
