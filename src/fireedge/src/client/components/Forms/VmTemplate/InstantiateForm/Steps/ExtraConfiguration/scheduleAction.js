@@ -60,22 +60,19 @@ const ScheduleAction = ({ data, setFormData }) => {
           'data-cy': 'add-sched-action',
           label: Tr(T.AddAction)
         }}
-        dialogProps={{
-          title: Tr(T.ScheduledAction)
-        }}
         options={[{
           cy: 'add-sched-action-punctual',
           name: 'Punctual action',
+          dialogProps: { title: T.ScheduledAction },
           form: () => PunctualForm(),
-          onSubmit: formData =>
-            handleSave(SCHED_ACTION_SCHEMA.cast(formData))
+          onSubmit: formData => handleSave(SCHED_ACTION_SCHEMA.cast(formData))
         },
         {
           cy: 'add-sched-action-relative',
           name: 'Relative action',
+          dialogProps: { title: T.ScheduledAction },
           form: () => RelativeForm(),
-          onSubmit: formData =>
-            handleSave(SCHED_ACTION_SCHEMA.cast(formData))
+          onSubmit: formData => handleSave(SCHED_ACTION_SCHEMA.cast(formData))
         }]}
       />
       <div className={classes.root}>
@@ -100,10 +97,10 @@ const ScheduleAction = ({ data, setFormData }) => {
                       icon: <Edit size={18} />,
                       tooltip: <Translate word={T.Edit} />
                     }}
-                    dialogProps={{
-                      title: <><Translate word={T.Edit} />{`: ${NAME}`}</>
-                    }}
                     options={[{
+                      dialogProps: {
+                        title: <><Translate word={T.Edit} />{`: ${NAME}`}</>
+                      },
                       form: () => isRelative
                         ? RelativeForm(undefined, item)
                         : PunctualForm(undefined, item),

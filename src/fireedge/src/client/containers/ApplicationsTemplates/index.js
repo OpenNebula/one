@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect, useState } from 'react'
 
-import { useHistory } from 'react-router-dom'
+import { useHistory, generatePath } from 'react-router-dom'
 import { Container, Box } from '@material-ui/core'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
@@ -65,9 +65,8 @@ function ApplicationsTemplates () {
             gridProps={{ 'data-cy': 'applications-templates' }}
             CardComponent={ApplicationTemplateCard}
             cardsProps={({ value }) => ({
-              handleEdit: () => history.push(
-                PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', value?.ID)
-              ),
+              handleEdit: () =>
+                history.push(generatePath(PATH.APPLICATIONS_TEMPLATES.EDIT, { id: value?.ID })),
               handleDeploy: () => setShowDialog(value),
               handleRemove: undefined // TODO
             })}

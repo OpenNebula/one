@@ -85,12 +85,12 @@ const ActionItem = memo(({ item, selectedRows }) => {
   ) : (
     <ButtonToTriggerForm
       buttonProps={buttonProps}
-      dialogProps={{
-        ...dialogProps,
-        title: typeof title === 'function' ? title(selectedRows) : title,
-        children: typeof children === 'function' ? children(selectedRows) : children
-      }}
       options={options?.map(({ form, onSubmit, ...option }) => ({
+        dialogProps: {
+          ...dialogProps,
+          title: typeof title === 'function' ? title(selectedRows) : title,
+          children: typeof children === 'function' ? children(selectedRows) : children
+        },
         form: form ? () => form(selectedRows) : undefined,
         onSubmit: data => onSubmit(data, selectedRows),
         ...option

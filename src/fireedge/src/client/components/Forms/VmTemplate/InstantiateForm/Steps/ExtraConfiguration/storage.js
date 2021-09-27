@@ -75,21 +75,20 @@ const Storage = ({ data, setFormData }) => {
         buttonProps={{
           color: 'secondary',
           'data-cy': 'add-disk',
-          label: 'Add disk'
-        }}
-        dialogProps={{
-          title: `Add new: ${Tr(T.Disk)}`
+          label: Tr(T.AttachDisk)
         }}
         options={[
           {
             cy: 'attach-image-disk',
             name: T.Image,
+            dialogProps: { title: T.AttachImage },
             form: () => ImageSteps({ hypervisor: HYPERVISOR }),
             onSubmit: handleSave
           },
           {
             cy: 'attach-volatile-disk',
             name: T.Volatile,
+            dialogProps: { title: T.AttachVolatile },
             form: () => VolatileSteps({ hypervisor: HYPERVISOR }),
             onSubmit: handleSave
           }
@@ -164,10 +163,10 @@ const Storage = ({ data, setFormData }) => {
                       icon: <Edit size={18} />,
                       tooltip: <Translate word={T.Edit} />
                     }}
-                    dialogProps={{
-                      title: <><Translate word={T.Edit} />{`: ${NAME}`}</>
-                    }}
                     options={[{
+                      dialogProps: {
+                        title: <Translate word={T.EditSomething} values={[NAME]} />
+                      },
                       form: () => isVolatile
                         ? VolatileSteps({ hypervisor: HYPERVISOR }, item)
                         : ImageSteps({ hypervisor: HYPERVISOR }, item),

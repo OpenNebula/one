@@ -15,24 +15,26 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { generatePath } from 'react-router'
 
 import { StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
-import * as Host from 'client/models/Host'
-import * as Datastore from 'client/models/Datastore'
+import { getState, getDatastores, getAllocatedInfo } from 'client/models/Host'
+import { getCapacityInfo } from 'client/models/Datastore'
 import { T, VM_ACTIONS } from 'client/constants'
+import { PATH } from 'client/apps/sunstone/routesOne'
 
 const InformationPanel = ({ host = {}, handleRename, actions }) => {
   const { ID, NAME, IM_MAD, VM_MAD, CLUSTER_ID, CLUSTER } = host
-  const { name: stateName, color: stateColor } = Host.getState(host)
-  const datastores = Host.getDatastores(host)
+  const { name: stateName, color: stateColor } = getState(host)
+  const datastores = getDatastores(host)
   const {
     percentCpuUsed,
     percentCpuLabel,
     percentMemUsed,
     percentMemLabel
-  } = Host.getAllocatedInfo(host)
+  } = getAllocatedInfo(host)
 
   const info = [
     { name: T.ID, value: ID },
@@ -46,7 +48,12 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
       name: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />
     },
-    { name: T.Cluster, value: `#${CLUSTER_ID} ${CLUSTER}` },
+    {
+      name: T.Cluster,
+      value: `#${CLUSTER_ID} ${CLUSTER}`,
+      link: !Number.isNaN(+CLUSTER_ID) &&
+        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: CLUSTER_ID })
+    },
     { name: T.IM_MAD, value: IM_MAD },
     { name: T.VM_MAD, value: VM_MAD }
   ]
@@ -60,7 +67,7 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
   }]
 
   const datastore = datastores.map(ds => {
-    const { percentOfUsed, percentLabel } = Datastore.getCapacityInfo(ds)
+    const { percentOfUsed, percentLabel } = getCapacityInfo(ds)
 
     return {
       name: `#${ds?.ID}`, // TODO: add datastore name

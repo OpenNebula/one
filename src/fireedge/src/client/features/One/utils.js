@@ -23,7 +23,7 @@ import { httpCodes } from 'server/utils/constants'
 /**
  * @param {string} type - Name of redux action
  * @param {Promise} service - Request from service
- * @param {Function} [wrapResult] - Function to wrapping the response
+ * @param {function(object, object)} [wrapResult] - Function to wrapping the response
  * @returns {AsyncThunkAction} Asynchronous redux action
  */
 export const createAction = (type, service, wrapResult) =>

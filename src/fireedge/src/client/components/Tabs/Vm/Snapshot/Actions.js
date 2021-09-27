@@ -23,7 +23,7 @@ import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const RevertAction = memo(({ snapshot }) => {
@@ -39,12 +39,12 @@ const RevertAction = memo(({ snapshot }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
         icon: <UndoAction size={18} />
       }}
-      dialogProps={{
-        title: `${Tr(T.Revert)}: #${SNAPSHOT_ID} - ${NAME}`,
-        children: <p>{Tr(T.DoYouWantProceed)}</p>
-      }}
       options={[{
         isConfirmDialog: true,
+        dialogProps: {
+          title: <Translate word={T.RevertSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
+          children: <p>{Tr(T.DoYouWantProceed)}</p>
+        },
         onSubmit: handleRevert
       }]}
     />
@@ -64,12 +64,12 @@ const DeleteAction = memo(({ snapshot }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
         icon: <Trash size={18} />
       }}
-      dialogProps={{
-        title: `${Tr(T.Delete)}: #${SNAPSHOT_ID} - ${NAME}`,
-        children: <p>{Tr(T.DoYouWantProceed)}</p>
-      }}
       options={[{
         isConfirmDialog: true,
+        dialogProps: {
+          title: <Translate word={T.DeleteSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
+          children: <p>{Tr(T.DoYouWantProceed)}</p>
+        },
         onSubmit: handleDelete
       }]}
     />

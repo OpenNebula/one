@@ -91,35 +91,44 @@ export const PATH = {
   TEMPLATE: {
     VMS: {
       LIST: '/vm-template',
+      DETAIL: '/vm-template/:id',
       INSTANTIATE: '/vm-template/instantiate'
     }
   },
   STORAGE: {
     DATASTORES: {
-      LIST: '/datastore'
+      LIST: '/datastore',
+      DETAIL: '/datastore/:id'
     },
     IMAGES: {
-      LIST: '/image'
+      LIST: '/image',
+      DETAIL: '/image/:id'
     },
     FILES: {
-      LIST: '/file'
+      LIST: '/file',
+      DETAIL: '/file/:id'
     },
     MARKETPLACES: {
-      LIST: '/marketplace'
+      LIST: '/marketplace',
+      DETAIL: '/marketplace/:id'
     },
     MARKETPLACE_APPS: {
-      LIST: '/marketplaces-app'
+      LIST: '/marketplaces-app',
+      DETAIL: '/marketplaces-app/:id'
     }
   },
   NETWORK: {
     VNETS: {
-      LIST: '/virtual-network'
+      LIST: '/virtual-network',
+      DETAIL: '/virtual-network/:id'
     },
     VN_TEMPLATES: {
-      LIST: '/network-template'
+      LIST: '/network-template',
+      DETAIL: '/network-template/:id'
     },
     SEC_GROUPS: {
-      LIST: '/security-group'
+      LIST: '/security-group',
+      DETAIL: '/security-group/:id'
     }
   },
   INFRASTRUCTURE: {
@@ -132,7 +141,8 @@ export const PATH = {
       DETAIL: '/host/:id'
     },
     ZONES: {
-      LIST: '/zone'
+      LIST: '/zone',
+      DETAIL: '/zone/:id'
     }
   },
   SYSTEM: {

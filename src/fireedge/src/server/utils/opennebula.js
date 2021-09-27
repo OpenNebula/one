@@ -238,11 +238,13 @@ const commandXMLRPC = (resource = '', method = '', defaultMethod = '') => {
   const commandWithDefault = defaultMethod
     ? `${command}.${defaultMethod}`
     : command
-  if (typeof method === 'string' && method !== 'action') {
+
+  if (method) {
     command = allowedActions.includes(method)
       ? `${command}.${method}`
       : commandWithDefault
   }
+
   return command
 }
 

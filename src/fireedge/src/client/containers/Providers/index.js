@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState, useEffect } from 'react'
 
-import { useHistory } from 'react-router-dom'
+import { useHistory, generatePath } from 'react-router-dom'
 import { useTheme, Container, Box } from '@material-ui/core'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
@@ -88,7 +88,7 @@ function Providers () {
               actions: [
                 {
                   handleClick: () =>
-                    history.push(PATH.PROVIDERS.EDIT.replace(':id', ID)),
+                    history.push(generatePath(PATH.PROVIDERS.EDIT, { id: ID })),
                   icon: <EditIcon />,
                   cy: 'provider-edit'
                 },

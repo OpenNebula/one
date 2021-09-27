@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
+import { generatePath } from 'react-router-dom'
 
 import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
 import { List } from 'client/components/Tabs/Common'
@@ -56,7 +57,7 @@ const Ownership = memo(({
       name: T.Owner,
       value: userName,
       valueInOptionList: userId,
-      link: PATH.SYSTEM.USERS.DETAIL.replace(':id', userId),
+      link: generatePath(PATH.SYSTEM.USERS.DETAIL, { id: userId }),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
       handleGetOptionList: getUserOptions,
       handleEdit: (_, user) => handleEdit?.({ user })
@@ -65,7 +66,7 @@ const Ownership = memo(({
       name: T.Group,
       value: groupName,
       valueInOptionList: groupId,
-      link: PATH.SYSTEM.GROUPS.DETAIL.replace(':id', groupId),
+      link: generatePath(PATH.SYSTEM.GROUPS.DETAIL, { id: groupId }),
       canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
       handleGetOptionList: getGroupOptions,
       handleEdit: (_, group) => handleEdit?.({ group })

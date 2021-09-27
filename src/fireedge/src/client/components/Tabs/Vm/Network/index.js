@@ -59,12 +59,10 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
           buttonProps={{
             color: 'secondary',
             'data-cy': 'attach-nic',
-            label: `${Tr(T.Attach)} ${Tr(T.NIC)}`
-          }}
-          dialogProps={{
-            title: `${Tr(T.Attach)} ${Tr(T.NIC)}`
+            label: Tr(T.AttachNic)
           }}
           options={[{
+            dialogProps: { title: T.AttachNic },
             form: () => AttachNicForm({ nics }),
             onSubmit: handleAttachNic
           }]}

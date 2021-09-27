@@ -47,18 +47,17 @@ const CreateSchedAction = memo(() => {
         'data-cy': 'create-sched-action',
         label: Tr(T.AddAction)
       }}
-      dialogProps={{
-        title: Tr(T.ScheduledAction)
-      }}
       options={[{
         cy: 'create-sched-action-punctual',
         name: 'Punctual action',
+        dialogProps: { title: T.ScheduledAction },
         form: () => PunctualForm(vm),
         onSubmit: handleCreateSchedAction
       },
       {
         cy: 'create-sched-action-relative',
         name: 'Relative action',
+        dialogProps: { title: T.ScheduledAction },
         form: () => RelativeForm(vm),
         onSubmit: handleCreateSchedAction
       }]}
@@ -90,10 +89,10 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
         icon: <Edit size={18} />,
         tooltip: <Translate word={T.Edit} />
       }}
-      dialogProps={{
-        title: `${Tr(T.Update)} ${T.ScheduledAction}: ${name}`
-      }}
       options={[{
+        dialogProps: {
+          title: <Translate word={T.UpdateScheduledAction} values={[name]} />
+        },
         form: () => isRelative
           ? RelativeForm(vm, schedule)
           : PunctualForm(vm, schedule),
@@ -122,12 +121,12 @@ const DeleteSchedAction = memo(({ schedule, name }) => {
         icon: <Trash size={18} />,
         tooltip: <Translate word={T.Delete} />
       }}
-      dialogProps={{
-        title: `${Tr(T.Delete)} ${Tr(T.ScheduledAction)}: ${name}`,
-        children: <p>{Tr(T.DoYouWantProceed)}</p>
-      }}
       options={[{
         isConfirmDialog: true,
+        dialogProps: {
+          title: <Translate word={T.DeleteScheduledAction} values={[name]} />,
+          children: <p>{Tr(T.DoYouWantProceed)}</p>
+        },
         onSubmit: handleDelete
       }]}
     />
@@ -166,37 +165,37 @@ const CharterAction = memo(() => {
         icon: <ClockOutline />,
         tooltip: Tr(T.Charter)
       }}
-      dialogProps={{
-        title: Tr(T.ScheduledAction),
-        children: (
-          <>
-            {leases.map(([action, { time } = {}], idx) => {
-              const allPeriods = {
-                years: time / 365 / 24 / 3600,
-                months: time / 30 / 24 / 3600,
-                weeks: time / 7 / 24 / 3600,
-                days: time / 24 / 3600,
-                hours: time / 3600,
-                minutes: time / 60
-              }
-
-              const [period, parsedTime] = Object
-                .entries(allPeriods)
-                .find(([_, time]) => time >= 1)
-
-              return (
-                <p key={`${action}-${idx}`}>
-                  {`${action} - ${parsedTime} ${period}`}
-                </p>
-              )
-            })}
-            <hr />
-            <p>{Tr(T.DoYouWantProceed)}</p>
-          </>
-        )
-      }}
       options={[{
         isConfirmDialog: true,
+        dialogProps: {
+          title: Tr(T.ScheduledAction),
+          children: (
+            <>
+              {leases.map(([action, { time } = {}], idx) => {
+                const allPeriods = {
+                  years: time / 365 / 24 / 3600,
+                  months: time / 30 / 24 / 3600,
+                  weeks: time / 7 / 24 / 3600,
+                  days: time / 24 / 3600,
+                  hours: time / 3600,
+                  minutes: time / 60
+                }
+
+                const [period, parsedTime] = Object
+                  .entries(allPeriods)
+                  .find(([_, time]) => time >= 1)
+
+                return (
+                  <p key={`${action}-${idx}`}>
+                    {`${action} - ${parsedTime} ${period}`}
+                  </p>
+                )
+              })}
+              <hr />
+              <p>{Tr(T.DoYouWantProceed)}</p>
+            </>
+          )
+        },
         onSubmit: handleCreateCharter
       }]}
     />

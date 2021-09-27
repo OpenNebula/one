@@ -74,10 +74,8 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
               'data-cy': 'resize-capacity',
               label: T.Resize
             }}
-            dialogProps={{
-              title: T.ResizeCapacity
-            }}
             options={[{
+              dialogProps: { title: T.ResizeCapacity },
               form: () => ResizeCapacityForm(undefined, vm.TEMPLATE),
               onSubmit: handleResizeCapacity
             }]}

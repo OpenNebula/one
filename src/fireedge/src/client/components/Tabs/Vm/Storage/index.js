@@ -51,21 +51,20 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
           buttonProps={{
             color: 'secondary',
             'data-cy': 'attach-disk',
-            label: `${Tr(T.Attach)} ${Tr(T.Disk)}`
-          }}
-          dialogProps={{
-            title: `${Tr(T.Attach)} ${Tr(T.Disk)}`
+            label: Tr(T.AttachDisk)
           }}
           options={[
             {
               cy: 'attach-image-disk',
               name: T.Image,
+              dialogProps: { title: T.AttachImage },
               form: () => ImageSteps({ hypervisor }),
               onSubmit: handleAttachDisk
             },
             {
               cy: 'attach-volatile-disk',
               name: T.Volatile,
+              dialogProps: { title: T.AttachVolatile },
               form: () => VolatileSteps({ hypervisor }),
               onSubmit: handleAttachDisk
             }

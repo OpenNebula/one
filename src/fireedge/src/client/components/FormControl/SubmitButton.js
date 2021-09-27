@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
 
 const ButtonComponent = forwardRef(
   ({ icon, endicon, children, size = 'small', ...props }, ref) =>
-    icon ? (
+    icon && !endicon ? (
       <IconButton ref={ref} {...props}>{children}</IconButton>
     ) : (
       <Button ref={ref}

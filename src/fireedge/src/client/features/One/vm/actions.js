@@ -26,23 +26,43 @@ export const getVm = createAction(`${VM}/detail`, vmService.getVm)
 export const getVms = createAction(
   `${VM}/pool`,
   vmService.getVms,
-  (response, { vms: currentVms }) => {
+  (response, { [RESOURCES.vm]: currentVms }) => {
     const vms = filterBy([...currentVms, ...response], 'ID')
 
     return { [RESOURCES.vm]: vms }
   }
 )
 
-export const terminateVm = createAction(
-  `${VM}/delete`,
-  payload => vmService.actionVm({
-    ...payload,
-    action: {
-      params: { hard: false },
-      perform: 'terminate'
-    }
-  })
-)
+export const terminate = createAction(`${VM}/terminate`,
+  ({ id }) => vmService.actionVm({ id, action: 'terminate' }))
+export const terminateHard = createAction(`${VM}/terminate-hard`,
+  ({ id }) => vmService.actionVm({ id, action: 'terminate-hard' }))
+export const undeploy = createAction(`${VM}/undeploy`,
+  ({ id }) => vmService.actionVm({ id, action: 'undeploy' }))
+export const undeployHard = createAction(`${VM}/undeploy-hard`,
+  ({ id }) => vmService.actionVm({ id, action: 'undeploy-hard' }))
+export const poweroff = createAction(`${VM}/poweroff`,
+  ({ id }) => vmService.actionVm({ id, action: 'poweroff' }))
+export const poweroffHard = createAction(`${VM}/poweroff-hard`,
+  ({ id }) => vmService.actionVm({ id, action: 'poweroff-hard' }))
+export const reboot = createAction(`${VM}/reboot`,
+  ({ id }) => vmService.actionVm({ id, action: 'reboot' }))
+export const rebootHard = createAction(`${VM}/reboot-hard`,
+  ({ id }) => vmService.actionVm({ id, action: 'reboot-hard' }))
+export const hold = createAction(`${VM}/hold`,
+  ({ id }) => vmService.actionVm({ id, action: 'hold' }))
+export const release = createAction(`${VM}/release`,
+  ({ id }) => vmService.actionVm({ id, action: 'release' }))
+export const stop = createAction(`${VM}/stop`,
+  ({ id }) => vmService.actionVm({ id, action: 'stop' }))
+export const suspend = createAction(`${VM}/suspend`,
+  ({ id }) => vmService.actionVm({ id, action: 'suspend' }))
+export const resume = createAction(`${VM}/resume`,
+  ({ id }) => vmService.actionVm({ id, action: 'resume' }))
+export const resched = createAction(`${VM}/resched`,
+  ({ id }) => vmService.actionVm({ id, action: 'resched' }))
+export const unresched = createAction(`${VM}/unresched`,
+  ({ id }) => vmService.actionVm({ id, action: 'unresched' }))
 
 export const updateUserTemplate = createAction(`${VM}/update`, vmService.updateUserTemplate)
 export const rename = createAction(`${VM}/rename`, vmService.rename)

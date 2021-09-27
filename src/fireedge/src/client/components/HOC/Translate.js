@@ -21,6 +21,7 @@ import { sprintf } from 'sprintf-js'
 
 import { useAuth } from 'client/features/Auth'
 import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
+import { isDevelopment } from 'client/utils'
 
 const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
@@ -39,7 +40,7 @@ const GenerateScript = (
     root.document.body.appendChild(script)
     languageScript = script
   } catch (error) {
-    console.warn('Error while generating script language')
+    isDevelopment() && console.error('Error while generating script language', error)
   }
 }
 

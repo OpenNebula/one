@@ -37,7 +37,6 @@ import { Translate } from 'client/components/HOC'
 
 const ButtonToTriggerForm = ({
   buttonProps = {},
-  dialogProps = {},
   options = []
 }) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button-form'
@@ -47,7 +46,7 @@ const ButtonToTriggerForm = ({
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { onSubmit: handleSubmit, form, isConfirmDialog = false } = Form ?? {}
+  const { onSubmit: handleSubmit, form, isConfirmDialog = false, dialogProps = {} } = Form ?? {}
 
   const formConfig = useMemo(() => form?.() ?? {}, [form])
   const { steps, defaultValues, resolver, fields, transformBeforeSubmit } = formConfig
@@ -96,9 +95,10 @@ const ButtonToTriggerForm = ({
               <Paper variant='outlined'>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList variant='menu' disablePadding dense>
-                    {options.map(({ cy, icon: Icon, name, ...option }) => (
+                    {options.map(({ cy, disabled, icon: Icon, name, ...option }) => (
                       <MenuItem
                         key={name}
+                        disabled={disabled}
                         data-cy={cy}
                         onClick={() => openDialogForm(option)}
                       >
@@ -150,11 +150,11 @@ const ButtonToTriggerForm = ({
 
 export const ButtonToTriggerFormPropTypes = {
   buttonProps: PropTypes.shape(SubmitButtonPropTypes),
-  dialogProps: PropTypes.shape(DialogPropTypes),
   options: PropTypes.arrayOf(
     PropTypes.shape({
       cy: PropTypes.string,
       isConfirmDialog: PropTypes.bool,
+      dialogProps: PropTypes.shape(DialogPropTypes),
       name: PropTypes.string,
       icon: PropTypes.any,
       form: PropTypes.func,

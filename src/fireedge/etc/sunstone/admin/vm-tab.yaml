@@ -24,6 +24,8 @@ resource_name: "VM"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
+  refresh: true
+  create_dialog: true
   deploy: true
   migrate: true
   migrate_live: true
@@ -46,11 +48,12 @@ actions:
   resched: true
   unresched: true
   save_as_template: true
-  lockU: true
+  chown: true
+  chgrp: true
+  lock: true
   unlock: true
-  startvnc: true
-  startvmrc: true
-  startspice: true
+  vmrc: true
+  spice: true
   vnc: true
   ssh: true
   rdp: true

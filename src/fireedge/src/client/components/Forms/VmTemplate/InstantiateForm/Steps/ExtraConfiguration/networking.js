@@ -67,12 +67,10 @@ const Networking = ({ data, setFormData }) => {
         buttonProps={{
           color: 'secondary',
           'data-cy': 'add-nic',
-          label: 'Add nic'
-        }}
-        dialogProps={{
-          title: `Add new: ${Tr(T.NIC)}`
+          label: Tr(T.AttachNic)
         }}
         options={[{
+          dialogProps: { title: T.AttachNic },
           form: () => AttachNicForm({ nics }),
           onSubmit: handleSave
         }]}
@@ -118,10 +116,10 @@ const Networking = ({ data, setFormData }) => {
                       icon: <Edit size={18} />,
                       tooltip: <Translate word={T.Edit} />
                     }}
-                    dialogProps={{
-                      title: <><Translate word={T.Edit} />{`: ${NAME} - ${NETWORK}`}</>
-                    }}
                     options={[{
+                      dialogProps: {
+                        title: <Translate word={T.EditSomething} values={[`${NAME} - ${NETWORK}`]} />
+                      },
                       form: () => AttachNicForm({ nics }, item),
                       onSubmit: newValues => handleSave(newValues, NAME)
                     }]}

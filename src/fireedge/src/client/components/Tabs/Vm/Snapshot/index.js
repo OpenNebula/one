@@ -52,10 +52,8 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
             'data-cy': 'snapshot-create',
             label: Tr(T.TakeSnapshot)
           }}
-          dialogProps={{
-            title: Tr(T.TakeSnapshot)
-          }}
           options={[{
+            dialogProps: { title: T.TakeSnapshot },
             form: () => CreateSnapshotForm(),
             onSubmit: handleSnapshotCreate
           }]}

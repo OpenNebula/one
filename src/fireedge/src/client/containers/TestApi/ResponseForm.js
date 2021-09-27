@@ -38,12 +38,14 @@ const ResponseForm = ({
   const { control, handleSubmit, errors, formState } = useForm()
 
   const onSubmit = async dataForm => {
-    const config = requestConfig(dataForm, { name, httpMethod, params })
+    try {
+      const config = requestConfig(dataForm, { name, httpMethod, params })
 
-    const { id, ...res } = await RestClient.request(config) ?? {}
-
-    id === 401 && console.log('ERROR')
-    id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
+      const { id, ...res } = await RestClient.request(config) ?? {}
+      handleChangeResponse(JSON.stringify(res, null, '\t'))
+    } catch (err) {
+      console.log('ERROR', err)
+    }
   }
 
   return (

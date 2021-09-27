@@ -19,11 +19,13 @@ import { useState } from 'react'
 import { Container, Box } from '@material-ui/core'
 
 import { VmsTable } from 'client/components/Tables'
+import VmActions from 'client/components/Tables/Vms/actions'
 import VmTabs from 'client/components/Tabs/Vm'
 import SplitPane from 'client/components/SplitPane'
 
 function VirtualMachines () {
   const [selectedRows, onSelectedRowsChange] = useState([])
+  const actions = VmActions()
 
   const getRowIds = () =>
     JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
@@ -38,7 +40,10 @@ function VirtualMachines () {
       component={Container}
     >
       <SplitPane>
-        <VmsTable onSelectedRowsChange={onSelectedRowsChange} />
+        <VmsTable
+          onSelectedRowsChange={onSelectedRowsChange}
+          globalActions={actions}
+        />
 
         {selectedRows?.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>

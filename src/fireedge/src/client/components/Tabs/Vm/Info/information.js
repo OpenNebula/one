@@ -14,28 +14,41 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
+import { generatePath } from 'react-router-dom'
 
+import { useCluster, useClusterApi } from 'client/features/One'
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 import Multiple from 'client/components/Tables/Vms/multiple'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
+import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 const InformationPanel = ({ vm = {}, handleRename, actions }) => {
+  const clusters = useCluster()
+  const { getCluster } = useClusterApi()
+
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
+  const { name: stateName, color: stateColor } = getState(vm)
+  const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = getLastHistory(vm)
+  const ips = getIps(vm)
 
-  const { name: stateName, color: stateColor } = VirtualMachine.getState(vm)
+  const [clusterName, setClusterName] = useState(
+    () => clusterId === '-1' ? 'default' : clusters.find(c => c.ID === clusterId)?.NAME
+  )
 
-  const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = VirtualMachine.getLastHistory(vm)
-  const clusterName = clusterId === '-1' ? 'default' : '--' // TODO: get from cluster list
-  const pathToHostDetail = PATH.INFRASTRUCTURE.HOSTS.DETAIL.replace(':id', hostId)
-  const pathToClusterDetail = PATH.INFRASTRUCTURE.CLUSTERS.DETAIL.replace(':id', clusterId)
+  useEffect(() => {
+    const loadCluster = async () => {
+      const cluster = await getCluster(clusterId)
+      cluster?.NAME && setClusterName(cluster.NAME)
+    }
 
-  const ips = VirtualMachine.getIps(vm)
+    !clusterName && loadCluster()
+  }, [])
 
   const info = [
     { name: T.ID, value: ID },
@@ -69,21 +82,23 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
       name: T.EndTime,
       value: Helper.timeToString(ETIME)
     },
-    {
+    hostId && {
       name: T.Host,
-      value: hostId ? `#${hostId} ${hostname}` : '',
-      link: !Number.isNaN(+hostId) && pathToHostDetail
+      value: `#${hostId} ${hostname}`,
+      link: !Number.isNaN(+hostId) &&
+        generatePath(PATH.INFRASTRUCTURE.HOSTS.DETAIL, { id: hostId })
     },
-    {
+    clusterId && {
       name: T.Cluster,
-      value: clusterId ? `#${clusterId} ${clusterName}` : '',
-      link: !Number.isNaN(+clusterId) && pathToClusterDetail
+      value: clusterName ? `#${clusterId} ${clusterName}` : `#${clusterId} --`,
+      link: !Number.isNaN(+clusterId) &&
+        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: clusterId })
     },
     {
       name: T.DeployID,
       value: DEPLOY_ID
     }
-  ]
+  ].filter(Boolean)
 
   return (
     <List

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useReducer, useCallback, useEffect, useRef, ReducerState, ReducerAction } from 'react'
-import { fakeDelay } from 'client/utils'
+import { fakeDelay, isDevelopment } from 'client/utils'
 
 const STATUS = {
   INIT: 'INIT',
@@ -144,7 +144,7 @@ const useFetch = (request, socket) => {
       const { reload = false, delay = 0 } = options
 
       if (!(Number.isInteger(delay) && delay >= 0)) {
-        console.error(`
+        isDevelopment() && console.error(`
           Delay must be a number >= 0!
           If you're using it as a function, it must also return a number >= 0.`)
       }

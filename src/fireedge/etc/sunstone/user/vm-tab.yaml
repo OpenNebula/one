@@ -24,6 +24,7 @@ resource_name: "VM"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
+  refresh: true
   create_dialog: true
   deploy: true
   migrate: true
@@ -46,12 +47,13 @@ actions:
   terminate_hard: true
   resched: true
   unresched: true
-  save_as_template: true
-  lockU: true
+  save_as_template: false
+  chown: false
+  chgrp: false
+  lock: true
   unlock: true
-  startvnc: true
-  startvmrc: true
-  startspice: true
+  vmrc: true
+  spice: true
   vnc: true
   ssh: true
   rdp: true
@@ -82,8 +84,8 @@ info-tabs:
     ownership_panel:
       enabled: true
       actions:
-        chown: true
-        chgrp: true
+        chown: false
+        chgrp: false
     vcenter_panel:
       enabled: true
       actions:

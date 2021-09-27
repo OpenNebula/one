@@ -59,9 +59,9 @@ const GlobalActions = ({ globalActions, selectedRows }) => {
         <Action key={item.accessor} item={item} />
       ))}
       {numberOfRowSelected > 0 && (
-        actionsSelected?.map(item => {
+        actionsSelected?.map((item, idx) => {
           const { min = 1, max = Number.MAX_SAFE_INTEGER } = item?.selected ?? {}
-          const key = item.accessor ?? item.label
+          const key = item.accessor ?? item.label ?? item.tooltip ?? idx
 
           if (min < numberOfRowSelected && numberOfRowSelected > max) {
             return null

@@ -21,12 +21,9 @@ import {
   AddSquare,
   Import,
   Trash,
+  PlayOutline,
   Lock,
-  NoLock,
-  UserSquareAlt,
   Group,
-  ShareAndroid,
-  Undo,
   Cart
 } from 'iconoir-react'
 
@@ -85,6 +82,19 @@ const Actions = () => {
         }
       },
       {
+        accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
+        label: 'Instantiate',
+        tooltip: 'Instantiate',
+        icon: PlayOutline,
+        selected: { max: 1 },
+        action: rows => {
+          const template = rows?.[0]?.original ?? {}
+          const path = PATH.TEMPLATE.VMS.INSTANTIATE
+
+          history.push(path, template)
+        }
+      },
+      {
         accessor: VM_TEMPLATE_ACTIONS.UPDATE_DIALOG,
         label: 'Update',
         tooltip: 'Update',
@@ -98,34 +108,22 @@ const Actions = () => {
         }
       },
       {
-        accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
-        label: 'Instantiate',
-        tooltip: 'Instantiate',
-        selected: { max: 1 },
-        action: rows => {
-          const template = rows?.[0]?.original ?? {}
-          const path = PATH.TEMPLATE.VMS.INSTANTIATE
-
-          history.push(path, template)
-        }
-      },
-      {
         accessor: VM_TEMPLATE_ACTIONS.CLONE,
         label: 'Clone',
         tooltip: 'Clone',
         selected: true,
-        dialogProps: {
-          title: rows => {
-            const isMultiple = rows?.length > 1
-            const { ID, NAME } = rows?.[0]?.original
-
-            return [
-              isMultiple ? 'Clone several Templates' : 'Clone Template',
-              !isMultiple && `#${ID} ${NAME}`
-            ].filter(Boolean).join(' - ')
-          }
-        },
         options: [{
+          dialogProps: {
+            title: rows => {
+              const isMultiple = rows?.length > 1
+              const { ID, NAME } = rows?.[0]?.original
+
+              return [
+                isMultiple ? 'Clone several Templates' : 'Clone Template',
+                !isMultiple && `#${ID} ${NAME}`
+              ].filter(Boolean).join(' - ')
+            }
+          },
           form: rows => {
             const vmTemplates = rows?.map(({ original }) => original)
             const stepProps = { isMultiple: vmTemplates.length > 1 }
@@ -153,76 +151,69 @@ const Actions = () => {
       },
       {
         tooltip: 'Change ownership',
-        label: 'Ownership',
+        icon: Group,
         selected: true,
-        disabled: true,
         options: [{
           cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_OWNER}`,
-          icon: UserSquareAlt,
           name: 'Change owner',
+          disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_GROUP}`,
-          icon: Group,
           name: 'Change group',
+          disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.SHARE}`,
-          icon: ShareAndroid,
+          disabled: true,
           name: 'Share',
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.UNSHARE}`,
-          icon: Undo,
+          disabled: true,
           name: 'Unshare',
           isConfirmDialog: true,
           onSubmit: () => undefined
         }]
       },
       {
-        accessor: VM_TEMPLATE_ACTIONS.LOCK,
-        tooltip: 'Lock',
-        label: 'Lock',
+        tooltip: 'Lock/Unlock',
         icon: Lock,
         selected: true,
-        dialogProps: {
-          title: 'Lock',
-          children: rows => {
-            const templates = rows?.map?.(({ original }) => original?.NAME)
-            return 'Lock: ' + templates.join(', ')
-          }
-        },
         options: [{
+          cy: `action.${VM_TEMPLATE_ACTIONS.LOCK}`,
+          name: 'Lock',
           isConfirmDialog: true,
+          dialogProps: {
+            title: 'Lock',
+            children: rows => {
+              const templates = rows?.map?.(({ original }) => original?.NAME)
+              return 'Templates: ' + templates.join(', ')
+            }
+          },
           onSubmit: async (_, rows) => {
-            const templateIds = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(templateIds.map(id => lock(id)))
-            await Promise.all(templateIds.map(id => getVmTemplate(id)))
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => lock(id)))
+            await Promise.all(ids.map(id => getVmTemplate(id)))
           }
-        }]
-      },
-      {
-        accessor: VM_TEMPLATE_ACTIONS.UNLOCK,
-        tooltip: 'Unlock',
-        label: 'Unlock',
-        icon: NoLock,
-        selected: true,
-        dialogProps: {
-          title: 'Unlock',
-          children: rows => {
-            const templates = rows?.map?.(({ original }) => original?.NAME)
-            return 'Unlock: ' + templates.join(', ')
-          }
-        },
-        options: [{
+        }, {
+          cy: `action.${VM_TEMPLATE_ACTIONS.UNLOCK}`,
+          name: 'Unlock',
           isConfirmDialog: true,
+          dialogProps: {
+            title: 'Unlock',
+            children: rows => {
+              const templates = rows?.map?.(({ original }) => original?.NAME)
+              return 'Templates: ' + templates.join(', ')
+            }
+          },
           onSubmit: async (_, rows) => {
-            const templateIds = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(templateIds.map(id => unlock(id)))
-            await Promise.all(templateIds.map(id => getVmTemplate(id)))
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => unlock(id)))
+            await Promise.all(ids.map(id => getVmTemplate(id)))
           }
         }]
       },
@@ -231,19 +222,19 @@ const Actions = () => {
         tooltip: 'Delete',
         icon: Trash,
         selected: true,
-        dialogProps: {
-          title: 'Delete',
-          children: rows => {
-            const templates = rows?.map?.(({ original }) => original?.NAME)
-            return 'Delete: ' + templates.join(', ')
-          }
-        },
         options: [{
           isConfirmDialog: true,
+          dialogProps: {
+            title: 'Delete',
+            children: rows => {
+              const templates = rows?.map?.(({ original }) => original?.NAME)
+              return 'Templates: ' + templates.join(', ')
+            }
+          },
           onSubmit: async (_, rows) => {
-            const templateIds = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(templateIds.map(id => remove(id)))
-            await getVmTemplates()
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => remove(id)))
+            await Promise.all(ids.map(id => getVmTemplate(id)))
           }
         }]
       }
