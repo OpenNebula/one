@@ -745,7 +745,7 @@ class ClusterSet
     #---------------------------------------------------------------------------
     def initialize
         @mutex  = Mutex.new
-        @client = OpenNebula::Client.new(nil, 'http://localhost:2633/RPC2')
+        @client = OpenNebula::Client.new
 
         @clusters = {}
     end
