@@ -16,15 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import {
-  AppBar,
-  Box,
-  Toolbar,
-  Typography,
-  IconButton,
-  useMediaQuery
-  // useScrollTrigger
-} from '@material-ui/core'
+import { AppBar, Box, Toolbar, Typography, IconButton, useMediaQuery } from '@material-ui/core'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
@@ -36,19 +28,13 @@ import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import headerStyles from 'client/components/Header/styles'
 
-const Header = ({ scrollContainer }) => {
+const Header = () => {
   const { isOneAdmin } = useAuth()
   const { appTitle, title } = useGeneral()
   const { fixMenu } = useGeneralApi()
 
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-
-  /* const isScroll = scrollContainer && useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-    target: scrollContainer
-  }) */
 
   const classes = headerStyles({ isScroll: false })
 

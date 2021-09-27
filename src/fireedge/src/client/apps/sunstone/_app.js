@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
+import { Chip } from '@material-ui/core'
 
 import Router from 'client/router'
 import { ENDPOINTS, PATH, getEndpointsByView } from 'client/apps/sunstone/routes'
@@ -45,7 +46,12 @@ const SunstoneApp = () => {
     (async () => {
       try {
         if (jwt) {
-          changeAppTitle(APP_NAME)
+          changeAppTitle(
+            <>
+              {APP_NAME}
+              <Chip size='small' label='BETA' color='primary' />
+            </>
+          )
           getAuthUser()
           await getSunstoneViews()
           await getSunstoneConfig()
