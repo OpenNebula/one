@@ -29,7 +29,7 @@ define(function(require) {
   var StateActions = require("tabs/vms-tab/utils/state-actions");
   var Vnc = require("utils/vnc");
   var Spice = require("utils/spice");
-  var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
+  var VMsTableUtils = require("../../vms-tab/utils/datatable-common");
 
   var TemplateVmsList = require("hbs!./list");
   var TemplateConfirmSaveAsTemplate = require("hbs!./confirm_save_as_template");
@@ -180,7 +180,7 @@ define(function(require) {
           monitoring = "<li class=\"provision-bullet-item\"><span class=\"\"><i class=\"fas fa-fw fa-lg fa-server\"/>" + data.MONITORING.GUEST_IP + "</span></li>";
         }
         var charter = VMsTableUtils.leasesClock(data);
-        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"' 
+        var addStyle = charter && charter.length && "style=\"padding-left:.5rem;\"";
         $(".provision_vms_ul", context).append("<div class='column'>\
             <ul class='8 provision-pricing-table menu vertical' opennebula_id='"+data.ID+"' datatable_index='"+iDisplayIndexFull+"'>\
               <li class='provision-title'>\
@@ -189,7 +189,7 @@ define(function(require) {
                     <span class='"+ state.color +"-color right' title='"+state.str+"'>\
                       <i class='fas fa-square'/>\
                     </span>"+
-                    data.NAME + 
+                    data.NAME +
                   "</a>\
                   <div class='charter' "+addStyle+">"+charter+"</div> \
                 </div>\
@@ -286,6 +286,11 @@ define(function(require) {
                    StateActions.enabledStateAction(action, data.STATE, data.LCM_STATE);
           }
 
+          // helper
+          function enabledConfig(action){
+            return Config.isTabActionEnabled("provision-tab", action);
+          }
+
           if (enabled("VM.reboot") || enabled("VM.reboot_hard")){
             $(".provision_reboot_confirm_button", context).show();
           } else {
@@ -314,6 +319,24 @@ define(function(require) {
             $(".provision_terminate_confirm_button", context).show();
           } else {
             $(".provision_terminate_confirm_button", context).hide();
+          }
+
+          console.log("-->",
+          enabledConfig("VM.startvnc"),
+          enabledConfig("VM.startvmrc"),
+          enabledConfig("VM.startspice"),
+          enabledConfig("VM.vnc")
+          );
+
+          if(
+            enabledConfig("VM.startvnc") ||
+            enabledConfig("VM.startvmrc") ||
+            enabledConfig("VM.startspice") ||
+            enabledConfig("VM.vnc")
+          ){
+            $(".provision_vnc_button_disabled", context).removeClass("is-hidden");
+          }else{
+            $(".provision_vnc_button_disabled", context).addClass("is-hidden");
           }
 
           if(Config.isTabActionEnabled("provision-tab", "VM.save_as_template")){
@@ -780,7 +803,7 @@ define(function(require) {
     });
 
     context.on("click", ".provision_wfile_button", function() {
-      var vm_id = $(".provision_info_vm", context).attr("vm_id") || '';
+      var vm_id = $(".provision_info_vm", context).attr("vm_id") || "";
       var vm = $(".provision_info_vm", context).data("vm") || {};
       var wFile = OpenNebulaVM.isWFileSupported(vm) || {};
 
