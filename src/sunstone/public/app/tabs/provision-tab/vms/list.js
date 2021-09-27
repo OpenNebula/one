@@ -26,8 +26,8 @@ define(function(require) {
   var StateActions = require("tabs/vms-tab/utils/state-actions");
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
-  var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
-  var RemoteActions = require('utils/remote-actions');
+  var VMsTableUtils = require("../../vms-tab/utils/datatable-common");
+  var RemoteActions = require("utils/remote-actions");
 
   var TemplateConfirmPoweroff = require("hbs!./confirm_poweroff");
   var TemplateConfirmReboot = require("hbs!./confirm_reboot");
@@ -175,7 +175,7 @@ define(function(require) {
           monitoring = "<li class=\"provision-bullet-item\"><span class=\"\"><i class=\"fas fa-fw fa-lg fa-server\"/>" + data.MONITORING.GUEST_IP + "</span></li>";
         }
         var charter = VMsTableUtils.leasesClock(data);
-        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"';
+        var addStyle = charter && charter.length && "style=\"padding-left:.5rem;\"";
         $(".provision_vms_ul", context).append("<div class='column'>\
             <ul class='8 provision-pricing-table menu vertical' opennebula_id='"+data.ID+"' datatable_index='"+iDisplayIndexFull+"'>\
               <li class='provision-title'>\
@@ -275,6 +275,11 @@ define(function(require) {
           var data = response.VM;
           var state = get_provision_vm_state(data);
 
+          // helper
+          function enabledConfig(action){
+            return Config.isTabActionEnabled("provision-tab", action);
+          }
+
           // helper, cleaner code
           function enabled(action){
             return Config.isTabActionEnabled("provision-tab", action) &&
@@ -311,6 +316,19 @@ define(function(require) {
             $(".provision_terminate_confirm_button", context).hide();
           }
 
+          if(
+            enabledConfig("VM.startvnc") ||
+            enabledConfig("VM.startvmrc") ||
+            enabledConfig("VM.startspice") ||
+            enabledConfig("VM.vnc") ||
+            enabledConfig("VM.ssh") ||
+            enabledConfig("VM.rdp")
+          ){
+            $(".provision_remote_button", context).show();
+          }else{
+            $(".provision_remote_button", context).hide();
+          }
+
           if(Config.isTabActionEnabled("provision-tab", "VM.save_as_template")){
             if (enabled("VM.save_as_template")){
               $(".provision_save_as_template_confirm_button", context).show();
@@ -324,17 +342,17 @@ define(function(require) {
             $(".provision_save_as_template_confirm_button_disabled", context).hide();
           }
 
-          $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp')));
-          
+          $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(data, "rdp")));
+
           var state = get_provision_vm_state(data);
           var is_vnc_allowed = Boolean(OpenNebulaVM.isVNCSupported(data));
           var is_spice_allowed = Boolean(OpenNebulaVM.isSPICESupported(data));
           var is_vmrc_allowed = Boolean(OpenNebulaVM.isVMRCSupported(data));
           var is_virt_viewer_allowed = Boolean(OpenNebulaVM.isWFileSupported(data));
-          var is_rdp_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp'));
-          var is_ssh_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'ssh'));
-          
-          $('.dropdown-menu-css', context).toggle(state.str === Locale.tr("RUNNING"));
+          var is_rdp_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, "rdp"));
+          var is_ssh_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, "ssh"));
+
+          $(".dropdown-menu-css", context).toggle(state.str === Locale.tr("RUNNING"));
           $(".provision_spice_button", context).parent().toggle(is_spice_allowed);
           $(".provision_wfile_button", context).parent().toggle(is_virt_viewer_allowed);
 
@@ -344,7 +362,7 @@ define(function(require) {
               $(".provision_vmrc_button", context).parent().show();
               $(".provision_guac_vnc_button", context).parent().hide();
               $(".provision_guac_rdp_button", context).parent().hide();
-              $(".provision_guac_ssh_button", context).parent().hide(); 
+              $(".provision_guac_ssh_button", context).parent().hide();
             }else { // Guacamole connections
               $(".provision_vmrc_button", context).parent().hide();
               $(".provision_guac_vnc_button", context).parent().show();
@@ -357,7 +375,7 @@ define(function(require) {
             $(".provision_vmrc_button", context).parent().hide();
             $(".provision_guac_vnc_button", context).parent().hide();
             $(".provision_guac_rdp_button", context).parent().hide();
-            $(".provision_guac_ssh_button", context).parent().hide(); 
+            $(".provision_guac_ssh_button", context).parent().hide();
           }
 
           $(".provision_info_vm", context).attr("vm_id", data.ID);
@@ -776,7 +794,7 @@ define(function(require) {
 
     context.on("click", ".provision_rdp_button", function() {
       var vm = $(".provision_info_vm", context).data("vm") || {};
-      var rdpIp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
+      var rdpIp = OpenNebulaVM.isConnectionSupported(vm, "rdp");
 
       var username, password;
       if (vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
@@ -797,7 +815,7 @@ define(function(require) {
     });
 
     context.on("click", ".provision_wfile_button", function() {
-      var vm_id = $(".provision_info_vm", context).attr("vm_id") || '';
+      var vm_id = $(".provision_info_vm", context).attr("vm_id") || "";
       var vm = $(".provision_info_vm", context).data("vm") || {};
       var wFile = OpenNebulaVM.isWFileSupported(vm) || {};
 
@@ -826,19 +844,19 @@ define(function(require) {
 
     context.on("click", ".provision_guac_vnc_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      Sunstone.runAction("VM.startguac_action", vm_id, 'vnc');
+      Sunstone.runAction("VM.startguac_action", vm_id, "vnc");
       return false;
     });
 
     context.on("click", ".provision_guac_ssh_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      Sunstone.runAction("VM.startguac_action", vm_id, 'ssh');
+      Sunstone.runAction("VM.startguac_action", vm_id, "ssh");
       return false;
     });
 
     context.on("click", ".provision_guac_rdp_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      Sunstone.runAction("VM.startguac_action", vm_id, 'rdp');
+      Sunstone.runAction("VM.startguac_action", vm_id, "rdp");
       return false;
     });
 
