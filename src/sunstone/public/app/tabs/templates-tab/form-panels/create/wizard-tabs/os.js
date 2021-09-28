@@ -138,6 +138,7 @@ define(function(require) {
     "EFI": false,
     "/usr/share/OVMF/OVMF_CODE.fd": false,
     "/usr/share/OVMF/OVMF_CODE.secboot.fd": true,
+    "custom": true
   };
 
   var distinct = function(value, index, self){
@@ -278,6 +279,7 @@ define(function(require) {
     that.initrdFilesTable.refreshResourceTableSelect();
 
     $("#firmwareType", context).change(function() {
+      console.log($(this).val())
       if (FIRMWARE_VALUES[$(this).val()]){
         $("#firmwareSecure", context).show();
       }
@@ -360,6 +362,10 @@ define(function(require) {
       osJSON["BOOT"] = boot;
     }
 
+    if (FIRMWARE_VALUES[osJSON["FIRMWARE"]]){
+      osJSON["FIRMWARE_SECURE"] = $("#secureFirmwareValue", context).is(':checked') ? "YES" : "NO";
+    }
+
     if (osJSON["FIRMWARE"]){
       switch (osJSON["FIRMWARE"]) {
         case "custom":
@@ -371,10 +377,6 @@ define(function(require) {
         default:
           break;
       }
-    }
-
-    if (FIRMWARE_VALUES[osJSON["FIRMWARE"]]){
-      osJSON["FIRMWARE_SECURE"] = $("#secureFirmwareValue", context).is(':checked') ? "YES" : "NO";
     }
 
     if (!$.isEmptyObject(osJSON)) {
@@ -412,10 +414,10 @@ define(function(require) {
         $("input[value=\"initrd_path\"]", context).click();
       }
 
-
       if (!Object.keys(FIRMWARE_VALUES).includes(osJSON["FIRMWARE"])){
         $("#firmwareType", context).val("custom");
         $("#customFirmware", context).show();
+        $("#firmwareSecure", context).show();
         $("#customFirmwarePath", context).val(osJSON["FIRMWARE"]);
         delete osJSON["FIRMWARE"];
       }
