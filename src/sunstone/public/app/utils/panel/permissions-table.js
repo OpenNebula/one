@@ -61,8 +61,9 @@ define(function(require) {
     // but it could be extended to another resources
     if (resourceType == "VM" && 
       element.USER_TEMPLATE && 
+      (!element.USER_TEMPLATE.HYPERVISOR ||
       element.USER_TEMPLATE.HYPERVISOR && 
-      element.USER_TEMPLATE.HYPERVISOR != "vcenter") {
+      element.USER_TEMPLATE.HYPERVISOR != "vcenter")) {
         var last_backup;
         if (element.USER_TEMPLATE.BACKUP &&
           element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME){
