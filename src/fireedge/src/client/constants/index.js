@@ -26,6 +26,7 @@ export const BY = {
 export const TIME_HIDE_LOGO = 1500
 export const _APPS = defaultApps
 export const APPS = Object.keys(defaultApps)
+export const APPS_IN_BETA = [_APPS.sunstone.name]
 export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
 export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`

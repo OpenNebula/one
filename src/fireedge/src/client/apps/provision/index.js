@@ -25,11 +25,9 @@ import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
 
-import App from 'client/apps/provision/_app'
+import App, { APP_NAME as ProvisionAppName } from 'client/apps/provision/_app'
 import theme from 'client/apps/provision/theme'
-import { _APPS, APP_URL } from 'client/constants'
-
-const APP_NAME = _APPS.provision.name
+import { APP_URL } from 'client/constants'
 
 /**
  * @param {object} props - Props
@@ -51,7 +49,7 @@ const Provision = ({ store = {}, location = '', context = {} }) => (
               </StaticRouter>
             ) : (
               // browser build
-              <BrowserRouter basename={`${APP_URL}/${APP_NAME}`}>
+              <BrowserRouter basename={`${APP_URL}/${ProvisionAppName}`}>
                 <App />
               </BrowserRouter>
             )}
@@ -69,5 +67,7 @@ Provision.propTypes = {
 }
 
 Provision.displayName = 'ProvisionApp'
+
+export { ProvisionAppName }
 
 export default Provision

@@ -46,7 +46,6 @@ const LoadingScreen = () => {
         height={360}
         spinner
         withText
-        withBeta
       />
     </Box>
   )

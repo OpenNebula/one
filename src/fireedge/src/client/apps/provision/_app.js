@@ -19,17 +19,17 @@ import Router from 'client/router'
 import { ENDPOINTS, PATH } from 'client/apps/provision/routes'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
-import { useGeneralApi } from 'client/features/General'
+import { useGeneral, useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useProvisionTemplate, useProvisionApi } from 'client/features/One'
 
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
-import { _APPS } from 'client/constants'
 import { isDevelopment } from 'client/utils'
+import { _APPS } from 'client/constants'
 
-const APP_NAME = _APPS.provision.name
+export const APP_NAME = _APPS.provision.name
 
 /**
  * Provision App component.
@@ -42,13 +42,18 @@ const ProvisionApp = () => {
 
   const provisionTemplate = useProvisionTemplate()
   const { getProvisionsTemplates } = useProvisionApi()
+
+  const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
+
+  useEffect(() => {
+    appTitle !== APP_NAME && changeAppTitle(APP_NAME)
+  }, [])
 
   useEffect(() => {
     (async () => {
       try {
         if (jwt) {
-          changeAppTitle(APP_NAME)
           getAuthUser()
           !providerConfig && await getProviderConfig()
           !provisionTemplate?.length && await getProvisionsTemplates()

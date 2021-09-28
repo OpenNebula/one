@@ -76,6 +76,7 @@ const Sidebar = ({ endpoints }) => {
           height={50}
           withText
           className={classes.svg}
+          disabledBetaText
         />
         <IconButton onClick={handleSwapMenu}>
           {isUpLg ? <MenuIcon /> : <CloseIcon />}

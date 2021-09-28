@@ -31,12 +31,30 @@ import {
 
 import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 
 // import {  } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+
+const MessageToConfirmAction = rows => {
+  const names = rows?.map?.(({ original }) => original?.NAME)
+
+  return (
+    <>
+      <p>
+        <Translate word={T.VMs} />
+        {`: ${names.join(', ')}`}
+      </p>
+      <p>
+        <Translate word={T.DoYouWantProceed} />
+      </p>
+    </>
+  )
+}
+
+MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const history = useHistory()
@@ -68,7 +86,7 @@ const Actions = () => {
     actions: [
       {
         accessor: VM_ACTIONS.REFRESH,
-        tooltip: T.Refresh,
+        tooltip: Tr(T.Refresh),
         icon: RefreshDouble,
         action: async () => {
           await getVms({ state: -1 })
@@ -76,7 +94,7 @@ const Actions = () => {
       },
       {
         accessor: VM_ACTIONS.CREATE_DIALOG,
-        tooltip: T.Create,
+        tooltip: Tr(T.Create),
         icon: AddSquare,
         action: () => {
           const path = PATH.TEMPLATE.VMS.INSTANTIATE
@@ -86,7 +104,7 @@ const Actions = () => {
       },
       {
         accessor: VM_ACTIONS.RESUME,
-        tooltip: T.Resume,
+        tooltip: Tr(T.Resume),
         selected: true,
         icon: PlayOutline,
         action: async rows => {
@@ -97,20 +115,24 @@ const Actions = () => {
       },
       {
         accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
-        tooltip: T.SaveAsTemplate,
+        tooltip: Tr(T.SaveAsTemplate),
         selected: { max: 1 },
         disabled: true,
         icon: SaveFloppyDisk,
         action: () => {}
       },
       {
-        tooltip: T.Manage,
+        tooltip: Tr(T.Manage),
         icon: SystemShut,
         selected: true,
         options: [{
           cy: `action.${VM_ACTIONS.SUSPEND}`,
           name: T.Suspend,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Suspend,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => suspend(id)))
@@ -120,6 +142,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.STOP}`,
           name: T.Stop,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Stop,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => stop(id)))
@@ -129,6 +155,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.POWEROFF}`,
           name: T.Poweroff,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Poweroff,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => poweroff(id)))
@@ -138,6 +168,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.POWEROFF_HARD}`,
           name: T.PoweroffHard,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.PoweroffHard,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => poweroffHard(id)))
@@ -147,6 +181,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.REBOOT}`,
           name: T.Reboot,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Reboot,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => reboot(id)))
@@ -156,6 +194,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.REBOOT_HARD}`,
           name: T.RebootHard,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.RebootHard,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => rebootHard(id)))
@@ -165,6 +207,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.UNDEPLOY}`,
           name: T.Undeploy,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Undeploy,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => undeploy(id)))
@@ -174,6 +220,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.UNDEPLOY_HARD}`,
           name: T.UndeployHard,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.UndeployHard,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => undeployHard(id)))
@@ -182,7 +232,7 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: 'Hosting',
+        tooltip: Tr(T.Host),
         icon: TransitionRight,
         selected: true,
         options: [{
@@ -207,6 +257,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.HOLD}`,
           name: T.Hold,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Hold,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => hold(id)))
@@ -216,6 +270,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.RELEASE}`,
           name: T.Release,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Release,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => release(id)))
@@ -225,6 +283,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.RESCHED}`,
           name: T.Reschedule,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.Reschedule,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => resched(id)))
@@ -234,6 +296,10 @@ const Actions = () => {
           cy: `action.${VM_ACTIONS.UNRESCHED}`,
           name: T.UnReschedule,
           isConfirmDialog: true,
+          dialogProps: {
+            title: T.UnReschedule,
+            children: MessageToConfirmAction
+          },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => unresched(id)))
@@ -248,7 +314,7 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: 'Change ownership',
+        tooltip: Tr(T.Ownership),
         icon: Group,
         selected: true,
         options: [{
@@ -275,10 +341,7 @@ const Actions = () => {
           isConfirmDialog: true,
           dialogProps: {
             title: T.Lock,
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'VMs: ' + templates.join(', ')
-            }
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -291,10 +354,7 @@ const Actions = () => {
           isConfirmDialog: true,
           dialogProps: {
             title: T.Unlock,
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'VMs: ' + templates.join(', ')
-            }
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -304,7 +364,7 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: T.Terminate,
+        tooltip: Tr(T.Terminate),
         icon: Trash,
         selected: true,
         options: [{
@@ -313,10 +373,7 @@ const Actions = () => {
           isConfirmDialog: true,
           dialogProps: {
             title: T.Terminate,
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'VMs: ' + templates.join(', ')
-            }
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -329,10 +386,7 @@ const Actions = () => {
           isConfirmDialog: true,
           dialogProps: {
             title: T.TerminateHard,
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'VMs: ' + templates.join(', ')
-            }
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -349,7 +403,7 @@ const Actions = () => {
     actions: [
       {
         accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: 'Create Marketplace App',
+        tooltip: Tr(T.CreateMarketApp),
         icon: Cart,
         selected: { max: 1 },
         disabled: true,

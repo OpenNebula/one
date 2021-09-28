@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
-
+import { configureStore, getDefaultMiddleware, EnhancedStore } from '@reduxjs/toolkit'
 import thunkMiddleware from 'redux-thunk'
 
 import rootReducer from 'client/store/reducers'
 import { isDevelopment } from 'client/utils'
 
+/**
+ * @param {object} props - Props
+ * @param {object} props.initState - Initial state
+ * @param {*} props.services - Services
+ * @returns {{ store: EnhancedStore }} Configured Redux Store
+ */
 export const createStore = ({ initState = {}, services }) => {
   const middleware = getDefaultMiddleware({
     immutableCheck: true,

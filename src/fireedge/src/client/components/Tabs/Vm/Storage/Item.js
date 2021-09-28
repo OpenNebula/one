@@ -119,7 +119,7 @@ const StorageItem = ({ disk, actions = [] }) => {
           )}
         </div>
       )}
-      {SNAPSHOTS && (
+      {SNAPSHOTS?.length > 0 && (
         <div style={{ flexBasis: '100%' }}>
           {SNAPSHOTS?.map(snapshot => (
             <StorageSubItem

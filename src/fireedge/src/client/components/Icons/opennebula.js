@@ -17,10 +17,12 @@ import { memo } from 'react'
 import { number, string, bool, oneOfType } from 'prop-types'
 import { useTheme } from '@material-ui/core'
 
+import { useGeneral } from 'client/features/General'
 import { SCHEMES } from 'client/constants'
 
 const OpenNebulaLogo = memo(
-  ({ width, height, spinner, withText, withBeta, viewBox, ...props }) => {
+  ({ width, height, spinner, withText, viewBox, disabledBetaText, ...props }) => {
+    const { isBeta } = useGeneral()
     const { palette: { type } } = useTheme()
     const isDarkMode = type === SCHEMES.DARK
 
@@ -142,7 +144,7 @@ const OpenNebulaLogo = memo(
             />
           </g>
         )}
-        {withBeta && (
+        {!disabledBetaText && isBeta && (
           <g id="beta">
             <path
               fill={textColor.beta}
@@ -186,7 +188,7 @@ OpenNebulaLogo.propTypes = {
   viewBox: string,
   spinner: bool,
   withText: bool,
-  withBeta: bool
+  disabledBetaText: bool
 }
 
 OpenNebulaLogo.defaultProps = {
@@ -195,7 +197,7 @@ OpenNebulaLogo.defaultProps = {
   viewBox: '0 0 120 45',
   spinner: false,
   withText: false,
-  withBeta: false
+  disabledBetaText: false
 }
 
 OpenNebulaLogo.displayName = 'OpenNebulaLogo'

@@ -24,11 +24,9 @@ import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
 
-import App from 'client/apps/sunstone/_app'
+import App, { APP_NAME as SunstoneAppName } from 'client/apps/sunstone/_app'
 import theme from 'client/apps/sunstone/theme'
-import { _APPS, APP_URL } from 'client/constants'
-
-const APP_NAME = _APPS.sunstone.name
+import { APP_URL } from 'client/constants'
 
 /**
  * @param {object} props - Props
@@ -49,7 +47,7 @@ const Sunstone = ({ store = {}, location = '', context = {} }) => (
             </StaticRouter>
           ) : (
           // browser build
-            <BrowserRouter basename={`${APP_URL}/${APP_NAME}`}>
+            <BrowserRouter basename={`${APP_URL}/${SunstoneAppName}`}>
               <App />
             </BrowserRouter>
           )}
@@ -66,5 +64,7 @@ Sunstone.propTypes = {
 }
 
 Sunstone.displayName = 'SunstoneApp'
+
+export { SunstoneAppName }
 
 export default Sunstone

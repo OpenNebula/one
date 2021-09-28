@@ -14,23 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
-import { Chip } from '@material-ui/core'
 
 import Router from 'client/router'
 import { ENDPOINTS, PATH, getEndpointsByView } from 'client/apps/sunstone/routes'
 import { ENDPOINTS as ONE_ENDPOINTS } from 'client/apps/sunstone/routesOne'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
-import { useGeneralApi } from 'client/features/General'
+import { useGeneral, useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
-import { _APPS } from 'client/constants'
 import { isDevelopment } from 'client/utils'
+import { _APPS } from 'client/constants'
 
-const APP_NAME = _APPS.sunstone.name
+export const APP_NAME = _APPS.sunstone.name
 
 /**
  * Sunstone App component.
@@ -38,23 +37,23 @@ const APP_NAME = _APPS.sunstone.name
  * @returns {JSXElementConstructor} App rendered.
  */
 const SunstoneApp = () => {
-  const { isLogged, jwt, firstRender, view, views } = useAuth()
+  const { isLogged, jwt, firstRender, view, views, config } = useAuth()
   const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } = useAuthApi()
+
+  const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
+
+  useEffect(() => {
+    appTitle !== APP_NAME && changeAppTitle(APP_NAME)
+  }, [])
 
   useEffect(() => {
     (async () => {
       try {
         if (jwt) {
-          changeAppTitle(
-            <>
-              {APP_NAME}
-              <Chip size='small' label='BETA' color='primary' />
-            </>
-          )
           getAuthUser()
-          await getSunstoneViews()
-          await getSunstoneConfig()
+          !view && await getSunstoneViews()
+          !config && await getSunstoneConfig()
         }
       } catch {
         logout()

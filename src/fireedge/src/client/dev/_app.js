@@ -17,6 +17,7 @@ import { JSXElementConstructor } from 'react'
 
 import SunstoneApp from 'client/apps/sunstone'
 import ProvisionApp from 'client/apps/provision'
+import LoadingScreen from 'client/components/LoadingScreen'
 
 import { isDevelopment, isBackend } from 'client/utils'
 import { _APPS, APPS } from 'client/constants'
@@ -31,21 +32,16 @@ const DevelopmentApp = props => {
   let appName = ''
 
   if (isDevelopment() && !isBackend()) {
-    const parseUrl = window.location.pathname
+    appName = window.location.pathname
       .split(/\//gi)
       .filter(sub => sub?.length > 0)
-
-    parseUrl.forEach(resource => {
-      if (resource && APPS.includes(resource)) {
-        appName = resource
-      }
-    })
+      .find(resource => APPS.includes(resource))
   }
 
   return {
     [_APPS.provision.name]: <ProvisionApp {...props} />,
     [_APPS.sunstone.name]: <SunstoneApp {...props} />
-  }[appName]
+  }[appName] ?? <LoadingScreen />
 }
 
 DevelopmentApp.displayName = 'DevelopmentApp'

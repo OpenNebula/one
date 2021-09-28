@@ -18,6 +18,6 @@ import { render } from 'react-dom'
 import { createStore } from 'client/store'
 import App from 'client/dev/_app'
 
-const { store } = createStore({ initState: window.REDUX_DATA })
+const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
 
 render(<App store={store} />, document.getElementById('root'))

@@ -14,14 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 
 import * as actions from 'client/features/General/actions'
-import { name } from 'client/features/General/slice'
+import { name as generalSlice } from 'client/features/General/slice'
 import { generateKey } from 'client/utils'
 
 export const useGeneral = () => (
-  useSelector(state => state[name])
+  useSelector(state => state[generalSlice], shallowEqual)
 )
 
 export const useGeneralApi = () => {

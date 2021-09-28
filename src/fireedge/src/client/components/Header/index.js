@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { AppBar, Box, Toolbar, Typography, IconButton, useMediaQuery } from '@material-ui/core'
+import { AppBar, Box, Toolbar, Typography, IconButton, Chip, useMediaQuery } from '@material-ui/core'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
@@ -30,7 +30,7 @@ import headerStyles from 'client/components/Header/styles'
 
 const Header = () => {
   const { isOneAdmin } = useAuth()
-  const { appTitle, title } = useGeneral()
+  const { appTitle, title, isBeta } = useGeneral()
   const { fixMenu } = useGeneralApi()
 
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
@@ -58,7 +58,10 @@ const Header = () => {
               data-cy='header-app-title'
             >
               {'One'}
-              <span className={classes.app}>{appTitle}</span>
+              <span className={classes.app}>
+                {appTitle}
+                {isBeta && <Chip size='small' label='BETA' color='primary' />}
+              </span>
             </Typography>
           )}
           <Typography

@@ -29,11 +29,30 @@ import {
 
 import { useAuth } from 'client/features/Auth'
 import { useVmTemplateApi } from 'client/features/One'
+import { Tr, Translate } from 'client/components/HOC'
 
 import { CloneForm } from 'client/components/Forms/VmTemplate'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { VM_TEMPLATE_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+import { T, VM_TEMPLATE_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+
+const MessageToConfirmAction = rows => {
+  const names = rows?.map?.(({ original }) => original?.NAME)
+
+  return (
+    <>
+      <p>
+        <Translate word={T.VMTemplates} />
+        {`: ${names.join(', ')}`}
+      </p>
+      <p>
+        <Translate word={T.DoYouWantProceed} />
+      </p>
+    </>
+  )
+}
+
+MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const history = useHistory()
@@ -52,7 +71,7 @@ const Actions = () => {
     actions: [
       {
         accessor: VM_TEMPLATE_ACTIONS.REFRESH,
-        tooltip: 'Refresh',
+        tooltip: Tr(T.Refresh),
         icon: RefreshDouble,
         action: async () => {
           await getVmTemplates()
@@ -60,7 +79,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
-        tooltip: 'Create',
+        tooltip: Tr(T.Create),
         icon: AddSquare,
         disabled: true,
         action: rows => {
@@ -73,7 +92,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.IMPORT_DIALOG,
-        tooltip: 'Import',
+        tooltip: Tr(T.Import),
         icon: Import,
         selected: { max: 1 },
         disabled: true,
@@ -83,8 +102,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
-        label: 'Instantiate',
-        tooltip: 'Instantiate',
+        tooltip: Tr(T.Instantiate),
         icon: PlayOutline,
         selected: { max: 1 },
         action: rows => {
@@ -96,8 +114,8 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.UPDATE_DIALOG,
-        label: 'Update',
-        tooltip: 'Update',
+        label: Tr(T.Update),
+        tooltip: Tr(T.Update),
         selected: { max: 1 },
         disabled: true,
         action: rows => {
@@ -109,8 +127,8 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.CLONE,
-        label: 'Clone',
-        tooltip: 'Clone',
+        label: Tr(T.Clone),
+        tooltip: Tr(T.Clone),
         selected: true,
         options: [{
           dialogProps: {
@@ -119,7 +137,7 @@ const Actions = () => {
               const { ID, NAME } = rows?.[0]?.original
 
               return [
-                isMultiple ? 'Clone several Templates' : 'Clone Template',
+                Tr(isMultiple ? T.CloneSeveralTemplates : T.CloneTemplate),
                 !isMultiple && `#${ID} ${NAME}`
               ].filter(Boolean).join(' - ')
             }
@@ -150,49 +168,46 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: 'Change ownership',
+        tooltip: Tr(T.Ownership),
         icon: Group,
         selected: true,
         options: [{
           cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_OWNER}`,
-          name: 'Change owner',
+          name: T.ChangeOwner,
           disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_GROUP}`,
-          name: 'Change group',
+          name: T.ChangeGroup,
           disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.SHARE}`,
           disabled: true,
-          name: 'Share',
+          name: T.Share,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.UNSHARE}`,
           disabled: true,
-          name: 'Unshare',
+          name: T.Unshare,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }]
       },
       {
-        tooltip: 'Lock/Unlock',
+        tooltip: `${Tr(T.Lock)}/${Tr(T.Unlock)}`,
         icon: Lock,
         selected: true,
         options: [{
           cy: `action.${VM_TEMPLATE_ACTIONS.LOCK}`,
-          name: 'Lock',
+          name: T.Lock,
           isConfirmDialog: true,
           dialogProps: {
-            title: 'Lock',
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'Templates: ' + templates.join(', ')
-            }
+            title: T.Lock,
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -201,14 +216,11 @@ const Actions = () => {
           }
         }, {
           cy: `action.${VM_TEMPLATE_ACTIONS.UNLOCK}`,
-          name: 'Unlock',
+          name: T.Unlock,
           isConfirmDialog: true,
           dialogProps: {
-            title: 'Unlock',
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'Templates: ' + templates.join(', ')
-            }
+            title: T.Unlock,
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -219,17 +231,14 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.DELETE,
-        tooltip: 'Delete',
+        tooltip: T.Delete,
         icon: Trash,
         selected: true,
         options: [{
           isConfirmDialog: true,
           dialogProps: {
-            title: 'Delete',
-            children: rows => {
-              const templates = rows?.map?.(({ original }) => original?.NAME)
-              return 'Templates: ' + templates.join(', ')
-            }
+            title: T.Delete,
+            children: MessageToConfirmAction
           },
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
@@ -246,7 +255,7 @@ const Actions = () => {
     actions: [
       {
         accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: 'Create Marketplace App',
+        tooltip: T.CreateMarketApp,
         icon: Cart,
         selected: { max: 1 },
         disabled: true,
