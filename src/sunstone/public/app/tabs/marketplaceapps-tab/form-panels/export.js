@@ -160,11 +160,8 @@ define(function(require) {
 
     var that = this;
     var section = $("#" + that.datastoresTable.dataTableId + "Container");
-    $("#" + that.datastoresTable.dataTableId + " tbody", section).delegate("tr", "click", function(e) {
-      var wasChecked = $("td.markrow", this).hasClass("markrow");
-      console.log({"dsTable": that.datastoresTable})
+    $("#" + that.datastoresTable.dataTableId + " tbody", section).delegate("tr", "click", function() {
       var aData = that.datastoresTable.dataTable.fnGetData(this);
-      var check = aData != undefined && !wasChecked;
 
       if (aData[9] == "vcenter"){
         $("#placeDatatablevCenterTemplate", context).show();

@@ -279,7 +279,6 @@ define(function(require) {
     that.initrdFilesTable.refreshResourceTableSelect();
 
     $("#firmwareType", context).change(function() {
-      console.log($(this).val())
       if (FIRMWARE_VALUES[$(this).val()]){
         $("#firmwareSecure", context).show();
       }
