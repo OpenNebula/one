@@ -754,6 +754,9 @@ Style/HashConversion:
 Style/MixinUsage:
   Enabled: false
 
+Style/SelectByRegexp:
+  Enabled: false
+
 ######
 # LINT
 ######
