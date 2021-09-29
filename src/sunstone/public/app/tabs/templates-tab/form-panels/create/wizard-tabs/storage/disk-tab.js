@@ -87,6 +87,7 @@ define(function(require) {
         "select_callback": function(aData, options) {
           // If the image is selected by Id, avoid overwriting it with name+uname
           if ($("#IMAGE_ID", context).val() != aData[options.id_index]) {
+            $("#OPENNEBULA_MANAGED", context).val("");
             $("#IMAGE_ID", context).val("");
             $("#IMAGE", context).val(aData[options.name_index]);
             $("#IMAGE_UNAME", context).val(aData[options.uname_index]);
