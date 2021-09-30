@@ -5,6 +5,7 @@ REPO_ROOT ?= $(shell realpath ../../../../)
 GOCA_PATH ?= ${REPO_ROOT}/src/oca/go
 GOPATH_REPO ?= ${REPO_ROOT}/src/docker_machine
 USE_LOCAL_GOCA ?= yes
+TARGET_ARCHS ?= amd64 arm64
 
 ifeq ($(GOPATH),)
 GOPATH := $(GOPATH_REPO)
@@ -14,10 +15,17 @@ endif
 
 .PHONY: clean build
 
-build: bin/docker-machine-driver-opennebula
+build: \
+    bin/docker-machine-driver-opennebula \
+    $(patsubst %, bin/docker-machine-driver-opennebula.%, $(TARGET_ARCHS))
 
-bin/docker-machine-driver-opennebula: vendor
-	GOPATH=$(GOPATH) go build -ldflags "-B 0x$(BUILD_ID)" -o ./bin/docker-machine-driver-opennebula ./bin
+# driver without suffix is always default x86-64 (for backward compatibility)
+bin/docker-machine-driver-opennebula: bin/docker-machine-driver-opennebula.amd64
+	cp -f $< $@
+
+# architecture dependent builds
+bin/docker-machine-driver-opennebula.%: vendor
+	GOPATH=$(GOPATH) GOARCH=${*} go build -ldflags "-B 0x$(BUILD_ID)" -o "$@" ./bin
 
 vendor:
 	rm -rf vendor/
@@ -29,4 +37,4 @@ ifeq ($(USE_LOCAL_GOCA),yes)
 endif
 
 clean:
-	-rm -rf vendor/ bin/docker-machine-driver-opennebula
+	-rm -rf vendor/ bin/docker-machine-driver-opennebula*
