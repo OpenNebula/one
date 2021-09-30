@@ -286,6 +286,7 @@ module.exports = {
   /* instances schema */
   IP: 'IP',
   DeployID: 'Deploy ID',
+  vCenterDeployment: 'vCenter Deployment',
   Deployment: 'Deployment',
   Monitoring: 'Monitoring',
 
@@ -306,6 +307,7 @@ module.exports = {
   CostCpu: 'Cost / CPU',
   CostMByte: 'Cost / MByte',
   /* VM schema - storage */
+  Storage: 'Storage',
   Disk: 'Disk',
   Disks: 'Disks',
   Volatile: 'Volatile',
@@ -315,6 +317,11 @@ module.exports = {
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',
+
+  /* VM Template schema */
+  /* VM Template schema - booting */
+  OSBooting: 'OS Booting',
+  BootOrder: 'Boot order',
 
   /* security group schema */
   TCP: 'TCP',

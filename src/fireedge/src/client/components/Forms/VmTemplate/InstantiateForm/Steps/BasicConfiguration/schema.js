@@ -13,28 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object } from 'yup'
+import { BaseSchema } from 'yup'
 
-import { FIELDS as INFORMATION_FIELDS, SCHEMA as INFORMATION_SCHEMA } from './informationSchema'
-import { FIELDS as CAPACITY_FIELDS, SCHEMA as CAPACITY_SCHEMA } from './capacitySchema'
+import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
+import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
 // import { FIELDS as DISK_FIELDS, SCHEMA as DISK_SCHEMA } from './diskSchema'
-import { FIELDS as VM_GROUP_FIELDS, SCHEMA as VM_GROUP_SCHEMA } from './vmGroupSchema'
-import { FIELDS as OWNERSHIP_FIELDS, SCHEMA as OWNERSHIP_SCHEMA } from './ownershipSchema'
-import { FIELDS as VCENTER_FIELDS, SCHEMA as VCENTER_SCHEMA } from './vcenterSchema'
+import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
+import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
+import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
 
-export const FIELDS = {
-  INFORMATION: INFORMATION_FIELDS,
-  CAPACITY: CAPACITY_FIELDS,
-  // DISK: vmTemplate => DISK_FIELDS(vmTemplate),
-  OWNERSHIP: OWNERSHIP_FIELDS,
-  VM_GROUP: VM_GROUP_FIELDS,
-  VCENTER: VCENTER_FIELDS
-}
+import { filterFieldsByHypervisor, getObjectSchemaFromFields, Field } from 'client/utils'
+import { T, HYPERVISORS } from 'client/constants'
 
-export const SCHEMA = object()
-  .concat(INFORMATION_SCHEMA)
-  .concat(CAPACITY_SCHEMA)
-  // .concat(DISK_SCHEMA)
-  .concat(OWNERSHIP_SCHEMA)
-  .concat(VM_GROUP_SCHEMA)
-  .concat(VCENTER_SCHEMA)
+/**
+ * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @returns {{ id: string, legend: string, fields: Field[] }[]} Fields
+ */
+const FIELDS = hypervisor => [
+  {
+    id: 'information',
+    legend: T.Information,
+    fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor)
+  },
+  {
+    id: 'capacity',
+    legend: T.Capacity,
+    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor)
+  },
+  {
+    id: 'ownership',
+    legend: T.Ownership,
+    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor)
+  },
+  {
+    id: 'vm_group',
+    legend: T.VMGroup,
+    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor)
+  },
+  {
+    id: 'vcenter',
+    legend: T.vCenterDeployment,
+    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor)
+  }
+]
+
+/**
+ * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @returns {BaseSchema} Step schema
+ */
+const SCHEMA = hypervisor => getObjectSchemaFromFields(
+  FIELDS(hypervisor).map(({ fields }) => fields).flat()
+)
+
+export { FIELDS, SCHEMA }

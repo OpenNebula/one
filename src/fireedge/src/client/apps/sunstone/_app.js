@@ -44,11 +44,9 @@ const SunstoneApp = () => {
   const { changeAppTitle } = useGeneralApi()
 
   useEffect(() => {
-    appTitle !== APP_NAME && changeAppTitle(APP_NAME)
-  }, [])
-
-  useEffect(() => {
     (async () => {
+      appTitle !== APP_NAME && changeAppTitle(APP_NAME)
+
       try {
         if (jwt) {
           getAuthUser()

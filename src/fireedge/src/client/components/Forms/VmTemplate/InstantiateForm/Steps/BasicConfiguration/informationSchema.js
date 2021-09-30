@@ -14,10 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { string, number, boolean, object } from 'yup'
+import { useMemo } from 'react'
+import { string, number, boolean } from 'yup'
 
-import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { useAuth } from 'client/features/Auth'
+import { getActionsAvailable } from 'client/models/Helper'
+import { INPUT_TYPES, VM_ACTIONS } from 'client/constants'
 
 const NAME = {
   name: 'name',
@@ -46,6 +48,16 @@ const HOLD = {
   name: 'hold',
   label: 'Start VM on hold state',
   type: INPUT_TYPES.SWITCH,
+  htmlType: () => {
+    const { view, getResourceView } = useAuth()
+
+    return useMemo(() => {
+      const actions = getResourceView('VM')?.actions
+      const actionsAvailable = getActionsAvailable(actions)
+
+      return !actionsAvailable?.includes?.(VM_ACTIONS.HOLD) && INPUT_TYPES.HIDDEN
+    }, [view])
+  },
   tooltip: `
     Sets the new VM to hold state, instead of pending.
     The scheduler will not deploy VMs in this state.
@@ -71,5 +83,3 @@ export const FIELDS = [
   HOLD,
   PERSISTENT
 ]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))

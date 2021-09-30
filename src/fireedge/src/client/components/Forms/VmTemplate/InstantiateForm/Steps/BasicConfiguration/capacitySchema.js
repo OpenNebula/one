@@ -14,24 +14,33 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { number, object } from 'yup'
+import { number } from 'yup'
 
-import { getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { isDivisibleBy4 } from 'client/utils'
 
-const MEMORY = {
-  name: 'MEMORY',
-  label: T.Memory,
-  tooltip: 'Amount of RAM required for the VM.',
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
-  validation: number()
+const MEMORY = hypervisor => {
+  let validation = number()
     .integer('Memory should be integer number')
     .positive('Memory should be positive number')
     .typeError('Memory must be a number')
     .required('Memory field is required')
-    .default(() => undefined),
-  grid: { md: 12 }
+    .default(() => undefined)
+
+  if (hypervisor === HYPERVISORS.vcenter) {
+    validation = validation
+      .test('is-divisible-by-4', 'Memory should be divisible by 4', isDivisibleBy4)
+  }
+
+  return {
+    name: 'MEMORY',
+    label: T.Memory,
+    tooltip: 'Amount of RAM required for the VM.',
+    type: INPUT_TYPES.TEXT,
+    htmlType: 'number',
+    validation,
+    grid: { md: 12 }
+  }
 }
 
 const PHYSICAL_CPU = {
@@ -70,5 +79,3 @@ export const FIELDS = [
   PHYSICAL_CPU,
   VIRTUAL_CPU
 ]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))

@@ -14,10 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { object, string } from 'yup'
+import { string } from 'yup'
 
-import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, HYPERVISORS } from 'client/constants'
+
+const { vcenter, ...hypervisors } = HYPERVISORS
 
 const VCENTER_FOLDER_FIELD = {
   name: 'VCENTER_VM_FOLDER',
@@ -28,6 +29,7 @@ const VCENTER_FOLDER_FIELD = {
     The path is delimited by slashes (e.g /Management/VMs).
     If no path is set the VM will be placed in the same folder where the template is located.
   `,
+  notOnHypervisors: Object.values(hypervisors),
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -37,5 +39,3 @@ const VCENTER_FOLDER_FIELD = {
 }
 
 export const FIELDS = [VCENTER_FOLDER_FIELD]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))

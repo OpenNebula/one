@@ -101,7 +101,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
                     error: inputError,
                     formContext,
                     name: inputName,
-                    type: htmlType,
+                    type: htmlType === false ? undefined : htmlType,
                     ...fieldProps
                   })}
                 </Grid>

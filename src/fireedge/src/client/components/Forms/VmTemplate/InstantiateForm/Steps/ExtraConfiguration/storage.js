@@ -14,11 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core'
 import { Edit, Trash } from 'iconoir-react'
+import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
@@ -27,7 +26,6 @@ import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr, Translate } from 'client/components/HOC'
 
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
@@ -47,11 +45,9 @@ const useStyles = makeStyles({
 
 export const TAB_ID = 'DISK'
 
-const Storage = ({ data, setFormData }) => {
+const Storage = ({ data, setFormData, hypervisor, control }) => {
   const classes = useStyles()
-  const { watch } = useFormContext()
-  const { HYPERVISOR } = useMemo(() => watch(`${TEMPLATE_ID}[0]`) ?? {}, [])
-  const disks = data?.[TAB_ID]
+  const disks = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
 
   const { handleSetList, handleRemove, handleSave } = useListForm({
     parent: EXTRA_ID,
@@ -82,14 +78,14 @@ const Storage = ({ data, setFormData }) => {
             cy: 'attach-image-disk',
             name: T.Image,
             dialogProps: { title: T.AttachImage },
-            form: () => ImageSteps({ hypervisor: HYPERVISOR }),
+            form: () => ImageSteps({ hypervisor }),
             onSubmit: handleSave
           },
           {
             cy: 'attach-volatile-disk',
             name: T.Volatile,
             dialogProps: { title: T.AttachVolatile },
-            form: () => VolatileSteps({ hypervisor: HYPERVISOR }),
+            form: () => VolatileSteps({ hypervisor }),
             onSubmit: handleSave
           }
         ]}
@@ -168,8 +164,8 @@ const Storage = ({ data, setFormData }) => {
                         title: <Translate word={T.EditSomething} values={[NAME]} />
                       },
                       form: () => isVolatile
-                        ? VolatileSteps({ hypervisor: HYPERVISOR }, item)
-                        : ImageSteps({ hypervisor: HYPERVISOR }, item),
+                        ? VolatileSteps({ hypervisor }, item)
+                        : ImageSteps({ hypervisor }, item),
                       onSubmit: newValues => handleSave(newValues, NAME)
                     }]}
                   />
@@ -185,7 +181,9 @@ const Storage = ({ data, setFormData }) => {
 
 Storage.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
+  control: PropTypes.object
 }
 
 Storage.displayName = 'Storage'

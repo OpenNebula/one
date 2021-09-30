@@ -25,8 +25,7 @@ import { isDevelopment } from 'client/utils'
 
 function InstantiateVmTemplate () {
   const history = useHistory()
-  const { state } = useLocation()
-  const { ID: templateId } = state ?? {}
+  const { state: { ID: templateId } = {} } = useLocation()
 
   const { enqueueInfo } = useGeneralApi()
   const { instantiate } = useVmTemplateApi()

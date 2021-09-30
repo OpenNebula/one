@@ -37,7 +37,7 @@ export const useVmTemplateApi = () => {
     getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
     getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
     instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data })),
-    allocate: template => unwrapDispatch(actions.allocate(template)),
+    allocate: template => unwrapDispatch(actions.allocate({ template })),
     clone: (id, data) => unwrapDispatch(actions.clone({ id, ...data })),
     remove: (id, image) => unwrapDispatch(actions.remove({ id, image })),
     update: (id, template, replace) =>

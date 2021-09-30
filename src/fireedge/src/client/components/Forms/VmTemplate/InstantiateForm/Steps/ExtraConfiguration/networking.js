@@ -17,6 +17,7 @@
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core'
 import { Edit, Trash } from 'iconoir-react'
+import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
@@ -41,9 +42,9 @@ const useStyles = makeStyles({
 
 export const TAB_ID = 'NIC'
 
-const Networking = ({ data, setFormData }) => {
+const Networking = ({ data, setFormData, control }) => {
   const classes = useStyles()
-  const nics = data?.[TAB_ID]
+  const nics = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
 
   const { handleSetList, handleRemove, handleSave } = useListForm({
     parent: EXTRA_ID,
@@ -136,7 +137,9 @@ const Networking = ({ data, setFormData }) => {
 
 Networking.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
+  control: PropTypes.object
 }
 
 Networking.displayName = 'Networking'

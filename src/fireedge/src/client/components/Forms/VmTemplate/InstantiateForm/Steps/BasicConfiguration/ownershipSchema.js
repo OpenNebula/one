@@ -14,10 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { object, string } from 'yup'
+import { string } from 'yup'
 
 import { useGroup, useUser } from 'client/features/One'
-import { getValidationFromFields } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
 
 export const UID_FIELD = {
@@ -56,6 +55,7 @@ export const GID_FIELD = {
   grid: { md: 12 }
 }
 
-export const FIELDS = [UID_FIELD, GID_FIELD]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const FIELDS = [
+  UID_FIELD,
+  GID_FIELD
+]

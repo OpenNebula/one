@@ -50,29 +50,27 @@ const Header = () => {
             <MenuIcon />
           </IconButton>
         )}
-        <Box flexGrow={1}>
-          {!isMobile && (
-            <Typography
-              variant='h6'
-              className={classes.title}
-              data-cy='header-app-title'
-            >
-              {'One'}
-              <span className={classes.app}>
-                {appTitle}
-                {isBeta && <Chip size='small' label='BETA' color='primary' />}
-              </span>
-            </Typography>
-          )}
+        <Box flexGrow={1} display='inline-flex'>
+          <Typography
+            variant={isMobile ? 'subtitle1' : 'h6'}
+            className={classes.title}
+            data-cy='header-app-title'
+          >
+            {'One'}
+            <span className={classes.app}>
+              {appTitle}
+              {isBeta && <Chip size='small' label='BETA' color='primary' />}
+            </span>
+          </Typography>
           <Typography
             variant='h6'
-            className={classes.title}
-            data-cy='header-title'
+            className={classes.description}
+            data-cy='header-description'
           >
             {title}
           </Typography>
         </Box>
-        <Box flexGrow={isMobile ? 1 : 0} textAlign='end'>
+        <Box flexGrow={isMobile ? 1 : 0} flexShrink={0} textAlign='end'>
           <User />
           <View />
           {!isOneAdmin && <Group />}

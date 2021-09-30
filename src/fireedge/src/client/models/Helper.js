@@ -178,7 +178,7 @@ export const permissionsToOctal = permissions => {
 export const getActionsAvailable = (actions = {}, hypervisor = '') =>
   Object.entries(actions)
     .filter(([_, action]) => {
-      if (typeof action === 'boolean') return !!action
+      if (typeof action === 'boolean') return action
 
       const { enabled = false, not_on: notOn = [] } = action || {}
 

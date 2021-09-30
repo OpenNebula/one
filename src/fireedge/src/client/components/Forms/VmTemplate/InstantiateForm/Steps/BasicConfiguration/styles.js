@@ -26,9 +26,5 @@ export default makeStyles(theme => ({
   },
   information: {
     gridColumn: '1 / -1'
-  },
-  capacity: {
-  },
-  storage: {
   }
 }))

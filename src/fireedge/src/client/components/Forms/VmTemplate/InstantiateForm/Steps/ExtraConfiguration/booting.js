@@ -16,6 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { SetStateAction } from 'react'
 import PropTypes from 'prop-types'
+import { useWatch } from 'react-hook-form'
 
 import {
   NetworkAlt as NetworkIcon,
@@ -28,6 +29,8 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 
 import { Translate } from 'client/components/HOC'
 import { Action } from 'client/components/Cards/SelectCard'
+
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
 import { set } from 'client/utils'
@@ -51,6 +54,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.default
   }
 }))
+
+export const TAB_ID = 'OS.BOOT'
 
 /**
  * @param {string} id - Resource id: 'NIC<index>' or 'DISK<index>'
@@ -88,15 +93,16 @@ export const reorderBootAfterRemove = (id, list, formData, setFormData) => {
  */
 const reorder = (newBootOrder, setFormData) => {
   setFormData(prev => {
-    const newData = set({ ...prev }, 'extra.OS.BOOT', newBootOrder.join(','))
+    const newData = set({ ...prev }, `${EXTRA_ID}.${TAB_ID}`, newBootOrder.join(','))
 
-    return { ...prev, extra: { ...prev.extra, OS: newData } }
+    return { ...prev, [EXTRA_ID]: { ...prev[EXTRA_ID], OS: newData } }
   })
 }
 
-const Booting = ({ data, setFormData }) => {
+const Booting = ({ data, setFormData, control }) => {
   const classes = useStyles()
-  const bootOrder = data?.OS?.BOOT?.split(',').filter(Boolean) ?? []
+  const booting = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
+  const bootOrder = booting?.split(',').filter(Boolean) ?? []
 
   const disks = data?.[STORAGE_ID]
     ?.map((disk, idx) => {
@@ -212,7 +218,9 @@ const Booting = ({ data, setFormData }) => {
 
 Booting.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
+  control: PropTypes.object
 }
 
 Booting.displayName = 'Booting'

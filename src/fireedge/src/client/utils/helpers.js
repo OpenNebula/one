@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import DOMPurify from 'dompurify'
+import { object, reach, BaseSchema } from 'yup'
+import { HYPERVISORS } from 'client/constants'
 
 /**
  * Simulate a delay in a function.
@@ -100,6 +102,71 @@ export const getValidationFromFields = fields =>
     ...schema,
     [field?.name]: field?.validation
   }), {})
+
+/**
+ * Returns fields in schema object.
+ *
+ * @param {{name: string, validation: BaseSchema}[]} fields - Fields
+ * @returns {BaseSchema} Object schema
+ * @example
+ * [{ name: 'VM.NAME', validation: string() }]
+ *  => object({ 'VM': object({ NAME: string() }) })
+ */
+export const getObjectSchemaFromFields = fields =>
+  fields.reduce((schema, field) => {
+    const { name, validation } = field
+
+    if (!name || !validation) return schema
+
+    /**
+     * @param {string} path - Path
+     * @param {BaseSchema} child - Child
+     * @returns {BaseSchema} Path schema with child concatenated
+     */
+    const getSchemaByPath = (path, child) => {
+      try {
+        return object({ [path]: reach(schema, path).concat(child) })
+      } catch {
+        return object({ [path]: child })
+      }
+    }
+
+    const paths = name.split('.')
+    const path = paths.pop()
+    const fieldSchema = object({ [path]: validation })
+
+    /**
+     * @param {string} [path] - Path
+     * @param {number} [idx] - Path index
+     * @returns {BaseSchema} Field schema concatenated in path
+     */
+    const sumSchemas = (path = paths[0], idx = 0) => {
+      // It isn't a object schema
+      if (!path) return fieldSchema
+
+      // Encapsule field schema in object
+      const isLast = path === paths.at(-1)
+      if (isLast) return getSchemaByPath(path, fieldSchema)
+
+      // Needs to find the next schema in field path
+      const nextIdx = idx + 1
+      const nextPath = paths.at(nextIdx)
+      return getSchemaByPath(path, sumSchemas(nextPath, nextIdx))
+    }
+
+    schema = schema.concat(sumSchemas())
+    return schema
+  }, object())
+
+/**
+ * @param {Array} fields - Fields
+ * @param {HYPERVISORS} hypervisor - Hypervisor
+ * @returns {Array} Filtered fields
+ */
+export const filterFieldsByHypervisor = (fields, hypervisor = HYPERVISORS.kvm) =>
+  fields
+    .map(field => typeof field === 'function' ? field(hypervisor) : field)
+    .filter(({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor))
 
 /**
  * Filter an object list by property.
@@ -219,3 +286,11 @@ export const isBase64 = (stringToValidate, options = {}) => {
 
   return regex.test(stringToValidate)
 }
+
+/**
+ * Check if value is divisible by 4.
+ *
+ * @param {number} value - Number to check
+ * @returns {boolean} Returns `true` if string is divisible by 4
+ */
+export const isDivisibleBy4 = value => /[048]|\d*([02468][048]|[13579][26])/g.test(value)

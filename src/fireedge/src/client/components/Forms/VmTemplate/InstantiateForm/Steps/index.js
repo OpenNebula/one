@@ -27,7 +27,7 @@ const Steps = createSteps(
         [TEMPLATE_ID]: [vmTemplate],
         [BASIC_ID]: vmTemplate?.TEMPLATE,
         [EXTRA_ID]: vmTemplate?.TEMPLATE
-      }, { stripUnknown: true, context: { [TEMPLATE_ID]: [vmTemplate] } })
+      }, { stripUnknown: true })
     }),
     transformBeforeSubmit: formData => {
       const {

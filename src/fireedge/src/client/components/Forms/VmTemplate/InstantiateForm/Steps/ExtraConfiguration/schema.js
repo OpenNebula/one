@@ -14,15 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { array, object, string, lazy } from 'yup'
-import { v4 as uuidv4 } from 'uuid'
+import { array, object, string } from 'yup'
 
-import { SCHEMA as PUNCTUAL_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm/schema'
-import { SCHEMA as RELATIVE_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
 import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
-
-const ID_SCHEMA = string().uuid().required().default(uuidv4)
 
 export const HOST_REQ_FIELD = {
   name: 'SCHED_REQUIREMENTS',
@@ -64,13 +59,6 @@ export const DS_RANK_FIELD = {
   validation: string().trim().notRequired()
 }
 
-export const SCHED_ACTION_SCHEMA = lazy(({ TIME } = {}) => {
-  const isRelative = String(TIME).includes('+')
-  const schema = isRelative ? RELATIVE_SCHEMA : PUNCTUAL_SCHEMA
-
-  return object({ ID: ID_SCHEMA }).concat(schema)
-})
-
 export const SCHEMA = object({
   DISK: array()
     .ensure()
@@ -88,7 +76,14 @@ export const SCHEMA = object({
         ? `NIC${idx}`
         : nic?.NAME
     }))),
-  SCHED_ACTION: array(SCHED_ACTION_SCHEMA).ensure(),
+  SCHED_ACTION: array()
+    .ensure()
+    .transform(actions => actions?.map((action, idx) => ({
+      ...action,
+      NAME: action?.NAME?.startsWith('SCHED_ACTION') || !action?.NAME
+        ? `SCHED_ACTION${idx}`
+        : action?.NAME
+    }))),
   OS: object({
     BOOT: string().trim().notRequired()
   }),

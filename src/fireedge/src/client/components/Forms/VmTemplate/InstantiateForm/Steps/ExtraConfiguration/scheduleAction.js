@@ -17,6 +17,7 @@
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core'
 import { Edit, Trash } from 'iconoir-react'
+import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
@@ -24,8 +25,7 @@ import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { PunctualForm, RelativeForm } from 'client/components/Forms/Vm'
 import { Tr, Translate } from 'client/components/HOC'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
-import { SCHED_ACTION_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles({
@@ -39,17 +39,17 @@ const useStyles = makeStyles({
 
 export const TAB_ID = 'SCHED_ACTION'
 
-const ScheduleAction = ({ data, setFormData }) => {
+const ScheduleAction = ({ setFormData, control }) => {
   const classes = useStyles()
-  const scheduleActions = data?.[TAB_ID]
-    ?.map((nic, idx) => ({ ...nic, NAME: `ACTION${idx}` }))
+  const scheduleActions = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
 
   const { handleRemove, handleSave } = useListForm({
-    parent: STEP_ID,
+    parent: EXTRA_ID,
     key: TAB_ID,
     list: scheduleActions,
     setList: setFormData,
-    addItemId: (item, id) => ({ ...item, ID: id })
+    getItemId: item => item.NAME,
+    addItemId: (item, _, itemIndex) => ({ ...item, NAME: `${TAB_ID}${itemIndex}` })
   })
 
   return (
@@ -65,30 +65,30 @@ const ScheduleAction = ({ data, setFormData }) => {
           name: 'Punctual action',
           dialogProps: { title: T.ScheduledAction },
           form: () => PunctualForm(),
-          onSubmit: formData => handleSave(SCHED_ACTION_SCHEMA.cast(formData))
+          onSubmit: handleSave
         },
         {
           cy: 'add-sched-action-relative',
           name: 'Relative action',
           dialogProps: { title: T.ScheduledAction },
           form: () => RelativeForm(),
-          onSubmit: formData => handleSave(SCHED_ACTION_SCHEMA.cast(formData))
+          onSubmit: handleSave
         }]}
       />
       <div className={classes.root}>
         {scheduleActions?.map(item => {
-          const { ID, NAME, ACTION, TIME } = item
+          const { NAME, ACTION, TIME } = item
           const isRelative = String(TIME).includes('+')
 
           return (
             <SelectCard
-              key={ID}
+              key={NAME}
               title={`${NAME} - ${ACTION}`}
               action={
                 <>
                   <Action
                     data-cy={`remove-${NAME}`}
-                    handleClick={() => handleRemove(ID)}
+                    handleClick={() => handleRemove(NAME)}
                     icon={<Trash size={18} />}
                   />
                   <ButtonToTriggerForm
@@ -104,7 +104,7 @@ const ScheduleAction = ({ data, setFormData }) => {
                       form: () => isRelative
                         ? RelativeForm(undefined, item)
                         : PunctualForm(undefined, item),
-                      onSubmit: newValues => handleSave(newValues, ID)
+                      onSubmit: newValues => handleSave(newValues, NAME)
                     }]}
                   />
                 </>
@@ -119,7 +119,9 @@ const ScheduleAction = ({ data, setFormData }) => {
 
 ScheduleAction.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
+  control: PropTypes.object
 }
 
 ScheduleAction.displayName = 'ScheduleAction'

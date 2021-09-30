@@ -14,51 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
+import { useFormContext } from 'react-hook-form'
+
+import { useAuth } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
-
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { Tr } from 'client/components/HOC'
+
+import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
+import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
+import { getActionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
 const Content = () => {
   const classes = useStyles()
+  const { view, getResourceView } = useAuth()
+  const { watch } = useFormContext()
+
+  const groups = useMemo(() => {
+    const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
+    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+    const groupsAvailable = getActionsAvailable(dialog, hypervisor)
+
+    return FIELDS(hypervisor).filter(({ id }) => groupsAvailable.includes(id))
+  }, [view])
 
   return (
     <div className={classes.root}>
-      <FormWithSchema
-        className={classes.information}
-        cy='instantiate-vm-template-configuration.information'
-        fields={FIELDS.INFORMATION}
-        legend={Tr(T.Information)}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='instantiate-vm-template-configuration.capacity'
-        fields={FIELDS.CAPACITY}
-        legend={Tr(T.Capacity)}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='instantiate-vm-template-configuration.ownership'
-        fields={FIELDS.OWNERSHIP}
-        legend={Tr(T.Ownership)}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='instantiate-vm-template-configuration.vmgroup'
-        fields={FIELDS.VM_GROUP}
-        legend={Tr(T.VMGroup)}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='instantiate-vm-template-configuration.vcenter'
-        fields={FIELDS.VCENTER}
-        legend={`vCenter ${Tr(T.Deployment)}`}
-        id={STEP_ID}
-      />
+      {groups.map(({ id, legend, fields }) => (
+        <FormWithSchema
+          key={id}
+          className={classes[id]}
+          cy={`instantiate-vm-template-configuration.${id}`}
+          fields={fields}
+          legend={Tr(legend)}
+          id={STEP_ID}
+        />
+      ))}
     </div>
   )
 }
@@ -66,7 +61,10 @@ const Content = () => {
 const BasicConfiguration = () => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: SCHEMA,
+  resolver: formData => {
+    const hypervisor = formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR
+    return SCHEMA(hypervisor)
+  },
   optionsValidate: { abortEarly: false },
   content: Content
 })

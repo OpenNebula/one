@@ -14,55 +14,83 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useFormContext } from 'react-hook-form'
 import { useTheme } from '@material-ui/core'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
+import { useAuth } from 'client/features/Auth'
+import { Tr } from 'client/components/HOC'
+
 import Tabs from 'client/components/Tabs'
-import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import Storage from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import Networking from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
 import Placement from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement'
 import ScheduleAction from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction'
 import Booting from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
+
+import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
+import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import { getActionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
 const Content = ({ data, setFormData }) => {
   const theme = useTheme()
-  const { errors } = useFormContext()
+  const { watch, errors, control } = useFormContext()
+  const { view, getResourceView } = useAuth()
 
-  const tabs = [
-    {
-      name: 'storage',
-      renderContent: Storage({ data, setFormData })
-    },
-    {
-      name: 'network',
-      renderContent: Networking({ data, setFormData })
-    },
-    {
-      name: 'placement',
-      renderContent: Placement({ data, setFormData })
-    },
-    {
-      name: 'schedule action',
-      renderContent: ScheduleAction({ data, setFormData })
-    },
-    {
-      name: 'os booting',
-      renderContent: Booting({ data, setFormData })
-    }
-  ]
-    .map((tab, idx) => ({
-      ...tab,
-      icon: errors[STEP_ID]?.[idx] && (
-        <WarningIcon color={theme.palette.error.main} />
-      )
-    }))
+  const tabs = useMemo(() => {
+    const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
+    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+    const groupsAvailable = getActionsAvailable(dialog, hypervisor)
+
+    return [
+      {
+        id: 'storage',
+        name: Tr(T.Storage),
+        renderContent: <Storage {...{ data, setFormData, hypervisor, control }} />,
+        icon: errors[STEP_ID]?.[0] && (
+          <WarningIcon color={theme.palette.error.main} />
+        )
+      },
+      {
+        id: 'network',
+        name: Tr(T.Network),
+        renderContent: <Networking {...{ data, setFormData, hypervisor, control }} />,
+        icon: errors[STEP_ID]?.[1] && (
+          <WarningIcon color={theme.palette.error.main} />
+        )
+      },
+      {
+        id: 'placement',
+        name: Tr(T.Placement),
+        renderContent: <Placement {...{ data, setFormData, hypervisor, control }} />,
+        icon: errors[STEP_ID]?.[2] && (
+          <WarningIcon color={theme.palette.error.main} />
+        )
+      },
+      {
+        id: 'sched_action',
+        name: Tr(T.ScheduledAction),
+        renderContent: <ScheduleAction {...{ data, setFormData, hypervisor, control }} />,
+        icon: errors[STEP_ID]?.[3] && (
+          <WarningIcon color={theme.palette.error.main} />
+        )
+      },
+      {
+        id: 'booting',
+        name: Tr(T.OSBooting),
+        renderContent: <Booting {...{ data, setFormData, hypervisor, control }} />,
+        icon: errors[STEP_ID]?.[4] && (
+          <WarningIcon color={theme.palette.error.main} />
+        )
+      }
+    ].filter(({ id }) => groupsAvailable.includes(id))
+  }, [errors[STEP_ID], view, control])
 
   return (
     <Tabs tabs={tabs} />

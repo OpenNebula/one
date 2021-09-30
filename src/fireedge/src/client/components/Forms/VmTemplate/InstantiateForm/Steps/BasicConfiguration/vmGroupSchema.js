@@ -14,15 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { object, string } from 'yup'
+import { string } from 'yup'
 
 import { useVmGroup } from 'client/features/One'
 import { INPUT_TYPES } from 'client/constants'
 
-const PARENT = 'VMGROUP'
-
 export const VM_GROUP_FIELD = {
-  name: `${PARENT}.VMGROUP_ID`,
+  name: 'VMGROUP.VMGROUP_ID',
   label: 'Associate VM to a VM Group',
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
@@ -36,11 +34,15 @@ export const VM_GROUP_FIELD = {
         return a.value.localeCompare(b.value, undefined, compareOptions)
       })
   },
-  grid: { md: 12 }
+  grid: { md: 12 },
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
 }
 
 export const ROLE_FIELD = {
-  name: `${PARENT}.ROLE`,
+  name: 'VMGROUP.ROLE',
   label: 'Role',
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: VM_GROUP_FIELD.name,
@@ -57,24 +59,18 @@ export const ROLE_FIELD = {
 
     return roles.map(role => ({ text: role, value: role }))
   },
-  grid: { md: 12 }
+  grid: { md: 12 },
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .when(
+      'VMGROUP_ID',
+      (vmGroup, schema) =>
+        vmGroup && vmGroup !== '' ? schema.required('Role field is required') : schema
+    )
 }
 
-export const FIELDS = [VM_GROUP_FIELD, ROLE_FIELD]
-
-export const SCHEMA = object({
-  [PARENT]: object({
-    VMGROUP_ID: string()
-      .trim()
-      .notRequired()
-      .default(undefined),
-    ROLE: string()
-      .trim()
-      .default(undefined)
-      .when(
-        'VMGROUP_ID',
-        (vmGroup, schema) =>
-          vmGroup && vmGroup !== '' ? schema.required('Role field is required') : schema
-      )
-  })
-})
+export const FIELDS = [
+  VM_GROUP_FIELD,
+  ROLE_FIELD
+]

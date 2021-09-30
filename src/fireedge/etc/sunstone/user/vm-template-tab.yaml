@@ -26,13 +26,13 @@ resource_name: "VM-TEMPLATE"
 actions:
   refresh: true
   create_dialog: true
-  import_dialog: true
+  import_dialog: false
   update_dialog: true
   instantiate_dialog: true
   clone: true
   delete: true
-  chown: true
-  chgrp: true
+  chown: false
+  chgrp: false
   lock: true
   unlock: true
   share: true
@@ -90,12 +90,12 @@ dialogs:
     general: true
     vcenter:
       enabled: true
-      not_on:
+      hypervisor:
         - vcenter
     storage:
       enabled: true
     numa:
       enabled: true
-      no_on:
+      hypervisors:
         - vcenter
         - kvm

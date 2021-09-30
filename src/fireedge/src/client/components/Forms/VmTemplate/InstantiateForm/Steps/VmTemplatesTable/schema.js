@@ -20,7 +20,9 @@ const TEMPLATE_SCHEMA = object({
   NAME: string(),
   TEMPLATE: object({
     DISK: array().ensure(),
-    NIC: array().ensure()
+    NIC: array().ensure(),
+    SCHED_ACTION: array().ensure(),
+    HYPERVISOR: string()
   })
 })
 

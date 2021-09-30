@@ -49,8 +49,11 @@ export const useAuth = () => {
    * dialogs: object[]
    * }} Returns view of resource
    */
-  const getResourceView = resourceName => views?.[view]
-    ?.find(({ resource_name: name }) => name === resourceName)
+  const getResourceView = useCallback(
+    resourceName => views?.[view]
+      ?.find(({ resource_name: name }) => name === resourceName),
+    [view]
+  )
 
   return { ...auth, groups: userGroups, isLogged, getResourceView }
 }
