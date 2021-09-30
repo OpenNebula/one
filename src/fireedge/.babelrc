@@ -7,8 +7,10 @@
         "targets": {
           "node": "10"
         },
-        "useBuiltIns": "entry",
-        "corejs": 3.18
+        "useBuiltIns": "usage",
+        "corejs": {
+          "version": "3.15"
+        }
       }
     ],
     ["@babel/preset-react", {
