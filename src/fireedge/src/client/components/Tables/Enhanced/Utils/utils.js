@@ -80,11 +80,9 @@ export const createActions = ({ filters = {}, actions = [] }) => {
 
       if (accessor) return action
 
-      const groupActions = options?.filter(({ cy }) => {
-        const [, actionName] = cy?.split('.')
-
-        return filters[String(actionName.toLowerCase())] === true
-      })
+      const groupActions = options?.filter(option =>
+        filters[String(option.accessor?.toLowerCase())] === true
+      )
 
       return groupActions?.length > 0
         ? { ...action, options: groupActions }

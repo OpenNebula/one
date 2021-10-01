@@ -73,7 +73,7 @@ const ActionItem = memo(({ item, selectedRows }) => {
   const buttonProps = {
     color,
     'data-cy': accessor && `action.${accessor}`,
-    disabled,
+    disabled: typeof disabled === 'function' ? disabled(selectedRows) : disabled,
     icon: Icon && <Icon size={18} />,
     label: label && Tr(label),
     title: tooltip && Tr(tooltip)
@@ -85,11 +85,15 @@ const ActionItem = memo(({ item, selectedRows }) => {
     <ButtonToTriggerForm
       buttonProps={buttonProps}
       options={options?.map(option => {
-        const { form, onSubmit, dialogProps } = option ?? {}
+        const { accessor, form, onSubmit, dialogProps, disabled: optionDisabled } = option ?? {}
         const { title, children } = dialogProps ?? {}
 
         return {
           ...option,
+          cy: accessor && `action.${accessor}`,
+          disabled: typeof optionDisabled === 'function'
+            ? optionDisabled(selectedRows)
+            : optionDisabled,
           dialogProps: {
             ...dialogProps,
             title: typeof title === 'function' ? title(selectedRows) : title,
@@ -101,7 +105,15 @@ const ActionItem = memo(({ item, selectedRows }) => {
       })}
     />
   )
-}, (prev, next) => prev.selectedRows?.length === next.selectedRows?.length)
+}, (prev, next) => {
+  const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
+  const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
+
+  return (
+    prev.selectedRows?.length === next.selectedRows?.length &&
+    prevStates?.every(prevState => nextStates?.includes(prevState))
+  )
+})
 
 export const ActionPropTypes = PropTypes.shape({
   accessor: PropTypes.string,
@@ -121,7 +133,7 @@ export const ActionPropTypes = PropTypes.shape({
   isConfirmDialog: PropTypes.bool,
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      cy: PropTypes.string,
+      accessor: PropTypes.string,
       name: PropTypes.string,
       icon: PropTypes.any,
       form: PropTypes.func,

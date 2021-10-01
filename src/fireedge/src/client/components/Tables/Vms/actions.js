@@ -36,7 +36,15 @@ import { Tr, Translate } from 'client/components/HOC'
 // import {  } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS, VM_ACTIONS_BY_STATE } from 'client/constants'
+
+const isDisabled = action => rows => {
+  if (VM_ACTIONS_BY_STATE[action]?.length === 0) return false
+
+  const states = rows?.map?.(({ values }) => values?.STATE)
+
+  return states.some(state => !VM_ACTIONS_BY_STATE[action]?.includes(state))
+}
 
 const MessageToConfirmAction = rows => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -106,18 +114,19 @@ const Actions = () => {
         accessor: VM_ACTIONS.RESUME,
         tooltip: Tr(T.Resume),
         selected: true,
+        disabled: isDisabled(VM_ACTIONS.RESUME),
         icon: PlayOutline,
         action: async rows => {
           const ids = rows?.map?.(({ original }) => original?.ID)
           await Promise.all(ids.map(id => resume(id)))
-          await Promise.all(ids.map(id => getVm(id)))
+          ids?.length > 1 && await Promise.all(ids.map(id => getVm(id)))
         }
       },
       {
         accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
         tooltip: Tr(T.SaveAsTemplate),
         selected: { max: 1 },
-        disabled: true,
+        disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
         icon: SaveFloppyDisk,
         action: () => {}
       },
@@ -126,8 +135,9 @@ const Actions = () => {
         icon: SystemShut,
         selected: true,
         options: [{
-          cy: `action.${VM_ACTIONS.SUSPEND}`,
+          accessor: VM_ACTIONS.SUSPEND,
           name: T.Suspend,
+          disabled: isDisabled(VM_ACTIONS.SUSPEND),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Suspend,
@@ -139,8 +149,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.STOP}`,
+          accessor: VM_ACTIONS.STOP,
           name: T.Stop,
+          disabled: isDisabled(VM_ACTIONS.STOP),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Stop,
@@ -152,8 +163,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.POWEROFF}`,
+          accessor: VM_ACTIONS.POWEROFF,
           name: T.Poweroff,
+          disabled: isDisabled(VM_ACTIONS.POWEROFF),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Poweroff,
@@ -165,8 +177,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.POWEROFF_HARD}`,
+          accessor: VM_ACTIONS.POWEROFF_HARD,
           name: T.PoweroffHard,
+          disabled: isDisabled(VM_ACTIONS.POWEROFF_HARD),
           isConfirmDialog: true,
           dialogProps: {
             title: T.PoweroffHard,
@@ -178,8 +191,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.REBOOT}`,
+          accessor: VM_ACTIONS.REBOOT,
           name: T.Reboot,
+          disabled: isDisabled(VM_ACTIONS.REBOOT),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Reboot,
@@ -191,8 +205,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.REBOOT_HARD}`,
+          accessor: VM_ACTIONS.REBOOT_HARD,
           name: T.RebootHard,
+          disabled: isDisabled(VM_ACTIONS.REBOOT_HARD),
           isConfirmDialog: true,
           dialogProps: {
             title: T.RebootHard,
@@ -204,8 +219,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.UNDEPLOY}`,
+          accessor: VM_ACTIONS.UNDEPLOY,
           name: T.Undeploy,
+          disabled: isDisabled(VM_ACTIONS.UNDEPLOY),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Undeploy,
@@ -217,8 +233,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.UNDEPLOY_HARD}`,
+          accessor: VM_ACTIONS.UNDEPLOY_HARD,
           name: T.UndeployHard,
+          disabled: isDisabled(VM_ACTIONS.UNDEPLOY_HARD),
           isConfirmDialog: true,
           dialogProps: {
             title: T.UndeployHard,
@@ -236,26 +253,27 @@ const Actions = () => {
         icon: TransitionRight,
         selected: true,
         options: [{
-          cy: `action.${VM_ACTIONS.DEPLOY}`,
+          accessor: VM_ACTIONS.DEPLOY,
           name: T.Deploy,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.DEPLOY),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_ACTIONS.MIGRATE}`,
+          accessor: VM_ACTIONS.MIGRATE,
           name: T.Migrate,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.MIGRATE),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_ACTIONS.MIGRATE_LIVE}`,
+          accessor: VM_ACTIONS.MIGRATE_LIVE,
           name: T.MigrateLive,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.MIGRATE_LIVE),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_ACTIONS.HOLD}`,
+          accessor: VM_ACTIONS.HOLD,
           name: T.Hold,
+          disabled: isDisabled(VM_ACTIONS.HOLD),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Hold,
@@ -267,8 +285,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.RELEASE}`,
+          accessor: VM_ACTIONS.RELEASE,
           name: T.Release,
+          disabled: isDisabled(VM_ACTIONS.RELEASE),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Release,
@@ -280,8 +299,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.RESCHED}`,
+          accessor: VM_ACTIONS.RESCHED,
           name: T.Reschedule,
+          disabled: isDisabled(VM_ACTIONS.RESCHED),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Reschedule,
@@ -293,8 +313,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.UNRESCHED}`,
+          accessor: VM_ACTIONS.UNRESCHED,
           name: T.UnReschedule,
+          disabled: isDisabled(VM_ACTIONS.UNRESCHED),
           isConfirmDialog: true,
           dialogProps: {
             title: T.UnReschedule,
@@ -306,9 +327,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.RECOVER}`,
+          accessor: VM_ACTIONS.RECOVER,
           name: T.Recover,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.RECOVER),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }]
@@ -318,15 +339,15 @@ const Actions = () => {
         icon: Group,
         selected: true,
         options: [{
-          cy: `action.${VM_ACTIONS.CHANGE_OWNER}`,
+          accessor: VM_ACTIONS.CHANGE_OWNER,
           name: T.ChangeOwner,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.CHANGE_OWNER),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_ACTIONS.CHANGE_GROUP}`,
+          accessor: VM_ACTIONS.CHANGE_GROUP,
           name: T.ChangeGroup,
-          disabled: true,
+          disabled: isDisabled(VM_ACTIONS.CHANGE_GROUP),
           isConfirmDialog: true,
           onSubmit: () => undefined
         }]
@@ -336,8 +357,9 @@ const Actions = () => {
         icon: Lock,
         selected: true,
         options: [{
-          cy: `action.${VM_ACTIONS.LOCK}`,
+          accessor: VM_ACTIONS.LOCK,
           name: T.Lock,
+          disabled: isDisabled(VM_ACTIONS.LOCK),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Lock,
@@ -349,8 +371,9 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.UNLOCK}`,
+          accessor: VM_ACTIONS.UNLOCK,
           name: T.Unlock,
+          disabled: isDisabled(VM_ACTIONS.UNLOCK),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Unlock,
@@ -368,8 +391,9 @@ const Actions = () => {
         icon: Trash,
         selected: true,
         options: [{
-          cy: `action.${VM_ACTIONS.TERMINATE}`,
+          accessor: VM_ACTIONS.TERMINATE,
           name: T.Terminate,
+          disabled: isDisabled(VM_ACTIONS.TERMINATE),
           isConfirmDialog: true,
           dialogProps: {
             title: T.Terminate,
@@ -381,9 +405,10 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVm(id)))
           }
         }, {
-          cy: `action.${VM_ACTIONS.TERMINATE_HARD}`,
+          accessor: VM_ACTIONS.TERMINATE_HARD,
           name: T.TerminateHard,
           isConfirmDialog: true,
+          disabled: isDisabled(VM_ACTIONS.TERMINATE_HARD),
           dialogProps: {
             title: T.TerminateHard,
             children: MessageToConfirmAction
