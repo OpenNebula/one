@@ -33,7 +33,6 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
-import { set } from 'client/utils'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
@@ -92,11 +91,13 @@ export const reorderBootAfterRemove = (id, list, formData, setFormData) => {
  * @param {SetStateAction} setFormData - React set state action
  */
 const reorder = (newBootOrder, setFormData) => {
-  setFormData(prev => {
-    const newData = set({ ...prev }, `${EXTRA_ID}.${TAB_ID}`, newBootOrder.join(','))
-
-    return { ...prev, [EXTRA_ID]: { ...prev[EXTRA_ID], OS: newData } }
-  })
+  setFormData(prev => ({
+    ...prev,
+    [EXTRA_ID]: {
+      ...prev[EXTRA_ID],
+      OS: { BOOT: newBootOrder.join(',') }
+    }
+  }))
 }
 
 const Booting = ({ data, setFormData, control }) => {
