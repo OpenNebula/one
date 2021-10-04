@@ -19,11 +19,11 @@ import PropTypes from 'prop-types'
 import { TextField } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 
-import { ErrorHelper } from 'client/components/FormControl'
+import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 
 const SelectController = memo(
-  ({ control, cy, name, label, multiple, values, error, fieldProps }) => {
+  ({ control, cy, name, label, multiple, values, tooltip, error, fieldProps }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
     return (
@@ -55,6 +55,11 @@ const SelectController = memo(
             margin='dense'
             SelectProps={{ native: true, multiple }}
             label={Tr(label)}
+            InputProps={{
+              startAdornment: tooltip && (
+                <Tooltip title={tooltip} position='start' />
+              )
+            }}
             inputProps={{ 'data-cy': cy }}
             error={Boolean(error)}
             helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
@@ -76,7 +81,9 @@ const SelectController = memo(
   },
   (prevProps, nextProps) =>
     prevProps.error === nextProps.error &&
-    prevProps.values.length === nextProps.values.length
+    prevProps.values.length === nextProps.values.length &&
+    prevProps.label === nextProps.label &&
+    prevProps.tooltip === nextProps.tooltip
 )
 
 SelectController.propTypes = {
@@ -86,6 +93,7 @@ SelectController.propTypes = {
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
+  tooltip: PropTypes.string,
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)

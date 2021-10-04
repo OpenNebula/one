@@ -49,7 +49,7 @@ const ButtonToTriggerForm = ({
   const { onSubmit: handleSubmit, form, isConfirmDialog = false, dialogProps = {} } = Form ?? {}
 
   const formConfig = useMemo(() => form?.() ?? {}, [form])
-  const { steps, defaultValues, resolver, fields, transformBeforeSubmit } = formConfig
+  const { steps, defaultValues, resolver, description, fields, transformBeforeSubmit } = formConfig
 
   const handleTriggerSubmit = async formData => {
     try {
@@ -139,7 +139,10 @@ const ButtonToTriggerForm = ({
                 onSubmit={handleTriggerSubmit}
               />
             ) : (
-              <FormWithSchema cy='form-dg' fields={fields} />
+              <>
+                {description}
+                <FormWithSchema cy='form-dg' fields={fields} />
+              </>
             )}
           </DialogForm>
         )

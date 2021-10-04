@@ -13,34 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
+import { styled } from '@material-ui/core'
 
-import { QuestionMarkCircle } from 'iconoir-react'
-import { InputAdornment, Typography, Tooltip } from '@material-ui/core'
+import { createForm } from 'client/utils'
+import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/RecoverForm/schema'
 
-const AdornmentWithTooltip = memo(({ title, position = 'end', children }) => (
-  <Tooltip
-    arrow
-    placement='bottom'
-    title={
-      <Typography variant='subtitle2'>
-        {title}
-      </Typography>
-    }
-  >
-    <InputAdornment position={position} style={{ cursor: 'help' }}>
-      {children ?? <QuestionMarkCircle size={18} />}
-    </InputAdornment>
-  </Tooltip>
-), (prevProps, nextProps) => prevProps.title === nextProps.title)
+const Description = styled('p')(({ theme }) => ({
+  ...theme.typography.subtitle1,
+  paddingInline: '1rem'
+}))
 
-AdornmentWithTooltip.propTypes = {
-  title: PropTypes.string,
-  children: PropTypes.any,
-  position: PropTypes.oneOf(['start', 'end'])
-}
+const RecoverForm = createForm(
+  SCHEMA,
+  FIELDS,
+  {
+    description: (
+      <Description>
+        {`Recovers a stuck VM that is waiting for a driver operation.
+          The recovery may be done by failing, succeeding or retrying the
+          current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
+          to decide if the operation was successful or not, or if it can be retried.`}
+      </Description>
+    )
+  }
+)
 
-AdornmentWithTooltip.displayName = 'AdornmentWithTooltip'
-
-export default AdornmentWithTooltip
+export default RecoverForm

@@ -85,3 +85,4 @@ export const deleteSnapshot = createAction(`${VM}/delete/snapshot`, vmService.de
 export const addScheduledAction = createAction(`${VM}/add/scheduled-action`, vmService.addScheduledAction)
 export const updateScheduledAction = createAction(`${VM}/update/scheduled-action`, vmService.updateScheduledAction)
 export const deleteScheduledAction = createAction(`${VM}/delete/scheduled-action`, vmService.deleteScheduledAction)
+export const recover = createAction(`${VM}/recover`, vmService.recover)

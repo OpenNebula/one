@@ -66,6 +66,7 @@ module.exports = {
   Reboot: 'Reboot',
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
+  RecoverSeveralVMs: 'Recover several VMs',
   Refresh: 'Refresh',
   Release: 'Release',
   Remove: 'Remove',

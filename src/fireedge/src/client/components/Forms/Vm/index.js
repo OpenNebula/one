@@ -16,6 +16,7 @@
 import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
 import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
 import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
+import RecoverForm from 'client/components/Forms/Vm/RecoverForm'
 import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
 import ResizeDiskForm from 'client/components/Forms/Vm/ResizeDiskForm'
 import SaveAsDiskForm from 'client/components/Forms/Vm/SaveAsDiskForm'
@@ -26,6 +27,7 @@ export {
   AttachNicForm,
   CreateDiskSnapshotForm,
   CreateSnapshotForm,
+  RecoverForm,
   ResizeCapacityForm,
   ResizeDiskForm,
   SaveAsDiskForm

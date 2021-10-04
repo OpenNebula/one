@@ -569,5 +569,31 @@ export const vmService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
     return res?.data
+  },
+
+  /**
+   * Recovers a stuck VM that is waiting for a driver operation.
+   * The recovery may be done by failing or succeeding the pending operation.
+   *
+   * You need to manually check the vm status on the host, to decide
+   * if the operation was successful or not.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {0|1|2|3|4} params.operation - Recover operation:
+   * success (1), failure (0), retry (2), delete (3), delete-recreate (4)
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  recover: async params => {
+    const name = Actions.VM_RECOVER
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
   }
 })

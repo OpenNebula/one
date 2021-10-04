@@ -33,7 +33,7 @@ import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
 import { Tr, Translate } from 'client/components/HOC'
 
-// import {  } from 'client/components/Forms/Vm'
+import { RecoverForm } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS, VM_ACTIONS_BY_STATE } from 'client/constants'
@@ -85,6 +85,7 @@ const Actions = () => {
     resume,
     resched,
     unresched,
+    recover,
     lock,
     unlock
   } = useVmApi()
@@ -330,8 +331,23 @@ const Actions = () => {
           accessor: VM_ACTIONS.RECOVER,
           name: T.Recover,
           disabled: isDisabled(VM_ACTIONS.RECOVER),
-          isConfirmDialog: true,
-          onSubmit: () => undefined
+          dialogProps: {
+            title: rows => {
+              const isMultiple = rows?.length > 1
+              const { ID, NAME } = rows?.[0]?.original
+
+              return [
+                Tr(isMultiple ? T.RecoverSeveralVMs : T.Recover),
+                !isMultiple && `#${ID} ${NAME}`
+              ].filter(Boolean).join(' - ')
+            }
+          },
+          form: RecoverForm,
+          onSubmit: async (_, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => recover(id)))
+            ids?.length > 1 && await Promise.all(ids.map(id => getVm(id)))
+          }
         }]
       },
       {
