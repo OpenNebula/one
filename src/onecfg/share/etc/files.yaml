@@ -41,7 +41,7 @@
   group: oneadmin
   mode: '0640'
 
-- name: /etc/one/equinix_driver.default
+- name: /etc/one/packet_driver.default
   class: Simple
   owner: root
   group: oneadmin
@@ -102,6 +102,36 @@
   mode: '0640'
 
 - name: /etc/one/fireedge-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge/provision/provision.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge/provision/providers.d/*.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge/sunstone/sunstone-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge/sunstone/sunstone-views.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge/sunstone/*/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
@@ -298,6 +328,12 @@
 
 - name: /var/lib/one/remotes/etc/vmm/lxc/lxcrc
   class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/lxc/profiles/*
+  class: Simple
   owner: oneadmin
   group: oneadmin
   mode: '0640'
