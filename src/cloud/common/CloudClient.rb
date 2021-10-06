@@ -51,7 +51,7 @@ end
 module CloudClient
 
     # OpenNebula version
-    VERSION = '6.1.80'
+    VERSION = '6.1.85'
 
     # #########################################################################
     # Default location for the authentication file
