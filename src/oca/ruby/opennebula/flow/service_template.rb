@@ -307,10 +307,16 @@ module OpenNebula
 
             template = JSON.parse(template_json)
 
-            IMMUTABLE_ATTRS.each do |attr|
-                next if template[attr] == @body[attr]
+            if append
+                IMMUTABLE_ATTRS.each do |attr|
+                    return [false, "service_template/#{attr}"] if !template[attr].nil?
+                end
+            else
+                IMMUTABLE_ATTRS.each do |attr|
+                    next if template[attr] == @body[attr]
 
-                return [false, "service_template/#{attr}"]
+                    return [false, "service_template/#{attr}"]
+                end
             end
 
             template = @body.merge(template) if append
