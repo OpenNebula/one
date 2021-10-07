@@ -59,7 +59,6 @@ export default makeStyles(
       gap: '1em',
       gridTemplateColumns: 'minmax(0, 1fr)',
       gridAutoRows: 'max-content',
-      paddingBlock: '0.8em',
       '& > [role=row]': {
         padding: '0.8em',
         cursor: 'pointer',

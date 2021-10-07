@@ -85,6 +85,9 @@ export const useVmApi = () => {
       unwrapDispatch(actions.updateScheduledAction({ id, ...data })),
     deleteScheduledAction: (id, data) =>
       unwrapDispatch(actions.deleteScheduledAction({ id, ...data })),
-    recover: (id, operation) => unwrapDispatch(actions.recover({ id, operation }))
+    recover: (id, operation) => unwrapDispatch(actions.recover({ id, operation })),
+    deploy: (id, data) => unwrapDispatch(actions.deploy({ id, ...data })),
+    migrate: (id, data) => unwrapDispatch(actions.migrate({ id, ...data, live: false })),
+    migrateLive: (id, data) => unwrapDispatch(actions.migrate({ id, ...data, live: true }))
   }
 }

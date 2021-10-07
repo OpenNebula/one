@@ -13,56 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
+import { boolean, string, object } from 'yup'
 
-import { Typography, Chip, Box } from '@mui/material'
+import { DatastoresTable } from 'client/components/Tables'
+import { getValidationFromFields } from 'client/utils'
+import { INPUT_TYPES } from 'client/constants'
 
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {label}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
-    />
-  </Box>
-))
-
-DevTypography.propTypes = {
-  chipProps: PropTypes.object,
-  color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
+const ENFORCE = {
+  name: 'enforce',
+  label: 'Enforce capacity checks',
+  tooltip: `
+    If it is set to true, the host capacity will be checked.
+    This will only affect oneadmin requests, regular users
+    resize requests will always be enforced.`,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
+  grid: { md: 12 }
 }
 
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
+const DATASTORE = {
+  name: 'datastore',
+  label: 'Select the new datastore',
+  type: INPUT_TYPES.TABLE,
+  Table: DatastoresTable,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+  grid: { md: 12 }
 }
 
-DevTypography.displayName = 'DevTypography'
+export const FIELDS = [ENFORCE, DATASTORE]
 
-export default DevTypography
+export const SCHEMA = object(getValidationFromFields(FIELDS))

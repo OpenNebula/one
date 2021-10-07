@@ -31,12 +31,13 @@ import {
 } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useVmApi } from 'client/features/One'
+import { useDatastore, useVmApi } from 'client/features/One'
 import { Translate } from 'client/components/HOC'
 
-import { RecoverForm, ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
+import { RecoverForm, ChangeUserForm, ChangeGroupForm, MigrateForm } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { getLastHistory } from 'client/models/VirtualMachine'
 import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS, VM_ACTIONS_BY_STATE } from 'client/constants'
 
 const isDisabled = action => rows => {
@@ -47,21 +48,30 @@ const isDisabled = action => rows => {
   return states.some(state => !VM_ACTIONS_BY_STATE[action]?.includes(state))
 }
 
-const ListVmNames = ({ rows = [] }) => (
-  <Typography>
-    <Translate word={T.VMs} />
-    {`: ${rows?.map?.(({ original }) => original?.NAME).join(', ')}`}
-  </Typography>
-)
+const ListVmNames = ({ rows = [] }) => {
+  const datastores = useDatastore()
 
-const SubHeader = rows => {
-  const isMultiple = rows?.length > 1
-  const firstRow = rows?.[0]?.original
+  return rows?.map?.(({ id, original }) => {
+    const { ID, NAME } = original
+    const { HID = '', HOSTNAME = '--', DS_ID = '' } = getLastHistory(original)
+    const DS_NAME = datastores?.find(ds => ds?.ID === DS_ID)?.NAME ?? '--'
 
-  return isMultiple
-    ? <ListVmNames rows={rows} />
-    : <>{`#${firstRow?.ID} ${firstRow?.NAME}`}</>
+    return (
+      <Typography key={`vm-${id}`} variant='inherit'>
+        <Translate
+          word={T.WhereIsRunning}
+          values={[
+            `#${ID} ${NAME}`,
+            `#${HID} ${HOSTNAME}`,
+            `#${DS_ID} ${DS_NAME}`
+          ]}
+        />
+      </Typography>
+    )
+  })
 }
+
+const SubHeader = rows => <ListVmNames rows={rows} />
 
 const MessageToConfirmAction = rows => (
   <>
@@ -69,10 +79,6 @@ const MessageToConfirmAction = rows => (
     <Translate word={T.DoYouWantProceed} />
   </>
 )
-
-ListVmNames.displayName = 'ListVmNames'
-SubHeader.displayName = 'SubHeader'
-MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const history = useHistory()
@@ -97,6 +103,9 @@ const Actions = () => {
     unresched,
     recover,
     changeOwnership,
+    deploy,
+    migrate,
+    migrateLive,
     lock,
     unlock
   } = useVmApi()
@@ -270,20 +279,44 @@ const Actions = () => {
           accessor: VM_ACTIONS.DEPLOY,
           disabled: isDisabled(VM_ACTIONS.DEPLOY),
           name: T.Deploy,
-          form: () => undefined,
-          onSubmit: () => undefined
+          form: MigrateForm,
+          dialogProps: {
+            title: T.Deploy,
+            subheader: SubHeader
+          },
+          onSubmit: async (formData, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => deploy(id, formData)))
+            await Promise.all(ids.map(id => getVm(id)))
+          }
         }, {
           accessor: VM_ACTIONS.MIGRATE,
           disabled: isDisabled(VM_ACTIONS.MIGRATE),
           name: T.Migrate,
-          form: () => undefined,
-          onSubmit: () => undefined
+          form: MigrateForm,
+          dialogProps: {
+            title: T.Migrate,
+            subheader: SubHeader
+          },
+          onSubmit: async (formData, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => migrate(id, formData)))
+            await Promise.all(ids.map(id => getVm(id)))
+          }
         }, {
           accessor: VM_ACTIONS.MIGRATE_LIVE,
           disabled: isDisabled(VM_ACTIONS.MIGRATE_LIVE),
           name: T.MigrateLive,
-          form: () => undefined,
-          onSubmit: () => undefined
+          form: MigrateForm,
+          dialogProps: {
+            title: T.Migrate,
+            subheader: SubHeader
+          },
+          onSubmit: async (formData, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => migrateLive(id, formData)))
+            await Promise.all(ids.map(id => getVm(id)))
+          }
         }, {
           accessor: VM_ACTIONS.HOLD,
           disabled: isDisabled(VM_ACTIONS.HOLD),

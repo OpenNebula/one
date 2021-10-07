@@ -13,56 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Typography, Chip, Box } from '@mui/material'
+import { useListForm } from 'client/hooks'
+import { HostsTable } from 'client/components/Tables'
 
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {label}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
+import { SCHEMA } from 'client/components/Forms/Vm/MigrateForm/Steps/HostsTable/schema'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'host'
+
+const Content = ({ data, setFormData }) => {
+  const { ID } = data?.[0] ?? {}
+
+  const {
+    handleSelect,
+    handleClear
+  } = useListForm({ key: STEP_ID, setList: setFormData })
+
+  const handleSelectedRows = rows => {
+    const { original = {} } = rows?.[0] ?? {}
+
+    original.ID !== undefined ? handleSelect(original) : handleClear()
+  }
+
+  return (
+    <HostsTable
+      singleSelect
+      onlyGlobalSearch
+      onlyGlobalSelectedRows
+      initialState={{ selectedRowIds: { [ID]: true } }}
+      onSelectedRowsChange={handleSelectedRows}
     />
-  </Box>
-))
-
-DevTypography.propTypes = {
-  chipProps: PropTypes.object,
-  color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
+  )
 }
 
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
+const NetworkStep = () => ({
+  id: STEP_ID,
+  label: T.SelectHost,
+  resolver: SCHEMA,
+  content: Content
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func
 }
 
-DevTypography.displayName = 'DevTypography'
-
-export default DevTypography
+export default NetworkStep

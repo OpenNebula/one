@@ -92,6 +92,7 @@ module.exports = {
   SaveAsTemplate: 'Save as Template',
   Search: 'Search',
   Select: 'Select',
+  SelectHost: 'Select a host',
   SelectGroup: 'Select a group',
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
@@ -309,6 +310,7 @@ module.exports = {
   /* VM schema - info */
   UserTemplate: 'User Template',
   Template: 'Template',
+  WhereIsRunning: 'VM %1$s is currently running on Host %2$s and Datastore %3$s',
   /* VM schema - capacity */
   Capacity: 'Capacity',
   PhysicalCpu: 'Physical CPU',

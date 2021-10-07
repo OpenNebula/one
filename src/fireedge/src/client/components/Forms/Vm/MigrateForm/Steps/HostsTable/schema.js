@@ -13,56 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
+import * as yup from 'yup'
 
-import { Typography, Chip, Box } from '@mui/material'
-
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {label}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
-    />
-  </Box>
-))
-
-DevTypography.propTypes = {
-  chipProps: PropTypes.object,
-  color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
-}
-
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
-}
-
-DevTypography.displayName = 'DevTypography'
-
-export default DevTypography
+export const SCHEMA = yup
+  .array(yup.object())
+  .min(1, 'Select the new Host')
+  .max(1, 'Max. one host selected')
+  .required('Host field is required')
+  .ensure()
+  .default(() => [])

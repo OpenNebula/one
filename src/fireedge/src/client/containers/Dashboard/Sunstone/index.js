@@ -19,7 +19,7 @@ import { Container, Box, Grid } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
-import { useUserApi, useImageApi, useVNetworkApi } from 'client/features/One'
+import { useUserApi, useImageApi, useVNetworkApi, useDatastoreApi } from 'client/features/One'
 
 import * as Widgets from 'client/components/Widgets'
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
@@ -31,6 +31,7 @@ function Dashboard () {
   const { getUsers } = useUserApi()
   const { getImages } = useImageApi()
   const { getVNetworks } = useVNetworkApi()
+  const { getDatastores } = useDatastoreApi()
 
   const { settings: { disableanimations } = {} } = useAuth()
   const classes = dashboardStyles({ disableanimations })
@@ -41,7 +42,8 @@ function Dashboard () {
     fetchRequestAll([
       getUsers(),
       getImages(),
-      getVNetworks()
+      getVNetworks(),
+      getDatastores()
     ])
   }, [])
 

@@ -595,5 +595,58 @@ export const vmService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
     return res?.data
+  },
+
+  /**
+   * Initiates the instance of the given VM id on the target host.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.host - The target host id
+   * @param {boolean} params.enforce
+   * - If `true`, will enforce the Host capacity isn't over committed.
+   * @param {string|number} params.datastore - The target datastore id.
+   * It is optional, and can be set to -1 to let OpenNebula choose the datastore
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  deploy: async params => {
+    const name = Actions.VM_DEPLOY
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Migrates one virtual machine to the target host.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string|number} params.host - The target host id
+   * @param {boolean} params.live
+   * - If `true` we are indicating that we want live migration, otherwise `false`.
+   * @param {boolean} params.enforce
+   * - If `true`, will enforce the Host capacity isn't over committed.
+   * @param {string|number} params.datastore - The target datastore id.
+   * It is optional, and can be set to -1 to let OpenNebula choose the datastore
+   * @param {0|1|2} params.type - Migration type: save (0), poweroff (1), poweroff-hard (2)
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  migrate: async params => {
+    const name = Actions.VM_MIGRATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
   }
 })

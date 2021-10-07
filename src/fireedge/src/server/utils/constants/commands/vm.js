@@ -120,11 +120,11 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: -1
         },
         host: {
           from: postBody,
-          default: 0
+          default: -1
         },
         enforce: {
           from: postBody,
@@ -156,13 +156,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: -1
         },
         host: {
           from: postBody,
-          default: 0
+          default: -1
         },
-        liveMigration: {
+        live: {
           from: postBody,
           default: false
         },
@@ -172,9 +172,9 @@ module.exports = {
         },
         datastore: {
           from: postBody,
-          default: 0
+          default: -1
         },
-        migration: {
+        type: {
           from: postBody,
           default: 0
         }

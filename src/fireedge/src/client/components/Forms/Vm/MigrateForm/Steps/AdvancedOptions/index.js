@@ -13,56 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Typography, Chip, Box } from '@mui/material'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {label}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
-    />
-  </Box>
-))
+import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions/schema'
+import { T } from 'client/constants'
 
-DevTypography.propTypes = {
-  chipProps: PropTypes.object,
-  color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
+export const STEP_ID = 'advanced'
+
+const Content = () => (
+  <FormWithSchema
+    cy='migrate-vm-advanced'
+    id={STEP_ID}
+    fields={FIELDS}
+  />
+)
+
+const AdvancedOptions = () => ({
+  id: STEP_ID,
+  label: T.AdvancedOptions,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+  nics: PropTypes.array
 }
 
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
-}
-
-DevTypography.displayName = 'DevTypography'
-
-export default DevTypography
+export default AdvancedOptions

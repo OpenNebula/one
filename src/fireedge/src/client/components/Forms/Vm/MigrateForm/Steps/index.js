@@ -13,56 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
+import HostsTable, { STEP_ID as HOST_ID } from 'client/components/Forms/Vm/MigrateForm/Steps/HostsTable'
+import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions'
+import { createSteps } from 'client/utils'
 
-import { Typography, Chip, Box } from '@mui/material'
+const Steps = createSteps(
+  [HostsTable, AdvancedOptions],
+  {
+    transformBeforeSubmit: formData => {
+      const { [HOST_ID]: [host] = [], [ADVANCED_ID]: advanced } = formData
 
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {label}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
-    />
-  </Box>
-))
+      return { host: host?.ID, ...advanced }
+    }
+  }
+)
 
-DevTypography.propTypes = {
-  chipProps: PropTypes.object,
-  color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
-}
-
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
-}
-
-DevTypography.displayName = 'DevTypography'
-
-export default DevTypography
+export default Steps

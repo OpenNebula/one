@@ -18,6 +18,7 @@ import ChangeUserForm from 'client/components/Forms/Vm/ChangeUserForm'
 import ChangeGroupForm from 'client/components/Forms/Vm/ChangeGroupForm'
 import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
 import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
+import MigrateForm from 'client/components/Forms/Vm/MigrateForm'
 import RecoverForm from 'client/components/Forms/Vm/RecoverForm'
 import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
 import ResizeDiskForm from 'client/components/Forms/Vm/ResizeDiskForm'
@@ -31,6 +32,7 @@ export {
   ChangeGroupForm,
   CreateDiskSnapshotForm,
   CreateSnapshotForm,
+  MigrateForm,
   RecoverForm,
   ResizeCapacityForm,
   ResizeDiskForm,

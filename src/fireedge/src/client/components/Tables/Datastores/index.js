@@ -21,15 +21,20 @@ import { useFetch } from 'client/hooks'
 import { useDatastore, useDatastoreApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
 
-const DatastoresTable = () => {
-  const columns = useMemo(() => DatastoreColumns, [])
+const DatastoresTable = props => {
+  const { view, getResourceView, filterPool } = useAuth()
+
+  const columns = useMemo(() => createColumns({
+    filters: getResourceView('DATASTORE')?.filters,
+    columns: DatastoreColumns
+  }), [view])
 
   const datastores = useDatastore()
   const { getDatastores } = useDatastoreApi()
-  const { filterPool } = useAuth()
 
   const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getDatastores)
   const { INIT, PENDING } = STATUS
@@ -47,6 +52,7 @@ const DatastoresTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={DatastoreRow}
+      {...props}
     />
   )
 }

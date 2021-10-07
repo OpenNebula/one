@@ -86,3 +86,6 @@ export const addScheduledAction = createAction(`${VM}/add/scheduled-action`, vmS
 export const updateScheduledAction = createAction(`${VM}/update/scheduled-action`, vmService.updateScheduledAction)
 export const deleteScheduledAction = createAction(`${VM}/delete/scheduled-action`, vmService.deleteScheduledAction)
 export const recover = createAction(`${VM}/recover`, vmService.recover)
+export const deploy = createAction(`${VM}/deploy`, vmService.deploy)
+export const migrate = createAction(`${VM}/migrate`, vmService.migrate)
+export const migrateLive = createAction(`${VM}/migrate-live`, vmService.migrate)
