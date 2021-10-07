@@ -598,6 +598,53 @@ export const vmService = ({
   },
 
   /**
+   * Locks a virtual machine. Lock certain actions depending on blocking level.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {1|2|3|4} params.level
+   * - Lock level:
+   * ``1``: Use
+   * ``2``: Manage
+   * ``3``: Admin
+   * ``4``: All
+   * @param {boolean} params.test - Check if the object is already locked to return an error
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  lock: async params => {
+    const name = Actions.VM_LOCK
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Unlocks a virtual machine.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  unlock: async params => {
+    const name = Actions.VM_UNLOCK
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Initiates the instance of the given VM id on the target host.
    *
    * @param {object} params - Request parameters

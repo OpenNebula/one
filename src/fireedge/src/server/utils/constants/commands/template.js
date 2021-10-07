@@ -226,7 +226,7 @@ module.exports = {
           from: resource,
           default: 0
         },
-        lock: {
+        level: {
           from: postBody,
           default: 4
         },

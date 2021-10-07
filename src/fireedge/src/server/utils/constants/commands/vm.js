@@ -575,6 +575,10 @@ module.exports = {
         level: {
           from: postBody,
           default: 4
+        },
+        test: {
+          from: postBody,
+          default: false
         }
       }
     },

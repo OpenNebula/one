@@ -234,7 +234,7 @@ export const vmTemplateService = ({
    *
    * @param {object} params - Request parameters
    * @param {string|number} params.id - Template id
-   * @param {1|2|3|4} params.lock
+   * @param {1|2|3|4} params.level
    * - Lock level:
    * ``1``: Use
    * ``2``: Manage
