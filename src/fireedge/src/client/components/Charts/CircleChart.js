@@ -16,7 +16,7 @@
 import { memo, useState, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Box, CircularProgress, Typography } from '@material-ui/core'
+import { Box, CircularProgress, Typography } from '@mui/material'
 import NumberEasing from 'client/components/NumberEasing'
 
 /**

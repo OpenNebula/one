@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { Server, ModernTv } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -63,11 +63,11 @@ const Row = ({ original, value, ...props }) => {
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Cluster: ${CLUSTER}`}>
-            <Server size={16} />
+            <Server />
             <span>{` ${CLUSTER}`}</span>
           </span>
           <span title={`Running VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
-            <ModernTv size={16} />
+            <ModernTv />
             <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
           </span>
         </div>

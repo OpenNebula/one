@@ -15,40 +15,32 @@
  * ------------------------------------------------------------------------- */
 import { JSXElementConstructor } from 'react'
 
-import { makeStyles, Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { OpenNebulaLogo } from 'client/components/Icons'
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: '100%',
-    height: '100vh',
-    backgroundColor: theme.palette.background.default,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'fixed',
-    zIndex: 10000
-  }
-}))
 
 /**
  * Component with OpenNebula logo as spinner in full width and height.
  *
  * @returns {JSXElementConstructor} Container with logo inside
  */
-const LoadingScreen = () => {
-  const classes = useStyles()
-
-  return (
-    <Box className={classes.root}>
-      <OpenNebulaLogo
-        width={360}
-        height={360}
-        spinner
-        withText
-      />
-    </Box>
-  )
-}
+const LoadingScreen = () => (
+  <Box sx={{
+    width: '100%',
+    height: '100vh',
+    backgroundColor: 'background.default',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'fixed',
+    zIndex: 10000
+  }}>
+    <OpenNebulaLogo
+      width={360}
+      height={360}
+      spinner
+      withText
+    />
+  </Box>
+)
 
 export default LoadingScreen

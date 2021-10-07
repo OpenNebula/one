@@ -18,7 +18,8 @@ import { Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, List as MList, ListItem, Typography, Paper } from '@material-ui/core'
+import { List as MList, ListItem, Typography, Paper } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { Attribute, AttributePropTypes } from 'client/components/Tabs/Common/Attribute'
 import AttributeCreateForm from 'client/components/Tabs/Common/AttributeCreateForm'

@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Typography, Chip } from '@material-ui/core'
+import { Typography, Chip } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles({
   root: {

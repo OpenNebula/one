@@ -16,8 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TextField, Chip } from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
+import { TextField, Chip, Autocomplete } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
@@ -53,23 +52,20 @@ const AutocompleteController = memo(
               tags.map((tag, index) => (
                 <Chip
                   key={tag}
-                  size="small"
-                  variant="outlined"
+                  size='small'
+                  variant='outlined'
                   label={tag}
                   {...getTagProps({ index })}
                 />
               ))
             }
             getOptionLabel={option => option.text}
-            getOptionSelected={option => option.value === renderValue}
+            isOptionEqualToValue={option => option.value === renderValue}
             renderInput={({ inputProps, ...inputParams }) => (
               <TextField
-                color='secondary'
                 label={Tr(label)}
                 inputProps={{ ...inputProps, 'data-cy': cy }}
                 error={Boolean(error)}
-                variant='outlined'
-                margin='dense'
                 helperText={
                   Boolean(error) && <ErrorHelper label={error?.message} />
                 }

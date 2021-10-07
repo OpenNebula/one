@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, CardActions, Badge } from '@material-ui/core'
+import { Button, CardActions, Badge } from '@mui/material'
 import { AppleImac2021 as TierIcon } from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'

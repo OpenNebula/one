@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { ClustersTable } from 'client/components/Tables'
 import ClusterTabs from 'client/components/Tabs/Cluster'

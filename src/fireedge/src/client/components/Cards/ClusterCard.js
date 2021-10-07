@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Badge, Box, CardContent } from '@material-ui/core'
+import { Badge, Box, CardContent } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import {
   Server as ClusterIcon,
   HardDrive as HostIcon,

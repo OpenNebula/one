@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
 import {
   useMediaQuery,
@@ -24,9 +23,9 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  IconButton,
-  makeStyles
-} from '@material-ui/core'
+  IconButton
+} from '@mui/material'
+import { Box } from '@mui/system'
 import { Cancel as CancelIcon } from 'iconoir-react'
 
 import { Action } from 'client/components/Cards/SelectCard'
@@ -48,24 +47,6 @@ import { T } from 'client/constants'
  * @property {JSXElementConstructor} [children] - Fix minimum height
  */
 
-const useStyles = makeStyles({
-  title: {
-    display: 'flex',
-    flexWrap: 'nowrap',
-    alignItems: 'center',
-    gap: '2em'
-  },
-  titleText: {
-    flexGrow: 1
-  },
-  fixedWidth: {
-    minWidth: '80vw'
-  },
-  fixedHeight: {
-    minHeight: '80vh'
-  }
-})
-
 /**
  * @param {DialogProps} props - Dialog properties
  * @returns {JSXElementConstructor} - Dialog with confirmation basic buttons
@@ -85,26 +66,34 @@ const DialogConfirmation = memo(
     fixedHeight,
     children
   }) => {
-    const classes = useStyles()
     const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
     return (
       <Dialog
         fullScreen={isMobile}
-        onEntering={handleEntering}
-        classes={{
-          paper: clsx({
-            [classes.fixedWidth]: fixedWidth,
-            [classes.fixedHeight]: fixedHeight
-          })
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            minWidth: fixedWidth ? '80vw' : 'auto',
+            minHeight: fixedHeight ? '80vh' : 'auto'
+          }
         }}
         open={open}
         onClose={handleCancel}
         maxWidth='lg'
         scroll='paper'
-      >
-        <DialogTitle disableTypography className={classes.title}>
-          <div className={classes.titleText}>
+        TransitionProps={{
+          onEntering: handleEntering
+        }}>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            alignItems: 'center',
+            gap: '2em'
+          }}
+        >
+          <Box flexGrow={1}>
             {title && (
               <Typography variant='h6'>
                 {typeof title === 'string' ? Tr(title) : title}
@@ -115,14 +104,14 @@ const DialogConfirmation = memo(
                 {typeof subheader === 'string' ? Tr(subheader) : subheader}
               </Typography>
             )}
-          </div>
+          </Box>
           {handleCancel && (
             <IconButton
               aria-label='close'
               onClick={handleCancel}
               data-cy='dg-cancel-button'
               {...cancelButtonProps}
-            >
+              size="large">
               <CancelIcon />
             </IconButton>
           )}

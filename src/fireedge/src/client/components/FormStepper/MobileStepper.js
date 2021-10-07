@@ -16,12 +16,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Button, MobileStepper, Typography, Box } from '@material-ui/core'
-import { makeStyles, alpha } from '@material-ui/core/styles'
-import {
-  NavArrowLeft as PreviousIcon,
-  NavArrowRight as NextIcon
-} from 'iconoir-react'
+import { Button, MobileStepper, Typography, Box, alpha } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+import { NavArrowLeft as PreviousIcon, NavArrowRight as NextIcon } from 'iconoir-react'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'

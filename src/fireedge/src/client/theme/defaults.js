@@ -13,19 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ThemeOptions } from '@material-ui/core'
+import { createTheme, darkScrollbar, ThemeOptions, colors, alpha } from '@mui/material'
 import { UbuntuFont } from 'client/theme/fonts'
+import { SCHEMES } from 'client/constants'
+
+const defaultTheme = createTheme()
+const { grey } = colors
+
+const systemFont = [
+  '-apple-system',
+  'BlinkMacSystemFont',
+  '"Segoe UI"',
+  'Roboto',
+  '"Helvetica Neue"',
+  'Arial',
+  'sans-serif',
+  '"Apple Color Emoji"',
+  '"Segoe UI Emoji"',
+  '"Segoe UI Symbol"'
+]
 
 export const breakpoints = {
   xs: 0,
   sm: 600,
-  md: 960,
-  lg: 1280,
-  xl: 1920,
-  // DEVICES
-  tablet: 640,
-  laptop: 1024,
-  desktop: 1280
+  md: 900,
+  lg: 1200,
+  xl: 1536
 }
 
 export const toolbar = {
@@ -43,47 +56,321 @@ export const sidebar = {
   fixed: 250
 }
 
-/** @type {ThemeOptions} */
-export default {
-  breakpoints: {
-    values: breakpoints,
-    keys: Object.keys(breakpoints)
-  },
-  typography: {
-    fontFamily: [
-      'Ubuntu',
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"'
-    ].join(',')
-  },
-  mixins: {
-    toolbar: {
-      minHeight: toolbar.regular,
-      [`@media (min-width:${breakpoints.xs}px) and (orientation: landscape)`]: {
-        minHeight: toolbar.xs
+const buttonSvgStyle = {
+  fontSize: '1.25rem',
+  width: '1em',
+  height: '1em'
+}
+
+/**
+ * @param {ThemeOptions} appTheme - App theme
+ * @param {SCHEMES} mode - Scheme type
+ * @returns {ThemeOptions} Material theme options
+ */
+export default (appTheme, mode = SCHEMES.DARK) => {
+  const { primary, secondary } = appTheme.palette
+  const isDarkMode = mode === SCHEMES.DARK
+
+  return {
+    palette: {
+      mode,
+      primary,
+      secondary,
+      common: {
+        black: '#1D1D1D',
+        white: '#ffffff'
       },
-      [`@media (min-width:${breakpoints.sm}px)`]: {
-        minHeight: toolbar.sm
-      }
-    }
-  },
-  overrides: {
-    MuiFormControl: {
-      root: {
-        margin: '.5rem 0'
+      background: {
+        paper: isDarkMode ? '#2a2d3d' : '#ffffff',
+        default: isDarkMode ? '#222431' : '#f2f4f8'
+      },
+      error: {
+        100: '#fdeae7',
+        200: '#f8c0b7',
+        300: '#f5aca0',
+        400: '#f39788',
+        500: '#ee6d58',
+        600: '#ec5840',
+        700: '#ec462b',
+        800: '#f2391b',
+        light: '#f8c0b7',
+        main: '#ec5840',
+        dark: '#f2391b',
+        contrastText: '#ffffff'
+      },
+      warning: {
+        100: '#FFF4DB',
+        200: '#FFEDC2',
+        300: '#FFE4A3',
+        400: '#FFD980',
+        500: '#FCC419',
+        600: '#FAB005',
+        700: '#F1A204',
+        800: '#DB9A00',
+        light: '#ffe4a3',
+        main: '#f1a204',
+        dark: '#f1a204',
+        contrastText: 'rgba(0, 0, 0, 0.87)'
+      },
+      info: {
+        light: '#64b5f6',
+        main: '#2196f3',
+        dark: '#01579b',
+        contrastText: '#ffffff'
+      },
+      success: {
+        100: '#bce1bd',
+        200: '#a6d7a8',
+        300: '#8fcd92',
+        400: '#79c37c',
+        500: '#62b966',
+        600: '#4caf50',
+        700: '#419b46',
+        800: '#388e3c',
+        light: '#3adb76',
+        main: '#4caf50',
+        dark: '#388e3c',
+        contrastText: '#ffffff'
+      },
+      debug: {
+        light: '#e0e0e0',
+        main: '#757575',
+        dark: '#424242',
+        contrastText: '#ffffff'
       }
     },
-    MuiCssBaseline: {
-      '@global': {
-        '@font-face': [UbuntuFont]
+    breakpoints: {
+      values: breakpoints,
+      keys: Object.keys(breakpoints)
+    },
+    typography: {
+      fontFamily: [UbuntuFont.fontFamily, ...systemFont].join(','),
+      fontFamilyCode: [
+        'Consolas',
+        'Menlo',
+        'Monaco',
+        'Andale Mono',
+        'Ubuntu Mono',
+        'monospace'
+      ].join(','),
+      fontFamilySystem: systemFont.join(','),
+      h1: {
+        fontSize: 'clamp(2.625rem, 1.2857rem + 3.5714vw, 4rem)',
+        fontWeight: 800,
+        lineHeight: 78 / 70
+      },
+      h2: {
+        fontSize: 'clamp(1.5rem, 0.9643rem + 1.4286vw, 2.25rem)',
+        fontWeight: 800,
+        lineHeight: 44 / 36
+      },
+      h3: {
+        fontSize: defaultTheme.typography.pxToRem(36),
+        lineHeight: 44 / 36,
+        letterSpacing: 0
+      },
+      h4: {
+        fontSize: defaultTheme.typography.pxToRem(28),
+        lineHeight: 42 / 28,
+        letterSpacing: 0
+      },
+      h5: {
+        fontSize: defaultTheme.typography.pxToRem(24),
+        lineHeight: 36 / 24,
+        letterSpacing: 0
+      },
+      h6: {
+        fontSize: defaultTheme.typography.pxToRem(20),
+        lineHeight: 30 / 20,
+        letterSpacing: 0
+      },
+      button: {
+        fontSize: defaultTheme.typography.pxToRem(12),
+        textTransform: 'initial',
+        fontWeight: 500,
+        letterSpacing: 0
+      },
+      subtitle1: {
+        fontSize: defaultTheme.typography.pxToRem(18),
+        lineHeight: 24 / 18,
+        letterSpacing: 0,
+        fontWeight: 500
+      },
+      body1: {
+        fontSize: defaultTheme.typography.pxToRem(16),
+        lineHeight: 24 / 16,
+        letterSpacing: 0
+      },
+      body2: {
+        fontSize: defaultTheme.typography.pxToRem(14),
+        lineHeight: 21 / 14,
+        letterSpacing: 0
+      },
+      caption: {
+        display: 'inline-block',
+        fontSize: defaultTheme.typography.pxToRem(12),
+        lineHeight: 18 / 12,
+        letterSpacing: 0,
+        fontWeight: 500
+      },
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+      fontWeightBold: 700,
+      fontWeightExtraBold: 800
+    },
+    mixins: {
+      toolbar: {
+        minHeight: toolbar.regular,
+        [`@media (min-width:${breakpoints.xs}px) and (orientation: landscape)`]: {
+          minHeight: toolbar.xs
+        },
+        [`@media (min-width:${breakpoints.sm}px)`]: {
+          minHeight: toolbar.sm
+        }
+      }
+    },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          '@font-face': UbuntuFont,
+          body: isDarkMode ? darkScrollbar() : null,
+          '.description__link': {
+            margin: 0,
+            color: isDarkMode ? secondary.main : secondary.dark,
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'underline'
+            }
+          }
+        }
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: { backgroundImage: 'unset' }
+        }
+      },
+      MuiButtonBase: {
+        defaultProps: {
+          disableTouchRipple: true
+        }
+      },
+      MuiButton: {
+        defaultProps: {
+          disableTouchRipple: true
+        },
+        styleOverrides: {
+          root: {
+            padding: '5px 16px',
+            '& svg:nth-of-type(1)': buttonSvgStyle
+          },
+          endIcon: {
+            marginLeft: 4,
+            width: '1rem',
+            height: '1rem'
+          },
+          text: {
+            backgroundColor: isDarkMode ? primary[400] : primary[800]
+          },
+          outlined: {
+            border: '1px solid',
+            borderColor: isDarkMode ? alpha(grey[100], 0.1) : alpha(grey[700], 0.15),
+            borderRadius: defaultTheme.shape.borderRadius,
+            color: isDarkMode ? '#ffffff' : grey[900]
+          }
+        }
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: { '& svg:nth-of-type(1)': buttonSvgStyle }
+        },
+        variants: [{
+          props: { color: 'default' },
+          style: { '&:hover': { color: secondary.main } }
+        }]
+      },
+      MuiIcon: {
+        styleOverrides: {
+          root: { '& svg:nth-of-type(1)': buttonSvgStyle }
+        }
+      },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            padding: '0 2px',
+            boxShadow: 'none',
+            borderStyle: 'solid',
+            borderColor: alpha(grey[100], 0.1),
+            borderWidth: 0,
+            borderBottomWidth: 'thin',
+            backgroundColor: primary.main,
+            '& .MuiIconButton-root, & .MuiButton-root': {
+              color: '#ffffff',
+              border: 'none',
+              backgroundColor: 'transparent',
+              '&:hover': {
+                border: 'none',
+                backgroundColor: 'transparent',
+                color: alpha('#ffffff', 0.7)
+              }
+            }
+          }
+        }
+      },
+      MuiLink: {
+        defaultProps: {
+          underline: 'hover'
+        }
+      },
+      MuiFormControl: {
+        styleOverrides: {
+          root: {
+            margin: '.5rem 0'
+          }
+        }
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: 'outlined',
+          size: 'small',
+          color: 'secondary',
+          SelectProps: {
+            native: true
+          }
+        }
+      },
+      MuiTabs: {
+        styleOverrides: {
+          root: {
+            backgroundColor: isDarkMode ? secondary.dark : secondary.main,
+            borderRadius: 8,
+            boxShadow: '0px 20px 25px rgba(0, 0, 0, 0.05), 0px 10px 10px rgba(0, 0, 0, 0.02)'
+          },
+          indicator: {
+            backgroundColor: 'transparent',
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              left: 30,
+              right: 30,
+              height: '100%',
+              backgroundColor: '#ffffff'
+            }
+          }
+        }
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            color: isDarkMode ? secondary[200] : secondary[100],
+            textTransform: 'capitalize',
+            fontSize: '1rem',
+            '&.Mui-selected': {
+              color: '#ffffff'
+            }
+          }
+        }
       }
     }
   }

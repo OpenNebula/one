@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles(theme => ({
   root: {
@@ -45,7 +45,7 @@ export default makeStyles(theme => ({
     }
   },
   wrapperForm: {
-    padding: theme.spacing(),
+    padding: theme.spacing(2, 1),
     display: 'flex',
     overflow: 'hidden'
   },

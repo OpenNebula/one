@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles } from '@material-ui/core'
+
+import makeStyles from '@mui/styles/makeStyles'
 import { useForm, Controller } from 'react-hook-form'
 
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'

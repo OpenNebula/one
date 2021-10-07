@@ -49,7 +49,7 @@ const UserInfoTab = ({ tabProps = {} }) => {
     // 0: Replace the whole template
     const response = await updateUser(ID, xml, 0)
 
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const getActions = actions => Helper.getActionsAvailable(actions)

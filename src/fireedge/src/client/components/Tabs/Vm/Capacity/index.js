@@ -38,7 +38,7 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
     const template = Helper.jsonToXml(restOfData)
 
     const response = await resize(ID, { enforce, template })
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   return (

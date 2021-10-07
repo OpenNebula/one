@@ -17,7 +17,7 @@
 import { useEffect, useState } from 'react'
 
 import { useHistory, generatePath } from 'react-router-dom'
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
 import { useFetch } from 'client/hooks'

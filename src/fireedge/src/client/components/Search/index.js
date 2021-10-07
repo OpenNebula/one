@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { TextField, Box } from '@mui/material'
 
-import { TextField, Box } from '@material-ui/core'
 import { useSearch } from 'client/hooks'
 import { ListInfiniteScroll } from 'client/components/List'
 

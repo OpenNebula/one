@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { FormControl, FormControlLabel, Checkbox } from '@material-ui/core'
+import { FormControl, FormControlLabel, Checkbox } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'

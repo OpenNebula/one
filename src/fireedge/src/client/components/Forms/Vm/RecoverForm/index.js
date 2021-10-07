@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { styled } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/RecoverForm/schema'
-
-const Description = styled('p')(({ theme }) => ({
-  ...theme.typography.subtitle1,
-  paddingInline: '1rem'
-}))
 
 const RecoverForm = createForm(
   SCHEMA,
   FIELDS,
   {
     description: (
-      <Description>
+      <Typography variant='subtitle1' paddingX='1rem'>
         {`Recovers a stuck VM that is waiting for a driver operation.
           The recovery may be done by failing, succeeding or retrying the
           current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
           to decide if the operation was successful or not, or if it can be retried.`}
-      </Description>
+      </Typography>
     )
   }
 )

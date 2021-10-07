@@ -16,7 +16,8 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Chip, Slide } from '@material-ui/core'
+import { Chip, Slide } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Download as GoToBottomIcon } from 'iconoir-react'
 
 const useStyles = makeStyles(theme => ({

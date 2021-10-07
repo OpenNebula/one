@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, EmptyPage, ModernTv } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -38,19 +38,19 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Template ID: ${TEMPLATE_ID}`}>
-            <EmptyPage size={16} />
+            <EmptyPage />
             <span>{` ${TEMPLATE_ID}`}</span>
           </span>
           <span title={`Total VMs: ${VMS}`}>
-            <ModernTv size={16} />
+            <ModernTv />
             <span>{` ${VMS}`}</span>
           </span>
         </div>

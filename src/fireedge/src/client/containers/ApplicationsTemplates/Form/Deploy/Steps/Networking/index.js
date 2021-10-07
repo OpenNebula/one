@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect, useCallback } from 'react'
 
-import { Divider, Paper, Typography } from '@material-ui/core'
+import { Divider, Paper, Typography } from '@mui/material'
 
 import { useVNetworkApi, useVNetworkTemplateApi } from 'client/features/One'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'

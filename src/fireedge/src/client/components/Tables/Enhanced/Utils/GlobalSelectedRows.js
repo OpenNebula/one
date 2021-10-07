@@ -17,7 +17,8 @@ import { useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { TableProps } from 'react-table'
-import { makeStyles, Chip } from '@material-ui/core'
+import { Chip } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles({
   root: {

@@ -24,7 +24,7 @@ import {
   Calendar as ActionsIcons
 } from 'iconoir-react'
 
-import { AppBar, Tabs, Tab, Box } from '@material-ui/core'
+import { AppBar, Tabs, Tab, Box } from '@mui/material'
 
 import CustomDialog from 'client/containers/ApplicationsInstances/DialogInfo/dialog'
 import InfoTab from 'client/containers/ApplicationsInstances/DialogInfo/info'

@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Card, CardContent, Button, CardActions } from '@material-ui/core'
+import { Card, CardContent, Button, CardActions } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Tr } from 'client/components/HOC'

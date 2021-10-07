@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { InfoEmpty } from 'iconoir-react'
-import { Box, LinearProgress } from '@material-ui/core'
+import { Box, LinearProgress } from '@mui/material'
 import {
   useGlobalFilter,
   useFilters,

@@ -22,7 +22,7 @@ import {
   Folder as DatastoreIcon,
   NetworkAlt as NetworkIcon
 } from 'iconoir-react'
-import { makeStyles } from '@material-ui/core'
+import { Skeleton, Grid } from '@mui/material'
 
 import { useProvision } from 'client/features/One'
 import NumberEasing from 'client/components/NumberEasing'
@@ -30,16 +30,10 @@ import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(({ breakpoints }) => ({
-  root: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gridGap: '2em'
-  }
-}))
+const TOTAL_WIDGETS = 4
+const breakpoints = { xs: 12, sm: 6, md: 3 }
 
-const TotalProvisionInfrastructures = () => {
-  const classes = useStyles()
+const TotalProvisionInfrastructures = ({ isLoading }) => {
   const provisions = useProvision()
 
   const provisionsByProvider = useMemo(() =>
@@ -63,36 +57,55 @@ const TotalProvisionInfrastructures = () => {
   , [provisionsByProvider])
 
   return useMemo(() => (
-    <div
+    <Grid
       data-cy='dashboard-widget-total-infrastructures'
-      className={classes.root}
+      container
+      spacing={3}
     >
-      <WavesCard
-        text={T.Clusters}
-        value={<NumberEasing value={`${totals.clusters}`} />}
-        bgColor='#fa7892'
-        icon={ClusterIcon}
-      />
-      <WavesCard
-        text={T.Hosts}
-        value={<NumberEasing value={`${totals.hosts}`} />}
-        bgColor='#b25aff'
-        icon={HostIcon}
-      />
-      <WavesCard
-        text={T.Datastores}
-        value={<NumberEasing value={`${totals.datastores}`} />}
-        bgColor='#1fbbc6'
-        icon={DatastoreIcon}
-      />
-      <WavesCard
-        text={T.Networks}
-        value={<NumberEasing value={`${totals.networks}`} />}
-        bgColor='#f09d42'
-        icon={NetworkIcon}
-      />
-    </div>
-  ), [totals])
+      {!totals?.clusters?.length && isLoading ? (
+        Array.from(Array(TOTAL_WIDGETS)).map((_, index) => (
+          <Grid item {...breakpoints} key={index}>
+            <Skeleton variant='rectangular' height={120} />
+          </Grid>
+        ))
+      ) : (
+        <>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Clusters}
+              value={<NumberEasing value={`${totals.clusters}`} />}
+              bgColor='#fa7892'
+              icon={ClusterIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Hosts}
+              value={<NumberEasing value={`${totals.hosts}`} />}
+              bgColor='#b25aff'
+              icon={HostIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Datastores}
+              value={<NumberEasing value={`${totals.datastores}`} />}
+              bgColor='#1fbbc6'
+              icon={DatastoreIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Networks}
+              value={<NumberEasing value={`${totals.networks}`} />}
+              bgColor='#f09d42'
+              icon={NetworkIcon}
+            />
+          </Grid>
+        </>
+      )}
+    </Grid>
+  ), [totals?.clusters, isLoading])
 }
 
 TotalProvisionInfrastructures.displayName = 'TotalProvisionInfrastructures'

@@ -19,15 +19,14 @@ import PropTypes from 'prop-types'
 
 import { Trash } from 'iconoir-react'
 import {
-  withStyles,
-  makeStyles,
   Typography,
   Accordion,
   AccordionSummary as MAccordionSummary,
   AccordionDetails,
   useMediaQuery,
   Paper
-} from '@material-ui/core'
+} from '@mui/material'
+import { withStyles, makeStyles } from '@mui/styles'
 
 import { useVmApi } from 'client/features/One'
 import { useDialog } from 'client/hooks'
@@ -89,7 +88,7 @@ const useStyles = makeStyles(({
 
 const NetworkItem = ({ nic = {}, actions }) => {
   const classes = useStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
 
   const { display, show, hide, values } = useDialog()
   const { detachNic } = useVmApi()
@@ -103,9 +102,9 @@ const NetworkItem = ({ nic = {}, actions }) => {
   )
 
   const handleDetach = async () => {
-    const response = values?.id !== undefined && await detachNic(vm.ID, values.id)
+    const response = values?.id !== undefined && (await detachNic(vm.ID, values.id))
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
     hide()
   }
 
@@ -113,7 +112,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
     actions?.includes?.(VM_ACTIONS.DETACH_NIC) && (
       <Action
         cy={`${VM_ACTIONS.DETACH_NIC}-${id}`}
-        icon={<Trash size={18} />}
+        icon={<Trash />}
         stopPropagation
         handleClick={() => show({ id, isAlias })}
       />

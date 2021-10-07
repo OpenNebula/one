@@ -18,7 +18,8 @@ import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, Backdrop, CircularProgress } from '@material-ui/core'
+import { Backdrop, CircularProgress } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetch } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
@@ -47,7 +48,7 @@ const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
   if (!data || loading) {
     return (
       <Backdrop open className={classes.backdrop}>
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

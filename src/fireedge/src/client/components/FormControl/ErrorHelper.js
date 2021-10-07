@@ -16,8 +16,10 @@
 import { memo } from 'react'
 import { string } from 'prop-types'
 
-import { Box, makeStyles, Typography } from '@material-ui/core'
+import { Box, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
+
 import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
@@ -38,7 +40,7 @@ const ErrorHelper = memo(({ label, ...rest }) => {
 
   return (
     <Box component='span' className={classes.root} {...rest}>
-      <WarningIcon size={18} />
+      <WarningIcon />
       <Typography className={classes.text} component='span' data-cy='error-text'>
         {Tr(label)}
       </Typography>

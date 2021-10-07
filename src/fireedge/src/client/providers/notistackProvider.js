@@ -17,12 +17,15 @@
 import PropTypes from 'prop-types'
 
 import { SnackbarProvider } from 'notistack'
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles(({ palette }) => ({
   containerRoot: {
     marginLeft: 20,
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
+    '& *[role=button], & *[role=button]:hover': {
+      color: 'inherit'
+    }
   },
   variantSuccess: {
     backgroundColor: palette.success.main,

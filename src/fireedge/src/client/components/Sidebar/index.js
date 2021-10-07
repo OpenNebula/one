@@ -24,15 +24,24 @@ import {
   Divider,
   Box,
   IconButton,
-  useMediaQuery
-} from '@material-ui/core'
-import { Menu as MenuIcon, Cancel as CloseIcon } from 'iconoir-react'
+  useMediaQuery,
+  Tooltip
+} from '@mui/material'
+
+import {
+  Menu as MenuIcon,
+  NavArrowLeft as ArrowLeftIcon,
+  Cancel as CloseIcon
+} from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
+import { OpenNebulaLogo } from 'client/components/Icons'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
-import { OpenNebulaLogo } from 'client/components/Icons'
 
 const Sidebar = ({ endpoints }) => {
   const classes = sidebarStyles()
@@ -59,7 +68,7 @@ const Sidebar = ({ endpoints }) => {
 
   return (
     <Drawer
-      variant={'permanent'}
+      variant='permanent'
       className={clsx({ [classes.drawerFixed]: isFixMenu })}
       classes={{
         paper: clsx(classes.drawerPaper, {
@@ -78,9 +87,19 @@ const Sidebar = ({ endpoints }) => {
           className={classes.svg}
           disabledBetaText
         />
-        <IconButton onClick={handleSwapMenu}>
-          {isUpLg ? <MenuIcon /> : <CloseIcon />}
-        </IconButton>
+        {!isUpLg || isFixMenu ? (
+          <Tooltip title={<Translate word={T.Close} />}>
+            <IconButton onClick={handleSwapMenu} variant='outlined' size='small'>
+              {!isUpLg ? <CloseIcon/> : <ArrowLeftIcon />}
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title={<Translate word={T.Pin} />}>
+            <IconButton onClick={handleSwapMenu} variant='outlined' size='small'>
+              <MenuIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
       <Divider />
       <Box className={classes.menu}>

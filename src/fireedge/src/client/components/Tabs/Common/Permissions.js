@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, List, ListItem, Typography, Paper } from '@material-ui/core'
+import { List, ListItem, Typography, Paper } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
 import { Action } from 'client/components/Cards/SelectCard'
@@ -54,7 +55,7 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
     await handleEdit?.(newPermission)
   }
 
-  const getIcon = checked => +checked ? <CheckIcon size={18} /> : <BlankSquareIcon size={18} />
+  const getIcon = checked => +checked ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Paper variant='outlined'>

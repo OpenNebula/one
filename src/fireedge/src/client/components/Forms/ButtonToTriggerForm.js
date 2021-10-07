@@ -17,15 +17,7 @@
 import { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  ClickAwayListener,
-  Grow,
-  Paper,
-  Popper,
-  MenuItem,
-  MenuList,
-  ListItemIcon
-} from '@material-ui/core'
+import { Grow, Menu, MenuItem, Typography, ListItemIcon } from '@mui/material'
 import { NavArrowDown } from 'iconoir-react'
 
 import { useDialog } from 'client/hooks'
@@ -39,10 +31,10 @@ const ButtonToTriggerForm = ({
   buttonProps = {},
   options = []
 }) => {
-  const buttonId = buttonProps['data-cy'] ?? 'main-button-form'
+  const buttonId = buttonProps['data-cy'] ?? 'main-button'
   const isGroupButton = options.length > 1
 
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState(() => null)
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
@@ -65,14 +57,19 @@ const ButtonToTriggerForm = ({
     handleClose()
   }
 
-  const handleToggle = evt => setAnchorEl(prev => prev ? null : evt.currentTarget)
+  const handleToggle = evt => setAnchorEl(evt.currentTarget)
   const handleClose = () => setAnchorEl(null)
 
   return (
     <>
       <SubmitButton
+        id={buttonId}
         aria-describedby={buttonId}
+        aria-controls={open ? `${buttonId}-button` : undefined}
+        aria-expanded={open ? 'true' : undefined}
+        aria-haspopup={isGroupButton ? 'true' : false}
         disabled={!options.length}
+        disableElevation
         endicon={isGroupButton ? <NavArrowDown /> : undefined}
         onClick={evt => !isGroupButton
           ? openDialogForm(options[0])
@@ -82,40 +79,37 @@ const ButtonToTriggerForm = ({
       />
 
       {isGroupButton && (
-        <Popper
+        <Menu
+          id={`${buttonId}-menu`}
           anchorEl={anchorEl}
-          disablePortal
-          id={buttonId}
           open={open}
-          transition
-          style={{ zIndex: 2 }}
+          onClose={handleClose}
+          TransitionComponent={Grow}
+          sx={{ zIndex: 2 }}
+          MenuListProps={{
+            dense: true,
+            disablePadding: true
+          }}
         >
-          {({ TransitionProps }) => (
-            <Grow {...TransitionProps} >
-              <Paper variant='outlined'>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList variant='menu' disablePadding dense>
-                    {options.map(({ cy, disabled, icon: Icon, name, ...option }) => (
-                      <MenuItem
-                        key={name}
-                        disabled={disabled}
-                        data-cy={cy}
-                        onClick={() => openDialogForm(option)}
-                      >
-                        {Icon && (
-                          <ListItemIcon>
-                            <Icon size={18} />
-                          </ListItemIcon>
-                        )}
-                        <Translate word={name} />
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
+          {options.map(({ cy, disabled, icon: Icon, name, ...option }) => (
+            <MenuItem
+              key={name}
+              disableRipple
+              disabled={disabled}
+              data-cy={cy}
+              onClick={() => openDialogForm(option)}
+            >
+              {Icon && (
+                <ListItemIcon>
+                  <Icon />
+                </ListItemIcon>
+              )}
+              <Typography variant='inherit' noWrap>
+                <Translate word={name} />
+              </Typography>
+            </MenuItem>
+          ))}
+        </Menu>
       )}
 
       {display && (

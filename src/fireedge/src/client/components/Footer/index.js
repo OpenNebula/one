@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 
-import { Box, Link, Typography } from '@material-ui/core'
+import { Box, Link, Typography } from '@mui/material'
 
 import footerStyles from 'client/components/Footer/styles'
 import { BY } from 'client/constants'

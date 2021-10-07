@@ -18,9 +18,13 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import {
-  Card, CardActionArea, CardHeader, CardActions, CardMedia
-} from '@material-ui/core'
-import { Skeleton } from '@material-ui/lab'
+  Card,
+  CardActionArea,
+  CardHeader,
+  CardActions,
+  CardMedia,
+  Skeleton
+} from '@mui/material'
 
 import useNearScreen from 'client/hooks/useNearScreen'
 import { ConditionalWrap } from 'client/components/HOC'
@@ -97,7 +101,7 @@ const SelectCard = memo(({
                   noWrap: true,
                   className: classes.header,
                   title: typeof title === 'string' ? title : undefined,
-                  ...(dataCy) && { 'data-cy': `${dataCy}-card-title` }
+                  ...(dataCy && { 'data-cy': `${dataCy}-card-title` })
                 }}
                 subheader={subheader}
                 subheaderTypographyProps={{
@@ -105,7 +109,7 @@ const SelectCard = memo(({
                   noWrap: true,
                   className: classes.subheader,
                   title: typeof subheader === 'string' ? subheader : undefined,
-                  ...(dataCy) && { 'data-cy': `${dataCy}-card-subheader` }
+                  ...(dataCy && { 'data-cy': `${dataCy}-card-subheader` })
                 }}
                 {...cardHeaderProps}
               />
@@ -143,7 +147,7 @@ const SelectCard = memo(({
         </Card>
       ) : (
         <Skeleton
-          variant="rect"
+          variant="rectangular"
           width="100%"
           height={skeletonHeight}
         />

@@ -15,16 +15,17 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 
-import { MenuItem, MenuList } from '@material-ui/core'
+import { MenuItem, MenuList } from '@mui/material'
 import { Language as ZoneIcon } from 'iconoir-react'
 
 import HeaderPopover from 'client/components/Header/Popover'
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const Zone = memo(() => (
   <HeaderPopover
     id='zone-menu'
+    tooltip={T.Zone}
     icon={<ZoneIcon />}
     buttonProps={{
       'data-cy': 'header-zone-button'
@@ -32,9 +33,9 @@ const Zone = memo(() => (
     disablePadding
   >
     {({ handleClose }) => (
-      <MenuList>
+      <MenuList disablePadding>
         <MenuItem onClick={handleClose}>
-          {Tr(T.Zone)}
+          <Translate word={T.Zone} />
         </MenuItem>
       </MenuList>
     )}

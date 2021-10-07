@@ -16,14 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  makeStyles,
-  Box,
-  Button,
-  CardContent,
-  CardActions,
-  Chip
-} from '@material-ui/core'
+import { Box, Button, CardContent, CardActions, Chip } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Page as FileIcon } from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'

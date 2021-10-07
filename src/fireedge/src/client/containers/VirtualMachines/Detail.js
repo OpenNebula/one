@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useParams, Redirect } from 'react-router-dom'
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import VmTabs from 'client/components/Tabs/Vm'
 

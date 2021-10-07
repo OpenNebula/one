@@ -17,7 +17,8 @@ import { memo, useState, useRef, useEffect, ChangeEvent } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-import { makeStyles, FormControl, FormHelperText } from '@material-ui/core'
+import { FormControl, FormHelperText } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Check as CheckIcon, Page as FileIcon } from 'iconoir-react'
 import { Controller } from 'react-hook-form'
 
@@ -110,7 +111,6 @@ const FileController = memo(
         <Controller
           render={() => (
             <input
-              // {...register(name)}
               className={classes.hide}
               id={cy}
               type='file'

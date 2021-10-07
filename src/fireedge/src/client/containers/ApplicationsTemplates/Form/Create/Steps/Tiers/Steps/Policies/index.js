@@ -17,7 +17,7 @@
 import { useCallback, useState, useMemo } from 'react'
 
 import { useFormContext } from 'react-hook-form'
-import { useTheme, Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'
+import { useTheme, Box, Tab, Tabs, Fab, AppBar } from '@mui/material'
 import {
   Plus as PlusIcon,
   WarningCircledOutline as WarningIcon
@@ -88,7 +88,7 @@ const Policies = () => ({
         const policies = watch(STEP_ID)
 
         const defaultValues = TABS[tabSelected]?.schema.default()
-        const newDataTab = [...policies?.[tabSelected] ?? []].concat(defaultValues)
+        const newDataTab = [...(policies?.[tabSelected] ?? [])].concat(defaultValues)
         const newPolicies = set(policies, tabSelected, newDataTab)
 
         handleSetList(newPolicies)

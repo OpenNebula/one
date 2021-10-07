@@ -17,19 +17,22 @@
 import { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Tabs as MTabs, Tab as MTab } from '@material-ui/core'
+import { Tabs as MTabs, Tab as MTab, Fade } from '@mui/material'
+import { Box } from '@mui/system'
 
 const Content = ({ name, renderContent: Content, hidden }) => (
-  <div key={`tab-${name}`}
-    style={{
-      padding: '1em 0.5em',
-      height: '100%',
-      overflow: 'auto',
-      display: hidden ? 'none' : 'block'
-    }}
-  >
-    {typeof Content === 'function' ? <Content /> : Content}
-  </div>
+  <Fade in timeout={400} key={`tab-${name}`}>
+    <Box
+      sx={{
+        p: theme => theme.spacing(2, 1),
+        height: '100%',
+        overflow: 'auto',
+        display: hidden ? 'none' : 'block'
+      }}
+    >
+      {typeof Content === 'function' ? <Content /> : Content}
+    </Box>
+  </Fade>
 )
 
 const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
@@ -48,7 +51,7 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
           id={`tab-${name}`}
           icon={Icon && <Icon />}
           value={value ?? idx}
-          label={String(name).toUpperCase()}
+          label={name}
         />
       )}
     </MTabs>
@@ -64,7 +67,9 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
 
   return (
     <>
-      {renderTabs}
+      <Fade in timeout={300}>
+        {renderTabs}
+      </Fade>
       {renderHiddenTabs ? (
         renderAllHiddenTabContents
       ) : (

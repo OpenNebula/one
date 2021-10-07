@@ -16,8 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Paper, Divider } from '@material-ui/core'
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
+import { Paper, Divider, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { DEBUG_LEVEL } from 'client/constants'
 

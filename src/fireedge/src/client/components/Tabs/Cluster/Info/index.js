@@ -41,7 +41,7 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
 
   const handleRename = async newName => {
     const response = await rename(ID, newName)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -54,7 +54,7 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
     // 0: Replace the whole template
     const response = await update(ID, xml, 0)
 
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const getActions = actions => Helper.getActionsAvailable(actions)

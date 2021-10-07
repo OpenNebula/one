@@ -18,7 +18,7 @@ import { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
 import clsx from 'clsx'
-import { Box, Container } from '@material-ui/core'
+import { Box, Container } from '@mui/material'
 import { CSSTransition } from 'react-transition-group'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'

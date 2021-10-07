@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { User, Group, Lock } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -60,7 +60,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {LOCK && <Lock size={20} />}
+            {LOCK && <Lock />}
             {VROUTER && <StatusChip text={VROUTER} />}
           </span>
         </div>
@@ -69,11 +69,11 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
         </div>

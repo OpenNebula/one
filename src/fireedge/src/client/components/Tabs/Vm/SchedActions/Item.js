@@ -17,7 +17,7 @@
 import { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { WarningTriangleOutline as WarningIcon } from 'iconoir-react'
-import { useTheme, Typography, Paper } from '@material-ui/core'
+import { useTheme, Typography, Paper } from '@mui/material'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import * as Actions from 'client/components/Tabs/Vm/SchedActions/Actions'
@@ -81,7 +81,7 @@ const SchedulingItem = ({ schedule, actions = [] }) => {
             <span title={time.toFormat('ff')}>
               {`${time.toRelative()}`}
             </span>
-            {isWarning && <WarningIcon size={18} color={palette.warning.main} />}
+            {isWarning && <WarningIcon color={palette.warning.main} />}
           </span>
         </div>
       </div>

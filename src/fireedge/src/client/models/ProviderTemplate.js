@@ -87,7 +87,7 @@ export const getConnectionFixed = (template = {}, providerConfig) => {
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,
-    ...keys?.includes(name) && { [name]: value }
+    ...(keys?.includes(name) && { [name]: value })
   }), {})
 }
 
@@ -104,7 +104,7 @@ export const getConnectionEditable = (template = {}, providerConfig) => {
 
   return Object.entries(connection).reduce((res, [name, value]) => ({
     ...res,
-    ...!keys?.includes(name) && { [name]: value }
+    ...(!keys?.includes(name) && { [name]: value })
   }), {})
 }
 

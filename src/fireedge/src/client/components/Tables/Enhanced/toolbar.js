@@ -15,7 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, useMediaQuery } from '@material-ui/core'
+
+import { useMediaQuery } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { UseTableInstanceProps, UseRowSelectState, UseFiltersInstanceProps } from 'react-table'
 
 import { GlobalActions, GlobalSelectedRows, GlobalSort } from 'client/components/Tables/Enhanced/Utils'
@@ -38,8 +40,8 @@ const useToolbarStyles = makeStyles({
  */
 const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
   const classes = useToolbarStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('xs'))
-  const isSmallDevice = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isSmallDevice = useMediaQuery(theme => theme.breakpoints.down('md'))
 
   /** @type {UseRowSelectState} */
   const { selectedRowIds } = useTableProps?.state ?? {}

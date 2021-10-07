@@ -17,7 +17,7 @@ import { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 import { NavArrowRight as CollapseIcon, NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { DEBUG_LEVEL } from 'client/constants'
@@ -71,9 +71,9 @@ const Message = memo(({ timestamp, severity, message }) => {
     >
       <span>
         {isMoreThanMaxChars && (isCollapsed ? (
-          <CollapseIcon size={18} />
+          <CollapseIcon />
         ) : (
-          <ExpandMoreIcon size={18} />
+          <ExpandMoreIcon />
         ))}
       </span>
       <div>{timestamp}</div>

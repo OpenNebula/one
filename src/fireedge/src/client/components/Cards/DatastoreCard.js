@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Folder as DatastoreIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'

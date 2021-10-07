@@ -16,14 +16,14 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import { useFetch, useSocket } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
 
 import Tabs from 'client/components/Tabs'
-import { sentenceCase, camelCase } from 'client/utils'
+import { camelCase } from 'client/utils'
 
 import TabProvider from 'client/components/Tabs/TabProvider'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
@@ -78,7 +78,7 @@ const VmTabs = memo(({ id }) => {
         const TabContent = getTabComponent(camelName)
 
         return TabContent && {
-          name: sentenceCase(camelName),
+          name: camelName,
           renderContent: props => TabContent({ ...props, tabProps })
         }
       })

@@ -17,7 +17,7 @@ import { memo, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import Flatpickr from 'react-flatpickr'
-import { TextField } from '@material-ui/core'
+import { TextField } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { Tr } from 'client/components/HOC'
@@ -67,11 +67,8 @@ const TimeController = memo(
                 <TextField
                   {...props}
                   fullWidth
-                  color='secondary'
                   defaultValue={defaultValue}
                   value={value}
-                  variant='outlined'
-                  margin='dense'
                   label={translated}
                   inputProps={{ 'data-cy': cy }}
                   inputRef={ref}

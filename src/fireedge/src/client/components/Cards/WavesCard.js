@@ -17,14 +17,15 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { Paper, Typography, makeStyles, lighten, darken } from '@material-ui/core'
+import { Paper, Typography, lighten, darken } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { addOpacityToColor } from 'client/utils'
 import { SCHEMES } from 'client/constants'
 
 const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.type === SCHEMES.DARK ? darken : lighten
-  const getContrastBackgroundColor = theme.palette.type === SCHEMES.LIGHT ? darken : lighten
+  const getBackgroundColor = theme.palette.mode === SCHEMES.DARK ? darken : lighten
+  const getContrastBackgroundColor = theme.palette.mode === SCHEMES.LIGHT ? darken : lighten
 
   return {
     root: {
@@ -33,8 +34,8 @@ const useStyles = makeStyles(theme => {
       overflow: 'hidden',
       backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3),
       [theme.breakpoints.only('xs')]: {
-        display: 'inline-flex',
-        alignItem: 'baseline',
+        display: 'flex',
+        alignItems: 'baseline',
         gap: '1em'
       }
     },
@@ -81,8 +82,8 @@ const WavesCard = memo(({ text, value, bgColor, icon: Icon }) => {
 
   return (
     <Paper className={classes.root}>
-      <Typography variant='h6'>{text}</Typography>
-      <Typography variant='h4'>{value}</Typography>
+      <Typography variant='h6' zIndex={2}>{text}</Typography>
+      <Typography variant='h4' zIndex={2}>{value}</Typography>
       <span className={clsx(classes.wave, classes.wave1)} />
       <span className={clsx(classes.wave, classes.wave2)} />
       {Icon && (

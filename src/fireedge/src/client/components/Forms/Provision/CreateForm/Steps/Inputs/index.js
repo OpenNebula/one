@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import { useFetch } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'

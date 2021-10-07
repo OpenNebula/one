@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
+import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@mui/material'
+import { } from '@mui/material/Link'
 import { NavArrowRight } from 'iconoir-react'
 import Marked from 'marked'
 
@@ -33,6 +34,15 @@ import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/St
 
 import { STEP_ID as CONFIGURATION_ID } from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration'
 import { STEP_ID as CONNECTION_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
+
+const renderer = new Marked.Renderer()
+
+renderer.link = (href, title, text) => `
+  <a class='description__link'
+    target='_blank' rel='nofollow' title='${title ?? ''}' href='${href}'>
+    ${text}
+  </a>
+`
 
 export const STEP_ID = 'template'
 
@@ -110,13 +120,6 @@ const Content = ({ data, setFormData }) => {
   }
 
   const RenderDescription = ({ description = '' }) => {
-    const renderer = new Marked.Renderer()
-
-    renderer.link = (href, title, text) => (
-        `<a class='MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary'
-          target='_blank' rel='nofollow' title='${title}' href='${href}'>${text}</a>`
-    )
-
     const html = Marked(sanitize`${description}`, { renderer })
     return <div dangerouslySetInnerHTML={{ __html: html }} />
   }

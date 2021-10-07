@@ -16,8 +16,8 @@
 import { useState, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { SpeedDial as MSpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab'
-import { makeStyles } from '@material-ui/core/styles'
+import { SpeedDial as MSpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles(theme => ({
   root: {

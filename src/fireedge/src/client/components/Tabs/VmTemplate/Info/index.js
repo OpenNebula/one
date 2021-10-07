@@ -36,17 +36,17 @@ const VmTemplateInfoTab = ({ tabProps = {} }) => {
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleChangePermission = async newPermission => {
     const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleRename = async (_, newName) => {
     const response = await rename(ID, newName)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const getActions = actions => Helper.getActionsAvailable(actions)

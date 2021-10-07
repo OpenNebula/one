@@ -24,7 +24,8 @@ import {
   Check as CheckIcon,
   Square as BlankSquareIcon
 } from 'iconoir-react'
-import { Divider, makeStyles } from '@material-ui/core'
+import { Divider } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 
 import { Translate } from 'client/components/HOC'
@@ -113,7 +114,7 @@ const Booting = ({ data, setFormData, control }) => {
         ID: `disk${idx}`,
         NAME: (
           <>
-            <ImageIcon size={16} />
+            <ImageIcon />
             {isVolatile
               ? <>{`${disk?.NAME}: `}<Translate word={T.VolatileDisk} /></>
               : [disk?.NAME, disk?.IMAGE].filter(Boolean).join(': ')}
@@ -127,7 +128,7 @@ const Booting = ({ data, setFormData, control }) => {
       ID: `nic${idx}`,
       NAME: (
         <>
-          <NetworkIcon size={16} />
+          <NetworkIcon />
           {[nic?.NAME, nic.NETWORK].filter(Boolean).join(': ')}
         </>
       )
@@ -189,7 +190,7 @@ const Booting = ({ data, setFormData, control }) => {
                     >
                       <Action
                         cy={ID}
-                        icon={<CheckIcon size={15} />}
+                        icon={<CheckIcon />}
                         handleClick={() => handleEnable(ID)}
                       />
                       {NAME}
@@ -206,7 +207,7 @@ const Booting = ({ data, setFormData, control }) => {
           <div key={ID} className={classes.item}>
             <Action
               cy={ID}
-              icon={<BlankSquareIcon size={15} />}
+              icon={<BlankSquareIcon />}
               handleClick={() => handleEnable(ID)}
             />
             {NAME}

@@ -17,7 +17,7 @@
 import { useState, useEffect, createElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { useTheme, Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import { PATH } from 'client/apps/provision/routes'
@@ -36,7 +36,6 @@ import DialogInfo from 'client/containers/Provisions/DialogInfo'
 import { T } from 'client/constants'
 
 function Provisions () {
-  const theme = useTheme()
   const history = useHistory()
   const [{ content, ...showDialog } = {}, setShowDialog] = useState()
   const handleCloseDialog = () => setShowDialog()
@@ -105,7 +104,8 @@ function Provisions () {
               deleteAction: {
                 buttonProps: {
                   'data-cy': 'provision-delete',
-                  icon: <DeleteIcon color={theme.palette.error.dark} />
+                  icon: <DeleteIcon />,
+                  color: 'error'
                 },
                 options: [{
                   dialogProps: {

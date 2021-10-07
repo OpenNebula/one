@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TextField } from '@material-ui/core'
+import { TextField } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
@@ -29,11 +29,8 @@ const TextController = memo(
         <TextField
           fullWidth
           multiline={multiline}
-          color='secondary'
           value={value ?? ''}
           type={type}
-          variant='outlined'
-          margin='dense'
           label={typeof label === 'string' ? Tr(label) : label}
           InputProps={{
             endAdornment: tooltip && <Tooltip title={tooltip} />

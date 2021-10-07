@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useCallback, useState, useEffect, useMemo } from 'react'
 
-import { makeStyles, IconButton, Button, Fade } from '@material-ui/core'
+import { IconButton, Button, Fade } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import {
   NavArrowLeft as BackIcon,
   SimpleCart as MarketplaceIcon,
@@ -95,7 +96,7 @@ const Template = () => ({
     return screen !== undefined ? (
       <Content
         backButton={
-          <IconButton onClick={handleBack}>
+          <IconButton onClick={handleBack} size="large">
             <BackIcon />
           </IconButton>
         }

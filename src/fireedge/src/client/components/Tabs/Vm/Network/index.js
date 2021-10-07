@@ -23,7 +23,6 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import NetworkList from 'client/components/Tabs/Vm/Network/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AttachNicForm } from 'client/components/Forms/Vm'
-import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
@@ -49,7 +48,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
     const template = Helper.jsonToXml(data)
     const response = await attachNic(vm.ID, template)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
@@ -59,7 +58,8 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
           buttonProps={{
             color: 'secondary',
             'data-cy': 'attach-nic',
-            label: Tr(T.AttachNic)
+            label: T.AttachNic,
+            variant: 'outlined'
           }}
           options={[{
             dialogProps: { title: T.AttachNic },

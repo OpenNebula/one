@@ -71,7 +71,7 @@ const Actions = () => {
     actions: [
       {
         accessor: VM_TEMPLATE_ACTIONS.REFRESH,
-        tooltip: Tr(T.Refresh),
+        tooltip: T.Refresh,
         icon: RefreshDouble,
         action: async () => {
           await getVmTemplates()
@@ -79,7 +79,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
-        tooltip: Tr(T.Create),
+        tooltip: T.Create,
         icon: AddSquare,
         disabled: true,
         action: rows => {
@@ -92,7 +92,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.IMPORT_DIALOG,
-        tooltip: Tr(T.Import),
+        tooltip: T.Import,
         icon: Import,
         selected: { max: 1 },
         disabled: true,
@@ -102,7 +102,7 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
-        tooltip: Tr(T.Instantiate),
+        tooltip: T.Instantiate,
         icon: PlayOutline,
         selected: { max: 1 },
         action: rows => {
@@ -114,22 +114,23 @@ const Actions = () => {
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.UPDATE_DIALOG,
-        label: Tr(T.Update),
-        tooltip: Tr(T.Update),
+        label: T.Update,
+        tooltip: T.Update,
         selected: { max: 1 },
         disabled: true,
         action: rows => {
-        // const { ID } = rows?.[0]?.original ?? {}
-        // const path = generatePath(PATH.TEMPLATE.VMS.CREATE, { id: ID })
+          // const { ID } = rows?.[0]?.original ?? {}
+          // const path = generatePath(PATH.TEMPLATE.VMS.CREATE, { id: ID })
 
-        // history.push(path)
+          // history.push(path)
         }
       },
       {
         accessor: VM_TEMPLATE_ACTIONS.CLONE,
-        label: Tr(T.Clone),
-        tooltip: Tr(T.Clone),
+        label: T.Clone,
+        tooltip: T.Clone,
         selected: true,
+        color: 'secondary',
         options: [{
           dialogProps: {
             title: rows => {
@@ -168,9 +169,10 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: Tr(T.Ownership),
+        tooltip: T.Ownership,
         icon: Group,
         selected: true,
+        color: 'secondary',
         options: [{
           cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_OWNER}`,
           name: T.ChangeOwner,
@@ -198,7 +200,7 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: `${Tr(T.Lock)}/${Tr(T.Unlock)}`,
+        tooltip: T.Lock,
         icon: Lock,
         selected: true,
         options: [{
@@ -234,6 +236,7 @@ const Actions = () => {
         tooltip: T.Delete,
         icon: Trash,
         selected: true,
+        color: 'error',
         options: [{
           isConfirmDialog: true,
           dialogProps: {

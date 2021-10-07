@@ -18,7 +18,8 @@ import { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, Box } from '@material-ui/core'
+import { Box } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { UseTableInstanceProps, UseTableRowProps } from 'react-table'
 import { VirtualItem } from 'react-virtual'
 

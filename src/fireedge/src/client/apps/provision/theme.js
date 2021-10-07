@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import Color from 'client/constants/color'
-import { SCHEMES } from 'client/constants'
+import { ThemeOptions } from '@mui/material'
 
-/**
- * @param {SCHEMES} scheme - Scheme type
- * @returns {object} Provision theme
- */
-const theme = (scheme = SCHEMES.DARK) => ({
+/** @type {ThemeOptions} Provision theme */
+export default {
   palette: {
-    type: scheme,
-    common: {
-      black: '#000000',
-      white: '#ffffff'
-    },
-    background: {
-      paper: scheme === SCHEMES.DARK ? '#2a2d3d' : '#ffffff',
-      default: scheme === SCHEMES.DARK ? '#222431' : '#f2f4f8'
-    },
     primary: {
       light: '#2a2d3d',
       main: '#222431',
@@ -38,13 +25,19 @@ const theme = (scheme = SCHEMES.DARK) => ({
       contrastText: '#ffffff'
     },
     secondary: {
-      light: '#fb8554',
-      main: '#fa6c43',
+      100: '#ffeae4',
+      200: '#ffd6c8',
+      300: '#ffc1ad',
+      400: '#ffac91',
+      500: '#fe9876',
+      600: '#fe835a',
+      700: '#fe6f3f',
+      800: '#fe5a23',
+      900: '#e74a15',
+      light: '#ffd6c8',
+      main: '#fe835a',
       dark: '#fe5a23',
       contrastText: '#ffffff'
-    },
-    ...Color
+    }
   }
-})
-
-export default theme
+}

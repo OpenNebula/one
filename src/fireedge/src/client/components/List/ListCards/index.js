@@ -17,9 +17,7 @@
 import PropTypes from 'prop-types'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
-import {
-  CardActionArea, Card, Grid, LinearProgress, useMediaQuery
-} from '@material-ui/core'
+import { CardActionArea, Card, Grid, LinearProgress, useMediaQuery } from '@mui/material'
 import { Plus as PlusIcon } from 'iconoir-react'
 
 import { EmptyCard } from 'client/components/Cards'
@@ -137,7 +135,7 @@ ListCards.propTypes = {
 ListCards.defaultProps = {
   list: [],
   keyProp: 'id',
-  breakpoints: { xs: 12, sm: 6, md: 4, lg: 2 },
+  breakpoints: { xs: 12, sm: 6, md: 4, xl: 3 },
   handleCreate: undefined,
   ButtonCreateComponent: undefined,
   CardComponent: null,

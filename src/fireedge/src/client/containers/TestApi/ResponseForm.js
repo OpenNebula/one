@@ -17,7 +17,7 @@ import { JSXElementConstructor } from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
-import { TextField, Grid, Typography, FormControlLabel, Checkbox } from '@material-ui/core'
+import { TextField, Grid, Typography, FormControlLabel, Checkbox } from '@mui/material'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { RestClient, requestConfig } from 'client/utils'
@@ -41,7 +41,7 @@ const ResponseForm = ({
     try {
       const config = requestConfig(dataForm, { name, httpMethod, params })
 
-      const { id, ...res } = await RestClient.request(config) ?? {}
+      const { id, ...res } = (await RestClient.request(config)) ?? {}
       handleChangeResponse(JSON.stringify(res, null, '\t'))
     } catch (err) {
       console.log('ERROR', err)
@@ -83,7 +83,6 @@ const ResponseForm = ({
                     fullWidth
                     label={nameCommand}
                     color='secondary'
-                    variant='outlined'
                   />
                 )
               }

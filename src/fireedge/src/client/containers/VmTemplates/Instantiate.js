@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useHistory, useLocation } from 'react-router'
-import { Container } from '@material-ui/core'
+import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import { useVmTemplateApi } from 'client/features/One'

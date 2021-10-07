@@ -50,17 +50,17 @@ const VmInfoTab = ({ tabProps = {} }) => {
 
   const handleChangeOwnership = async newOwnership => {
     const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleChangePermission = async newPermission => {
     const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleRename = async (_, newName) => {
     const response = await rename(ID, newName)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -73,7 +73,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
     // 0: Replace the whole user template
     const response = await updateUserTemplate(ID, xml, 0)
 
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const hypervisor = VirtualMachine.getHypervisor(vm)

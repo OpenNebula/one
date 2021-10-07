@@ -19,7 +19,7 @@ const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
-const { ServerStyleSheets } = require('@material-ui/core/styles')
+const { ServerStyleSheets } = require('@mui/styles')
 const rootReducer = require('client/store/reducers')
 const { getConfig } = require('server/utils/yml')
 const {

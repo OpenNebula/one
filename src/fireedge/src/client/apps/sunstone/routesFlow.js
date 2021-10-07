@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import {
   List as TemplatesIcons,
-  Cell4x4 as InstancesIcons
+  Cell4X4 as InstancesIcons
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'

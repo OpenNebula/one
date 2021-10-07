@@ -21,13 +21,12 @@ import clsx from 'clsx'
 
 import {
   List,
-  Icon as MIcon,
   Collapse,
   ListItem,
   ListItemText,
   ListItemIcon,
   useMediaQuery
-} from '@material-ui/core'
+} from '@mui/material'
 
 import {
   Minus as CollapseIcon,
@@ -69,9 +68,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
           data-cy={label}
           data-min-label={label.slice(0, 3)}
         />
-        <MIcon className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}>
-          {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
-        </MIcon>
+        {expanded ? <CollapseIcon/> : <ExpandMoreIcon />}
       </ListItem>
       {routes
         ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')

@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { ShieldCheck } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -46,7 +46,7 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID}`}
           </span>
           <span title={`Endpoint: ${ENDPOINT}`}>
-            <ShieldCheck size={16} />
+            <ShieldCheck />
             <span>{` ${ENDPOINT}`}</span>
           </span>
         </div>

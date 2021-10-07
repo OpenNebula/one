@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { Paper, Typography } from '@material-ui/core'
+import { Paper, Typography } from '@mui/material'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ResizeCapacityForm } from 'client/components/Forms/Vm'
@@ -72,7 +72,8 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
             buttonProps={{
               color: 'secondary',
               'data-cy': 'resize-capacity',
-              label: T.Resize
+              label: T.Resize,
+              variant: 'outlined'
             }}
             options={[{
               dialogProps: { title: T.ResizeCapacity },

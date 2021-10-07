@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { SCHEMES } from 'client/constants'
 
@@ -64,7 +64,7 @@ const styles = makeStyles(theme => ({
     filter: ({ isSelected, disableFilterImage }) =>
       disableFilterImage
         ? 'none'
-        : (theme.palette.type === SCHEMES.DARK || isSelected)
+        : (theme.palette.mode === SCHEMES.DARK || isSelected)
           ? 'contrast(0) brightness(2)'
           : 'contrast(0) brightness(0.8)'
   },

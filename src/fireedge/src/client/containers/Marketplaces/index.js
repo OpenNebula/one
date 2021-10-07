@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { MarketplacesTable } from 'client/components/Tables'
 

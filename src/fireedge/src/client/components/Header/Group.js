@@ -14,20 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import Search from 'client/components/Search'
-
-import { FILTER_POOL } from 'client/constants'
 import HeaderPopover from 'client/components/Header/Popover'
-import headerStyles from 'client/components/Header/styles'
+import { Translate } from 'client/components/HOC'
+import { T, FILTER_POOL } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
 const Group = () => {
-  const classes = headerStyles()
   const { user, groups, filterPool } = useAuth()
   const { changeGroup } = useAuthApi()
 
@@ -40,14 +38,19 @@ const Group = () => {
       <Button
         key={`switcher-group-${ID}`}
         fullWidth
-        className={classes.groupButton}
+        tooltip={<Translate Word={T.Group} />}
         onClick={() => {
           ID && changeGroup({ id: user.ID, group: ID })
           handleClose()
         }}
+        sx={{
+          color: theme => theme.palette.text.primary,
+          justifyContent: 'start',
+          '& svg:first-of-type': { my: 0, mx: 2 }
+        }}
       >
         {NAME}
-        {isSelected && <SelectIcon size='1em' />}
+        {isSelected && <SelectIcon />}
       </Button>
     )
   }
@@ -69,8 +72,9 @@ const Group = () => {
     <HeaderPopover
       id='group-list'
       icon={<GroupIcon />}
+      tooltip={<Translate word={T.SwitchGroup} />}
       buttonProps={{ 'data-cy': 'header-group-button' }}
-      headerTitle='Switch group'
+      headerTitle={<Translate word={T.SwitchGroup} />}
     >
       {({ handleClose }) => (
         <Search

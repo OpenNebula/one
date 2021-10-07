@@ -15,9 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect } from 'react'
-
-import clsx from 'clsx'
-import { Container, Box, Grid } from '@material-ui/core'
+import { Container, Box, Grid } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
@@ -50,7 +48,7 @@ function Dashboard () {
   return (
     <Container
       disableGutters
-      className={clsx({ [classes.withoutAnimations]: withoutAnimations })}
+      className={withoutAnimations && classes.withoutAnimations}
     >
       <Box py={3}>
         <Grid container spacing={3}>

@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect, useState } from 'react'
 
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { useFetch } from 'client/hooks'
 import { useApplication, useApplicationApi } from 'client/features/One'

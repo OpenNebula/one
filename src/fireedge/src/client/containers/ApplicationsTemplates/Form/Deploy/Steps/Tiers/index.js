@@ -17,7 +17,7 @@
 import { useMemo, useCallback, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
-import { useTheme, AppBar, Tabs, Tab } from '@material-ui/core'
+import { useTheme, AppBar, Tabs, Tab } from '@mui/material'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'

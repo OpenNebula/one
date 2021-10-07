@@ -23,7 +23,7 @@ import {
   DialogActions,
   Button,
   useMediaQuery
-} from '@material-ui/core'
+} from '@mui/material'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'

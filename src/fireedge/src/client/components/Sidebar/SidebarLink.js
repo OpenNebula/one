@@ -23,7 +23,7 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery
-} from '@material-ui/core'
+} from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'

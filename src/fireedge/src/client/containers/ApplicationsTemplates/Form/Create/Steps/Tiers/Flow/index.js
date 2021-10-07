@@ -16,7 +16,7 @@
 import { memo, useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 import { AddCircledOutline as AddIcon, Selection as SelectAllIcon } from 'iconoir-react'
 
 import ReactFlow, { Background } from 'react-flow-renderer'

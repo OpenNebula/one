@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles, alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles(theme => ({
   root: {
@@ -78,7 +79,7 @@ export default makeStyles(theme => ({
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     width: '100%'
   }
 }))

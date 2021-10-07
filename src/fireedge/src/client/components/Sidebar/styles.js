@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles, alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { sidebar, toolbar } from 'client/theme/defaults'
 
 export default makeStyles(theme => ({
@@ -52,7 +53,7 @@ export default makeStyles(theme => ({
         '& #logo__text': {
           visibility: 'hidden'
         },
-        '& $expandIcon, & $subItemWrapper': {
+        '& $subItemWrapper': {
           display: 'none'
         },
         '& $itemText::before': {
@@ -76,7 +77,7 @@ export default makeStyles(theme => ({
       '& #logo__text': {
         visibility: 'visible !important'
       },
-      '& $expandIcon, & $subItemWrapper': {
+      '& $subItemWrapper': {
         display: 'block !important'
       },
       '& $itemText::before': {
@@ -141,7 +142,6 @@ export default makeStyles(theme => ({
       content: 'attr(data-max-label)'
     }
   },
-  expandIcon: {},
   subItemWrapper: {},
   subItem: {
     paddingLeft: theme.spacing(4)

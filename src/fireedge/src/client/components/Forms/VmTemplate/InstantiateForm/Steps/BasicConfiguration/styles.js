@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles(theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '2em',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('lg')]: {
       gridTemplateColumns: '1fr'
     }
   },

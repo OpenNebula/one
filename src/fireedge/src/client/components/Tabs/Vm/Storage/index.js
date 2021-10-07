@@ -23,7 +23,6 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import StorageList from 'client/components/Tabs/Vm/Storage/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
-import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
@@ -51,7 +50,8 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
           buttonProps={{
             color: 'secondary',
             'data-cy': 'attach-disk',
-            label: Tr(T.AttachDisk)
+            label: T.AttachDisk,
+            variant: 'outlined'
           }}
           options={[
             {

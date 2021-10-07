@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { DatabaseSettings, Folder, ModernTv } from 'iconoir-react'
-import { Typography, Paper } from '@material-ui/core'
+import { Typography, Paper } from '@mui/material'
 
 import * as Actions from 'client/components/Tabs/Vm/Storage/Actions'
 import StorageSubItem from 'client/components/Tabs/Vm/Storage/SubItem'
@@ -87,18 +87,18 @@ const StorageItem = ({ disk, actions = [] }) => {
           </span>
           {TARGET && (
             <span title={`Target: ${TARGET}`}>
-              <DatabaseSettings size={16} />
+              <DatabaseSettings />
               <span>{` ${TARGET}`}</span>
             </span>
           )}
           {DATASTORE && (
             <span title={`Datastore Name: ${DATASTORE}`}>
-              <Folder size={16} />
+              <Folder />
               <span>{` ${DATASTORE}`}</span>
             </span>
           )}
           <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
-            <ModernTv size={16} />
+            <ModernTv />
             <span>{` ${monitorSize}/${size}`}</span>
           </span>
         </div>

@@ -17,7 +17,7 @@
 import { useRef, useEffect, useCallback, createRef } from 'react'
 import PropTypes from 'prop-types'
 
-import { debounce, LinearProgress } from '@material-ui/core'
+import { debounce, LinearProgress } from '@mui/material'
 import { useList, useNearScreen } from 'client/hooks'
 
 const ListInfiniteScroll = ({ list, renderResult }) => {
@@ -55,7 +55,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gridGap: 10
+          gridGap: 4
         }}
       >
         {shortList?.map(renderResult)}

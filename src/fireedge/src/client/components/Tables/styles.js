@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const rowStyles = makeStyles(
   ({ palette, typography, breakpoints, shadows }) => ({
@@ -21,7 +21,7 @@ export const rowStyles = makeStyles(
       padding: '0.8em',
       color: palette.text.primary,
       backgroundColor: palette.background.paper,
-      fontWeight: typography.fontWeightMedium,
+      fontWeight: typography.fontWeightRegular,
       fontSize: '1em',
       borderRadius: 6,
       display: 'flex',

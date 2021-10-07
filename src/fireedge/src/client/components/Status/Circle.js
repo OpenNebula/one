@@ -16,7 +16,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, Tooltip, Typography } from '@material-ui/core'
+
+import { Tooltip, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles({
   circle: ({ color }) => ({

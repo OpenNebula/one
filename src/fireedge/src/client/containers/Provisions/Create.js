@@ -18,7 +18,8 @@ import { useEffect, useState, memo } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
-import { makeStyles, Container, LinearProgress, IconButton, Typography } from '@material-ui/core'
+import { Container, LinearProgress, IconButton, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetch, useSocket } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'

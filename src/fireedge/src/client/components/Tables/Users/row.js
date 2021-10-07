@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { Group, Lock, LockKey } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -33,7 +33,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {!+ENABLED && <Lock size={20} />}
+            {!+ENABLED && <Lock />}
           </span>
         </div>
         <div className={classes.caption}>
@@ -41,11 +41,11 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID}`}
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Auth Driver: ${AUTH_DRIVER}`}>
-            <LockKey size={16} />
+            <LockKey />
             <span>{` ${AUTH_DRIVER}`}</span>
           </span>
         </div>

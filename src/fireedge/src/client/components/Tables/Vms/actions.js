@@ -31,7 +31,7 @@ import {
 
 import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import { RecoverForm } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
@@ -95,7 +95,7 @@ const Actions = () => {
     actions: [
       {
         accessor: VM_ACTIONS.REFRESH,
-        tooltip: Tr(T.Refresh),
+        tooltip: T.Refresh,
         icon: RefreshDouble,
         action: async () => {
           await getVms({ state: -1 })
@@ -103,7 +103,7 @@ const Actions = () => {
       },
       {
         accessor: VM_ACTIONS.CREATE_DIALOG,
-        tooltip: Tr(T.Create),
+        tooltip: T.Create,
         icon: AddSquare,
         action: () => {
           const path = PATH.TEMPLATE.VMS.INSTANTIATE
@@ -113,32 +113,33 @@ const Actions = () => {
       },
       {
         accessor: VM_ACTIONS.RESUME,
-        tooltip: Tr(T.Resume),
-        selected: true,
         disabled: isDisabled(VM_ACTIONS.RESUME),
+        tooltip: T.Resume,
+        selected: true,
         icon: PlayOutline,
         action: async rows => {
           const ids = rows?.map?.(({ original }) => original?.ID)
           await Promise.all(ids.map(id => resume(id)))
-          ids?.length > 1 && await Promise.all(ids.map(id => getVm(id)))
+          ids?.length > 1 && (await Promise.all(ids.map(id => getVm(id))))
         }
       },
       {
         accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
-        tooltip: Tr(T.SaveAsTemplate),
-        selected: { max: 1 },
         disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
+        tooltip: T.SaveAsTemplate,
+        selected: { max: 1 },
         icon: SaveFloppyDisk,
         action: () => {}
       },
       {
-        tooltip: Tr(T.Manage),
+        tooltip: T.Manage,
         icon: SystemShut,
         selected: true,
+        color: 'secondary',
         options: [{
           accessor: VM_ACTIONS.SUSPEND,
-          name: T.Suspend,
           disabled: isDisabled(VM_ACTIONS.SUSPEND),
+          name: T.Suspend,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Suspend,
@@ -151,8 +152,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.STOP,
-          name: T.Stop,
           disabled: isDisabled(VM_ACTIONS.STOP),
+          name: T.Stop,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Stop,
@@ -165,8 +166,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.POWEROFF,
-          name: T.Poweroff,
           disabled: isDisabled(VM_ACTIONS.POWEROFF),
+          name: T.Poweroff,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Poweroff,
@@ -179,8 +180,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.POWEROFF_HARD,
-          name: T.PoweroffHard,
           disabled: isDisabled(VM_ACTIONS.POWEROFF_HARD),
+          name: T.PoweroffHard,
           isConfirmDialog: true,
           dialogProps: {
             title: T.PoweroffHard,
@@ -193,8 +194,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.REBOOT,
-          name: T.Reboot,
           disabled: isDisabled(VM_ACTIONS.REBOOT),
+          name: T.Reboot,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Reboot,
@@ -207,8 +208,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.REBOOT_HARD,
-          name: T.RebootHard,
           disabled: isDisabled(VM_ACTIONS.REBOOT_HARD),
+          name: T.RebootHard,
           isConfirmDialog: true,
           dialogProps: {
             title: T.RebootHard,
@@ -221,8 +222,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.UNDEPLOY,
-          name: T.Undeploy,
           disabled: isDisabled(VM_ACTIONS.UNDEPLOY),
+          name: T.Undeploy,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Undeploy,
@@ -235,8 +236,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.UNDEPLOY_HARD,
-          name: T.UndeployHard,
           disabled: isDisabled(VM_ACTIONS.UNDEPLOY_HARD),
+          name: T.UndeployHard,
           isConfirmDialog: true,
           dialogProps: {
             title: T.UndeployHard,
@@ -250,32 +251,33 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: Tr(T.Host),
+        tooltip: T.Host,
         icon: TransitionRight,
         selected: true,
+        color: 'secondary',
         options: [{
           accessor: VM_ACTIONS.DEPLOY,
-          name: T.Deploy,
           disabled: isDisabled(VM_ACTIONS.DEPLOY),
-          isConfirmDialog: true,
+          name: T.Deploy,
+          form: () => undefined,
           onSubmit: () => undefined
         }, {
           accessor: VM_ACTIONS.MIGRATE,
-          name: T.Migrate,
           disabled: isDisabled(VM_ACTIONS.MIGRATE),
-          isConfirmDialog: true,
+          name: T.Migrate,
+          form: () => undefined,
           onSubmit: () => undefined
         }, {
           accessor: VM_ACTIONS.MIGRATE_LIVE,
-          name: T.MigrateLive,
           disabled: isDisabled(VM_ACTIONS.MIGRATE_LIVE),
-          isConfirmDialog: true,
+          name: T.MigrateLive,
+          form: () => undefined,
           onSubmit: () => undefined
         }, {
           accessor: VM_ACTIONS.HOLD,
-          name: T.Hold,
           disabled: isDisabled(VM_ACTIONS.HOLD),
-          isConfirmDialog: true,
+          name: T.Hold,
+          form: () => undefined,
           dialogProps: {
             title: T.Hold,
             children: MessageToConfirmAction
@@ -287,9 +289,9 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.RELEASE,
-          name: T.Release,
           disabled: isDisabled(VM_ACTIONS.RELEASE),
-          isConfirmDialog: true,
+          name: T.Release,
+          form: () => undefined,
           dialogProps: {
             title: T.Release,
             children: MessageToConfirmAction
@@ -301,9 +303,9 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.RESCHED,
-          name: T.Reschedule,
           disabled: isDisabled(VM_ACTIONS.RESCHED),
-          isConfirmDialog: true,
+          name: T.Reschedule,
+          form: () => undefined,
           dialogProps: {
             title: T.Reschedule,
             children: MessageToConfirmAction
@@ -315,9 +317,9 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.UNRESCHED,
-          name: T.UnReschedule,
           disabled: isDisabled(VM_ACTIONS.UNRESCHED),
-          isConfirmDialog: true,
+          name: T.UnReschedule,
+          form: () => undefined,
           dialogProps: {
             title: T.UnReschedule,
             children: MessageToConfirmAction
@@ -329,17 +331,17 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.RECOVER,
-          name: T.Recover,
           disabled: isDisabled(VM_ACTIONS.RECOVER),
+          name: T.Recover,
           dialogProps: {
+            // eslint-disable-next-line react/display-name
             title: rows => {
               const isMultiple = rows?.length > 1
               const { ID, NAME } = rows?.[0]?.original
 
-              return [
-                Tr(isMultiple ? T.RecoverSeveralVMs : T.Recover),
-                !isMultiple && `#${ID} ${NAME}`
-              ].filter(Boolean).join(' - ')
+              return isMultiple
+                ? <Translate word={T.RecoverSeveralVMs} />
+                : <Translate word={T.RecoverSomething} values={`#${ID} ${NAME}`} />
             }
           },
           form: RecoverForm,
@@ -351,31 +353,33 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: Tr(T.Ownership),
+        tooltip: T.Ownership,
         icon: Group,
         selected: true,
+        color: 'secondary',
         options: [{
           accessor: VM_ACTIONS.CHANGE_OWNER,
-          name: T.ChangeOwner,
           disabled: isDisabled(VM_ACTIONS.CHANGE_OWNER),
-          isConfirmDialog: true,
+          name: T.ChangeOwner,
+          form: () => undefined,
           onSubmit: () => undefined
         }, {
           accessor: VM_ACTIONS.CHANGE_GROUP,
-          name: T.ChangeGroup,
           disabled: isDisabled(VM_ACTIONS.CHANGE_GROUP),
-          isConfirmDialog: true,
+          name: T.ChangeGroup,
+          form: () => undefined,
           onSubmit: () => undefined
         }]
       },
       {
-        tooltip: `${Tr(T.Lock)}/${Tr(T.Unlock)}`,
+        tooltip: T.Lock,
         icon: Lock,
         selected: true,
+        color: 'secondary',
         options: [{
           accessor: VM_ACTIONS.LOCK,
-          name: T.Lock,
           disabled: isDisabled(VM_ACTIONS.LOCK),
+          name: T.Lock,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Lock,
@@ -388,8 +392,8 @@ const Actions = () => {
           }
         }, {
           accessor: VM_ACTIONS.UNLOCK,
-          name: T.Unlock,
           disabled: isDisabled(VM_ACTIONS.UNLOCK),
+          name: T.Unlock,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Unlock,
@@ -403,13 +407,14 @@ const Actions = () => {
         }]
       },
       {
-        tooltip: Tr(T.Terminate),
+        tooltip: T.Terminate,
         icon: Trash,
+        color: 'error',
         selected: true,
         options: [{
           accessor: VM_ACTIONS.TERMINATE,
-          name: T.Terminate,
           disabled: isDisabled(VM_ACTIONS.TERMINATE),
+          name: T.Terminate,
           isConfirmDialog: true,
           dialogProps: {
             title: T.Terminate,
@@ -444,7 +449,7 @@ const Actions = () => {
     actions: [
       {
         accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: Tr(T.CreateMarketApp),
+        tooltip: T.CreateMarketApp,
         icon: Cart,
         selected: { max: 1 },
         disabled: true,

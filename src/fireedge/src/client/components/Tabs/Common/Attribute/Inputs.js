@@ -15,7 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { forwardRef, useState, ForwardedRef, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, TextField } from '@material-ui/core'
+
+import { TextField } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { Actions } from 'client/components/Tabs/Common/Attribute'
 
@@ -52,18 +54,15 @@ const Select = forwardRef(
 
     return (
       <TextField
-        color='secondary'
         inputProps={{
           'data-cy': Actions.getAttributeCy('select', name),
           className: classes.select
         }}
         inputRef={ref}
-        margin='dense'
         onChange={handleChange}
         select
         SelectProps={{ native: true }}
         value={newValue}
-        variant='outlined'
       >
         {options?.map(({ text, value: optionVal = '' }) => (
           <option key={`${name}-${optionVal}`} value={optionVal}>
@@ -88,15 +87,12 @@ const Text = forwardRef(
 
     return (
       <TextField
-        color='secondary'
         inputProps={{
           'data-cy': Actions.getAttributeCy('text', name)
         }}
         inputRef={ref}
-        margin='dense'
         onChange={handleChange}
         value={newValue}
-        variant='outlined'
         name={name}
         {...props}
       />

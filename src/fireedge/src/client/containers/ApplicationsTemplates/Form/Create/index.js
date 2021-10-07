@@ -17,7 +17,7 @@
 import { useEffect } from 'react'
 import { Redirect, useHistory, useParams } from 'react-router-dom'
 
-import { LinearProgress, Container } from '@material-ui/core'
+import { LinearProgress, Container } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 

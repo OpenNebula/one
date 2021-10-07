@@ -26,7 +26,7 @@ export const getSunstoneViews = createAsyncThunk(
   'sunstone/views',
   async (_, { dispatch }) => {
     try {
-      const views = await authService.getSunstoneViews() ?? {}
+      const views = (await authService.getSunstoneViews()) ?? {}
 
       return {
         views,
@@ -43,7 +43,7 @@ export const getSunstoneConfig = createAsyncThunk(
   'sunstone/config',
   async (_, { dispatch }) => {
     try {
-      const config = await authService.getSunstoneConfig() ?? {}
+      const config = (await authService.getSunstoneConfig()) ?? {}
 
       return { config }
     } catch (error) {

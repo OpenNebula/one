@@ -23,7 +23,6 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import SnapshotList from 'client/components/Tabs/Vm/Snapshot/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { CreateSnapshotForm } from 'client/components/Forms/Vm'
-import { Tr } from 'client/components/HOC'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
@@ -50,7 +49,8 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
           buttonProps={{
             color: 'secondary',
             'data-cy': 'snapshot-create',
-            label: Tr(T.TakeSnapshot)
+            label: T.TakeSnapshot,
+            variant: 'outlined'
           }}
           options={[{
             dialogProps: { title: T.TakeSnapshot },

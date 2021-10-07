@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Box, Typography, InputBase } from '@material-ui/core'
+import { Box, Typography, InputBase } from '@mui/material'
 import {
   RefreshDouble as RefreshIcon,
   AddCircledOutline as AddIcon,

@@ -15,11 +15,12 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useContext } from 'react'
-import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
-
-const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const VmConfigurationTab = () => {
   const { data: vm = {} } = useContext(TabContext)
@@ -28,8 +29,8 @@ const VmConfigurationTab = () => {
   return (
     <div>
       <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'User Template'}
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Translate word={T.UserTemplate} />
         </AccordionSummary>
         <AccordionDetails>
           <pre>
@@ -40,8 +41,8 @@ const VmConfigurationTab = () => {
         </AccordionDetails>
       </Accordion>
       <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={NavArrowDown}>
-          {'Template'}
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Translate word={T.Template} />
         </AccordionSummary>
         <AccordionDetails>
           <pre>

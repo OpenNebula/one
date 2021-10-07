@@ -18,8 +18,8 @@ import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Cancel } from 'iconoir-react'
-import { List, ListSubheader, IconButton } from '@material-ui/core'
-import { TreeView, TreeItem } from '@material-ui/lab'
+import { List, ListSubheader, IconButton } from '@mui/material'
+import { TreeView, TreeItem } from '@mui/lab'
 import { UseFiltersInstanceProps } from 'react-table'
 
 import { Tr } from 'client/components/HOC'

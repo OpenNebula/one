@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { HardDrive, NetworkAlt, Folder, Cloud } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -36,19 +36,19 @@ const Row = ({ original, value, ...props }) => {
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Total Hosts: ${HOSTS}`}>
-            <HardDrive size={16} />
+            <HardDrive />
             <span>{` ${HOSTS}`}</span>
           </span>
           <span title={`Total Datastores: ${DATASTORES}`}>
-            <Folder size={16} />
+            <Folder />
             <span>{` ${DATASTORES}`}</span>
           </span>
           <span title={`Total Virtual Networks: ${VNETS}`}>
-            <NetworkAlt size={16} />
+            <NetworkAlt />
             <span>{` ${VNETS}`}</span>
           </span>
           {PROVIDER_NAME && <span title={`Provider: ${PROVIDER_NAME}`}>
-            <Cloud size={16} />
+            <Cloud />
             <span>{` ${PROVIDER_NAME}`}</span>
           </span>}
         </div>

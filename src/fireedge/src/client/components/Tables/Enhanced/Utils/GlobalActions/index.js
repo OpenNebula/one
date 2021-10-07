@@ -15,8 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { JSXElementConstructor, useMemo } from 'react'
 import PropTypes from 'prop-types'
+
 import { Row } from 'react-table'
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 import Action, { ActionPropTypes, GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
 

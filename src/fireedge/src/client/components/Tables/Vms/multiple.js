@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Tooltip, Typography } from '@material-ui/core'
+import { Tooltip, Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
 
@@ -41,15 +41,19 @@ const Multiple = ({ tags, limitTags = 1 }) => {
             <Typography
               key={`${idx}-${tag}`}
               variant='subtitle2'
-              style={{ height: 'max-content' }}
+              sx={{ height: 'max-content' }}
             >
               {tag}
             </Typography>
           ))}
         >
-          <span style={{ marginLeft: 6 }}>
+          <Typography
+            component='span'
+            variant='subtitle2'
+            sx={{ ml: 1 }}
+          >
             {`+${more} more`}
-          </span>
+          </Typography>
         </Tooltip>
       )}
     </>

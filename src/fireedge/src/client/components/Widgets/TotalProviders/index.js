@@ -17,7 +17,7 @@
 import { useMemo } from 'react'
 
 import { PieChart } from 'react-minimal-pie-chart'
-import { Typography, Paper } from '@material-ui/core'
+import { Skeleton, Typography, Paper } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useProvider } from 'client/features/One'
@@ -28,12 +28,11 @@ import { T } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
-const TotalProviders = () => {
+const TotalProviders = ({ isLoading }) => {
   const classes = useStyles()
-  const providers = useProvider()
   const { providerConfig } = useAuth()
-
-  const totalProviders = useMemo(() => providers.length, [providers.length])
+  const providers = useProvider()
+  const totalProviders = providers?.length
 
   const chartData = useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
@@ -82,18 +81,22 @@ const TotalProviders = () => {
     />
   ), [classes, chartData])
 
-  return (
-    <Paper
-      data-cy='dashboard-widget-total-providers-by-type'
-      className={classes.root}
-    >
-      {title}
-      <div className={classes.content}>
-        {chart}
-        {legend}
-      </div>
-    </Paper>
-  )
+  return useMemo(() => (
+    !totalProviders && isLoading ? (
+      <Skeleton variant='rectangular' height={350} />
+    ) : (
+      <Paper
+        data-cy='dashboard-widget-total-providers-by-type'
+        className={classes.root}
+      >
+        {title}
+        <div className={classes.content}>
+          {chart}
+          {legend}
+        </div>
+      </Paper>
+    )
+  ), [classes, chart, totalProviders, isLoading])
 }
 
 TotalProviders.displayName = 'TotalProviders'

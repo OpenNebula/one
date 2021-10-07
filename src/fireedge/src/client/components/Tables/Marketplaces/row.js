@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, CloudDownload } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -49,15 +49,15 @@ const Row = ({ original, value, ...props }) => {
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Total Apps: ${TOTAL_APPS}`}>
-            <CloudDownload size={16} />
+            <CloudDownload />
             <span>{` ${TOTAL_APPS}`}</span>
           </span>
         </div>

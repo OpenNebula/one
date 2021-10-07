@@ -15,44 +15,54 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect } from 'react'
-
-import clsx from 'clsx'
-import { Container, Box, Grid } from '@material-ui/core'
+import { Container, Box, Grid } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
+import { useFetchAll } from 'client/hooks'
 import { useProvisionApi, useProviderApi } from 'client/features/One'
 import * as Widgets from 'client/components/Widgets'
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
 
 function Dashboard () {
-  const { settings: { disableanimations } = {} } = useAuth()
+  const { status, fetchRequestAll, STATUS } = useFetchAll()
+  const { INIT, PENDING } = STATUS
+
   const { getProvisions } = useProvisionApi()
   const { getProviders } = useProviderApi()
 
+  const { settings: { disableanimations } = {} } = useAuth()
   const classes = dashboardStyles({ disableanimations })
 
-  useEffect(() => {
-    getProviders()
-    getProvisions()
-  }, [])
-
   const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
+
+  useEffect(() => {
+    fetchRequestAll([
+      getProviders(),
+      getProvisions()
+    ])
+  }, [])
 
   return (
     <Container
       disableGutters
-      className={clsx({ [classes.withoutAnimations]: withoutAnimations })}
+      className={withoutAnimations && classes.withoutAnimations}
     >
       <Box py={3}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Widgets.TotalProvisionInfrastructures />
+            <Widgets.TotalProvisionInfrastructures
+              isLoading={[INIT, PENDING].includes(status)}
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Widgets.TotalProviders />
+          <Grid item xs={12} md={6}>
+            <Widgets.TotalProviders
+              isLoading={[INIT, PENDING].includes(status)}
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Widgets.TotalProvisionsByState />
+          <Grid item xs={12} md={6}>
+            <Widgets.TotalProvisionsByState
+              isLoading={[INIT, PENDING].includes(status)}
+            />
           </Grid>
         </Grid>
       </Box>

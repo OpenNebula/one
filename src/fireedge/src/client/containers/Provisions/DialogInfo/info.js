@@ -17,7 +17,7 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@mui/material'
 import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'

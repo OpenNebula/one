@@ -17,7 +17,7 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { QuestionMarkCircle } from 'iconoir-react'
-import { InputAdornment, Typography, Tooltip } from '@material-ui/core'
+import { InputAdornment, Typography, Tooltip } from '@mui/material'
 
 const AdornmentWithTooltip = memo(({ title, position = 'end', children }) => (
   <Tooltip
@@ -30,7 +30,7 @@ const AdornmentWithTooltip = memo(({ title, position = 'end', children }) => (
     }
   >
     <InputAdornment position={position} style={{ cursor: 'help' }}>
-      {children ?? <QuestionMarkCircle size={18} />}
+      {children ?? <QuestionMarkCircle />}
     </InputAdornment>
   </Tooltip>
 ), (prevProps, nextProps) => prevProps.title === nextProps.title)

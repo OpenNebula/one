@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect } from 'react'
 
-import { makeStyles, Container, Paper, Box, Typography } from '@material-ui/core'
+import { Container, Paper, Box, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'

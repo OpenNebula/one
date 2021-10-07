@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { number, string, bool, oneOfType } from 'prop-types'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 
 import { useGeneral } from 'client/features/General'
 import { SCHEMES } from 'client/constants'
@@ -23,22 +23,22 @@ import { SCHEMES } from 'client/constants'
 const OpenNebulaLogo = memo(
   ({ width, height, spinner, withText, viewBox, disabledBetaText, ...props }) => {
     const { isBeta } = useGeneral()
-    const { palette: { type } } = useTheme()
-    const isDarkMode = type === SCHEMES.DARK
+    const { palette: { mode } } = useTheme()
+    const isDarkMode = mode === SCHEMES.DARK
 
-    const cloudColor = {
+    const cloudColor = useMemo(() => ({
       child1: { from: '#bfe6f2', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#bfe6f2' },
       child2: { from: '#80cde6', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#80cde6' },
       child3: { from: '#40b3d9', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#40b3d9' },
       child4: { from: '#0098c3', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#0098c3' },
       child5: { from: '#0098c3', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#0098c3' }
-    }
+    }), [isDarkMode])
 
-    const textColor = {
+    const textColor = useMemo(() => ({
       top: 'currentColor',
       bottom: isDarkMode ? 'currentColor' : '#0098c3',
       beta: '#ffffff'
-    }
+    }), [isDarkMode])
 
     return (
       <svg viewBox={viewBox} width={width} height={height} {...props}>

@@ -22,74 +22,72 @@ import {
   Archive as ImageIcon,
   NetworkAlt as NetworkIcon
 } from 'iconoir-react'
-import { makeStyles } from '@material-ui/core'
-import { Skeleton } from '@material-ui/lab'
+import { Skeleton, Grid } from '@mui/material'
 
-import { RESOURCES, useOne } from 'client/features/One'
+import { useUser, useGroup, useImage, useVNetwork } from 'client/features/One'
 import NumberEasing from 'client/components/NumberEasing'
 import { WavesCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles({
-  root: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gridGap: '2em'
-  }
-})
+const TOTAL_WIDGETS = 4
+const breakpoints = { xs: 12, sm: 6, md: 3 }
 
 const TotalProvisionInfrastructures = ({ isLoading }) => {
-  const classes = useStyles()
-
-  const {
-    [RESOURCES.user]: users = [],
-    [RESOURCES.group]: groups = [],
-    [RESOURCES.image]: images = [],
-    [RESOURCES.vn]: vNetworks = []
-  } = useOne()
+  const users = useUser()
+  const groups = useGroup()
+  const images = useImage()
+  const vNetworks = useVNetwork()
 
   return useMemo(() => (
-    <div
+    <Grid
       data-cy='dashboard-widget-total-sunstone-resources'
-      className={classes.root}
+      container
+      spacing={3}
     >
       {!users?.length && isLoading ? (
-        <>
-          <Skeleton variant='rect' height={120} />
-          <Skeleton variant='rect' height={120} />
-          <Skeleton variant='rect' height={120} />
-          <Skeleton variant='rect' height={120} />
-        </>
+        Array.from(Array(TOTAL_WIDGETS)).map((_, index) => (
+          <Grid item {...breakpoints} key={index}>
+            <Skeleton variant='rectangular' height={120} />
+          </Grid>
+        ))
       ) : (
         <>
-          <WavesCard
-            text={T.Users}
-            value={<NumberEasing value={`${users.length}`} />}
-            bgColor='#fa7892'
-            icon={UserIcon}
-          />
-          <WavesCard
-            text={T.Groups}
-            value={<NumberEasing value={`${groups.length}`} />}
-            bgColor='#b25aff'
-            icon={GroupIcon}
-          />
-          <WavesCard
-            text={T.Images}
-            value={<NumberEasing value={`${images.length}`} />}
-            bgColor='#1fbbc6'
-            icon={ImageIcon}
-          />
-          <WavesCard
-            text={T.VirtualNetwork}
-            value={<NumberEasing value={`${vNetworks.length}`} />}
-            bgColor='#f09d42'
-            icon={NetworkIcon}
-          />
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Users}
+              value={<NumberEasing value={`${users.length}`} />}
+              bgColor='#fa7892'
+              icon={UserIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Groups}
+              value={<NumberEasing value={`${groups.length}`} />}
+              bgColor='#b25aff'
+              icon={GroupIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.Images}
+              value={<NumberEasing value={`${images.length}`} />}
+              bgColor='#1fbbc6'
+              icon={ImageIcon}
+            />
+          </Grid>
+          <Grid item {...breakpoints}>
+            <WavesCard
+              text={T.VirtualNetwork}
+              value={<NumberEasing value={`${vNetworks.length}`} />}
+              bgColor='#f09d42'
+              icon={NetworkIcon}
+            />
+          </Grid>
         </>
       )}
-    </div>
-  ), [users?.length, isLoading, classes])
+    </Grid>
+  ), [users?.length, isLoading])
 }
 
 TotalProvisionInfrastructures.displayName = 'TotalProvisionInfrastructures'

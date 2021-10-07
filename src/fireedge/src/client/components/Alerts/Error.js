@@ -16,8 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Box } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+import { Box, Alert } from '@mui/material'
 import { Tr } from 'client/components/HOC'
 
 const AlertError = ({ children, ...props }) => (

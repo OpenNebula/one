@@ -17,7 +17,8 @@
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box, CircularProgress } from '@material-ui/core'
+import { Box, CircularProgress } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import {
   useTable,
   useGlobalFilter,
@@ -45,7 +46,7 @@ const useStyles = makeStyles(theme => ({
   body: {
     '& *[role=row]': {
       fontSize: '1em',
-      fontWeight: theme.typography.fontWeightMedium,
+      fontWeight: theme.typography.fontWeightRegular,
       lineHeight: '1rem',
 
       overflowWrap: 'break-word',

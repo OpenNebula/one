@@ -18,7 +18,8 @@ import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { Box, Button, Slide } from '@material-ui/core'
+import { Box } from '@mui/system'
+import { Button, Slide } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -68,6 +69,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
             color='secondary'
             data-cy='login-button'
             isSubmitting={isLoading}
+            sx={{ textTransform: 'uppercase', padding: '0.5em' }}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
           />
         </Box>

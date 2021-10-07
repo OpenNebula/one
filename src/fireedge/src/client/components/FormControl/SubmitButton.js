@@ -17,14 +17,8 @@ import { forwardRef, memo } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-import {
-  makeStyles,
-  CircularProgress,
-  Button,
-  IconButton,
-  Tooltip,
-  Typography
-} from '@material-ui/core'
+import { CircularProgress, Button, IconButton, Tooltip, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { Tr, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -42,15 +36,16 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const ButtonComponent = forwardRef(
-  ({ icon, endicon, children, size = 'small', ...props }, ref) =>
+  ({ icon, endicon, children, size, variant = 'contained', ...props }, ref) =>
     icon && !endicon ? (
-      <IconButton ref={ref} {...props}>{children}</IconButton>
+      <IconButton ref={ref} {...props}>
+        {children}
+      </IconButton>
     ) : (
       <Button ref={ref}
         type='submit'
         endIcon={endicon}
-        variant='contained'
-        size={size}
+        variant={variant}
         {...props}
       >
         {children}
@@ -81,7 +76,7 @@ const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
 const SubmitButton = memo(
   ({ isSubmitting, disabled, label, icon, className, ...props }) => {
     const classes = useStyles()
-    const progressSize = icon?.props?.size ?? 24
+    const progressSize = icon?.props?.size ?? 20
 
     return (
       <TooltipComponent {...props}>
@@ -121,8 +116,9 @@ export const SubmitButtonPropTypes = {
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   className: PropTypes.string,
-  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
-  size: PropTypes.oneOf(['large', 'medium', 'small'])
+  color: PropTypes.string,
+  size: PropTypes.string,
+  variant: PropTypes.string
 }
 
 TooltipComponent.propTypes = SubmitButtonPropTypes

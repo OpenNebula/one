@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, Lock, HardDrive } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusCircle } from 'client/components/Status'
 import Multiple from 'client/components/Tables/Vms/multiple'
@@ -46,7 +46,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {LOCK && <Lock size={20} />}
+            {LOCK && <Lock />}
           </span>
         </div>
         <div className={classes.caption}>
@@ -54,15 +54,15 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Hostname: ${HOSTNAME}`}>
-            <HardDrive size={16} />
+            <HardDrive />
             <span>{` ${HOSTNAME}`}</span>
           </span>
         </div>

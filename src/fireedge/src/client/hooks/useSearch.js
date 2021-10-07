@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, useCallback } from 'react'
 
-import { debounce } from '@material-ui/core'
+import { debounce } from '@mui/material'
 import Fuse from 'fuse.js'
 
 /**

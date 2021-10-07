@@ -17,7 +17,8 @@ import { JSXElementConstructor, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, alpha, debounce, InputBase } from '@material-ui/core'
+import { alpha, debounce, InputBase } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Search as SearchIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps, UseGlobalFiltersState } from 'react-table'
 
@@ -50,7 +51,7 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   inputInput: {
     padding: spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${spacing(4)}px)`
+    paddingLeft: `calc(1em + ${spacing(4)})`
   }
 }))
 

@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 import { ModernTv } from 'iconoir-react'
-import { Typography, Paper } from '@material-ui/core'
+import { Typography, Paper } from '@mui/material'
 
 import * as Actions from 'client/components/Tabs/Vm/Storage/Actions'
 import { StatusChip } from 'client/components/Status'
@@ -65,7 +65,7 @@ const StorageSubItem = ({ disk, snapshot = {}, actions = [] }) => {
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
-            <ModernTv size={16} />
+            <ModernTv />
             <span>{` ${monitorSize}/${size}`}</span>
           </span>
         </div>

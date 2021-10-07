@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { Typography, Paper } from '@material-ui/core'
+import { Typography, Paper } from '@mui/material'
 
 import * as Actions from 'client/components/Tabs/Vm/Snapshot/Actions'
 import { rowStyles } from 'client/components/Tables/styles'

@@ -26,7 +26,7 @@ export const getProviderConfig = createAsyncThunk(
   'provision/provider-config',
   async (_, { dispatch }) => {
     try {
-      const config = await authService.getProviderConfig() ?? {}
+      const config = (await authService.getProviderConfig()) ?? {}
 
       return { providerConfig: config }
     } catch (error) {

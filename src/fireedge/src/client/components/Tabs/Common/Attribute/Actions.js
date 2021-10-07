@@ -52,7 +52,7 @@ const ActionButton = ({ action, name, icon: Icon, handleClick, ...props }) => {
   return (
     <Action
       cy={dataCy}
-      icon={<Icon size={18} />}
+      icon={<Icon />}
       handleClick={handleClick}
       {...props}
     />

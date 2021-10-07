@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 
-import { MenuItem, MenuList, Link } from '@material-ui/core'
+import { MenuItem, MenuList, Link } from '@mui/material'
 import { ProfileCircled as UserIcon } from 'iconoir-react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
@@ -38,7 +38,7 @@ const User = memo(() => {
       disablePadding
     >
       {() => (
-        <MenuList>
+        <MenuList disablePadding>
           <MenuItem onClick={logout} data-cy='header-logout-button'>
             {Tr(T.SignOut)}
           </MenuItem>
@@ -46,9 +46,9 @@ const User = memo(() => {
             APPS?.map(appName => (
               <MenuItem key={appName}>
                 <Link
+                  width='100%'
                   color='secondary'
                   href={`${APP_URL}/${appName}`}
-                  style={{ width: '100%' }}
                 >
                   <DevTypography label={appName} />
                 </Link>

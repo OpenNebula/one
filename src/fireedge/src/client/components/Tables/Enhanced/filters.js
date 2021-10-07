@@ -18,7 +18,8 @@ import { useMemo, Fragment } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, useMediaQuery, Card, CardContent } from '@material-ui/core'
+import { useMediaQuery, Card, CardContent } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { UseTableInstanceProps } from 'react-table'
 
 import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
@@ -49,7 +50,7 @@ const useToolbarStyles = makeStyles({
 
 const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   const classes = useToolbarStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
 
   /** @type {UseTableInstanceProps} */
   const { rows, columns } = useTableProps

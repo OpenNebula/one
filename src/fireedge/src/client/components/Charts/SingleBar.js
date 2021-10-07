@@ -16,7 +16,9 @@
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Tooltip } from '@material-ui/core'
+import { Tooltip } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { TypographyWithPoint } from 'client/components/Typography'
 import { addOpacityToColor } from 'client/utils'
 

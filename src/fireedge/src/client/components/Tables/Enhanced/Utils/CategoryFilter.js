@@ -16,11 +16,12 @@
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListSubheader, ListItem, Typography, IconButton } from '@material-ui/core'
+import { List, ListSubheader, ListItem, Typography, IconButton, Tooltip } from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'react-table'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Render category filter to table.
@@ -85,9 +86,11 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
         >
           {Tr(title)}
           {isFiltered && (
-            <IconButton disableRipple size='small' onClick={handleClear}>
-              <Cancel/>
-            </IconButton>
+            <Tooltip title={<Translate word={T.Clear} />}>
+              <IconButton disableRipple size='small' onClick={handleClear}>
+                <Cancel/>
+              </IconButton>
+            </Tooltip>
           )}
         </ListSubheader>
       )}

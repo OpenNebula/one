@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, JSXElementConstructor } from 'react'
-import { Container, TextField, Grid, MenuItem, Box } from '@material-ui/core'
+import { Container, TextField, Grid, MenuItem, Box } from '@mui/material'
 
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
 import { InputCode } from 'client/components/FormControl'
@@ -48,7 +48,6 @@ function TestApi () {
             fullWidth
             select
             color='secondary'
-            variant='outlined'
             label={Tr(T.SelectRequest)}
             value={name}
             onChange={handleChangeCommand}

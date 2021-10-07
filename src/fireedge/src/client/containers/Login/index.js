@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo, useState } from 'react'
-import { Box, Container, LinearProgress, Paper, useMediaQuery } from '@material-ui/core'
+import { Box, Container, LinearProgress, Paper, useMediaQuery } from '@mui/material'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'

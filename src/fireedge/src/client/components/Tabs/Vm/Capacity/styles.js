@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles(theme => ({
   root: {
@@ -22,12 +22,12 @@ export default makeStyles(theme => ({
     display: 'grid',
     gap: '1em',
     gridAutoFlow: 'column',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       gridAutoFlow: 'initial'
     }
   },
   item: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'flex',
       gap: '1em',
       '& > *': {
@@ -36,7 +36,7 @@ export default makeStyles(theme => ({
     }
   },
   actions: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       borderBottom: `1px solid ${theme.palette.divider}`,
       padding: '1em'
     },

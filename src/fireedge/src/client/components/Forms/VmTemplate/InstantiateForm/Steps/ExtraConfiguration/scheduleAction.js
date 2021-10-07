@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 import { Edit, Trash } from 'iconoir-react'
 import { useWatch } from 'react-hook-form'
 
@@ -89,12 +89,12 @@ const ScheduleAction = ({ setFormData, control }) => {
                   <Action
                     data-cy={`remove-${NAME}`}
                     handleClick={() => handleRemove(NAME)}
-                    icon={<Trash size={18} />}
+                    icon={<Trash />}
                   />
                   <ButtonToTriggerForm
                     buttonProps={{
                       'data-cy': `edit-${NAME}`,
-                      icon: <Edit size={18} />,
+                      icon: <Edit />,
                       tooltip: <Translate word={T.Edit} />
                     }}
                     options={[{

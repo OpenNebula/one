@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useFormContext } from 'react-hook-form'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'

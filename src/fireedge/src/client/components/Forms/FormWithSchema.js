@@ -17,7 +17,7 @@
 import { createElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { styled, Grid } from '@material-ui/core'
+import { styled, Grid } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
 
 import * as FC from 'client/components/FormControl'

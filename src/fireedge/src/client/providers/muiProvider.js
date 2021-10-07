@@ -17,7 +17,13 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { CssBaseline, ThemeProvider, StylesProvider, useMediaQuery } from '@material-ui/core'
+import {
+  CssBaseline,
+  ThemeProvider,
+  StyledEngineProvider,
+  useMediaQuery
+} from '@mui/material'
+import StylesProvider from '@mui/styles/StylesProvider'
 import { createTheme, generateClassName } from 'client/theme'
 import { useAuth } from 'client/features/Auth'
 import { SCHEMES } from 'client/constants'
@@ -32,7 +38,7 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
     const newScheme = scheme === SYSTEM ? prefersScheme : scheme
 
-    return createTheme(appTheme(newScheme))
+    return createTheme(appTheme, newScheme)
   }
 
   const [muitheme, setTheme] = useState(changeScheme)
@@ -49,26 +55,23 @@ const MuiProvider = ({ theme: appTheme, children }) => {
   }, [scheme, prefersDarkMode])
 
   return (
-    <ThemeProvider theme={muitheme}>
-      <CssBaseline />
-      <StylesProvider generateClassName={generateClassName}>
-        {children}
-      </StylesProvider>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={muitheme}>
+        <CssBaseline />
+        <StylesProvider generateClassName={generateClassName}>
+          {children}
+        </StylesProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   )
 }
 
 MuiProvider.propTypes = {
-  theme: PropTypes.func,
+  theme: PropTypes.object,
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node)
   ])
-}
-
-MuiProvider.defaultProps = {
-  theme: () => {},
-  children: undefined
 }
 
 export default MuiProvider

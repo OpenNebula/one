@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
 
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'

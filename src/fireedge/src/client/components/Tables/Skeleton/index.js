@@ -14,15 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
-
-import { Skeleton } from '@material-ui/lab'
-import { useMediaQuery, Card } from '@material-ui/core'
+import { useMediaQuery, Card, Skeleton } from '@mui/material'
 
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 import { rowStyles } from 'client/components/Tables/styles'
 
 const SkeletonTable = memo(() => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
   const classes = EnhancedTableStyles()
   const rowClasses = rowStyles()
 
@@ -53,19 +51,19 @@ const SkeletonTable = memo(() => {
   return (
     <div className={classes.root}>
       <div className={classes.toolbar}>
-        {!isMobile && <Skeleton variant='rect' height={35} width={100} />}
+        {!isMobile && <Skeleton variant="rectangular" height={35} width={100} />}
         <div className={classes.pagination}>
-          <Skeleton variant='rect' height={35} width={85} />
-          <Skeleton variant='rect' height={35} width={85} />
-          <Skeleton variant='rect' height={35} width={85} />
+          <Skeleton variant="rectangular" height={35} width={85} />
+          <Skeleton variant="rectangular" height={35} width={85} />
+          <Skeleton variant="rectangular" height={35} width={85} />
         </div>
       </div>
       <div className={classes.table}>
         {isMobile ? (
-          <Skeleton variant='rect' height={40} style={{ marginBottom: '1em' }} />
+          <Skeleton variant="rectangular" height={40} style={{ marginBottom: '1em' }} />
         ) : (
           <Card variant='outlined' style={{ padding: '1em' }}>
-            <Skeleton variant='rect' height={40} style={{ marginBottom: '1em' }} />
+            <Skeleton variant="rectangular" height={40} style={{ marginBottom: '1em' }} />
             <div>
               <SkeletonCategory />
               <SkeletonCategory numberOfItems={3} />
@@ -81,7 +79,6 @@ const SkeletonTable = memo(() => {
         </div>
       </div>
     </div>
-
   )
 })
 

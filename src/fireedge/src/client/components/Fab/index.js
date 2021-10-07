@@ -17,7 +17,8 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { makeStyles, Fab } from '@material-ui/core'
+import { Fab } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -44,10 +45,10 @@ const FloatingActionButton = memo(
 FloatingActionButton.propTypes = {
   icon: PropTypes.node.isRequired,
   className: PropTypes.string,
-  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
+  color: PropTypes.oneOf(['inherit', 'primary', 'secondary']),
   disabled: PropTypes.bool,
   size: PropTypes.oneOf(['large', 'medium', 'small']),
-  variant: PropTypes.oneOf(['extended', 'round'])
+  variant: PropTypes.oneOf(['extended', 'circular'])
 }
 
 FloatingActionButton.defaultProps = {
@@ -56,7 +57,7 @@ FloatingActionButton.defaultProps = {
   color: 'primary',
   disabled: false,
   size: 'large',
-  variant: 'round'
+  variant: 'circular'
 }
 
 FloatingActionButton.displayName = 'FloatingActionButton'

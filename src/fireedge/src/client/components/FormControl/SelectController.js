@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TextField } from '@material-ui/core'
+import { TextField } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
@@ -48,11 +48,8 @@ const SelectController = memo(
                 }
                 : onChange
             }
-            color='secondary'
             select
             fullWidth
-            variant='outlined'
-            margin='dense'
             SelectProps={{ native: true, multiple }}
             label={Tr(label)}
             InputProps={{

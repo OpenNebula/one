@@ -14,9 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { AppBar, Box, Toolbar, Typography, IconButton, Chip, useMediaQuery } from '@material-ui/core'
+import { AppBar, Box, Toolbar, Typography, IconButton, Stack } from '@mui/material'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
@@ -26,56 +27,72 @@ import User from 'client/components/Header/User'
 import View from 'client/components/Header/View'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
-import headerStyles from 'client/components/Header/styles'
+import { sentenceCase } from 'client/utils'
 
 const Header = () => {
   const { isOneAdmin } = useAuth()
-  const { appTitle, title, isBeta } = useGeneral()
   const { fixMenu } = useGeneralApi()
-
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-
-  const classes = headerStyles({ isScroll: false })
-
-  const handleFixMenu = () => {
-    fixMenu(true)
-  }
+  const { appTitle, title, isBeta } = useGeneral()
+  const appAsSentence = useMemo(() => sentenceCase(appTitle), [appTitle])
 
   return (
-    <AppBar className={classes.appbar} data-cy='header' elevation={1}>
+    <AppBar data-cy='header' elevation={0} position='absolute'>
       <Toolbar>
-        {!isUpLg && (
-          <IconButton onClick={handleFixMenu} edge='start' color='inherit'>
-            <MenuIcon />
-          </IconButton>
-        )}
-        <Box flexGrow={1} display='inline-flex'>
+        <IconButton
+          onClick={() => fixMenu(true)}
+          edge='start'
+          size='small'
+          variant='outlined'
+          sx={{ display: { lg: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Box flexGrow={1} ml={2} display='inline-flex'>
           <Typography
-            variant={isMobile ? 'subtitle1' : 'h6'}
-            className={classes.title}
             data-cy='header-app-title'
+            sx={{ userSelect: 'none', typography: 'h6' }}
           >
             {'One'}
-            <span className={classes.app}>
-              {appTitle}
-              {isBeta && <Chip size='small' label='BETA' color='primary' />}
-            </span>
+            <Typography
+              variant={'inherit'}
+              color='secondary.800'
+              component='span'
+              sx={{ textTransform: 'capitalize' }}
+            >
+              {appAsSentence}
+            </Typography>
+            {isBeta && (
+              <Typography
+                variant='overline'
+                color='primary.contrastText'
+                ml='0.5rem'
+              >
+                {'BETA'}
+              </Typography>
+            )}
           </Typography>
           <Typography
             variant='h6'
-            className={classes.description}
             data-cy='header-description'
+            sx={{
+              useSelect: 'none',
+              display: { xs: 'none', xl: 'block' },
+              '&::before': {
+                content: '"|"',
+                margin: '0.5em',
+                color: 'primary.contrastText'
+              }
+            }}
           >
             {title}
           </Typography>
         </Box>
-        <Box flexGrow={isMobile ? 1 : 0} flexShrink={0} textAlign='end'>
+        <Stack direction='row'>
           <User />
           <View />
           {!isOneAdmin && <Group />}
           <Zone />
-        </Box>
+        </Stack>
       </Toolbar>
     </AppBar>
   )

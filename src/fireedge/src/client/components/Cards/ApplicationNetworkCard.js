@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, CardActions } from '@material-ui/core'
+import { Button, CardActions } from '@mui/material'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'

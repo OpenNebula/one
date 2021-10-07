@@ -26,7 +26,7 @@ import * as yup from 'yup'
 import { useWatch } from 'react-hook-form'
 
 import { ReactFlowProvider } from 'react-flow-renderer'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 
 import { useListForm } from 'client/hooks'
 import FormStepper from 'client/components/FormStepper'

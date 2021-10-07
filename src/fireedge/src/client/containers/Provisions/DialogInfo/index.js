@@ -17,7 +17,7 @@
 import { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { AppBar, Tabs, Tab, Box } from '@material-ui/core'
+import { AppBar, Tabs, Tab, Box } from '@mui/material'
 import {
   InfoEmpty as InfoIcon,
   HardDrive as HostIcon,

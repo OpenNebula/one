@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import Color from 'client/constants/color'
-import { SCHEMES } from 'client/constants'
+import { ThemeOptions } from '@mui/material'
 
-/**
- * @param {SCHEMES} scheme - Scheme type
- * @returns {object} Provision theme
- */
-const theme = (scheme = SCHEMES.DARK) => ({
+/** @type {ThemeOptions} Sunstone theme */
+export default {
   palette: {
-    type: scheme,
-    common: {
-      black: '#000000',
-      white: '#ffffff'
-    },
-    background: {
-      paper: scheme === SCHEMES.DARK ? '#2a2d3d' : '#ffffff',
-      default: scheme === SCHEMES.DARK ? '#222431' : '#f2f4f8'
-    },
     primary: {
       light: '#2a2d3d',
       main: '#222431',
@@ -38,13 +25,19 @@ const theme = (scheme = SCHEMES.DARK) => ({
       contrastText: '#ffffff'
     },
     secondary: {
-      light: 'rgba(191, 230, 242, 1)',
-      main: 'rgba(64, 179, 217, 1)',
-      dark: 'rgba(0, 152, 195, 1)',
+      100: '#dff2f8',
+      200: '#bfe6f0',
+      300: '#9fd9e9',
+      400: '#80cce1',
+      500: '#60bfda',
+      600: '#40b3da',
+      700: '#20a6cb',
+      800: '#0099c3',
+      900: '#0284a7',
+      light: '#bfe6f0',
+      main: '#40b3da',
+      dark: '#0099c3',
       contrastText: '#fff'
-    },
-    ...Color
+    }
   }
-})
-
-export default theme
+}

@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import {
   PATH as COMMON_PATH,

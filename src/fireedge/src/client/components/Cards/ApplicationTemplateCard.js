@@ -16,14 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  makeStyles,
-  Box,
-  Badge,
-  Button,
-  CardContent,
-  CardActions
-} from '@material-ui/core'
+import { Box, Badge, Button, CardContent, CardActions } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import {
   Page as FileIcon,
   HardDrive as HostIcon,

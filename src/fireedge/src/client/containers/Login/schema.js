@@ -35,7 +35,7 @@ export const USERNAME = {
     autoFocus: true,
     required: true,
     autoComplete: 'username',
-    margin: 'normal'
+    size: 'medium'
   }
 }
 
@@ -52,7 +52,7 @@ export const PASSWORD = {
   fieldProps: {
     required: true,
     autoComplete: 'current-password',
-    margin: 'normal'
+    size: 'medium'
   }
 }
 

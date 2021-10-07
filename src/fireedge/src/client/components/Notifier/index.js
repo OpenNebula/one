@@ -18,14 +18,14 @@ import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useSnackbar } from 'notistack'
-import { IconButton } from '@material-ui/core'
+import { IconButton } from '@mui/material'
 import { Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
 const CloseButton = ({ handleClick }) => (
-  <IconButton onClick={handleClick} component="span">
-    <CloseIcon size='1em' />
+  <IconButton onClick={handleClick} component='span'>
+    <CloseIcon />
   </IconButton>
 )
 

@@ -16,7 +16,8 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core'
+import { Card, CardHeader, Fade } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

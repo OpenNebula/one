@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { Group } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -38,7 +38,7 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID}`}
           </span>
           <span title={`Total Users: ${TOTAL_USERS}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${TOTAL_USERS}`}</span>
           </span>
         </div>

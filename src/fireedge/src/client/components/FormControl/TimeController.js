@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TextField } from '@material-ui/core'
+import { TextField } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { Tr } from 'client/components/HOC'
@@ -29,10 +29,7 @@ const TimeController = memo(
         <TextField
           {...props}
           fullWidth
-          color='secondary'
           value={value}
-          variant='outlined'
-          margin='dense'
           {...(label && { label: Tr(label) })}
           type={type}
           inputProps={{ 'data-cy': cy, ...fieldProps }}

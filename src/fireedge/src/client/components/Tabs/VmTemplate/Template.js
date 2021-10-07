@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useContext } from 'react'
-import { Accordion, AccordionDetails } from '@material-ui/core'
+import { Accordion, AccordionDetails } from '@mui/material'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
 

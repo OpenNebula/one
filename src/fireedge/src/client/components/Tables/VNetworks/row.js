@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, Lock, Server, Cloud } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { LinearProgressWithLabel } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -41,7 +41,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {LOCK && <Lock size={20} />}
+            {LOCK && <Lock />}
           </span>
         </div>
         <div className={classes.caption}>
@@ -49,19 +49,19 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Total Clusters: ${CLUSTERS}`}>
-            <Server size={16} />
+            <Server />
             <span>{` ${CLUSTERS}`}</span>
           </span>
           {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud size={16} />
+            <Cloud />
             <span>{` ${PROVISION_ID}`}</span>
           </span>}
         </div>

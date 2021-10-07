@@ -14,26 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { memo, useState } from 'react'
+import { memo, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  Box,
-  IconButton,
-  useMediaQuery,
-  Popover,
-  Typography,
-  Button
-} from '@material-ui/core'
-import { Cancel as CloseIcon } from 'iconoir-react'
-import clsx from 'clsx'
-
-import { Tr } from 'client/components/HOC'
-import headerStyles from 'client/components/Header/styles'
+import { Box, useMediaQuery, Popover, Typography, Tooltip, IconButton, Button } from '@mui/material'
+import { Cancel as CloseIcon, NavArrowDown as CaretIcon } from 'iconoir-react'
 
 const HeaderPopover = memo(({
   id,
   icon,
+  tooltip,
   buttonLabel,
   buttonProps,
   headerTitle,
@@ -41,45 +31,59 @@ const HeaderPopover = memo(({
   popoverProps,
   children
 }) => {
-  const classes = headerStyles()
+  const [open, setOpen] = useState(false)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+  const anchorRef = useRef(null)
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const [anchorEl, setAnchorEl] = useState(null)
+  const handleToggle = () => {
+    setOpen(prevOpen => !prevOpen)
+    tooltip && setTooltipOpen(false)
+  }
 
-  const handleOpen = event => setAnchorEl(event.currentTarget)
-  const handleClose = () => setAnchorEl(null)
-
-  const open = Boolean(anchorEl)
-  const anchorId = open ? id : undefined
+  const handleClose = () => setOpen(false)
 
   return (
     <>
-      <Button
-        color='inherit'
-        aria-controls={anchorId}
-        aria-describedby={anchorId}
-        aria-haspopup='true'
-        variant='outlined'
-        onClick={handleOpen}
-        size='small'
-        {...buttonProps}
-        style={{ margin: '0 2px' }}
+      <Tooltip
+        open={tooltipOpen}
+        onOpen={() => tooltip && setTooltipOpen(!open)}
+        onClose={() => tooltip && setTooltipOpen(false)}
+        title={tooltip ?? ''}
+        enterDelay={300}
       >
-        {icon}
-        {buttonLabel && (
-          <span className={classes.buttonLabel}>{buttonLabel}</span>
-        )}
-      </Button>
+        <Button
+          ref={anchorRef}
+          aria-controls={open ? `${id}-popover` : undefined}
+          aria-haspopup='true'
+          onClick={handleToggle}
+          size='small'
+          sx={{ margin: '0 2px' }}
+          endIcon={<CaretIcon />}
+          {...buttonProps}
+        >
+          {icon}
+          {buttonLabel && (
+            <Box pl={1} sx={{ display: { xs: 'none', sm: 'block' } }}>
+              {buttonLabel}
+            </Box>
+          )}
+        </Button>
+      </Tooltip>
       <Popover
         BackdropProps={{ invisible: !isMobile }}
         PaperProps={{
-          className: clsx(classes.paper, {
-            [classes.padding]: !disablePadding
-          })
+          sx: {
+            ...(isMobile && {
+              width: '100%',
+              height: '100%'
+            }),
+            p: disablePadding ? 0 : 1
+          }
         }}
-        id={anchorId}
+        id={id}
         open={open}
-        anchorEl={anchorEl}
+        anchorEl={anchorRef.current}
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
@@ -92,14 +96,20 @@ const HeaderPopover = memo(({
         {...popoverProps}
       >
         {(headerTitle || isMobile) && (
-          <Box className={classes.header}>
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-end'
+            borderBottom='1px solid'
+            borderBottomColor='action.disabledBackground'
+          >
             {headerTitle && (
-              <Typography className={classes.title} variant='body1'>
-                {Tr(headerTitle)}
+              <Typography sx={{ userSelect: 'none' }} variant='body1'>
+                {headerTitle}
               </Typography>
             )}
             {isMobile && (
-              <IconButton onClick={handleClose}>
+              <IconButton onClick={handleClose} size='large'>
                 <CloseIcon />
               </IconButton>
             )}
@@ -116,7 +126,8 @@ HeaderPopover.propTypes = {
   icon: PropTypes.node,
   buttonLabel: PropTypes.string,
   buttonProps: PropTypes.objectOf(PropTypes.any),
-  headerTitle: PropTypes.string,
+  tooltip: PropTypes.any,
+  headerTitle: PropTypes.any,
   disablePadding: PropTypes.bool,
   popoverProps: PropTypes.objectOf(PropTypes.any),
   children: PropTypes.func
@@ -124,10 +135,11 @@ HeaderPopover.propTypes = {
 
 HeaderPopover.defaultProps = {
   id: 'id-popover',
-  icon: null,
+  icon: undefined,
   buttonLabel: undefined,
+  tooltip: undefined,
   buttonProps: {},
-  headerTitle: null,
+  headerTitle: undefined,
   disablePadding: false,
   popoverProps: {},
   children: () => undefined

@@ -38,7 +38,7 @@ const DetachAction = memo(({ disk, name: imageName }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
-        icon: <Trash size={18} />,
+        icon: <Trash />,
         tooltip: Tr(T.Detach)
       }}
       options={[{
@@ -64,14 +64,14 @@ const SaveAsAction = memo(({ disk, snapshot, name: imageName }) => {
     const data = { disk: diskId, name: NAME, snapshot: snapshotId }
     const response = await saveAsDisk(vm.ID, data)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.DISK_SAVEAS}-${diskId}`,
-        icon: <SaveActionFloppy size={18} />,
+        icon: <SaveActionFloppy />,
         tooltip: Tr(T.SaveAs)
       }}
       options={[{
@@ -102,7 +102,7 @@ const ResizeAction = memo(({ disk, name: imageName }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`,
-        icon: <Expand size={18} />,
+        icon: <Expand />,
         tooltip: Tr(T.Resize)
       }}
       options={[{
@@ -135,7 +135,7 @@ const SnapshotCreateAction = memo(({ disk, name: imageName }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_CREATE}-${DISK_ID}`,
-        icon: <Camera size={18} />,
+        icon: <Camera />,
         tooltip: Tr(T.TakeSnapshot)
       }}
       options={[{
@@ -164,14 +164,14 @@ const SnapshotRenameAction = memo(({ disk, snapshot }) => {
     const data = { disk: DISK_ID, snapshot: ID, name: newName }
     const response = await renameDiskSnapshot(vm.ID, data)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_RENAME}-${DISK_ID}-${ID}`,
-        icon: <Edit size={18} />,
+        icon: <Edit />,
         tooltip: Tr(T.Edit)
       }}
       options={[{
@@ -201,7 +201,7 @@ const SnapshotRevertAction = memo(({ disk, snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_REVERT}-${DISK_ID}-${ID}`,
-        icon: <UndoAction size={18} />,
+        icon: <UndoAction />,
         tooltip: Tr(T.Revert)
       }}
       options={[{
@@ -231,7 +231,7 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_DELETE}-${DISK_ID}-${ID}`,
-        icon: <Trash size={18} />,
+        icon: <Trash />,
         tooltip: Tr(T.Delete)
       }}
       options={[{

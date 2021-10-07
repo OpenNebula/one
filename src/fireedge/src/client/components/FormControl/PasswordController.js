@@ -16,7 +16,7 @@
 import { memo, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { InputAdornment, IconButton } from '@material-ui/core'
+import { InputAdornment, IconButton } from '@mui/material'
 import { EyeEmpty as Visibility, EyeOff as VisibilityOff } from 'iconoir-react'
 
 import { TextController } from 'client/components/FormControl'
@@ -34,11 +34,11 @@ const PasswordController = memo(({ fieldProps, ...props }) => {
       type={showPassword ? 'text' : 'password'}
       fieldProps={{
         InputProps: {
-          endAdornment: <InputAdornment position="end">
+          endAdornment: <InputAdornment position='end'>
             <IconButton
-              aria-label="toggle password visibility"
+              aria-label='toggle password visibility'
               onClick={handleClickShowPassword}
-            >
+              size='large'>
               {showPassword ? <Visibility /> : <VisibilityOff />}
             </IconButton>
           </InputAdornment>

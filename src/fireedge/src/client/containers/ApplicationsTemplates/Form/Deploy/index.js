@@ -17,7 +17,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, CircularProgress, Backdrop } from '@material-ui/core'
+import { CircularProgress, Backdrop } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetchAll } from 'client/hooks'
 import { useApplicationTemplateApi } from 'client/features/One'
@@ -86,7 +87,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
   if ((applicationTemplate && !data) || loading) {
     return (
       <Backdrop open onClick={handleCancel} className={classes.backdrop}>
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

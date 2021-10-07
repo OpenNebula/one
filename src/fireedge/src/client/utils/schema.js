@@ -18,7 +18,7 @@
 // eslint-disable-next-line no-unused-vars
 import { JSXElementConstructor, SetStateAction } from 'react'
 // eslint-disable-next-line no-unused-vars
-import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@material-ui/core'
+import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@mui/material'
 import { string, number, boolean, array, object, BaseSchema } from 'yup'
 
 import { INPUT_TYPES } from 'client/constants'

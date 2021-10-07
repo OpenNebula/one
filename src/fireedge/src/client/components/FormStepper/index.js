@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { BaseSchema } from 'yup'
 import { useFormContext } from 'react-hook-form'
-import { useMediaQuery } from '@material-ui/core'
+import { useMediaQuery } from '@mui/material'
 
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'

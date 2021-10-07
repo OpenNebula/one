@@ -16,7 +16,7 @@
 import { memo, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import { useFetch, useSocket } from 'client/hooks'
 import { useProvisionApi } from 'client/features/One'

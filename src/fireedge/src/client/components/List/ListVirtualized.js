@@ -18,7 +18,8 @@ import { useRef, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVirtual } from 'react-virtual'
-import { debounce, makeStyles, Box, LinearProgress } from '@material-ui/core'
+import { debounce, Box, LinearProgress } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useNearScreen } from 'client/hooks'
 

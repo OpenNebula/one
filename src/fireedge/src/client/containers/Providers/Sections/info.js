@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@mui/material'
 import {
   Check as CheckIcon,
   Square as BlankSquareIcon,
   EyeEmpty as EyeIcon
 } from 'iconoir-react'
 
+import { useFetch } from 'client/hooks'
 import { useProviderApi } from 'client/features/One'
-import { Action } from 'client/components/Cards/SelectCard'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -35,7 +36,7 @@ const Info = memo(({ fetchProps }) => {
   const classes = useStyles()
   const { getProviderConnection } = useProviderApi()
 
-  const [showConnection, setShowConnection] = useState(undefined)
+  const { data: showConnection, fetchRequest, loading } = useFetch(getProviderConnection)
 
   const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = fetchProps?.data
   const {
@@ -49,14 +50,6 @@ const Info = memo(({ fetchProps }) => {
 
   const isChecked = checked =>
     checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
-
-  const ConnectionButton = () => (
-    <Action
-      icon={<EyeIcon />}
-      cy='provider-connection'
-      handleClick={() => getProviderConnection(ID).then(setShowConnection)}
-    />
-  )
 
   return (
     <Grid container spacing={1}>
@@ -96,9 +89,16 @@ const Info = memo(({ fetchProps }) => {
             <List className={clsx(classes.list, 'w-50')}>
               <ListItem className={classes.title}>
                 <Typography>{Tr(T.Credentials)}</Typography>
-                <span className={classes.alignToRight}>
-                  {!showConnection && <ConnectionButton />}
-                </span>
+                {!showConnection && (
+                  <span className={classes.alignToRight}>
+                    <SubmitButton
+                      data-cy='provider-connection'
+                      icon={<EyeIcon />}
+                      onClick={() => fetchRequest(ID)}
+                      isSubmitting={loading}
+                    />
+                  </span>
+                )}
               </ListItem>
               <Divider />
               {Object.entries(connection)?.map(([key, value]) =>

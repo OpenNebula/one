@@ -16,7 +16,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState, createRef, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, Divider } from '@material-ui/core'
+
+import { Divider } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles(theme => ({
   splitPane: {

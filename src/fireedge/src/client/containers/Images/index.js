@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState, useMemo } from 'react'
 
-import { Container, Box } from '@material-ui/core'
+import { Container, Box } from '@mui/material'
 
 import { ImagesTable } from 'client/components/Tables'
 import Detail from 'client/components/Tables/Images/detail'

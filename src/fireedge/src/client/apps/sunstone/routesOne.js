@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
-  Cell4x4 as InstancesIcons,
+  Cell4X4 as InstancesIcons,
   ModernTv as VmsIcons,
   Shuffle as VRoutersIcons,
 

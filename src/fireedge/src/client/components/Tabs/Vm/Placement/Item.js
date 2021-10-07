@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { Folder, User } from 'iconoir-react'
-import { Typography, Paper } from '@material-ui/core'
+import { Typography, Paper } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 import * as VirtualMachine from 'client/models/VirtualMachine'
@@ -65,12 +65,12 @@ const HistoryItem = ({ history }) => {
         </div>
         <div className={classes.caption}>
           <span title={`Datastore ID: ${DS_ID}`}>
-            <Folder size={16} />
+            <Folder />
             <span>{` ${DS_ID}`}</span>
           </span>
           {+UID !== -1 && (
             <span title={`Owner | Group | Request ID: ${ownerInfo}`}>
-              <User size={16} />
+              <User />
               <span>{` ${ownerInfo}`}</span>
             </span>
           )}

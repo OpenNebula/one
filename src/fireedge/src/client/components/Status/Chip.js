@@ -16,24 +16,27 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Typography, lighten, darken } from '@material-ui/core'
+import { Typography, lighten, darken } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { addOpacityToColor } from 'client/utils'
 import { SCHEMES } from 'client/constants'
 
-const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.type === SCHEMES.DARK ? lighten : darken
-  const defaultStateColor = theme.palette.grey[theme.palette.type === SCHEMES.DARK ? 300 : 700]
+const useStyles = makeStyles(({ spacing, palette, typography }) => {
+  const getBackgroundColor = palette.mode === SCHEMES.DARK ? lighten : darken
+  const defaultStateColor = palette.grey[palette.mode === SCHEMES.DARK ? 300 : 700]
 
   return {
     root: ({ stateColor = defaultStateColor }) => ({
       color: getBackgroundColor(stateColor, 0.75),
       backgroundColor: addOpacityToColor(stateColor, 0.2),
       cursor: 'default',
-      padding: theme.spacing('0.25rem', '0.5rem'),
+      padding: spacing('0.25rem', '0.5rem'),
       borderRadius: 2,
       textTransform: 'uppercase',
-      fontSize: theme.typography.overline.fontSize,
-      fontWeight: theme.typography.fontWeightBold
+      fontSize: typography.overline.fontSize,
+      fontWeight: 500,
+      lineHeight: 'normal'
     })
   }
 })

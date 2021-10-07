@@ -37,7 +37,7 @@ const RevertAction = memo(({ snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
-        icon: <UndoAction size={18} />
+        icon: <UndoAction />
       }}
       options={[{
         isConfirmDialog: true,
@@ -62,7 +62,7 @@ const DeleteAction = memo(({ snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
-        icon: <Trash size={18} />
+        icon: <Trash />
       }}
       options={[{
         isConfirmDialog: true,

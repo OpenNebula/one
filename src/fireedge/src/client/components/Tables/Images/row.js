@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { Lock, User, Group, Folder, ModernTv } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
@@ -51,7 +51,7 @@ const Row = ({ original, value, ...props }) => {
           <Typography component='span'>
             {NAME}
           </Typography>
-          {LOCK && <Lock size={20} />}
+          {LOCK && <Lock />}
           <span className={classes.labels}>
             {labels.map(label => (
               <StatusChip key={label} text={label} />
@@ -63,19 +63,19 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           <span title={`Datastore: ${DATASTORE}`}>
-            <Folder size={16} />
+            <Folder />
             <span>{` ${DATASTORE}`}</span>
           </span>
           <span title={`Running / Used VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
-            <ModernTv size={16} />
+            <ModernTv />
             <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
           </span>
         </div>

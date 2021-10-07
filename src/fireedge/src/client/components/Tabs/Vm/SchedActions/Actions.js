@@ -37,7 +37,7 @@ const CreateSchedAction = memo(() => {
     const data = { template: Helper.jsonToXml({ SCHED_ACTION: formData }) }
     const response = await addScheduledAction(vm.ID, data)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
@@ -45,7 +45,8 @@ const CreateSchedAction = memo(() => {
       buttonProps={{
         color: 'secondary',
         'data-cy': 'create-sched-action',
-        label: Tr(T.AddAction)
+        label: T.AddAction,
+        variant: 'outlined'
       }}
       options={[{
         cy: 'create-sched-action-punctual',
@@ -79,14 +80,14 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
 
     const response = await updateScheduledAction(vm.ID, data)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`,
-        icon: <Edit size={18} />,
+        icon: <Edit />,
         tooltip: <Translate word={T.Edit} />
       }}
       options={[{
@@ -111,14 +112,14 @@ const DeleteSchedAction = memo(({ schedule, name }) => {
     const data = { id_sched: ID }
     const response = await deleteScheduledAction(vm.ID, data)
 
-    String(response) === String(vm.ID) && await handleRefetch?.(vm.ID)
+    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
-        icon: <Trash size={18} />,
+        icon: <Trash />,
         tooltip: <Translate word={T.Delete} />
       }}
       options={[{
@@ -155,7 +156,7 @@ const CharterAction = memo(() => {
       })
     )
 
-    response.some(res => String(res) === String(vm?.ID)) && await handleRefetch?.(vm.ID)
+    response.some(res => String(res) === String(vm?.ID)) && (await handleRefetch?.(vm.ID))
   }
 
   return (
@@ -163,7 +164,7 @@ const CharterAction = memo(() => {
       buttonProps={{
         'data-cy': 'create-charter',
         icon: <ClockOutline />,
-        tooltip: Tr(T.Charter)
+        tooltip: <Translate word={T.Charter} />
       }}
       options={[{
         isConfirmDialog: true,

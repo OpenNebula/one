@@ -16,14 +16,14 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import { useFetch } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
 import { useUserApi } from 'client/features/One'
 
 import Tabs from 'client/components/Tabs'
-import { sentenceCase, camelCase } from 'client/utils'
+import { camelCase } from 'client/utils'
 
 import TabProvider from 'client/components/Tabs/TabProvider'
 import Info from 'client/components/Tabs/User/Info'
@@ -55,7 +55,7 @@ const UserTabs = memo(({ id }) => {
         const TabContent = getTabComponent(camelName)
 
         return TabContent && {
-          name: sentenceCase(camelName),
+          name: camelName,
           renderContent: props => TabContent({ ...props, tabProps })
         }
       })

@@ -38,9 +38,12 @@ module.exports = {
   Change: 'Change',
   ChangeGroup: 'Change group',
   ChangeOwner: 'Change owner',
+  Clear: 'Clear',
   Clone: 'Clone',
   CloneSeveralTemplates: 'Clone several Templates',
   CloneTemplate: 'Clone Template',
+  Close: 'Close',
+  Collapse: 'Collapse',
   Configuration: 'Configuration',
   Create: 'Create',
   CreateMarketApp: 'Create Marketplace App',
@@ -61,11 +64,13 @@ module.exports = {
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
+  Pin: 'Pin',
   Poweroff: 'Poweroff',
   PoweroffHard: 'Poweroff hard',
   Reboot: 'Reboot',
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
+  RecoverSomething: 'Recover: %s',
   RecoverSeveralVMs: 'Recover several VMs',
   Refresh: 'Refresh',
   Release: 'Release',
@@ -148,6 +153,8 @@ module.exports = {
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
   Credentials: 'Credentials',
+  SwitchView: 'Switch view',
+  SwitchGroup: 'Switch group',
 
   /* errors */
   SessionExpired: 'Sorry, your session has expired',
@@ -297,6 +304,9 @@ module.exports = {
   ReadyStatusGate: 'Ready status gate',
 
   /* VM schema */
+  /* VM schema - info */
+  UserTemplate: 'User Template',
+  Template: 'Template',
   /* VM schema - capacity */
   Capacity: 'Capacity',
   PhysicalCpu: 'Physical CPU',

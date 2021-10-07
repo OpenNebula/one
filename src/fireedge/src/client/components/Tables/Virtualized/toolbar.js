@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { makeStyles, Button } from '@material-ui/core'
+import { Button } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { Filter as FilterIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'react-table'
 

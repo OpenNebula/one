@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { makeStyles } from '@material-ui/core'
+import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles(
   ({ palette, typography, breakpoints }) => ({
@@ -58,7 +58,6 @@ export default makeStyles(
       display: 'grid',
       gap: '1em',
       gridTemplateColumns: 'minmax(0, 1fr)',
-      // gridTemplateRows: 'repeat(auto-fill, 10em)',
       gridAutoRows: 'max-content',
       paddingBlock: '0.8em',
       '& > [role=row]': {
@@ -66,7 +65,7 @@ export default makeStyles(
         cursor: 'pointer',
         color: palette.text.primary,
         backgroundColor: palette.background.paper,
-        fontWeight: typography.fontWeightMedium,
+        fontWeight: typography.fontWeightRegular,
         fontSize: '1em',
         border: `1px solid ${palette.divider}`,
         borderRadius: '0.5em',

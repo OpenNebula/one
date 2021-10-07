@@ -15,15 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { memo, JSXElementConstructor } from 'react'
 
-import { Skeleton } from '@material-ui/lab'
-import { useMediaQuery, styled } from '@material-ui/core'
+import { useMediaQuery, styled, Skeleton } from '@mui/material'
 
 const ControlWrapper = styled('div')(({ theme }) => ({
   marginBlock: '1em',
   display: 'flex',
   justifyContent: 'end',
   gap: '1em',
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('lg')]: {
     justifyContent: 'space-between',
     alignItems: 'center'
   }
@@ -35,17 +34,17 @@ const ControlWrapper = styled('div')(({ theme }) => ({
  * @returns {JSXElementConstructor} Skeleton loader component
  */
 const SkeletonStepsForm = memo(() => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('lg'))
 
   return (
     <div>
-      <Skeleton variant='rect' height={120} width='100%' />
+      <Skeleton variant="rectangular" height={120} width='100%' />
       <ControlWrapper>
-        <Skeleton variant='rect' height={35} width={95} />
-        {isMobile && <Skeleton variant='rect' height={8} width='100%' />}
-        <Skeleton variant='rect' height={35} width={95} />
+        <Skeleton variant="rectangular" height={35} width={95} />
+        {isMobile && <Skeleton variant="rectangular" height={8} width='100%' />}
+        <Skeleton variant="rectangular" height={35} width={95} />
       </ControlWrapper>
-      <Skeleton variant='rect' height={200} width='100%' />
+      <Skeleton variant="rectangular" height={200} width='100%' />
     </div>
   )
 })

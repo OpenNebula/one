@@ -18,7 +18,8 @@ import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
-import { makeStyles, MenuItem, MenuList, Chip } from '@material-ui/core'
+import { MenuItem, MenuList, Chip } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { TableInstance, UseSortByInstanceProps, UseSortByState } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
@@ -79,7 +80,8 @@ const GlobalSort = ({ useTableProps }) => {
           buttonLabel={T.SortBy}
           buttonProps={{
             'data-cy': 'sort-by-button',
-            disabled: headersNotSorted.length === 0
+            disabled: headersNotSorted.length === 0,
+            variant: 'outlined'
           }}
           popoverProps= {{
             anchorOrigin: {

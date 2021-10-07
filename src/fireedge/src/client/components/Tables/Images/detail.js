@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress } from '@mui/material'
 
 import Tabs from 'client/components/Tabs'
 import { StatusBadge } from 'client/components/Status'

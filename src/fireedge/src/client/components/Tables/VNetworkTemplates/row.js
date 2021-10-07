@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, Lock, Cloud } from 'iconoir-react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -38,7 +38,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            {LOCK && <Lock size={20} />}
+            {LOCK && <Lock />}
           </span>
         </div>
         <div className={classes.caption}>
@@ -46,15 +46,15 @@ const Row = ({ original, value, ...props }) => {
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
-            <User size={16} />
+            <User />
             <span>{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
-            <Group size={16} />
+            <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud size={16} />
+            <Cloud />
             <span>{` ${PROVISION_ID}`}</span>
           </span>}
         </div>

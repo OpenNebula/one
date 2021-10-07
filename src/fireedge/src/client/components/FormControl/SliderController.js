@@ -16,7 +16,7 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Typography, TextField, Slider, FormHelperText, Grid } from '@material-ui/core'
+import { Typography, TextField, Slider, FormHelperText, Grid } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
@@ -30,13 +30,13 @@ const SliderController = memo(
       </Typography>
       <Controller
         render={({ value, onChange, onBlur }) =>
-          <Grid container spacing={2} alignItems="center">
+          <Grid container spacing={2} alignItems='center'>
             <Grid item xs>
               <Slider
                 color='secondary'
                 value={typeof value === 'number' ? value : 0}
                 aria-labelledby={`slider-${name}`}
-                valueLabelDisplay="auto"
+                valueLabelDisplay='auto'
                 data-cy={`${cy}-slider`}
                 {...fieldProps}
                 onChange={(_, val) => onChange(val)}
@@ -44,13 +44,10 @@ const SliderController = memo(
             </Grid>
             <Grid item>
               <TextField
-                color='secondary'
                 fullWidth
                 value={value ?? ''}
                 error={Boolean(error)}
                 type='number'
-                variant='outlined'
-                margin='dense'
                 inputProps={{
                   'data-cy': `${cy}-input`,
                   'aria-labelledby': `slider-${name}`,

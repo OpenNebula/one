@@ -16,7 +16,9 @@
 import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
 import { Link as RouterLink } from 'react-router-dom'
-import { makeStyles, Typography, Link } from '@material-ui/core'
+
+import { Typography, Link } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
@@ -69,7 +71,7 @@ const Attribute = memo(({
   const handleCancel = () => setIsEditing(false)
 
   const handleActiveEditForm = async () => {
-    const response = await handleGetOptionList?.() ?? []
+    const response = (await handleGetOptionList?.()) ?? []
     const isFormatValid = response?.every?.(({ text, value } = {}) => !!text && !!value)
 
     if (!handleGetOptionList || isFormatValid) {

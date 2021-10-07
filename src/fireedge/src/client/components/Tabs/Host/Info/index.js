@@ -45,7 +45,7 @@ const HostInfoTab = ({ tabProps = {} }) => {
 
   const handleRename = async newName => {
     const response = await rename(ID, newName)
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -58,7 +58,7 @@ const HostInfoTab = ({ tabProps = {} }) => {
     // 0: Replace the whole template
     const response = await updateUserTemplate(ID, xml, 0)
 
-    String(response) === String(ID) && await handleRefetch?.()
+    String(response) === String(ID) && (await handleRefetch?.())
   }
 
   const getActions = actions => Helper.getActionsAvailable(actions)
