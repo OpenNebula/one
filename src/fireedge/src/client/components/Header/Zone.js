@@ -33,7 +33,7 @@ const Zone = memo(() => (
     disablePadding
   >
     {({ handleClose }) => (
-      <MenuList disablePadding>
+      <MenuList>
         <MenuItem onClick={handleClose}>
           <Translate word={T.Zone} />
         </MenuItem>

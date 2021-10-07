@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
+import PropTypes from 'prop-types'
 
 import { Button } from '@mui/material'
 import { ViewGrid as ViewIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
@@ -25,17 +26,20 @@ import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const View = () => {
-  const { view, views = {} } = useAuth()
+const ButtonView = memo(({ view, handleClick }) => {
   const { changeView } = useAuthApi()
+  const { view: currentView } = useAuth()
+  const isCurrentView = currentView === view
 
-  const renderResult = (newView, handleClose) => (
+  return (
     <Button
-      key={`view-${newView}`}
+      key={`view-${view}`}
       fullWidth
+      color='debug'
+      variant='outlined'
       onClick={() => {
-        newView && newView !== view && changeView(newView)
-        handleClose()
+        view && !isCurrentView && changeView(view)
+        handleClick()
       }}
       sx={{
         color: theme => theme.palette.text.primary,
@@ -43,12 +47,22 @@ const View = () => {
         '& svg:first-of-type': { my: 0, mx: 2 }
       }}
     >
-      {newView}
-      {newView === view && <SelectIcon size='1em' />}
+      {view}
+      {isCurrentView && <SelectIcon />}
     </Button>
   )
+}, (prev, next) => prev.view === next.view)
 
-  const viewNames = useMemo(() => Object.keys(views), [view])
+ButtonView.propTypes = {
+  view: PropTypes.string.isRequired,
+  handleClick: PropTypes.func
+}
+
+ButtonView.displayName = 'ButtonView'
+
+const View = () => {
+  const { view: currentView, views = {} } = useAuth()
+  const viewNames = useMemo(() => Object.keys(views), [currentView])
 
   return (
     <HeaderPopover
@@ -62,7 +76,12 @@ const View = () => {
         <Search
           list={viewNames}
           maxResults={5}
-          renderResult={item => renderResult(item, handleClose)}
+          renderResult={view => (
+            <ButtonView
+              view={view}
+              handleClick={handleClose}
+            />
+          )}
         />
       )}
     </HeaderPopover>

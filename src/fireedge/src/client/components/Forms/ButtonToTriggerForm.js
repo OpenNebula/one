@@ -86,10 +86,6 @@ const ButtonToTriggerForm = ({
           onClose={handleClose}
           TransitionComponent={Grow}
           sx={{ zIndex: 2 }}
-          MenuListProps={{
-            dense: true,
-            disablePadding: true
-          }}
         >
           {options.map(({ cy, disabled, icon: Icon, name, ...option }) => (
             <MenuItem

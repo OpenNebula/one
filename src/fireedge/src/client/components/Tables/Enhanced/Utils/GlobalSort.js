@@ -95,7 +95,7 @@ const GlobalSort = ({ useTableProps }) => {
           }}
         >
           {() => (
-            <MenuList disablePadding>
+            <MenuList>
               {headersNotSorted.length
                 ? headersNotSorted?.map(({ id, Header: name }) => (
                   <MenuItem key={id} onClick={() => { handleClick(id, name) }}>

@@ -14,59 +14,68 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo, memo } from 'react'
+import PropTypes from 'prop-types'
+
 import { Button } from '@mui/material'
 import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
-import { Translate } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T, FILTER_POOL } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
-const Group = () => {
-  const { user, groups, filterPool } = useAuth()
+const ButtonGroup = memo(({ group, handleClick }) => {
   const { changeGroup } = useAuthApi()
+  const { user, filterPool } = useAuth()
 
-  const renderResult = ({ ID, NAME }, handleClose) => {
-    const isSelected =
+  const { ID, NAME } = group
+
+  const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
       (filterPool === PRIMARY_GROUP_RESOURCES && user?.GID === ID)
 
-    return (
-      <Button
-        key={`switcher-group-${ID}`}
-        fullWidth
-        tooltip={<Translate Word={T.Group} />}
-        onClick={() => {
-          ID && changeGroup({ id: user.ID, group: ID })
-          handleClose()
-        }}
-        sx={{
-          color: theme => theme.palette.text.primary,
-          justifyContent: 'start',
-          '& svg:first-of-type': { my: 0, mx: 2 }
-        }}
-      >
-        {NAME}
-        {isSelected && <SelectIcon />}
-      </Button>
-    )
-  }
+  return (
+    <Button
+      key={`switcher-group-${ID}`}
+      fullWidth
+      color='debug'
+      variant='outlined'
+      tooltip={<Translate Word={T.Group} />}
+      onClick={() => {
+        ID && changeGroup({ id: user.ID, group: ID })
+        handleClick()
+      }}
+      sx={{
+        color: theme => theme.palette.text.primary,
+        justifyContent: 'start',
+        '& svg:first-of-type': { my: 0, mx: 2 }
+      }}
+    >
+      {NAME}
+      {isSelected && <SelectIcon />}
+    </Button>
+  )
+}, (prev, next) => prev.group.ID === next.group.ID)
+
+const Group = () => {
+  const { user, groups } = useAuth()
 
   const sortGroupAsMainFirst = (a, b) => {
-    if (a.ID === user?.GUID) {
-      return -1
-    } else if (b.ID === user?.GUID) {
-      return 1
-    }
-    return 0
+    return a.ID === user?.GUID
+      ? -1
+      : b.ID === user?.GUID ? 1 : 0
   }
 
-  const sortMainGroupFirst = groups
-    ?.concat({ ID: ALL_RESOURCES, NAME: 'Show All' })
-    ?.sort(sortGroupAsMainFirst)
+  const sortMainGroupFirst = useMemo(
+    () => [{ ID: ALL_RESOURCES, NAME: Tr(T.ShowAll) }]
+      ?.concat(groups)
+      ?.sort(sortGroupAsMainFirst),
+    [user?.GUID]
+  )
 
   return (
     <HeaderPopover
@@ -85,11 +94,26 @@ const Group = () => {
             keys: ['NAME']
           }}
           maxResults={5}
-          renderResult={group => renderResult(group, handleClose)}
+          renderResult={group => (
+            <ButtonGroup
+              group={group}
+              handleClick={handleClose}
+            />
+          )}
         />
       )}
     </HeaderPopover>
   )
 }
+
+ButtonGroup.propTypes = {
+  group: PropTypes.shape({
+    ID: PropTypes.string,
+    NAME: PropTypes.string
+  }).isRequired,
+  handleClick: PropTypes.func
+}
+
+ButtonGroup.displayName = 'ButtonGroup'
 
 export default Group

@@ -371,6 +371,12 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             }
           }
         }
+      },
+      MuiList: {
+        defaultProps: {
+          dense: true,
+          disablePadding: true
+        }
       }
     }
   }
