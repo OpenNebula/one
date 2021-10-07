@@ -88,7 +88,7 @@ const ActionItem = memo(({ item, selectedRows }) => {
       buttonProps={buttonProps}
       options={options?.map(option => {
         const { accessor, form, onSubmit, dialogProps, disabled: optionDisabled } = option ?? {}
-        const { title, children } = dialogProps ?? {}
+        const { description, subheader, title, children } = dialogProps ?? {}
 
         return {
           ...option,
@@ -98,6 +98,8 @@ const ActionItem = memo(({ item, selectedRows }) => {
             : optionDisabled,
           dialogProps: {
             ...dialogProps,
+            description: typeof description === 'function' ? description(selectedRows) : description,
+            subheader: typeof subheader === 'function' ? subheader(selectedRows) : subheader,
             title: typeof title === 'function' ? title(selectedRows) : title,
             children: typeof children === 'function' ? children(selectedRows) : children
           },

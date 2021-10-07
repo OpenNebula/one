@@ -100,7 +100,7 @@ const DialogConfirmation = memo(
               </Typography>
             )}
             {subheader && (
-              <Typography variant='subtitle1'>
+              <Typography variant='body1'>
                 {typeof subheader === 'string' ? Tr(subheader) : subheader}
               </Typography>
             )}
@@ -144,7 +144,10 @@ export const DialogPropTypes = {
     PropTypes.string,
     PropTypes.node
   ]),
-  subheader: PropTypes.string,
+  subheader: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node
+  ]),
   contentProps: PropTypes.object,
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.object,

@@ -68,7 +68,8 @@ export const INPUT_TYPES = {
   PASSWORD: 'password',
   SELECT: 'select',
   SLIDER: 'slider',
-  TEXT: 'text'
+  TEXT: 'text',
+  TABLE: 'table'
 }
 
 export const DEBUG_LEVEL = {

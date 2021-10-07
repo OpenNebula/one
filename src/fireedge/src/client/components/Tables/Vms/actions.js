@@ -16,6 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
+import { Typography } from '@mui/material'
 import {
   RefreshDouble,
   AddSquare,
@@ -33,7 +34,7 @@ import { useAuth } from 'client/features/Auth'
 import { useVmApi } from 'client/features/One'
 import { Translate } from 'client/components/HOC'
 
-import { RecoverForm } from 'client/components/Forms/Vm'
+import { RecoverForm, ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS, VM_ACTIONS_BY_STATE } from 'client/constants'
@@ -46,22 +47,31 @@ const isDisabled = action => rows => {
   return states.some(state => !VM_ACTIONS_BY_STATE[action]?.includes(state))
 }
 
-const MessageToConfirmAction = rows => {
-  const names = rows?.map?.(({ original }) => original?.NAME)
+const ListVmNames = ({ rows = [] }) => (
+  <Typography>
+    <Translate word={T.VMs} />
+    {`: ${rows?.map?.(({ original }) => original?.NAME).join(', ')}`}
+  </Typography>
+)
 
-  return (
-    <>
-      <p>
-        <Translate word={T.VMs} />
-        {`: ${names.join(', ')}`}
-      </p>
-      <p>
-        <Translate word={T.DoYouWantProceed} />
-      </p>
-    </>
-  )
+const SubHeader = rows => {
+  const isMultiple = rows?.length > 1
+  const firstRow = rows?.[0]?.original
+
+  return isMultiple
+    ? <ListVmNames rows={rows} />
+    : <>{`#${firstRow?.ID} ${firstRow?.NAME}`}</>
 }
 
+const MessageToConfirmAction = rows => (
+  <>
+    <ListVmNames rows={rows} />
+    <Translate word={T.DoYouWantProceed} />
+  </>
+)
+
+ListVmNames.displayName = 'ListVmNames'
+SubHeader.displayName = 'SubHeader'
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
@@ -86,6 +96,7 @@ const Actions = () => {
     resched,
     unresched,
     recover,
+    changeOwnership,
     lock,
     unlock
   } = useVmApi()
@@ -277,7 +288,7 @@ const Actions = () => {
           accessor: VM_ACTIONS.HOLD,
           disabled: isDisabled(VM_ACTIONS.HOLD),
           name: T.Hold,
-          form: () => undefined,
+          isConfirmDialog: true,
           dialogProps: {
             title: T.Hold,
             children: MessageToConfirmAction
@@ -291,7 +302,7 @@ const Actions = () => {
           accessor: VM_ACTIONS.RELEASE,
           disabled: isDisabled(VM_ACTIONS.RELEASE),
           name: T.Release,
-          form: () => undefined,
+          isConfirmDialog: true,
           dialogProps: {
             title: T.Release,
             children: MessageToConfirmAction
@@ -305,7 +316,7 @@ const Actions = () => {
           accessor: VM_ACTIONS.RESCHED,
           disabled: isDisabled(VM_ACTIONS.RESCHED),
           name: T.Reschedule,
-          form: () => undefined,
+          isConfirmDialog: true,
           dialogProps: {
             title: T.Reschedule,
             children: MessageToConfirmAction
@@ -319,7 +330,7 @@ const Actions = () => {
           accessor: VM_ACTIONS.UNRESCHED,
           disabled: isDisabled(VM_ACTIONS.UNRESCHED),
           name: T.UnReschedule,
-          form: () => undefined,
+          isConfirmDialog: true,
           dialogProps: {
             title: T.UnReschedule,
             children: MessageToConfirmAction
@@ -334,15 +345,8 @@ const Actions = () => {
           disabled: isDisabled(VM_ACTIONS.RECOVER),
           name: T.Recover,
           dialogProps: {
-            // eslint-disable-next-line react/display-name
-            title: rows => {
-              const isMultiple = rows?.length > 1
-              const { ID, NAME } = rows?.[0]?.original
-
-              return isMultiple
-                ? <Translate word={T.RecoverSeveralVMs} />
-                : <Translate word={T.RecoverSomething} values={`#${ID} ${NAME}`} />
-            }
+            title: T.Recover,
+            subheader: SubHeader
           },
           form: RecoverForm,
           onSubmit: async (_, rows) => {
@@ -361,14 +365,30 @@ const Actions = () => {
           accessor: VM_ACTIONS.CHANGE_OWNER,
           disabled: isDisabled(VM_ACTIONS.CHANGE_OWNER),
           name: T.ChangeOwner,
-          form: () => undefined,
-          onSubmit: () => undefined
+          dialogProps: {
+            title: T.ChangeOwner,
+            subheader: SubHeader
+          },
+          form: ChangeUserForm,
+          onSubmit: async (newOwnership, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => changeOwnership(id, newOwnership)))
+            await Promise.all(ids.map(id => getVm(id)))
+          }
         }, {
           accessor: VM_ACTIONS.CHANGE_GROUP,
           disabled: isDisabled(VM_ACTIONS.CHANGE_GROUP),
           name: T.ChangeGroup,
-          form: () => undefined,
-          onSubmit: () => undefined
+          dialogProps: {
+            title: T.ChangeGroup,
+            subheader: SubHeader
+          },
+          form: ChangeGroupForm,
+          onSubmit: async (newOwnership, rows) => {
+            const ids = rows?.map?.(({ original }) => original?.ID)
+            await Promise.all(ids.map(id => changeOwnership(id, newOwnership)))
+            await Promise.all(ids.map(id => getVm(id)))
+          }
         }]
       },
       {

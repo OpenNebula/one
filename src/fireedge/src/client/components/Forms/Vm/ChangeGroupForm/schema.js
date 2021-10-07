@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Typography } from '@mui/material'
+/* eslint-disable jsdoc/require-jsdoc */
+import { string, object } from 'yup'
 
-import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/RecoverForm/schema'
+import { GroupsTable } from 'client/components/Tables'
+import { INPUT_TYPES } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
 
-const RecoverForm = createForm(
-  SCHEMA,
-  FIELDS,
-  {
-    description: (
-      <Typography variant='subtitle1' padding='1rem'>
-        {`Recovers a stuck VM that is waiting for a driver operation.
-          The recovery may be done by failing, succeeding or retrying the
-          current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
-          to decide if the operation was successful or not, or if it can be retried.`}
-      </Typography>
-    )
-  }
-)
+const GROUP = {
+  name: 'group',
+  label: 'Select the new group',
+  type: INPUT_TYPES.TABLE,
+  Table: GroupsTable,
+  validation: string()
+    .trim()
+    .required('You must select a group')
+    .default(() => undefined),
+  grid: { md: 12 }
+}
 
-export default RecoverForm
+export const FIELDS = [GROUP]
+
+export const SCHEMA = object(getValidationFromFields(FIELDS))

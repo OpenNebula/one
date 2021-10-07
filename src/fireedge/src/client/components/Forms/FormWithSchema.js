@@ -33,7 +33,7 @@ const Legend = styled('legend')(({ theme }) => ({
   borderBottom: `2px solid ${theme.palette.secondary.main}`
 }))
 
-const NOT_DEPEND_ATTRIBUTES = ['transform']
+const NOT_DEPEND_ATTRIBUTES = ['transform', 'Table']
 
 const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: FC.TextController,
@@ -44,7 +44,8 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.CHECKBOX]: FC.CheckboxController,
   [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
   [INPUT_TYPES.FILE]: FC.FileController,
-  [INPUT_TYPES.TIME]: FC.TimeController
+  [INPUT_TYPES.TIME]: FC.TimeController,
+  [INPUT_TYPES.TABLE]: FC.TableController
 }
 
 const FormWithSchema = ({ id, cy, fields, className, legend }) => {

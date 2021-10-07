@@ -16,15 +16,22 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo, useEffect } from 'react'
 
+import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useUser, useUserApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
 
-const UsersTable = () => {
-  const columns = useMemo(() => UserColumns, [])
+const UsersTable = props => {
+  const { view, getResourceView, filterPool } = useAuth()
+
+  const columns = useMemo(() => createColumns({
+    filters: getResourceView('USER')?.filters,
+    columns: UserColumns
+  }), [view])
 
   const users = useUser()
   const { getUsers } = useUserApi()
@@ -32,7 +39,7 @@ const UsersTable = () => {
   const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getUsers)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => { fetchRequest() }, [filterPool])
 
   if (users?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -45,6 +52,7 @@ const UsersTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={UserRow}
+      {...props}
     />
   )
 }

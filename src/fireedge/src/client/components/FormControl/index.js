@@ -20,6 +20,7 @@ import PasswordController from 'client/components/FormControl/PasswordController
 import SelectController from 'client/components/FormControl/SelectController'
 import SliderController from 'client/components/FormControl/SliderController'
 import SwitchController from 'client/components/FormControl/SwitchController'
+import TableController from 'client/components/FormControl/TableController'
 import TextController from 'client/components/FormControl/TextController'
 import TimeController from 'client/components/FormControl/TimeController'
 
@@ -36,6 +37,7 @@ export {
   SelectController,
   SliderController,
   SwitchController,
+  TableController,
   TextController,
   TimeController,
 

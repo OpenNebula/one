@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
+import ChangeUserForm from 'client/components/Forms/Vm/ChangeUserForm'
+import ChangeGroupForm from 'client/components/Forms/Vm/ChangeGroupForm'
 import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
 import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
 import RecoverForm from 'client/components/Forms/Vm/RecoverForm'
@@ -25,6 +27,8 @@ export * from 'client/components/Forms/Vm/CreateSchedActionForm'
 
 export {
   AttachNicForm,
+  ChangeUserForm,
+  ChangeGroupForm,
   CreateDiskSnapshotForm,
   CreateSnapshotForm,
   RecoverForm,
