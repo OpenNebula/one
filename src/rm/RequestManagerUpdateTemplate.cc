@@ -97,6 +97,13 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
+    if (extra_preconditions_check(object.get(), att.resp_msg))
+    {
+        failure_response(ACTION, att);
+
+        return;
+    }
+
     if (update_type == 0)
     {
         rc = replace_template(object.get(), tmpl, att, att.resp_msg);
