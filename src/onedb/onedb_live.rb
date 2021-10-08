@@ -118,7 +118,9 @@ class OneDBLive
 
     def purge_history(options = {})
         vmpool = OpenNebula::VirtualMachinePool.new(client)
-        vmpool.info_all
+        rc     = vmpool.info_all
+
+        return rc if OpenNebula.is_error?(rc)
 
         ops = {
             :start_time => 0,
@@ -217,7 +219,7 @@ class OneDBLive
         end_time    = ops[:end_time].to_i
         done        = OpenNebula::VirtualMachine::VM_STATE.index('DONE')
 
-        vmpool.each_page_delete(ops[:pages], done, false) do |obj|
+        rc = vmpool.each_page_delete(ops[:pages], done, false) do |obj|
             time = obj['ETIME'].to_i
 
             # return false because the VM wasn't deleted
@@ -230,6 +232,8 @@ class OneDBLive
 
             true
         end
+
+        return rc if OpenNebula.is_error?(rc)
     end
 
     def check_expr(object, expr)
@@ -409,7 +413,7 @@ class OneDBLive
             rescue StandardError => e
                 STDERR.puts "Error getting object id #{o.id}"
                 STDERR.puts e.message
-                next
+                return
             end
 
             row = db_data.first
@@ -555,6 +559,7 @@ class OneDBLive
         rescue StandardError => e
             STDERR.puts "Error getting object id #{id}"
             STDERR.puts e.message
+            return
         end
 
         row = db_data.first
@@ -582,7 +587,7 @@ class OneDBLive
         begin
             db_data = select('history', "vid = #{vid} and seq = #{seq}")
         rescue StandardError => e
-            error_str = "Error getting history record #{seq} for VM #{vid}"
+            error_str = "Error getting history record #{seq} for VM #{vid}\n"
             error_str << e.message
 
             raise error_str

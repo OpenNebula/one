@@ -561,7 +561,12 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [START_TIME, END_TIME] do
         begin
             action = OneDBLive.new
-            action.purge_history(options)
+            rc     = action.purge_history(options)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.message
             pp e.backtrace
@@ -584,7 +589,12 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [START_TIME, END_TIME, PAGES] do
         begin
             action = OneDBLive.new
-            action.purge_done_vm(options)
+            rc     = action.purge_done_vm(options)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.name
             pp e.backtrace
@@ -649,7 +659,12 @@ CommandParser::CmdParser.new(ARGV) do
                          OpenNebulaHelper::APPEND] do
         begin
             action = OneDBLive.new
-            action.change_body(args[0], args[1], args[2], options)
+            rc     = action.change_body(args[0], args[1], args[2], options)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]
@@ -688,7 +703,12 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             action = OneDBLive.new
-            action.change_history(vid, seq, args[0], args[1], options)
+            rc     = action.change_history(vid, seq, args[0], args[1], options)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]
@@ -721,7 +741,12 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             action = OneDBLive.new
-            action.update_body_cli(args[0], options[:id])
+            rc     = action.update_body_cli(args[0], options[:id])
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]
@@ -754,7 +779,12 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             action = OneDBLive.new
-            action.update_history_cli(options[:id], options[:seq])
+            rc     = action.update_history_cli(options[:id], options[:seq])
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]
@@ -787,7 +817,14 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             action = OneDBLive.new
-            STDOUT.puts action.show_body_cli(args[0], options[:id])
+            rc     = action.show_body_cli(args[0], options[:id])
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            else
+                puts rc if rc
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]
@@ -820,7 +857,14 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             action = OneDBLive.new
-            STDOUT.puts action.show_history_cli(options[:id], options[:seq])
+            rc     = action.show_history_cli(options[:id], options[:seq])
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "ERROR: #{rc.message}"
+                exit(-1)
+            else
+                puts rc if rc
+            end
         rescue StandardError => e
             puts e.message
             [-1, e.message]

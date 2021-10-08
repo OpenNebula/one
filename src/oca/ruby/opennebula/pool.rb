@@ -261,6 +261,8 @@ module OpenNebula
                 size = OpenNebula.pool_page_size if (!size || size == 0)
                 rc   = @client.call(method, @user_id, current, -size, state)
 
+                return rc if OpenNebula.is_error?(rc)
+
                 initialize_xml(rc, @pool_name)
             else
                 rc = info
@@ -276,11 +278,11 @@ module OpenNebula
             page    = OpenNebula::XMLElement.new
 
             loop do
-                page.initialize_xml(get_page(size,
-                                             current,
-                                             extended,
-                                             state),
-                                             @pool_name)
+                rc = get_page(size, current, extended, state)
+
+                break rc if OpenNebula.is_error?(rc)
+
+                page.initialize_xml(rc, @pool_name)
 
                 break if page["//#{element}"].nil?
 
