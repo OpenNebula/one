@@ -320,18 +320,39 @@ end
 
 put '/service/:id' do
     new_template = request.body.read
+    append       = nil
 
     begin
         # Check that the JSON is valid
         json_template = JSON.parse(new_template)
 
+        # ----------------------------------------------------------------------
+        # Manage append
+        #
+        #   To avoid changing the way the API request is performed, to check if
+        #   manage is present, we check that the JSON contains especific keys:
+        #
+        #       - template: with template to use to update
+        #       - append: true (or present) to append the template
+        # ----------------------------------------------------------------------
+        if json_template.key?('append')
+            unless json_template.key?('template')
+                return internal_error('Missing template to append',
+                                      VALIDATION_EC)
+            end
+
+            append        = json_template['append']
+            new_template  = json_template['template']
+            json_template = JSON.parse(new_template)
+        end
+
         # Check the schema of the new template
-        ServiceTemplate.validate(json_template)
+        ServiceTemplate.validate(json_template) unless append
     rescue Validator::ParseException, JSON::ParserError => e
         return internal_error(e.message, VALIDATION_EC)
     end
 
-    rc = lcm.service_update(@client, params[:id], new_template)
+    rc = lcm.service_update(@client, params[:id], new_template, append)
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))

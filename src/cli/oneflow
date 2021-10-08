@@ -82,6 +82,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Force flow necover delete'
     }
 
+    APPEND = {
+        :name  => 'append',
+        :large => '--append',
+        :description => 'Append template to the current one'
+    }
+
     FORMAT = [OpenNebulaHelper::JSON, OpenNebulaHelper::YAML]
 
     # create helper object
@@ -364,7 +370,11 @@ CommandParser::CmdParser.new(ARGV) do
         be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :service_id, [:file, nil] do
+    command :update,
+            update_desc,
+            :service_id,
+            [:file, nil],
+            :options => APPEND do
         service_id = args[0]
         client     = helper.client(options)
 
@@ -382,8 +392,10 @@ CommandParser::CmdParser.new(ARGV) do
                 tmp  = Tempfile.new(service_id.to_s)
                 path = tmp.path
 
-                tmp.write(JSON.pretty_generate(template))
-                tmp.flush
+                unless options[:append]
+                    tmp.write(JSON.pretty_generate(template))
+                    tmp.flush
+                end
 
                 if ENV['EDITOR']
                     editor_path = ENV['EDITOR']
@@ -402,7 +414,17 @@ CommandParser::CmdParser.new(ARGV) do
             end
         end
 
-        response = client.put("#{RESOURCE_PATH}/#{service_id}", File.read(path))
+        if options[:append]
+            req             = {}
+            req['append']   = true
+            req['template'] = File.read(path)
+
+            response = client.put("#{RESOURCE_PATH}/#{service_id}",
+                                  req.to_json)
+        else
+            response = client.put("#{RESOURCE_PATH}/#{service_id}",
+                                  File.read(path))
+        end
 
         if CloudClient.is_error?(response)
             [response.code.to_i, response.to_s]

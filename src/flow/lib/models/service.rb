@@ -522,31 +522,40 @@ module OpenNebula
 
         # Check that changes values are correct
         #
-        # @param template_json [String] New template
+        # @param template_json [String]  New template
+        # @param append        [Boolean] True to append template to the current
         #
         # @return [Boolean, String] True, nil if everything is correct
         #                           False, attr if attr was changed
-        def check_new_template(template_json)
+        def check_new_template(template_json, append)
             template = JSON.parse(template_json)
 
-            if template['roles'].size != @roles.size
-                return [false, 'service/roles size']
-            end
+            if append
+                IMMUTABLE_ATTRS.each do |attr|
+                    next if template[attr].nil?
 
-            IMMUTABLE_ATTRS.each do |attr|
-                next if template[attr] == @body[attr]
+                    return [false, "service/#{attr}"]
+                end
+            else
+                if template['roles'].size != @roles.size
+                    return [false, 'service/roles size']
+                end
 
-                return [false, "service/#{attr}"]
-            end
+                IMMUTABLE_ATTRS.each do |attr|
+                    next if template[attr] == @body[attr]
 
-            template['roles'].each do |role|
-                # Role name can't be changed, if it is changed some problems
-                # may appear, as name is used to reference roles
-                return [false, 'name'] unless @roles[role['name']]
+                    return [false, "service/#{attr}"]
+                end
 
-                rc = @roles[role['name']].check_new_template(role)
+                template['roles'].each do |role|
+                    # Role name can't be changed, if it is changed some problems
+                    # may appear, as name is used to reference roles
+                    return [false, 'name'] unless @roles[role['name']]
 
-                return rc unless rc[0]
+                    rc = @roles[role['name']].check_new_template(role)
+
+                    return rc unless rc[0]
+                end
             end
 
             [true, nil]

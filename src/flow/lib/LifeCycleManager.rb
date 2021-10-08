@@ -464,7 +464,8 @@ class ServiceLCM
     # @param client       [OpenNebula::Client] Client executing action
     # @param service_id   [Integer]            Service ID
     # @param new_tempalte [String]             New template
-    def service_update(client, service_id, new_template)
+    # @param append       [Boolean]            True to append template
+    def service_update(client, service_id, new_template, append)
         rc = @srv_pool.get(service_id, client) do |service|
             unless service.can_update?
                 break OpenNebula::Error.new(
@@ -472,7 +473,7 @@ class ServiceLCM
                 )
             end
 
-            rc = service.check_new_template(new_template)
+            rc = service.check_new_template(new_template, append)
 
             unless rc[0]
                 if rc[1] == 'name'
@@ -486,7 +487,7 @@ class ServiceLCM
                 end
             end
 
-            service.update(new_template)
+            service.update(new_template, append)
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)

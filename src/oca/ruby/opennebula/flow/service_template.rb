@@ -309,7 +309,9 @@ module OpenNebula
 
             if append
                 IMMUTABLE_ATTRS.each do |attr|
-                    return [false, "service_template/#{attr}"] if !template[attr].nil?
+                    next if template[attr].nil?
+
+                    return [false, "service_template/#{attr}"]
                 end
             else
                 IMMUTABLE_ATTRS.each do |attr|
