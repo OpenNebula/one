@@ -704,10 +704,7 @@ export const VM_ACTIONS_WITH_SCHEDULE = [
   VM_ACTIONS.SNAPSHOT_DISK_DELETE,
   VM_ACTIONS.SNAPSHOT_CREATE,
   VM_ACTIONS.SNAPSHOT_REVERT,
-  VM_ACTIONS.SNAPSHOT_DELETE,
-  // Actions exists in scheduler only
-  'delete',
-  'delete-recreate'
+  VM_ACTIONS.SNAPSHOT_DELETE
 ]
 
 /**
