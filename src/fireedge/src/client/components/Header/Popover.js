@@ -14,110 +14,117 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { memo, useState, useRef } from 'react'
+import { memo, useState, useRef, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
-
-import { Box, useMediaQuery, Popover, Typography, Tooltip, IconButton, Button } from '@mui/material'
 import { Cancel as CloseIcon, NavArrowDown as CaretIcon } from 'iconoir-react'
+
+import {
+  Paper,
+  useMediaQuery,
+  Popper,
+  Typography,
+  useTheme,
+  IconButton,
+  Button,
+  Fade,
+  Box
+} from '@mui/material'
 
 const HeaderPopover = memo(({
   id,
   icon,
-  tooltip,
   buttonLabel,
   buttonProps,
   headerTitle,
-  disablePadding,
   popoverProps,
   children
 }) => {
-  const [open, setOpen] = useState(false)
-  const [tooltipOpen, setTooltipOpen] = useState(false)
-  const anchorRef = useRef(null)
+  const { zIndex } = useTheme()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen)
-    tooltip && setTooltipOpen(false)
-  }
+  const [open, setOpen] = useState(false)
+  const [fix, setFix] = useState(false)
+  const anchorRef = useRef(null)
 
-  const handleClose = () => setOpen(false)
+  const handleToggle = () => isMobile && setFix(prevFix => !prevFix)
+
+  const mobileStyles = useMemo(() => ({
+    ...(isMobile && {
+      width: '100%',
+      height: '100%'
+    })
+  }), [isMobile])
+
+  useEffect(() => {
+    !isMobile && fix && setFix(false)
+  }, [isMobile])
 
   return (
-    <>
-      <Tooltip
-        open={tooltipOpen}
-        onOpen={() => tooltip && setTooltipOpen(!open)}
-        onClose={() => tooltip && setTooltipOpen(false)}
-        title={tooltip ?? ''}
-        enterDelay={300}
+    <div {...!isMobile && {
+      onMouseOver: () => setOpen(true),
+      onFocus: () => setOpen(true),
+      onMouseOut: () => setOpen(false)
+    }}>
+      <Button
+        ref={anchorRef}
+        aria-controls={open ? `${id}-popover` : undefined}
+        aria-haspopup
+        aria-expanded={open ? 'true' : 'false'}
+        onClick={handleToggle}
+        size='small'
+        sx={{ margin: '0 2px' }}
+        endIcon={<CaretIcon />}
+        startIcon={icon}
+        {...buttonProps}
       >
-        <Button
-          ref={anchorRef}
-          aria-controls={open ? `${id}-popover` : undefined}
-          aria-haspopup='true'
-          onClick={handleToggle}
-          size='small'
-          sx={{ margin: '0 2px' }}
-          endIcon={<CaretIcon />}
-          {...buttonProps}
-        >
-          {icon}
-          {buttonLabel && (
-            <Box pl={1} sx={{ display: { xs: 'none', sm: 'block' } }}>
-              {buttonLabel}
-            </Box>
-          )}
-        </Button>
-      </Tooltip>
-      <Popover
-        BackdropProps={{ invisible: !isMobile }}
-        PaperProps={{
-          sx: {
-            ...(isMobile && {
-              width: '100%',
-              height: '100%'
-            }),
-            p: disablePadding ? 0 : 1
-          }
-        }}
+        {!isMobile && buttonLabel}
+      </Button>
+      <Popper
         id={id}
-        open={open}
-        anchorEl={anchorRef.current}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
+        open={fix || open}
+        anchorEl={isMobile ? window.document : anchorRef.current}
+        transition
+        placement='bottom-end'
+        keepMounted={false}
+        style={{
+          zIndex: zIndex.appBar + 1,
+          ...mobileStyles
         }}
         {...popoverProps}
       >
-        {(headerTitle || isMobile) && (
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='flex-end'
-            borderBottom='1px solid'
-            borderBottomColor='action.disabledBackground'
-          >
-            {headerTitle && (
-              <Typography sx={{ userSelect: 'none' }} variant='body1'>
-                {headerTitle}
-              </Typography>
-            )}
-            {isMobile && (
-              <IconButton onClick={handleClose} size='large'>
-                <CloseIcon />
-              </IconButton>
-            )}
-          </Box>
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Paper
+              variant='outlined'
+              style={mobileStyles}
+              sx={{ p: headerTitle ? 2 : 0 }}
+            >
+              {(headerTitle || isMobile) && (
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
+                  borderBottom='1px solid'
+                  borderColor='divider'
+                >
+                  {headerTitle && (
+                    <Typography variant='body1'>
+                      {headerTitle}
+                    </Typography>
+                  )}
+                  {isMobile && (
+                    <IconButton onClick={handleToggle} size='large'>
+                      <CloseIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              )}
+              {children({ handleClose: handleToggle })}
+            </Paper>
+          </Fade>
         )}
-        {children({ handleClose })}
-      </Popover>
-    </>
+      </Popper>
+    </div>
   )
 })
 

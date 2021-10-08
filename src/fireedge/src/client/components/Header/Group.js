@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, memo } from 'react'
+import { useMemo, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@mui/material'
@@ -40,11 +39,9 @@ const ButtonGroup = memo(({ group, handleClick }) => {
 
   return (
     <Button
-      key={`switcher-group-${ID}`}
       fullWidth
       color='debug'
       variant='outlined'
-      tooltip={<Translate Word={T.Group} />}
       onClick={() => {
         ID && changeGroup({ id: user.ID, group: ID })
         handleClick()
@@ -61,6 +58,12 @@ const ButtonGroup = memo(({ group, handleClick }) => {
   )
 }, (prev, next) => prev.group.ID === next.group.ID)
 
+/**
+ * Menu to select the user group that
+ * will be used to filter the resources.
+ *
+ * @returns {JSXElementConstructor} Returns group list
+ */
 const Group = () => {
   const { user, groups } = useAuth()
 
@@ -96,6 +99,7 @@ const Group = () => {
           maxResults={5}
           renderResult={group => (
             <ButtonGroup
+              key={`switcher-group-${group?.ID}`}
               group={group}
               handleClick={handleClose}
             />

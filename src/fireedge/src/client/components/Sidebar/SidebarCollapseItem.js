@@ -22,7 +22,7 @@ import clsx from 'clsx'
 import {
   List,
   Collapse,
-  ListItem,
+  ListItemButton,
   ListItemText,
   ListItemIcon,
   useMediaQuery
@@ -56,7 +56,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
 
   return (
     <>
-      <ListItem button onClick={handleExpand}>
+      <ListItemButton onClick={handleExpand}>
         {Icon && (
           <ListItemIcon>
             <Icon />
@@ -69,7 +69,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
           data-min-label={label.slice(0, 3)}
         />
         {expanded ? <CollapseIcon/> : <ExpandMoreIcon />}
-      </ListItem>
+      </ListItemButton>
       {routes
         ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')
         ?.map((subItem, index) => (
@@ -80,7 +80,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
             unmountOnExit
             className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
           >
-            <List component='div' disablePadding>
+            <List component='div'>
               <SidebarLink {...subItem} isSubItem />
             </List>
           </Collapse>

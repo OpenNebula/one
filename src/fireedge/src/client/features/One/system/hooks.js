@@ -14,30 +14,31 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useSelector, shallowEqual } from 'react-redux'
-import { name } from 'client/features/One/slice'
+import { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { unwrapResult } from '@reduxjs/toolkit'
 
-export const useOne = () => (
-  useSelector(state => state[name], shallowEqual)
+import * as actions from 'client/features/One/system/actions'
+import { name, RESOURCES } from 'client/features/One/slice'
+
+export const useSystem = () => (
+  useSelector(state => state[name]?.[RESOURCES.system] ?? [])
 )
 
-export * from 'client/features/One/application/hooks'
-export * from 'client/features/One/applicationTemplate/hooks'
-export * from 'client/features/One/cluster/hooks'
-export * from 'client/features/One/datastore/hooks'
-export * from 'client/features/One/group/hooks'
-export * from 'client/features/One/host/hooks'
-export * from 'client/features/One/image/hooks'
-export * from 'client/features/One/marketplace/hooks'
-export * from 'client/features/One/marketplaceApp/hooks'
-export * from 'client/features/One/provider/hooks'
-export * from 'client/features/One/provision/hooks'
-export * from 'client/features/One/system/hooks'
-export * from 'client/features/One/user/hooks'
-export * from 'client/features/One/vm/hooks'
-export * from 'client/features/One/vmGroup/hooks'
-export * from 'client/features/One/vmTemplate/hooks'
-export * from 'client/features/One/vnetwork/hooks'
-export * from 'client/features/One/vnetworkTemplate/hooks'
-export * from 'client/features/One/vrouter/hooks'
-export * from 'client/features/One/zone/hooks'
+export const useSystemApi = () => {
+  const dispatch = useDispatch()
+
+  const unwrapDispatch = useCallback(async action => {
+    try {
+      const response = await dispatch(action)
+      return unwrapResult(response)
+    } catch (error) {
+      return error
+    }
+  }, [dispatch])
+
+  return {
+    getOneVersion: () => unwrapDispatch(actions.getOneVersion()),
+    getOneConfig: () => unwrapDispatch(actions.getOneConfig())
+  }
+}

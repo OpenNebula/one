@@ -54,7 +54,7 @@ const Info = memo(({ fetchProps }) => {
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined" className={classes.marginBottom}>
+        <Paper variant='outlined' className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -66,15 +66,15 @@ const Info = memo(({ fetchProps }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography data-cy="provider-name">{NAME}</Typography>
+              <Typography data-cy='provider-name'>{NAME}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography data-cy="provider-description" noWrap>{description}</Typography>
+              <Typography data-cy='provider-description' noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography data-cy="provider-type">{providerName}</Typography>
+              <Typography data-cy='provider-type'>{providerName}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.RegistrationTime)}</Typography>
@@ -85,7 +85,7 @@ const Info = memo(({ fetchProps }) => {
           </List>
         </Paper>
         {hasConnection && (
-          <Paper variant="outlined">
+          <Paper variant='outlined'>
             <List className={clsx(classes.list, 'w-50')}>
               <ListItem className={classes.title}>
                 <Typography>{Tr(T.Credentials)}</Typography>
@@ -115,7 +115,7 @@ const Info = memo(({ fetchProps }) => {
         )}
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined" className={classes.marginBottom}>
+        <Paper variant='outlined' className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -144,7 +144,7 @@ const Info = memo(({ fetchProps }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant="outlined">
+        <Paper variant='outlined'>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>

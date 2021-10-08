@@ -81,7 +81,8 @@ const GlobalSort = ({ useTableProps }) => {
           buttonProps={{
             'data-cy': 'sort-by-button',
             disabled: headersNotSorted.length === 0,
-            variant: 'outlined'
+            variant: 'outlined',
+            color: 'secondary'
           }}
           popoverProps= {{
             anchorOrigin: {

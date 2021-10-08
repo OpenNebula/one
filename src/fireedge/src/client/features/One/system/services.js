@@ -13,26 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import makeStyles from '@mui/styles/makeStyles'
+import { Actions, Commands } from 'server/utils/constants/commands/system'
+import { httpCodes } from 'server/utils/constants'
+import { requestConfig, RestClient } from 'client/utils'
 
-export default makeStyles(theme => ({
-  footer: {
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.light,
-    position: 'absolute',
-    bottom: 0,
-    left: 'auto',
-    right: 0,
-    width: '100%',
-    zIndex: 1100,
-    textAlign: 'center',
-    padding: 5
+export const systemService = ({
+  /**
+   * Returns the OpenNebula core version.
+   *
+   * @returns {object} The OpenNebula version
+   * @throws Fails when response isn't code 200
+   */
+  getOneVersion: async () => {
+    const name = Actions.SYSTEM_VERSION
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
   },
-  heartIcon: {
-    margin: '0 0.5em',
-    color: theme.palette.error.dark
-  },
-  link: {
-    color: theme.palette.primary.contrastText
+
+  /**
+   * Returns the OpenNebula configuration.
+   *
+   * @returns {object} The loaded oned.conf file
+   * @throws Fails when response isn't code 200
+   */
+  getOneConfig: async () => {
+    const name = Actions.SYSTEM_CONFIG
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(undefined, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data?.OPENNEBULA_CONFIGURATION
   }
-}))
+})

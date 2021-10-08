@@ -40,20 +40,17 @@ const Row = ({ original, value, ...props }) => {
     return [src, external]
   }, [LOGO])
 
-  const logo = String(LOGO).split('/').at(-1)
   const time = Helper.timeFromMilliseconds(+REGTIME)
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
     <div {...props}>
-      {logo && (
-        <div className={classes.figure}>
-          <Image
-            src={logoSource}
-            imgProps={{ className: classes.image }}
-          />
-        </div>
-      )}
+      <div className={classes.figure}>
+        <Image
+          src={logoSource}
+          imgProps={{ className: classes.image }}
+        />
+      </div>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography component='span'>

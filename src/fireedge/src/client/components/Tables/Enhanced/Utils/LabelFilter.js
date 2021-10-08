@@ -98,7 +98,7 @@ const LabelFilter = ({ title, column }) => {
   )
 
   return (
-    <List dense disablePadding>
+    <List>
       {title && (
         <ListSubheader disableSticky disableGutters
           title={Tr(title)}

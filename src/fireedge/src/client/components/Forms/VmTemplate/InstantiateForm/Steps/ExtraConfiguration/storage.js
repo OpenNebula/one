@@ -24,7 +24,7 @@ import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 import { StatusCircle, StatusChip } from 'client/components/Status'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
@@ -71,7 +71,8 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
         buttonProps={{
           color: 'secondary',
           'data-cy': 'add-disk',
-          label: Tr(T.AttachDisk)
+          label: T.AttachDisk,
+          variant: 'outlined'
         }}
         options={[
           {

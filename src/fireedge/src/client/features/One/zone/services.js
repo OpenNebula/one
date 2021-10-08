@@ -41,7 +41,7 @@ export const zoneService = ({
   /**
    * Retrieves information for all the zones in the pool.
    *
-   * @returns {Array} List of zone
+   * @returns {Array} List of zones
    * @throws Fails when response isn't code 200
    */
   getZones: async () => {

@@ -16,7 +16,7 @@
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListSubheader, ListItem, Typography, IconButton, Tooltip } from '@mui/material'
+import { List, ListSubheader, ListItemButton, Typography, IconButton, Tooltip } from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'react-table'
 
@@ -78,9 +78,11 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
   }
 
   return (
-    <List dense disablePadding>
+    <List>
       {title && (
-        <ListSubheader disableSticky disableGutters
+        <ListSubheader
+          disableSticky
+          disableGutters
           title={Tr(title)}
           style={{ display: 'flex', alignItems: 'center' }}
         >
@@ -103,7 +105,8 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
           : value === filterValue
 
         return (
-          <ListItem key={i} button
+          <ListItemButton
+            key={i}
             selected={isSelected}
             onClick={() =>
               isSelected ? handleUnselect(value) : handleSelect(value)
@@ -112,7 +115,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
             <Typography noWrap variant='subtitle2' title={value}>
               {`${value} (${count})`}
             </Typography>
-          </ListItem>
+          </ListItemButton>
         )
       })}
     </List>

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { sidebar, toolbar } from 'client/theme/defaults'
 
@@ -145,9 +144,5 @@ export default makeStyles(theme => ({
   subItemWrapper: {},
   subItem: {
     paddingLeft: theme.spacing(4)
-  },
-  itemSelected: {
-    color: theme.palette.text.primary,
-    backgroundColor: `${alpha(theme.palette.secondary.main, 0.60)} !important`
   }
 }))

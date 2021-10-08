@@ -47,10 +47,17 @@ const Header = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Box flexGrow={1} ml={2} display='inline-flex'>
+        <Box
+          flexGrow={1}
+          ml={2}
+          sx={{
+            display: { xs: 'none', sm: 'inline-flex' },
+            userSelect: 'none'
+          }}
+        >
           <Typography
+            variant='h6'
             data-cy='header-app-title'
-            sx={{ userSelect: 'none', typography: 'h6' }}
           >
             {'One'}
             <Typography
@@ -75,7 +82,6 @@ const Header = () => {
             variant='h6'
             data-cy='header-description'
             sx={{
-              useSelect: 'none',
               display: { xs: 'none', xl: 'block' },
               '&::before': {
                 content: '"|"',
@@ -87,7 +93,7 @@ const Header = () => {
             {title}
           </Typography>
         </Box>
-        <Stack direction='row'>
+        <Stack direction='row' flexGrow={1} justifyContent='end'>
           <User />
           <View />
           {!isOneAdmin && <Group />}

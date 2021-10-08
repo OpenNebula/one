@@ -24,8 +24,7 @@ import {
   Divider,
   Box,
   IconButton,
-  useMediaQuery,
-  Tooltip
+  useMediaQuery
 } from '@mui/material'
 
 import {
@@ -36,8 +35,6 @@ import {
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 import { OpenNebulaLogo } from 'client/components/Icons'
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
 
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
@@ -88,22 +85,18 @@ const Sidebar = ({ endpoints }) => {
           disabledBetaText
         />
         {!isUpLg || isFixMenu ? (
-          <Tooltip title={<Translate word={T.Close} />}>
-            <IconButton onClick={handleSwapMenu} variant='outlined' size='small'>
-              {!isUpLg ? <CloseIcon/> : <ArrowLeftIcon />}
-            </IconButton>
-          </Tooltip>
+          <IconButton onClick={handleSwapMenu}>
+            {!isUpLg ? <CloseIcon/> : <ArrowLeftIcon />}
+          </IconButton>
         ) : (
-          <Tooltip title={<Translate word={T.Pin} />}>
-            <IconButton onClick={handleSwapMenu} variant='outlined' size='small'>
-              <MenuIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton onClick={handleSwapMenu}>
+            <MenuIcon />
+          </IconButton>
         )}
       </Box>
       <Divider />
       <Box className={classes.menu}>
-        <List className={classes.list} disablePadding data-cy='main-menu'>
+        <List className={classes.list} data-cy='main-menu'>
           {SidebarEndpoints}
         </List>
       </Box>

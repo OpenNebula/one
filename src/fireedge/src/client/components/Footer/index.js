@@ -13,28 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 
-import { Box, Link, Typography } from '@mui/material'
+import { styled, Link, Typography } from '@mui/material'
 
-import footerStyles from 'client/components/Footer/styles'
+import { useSystem, useSystemApi } from 'client/features/One'
 import { BY } from 'client/constants'
 
+const FooterBox = styled('footer')(({ theme }) => ({
+  color: theme.palette.primary.contrastText,
+  backgroundColor: theme.palette.primary.light,
+  position: 'absolute',
+  width: '100%',
+  left: 'auto',
+  bottom: 0,
+  right: 0,
+  zIndex: theme.zIndex.appBar,
+  textAlign: 'center',
+  padding: theme.spacing(0.6)
+}))
+
+const HeartIcon = styled('span')(({ theme }) => ({
+  margin: theme.spacing(0, 1),
+  color: theme.palette.error.dark,
+  '&:before': {
+    content: "'❤️'"
+  }
+}))
+
 const Footer = memo(() => {
-  const classes = footerStyles()
+  const { config, version } = useSystem()
+  const { getOneVersion } = useSystemApi()
+
+  useEffect(() => {
+    !version && getOneVersion()
+  }, [])
+
+  console.log({ config, version })
 
   return (
-    <Box className={classes.footer} component="footer">
-      <Typography variant="body2">
+    <FooterBox>
+      <Typography variant='body2'>
         {'Made with'}
-        <span className={classes.heartIcon} role="img" aria-label="heart-emoji">
-          {'❤️'}
-        </span>
-        <Link href={BY.url} className={classes.link}>
+        <HeartIcon role='img' aria-label='heart-emoji' />
+        <Link href={BY.url} color='primary.contrastText'>
           {BY.text}
+          {version}
         </Link>
       </Typography>
-    </Box>
+    </FooterBox>
   )
 })
 

@@ -23,7 +23,7 @@ import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { AttachNicForm } from 'client/components/Forms/Vm'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
@@ -68,7 +68,8 @@ const Networking = ({ data, setFormData, control }) => {
         buttonProps={{
           color: 'secondary',
           'data-cy': 'add-nic',
-          label: Tr(T.AttachNic)
+          label: T.AttachNic,
+          variant: 'outlined'
         }}
         options={[{
           dialogProps: { title: T.AttachNic },

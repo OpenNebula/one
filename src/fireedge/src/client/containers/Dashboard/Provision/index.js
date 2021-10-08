@@ -45,7 +45,9 @@ function Dashboard () {
   return (
     <Container
       disableGutters
-      className={withoutAnimations && classes.withoutAnimations}
+      {...withoutAnimations && {
+        className: classes.withoutAnimations
+      }}
     >
       <Box py={3}>
         <Grid container spacing={3}>

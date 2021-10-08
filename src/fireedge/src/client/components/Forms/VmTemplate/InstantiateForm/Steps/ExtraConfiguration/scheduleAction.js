@@ -23,7 +23,7 @@ import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { PunctualForm, RelativeForm } from 'client/components/Forms/Vm'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { T } from 'client/constants'
@@ -58,7 +58,8 @@ const ScheduleAction = ({ setFormData, control }) => {
         buttonProps={{
           color: 'secondary',
           'data-cy': 'add-sched-action',
-          label: Tr(T.AddAction)
+          label: T.AddAction,
+          variant: 'outlined'
         }}
         options={[{
           cy: 'add-sched-action-punctual',

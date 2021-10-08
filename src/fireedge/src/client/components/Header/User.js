@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { JSXElementConstructor } from 'react'
 
 import { MenuItem, MenuList, Link } from '@mui/material'
 import { ProfileCircled as UserIcon } from 'iconoir-react'
@@ -25,7 +25,12 @@ import { Translate } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { T, APPS, APP_URL } from 'client/constants'
 
-const User = memo(() => {
+/**
+ * Menu with actions about App: signOut, etc.
+ *
+ * @returns {JSXElementConstructor} Returns user actions list
+ */
+const User = () => {
   const { user } = useAuth()
   const { logout } = useAuthApi()
 
@@ -39,12 +44,12 @@ const User = memo(() => {
     >
       {() => (
         <MenuList>
-          <MenuItem onClick={logout} disableRipple data-cy='header-logout-button'>
+          <MenuItem onClick={logout} data-cy='header-logout-button'>
             <Translate word={T.SignOut} />
           </MenuItem>
           {isDevelopment() &&
             APPS?.map(appName => (
-              <MenuItem key={appName} disableRipple>
+              <MenuItem key={appName}>
                 <Link
                   width='100%'
                   color='secondary'
@@ -59,7 +64,7 @@ const User = memo(() => {
       )}
     </HeaderPopover>
   )
-})
+}
 
 User.displayName = 'UserHeaderComponent'
 

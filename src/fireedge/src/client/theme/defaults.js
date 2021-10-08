@@ -255,6 +255,15 @@ export default (appTheme, mode = SCHEMES.DARK) => {
           disableTouchRipple: true
         }
       },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            '&.Mui-selected, &.Mui-selected:hover': {
+              backgroundColor: alpha(secondary.main, 0.60)
+            }
+          }
+        }
+      },
       MuiButton: {
         defaultProps: {
           disableTouchRipple: true

@@ -27,13 +27,13 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
 
 /**
  * @typedef {object} Option
- * @property {string} cy - Cypress selector
  * @property {string} name - Label of option
+ * @property {DialogProps} [dialogProps] - Dialog properties
  * @property {JSXElementConstructor} [icon] - Icon
- * @property {boolean} isConfirmDialog
- * - If `true`, the form will be a dialog with confirmation buttons
+ * @property {boolean} [isConfirmDialog] - If `true`, the form will be a dialog with confirmation buttons
+ * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, option will be disabled
  * @property {function(object, Row[])} onSubmit - Function to handle after finish the form
- * @property {function():CreateStepsCallback|CreateFormCallback} form - Form
+ * @property {function(Row[]):(CreateStepsCallback|CreateFormCallback)} form - Form
  */
 
 /**
@@ -43,11 +43,11 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @property {string} [label] - Label
  * @property {string} [color] - Color
  * @property {string} [icon] - Icon
- * @property {DialogProps} [dialogProps] - Dialog properties
+ * @property {'text'|'outlined'|'contained'} [variant] - Button variant
  * @property {Option[]} [options] - Group of actions
  * @property {function(Row[])} [action] - Singular action without form
  * @property {boolean|{min: number, max: number}} [selected] - Condition for selected rows
- * @property {boolean} [disabled] - If `true`, action will be disabled
+ * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, action will be disabled
  */
 
 /**
@@ -127,7 +127,10 @@ export const ActionPropTypes = PropTypes.shape({
   label: PropTypes.string,
   tooltip: PropTypes.string,
   icon: PropTypes.any,
-  disabled: PropTypes.bool,
+  disabled: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.func
+  ]),
   selected: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.shape({
@@ -142,9 +145,27 @@ export const ActionPropTypes = PropTypes.shape({
       accessor: PropTypes.string,
       name: PropTypes.string,
       icon: PropTypes.any,
+      disabled: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.func
+      ]),
       form: PropTypes.func,
       onSubmit: PropTypes.func,
-      dialogProps: PropTypes.shape(DialogPropTypes)
+      dialogProps: PropTypes.shape({
+        ...DialogPropTypes,
+        description: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.func
+        ]),
+        subheader: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.func
+        ]),
+        title: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.func
+        ])
+      })
     })
   )
 })

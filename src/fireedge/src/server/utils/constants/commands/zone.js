@@ -25,7 +25,7 @@ const ZONE_UPDATE = 'zone.update'
 const ZONE_RENAME = 'zone.rename'
 const ZONE_INFO = 'zone.info'
 const ZONE_RAFTSTATUS = 'zone.raftstatus'
-const ZONEPOOL_INFO = 'zonepool.info'
+const ZONE_POOL_INFO = 'zonepool.info'
 
 const Actions = {
   ZONE_ALLOCATE,
@@ -34,7 +34,7 @@ const Actions = {
   ZONE_RENAME,
   ZONE_INFO,
   ZONE_RAFTSTATUS,
-  ZONEPOOL_INFO
+  ZONE_POOL_INFO
 }
 
 module.exports = {
@@ -111,7 +111,7 @@ module.exports = {
       httpMethod: GET,
       params: {}
     },
-    [ZONEPOOL_INFO]: {
+    [ZONE_POOL_INFO]: {
       // inspected
       httpMethod: GET,
       params: {}

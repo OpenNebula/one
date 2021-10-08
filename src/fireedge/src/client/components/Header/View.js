@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, memo } from 'react'
+import { useMemo, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@mui/material'
@@ -33,7 +32,6 @@ const ButtonView = memo(({ view, handleClick }) => {
 
   return (
     <Button
-      key={`view-${view}`}
       fullWidth
       color='debug'
       variant='outlined'
@@ -60,6 +58,14 @@ ButtonView.propTypes = {
 
 ButtonView.displayName = 'ButtonView'
 
+/**
+ * Menu to select the view that
+ * will be used to filter the resources.
+ *
+ * These views are defined in yaml config.
+ *
+ * @returns {JSXElementConstructor} Returns interface views list
+ */
 const View = () => {
   const { view: currentView, views = {} } = useAuth()
   const viewNames = useMemo(() => Object.keys(views), [currentView])
@@ -78,6 +84,7 @@ const View = () => {
           maxResults={5}
           renderResult={view => (
             <ButtonView
+              key={`view-${view}`}
               view={view}
               handleClick={handleClose}
             />

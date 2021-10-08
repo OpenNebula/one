@@ -16,10 +16,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router-dom'
-import clsx from 'clsx'
 
 import {
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   useMediaQuery
@@ -45,13 +44,10 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   }
 
   return (
-    <ListItem
-      button
-      component='li'
+    <ListItemButton
       onClick={handleClick}
       selected={pathname === path}
-      className={clsx({ [classes.subItem]: isSubItem })}
-      classes={{ selected: classes.itemSelected }}
+      className={isSubItem && classes.subItem}
       data-cy='main-menu-item'
     >
       {Icon && (
@@ -68,7 +64,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
           ) : label
         }
       />
-    </ListItem>
+    </ListItemButton>
   )
 }
 

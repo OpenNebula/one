@@ -13,34 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { useEffect, JSXElementConstructor } from 'react'
 
-import { MenuItem, MenuList } from '@mui/material'
+import { MenuList, MenuItem } from '@mui/material'
 import { Language as ZoneIcon } from 'iconoir-react'
 
+import { useZone, useZoneApi } from 'client/features/One'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Zone = memo(() => (
-  <HeaderPopover
-    id='zone-menu'
-    tooltip={T.Zone}
-    icon={<ZoneIcon />}
-    buttonProps={{
-      'data-cy': 'header-zone-button'
-    }}
-    disablePadding
-  >
-    {({ handleClose }) => (
-      <MenuList>
-        <MenuItem onClick={handleClose}>
-          <Translate word={T.Zone} />
-        </MenuItem>
-      </MenuList>
-    )}
-  </HeaderPopover>
-))
+/**
+ * Menu to select the OpenNebula Zone.
+ *
+ * @returns {JSXElementConstructor} Returns Zone list
+ */
+const Zone = () => {
+  const zones = useZone()
+  const { getZones } = useZoneApi()
+
+  useEffect(() => {
+    !zones?.length && getZones()
+  }, [])
+
+  return (
+    <HeaderPopover
+      id='zone-menu'
+      tooltip={T.Zone}
+      icon={<ZoneIcon />}
+      buttonProps={{ 'data-cy': 'header-zone-button' }}
+      headerTitle={<Translate word={T.Zones} />}
+    >
+      {({ handleClose }) => (
+        <MenuList>
+          {zones?.length
+            ? zones?.map(({ ID, NAME }) => (
+              <MenuItem key={`zone-${ID}`} onClick={handleClose}>
+                {NAME}
+              </MenuItem>
+            ))
+            : <MenuItem disabled>{'Not zones found'}</MenuItem>
+          }
+        </MenuList>
+      )}
+    </HeaderPopover>
+  )
+}
 
 Zone.displayName = 'ZoneHeaderComponent'
 
