@@ -156,7 +156,11 @@ router.all(
           const response = (val = {}) => {
             switch (typeof val) {
               case 'string':
-                res.locals.httpCode = httpResponse(notFound, val)
+                try {
+                  res.locals.httpCode = httpResponse(ok, JSON.parse(val))
+                } catch (error) {
+                  res.locals.httpCode = httpResponse(notFound, val)
+                }
                 break
               case 'object':
                 res.locals.httpCode = httpResponse(ok, val)

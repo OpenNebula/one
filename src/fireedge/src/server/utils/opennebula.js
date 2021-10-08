@@ -118,37 +118,29 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                   }
                   if (
                     result &&
-                    result.METHODRESPONSE &&
-                    result.METHODRESPONSE.PARAMS &&
-                    result.METHODRESPONSE.PARAMS.PARAM &&
-                    result.METHODRESPONSE.PARAMS.PARAM.VALUE &&
-                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY &&
-                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA &&
-                    result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
-                      .VALUE &&
+                    result.methodResponse &&
+                    result.methodResponse.fault &&
+                    result.methodResponse.fault.value &&
+                    result.methodResponse.fault.value.struct &&
+                    result.methodResponse.fault.value.struct.member &&
                     Array.isArray(
-                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
-                        .VALUE
+                      result.methodResponse.fault.value.struct.member
                     )
                   ) {
-                    const errorData = result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA.VALUE.filter(
-                      element => element.STRING
+                    const errorData = result.methodResponse.fault.value.struct.member.find(
+                      element => element.value && element.value.string
                     )
-                    if (
-                      Array.isArray(errorData) &&
-                      errorData[0] &&
-                      errorData[0].STRING
-                    ) {
+                    if (errorData) {
                       // success
                       fillHookResource && fillResourceforHookConnection(username, action, parameters)
-                      callback(undefined, errorData[0].STRING)
+                      callback(undefined, errorData.value.string)
                     }
                   }
                 })
                 return
               } else if (value && value[0] && value[1]) {
                 let messageCall
-                if (Array.isArray(value) && value[0] && value[1]) {
+                if (Array.isArray(value)) {
                   messageCall = value[1]
                 } else if (value.length > 0) {
                   messageCall = value
@@ -163,7 +155,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                     fillHookResource && fillResourceforHookConnection(username, action, parameters)
                     callback(
                       undefined,
-                      error === null && result === null ? messageCall : result
+                      error === null && !String(result) ? JSON.stringify(messageCall) : result
                     )
                   })
                   return
