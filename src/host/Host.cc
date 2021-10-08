@@ -316,7 +316,14 @@ void Host::update_wilds()
 
 void Host::enable()
 {
-    state = INIT;
+    if (state == DISABLED && host_share.get_total_cpu() > 0)
+    {
+        state = MONITORED;
+    }
+    else
+    {
+        state = INIT;
+    }
 };
 
 /* -------------------------------------------------------------------------- */
