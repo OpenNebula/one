@@ -104,7 +104,7 @@ define(function(require) {
 
       try {
         JSON.parse(params.data.extra_param);
-        action_obj["template_json"] = params.data.extra_param;
+        action_obj["template"] = params.data.extra_param;
       }
       catch(err) {
         action_obj["template_raw"] = params.data.extra_param;
@@ -112,7 +112,25 @@ define(function(require) {
 
       action_obj["append"] = true;
 
-      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
+      var callback = params.success;
+      var callbackError = params.error;
+      var id = params.data.id;
+      var request = OpenNebulaHelper.request(RESOURCE, "update", [id, action_obj]);
+
+      var reqPath = PATH ? PATH : RESOURCE.toLowerCase();
+      $.ajax({
+        url: reqPath + "/" + id,
+        type: "PUT",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(action_obj),
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callbackError ?
+              callbackError(request, OpenNebulaError(response)) : null;
+        }
+      });
     },
     "update": function(params){
       params.cache_name = CACHE_NAME;
@@ -133,8 +151,6 @@ define(function(require) {
         contentType: "application/json; charset=utf-8",
         data: action_obj,
         success: function(response) {
-          //_clearCache(cache_name); 
-
           return callback ? callback(request, response) : null;
         },
         error: function(response) {
@@ -190,7 +206,7 @@ define(function(require) {
 
     var service = undefined;
     var cache = OpenNebulaAction.cache(CACHE_NAME);
-    
+
     if (cache && cache.data) {
       service = _getServiceById({ services: cache.data, id: id })
     }
