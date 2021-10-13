@@ -616,10 +616,9 @@ EOT
             page     = ""
 
             if options[:xml]
-                pool.each {|e|
-                    elements += 1
-                    page << e.to_xml(true) << "\n"
-                }
+                elements += 1
+
+                page << pool.to_xml(true)
             else
                 pname = pool.pool_name
                 ename = pool.element_name
