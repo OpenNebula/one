@@ -18,21 +18,11 @@ import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
-import { MenuItem, MenuList, Chip } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { MenuItem, MenuList, Chip, Stack } from '@mui/material'
 import { TableInstance, UseSortByInstanceProps, UseSortByState } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { T } from 'client/constants'
-
-const useStyles = makeStyles({
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 6,
-    alignItems: 'center'
-  }
-})
 
 /**
  * Render all selected sorters.
@@ -42,8 +32,6 @@ const useStyles = makeStyles({
  * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalSort = ({ useTableProps }) => {
-  const classes = useStyles()
-
   const { headers, state } = useTableProps
 
   /** @type {UseSortByInstanceProps} */
@@ -72,7 +60,7 @@ const GlobalSort = ({ useTableProps }) => {
   }
 
   return (
-    <div className={classes.root}>
+    <Stack direction='row' gap='0.5em' flexWrap='wrap'>
       {useMemo(() => (
         <HeaderPopover
           id='sort-by-button'
@@ -84,16 +72,7 @@ const GlobalSort = ({ useTableProps }) => {
             variant: 'outlined',
             color: 'secondary'
           }}
-          popoverProps= {{
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left'
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left'
-            }
-          }}
+          popperProps={{ placement: 'bottom-start' }}
         >
           {() => (
             <MenuList>
@@ -119,7 +98,7 @@ const GlobalSort = ({ useTableProps }) => {
           onDelete={() => handleDelete(id)}
         />
       )), [sortBy.length, handleToggle])}
-    </div>
+    </Stack>
   )
 }
 

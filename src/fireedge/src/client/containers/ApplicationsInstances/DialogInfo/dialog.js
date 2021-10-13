@@ -57,7 +57,7 @@ const CustomDialog = ({ title, handleClose, children }) => {
         {children}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>
+        <Button color='secondary' onClick={handleClose}>
           {Tr(T.Cancel)}
         </Button>
       </DialogActions>

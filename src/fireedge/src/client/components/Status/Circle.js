@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   circle: ({ color }) => ({
     color,
     fill: 'currentColor',
-    verticalAlign: 'text-bottom',
+    verticalAlign: 'middle',
     pointerEvents: 'auto'
   })
 })

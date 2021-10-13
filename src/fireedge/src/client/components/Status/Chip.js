@@ -57,7 +57,10 @@ const StatusChip = memo(({ stateColor, text = '', ...props }) => {
 
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
-  text: PropTypes.string
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node
+  ])
 }
 
 StatusChip.displayName = 'StatusChip'

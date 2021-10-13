@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { useMemo, SetStateAction, JSXElementConstructor } from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
-import { TextField, Grid, Typography, FormControlLabel, Checkbox } from '@mui/material'
+import { TextField, Grid, Typography, FormControlLabel, Checkbox, Autocomplete, Chip } from '@mui/material'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { RestClient, requestConfig } from 'client/utils'
 
 /**
  * @param {object} props - Component props
- * @param {Function} props.handleChangeResponse - Change after
+ * @param {SetStateAction} props.handleChangeResponse - Change after
  * @param {object} props.command - Resource command action
  * @param {string} props.command.name - Name of command
  * @param {('GET'|'POST'|'DELETE'|'PUT')} props.command.httpMethod - Http method
@@ -36,14 +36,16 @@ const ResponseForm = ({
   command: { name, httpMethod, params }
 }) => {
   const { control, handleSubmit, errors, formState } = useForm()
+  const memoParams = useMemo(() => Object.entries(params), [name])
 
   const onSubmit = async dataForm => {
     try {
       const config = requestConfig(dataForm, { name, httpMethod, params })
 
-      const { id, ...res } = (await RestClient.request(config)) ?? {}
+      const { id, ...res } = await RestClient.request(config) ?? {}
       handleChangeResponse(JSON.stringify(res, null, '\t'))
     } catch (err) {
+      handleChangeResponse(JSON.stringify(err.data, null, '\t'))
       console.log('ERROR', err)
     }
   }
@@ -60,40 +62,77 @@ const ResponseForm = ({
       </Typography>
       <Grid
         container
-        spacing={3}
+        spacing={1}
         justifyContent='flex-start'
         component='form'
         onSubmit={handleSubmit(onSubmit)}
         autoComplete='off'
       >
-        {Object.entries(params)?.map(([nameCommand, { default: value }]) => (
-          <Grid item xs={12} key={`param-${nameCommand}`}>
+        {memoParams?.map(([nameParam, { default: defaultValue }]) => (
+          <Grid item xs={12} key={`param-${nameParam}`}>
             <Controller
-              as={
-                typeof value === 'boolean' ? (
-                  <FormControlLabel
-                    control={<Checkbox color='primary' />}
-                    label={nameCommand}
-                    labelPlacement={nameCommand}
-                  />
-                ) : (
-                  <TextField
-                    error={Boolean(errors[name])}
-                    helperText={errors[name]?.message}
-                    fullWidth
-                    label={nameCommand}
-                    color='secondary'
-                  />
-                )
-              }
+              render={({ value, onChange, ...controllerProps }) => ({
+                boolean: <FormControlLabel
+                  control={(
+                    <Checkbox
+                      color='primary'
+                      onChange={e => onChange(e.target.checked)}
+                    />
+                  )}
+                  label={nameParam}
+                  labelPlacement='end'
+                />,
+                object: <Autocomplete
+                  fullWidth
+                  multiple
+                  color='secondary'
+                  freeSolo
+                  options={[]}
+                  onChange={(_, newValue) => onChange(newValue ?? '')}
+                  renderTags={(tags, getTagProps) =>
+                    tags.map((tag, index) => (
+                      <Chip
+                        key={`${index}-${tag}`}
+                        variant='outlined'
+                        label={tag}
+                        {...getTagProps({ index })}
+                      />
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      label={nameParam}
+                      color='secondary'
+                      error={Boolean(errors[name])}
+                      helperText={errors[name]?.message}
+                    />
+                  )}
+                />
+              }[typeof defaultValue] ?? (
+                <TextField
+                  error={Boolean(errors[name])}
+                  helperText={errors[name]?.message}
+                  fullWidth
+                  value={value ?? ''}
+                  label={nameParam}
+                  color='secondary'
+                  onChange={onChange}
+                  {...controllerProps}
+                />
+              ))}
               control={control}
-              name={`${nameCommand}`}
-              defaultValue={String(value)}
+              name={`${nameParam}`}
+              defaultValue={defaultValue}
             />
           </Grid>
         ))}
         <Grid item xs={12}>
-          <SubmitButton isSubmitting={formState.isSubmitting} />
+          <SubmitButton
+            color='secondary'
+            isSubmitting={formState.isSubmitting}
+          />
         </Grid>
       </Grid>
     </>

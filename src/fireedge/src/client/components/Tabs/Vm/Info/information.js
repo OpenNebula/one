@@ -21,7 +21,7 @@ import { generatePath } from 'react-router-dom'
 import { useCluster, useClusterApi } from 'client/features/One'
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
-import Multiple from 'client/components/Tables/Vms/multiple'
+import MultipleTags from 'client/components/MultipleTags'
 
 import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
@@ -72,7 +72,7 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
     },
     {
       name: T.IP,
-      value: ips?.length ? <Multiple tags={ips} /> : '--'
+      value: ips?.length ? <MultipleTags tags={ips} /> : '--'
     },
     {
       name: T.StartTime,

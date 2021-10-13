@@ -23,6 +23,10 @@ module.exports = {
   Filters: 'Filters',
   All: 'All',
   On: 'On',
+  ToggleAllCurrentPageRowsSelected: 'Toggle all current page rows selected',
+  NumberOfResourcesSelected: 'All %s resources are selected',
+  SelectAllResources: 'Select all %s resources',
+  ClearSelection: 'Clear selection',
 
   /* actions */
   Accept: 'Accept',

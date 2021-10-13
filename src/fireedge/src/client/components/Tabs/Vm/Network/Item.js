@@ -33,7 +33,7 @@ import { useDialog } from 'client/hooks'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import { Action } from 'client/components/Cards/SelectCard'
 import { DialogConfirmation } from 'client/components/Dialogs'
-import Multiple from 'client/components/Tables/Vms/multiple'
+import MultipleTags from 'client/components/MultipleTags'
 
 import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
@@ -127,7 +127,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
             <span className={classes.labels}>
-              <Multiple
+              <MultipleTags
                 limitTags={isMobile ? 1 : 4}
                 tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID].filter(Boolean)}
               />
@@ -143,7 +143,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
                   <Translate word={T.Alias} />{`${NIC_ID} | ${NETWORK}`}
                 </Typography>
                 <span className={classes.labels}>
-                  <Multiple
+                  <MultipleTags
                     limitTags={isMobile ? 1 : 4}
                     tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
                   />
@@ -164,7 +164,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
                         {`${ID} | ${NAME}`}
                       </Typography>
                       <span className={classes.labels}>
-                        <Multiple
+                        <MultipleTags
                           limitTags={isMobile ? 2 : 5}
                           tags={[
                             PROTOCOL,

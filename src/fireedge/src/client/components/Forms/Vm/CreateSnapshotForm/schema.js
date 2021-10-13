@@ -19,7 +19,7 @@ import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
 const NAME = {
-  name: 'NAME',
+  name: 'name',
   label: 'Snapshot name',
   type: INPUT_TYPES.TEXT,
   tooltip: 'The new snapshot name. It can be empty.',

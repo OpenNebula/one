@@ -19,6 +19,8 @@ import { SCHEMES } from 'client/constants'
 
 const defaultTheme = createTheme()
 const { grey } = colors
+const black = '#1D1D1D'
+const white = '#ffffff'
 
 const systemFont = [
   '-apple-system',
@@ -77,11 +79,11 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       primary,
       secondary,
       common: {
-        black: '#1D1D1D',
-        white: '#ffffff'
+        black,
+        white
       },
       background: {
-        paper: isDarkMode ? '#2a2d3d' : '#ffffff',
+        paper: isDarkMode ? '#2a2d3d' : white,
         default: isDarkMode ? '#222431' : '#f2f4f8'
       },
       error: {
@@ -96,7 +98,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         light: '#f8c0b7',
         main: '#ec5840',
         dark: '#f2391b',
-        contrastText: '#ffffff'
+        contrastText: white
       },
       warning: {
         100: '#FFF4DB',
@@ -116,7 +118,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         light: '#64b5f6',
         main: '#2196f3',
         dark: '#01579b',
-        contrastText: '#ffffff'
+        contrastText: white
       },
       success: {
         100: '#bce1bd',
@@ -130,13 +132,13 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         light: '#3adb76',
         main: '#4caf50',
         dark: '#388e3c',
-        contrastText: '#ffffff'
+        contrastText: white
       },
       debug: {
         light: '#e0e0e0',
         main: '#757575',
         dark: '#424242',
-        contrastText: '#ffffff'
+        contrastText: isDarkMode ? white : black
       }
     },
     breakpoints: {
@@ -279,13 +281,16 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             height: '1rem'
           },
           text: {
-            backgroundColor: isDarkMode ? primary[400] : primary[800]
+            color: isDarkMode ? white : grey[900],
+            '&:hover': {
+              backgroundColor: isDarkMode ? alpha(white, 0.1) : alpha(grey[900], 0.1)
+            }
           },
           outlined: {
             border: '1px solid',
-            borderColor: isDarkMode ? alpha(grey[100], 0.1) : alpha(grey[700], 0.15),
+            borderColor: isDarkMode ? alpha(grey[100], 0.45) : alpha(grey[700], 0.45),
             borderRadius: defaultTheme.shape.borderRadius,
-            color: isDarkMode ? '#ffffff' : grey[900]
+            color: isDarkMode ? white : grey[900]
           }
         }
       },
@@ -314,13 +319,13 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             borderBottomWidth: 'thin',
             backgroundColor: primary.main,
             '& .MuiIconButton-root, & .MuiButton-root': {
-              color: '#ffffff',
+              color: white,
               border: 'none',
               backgroundColor: 'transparent',
               '&:hover': {
                 border: 'none',
                 backgroundColor: 'transparent',
-                color: alpha('#ffffff', 0.7)
+                color: alpha(white, 0.7)
               }
             }
           }
@@ -364,7 +369,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
               left: 30,
               right: 30,
               height: '100%',
-              backgroundColor: '#ffffff'
+              backgroundColor: white
             }
           }
         }
@@ -376,7 +381,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             textTransform: 'capitalize',
             fontSize: '1rem',
             '&.Mui-selected': {
-              color: '#ffffff'
+              color: white
             }
           }
         }
@@ -386,6 +391,15 @@ export default (appTheme, mode = SCHEMES.DARK) => {
           dense: true,
           disablePadding: true
         }
+      },
+      MuiChip: {
+        variants: [{
+          props: { variant: 'text' },
+          style: {
+            border: 0,
+            backgroundColor: 'transparent'
+          }
+        }]
       }
     }
   }

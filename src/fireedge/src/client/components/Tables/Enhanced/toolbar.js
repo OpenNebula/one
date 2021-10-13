@@ -16,57 +16,61 @@
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { useMediaQuery } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { UseTableInstanceProps, UseRowSelectState, UseFiltersInstanceProps } from 'react-table'
+import { Stack, useMediaQuery } from '@mui/material'
+import { UseTableInstanceProps, UseRowSelectState } from 'react-table'
 
-import { GlobalActions, GlobalSelectedRows, GlobalSort } from 'client/components/Tables/Enhanced/Utils'
-
-const useToolbarStyles = makeStyles({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'start',
-    gap: '1em'
-  }
-})
+import {
+  GlobalActions,
+  GlobalAction,
+  ActionPropTypes,
+  GlobalSelectedRows,
+  GlobalSort
+} from 'client/components/Tables/Enhanced/Utils'
 
 /**
  * @param {object} props - Props
- * @param {object} props.globalActions - Global actions
+ * @param {GlobalAction[]} props.globalActions - Global actions
  * @param {object} props.onlyGlobalSelectedRows - Show only the selected rows
  * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Returns table toolbar
  */
 const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
-  const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const isSmallDevice = useMediaQuery(theme => theme.breakpoints.down('md'))
 
   /** @type {UseRowSelectState} */
   const { selectedRowIds } = useTableProps?.state ?? {}
 
-  /** @type {UseFiltersInstanceProps} */
-  const { preFilteredRows } = useTableProps ?? {}
-
-  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
-
   if (onlyGlobalSelectedRows) {
     return <GlobalSelectedRows useTableProps={useTableProps} />
   }
 
   return isMobile ? null : (
-    <div className={classes.root}>
-      {globalActions?.length > 0 && (
-        <GlobalActions globalActions={globalActions} selectedRows={selectedRows} />
-      )}
-      {!isSmallDevice && <GlobalSort useTableProps={useTableProps} />}
-    </div>
+    <>
+      <Stack alignItems='start' gap='1em'>
+        <GlobalActions globalActions={globalActions} useTableProps={useTableProps} />
+      </Stack>
+      <Stack className='summary'
+        direction='row'
+        flexWrap='wrap'
+        alignItems='center'
+        gap={'1em'}
+        width={1}
+      >
+        {!isSmallDevice && (
+          <div>
+            <GlobalSort useTableProps={useTableProps} />
+          </div>
+        )}
+        {!!Object.keys(selectedRowIds).length && (
+          <GlobalSelectedRows withAlert useTableProps={useTableProps} />)}
+      </Stack>
+    </>
   )
 }
 
 Toolbar.propTypes = {
-  globalActions: PropTypes.array,
+  globalActions: PropTypes.arrayOf(ActionPropTypes),
   onlyGlobalSelectedRows: PropTypes.bool,
   useTableProps: PropTypes.object
 }

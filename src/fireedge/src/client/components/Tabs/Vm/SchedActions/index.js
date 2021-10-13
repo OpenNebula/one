@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useAuth } from 'client/features/Auth'
@@ -22,17 +22,22 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import { CreateSchedAction, CharterAction } from 'client/components/Tabs/Vm/SchedActions/Actions'
 import SchedulingList from 'client/components/Tabs/Vm/SchedActions/List'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getScheduleActions, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable } from 'client/models/Helper'
 import { VM_ACTIONS } from 'client/constants'
 
 const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
   const { config } = useAuth()
   const { data: vm } = useContext(TabContext)
 
-  const scheduling = VirtualMachine.getScheduleActions(vm)
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+  const [scheduling, actionsAvailable] = useMemo(() => {
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
+
+    return [getScheduleActions(vm), actionsByState]
+  }, [vm])
 
   return (
     <>

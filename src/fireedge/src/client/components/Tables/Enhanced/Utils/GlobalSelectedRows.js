@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, JSXElementConstructor } from 'react'
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { TableProps } from 'react-table'
-import { Chip } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { styled, Chip, Alert, Button, alertClasses } from '@mui/material'
 
-const useStyles = makeStyles({
-  root: {
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
+
+const MessageStyled = styled(Alert)({
+  width: '100%',
+  [` .${alertClasses.message}`]: {
+    padding: 0,
+    width: '100%',
     display: 'flex',
     flexWrap: 'wrap',
-    gap: 6,
+    justifyContent: 'center',
     alignItems: 'center'
   }
 })
@@ -33,31 +38,45 @@ const useStyles = makeStyles({
  * Render all selected rows.
  *
  * @param {object} props - Props
+ * @param {boolean} props.withAlert - If `true`, the list of selected rows will be an alert
  * @param {TableProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX
  */
-const GlobalSelectedRows = ({ useTableProps }) => {
-  const classes = useStyles()
+const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
+  const { preFilteredRows, toggleAllRowsSelected, state: { selectedRowIds } } = useTableProps
 
-  const { preFilteredRows, state: { selectedRowIds } } = useTableProps
   const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+  const numberOfRowSelected = selectedRows.length
+  const allSelected = numberOfRowSelected === preFilteredRows.length
 
-  return (
-    <div className={classes.root}>
-      {useMemo(() =>
-        selectedRows?.map(({ original, id, toggleRowSelected }) => (
-          <Chip key={id}
-            label={original?.NAME ?? id}
-            onDelete={() => toggleRowSelected(false)}
-          />
-        )),
-      [selectedRows[0]?.id]
-      )}
+  return withAlert ? (
+    <MessageStyled icon={false} severity='debug' variant='outlined'>
+      <span>
+        <Translate word={T.NumberOfResourcesSelected} values={numberOfRowSelected} />{'.'}
+      </span>
+      <Button
+        sx={{ mx: 1, p: 0.5, fontSize: 'inherit', lineHeight: 'normal' }}
+        onClick={() => toggleAllRowsSelected(!allSelected)}
+      >
+        {allSelected
+          ? <Translate word={T.ClearSelection} />
+          : <Translate word={T.SelectAllResources} values={preFilteredRows.length} />}
+      </Button>
+    </MessageStyled>
+  ) : (
+    <div>
+      {selectedRows?.map(({ original, id, toggleRowSelected }) => (
+        <Chip key={id}
+          label={original?.NAME ?? id}
+          onDelete={() => toggleRowSelected(false)}
+        />
+      ))}
     </div>
   )
 }
 
 GlobalSelectedRows.propTypes = {
+  withAlert: PropTypes.bool,
   useTableProps: PropTypes.object.isRequired
 }
 

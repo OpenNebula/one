@@ -14,50 +14,43 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState, useMemo } from 'react'
-
-import { Container, Box } from '@mui/material'
+import { useState } from 'react'
+import { Container, Stack, Chip } from '@mui/material'
 
 import { ImagesTable } from 'client/components/Tables'
 import Detail from 'client/components/Tables/Images/detail'
 import SplitPane from 'client/components/SplitPane'
+import MultipleTags from 'client/components/MultipleTags'
 
 function Images () {
-  const [selectedRows, onSelectedRowsChange] = useState()
-
-  const selectedRowIds = useMemo(
-    () => selectedRows?.map(row => row.id),
-    [selectedRows]
-  )
+  const [selectedRows, onSelectedRowsChange] = useState(() => [])
 
   return (
-    <Box
-      height={1}
-      py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
-      component={Container}
-    >
+    <Stack height={1} py={2} overflow='auto' component={Container}>
       <SplitPane>
         <ImagesTable onSelectedRowsChange={onSelectedRowsChange} />
 
         {selectedRows?.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          <Stack overflow='auto'>
             {selectedRows?.length === 1
               ? <Detail id={selectedRows[0]?.values.ID} />
-              : (
-                <pre>
-                  <code>
-                    {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
-                  </code>
-                </pre>
-              )
+              : <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
+                <MultipleTags
+                  limitTags={10}
+                  tags={selectedRows?.map(({ original, id, toggleRowSelected }) => (
+                    <Chip key={id}
+                      variant='text'
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  ))}
+                />
+              </Stack>
             }
-          </div>
+          </Stack>
         )}
       </SplitPane>
-    </Box>
+    </Stack>
   )
 }
 

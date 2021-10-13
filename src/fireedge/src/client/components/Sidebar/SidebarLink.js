@@ -28,7 +28,10 @@ import { useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import { DevTypography } from 'client/components/Typography'
 
-const STATIC_LABEL_PROPS = { 'data-cy': 'main-menu-item-text' }
+const STATIC_LABEL_PROPS = {
+  'data-cy': 'main-menu-item-text',
+  variant: 'body1'
+}
 
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const classes = sidebarStyles()

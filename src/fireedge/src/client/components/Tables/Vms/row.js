@@ -17,10 +17,10 @@
 import PropTypes from 'prop-types'
 
 import { User, Group, Lock, HardDrive } from 'iconoir-react'
-import { Typography } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 
 import { StatusCircle } from 'client/components/Status'
-import Multiple from 'client/components/Tables/Vms/multiple'
+import MultipleTags from 'client/components/MultipleTags'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import * as VirtualMachineModel from 'client/models/VirtualMachine'
@@ -42,7 +42,7 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
+          <Typography noWrap component='span'>
             {NAME}
           </Typography>
           <span className={classes.labels}>
@@ -69,14 +69,9 @@ const Row = ({ original, value, ...props }) => {
       </div>
       {!!IPS?.length && (
         <div className={classes.secondary}>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'end',
-            alignItems: 'center'
-          }}>
-            <Multiple tags={IPS.split(',')} />
-          </div>
+          <Stack flexWrap='wrap' justifyContent='end' alignItems='center'>
+            <MultipleTags tags={IPS.split(',')} />
+          </Stack>
         </div>
       )}
     </div>

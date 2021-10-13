@@ -15,30 +15,20 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-
-import { Container, Box } from '@mui/material'
+import { Container, Stack, Chip } from '@mui/material'
 
 import { VmTemplatesTable } from 'client/components/Tables'
 import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
 import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
 import SplitPane from 'client/components/SplitPane'
+import MultipleTags from 'client/components/MultipleTags'
 
 function VmTemplates () {
-  const [selectedRows, onSelectedRowsChange] = useState([])
+  const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = VmTemplateActions()
 
-  const getRowIds = () =>
-    JSON.stringify(selectedRows?.map(row => row.id).join(', '), null, 2)
-
   return (
-    <Box
-      height={1}
-      py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
-      component={Container}
-    >
+    <Stack height={1} py={2} overflow='auto' component={Container}>
       <SplitPane>
         <VmTemplatesTable
           onSelectedRowsChange={onSelectedRowsChange}
@@ -46,15 +36,26 @@ function VmTemplates () {
         />
 
         {selectedRows?.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          <Stack overflow='auto'>
             {selectedRows?.length === 1
               ? <VmTemplateTabs id={selectedRows[0]?.values.ID} />
-              : <pre><code>{getRowIds()}</code></pre>
+              : <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
+                <MultipleTags
+                  limitTags={10}
+                  tags={selectedRows?.map(({ original, id, toggleRowSelected }) => (
+                    <Chip key={id}
+                      variant='text'
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  ))}
+                />
+              </Stack>
             }
-          </div>
+          </Stack>
         )}
       </SplitPane>
-    </Box>
+    </Stack>
   )
 }
 

@@ -35,9 +35,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1, 2),
     color: theme.palette.primary.contrastText
   },
-  error: {
-    padding: theme.spacing(1, 2)
-  },
+  error: { padding: theme.spacing(1, 2) },
   button: { color: theme.palette.action.active },
   stepper: { background: 'transparent' }
 }))
@@ -62,22 +60,22 @@ const CustomMobileStepper = ({
           {typeof label === 'string' ? Tr(label) : label}
         </Typography>
         {Boolean(errors[id]) && (
-          <Typography className={classes.error} variant="caption" color="error">
+          <Typography className={classes.error} variant='caption' color='error'>
             {errors[id]?.message}
           </Typography>
         )}
       </Box>
       <MobileStepper
         className={classes.stepper}
-        variant="progress"
-        position="static"
+        variant='progress'
+        position='static'
         steps={totalSteps}
         activeStep={activeStep}
         LinearProgressProps={{ color: 'secondary' }}
         backButton={
           <Button
             className={classes.button}
-            size="small"
+            size='small'
             onClick={handleBack}
             disabled={disabledBack}
           >
@@ -85,7 +83,7 @@ const CustomMobileStepper = ({
           </Button>
         }
         nextButton={
-          <Button className={classes.button} size="small" onClick={handleNext}>
+          <Button className={classes.button} size='small' onClick={handleNext}>
             {activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
             <NextIcon />
           </Button>

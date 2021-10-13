@@ -14,15 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import InformationPanel from 'client/components/Tabs/Vm/Capacity/information'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
 
 const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
   const { resize } = useVmApi()
@@ -30,12 +30,18 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
   const { handleRefetch, data: vm = {} } = useContext(TabContext)
   const { ID } = vm
 
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+  const actionsAvailable = useMemo(() => {
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
+
+    return actionsByState
+  }, [vm])
 
   const handleResizeCapacity = async formData => {
     const { enforce, ...restOfData } = formData
-    const template = Helper.jsonToXml(restOfData)
+    const template = jsonToXml(restOfData)
 
     const response = await resize(ID, { enforce, template })
     String(response) === String(ID) && (await handleRefetch?.())

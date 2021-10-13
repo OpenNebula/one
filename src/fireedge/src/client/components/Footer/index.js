@@ -42,14 +42,12 @@ const HeartIcon = styled('span')(({ theme }) => ({
 }))
 
 const Footer = memo(() => {
-  const { config, version } = useSystem()
+  const { version } = useSystem()
   const { getOneVersion } = useSystemApi()
 
   useEffect(() => {
     !version && getOneVersion()
   }, [])
-
-  console.log({ config, version })
 
   return (
     <FooterBox>

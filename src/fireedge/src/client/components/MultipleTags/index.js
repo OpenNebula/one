@@ -20,7 +20,7 @@ import { Tooltip, Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
 
-const Multiple = ({ tags, limitTags = 1 }) => {
+const MultipleTags = ({ tags, limitTags = 1 }) => {
   if (tags?.length === 0) {
     return null
   }
@@ -60,9 +60,9 @@ const Multiple = ({ tags, limitTags = 1 }) => {
   )
 }
 
-Multiple.propTypes = {
+MultipleTags.propTypes = {
   tags: PropTypes.array,
   limitTags: PropTypes.number
 }
 
-export default Multiple
+export default MultipleTags

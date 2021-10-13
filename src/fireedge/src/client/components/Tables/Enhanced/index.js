@@ -35,6 +35,7 @@ import {
 import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
 import Filters from 'client/components/Tables/Enhanced/filters'
+import { ActionPropTypes } from 'client/components/Tables/Enhanced/Utils'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
 import { Translate } from 'client/components/HOC'
@@ -205,7 +206,7 @@ const EnhancedTable = ({
 
 export const EnhancedTableProps = {
   canFetchMore: PropTypes.bool,
-  globalActions: PropTypes.array,
+  globalActions: PropTypes.arrayOf(ActionPropTypes),
   columns: PropTypes.array,
   data: PropTypes.array,
   fetchMore: PropTypes.func,

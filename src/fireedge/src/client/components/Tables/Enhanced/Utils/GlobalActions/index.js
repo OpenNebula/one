@@ -16,32 +16,41 @@
 import { JSXElementConstructor, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Row } from 'react-table'
-import makeStyles from '@mui/styles/makeStyles'
+import { Stack, Checkbox } from '@mui/material'
+import {
+  UseTableInstanceProps,
+  UseRowSelectState,
+  UseFiltersInstanceProps,
+  UseRowSelectInstanceProps
+} from 'react-table'
 
 import Action, { ActionPropTypes, GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
-
-const useStyles = makeStyles({
-  root: {
-    display: 'flex',
-    gap: '1em',
-    alignItems: 'center',
-    flexWrap: 'wrap'
-  }
-})
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Render bulk actions.
  *
  * @param {object} props - Props
  * @param {GlobalAction[]} props.globalActions - Possible bulk actions
- * @param {Row[]} props.selectedRows - Selected rows
+ * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX with all actions
  */
-const GlobalActions = ({ globalActions, selectedRows }) => {
-  const classes = useStyles()
+const GlobalActions = ({ globalActions = [], useTableProps }) => {
+  /** @type {UseRowSelectInstanceProps} */
+  const {
+    getToggleAllPageRowsSelectedProps,
+    getToggleAllRowsSelectedProps
+  } = useTableProps
 
-  const numberOfRowSelected = Object.keys(selectedRows)?.length
+  /** @type {UseRowSelectState} */
+  const { selectedRowIds } = useTableProps?.state ?? {}
+
+  /** @type {UseFiltersInstanceProps} */
+  const { preFilteredRows } = useTableProps ?? {}
+
+  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+  const numberOfRowSelected = selectedRows.length
 
   const [actionsSelected, actionsNoSelected] = useMemo(
     () => globalActions.reduce((memoResult, item) => {
@@ -55,7 +64,13 @@ const GlobalActions = ({ globalActions, selectedRows }) => {
   )
 
   return (
-    <div className={classes.root}>
+    <Stack direction='row' flexWrap='wrap' alignItems='center' gap={1.5}>
+      <Checkbox
+        {...getToggleAllPageRowsSelectedProps()}
+        title={Tr(T.ToggleAllCurrentPageRowsSelected)}
+        indeterminate={getToggleAllRowsSelectedProps().indeterminate}
+        color='secondary' />
+
       {actionsNoSelected?.map(item => (
         <Action key={item.accessor} item={item} />
       ))}
@@ -73,13 +88,15 @@ const GlobalActions = ({ globalActions, selectedRows }) => {
           )
         })
       )}
-    </div>
+    </Stack>
   )
 }
 
 GlobalActions.propTypes = {
   globalActions: PropTypes.arrayOf(ActionPropTypes),
-  selectedRows: PropTypes.array
+  useTableProps: PropTypes.object
 }
+
+export { Action, ActionPropTypes, GlobalAction }
 
 export default GlobalActions

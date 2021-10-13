@@ -22,7 +22,7 @@ import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T, FILTER_POOL } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
@@ -74,7 +74,7 @@ const Group = () => {
   }
 
   const sortMainGroupFirst = useMemo(
-    () => [{ ID: ALL_RESOURCES, NAME: Tr(T.ShowAll) }]
+    () => [{ ID: ALL_RESOURCES, NAME: <Translate word={T.ShowAll} /> }]
       ?.concat(groups)
       ?.sort(sortGroupAsMainFirst),
     [user?.GUID]
@@ -113,7 +113,10 @@ const Group = () => {
 ButtonGroup.propTypes = {
   group: PropTypes.shape({
     ID: PropTypes.string,
-    NAME: PropTypes.string
+    NAME: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.node
+    ])
   }).isRequired,
   handleClick: PropTypes.func
 }

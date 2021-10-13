@@ -49,7 +49,7 @@ export const rowStyles = makeStyles(
     main: {
       flex: 'auto',
       overflow: 'hidden',
-      alignSelf: 'center'
+      alignSelf: 'start'
     },
     title: {
       color: palette.text.primary,

@@ -19,6 +19,7 @@ import { Tr } from 'client/components/HOC'
 
 import {
   STATES,
+  VM_ACTIONS_BY_STATE,
   VM_STATES,
   VM_LCM_STATES,
   NIC_ALIAS_IP_ATTRS,
@@ -254,4 +255,19 @@ export const periodicityToString = scheduleAction => {
   }[+END_TYPE]
 
   return { repeat, end }
+}
+
+/**
+ * Returns `true` if action is available by VM state.
+ *
+ * @param {object} action - VM action
+ * @returns {function(Array, Function):boolean}
+ * - The list of vms that will be perform the action
+ */
+export const isAvailableAction = action => (vms = [], getVmState = vm => getState(vm)?.name) => {
+  if (VM_ACTIONS_BY_STATE[action]?.length === 0) return false
+
+  const states = [vms].flat().map(getVmState)
+
+  return states?.some(state => !VM_ACTIONS_BY_STATE[action]?.includes(state))
 }

@@ -14,22 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import HistoryList from 'client/components/Tabs/Vm/Placement/List'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getHypervisor, getHistoryRecords, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable } from 'client/models/Helper'
 
 const VmPlacementTab = ({ tabProps: { actions } = {} }) => {
   const { data: vm } = useContext(TabContext)
 
-  const records = VirtualMachine.getHistoryRecords(vm)
+  const [records, actionsAvailable] = useMemo(() => {
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
 
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+    return [getHistoryRecords(vm), actionsByState]
+  }, [vm])
 
   return (
     <HistoryList actions={actionsAvailable} records={records} />

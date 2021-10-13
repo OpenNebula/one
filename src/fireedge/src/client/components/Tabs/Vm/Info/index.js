@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -24,8 +24,8 @@ import Information from 'client/components/Tabs/Vm/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable, filterAttributes, jsonToXml } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
@@ -68,7 +68,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
 
     set(newTemplate, path, newValue)
 
-    const xml = Helper.jsonToXml(newTemplate)
+    const xml = jsonToXml(newTemplate)
 
     // 0: Replace the whole user template
     const response = await updateUserTemplate(ID, xml, 0)
@@ -76,14 +76,20 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const getActions = actions => Helper.getActionsAvailable(actions, hypervisor)
+  const getActions = useCallback(actions => {
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
+
+    return actionsByState
+  }, [vm])
 
   const {
     attributes,
     lxc: lxcAttributes,
     vcenter: vcenterAttributes
-  } = Helper.filterAttributes(USER_TEMPLATE, {
+  } = filterAttributes(USER_TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
       lxc: LXC_ATTRIBUTES_REG
@@ -93,7 +99,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
 
   const {
     attributes: monitoringAttributes
-  } = Helper.filterAttributes(MONITORING, { hidden: HIDDEN_MONITORING_REG })
+  } = filterAttributes(MONITORING, { hidden: HIDDEN_MONITORING_REG })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,

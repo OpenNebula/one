@@ -47,9 +47,7 @@ export const login = createAsyncThunk(
         isLoginInProgress: !!token && !isOneAdmin
       }
     } catch (error) {
-      const { message, data, status, statusText } = error
-
-      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+      const { message, data, statusText } = error
 
       return rejectWithValue({ error: message ?? data?.message ?? statusText })
     }

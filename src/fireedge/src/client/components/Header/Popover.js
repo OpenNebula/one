@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { memo, useState, useRef, useMemo, useEffect } from 'react'
+import { memo, useState, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Cancel as CloseIcon, NavArrowDown as CaretIcon } from 'iconoir-react'
 
@@ -27,7 +27,9 @@ import {
   IconButton,
   Button,
   Fade,
-  Box
+  Box,
+  buttonClasses,
+  ClickAwayListener
 } from '@mui/material'
 
 const HeaderPopover = memo(({
@@ -36,17 +38,21 @@ const HeaderPopover = memo(({
   buttonLabel,
   buttonProps,
   headerTitle,
-  popoverProps,
+  popperProps,
   children
 }) => {
   const { zIndex } = useTheme()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
   const [open, setOpen] = useState(false)
-  const [fix, setFix] = useState(false)
-  const anchorRef = useRef(null)
+  const [anchorEl, setAnchorEl] = useState(null)
 
-  const handleToggle = () => isMobile && setFix(prevFix => !prevFix)
+  const handleClick = event => {
+    setAnchorEl(isMobile ? window.document : event.currentTarget)
+    setOpen((previousOpen) => !previousOpen)
+  }
+
+  const handleClose = () => setOpen(false)
 
   const mobileStyles = useMemo(() => ({
     ...(isMobile && {
@@ -55,34 +61,36 @@ const HeaderPopover = memo(({
     })
   }), [isMobile])
 
+  const canBeOpen = open && Boolean(anchorEl)
+  const hasId = canBeOpen ? id : undefined
+
   useEffect(() => {
-    !isMobile && fix && setFix(false)
+    !isMobile && open && setOpen(false)
   }, [isMobile])
 
   return (
-    <div {...!isMobile && {
-      onMouseOver: () => setOpen(true),
-      onFocus: () => setOpen(true),
-      onMouseOut: () => setOpen(false)
-    }}>
+    <>
       <Button
-        ref={anchorRef}
-        aria-controls={open ? `${id}-popover` : undefined}
         aria-haspopup
+        aria-describedby={hasId}
         aria-expanded={open ? 'true' : 'false'}
-        onClick={handleToggle}
+        onClick={handleClick}
         size='small'
-        sx={{ margin: '0 2px' }}
         endIcon={<CaretIcon />}
         startIcon={icon}
+        sx={{
+          [`.${buttonClasses.startIcon}`]: {
+            mr: !isMobile && buttonLabel ? 1 : 0
+          }
+        }}
         {...buttonProps}
       >
         {!isMobile && buttonLabel}
       </Button>
       <Popper
-        id={id}
-        open={fix || open}
-        anchorEl={isMobile ? window.document : anchorRef.current}
+        id={hasId}
+        open={open}
+        anchorEl={anchorEl}
         transition
         placement='bottom-end'
         keepMounted={false}
@@ -90,41 +98,43 @@ const HeaderPopover = memo(({
           zIndex: zIndex.appBar + 1,
           ...mobileStyles
         }}
-        {...popoverProps}
+        {...popperProps}
       >
         {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={350}>
-            <Paper
-              variant='outlined'
-              style={mobileStyles}
-              sx={{ p: headerTitle ? 2 : 0 }}
-            >
-              {(headerTitle || isMobile) && (
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='space-between'
-                  borderBottom='1px solid'
-                  borderColor='divider'
-                >
-                  {headerTitle && (
-                    <Typography variant='body1'>
-                      {headerTitle}
-                    </Typography>
-                  )}
-                  {isMobile && (
-                    <IconButton onClick={handleToggle} size='large'>
-                      <CloseIcon />
-                    </IconButton>
-                  )}
-                </Box>
-              )}
-              {children({ handleClose: handleToggle })}
-            </Paper>
-          </Fade>
+          <ClickAwayListener onClickAway={handleClose}>
+            <Fade {...TransitionProps} timeout={300}>
+              <Paper
+                variant='outlined'
+                style={mobileStyles}
+                sx={{ p: headerTitle ? 2 : 0 }}
+              >
+                {(headerTitle || isMobile) && (
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    borderBottom='1px solid'
+                    borderColor='divider'
+                  >
+                    {headerTitle && (
+                      <Typography variant='body1'>
+                        {headerTitle}
+                      </Typography>
+                    )}
+                    {isMobile && (
+                      <IconButton onClick={handleClose} size='large'>
+                        <CloseIcon />
+                      </IconButton>
+                    )}
+                  </Box>
+                )}
+                {children({ handleClose: handleClose })}
+              </Paper>
+            </Fade>
+          </ClickAwayListener>
         )}
       </Popper>
-    </div>
+    </>
   )
 })
 
@@ -132,11 +142,11 @@ HeaderPopover.propTypes = {
   id: PropTypes.string,
   icon: PropTypes.node,
   buttonLabel: PropTypes.string,
-  buttonProps: PropTypes.objectOf(PropTypes.any),
+  buttonProps: PropTypes.object,
   tooltip: PropTypes.any,
   headerTitle: PropTypes.any,
   disablePadding: PropTypes.bool,
-  popoverProps: PropTypes.objectOf(PropTypes.any),
+  popperProps: PropTypes.object,
   children: PropTypes.func
 }
 
@@ -148,7 +158,7 @@ HeaderPopover.defaultProps = {
   buttonProps: {},
   headerTitle: undefined,
   disablePadding: false,
-  popoverProps: {},
+  popperProps: {},
   children: () => undefined
 }
 

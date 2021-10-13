@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -24,8 +24,8 @@ import SnapshotList from 'client/components/Tabs/Vm/Snapshot/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { CreateSnapshotForm } from 'client/components/Forms/Vm'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getSnapshotList, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
@@ -33,13 +33,17 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
 
   const { data: vm = {} } = useContext(TabContext)
 
-  const snapshots = VirtualMachine.getSnapshotList(vm)
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+  const [snapshots, actionsAvailable] = useMemo(() => {
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
 
-  const handleSnapshotCreate = async ({ NAME } = {}) => {
-    const data = { name: NAME }
-    await createSnapshot(vm.ID, data)
+    return [getSnapshotList(vm), actionsByState]
+  }, [vm])
+
+  const handleSnapshotCreate = async (formData = {}) => {
+    await createSnapshot(vm.ID, formData)
   }
 
   return (

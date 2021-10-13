@@ -18,8 +18,7 @@ import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { Box } from '@mui/system'
-import { Button, Slide } from '@mui/material'
+import { Button, Box, Slide, Stack } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -59,9 +58,9 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
         <FormProvider {...methods}>
           <FormWithSchema cy='login' fields={fields} />
         </FormProvider>
-        <Box display='flex' my={2}>
+        <Stack direction='row' gap={1} m={2}>
           {onBack && (
-            <Button onClick={onBack} disabled={isLoading}>
+            <Button color='secondary' onClick={onBack} disabled={isLoading}>
               {Tr(T.Back)}
             </Button>
           )}
@@ -72,7 +71,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
             sx={{ textTransform: 'uppercase', padding: '0.5em' }}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
           />
-        </Box>
+        </Stack>
       </Box>
     </Slide>
   )

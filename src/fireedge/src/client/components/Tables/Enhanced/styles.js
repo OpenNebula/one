@@ -26,16 +26,22 @@ export default makeStyles(
     toolbar: {
       ...typography.body1,
       marginBottom: 16,
-      display: 'flex',
-      gap: '1em',
+      display: 'grid',
+      gridTemplateColumns: '1fr auto',
       alignItems: 'start',
-      justifyContent: 'space-between',
-      '& > div:first-child': {
-        flexGrow: 1
+      gap: '1em',
+      '& > .summary': { // global sort and selected rows
+        gridRow: '2',
+        gridColumn: '1 / -1',
+        display: 'grid',
+        gridTemplateColumns: 'minmax(auto, 300px) 1fr',
+        gap: '0.8em',
+        [breakpoints.down('md')]: {
+          gridTemplateColumns: '1fr'
+        }
       }
     },
     pagination: {
-      flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'end',
@@ -47,9 +53,9 @@ export default makeStyles(
     table: {
       display: 'grid',
       gridTemplateColumns: 'minmax(auto, 300px) 1fr',
-      gap: 8,
+      gap: '0.8em',
       overflow: 'auto',
-      [breakpoints.down('sm')]: {
+      [breakpoints.down('md')]: {
         gridTemplateColumns: 'minmax(0, 1fr)'
       }
     },
@@ -83,7 +89,7 @@ export default makeStyles(
       color: palette.text.hint,
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6,
+      gap: '0.8em',
       padding: '1em'
     }
   }))

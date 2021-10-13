@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -24,8 +24,8 @@ import StorageList from 'client/components/Tabs/Vm/Storage/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getDisks, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const VmStorageTab = ({ tabProps: { actions } = {} }) => {
@@ -33,12 +33,17 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
 
   const { data: vm = {} } = useContext(TabContext)
 
-  const disks = VirtualMachine.getDisks(vm)
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+  const [disks, hypervisor, actionsAvailable] = useMemo(() => {
+    const hyperV = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hyperV)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
+
+    return [getDisks(vm), hyperV, actionsByState]
+  }, [vm])
 
   const handleAttachDisk = async formData => {
-    const template = Helper.jsonToXml({ DISK: formData })
+    const template = jsonToXml({ DISK: formData })
 
     await attachDisk(vm.ID, template)
   }

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
@@ -24,8 +24,8 @@ import NetworkList from 'client/components/Tabs/Vm/Network/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AttachNicForm } from 'client/components/Forms/Vm'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import { getNics, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { jsonToXml, getActionsAvailable } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
@@ -33,19 +33,21 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
 
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const nics = VirtualMachine.getNics(vm, {
-    groupAlias: true,
-    securityGroupsFromTemplate: true
-  })
+  const [nics, actionsAvailable] = useMemo(() => {
+    const groupedNics = getNics(vm, { groupAlias: true, securityGroupsFromTemplate: true })
+    const hypervisor = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor
+      .filter(action => !isAvailableAction(action)(vm))
 
-  const hypervisor = VirtualMachine.getHypervisor(vm)
-  const actionsAvailable = Helper.getActionsAvailable(actions, hypervisor)
+    return [groupedNics, actionsByState]
+  }, [vm])
 
   const handleAttachNic = async formData => {
     const isAlias = !!formData?.PARENT?.length
     const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
 
-    const template = Helper.jsonToXml(data)
+    const template = jsonToXml(data)
     const response = await attachNic(vm.ID, template)
 
     String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))

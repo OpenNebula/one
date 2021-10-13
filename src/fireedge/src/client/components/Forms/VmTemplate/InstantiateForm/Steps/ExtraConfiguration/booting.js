@@ -18,40 +18,42 @@ import { SetStateAction } from 'react'
 import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
 
-import {
-  NetworkAlt as NetworkIcon,
-  BoxIso as ImageIcon,
-  Check as CheckIcon,
-  Square as BlankSquareIcon
-} from 'iconoir-react'
-import { Divider } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { NetworkAlt as NetworkIcon, BoxIso as ImageIcon } from 'iconoir-react'
+import { Stack, Checkbox, styled } from '@mui/material'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 
 import { Translate } from 'client/components/HOC'
-import { Action } from 'client/components/Cards/SelectCard'
-
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
-  container: {
-    margin: '1em'
-  },
-  list: {
-    padding: '1em'
-  },
-  item: {
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: '0.5em',
-    padding: '1em',
-    marginBottom: '1em',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5em',
-    backgroundColor: theme.palette.background.default
+const BootItem = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5em',
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: '0.5em',
+  padding: '1em',
+  marginBottom: '1em',
+  backgroundColor: theme.palette.background.default
+}))
+
+const BootItemDraggable = styled(BootItem)(({ theme }) => ({
+  '&:before': {
+    content: "'.'",
+    fontSize: 20,
+    color: theme.palette.action.active,
+    paddingBottom: 20,
+    textShadow: `
+      0 5px ${theme.palette.action.active},
+      0 10px ${theme.palette.action.active},
+      5px 0 ${theme.palette.action.active},
+      5px 5px ${theme.palette.action.active},
+      5px 10px ${theme.palette.action.active},
+      10px 0 ${theme.palette.action.active},
+      10px 5px ${theme.palette.action.active},
+      10px 10px ${theme.palette.action.active}`
   }
 }))
 
@@ -102,7 +104,6 @@ const reorder = (newBootOrder, setFormData) => {
 }
 
 const Booting = ({ data, setFormData, control }) => {
-  const classes = useStyles()
   const booting = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
   const bootOrder = booting?.split(',').filter(Boolean) ?? []
 
@@ -171,49 +172,44 @@ const Booting = ({ data, setFormData, control }) => {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className={classes.container}>
+      <Stack>
         <Droppable droppableId='booting'>
           {({ droppableProps, innerRef, placeholder }) => (
-            <div
-              {...droppableProps}
-              ref={innerRef}
-              className={classes.list}
-            >
+            <Stack {...droppableProps} ref={innerRef} m={2}>
               {enabledItems.map(({ ID, NAME }, idx) => (
                 <Draggable key={ID} draggableId={ID} index={idx}>
                   {({ draggableProps, dragHandleProps, innerRef }) => (
-                    <div
+                    <BootItemDraggable
                       {...draggableProps}
                       {...dragHandleProps}
                       ref={innerRef}
-                      className={classes.item}
                     >
-                      <Action
-                        cy={ID}
-                        icon={<CheckIcon />}
-                        handleClick={() => handleEnable(ID)}
+                      <Checkbox
+                        checked
+                        color='secondary'
+                        data-cy={ID}
+                        onChange={() => handleEnable(ID)}
                       />
                       {NAME}
-                    </div>
+                    </BootItemDraggable>
                   )}
                 </Draggable>
               ))}
               {placeholder}
-            </div>
+            </Stack>
           )}
         </Droppable>
-        {restOfItems.length > 0 && <Divider />}
         {restOfItems.map(({ ID, NAME }) => (
-          <div key={ID} className={classes.item}>
-            <Action
-              cy={ID}
-              icon={<BlankSquareIcon />}
-              handleClick={() => handleEnable(ID)}
+          <BootItem key={ID}>
+            <Checkbox
+              color='secondary'
+              data-cy={ID}
+              onChange={() => handleEnable(ID)}
             />
             {NAME}
-          </div>
+          </BootItem>
         ))}
-      </div>
+      </Stack>
     </DragDropContext>
   )
 }

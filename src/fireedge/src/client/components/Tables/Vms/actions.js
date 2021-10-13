@@ -37,16 +37,11 @@ import { Translate } from 'client/components/HOC'
 import { RecoverForm, ChangeUserForm, ChangeGroupForm, MigrateForm } from 'client/components/Forms/Vm'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { getLastHistory } from 'client/models/VirtualMachine'
-import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS, VM_ACTIONS_BY_STATE } from 'client/constants'
+import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
+import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 
-const isDisabled = action => rows => {
-  if (VM_ACTIONS_BY_STATE[action]?.length === 0) return false
-
-  const states = rows?.map?.(({ values }) => values?.STATE)
-
-  return states.some(state => !VM_ACTIONS_BY_STATE[action]?.includes(state))
-}
+const isDisabled = action => rows =>
+  isAvailableAction(action)(rows, ({ values }) => values?.STATE)
 
 const ListVmNames = ({ rows = [] }) => {
   const datastores = useDatastore()

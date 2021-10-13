@@ -150,7 +150,7 @@ const useFetch = (request, socket) => {
       }
 
       await fakeDelay(delay)
-      await doFetch(payload, reload)
+      return await doFetch(payload, reload)
     }, [request])
 
   return { ...state, fetchRequest, STATUS }

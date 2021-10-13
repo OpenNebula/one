@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, Fragment } from 'react'
+import { useMemo, Fragment, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
+import { UseTableInstanceProps } from 'react-table'
 import { useMediaQuery, Card, CardContent } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
-import { UseTableInstanceProps } from 'react-table'
 
 import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
 
@@ -48,6 +47,12 @@ const useToolbarStyles = makeStyles({
   }
 })
 
+/**
+ * @param {object} props - Props
+ * @param {boolean} props.onlyGlobalSearch - Show only the global search
+ * @param {UseTableInstanceProps} props.useTableProps - Table props
+ * @returns {JSXElementConstructor} Returns table toolbar
+ */
 const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))

@@ -18,7 +18,7 @@ import { Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { List as MList, ListItem, Typography, Paper } from '@mui/material'
+import { List as MList, ListItem, Typography, Paper, alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { Attribute, AttributePropTypes } from 'client/components/Tabs/Common/Attribute'
@@ -36,6 +36,9 @@ const useStyles = makeStyles(theme => ({
     '& > *': {
       flex: '1 1 50%',
       overflow: 'hidden'
+    },
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.text.primary, 0.05)
     }
   },
   typo: theme.typography.body2

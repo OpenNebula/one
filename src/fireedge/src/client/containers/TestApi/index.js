@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, JSXElementConstructor } from 'react'
-import { Container, TextField, Grid, MenuItem, Box } from '@mui/material'
+import { Container, TextField, Grid, Box } from '@mui/material'
 
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
 import { InputCode } from 'client/components/FormControl'
@@ -25,13 +25,15 @@ import Commands from 'server/utils/constants/commands'
 
 import testApiStyles from 'client/containers/TestApi/styles'
 
+const COMMANDS = Object.keys(Commands)?.sort()
+
 /**
  * @returns {JSXElementConstructor} - Component that allows you
  * to fetch, resolve, and interact with OpenNebula API.
  */
 function TestApi () {
   const classes = testApiStyles()
-  const [name, setName] = useState('acl.addrule')
+  const [name, setName] = useState(() => COMMANDS[0])
   const [response, setResponse] = useState('')
 
   const handleChangeCommand = evt => setName(evt?.target?.value)
@@ -40,7 +42,7 @@ function TestApi () {
   return (
     <Container
       disableGutters
-      style={{ display: 'flex', flexFlow: 'column', height: '100%' }}
+      sx={{ display: 'flex', flexFlow: 'column', height: '100%' }}
     >
       <Grid container direction='row' spacing={2} className={classes.root}>
         <Grid item xs={12} md={6}>
@@ -52,19 +54,13 @@ function TestApi () {
             value={name}
             onChange={handleChangeCommand}
           >
-            <MenuItem value="">{Tr(T.None)}</MenuItem>
+            <option value=''>{Tr(T.None)}</option>
             {useMemo(() =>
-              Object.keys(Commands)?.sort().map(
-                commandName => (
-                  <MenuItem
-                    key={`selector-request-${commandName}`}
-                    value={commandName}
-                  >
-                    {commandName}
-                  </MenuItem>
-                ),
-                []
-              )
+              COMMANDS.map(commandName => (
+                <option key={`request-${commandName}`} value={commandName}>
+                  {commandName}
+                </option>
+              ), [])
             )}
           </TextField>
           {name && name !== '' && (
@@ -75,7 +71,7 @@ function TestApi () {
           )}
         </Grid>
         <Grid item xs={12} md={6}>
-          <Box height="100%" minHeight={200}>
+          <Box height='100%' minHeight={200}>
             <InputCode code={response} readOnly />
           </Box>
         </Grid>
