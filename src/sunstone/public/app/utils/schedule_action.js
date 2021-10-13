@@ -26,7 +26,13 @@ define(function (require) {
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
   var selector = '';
-  var defaultHour = "12:30";
+  var currentDate = new Date();
+  var newDate = new Date();
+  // if you want to add more time to the schedule action modify this
+  // variable
+  var hours = 1;
+  newDate.setTime(currentDate.getTime() + (hours*60*60*1000));
+  var defaultHour = newDate.getHours() + ":" + newDate.getMinutes();
   var actionsWithARGS = [
     'snapshot-create',
     'snapshot-revert',
@@ -81,7 +87,7 @@ define(function (require) {
 
   var options_date_picker={
     dateFormat: "yy-mm-dd",
-    minDate: new Date(),
+    minDate: currentDate,
     showOptions: { direction: "down" }
   };
   var options_hour_picker = {
