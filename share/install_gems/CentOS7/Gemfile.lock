@@ -116,7 +116,7 @@ GEM
     rqrcode (0.10.1)
       chunky_png (~> 1.0)
     scrub_rb (1.0.1)
-    sequel (5.48.0)
+    sequel (5.49.0)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
