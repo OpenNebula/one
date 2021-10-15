@@ -41,7 +41,7 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
 
     std::string memory, cpu;
 
-    auto object = pool->get<PoolObjectSQL>(oid);
+    auto object = pool->get_ro<PoolObjectSQL>(oid);
 
     if ( object == nullptr )
     {
@@ -174,15 +174,7 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
         }
     }
 
-    if (!error)
-    {
-        for (auto& it : quota_to_rback)
-        {
-            quota_rollback(it.second.get(), it.first, att_old);
-        }
-
-        object = pool->get<PoolObjectSQL>(oid);
-    }
+    object = pool->get<PoolObjectSQL>(oid);
 
     // -------------------------------------------------------------------------
     // Error or object deleted. Rollback chown quota operation. Add again usage
@@ -192,25 +184,25 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
     {
         for (auto& it : quota_to_rback)
         {
-            if ( object == nullptr )
-            {
-                quota_authorization(it.second.get(), it.first, att_old, att.resp_msg);
-            }
-
             quota_rollback(it.second.get(), it.first, att_new);
         }
 
-        if ( object == 0 )
+        if ( error )
+        {
+            failure_response(AUTHORIZATION, att);
+        }
+        else
         {
             att.resp_id = oid;
             failure_response(NO_EXISTS, att);
         }
-        else
-        {
-            failure_response(AUTHORIZATION, att);
-        }
 
-        object = nullptr;
+        return nullptr;
+    }
+
+    for (auto& it : quota_to_rback)
+    {
+        quota_rollback(it.second.get(), it.first, att_old);
     }
 
     return object;
