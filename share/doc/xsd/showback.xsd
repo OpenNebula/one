@@ -20,6 +20,7 @@
               <xs:element name="DISK_COST" type="xs:float"/>
               <xs:element name="TOTAL_COST" type="xs:float"/>
               <xs:element name="HOURS" type="xs:float"/>
+              <xs:element name="RHOURS" type="xs:float" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

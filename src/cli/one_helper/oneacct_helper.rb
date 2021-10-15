@@ -216,11 +216,15 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             d["HOURS"]
         end
 
+        column :RUNNING_HOURS, "Running hours", :size=>7 do |d|
+            d["RHOURS"] || '-'
+        end
+
         column :COST, "Cost", :size=>15 do |d|
             d["TOTAL_COST"]
         end
 
-        default :USER_NAME, :GROUP_NAME, :VM_ID, :VM_NAME, :MONTH, :YEAR, :HOURS, :COST
+        default :USER_NAME, :GROUP_NAME, :VM_ID, :VM_NAME, :MONTH, :YEAR, :HOURS, :RUNNING_HOURS, :COST
     end
 
     def self.print_start_end_time_header(start_time, end_time)
