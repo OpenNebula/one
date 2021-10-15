@@ -534,13 +534,15 @@ struct SBRecord {
         string memc_s = one_util::float_to_str(mem_cost);
         string diskc_s= one_util::float_to_str(disk_cost);
         string hour_s = one_util::float_to_str(hours);
+        string rhour_s= one_util::float_to_str(rhours);
         string cost_s = one_util::float_to_str(cpu_cost + mem_cost + disk_cost);
 
         oss << "<CPU_COST>"   << cpuc_s << "</CPU_COST>"
             << "<MEMORY_COST>"<< memc_s << "</MEMORY_COST>"
             << "<DISK_COST>"  << diskc_s<< "</DISK_COST>"
             << "<TOTAL_COST>" << cost_s << "</TOTAL_COST>"
-            << "<HOURS>"      << hour_s << "</HOURS>";
+            << "<HOURS>"      << hour_s << "</HOURS>"
+            << "<RHOURS>"     << rhour_s << "</RHOURS>";
 
         return oss;
     };
@@ -549,6 +551,7 @@ struct SBRecord {
     float mem_cost = 0;
     float disk_cost = 0;
     float hours = 0;
+    float rhours = 0;
 };
 
 struct VMCost {
@@ -773,7 +776,7 @@ int VirtualMachinePool::calculate_showback(
                 time_t t      = *slot_it;
                 time_t t_next = *(slot_it+1);
 
-                auto count_sb_record = [&](time_t st, time_t et, bool cpu_mem, bool disk_total)
+                auto count_sb_record = [&](time_t st, time_t et, bool cpu_mem, bool disk_total, bool running_hours)
                 {
                     if( (et > t || et == 0) &&
                         (st != 0 && st <= t_next) ) {
@@ -803,17 +806,22 @@ int VirtualMachinePool::calculate_showback(
                             totals.disk_cost+= disk_cost* disk* n_hours;
                             totals.hours    += n_hours;
                         }
+                        if (running_hours)
+                        {
+                            totals.rhours   += n_hours;
+                        }
                     }
                 };
 
                 if (_showback_only_running)
                 {
-                    count_sb_record(h_stime, h_etime, false, true);
-                    count_sb_record(h_rstime, h_retime, true, false);
+                    count_sb_record(h_stime, h_etime, false, true, false);
+                    count_sb_record(h_rstime, h_retime, true, false, true);
                 }
                 else
                 {
-                    count_sb_record(h_stime, h_etime, true, true);
+                    count_sb_record(h_stime, h_etime, true, true, false);
+                    count_sb_record(h_rstime, h_retime, false, false, true);
                 }
             }
         }
