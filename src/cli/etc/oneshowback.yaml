@@ -36,6 +36,10 @@
   :desc: Hours
   :size: 6
 
+:RUNNING_HOURS:
+  :desc: Running hours
+  :size: 7
+
 :COST:
   :desc: Cost
   :size: 15
@@ -48,4 +52,5 @@
 - :MONTH
 - :YEAR
 - :HOURS
+- :RUNNING_HOURS
 - :COST
