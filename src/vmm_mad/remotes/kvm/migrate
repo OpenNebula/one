@@ -103,8 +103,6 @@ VM_DIR="${XPATH_ELEMENTS[j++]}"
 [ "$(get_qemu_img_version)" -ge 2010000 ] && QEMU_IMG_PARAM="-U"
 
 # migration can't be done with domain snapshots, drop them first but save current snapshot for redefine
-DISK_PATH=$(virsh --connect $LIBVIRT_URI domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
-DISK_DIR=$(dirname $DISK_PATH)
 SNAP_CUR=$(virsh --connect $LIBVIRT_URI snapshot-current --name $DEPLOY_ID 2>/dev/null)
 
 SNAPS=$(monitor_and_log \
