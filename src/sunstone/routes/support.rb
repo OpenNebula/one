@@ -281,7 +281,11 @@ get '/support/check/version' do
 
     doc = Nokogiri::HTML(html)
     values = doc.xpath('//table/tr/td/a/text()')
-    data = values.map {|value| value.to_s.delete('/') }
+    data = values.map do |value|
+        if value.to_s.split('.')[1].to_i.even?
+            value.to_s.delete('/')
+        end
+    end
 
     data = data.grep(/[0-9]/)
 
