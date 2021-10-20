@@ -17,7 +17,7 @@
 import * as yup from 'yup'
 
 import { useAuth } from 'client/features/Auth'
-import { getValidationFromFields } from 'client/utils'
+import { getValidationFromFields, arrayToOptions } from 'client/utils'
 import { Tr } from 'client/components/HOC'
 import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
 
@@ -29,7 +29,7 @@ export const USERNAME = {
     .string()
     .trim()
     .required('Username is a required field')
-    .default(null),
+    .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
     autoFocus: true,
@@ -47,7 +47,7 @@ export const PASSWORD = {
     .string()
     .trim()
     .required('Password is a required field')
-    .default(null),
+    .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
     required: true,
@@ -62,7 +62,7 @@ export const REMEMBER = {
   type: INPUT_TYPES.CHECKBOX,
   validation: yup
     .boolean()
-    .default(false),
+    .default(() => false),
   grid: { md: 12 }
 }
 
@@ -74,7 +74,7 @@ export const TOKEN = {
     .string()
     .trim()
     .required('Authenticator is a required field')
-    .default(null),
+    .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
     autoFocus: true,
@@ -92,13 +92,13 @@ export const GROUP = {
 
     const sortedGroupsById = groups?.sort((a, b) => a.ID - b.ID)
 
-    const formatGroups = sortedGroupsById.map(({ ID, NAME }) => {
-      const isPrimary = user?.GID === ID ? `(${Tr(T.Primary)})` : ''
-
-      return {
-        text: `${ID} - ${NAME} ${isPrimary}`,
-        value: String(ID)
-      }
+    const formatGroups = arrayToOptions(sortedGroupsById, {
+      addEmpty: false,
+      getText: ({ ID, NAME }) => {
+        const isPrimary = user?.GID === ID ? `(${Tr(T.Primary)})` : ''
+        return `${ID} - ${NAME} ${isPrimary}`
+      },
+      getValue: ({ ID }) => String(ID)
     })
 
     return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]

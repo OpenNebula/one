@@ -14,46 +14,30 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
-import { string } from 'prop-types'
+import { oneOfType, string, node } from 'prop-types'
 
-import { Box, Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { Stack, Typography, styled } from '@mui/material'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    color: theme.palette.error.dark,
-    display: 'flex',
-    alignItems: 'center'
-  },
-  text: {
-    ...theme.typography.body1,
-    paddingLeft: theme.spacing(1),
-    overflowWrap: 'anywhere'
-  }
+const ErrorTypo = styled(Typography)(({ theme }) => ({
+  ...theme.typography.body1,
+  paddingLeft: theme.spacing(1),
+  overflowWrap: 'anywhere'
 }))
 
-const ErrorHelper = memo(({ label, ...rest }) => {
-  const classes = useStyles()
-
-  return (
-    <Box component='span' className={classes.root} {...rest}>
-      <WarningIcon />
-      <Typography className={classes.text} component='span' data-cy='error-text'>
-        {Tr(label)}
-      </Typography>
-    </Box>
-  )
-})
+const ErrorHelper = memo(({ label, ...rest }) => (
+  <Stack component='span' color='error.dark' direction='row' alignItems='center' {...rest}>
+    <WarningIcon />
+    <ErrorTypo component='span' data-cy='error-text'>
+      {labelCanBeTranslated(label) ? Tr(label) : label}
+    </ErrorTypo>
+  </Stack>
+))
 
 ErrorHelper.propTypes = {
-  label: string
-}
-
-ErrorHelper.defaultProps = {
-  label: 'Error'
+  label: oneOfType([string, node])
 }
 
 ErrorHelper.displayName = 'ErrorHelper'

@@ -118,7 +118,7 @@ const useListForm = ({
 
   const getIndexById = useCallback(
     (listToFind, searchId = -1) =>
-      listToFind.findIndex((item, idx) => getItemId(item, idx) === searchId),
+      listToFind?.findIndex((item, idx) => getItemId(item, idx) === searchId),
     []
   )
 

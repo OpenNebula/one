@@ -28,6 +28,9 @@ import { TranslateProvider } from 'client/components/HOC'
 import App, { APP_NAME as SunstoneAppName } from 'client/apps/sunstone/_app'
 import theme from 'client/apps/sunstone/theme'
 import { APP_URL } from 'client/constants'
+import { buildTranslationLocale } from 'client/utils'
+
+buildTranslationLocale()
 
 /**
  * @param {object} props - Props

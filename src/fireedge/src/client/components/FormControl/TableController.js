@@ -17,47 +17,61 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Typography } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const defaultGetRowId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
 
 const TableController = memo(
-  ({ control, cy, name, Table, singleSelect = true, getRowId = defaultGetRowId, label, tooltip, error, formContext }) => {
+  ({
+    control,
+    cy = `table-${generateKey()}`,
+    name = '',
+    label = '',
+    tooltip,
+    Table,
+    singleSelect = true,
+    getRowId = defaultGetRowId,
+    formContext = {}
+  }) => {
     const { clearErrors } = formContext
+
+    const {
+      field: { onChange },
+      fieldState: { error }
+    } = useController({ name, control })
 
     return (
       <>
         {error ? (
-          <ErrorHelper data-cy={`${cy}-error`} label={error?.message} mb={2} />
+          <ErrorHelper
+            data-cy={`${cy}-error`}
+            label={error?.message}
+            mb={2}
+          />
         ) : (
           label && (
             <Typography variant='body1' mb={2}>
               {tooltip && <Tooltip title={tooltip} position='start' />}
-              {typeof label === 'string' ? Tr(label) : label}
+              {labelCanBeTranslated(label) ? Tr(label) : label}
             </Typography>
           )
         )}
-        <Controller
-          render={({ onChange }) => (
-            <Table
-              pageSize={4}
-              singleSelect={singleSelect}
-              onlyGlobalSearch
-              onlyGlobalSelectedRows
-              getRowId={getRowId}
-              onSelectedRowsChange={rows => {
-                const rowValues = rows?.map(({ original }) => getRowId(original))
+        <Table
+          pageSize={4}
+          singleSelect={singleSelect}
+          onlyGlobalSearch
+          onlyGlobalSelectedRows
+          getRowId={getRowId}
+          onSelectedRowsChange={rows => {
+            const rowValues = rows?.map(({ original }) => getRowId(original))
 
-                onChange(singleSelect ? rowValues?.[0] : rowValues)
-                clearErrors(name)
-              }}
-            />
-          )}
-          name={name}
-          control={control}
+            onChange(singleSelect ? rowValues?.[0] : rowValues)
+            clearErrors(name)
+          }}
         />
       </>
     )
@@ -76,15 +90,8 @@ TableController.propTypes = {
   Table: PropTypes.any,
   getRowId: PropTypes.func,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
-  tooltip: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,

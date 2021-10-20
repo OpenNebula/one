@@ -17,7 +17,9 @@ import { memo, useEffect } from 'react'
 
 import { styled, Link, Typography } from '@mui/material'
 
+import { useFetch } from 'client/hooks'
 import { useSystem, useSystemApi } from 'client/features/One'
+import { StatusChip } from 'client/components/Status'
 import { BY } from 'client/constants'
 
 const FooterBox = styled('footer')(({ theme }) => ({
@@ -44,9 +46,10 @@ const HeartIcon = styled('span')(({ theme }) => ({
 const Footer = memo(() => {
   const { version } = useSystem()
   const { getOneVersion } = useSystemApi()
+  const { fetchRequest } = useFetch(getOneVersion)
 
   useEffect(() => {
-    !version && getOneVersion()
+    !version && fetchRequest()
   }, [])
 
   return (
@@ -56,8 +59,10 @@ const Footer = memo(() => {
         <HeartIcon role='img' aria-label='heart-emoji' />
         <Link href={BY.url} color='primary.contrastText'>
           {BY.text}
-          {version}
         </Link>
+        {version && (
+          <StatusChip stateColor='secondary' text={version} mx={1} />
+        )}
       </Typography>
     </FooterBox>
   )

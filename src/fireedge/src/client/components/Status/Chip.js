@@ -27,17 +27,24 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => {
   const defaultStateColor = palette.grey[palette.mode === SCHEMES.DARK ? 300 : 700]
 
   return {
-    root: ({ stateColor = defaultStateColor }) => ({
-      color: getBackgroundColor(stateColor, 0.75),
-      backgroundColor: addOpacityToColor(stateColor, 0.2),
-      cursor: 'default',
-      padding: spacing('0.25rem', '0.5rem'),
-      borderRadius: 2,
-      textTransform: 'uppercase',
-      fontSize: typography.overline.fontSize,
-      fontWeight: 500,
-      lineHeight: 'normal'
-    })
+    root: ({ stateColor = defaultStateColor }) => {
+      const paletteColor = palette[stateColor]
+
+      const color = paletteColor?.contrastText ?? getBackgroundColor(stateColor, 0.75)
+      const bgColor = paletteColor?.dark ?? stateColor
+
+      return {
+        color,
+        backgroundColor: addOpacityToColor(bgColor, 0.2),
+        cursor: 'default',
+        padding: spacing('0.25rem', '0.5rem'),
+        borderRadius: 2,
+        textTransform: 'uppercase',
+        fontSize: typography.overline.fontSize,
+        fontWeight: 500,
+        lineHeight: 'normal'
+      }
+    }
   }
 })
 

@@ -20,11 +20,10 @@ import { useFormContext } from 'react-hook-form'
 import { useAuth } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
-import { Tr } from 'client/components/HOC'
 
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
-import { getActionsAvailable } from 'client/models/Helper'
+import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'configuration'
@@ -37,9 +36,9 @@ const Content = () => {
   const groups = useMemo(() => {
     const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
-    const groupsAvailable = getActionsAvailable(dialog, hypervisor)
+    const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return FIELDS(hypervisor).filter(({ id }) => groupsAvailable.includes(id))
+    return FIELDS(hypervisor).filter(({ id }) => sectionsAvailable.includes(id))
   }, [view])
 
   return (
@@ -50,7 +49,7 @@ const Content = () => {
           className={classes[id]}
           cy={`instantiate-vm-template-configuration.${id}`}
           fields={fields}
-          legend={Tr(legend)}
+          legend={legend}
           id={STEP_ID}
         />
       ))}

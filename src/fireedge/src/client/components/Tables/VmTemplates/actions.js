@@ -81,13 +81,10 @@ const Actions = () => {
         accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
         tooltip: T.Create,
         icon: AddSquare,
-        disabled: true,
-        action: rows => {
-          // TODO: go to CREATE form
-          // const { ID } = rows?.[0]?.original ?? {}
-          // const path = generatePath(PATH.TEMPLATE.VMS.CREATE, { id: ID })
+        action: () => {
+          const path = PATH.TEMPLATE.VMS.CREATE
 
-          // history.push(path)
+          history.push(path)
         }
       },
       {
@@ -174,25 +171,25 @@ const Actions = () => {
         selected: true,
         color: 'secondary',
         options: [{
-          cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_OWNER}`,
+          accessor: VM_TEMPLATE_ACTIONS.CHANGE_OWNER,
           name: T.ChangeOwner,
           disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_TEMPLATE_ACTIONS.CHANGE_GROUP}`,
+          accessor: VM_TEMPLATE_ACTIONS.CHANGE_GROUP,
           name: T.ChangeGroup,
           disabled: true,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_TEMPLATE_ACTIONS.SHARE}`,
+          accessor: VM_TEMPLATE_ACTIONS.SHARE,
           disabled: true,
           name: T.Share,
           isConfirmDialog: true,
           onSubmit: () => undefined
         }, {
-          cy: `action.${VM_TEMPLATE_ACTIONS.UNSHARE}`,
+          accessor: VM_TEMPLATE_ACTIONS.UNSHARE,
           disabled: true,
           name: T.Unshare,
           isConfirmDialog: true,
@@ -203,8 +200,9 @@ const Actions = () => {
         tooltip: T.Lock,
         icon: Lock,
         selected: true,
+        color: 'secondary',
         options: [{
-          cy: `action.${VM_TEMPLATE_ACTIONS.LOCK}`,
+          accessor: VM_TEMPLATE_ACTIONS.LOCK,
           name: T.Lock,
           isConfirmDialog: true,
           dialogProps: {
@@ -217,7 +215,7 @@ const Actions = () => {
             await Promise.all(ids.map(id => getVmTemplate(id)))
           }
         }, {
-          cy: `action.${VM_TEMPLATE_ACTIONS.UNLOCK}`,
+          accessor: VM_TEMPLATE_ACTIONS.UNLOCK,
           name: T.Unlock,
           isConfirmDialog: true,
           dialogProps: {

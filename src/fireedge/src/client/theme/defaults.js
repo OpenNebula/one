@@ -83,8 +83,8 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         white
       },
       background: {
-        paper: isDarkMode ? '#2a2d3d' : white,
-        default: isDarkMode ? '#222431' : '#f2f4f8'
+        paper: isDarkMode ? primary.light : white,
+        default: isDarkMode ? primary.main : '#f2f4f8'
       },
       error: {
         100: '#fdeae7',
@@ -244,8 +244,19 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             '&:hover': {
               textDecoration: 'underline'
             }
-          }
+          },
+          fieldset: { border: 'none' }
         }
+      },
+      MuiTypography: {
+        variants: [{
+          props: { component: 'legend' },
+          style: {
+            marginBottom: '1em',
+            padding: '0em 1em 0.2em 0.5em',
+            borderBottom: `2px solid ${secondary.main}`
+          }
+        }]
       },
       MuiPaper: {
         styleOverrides: {
@@ -382,6 +393,31 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             fontSize: '1rem',
             '&.Mui-selected': {
               color: white
+            }
+          }
+        }
+      },
+      MuiToggleButtonGroup: {
+        styleOverrides: {
+          root: {
+            backgroundColor: isDarkMode ? primary.main : '#f2f4f8'
+          }
+        },
+        defaultProps: {
+          color: 'secondary'
+        }
+      },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: 700,
+            color: isDarkMode ? grey[300] : grey[700],
+            borderColor: isDarkMode ? secondary[500] : grey[400],
+            '&.Mui-selected': {
+              borderColor: `${secondary[500]} !important`,
+              color: isDarkMode ? white : secondary[800],
+              backgroundColor: isDarkMode ? alpha(secondary[800], 0.2) : secondary[100]
             }
           }
         }

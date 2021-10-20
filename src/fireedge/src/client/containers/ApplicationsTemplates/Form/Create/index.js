@@ -69,7 +69,7 @@ function ApplicationsTemplatesCreateForm () {
   useEffect(() => {
     const formData = data ? parseApplicationToForm(data) : {}
 
-    methods.reset(resolvers().cast(formData), { errors: false })
+    methods.reset(resolvers().cast(formData), { keepErrors: false })
   }, [data])
 
   if (error) {

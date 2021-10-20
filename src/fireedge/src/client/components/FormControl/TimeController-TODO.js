@@ -73,7 +73,7 @@ const TimeController = memo(
                   inputProps={{ 'data-cy': cy }}
                   inputRef={ref}
                   error={Boolean(error)}
-                  helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+                  helperText={Boolean(error) && <ErrorHelper label={error} />}
                   FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
                   {...fieldProps}
                 />
@@ -94,11 +94,9 @@ TimeController.propTypes = {
   cy: PropTypes.string,
   multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
-  label: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
+  error: PropTypes.any,
   fieldProps: PropTypes.object,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,

@@ -17,23 +17,14 @@
 import { createElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { styled, Grid } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
 
 import * as FC from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
 import { INPUT_TYPES } from 'client/constants'
-import { get } from 'client/utils'
 
-const Fieldset = styled('fieldset')({ border: 'none' })
-
-const Legend = styled('legend')(({ theme }) => ({
-  ...theme.typography.subtitle1,
-  marginBottom: '1em',
-  padding: '0em 1em 0.2em 0.5em',
-  borderBottom: `2px solid ${theme.palette.secondary.main}`
-}))
-
-const NOT_DEPEND_ATTRIBUTES = ['transform', 'Table']
+const NOT_DEPEND_ATTRIBUTES = ['watcher', 'transform', 'Table', 'renderValue']
 
 const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: FC.TextController,
@@ -45,28 +36,39 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
   [INPUT_TYPES.FILE]: FC.FileController,
   [INPUT_TYPES.TIME]: FC.TimeController,
-  [INPUT_TYPES.TABLE]: FC.TableController
+  [INPUT_TYPES.TABLE]: FC.TableController,
+  [INPUT_TYPES.TOGGLE]: FC.ToggleController
 }
 
 const FormWithSchema = ({ id, cy, fields, className, legend }) => {
   const formContext = useFormContext()
-  const { control, errors, watch } = formContext
+  const { control, watch } = formContext
 
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
   if (getFields.length === 0) return null
 
+  const addIdToName = name => name.startsWith('$')
+    ? name.slice(1) // removes character '$' and returns
+    : id ? `${id}.${name}` : name // concat form ID if exists
+
   return (
-    <Fieldset className={className}>
-      {legend && <Legend>{legend}</Legend>}
+    <fieldset className={className}>
+      {legend && (
+        <Typography variant='subtitle1' component='legend'>
+          {Tr(legend)}
+        </Typography>
+      )}
       <Grid container spacing={1} alignContent='flex-start'>
         {getFields?.map?.(
           ({ dependOf, ...attributes }) => {
             let valueOfDependField = null
+            let nameOfDependField = null
+
             if (dependOf) {
-              const nameOfDependField = id
-                ? Array.isArray(dependOf) ? dependOf.map(d => `${id}.${d}`) : `${id}.${dependOf}`
-                : dependOf
+              nameOfDependField = Array.isArray(dependOf)
+                ? dependOf.map(addIdToName)
+                : addIdToName(dependOf)
 
               valueOfDependField = watch(nameOfDependField)
             }
@@ -78,16 +80,14 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
                 const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
 
                 const finalValue = typeof value === 'function' && !isNotDependAttribute
-                  ? value(valueOfDependField)
+                  ? value(valueOfDependField, formContext)
                   : value
 
                 return { ...field, [key]: finalValue }
               }, {})
 
             const dataCy = `${cy}-${name}`
-            const inputName = id ? `${id}.${name}` : name
-
-            const inputError = get(errors, inputName) ?? false
+            const inputName = addIdToName(name)
 
             const isHidden = htmlType === INPUT_TYPES.HIDDEN
 
@@ -99,8 +99,8 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
                   {createElement(INPUT_CONTROLLER[type], {
                     control,
                     cy: dataCy,
-                    error: inputError,
                     formContext,
+                    dependencies: nameOfDependField,
                     name: inputName,
                     type: htmlType === false ? undefined : htmlType,
                     ...fieldProps
@@ -111,7 +111,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
           }
         )}
       </Grid>
-    </Fieldset>
+    </fieldset>
   )
 }
 

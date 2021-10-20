@@ -38,7 +38,7 @@ const PasswordController = memo(({ fieldProps, ...props }) => {
             <IconButton
               aria-label='toggle password visibility'
               onClick={handleClickShowPassword}
-              size='large'>
+            >
               {showPassword ? <Visibility /> : <VisibilityOff />}
             </IconButton>
           </InputAdornment>
@@ -49,7 +49,8 @@ const PasswordController = memo(({ fieldProps, ...props }) => {
   )
 },
 (prevProps, nextProps) =>
-  prevProps.error === nextProps.error && prevProps.type === nextProps.type
+  prevProps.error === nextProps.error &&
+  prevProps.type === nextProps.type
 )
 
 PasswordController.propTypes = {

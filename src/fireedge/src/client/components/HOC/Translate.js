@@ -26,6 +26,9 @@ import { isDevelopment } from 'client/utils'
 const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
 
+const labelCanBeTranslated = val =>
+  typeof val === 'string' || (Array.isArray(val) && val.length === 2)
+
 const GenerateScript = (
   language = DEFAULT_LANGUAGE,
   setHash = () => undefined
@@ -48,7 +51,7 @@ const RemoveScript = () => {
   root.document.body.removeChild(languageScript)
 }
 
-const TranslateProvider = ({ children }) => {
+const TranslateProvider = ({ children = [] }) => {
   const [hash, setHash] = useState({})
   const { settings: { lang } = {} } = useAuth()
 
@@ -104,7 +107,7 @@ const Tr = (str = '') => {
   return translateString(key, valuesTr)
 }
 
-const Translate = ({ word = '', values }) => {
+const Translate = ({ word = '', values = [] }) => {
   const valuesTr = !Array.isArray(values) ? [values] : values
   return translateString(word, valuesTr)
 }
@@ -116,18 +119,20 @@ TranslateProvider.propTypes = {
   ])
 }
 
-TranslateProvider.defaultProps = {
-  children: []
-}
-
 Translate.propTypes = {
   word: PropTypes.string,
-  values: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
+  values: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.bool,
+    PropTypes.array
+  ])
 }
 
-Translate.defaultProps = {
-  word: '',
-  values: ''
+export {
+  TranslateContext,
+  TranslateProvider,
+  Translate,
+  Tr,
+  labelCanBeTranslated
 }
-
-export { TranslateContext, TranslateProvider, Translate, Tr }

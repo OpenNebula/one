@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import DockerLogo from 'client/components/Icons/docker'
-import OpenNebulaLogo from 'client/components/Icons/opennebula'
+import DockerLogo from 'client/components/Icons/DockerIcon'
+import OpenNebulaLogo from 'client/components/Icons/OpenNebulaIcon'
 
 export {
   DockerLogo,

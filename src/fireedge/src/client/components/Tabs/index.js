@@ -26,7 +26,6 @@ const Content = ({ name, renderContent: Content, hidden }) => (
       sx={{
         p: theme => theme.spacing(2, 1),
         height: '100%',
-        overflow: 'auto',
         display: hidden ? 'none' : 'block'
       }}
     >
@@ -45,13 +44,13 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
       scrollButtons='auto'
       onChange={(_, tab) => setTab(tab)}
     >
-      {tabs.map(({ value, name, icon: Icon }, idx) =>
+      {tabs.map(({ value, name, label, icon: Icon }, idx) =>
         <MTab
           key={`tab-${name}`}
           id={`tab-${name}`}
           icon={Icon && <Icon />}
           value={value ?? idx}
-          label={name}
+          label={label ?? name}
         />
       )}
     </MTabs>

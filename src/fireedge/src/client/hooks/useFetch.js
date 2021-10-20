@@ -104,8 +104,12 @@ const useFetch = (request, socket) => {
     }
   }, [isFetched])
 
-  useEffect(() => () => {
-    cancelRequest.current = true
+  useEffect(() => {
+    cancelRequest.current = false
+
+    return () => {
+      cancelRequest.current = true
+    }
   }, [])
 
   const doFetch = useCallback(async (payload, reload = false) => {

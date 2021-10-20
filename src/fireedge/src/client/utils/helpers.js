@@ -290,7 +290,25 @@ export const isBase64 = (stringToValidate, options = {}) => {
 /**
  * Check if value is divisible by 4.
  *
- * @param {number} value - Number to check
+ * @param {string|number} value - Number to check
  * @returns {boolean} Returns `true` if string is divisible by 4
  */
 export const isDivisibleBy4 = value => /[048]|\d*([02468][048]|[13579][26])/g.test(value)
+
+/**
+ * Check if value is divisible by another number.
+ *
+ * @param {string|number} number - Value to check
+ * @param {string|number} divisor - Divisor number
+ * @returns {boolean} Returns `true` if value is divisible by another
+ */
+export const isDivisibleBy = (number, divisor) => !(number % divisor)
+
+/**
+ * Returns factors of a number.
+ *
+ * @param {number} value - Number
+ * @returns {number[]} Returns list of numbers
+ */
+export const getFactorsOfNumber = value =>
+  [...Array(+value + 1).keys()].filter(idx => value % idx === 0)

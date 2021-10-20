@@ -29,65 +29,67 @@ const INITIAL_STATE = { fail: false, retries: 0 }
  * @param {string} props.imgProps - Properties to image element
  * @returns {JSXElementConstructor} Picture with all images format
  */
-const Image = memo(({ src, imageInError, withSources, imgProps }) => {
-  const [error, setError] = useState(INITIAL_STATE)
+const Image = memo(
+  ({
+    src,
+    imageInError = DEFAULT_IMAGE,
+    withSources = false,
+    pictureProps = {},
+    imgProps = {}
+  }) => {
+    const [error, setError] = useState(INITIAL_STATE)
 
-  /** Increment retries by one in error state. */
-  const addRetry = () => {
-    setError(prev => ({ ...prev, retries: prev.retries + 1 }))
-  }
+    const imageProps = {
+      decoding: 'async',
+      draggable: false,
+      loading: 'lazy',
+      ...imgProps
+    }
 
-  /** Set failed state. */
-  const onImageFail = () => {
-    setError(prev => ({ fail: true, retries: prev.retries + 1 }))
-  }
+    /** Increment retries by one in error state. */
+    const addRetry = () => {
+      setError(prev => ({ ...prev, retries: prev.retries + 1 }))
+    }
 
-  if (error.retries >= MAX_RETRIES) {
-    return null
-  }
+    /** Set failed state. */
+    const onImageFail = () => {
+      setError(prev => ({ fail: true, retries: prev.retries + 1 }))
+    }
 
-  if (error.fail) {
-    return <img
-      {...imgProps}
-      src={imageInError}
-      draggable={false}
-      onError={addRetry}
-    />
-  }
+    if (error.retries >= MAX_RETRIES) {
+      return null
+    }
 
-  return (
-    <picture>
-      {withSources && IMAGE_FORMATS.map(format => (
-        <source key={format}
-          srcSet={`${src}.${format}`}
-          type={`image/${format}`}
-        />
-      ))}
-      <img {...imgProps} src={src} onError={onImageFail} />
-    </picture>
-  )
-}, (prev, next) => prev.src === next.src)
+    if (error.fail) {
+      return <img
+        {...imageProps}
+        src={imageInError}
+        draggable={false}
+        onError={addRetry}
+      />
+    }
+
+    return withSources ? (
+      <picture {...pictureProps}>
+        {withSources && IMAGE_FORMATS.map(format => (
+          <source key={format}
+            srcSet={`${src}.${format}`}
+            type={`image/${format}`}
+          />
+        ))}
+        <img {...imageProps} src={src} onError={onImageFail} />
+      </picture>
+    ) : (
+      <img {...imageProps} src={src} onError={onImageFail} />
+    )
+  }, (prev, next) => prev.src === next.src)
 
 Image.propTypes = {
   src: PropTypes.string,
   imageInError: PropTypes.string,
   withSources: PropTypes.bool,
-  imgProps: PropTypes.shape({
-    decoding: PropTypes.oneOf(['sync', 'async', 'auto']),
-    draggable: PropTypes.bool,
-    loading: PropTypes.oneOf(['eager', 'lazy'])
-  })
-}
-
-Image.defaultProps = {
-  src: undefined,
-  imageInError: DEFAULT_IMAGE,
-  withSources: false,
-  imgProps: {
-    decoding: 'async',
-    draggable: false,
-    loading: 'lazy'
-  }
+  pictureProps: PropTypes.object,
+  imgProps: PropTypes.object
 }
 
 Image.displayName = 'Image'

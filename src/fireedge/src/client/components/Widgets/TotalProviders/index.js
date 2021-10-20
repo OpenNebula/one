@@ -83,7 +83,10 @@ const TotalProviders = ({ isLoading }) => {
 
   return useMemo(() => (
     !totalProviders && isLoading ? (
-      <Skeleton variant='rectangular' height={350} />
+      <Skeleton
+        variant='rectangular'
+        sx={{ height: { xs: 210, sm: 350 } }}
+      />
     ) : (
       <Paper
         data-cy='dashboard-widget-total-providers-by-type'

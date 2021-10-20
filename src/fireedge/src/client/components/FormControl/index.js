@@ -23,6 +23,7 @@ import SwitchController from 'client/components/FormControl/SwitchController'
 import TableController from 'client/components/FormControl/TableController'
 import TextController from 'client/components/FormControl/TextController'
 import TimeController from 'client/components/FormControl/TimeController'
+import ToggleController from 'client/components/FormControl/ToggleController'
 
 import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
@@ -40,6 +41,7 @@ export {
   TableController,
   TextController,
   TimeController,
+  ToggleController,
 
   SubmitButton,
   SubmitButtonPropTypes,

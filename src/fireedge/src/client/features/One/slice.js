@@ -90,6 +90,10 @@ const { name, actions, reducer } = createSlice({
     builder
       .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
+        ({ type }) => type.startsWith(RESOURCES.system) && type.endsWith('/fulfilled'),
+        (state, { payload }) => ({ ...state, ...payload })
+      )
+      .addMatcher(
         ({ type }) =>
           type === updateResourceFromFetch.type ||
           (

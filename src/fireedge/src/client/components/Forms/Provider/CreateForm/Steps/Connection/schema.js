@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as yup from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields, isBase64, prettyBytes } from 'client/utils'
+import { getValidationFromFields, prettyBytes } from 'client/utils'
 
 const MAX_SIZE_JSON = 102_400
 const JSON_FORMAT = 'application/json'
@@ -29,11 +29,11 @@ export const FORM_FIELDS = ({ connection, fileCredentials }) =>
     let validation = yup
       .string()
       .trim()
-      .required(`${name} field is required`)
+      .required()
       .default(undefined)
 
     if (isInputFile) {
-      validation = validation.test('is-base64', 'File has invalid format', isBase64)
+      validation = validation.isBase64()
     }
 
     return {

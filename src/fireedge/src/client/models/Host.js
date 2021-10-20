@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { HOST_STATES, StateInfo } from 'client/constants'
+import { DEFAULT_CPU_MODELS, HOST_STATES, HYPERVISORS, StateInfo } from 'client/constants'
 
 /**
  * Returns information about the host state.
@@ -62,4 +62,44 @@ export const getAllocatedInfo = host => {
     percentMemUsed,
     percentMemLabel
   }
+}
+
+/**
+ * Returns list of hugepage sizes from the host numa nodes.
+ *
+ * @param {object} host - Host
+ * @returns {Array} List of hugepages sizes from resource
+ */
+export const getHugepageSizes = host => {
+  const numaNodes = [host?.HOST_SHARE?.NUMA_NODES?.NODE ?? []].flat()
+
+  return numaNodes.filter(node => node?.NODE_ID &&
+    [node?.HUGEPAGE?.SIZE ?? []].flat().map(size => +size)
+  )
+}
+
+/**
+ * Returns list of KVM CPU Models available from the host pool.
+ *
+ * @param {object[]} hosts - Hosts
+ * @returns {Array} List of KVM CPU Models from the pool
+ */
+export const getKvmCpuModels = (hosts = []) => hosts
+  .filter(host => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
+  .map(host => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
+  .flat()
+
+/**
+ * Returns list of KVM Machines available from the host pool.
+ *
+ * @param {object[]} hosts - Hosts
+ * @returns {Array} List of KVM Machines from the pool
+ */
+export const getKvmMachines = (hosts = []) => {
+  const machineTypes = hosts
+    .filter(host => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
+    .map(host => host.TEMPLATE?.KVM_MACHINES.split(' '))
+    .flat()
+
+  return [DEFAULT_CPU_MODELS, ...machineTypes]
 }

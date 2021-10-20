@@ -17,70 +17,76 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField, Chip, Autocomplete } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const AutocompleteController = memo(
-  ({ control, cy, name, label, multiple, values, error, fieldProps }) => (
-    <Controller
-      render={({ value: renderValue, onBlur, onChange }) => {
-        const selected = multiple
-          ? renderValue ?? []
-          : values.find(({ value }) => value === renderValue) ?? null
+  ({
+    control,
+    cy = `autocomplete-${generateKey()}`,
+    name = '',
+    label = '',
+    multiple = false,
+    values = [],
+    fieldProps = {}
+  }) => {
+    const {
+      field: { value: renderValue, onBlur, onChange },
+      fieldState: { error }
+    } = useController({ name, control })
 
-        return (
-          <Autocomplete
-            fullWidth
-            color='secondary'
-            onBlur={onBlur}
-            onChange={(_, newValue) => {
-              const newValueToChange = multiple
-                ? newValue?.map(value =>
-                  typeof value === 'string' ? value : ({ text: value, value })
-                )
-                : newValue?.value
+    const selected = multiple
+      ? renderValue ?? []
+      : values.find(({ value }) => value === renderValue) ?? null
 
-              return onChange(newValueToChange ?? '')
-            }}
-            options={values}
-            value={selected}
-            multiple={multiple}
-            renderTags={(tags, getTagProps) =>
-              // render when freesolo prop
-              tags.map((tag, index) => (
-                <Chip
-                  key={tag}
-                  size='small'
-                  variant='outlined'
-                  label={tag}
-                  {...getTagProps({ index })}
-                />
-              ))
-            }
-            getOptionLabel={option => option.text}
-            isOptionEqualToValue={option => option.value === renderValue}
-            renderInput={({ inputProps, ...inputParams }) => (
-              <TextField
-                label={Tr(label)}
-                inputProps={{ ...inputProps, 'data-cy': cy }}
-                error={Boolean(error)}
-                helperText={
-                  Boolean(error) && <ErrorHelper label={error?.message} />
-                }
-                FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-                {...inputParams}
-              />
-            )}
-            {...fieldProps}
+    return (
+      <Autocomplete
+        fullWidth
+        color='secondary'
+        onBlur={onBlur}
+        onChange={(_, newValue) => {
+          const newValueToChange = multiple
+            ? newValue?.map(value =>
+              typeof value === 'string' ? value : ({ text: value, value })
+            )
+            : newValue?.value
+
+          return onChange(newValueToChange ?? '')
+        }}
+        options={values}
+        value={selected}
+        multiple={multiple}
+        renderTags={(tags, getTagProps) =>
+          // render when freesolo prop
+          tags.map((tag, index) => (
+            <Chip
+              key={tag}
+              size='small'
+              variant='outlined'
+              label={tag}
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+        getOptionLabel={option => option.text}
+        isOptionEqualToValue={option => option.value === renderValue}
+        renderInput={({ inputProps, ...inputParams }) => (
+          <TextField
+            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            inputProps={{ ...inputProps, 'data-cy': cy }}
+            error={Boolean(error)}
+            helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+            FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+            {...inputParams}
           />
-        )
-      }}
-      name={name}
-      control={control}
-    />
-  ),
+        )}
+        {...fieldProps}
+      />
+    )
+  },
   (prevProps, nextProps) => (
     prevProps.error === nextProps.error &&
     prevProps.values === nextProps.values
@@ -90,25 +96,10 @@ AutocompleteController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  label: PropTypes.any,
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
   fieldProps: PropTypes.object
-}
-
-AutocompleteController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  multiple: false,
-  values: [],
-  error: false,
-  fieldProps: undefined
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

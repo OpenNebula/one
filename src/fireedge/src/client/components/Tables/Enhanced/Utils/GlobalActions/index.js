@@ -97,6 +97,6 @@ GlobalActions.propTypes = {
   useTableProps: PropTypes.object
 }
 
-export { Action, ActionPropTypes, GlobalAction }
+export { Action, ActionPropTypes }
 
 export default GlobalActions

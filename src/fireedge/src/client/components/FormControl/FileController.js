@@ -15,44 +15,45 @@
  * ------------------------------------------------------------------------- */
 import { memo, useState, useRef, useEffect, ChangeEvent } from 'react'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
-import { FormControl, FormHelperText } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { styled, FormControl, FormHelperText } from '@mui/material'
 import { Check as CheckIcon, Page as FileIcon } from 'iconoir-react'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
-import { ErrorHelper, SubmitButton } from 'client/components/FormControl'
+import { ErrorHelper, Tooltip, SubmitButton } from 'client/components/FormControl'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
-const useStyles = makeStyles(theme => ({
-  hide: {
-    display: 'none'
-  },
-  label: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1em',
-    padding: '0.5em',
-    borderBottom: `1px solid ${theme.palette.text.secondary}`
-  },
-  button: {
-    '&:hover': {
-      backgroundColor: theme.palette.secondary.dark
-    }
-  },
-  buttonSuccess: {
-    backgroundColor: theme.palette.success.main,
-    '&:hover': {
-      backgroundColor: theme.palette.success.dark
-    }
-  }
+const HiddenInput = styled('input')({ display: 'none' })
+
+const Label = styled('label')(({ theme, error }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '1em',
+  ...(error && {
+    color: theme.palette.error.main
+  })
 }))
 
 const FileController = memo(
-  ({ control, cy, name, label, error, fieldProps, validationBeforeTransform, transform, formContext }) => {
+  ({
+    control,
+    cy = `input-file-${generateKey()}`,
+    name = '',
+    label = '',
+    tooltip = '',
+    validationBeforeTransform,
+    transform,
+    fieldProps = {},
+    formContext = {}
+  }) => {
     const { setValue, setError, clearErrors, watch } = formContext
 
-    const classes = useStyles()
+    const {
+      field: { ref, value, onChange, ...inputProps },
+      fieldState: { error }
+    } = useController({ name, control })
+
     const [isLoading, setLoading] = useState(() => false)
     const [success, setSuccess] = useState(() => !error && !!watch(name))
     const timer = useRef()
@@ -107,33 +108,26 @@ const FileController = memo(
     }
 
     return (
-      <FormControl fullWidth>
-        <Controller
-          render={() => (
-            <input
-              className={classes.hide}
-              id={cy}
-              type='file'
-              onChange={handleChange}
-              {...fieldProps}
-            />
-          )}
-          name={name}
-          control={control}
+      <FormControl fullWidth margin='dense'>
+        <HiddenInput
+          {...inputProps}
+          ref={ref}
+          id={cy}
+          type='file'
+          onChange={handleChange}
+          {...fieldProps}
         />
-        <label htmlFor={cy} className={classes.label}>
+        <Label htmlFor={cy} error={error ? 'error' : undefined}>
           <SubmitButton
-            color='secondary'
+            color={success ? 'success' : 'secondary'}
             component='span'
             data-cy={`${cy}-button`}
             isSubmitting={isLoading}
             label={success ? <CheckIcon /> : <FileIcon />}
-            className={clsx({
-              [classes.buttonSuccess]: success
-            })}
           />
-          {label}
-        </label>
+          {labelCanBeTranslated(label) ? Tr(label) : label}
+          {tooltip && <Tooltip title={tooltip} />}
+        </Label>
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={error?.message} />
@@ -143,18 +137,17 @@ const FileController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error && prevProps.type === nextProps.type
+    prevProps.error === nextProps.error &&
+    prevProps.type === nextProps.type &&
+    prevProps.label === nextProps.label
 )
 
 FileController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   validationBeforeTransform: PropTypes.arrayOf(
     PropTypes.shape({
       message: PropTypes.string,
@@ -170,17 +163,6 @@ FileController.propTypes = {
     watch: PropTypes.func,
     register: PropTypes.func
   })
-}
-
-FileController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  error: false,
-  validationBeforeTransform: undefined,
-  transform: undefined,
-  fieldProps: undefined
 }
 
 FileController.displayName = 'FileController'

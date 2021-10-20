@@ -93,7 +93,11 @@ const Header = () => {
             {title}
           </Typography>
         </Box>
-        <Stack direction='row' flexGrow={1} justifyContent='end'>
+        <Stack
+          direction='row'
+          justifyContent='end'
+          sx={{ flexGrow: { xs: 1, sm: 0 } }}
+        >
           <User />
           <View />
           {!isOneAdmin && <Group />}

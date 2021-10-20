@@ -17,60 +17,71 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Typography, TextField, Slider, FormHelperText, Grid } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const SliderController = memo(
-  ({ control, cy, name, label, error, fieldProps }) => (
-    <>
-      <Typography id={`slider-${name}`} gutterBottom>
-        {Tr(label)}
-      </Typography>
-      <Controller
-        render={({ value, onChange, onBlur }) =>
-          <Grid container spacing={2} alignItems='center'>
-            <Grid item xs>
-              <Slider
-                color='secondary'
-                value={typeof value === 'number' ? value : 0}
-                aria-labelledby={`slider-${name}`}
-                valueLabelDisplay='auto'
-                data-cy={`${cy}-slider`}
-                {...fieldProps}
-                onChange={(_, val) => onChange(val)}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                fullWidth
-                value={value ?? ''}
-                error={Boolean(error)}
-                type='number'
-                inputProps={{
-                  'data-cy': `${cy}-input`,
-                  'aria-labelledby': `slider-${name}`,
-                  ...fieldProps
-                }}
-                onChange={evt => onChange(
-                  evt.target.value === '' ? '0' : Number(evt.target.value)
-                )}
-                onBlur={onBlur}
-              />
-            </Grid>
+  ({
+    control,
+    cy = `slider-${generateKey()}`,
+    name = '',
+    label = '',
+    fieldProps = {}
+  }) => {
+    const {
+      field: { value, onChange, ...inputProps },
+      fieldState: { error }
+    } = useController({ name, control })
+
+    const sliderId = `${cy}-slider`
+    const inputId = `${cy}-input`
+
+    return (
+      <>
+        <Typography id={sliderId} gutterBottom>
+          {labelCanBeTranslated(label) ? Tr(label) : label}
+        </Typography>
+        <Grid container spacing={2} alignItems='center'>
+          <Grid item xs>
+            <Slider
+              color='secondary'
+              value={typeof value === 'number' ? value : 0}
+              aria-labelledby={sliderId}
+              valueLabelDisplay='auto'
+              data-cy={sliderId}
+              onChange={(_, val) => onChange(val)}
+              {...fieldProps}
+            />
           </Grid>
-        }
-        name={name}
-        control={control}
-      />
-      {Boolean(error) && (
-        <FormHelperText data-cy={`${cy}-error`}>
-          <ErrorHelper label={error?.message} />
-        </FormHelperText>
-      )}
-    </>
-  ),
+          <Grid item>
+            <TextField
+              {...inputProps}
+              fullWidth
+              value={value}
+              error={Boolean(error)}
+              type='number'
+              inputProps={{
+                'data-cy': inputId,
+                'aria-labelledby': sliderId,
+                ...fieldProps
+              }}
+              onChange={evt => onChange(
+                evt.target.value === '' ? '0' : Number(evt.target.value)
+              )}
+            />
+          </Grid>
+        </Grid>
+        {Boolean(error) && (
+          <FormHelperText data-cy={`${cy}-error`}>
+            <ErrorHelper label={error?.message} />
+          </FormHelperText>
+        )}
+      </>
+    )
+  },
   (prevProps, nextProps) => prevProps.error === nextProps.error
 )
 
@@ -78,25 +89,11 @@ SliderController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
   fieldProps: PropTypes.object
-}
-
-SliderController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  multiple: false,
-  values: [],
-  error: false,
-  fieldProps: undefined
 }
 
 SliderController.displayName = 'SliderController'

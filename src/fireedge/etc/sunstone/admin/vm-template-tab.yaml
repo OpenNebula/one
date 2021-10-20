@@ -87,13 +87,22 @@ dialogs:
     sched_action: true
     booting: true
   create_dialog:
-    general: true
+    capacity: true
+    ownership: true
+    vm_group: true
     vcenter:
       enabled: true
       not_on:
-        - vcenter
-    storage:
-      enabled: true
+        - kvm
+        - lxc
+        - firecracker
+    network: true
+    storage: true
+    placement: true
+    input_output: true
+    sched_action: true
+    context: true
+    booting: true
     numa:
       enabled: true
       no_on:

@@ -20,7 +20,7 @@ import { Button, MobileStepper, Typography, Box, alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { NavArrowLeft as PreviousIcon, NavArrowRight as NextIcon } from 'iconoir-react'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate, labelCanBeTranslated } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
@@ -57,7 +57,7 @@ const CustomMobileStepper = ({
     <Box className={classes.root}>
       <Box minHeight={60}>
         <Typography className={classes.title}>
-          {typeof label === 'string' ? Tr(label) : label}
+          {labelCanBeTranslated(label) ? Tr(label) : label}
         </Typography>
         {Boolean(errors[id]) && (
           <Typography className={classes.error} variant='caption' color='error'>
@@ -79,12 +79,16 @@ const CustomMobileStepper = ({
             onClick={handleBack}
             disabled={disabledBack}
           >
-            <PreviousIcon /> {Tr(T.Back)}
+            <PreviousIcon />
+            <Translate word={T.Back} />
           </Button>
         }
         nextButton={
           <Button className={classes.button} size='small' onClick={handleNext}>
-            {activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
+            {activeStep === lastStep
+              ? <Translate word={T.Finish} />
+              : <Translate word={T.Next} />
+            }
             <NextIcon />
           </Button>
         }

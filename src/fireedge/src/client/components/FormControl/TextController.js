@@ -13,45 +13,74 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const TextController = memo(
-  ({ control, cy, type, multiline, name, label, tooltip, error, fieldProps }) => (
-    <Controller
-      render={({ value, ...controllerProps }) =>
-        <TextField
-          fullWidth
-          multiline={multiline}
-          value={value ?? ''}
-          type={type}
-          label={typeof label === 'string' ? Tr(label) : label}
-          InputProps={{
-            endAdornment: tooltip && <Tooltip title={tooltip} />
-          }}
-          inputProps={{ 'data-cy': cy, ...fieldProps }}
-          error={Boolean(error)}
-          helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
-          FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-          {...controllerProps}
-          {...fieldProps}
-        />
+  ({
+    control,
+    cy = `input-${generateKey()}`,
+    name = '',
+    label = '',
+    type = 'text',
+    multiline = false,
+    tooltip,
+    watcher,
+    dependencies,
+    fieldProps = {}
+  }) => {
+    const watch = dependencies && useWatch({
+      control,
+      name: dependencies,
+      disabled: dependencies === null
+    })
+
+    const {
+      field: { ref, value = '', onChange, ...inputProps },
+      fieldState: { error }
+    } = useController({ name, control })
+
+    useEffect(() => {
+      if (watch && watcher) {
+        const watcherValue = watcher(watch)
+        watcherValue && onChange(watcherValue)
       }
-      name={name}
-      control={control}
-    />
-  ),
+    }, [watch])
+
+    return (
+      <TextField
+        {...inputProps}
+        fullWidth
+        inputRef={ref}
+        value={value}
+        onChange={onChange}
+        multiline={multiline}
+        type={type}
+        label={labelCanBeTranslated(label) ? Tr(label) : label}
+        InputProps={{
+          endAdornment: tooltip && <Tooltip title={tooltip} />
+        }}
+        inputProps={{ 'data-cy': cy, ...fieldProps }}
+        error={Boolean(error)}
+        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+        {...fieldProps}
+      />
+    )
+  },
   (prevProps, nextProps) =>
     prevProps.error === nextProps.error &&
     prevProps.type === nextProps.type &&
     prevProps.label === nextProps.label &&
-    prevProps.tooltip === nextProps.tooltip
+    prevProps.tooltip === nextProps.tooltip &&
+    prevProps.fieldProps?.value === nextProps.fieldProps?.value
 )
 
 TextController.propTypes = {
@@ -60,14 +89,12 @@ TextController.propTypes = {
   type: PropTypes.string,
   multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
-  tooltip: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.strin,
+    PropTypes.arrayOf(PropTypes.string)
   ]),
   fieldProps: PropTypes.object,
   formContext: PropTypes.shape({
@@ -77,16 +104,6 @@ TextController.propTypes = {
     watch: PropTypes.func,
     register: PropTypes.func
   })
-}
-
-TextController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  type: 'text',
-  multiline: false,
-  name: '',
-  label: '',
-  error: false
 }
 
 TextController.displayName = 'TextController'

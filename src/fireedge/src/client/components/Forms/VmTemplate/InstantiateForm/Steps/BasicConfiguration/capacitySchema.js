@@ -17,7 +17,6 @@
 import { number } from 'yup'
 
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
-import { isDivisibleBy4 } from 'client/utils'
 
 const MEMORY = hypervisor => {
   let validation = number()
@@ -28,8 +27,7 @@ const MEMORY = hypervisor => {
     .default(() => undefined)
 
   if (hypervisor === HYPERVISORS.vcenter) {
-    validation = validation
-      .test('is-divisible-by-4', 'Memory should be divisible by 4', isDivisibleBy4)
+    validation = validation.isDivisibleBy(4)
   }
 
   return {

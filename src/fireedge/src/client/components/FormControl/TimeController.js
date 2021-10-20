@@ -17,32 +17,41 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
-import { Tr } from 'client/components/HOC'
 import { ErrorHelper } from 'client/components/FormControl'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const TimeController = memo(
-  ({ control, cy, name, type, label, error, fieldProps }) => (
-    <Controller
-      render={({ value, ...props }) =>
-        <TextField
-          {...props}
-          fullWidth
-          value={value}
-          {...(label && { label: Tr(label) })}
-          type={type}
-          inputProps={{ 'data-cy': cy, ...fieldProps }}
-          InputLabelProps={{ shrink: true }}
-          error={Boolean(error)}
-          helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
-          FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-        />
-      }
-      name={name}
-      control={control}
-    />
-  ),
+  ({
+    control,
+    cy = `datetime-${generateKey()}`,
+    name = '',
+    label = '',
+    type = 'datetime-local',
+    fieldProps = {}
+  }) => {
+    const {
+      field: { ref, value, ...inputProps },
+      fieldState: { error }
+    } = useController({ name, control })
+
+    return (
+      <TextField
+        {...inputProps}
+        fullWidth
+        label={labelCanBeTranslated(label) ? Tr(label) : label}
+        inputRef={ref}
+        type={type}
+        inputProps={{ 'data-cy': cy, ...fieldProps }}
+        InputLabelProps={{ shrink: true }}
+        error={Boolean(error)}
+        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+      />
+    )
+  },
   (prevProps, nextProps) =>
     prevProps.error === nextProps.error &&
     prevProps.label === nextProps.label
@@ -53,12 +62,9 @@ TimeController.propTypes = {
   cy: PropTypes.string,
   multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
-  label: PropTypes.string,
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   type: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
   fieldProps: PropTypes.object,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,
@@ -67,16 +73,6 @@ TimeController.propTypes = {
     watch: PropTypes.func,
     register: PropTypes.func
   })
-}
-
-TimeController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  type: 'datetime-local',
-  error: false,
-  fieldProps: undefined
 }
 
 TimeController.displayName = 'TimeController'

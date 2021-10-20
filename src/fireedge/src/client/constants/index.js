@@ -69,7 +69,8 @@ export const INPUT_TYPES = {
   SELECT: 'select',
   SLIDER: 'slider',
   TEXT: 'text',
-  TABLE: 'table'
+  TABLE: 'table',
+  TOGGLE: 'toggle'
 }
 
 export const DEBUG_LEVEL = {

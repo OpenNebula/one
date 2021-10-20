@@ -74,7 +74,7 @@ const Settings = () => {
   useEffect(() => {
     reset(
       FORM_SCHEMA.cast(settings),
-      { isSubmitted: false, error: false }
+      { keepIsSubmitted: false, keepErrors: false }
     )
   }, [settings])
 

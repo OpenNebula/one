@@ -13,67 +13,79 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
 
 const SelectController = memo(
-  ({ control, cy, name, label, multiple, values, tooltip, error, fieldProps }) => {
+  ({
+    control,
+    cy = `select-${generateKey()}`,
+    name = '',
+    label = '',
+    multiple = false,
+    values = [],
+    renderValue,
+    tooltip,
+    fieldProps = {}
+  }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
+    const {
+      field: { ref, value: optionSelected = defaultValue, onChange, ...inputProps },
+      fieldState: { error }
+    } = useController({ name, control })
+
+    const needShrink = useMemo(
+      () => values.find(v => v.value === optionSelected)?.text !== '',
+      [optionSelected]
+    )
+
     return (
-      <Controller
-        render={({ value: optionSelected, onChange, onBlur }) => (
-          <TextField
-            value={optionSelected ?? defaultValue}
-            onBlur={onBlur}
-            onChange={
-              multiple
-                ? event => {
-                  const { options } = event.target
-                  const newValue = []
+      <TextField
+        {...inputProps}
+        inputRef={ref}
+        value={optionSelected}
+        onChange={
+          multiple
+            ? event => {
+              const { options = [] } = event.target
+              const newValue = options
+                .filter(option => option.selected)
+                .map(option => option.value)
 
-                  for (let i = 0, l = options.length; i < l; i += 1) {
-                    if (options[i].selected) {
-                      newValue.push(options[i].value)
-                    }
-                  }
-
-                  onChange(newValue)
-                }
-                : onChange
+              onChange(newValue)
             }
-            select
-            fullWidth
-            SelectProps={{ native: true, multiple }}
-            label={Tr(label)}
-            InputProps={{
-              startAdornment: tooltip && (
-                <Tooltip title={tooltip} position='start' />
-              )
-            }}
-            inputProps={{ 'data-cy': cy }}
-            error={Boolean(error)}
-            helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
-            FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-            {...fieldProps}
-          >
-            {values?.map(({ text, value = '' }) =>
-              <option key={`${name}-${value}`} value={value}>
-                {text}
-              </option>
-            )}
-          </TextField>
+            : onChange
+        }
+        select
+        fullWidth
+        SelectProps={{ native: true, multiple }}
+        label={labelCanBeTranslated(label) ? Tr(label) : label}
+        InputLabelProps={{ shrink: needShrink }}
+        InputProps={{
+          startAdornment:
+            (optionSelected && renderValue?.(optionSelected)) ||
+            (tooltip && <Tooltip title={tooltip} position='start' />)
+        }}
+        inputProps={{ 'data-cy': cy }}
+        error={Boolean(error)}
+        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+        {...fieldProps}
+      >
+        {values?.map(({ text, value = '' }) =>
+          <option key={`${name}-${value}`} value={value}>
+            {text}
+          </option>
         )}
-        name={name}
-        control={control}
-        multiple={multiple}
-      />
+      </TextField>
     )
   },
   (prevProps, nextProps) =>
@@ -87,26 +99,12 @@ SelectController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  tooltip: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
+  renderValue: PropTypes.func,
   fieldProps: PropTypes.object
-}
-
-SelectController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  multiple: false,
-  values: [],
-  error: false,
-  fieldProps: undefined
 }
 
 SelectController.displayName = 'SelectController'

@@ -33,20 +33,20 @@ import Booting from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/Ex
 
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
-import { getActionsAvailable } from 'client/models/Helper'
+import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
 const Content = ({ data, setFormData }) => {
   const theme = useTheme()
-  const { watch, errors, control } = useFormContext()
+  const { watch, formState: { errors }, control } = useFormContext()
   const { view, getResourceView } = useAuth()
 
   const tabs = useMemo(() => {
     const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
-    const groupsAvailable = getActionsAvailable(dialog, hypervisor)
+    const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
     return [
       {
@@ -89,7 +89,7 @@ const Content = ({ data, setFormData }) => {
           <WarningIcon color={theme.palette.error.main} />
         )
       }
-    ].filter(({ id }) => groupsAvailable.includes(id))
+    ].filter(({ id }) => sectionsAvailable.includes(id))
   }, [errors[STEP_ID], view, control])
 
   return (

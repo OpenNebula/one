@@ -16,43 +16,62 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { FormControl, FormControlLabel, Checkbox } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import { styled, FormControl, FormControlLabel, FormHelperText, Checkbox } from '@mui/material'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { generateKey } from 'client/utils'
+
+const Label = styled('span')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5em'
+})
 
 const CheckboxController = memo(
-  ({ control, cy, name, label, tooltip, error, fieldProps }) => (
-    <Controller
-      render={({ onChange, value = false }) => (
-        <FormControl error={Boolean(error)} margin='dense'>
-          <FormControlLabel
-            control={
-              <Checkbox
-                onChange={e => onChange(e.target.checked)}
-                name={name}
-                checked={Boolean(value)}
-                color='secondary'
-                inputProps={{ 'data-cy': cy }}
-                {...fieldProps}
-              />
-            }
-            label={
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                {Tr(label)}
-                {tooltip && <Tooltip title={tooltip} />}
-              </span>
-            }
-            labelPlacement='end'
-          />
-          {Boolean(error) && <ErrorHelper label={error?.message} />}
-        </FormControl>
-      )}
-      name={name}
-      control={control}
-    />
-  ),
+  ({
+    control,
+    cy = `checkbox-${generateKey()}`,
+    name = '',
+    label = '',
+    tooltip,
+    fieldProps = {}
+  }) => {
+    const {
+      field: { value = false, onChange },
+      fieldState: { error }
+    } = useController({ name, control })
+
+    return (
+      <FormControl fullWidth error={Boolean(error)} margin='dense'>
+        <FormControlLabel
+          control={
+            <Checkbox
+              onChange={e => onChange(e.target.checked)}
+              name={name}
+              checked={Boolean(value)}
+              color='secondary'
+              inputProps={{ 'data-cy': cy }}
+              {...fieldProps}
+            />
+          }
+          label={
+            <Label>
+              {labelCanBeTranslated(label) ? Tr(label) : label}
+              {tooltip && <Tooltip title={tooltip} />}
+            </Label>
+          }
+          labelPlacement='end'
+        />
+        {Boolean(error) && (
+          <FormHelperText data-cy={`${cy}-error`}>
+            <ErrorHelper label={error?.message} />
+          </FormHelperText>
+        )}
+      </FormControl>
+    )
+  },
   (prevProps, nextProps) => prevProps.error === nextProps.error
 )
 
@@ -60,22 +79,9 @@ CheckboxController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  tooltip: PropTypes.string,
-  error: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.objectOf(PropTypes.any)
-  ]),
+  label: PropTypes.any,
+  tooltip: PropTypes.any,
   fieldProps: PropTypes.object
-}
-
-CheckboxController.defaultProps = {
-  control: {},
-  cy: 'cy',
-  name: '',
-  label: '',
-  values: [],
-  error: false
 }
 
 CheckboxController.displayName = 'CheckboxController'

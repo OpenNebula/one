@@ -27,7 +27,7 @@ import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
- * @returns {{ id: string, legend: string, fields: Field[] }[]} Fields
+ * @returns {function(string):{ id: string, legend: string, fields: Field[] }[]} Fields
  */
 const FIELDS = hypervisor => [
   {

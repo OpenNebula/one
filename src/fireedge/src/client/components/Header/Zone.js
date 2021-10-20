@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { useEffect, JSXElementConstructor } from 'react'
 
-import { MenuList, MenuItem } from '@mui/material'
+import { MenuList, MenuItem, LinearProgress } from '@mui/material'
 import { Language as ZoneIcon } from 'iconoir-react'
 
+import { useFetch } from 'client/hooks'
 import { useZone, useZoneApi } from 'client/features/One'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
@@ -31,10 +32,7 @@ import { T } from 'client/constants'
 const Zone = () => {
   const zones = useZone()
   const { getZones } = useZoneApi()
-
-  useEffect(() => {
-    !zones?.length && getZones()
-  }, [])
+  const { fetchRequest, loading } = useFetch(getZones)
 
   return (
     <HeaderPopover
@@ -44,18 +42,31 @@ const Zone = () => {
       buttonProps={{ 'data-cy': 'header-zone-button' }}
       headerTitle={<Translate word={T.Zones} />}
     >
-      {({ handleClose }) => (
-        <MenuList>
-          {zones?.length
-            ? zones?.map(({ ID, NAME }) => (
-              <MenuItem key={`zone-${ID}`} onClick={handleClose}>
-                {NAME}
-              </MenuItem>
-            ))
-            : <MenuItem disabled>{'Not zones found'}</MenuItem>
-          }
-        </MenuList>
-      )}
+      {({ handleClose }) => {
+        useEffect(() => {
+          fetchRequest()
+        }, [])
+
+        return (
+          <>
+            {loading && <LinearProgress color='secondary' />}
+            <MenuList>
+              {zones?.length
+                ? zones?.map(({ ID, NAME }) => (
+                  <MenuItem key={`zone-${ID}`} onClick={handleClose}>
+                    {NAME}
+                  </MenuItem>
+                ))
+                : (
+                  <MenuItem disabled>
+                    <Translate word={T.NotFound} />
+                  </MenuItem>
+                )
+              }
+            </MenuList>
+          </>
+        )
+      }}
     </HeaderPopover>
   )
 }

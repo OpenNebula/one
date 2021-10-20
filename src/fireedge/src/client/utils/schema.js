@@ -49,8 +49,14 @@ import { INPUT_TYPES } from 'client/constants'
  * Callback of field parameter when depend of another field.
  *
  * @callback DependOfCallback
- * @param {string|string[]} value - Value
+ * @param {any|any[]} value - Value
  * @returns {any|any[]}
+ */
+
+/**
+ * @typedef {object} SelectOption - Option of select field
+ * @property {string|JSXElementConstructor} text - Text to display on select list
+ * @property {any} value - Value to option
  */
 
 /**
@@ -69,13 +75,15 @@ import { INPUT_TYPES } from 'client/constants'
  * @property {string|DependOfCallback} [tooltip]
  * - Text description
  * @property {INPUT_TYPES|DependOfCallback} type
- * - Field type to draw
+ * - Field type to draw: text, select, autocomplete, etc
  * @property {string|DependOfCallback} [htmlType]
  * - Type of the input element. It should be a valid HTML5 input type
- * @property {{text: string|JSXElementConstructor, value: any}[]|DependOfCallback} [values]
+ * @property {function(any|any[]):any} [watcher]
+ * - Function to watch other values
+ * @property {SelectOption[]|DependOfCallback} [values]
  * - Type of the input element. It should be a valid HTML5 input type
  * @property {boolean|DependOfCallback} [multiline]
- * - If `true`, a textarea element will be rendered instead of an input.
+ * - If `true`, a textarea element will be rendered instead of an input
  * @property {GridProps|DependOfCallback} [grid]
  * - Grid properties to override in the wrapper element
  * - Default: { xs: 12, md: 6 }
@@ -298,6 +306,36 @@ export const mapUserInputs = (userInputs = {}) =>
   Object.entries(userInputs)?.reduce((res, [key, value]) => ({
     ...res, [key]: parseUserInputValue(value)
   }), {})
+
+/**
+ * Converts a list of values to usable options.
+ *
+ * @param {any[]} array - List of option values
+ * @param {object} [options] - Options to conversion
+ * @param {boolean} [options.addEmpty] - If `true`, add an empty option
+ * @param {function(any):any} [options.getText] - Function to get the text option
+ * @param {function(any):any} [options.getValue] - Function to get the value option
+ * @returns {SelectOption} Options
+ */
+export const arrayToOptions = (array = [], options = {}) => {
+  const { addEmpty = true, getText = o => o, getValue = o => o } = options
+
+  const values = array.map(item => ({ text: getText(item), value: getValue(item) }))
+
+  addEmpty && values.unshift({ text: '-', value: '' })
+
+  return values
+}
+
+/**
+ * Sanitizes the names from object.
+ *
+ * @param {string|string[]} names - List of names
+ * @returns {string|string[]} Sanitized names
+ * @example 'TEST.NAME' => 'NAME'
+ */
+export const clearNames = (names = '') =>
+  Array.isArray(names) ? names.map(clearNames) : names.split(/[,[\].]+?/).at(-1)
 
 /**
  * Returns parameters needed to create stepper form.

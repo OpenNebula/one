@@ -32,3 +32,22 @@ export const VM_TEMPLATE_ACTIONS = {
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP
 }
+
+export const NUMA_PIN_POLICIES = ['NONE', 'THREAD', 'SHARED', 'CORE']
+
+export const NUMA_MEMORY_ACCESS = ['shared', 'private']
+
+export const CPU_ARCHITECTURES = ['i686', 'x86_64']
+
+export const DEFAULT_CPU_MODELS = ['host-passthrough']
+
+export const SD_DISK_BUSES = ['scsi', 'sata']
+
+export const FIRMWARE_TYPES = ['BIOS']
+
+export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
+  '/usr/share/OVMF/OVMF_CODE.fd',
+  '/usr/share/OVMF/OVMF_CODE.secboot.fd'
+])
+
+export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])

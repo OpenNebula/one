@@ -69,7 +69,7 @@ const Policies = () => ({
       const [tabSelected, setTab] = useState(TABS.elasticity.name)
 
       const theme = useTheme()
-      const { watch, errors } = useFormContext()
+      const { watch, formState: { errors } } = useFormContext()
       const { handleSetList } = useListForm({
         key: STEP_ID,
         setList: setFormData

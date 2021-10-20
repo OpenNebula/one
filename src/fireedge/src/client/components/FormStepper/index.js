@@ -18,13 +18,14 @@ import PropTypes from 'prop-types'
 
 import { BaseSchema } from 'yup'
 import { useFormContext } from 'react-hook-form'
+import { DevTool } from '@hookform/devtools'
 import { useMediaQuery } from '@mui/material'
 
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
-import { groupBy, Step } from 'client/utils'
+import { groupBy, Step, isDevelopment } from 'client/utils'
 
 const FIRST_STEP = 0
 
@@ -40,7 +41,7 @@ const FIRST_STEP = 0
  */
 const FormStepper = ({ steps = [], schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-  const { watch, reset, errors, setError } = useFormContext()
+  const { control, watch, reset, formState: { errors }, setError } = useFormContext()
   const { isLoading } = useGeneral()
 
   const [formData, setFormData] = useState(() => watch())
@@ -51,7 +52,7 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
   const disabledBack = useMemo(() => activeStep === FIRST_STEP, [activeStep])
 
   useEffect(() => {
-    reset({ ...formData }, { errors: false })
+    reset({ ...formData }, { keepErrors: false })
   }, [formData])
 
   const validateSchema = async stepIdx => {
@@ -164,6 +165,8 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
       ), [isLoading, isMobile, activeStep, errors[id]])}
       {/* FORM CONTENT */}
       {Content && <Content data={formData[id]} setFormData={setFormData} />}
+
+      {isDevelopment() && <DevTool control={control} placement='top-left' />}
     </>
   )
 }

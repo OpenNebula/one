@@ -1,0 +1,77 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
+import { useWatch } from 'react-hook-form'
+
+import { useAuth } from 'client/features/Auth'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
+
+import { HYPERVISOR_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/informationSchema'
+import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
+import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'general'
+
+const Content = () => {
+  const classes = useStyles()
+  const { view, getResourceView } = useAuth()
+  const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
+
+  const groups = useMemo(() => {
+    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
+    const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
+
+    return FIELDS(hypervisor)
+      .filter(({ id, required }) => required || sectionsAvailable.includes(id))
+  }, [view, hypervisor])
+
+  return (
+    <div className={classes.root}>
+      <FormWithSchema
+        cy={'create-vm-template-general.hypervisor'}
+        fields={[HYPERVISOR_FIELD]}
+        legend={T.Hypervisor}
+        id={STEP_ID}
+      />
+      {groups.map(({ id, legend, fields }) => (
+        <FormWithSchema
+          key={id}
+          className={classes[id]}
+          cy={`create-vm-template-general.${id}`}
+          fields={fields}
+          legend={legend}
+          id={STEP_ID}
+        />
+      ))}
+    </div>
+  )
+}
+
+const General = () => ({
+  id: STEP_ID,
+  label: T.General,
+  resolver: formData => {
+    const hypervisor = formData?.[STEP_ID]?.HYPERVISOR
+    return SCHEMA(hypervisor)
+  },
+  optionsValidate: { abortEarly: false },
+  content: Content
+})
+
+export default General

@@ -55,7 +55,7 @@ const TotalProvisionsByState = ({ isLoading }) => {
     !totalProvisions && isLoading ? (
       <Skeleton
         variant='rectangular'
-        sx={{ height: { xs: 210, sm: 210, md: 380 } }}
+        sx={{ height: { xs: 210, sm: 350 } }}
       />
     ) : (
       <Paper

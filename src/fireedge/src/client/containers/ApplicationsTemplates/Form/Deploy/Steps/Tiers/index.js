@@ -43,7 +43,7 @@ const Tiers = ({ tiers, vmTemplates }) => {
       const [tabSelected, setTab] = useState(tiers?.[0]?.id)
 
       const theme = useTheme()
-      const { errors } = useFormContext()
+      const { formState: { errors } } = useFormContext()
 
       return (
         <>
