@@ -105,7 +105,7 @@ VM_DIR="${XPATH_ELEMENTS[j++]}"
 # migration can't be done with domain snapshots, drop them first but save current snapshot for redefine
 DISK_PATH=$(virsh --connect $LIBVIRT_URI domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
 DISK_DIR=$(dirname $DISK_PATH)
-SNAP_CUR=$(virsh --connect $LIBVIRT_URI snapshot-current --name $DEPLOY_ID)
+SNAP_CUR=$(virsh --connect $LIBVIRT_URI snapshot-current --name $DEPLOY_ID 2>/dev/null)
 
 SNAPS=$(monitor_and_log \
    "virsh --connect $LIBVIRT_URI snapshot-list $DEPLOY_ID --name 2>/dev/null" \
@@ -250,7 +250,7 @@ if [ $RC -ne 0 ]; then
 fi
 
 # redefine potential snapshots after live migration
-if [ "$SHARED" = "YES" ]; then
+if [ "$SHARED" = "YES" ] && [ -n "$SNAP_CUR" ]; then
     UUID=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system dominfo $DEPLOY_ID | awk '/UUID:/ {print $2}')
     DISK_PATH=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
     DISK_DIR=$(dirname $DISK_PATH)
