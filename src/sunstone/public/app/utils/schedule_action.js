@@ -662,8 +662,7 @@ define(function (require) {
       }
       end_type = 2;
       var timeCal = date_input_value + " " + time_input_value;
-      epochStr = new Date(timeCal);
-      var time = parseInt(epochStr.getTime(),10) / 1000;
+      var time = dateToEpoch(new Date(timeCal))
       sched_action.END_TYPE = end_type;
       sched_action.END_VALUE = time;
       sched_action.TIME = time;
@@ -707,8 +706,7 @@ define(function (require) {
             return false;
           }
           var time_value = end_date + " 12:00";
-          var epoch_str = new Date(time_value);
-          end_value = parseInt(epoch_str.getTime()) / 1000;
+          end_value = dateToEpoch(new Date(time_value))
         }
         sched_action.DAYS = String(days);
         sched_action.REPEAT = String(rep);
@@ -1167,7 +1165,8 @@ define(function (require) {
    * @returns {string} - HTML string with the json keys and values
    */
   function _getScheduleActionTableContent(actions_array, template={}) {
-    scheduleActionsArray = actions_array || [];
+    var sched_actions = Array.isArray(actions_array) ? actions_array : [actions_array];
+    scheduleActionsArray = sched_actions ? sched_actions : [];
     var empty = "\
       <tr id=\"no_actions_tr\">\
           <td colspan=\"6\">" + Locale.tr("No actions to show") + "</td>\
@@ -1177,7 +1176,6 @@ define(function (require) {
       return empty;
     }
     
-    var sched_actions = Array.isArray(actions_array) ? actions_array : [actions_array];
     if (!sched_actions.length) {
       return empty;
     }
@@ -1235,13 +1233,12 @@ define(function (require) {
   }
 
   /**
-   * This function converts the current date to epoch.
+   * This function converts the given date to epoch.
    *  
    * @returns - Current date and hour in epoch format.
    */
-  function nowEpoch(){
-    epochStr = new Date();
-    return parseInt(epochStr.getTime(),10) / 1000;
+  function dateToEpoch(date){
+    return parseInt(date.getTime(),10) / 1000;
   };
 
   function _leasesToScheduleActions(confLeases, now){
@@ -1285,7 +1282,7 @@ define(function (require) {
    */
    function displayAlertCreateLeases(resource, that, confLeases){
     var template = that.element;
-    var now = template && template.STIME? nowEpoch() - parseInt(template.STIME,10) : 0;
+    var now = template && template.STIME? dateToEpoch(new Date()) - parseInt(template.STIME,10) : 0;
     if (resource === "inst" ||
       resource === "inst_flow" ||
       resource === "service_create" ||
