@@ -40,7 +40,7 @@ module VCenterDriver
         def lock
             return unless @locking
 
-            @locking_file = File.open('/tmp/vcenter-importer-lock', 'w')
+            @locking_file = File.open('/var/tmp/vcenter-importer-lock', 'w')
             @locking_file.flock(File::LOCK_EX)
         end
 
@@ -50,9 +50,9 @@ module VCenterDriver
 
             @locking_file.close
 
-            return unless File.exist?('/tmp/vcenter-importer-lock')
+            return unless File.exist?('/var/tmp/vcenter-importer-lock')
 
-            File.delete('/tmp/vcenter-importer-lock')
+            File.delete('/var/tmp/vcenter-importer-lock')
         end
 
         def vm?
