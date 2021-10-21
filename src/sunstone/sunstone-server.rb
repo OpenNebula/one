@@ -303,7 +303,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "https://opennebula.io/support/",
     :account => "https://opennebula.io/buy-support",
-    :docs => "https://docs.opennebula.io/6.1/",
+    :docs => "https://docs.opennebula.io/6.2/",
     :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
@@ -1195,7 +1195,7 @@ end
 post '/vm/:id/guac/:type' do
     vm_id = params[:id]
     type_connection = params[:type]
-    
+
     user = OpenNebula::User.new_with_id(
         OpenNebula::User::SELF,
         $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
