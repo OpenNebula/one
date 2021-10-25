@@ -108,8 +108,8 @@ const validateServerIsSecure = () => {
   const folder = 'cert/'
   const dirCerts = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../', folder] : ['../', folder]
   const pathfile = resolve(__dirname, ...dirCerts)
-  cert = `${pathfile}cert.pem`
-  key = `${pathfile}key.pem`
+  cert = `${pathfile}/cert.pem`
+  key = `${pathfile}/key.pem`
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
 }
 /**
