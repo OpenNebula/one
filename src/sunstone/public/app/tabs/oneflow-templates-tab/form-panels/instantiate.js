@@ -258,19 +258,19 @@ define(function(require) {
       $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
         var temp_role = {};
         $.extend( temp_role, role);
-
+        vm_template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
         var div_id = "user_input_role_"+index;
         var tmp_json = {};
 
         $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
         $.each(tmp_json, function(key, value){
           if (Array.isArray(value)){
-            delete tmp_json[key];
-            tmp_json[key] = value.join(",");
+            delete vm_template_contents[key];
+            vm_template_contents[key] = value.join(",");
           }
         });
 
-        temp_role.user_inputs_values = tmp_json;
+        temp_role.vm_template_contents = TemplateUtils.templateToString(vm_template_contents);
         
         var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
         if (stringCustomValues) {
@@ -314,20 +314,13 @@ define(function(require) {
         Sunstone.runAction("ServiceTemplate.instantiate", that.templateId, extra_info);
       }
     } else {
-      if (service_name.indexOf("%i") === -1){//no wildcard, all with the same name
-        extra_info["merge_template"]["name"] = service_name;
-        for (var i=0; i< n_times_int; i++){
-          Sunstone.runAction(
-              "ServiceTemplate.instantiate",
-              that.templateId, extra_info);
-        }
-      } else { //wildcard present: replace wildcard
-        for (var i=0; i< n_times_int; i++){
-          extra_info["merge_template"]["name"] = service_name.replace(/%i/gi,i);
-          Sunstone.runAction(
-              "ServiceTemplate.instantiate",
-              that.templateId, extra_info);
-        }
+      for (var i=0; i< n_times_int; i++){
+        extra_info["merge_template"]["name"] = service_name.replace(/%i/gi,i);
+        Sunstone.runAction(
+            "ServiceTemplate.instantiate",
+            that.templateId,
+            extra_info
+        );
       }
     }
     return false;
