@@ -20,7 +20,7 @@ const express = require('express')
 const { resolve } = require('path')
 const Worker = require('tiny-worker')
 const { defaults, httpCodes, params } = require('server/utils/constants')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 
 const {
   opennebulaConnect,
@@ -81,7 +81,7 @@ router.all(
     res.locals.httpCode = httpResponse(internalServerError)
     const { zone } = getQueriesState()
     // get data zones by config file
-    const appConfig = getConfig()
+    const appConfig = getFireedgeConfig()
     if (
       appConfig.one_xmlrpc &&
       Array.isArray(defaultOpennebulaZones) &&
@@ -108,11 +108,13 @@ router.all(
       const { resource } = req.params
       const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
       res.locals.httpCode = httpResponse(methodNotAllowed)
+
       const dataSources = {
         [fromData.resource]: getParamsState(),
-        [fromData.query]: getQueriesState(),
+        [fromData.query]: req.query,
         [fromData.postBody]: req.body
       }
+
       if (routeFunction) {
         /*********************************************************
          * This execute functions (routes)
@@ -140,6 +142,7 @@ router.all(
          * This execute a XMLRPC commands
          *********************************************************/
 
+        dataSources[fromData.query] = getQueriesState()
         const { method } = getParamsState()
         const command = commandXMLRPC(
           resource,

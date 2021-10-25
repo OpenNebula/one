@@ -162,7 +162,7 @@ const validateResourceAndSession = (req, res, next) => {
   res.status(status.id).json(status)
 }
 /**
- * MIDDLEWARE set optional parameters.
+ * MIDDLEWARE set optional parameters (params ins URL).
  *
  * @param {object} req - http request
  * @param {object} res - http response
@@ -174,6 +174,7 @@ const setOptionalParameters = (req, res, next) => {
     const keys = Object.keys(req.params)
     keys.forEach(param => {
       if (start) {
+        // The params[0] is the resource
         start = false
         return start
       }

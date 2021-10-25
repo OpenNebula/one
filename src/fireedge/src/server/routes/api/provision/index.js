@@ -38,7 +38,8 @@ const setPrivateRoutes = (routes = {}, path = '', action = () => undefined) => {
         setFunctionRoute(route, path,
           (req, res, next, connection, userId, user) => {
             action(req, res, next, routes[route], user, connection)
-          })
+          }
+        )
       )
     })
   }

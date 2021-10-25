@@ -2846,7 +2846,7 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 # FireEdge Provision files
 #----------------------------------------------------------------------------
 
-FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision.conf"
+FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
                                 src/fireedge/etc/provision/providers.d/digitalocean.yaml \

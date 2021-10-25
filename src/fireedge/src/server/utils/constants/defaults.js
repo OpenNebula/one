@@ -22,12 +22,12 @@ const internalProvisionPath = `${appName}/${appNameProvision}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const apps = {
-  sunstone: {
-    name: appNameSunstone,
+  [appNameSunstone]: {
     theme: appNameSunstone,
+    name: appNameSunstone,
     assets: true
   },
-  provision: {
+  [appNameProvision]: {
     name: appNameProvision,
     theme: appNameProvision
   }
@@ -110,6 +110,7 @@ const defaults = {
   defaultCommandProvision: 'oneprovision',
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
+  defaultCommandVcenter: 'onevcenter',
   defaultFolderTmpProvision: 'tmp',
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
@@ -118,6 +119,7 @@ const defaults = {
   defaultSunstonePath: internalSunstonePath,
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
+  defaultProvisionConfig: `${appNameProvision}-server.conf`,
   defaultProvisionPath: internalProvisionPath,
   defaultProvidersConfigPath: 'providers.d',
   defaultTypeLog: 'prod',

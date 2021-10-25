@@ -19,7 +19,7 @@ const functionRoutes = require('../routes/api')
 const { validateAuth } = require('./jwt')
 const { httpResponse, getDataZone } = require('./server')
 const { messageTerminal, addPrintf, checkEmptyObject } = require('./general')
-const { getConfig } = require('./yml')
+const { getFireedgeConfig } = require('./yml')
 
 const {
   responseOpennebula,
@@ -133,7 +133,7 @@ module.exports = {
   checkOpennebulaCommand,
   checkMethodRouteFunction,
   responseOpennebula,
-  getConfig,
+  getFireedgeConfig,
   httpResponse,
   getDataZone,
   checkEmptyObject,

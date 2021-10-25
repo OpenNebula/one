@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const GuacamoleOpennebula = require('opennebula-guacamole')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey, genPathResources } = require('server/utils/server')
 const { writeInLogger } = require('server/utils/logger')
@@ -66,7 +66,7 @@ const clientCallbacks = {
   }
 }
 
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 const guacd = appConfig.guacd || {}
 const guacdPort = guacd.port || 4822
 const guacdHost = guacd.host || 'localhost'

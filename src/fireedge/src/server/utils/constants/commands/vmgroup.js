@@ -171,7 +171,7 @@ module.exports = {
           default: 0
         },
         decrypt: {
-          from: postBody,
+          from: query,
           default: false
         }
       }

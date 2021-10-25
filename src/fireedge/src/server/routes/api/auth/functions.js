@@ -29,7 +29,7 @@ const {
   defaultSessionLimitExpiration,
   defaultRememberSessionExpiration
 } = require('server/utils/constants/defaults')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 const {
   ok,
   unauthorized,
@@ -43,7 +43,7 @@ const {
   getDefaultParamsOfOpennebulaCommand
 } = require('server/utils/opennebula')
 
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 
 const namespace = appConfig.namespace || defaultNamespace
 

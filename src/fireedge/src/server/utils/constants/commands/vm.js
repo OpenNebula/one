@@ -681,7 +681,7 @@ module.exports = {
           from: query,
           default: -2
         },
-        filterbykey: {
+        filterBykey: {
           from: query,
           default: ''
         }

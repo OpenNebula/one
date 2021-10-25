@@ -25,6 +25,7 @@ const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
+const { spawnSync, spawn } = require('child_process')
 const {
   from: fromData,
   defaultAppName,
@@ -45,6 +46,7 @@ const {
   defaultSunstoneViews,
   defaultSunstoneConfig,
   defaultProvisionPath,
+  defaultProvisionConfig,
   defaultEmptyFunction
 } = require('./constants/defaults')
 
@@ -499,6 +501,9 @@ const genPathResources = () => {
     if (!global.paths.PROVISION_PATH) {
       global.paths.PROVISION_PATH = `${ETC_LOCATION}/${defaultProvisionPath}/`
     }
+    if (!global.paths.PROVISION_CONFIG) {
+      global.paths.PROVISION_CONFIG = `${ETC_LOCATION}/${defaultProvisionPath}/${defaultProvisionConfig}`
+    }
     if (!global.paths.ETC_CPI) {
       global.paths.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
     }
@@ -659,6 +664,115 @@ const parsePostData = (postData = {}) => {
   })
   return rtn
 }
+
+/**
+ * Add prepend of command example: 'ssh xxxx:'".
+ *
+ * @param {string} command - cli command
+ * @param {string} resource - resource by command
+ * @param {string} prepend - prepend for command
+ * @returns {object} command and resource
+ */
+const addPrependCommand = (command = '', resource = '', prepend = '') => {
+  const rsc = Array.isArray(resource) ? resource : [resource]
+  let newCommand = command
+  let newRsc = rsc
+
+  if (prepend) {
+    const splitPrepend = prepend.split(' ').filter(el => el !== '')
+    newCommand = splitPrepend[0]
+    // remove command
+    splitPrepend.shift()
+
+    // stringify the rest of the parameters
+    const stringifyRestCommand = [command, ...rsc].join(' ')
+
+    newRsc = [...splitPrepend, stringifyRestCommand]
+  }
+
+  return {
+    cmd: newCommand,
+    rsc: newRsc
+  }
+}
+
+/**
+ * Run Synchronous commands for CLI.
+ *
+ * @param {string} command - command to execute
+ * @param {string} resource - params for the command to execute
+ * @param {string} prependCommand - prepend for command
+ * @param {object} options - optional params for the command
+ * @returns {object} CLI output
+ */
+const executeCommand = (command = '', resource = '', prependCommand = '', options = {}) => {
+  let rtn = { success: false, data: null }
+  const { cmd, rsc } = addPrependCommand(command, resource, prependCommand)
+  const execute = spawnSync(cmd, rsc, options)
+
+  if (execute) {
+    if (execute.stdout && execute.status === 0) {
+      rtn = { success: true, data: execute.stdout.toString() }
+    } else if (execute.stderr && execute.stderr.length > 0) {
+      rtn = { success: false, data: execute.stderr.toString() }
+      messageTerminal(
+        defaultError(
+          execute.stderr.toString(),
+          'Error command: %s'
+        )
+      )
+    }
+  }
+  return rtn
+}
+
+/**
+ * Run Asynchronous commands for CLI.
+ *
+ * @param {string} command - command to execute
+ * @param {string} resource - params for the command to execute
+ * @param {string} prependCommand - prepend for command
+ * @param {object} callbacks - the functions in case the command emits by the stderr(err), stdout(out) and when it finishes(close)
+ */
+const executeCommandAsync = (
+  command = '',
+  resource = '',
+  prependCommand = '',
+  callbacks = {
+    err: defaultEmptyFunction,
+    out: defaultEmptyFunction,
+    close: defaultEmptyFunction
+  }
+) => {
+  const err = callbacks && callbacks.err && typeof callbacks.err === 'function' ? callbacks.err : defaultEmptyFunction
+  const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : defaultEmptyFunction
+  const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : defaultEmptyFunction
+
+  const { cmd, rsc } = addPrependCommand(command, resource, prependCommand)
+
+  const execute = spawn(cmd, rsc)
+  if (execute) {
+    execute.stderr.on('data', (data) => {
+      err(data)
+    })
+
+    execute.stdout.on('data', (data) => {
+      out(data)
+    })
+
+    execute.on('error', error => {
+      messageTerminal(defaultError(error && error.message, 'Error command: %s'))
+    })
+
+    execute.on('close', (code) => {
+      if (close) {
+        // code === 0 is success command
+        close(code === 0)
+      }
+    })
+  }
+}
+
 module.exports = {
   setFunctionRoute,
   addFunctionAsRoute,
@@ -684,5 +798,7 @@ module.exports = {
   defaultError,
   getDirectories,
   getFiles,
-  getFilesbyEXT
+  getFilesbyEXT,
+  executeCommand,
+  executeCommandAsync
 }

@@ -32,10 +32,31 @@ const {
   defaultMessageProblemOpennebula
 } = require('./constants/defaults')
 
-const { getConfig } = require('./yml')
+const { getFireedgeConfig } = require('./yml')
 
 // regex for separate the commands .info
 const regexInfoAction = /^(\w+).info$/
+// regex for separate string by lines
+const regexLine = /\n/
+// regex for remove multiple blanks
+const regexRemoveBlanks = /\s+/gi
+// regex for remove ANSI Color
+// eslint-disable-next-line no-control-regex
+const regexANSIColor = /\u001b\[.*?m/gi
+// regex string with CSV format
+const csvFormat = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/
+// regex sanitize string CSV formated
+const csvSanitize = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g
+// regex single quote
+const singleQuote = /\\'/g
+// regex double quote
+const doubleQuote = /\\"/g
+// regex handle special case of empty last value.
+const lastValueRegexCsv = /,\s*$/g
+// regex text string wrapped in square brackets
+const stringWrappedBrakets = /^\[.*\]$/g
+// regex first and last brakets
+const brakets = /(^\[)|(\]$)/g
 
 /**
  * Parse xml to JSON.
@@ -103,7 +124,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
       rtn = (action = '', parameters = [], callback = () => undefined, fillHookResource = true) => {
         if (action && parameters && Array.isArray(parameters) && callback) {
           // user config
-          const appConfig = getConfig()
+          const appConfig = getFireedgeConfig()
           const namespace = appConfig.namespace || defaultNamespace
           const xmlParameters = [`${username}:${password}`, ...parameters]
           xmlClient.methodCall(
@@ -436,6 +457,115 @@ const generateNewResourceTemplate = (
   return sprintf(wrapper, positions)
 }
 
+/**
+ * Parse result console to string.
+ *
+ * @param {string} stringConsole - console string
+ * @param {Array} excludeRegexs - array regexs for exclude
+ * @returns {string} new console string
+ */
+const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
+  const rtn = []
+  if (stringConsole) {
+    console.log('all -->', JSON.stringify(stringConsole))
+    const lines = stringConsole.split(regexLine)
+    lines.forEach(line => {
+      let test = ''
+      for (const c of line) {
+        test += c.charCodeAt(0) + ' '
+      }
+      console.log('-->', test)
+
+      let pass = true
+      if (Array.isArray(excludeRegexs)) {
+        excludeRegexs.forEach(rex => {
+          if (rex.test(line)) {
+            pass = false
+          }
+        })
+      }
+      line = line.replace(regexRemoveBlanks, ' ').replace(regexANSIColor, '').trim()
+      if (line && pass) {
+        rtn.push(line)
+      }
+    })
+  }
+  return rtn
+}
+
+/**
+ * Parse array string to json.
+ *
+ * @param {Array} arrayConsole - result of consoleParseToString function
+ * @param {string} regexHeader - regex for find header
+ * @returns {string} new console string
+ */
+const consoleParseToJSON = (arrayConsole = [], regexHeader = '') => {
+  let rtn = []
+  if (regexHeader && Array.isArray(arrayConsole) && arrayConsole[0] && regexHeader.test(arrayConsole[0])) {
+    const header = arrayConsole[0].split(',')
+    arrayConsole.forEach((row = '', i = 0) => {
+      if (row && i > 0) {
+        const explodeRow = CSVtoArray(row)
+        rtn.push(
+          explodeRow.map((value, index) => {
+            return { [header[index]]: stringWrappedBrakets.test(value) ? CSVtoArray(value.replace(brakets, '')) : value }
+          })
+        )
+      }
+    })
+  } else {
+    rtn = arrayConsole
+  }
+  return rtn
+}
+
+/**
+ * Parse strinf csv to array.
+ *
+ * @param {string} text - csv string
+ * @returns {Array} csv array
+ */
+const CSVtoArray = (text = '') => {
+  const rtn = []
+  if (csvFormat.test(text)) { // if input string is not well formed CSV string.
+    text.replace(csvSanitize,
+      (m0, m1, m2, m3) => {
+        if (m1 !== undefined) {
+          rtn.push(m1.replace(singleQuote, "'"))
+        } else if (m2 !== undefined) {
+          rtn.push(m2.replace(doubleQuote, '"'))
+        } else if (m3 !== undefined) {
+          rtn.push(m3)
+        }
+        return ''
+      })
+    if (lastValueRegexCsv.test(text)) {
+      rtn.push('')
+    }
+  }
+  return rtn
+}
+
+/**
+ * Remove config sensitive data.
+ *
+ * @param {object} config - config data
+ * @param {Array} keys - key for remove
+ * @returns {object} config without sensitive data
+ */
+const sensitiveDataRemoverConfig = (config = {}, keys = []) => {
+  const rtn = config
+  if (Array.isArray(keys)) {
+    keys.forEach(key => {
+      if (Object.hasOwnProperty.call(config, key)) {
+        delete rtn[key]
+      }
+    })
+  }
+  return config
+}
+
 module.exports = {
   opennebulaConnect,
   responseOpennebula,
@@ -448,5 +578,8 @@ module.exports = {
   getDefaultParamsOfOpennebulaCommand,
   generateNewResourceTemplate,
   fillResourceforHookConnection,
-  xml2json
+  xml2json,
+  consoleParseToString,
+  consoleParseToJSON,
+  sensitiveDataRemoverConfig
 }

@@ -17,37 +17,82 @@
 const { env } = require('process')
 const { resolve } = require('path')
 const { parse } = require('yaml')
-const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults')
-const { existsFile } = require('server/utils/server')
+const { defaultConfigFile, defaultWebpackMode, defaultSunstoneConfig, defaultProvisionConfig, defaultEmptyFunction } = require('./constants/defaults')
+const { existsFile, defaultError } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
 const { global } = require('window-or-global')
+
+const defaultPath = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
+const basePaths = [__dirname, ...defaultPath, 'etc']
 
 /**
  * Get fireedge configurations.
  *
+ * @param {string} pathfile - path config file
+ * @param {Function} errorFunction - callback error
  * @returns {object} fireedge configurations
  */
-const getConfig = () => {
+const readYAMLFile = (pathfile = '', errorFunction = defaultEmptyFunction) => {
   let rtn = {}
-
-  const defaultPath = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
-
-  const pathfile = (global && global.paths && global.paths.FIREEDGE_CONFIG) || resolve(__dirname, ...defaultPath, 'etc', defaultConfigFile)
+  const err = error => {
+    messageTerminal(
+      defaultError(error)
+    )
+    if (typeof errorFunction === 'function') {
+      errorFunction(error)
+    }
+  }
   if (pathfile) {
-    existsFile(pathfile, filedata => {
-      rtn = parse(filedata)
-    }, err => {
-      const config = {
-        color: 'red',
-        message: 'Error: %s',
-        error: err.message || ''
-      }
-      messageTerminal(config)
-    })
+    existsFile(
+      pathfile,
+      filedata => {
+        try {
+          rtn = parse(filedata)
+        } catch (error) {
+          err(error && error.message)
+        }
+      },
+      err
+    )
   }
   return rtn
 }
 
+/**
+ * Get fireedge configurations.
+ *
+ * @param {Function} callbackError - callback error
+ * @returns {object} fireedge configurations
+ */
+const getFireedgeConfig = (callbackError = defaultEmptyFunction) => {
+  const pathfile = (global && global.paths && global.paths.FIREEDGE_CONFIG) || resolve(...basePaths, defaultConfigFile)
+  return readYAMLFile(pathfile, callbackError)
+}
+
+/**
+ * Get sunstone configurations.
+ *
+ * @param {Function} callbackError - callback error
+ * @returns {object} sunstone configurations
+ */
+const getSunstoneConfig = (callbackError = defaultEmptyFunction) => {
+  const pathfile = (global && global.paths && global.paths.SUNSTONE_CONFIG) || resolve(...basePaths, 'sunstone', defaultSunstoneConfig)
+  return readYAMLFile(pathfile, callbackError)
+}
+
+/**
+ * Get provision configurations.
+ *
+ * @param {Function} callbackError - callback error
+ * @returns {object} provision configurations
+ */
+const getProvisionConfig = (callbackError = defaultEmptyFunction) => {
+  const pathfile = (global && global.paths && global.paths.PROVISION_CONFIG) || resolve(...basePaths, 'provision', defaultProvisionConfig)
+  return readYAMLFile(pathfile, callbackError)
+}
+
 module.exports = {
-  getConfig
+  getFireedgeConfig,
+  getSunstoneConfig,
+  getProvisionConfig
 }

@@ -18,13 +18,13 @@ const { request: axios } = require('axios')
 const btoa = require('btoa')
 
 const { defaultOneFlowServer } = require('server/utils/constants/defaults')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 const { httpMethod } = require('server/utils/constants/defaults')
 const { addPrintf } = require('server/utils/general')
 
 const { GET, DELETE } = httpMethod
 
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 
 /**
  * Return schema error.

@@ -32,7 +32,7 @@
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.1",
     "cross-env": "7.0.2",
-    "eslint": "7.11.0",
+    "eslint": "7.32.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-config-standard": "14.1.1",
     "eslint-import-resolver-alias": "1.1.2",
@@ -107,6 +107,7 @@
     "luxon": "1.28.0",
     "marked": "2.0.0",
     "morgan": "1.10.0",
+    "node-zendesk": "^2.1.0",
     "notistack": "2.0.2",
     "opennebula-guacamole": "1.0.0",
     "path": "0.12.7",

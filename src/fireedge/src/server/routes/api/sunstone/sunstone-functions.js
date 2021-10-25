@@ -15,8 +15,10 @@
  * ------------------------------------------------------------------------- */
 
 const { parse } = require('yaml')
+const { getSunstoneConfig } = require('server/utils/yml')
 const { defaultEmptyFunction } = require('server/utils/constants/defaults')
 const { existsFile, httpResponse, getFiles } = require('server/utils/server')
+const { sensitiveDataRemoverConfig } = require('server/utils/opennebula')
 const { Actions: ActionsUser } = require('server/utils/constants/commands/user')
 const { Actions: ActionsGroup } = require('server/utils/constants/commands/group')
 
@@ -25,6 +27,8 @@ const {
   internalServerError,
   notFound
 } = require('server/utils/constants/http-codes')
+
+const sensitiveData = ['support_url', 'support_token']
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
@@ -141,25 +145,26 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const getConfig = (res = {}, next = () => undefined, params = {}, userData = {}) => {
-  if (global && global.paths && global.paths.SUNSTONE_CONFIG) {
-    existsFile(
-      global.paths.SUNSTONE_CONFIG,
-      filedata => {
-        const jsonFileData = parse(filedata) || {}
-        responseHttp(
-          res,
-          next,
-          httpResponse(ok, jsonFileData)
+const getConfig = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+  let error
+  const config = getSunstoneConfig(
+    err => {
+      error = err
+    }
+  )
+  responseHttp(
+    res,
+    next,
+    error
+      ? httpResponse(notFound, error)
+      : httpResponse(
+        ok,
+        sensitiveDataRemoverConfig(
+          config,
+          sensitiveData
         )
-      },
-      () => {
-        responseHttp(res, next, notFound)
-      }
-    )
-  } else {
-    responseHttp(res, next, httpInternalError)
-  }
+      )
+  )
 }
 
 const sunstoneApi = {

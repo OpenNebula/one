@@ -32,7 +32,7 @@ import {
 import { websockets } from './routes/websockets'
 import { guacamole } from './routes/websockets/guacamole'
 import { vmrc } from './routes/websockets/vmrc'
-import { getConfig, messageTerminal } from './utils'
+import { getFireedgeConfig, messageTerminal } from './utils'
 import {
   defaultAppName, defaultApps,
   defaultEvents, defaultHost,
@@ -62,7 +62,7 @@ const basename = defaultAppName ? `/${defaultAppName}` : ''
 let frontPath = 'client'
 
 // settings
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 

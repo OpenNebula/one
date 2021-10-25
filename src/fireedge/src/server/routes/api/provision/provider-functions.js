@@ -33,14 +33,15 @@ const {
   httpResponse,
   parsePostData,
   getFilesbyEXT,
-  existsFile
+  existsFile,
+  executeCommand
 } = require('server/utils/server')
 const {
-  executeCommand,
   createTemporalFile,
   createYMLContent,
   removeFile,
-  getEndpoint
+  getEndpoint,
+  getSpecificConfig
 } = require('./functions')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -53,7 +54,7 @@ const httpInternalError = httpResponse(internalServerError, '', '')
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const getConfig = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const getProviderConfig = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const path = `${global.paths.PROVISION_PATH}${defaultProvidersConfigPath}`
   const extFiles = 'yaml'
   let response = internalServerError
@@ -126,7 +127,7 @@ const getConnectionProviders = (res = {}, next = defaultEmptyFunction, params = 
     const authCommand = ['--user', user, '--password', password]
     if (params && params.id) {
       const paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
-      const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+      const executedCommand = executeCommand(defaultCommandProvider, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
       try {
         const response = executedCommand.success ? ok : internalServerError
         const data = JSON.parse(executedCommand.data)
@@ -168,7 +169,7 @@ const getListProviders = (res = {}, next = defaultEmptyFunction, params = {}, us
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
-    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
     try {
       const response = executedCommand.success ? ok : internalServerError
       const data = JSON.parse(executedCommand.data)
@@ -312,7 +313,7 @@ const deleteProvider = (res = {}, next = defaultEmptyFunction, params = {}, user
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
     const data = executedCommand.data || ''
     try {
       if (executedCommand && executedCommand.success) {
@@ -331,7 +332,7 @@ const deleteProvider = (res = {}, next = defaultEmptyFunction, params = {}, user
 }
 
 const providerFunctionsApi = {
-  getConfig,
+  getProviderConfig,
   getConnectionProviders,
   getListProviders,
   createProviders,

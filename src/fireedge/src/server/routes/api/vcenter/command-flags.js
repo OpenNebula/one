@@ -14,34 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { messageTerminal } = require('server/utils/general')
-const { getRouteForOpennebulaCommand } = require('server/utils/opennebula')
-const { defaultFilesRoutes, defaultConfigErrorMessage } = require('server/utils/constants/defaults')
+const questions = {
+  datastores: [
 
-const filesDataPrivate = []
-const filesDataPublic = []
-defaultFilesRoutes.map(file => {
-  try {
-    // eslint-disable-next-line global-require
-    const fileInfo = require(`./${file}`)
+  ],
+  templates: [
 
-    if (fileInfo.private && fileInfo.private.length) {
-      filesDataPrivate.push(...fileInfo.private)
-    }
-    if (fileInfo.public && fileInfo.public.length) {
-      filesDataPublic.push(...fileInfo.public)
-    }
-  } catch (error) {
-    if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
-      const config = defaultConfigErrorMessage
-      config.error = error.message
-      messageTerminal(config)
-    }
-  }
-})
-const opennebulaActions = getRouteForOpennebulaCommand()
-const routes = {
-  private: [...opennebulaActions, ...filesDataPrivate],
-  public: [...filesDataPublic]
+  ],
+  networks: [
+
+  ],
+  images: [
+
+  ]
 }
-module.exports = routes
+
+module.exports = questions

@@ -25,7 +25,7 @@ const {
   default2FAOpennebulaTmpVar
 } = require('server/utils/constants/defaults')
 const { httpResponse } = require('server/utils/server')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 const { check2Fa } = require('server/utils/jwt')
 const { Actions } = require('server/utils/constants/commands/user')
 const {
@@ -35,7 +35,7 @@ const {
 } = require('server/utils/opennebula')
 
 // user config
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 const twoFactorAuthIssuer =
   appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 

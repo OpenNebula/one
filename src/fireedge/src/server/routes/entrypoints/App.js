@@ -21,7 +21,7 @@ const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 const rootReducer = require('client/store/reducers')
-const { getConfig } = require('server/utils/yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 const {
   availableLanguages, defaultWebpackMode, defaultApps
 } = require('server/utils/constants/defaults')
@@ -29,7 +29,7 @@ const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 const { upperCaseFirst } = require('client/utils')
 
 // settings
-const appConfig = getConfig()
+const appConfig = getFireedgeConfig()
 const langs = appConfig.langs || availableLanguages
 const scriptLanguages = []
 const languages = Object.keys(langs)

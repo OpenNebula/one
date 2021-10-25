@@ -35,7 +35,9 @@ const {
   existsFile,
   createFile,
   getDirectories,
-  getFilesbyEXT
+  getFilesbyEXT,
+  executeCommand,
+  executeCommandAsync
 } = require('server/utils/server')
 const { checkEmptyObject } = require('server/utils/general')
 const {
@@ -45,8 +47,6 @@ const {
   defaultErrorTemplate
 } = require('server/utils/constants/defaults')
 const {
-  executeCommand,
-  executeCommandAsync,
   createTemporalFile,
   createFolderWithFiles,
   createYMLContent,
@@ -56,7 +56,8 @@ const {
   findRecursiveFolder,
   publish,
   getEndpoint,
-  addOptionalCreateCommand
+  addOptionalCreateCommand,
+  getSpecificConfig
 } = require('./functions')
 const { provision } = require('./schemas')
 
@@ -150,6 +151,7 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
     executeCommandAsync(
       defaultCommandProvision,
       command,
+      getSpecificConfig('oneprovision_prepend_command'),
       {
         err: message => {
           emit(message, err)
@@ -301,7 +303,12 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
       if (content && filePath && path) {
         const name = basename(filePath).replace(`.${extFiles}`, '')
         const paramsCommand = ['validate', '--dump', filePath, ...authCommand, ...endpoint]
-        const executedCommand = executeCommand(defaultCommandProvision, paramsCommand, { cwd: path })
+        const executedCommand = executeCommand(
+          defaultCommandProvision,
+          paramsCommand,
+          getSpecificConfig('oneprovision_prepend_command'),
+          { cwd: path }
+        )
         if (executedCommand && executedCommand.success) {
           if (!provisions[name]) {
             provisions[name] = []
@@ -385,7 +392,12 @@ const getListResourceProvision = (res = {}, next = defaultEmptyFunction, params 
   if (params && params.resource && user && password) {
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const executedCommand = executeCommand(defaultCommandProvision, [`${params.resource}`.toLowerCase(), 'list', ...authCommand, ...endpoint, '--json'])
+    const paramsCommand = [`${params.resource}`.toLowerCase(), 'list', ...authCommand, ...endpoint, '--json']
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -417,7 +429,11 @@ const getListProvisions = (res = {}, next = defaultEmptyFunction, params = {}, u
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
-    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
       const data = JSON.parse(executedCommand.data)
@@ -466,7 +482,11 @@ const deleteResource = (res = {}, next = defaultEmptyFunction, params = {}, user
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = [`${params.resource}`.toLowerCase(), 'delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
       rtn = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -597,7 +617,11 @@ const hostCommand = (res = {}, next = defaultEmptyFunction, params = {}, userDat
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -626,7 +650,11 @@ const hostCommandSSH = (res = {}, next = defaultEmptyFunction, params = {}, user
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), `${params.command}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -930,7 +958,11 @@ const validate = (res = {}, next = defaultEmptyFunction, params = {}, userData =
         const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['validate', '--dump', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
+          const executedCommand = executeCommand(
+            defaultCommandProvision,
+            paramsCommand,
+            getSpecificConfig('oneprovision_prepend_command')
+          )
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
             response = ok

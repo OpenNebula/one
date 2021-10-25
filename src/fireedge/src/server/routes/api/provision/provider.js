@@ -21,7 +21,7 @@ const {
   createProviders,
   updateProviders,
   deleteProvider,
-  getConfig
+  getProviderConfig
 } = require('./provider-functions')
 const { httpMethod } = require('server/utils/constants/defaults')
 
@@ -42,7 +42,7 @@ const routes = {
       }
     },
     config: {
-      action: getConfig,
+      action: getProviderConfig,
       params: {}
     }
   },

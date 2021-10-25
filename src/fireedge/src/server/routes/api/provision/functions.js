@@ -30,8 +30,7 @@ const {
   renameSync,
   moveSync
 } = require('fs-extra')
-const { getConfig } = require('server/utils/yml')
-const { spawnSync, spawn } = require('child_process')
+const { getFireedgeConfig, getProvisionConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { defaultError } = require('server/utils/server')
 
@@ -229,116 +228,13 @@ const moveToFolder = (path = '', relative = '/../') => {
 }
 
 /**
- * Add prepend of command example: 'ssh xxxx:'".
- *
- * @param {string} command - cli command
- * @param {string} resource - resource by command
- * @returns {object} command and resource
- */
-const addPrependCommand = (command = '', resource = '') => {
-  const appConfig = getConfig()
-  const prependCommand = appConfig.oneprovision_prepend_command || ''
-
-  const rsc = Array.isArray(resource) ? resource : [resource]
-  let newCommand = command
-  let newRsc = rsc
-
-  if (prependCommand) {
-    const splitPrepend = prependCommand.split(' ').filter(el => el !== '')
-    newCommand = splitPrepend[0]
-    // remove command
-    splitPrepend.shift()
-
-    // stringify the rest of the parameters
-    const stringifyRestCommand = [command, ...rsc].join(' ')
-
-    newRsc = [...splitPrepend, stringifyRestCommand]
-  }
-
-  return {
-    cmd: newCommand,
-    rsc: newRsc
-  }
-}
-
-/**
  * Add command optional params from fireedge server config.
  *
  * @returns {Array} command optional params
  */
 const addOptionalCreateCommand = () => {
-  const appConfig = getConfig()
-  const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
+  const optionalCreateCommand = getSpecificConfig('oneprovision_optional_create_command')
   return [optionalCreateCommand].filter(Boolean) // return array position valids, no undefined or nulls
-}
-
-/**
- * Run Asynchronous commands for CLI.
- *
- * @param {string} command - command to execute
- * @param {string} resource - params for the command to execute
- * @param {object} callbacks - the functions in case the command emits by the stderr(err), stdout(out) and when it finishes(close)
- */
-const executeCommandAsync = (
-  command = '',
-  resource = '',
-  callbacks = {
-    err: () => undefined,
-    out: () => undefined,
-    close: () => undefined
-  }
-) => {
-  const err = callbacks && callbacks.err && typeof callbacks.err === 'function' ? callbacks.err : () => undefined
-  const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : () => undefined
-  const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
-
-  const { cmd, rsc } = addPrependCommand(command, resource)
-
-  const execute = spawn(cmd, rsc)
-  if (execute) {
-    execute.stderr.on('data', (data) => {
-      err(data)
-    })
-
-    execute.stdout.on('data', (data) => {
-      out(data)
-    })
-
-    execute.on('error', error => {
-      messageTerminal(defaultError(error && error.message, 'Error command: %s'))
-    })
-
-    execute.on('close', (code) => {
-      if (close) {
-        // code === 0 is success command
-        close(code === 0)
-      }
-    })
-  }
-}
-
-/**
- * Run Synchronous commands for CLI.
- *
- * @param {string} command - command to execute
- * @param {string} resource - params for the command to execute
- * @param {object} options - optional params for the command
- * @returns {object} CLI output
- */
-const executeCommand = (command = '', resource = '', options = {}) => {
-  let rtn = { success: false, data: null }
-  const { cmd, rsc } = addPrependCommand(command, resource)
-  const execute = spawnSync(cmd, rsc, options)
-
-  if (execute) {
-    if (execute.stdout && execute.status === 0) {
-      rtn = { success: true, data: execute.stdout.toString() }
-    } else if (execute.stderr && execute.stderr.length > 0) {
-      rtn = { success: false, data: execute.stderr.toString() }
-      messageTerminal(defaultError(execute.stderr.toString(), 'Error command: %s'))
-    }
-  }
-  return rtn
 }
 
 /**
@@ -377,7 +273,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
  */
 const getEndpoint = () => {
   let rtn = []
-  const appConfig = getConfig()
+  const appConfig = getFireedgeConfig()
   if (appConfig && appConfig.one_xmlrpc) {
     const parseUrl = parse(appConfig.one_xmlrpc)
     const protocol = parseUrl.protocol || ''
@@ -387,20 +283,39 @@ const getEndpoint = () => {
   return rtn
 }
 
+/**
+ * Get provision config. (this if for v6.2).
+ *
+ * @param {string} key - key get
+ * @returns {string} value of config item
+ */
+const getSpecificConfig = (key = '') => {
+  if (key) {
+    const appConfig = getFireedgeConfig()
+    const provisionConfig = getProvisionConfig()
+    if (Object.hasOwnProperty.call(provisionConfig, key)) {
+      return provisionConfig[key]
+    }
+    if (Object.hasOwnProperty.call(appConfig, key)) {
+      return appConfig[key]
+    }
+  }
+  return ''
+}
+
 const functionRoutes = {
   getEndpoint,
   createYMLContent,
-  executeCommand,
   createTemporalFile,
   createFolderWithFiles,
   removeFile,
   renameFolder,
   moveToFolder,
-  executeCommandAsync,
   findRecursiveFolder,
   publish,
   addOptionalCreateCommand,
-  subscriber
+  subscriber,
+  getSpecificConfig
 }
 
 module.exports = functionRoutes
