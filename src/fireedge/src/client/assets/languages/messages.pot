@@ -1,98 +1,194 @@
-#: ./src/client/components/Alerts/Error.js:11msgid "children"msgstr ""
+#: ./src/client/components/Alerts/Error.js:25msgid "children"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationCard.js:51#: ./src/client/components/Cards/ApplicationTemplateCard.js:96msgid "Info"msgstr ""
+#: ./src/client/components/Cards/ApplicationCard.js:60#: ./src/client/components/Cards/ApplicationTemplateCard.js:107msgid "Info"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationCard.js:56#: ./src/client/components/Cards/ApplicationNetworkCard.js:51#: ./src/client/components/Cards/ApplicationTemplateCard.js:101#: ./src/client/components/Cards/PolicyCard.js:34#: ./src/client/components/Cards/TierCard.js:41msgid "Remove"msgstr ""
+#: ./src/client/components/Cards/ApplicationCard.js:65#: ./src/client/components/Cards/ApplicationNetworkCard.js:66#: ./src/client/components/Cards/ApplicationTemplateCard.js:112#: ./src/client/components/Cards/PolicyCard.js:50#: ./src/client/components/Cards/TierCard.js:56#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage.js:149#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage.js:149msgid "Remove"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationNetworkCard.js:36#: ./src/client/components/Cards/ApplicationTemplateCard.js:76#: ./src/client/components/Cards/TierCard.js:36msgid "Edit"msgstr ""
+#: ./src/client/components/Cards/ApplicationNetworkCard.js:51#: ./src/client/components/Cards/ApplicationTemplateCard.js:87#: ./src/client/components/Cards/TierCard.js:51#: ./src/client/components/Tabs/Vm/Storage/Actions.js:175#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking.js:119#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction.js:99#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction.js:103#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage.js:161#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking.js:119#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction.js:99#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction.js:103#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage.js:161#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:91msgid "Edit"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationNetworkCard.js:46msgid "Clone"msgstr ""
+#: ./src/client/components/Cards/ApplicationNetworkCard.js:61msgid "Clone"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationTemplateCard.js:48msgid "Tiers"msgstr ""
+#: ./src/client/components/Cards/ApplicationTemplateCard.js:59msgid "Tiers"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationTemplateCard.js:58msgid "Networks"msgstr ""
+#: ./src/client/components/Cards/ApplicationTemplateCard.js:69msgid "Networks"msgstr ""
 
-#: ./src/client/components/Cards/ApplicationTemplateCard.js:86msgid "Deploy"msgstr ""
+#: ./src/client/components/Cards/ApplicationTemplateCard.js:97msgid "Deploy"msgstr ""
 
-#: ./src/client/components/Cards/ClusterCard.js:45msgid "Hosts"msgstr ""
+#: ./src/client/components/Cards/ClusterCard.js:61msgid "Hosts"msgstr ""
 
-#: ./src/client/components/Cards/ClusterCard.js:55msgid "Virtuals networks"msgstr ""
+#: ./src/client/components/Cards/ClusterCard.js:71msgid "Virtual networks"msgstr ""
 
-#: ./src/client/components/Cards/ClusterCard.js:65msgid "Datastores"msgstr ""
+#: ./src/client/components/Cards/ClusterCard.js:81msgid "Datastores"msgstr ""
 
-#: ./src/client/components/Dialogs/DialogConfirmation.js:74#: ./src/client/components/Dialogs/DialogForm.js:60#: ./src/client/containers/ApplicationsInstances/DialogInfo/dialog.js:46msgid "Cancel"msgstr ""
+#: ./src/client/components/Dialogs/DialogConfirmation.js:99#: ./src/client/components/FormControl/Tooltip.js:34#: ./src/client/components/List/ListHeader/index.js:51#: ./src/client/components/Tables/Enhanced/Utils/CategoryFilter.js:86#: ./src/client/components/Tables/Enhanced/Utils/CategoryFilter.js:89#: ./src/client/components/Tables/Enhanced/Utils/LabelFilter.js:104#: ./src/client/components/Tables/Enhanced/Utils/LabelFilter.js:107#: ./src/client/components/Tabs/Common/List.js:96#: ./src/client/components/Tabs/Common/Permissions.js:73msgid "title"msgstr ""
 
-#: ./src/client/components/Dialogs/DialogConfirmation.js:82msgid "Accept"msgstr ""
+#: ./src/client/components/Dialogs/DialogConfirmation.js:104msgid "subheader"msgstr ""
 
-#: ./src/client/components/Dialogs/DialogForm.js:52#: ./src/client/components/List/ListHeader/index.js:32msgid "title"msgstr ""
+#: ./src/client/components/FormControl/AutocompleteController.js:78#: ./src/client/components/FormControl/CheckboxController.js:61#: ./src/client/components/FormControl/ErrorHelper.js:34#: ./src/client/components/FormControl/FileController.js:128#: ./src/client/components/FormControl/SelectController.js:70#: ./src/client/components/FormControl/SliderController.js:45#: ./src/client/components/FormControl/SwitchController.js:61#: ./src/client/components/FormControl/TableController.js:59#: ./src/client/components/FormControl/TextController.js:66#: ./src/client/components/FormControl/TimeController-TODO.js:56#: ./src/client/components/FormControl/TimeController.js:44#: ./src/client/components/FormControl/ToggleController.js:70#: ./src/client/components/FormStepper/MobileStepper.js:60#: ./src/client/components/FormStepper/Stepper.js:104#: ./src/client/components/Tables/Enhanced/Utils/GlobalActions/Action.js:80msgid "label"msgstr ""
 
-#: ./src/client/components/Dialogs/DialogForm.js:69#: ./src/client/containers/Settings/index.js:141msgid "Save"msgstr ""
+#: ./src/client/components/FormControl/SubmitButton.js:97msgid "Submit"msgstr ""
 
-#: ./src/client/components/FormControl/AutocompleteController.js:53#: ./src/client/components/FormControl/CheckboxController.js:32#: ./src/client/components/FormControl/ErrorHelper.js:35#: ./src/client/components/FormControl/SelectController.js:19#: ./src/client/components/FormControl/SliderController.js:14#: ./src/client/components/FormControl/TextController.js:20#: ./src/client/components/FormStepper/Stepper.js:83msgid "label"msgstr ""
+#: ./src/client/components/Forms/FormWithSchema.js:59msgid "legend"msgstr ""
 
-#: ./src/client/components/FormControl/CheckboxController.js:19msgid "tooltip"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/index.js:91msgid "Empty"msgstr ""
 
-#: ./src/client/components/FormControl/SubmitButton.js:45msgid "Submit"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:54msgid "Storage"msgstr ""
 
-#: ./src/client/components/FormStepper/MobileStepper.js:67#: ./src/client/components/FormStepper/Stepper.js:90#: ./src/client/containers/Login/Form.js:48msgid "Back"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:62msgid "Network"msgstr ""
 
-#: ./src/client/components/FormStepper/MobileStepper.js:72#: ./src/client/components/FormStepper/Stepper.js:97msgid "Finish"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:70msgid "Placement"msgstr ""
 
-#: ./src/client/components/FormStepper/MobileStepper.js:72#: ./src/client/components/FormStepper/Stepper.js:97#: ./src/client/containers/Login/Form.js:55msgid "Next"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:78#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:172msgid "Scheduled action"msgstr ""
 
-#: ./src/client/components/Header/Popover.js:79msgid "headerTitle"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/index.js:86msgid "OS Booting"msgstr ""
 
-#: ./src/client/components/Header/User.js:32msgid "Sign Out"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement.js:56msgid "Host"msgstr ""
 
-#: ./src/client/components/Header/Zone.js:20msgid "Zone"msgstr ""
+#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement.js:63msgid "Datastore"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:36#: ./src/client/containers/Providers/Sections/info.js:31#: ./src/client/containers/Provisions/DialogInfo/info.js:37msgid "Information"msgstr ""
+#: ./src/client/components/Tables/Enhanced/Utils/GlobalActions/Action.js:81msgid "tooltip"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:44#: ./src/client/containers/Providers/Sections/info.js:39#: ./src/client/containers/Provisions/DialogInfo/info.js:45msgid "Name"msgstr ""
+#: ./src/client/components/Tables/Enhanced/Utils/GlobalActions/index.js:70msgid "Toggle all current page rows selected"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:48msgid "Strategy"msgstr ""
+#: ./src/client/components/Tables/Hosts/row.js:79msgid "Allocated CPU"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:52msgid "Shutdown action"msgstr ""
+#: ./src/client/components/Tables/Hosts/row.js:84msgid "Allocated Memory"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:56#: ./src/client/containers/Provisions/DialogInfo/info.js:67msgid "State"msgstr ""
+#: ./src/client/components/Tables/Virtualized/toolbar.js:56msgid "Filters"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:62msgid "Ready status gate"msgstr ""
+#: ./src/client/components/Tabs/Cluster/Info/index.js:89#: ./src/client/components/Tabs/Host/Info/index.js:103#: ./src/client/components/Tabs/User/Info/index.js:83#: ./src/client/components/Tabs/Vm/Info/index.js:154msgid "Attributes"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:72#: ./src/client/containers/Providers/Sections/info.js:70#: ./src/client/containers/Provisions/DialogInfo/info.js:79msgid "Permissions"msgstr ""
+#: ./src/client/components/Tabs/Common/Attribute/Attribute.js:93#: ./src/client/components/Tabs/Common/Attribute/Attribute.js:94#: ./src/client/components/Forms/ButtonToTriggerForm.js:104#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/index.js:80msgid "name"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:73#: ./src/client/containers/Providers/Sections/info.js:71#: ./src/client/containers/Provisions/DialogInfo/info.js:80msgid "Use"msgstr ""
+#: ./src/client/components/Tabs/Common/Permissions.js:64#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:85#: ./src/client/containers/Providers/Sections/info.js:121#: ./src/client/containers/Provisions/DialogInfo/info.js:92msgid "Permissions"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:74#: ./src/client/containers/Providers/Sections/info.js:72#: ./src/client/containers/Provisions/DialogInfo/info.js:81msgid "Manage"msgstr ""
+#: ./src/client/components/Tabs/Common/Permissions.js:65#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:86#: ./src/client/containers/Providers/Sections/info.js:122#: ./src/client/containers/Provisions/DialogInfo/info.js:93msgid "Use"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:75#: ./src/client/containers/Providers/Sections/info.js:73#: ./src/client/containers/Provisions/DialogInfo/info.js:82msgid "Admin"msgstr ""
+#: ./src/client/components/Tabs/Common/Permissions.js:66#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:87#: ./src/client/containers/Providers/Sections/info.js:123#: ./src/client/containers/Provisions/DialogInfo/info.js:94msgid "Manage"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:79#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:105#: ./src/client/containers/Providers/Sections/info.js:77#: ./src/client/containers/Providers/Sections/info.js:103#: ./src/client/containers/Provisions/DialogInfo/info.js:86#: ./src/client/containers/Provisions/DialogInfo/info.js:112msgid "Owner"msgstr ""
+#: ./src/client/components/Tabs/Common/Permissions.js:67#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:88#: ./src/client/containers/Providers/Sections/info.js:124#: ./src/client/containers/Provisions/DialogInfo/info.js:95msgid "Admin"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:85#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:109#: ./src/client/containers/Providers/Sections/info.js:83#: ./src/client/containers/Providers/Sections/info.js:107#: ./src/client/containers/Provisions/DialogInfo/info.js:92#: ./src/client/containers/Provisions/DialogInfo/info.js:116msgid "Group"msgstr ""
+#: ./src/client/components/Tabs/Host/Info/index.js:111#: ./src/client/components/Tabs/Host/Info/index.js:119#: ./src/client/components/Tabs/Vm/Info/index.js:162#: ./src/client/components/Tabs/Vm/Info/index.js:170#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:51#: ./src/client/containers/Providers/Sections/info.js:60#: ./src/client/containers/Provisions/DialogInfo/info.js:52msgid "Information"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:91#: ./src/client/containers/Providers/Sections/info.js:89#: ./src/client/containers/Provisions/DialogInfo/info.js:98msgid "Other"msgstr ""
+#: ./src/client/components/Tabs/Vm/Capacity/information.js:48msgid "Cores"msgstr ""
 
-#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:101#: ./src/client/containers/Providers/Sections/info.js:99#: ./src/client/containers/Provisions/DialogInfo/info.js:108msgid "Ownership"msgstr ""
+#: ./src/client/components/Tabs/Vm/Capacity/information.js:49msgid "Sockets"msgstr ""
 
-#: ./src/client/containers/Dashboard/index.js:34msgid "Dashboard"msgstr ""
+#: ./src/client/components/Tabs/Vm/Info/index.js:176msgid "Monitoring"msgstr ""
 
-#: ./src/client/containers/Login/Form.js:55msgid "Sign In"msgstr ""
+#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:129#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:196#: ./src/client/components/Tabs/Vm/Snapshot/Actions.js:46#: ./src/client/components/Tabs/Vm/Snapshot/Actions.js:71#: ./src/client/components/Tabs/Vm/Storage/Actions.js:48#: ./src/client/components/Tabs/Vm/Storage/Actions.js:82#: ./src/client/components/Tabs/Vm/Storage/Actions.js:180#: ./src/client/components/Tabs/Vm/Storage/Actions.js:211#: ./src/client/components/Tabs/Vm/Storage/Actions.js:241#: ./src/client/components/Tables/VmTemplates/actions.js:49#: ./src/client/components/Tables/Vms/actions.js:74#: ./src/client/components/Tabs/Common/Attribute/Attribute.js:147#: ./src/client/components/Tabs/Vm/Network/Item.js:197msgid "Do you want proceed?"msgstr ""
 
-#: ./src/client/containers/Providers/Sections/info.js:43#: ./src/client/containers/Provisions/DialogInfo/info.js:49msgid "Description"msgstr ""
+#: ./src/client/components/Tabs/Vm/SchedActions/Item.js:77msgid "Done"msgstr ""
 
-#: ./src/client/containers/Providers/Sections/info.js:47#: ./src/client/containers/Provisions/DialogInfo/info.js:53msgid "Provider"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:42msgid "Detach"msgstr ""
 
-#: ./src/client/containers/Providers/Sections/info.js:51msgid "Registration time"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:75msgid "Save as"msgstr ""
 
-#: ./src/client/containers/Provisions/DialogInfo/info.js:57msgid "Cluster"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:106msgid "Resize"msgstr ""
 
-#: ./src/client/containers/Provisions/DialogInfo/info.js:61msgid "Start time"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:139msgid "Take snapshot"msgstr ""
 
-#: ./src/client/containers/Settings/index.js:89msgid "Settings"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:205msgid "Revert"msgstr ""
 
-#: ./src/client/containers/Settings/index.js:97msgid "Configuration"msgstr ""
+#: ./src/client/components/Tabs/Vm/Storage/Actions.js:235#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:123msgid "Delete"msgstr ""
 
-#: ./src/client/containers/TestApi/index.js:46msgid "Select request"msgstr ""
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/dialog.js:61msgid "Cancel"msgstr ""
 
-#: ./src/client/containers/TestApi/index.js:50msgid "None"msgstr ""
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:59#: ./src/client/containers/Providers/Sections/info.js:68#: ./src/client/containers/Provisions/DialogInfo/info.js:60msgid "Name"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:63msgid "Strategy"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:67msgid "Shutdown action"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:71#: ./src/client/containers/Provisions/DialogInfo/info.js:82msgid "State"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:75msgid "Ready status gate"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:92#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:118#: ./src/client/containers/Providers/Sections/info.js:128#: ./src/client/containers/Providers/Sections/info.js:154#: ./src/client/containers/Provisions/DialogInfo/info.js:99#: ./src/client/containers/Provisions/DialogInfo/info.js:125msgid "Owner"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:98#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:122#: ./src/client/containers/Providers/Sections/info.js:134#: ./src/client/containers/Providers/Sections/info.js:158#: ./src/client/containers/Provisions/DialogInfo/info.js:105#: ./src/client/containers/Provisions/DialogInfo/info.js:129msgid "Group"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:104#: ./src/client/containers/Providers/Sections/info.js:140#: ./src/client/containers/Provisions/DialogInfo/info.js:111msgid "Other"msgstr ""
+
+#: ./src/client/containers/ApplicationsInstances/DialogInfo/info.js:114#: ./src/client/containers/Providers/Sections/info.js:150#: ./src/client/containers/Provisions/DialogInfo/info.js:121msgid "Ownership"msgstr ""
+
+#: ./src/client/containers/Login/Form.js:64#: ./src/client/components/FormStepper/MobileStepper.js:83#: ./src/client/components/FormStepper/Stepper.js:117msgid "Back"msgstr ""
+
+#: ./src/client/containers/Login/Form.js:72#: ./src/client/components/FormStepper/MobileStepper.js:90msgid "Next"msgstr ""
+
+#: ./src/client/containers/Login/Form.js:72msgid "Sign In"msgstr ""
+
+#: ./src/client/containers/Login/schema.js:98msgid "Primary"msgstr ""
+
+#: ./src/client/containers/Providers/Sections/info.js:72#: ./src/client/containers/Provisions/DialogInfo/info.js:64msgid "Description"msgstr ""
+
+#: ./src/client/containers/Providers/Sections/info.js:76#: ./src/client/containers/Provisions/DialogInfo/info.js:68msgid "Provider"msgstr ""
+
+#: ./src/client/containers/Providers/Sections/info.js:80msgid "Registration time"msgstr ""
+
+#: ./src/client/containers/Providers/Sections/info.js:91msgid "Credentials"msgstr ""
+
+#: ./src/client/containers/Provisions/DialogInfo/info.js:72msgid "Cluster"msgstr ""
+
+#: ./src/client/containers/Provisions/DialogInfo/info.js:76msgid "Start time"msgstr ""
+
+#: ./src/client/containers/Settings/index.js:88msgid "Something go wrong"msgstr ""
+
+#: ./src/client/containers/Settings/index.js:96msgid "Settings"msgstr ""
+
+#: ./src/client/containers/Settings/index.js:104msgid "Configuration"msgstr ""
+
+#: ./src/client/containers/Settings/index.js:114msgid "Save"msgstr ""
+
+#: ./src/client/containers/TestApi/index.js:53msgid "Select request"msgstr ""
+
+#: ./src/client/containers/TestApi/index.js:57#: ./src/client/models/VirtualMachine.js:252msgid "None"msgstr ""
+
+#: ./src/client/models/VirtualMachine.js:245msgid "Weekly"msgstr ""
+
+#: ./src/client/models/VirtualMachine.js:246msgid "Monthly"msgstr ""
+
+#: ./src/client/models/VirtualMachine.js:247msgid "Yearly"msgstr ""
+
+#: ./src/client/models/VirtualMachine.js:254msgid "On"msgstr ""
+
+#: ./src/client/components/FormStepper/MobileStepper.js:89msgid "Finish"msgstr ""
+
+#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder.js:122#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage.js:122#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/diskSchema.js:48#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting.js:120#: ./src/client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage.js:122msgid "Volatile disk"msgstr ""
+
+#: ./src/client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/index.js:51msgid "Boot order"msgstr ""
+
+#: ./src/client/components/Header/Group.js:77msgid "Show all"msgstr ""
+
+#: ./src/client/components/Header/Group.js:87#: ./src/client/components/Header/Group.js:89msgid "Switch group"msgstr ""
+
+#: ./src/client/components/Header/User.js:48msgid "Sign Out"msgstr ""
+
+#: ./src/client/components/Header/View.js:77#: ./src/client/components/Header/View.js:79msgid "Switch view"msgstr ""
+
+#: ./src/client/components/Header/Zone.js:43msgid "Zones"msgstr ""
+
+#: ./src/client/components/Header/Zone.js:62msgid "Not found"msgstr ""
+
+#: ./src/client/components/Tables/Enhanced/Utils/CategoryFilter.js:91msgid "Clear"msgstr ""
+
+#: ./src/client/components/Tables/Enhanced/Utils/GlobalSelectedRows.js:62msgid "Clear selection"msgstr ""
+
+#: ./src/client/components/Tables/Enhanced/index.js:175msgid "There is no data available"msgstr ""
+
+#: ./src/client/components/Tables/VmTemplates/actions.js:45msgid "VM Templates"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Configuration.js:33msgid "User Template"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Configuration.js:45msgid "Template"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Network/Item.js:143msgid "Alias"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Network/Item.js:157msgid "Security groups"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/SchedActions/Actions.js:167msgid "Charter"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Storage/SubItem.js:59msgid "Active"msgstr ""
+
+#: ./src/client/components/Tabs/Vm/Storage/SubItem.js:60msgid "Snapshot"msgstr ""
 

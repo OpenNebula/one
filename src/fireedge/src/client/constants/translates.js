@@ -412,7 +412,7 @@ module.exports = {
   PathBootloader: 'Path to the bootloader executable',
   UniqueIdOfTheVm: 'Unique ID of the VM',
   UniqueIdOfTheVmConcept: `
-    It’s referenced as machine ID inside the VM.
+    It's referenced as machine ID inside the VM.
     Could be used to force ID for licensing purposes`,
   Firmware: 'Firmware',
   FirmwareConcept:
