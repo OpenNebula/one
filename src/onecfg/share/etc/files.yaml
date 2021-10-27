@@ -107,7 +107,7 @@
   group: oneadmin
   mode: '0640'
 
-- name: /etc/one/fireedge/provision/provision.conf
+- name: /etc/one/fireedge/provision/provision-server.conf
   class: Yaml
   owner: root
   group: oneadmin
