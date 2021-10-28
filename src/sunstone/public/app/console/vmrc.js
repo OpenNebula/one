@@ -40,7 +40,7 @@ define(function(require) {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
   }
-  
+
   function sendCtrlAltDel() {
     if (_wmks) { _wmks.sendCAD(); }
   }
@@ -48,18 +48,18 @@ define(function(require) {
   function enterFullScreen() {
     if (_wmks) { _wmks.enterFullScreen(); }
   }
-  
+
   function selectLanguage() {
     if(!_wmks) return;
-    var keyboardLayoutId = $('#selectLanguage').find(":selected").val();
-    _wmks.setOption('keyboardLayoutId',keyboardLayoutId);
-  } 
-
-  function keyboardSelector() {
-    $('#selectLanguage').toggle();
+    var keyboardLayoutId = $("#selectLanguage").find(":selected").val();
+    _wmks.setOption("keyboardLayoutId",keyboardLayoutId);
   }
 
-  function updateScreen() {    
+  function keyboardSelector() {
+    $("#selectLanguage").toggle();
+  }
+
+  function updateScreen() {
     _wmks.updateScreen();
   }
 
@@ -69,11 +69,11 @@ define(function(require) {
   document.querySelector("#fullScreenButton").onclick = enterFullScreen;
   document.querySelector("#keyboardSelector").onclick = keyboardSelector;
   document.querySelector("#selectLanguage").onchange = selectLanguage;
-  
+
   var endpoint = new URL(window.location.href);
   var encoded_socket = endpoint.searchParams.get("socket");
   var socket_string = atob(encoded_socket);
-  
+
   var socket_endpoint = new URL(socket_string);
   var host = socket_endpoint.searchParams.get("host");
   var port = socket_endpoint.searchParams.get("port");
@@ -81,19 +81,21 @@ define(function(require) {
   var ticket = socket_endpoint.searchParams.get("ticket");
 
   var info_decode = UtilsConnection.decodeInfoConnection(info);
-  UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+  UtilsConnection.printInfoConnection($(".VMRC_info"), info_decode);
 
 
   try{
-    _wmks = WMKS.createWMKS("wmksContainer", {})
+    _wmks = WMKS.createWMKS("wmksContainer", {
+      fixANSIEquivalentKeys: true,
+    })
       .register(WMKS.CONST.Events.CONNECTION_STATE_CHANGE,
         function (_, data) {
-          if (typeof cons !== 'undefined' && data.state == cons.ConnectionState.CONNECTED) {
+          if (typeof cons !== "undefined" && data.state == cons.ConnectionState.CONNECTED) {
             console.log("connection	state	change: connected");
           }
         }
       );
-    
+
     _wmks.eventHandlers["connectionstatechange"].push(connected);
     _wmks.eventHandlers["disconnect"] = disconnectedFromServer;
     _wmks.vm_name = info_decode && info_decode.name;
