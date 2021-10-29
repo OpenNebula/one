@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2018, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
-#
+# 
 # Translators:
 # Botond Matyus <manzolkkt@gmail.com>, 2013
 # Guba Sándor <gubasanyi@gmail.com>, 2012
@@ -11,17 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-05 12:58+0200\n"
-"PO-Revision-Date: 2021-04-05 11:00+0000\n"
+"POT-Creation-Date: 2021-10-25 13:37+0200\n"
+"PO-Revision-Date: 2021-10-25 11:27+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
 "Language-Team: Hungarian (Hungary) (http://www.transifex.com/opennebula/one/language/hu_HU/)\n"
-"Language: hu_HU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: hu_HU\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../app/app.js:157 ../app/app.js:160 ../app/tabs/acls-tab/datatable.js:225
+#: ../app/app.js:152 ../app/app.js:155 ../app/tabs/acls-tab/datatable.js:225
 #: ../app/tabs/acls-tab/datatable.js:243 ../app/tabs/acls-tab/datatable.js:270
 #: ../app/tabs/acls-tab/form-panels/create.js:304
 #: ../app/tabs/vdcs-tab/datatable.js:141
@@ -30,7 +30,7 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:132
 #: ../app/tabs/secgroups-tab/utils/common.js:169
 #: ../app/utils/accounting/html.hbs:39
-#: ../app/utils/tab-datatable/search-input.hbs:20
+#: ../app/utils/tab-datatable/search-input.hbs:21
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:144
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:31
@@ -44,32 +44,32 @@ msgstr ""
 msgid "All"
 msgstr "Mind"
 
-#: ../app/sunstone.js:1099 ../app/sunstone.js:1100
+#: ../app/sunstone.js:1125 ../app/sunstone.js:1126
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:1216 ../app/sunstone.js:1217
+#: ../app/sunstone.js:1242 ../app/sunstone.js:1243
 msgid "Loading..."
 msgstr ""
 
-#: ../app/utils/custom-tags-table.js:51 ../app/utils/vcenter/datastores.js:90
+#: ../app/utils/custom-tags-table.js:52 ../app/utils/vcenter/datastores.js:90
 #: ../app/tabs/vrouters-tab/datatable.js:67
 #: ../app/tabs/zones-tab/datatable.js:65
 #: ../app/tabs/marketplaces-tab/datatable.js:85
 #: ../app/tabs/datastores-tab/datatable.js:84
 #: ../app/tabs/clusters-tab/datatable.js:65
 #: ../app/tabs/groups-tab/datatable.js:69
-#: ../app/tabs/marketplaceapps-tab/datatable.js:88
+#: ../app/tabs/marketplaceapps-tab/datatable.js:92
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:59
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
 #: ../app/tabs/vms-tab/panels/snapshots.js:75
-#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/hosts-tab/datatable.js:81
 #: ../app/tabs/images-tab/datatable-common.js:75
 #: ../app/tabs/vnets-tab/datatable.js:71
 #: ../app/tabs/oneflow-templates-tab/datatable.js:70
 #: ../app/tabs/vdcs-tab/datatable.js:68
 #: ../app/tabs/oneflow-services-tab/datatable.js:73
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:263
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:269
 #: ../app/tabs/templates-tab/datatable-common.js:67
 #: ../app/tabs/users-tab/datatable.js:72
 #: ../app/tabs/secgroups-tab/datatable.js:67
@@ -111,7 +111,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:21
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:45
 #: ../app/tabs/oneflow-services-tab/datatable/search.hbs:4
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:54
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:24
 #: ../app/tabs/templates-tab/datatable/search.hbs:4
@@ -130,14 +130,14 @@ msgstr ""
 msgid "Name"
 msgstr "Név"
 
-#: ../app/utils/custom-tags-table.js:52 ../app/utils/vcenter/images.js:95
+#: ../app/utils/custom-tags-table.js:53 ../app/utils/vcenter/images.js:95
 #: ../app/tabs/datastores-tab/datatable.js:92
-#: ../app/tabs/marketplaceapps-tab/datatable.js:94
-#: ../app/tabs/vms-tab/panels/network.js:485
+#: ../app/tabs/marketplaceapps-tab/datatable.js:98
+#: ../app/tabs/vms-tab/panels/network.js:487
 #: ../app/tabs/images-tab/datatable-common.js:80
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
 #: ../app/tabs/vnets-tab/panels/ar.js:312
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:405
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:408
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:336
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/networks/row.hbs:45
 #: ../app/utils/vcenter/templates/row.hbs:39
@@ -165,7 +165,7 @@ msgstr "Név"
 msgid "Type"
 msgstr "Típus"
 
-#: ../app/utils/custom-tags-table.js:53
+#: ../app/utils/custom-tags-table.js:54
 #: ../app/utils/custom-tags-table/html.hbs:24
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:122
@@ -177,7 +177,7 @@ msgstr "Típus"
 msgid "Value"
 msgstr "Érték"
 
-#: ../app/utils/custom-tags-table.js:54
+#: ../app/utils/custom-tags-table.js:55
 msgid "Default Value"
 msgstr ""
 
@@ -198,54 +198,46 @@ msgstr ""
 msgid "You have to confirm this action"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:32 ../app/tabs/vms-tab/actions.js:333
-msgid "SPICE Connection in progress"
-msgstr ""
-
-#: ../app/utils/remote-actions.js:41 ../app/tabs/vms-tab/actions.js:275
-msgid "VNC Connection in progress"
-msgstr ""
-
-#: ../app/utils/remote-actions.js:48
+#: ../app/utils/remote-actions.js:36
 msgid "This VM needs a nic with rdp active"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:63 ../app/tabs/vms-tab/actions.js:244
-#: ../app/tabs/vms-tab/actions.js:260
+#: ../app/utils/remote-actions.js:51 ../app/tabs/vms-tab/actions.js:232
+#: ../app/tabs/vms-tab/actions.js:248
 msgid "Data for virt-viewer file isn't correct"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:73 ../app/utils/remote-actions.js:83
+#: ../app/utils/remote-actions.js:61 ../app/utils/remote-actions.js:71
 msgid "VNC - Invalid action"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:89
+#: ../app/utils/remote-actions.js:77
 msgid "RDP - Invalid action"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:95
+#: ../app/utils/remote-actions.js:83
 msgid "SSH - Invalid action"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:186
+#: ../app/utils/remote-actions.js:176
 msgid "HTML"
 msgstr ""
 
-#: ../app/utils/remote-actions.js:196 ../app/tabs/vms-tab/buttons.js:246
-msgid "RDP Client"
+#: ../app/utils/remote-actions.js:186
+msgid "Client"
 msgstr ""
 
-#: ../app/utils/panel/template-table.js:96
+#: ../app/utils/panel/template-table.js:123
 msgid "Not valid attribute"
 msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:107 ../app/utils/showback.js:102
 #: ../app/tabs/vrouters-tab/panels/vms.js:39
-#: ../app/tabs/provision-tab/flows/list.js:433
+#: ../app/tabs/provision-tab/flows/list.js:426
 #: ../app/tabs/groups-tab/datatable.js:71
 #: ../app/tabs/hosts-tab/panels/vms.js:39
-#: ../app/tabs/images-tab/panels/vms.js:39 ../app/tabs/vms-tab.js:70
-#: ../app/tabs/vms-tab.js:74 ../app/tabs/templates-tab.js:47
+#: ../app/tabs/images-tab/panels/vms.js:39 ../app/tabs/vms-tab.js:65
+#: ../app/tabs/vms-tab.js:69 ../app/tabs/templates-tab.js:47
 #: ../app/tabs/users-tab/datatable.js:77
 #: ../app/tabs/secgroups-tab/panels/vms.js:41
 #: ../app/tabs/vmgroup-tab/datatable.js:71
@@ -256,26 +248,28 @@ msgid "VMs"
 msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:155
-#: ../app/tabs/groups-tab/datatable.js:73 ../app/tabs/users-tab/datatable.js:79
+#: ../app/tabs/groups-tab/datatable.js:73
+#: ../app/tabs/users-tab/datatable.js:79
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:82
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:48
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:49
-#: ../app/tabs/provision-tab/vms/info.hbs:104
+#: ../app/tabs/provision-tab/vms/info.hbs:151
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:165
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:95
 #: ../app/tabs/hosts-tab/panels/monitor/html.hbs:21
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:158
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:172
 msgid "CPU"
 msgstr "CPU"
 
 #: ../app/utils/quotas/quota-widgets.js:203
-#: ../app/tabs/groups-tab/datatable.js:72 ../app/tabs/users-tab/datatable.js:78
-#: ../app/tabs/provision-tab/vms/info.hbs:121
+#: ../app/tabs/groups-tab/datatable.js:72
+#: ../app/tabs/users-tab/datatable.js:78
+#: ../app/tabs/provision-tab/vms/info.hbs:168
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:172
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:101
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:21
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:137
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:151
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:22
 msgid "Memory"
 msgstr "Memória"
@@ -299,7 +293,8 @@ msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:420
 #: ../app/utils/quotas/quota-widgets.js:1443 ../app/tabs/images-tab.js:52
-#: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image.js:62
+#: ../app/tabs/images-tab/form-panels/create-common.js:208
+#: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image.js:59
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:20
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:31
@@ -315,26 +310,25 @@ msgstr "Lemezkép"
 #: ../app/tabs/datastores-tab/datatable.js:83
 #: ../app/tabs/clusters-tab/datatable.js:64
 #: ../app/tabs/groups-tab/datatable.js:68
-#: ../app/tabs/marketplaceapps-tab/datatable.js:87
+#: ../app/tabs/marketplaceapps-tab/datatable.js:91
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/vms-tab/panels/network.js:96
+#: ../app/tabs/vms-tab/panels/network.js:95
 #: ../app/tabs/vms-tab/panels/snapshots.js:74
-#: ../app/tabs/vms-tab/panels/actions.js:71
-#: ../app/tabs/hosts-tab/datatable.js:76 ../app/tabs/acls-tab/datatable.js:65
+#: ../app/tabs/hosts-tab/datatable.js:80 ../app/tabs/acls-tab/datatable.js:65
 #: ../app/tabs/acls-tab/datatable.js:246
 #: ../app/tabs/images-tab/datatable-common.js:74
 #: ../app/tabs/vnets-tab/datatable.js:70
 #: ../app/tabs/oneflow-templates-tab/datatable.js:67
 #: ../app/tabs/vdcs-tab/datatable.js:67
 #: ../app/tabs/oneflow-services-tab/datatable.js:70
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:262
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:268
 #: ../app/tabs/templates-tab/datatable-common.js:66
 #: ../app/tabs/users-tab/datatable.js:71
 #: ../app/tabs/secgroups-tab/datatable.js:66
 #: ../app/tabs/vnets-templates-tab/datatable.js:67
 #: ../app/tabs/vmgroup-tab/datatable.js:67
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:65
-#: ../app/utils/showback/html.hbs:86
+#: ../app/utils/showback/html.hbs:86 ../app/utils/schedule_action/table.hbs:27
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:27
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:43
 #: ../app/tabs/zones-tab/panels/info/html.hbs:27
@@ -389,7 +383,7 @@ msgstr "Adattároló"
 #: ../app/utils/quotas/quota-widgets.js:567
 #: ../app/tabs/datastores-tab/panels/images.js:40 ../app/tabs/images-tab.js:47
 #: ../app/tabs/images-tab.js:51 ../app/tabs/acls-tab/datatable.js:156
-#: ../app/utils/tab-datatable/search-input.hbs:22
+#: ../app/utils/tab-datatable/search-input.hbs:23
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:90
 #: ../app/tabs/dashboard-tab/storage.hbs:20
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:216
@@ -398,11 +392,11 @@ msgid "Images"
 msgstr "Lemezképek"
 
 #: ../app/utils/quotas/quota-widgets.js:568 ../app/utils/vcenter/images.js:94
-#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/marketplaceapps-tab/datatable.js:96
 #: ../app/tabs/images-tab/datatable-common.js:79
 #: ../app/tabs/vnets-tab/panels/ar.js:315
 #: ../app/tabs/secgroups-tab/utils/common.js:118
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:408
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:411
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:339
 #: ../app/utils/vcenter/networks/row.hbs:39
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:80
@@ -417,11 +411,11 @@ msgstr "Lemezképek"
 msgid "Size"
 msgstr "Méret"
 
-#: ../app/utils/quotas/quota-widgets.js:730 ../app/utils/vcenter/networks.js:91
-#: ../app/utils/user-inputs.js:317 ../app/tabs/network-top-tab.js:23
-#: ../app/tabs/vms-tab/panels/network.js:68
-#: ../app/tabs/vms-tab/panels/network.js:97
-#: ../app/tabs/vms-tab/panels/network.js:487
+#: ../app/utils/quotas/quota-widgets.js:730
+#: ../app/utils/vcenter/networks.js:91 ../app/utils/user-inputs.js:317
+#: ../app/tabs/network-top-tab.js:23 ../app/tabs/vms-tab/panels/network.js:67
+#: ../app/tabs/vms-tab/panels/network.js:96
+#: ../app/tabs/vms-tab/panels/network.js:489
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:48
@@ -443,7 +437,7 @@ msgid "Leases"
 msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:885
-#: ../app/utils/schedule_action/html.hbs:132
+#: ../app/utils/schedule_action/html.hbs:139
 #: ../app/tabs/users-tab/panels/groups/html.hbs:19
 msgid "Edit"
 msgstr "Szerkesztés"
@@ -463,7 +457,7 @@ msgid "There are no quotas defined"
 msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:1009
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:96
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:94
 #: ../app/tabs/users-tab/utils/user-creation.js:142
 #: ../app/tabs/users-tab/utils/user-creation.js:231
 #: ../app/utils/vcenter/templates/row.hbs:41
@@ -476,7 +470,7 @@ msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:1441 ../app/utils/accounting.js:375
 #: ../app/tabs/vnets-topology-tab.js:556
-#: ../app/tabs/vms-tab/dialogs/migrate.js:168 ../app/tabs/vms-tab.js:75
+#: ../app/tabs/vms-tab/dialogs/migrate.js:173 ../app/tabs/vms-tab.js:70
 #: ../app/utils/accounting/html.hbs:31
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:28
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
@@ -546,16 +540,16 @@ msgstr ""
 msgid "Showback"
 msgstr ""
 
+#: ../app/utils/common-actions.js:239 ../app/utils/common-actions.js:257
+msgid "Please select one (and just one) resource to update."
+msgstr ""
+
 #: ../app/utils/lock.js:47
 msgid "Unlocked!"
 msgstr ""
 
-#: ../app/utils/nics-section.js:711
-msgid "There are no networks available."
-msgstr ""
-
 #: ../app/utils/vmgroup-section.js:149
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:61
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:56
 #: ../app/utils/vmgroup-section/html.hbs:13
 #: ../app/tabs/provision-tab/flows/info.hbs:62
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:123
@@ -572,7 +566,7 @@ msgid "Internal server error."
 msgstr ""
 
 #: ../app/utils/form-panels/form-panel.js:77
-#: ../app/tabs/images-tab/form-panels/create-common.js:89
+#: ../app/tabs/images-tab/form-panels/create-common.js:90
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/users-tab/dialogs/password.js:90
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:78
@@ -604,7 +598,7 @@ msgstr "Felhasználó"
 #: ../app/utils/accounting.js:362 ../app/tabs/vrouters-tab/datatable.js:69
 #: ../app/tabs/marketplaces-tab/datatable.js:87
 #: ../app/tabs/datastores-tab/datatable.js:86
-#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/marketplaceapps-tab/datatable.js:94
 #: ../app/tabs/vms-tab/utils/datatable-common.js:36
 #: ../app/tabs/groups-tab.js:53 ../app/tabs/acls-tab/datatable.js:232
 #: ../app/tabs/acls-tab/datatable.js:250
@@ -612,7 +606,7 @@ msgstr "Felhasználó"
 #: ../app/tabs/vnets-tab/datatable.js:73
 #: ../app/tabs/oneflow-templates-tab/datatable.js:69
 #: ../app/tabs/oneflow-services-tab/datatable.js:72
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:265
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:271
 #: ../app/tabs/templates-tab/datatable-common.js:69
 #: ../app/tabs/users-tab/datatable.js:73
 #: ../app/tabs/secgroups-tab/datatable.js:69
@@ -656,15 +650,15 @@ msgstr ""
 msgid "Total"
 msgstr ""
 
-#: ../app/utils/tab-datatable.js:109
+#: ../app/utils/tab-datatable.js:98
 msgid "Please select a resource from the list"
 msgstr ""
 
-#: ../app/utils/tab-datatable.js:113
+#: ../app/utils/tab-datatable.js:102
 msgid "You selected the following resource:"
 msgstr ""
 
-#: ../app/utils/tab-datatable.js:921 ../app/utils/tab-datatable.js:1114
+#: ../app/utils/tab-datatable.js:902 ../app/utils/tab-datatable.js:1095
 msgid "just click if you want to delete the resource"
 msgstr ""
 
@@ -728,7 +722,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/networks.js:175 ../app/utils/vcenter/networks.js:188
 #: ../app/utils/vcenter/networks.js:201 ../app/utils/vcenter/networks.js:223
-#: ../app/tabs/vms-tab/panels/network.js:99
+#: ../app/tabs/vms-tab/panels/network.js:98
 #: ../app/utils/vcenter/networks/row.hbs:58
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:39
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:63
@@ -818,7 +812,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/clusters.js:95
 #: ../app/tabs/datastores-tab/datatable.js:88
-#: ../app/tabs/hosts-tab/datatable.js:78 ../app/tabs/vnets-tab/datatable.js:75
+#: ../app/tabs/hosts-tab/datatable.js:82 ../app/tabs/vnets-tab/datatable.js:75
 #: ../app/tabs/clusters-tab.js:51
 #: ../app/tabs/vnets-templates-tab/datatable.js:71
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:67
@@ -893,15 +887,15 @@ msgstr ""
 msgid "%1$s Images selected."
 msgstr ""
 
-#: ../app/utils/files.js:39
+#: ../app/utils/files.js:44
 msgid "Type graphics supported: vnc, spice"
 msgstr ""
 
-#: ../app/utils/files.js:44
+#: ../app/utils/files.js:49
 msgid "Must specify type and port in graphics options"
 msgstr ""
 
-#: ../app/utils/files.js:49
+#: ../app/utils/files.js:54
 msgid "Must specify proxy host and port in config"
 msgstr ""
 
@@ -913,83 +907,149 @@ msgstr "A hálózat nem elérhető: fut az OpenNebula?"
 msgid "Unauthorized"
 msgstr "Ismeretlen"
 
-#: ../app/utils/schedule_action.js:89
+#: ../app/utils/schedule_action.js:98
 msgid "Hour"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:235 ../app/utils/schedule_action/html.hbs:79
+#: ../app/utils/schedule_action.js:306
+#: ../app/utils/schedule_action/html.hbs:86
 msgid "Mo"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:236 ../app/utils/schedule_action/html.hbs:81
+#: ../app/utils/schedule_action.js:307
+#: ../app/utils/schedule_action/html.hbs:88
 msgid "Tu"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:237 ../app/utils/schedule_action/html.hbs:83
+#: ../app/utils/schedule_action.js:308
+#: ../app/utils/schedule_action/html.hbs:90
 msgid "We"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:238 ../app/utils/schedule_action/html.hbs:85
+#: ../app/utils/schedule_action.js:309
+#: ../app/utils/schedule_action/html.hbs:92
 msgid "Th"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:239 ../app/utils/schedule_action/html.hbs:87
+#: ../app/utils/schedule_action.js:310
+#: ../app/utils/schedule_action/html.hbs:94
 msgid "Fr"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:240 ../app/utils/schedule_action/html.hbs:89
+#: ../app/utils/schedule_action.js:311
+#: ../app/utils/schedule_action/html.hbs:96
 msgid "Sa"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:241 ../app/utils/schedule_action/html.hbs:91
+#: ../app/utils/schedule_action.js:312
+#: ../app/utils/schedule_action/html.hbs:98
 msgid "Su"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:246
-msgid "Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month"
+#: ../app/utils/schedule_action.js:317
+msgid ""
+"Comma separated list of days of the month to repeat the action on. Ex: "
+"1,15,25 repeats the action every first, 15th and 25th day of the month"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:250
-msgid "Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year"
+#: ../app/utils/schedule_action.js:321
+msgid ""
+"Comma separated list of days of the year to repeat the action on. Ex: "
+"1,30,330 repeats the action every first, 30th and 330th day of the year"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:254
+#: ../app/utils/schedule_action.js:325 ../app/utils/schedule_action.js:858
 msgid "Each"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:256
+#: ../app/utils/schedule_action.js:327 ../app/utils/schedule_action.js:862
 msgid "hours"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:725 ../app/utils/schedule_action/html.hbs:41
+#: ../app/utils/schedule_action.js:809
+#: ../app/utils/schedule_action/html.hbs:48
 msgid "Years"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:728 ../app/utils/schedule_action/html.hbs:42
+#: ../app/utils/schedule_action.js:812
+#: ../app/utils/schedule_action/html.hbs:49
 msgid "Months"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:731 ../app/utils/schedule_action/html.hbs:43
+#: ../app/utils/schedule_action.js:815
+#: ../app/utils/schedule_action/html.hbs:50
 msgid "Weeks"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:734 ../app/utils/schedule_action/html.hbs:44
+#: ../app/utils/schedule_action.js:818
+#: ../app/utils/schedule_action/html.hbs:51
 msgid "Days"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:737 ../app/utils/showback/html.hbs:89
-#: ../app/utils/schedule_action/html.hbs:45
+#: ../app/utils/schedule_action.js:821 ../app/utils/showback/html.hbs:89
+#: ../app/utils/schedule_action/html.hbs:52
 msgid "Hours"
 msgstr ""
 
-#: ../app/utils/schedule_action.js:740 ../app/utils/schedule_action/html.hbs:46
+#: ../app/utils/schedule_action.js:824
+#: ../app/utils/schedule_action/html.hbs:53
 msgid "Minutes"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:843
+#: ../app/utils/schedule_action/html.hbs:77
+msgid "Weekly"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:848
+#: ../app/utils/schedule_action/html.hbs:78
+msgid "Monthly"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:853
+#: ../app/utils/schedule_action/html.hbs:79
+msgid "Yearly"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:870
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:184
+#: ../app/tabs/users-tab/dialogs/login-token.js:83
+#: ../app/tabs/users-tab/dialogs/login-token.js:108
+#: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:88
+#: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:82
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:24
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:115
+#: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:35
+msgid "None"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:873
+#: ../app/utils/schedule_action/html.hbs:126
+msgid "After"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:877
+#: ../app/utils/schedule_action/html.hbs:132
+msgid "times"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:880
+#: ../app/utils/schedule_action/html.hbs:117
+msgid "On"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:1172
+msgid "No actions to show"
+msgstr ""
+
+#: ../app/utils/schedule_action.js:1299
+msgid "Scheduled actions to add"
 msgstr ""
 
 #: ../app/utils/user-inputs.js:313
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
-#: ../app/tabs/provision-tab.js:1229 ../app/tabs/provision-tab.js:1529
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:663
+#: ../app/tabs/provision-tab.js:1238 ../app/tabs/provision-tab.js:1536
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:608
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:199
 msgid "Custom Attributes"
 msgstr ""
@@ -1005,30 +1065,30 @@ msgstr ""
 #: ../app/utils/user-inputs.js:403
 #: ../app/tabs/vrouters-tab/form-panels/create.js:53
 #: ../app/tabs/files-tab/form-panels/create-common.js:56
-#: ../app/tabs/marketplaces-tab/form-panels/create.js:156
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:169
 #: ../app/tabs/datastores-tab/buttons.js:28
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
-#: ../app/tabs/groups-tab/form-panels/create.js:54
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:61
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:66
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:71
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:76
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:81
-#: ../app/tabs/vms-tab/form-panels/create.js:48
+#: ../app/tabs/groups-tab/form-panels/create.js:53
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:60
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:65
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:70
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:75
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:80
+#: ../app/tabs/vms-tab/form-panels/create.js:47
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
-#: ../app/tabs/images-tab/buttons.js:29
-#: ../app/tabs/images-tab/form-panels/create-common.js:64
+#: ../app/tabs/images-tab/buttons.js:28
+#: ../app/tabs/images-tab/form-panels/create-common.js:65
 #: ../app/tabs/vnets-tab/buttons.js:29
 #: ../app/tabs/vnets-tab/form-panels/instantiate.js:44
 #: ../app/tabs/vnets-tab/form-panels/create.js:65
 #: ../app/tabs/oneflow-templates-tab/buttons.js:28
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:61
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:56
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
 #: ../app/tabs/oneflow-services-tab/form-panels/create.js:47
-#: ../app/tabs/templates-tab/buttons.js:29
-#: ../app/tabs/templates-tab/form-panels/create-common.js:80
+#: ../app/tabs/templates-tab/buttons.js:28
+#: ../app/tabs/templates-tab/form-panels/create-common.js:82
 #: ../app/tabs/users-tab/form-panels/create.js:53
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:59
@@ -1068,7 +1128,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker/html.hbs:25
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:77
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:106
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:144
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:80
 msgid "MB"
@@ -1080,7 +1140,7 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker/html.hbs:26
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:78
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:107
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:145
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:159
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:37
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:81
 msgid "GB"
@@ -1092,13 +1152,13 @@ msgstr ""
 msgid "TB"
 msgstr ""
 
-#: ../app/utils/user-inputs.js:856 ../app/utils/user-inputs.js:859
-#: ../app/utils/user-inputs.js:862
+#: ../app/utils/user-inputs.js:857 ../app/utils/user-inputs.js:860
+#: ../app/utils/user-inputs.js:863
 msgid "YES "
 msgstr ""
 
-#: ../app/utils/user-inputs.js:857 ../app/utils/user-inputs.js:860
-#: ../app/utils/user-inputs.js:863
+#: ../app/utils/user-inputs.js:858 ../app/utils/user-inputs.js:861
+#: ../app/utils/user-inputs.js:864
 msgid "NO "
 msgstr ""
 
@@ -1111,39 +1171,31 @@ msgid "Image was not found"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:153
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:209
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:245
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:207
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:243
 msgid "DISK"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:165
-msgid "Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)"
+msgid ""
+"Persistent image. The changes will be saved back to the datastore after the "
+"VM is terminated (ie goes into DONE state)"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:169
-msgid "Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)"
+msgid ""
+"Non-persistent disk. The changes will be lost once the VM is terminated (ie "
+"goes into DONE state)"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
 msgstr ""
 
-#: ../app/utils/gclient.js:35
-msgid "The OpenNebula service for remote console is not running, please contact your administrator."
-msgstr ""
-
 #: ../app/utils/resource-select.js:69
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
 msgid "Please select"
 msgstr "Kérem válasszon"
-
-#: ../app/utils/leases.js:91
-msgid "Added scheduled actions"
-msgstr ""
-
-#: ../app/utils/leases.js:130
-msgid "Scheduled actions to add"
-msgstr ""
 
 #: ../app/opennebula/marketplaceapp.js:24 ../app/opennebula/host.js:39
 #: ../app/opennebula/host.js:51 ../app/opennebula/host.js:57
@@ -1161,8 +1213,8 @@ msgstr ""
 
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/host.js:42
 #: ../app/opennebula/host.js:54 ../app/opennebula/image.js:28
-#: ../app/tabs/hosts-tab.js:58 ../app/tabs/provision-tab/vms/list.js:944
-#: ../app/tabs/provision-tab/vms/list.js:993
+#: ../app/tabs/hosts-tab.js:58 ../app/tabs/provision-tab/vms/list.js:979
+#: ../app/tabs/provision-tab/vms/list.js:1028
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:83
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:71
 msgid "ERROR"
@@ -1170,15 +1222,16 @@ msgstr "HIBA"
 
 #: ../app/opennebula/marketplaceapp.js:28 ../app/opennebula/host.js:43
 #: ../app/opennebula/host.js:55 ../app/opennebula/host.js:58
-#: ../app/opennebula/image.js:26 ../app/tabs/dashboard-tab/hosts.hbs:40
+#: ../app/opennebula/image.js:26 ../app/tabs/dashboard-tab/hosts.hbs:42
+#: ../app/tabs/dashboard-tab/hosts.hbs:43
 msgid "DISABLED"
 msgstr ""
 
 #: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:308
-#: ../app/tabs/provision-tab/vms/list.js:963
-#: ../app/tabs/provision-tab/vms/list.js:967
 #: ../app/tabs/provision-tab/vms/list.js:998
-#: ../app/tabs/provision-tab/flows/list.js:700
+#: ../app/tabs/provision-tab/vms/list.js:1002
+#: ../app/tabs/provision-tab/vms/list.js:1033
+#: ../app/tabs/provision-tab/flows/list.js:692
 msgid "UNKNOWN"
 msgstr ""
 
@@ -1199,6 +1252,7 @@ msgid "MONITORING_MONITORED"
 msgstr ""
 
 #: ../app/opennebula/host.js:41 ../app/tabs/dashboard-tab/hosts.hbs:36
+#: ../app/tabs/dashboard-tab/hosts.hbs:37
 msgid "MONITORED"
 msgstr ""
 
@@ -1232,7 +1286,7 @@ msgid "RETRY"
 msgstr ""
 
 #: ../app/opennebula/host.js:59 ../app/tabs/hosts-tab.js:57
-#: ../app/tabs/provision-tab/vms/list.js:977 ../app/tabs/vms-tab.js:79
+#: ../app/tabs/provision-tab/vms/list.js:1012 ../app/tabs/vms-tab.js:74
 #: ../app/tabs/datastores-tab.js:55
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:75
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:63
@@ -1256,8 +1310,9 @@ msgid "BOOT"
 msgstr ""
 
 #: ../app/opennebula/vm.js:295 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:31 ../app/tabs/provision-tab/vms/list.js:913
-#: ../app/tabs/provision-tab/flows/list.js:684
+#: ../app/opennebula/service.js:31 ../app/tabs/provision-tab/vms/list.js:355
+#: ../app/tabs/provision-tab/vms/list.js:948
+#: ../app/tabs/provision-tab/flows/list.js:676
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:59
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:47
 msgid "RUNNING"
@@ -1322,35 +1377,35 @@ msgid "DISK_RSZ"
 msgstr ""
 
 #: ../app/opennebula/role.js:44 ../app/opennebula/service.js:29
-#: ../app/tabs/provision-tab/flows/list.js:656 ../app/tabs/vms-tab.js:80
-#: ../app/tabs/dashboard-tab/vms.hbs:37
+#: ../app/tabs/provision-tab/flows/list.js:648 ../app/tabs/vms-tab.js:75
+#: ../app/tabs/dashboard-tab/vms.hbs:39 ../app/tabs/dashboard-tab/vms.hbs:40
 msgid "PENDING"
 msgstr ""
 
 #: ../app/opennebula/role.js:45 ../app/opennebula/service.js:30
-#: ../app/tabs/provision-tab/vms/list.js:867
-#: ../app/tabs/provision-tab/vms/list.js:875
-#: ../app/tabs/provision-tab/vms/list.js:881
-#: ../app/tabs/provision-tab/vms/list.js:890
-#: ../app/tabs/provision-tab/vms/list.js:988
-#: ../app/tabs/provision-tab/flows/list.js:660
+#: ../app/tabs/provision-tab/vms/list.js:902
+#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:916
+#: ../app/tabs/provision-tab/vms/list.js:925
+#: ../app/tabs/provision-tab/vms/list.js:1023
+#: ../app/tabs/provision-tab/flows/list.js:652
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:67
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:55
 msgid "DEPLOYING"
 msgstr ""
 
 #: ../app/opennebula/role.js:47 ../app/opennebula/service.js:32
-#: ../app/tabs/provision-tab/flows/list.js:664
+#: ../app/tabs/provision-tab/flows/list.js:656
 msgid "UNDEPLOYING"
 msgstr ""
 
 #: ../app/opennebula/role.js:48 ../app/opennebula/service.js:33
-#: ../app/tabs/provision-tab/flows/list.js:680
+#: ../app/tabs/provision-tab/flows/list.js:672
 msgid "WARNING"
 msgstr ""
 
 #: ../app/opennebula/role.js:49 ../app/opennebula/service.js:34
-#: ../app/tabs/provision-tab/flows/list.js:696
+#: ../app/tabs/provision-tab/flows/list.js:688
 msgid "DONE"
 msgstr ""
 
@@ -1363,7 +1418,7 @@ msgid "FAILED_DEPLOYING"
 msgstr ""
 
 #: ../app/opennebula/role.js:52 ../app/opennebula/service.js:37
-#: ../app/tabs/provision-tab/flows/list.js:688
+#: ../app/tabs/provision-tab/flows/list.js:680
 msgid "SCALING"
 msgstr ""
 
@@ -1372,11 +1427,12 @@ msgid "FAILED_SCALING"
 msgstr ""
 
 #: ../app/opennebula/role.js:54 ../app/opennebula/service.js:39
-#: ../app/tabs/provision-tab/flows/list.js:692
+#: ../app/tabs/provision-tab/flows/list.js:684
 msgid "COOLDOWN"
 msgstr ""
 
-#: ../app/opennebula/image.js:25 ../app/tabs/dashboard-tab/storage.hbs:34
+#: ../app/opennebula/image.js:25 ../app/tabs/dashboard-tab/storage.hbs:36
+#: ../app/tabs/dashboard-tab/storage.hbs:37
 msgid "USED"
 msgstr ""
 
@@ -1430,24 +1486,24 @@ msgstr ""
 msgid "CONTEXT"
 msgstr ""
 
-#: ../app/opennebula/service.js:155
+#: ../app/opennebula/service.js:171
 msgid "Purge Services"
 msgstr ""
 
-#: ../app/opennebula/service.js:155
+#: ../app/opennebula/service.js:171
 msgid "Services on DONE state has been deleted from database"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:68
 #: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/datastores-tab/datatable.js:85
-#: ../app/tabs/marketplaceapps-tab/datatable.js:89
+#: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/vms-tab/utils/datatable-common.js:35
 #: ../app/tabs/images-tab/datatable-common.js:76
 #: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/oneflow-templates-tab/datatable.js:68
 #: ../app/tabs/oneflow-services-tab/datatable.js:71
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:264
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:270
 #: ../app/tabs/templates-tab/datatable-common.js:68
 #: ../app/tabs/secgroups-tab/datatable.js:68
 #: ../app/tabs/vnets-templates-tab/datatable.js:69
@@ -1477,9 +1533,9 @@ msgstr "Tulajdonos"
 #: ../app/tabs/datastores-tab/datatable.js:94
 #: ../app/tabs/clusters-tab/datatable.js:69
 #: ../app/tabs/groups-tab/datatable.js:74
-#: ../app/tabs/marketplaceapps-tab/datatable.js:98
+#: ../app/tabs/marketplaceapps-tab/datatable.js:102
 #: ../app/tabs/vms-tab/utils/datatable-common.js:43
-#: ../app/tabs/hosts-tab/datatable.js:85
+#: ../app/tabs/hosts-tab/datatable.js:89
 #: ../app/tabs/images-tab/datatable-common.js:86
 #: ../app/tabs/vnets-tab/datatable.js:79
 #: ../app/tabs/oneflow-templates-tab/datatable.js:72
@@ -1517,14 +1573,14 @@ msgid "Instantiate VMs"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/buttons.js:38
-#: ../app/tabs/marketplaces-tab/buttons.js:37
+#: ../app/tabs/marketplaces-tab/buttons.js:47
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaceapps-tab/buttons.js:45
-#: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:46
+#: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:45
 #: ../app/tabs/vnets-tab/buttons.js:62
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
 #: ../app/tabs/oneflow-services-tab/buttons.js:38
-#: ../app/tabs/templates-tab/buttons.js:57
+#: ../app/tabs/templates-tab/buttons.js:56
 #: ../app/tabs/secgroups-tab/buttons.js:37
 #: ../app/tabs/vnets-templates-tab/buttons.js:49
 #: ../app/tabs/vmgroup-tab/buttons.js:39
@@ -1532,14 +1588,14 @@ msgid "Change owner"
 msgstr "Tulajdonos váltása"
 
 #: ../app/tabs/vrouters-tab/buttons.js:41
-#: ../app/tabs/marketplaces-tab/buttons.js:40
+#: ../app/tabs/marketplaces-tab/buttons.js:50
 #: ../app/tabs/datastores-tab/buttons.js:49
 #: ../app/tabs/marketplaceapps-tab/buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:47 ../app/tabs/images-tab/buttons.js:49
+#: ../app/tabs/vms-tab/buttons.js:47 ../app/tabs/images-tab/buttons.js:48
 #: ../app/tabs/vnets-tab/buttons.js:65
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
 #: ../app/tabs/oneflow-services-tab/buttons.js:40
-#: ../app/tabs/templates-tab/buttons.js:60
+#: ../app/tabs/templates-tab/buttons.js:59
 #: ../app/tabs/secgroups-tab/buttons.js:40
 #: ../app/tabs/vnets-templates-tab/buttons.js:52
 #: ../app/tabs/vmgroup-tab/buttons.js:42
@@ -1547,14 +1603,14 @@ msgid "Select the new owner"
 msgstr "Válaszd ki az új tulajdonost"
 
 #: ../app/tabs/vrouters-tab/buttons.js:45
-#: ../app/tabs/marketplaces-tab/buttons.js:44
+#: ../app/tabs/marketplaces-tab/buttons.js:54
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaceapps-tab/buttons.js:52
-#: ../app/tabs/vms-tab/buttons.js:51 ../app/tabs/images-tab/buttons.js:53
+#: ../app/tabs/vms-tab/buttons.js:51 ../app/tabs/images-tab/buttons.js:52
 #: ../app/tabs/vnets-tab/buttons.js:70
 #: ../app/tabs/oneflow-templates-tab/buttons.js:56
 #: ../app/tabs/oneflow-services-tab/buttons.js:45
-#: ../app/tabs/templates-tab/buttons.js:64
+#: ../app/tabs/templates-tab/buttons.js:63
 #: ../app/tabs/secgroups-tab/buttons.js:44
 #: ../app/tabs/vnets-templates-tab/buttons.js:57
 #: ../app/tabs/vmgroup-tab/buttons.js:46
@@ -1562,14 +1618,14 @@ msgid "Change group"
 msgstr "Csoport változtatása"
 
 #: ../app/tabs/vrouters-tab/buttons.js:48
-#: ../app/tabs/marketplaces-tab/buttons.js:47
+#: ../app/tabs/marketplaces-tab/buttons.js:57
 #: ../app/tabs/datastores-tab/buttons.js:56
 #: ../app/tabs/marketplaceapps-tab/buttons.js:55
-#: ../app/tabs/vms-tab/buttons.js:54 ../app/tabs/images-tab/buttons.js:56
+#: ../app/tabs/vms-tab/buttons.js:54 ../app/tabs/images-tab/buttons.js:55
 #: ../app/tabs/vnets-tab/buttons.js:73
 #: ../app/tabs/oneflow-templates-tab/buttons.js:59
 #: ../app/tabs/oneflow-services-tab/buttons.js:47
-#: ../app/tabs/templates-tab/buttons.js:67
+#: ../app/tabs/templates-tab/buttons.js:66
 #: ../app/tabs/secgroups-tab/buttons.js:47
 #: ../app/tabs/vnets-templates-tab/buttons.js:60
 #: ../app/tabs/vmgroup-tab/buttons.js:49
@@ -1579,21 +1635,21 @@ msgstr "Válaszd ki az új csoportot"
 #: ../app/tabs/vrouters-tab/buttons.js:53 ../app/tabs/zones-tab/buttons.js:33
 #: ../app/tabs/provision-tab/templates/list.js:174
 #: ../app/tabs/provision-tab/templates/list.js:281
-#: ../app/tabs/provision-tab/flows/list.js:533
-#: ../app/tabs/marketplaces-tab/buttons.js:51
+#: ../app/tabs/provision-tab/flows/list.js:526
+#: ../app/tabs/marketplaces-tab/buttons.js:61
 #: ../app/tabs/datastores-tab/buttons.js:60
 #: ../app/tabs/clusters-tab/buttons.js:38 ../app/tabs/groups-tab/buttons.js:42
 #: ../app/tabs/marketplaceapps-tab/buttons.js:69
 #: ../app/tabs/vms-tab/panels/snapshots.js:129
 #: ../app/tabs/vms-tab/panels/snapshots.js:133
-#: ../app/tabs/acls-tab/buttons.js:32 ../app/tabs/images-tab/buttons.js:86
+#: ../app/tabs/acls-tab/buttons.js:32 ../app/tabs/images-tab/buttons.js:85
 #: ../app/tabs/vnets-tab/buttons.js:79
 #: ../app/tabs/oneflow-templates-tab/buttons.js:74
 #: ../app/tabs/oneflow-templates-tab/actions.js:59
 #: ../app/tabs/vdcs-tab/buttons.js:38
 #: ../app/tabs/oneflow-services-tab/buttons.js:68
-#: ../app/tabs/templates-tab/actions-common.js:54
-#: ../app/tabs/templates-tab/buttons.js:89 ../app/tabs/users-tab/buttons.js:49
+#: ../app/tabs/templates-tab/actions-common.js:59
+#: ../app/tabs/templates-tab/buttons.js:88 ../app/tabs/users-tab/buttons.js:49
 #: ../app/tabs/secgroups-tab/buttons.js:62
 #: ../app/tabs/vnets-templates-tab/buttons.js:66
 #: ../app/tabs/vmgroup-tab/buttons.js:53
@@ -1605,8 +1661,8 @@ msgstr "Törlés"
 
 #: ../app/tabs/vrouters-tab/buttons.js:72
 #: ../app/tabs/marketplaceapps-tab/buttons.js:89
-#: ../app/tabs/vms-tab/buttons.js:272 ../app/tabs/images-tab/buttons.js:105
-#: ../app/tabs/vnets-tab/buttons.js:98 ../app/tabs/templates-tab/buttons.js:108
+#: ../app/tabs/vms-tab/buttons.js:273 ../app/tabs/images-tab/buttons.js:92
+#: ../app/tabs/vnets-tab/buttons.js:98 ../app/tabs/templates-tab/buttons.js:95
 #: ../app/tabs/vnets-templates-tab/buttons.js:85
 #: ../app/tabs/vmgroup-tab/buttons.js:70
 msgid "Lock"
@@ -1614,9 +1670,9 @@ msgstr ""
 
 #: ../app/tabs/vrouters-tab/buttons.js:78
 #: ../app/tabs/marketplaceapps-tab/buttons.js:95
-#: ../app/tabs/vms-tab/buttons.js:278 ../app/tabs/images-tab/buttons.js:111
+#: ../app/tabs/vms-tab/buttons.js:279 ../app/tabs/images-tab/buttons.js:98
 #: ../app/tabs/vnets-tab/buttons.js:104
-#: ../app/tabs/templates-tab/buttons.js:114
+#: ../app/tabs/templates-tab/buttons.js:101
 #: ../app/tabs/vnets-templates-tab/buttons.js:91
 #: ../app/tabs/vmgroup-tab/buttons.js:76
 msgid "Unlock"
@@ -1625,9 +1681,9 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:58
 #: ../app/tabs/vnets-tab/buttons.js:41
 #: ../app/tabs/oneflow-templates-tab/buttons.js:44
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:63
-#: ../app/tabs/templates-tab/buttons.js:52
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:72
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:65
+#: ../app/tabs/templates-tab/buttons.js:51
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:73
 #: ../app/tabs/vrouter-templates-tab/buttons.js:29
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:59
 #: ../app/tabs/vnets-templates-tab/buttons.js:38
@@ -1639,51 +1695,51 @@ msgstr ""
 msgid "Create Virtual Router"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/panels/info.js:54
+#: ../app/tabs/vrouters-tab/panels/info.js:45
 #: ../app/tabs/zones-tab/panels/info.js:45
-#: ../app/tabs/marketplaces-tab/panels/info.js:48
+#: ../app/tabs/marketplaces-tab/panels/info.js:55
 #: ../app/tabs/datastores-tab/panels/info.js:50
-#: ../app/tabs/clusters-tab/panels/info.js:47
-#: ../app/tabs/groups-tab/panels/info.js:47
+#: ../app/tabs/clusters-tab/panels/info.js:49
+#: ../app/tabs/groups-tab/panels/info.js:48
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:50
-#: ../app/tabs/vms-tab/panels/info.js:53
+#: ../app/tabs/vms-tab/panels/info.js:56
 #: ../app/tabs/hosts-tab/panels/info.js:64
 #: ../app/tabs/images-tab/panels/info-common.js:42
-#: ../app/tabs/vnets-tab/panels/info.js:50
+#: ../app/tabs/vnets-tab/panels/info.js:51
 #: ../app/tabs/oneflow-templates-tab/panels/info.js:47
-#: ../app/tabs/vdcs-tab/panels/info.js:41
-#: ../app/tabs/oneflow-services-tab/panels/info.js:48
+#: ../app/tabs/vdcs-tab/panels/info.js:46
+#: ../app/tabs/oneflow-services-tab/panels/info.js:53
 #: ../app/tabs/templates-tab/panels/info-common.js:44
-#: ../app/tabs/users-tab/panels/info-common.js:53
-#: ../app/tabs/secgroups-tab/panels/info.js:49
-#: ../app/tabs/vnets-templates-tab/panels/info.js:50
-#: ../app/tabs/vmgroup-tab/panels/info.js:48
+#: ../app/tabs/users-tab/panels/info-common.js:48
+#: ../app/tabs/secgroups-tab/panels/info.js:50
+#: ../app/tabs/vnets-templates-tab/panels/info.js:49
+#: ../app/tabs/vmgroup-tab/panels/info.js:40
 msgid "Info"
 msgstr "Információ"
 
-#: ../app/tabs/vrouters-tab/panels/info.js:120
-#: ../app/tabs/zones-tab/panels/info.js:66
-#: ../app/tabs/marketplaces-tab/panels/info.js:71
-#: ../app/tabs/datastores-tab/panels/info.js:86
-#: ../app/tabs/clusters-tab/panels/info.js:84
+#: ../app/tabs/vrouters-tab/panels/info.js:108
+#: ../app/tabs/zones-tab/panels/info.js:65
+#: ../app/tabs/marketplaces-tab/panels/info.js:76
+#: ../app/tabs/datastores-tab/panels/info.js:75
+#: ../app/tabs/clusters-tab/panels/info.js:76
 #: ../app/tabs/groups-tab/panels/info.js:85
-#: ../app/tabs/marketplaceapps-tab/panels/info.js:76
-#: ../app/tabs/vms-tab/panels/info.js:110
-#: ../app/tabs/hosts-tab/panels/info.js:116
+#: ../app/tabs/marketplaceapps-tab/panels/info.js:73
+#: ../app/tabs/vms-tab/panels/info.js:103
+#: ../app/tabs/hosts-tab/panels/info.js:98
 #: ../app/tabs/images-tab/panels/info-common.js:61
-#: ../app/tabs/vnets-tab/panels/info.js:98
-#: ../app/tabs/vdcs-tab/panels/info.js:62
-#: ../app/tabs/users-tab/panels/info-common.js:78
-#: ../app/tabs/users-tab/panels/auth-common.js:66
+#: ../app/tabs/vnets-tab/panels/info.js:78
+#: ../app/tabs/vdcs-tab/panels/info.js:65
+#: ../app/tabs/users-tab/panels/info-common.js:74
+#: ../app/tabs/users-tab/panels/auth-common.js:62
 #: ../app/tabs/secgroups-tab/panels/info.js:84
-#: ../app/tabs/vnets-templates-tab/panels/info.js:100
-#: ../app/tabs/vmgroup-tab/panels/info.js:96
+#: ../app/tabs/vnets-templates-tab/panels/info.js:76
+#: ../app/tabs/vmgroup-tab/panels/info.js:83
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:133
 msgid "Attributes"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/panels/info.js:157
-#: ../app/tabs/vms-tab/panels/network.js:537
+#: ../app/tabs/vrouters-tab/panels/info.js:144
+#: ../app/tabs/vms-tab/panels/network.js:540
 msgid "This will detach the nic immediately"
 msgstr ""
 
@@ -1707,7 +1763,8 @@ msgstr ""
 msgid "Hosts"
 msgstr "Gazdagépek"
 
-#: ../app/tabs/hosts-tab.js:53 ../app/tabs/vms-tab/utils/datatable-common.js:38
+#: ../app/tabs/hosts-tab.js:53
+#: ../app/tabs/vms-tab/utils/datatable-common.js:38
 #: ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/vms-tab/datatable/search.hbs:39
 #: ../app/tabs/vms-tab/panels/info/html.hbs:61
@@ -1722,14 +1779,14 @@ msgstr "Hoszt"
 #: ../app/tabs/users-tab.js:61 ../app/tabs/groups-tab.js:56
 #: ../app/tabs/files-tab.js:50 ../app/tabs/acls-tab.js:45
 #: ../app/tabs/images-tab.js:54 ../app/tabs/zones-tab.js:48
-#: ../app/tabs/vms-tab.js:77 ../app/tabs/clusters-tab.js:54
+#: ../app/tabs/vms-tab.js:72 ../app/tabs/clusters-tab.js:54
 #: ../app/tabs/vnets-tab.js:62 ../app/tabs/vdcs-tab.js:53
 #: ../app/tabs/templates-tab.js:55 ../app/tabs/datastores-tab.js:53
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:28
-#: ../app/tabs/dashboard-tab/vms.hbs:33
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:150
+#: ../app/tabs/dashboard-tab/vms.hbs:33 ../app/tabs/dashboard-tab/vms.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:164
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:176
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:178
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:190
 msgid "TOTAL"
 msgstr ""
 
@@ -1776,25 +1833,25 @@ msgid "Virtual Routers"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/datatable/search.hbs:32
-#: ../app/tabs/vms-tab/panels/info/html.hbs:88
+#: ../app/tabs/vms-tab/panels/info/html.hbs:96
 msgid "Virtual Router"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab.js:49
-#: ../app/tabs/oneflow-services-tab.js:53
-#: ../app/tabs/provision-tab/flows/list.js:60
+#: ../app/tabs/oneflow-services-tab.js:50
+#: ../app/tabs/oneflow-services-tab.js:54
+#: ../app/tabs/provision-tab/flows/list.js:56
 #: ../app/tabs/oneflow-templates-tab.js:48
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab.js:54
+#: ../app/tabs/oneflow-services-tab.js:55
 #: ../app/tabs/vms-tab/datatable/search.hbs:33
 msgid "Service"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab.js:59
-#: ../app/tabs/provision-tab/flows/list.js:114
+#: ../app/tabs/oneflow-services-tab.js:60
+#: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:58
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
 msgid "Cannot connect to OneFlow server"
@@ -1852,11 +1909,11 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:76
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:104
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:362
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:353
 msgid "Security Groups"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:483
+#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:485
 #: ../app/tabs/vnets-tab/panels/secgroups/html.hbs:22
 msgid "Security Group"
 msgstr ""
@@ -1882,28 +1939,28 @@ msgid "Create File"
 msgstr ""
 
 #: ../app/tabs/files-tab/form-panels/create-common.js:320
-#: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image.js:334
+#: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image.js:329
 msgid "Uploading..."
 msgstr ""
 
 #: ../app/tabs/files-tab/form-panels/create-common.js:382
 #: ../app/tabs/files-tab/form-panels/create-common.js:515
-#: ../app/tabs/images-tab/form-panels/create-common.js:221
-#: ../app/tabs/images-tab/form-panels/create-common.js:405
+#: ../app/tabs/images-tab/form-panels/create-common.js:222
+#: ../app/tabs/images-tab/form-panels/create-common.js:406
 msgid "Please select a datastore for this image"
 msgstr ""
 
 #: ../app/tabs/files-tab/form-panels/create-common.js:472
-#: ../app/tabs/images-tab/form-panels/create-common.js:317
+#: ../app/tabs/images-tab/form-panels/create-common.js:318
 msgid "Please select a file to upload"
 msgstr ""
 
 #: ../app/tabs/files-tab/form-panels/create-common.js:480
-#: ../app/tabs/images-tab/form-panels/create-common.js:323
+#: ../app/tabs/images-tab/form-panels/create-common.js:324
 msgid "Registering in OpenNebula"
 msgstr ""
 
-#: ../app/tabs/files-tab/actions.js:30
+#: ../app/tabs/files-tab/actions.js:28
 msgid "File created"
 msgstr ""
 
@@ -1918,13 +1975,13 @@ msgstr "Sablonok"
 
 #: ../app/tabs/provision-tab/templates/list.js:99
 #: ../app/tabs/provision-tab/templates/list.js:148
-#: ../app/tabs/provision-tab.js:692 ../app/tabs/provision-tab.js:851
-#: ../app/tabs/provision-tab.js:1393
+#: ../app/tabs/provision-tab.js:701 ../app/tabs/provision-tab.js:860
+#: ../app/tabs/provision-tab.js:1401
 msgid "There are no templates available"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:115
-#: ../app/tabs/provision-tab.js:706
+#: ../app/tabs/provision-tab.js:715
 msgid "No labels defined"
 msgstr ""
 
@@ -1933,7 +1990,7 @@ msgid "Create a template by saving a running Virtual Machine"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:165
-#: ../app/tabs/templates-tab/buttons.js:83
+#: ../app/tabs/templates-tab/buttons.js:82
 msgid "Unshare"
 msgstr ""
 
@@ -1942,13 +1999,13 @@ msgid "SHARED"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:168
-#: ../app/tabs/templates-tab/buttons.js:77
+#: ../app/tabs/templates-tab/buttons.js:76
 msgid "Share"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:254
-#: ../app/tabs/provision-tab/vms/list.js:249
-#: ../app/tabs/provision-tab/flows/list.js:246
+#: ../app/tabs/provision-tab/vms/list.js:244
+#: ../app/tabs/provision-tab/flows/list.js:241
 #: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "ALL"
 msgstr ""
@@ -1967,7 +2024,9 @@ msgid "The template"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:327
-msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
+msgid ""
+"and the image associated will be shared and all the users will be able to "
+"instantiate new VMs using this template."
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:331
@@ -1975,14 +2034,16 @@ msgid "Share template"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:375
-msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
+msgid ""
+"and the image associated will be unshared and the users will not be able to "
+"instantiate new VMs using this template."
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:379
 msgid "Unshare template"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:77
+#: ../app/tabs/provision-tab/vms/list.js:72
 #: ../app/tabs/acls-tab/datatable.js:150
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:20
 #: ../app/tabs/dashboard-tab/vms.hbs:21
@@ -1991,117 +2052,121 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr "Virtuális Gépek"
 
-#: ../app/tabs/provision-tab/vms/list.js:98
-#: ../app/tabs/provision-tab/vms/list.js:163
+#: ../app/tabs/provision-tab/vms/list.js:93
+#: ../app/tabs/provision-tab/vms/list.js:158
 msgid "There are no Virtual Machines"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:422
-#: ../app/tabs/datastores-tab/panels/info.js:87
-#: ../app/tabs/vms-tab/panels/info.js:112
-#: ../app/tabs/hosts-tab/panels/info.js:120
-#: ../app/tabs/vnets-tab/panels/info.js:104
-#: ../app/tabs/vnets-templates-tab/panels/info.js:105
+#: ../app/tabs/provision-tab/vms/list.js:459
+#: ../app/tabs/datastores-tab/panels/info.js:76
+#: ../app/tabs/vms-tab/panels/info.js:104
+#: ../app/tabs/hosts-tab/panels/info.js:99
+#: ../app/tabs/vnets-tab/panels/info.js:79
+#: ../app/tabs/vnets-templates-tab/panels/info.js:77
 msgid "vCenter information"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:425
+#: ../app/tabs/provision-tab/vms/list.js:462
 msgid "GUEST STATE"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:427
+#: ../app/tabs/provision-tab/vms/list.js:464
 msgid "VMWARETOOLS RUNNING STATUS"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:431
+#: ../app/tabs/provision-tab/vms/list.js:468
 msgid "VMWARETOOLS VERSION"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:433
+#: ../app/tabs/provision-tab/vms/list.js:470
 msgid "VMWARETOOLS VERSION STATUS"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:545
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:436
+#: ../app/tabs/provision-tab/vms/list.js:580
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:435
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/templates-tab.js:52
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:29
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:53
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:59
 msgid "VM Template"
 msgstr "VM Sablon"
 
-#: ../app/tabs/provision-tab/vms/list.js:545
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:436
+#: ../app/tabs/provision-tab/vms/list.js:580
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:435
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:553
-msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
+#: ../app/tabs/provision-tab/vms/list.js:588
+msgid ""
+"VM cloning in the background. The Template will appear as soon as it is "
+"ready, and the VM unlocked."
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:926
+#: ../app/tabs/provision-tab/vms/list.js:961
 msgid "SAVING IMAGE"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:959
+#: ../app/tabs/provision-tab/vms/list.js:994
 msgid "POWERING OFF"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:982
+#: ../app/tabs/provision-tab/vms/list.js:1017
 msgid "UNDEPLOYED"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:99
-#: ../app/tabs/provision-tab/flows/list.js:158
+#: ../app/tabs/provision-tab/flows/list.js:95
+#: ../app/tabs/provision-tab/flows/list.js:154
 msgid "There are no Services"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:461
+#: ../app/tabs/provision-tab/flows/list.js:454
 msgid "Change Cardinality"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:464 ../app/tabs/provision-tab.js:118
+#: ../app/tabs/provision-tab/flows/list.js:457
+#: ../app/tabs/provision-tab.js:121
 msgid "The cardinality for this role cannot be changed"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:469
-#: ../app/tabs/provision-tab/flows/list.js:536
-#: ../app/tabs/provision-tab/flows/list.js:557
+#: ../app/tabs/provision-tab/flows/list.js:462
+#: ../app/tabs/provision-tab/flows/list.js:529
+#: ../app/tabs/provision-tab/flows/list.js:550
 msgid "Dismiss Alert"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:480 ../app/tabs/provision-tab.js:140
+#: ../app/tabs/provision-tab/flows/list.js:473
+#: ../app/tabs/provision-tab.js:143
 msgid "Number of VMs for Role"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:527
+#: ../app/tabs/provision-tab/flows/list.js:520
 msgid "Be careful, this action will immediately destroy your Service"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:529
-#: ../app/tabs/provision-tab/flows/list.js:550
+#: ../app/tabs/provision-tab/flows/list.js:522
+#: ../app/tabs/provision-tab/flows/list.js:543
 msgid "All the information will be lost!"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:548
+#: ../app/tabs/provision-tab/flows/list.js:541
 msgid "Be careful, this action will immediately shutdown your Service"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:554
+#: ../app/tabs/provision-tab/flows/list.js:547
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
 msgstr "Lekapcsolás"
 
-#: ../app/tabs/provision-tab/flows/list.js:668
+#: ../app/tabs/provision-tab/flows/list.js:660
 msgid "FAILED UNDEPLOYING"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:672
+#: ../app/tabs/provision-tab/flows/list.js:664
 msgid "FAILED DEPLOYING"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:676
+#: ../app/tabs/provision-tab/flows/list.js:668
 msgid "FAILED SCALING"
 msgstr ""
 
@@ -2117,7 +2182,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/datastores-tab/datatable.js:87
-#: ../app/tabs/vms-tab/panels/capacity.js:56 ../app/tabs/provision-tab.js:174
+#: ../app/tabs/vms-tab/panels/capacity.js:54 ../app/tabs/provision-tab.js:178
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:37
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:47
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:105
@@ -2135,8 +2200,8 @@ msgid "Driver"
 msgstr "Meghajtó"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:91
-#: ../app/tabs/marketplaceapps-tab/datatable.js:97 ../app/tabs/zones-tab.js:45
-#: ../app/tabs/acls-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:101
+#: ../app/tabs/zones-tab.js:45 ../app/tabs/acls-tab/datatable.js:70
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
@@ -2159,24 +2224,41 @@ msgstr ""
 msgid "You selected the following marketplaces:"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/buttons.js:33
-#: ../app/tabs/marketplaces-tab/form-panels/create.js:161
+#: ../app/tabs/marketplaces-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:66
+#: ../app/tabs/marketplaceapps-tab/buttons.js:60
+#: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/images-tab/buttons.js:60
+#: ../app/tabs/users-tab/buttons.js:39
+#: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:92
+msgid "Enable"
+msgstr "Engedélyez"
+
+#: ../app/tabs/marketplaces-tab/buttons.js:37
+#: ../app/tabs/datastores-tab/buttons.js:71
+#: ../app/tabs/marketplaceapps-tab/buttons.js:65
+#: ../app/tabs/hosts-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:65
+#: ../app/tabs/users-tab/buttons.js:44
+msgid "Disable"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/buttons.js:43
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:174
 #: ../app/tabs/clusters-tab/buttons.js:33
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/groups-tab/buttons.js:33
-#: ../app/tabs/groups-tab/form-panels/create.js:59
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:59
+#: ../app/tabs/groups-tab/form-panels/create.js:58
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 #: ../app/tabs/vnets-tab/buttons.js:53
 #: ../app/tabs/vnets-tab/form-panels/create.js:70
 #: ../app/tabs/oneflow-templates-tab/buttons.js:40
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:66
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:61
 #: ../app/tabs/vdcs-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/oneflow-services-tab/buttons.js:28
-#: ../app/tabs/oneflow-services-tab/form-panels/update.js:48
-#: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:56
-#: ../app/tabs/templates-tab/buttons.js:48
-#: ../app/tabs/templates-tab/form-panels/create-common.js:85
+#: ../app/tabs/oneflow-services-tab/form-panels/update.js:47
+#: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:54
+#: ../app/tabs/templates-tab/buttons.js:47
+#: ../app/tabs/templates-tab/form-panels/create-common.js:87
 #: ../app/tabs/secgroups-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/form-panels/create.js:61
 #: ../app/tabs/vnets-templates-tab/buttons.js:34
@@ -2214,7 +2296,8 @@ msgid "Storage bridge list"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:64
-msgid "Comma separated list of servers to access the image directory if not local"
+msgid ""
+"Comma separated list of servers to access the image directory if not local"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:69
@@ -2246,7 +2329,9 @@ msgid "Signature Version"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:96
-msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
+msgid ""
+"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
+"be 's3'."
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:107
@@ -2254,7 +2339,9 @@ msgid "Force Path Style"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:108
-msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."
+msgid ""
+"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
+"be 'YES'."
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:113
@@ -2262,7 +2349,9 @@ msgid "Read block length in MB"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:114
-msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
+msgid ""
+"Split marketapps into chunks of this size (in MB). You should **never** user"
+" a quantity larger than 100. Defaults to 32 (MB)."
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:125
@@ -2281,12 +2370,33 @@ msgstr ""
 msgid "Show only auto-contextualized apps"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/form-panels/create.js:155
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:146
+msgid "DockerHub marketplace url"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:151
+msgid "SSL"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:154
+msgid "SSL connection"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:168
 msgid "Create MarketPlace"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/form-panels/create.js:160
+#: ../app/tabs/marketplaces-tab/form-panels/create.js:173
 msgid "Update MarketPlace"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/panels/info.js:46
+#: ../app/tabs/users-tab/datatable.js:74
+msgid "Enabled"
+msgstr ""
+
+#: ../app/tabs/marketplaces-tab/panels/info.js:47
+msgid "Disabled"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
@@ -2309,7 +2419,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:93
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
-#: ../app/tabs/hosts-tab/datatable.js:82
+#: ../app/tabs/hosts-tab/datatable.js:86
 #: ../app/tabs/images-tab/datatable-common.js:83
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:68
 #: ../app/tabs/datastores-tab/datatable/search.hbs:22
@@ -2338,11 +2448,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/buttons.js:34
 #: ../app/tabs/datastores-tab/form-panels/import.js:54
-#: ../app/tabs/images-tab/buttons.js:39
+#: ../app/tabs/images-tab/buttons.js:38
 #: ../app/tabs/images-tab/form-panels/import.js:55
 #: ../app/tabs/vnets-tab/buttons.js:36
 #: ../app/tabs/vnets-tab/form-panels/import.js:54
-#: ../app/tabs/templates-tab/buttons.js:35
+#: ../app/tabs/templates-tab/buttons.js:34
 #: ../app/tabs/templates-tab/form-panels/import.js:54
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:23
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:200
@@ -2352,25 +2462,11 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: ../app/tabs/datastores-tab/buttons.js:42 ../app/tabs/hosts-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:42
+#: ../app/tabs/hosts-tab/buttons.js:32
 #: ../app/tabs/vnets-templates-tab/buttons.js:44
 msgid "Select cluster"
 msgstr "Válasszon fürtöt"
-
-#: ../app/tabs/datastores-tab/buttons.js:66
-#: ../app/tabs/marketplaceapps-tab/buttons.js:60
-#: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/images-tab/buttons.js:61
-#: ../app/tabs/users-tab/buttons.js:39
-#: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:92
-msgid "Enable"
-msgstr "Engedélyez"
-
-#: ../app/tabs/datastores-tab/buttons.js:71
-#: ../app/tabs/marketplaceapps-tab/buttons.js:65
-#: ../app/tabs/hosts-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:66
-#: ../app/tabs/users-tab/buttons.js:44
-msgid "Disable"
-msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:53
 msgid "Import vCenter Datastores"
@@ -2466,7 +2562,7 @@ msgid "Config"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config.js:101
-#: ../app/tabs/users-tab/panels/auth-common.js:101
+#: ../app/tabs/users-tab/panels/auth-common.js:84
 #: ../app/tabs/users-tab/panels/auth/html.hbs:41
 msgid "Manage two factor authentication"
 msgstr ""
@@ -2521,20 +2617,24 @@ msgstr ""
 msgid "Quotas"
 msgstr ""
 
-#: ../app/tabs/groups-tab/form-panels/create.js:53
+#: ../app/tabs/groups-tab/form-panels/create.js:52
 msgid "Create Group"
 msgstr ""
 
-#: ../app/tabs/groups-tab/form-panels/create.js:58
+#: ../app/tabs/groups-tab/form-panels/create.js:57
 msgid "Update Group"
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:23
-msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
+msgid ""
+"Exposes a complete view of the cloud, allowing administrators and advanced "
+"users full control of any physical or virtual resource."
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:27
-msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
+msgid ""
+"Simplified version of the cloud allowing group admins and cloud end-users to"
+" manage any virtual resource."
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:39
@@ -2542,15 +2642,21 @@ msgid "Full control of the cloud, including virtual and physical resources."
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:45
-msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
+msgid ""
+"Users are not able to manage hosts and clusters, although they will be able "
+"to create new Images or Virtual Machines."
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:51
-msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
+msgid ""
+"Control of all the resources belonging to a group, with the ability to "
+"create new users within the group."
 msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:57
-msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
+msgid ""
+"Simplified view mainly where users can provision new Virtual Machines easily"
+" from pre-defined Templates."
 msgstr ""
 
 #: ../app/tabs/groups-tab/panels/accounting.js:39
@@ -2558,7 +2664,7 @@ msgstr ""
 msgid "Accounting"
 msgstr ""
 
-#: ../app/tabs/groups-tab/panels/info.js:149
+#: ../app/tabs/groups-tab/panels/info.js:128
 msgid "default"
 msgstr ""
 
@@ -2566,13 +2672,14 @@ msgstr ""
 msgid "Group created"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:91
+#: ../app/tabs/marketplaceapps-tab/datatable.js:95
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:93
+#: ../app/tabs/marketplaceapps-tab/datatable.js:97
 #: ../app/tabs/oneflow-services-tab/datatable.js:74
+#: ../app/tabs/marketplaces-tab/panels/info/html.hbs:41
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:22
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
@@ -2581,32 +2688,32 @@ msgstr ""
 #: ../app/tabs/images-tab/panels/info/html.hbs:74
 #: ../app/tabs/oneflow-services-tab/datatable/search.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:47
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:56
 msgid "State"
 msgstr "Állapot"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:95
+#: ../app/tabs/marketplaceapps-tab/datatable.js:99
 msgid "Registration Time"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:96
+#: ../app/tabs/marketplaceapps-tab/datatable.js:100
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:106
+#: ../app/tabs/marketplaceapps-tab/datatable.js:110
 msgid "Please select an appliance from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:107
+#: ../app/tabs/marketplaceapps-tab/datatable.js:111
 msgid "You selected the following appliance:"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:108
+#: ../app/tabs/marketplaceapps-tab/datatable.js:112
 msgid "Please select one or more appliances from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:109
+#: ../app/tabs/marketplaceapps-tab/datatable.js:113
 msgid "You selected the following appliances:"
 msgstr ""
 
@@ -2630,37 +2737,39 @@ msgstr ""
 msgid "You selected the following dockerhub tags:"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/export.js:75
+#: ../app/tabs/marketplaceapps-tab/form-panels/export.js:89
 msgid "Download App To OpenNebula"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/export.js:76
+#: ../app/tabs/marketplaceapps-tab/form-panels/export.js:90
 msgid "Download"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:60
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:59
 msgid "Create MarketPlace App"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:65
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:64
 msgid "Create MarketPlace App from Image"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:70
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:69
 msgid "Create MarketPlace App from VM Template"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:75
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:74
 msgid "Create MarketPlace App from Service"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:80
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:79
 msgid "Create MarketPlace App from VM"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:429
-#: ../app/tabs/vms-tab/actions.js:463
-msgid "Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates."
+#: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
+#: ../app/tabs/vms-tab/actions.js:458
+msgid ""
+"Import error: Can't import vCenter VMs to a marketplace, only vCenter VM "
+"templates."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
@@ -2673,20 +2782,19 @@ msgid "Image created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:95
-#: ../app/tabs/templates-tab/actions-common.js:38
-#: ../app/tabs/templates-tab/actions-common.js:216
-#: ../app/tabs/templates-tab/actions-common.js:228
+#: ../app/tabs/templates-tab/actions-common.js:40
+#: ../app/tabs/templates-tab/actions-common.js:233
+#: ../app/tabs/templates-tab/actions-common.js:246
 msgid "VM Template created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:107
-#: ../app/tabs/oneflow-templates-tab/actions.js:36
+#: ../app/tabs/oneflow-templates-tab/actions.js:37
 msgid "Service Template created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:184
 #: ../app/tabs/images-tab/actions.js:98
-#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:190
 msgid "Error"
 msgstr "Hiba"
 
@@ -2695,7 +2803,9 @@ msgid "This MarketPlace App resides in Zone "
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:189
-msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
+msgid ""
+". To delete it you need to switch to that Zone from the zone selector in the"
+" top-right corner."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:192
@@ -2715,19 +2825,19 @@ msgstr ""
 msgid "Network Topology"
 msgstr ""
 
-#: ../app/tabs/vms-tab/datatable.js:80
+#: ../app/tabs/vms-tab/datatable.js:79
 msgid "Please select a VM from the list"
 msgstr ""
 
-#: ../app/tabs/vms-tab/datatable.js:81
+#: ../app/tabs/vms-tab/datatable.js:80
 msgid "You selected the following VM:"
 msgstr ""
 
-#: ../app/tabs/vms-tab/datatable.js:82
+#: ../app/tabs/vms-tab/datatable.js:81
 msgid "Please select one or more VMs from the list"
 msgstr ""
 
-#: ../app/tabs/vms-tab/datatable.js:83
+#: ../app/tabs/vms-tab/datatable.js:82
 msgid "You selected the following VMs:"
 msgstr ""
 
@@ -2736,20 +2846,20 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:127
 #: ../app/utils/showback/html.hbs:63 ../app/utils/showback/html.hbs:90
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:41
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:129
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:143
 msgid "Cost"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/migrate.js:97
+#: ../app/tabs/vms-tab/dialogs/migrate.js:102
 #: ../app/tabs/vms-tab/dialogs/deploy.js:93
 msgid "You have not selected a host"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/migrate.js:169
+#: ../app/tabs/vms-tab/dialogs/migrate.js:174
 msgid "is currently running on Host"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/migrate.js:173
+#: ../app/tabs/vms-tab/dialogs/migrate.js:178
 msgid "and Datastore"
 msgstr ""
 
@@ -2808,7 +2918,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:47
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:53
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:18
-#: ../app/tabs/provision-tab/vms/info.hbs:90
+#: ../app/tabs/provision-tab/vms/info.hbs:137
 msgid "Reboot"
 msgstr ""
 
@@ -2839,7 +2949,7 @@ msgid "This will remove information from non-persistent hard disks"
 msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:170
-#: ../app/tabs/vms-tab/panels/info/html.hbs:83
+#: ../app/tabs/vms-tab/panels/info/html.hbs:91
 msgid "Reschedule"
 msgstr ""
 
@@ -2879,49 +2989,60 @@ msgid "delete-db"
 msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:192
-msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
+msgid ""
+"Recovers a stuck VM that is waiting for a driver operation."
+"                     The recovery may be done by failing, succeeding or "
+"retrying the current operation.                     YOU NEED TO MANUALLY "
+"CHECK THE VM STATUS ON THE HOST, to decide if the operation"
+"                     was successful or not, or if it can be retried."
+"                    <br/>                    <br/>Delete: This will delete "
+"the selected VMs                    <br/>Delete-recreate: This will delete "
+"and recreate VMs to PENDING state                    <br/>Delete-db: This "
+"will delete the selected VMs, but will not perform any action on the "
+"hypervisor"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:204
+#: ../app/tabs/vms-tab/buttons.js:205 ../app/tabs/vms-tab/buttons.js:229
 msgid "VNC"
 msgstr "VNC"
 
-#: ../app/tabs/vms-tab/buttons.js:210
+#: ../app/tabs/vms-tab/buttons.js:211
 msgid "VMRC"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:216
-#: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
+#: ../app/tabs/vms-tab/buttons.js:217
 msgid "SPICE"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:222
-msgid "VIRT-VIEWER FILE"
+#: ../app/tabs/vms-tab/buttons.js:223
+msgid "Virt Viewer"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:228
-msgid "GUAC VNC"
+#: ../app/tabs/vms-tab/buttons.js:235
+#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
+msgid "SSH"
+msgstr "SSH"
+
+#: ../app/tabs/vms-tab/buttons.js:241
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:28
+msgid "RDP"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:234
-msgid "GUAC SSH"
+#: ../app/tabs/vms-tab/buttons.js:247
+msgid "RDP Client"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:240
-msgid "GUAC RDP"
-msgstr ""
-
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:57
 msgid "Update VM Configuration"
 msgstr ""
 
-#: ../app/tabs/vms-tab/form-panels/create.js:47
+#: ../app/tabs/vms-tab/form-panels/create.js:46
 #: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "Új Virtuális Gép"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:39
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:266
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:272
 msgid "IPs"
 msgstr "IP-k"
 
@@ -2937,38 +3058,38 @@ msgstr ""
 msgid "Charter"
 msgstr ""
 
-#: ../app/tabs/vms-tab/utils/datatable-common.js:126
-#: ../app/tabs/oneflow-services-tab/datatable.js:128
+#: ../app/tabs/vms-tab/utils/datatable-common.js:133
+#: ../app/tabs/oneflow-services-tab/datatable.js:127
 msgid "will run in"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:74 ../app/tabs/storage-top-tab.js:23
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:56
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:54
 msgid "Storage"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:112
-#: ../app/tabs/vms-tab/panels/storage.js:787
+#: ../app/tabs/vms-tab/panels/storage.js:783
 msgid "Disk read bytes"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:128
-#: ../app/tabs/vms-tab/panels/storage.js:795
+#: ../app/tabs/vms-tab/panels/storage.js:791
 msgid "Disk write bytes"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:144
-#: ../app/tabs/vms-tab/panels/storage.js:803
+#: ../app/tabs/vms-tab/panels/storage.js:799
 msgid "Disk read IOPS"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:160
-#: ../app/tabs/vms-tab/panels/storage.js:812
+#: ../app/tabs/vms-tab/panels/storage.js:808
 msgid "Disk write IOPS"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:255
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:57
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:58
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:38
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker/html.hbs:14
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:44
@@ -2981,15 +3102,15 @@ msgid "Save as in progress"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:301
-#: ../app/tabs/vms-tab/panels/network.js:316
+#: ../app/tabs/vms-tab/panels/network.js:315
 msgid "attach/detach in progress"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:390
-#: ../app/tabs/vnets-tab/panels/info.js:131
-#: ../app/tabs/vnets-tab/panels/info.js:135
-#: ../app/tabs/vnets-templates-tab/panels/info.js:114
-#: ../app/tabs/vnets-templates-tab/panels/info.js:118
+#: ../app/tabs/vnets-tab/panels/info.js:102
+#: ../app/tabs/vnets-tab/panels/info.js:103
+#: ../app/tabs/vnets-templates-tab/panels/info.js:79
+#: ../app/tabs/vnets-templates-tab/panels/info.js:80
 #: ../app/utils/user-inputs/row.hbs:50
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:159
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:175
@@ -2999,10 +3120,10 @@ msgid "YES"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:390
-#: ../app/tabs/vnets-tab/panels/info.js:127
-#: ../app/tabs/vnets-tab/panels/info.js:128
-#: ../app/tabs/vnets-templates-tab/panels/info.js:110
-#: ../app/tabs/vnets-templates-tab/panels/info.js:111
+#: ../app/tabs/vnets-tab/panels/info.js:102
+#: ../app/tabs/vnets-tab/panels/info.js:103
+#: ../app/tabs/vnets-templates-tab/panels/info.js:79
+#: ../app/tabs/vnets-templates-tab/panels/info.js:80
 #: ../app/utils/user-inputs/row.hbs:51
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:160
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:176
@@ -3011,20 +3132,20 @@ msgstr ""
 msgid "NO"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:494
+#: ../app/tabs/vms-tab/panels/storage.js:492
 msgid "This will detach the disk immediately"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:628
+#: ../app/tabs/vms-tab/panels/storage.js:626
 msgid "This will delete the disk snapshot "
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:741
+#: ../app/tabs/vms-tab/panels/storage.js:737
 #: ../app/tabs/images-tab/panels/snapshots.js:202
 msgid "Active"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:98
+#: ../app/tabs/vms-tab/panels/network.js:97
 #: ../app/tabs/vms-tab/panels/info/html.hbs:67
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:37
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:69
@@ -3033,94 +3154,94 @@ msgstr ""
 msgid "IP"
 msgstr "IP"
 
-#: ../app/tabs/vms-tab/panels/network.js:100
+#: ../app/tabs/vms-tab/panels/network.js:99
 msgid "PCI address"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:101
+#: ../app/tabs/vms-tab/panels/network.js:100
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 ULA"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:102
+#: ../app/tabs/vms-tab/panels/network.js:101
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:42
 msgid "IPv6 Global"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:103
+#: ../app/tabs/vms-tab/panels/network.js:102
 #: ../app/tabs/vms-tab/panels/snapshots.js:77
-#: ../app/tabs/vms-tab/panels/actions.js:46
-#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:50
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/actions.js:54
+#: ../app/tabs/vms-tab/panels/actions.js:41
+#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:54
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/actions.js:53
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:49
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:29
 msgid "Actions"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:109
+#: ../app/tabs/vms-tab/panels/network.js:108
 msgid "Attach nic"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:135
+#: ../app/tabs/vms-tab/panels/network.js:134
 msgid "Network Monitoring Attributes"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:159
+#: ../app/tabs/vms-tab/panels/network.js:158
 msgid "NET RX"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:175
+#: ../app/tabs/vms-tab/panels/network.js:174
 msgid "NET TX"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:191
+#: ../app/tabs/vms-tab/panels/network.js:190
 msgid "NET DOWNLOAD SPEED"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:207
+#: ../app/tabs/vms-tab/panels/network.js:206
 msgid "NET UPLOAD SPEED"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:246
+#: ../app/tabs/vms-tab/panels/network.js:245
 msgid " (VRouter)"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:484
+#: ../app/tabs/vms-tab/panels/network.js:486
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:145
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:486
+#: ../app/tabs/vms-tab/panels/network.js:488
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 msgid "Range"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:488
+#: ../app/tabs/vms-tab/panels/network.js:490
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:57
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:149
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:563
+#: ../app/tabs/vms-tab/panels/network.js:566
 msgid "This will detach the alias immediately"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:590
+#: ../app/tabs/vms-tab/panels/network.js:593
 msgid "Network reception"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:597
+#: ../app/tabs/vms-tab/panels/network.js:600
 msgid "Network transmission"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:604
+#: ../app/tabs/vms-tab/panels/network.js:607
 msgid "Network reception speed"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:613
+#: ../app/tabs/vms-tab/panels/network.js:616
 msgid "Network transmission speed"
 msgstr ""
 
@@ -3137,11 +3258,11 @@ msgstr ""
 msgid "Some ad-block extensions are known to filter the '/log?id=' URL"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/capacity.js:188
+#: ../app/tabs/vms-tab/panels/capacity.js:186
 msgid "CPU usage"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/info.js:90
+#: ../app/tabs/vms-tab/panels/info.js:96
 #: ../app/tabs/images-tab/panels/info-common.js:66
 #: ../app/tabs/images-tab/panels/info-common.js:145
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:54
@@ -3154,7 +3275,7 @@ msgstr ""
 msgid "yes"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/info.js:90
+#: ../app/tabs/vms-tab/panels/info.js:96
 #: ../app/tabs/images-tab/panels/info-common.js:66
 #: ../app/tabs/images-tab/panels/info-common.js:146
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:56
@@ -3165,6 +3286,14 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:58
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:207
 msgid "no"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/info.js:125
+msgid "Driver Error"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/info.js:142
+msgid "Scheduled Action Error"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:47
@@ -3198,45 +3327,6 @@ msgstr ""
 msgid "Revert"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/actions.js:72
-#: ../app/tabs/vms-tab/panels/placement.js:70
-#: ../app/utils/schedule_action/table.hbs:27
-msgid "Action"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:73
-#: ../app/utils/schedule_action/html.hbs:37
-#: ../app/utils/schedule_action/table.hbs:28
-msgid "Time"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:74
-#: ../app/utils/schedule_action/table.hbs:29
-msgid "Rep"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:75
-#: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:62
-msgid "End"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:76
-msgid "Done"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:77
-msgid "Message"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:79
-#: ../app/utils/schedule_action/table.hbs:33
-msgid "Add action"
-msgstr ""
-
-#: ../app/tabs/vms-tab/panels/actions.js:196
-msgid "No actions to show"
-msgstr ""
-
 #: ../app/tabs/vms-tab/panels/placement.js:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:20
 msgid "Placement"
@@ -3244,6 +3334,11 @@ msgstr "Elhelyezés"
 
 #: ../app/tabs/vms-tab/panels/placement.js:67
 msgid "#"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/placement.js:70
+#: ../app/utils/schedule_action/table.hbs:28
+msgid "Action"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
@@ -3307,21 +3402,17 @@ msgstr ""
 msgid "Conf"
 msgstr ""
 
-#: ../app/tabs/vms-tab/actions.js:46
-#: ../app/tabs/templates-tab/actions-common.js:145
-#: ../app/tabs/templates-tab/actions-common.js:190
+#: ../app/tabs/vms-tab/actions.js:40
+#: ../app/tabs/templates-tab/actions-common.js:157
+#: ../app/tabs/templates-tab/actions-common.js:205
 msgid "VM created"
 msgstr ""
 
-#: ../app/tabs/vms-tab/actions.js:231
+#: ../app/tabs/vms-tab/actions.js:219
 msgid "Data for rdp file isn't correct"
 msgstr ""
 
-#: ../app/tabs/vms-tab/actions.js:304
-msgid "VMRC Connection in progress"
-msgstr ""
-
-#: ../app/tabs/vms-tab/actions.js:434
+#: ../app/tabs/vms-tab/actions.js:428
 msgid "Please select one (and just one) VM to export."
 msgstr ""
 
@@ -3335,52 +3426,53 @@ msgstr ""
 msgid "Groups"
 msgstr "Csoportok"
 
-#: ../app/tabs/hosts-tab/datatable.js:79
+#: ../app/tabs/hosts-tab/datatable.js:83
 msgid "RVMs"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:80 ../app/tabs/hosts-tab/datatable.js:229
+#: ../app/tabs/hosts-tab/datatable.js:84
+#: ../app/tabs/hosts-tab/datatable.js:233
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:81
+#: ../app/tabs/hosts-tab/datatable.js:85
 msgid "Allocated MEM"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:83
+#: ../app/tabs/hosts-tab/datatable.js:87
 #: ../app/tabs/hosts-tab/datatable/search.hbs:22
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:38
 msgid "IM MAD"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:84
+#: ../app/tabs/hosts-tab/datatable.js:88
 #: ../app/tabs/hosts-tab/datatable/search.hbs:28
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:43
 msgid "VM MAD"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:92
+#: ../app/tabs/hosts-tab/datatable.js:96
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:75
 msgid "Please select a Host from the list"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:93
+#: ../app/tabs/hosts-tab/datatable.js:97
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:76
 msgid "You selected the following Host:"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:94
+#: ../app/tabs/hosts-tab/datatable.js:98
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:77
 msgid "Please select one or more hosts from the list"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:95
+#: ../app/tabs/hosts-tab/datatable.js:99
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:78
 msgid "You selected the following hosts:"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/datatable.js:252
+#: ../app/tabs/hosts-tab/datatable.js:256
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
 msgid "Allocated Memory"
 msgstr ""
@@ -3449,15 +3541,15 @@ msgstr ""
 msgid "NSX information valid"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/numa.js:48
+#: ../app/tabs/hosts-tab/panels/numa.js:49
 msgid "Numa"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/info.js:240
+#: ../app/tabs/hosts-tab/panels/info.js:236
 msgid "it must not be a negative number"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/pool.js:36
+#: ../app/tabs/hosts-tab/panels/pool.js:42
 msgid "POOL"
 msgstr ""
 
@@ -3559,7 +3651,7 @@ msgid "Virtual Networks"
 msgstr "Virtuális Hálózatok"
 
 #: ../app/tabs/acls-tab/datatable.js:159 ../app/tabs/templates-tab.js:51
-#: ../app/utils/tab-datatable/search-input.hbs:21
+#: ../app/utils/tab-datatable/search-input.hbs:22
 msgid "VM Templates"
 msgstr "VM Sablon"
 
@@ -3610,16 +3702,16 @@ msgstr ""
 msgid "ACL Rule created"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:107
+#: ../app/tabs/provision-tab.js:110
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:22
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sche-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-row.hbs:22
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:52
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:58
 msgid "Cardinality"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:110 ../app/tabs/provision-tab.js:177
+#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:181
 #: ../app/utils/disks-resize/html.hbs:22
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
@@ -3627,13 +3719,13 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:38
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:132
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:146
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "COST"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:110 ../app/tabs/provision-tab.js:177
+#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:181
 #: ../app/utils/disks-resize/html.hbs:22
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
@@ -3643,53 +3735,53 @@ msgstr ""
 msgid "HOUR"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:813 ../app/tabs/provision-tab.js:1030
+#: ../app/tabs/provision-tab.js:822 ../app/tabs/provision-tab.js:1039
 #: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "mine"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:815 ../app/tabs/provision-tab.js:1032
+#: ../app/tabs/provision-tab.js:824 ../app/tabs/provision-tab.js:1041
 #: ../app/tabs/provision-tab/vms/create.hbs:75
 msgid "group"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:817 ../app/tabs/provision-tab.js:1034
+#: ../app/tabs/provision-tab.js:826 ../app/tabs/provision-tab.js:1043
 #: ../app/tabs/provision-tab/vms/create.hbs:76
 msgid "system"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:921
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:457
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:846
+#: ../app/tabs/provision-tab.js:930
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:513
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:788
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:35
 msgid "Image ID"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:923
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:459
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:848
+#: ../app/tabs/provision-tab.js:932
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:515
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:790
 msgid "Volatile"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:948
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:484
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:873
+#: ../app/tabs/provision-tab.js:957
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:540
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:815
 msgid "Network ID"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:950
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:486
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:875
+#: ../app/tabs/provision-tab.js:959
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:542
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:817
 msgid "Manual settings"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:959
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:495
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:884
+#: ../app/tabs/provision-tab.js:968
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:551
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:826
 msgid "Disks and NICs will appear here"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:1270 ../app/tabs/provision-tab.js:1561
+#: ../app/tabs/provision-tab.js:1279 ../app/tabs/provision-tab.js:1568
 msgid "You must select at least a template configuration"
 msgstr ""
 
@@ -3732,17 +3824,17 @@ msgstr ""
 msgid "Target"
 msgstr ""
 
-#: ../app/tabs/images-tab/buttons.js:71
+#: ../app/tabs/images-tab/buttons.js:70
 msgid "Make persistent"
 msgstr ""
 
-#: ../app/tabs/images-tab/buttons.js:76
+#: ../app/tabs/images-tab/buttons.js:75
 msgid "Make non persistent"
 msgstr ""
 
-#: ../app/tabs/images-tab/buttons.js:81
+#: ../app/tabs/images-tab/buttons.js:80
 #: ../app/tabs/oneflow-templates-tab/buttons.js:64
-#: ../app/tabs/templates-tab/buttons.js:72
+#: ../app/tabs/templates-tab/buttons.js:71
 #: ../app/tabs/secgroups-tab/buttons.js:52
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:45
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:40
@@ -3751,23 +3843,23 @@ msgstr ""
 msgid "Clone"
 msgstr "Klónozás"
 
-#: ../app/tabs/images-tab/form-panels/create-common.js:44
+#: ../app/tabs/images-tab/form-panels/create-common.js:45
 msgid "Create Image"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create-common.js:346
+#: ../app/tabs/images-tab/form-panels/create-common.js:347
 msgid "you don't have a valid uploader"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create-common.js:372
+#: ../app/tabs/images-tab/form-panels/create-common.js:373
 msgid "Please select a datastore"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create-common.js:378
+#: ../app/tabs/images-tab/form-panels/create-common.js:379
 msgid "Please insert a dockerfile template"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create-common.js:386
+#: ../app/tabs/images-tab/form-panels/create-common.js:387
 msgid "Please select a size"
 msgstr ""
 
@@ -3788,7 +3880,7 @@ msgid "This will delete the image snapshot "
 msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:77
-#: ../app/tabs/templates-tab/actions-common.js:244
+#: ../app/tabs/templates-tab/actions-common.js:264
 msgid "Please select one (and just one) Image to export."
 msgstr ""
 
@@ -3834,32 +3926,32 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:158
 #: ../app/tabs/users-tab/datatable.js:165
-#: ../app/tabs/users-tab/panels/info-common.js:82
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:179
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:190
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:203
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:214
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:227
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:238
+#: ../app/tabs/users-tab/panels/info-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:207
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:218
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:231
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:242
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:255
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:266
 msgid "Yes"
 msgstr "Igen"
 
 #: ../app/tabs/vnets-tab/datatable.js:158
 #: ../app/tabs/users-tab/datatable.js:165
-#: ../app/tabs/users-tab/panels/info-common.js:82
-#: ../app/tabs/users-tab/panels/auth-common.js:107
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:180
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:191
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:204
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:215
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:228
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:239
+#: ../app/tabs/users-tab/panels/info-common.js:78
+#: ../app/tabs/users-tab/panels/auth-common.js:90
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:208
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:219
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:232
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:243
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:256
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:267
 msgid "No"
 msgstr "Nem"
 
 #: ../app/tabs/vnets-tab/dialogs/update-ar.js:78
 #: ../app/tabs/vnets-tab/dialogs/add-ar.js:83
-#: ../app/tabs/vnets-tab/dialogs/add-secgroups.js:85
+#: ../app/tabs/vnets-tab/dialogs/add-secgroups.js:90
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-add-ar.js:84
 #: ../app/tabs/vnets-templates-tab/dialogs/update-ar.js:78
 #: ../app/tabs/vnets-templates-tab/dialogs/instantiate-update-ar.js:78
@@ -3880,6 +3972,10 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:115
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:46
 msgid "Start"
+msgstr ""
+
+#: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:62
+msgid "End"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:69
@@ -3907,7 +4003,7 @@ msgid "Update Virtual Network"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:326
-#: ../app/tabs/vnets-templates-tab/form-panels/create.js:314
+#: ../app/tabs/vnets-templates-tab/form-panels/create.js:316
 msgid "AR"
 msgstr ""
 
@@ -3947,12 +4043,12 @@ msgstr ""
 msgid "This will remove the security group"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/info.js:113
+#: ../app/tabs/vnets-tab/panels/info.js:86
 #: ../app/tabs/vnets-tab/datatable/search.hbs:28
 msgid "Reservation parent"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/info.js:120
+#: ../app/tabs/vnets-tab/panels/info.js:95
 msgid "This Network is already a reservation"
 msgstr ""
 
@@ -3963,25 +4059,25 @@ msgid "Addresses"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:181
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:305
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:308
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:187
 msgid "This will delete all the addresses in this range"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:239
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:363
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:366
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:261
 msgid "The Address Range was not found"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:313
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:406
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:409
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:337
 msgid "Global prefix"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:314
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:407
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:410
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:338
 msgid "ULA prefix"
 msgstr ""
@@ -3995,7 +4091,7 @@ msgid "Reservation parent AR"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:318
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:409
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:412
 #: ../app/tabs/vnets-templates-tab/panels/ar.js:340
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:86
 msgid "IPAM driver"
@@ -4017,17 +4113,18 @@ msgstr ""
 msgid "Virtual Network created"
 msgstr ""
 
-#: ../app/tabs/vms-tab.js:78
+#: ../app/tabs/vms-tab.js:73
 msgid "ACTIVE"
 msgstr ""
 
-#: ../app/tabs/vms-tab.js:81 ../app/tabs/dashboard-tab/vms.hbs:41
-#: ../app/tabs/dashboard-tab/hosts.hbs:44
+#: ../app/tabs/vms-tab.js:76 ../app/tabs/dashboard-tab/vms.hbs:45
+#: ../app/tabs/dashboard-tab/vms.hbs:46 ../app/tabs/dashboard-tab/hosts.hbs:48
+#: ../app/tabs/dashboard-tab/hosts.hbs:49
 msgid "FAILED"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab.js:52
-#: ../app/utils/tab-datatable/search-input.hbs:23
+#: ../app/utils/tab-datatable/search-input.hbs:24
 msgid "Service Templates"
 msgstr ""
 
@@ -4061,40 +4158,42 @@ msgstr ""
 msgid "This will delete the selected templates"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:62
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:64
 msgid "Instantiate Service Template"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:179
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:144
 msgid "Associate VM Group to Service"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:243
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:221
 #: ../app/tabs/vmgroup-tab/panels/vms.js:119
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:18
 msgid "Role"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:60
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:55
 msgid "Create Service Template"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:65
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:60
 msgid "Update Service Template"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:218
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:147
 msgid "Can only contain alphanumeric and underscore characters, and be unique"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:712
-#: ../app/tabs/oneflow-services-tab/form-panels/update.js:225
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:646
+#: ../app/tabs/oneflow-services-tab/form-panels/update.js:222
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:291
 msgid "Role "
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/actions.js:54
-msgid "This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."
+#: ../app/tabs/oneflow-templates-tab/actions.js:55
+msgid ""
+"This will delete the Service.<br/>You can also delete the template or the "
+"template and image referenced inside this Service."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
@@ -4105,12 +4204,12 @@ msgstr ""
 msgid "Delete VM Templates"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/actions.js:128
-#: ../app/tabs/oneflow-services-tab/actions.js:36
+#: ../app/tabs/oneflow-templates-tab/actions.js:127
+#: ../app/tabs/oneflow-services-tab/actions.js:38
 msgid "Service created"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/actions.js:175
+#: ../app/tabs/oneflow-templates-tab/actions.js:174
 msgid "Please select one (and just one) Service to export."
 msgstr ""
 
@@ -4118,7 +4217,8 @@ msgstr ""
 msgid "Virtual Network"
 msgstr "Virtuális Hálózat"
 
-#: ../app/tabs/vnets-tab.js:63 ../app/tabs/dashboard-tab/network.hbs:34
+#: ../app/tabs/vnets-tab.js:63 ../app/tabs/dashboard-tab/network.hbs:36
+#: ../app/tabs/dashboard-tab/network.hbs:37
 msgid "USED IPs"
 msgstr ""
 
@@ -4157,7 +4257,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:75
 #: ../app/utils/accounting/html.hbs:19
-#: ../app/tabs/vms-tab/panels/info/html.hbs:73
+#: ../app/tabs/vms-tab/panels/info/html.hbs:81
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:33
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sche-row.hbs:33
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:32
@@ -4188,7 +4288,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/buttons.js:62
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:89
-#: ../app/tabs/provision-tab/vms/info.hbs:68
+#: ../app/tabs/provision-tab/vms/info.hbs:115
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:18
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:97
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:153
@@ -4206,11 +4306,13 @@ msgid "Purge done"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
-msgid "This will delete all services in DONE state to free some space in your database"
+msgid ""
+"This will delete all services in DONE state to free some space in your "
+"database"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/form-panels/update.js:47
-#: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:55
+#: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
+#: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:53
 msgid "Update Service"
 msgstr ""
 
@@ -4219,12 +4321,8 @@ msgstr ""
 msgid "Create Service"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:98
+#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:96
 msgid "All Roles"
-msgstr ""
-
-#: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:193
-msgid "Bulk Action Created"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
@@ -4233,20 +4331,49 @@ msgstr ""
 msgid "Scale"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:230
+#: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
+msgid "Remove Role"
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:228
 msgid "The VM is ready"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles.js:232
+#: ../app/tabs/oneflow-services-tab/panels/roles.js:233
 msgid "Waiting for the VM to be ready"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/actions.js:146
+#: ../app/tabs/oneflow-services-tab/panels/info.js:193
+msgid "VM: "
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/panels/info.js:195
+msgid "has error: "
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/panels/info.js:202
+msgid "Dismiss"
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/actions.js:148
 msgid "Purge DONE services"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/actions.js:147
+#: ../app/tabs/oneflow-services-tab/actions.js:149
 msgid "All DONE services has been purged"
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/actions.js:342
+#: ../app/tabs/oneflow-services-tab/actions.js:347
+#: ../app/utils/dialogs/confirm/html.hbs:19
+#: ../app/utils/dialogs/leases/html.hbs:20
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:20
+#: ../app/utils/dialogs/generic-confirm/html.hbs:20
+msgid "Confirm"
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/actions.js:345
+msgid "Are you sure you want to delete the role"
 msgstr ""
 
 #: ../app/tabs/vdcs-tab.js:49
@@ -4257,35 +4384,41 @@ msgstr ""
 msgid "Virtual Data Center"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:50
-msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
+#: ../app/tabs/templates-tab/actions-common.js:55
+msgid ""
+"This will delete the Template.<br/>You can also delete any Image referenced "
+"inside this Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:53
+#: ../app/tabs/templates-tab/actions-common.js:58
 msgid "Delete all images"
 msgstr ""
 
-#: ../app/tabs/templates-tab/buttons.js:78
-msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
+#: ../app/tabs/templates-tab/buttons.js:77
+msgid ""
+"The template, along with any image referenced by it, will be shared with the"
+" group's users. Permission changed: GROUP USE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/buttons.js:84
-msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
+#: ../app/tabs/templates-tab/buttons.js:83
+msgid ""
+"The template, along with any image referenced by it, will be unshared with "
+"the group's users. Permission changed: GROUP USE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:67
+#: ../app/tabs/templates-tab/form-panels/create-common.js:69
 msgid "Create VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:68
+#: ../app/tabs/templates-tab/form-panels/create-common.js:70
 msgid "Update VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:70
+#: ../app/tabs/templates-tab/form-panels/create-common.js:72
 msgid "Create Virtual Router VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:71
+#: ../app/tabs/templates-tab/form-panels/create-common.js:73
 msgid "Update Virtual Router VM Template"
 msgstr ""
 
@@ -4314,6 +4447,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:71
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:103
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:119
 msgid "Custom"
 msgstr "Testreszabás"
 
@@ -4331,29 +4465,19 @@ msgstr ""
 msgid "NIC"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:152
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:159
 msgid "OS & CPU"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:176
-#: ../app/tabs/users-tab/dialogs/login-token.js:83
-#: ../app/tabs/users-tab/dialogs/login-token.js:108
-#: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:88
-#: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:82
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:24
-#: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:35
-msgid "None"
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:182
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:196
 msgid "Set manually"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs.js:213
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs.js:212
 msgid "The value goes out of the allowed limits"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:66
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:63
 msgid "NUMA"
 msgstr ""
 
@@ -4365,14 +4489,14 @@ msgstr ""
 msgid "VM Group"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:61
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:59
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:20
 msgid "General"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:407
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:409
 msgid "Which resource pool you want this VM to run in?"
 msgstr ""
 
@@ -4384,17 +4508,13 @@ msgstr ""
 msgid "Scheduling"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:71
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:72
 msgid "Instantiate VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:280
-#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:100
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:212
+#: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:101
 msgid "No template selected"
-msgstr ""
-
-#: ../app/tabs/users-tab/datatable.js:74
-msgid "Enabled"
 msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:75
@@ -4403,7 +4523,7 @@ msgid "Auth driver"
 msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:76
-#: ../app/tabs/users-tab/panels/auth-common.js:130
+#: ../app/tabs/users-tab/panels/auth-common.js:113
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:192
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:63
 #: ../app/tabs/users-tab/datatable/search.hbs:16
@@ -4445,7 +4565,9 @@ msgid "Change primary group"
 msgstr ""
 
 #: ../app/tabs/users-tab/buttons.js:35
-msgid "This will change the primary group of the selected users. Select the new group"
+msgid ""
+"This will change the primary group of the selected users. Select the new "
+"group"
 msgstr ""
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
@@ -4456,32 +4578,32 @@ msgstr ""
 msgid "To define secondary groups you need to also set the main group"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/info-common.js:116
+#: ../app/tabs/users-tab/panels/info-common.js:102
 msgid "ascending"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/info-common.js:117
+#: ../app/tabs/users-tab/panels/info-common.js:103
 msgid "descending"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/auth-common.js:44
+#: ../app/tabs/users-tab/panels/auth-common.js:43
 msgid "Auth"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/auth-common.js:104
+#: ../app/tabs/users-tab/panels/auth-common.js:87
 msgid "Disable all authenticators"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/auth-common.js:132
+#: ../app/tabs/users-tab/panels/auth-common.js:115
 msgid "Current password"
 msgstr ""
 
-#: ../app/tabs/users-tab/panels/auth-common.js:136
-#: ../app/utils/tab-datatable/search-input.hbs:46
+#: ../app/tabs/users-tab/panels/auth-common.js:119
+#: ../app/utils/tab-datatable/search-input.hbs:48
 msgid "Close"
 msgstr ""
 
-#: ../app/tabs/users-tab/actions.js:38
+#: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
 msgstr ""
 
@@ -4567,7 +4689,11 @@ msgid "Security Group created"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:80
-msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
+msgid ""
+"Please note: each time the rules are edited, the commit operation is done "
+"automatically. <br/><br/>This action will force the propagation of security "
+"group changes to VMs. The operation takes time to iterate over all VMs in "
+"the security group, the progress can be checked in the \"VMs\" panel."
 msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
@@ -4602,7 +4728,7 @@ msgstr ""
 msgid "Virtual Network Template created"
 msgstr ""
 
-#: ../app/tabs/vnets-templates-tab/actions.js:123
+#: ../app/tabs/vnets-templates-tab/actions.js:121
 msgid "VNet created"
 msgstr ""
 
@@ -4694,13 +4820,6 @@ msgstr ""
 msgid "Accounting Tables"
 msgstr ""
 
-#: ../app/utils/dialogs/confirm/html.hbs:19
-#: ../app/utils/dialogs/leases/html.hbs:20
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:20
-#: ../app/utils/dialogs/generic-confirm/html.hbs:20
-msgid "Confirm"
-msgstr ""
-
 #: ../app/utils/dialogs/confirm/html.hbs:25
 #: ../app/utils/dialogs/leases/html.hbs:26
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
@@ -4733,21 +4852,17 @@ msgstr "OK"
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
 #: ../app/tabs/support-tab/dialogs/upload/html.hbs:33
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/vmrc/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:35
-#: ../app/tabs/vms-tab/dialogs/spice/html.hbs:26
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:35
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:41
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot-rename/html.hbs:45
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:49
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:49
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
-#: ../app/tabs/vms-tab/dialogs/guac/html.hbs:26
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:55
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:55
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:45
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
-#: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:32
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:47
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:82
@@ -4755,6 +4870,7 @@ msgstr "OK"
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:37
 #: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:34
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:42
+#: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:31
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:44
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:82
@@ -4784,11 +4900,17 @@ msgid "Host Overcommitment"
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
-msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
+msgid ""
+"Prior to assigning a VM to a Host, the available capacity is checked to "
+"ensure that the VM fits in the host. The capacity is obtained by the monitor"
+" probes. You may alter this behaviour by reserving an amount of capacity. "
+"You can reserve this capacity:"
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:33
-msgid "Cluster-wise. All the hosts of the cluster will reserve the same amount of capacity."
+msgid ""
+"Cluster-wise. All the hosts of the cluster will reserve the same amount of "
+"capacity."
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:34
@@ -4796,7 +4918,9 @@ msgid "Host-wise. This value will override those defined at cluster level."
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:38
-msgid "These values can be negative, in that case you'll be actually increasing the overall capacity so overcommitting host capacity."
+msgid ""
+"These values can be negative, in that case you'll be actually increasing the"
+" overall capacity so overcommitting host capacity."
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -4809,7 +4933,9 @@ msgid "Reserved Memory in KB"
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
-msgid "The values will overwrite the monitoring values in the next monitorization cycle"
+msgid ""
+"The values will overwrite the monitoring values in the next monitorization "
+"cycle"
 msgstr ""
 
 #: ../app/utils/panel/ec2-tr/html.hbs:2
@@ -4830,7 +4956,7 @@ msgid "Ownership"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/backup.hbs:19
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:188
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:202
 msgid "Backups"
 msgstr ""
 
@@ -4839,7 +4965,7 @@ msgid "Frequency"
 msgstr ""
 
 #: ../app/utils/panel/permissions-table/backup.hbs:27
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:198
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:212
 msgid "Marketplace ID"
 msgstr ""
 
@@ -4875,18 +5001,18 @@ msgstr "Admin"
 msgid "Other"
 msgstr "Egyéb"
 
-#: ../app/utils/tab-datatable/search-input.hbs:26
-#: ../app/utils/tab-datatable/search-input.hbs:52
+#: ../app/utils/tab-datatable/search-input.hbs:28
+#: ../app/utils/tab-datatable/search-input.hbs:54
 #: ../app/utils/tab-datatable/table.hbs:30
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:22
 msgid "Search"
 msgstr ""
 
-#: ../app/utils/tab-datatable/search-input.hbs:34
+#: ../app/utils/tab-datatable/search-input.hbs:36
 msgid "Label filter:"
 msgstr ""
 
-#: ../app/utils/tab-datatable/search-input.hbs:43
+#: ../app/utils/tab-datatable/search-input.hbs:45
 msgid "Clear search"
 msgstr ""
 
@@ -4900,7 +5026,11 @@ msgid "vCenter VM Folder"
 msgstr ""
 
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
-msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
+msgid ""
+"If specified, the VMs and Template folder path where the VM will be created "
+"inside the data center. The path is delimited by slashes e.g "
+"/Management/VMs. If no path is set the VM will be placed in the same folder "
+"where the template is located."
 msgstr ""
 
 #: ../app/utils/showback/html.hbs:19
@@ -5105,82 +5235,79 @@ msgstr ""
 msgid "Toggle advanced sections"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:12
+#: ../app/utils/schedule_action/html.hbs:19
 msgid "New scheduled action"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:21
+#: ../app/utils/schedule_action/html.hbs:28
 msgid "Relative Time"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:28
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:32
+#: ../app/utils/schedule_action/html.hbs:35
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:40
 msgid "Disk Id"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:29
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:33
+#: ../app/utils/schedule_action/html.hbs:36
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:41
 msgid "Snap Id"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:30
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:34
+#: ../app/utils/schedule_action/html.hbs:37
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:42
 msgid "Snap Name"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:61
+#: ../app/utils/schedule_action/html.hbs:44
+#: ../app/utils/schedule_action/table.hbs:29
+msgid "Time"
+msgstr ""
+
+#: ../app/utils/schedule_action/html.hbs:68
 msgid "Periodic"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:66
+#: ../app/utils/schedule_action/html.hbs:73
 msgid "Repeat"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:70
-msgid "Weekly"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:71
-msgid "Monthly"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:72
-msgid "Yearly"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:73
+#: ../app/utils/schedule_action/html.hbs:80
 msgid "Hourly"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:97
-#: ../app/utils/schedule_action/table.hbs:30
+#: ../app/utils/schedule_action/html.hbs:104
+#: ../app/utils/schedule_action/table.hbs:31
 msgid "Ends"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:104
+#: ../app/utils/schedule_action/html.hbs:111
 msgid "Never"
 msgstr ""
 
-#: ../app/utils/schedule_action/html.hbs:110
-msgid "On"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:119
-msgid "After"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:125
-msgid "times"
-msgstr ""
-
-#: ../app/utils/schedule_action/html.hbs:131
+#: ../app/utils/schedule_action/html.hbs:138
 #: ../app/tabs/vnets-tab/dialogs/add-secgroups/html.hbs:30
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:40
+#: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:28
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:112
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:108
 msgid "Add"
 msgstr "Hozzáad"
+
+#: ../app/utils/schedule_action/table.hbs:30
+msgid "Rep"
+msgstr ""
+
+#: ../app/utils/schedule_action/table.hbs:32
+msgid "Done"
+msgstr ""
+
+#: ../app/utils/schedule_action/table.hbs:33
+msgid "Message"
+msgstr ""
+
+#: ../app/utils/schedule_action/table.hbs:37
+msgid "Add action"
+msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:22
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:115
@@ -5311,7 +5438,9 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:110
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
-msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
+msgid ""
+"Boolean expression that rules out entries from the pool of datastores "
+"suitable to run this VM."
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:138
@@ -5345,7 +5474,9 @@ msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:138
-msgid "This field sets which attribute will be used to sort the suitable vnets for this VM"
+msgid ""
+"This field sets which attribute will be used to sort the suitable vnets for "
+"this VM"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:174
@@ -5362,7 +5493,9 @@ msgid "Floating IP"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:192
-msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
+msgid ""
+"If checked, each Virtual Machine will have a floating IP added to its "
+"network interface."
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:201
@@ -5371,7 +5504,9 @@ msgid "Management Interface"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:203
-msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
+msgid ""
+"If checked, this network interface will be a Virtual Router management "
+"interface. Traffic will not be forwarded."
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:213
@@ -5379,7 +5514,10 @@ msgid "Force IPv6:"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:231
-msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
+msgid ""
+"You can add Security Groups to this network interface. These IDs do not "
+"overwrite the ones defined in the Virtual Network. All the Security Group "
+"IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
 #: ../app/sunstone/buttons.hbs:27
@@ -5415,7 +5553,6 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:46
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
-#: ../app/tabs/vms-tab/dialogs/attach-disk/submit-button.hbs:18
 msgid "Attach"
 msgstr ""
 
@@ -5592,7 +5729,11 @@ msgid "This action will reboot this Virtual Machine."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
+msgid ""
+"You can send the reboot signal to the Virtual Machine (this is equivalent to"
+" execute the reboot command form the console). If that doesn't affect your "
+"Virtual Machine, try to Reboot the machine (this is equivalent to pressing "
+"the reset button a physical computer)."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
@@ -5604,17 +5745,23 @@ msgid "Send the reboot signal"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
-msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
+msgid ""
+"This action will power off this Virtual Machine. The Virtual Machine will "
+"remain in the poweroff state, and can be powered on later"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
-msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
+msgid ""
+"You can send the power off signal to the Virtual Machine (this is equivalent"
+" to execute the command from the console). If that doesn't affect your "
+"Virtual Machine, try to Power off the machine (this is equivalent to "
+"pressing the power off button in a physical computer)."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
-#: ../app/tabs/provision-tab/vms/info.hbs:73
-#: ../app/tabs/provision-tab/vms/info.hbs:78
+#: ../app/tabs/provision-tab/vms/info.hbs:120
+#: ../app/tabs/provision-tab/vms/info.hbs:125
 msgid "Power off"
 msgstr ""
 
@@ -5626,47 +5773,31 @@ msgstr ""
 msgid "Send the power off signal"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:39
-msgid "Open a remote console in a new window"
-msgstr ""
-
-#: ../app/tabs/provision-tab/vms/info.hbs:43
-msgid "Download a file with RDP connection"
-msgstr ""
-
-#: ../app/tabs/provision-tab/vms/info.hbs:47
-msgid "Download a file with virt-viewer connection"
-msgstr ""
-
-#: ../app/tabs/provision-tab/vms/info.hbs:51
-msgid "You have to boot the Virtual Machine first"
-msgstr ""
-
-#: ../app/tabs/provision-tab/vms/info.hbs:56
+#: ../app/tabs/provision-tab/vms/info.hbs:103
 msgid "The disks of the Virtual Machine will be saved in a new Image"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:61
+#: ../app/tabs/provision-tab/vms/info.hbs:108
 msgid "You have to power-off the virtual machine first"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:84
+#: ../app/tabs/provision-tab/vms/info.hbs:131
 msgid "Power on"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:138
+#: ../app/tabs/provision-tab/vms/info.hbs:185
 msgid "Net RX"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:155
+#: ../app/tabs/provision-tab/vms/info.hbs:202
 msgid "Net TX"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:172
+#: ../app/tabs/provision-tab/vms/info.hbs:219
 msgid "Net Download Speed"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/info.hbs:189
+#: ../app/tabs/provision-tab/vms/info.hbs:236
 msgid "Net Upload Speed"
 msgstr ""
 
@@ -5687,7 +5818,11 @@ msgid "Template Description"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
-msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
+msgid ""
+"The new Virtual Machine's disks can be made persistent. In a persistent "
+"Virtual Machine the changes made survive after it is destroyed. On the other"
+" hand, you cannot create more than one simultaneous Virtual Machine from a "
+"Template with persistent disks."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
@@ -5704,7 +5839,9 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:42
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
-msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
+msgid ""
+"Creates a private persistent copy of the template plus any image defined in "
+"DISK, and instantiates that copy"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/create.hbs:158
@@ -5725,7 +5862,9 @@ msgid "Select the devices to boot from, and their order"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
+msgid ""
+"This action will power off this Virtual Machine and will be undeployed from "
+"the physical machine"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
@@ -5750,7 +5889,11 @@ msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
+msgid ""
+"You can send the shutdown signal to the Virtual Machine (this is equivalent "
+"to execute the command from the console). If that doesn't affect your "
+"Virtual Machine, try to terminate the machine (this is equivalent to "
+"pressing the power off button in a physical computer)."
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
@@ -5866,10 +6009,6 @@ msgstr ""
 msgid "Shared"
 msgstr "Osztott"
 
-#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
-msgid "SSH"
-msgstr "SSH"
-
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:68
 msgid "qcow2"
 msgstr ""
@@ -5920,7 +6059,9 @@ msgid "Transfer bandwidth limit (B/s)"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
-msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
+msgid ""
+"Specify the maximum transfer rate in bytes/second when downloading images "
+"from a http/https URL. Suffixes K, M or G can be used."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
@@ -5936,7 +6077,8 @@ msgid "Host bridge list"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
-msgid "Space separated list of servers to add new Images to the Datastore storage"
+msgid ""
+"Space separated list of servers to add new Images to the Datastore storage"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
@@ -6024,7 +6166,8 @@ msgid "Compatible system datastores"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
-msgid "Specifies which system datastores are compatible with this image datastore"
+msgid ""
+"Specifies which system datastores are compatible with this image datastore"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
@@ -6135,7 +6278,9 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:208
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
-msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
+msgid ""
+"A login token acts as a password and can be used to authenticate with "
+"OpenNebula through Sunstone, the CLI, or the API"
 msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:212
@@ -6154,18 +6299,22 @@ msgid "Two factor authentication can be enabled for logging into Sunstone UI."
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
+#: ../app/tabs/dashboard-tab/storage.hbs:31
 msgid "IMAGES"
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/network.hbs:30
+#: ../app/tabs/dashboard-tab/network.hbs:31
 msgid "VNETS"
 msgstr ""
 
 #: ../app/tabs/dashboard-tab/users.hbs:31
+#: ../app/tabs/dashboard-tab/users.hbs:32
 msgid "USERS"
 msgstr ""
 
-#: ../app/tabs/dashboard-tab/users.hbs:35
+#: ../app/tabs/dashboard-tab/users.hbs:37
+#: ../app/tabs/dashboard-tab/users.hbs:38
 msgid "GROUPS"
 msgstr ""
 
@@ -6213,7 +6362,9 @@ msgid "Create an administrator user"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:135
-msgid "You can create now an administrator user. More administrators can be added later."
+msgid ""
+"You can create now an administrator user. More administrators can be added "
+"later."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:147
@@ -6225,7 +6376,9 @@ msgid "Make new images persistent by default"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:153
-msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
+msgid ""
+"Control the default value for the PERSISTENT attribute on image creation "
+"(oneimage create)."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:166
@@ -6239,7 +6392,8 @@ msgid ""
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:187
-msgid "Allow users to view the VMs and Services of other users in the same group"
+msgid ""
+"Allow users to view the VMs and Services of other users in the same group"
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:189
@@ -6289,7 +6443,9 @@ msgid "VM Template Name"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
+msgid ""
+"The following template will be created in OpenNebula and the previous images"
+" will be referenced in the disks."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:43
@@ -6301,6 +6457,10 @@ msgid "Select the Datastore to store the resource"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:52
+msgid "Select the vCenter Template to use"
+msgstr ""
+
+#: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:56
 msgid "Select the Dockerhub tag"
 msgstr ""
 
@@ -6350,7 +6510,9 @@ msgid "VM template"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:97
-msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
+msgid ""
+"VM Template to be created. A DISK element pointing to the App Image will be "
+"automatically added when the App is exported"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:103
@@ -6373,11 +6535,15 @@ msgid "Created before"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
-msgid "You can provide a template for the resource that will be created in OpenNebula"
+msgid ""
+"You can provide a template for the resource that will be created in "
+"OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
-msgid "You can provide a VM template associated to the resource that will be created in OpenNebula"
+msgid ""
+"You can provide a VM template associated to the resource that will be "
+"created in OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
@@ -6391,21 +6557,6 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:173
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:108
 msgid "Format"
-msgstr ""
-
-#: ../app/tabs/vms-tab/dialogs/vmrc/html.hbs:24
-#: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
-msgid "Send CtrlAltDel"
-msgstr ""
-
-#: ../app/tabs/vms-tab/dialogs/vmrc/html.hbs:26
-#: ../app/tabs/vms-tab/dialogs/spice/html.hbs:23
-#: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:26
-msgid "Open in a new window"
-msgstr ""
-
-#: ../app/tabs/vms-tab/dialogs/vmrc/html.hbs:29
-msgid "Close VMRC"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
@@ -6450,10 +6601,6 @@ msgstr ""
 msgid "New name"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:28
-msgid "RDP"
-msgstr ""
-
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:33
 msgid "Attach as an alias"
 msgstr ""
@@ -6467,7 +6614,7 @@ msgid "New size"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:42
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:132
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:146
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:148
 msgid "MONTH"
@@ -6493,7 +6640,10 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
-msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
+msgid ""
+"If it is set to true, the host capacity will be checked. This will only "
+"affect oneadmin requests, regular users resize requests will always be "
+"enforced"
 msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
@@ -6540,10 +6690,6 @@ msgstr ""
 msgid "Disk Snapshot"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:29
-msgid "Close VNC"
-msgstr ""
-
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
 msgstr ""
@@ -6578,11 +6724,15 @@ msgstr ""
 msgid "LCM State"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/info/html.hbs:78
+#: ../app/tabs/vms-tab/panels/info/html.hbs:74
+msgid "Port forwarding"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/info/html.hbs:86
 msgid "Deploy ID"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/info/html.hbs:116
+#: ../app/tabs/vms-tab/panels/info/html.hbs:124
 msgid "Monitoring"
 msgstr ""
 
@@ -6656,7 +6806,10 @@ msgid "Secret access key"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
-msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
+msgid ""
+"The valid list of instance types can be found in the official Amazon EC2 "
+"documentation, please use a value from the Model column of the following "
+"table: aws.amazon.com/ ec2/instance-types/"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
@@ -6740,7 +6893,8 @@ msgid "Clone Image"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
-msgid "Several images are selected, please choose a prefix to name the new copies"
+msgid ""
+"Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
@@ -6919,7 +7073,9 @@ msgid "Network Driver (VN_MAD)"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:155
-msgid "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."
+msgid ""
+"Bridged, virtual machine traffic is directly bridged. The Linux bridge is "
+"created in the nodes as needed. No traffic filtering is made."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:158
@@ -6927,27 +7083,38 @@ msgid "Bridged & Security Groups, bridged network with Security Group rules."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:161
-msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
+msgid ""
+"Bridged & ebtables VLAN, restrict network access through ebtables rules. "
+"Security Group rules are applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:164
-msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
+msgid ""
+"802.1Q, restrict network access through VLAN tagging. Security Group rules "
+"are applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:167
-msgid "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."
+msgid ""
+"VXLAN, creates a L2 network overlay, each VLAN has associated a multicast "
+"address in the 239.0.0.0/8 range. Security Group rules are applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:170
-msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."
+msgid ""
+"Open vSwitch, restrict network access with Open vSwitch Virtual Switch. "
+"Security Groups are not applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
-msgid "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
+msgid ""
+"Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:176
-msgid "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."
+msgid ""
+"vSphere standard switches or distributed switches with port groups. Security"
+" Groups are not applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:179
@@ -6984,7 +7151,9 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
-msgid "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"
+msgid ""
+"Physical NIC names for uplinks. Use comma to separate values (e.g "
+"vmnic1,vmnic2)"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:233
@@ -7032,12 +7201,14 @@ msgid "OpenNebula's Host ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:298
-msgid "Address Ranges need to be managed in the individual Virtual Network panel"
+msgid ""
+"Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:308
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
-msgid "The default Security Group 0 is automatically added to new Virtual Networks"
+msgid ""
+"The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:315
@@ -7046,22 +7217,22 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:319
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:342
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:277
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:300
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:268
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:291
 msgid "Average bandwidth (KBytes/s)"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:325
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:348
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:283
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:306
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:274
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:297
 msgid "Peak bandwidth (KBytes/s)"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:331
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:354
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:289
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:312
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:280
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:303
 msgid "Peak burst (KBytes)"
 msgstr ""
 
@@ -7070,7 +7241,9 @@ msgid "Outbound traffic"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:363
-msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
+msgid ""
+"These values apply to each VM interface individually, they are not global "
+"values for the Virtual Network"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:372
@@ -7244,7 +7417,8 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
-msgid "Several templates are selected, please choose prefix to name the new copies"
+msgid ""
+"Several templates are selected, please choose prefix to name the new copies"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
@@ -7258,7 +7432,9 @@ msgid "Service name"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
-msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
+msgid ""
+"When creating several Services, the wildcard %i will be replaced with a "
+"number starting from 0"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
@@ -7297,7 +7473,10 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:84
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:78
-msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
+msgid ""
+"Straight strategy will instantiate each role in order: parents role will be "
+"deployed before their children. None strategy will instantiate the roles "
+"regardless of their relationships."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:87
@@ -7321,7 +7500,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:100
-msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
+msgid ""
+"Wait for VMs to report that they are READY via OneGate to consider them "
+"running"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:114
@@ -7385,7 +7566,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:64
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:64
-msgid "This network interface will be configured as an ALIAS in the VM without context configuration."
+msgid ""
+"This network interface will be configured as an ALIAS in the VM without "
+"context configuration."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:56
@@ -7463,7 +7646,9 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:29
-msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
+msgid ""
+"PERCENTAGE_CHANGE: Add/subtract the given percentage to the current "
+"cardinality."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
@@ -7508,7 +7693,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:37
-msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
+msgid ""
+" If present, the policy will change the cardinality by at least the number "
+"of VMs set in this attribute."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
@@ -7523,7 +7710,9 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:42
-msgid "Number of periods that the expression must be true before the elasticity is triggered"
+msgid ""
+"Number of periods that the expression must be true before the elasticity is "
+"triggered"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
@@ -7533,7 +7722,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:44
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
 msgid "Period"
 msgstr ""
 
@@ -7549,14 +7738,19 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:36
-msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
+msgid ""
+"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
+"policy will change the cardinality by at least the number of VMs set in this"
+" attribute."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:42
-msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
+msgid ""
+"Recurrence: Time for recurring adjustments. Time is specified with the Unix "
+"cron syntax"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
@@ -7622,6 +7816,10 @@ msgstr ""
 msgid "Selects all current and future datastores"
 msgstr ""
 
+#: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:19
+msgid "Add role"
+msgstr ""
+
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
 msgstr ""
@@ -7630,32 +7828,36 @@ msgstr ""
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
 msgid "Seconds between each group of actions"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:32
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:38
 msgid "Number"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:33
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:39
 msgid "Number of VMs to apply the action to each period"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:54
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:60
 msgid "Parents"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:84
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:90
 msgid "Select a role in the table for more information"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:12
-msgid "Schedule actions in service"
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:20
+msgid "Scheduled actions in service"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:20
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:28
 msgid "Perform an action"
+msgstr ""
+
+#: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:48
+msgid "Perform"
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
@@ -7663,7 +7865,9 @@ msgid "Clone Template"
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
-msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
+msgid ""
+"You can also clone any Image referenced inside this Template. They will be "
+"cloned to a new Image, and made persistent."
 msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
@@ -7703,7 +7907,9 @@ msgid "Instantiate as persistent"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:43
-msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
+msgid ""
+"Defaults to 'template name-<vmid>' when empty. When creating several VMs, "
+"the wildcard %i will be replaced with a number starting from 0"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:59
@@ -7712,7 +7918,9 @@ msgid "Start on hold"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
-msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
+msgid ""
+"Sets the new VM to hold state, instead of pending. The scheduler will not "
+"deploy VMs in this state. It can be released later, or deployed manually."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
@@ -7741,7 +7949,9 @@ msgid "Swap"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
-msgid "Device to map image disk. If set, it will overwrite the default device mapping."
+msgid ""
+"Device to map image disk. If set, it will overwrite the default device "
+"mapping."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
@@ -7773,7 +7983,9 @@ msgid "Size on instantiate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:98
-msgid "The size of the disk will be modified to match this size when the template is instantiated"
+msgid ""
+"The size of the disk will be modified to match this size when the template "
+"is instantiated"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
@@ -7841,7 +8053,10 @@ msgid "IOTHREAD id"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:266
-msgid "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features."
+msgid ""
+"Iothread id used by this disk. Default is round robin. Can be used only if "
+"IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS "
+"value on OS & CPU -> Features."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:35
@@ -7913,26 +8128,28 @@ msgid "PCI Devices"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
-msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
+msgid ""
+"PCI passthrough of network devices is configured per NIC, in the \"Network\""
+" tab. Do not add network devices here"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:140
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:348
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:339
 msgid "Device name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:141
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:349
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:340
 msgid "Vendor"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:142
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:350
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:341
 msgid "Device"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:143
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:351
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:342
 msgid "Class"
 msgstr ""
 
@@ -7993,44 +8210,46 @@ msgstr ""
 msgid "Override Network Values IPv6"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:265
-msgid "Force IPv4 context"
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:266
-msgid "Override force IPv4 for this IPv6 network. Values: Yes or No."
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:273
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:264
 msgid "Override Network Inbound Traffic QoS"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:296
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:287
 msgid "Override Network Outbound Traffic QoS"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:319
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:310
 msgid "Hardware"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:324
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:315
 msgid "PCI passthrough"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:331
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:322
 msgid "Hardware model to emulate"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:337
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:328
 msgid "Transmission queue"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:338
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:329
 msgid "Only supported for virtio driver."
 msgstr ""
 
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:357
+msgid ""
+"Security Groups belonging to the selected Virtual Network will be applied "
+"and cannot be unselected"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:362
+msgid "Guest Options"
+msgstr ""
+
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:366
-msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
+msgid "Guest MTU"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
@@ -8054,7 +8273,9 @@ msgid "  Add SSH contextualization"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
-msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
+msgid ""
+"Add an ssh public key to the context. If the Public Key textarea is empty "
+"then the user variable SSH_PUBLIC_KEY will be used."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
@@ -8066,7 +8287,10 @@ msgid "  Add Network contextualization"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
-msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
+msgid ""
+"Add network contextualization parameters. For each NIC defined in the "
+"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
+"the CONTEXT section and will be available in the Virtual Machine"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
@@ -8074,7 +8298,9 @@ msgid "  Add OneGate token"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
-msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
+msgid ""
+"Add a file (token.txt) to the context containing the token to push custom "
+"metrics to the VirtualMachine through OneGate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
@@ -8090,7 +8316,9 @@ msgid "Start script"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
-msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
+msgid ""
+"Text of the script executed when the machine starts up. It can contain "
+"shebang in case it is not shell script"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
@@ -8102,7 +8330,9 @@ msgid "User Inputs"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
-msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
+msgid ""
+"These attributes must be provided by the user when a new VM is instantiated."
+" They will be included in the VM context"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
@@ -8114,7 +8344,10 @@ msgid "Init scripts"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
-msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
+msgid ""
+"The contextualization package executes an init.sh file if it exists. If more"
+" than one script file is added, this list contains the scripts to run and "
+"their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
@@ -8124,13 +8357,17 @@ msgstr "VM által igényelt RAM mennyisége, Megabájtban."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:35
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:141
-msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
+msgid ""
+"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
+"processor is written 0.5."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:189
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:85
-msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
+msgid ""
+"Number of virtual cpus. This value is optional, the default hypervisor "
+"behavior is used, usually one virtual CPU."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:29
@@ -8142,6 +8379,7 @@ msgid "KVM"
 msgstr "KVM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:35
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:125
 msgid "LXC"
 msgstr ""
 
@@ -8170,60 +8408,71 @@ msgid "Default Resource Pool"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:118
-msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
+msgid ""
+"If specified, the the VMs and Template folder path where the VM will be "
+"created inside the data center. The path is delimited by slashes e.g "
+"/Management/VMs. If no path is set the VM will be placed in the same folder "
+"where the template is located."
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:138
-msgid "Cost of each MB or GB per hour"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:129
+msgid "Unprivileged mode"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:152
+msgid "Cost of each MB or GB per hour"
+msgstr ""
+
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:166
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:178
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:180
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:192
 msgid "month"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:159
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:173
 msgid "Cost of each CPU per hour"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:171
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:185
 msgid "Disk"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:172
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:186
 msgid "Cost of each GB per hour"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:192
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:206
 msgid "Backup Frequency in Seconds"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:210
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:224
 msgid "Do not allow to modify network configuration"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:211
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:225
 msgid "Users will not be able to remove or add new NICs"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:219
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:233
 msgid "Make this template available for Virtual Router machines only"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:220
-msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:234
+msgid ""
+"Virtual Routers create Virtual Machines from a source Template. This "
+"checkbox makes this template available to be selected in the New Virtual "
+"Router wizard"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:230
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:244
 msgid "Instantiate as a different user"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:242
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:256
 msgid "Instantiate as a different group"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:224
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:238
 msgid "User / Group"
 msgstr ""
 
@@ -8281,7 +8530,8 @@ msgid "AMI"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
-msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
+msgid ""
+"Unique ID of a machine image, returned by a call to ec2-describe-images."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
@@ -8306,7 +8556,10 @@ msgid "Block device mapping"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:36
-msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax"
+msgid ""
+"The block device mapping for the instance. More than one can be specified in"
+" a space-separated list. Check the --block-device-mapping option of the EC2 "
+"CLI Reference for the syntax"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
@@ -8314,7 +8567,9 @@ msgid "Client token"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
-msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
+msgid ""
+"Unique, case-sensitive identifier you provide to ensure idempotency of the "
+"request."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
@@ -8330,7 +8585,9 @@ msgid "Elastic IP address"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
-msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
+msgid ""
+"This parameter is passed to the command ec2-associate-address -i i-0041230 "
+"elasticip."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
@@ -8346,7 +8603,9 @@ msgid "Keypair name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:77
-msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
+msgid ""
+"The name of the key pair, later will be used to execute commands like ssh -i"
+" id_keypair or scp -i id_keypair"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:85
@@ -8362,7 +8621,10 @@ msgid "Private IP"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
-msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
+msgid ""
+"If you're using Amazon Virtual Private Cloud, you can optionally use this "
+"parameter to assign the instance a specific available IP address from the "
+"subnet."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
@@ -8387,11 +8649,16 @@ msgid "Subnet ID"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
-msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
+msgid ""
+"If you're using Amazon Virtual Private Cloud, this specifies the ID of the "
+"subnet you want to launch the instance into. This parameter is also passed "
+"to the command ec2-associate-address -i i-0041230 -a elasticip."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
-msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
+msgid ""
+"Key and optional value of the tag, separated by an equals sign ( = ).You can"
+" specify more than one tag (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:147
@@ -8403,7 +8670,9 @@ msgid "User data"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
-msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
+msgid ""
+"Specifies Base64-encoded MIME user data to be made available to the "
+"instance(s) in this reservation."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:5
@@ -8451,7 +8720,9 @@ msgid "VM user name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
+msgid ""
+"If the selected IMAGE is prepared for Azure provisioning, a username can be "
+"specified here to access the VM once booted"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:59
@@ -8463,7 +8734,10 @@ msgid "Password for VM User"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
-msgid "Name of the virtual network, which is already created in Azure. If not given virtual network will be created based on VNET_* attributes below or using defaults."
+msgid ""
+"Name of the virtual network which is already created in Azure. If not given,"
+" virtual network will be created based on VNET_* attributes below or using "
+"defaults."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:75
@@ -8479,7 +8753,8 @@ msgid "VNET name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:88
-msgid "Name of virtual network which will be created on Azure. Default: one-vnet"
+msgid ""
+"Name of virtual network which will be created on Azure. Default: one-vnet"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:94
@@ -8527,7 +8802,10 @@ msgid "Proximity group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:136
-msgid "Name of proximity groups which is already created in Azure. Proximity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region belong."
+msgid ""
+"Name of a proximity group already created in Azure. Proximity groups allow "
+"you to group your Azure services to optimize performance. All services and "
+"VMs within a proximity group will be located in the same region."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
@@ -8543,7 +8821,7 @@ msgid "Features"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:32
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:283
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:311
 msgid "CPU Model"
 msgstr ""
 
@@ -8576,100 +8854,137 @@ msgid "Unique ID of the VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:103
-msgid "Its referenced as machine ID inside the VM. Could be used to force ID for licensing purposes"
+msgid ""
+"It's referenced as machine ID inside the VM. Could be used to force ID for "
+"licensing purposes"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:113
-msgid "Registered Image"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:111
+msgid "Firmware"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:115
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:145
-msgid "Remote path"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:112
+msgid ""
+"This attribute allows to define the type of firmware used to boot the VM"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:116
+msgid "BIOS"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:120
+msgid "EFI"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:124
-msgid "KERNEL_DS"
+msgid "Custom Firmware Path"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:133
-msgid "Path to the OS kernel to boot the image"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:131
+msgid "Secure Firmware"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:141
+msgid "Registered Image"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:143
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:173
+msgid "Remote path"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:152
+msgid "KERNEL_DS"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:161
+msgid "Path to the OS kernel to boot the image"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:171
 msgid "Registered Image "
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:154
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:182
 msgid "INITRD_DS"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:164
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:192
 msgid "Path to the initrd image"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:175
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:203
 msgid "ACPI"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:176
-msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:204
+msgid ""
+"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:186
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:214
 msgid "PAE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:187
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:215
 msgid "Add support in the VM for Physical Address Extension (PAE)"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:199
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:227
 msgid "APIC"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:200
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:228
 msgid "Enables the advanced programmable IRQ management."
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:210
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:238
 msgid "HYPERV"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:211
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:239
 msgid "Add support in the VM for hyper-v features (HYPERV)"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:223
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:251
 msgid "Localtime"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:224
-msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:252
+msgid ""
+"The guest clock will be synchronized to the hosts configured timezone when "
+"booted."
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:234
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:262
 msgid "QEMU Guest Agent"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:235
-msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:263
+msgid ""
+"Enables the QEMU Guest Agent communication. This does not start the Guest "
+"Agent inside the VM."
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:247
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:275
 msgid "virtio-scsi Queues"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:248
-msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value."
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:276
+msgid ""
+"Number of vCPU queues to use in the virtio-scsi controller. Leave blank to "
+"use the default value."
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:272
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:300
 msgid "Iothreads"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:273
-msgid "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute."
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:301
+msgid ""
+"Number of iothreads for virtio disks. By default threads will be assign to "
+"disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD"
+" attribute."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
@@ -8689,7 +9004,9 @@ msgid "Select Clusters "
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
-msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
+msgid ""
+"Boolean expression that rules out provisioning hosts from list of machines "
+"suitable to run this VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
@@ -8717,7 +9034,9 @@ msgid "Maximize the resources available to VMs in a Host"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
-msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
+msgid ""
+"This field sets which attribute will be used to sort the suitable hosts for "
+"this VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
@@ -8725,15 +9044,19 @@ msgid "Datastore Rank"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
-msgid "Tries to optimize storage usage by selecting the DS with less free space"
+msgid ""
+"Tries to optimize storage usage by selecting the DS with less free space"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
-msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgid ""
+"Striping. Tries to optimize I/O by distributing the VMs across datastores."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
-msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
+msgid ""
+"This field sets which attribute will be used to sort the suitable datastores"
+" for this VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:22
@@ -8986,6 +9309,25 @@ msgstr ""
 msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
+#: ../app/tabs/users-tab/panels/auth/html.hbs:106
+msgid "Private SSH Key"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/auth/html.hbs:121
+msgid ""
+"You can provide a Private SSH Key for this User clicking on the edit button"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/auth/html.hbs:132
+msgid "Private SSH Key Passphrase"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/auth/html.hbs:147
+msgid ""
+"You can provide a Private SSH Key Passphrase for this User clicking on the "
+"edit button"
+msgstr ""
+
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
 msgid "Primary Group"
 msgstr ""
@@ -9019,7 +9361,9 @@ msgid "Clone Security Group"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
-msgid "Several security groups are selected, please choose a prefix to name the new copies"
+msgid ""
+"Several security groups are selected, please choose a prefix to name the new"
+" copies"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
@@ -9075,7 +9419,9 @@ msgid "Port Range"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
-msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
+msgid ""
+"VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to "
+"be updated with the latest rules:"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31

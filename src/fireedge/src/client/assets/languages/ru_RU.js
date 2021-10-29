@@ -1,1 +1,1 @@
-lang="ru_RU"locale={  "":"",  "children":"",  "Tiers":"",  "Submit":"",  "headerTitle":"",  "Ready status gate":"",  "Select request":"",}
+lang="ru_RU"locale={  "":"",}
