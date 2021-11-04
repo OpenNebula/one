@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { DEFAULT_CPU_MODELS, HOST_STATES, HYPERVISORS, StateInfo } from 'client/constants'
+import { DEFAULT_CPU_MODELS, HOST_STATES, HYPERVISORS, PciDevice, StateInfo } from 'client/constants'
 
 /**
  * Returns information about the host state.
@@ -78,6 +78,15 @@ export const getHugepageSizes = host => {
     .map(node => node.HUGEPAGE.map(({ SIZE }) => +SIZE))
     .flat()
 }
+
+/**
+ * Returns list of PCI devices from the host.
+ *
+ * @param {object} host - Host
+ * @returns {PciDevice[]} List of PCI devices from resource
+ */
+export const getPciDevices = host =>
+  [host?.HOST_SHARE?.PCI_DEVICES?.PCI ?? []].flat().filter(Boolean)
 
 /**
  * Returns list of KVM CPU Models available from the host pool.

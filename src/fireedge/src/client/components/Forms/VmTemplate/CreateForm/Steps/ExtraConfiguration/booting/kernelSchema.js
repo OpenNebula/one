@@ -50,7 +50,7 @@ export const KERNEL_DS = {
       ?.sort((a, b) => {
         const compareOptions = { numeric: true, ignorePunctuation: true }
 
-        return a.value.localeCompare(b.value, undefined, compareOptions)
+        return a.text.localeCompare(b.text, undefined, compareOptions)
       })
   },
   validation: kernelValidation.when(

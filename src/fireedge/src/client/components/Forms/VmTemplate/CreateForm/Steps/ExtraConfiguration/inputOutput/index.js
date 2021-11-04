@@ -22,13 +22,15 @@ import { FormWithSchema } from 'client/components/Forms'
 
 import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
-import { INPUT_OUTPUT_FIELDS, INPUTS_FIELDS } from './schema'
+import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
+import { INPUT_OUTPUT_FIELDS, INPUTS_FIELDS, PCI_FIELDS } from './schema'
 import { T } from 'client/constants'
 
-export const TAB_ID = ['GRAPHICS', INPUT_ID]
+export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID]
 
 const InputOutput = ({ hypervisor }) => {
   const inputsFields = useMemo(() => INPUTS_FIELDS(hypervisor), [hypervisor])
+  const pciDevicesFields = useMemo(() => PCI_FIELDS(hypervisor), [hypervisor])
 
   return (
     <Stack
@@ -44,6 +46,9 @@ const InputOutput = ({ hypervisor }) => {
       />
       {inputsFields.length > 0 && (
         <InputsSection fields={inputsFields} />
+      )}
+      {pciDevicesFields.length > 0 && (
+        <PciDevicesSection fields={pciDevicesFields} />
       )}
     </Stack>
   )

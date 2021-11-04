@@ -27,7 +27,7 @@ export const VM_GROUP_FIELD = {
     const vmGroups = useVmGroup()
 
     return vmGroups
-      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: ID }))
+      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: String(ID) }))
       ?.sort((a, b) => {
         const compareOptions = { numeric: true, ignorePunctuation: true }
 
