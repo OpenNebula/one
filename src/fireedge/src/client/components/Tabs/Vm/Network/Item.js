@@ -17,16 +17,13 @@
 import { useMemo, useContext } from 'react'
 import PropTypes from 'prop-types'
 
-import { Trash } from 'iconoir-react'
-import {
-  Typography,
-  Accordion,
-  AccordionSummary as MAccordionSummary,
-  AccordionDetails,
-  useMediaQuery,
-  Paper
-} from '@mui/material'
-import { withStyles, makeStyles } from '@mui/styles'
+import { styled, useMediaQuery } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
+import MAccordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary, { accordionSummaryClasses } from '@mui/material/AccordionSummary'
+import { Trash as TrashIcon, NavArrowRight as ExpandIcon } from 'iconoir-react'
 
 import { useVmApi } from 'client/features/One'
 import { useDialog } from 'client/hooks'
@@ -38,63 +35,62 @@ import MultipleTags from 'client/components/MultipleTags'
 import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const AccordionSummary = withStyles({
-  root: {
-    backgroundColor: 'rgba(0, 0, 0, .03)',
-    borderBottom: '1px solid rgba(0, 0, 0, .125)',
-    marginBottom: -1,
-    minHeight: 56,
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, .07)'
-    },
-    '&$expanded': {
-      backgroundColor: 'rgba(0, 0, 0, .07)',
-      minHeight: 56
-    }
-  },
-  content: {
-    overflow: 'hidden',
-    '&$expanded': {
-      margin: '12px 0'
-    }
-  },
-  expanded: {}
-})(MAccordionSummary)
+const Accordion = styled(props => (
+  <MAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  '&:before': { display: 'none' }
+}))
 
-const useStyles = makeStyles(({
-  row: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'nowrap'
+const Summary = styled(props => (
+  <AccordionSummary expandIcon={<ExpandIcon />} {...props} />
+))(({
+  [`&.${accordionSummaryClasses.root}`]: {
+    backgroundColor: 'rgba(0, 0, 0, .03)',
+    flexDirection: 'row-reverse',
+    '&:hover': { backgroundColor: 'rgba(0, 0, 0, .07)' }
   },
-  labels: {
-    display: 'inline-flex',
-    gap: '0.5em',
-    alignItems: 'center'
-  },
-  details: {
-    marginLeft: '1em',
-    flexDirection: 'column',
-    gap: '0.5em'
-  },
-  securityGroups: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5em',
-    padding: '0.8em'
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
+    transform: 'rotate(90deg)'
   }
 }))
 
+const Row = styled('div')({
+  display: 'flex',
+  width: '100%',
+  gap: '0.5em',
+  alignItems: 'center',
+  flexWrap: 'nowrap'
+})
+
+const Labels = styled('span')({
+  display: 'inline-flex',
+  gap: '0.5em',
+  alignItems: 'center'
+})
+
+const Details = styled(AccordionDetails)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5em',
+  marginLeft: '1em'
+})
+
+const SecGroups = styled(Paper)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5em',
+  padding: '0.8em'
+})
+
 const NetworkItem = ({ nic = {}, actions }) => {
-  const classes = useStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
 
   const { display, show, hide, values } = useDialog()
   const { detachNic } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const { NIC_ID, NETWORK = '-', BRIDGE, IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
+  const { NIC_ID, NETWORK = '-', IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
 
   const hasDetails = useMemo(
     () => !!ALIAS.length || !!SECURITY_GROUPS?.length,
@@ -112,7 +108,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
     actions?.includes?.(VM_ACTIONS.DETACH_NIC) && (
       <Action
         cy={`${VM_ACTIONS.DETACH_NIC}-${id}`}
-        icon={<Trash />}
+        icon={<TrashIcon />}
         stopPropagation
         handleClick={() => show({ id, isAlias })}
       />
@@ -120,50 +116,52 @@ const NetworkItem = ({ nic = {}, actions }) => {
 
   return (
     <>
-      <Accordion variant='outlined'>
-        <AccordionSummary>
-          <div className={classes.row}>
+      <Accordion>
+        <Summary>
+          <Row>
             <Typography noWrap>
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
-            <span className={classes.labels}>
+            <Labels>
               <MultipleTags
-                limitTags={isMobile ? 1 : 4}
-                tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`, PCI_ID].filter(Boolean)}
+                clipboard
+                limitTags={isMobile ? 1 : 3}
+                tags={[IP, MAC, PCI_ID].filter(Boolean)}
               />
-            </span>
+            </Labels>
             {!isMobile && detachAction(NIC_ID)}
-          </div>
-        </AccordionSummary>
+          </Row>
+        </Summary>
         {hasDetails && (
-          <AccordionDetails className={classes.details}>
+          <Details>
             {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
-              <div key={NIC_ID} className={classes.row}>
+              <Row key={NIC_ID}>
                 <Typography noWrap variant='body2'>
                   <Translate word={T.Alias} />{`${NIC_ID} | ${NETWORK}`}
                 </Typography>
-                <span className={classes.labels}>
+                <Labels>
                   <MultipleTags
-                    limitTags={isMobile ? 1 : 4}
+                    clipboard
+                    limitTags={isMobile ? 1 : 3}
                     tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
                   />
-                </span>
+                </Labels>
                 {!isMobile && detachAction(NIC_ID, true)}
-              </div>
+              </Row>
             ))}
             {!!SECURITY_GROUPS?.length && (
-              <Paper variant='outlined' className={classes.securityGroups}>
+              <SecGroups variant='outlined'>
                 <Typography variant='body1'>
                   <Translate word={T.SecurityGroups} />
                 </Typography>
 
                 {SECURITY_GROUPS
                   ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
-                    <div key={`${idx}-${NAME}`} className={classes.row}>
+                    <Row key={`${idx}-${NAME}`}>
                       <Typography noWrap variant='body2'>
                         {`${ID} | ${NAME}`}
                       </Typography>
-                      <span className={classes.labels}>
+                      <Labels>
                         <MultipleTags
                           limitTags={isMobile ? 2 : 5}
                           tags={[
@@ -174,12 +172,12 @@ const NetworkItem = ({ nic = {}, actions }) => {
                             ICMP_TYPE
                           ].filter(Boolean)}
                         />
-                      </span>
-                    </div>
+                      </Labels>
+                    </Row>
                   ))}
-              </Paper>
+              </SecGroups>
             )}
-          </AccordionDetails>
+          </Details>
         )}
       </Accordion>
 
@@ -193,9 +191,9 @@ const NetworkItem = ({ nic = {}, actions }) => {
           handleAccept={handleDetach}
           handleCancel={hide}
         >
-          <p>
+          <Typography>
             <Translate word={T.DoYouWantProceed} />
-          </p>
+          </Typography>
         </DialogConfirmation>
       )}
     </>

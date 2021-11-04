@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { SetStateAction } from 'react'
+import { useMemo, useState, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-import { useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 
 import { NetworkAlt as NetworkIcon, BoxIso as ImageIcon } from 'iconoir-react'
 import { Stack, Checkbox, styled } from '@mui/material'
@@ -24,31 +23,30 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 
 import { Translate } from 'client/components/HOC'
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { TAB_ID as BOOTING_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import { TAB_ID as OS_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
 import { T } from 'client/constants'
 
 export const BOOT_ORDER_ID = 'BOOT'
 
-const BootItem = styled('div')(({ theme }) => ({
+/** @returns {string} Boot order path in form */
+export const BOOT_ORDER_NAME = () => `${EXTRA_ID}.${OS_ID}.${BOOT_ORDER_ID}`
+
+const BootItemDraggable = styled('div')(({ theme, disabled }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: '0.5em',
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: '0.5em',
   padding: '1em',
-  marginBottom: '1em',
-  backgroundColor: theme.palette.background.default
-}))
-
-const BootItemDraggable = styled(BootItem)(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
   '&:before': {
     content: "''",
     display: 'block',
     width: 16,
     height: 10,
-    backgroundImage: `linear-gradient(
+    background: !disabled && `linear-gradient(
       to bottom,
       ${theme.palette.action.active} 4px,
       transparent 4px,
@@ -61,20 +59,20 @@ const BootItemDraggable = styled(BootItem)(({ theme }) => ({
 /**
  * @param {string} id - Resource id: 'NIC<index>' or 'DISK<index>'
  * @param {Array} list - List of resources
- * @param {object} formData - Form data
- * @param {SetStateAction} setFormData - React set state action
+ * @param {object} currentBootOrder - Current boot order
+ * @returns {string} Updated boot order after remove
  */
-export const reorderBootAfterRemove = (id, list, formData, setFormData) => {
+export const reorderBootAfterRemove = (id, list, currentBootOrder) => {
   const type = String(id).toLowerCase().replace(/\d+/g, '') // nic | disk
   const getIndexFromId = id => String(id).toLowerCase().replace(type, '')
   const idxToRemove = getIndexFromId(id)
 
-  const ids = list
-    .filter(resource => resource.NAME !== id)
+  const otherIds = list
+    .filter(resource => resource.NAME !== String(id))
     .map(resource => String(resource.NAME).toLowerCase())
 
-  const newBootOrder = [...formData?.[BOOTING_ID]?.[BOOT_ORDER_ID]?.split(',').filter(Boolean)]
-    .filter(bootId => !bootId.startsWith(type) || ids.includes(bootId))
+  const newBootOrder = [...currentBootOrder?.split(',').filter(Boolean)]
+    .filter(bootId => !bootId.startsWith(type) || otherIds.includes(bootId))
     .map(bootId => {
       if (!bootId.startsWith(type)) return bootId
 
@@ -85,31 +83,22 @@ export const reorderBootAfterRemove = (id, list, formData, setFormData) => {
         : `${type}${resourceId - 1}`
     })
 
-  reorder(newBootOrder, setFormData)
+  return newBootOrder.join(',')
 }
 
-/**
- * @param {string[]} newBootOrder - New boot order
- * @param {SetStateAction} setFormData - React set state action
- */
-const reorder = (newBootOrder, setFormData) => {
-  setFormData(prev => ({
-    ...prev,
-    [EXTRA_ID]: {
-      ...prev[EXTRA_ID],
-      [BOOTING_ID]: {
-        ...prev[EXTRA_ID]?.[BOOTING_ID],
-        [BOOT_ORDER_ID]: newBootOrder.join(',')
-      }
-    }
-  }))
-}
+/** @returns {JSXElementConstructor} Boot order component */
+const BootOrder = () => {
+  const { setValue, getValues } = useFormContext()
+  const [bootOrder, setBootOrder] = useState(
+    getValues(BOOT_ORDER_NAME())?.split(',')?.filter(Boolean) ?? []
+  )
 
-const BootOrder = ({ data, setFormData, control }) => {
-  const booting = useWatch({ name: `${EXTRA_ID}.${BOOTING_ID}.${BOOT_ORDER_ID}`, control })
-  const bootOrder = booting?.split(',').filter(Boolean) ?? []
+  const updateValues = updatedBootOrder => {
+    setValue(BOOT_ORDER_NAME(), updatedBootOrder.join(','))
+    setBootOrder(updatedBootOrder)
+  }
 
-  const disks = data?.[STORAGE_ID]
+  const disks = useMemo(() => getValues(`${EXTRA_ID}.${STORAGE_ID}`)
     ?.map((disk, idx) => {
       const isVolatile = !disk?.IMAGE && !disk?.IMAGE_ID
 
@@ -124,9 +113,9 @@ const BootOrder = ({ data, setFormData, control }) => {
           </>
         )
       }
-    }) ?? []
+    }) ?? [], [])
 
-  const nics = data?.[NIC_ID]
+  const nics = useMemo(() => getValues(`${EXTRA_ID}.${NIC_ID}`)
     ?.map((nic, idx) => ({
       ID: `nic${idx}`,
       NAME: (
@@ -135,7 +124,7 @@ const BootOrder = ({ data, setFormData, control }) => {
           {[nic?.NAME, nic.NETWORK].filter(Boolean).join(': ')}
         </>
       )
-    })) ?? []
+    })) ?? [], [])
 
   const enabledItems = [...disks, ...nics]
     .filter(item => bootOrder.includes(item.ID))
@@ -145,7 +134,7 @@ const BootOrder = ({ data, setFormData, control }) => {
     .filter(item => !bootOrder.includes(item.ID))
 
   /** @param {DropResult} result - Drop result */
-  const onDragEnd = result => {
+  const onDragEnd = async result => {
     const { destination, source, draggableId } = result
     const newBootOrder = [...bootOrder]
 
@@ -154,10 +143,8 @@ const BootOrder = ({ data, setFormData, control }) => {
       destination.index !== source.index &&
       newBootOrder.includes(draggableId)
     ) {
-      newBootOrder.splice(source.index, 1) // remove current position
-      newBootOrder.splice(destination.index, 0, draggableId) // set in new position
-
-      reorder(newBootOrder, setFormData)
+      newBootOrder.splice(destination.index, 0, newBootOrder.splice(source.index, 1)[0])
+      updateValues(newBootOrder)
     }
   }
 
@@ -169,48 +156,43 @@ const BootOrder = ({ data, setFormData, control }) => {
       ? newBootOrder.splice(itemIndex, 1)
       : newBootOrder.push(itemId)
 
-    reorder(newBootOrder, setFormData)
+    updateValues(newBootOrder)
   }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Stack>
+      <Stack gap='1em'>
         <Droppable droppableId='booting'>
           {({ droppableProps, innerRef, placeholder }) => (
-            <Stack {...droppableProps} ref={innerRef} m={2}>
-              {enabledItems.map(({ ID, NAME }, idx) => (
-                <Draggable key={ID} draggableId={ID} index={idx}>
-                  {({ draggableProps, dragHandleProps, innerRef }) => (
-                    <BootItemDraggable
-                      {...draggableProps}
-                      {...dragHandleProps}
-                      ref={innerRef}
-                    >
-                      <Checkbox
-                        checked
-                        color='secondary'
-                        data-cy={ID}
-                        onChange={() => handleEnable(ID)}
-                      />
-                      {NAME}
-                    </BootItemDraggable>
-                  )}
-                </Draggable>
-              ))}
+            <Stack {...droppableProps} ref={innerRef} gap={1}>
+              {[...enabledItems, ...restOfItems].map(({ ID, NAME }, idx) => {
+                const disabled = !bootOrder.includes(ID)
+
+                return (
+                  <Draggable key={ID} isDragDisabled={disabled} draggableId={ID} index={idx}>
+                    {({ draggableProps, dragHandleProps, innerRef }) => (
+                      <BootItemDraggable
+                        {...draggableProps}
+                        {...dragHandleProps}
+                        disabled={disabled}
+                        ref={innerRef}
+                      >
+                        <Checkbox
+                          checked={!disabled}
+                          color='secondary'
+                          data-cy={ID}
+                          onChange={() => handleEnable(ID)}
+                        />
+                        {NAME}
+                      </BootItemDraggable>
+                    )}
+                  </Draggable>
+                )
+              })}
               {placeholder}
             </Stack>
           )}
         </Droppable>
-        {restOfItems.map(({ ID, NAME }) => (
-          <BootItem key={ID}>
-            <Checkbox
-              color='secondary'
-              data-cy={ID}
-              onChange={() => handleEnable(ID)}
-            />
-            {NAME}
-          </BootItem>
-        ))}
       </Stack>
     </DragDropContext>
   )

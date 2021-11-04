@@ -57,11 +57,12 @@ const CustomMobileStepper = ({
     <Box className={classes.root}>
       <Box minHeight={60}>
         <Typography className={classes.title}>
-          {labelCanBeTranslated(label) ? Tr(label) : label}
+          {labelCanBeTranslated(label) ? <Translate word={label} /> : label}
         </Typography>
         {Boolean(errors[id]) && (
           <Typography className={classes.error} variant='caption' color='error'>
-            {errors[id]?.message}
+            {labelCanBeTranslated(errors[id]?.message)
+              ? Tr(errors[id]?.message) : errors[id]?.message}
           </Typography>
         )}
       </Box>

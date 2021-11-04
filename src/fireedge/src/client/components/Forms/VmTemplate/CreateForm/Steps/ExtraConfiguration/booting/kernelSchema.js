@@ -17,7 +17,7 @@ import { boolean, string } from 'yup'
 
 import { useImage } from 'client/features/One'
 import { getType } from 'client/models/Image'
-import { Field, clearNames, filterFieldsByHypervisor } from 'client/utils'
+import { Field, clearNames } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
 
 const { vcenter, lxc } = HYPERVISORS
@@ -73,12 +73,5 @@ export const KERNEL = {
   )
 }
 
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of Kernel fields
- */
-export const KERNEL_FIELDS = hypervisor =>
-  filterFieldsByHypervisor(
-    [KERNEL_PATH_ENABLED, KERNEL, KERNEL_DS],
-    hypervisor
-  )
+/** @type {Field[]} List of Kernel fields */
+export const KERNEL_FIELDS = [KERNEL_PATH_ENABLED, KERNEL, KERNEL_DS]

@@ -90,6 +90,7 @@ export const SOCKETS = {
 export * as T from 'client/constants/translates'
 export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'
+export * from 'client/constants/userInput'
 export * from 'client/constants/flow'
 export * from 'client/constants/provision'
 export * from 'client/constants/cluster'

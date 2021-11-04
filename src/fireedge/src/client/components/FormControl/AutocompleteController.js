@@ -29,6 +29,7 @@ const AutocompleteController = memo(
     cy = `autocomplete-${generateKey()}`,
     name = '',
     label = '',
+    tooltip = '',
     multiple = false,
     values = [],
     fieldProps = {}
@@ -83,6 +84,10 @@ const AutocompleteController = memo(
             {...inputParams}
           />
         )}
+        {...(tooltip && {
+          loading: true,
+          loadingText: labelCanBeTranslated(tooltip) ? Tr(tooltip) : tooltip
+        })}
         {...fieldProps}
       />
     )
@@ -97,8 +102,9 @@ AutocompleteController.propTypes = {
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
+  tooltip: PropTypes.any,
   multiple: PropTypes.bool,
-  values: PropTypes.arrayOf(PropTypes.object).isRequired,
+  values: PropTypes.arrayOf(PropTypes.object),
   fieldProps: PropTypes.object
 }
 

@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { NetworkAlt as PlacementIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import {
-  PLACEMENT_HOST_FIELDS,
-  PLACEMENT_DS_FIELDS
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
+import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { SECTIONS, FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
 
 const Placement = () => {
@@ -34,18 +31,14 @@ const Placement = () => {
 
   return (
     <>
-      <FormWithSchema
-        cy='create-vm-template-extra.host-placement'
-        fields={PLACEMENT_HOST_FIELDS}
-        legend={T.Host}
-        id={STEP_ID}
-      />
-      <FormWithSchema
-        cy='create-vm-template-extra.ds-placement'
-        fields={PLACEMENT_DS_FIELDS}
-        legend={T.Datastore}
-        id={STEP_ID}
-      />
+      {SECTIONS.map(({ id, ...section }) => (
+        <FormWithSchema
+          key={id}
+          id={EXTRA_ID}
+          cy={`create-vm-template-${EXTRA_ID}.${id}`}
+          {...section}
+        />
+      ))}
     </>
   )
 }
@@ -57,4 +50,13 @@ Placement.propTypes = {
 
 Placement.displayName = 'Placement'
 
-export default Placement
+/** @type {TabType} */
+const TAB = {
+  id: 'placement',
+  name: T.Placement,
+  icon: PlacementIcon,
+  Content: Placement,
+  getError: error => FIELDS.some(({ name }) => error?.[name])
+}
+
+export default TAB

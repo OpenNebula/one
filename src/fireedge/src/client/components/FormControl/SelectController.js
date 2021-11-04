@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
@@ -43,27 +43,31 @@ const SelectController = memo(
     } = useController({ name, control })
 
     const needShrink = useMemo(
-      () => values.find(v => v.value === optionSelected)?.text !== '',
+      () => multiple || values.find(v => v.value === optionSelected)?.text !== '',
       [optionSelected]
     )
+
+    useEffect(() => {
+      if (multiple && !Array.isArray(optionSelected)) {
+        onChange([optionSelected])
+      }
+    }, [multiple])
 
     return (
       <TextField
         {...inputProps}
         inputRef={ref}
         value={optionSelected}
-        onChange={
-          multiple
-            ? event => {
-              const { options = [] } = event.target
-              const newValue = options
-                .filter(option => option.selected)
-                .map(option => option.value)
+        onChange={!multiple ? onChange : evt => {
+          const { target: { options } } = evt
+          const newValue = []
 
-              onChange(newValue)
-            }
-            : onChange
-        }
+          for (const option of options) {
+            option.selected && newValue.push(option.value)
+          }
+
+          onChange(newValue)
+        }}
         select
         fullWidth
         SelectProps={{ native: true, multiple }}
@@ -88,11 +92,12 @@ const SelectController = memo(
       </TextField>
     )
   },
-  (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
-    prevProps.values.length === nextProps.values.length &&
-    prevProps.label === nextProps.label &&
-    prevProps.tooltip === nextProps.tooltip
+  (prev, next) =>
+    prev.error === next.error &&
+    prev.values.length === next.values.length &&
+    prev.label === next.label &&
+    prev.tooltip === next.tooltip &&
+    prev.multiple === next.multiple
 )
 
 SelectController.propTypes = {

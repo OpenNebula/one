@@ -17,14 +17,20 @@
 import { createElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Grid, Typography } from '@mui/material'
+import { FormControl, Grid } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
 
 import * as FC from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
 
-const NOT_DEPEND_ATTRIBUTES = ['watcher', 'transform', 'Table', 'renderValue']
+const NOT_DEPEND_ATTRIBUTES = [
+  'watcher',
+  'transform',
+  'Table',
+  'getRowId',
+  'renderValue'
+]
 
 const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: FC.TextController,
@@ -40,9 +46,11 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TOGGLE]: FC.ToggleController
 }
 
-const FormWithSchema = ({ id, cy, fields, className, legend }) => {
+const FormWithSchema = ({ id, cy, fields, rootProps, className, legend, legendTooltip }) => {
   const formContext = useFormContext()
   const { control, watch } = formContext
+
+  const { sx: sxRoot, restOfRootProps } = rootProps ?? {}
 
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
@@ -53,11 +61,14 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
     : id ? `${id}.${name}` : name // concat form ID if exists
 
   return (
-    <fieldset className={className}>
+    <FormControl
+      component='fieldset'
+      className={className}
+      sx={{ width: '100%', ...sxRoot }}
+      {...restOfRootProps}
+    >
       {legend && (
-        <Typography variant='subtitle1' component='legend'>
-          {Tr(legend)}
-        </Typography>
+        <Legend title={legend} tooltip={legendTooltip} />
       )}
       <Grid container spacing={1} alignContent='flex-start'>
         {getFields?.map?.(
@@ -111,7 +122,7 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
           }
         )}
       </Grid>
-    </fieldset>
+    </FormControl>
   )
 }
 
@@ -123,6 +134,8 @@ FormWithSchema.propTypes = {
     PropTypes.arrayOf(PropTypes.object)
   ]),
   legend: PropTypes.string,
+  legendTooltip: PropTypes.string,
+  rootProps: PropTypes.object,
   className: PropTypes.string
 }
 

@@ -36,6 +36,18 @@ const buildMethods = () => {
       value => isBase64(value)
     )
   })
+  addMethod(string, 'includesInOptions', function (options, separator = ',') {
+    return this.test({
+      name: 'includes-string-of-values',
+      message: [T['validation.string.invalidFormat'], options.join(separator)],
+      exclusive: true,
+      test: function (values) {
+        return values
+          ?.split(separator)
+          ?.every(value => this.resolve(options).includes(value))
+      }
+    })
+  })
 }
 
 /**

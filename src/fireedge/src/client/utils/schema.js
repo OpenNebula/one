@@ -20,8 +20,10 @@ import { JSXElementConstructor, SetStateAction } from 'react'
 // eslint-disable-next-line no-unused-vars
 import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@mui/material'
 import { string, number, boolean, array, object, BaseSchema } from 'yup'
+// eslint-disable-next-line no-unused-vars
+import { Row } from 'react-table'
 
-import { INPUT_TYPES } from 'client/constants'
+import { UserInputObject, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
 
 // ----------------------------------------------------------
 // Types
@@ -90,14 +92,35 @@ import { INPUT_TYPES } from 'client/constants'
  * @property {BaseSchema|DependOfCallback} [validation]
  * - Schema to validate the field value
  * @property {TextFieldProps|CheckboxProps|InputBaseComponentProps} [fieldProps]
- * - Extra properties to material field
+ * - Extra properties to material-ui field
+ * @property {function(string|number):any} [renderValue]
+ * - Render the current selected value inside selector input
+ * - **Only for select inputs.**
+ * @property {JSXElementConstructor} [Table]
+ * - Table component. One of table defined in: `client/components/Tables`
+ * - **Only for table inputs.**
+ * @property {boolean|DependOfCallback} [singleSelect]
+ * If `true`, the table component only will allows to select one row
+ * - **Only for table inputs.**
+ * @property {function(Row, number):string} [getRowId]
+ * This function changes how React Table detects unique rows
+ * and also how it constructs each row's underlying id property.
+ * - **Only for table inputs.**
  * @property {{message: string, test: Function}[]|DependOfCallback} [validationBeforeTransform]
  * - Tests to validate the field value.
  * - **Only for file inputs.**
- * @property {Function|DependOfCallback} [transform]
+ * @property {Function} [transform]
  * - Transform the file value.
  * - For example: to save file as string value in base64 format.
  * - **Only for file inputs.**
+ */
+
+/**
+ * @typedef {object} Section
+ * @property {string} id - Section id
+ * @property {string} legend - Legend text
+ * @property {string} legendTooltip - Legend tooltip
+ * @property {Field[]} fields - The Fields will be includes on section
  */
 
 /**
@@ -149,12 +172,6 @@ import { INPUT_TYPES } from 'client/constants'
  * @returns {Form & ExtraParams}
  */
 
-/**
- * @typedef {('text'|'text64'|'password'|'number'|'number-float'|'range'|
- * 'range-float'|'boolean'|'list'|'array'|'list-multiple')} UserInputType
- * - OpenNebula types for user inputs
- */
-
 // ----------------------------------------------------------
 // Constants
 // ----------------------------------------------------------
@@ -192,19 +209,15 @@ const parseUserInputValue = value => {
 /**
  * Get input schema for the user input defined in OpenNebula resource.
  *
- * @param {object} userInput - User input from OpenNebula document
- * @param {boolean} userInput.mandatory - If `true`, the input will be required
- * @param {string} userInput.name - Name of input
- * @param {UserInputType} userInput.type - Input type
- * @param {string} [userInput.options] - Options available for the input
- * @param {number|string|string[]} [userInput.defaultValue] - Default value for the input
+ * @param {UserInputObject} userInput - User input from OpenNebula document
+ * @param {number|string|string[]} [userInput.default] - Default value for the input
  * @returns {Field} Field properties
  */
-export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }) => {
+export const schemaUserInput = ({ mandatory, name, type, options, default: defaultValue }) => {
   switch (type) {
-    case 'text':
-    case 'text64':
-    case 'password': return {
+    case [USER_INPUT_TYPES.text]:
+    case [USER_INPUT_TYPES.text64]:
+    case [USER_INPUT_TYPES.password]: return {
       type: INPUT_TYPES.TEXT,
       htmlType: type === 'password' ? 'password' : 'text',
       validation: string()
@@ -212,8 +225,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         .concat(requiredSchema(mandatory, name, string()))
         .default(defaultValue || undefined)
     }
-    case 'number':
-    case 'number-float': return {
+    case [USER_INPUT_TYPES.number]:
+    case [USER_INPUT_TYPES.numberFloat]: return {
       type: INPUT_TYPES.TEXT,
       htmlType: 'number',
       validation: number()
@@ -222,8 +235,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         .transform(value => !isNaN(value) ? value : null)
         .default(() => parseFloat(defaultValue) ?? undefined)
     }
-    case 'range':
-    case 'range-float': {
+    case [USER_INPUT_TYPES.range]:
+    case [USER_INPUT_TYPES.rangeFloat]: {
       const [min, max] = getRange(options)
 
       return {
@@ -238,13 +251,13 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 }
       }
     }
-    case 'boolean': return {
+    case [USER_INPUT_TYPES.boolean]: return {
       type: INPUT_TYPES.CHECKBOX,
       validation: boolean()
         .concat(requiredSchema(mandatory, name, boolean()))
         .default(defaultValue === 'YES' ?? false)
     }
-    case 'list': {
+    case [USER_INPUT_TYPES.list]: {
       const values = getOptionsFromList(options)
       const firstOption = values?.[0]?.value ?? undefined
 
@@ -258,7 +271,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
           .default(defaultValue || firstOption)
       }
     }
-    case 'array': {
+    case [USER_INPUT_TYPES.array]: {
       const defaultValues = getValuesFromArray(defaultValue)
 
       return {
@@ -270,7 +283,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         fieldProps: { freeSolo: true }
       }
     }
-    case 'list-multiple': {
+    case [USER_INPUT_TYPES.listMultiple]: {
       const values = getOptionsFromList(options)
       const defaultValues = defaultValue?.split(',') ?? undefined
 

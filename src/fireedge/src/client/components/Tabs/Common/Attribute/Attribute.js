@@ -17,46 +17,41 @@ import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
 import { Link as RouterLink } from 'react-router-dom'
 
-import { Typography, Link } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { Typography, Link, Stack } from '@mui/material'
 
 import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
 
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles({
-  wrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    '& > *:first-child': {
-      flexGrow: 1
-    }
-  },
-  select: {
-    textOverflow: 'ellipsis'
-  },
-  nested: ({ numberOfParents }) => numberOfParents > 0 && ({
-    paddingLeft: `${numberOfParents}em`
-  })
-})
+const Column = props => (
+  <Stack direction='row' alignItems='center'
+    sx={{ '&:hover > .actions': { display: 'contents' } }}
+    {...props}
+  />
+)
+
+const ActionWrapper = props => (
+  <Stack direction='row' component='span' className='actions' {...props} />
+)
 
 const Attribute = memo(({
+  canCopy = false,
   canDelete,
   canEdit,
-  handleEdit,
   handleDelete,
+  handleEdit,
   handleGetOptionList,
   link,
   name,
   path = name,
+  showActionsOnHover = false,
   value,
   valueInOptionList
 }) => {
   const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
-  const classes = useStyles({ numberOfParents })
 
   const [isEditing, setIsEditing] = useState(() => false)
   const [options, setOptions] = useState(() => [])
@@ -90,10 +85,22 @@ const Attribute = memo(({
 
   return (
     <>
-      <Typography noWrap variant='body2' title={Tr(name)} className={classes.nested}>
-        {Tr(name)}
-      </Typography>
-      <div className={classes.wrapper}>
+      <Column>
+        <Typography
+          noWrap
+          component='span'
+          variant='body2'
+          title={typeof name === 'string' ? name : undefined}
+          flexGrow={1}
+          sx={numberOfParents > 0 ? { pl: `${numberOfParents}em` } : undefined}
+        >
+          {name}
+        </Typography>
+        <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
+          {canCopy && <Actions.Copy name={name} value={name} />}
+        </ActionWrapper>
+      </Column>
+      <Column>
         {isEditing ? (
           <>
             {handleGetOptionList ? (
@@ -117,6 +124,7 @@ const Attribute = memo(({
               noWrap
               component='span'
               variant='body2'
+              flexGrow={1}
               title={typeof value === 'string' ? value : undefined}
             >
               {link
@@ -128,12 +136,17 @@ const Attribute = memo(({
                 : value
               }
             </Typography>
-            {canEdit && (
-              <Actions.Edit name={name} handleClick={handleActiveEditForm} />
-            )}
-            {canDelete && (
-              <Actions.Delete name={name} handleClick={show} />
-            )}
+            <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
+              {canCopy && (
+                <Actions.Copy name={name} value={value} />
+              )}
+              {canEdit && (
+                <Actions.Edit name={name} handleClick={handleActiveEditForm} />
+              )}
+              {canDelete && (
+                <Actions.Delete name={name} handleClick={show} />
+              )}
+            </ActionWrapper>
           </>
         )}
 
@@ -148,24 +161,26 @@ const Attribute = memo(({
             </p>
           </DialogConfirmation>
         )}
-      </div>
+      </Column>
     </>
   )
 })
 
 export const AttributePropTypes = {
+  canCopy: PropTypes.bool,
   canDelete: PropTypes.bool,
   canEdit: PropTypes.bool,
-  handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
+  handleEdit: PropTypes.func,
   handleGetOptionList: PropTypes.func,
   link: PropTypes.string,
   name: PropTypes.string.isRequired,
+  path: PropTypes.string,
+  showActionsOnHover: PropTypes.bool,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
   ]),
-  path: PropTypes.string,
   valueInOptionList: PropTypes.string
 }
 

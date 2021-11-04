@@ -80,7 +80,7 @@ export const getSecurityGroupsFromResource = (resource, securityGroups) => {
 
   const groups = Array.isArray(securityGroups)
     ? securityGroups
-    : securityGroups.split(',')
+    : securityGroups?.split(',')
 
-  return rules.filter(({ SECURITY_GROUP_ID }) => groups.includes?.(SECURITY_GROUP_ID))
+  return rules.filter(({ SECURITY_GROUP_ID }) => groups?.includes?.(SECURITY_GROUP_ID))
 }

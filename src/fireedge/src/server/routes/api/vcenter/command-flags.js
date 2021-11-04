@@ -14,19 +14,51 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const questions = {
-  datastores: [
+const DATASTORES = 'datastores'
+const TEMPLATES = 'templates'
+const NETWORKS = 'networks'
+const IMAGES = 'images'
 
-  ],
-  templates: [
-
-  ],
-  networks: [
-
-  ],
-  images: [
-
-  ]
+const resources = {
+  DATASTORES,
+  TEMPLATES,
+  NETWORKS,
+  IMAGES
 }
 
-module.exports = questions
+const questions = {
+  [DATASTORES]: [],
+  [TEMPLATES]: [
+    {
+      question: 'Type',
+      flag: '--type'
+    }, {
+      question: 'Folder',
+      flag: '--folder'
+    }, {
+      question: 'Linked Clone',
+      flag: '--linked-clone'
+    }
+  ],
+  [NETWORKS]: [
+    {
+      question: 'Size',
+      flag: '--size'
+    }, {
+      question: 'Type',
+      flag: '--type'
+    }, {
+      question: 'MAC',
+      flag: '--mac'
+    }, {
+      question: 'Cluster(s) to import',
+      flag: '--cluster-imports'
+    }, {
+      question: 'Unimported Cluster(s)',
+      flag: '--cluster-unimported'
+    }
+  ],
+  [IMAGES]: []
+}
+
+module.exports = { resources, questions }

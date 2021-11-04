@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import useClipboard, { CLIPBOARD_STATUS } from 'client/hooks/useClipboard'
 import useDialog from 'client/hooks/useDialog'
 import useFetch from 'client/hooks/useFetch'
 import useFetchAll from 'client/hooks/useFetchAll'
@@ -23,6 +24,7 @@ import useSearch from 'client/hooks/useSearch'
 import useSocket from 'client/hooks/useSocket'
 
 export {
+  useClipboard,
   useDialog,
   useFetch,
   useFetchAll,
@@ -30,5 +32,7 @@ export {
   useListForm,
   useNearScreen,
   useSearch,
-  useSocket
+  useSocket,
+
+  CLIPBOARD_STATUS
 }

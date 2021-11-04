@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Tabs as MTabs, Tab as MTab, Fade } from '@mui/material'
-import { Box } from '@mui/system'
+import { styled, Tabs as MTabs, TabsProps, Tab as MTab, Box, Fade } from '@mui/material'
+import { WarningCircledOutline } from 'iconoir-react'
 
-const Content = ({ name, renderContent: Content, hidden }) => (
+const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
+  color: theme.palette.error.main
+}))
+
+const Content = ({ name, renderContent: RenderContent, hidden }) => (
   <Fade in timeout={400} key={`tab-${name}`}>
     <Box
       sx={{
@@ -29,12 +32,25 @@ const Content = ({ name, renderContent: Content, hidden }) => (
         display: hidden ? 'none' : 'block'
       }}
     >
-      {typeof Content === 'function' ? <Content /> : Content}
+      {typeof RenderContent === 'function'
+        ? <RenderContent />
+        : RenderContent}
     </Box>
   </Fade>
 )
 
-const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
+/**
+ * @param {object} props - Props
+ * @param {Array} props.tabs - Tabs
+ * @param {TabsProps} props.tabsProps - Props to tabs component
+ * @param {boolean} props.renderHiddenTabs - If `true`, will be render hidden tabs
+ * @returns {JSXElementConstructor} Tabs component with content
+ */
+const Tabs = ({
+  tabs = [],
+  tabsProps: { sx, ...tabsProps } = {},
+  renderHiddenTabs = false
+}) => {
   const [tabSelected, setTab] = useState(() => 0)
 
   const renderTabs = useMemo(() => (
@@ -43,18 +59,26 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
       variant='scrollable'
       scrollButtons='auto'
       onChange={(_, tab) => setTab(tab)}
+      sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: theme => theme.zIndex.appBar,
+        ...sx
+      }}
+      {...tabsProps}
     >
-      {tabs.map(({ value, name, label, icon: Icon }, idx) =>
-        <MTab
+      {tabs.map(({ value, name, label, error, icon: Icon }, idx) => {
+        return <MTab
           key={`tab-${name}`}
           id={`tab-${name}`}
-          icon={Icon && <Icon />}
+          icon={error ? <WarningIcon /> : (Icon && <Icon />)}
           value={value ?? idx}
           label={label ?? name}
         />
+      }
       )}
     </MTabs>
-  ), [tabs.length, tabSelected])
+  ), [tabs, tabSelected])
 
   const renderAllHiddenTabContents = useMemo(() =>
     tabs.map((tabProps, idx) => {
@@ -83,6 +107,7 @@ Content.displayName = 'Content'
 
 Tabs.propTypes = {
   tabs: PropTypes.array,
+  tabsProps: PropTypes.object,
   renderHiddenTabs: PropTypes.bool
 }
 

@@ -87,7 +87,11 @@ const translateString = (str = '', values) => {
   }
 
   if (key && Array.isArray(values)) {
-    key = sprintf(key, ...values)
+    try {
+      key = sprintf(key, ...values)
+    } catch (e) {
+      return str
+    }
   }
 
   return key
@@ -104,12 +108,14 @@ const Tr = (str = '') => {
 
   const valuesTr = !Array.isArray(values) ? [values] : values
 
-  return translateString(key, valuesTr)
+  return translateString(key, valuesTr.filter(Boolean))
 }
 
 const Translate = ({ word = '', values = [] }) => {
-  const valuesTr = !Array.isArray(values) ? [values] : values
-  return translateString(word, valuesTr)
+  const [w, v = values] = Array.isArray(word) ? word : [word, values]
+  const valuesTr = !Array.isArray(v) ? [v] : v
+
+  return translateString(w, valuesTr)
 }
 
 TranslateProvider.propTypes = {

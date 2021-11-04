@@ -22,7 +22,6 @@ const internalProvisionPath = `${appName}/${appNameProvision}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const severityPrepend = 'severity_'
-const assetsClient = '/lib/one/fireedge/dist/client'
 const apps = {
   [appNameSunstone]: {
     theme: appNameSunstone,
@@ -71,6 +70,7 @@ const defaults = {
     'oneflow',
     'support',
     'vcenter',
+    'vm',
     'zendesk',
     appNameProvision,
     appNameSunstone
@@ -114,6 +114,7 @@ const defaults = {
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
   defaultCommandVcenter: 'onevcenter',
+  defaultCommandVM: 'onevm',
   defaultFolderTmpProvision: 'tmp',
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
@@ -150,6 +151,7 @@ const defaults = {
   defaultGetMethod: 'info',
   defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
   defaultIP: defaultIp,
+  defaultSeverities: [`${severityPrepend}1`, `${severityPrepend}2`, `${severityPrepend}3`, `${severityPrepend}4`],
   defaultProtocolHotReload: 'http',
   defaultHost: '0.0.0.0',
   defaultPort: 2616,

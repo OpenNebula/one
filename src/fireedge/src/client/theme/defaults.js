@@ -248,16 +248,6 @@ export default (appTheme, mode = SCHEMES.DARK) => {
           fieldset: { border: 'none' }
         }
       },
-      MuiTypography: {
-        variants: [{
-          props: { component: 'legend' },
-          style: {
-            marginBottom: '1em',
-            padding: '0em 1em 0.2em 0.5em',
-            borderBottom: `2px solid ${secondary.main}`
-          }
-        }]
-      },
       MuiPaper: {
         styleOverrides: {
           root: { backgroundImage: 'unset' }
@@ -424,8 +414,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       },
       MuiList: {
         defaultProps: {
-          dense: true,
-          disablePadding: true
+          dense: true
         }
       },
       MuiChip: {

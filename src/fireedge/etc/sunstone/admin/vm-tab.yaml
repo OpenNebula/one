@@ -89,24 +89,28 @@ info-tabs:
     vcenter_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     lxc_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     monitoring_panel:
       enabled: true
       actions:
+        copy: true
         add: false
         edit: false
         delete: false
     attributes_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
@@ -147,7 +151,7 @@ info-tabs:
       snapshot_revert: true
       snapshot_delete: true
 
-  placement:
+  history:
     enabled: true
 
   sched_actions:

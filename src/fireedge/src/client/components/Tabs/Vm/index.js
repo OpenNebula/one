@@ -31,7 +31,7 @@ import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
 import Log from 'client/components/Tabs/Vm/Log'
 import Network from 'client/components/Tabs/Vm/Network'
-import Placement from 'client/components/Tabs/Vm/Placement'
+import History from 'client/components/Tabs/Vm/History'
 import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
@@ -42,7 +42,7 @@ const getTabComponent = tabName => ({
   info: Info,
   log: Log,
   network: Network,
-  placement: Placement,
+  history: History,
   schedActions: SchedActions,
   snapshot: Snapshot,
   storage: Storage

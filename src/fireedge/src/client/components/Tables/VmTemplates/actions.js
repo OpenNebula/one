@@ -114,12 +114,13 @@ const Actions = () => {
         label: T.Update,
         tooltip: T.Update,
         selected: { max: 1 },
-        disabled: true,
+        color: 'secondary',
         action: rows => {
-          // const { ID } = rows?.[0]?.original ?? {}
-          // const path = generatePath(PATH.TEMPLATE.VMS.CREATE, { id: ID })
+          const vmTemplate = rows?.[0]?.original ?? {}
+          // const path = generatePath(PATH.TEMPLATE.VMS.CREATE, vmTemplate)
+          const path = PATH.TEMPLATE.VMS.CREATE
 
-          // history.push(path)
+          history.push(path, vmTemplate)
         }
       },
       {

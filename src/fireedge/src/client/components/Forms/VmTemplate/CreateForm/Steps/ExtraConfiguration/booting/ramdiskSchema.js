@@ -17,7 +17,7 @@ import { string, boolean } from 'yup'
 
 import { useImage } from 'client/features/One'
 import { getType } from 'client/models/Image'
-import { Field, clearNames, filterFieldsByHypervisor } from 'client/utils'
+import { Field, clearNames } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
@@ -73,12 +73,5 @@ export const RAMDISK = {
   )
 }
 
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of Ramdisk fields
- */
-export const RAMDISK_FIELDS = hypervisor =>
-  filterFieldsByHypervisor(
-    [RAMDISK_PATH_ENABLED, RAMDISK, RAMDISK_DS],
-    hypervisor
-  )
+/** @type {Field[]} List of Ramdisk fields */
+export const RAMDISK_FIELDS = [RAMDISK_PATH_ENABLED, RAMDISK, RAMDISK_DS]

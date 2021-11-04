@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { T } from 'client/constants'
 import { DateTime } from 'luxon'
 import { j2xParser as Parser } from 'fast-xml-parser'
+
+import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
 
 /**
  * @param {object} json - JSON
@@ -125,6 +126,21 @@ export const levelLockToString = level => ({
 }[level] || '-')
 
 /**
+ * Returns the permission numeric code.
+ *
+ * @param {string[]} category - Array with Use, Manage and Access permissions.
+ * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
+ * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
+ * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
+ * @returns {number} Permission code number.
+ */
+const getCategoryValue = ([u, m, a]) => (
+  (stringToBoolean(u) ? 4 : 0) +
+  (stringToBoolean(m) ? 2 : 0) +
+  (stringToBoolean(a) ? 1 : 0)
+)
+
+/**
  * Transform the permission from OpenNebula template to octal format.
  *
  * @param {object} permissions - Permissions object.
@@ -145,21 +161,6 @@ export const permissionsToOctal = permissions => {
     GROUP_U, GROUP_M, GROUP_A,
     OTHER_U, OTHER_M, OTHER_A
   } = permissions
-
-  /**
-   * Returns the permission numeric code.
-   *
-   * @param {string[]} category - Array with Use, Manage and Access permissions.
-   * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
-   * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
-   * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
-   * @returns {number} Permission code number.
-   */
-  const getCategoryValue = ([u, m, a]) => (
-    (stringToBoolean(u) ? 4 : 0) +
-    (stringToBoolean(m) ? 2 : 0) +
-    (stringToBoolean(a) ? 1 : 0)
-  )
 
   return [
     [OWNER_U, OWNER_M, OWNER_A],
@@ -219,3 +220,95 @@ export const filterAttributes = (list = {}, options = {}) => {
 
   return response
 }
+
+// ----------------------------------------------------------
+// User inputs
+// ----------------------------------------------------------
+
+const PARAMS_SEPARATOR = '|'
+const RANGE_SEPARATOR = '..'
+const LIST_SEPARATOR = ','
+const OPTIONS_DEFAULT = ' '
+const MANDATORY = 'M'
+const OPTIONAL = 'O'
+
+/**
+ * Get object attributes from user input as string.
+ *
+ * @param {string} userInputString - User input as string with format:
+ * mandatory | type | description | options | defaultValue
+ * @returns {UserInputObject} User input object
+ */
+export const getUserInputParams = userInputString => {
+  const params = String(userInputString).split(PARAMS_SEPARATOR)
+
+  const options = [
+    USER_INPUT_TYPES.range,
+    USER_INPUT_TYPES.rangeFloat
+  ].includes(params[1])
+    ? params[3].split(RANGE_SEPARATOR)
+    : params[3].split(LIST_SEPARATOR)
+
+  return {
+    mandatory: params[0] === MANDATORY,
+    type: params[1],
+    description: params[2],
+    options: options,
+    default: params[4],
+    min: options[0],
+    max: options[1]
+  }
+}
+
+/**
+ * @param {UserInputObject} userInput - User input object
+ * @returns {string} User input in string format
+ */
+export const getUserInputString = userInput => {
+  const {
+    mandatory,
+    mandatoryString = mandatory ? MANDATORY : OPTIONAL,
+    type,
+    description,
+    min,
+    max,
+    range = [min, max].filter(Boolean).join(RANGE_SEPARATOR),
+    options,
+    default: defaultValue
+  } = userInput
+
+  // mandatory|type|description|range/options/' '|defaultValue
+  const uiString = [mandatoryString, type, description]
+
+  range?.length > 0
+    ? uiString.push(range)
+    : options?.length > 0
+      ? uiString.push(options.join(LIST_SEPARATOR))
+      : uiString.push(OPTIONS_DEFAULT)
+
+  return uiString.concat(defaultValue).join(PARAMS_SEPARATOR)
+}
+
+/**
+ * Get list of user inputs defined in OpenNebula template.
+ *
+ * @param {object} userInputs - List of user inputs in string format
+ * @returns {UserInputObject[]} User input object
+ */
+export const userInputsToArray = userInputs => {
+  return Object
+    .entries(userInputs)
+    .map(([name, ui]) => ({ name, ...getUserInputParams(ui) }))
+}
+
+/**
+ * Get list of user inputs in format valid to forms.
+ *
+ * @param {UserInputObject[]} userInputs - List of user inputs in object format
+ * @returns {object} User input object
+ */
+export const userInputsToObject = userInputs =>
+  userInputs.reduce((res, { name, ...userInput }) => ({
+    ...res,
+    [String(name).toUpperCase()]: getUserInputString(userInput)
+  }), {})

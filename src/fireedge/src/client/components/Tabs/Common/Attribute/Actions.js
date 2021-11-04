@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, JSXElementConstructor } from 'react'
+import { memo, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import {
+  Copy as CopyIcon,
   AddSquare as AddIcon,
   Edit as EditIcon,
   Trash as DeleteIcon,
@@ -24,8 +25,11 @@ import {
   Cancel as CancelIcon
 } from 'iconoir-react'
 
+import { useClipboard } from 'client/hooks'
+import { Translate } from 'client/components/HOC'
 import { Action } from 'client/components/Cards/SelectCard'
 import { camelCase } from 'client/utils'
+import { T } from 'client/constants'
 
 /**
  * @param {string} action - Action name
@@ -70,6 +74,25 @@ ActionButton.propTypes = {
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
+const Copy = memo(({ value, ...props }) => {
+  const { copy, isCopied } = useClipboard(1000)
+
+  return (
+    <ActionButton
+      action='copy'
+      tooltip={<>{'✔️'}<Translate word={T.CopiedToClipboard} /></>}
+      tooltipProps={{ open: isCopied }}
+      handleClick={async () => await copy(value)}
+      icon={CopyIcon}
+      {...props}
+    />
+  )
+}, (prev, next) => prev.value === next.value)
+
+/**
+ * @param {ActionButtonProps} props - Action button props
+ * @returns {JSXElementConstructor} Action button with props
+ */
 const Add = props => <ActionButton action='add' icon={AddIcon} {...props}/>
 
 /**
@@ -96,9 +119,17 @@ const Accept = props => <ActionButton action='accept' icon={AcceptIcon} {...prop
  */
 const Cancel = props => <ActionButton action='cancel' icon={CancelIcon} {...props}/>
 
+Copy.displayName = 'CopyActionButton'
+
+Copy.propTypes = {
+  ...ActionButton,
+  value: PropTypes.string
+}
+
 export {
   getAttributeCy,
   ActionButton,
+  Copy,
   Add,
   Accept,
   Cancel,

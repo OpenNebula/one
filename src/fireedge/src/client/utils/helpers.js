@@ -132,8 +132,8 @@ export const getObjectSchemaFromFields = fields =>
     }
 
     const paths = name.split('.')
-    const path = paths.pop()
-    const fieldSchema = object({ [path]: validation })
+    const pathname = paths.pop()
+    const fieldSchema = object({ [pathname]: validation })
 
     /**
      * @param {string} [path] - Path

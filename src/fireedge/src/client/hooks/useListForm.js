@@ -53,6 +53,7 @@ import { set } from 'client/utils'
 
 /**
  * @typedef {object} HookListForm
+ * @property {object[]} list - Form list
  * @property {object} editingData - Current editing data
  * @property {NoParamsCallback} handleClear - Clear the data form list
  * @property {NewListCallback} handleSetList - Resets the list with a new value
@@ -201,6 +202,7 @@ const useListForm = ({
   )
 
   return {
+    list,
     editingData,
     handleSelect,
     handleUnselect,

@@ -93,7 +93,8 @@ const CustomStepper = ({
             disabled={activeStep + 1 < stepIdx}
             optional={errors[id] && (
               <Typography variant='caption' color='error'>
-                {errors[id]?.message}
+                {labelCanBeTranslated(errors[id]?.message)
+                  ? Tr(errors[id]?.message) : errors[id]?.message}
               </Typography>
             )}
           >
@@ -101,7 +102,7 @@ const CustomStepper = ({
               StepIconComponent={StepIconStyled}
               error={Boolean(errors[id]?.message)}
             >
-              {labelCanBeTranslated(label) ? Tr(label) : label}
+              {labelCanBeTranslated(label) ? <Translate word={label} /> : label}
             </StepLabel>
           </StepButton>
         </Step>

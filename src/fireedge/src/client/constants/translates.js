@@ -31,7 +31,9 @@ module.exports = {
   /* actions */
   Accept: 'Accept',
   Active: 'Active',
+  Add: 'Add',
   AddAction: 'Add action',
+  Append: 'Append',
   Attach: 'Attach',
   AttachDisk: 'Attach disk',
   AttachImage: 'Attach image disk',
@@ -41,18 +43,20 @@ module.exports = {
   Cancel: 'Cancel',
   Change: 'Change',
   ChangeGroup: 'Change group',
-  CurrentGroup: 'Current group: %s',
   ChangeOwner: 'Change owner',
-  CurrentOwner: 'Current owner: %s',
   Clear: 'Clear',
+  ClickToCopy: 'Click to copy',
   Clone: 'Clone',
   CloneSeveralTemplates: 'Clone several Templates',
   CloneTemplate: 'Clone Template',
   Close: 'Close',
   Collapse: 'Collapse',
   Configuration: 'Configuration',
+  CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
   CreateMarketApp: 'Create Marketplace App',
+  CurrentGroup: 'Current group: %s',
+  CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
   DeleteScheduledAction: 'Delete scheduled action: %s',
   DeleteSomething: 'Delete: %s',
@@ -76,8 +80,8 @@ module.exports = {
   Reboot: 'Reboot',
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
-  RecoverSomething: 'Recover: %s',
   RecoverSeveralVMs: 'Recover several VMs',
+  RecoverSomething: 'Recover: %s',
   Refresh: 'Refresh',
   Release: 'Release',
   Remove: 'Remove',
@@ -96,8 +100,8 @@ module.exports = {
   SaveAsTemplate: 'Save as Template',
   Search: 'Search',
   Select: 'Select',
-  SelectHost: 'Select a host',
   SelectGroup: 'Select a group',
+  SelectHost: 'Select a host',
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
   Share: 'Share',
@@ -175,6 +179,7 @@ module.exports = {
   None: 'None',
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',
+  ErrorsOcurred: '%s error(s) occurred',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',
@@ -285,6 +290,9 @@ module.exports = {
   EndTime: 'End time',
   Locked: 'Locked',
   Attributes: 'Attributes',
+  Type: 'Type',
+  Data: 'Data',
+  Validate: 'Validate',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -455,23 +463,29 @@ module.exports = {
     `Number of iothreads for virtio disks.
     By default threads will be assign to disk by round robin algorithm.
     Disk thread id can be forced by disk IOTHREAD attribute`,
+  RawData: 'Raw data',
+  RawDataConcept: 'Raw data to be passed directly to the hypervisor',
+  RawValidateConcept: `
+    Disable validation of the RAW data.
+    By default, the data will be checked against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
+  Inputs: 'Inputs',
   /* VM Template schema - Input/Output - graphics */
   Graphics: 'Graphics',
   VMRC: 'VMRC',
   VNC: 'VNC',
   SDL: 'SDL',
   SPICE: 'SPICE',
-  Type: 'Type',
   ListenOnIp: 'Listen on IP',
   ServerPort: 'Server port',
   ServerPortConcept: 'Port for the VNC/SPICE server',
   Keymap: 'Keymap',
   GenerateRandomPassword: 'Generate random password',
   Command: 'Command',
+  Bus: 'Bus',
   /* VM Template schema - NUMA */
   PinPolicy: 'Pin Policy',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
@@ -517,10 +531,21 @@ module.exports = {
   ReservedCpu: 'Allocated CPU',
 
   /* User inputs */
+  UserInputs: 'User Inputs',
+  UserInputsConcept: `
+    These attributes must be provided by the user when a new VM is instantiated.
+    They will be included in the VM context`,
   Fixed: 'Fixed',
   Range: 'Range',
   List: 'List',
   AnyValue: 'Any value',
+  Options: 'Options',
+  UIOptionsConcept:
+    'Comma-separated list of options for the drop-down select input',
+  Min: 'Min',
+  Max: 'Max',
+  DefaultValue: 'Default value',
+  Mandatory: 'Mandatory',
 
   /* Validation */
   /* Validation - mixed */

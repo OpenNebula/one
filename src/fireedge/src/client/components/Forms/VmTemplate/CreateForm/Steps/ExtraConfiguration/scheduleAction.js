@@ -15,41 +15,26 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import makeStyles from '@mui/styles/makeStyles'
-import { Edit, Trash } from 'iconoir-react'
-import { useWatch } from 'react-hook-form'
+import { Stack } from '@mui/material'
+import { Calendar as ActionIcon, Edit, Trash } from 'iconoir-react'
+import { useFieldArray } from 'react-hook-form'
 
-import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { PunctualForm, RelativeForm } from 'client/components/Forms/Vm'
 import { Translate } from 'client/components/HOC'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { T } from 'client/constants'
-
-const useStyles = makeStyles({
-  root: {
-    paddingBlock: '1em',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, auto))',
-    gap: '1em'
-  }
-})
 
 export const TAB_ID = 'SCHED_ACTION'
 
-const ScheduleAction = ({ setFormData, control }) => {
-  const classes = useStyles()
-  const scheduleActions = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
+const mapNameFunction = mapNameByIndex('SCHED_ACTION')
 
-  const { handleRemove, handleSave } = useListForm({
-    parent: EXTRA_ID,
-    key: TAB_ID,
-    list: scheduleActions,
-    setList: setFormData,
-    getItemId: item => item.NAME,
-    addItemId: (item, _, itemIndex) => ({ ...item, NAME: `${TAB_ID}${itemIndex}` })
+const ScheduleAction = () => {
+  const { fields: scheduleActions, remove, update, append } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID}`
   })
 
   return (
@@ -66,30 +51,36 @@ const ScheduleAction = ({ setFormData, control }) => {
           name: 'Punctual action',
           dialogProps: { title: T.ScheduledAction },
           form: () => PunctualForm(),
-          onSubmit: handleSave
+          onSubmit: action => append(mapNameFunction(action, scheduleActions.length))
         },
         {
           cy: 'add-sched-action-relative',
           name: 'Relative action',
           dialogProps: { title: T.ScheduledAction },
           form: () => RelativeForm(),
-          onSubmit: handleSave
+          onSubmit: action => append(mapNameFunction(action, scheduleActions.length))
         }]}
       />
-      <div className={classes.root}>
-        {scheduleActions?.map(item => {
-          const { NAME, ACTION, TIME } = item
+      <Stack
+        pb='1em'
+        display='grid'
+        gridTemplateColumns='repeat(auto-fit, minmax(300px, 0.5fr))'
+        gap='1em'
+        mt='1em'
+      >
+        {scheduleActions?.map((item, index) => {
+          const { id, NAME, ACTION, TIME } = item
           const isRelative = String(TIME).includes('+')
 
           return (
             <SelectCard
-              key={NAME}
+              key={id ?? NAME}
               title={`${NAME} - ${ACTION}`}
               action={
                 <>
                   <Action
                     data-cy={`remove-${NAME}`}
-                    handleClick={() => handleRemove(NAME)}
+                    handleClick={() => remove(index)}
                     icon={<Trash />}
                   />
                   <ButtonToTriggerForm
@@ -105,7 +96,8 @@ const ScheduleAction = ({ setFormData, control }) => {
                       form: () => isRelative
                         ? RelativeForm(undefined, item)
                         : PunctualForm(undefined, item),
-                      onSubmit: newValues => handleSave(newValues, NAME)
+                      onSubmit: updatedAction =>
+                        update(index, mapNameFunction(updatedAction, index))
                     }]}
                   />
                 </>
@@ -113,7 +105,7 @@ const ScheduleAction = ({ setFormData, control }) => {
             />
           )
         })}
-      </div>
+      </Stack>
     </>
   )
 }
@@ -125,6 +117,13 @@ ScheduleAction.propTypes = {
   control: PropTypes.object
 }
 
-ScheduleAction.displayName = 'ScheduleAction'
+/** @type {TabType} */
+const TAB = {
+  id: 'sched_action',
+  name: T.ScheduledAction,
+  icon: ActionIcon,
+  Content: ScheduleAction,
+  getError: error => !!error?.[TAB_ID]
+}
 
-export default ScheduleAction
+export default TAB

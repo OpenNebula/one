@@ -15,54 +15,41 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import makeStyles from '@mui/styles/makeStyles'
-import { Edit, Trash } from 'iconoir-react'
-import { useWatch } from 'react-hook-form'
+import { Stack } from '@mui/material'
+import { Db as DatastoreIcon, Edit, Trash } from 'iconoir-react'
+import { useFormContext, useFieldArray } from 'react-hook-form'
 
-import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Translate } from 'client/components/HOC'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
+import { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { getState, getDiskType } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles({
-  root: {
-    paddingBlock: '1em',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, auto))',
-    gap: '1em'
-  }
-})
-
 export const TAB_ID = 'DISK'
 
-const Storage = ({ data, setFormData, hypervisor, control }) => {
-  const classes = useStyles()
-  const disks = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
+const mapNameFunction = mapNameByIndex('DISK')
 
-  const { handleSetList, handleRemove, handleSave } = useListForm({
-    parent: EXTRA_ID,
-    key: TAB_ID,
-    list: disks,
-    setList: setFormData,
-    getItemId: item => item.NAME,
-    addItemId: (item, _, itemIndex) => ({ ...item, NAME: `${TAB_ID}${itemIndex}` })
+const Storage = ({ hypervisor }) => {
+  const { getValues, setValue } = useFormContext()
+  const { fields: disks, replace, update, append } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID}`
   })
 
-  const reorderDisks = () => {
-    const diskSchema = EXTRA_SCHEMA.pick([TAB_ID])
-    const { [TAB_ID]: newList } = diskSchema.cast({ [TAB_ID]: data?.[TAB_ID] })
+  const removeAndReorder = diskName => {
+    const updatedDisks = disks.filter(({ NAME }) => NAME !== diskName).map(mapNameFunction)
+    const currentBootOrder = getValues(BOOT_ORDER_NAME())
+    const updatedBootOrder = reorderBootAfterRemove(diskName, disks, currentBootOrder)
 
-    handleSetList(newList)
+    replace(updatedDisks)
+    setValue(BOOT_ORDER_NAME(), updatedBootOrder)
   }
 
   return (
@@ -80,20 +67,27 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
             name: T.Image,
             dialogProps: { title: T.AttachImage },
             form: () => ImageSteps({ hypervisor }),
-            onSubmit: handleSave
+            onSubmit: image => append(mapNameFunction(image, disks.length))
           },
           {
             cy: 'attach-volatile-disk',
             name: T.Volatile,
             dialogProps: { title: T.AttachVolatile },
             form: () => VolatileSteps({ hypervisor }),
-            onSubmit: handleSave
+            onSubmit: image => append(mapNameFunction(image, disks.length))
           }
         ]}
       />
-      <div className={classes.root}>
-        {disks?.map(item => {
+      <Stack
+        pb='1em'
+        display='grid'
+        gridTemplateColumns='repeat(auto-fit, minmax(300px, 0.5fr))'
+        gap='1em'
+        mt='1em'
+      >
+        {disks?.map((item, index) => {
           const {
+            id,
             NAME,
             TYPE,
             IMAGE,
@@ -115,18 +109,18 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
 
           return (
             <SelectCard
-              key={NAME}
+              key={id ?? NAME}
               title={isVolatile ? (
                 <>
                   {`${NAME} - `}
                   <Translate word={T.VolatileDisk} />
                 </>
               ) : (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                <Stack component='span' alignItems='center' gap='0.5em'>
                   <StatusCircle color={state?.color} tooltip={state?.name} />
                   {`${NAME}: ${IMAGE}`}
                   {isPersistent && <StatusChip text='PERSISTENT' />}
-                </span>
+                </Stack>
               )}
               subheader={<>
                 {Object
@@ -134,7 +128,8 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
                     [DATASTORE]: DATASTORE,
                     READONLY: stringToBoolean(READONLY),
                     PERSISTENT: stringToBoolean(PERSISTENT),
-                    [isVolatile || ORIGINAL_SIZE === SIZE ? size : `${originalSize}/${size}`]: true,
+                    [isVolatile || ORIGINAL_SIZE === SIZE
+                      ? size : `${originalSize}/${size}`]: true,
                     [type]: type
                   })
                   .map(([k, v]) => v ? `${k}` : '')
@@ -147,11 +142,7 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
                   <Action
                     data-cy={`remove-${NAME}`}
                     tooltip={<Translate word={T.Remove} />}
-                    handleClick={() => {
-                      handleRemove(NAME)
-                      reorderDisks()
-                      reorderBootAfterRemove(NAME, disks, data, setFormData)
-                    }}
+                    handleClick={() => removeAndReorder(NAME, index)}
                     icon={<Trash />}
                   />
                   <ButtonToTriggerForm
@@ -167,7 +158,8 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
                       form: () => isVolatile
                         ? VolatileSteps({ hypervisor }, item)
                         : ImageSteps({ hypervisor }, item),
-                      onSubmit: newValues => handleSave(newValues, NAME)
+                      onSubmit: updatedDisk =>
+                        update(index, mapNameFunction(updatedDisk, index))
                     }]}
                   />
                 </>
@@ -175,7 +167,7 @@ const Storage = ({ data, setFormData, hypervisor, control }) => {
             />
           )
         })}
-      </div>
+      </Stack>
     </>
   )
 }
@@ -187,6 +179,13 @@ Storage.propTypes = {
   control: PropTypes.object
 }
 
-Storage.displayName = 'Storage'
+/** @type {TabType} */
+const TAB = {
+  id: 'storage',
+  name: T.Storage,
+  icon: DatastoreIcon,
+  Content: Storage,
+  getError: error => !!error?.[TAB_ID]
+}
 
-export default Storage
+export default TAB

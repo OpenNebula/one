@@ -24,7 +24,7 @@ import Information from 'client/components/Tabs/Vm/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getHypervisor } from 'client/models/VirtualMachine'
 import { getActionsAvailable, filterAttributes, jsonToXml } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
@@ -76,14 +76,10 @@ const VmInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = useCallback(actions => {
-    const hypervisor = getHypervisor(vm)
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
-
-    return actionsByState
-  }, [vm])
+  const getActions = useCallback(
+    actions => getActionsAvailable(actions, getHypervisor(vm)),
+    [vm]
+  )
 
   const {
     attributes,
@@ -172,6 +168,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
       )}
       {monitoringPanel?.enabled && monitoringAttributes && (
         <AttributePanel
+          actions={getActions(monitoringPanel?.actions)}
           attributes={monitoringAttributes}
           title={Tr(T.Monitoring)}
         />

@@ -128,9 +128,10 @@ router.all(
           routeFunction,
           httpMethod
         )
+        req.serverDataSource = dataSources
         if (valRouteFunction) {
           valRouteFunction(
-            dataSources,
+            req,
             res,
             next,
             connectOpennebula,

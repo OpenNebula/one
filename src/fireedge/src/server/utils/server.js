@@ -16,6 +16,7 @@
 
 const { env } = require('process')
 const { Map } = require('immutable')
+const multer = require('multer')
 const { global } = require('window-or-global')
 const { resolve } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
@@ -53,6 +54,8 @@ const {
   defaultEmptyFunction
 } = require('./constants/defaults')
 
+const upload = multer({ dest: '/tmp' })
+
 let cert = ''
 let key = ''
 
@@ -71,6 +74,55 @@ const setFunctionRoute = (method, endpoint, action) => ({
 })
 
 /**
+ * Execute actions Function routes
+ *
+ * @param {Function} action - action.
+ * @param {object} res - response http.
+ * @param {Function} next - stepper.
+ * @param {object} routeParams - params for actions.
+ * @param {object} serverDataSource - server params.
+ * @param {user} user - user.
+ * @param {Function} oneConnection - ONE connection xmlrpc.
+ */
+
+const executeAction = (
+  action = defaultEmptyFunction,
+  res = {},
+  next = defaultEmptyFunction,
+  routeParams = {},
+  serverDataSource = {},
+  user = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  action(
+    res,
+    next,
+    getRequestParameters(routeParams, serverDataSource),
+    user,
+    oneConnection
+  )
+}
+
+/**
+ * Parse files for actions.
+ *
+ * @param {Array} files - files
+ * @returns {Array} files
+ */
+const parseFiles = (files = []) => {
+  let rtn
+  if (files && Array.isArray(files)) {
+    rtn = {}
+    files.forEach(file => {
+      if (file.fieldname) {
+        rtn[file.fieldname] ? rtn[file.fieldname].push(file) : rtn[file.fieldname] = [file]
+      }
+    })
+  }
+  return rtn
+}
+
+/**
  * Add function as express route.
  *
  * @param {object} req - http request
@@ -82,14 +134,37 @@ const setFunctionRoute = (method, endpoint, action) => ({
  * @param {string} index - resource index
  */
 const addFunctionAsRoute = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
-  const resources = Object.keys(req[fromData.resource])
-  if (req && res && next && routes) {
-    const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
-    if (req && fromData && fromData.resource && req[fromData.resource] && route) {
+  if (req && req.serverDataSource && res && next && routes) {
+    const serverDataSource = req.serverDataSource
+    const resources = Object.keys(serverDataSource[fromData.resource])
+    const route = routes[`${serverDataSource[fromData.resource][resources[index]]}`.toLowerCase()]
+    if (fromData && fromData.resource && serverDataSource[fromData.resource] && route) {
       if (Object.keys(route).length > 0 && route.constructor === Object) {
         if (route.action && route.params && typeof route.action === 'function') {
-          const params = getRequestParameters(route.params, req)
-          route.action(res, next, params, user, oneConnection)
+          const uploadFiles = getRequestFiles(route.params)
+          if (uploadFiles && uploadFiles.length) {
+            const files = upload.array(uploadFiles)
+            files(req, res, (err) => {
+              if (err) {
+                const errorData = (err && err.message) || ''
+                writeInLogger(errorData)
+                messageTerminal({
+                  color: 'red',
+                  message: 'Error: %s',
+                  error: errorData
+                })
+              }
+              const dataSources = {
+                [fromData.resource]: serverDataSource[fromData.resource],
+                [fromData.query]: req.query,
+                [fromData.postBody]: req.body
+              }
+              dataSources.files = parseFiles(req && req.files)
+              executeAction(route.action, res, next, route.params, dataSources, user, oneConnection)
+            })
+          } else {
+            executeAction(route.action, res, next, route.params, serverDataSource, user, oneConnection)
+          }
         } else {
           addFunctionAsRoute(req, res, next, route, user, oneConnection, index + 1)
         }
@@ -529,6 +604,22 @@ const genPathResources = () => {
 }
 
 /**
+ * Get files into params.
+ *
+ * @param {object} params - finder params
+ * @returns {Array} - params file
+ */
+const getRequestFiles = (params = {}) => {
+  if (params && Object.keys(params).length > 0 && params.constructor === Object) {
+    const arrayParams = Object.keys(params)
+    const fileParams = arrayParams.filter((key = '') => {
+      return key && params[key] && params[key].from === 'files'
+    })
+    return fileParams
+  }
+}
+
+/**
  * Get http params.
  *
  * @param {object} params - finder params
@@ -831,6 +922,7 @@ module.exports = {
   getCert,
   getKey,
   parsePostData,
+  getRequestFiles,
   getRequestParameters,
   getQueryData,
   getResourceDataForRequest,
