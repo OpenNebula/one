@@ -540,7 +540,8 @@ ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/models"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula"
+                 $LIB_LOCATION/ruby/opennebula \
+                 $LIB_LOCATION/ruby/opennebula/flow"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
