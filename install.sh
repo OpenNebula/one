@@ -2407,7 +2407,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/hook_log.rb \
                             src/oca/ruby/opennebula/flow.rb"
 
-RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow/grammar.rb \
+RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow \
+                                 src/oca/ruby/opennebula/flow/grammar.rb \
                                  src/oca/ruby/opennebula/flow/service_pool.rb \
                                  src/oca/ruby/opennebula/flow/service_template_pool.rb \
                                  src/oca/ruby/opennebula/flow/service_template.rb \
