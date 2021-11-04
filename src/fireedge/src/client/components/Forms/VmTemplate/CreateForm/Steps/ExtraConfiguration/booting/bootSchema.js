@@ -17,7 +17,7 @@ import { string, boolean } from 'yup'
 
 import { useHost } from 'client/features/One'
 import { getKvmMachines, getKvmCpuModels } from 'client/models/Host'
-import { Field, arrayToOptions, filterFieldsByHypervisor } from 'client/utils'
+import { Field, arrayToOptions } from 'client/utils'
 import {
   T,
   INPUT_TYPES,
@@ -196,24 +196,17 @@ export const FIRMWARE_SECURE = {
   grid: { md: 12 }
 }
 
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of Boot fields
- */
-export const BOOT_FIELDS = hypervisor =>
-  filterFieldsByHypervisor(
-    [
-      ARCH,
-      SD_DISK_BUS,
-      MACHINE_TYPES,
-      CPU_MODEL,
-      ROOT_DEVICE,
-      KERNEL_CMD,
-      BOOTLOADER,
-      UUID,
-      FEATURE_CUSTOM_ENABLED,
-      FIRMWARE,
-      FIRMWARE_SECURE
-    ],
-    hypervisor
-  )
+/** @type {Field[]} List of Boot fields */
+export const BOOT_FIELDS = [
+  ARCH,
+  SD_DISK_BUS,
+  MACHINE_TYPES,
+  CPU_MODEL,
+  ROOT_DEVICE,
+  KERNEL_CMD,
+  BOOTLOADER,
+  UUID,
+  FEATURE_CUSTOM_ENABLED,
+  FIRMWARE,
+  FIRMWARE_SECURE
+]

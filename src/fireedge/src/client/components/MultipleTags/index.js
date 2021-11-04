@@ -20,7 +20,7 @@ import { Tooltip, Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
 
-const MultipleTags = ({ tags, limitTags = 1 }) => {
+const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
   if (tags?.length === 0) {
     return null
   }
@@ -29,7 +29,9 @@ const MultipleTags = ({ tags, limitTags = 1 }) => {
 
   const Tags = tags
     .splice(0, limitTags)
-    .map((tag, idx) => <StatusChip key={`${idx}-${tag}`} text={tag} />)
+    .map((tag, idx) => (
+      <StatusChip key={`${idx}-${tag}`} text={tag} clipboard={clipboard} />
+    ))
 
   return (
     <>
@@ -62,6 +64,10 @@ const MultipleTags = ({ tags, limitTags = 1 }) => {
 
 MultipleTags.propTypes = {
   tags: PropTypes.array,
+  clipboard: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.string
+  ]),
   limitTags: PropTypes.number
 }
 

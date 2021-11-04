@@ -13,53 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import makeStyles from '@mui/styles/makeStyles'
-import { Edit, Trash } from 'iconoir-react'
-import { useWatch } from 'react-hook-form'
+import { Stack } from '@mui/material'
+import { ServerConnection as NetworkIcon, Edit, Trash } from 'iconoir-react'
+import { useFormContext, useFieldArray } from 'react-hook-form'
 
-import { useListForm } from 'client/hooks'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { AttachNicForm } from 'client/components/Forms/Vm'
 import { Translate } from 'client/components/HOC'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { SCHEMA as EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
+import { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { stringToBoolean } from 'client/models/Helper'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles({
-  root: {
-    paddingBlock: '1em',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, auto))',
-    gap: '1em'
-  }
-})
-
 export const TAB_ID = 'NIC'
 
-const Networking = ({ data, setFormData, control }) => {
-  const classes = useStyles()
-  const nics = useWatch({ name: `${EXTRA_ID}.${TAB_ID}`, control })
+const mapNameFunction = mapNameByIndex('NIC')
 
-  const { handleSetList, handleRemove, handleSave } = useListForm({
-    parent: EXTRA_ID,
-    key: TAB_ID,
-    list: nics,
-    setList: setFormData,
-    getItemId: item => item.NAME,
-    addItemId: (item, _, itemIndex) => ({ ...item, NAME: `${TAB_ID}${itemIndex}` })
+const Networking = () => {
+  const { setValue, getValues } = useFormContext()
+  const { fields: nics, replace, update, append } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID}`
   })
 
-  const reorderNics = () => {
-    const diskSchema = EXTRA_SCHEMA.pick([TAB_ID])
-    const { [TAB_ID]: newList } = diskSchema.cast({ [TAB_ID]: data?.[TAB_ID] })
+  const removeAndReorder = nicName => {
+    const updatedNics = nics.filter(({ NAME }) => NAME !== nicName).map(mapNameFunction)
+    const currentBootOrder = getValues(BOOT_ORDER_NAME())
+    const updatedBootOrder = reorderBootAfterRemove(nicName, nics, currentBootOrder)
 
-    handleSetList(newList)
+    replace(updatedNics)
+    setValue(BOOT_ORDER_NAME(), updatedBootOrder)
   }
 
   return (
@@ -74,17 +60,23 @@ const Networking = ({ data, setFormData, control }) => {
         options={[{
           dialogProps: { title: T.AttachNic },
           form: () => AttachNicForm({ nics }),
-          onSubmit: handleSave
+          onSubmit: nic => append(mapNameFunction(nic, nics.length))
         }]}
       />
-      <div className={classes.root}>
-        {nics?.map(item => {
-          const { NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
+      <Stack
+        pb='1em'
+        display='grid'
+        gridTemplateColumns='repeat(auto-fit, minmax(300px, 0.5fr))'
+        gap='1em'
+        mt='1em'
+      >
+        {nics?.map((item, index) => {
+          const { id, NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
           const hasAlias = nics?.some(nic => nic.PARENT === NAME)
 
           return (
             <SelectCard
-              key={NAME}
+              key={id ?? NAME}
               title={[NAME, NETWORK].filter(Boolean).join(' - ')}
               subheader={<>
                 {Object
@@ -92,7 +84,7 @@ const Networking = ({ data, setFormData, control }) => {
                     RDP: stringToBoolean(RDP),
                     SSH: stringToBoolean(SSH),
                     EXTERNAL: stringToBoolean(EXTERNAL),
-                    ALIAS: PARENT
+                    [`PARENT: ${PARENT}`]: PARENT
                   })
                   .map(([k, v]) => v ? `${k}` : '')
                   .filter(Boolean)
@@ -104,11 +96,7 @@ const Networking = ({ data, setFormData, control }) => {
                   {!hasAlias &&
                     <Action
                       data-cy={`remove-${NAME}`}
-                      handleClick={() => {
-                        handleRemove(NAME)
-                        reorderNics()
-                        reorderBootAfterRemove(NAME, nics, data, setFormData)
-                      }}
+                      handleClick={() => removeAndReorder(NAME)}
                       icon={<Trash />}
                     />
                   }
@@ -120,10 +108,16 @@ const Networking = ({ data, setFormData, control }) => {
                     }}
                     options={[{
                       dialogProps: {
-                        title: <Translate word={T.EditSomething} values={[`${NAME} - ${NETWORK}`]} />
+                        title: (
+                          <Translate
+                            word={T.EditSomething}
+                            values={[`${NAME} - ${NETWORK}`]}
+                          />
+                        )
                       },
                       form: () => AttachNicForm({ nics }, item),
-                      onSubmit: newValues => handleSave(newValues, NAME)
+                      onSubmit: updatedNic =>
+                        update(index, mapNameFunction(updatedNic, index))
                     }]}
                   />
                 </>
@@ -131,7 +125,7 @@ const Networking = ({ data, setFormData, control }) => {
             />
           )
         })}
-      </div>
+      </Stack>
     </>
   )
 }
@@ -143,6 +137,13 @@ Networking.propTypes = {
   control: PropTypes.object
 }
 
-Networking.displayName = 'Networking'
+/** @type {TabType} */
+const TAB = {
+  id: 'network',
+  name: T.Network,
+  icon: NetworkIcon,
+  Content: Networking,
+  getError: error => !!error?.[TAB_ID]
+}
 
-export default Networking
+export default TAB

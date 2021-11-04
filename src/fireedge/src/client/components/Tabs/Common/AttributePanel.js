@@ -35,14 +35,39 @@ import makeStyles from '@mui/styles/makeStyles'
 import { List } from 'client/components/Tabs/Common'
 import { ACTIONS } from 'client/constants'
 
+const {
+  COPY_ATTRIBUTE: COPY,
+  ADD_ATTRIBUTE: ADD,
+  EDIT_ATTRIBUTE: EDIT,
+  DELETE_ATTRIBUTE: DELETE
+} = ACTIONS
+
 // This attributes has special restrictions
 const SPECIAL_ATTRIBUTES = {
-  VCENTER_CCR_REF: { edit: false, delete: false },
-  VCENTER_HOST: { edit: false, delete: false },
-  VCENTER_INSTANCE_ID: { edit: false, delete: false },
-  VCENTER_PASSWORD: { edit: true, delete: false },
-  VCENTER_USER: { edit: false, delete: false },
-  VCENTER_VERSION: { edit: false, delete: false }
+  VCENTER_CCR_REF: {
+    [EDIT]: false,
+    [DELETE]: false
+  },
+  VCENTER_HOST: {
+    [EDIT]: false,
+    [DELETE]: false
+  },
+  VCENTER_INSTANCE_ID: {
+    [EDIT]: false,
+    [DELETE]: false
+  },
+  VCENTER_PASSWORD: {
+    [EDIT]: true,
+    [DELETE]: false
+  },
+  VCENTER_USER: {
+    [EDIT]: false,
+    [DELETE]: false
+  },
+  VCENTER_VERSION: {
+    [EDIT]: false,
+    [DELETE]: false
+  }
 }
 
 const useStyles = makeStyles({
@@ -70,12 +95,13 @@ const AttributePanel = memo(({
     .map(([name, value]) => ({
       name,
       value,
+      showActionsOnHover: true,
+      canCopy:
+        actions?.includes?.(COPY) && !SPECIAL_ATTRIBUTES[name]?.[COPY],
       canEdit:
-        actions?.includes?.(ACTIONS.EDIT_ATTRIBUTE) &&
-        SPECIAL_ATTRIBUTES[name]?.edit !== false,
+        actions?.includes?.(EDIT) && !SPECIAL_ATTRIBUTES[name]?.[EDIT],
       canDelete:
-        actions?.includes?.(ACTIONS.DELETE_ATTRIBUTE) &&
-        SPECIAL_ATTRIBUTES[name]?.delete !== false,
+        actions?.includes?.(DELETE) && !SPECIAL_ATTRIBUTES[name]?.[DELETE],
       handleEdit,
       handleDelete
     }))
@@ -87,7 +113,7 @@ const AttributePanel = memo(({
       subListProps={{ disablePadding: true }}
       title={title}
       list={formatAttributes}
-      handleAdd={actions?.includes?.(ACTIONS.ADD_ATTRIBUTE) && handleAdd}
+      handleAdd={actions?.includes?.(ADD) && handleAdd}
     />
   )
 })

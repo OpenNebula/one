@@ -43,7 +43,7 @@ const User = () => {
       disablePadding
     >
       {() => (
-        <MenuList>
+        <MenuList disablePadding>
           <MenuItem onClick={logout} data-cy='header-logout-button'>
             <Translate word={T.SignOut} />
           </MenuItem>

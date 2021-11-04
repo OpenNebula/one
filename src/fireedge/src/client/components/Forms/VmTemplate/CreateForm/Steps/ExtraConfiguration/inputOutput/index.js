@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import { DataTransferBoth as IOIcon } from 'iconoir-react'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { FormWithSchema } from 'client/components/Forms'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { INPUT_OUTPUT_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
+import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
+import { INPUT_OUTPUT_FIELDS, INPUTS_FIELDS } from './schema'
 import { T } from 'client/constants'
 
+export const TAB_ID = ['GRAPHICS', INPUT_ID]
+
 const InputOutput = ({ hypervisor }) => {
+  const inputsFields = useMemo(() => INPUTS_FIELDS(hypervisor), [hypervisor])
+
   return (
     <Stack
       display='grid'
-      gap='2em'
+      gap='1em'
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
       <FormWithSchema
-        cy='create-vm-template-extra.io-graphics'
+        cy={`create-vm-template-${EXTRA_ID}.io-graphics`}
         fields={INPUT_OUTPUT_FIELDS(hypervisor)}
         legend={T.Graphics}
-        id={STEP_ID}
+        id={EXTRA_ID}
       />
+      {inputsFields.length > 0 && (
+        <InputsSection fields={inputsFields} />
+      )}
     </Stack>
   )
 }
@@ -49,4 +58,13 @@ InputOutput.propTypes = {
 
 InputOutput.displayName = 'InputOutput'
 
-export default InputOutput
+/** @type {TabType} */
+const TAB = {
+  id: 'input_output',
+  name: T.InputOrOutput,
+  icon: IOIcon,
+  Content: InputOutput,
+  getError: error => TAB_ID.some(id => error?.[id])
+}
+
+export default TAB

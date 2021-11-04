@@ -21,7 +21,8 @@ const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn?.(...args))
  * Hook to manage a dialog.
  *
  * @returns {{
- * on: boolean,
+ * display: boolean,
+ * values: any,
  * show: Function,
  * hide: Function,
  * toggle: Function,

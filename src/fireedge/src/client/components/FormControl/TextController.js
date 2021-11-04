@@ -62,6 +62,7 @@ const TextController = memo(
         value={value}
         onChange={onChange}
         multiline={multiline}
+        rows={3}
         type={type}
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputProps={{
@@ -93,7 +94,7 @@ TextController.propTypes = {
   tooltip: PropTypes.any,
   watcher: PropTypes.func,
   dependencies: PropTypes.oneOfType([
-    PropTypes.strin,
+    PropTypes.string,
     PropTypes.arrayOf(PropTypes.string)
   ]),
   fieldProps: PropTypes.object,

@@ -49,7 +49,7 @@ const Content = ({ data, setFormData }) => {
   )
 }
 
-const NetworkStep = () => ({
+const HostsTableStep = () => ({
   id: STEP_ID,
   label: T.SelectHost,
   resolver: SCHEMA,
@@ -61,4 +61,4 @@ Content.propTypes = {
   setFormData: PropTypes.func
 }
 
-export default NetworkStep
+export default HostsTableStep

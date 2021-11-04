@@ -26,7 +26,7 @@ const NAME = {
   label: 'VM name',
   tooltip: `
     Defaults to 'template name-<vmid>' when empty.
-    When creating several VMs, the wildcard %idx will be
+    When creating several VMs, the wildcard %%idx will be
     replaced with a number starting from 0`,
   type: INPUT_TYPES.TEXT,
   validation: string().trim().default(() => undefined)

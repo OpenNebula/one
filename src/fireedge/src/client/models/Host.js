@@ -73,9 +73,10 @@ export const getAllocatedInfo = host => {
 export const getHugepageSizes = host => {
   const numaNodes = [host?.HOST_SHARE?.NUMA_NODES?.NODE ?? []].flat()
 
-  return numaNodes.filter(node => node?.NODE_ID &&
-    [node?.HUGEPAGE?.SIZE ?? []].flat().map(size => +size)
-  )
+  return numaNodes
+    .filter(node => node?.NODE_ID && node?.HUGEPAGE)
+    .map(node => node.HUGEPAGE.map(({ SIZE }) => +SIZE))
+    .flat()
 }
 
 /**

@@ -22,7 +22,7 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
 
 import { HYPERVISOR_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/informationSchema'
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
+import { SCHEMA, SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
@@ -33,11 +33,11 @@ const Content = () => {
   const { view, getResourceView } = useAuth()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
 
-  const groups = useMemo(() => {
+  const sections = useMemo(() => {
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return FIELDS(hypervisor)
+    return SECTIONS(hypervisor)
       .filter(({ id, required }) => required || sectionsAvailable.includes(id))
   }, [view, hypervisor])
 
@@ -49,14 +49,13 @@ const Content = () => {
         legend={T.Hypervisor}
         id={STEP_ID}
       />
-      {groups.map(({ id, legend, fields }) => (
+      {sections.map(({ id, ...section }) => (
         <FormWithSchema
           key={id}
-          className={classes[id]}
-          cy={`create-vm-template-general.${id}`}
-          fields={fields}
-          legend={legend}
           id={STEP_ID}
+          className={classes[id]}
+          cy={`create-vm-template-${STEP_ID}.${id}`}
+          {...section}
         />
       ))}
     </div>

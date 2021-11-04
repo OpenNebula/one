@@ -16,6 +16,7 @@
 import { useState, useMemo, useCallback, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
+import { sprintf } from 'sprintf-js'
 import { BaseSchema } from 'yup'
 import { useFormContext } from 'react-hook-form'
 import { DevTool } from '@hookform/devtools'
@@ -26,6 +27,7 @@ import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
 import { groupBy, Step, isDevelopment } from 'client/utils'
+import { T } from 'client/constants'
 
 const FIRST_STEP = 0
 
@@ -67,20 +69,23 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     return { id, data: stepData, ...step }
   }
 
-  const setErrors = ({ inner = [], ...rest }) => {
+  const setErrors = ({ inner = [], ...rest } = {}) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
 
     totalErrors > 0
-      ? setError(id, {
-        type: 'manual',
-        message: `${totalErrors} error(s) occurred`
-      })
+      ? setError(id, { type: 'manual', message: [T.ErrorsOcurred, totalErrors] })
       : setError(id, rest)
 
-    inner?.forEach(({ path, type, message }) =>
-      setError(`${id}.${path}`, { type, message })
-    )
+    inner?.forEach(({ path, type, errors: message }) => {
+      if (isDevelopment()) {
+        // the package @hookform/devtools requires message as string
+        const [key, ...values] = [message].flat()
+        setError(`${id}.${path}`, { type, message: sprintf(key, ...values) })
+      } else {
+        setError(`${id}.${path}`, { type, message })
+      }
+    })
   }
 
   const handleStep = stepToAdvance => {

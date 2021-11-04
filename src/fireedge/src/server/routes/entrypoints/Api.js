@@ -124,10 +124,11 @@ router.all(
           routeFunction,
           httpMethod
         )
+        req.serverDataSource = dataSources
         if (valRouteFunction) {
           const userIdOpennebula = getIdUserOpennebula()
           valRouteFunction(
-            dataSources,
+            req,
             res,
             next,
             connectOpennebula,

@@ -21,14 +21,14 @@ import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
 import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
 
-import { filterFieldsByHypervisor, getObjectSchemaFromFields, Field } from 'client/utils'
+import { Section, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
- * @returns {{ id: string, legend: string, fields: Field[] }[]} Fields
+ * @returns {Section[]} Fields
  */
-const FIELDS = hypervisor => [
+const SECTIONS = hypervisor => [
   {
     id: 'information',
     legend: T.Information,
@@ -63,7 +63,7 @@ const FIELDS = hypervisor => [
  */
 const SCHEMA = hypervisor => getObjectSchemaFromFields([
   HYPERVISOR_FIELD,
-  ...FIELDS(hypervisor).map(({ fields }) => fields).flat()
+  ...SECTIONS(hypervisor).map(({ fields }) => fields).flat()
 ])
 
-export { FIELDS, SCHEMA }
+export { SECTIONS, SCHEMA }

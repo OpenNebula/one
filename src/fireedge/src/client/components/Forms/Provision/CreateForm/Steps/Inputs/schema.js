@@ -37,7 +37,7 @@ export const FORM_FIELDS = inputs =>
         name,
         type,
         options: optionsValue,
-        defaultValue
+        default: defaultValue
       })
     }
   })

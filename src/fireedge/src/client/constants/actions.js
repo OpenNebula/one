@@ -18,6 +18,7 @@
 export const RENAME = 'rename'
 
 // ATTRIBUTES
+export const COPY_ATTRIBUTE = 'copy'
 export const ADD_ATTRIBUTE = 'add'
 export const EDIT_ATTRIBUTE = 'edit'
 export const DELETE_ATTRIBUTE = 'delete'

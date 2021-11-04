@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Column } from 'react-table'
-import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
+import { GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
 
 /**
  * Add filters defined in view yaml to columns.
@@ -65,7 +66,7 @@ export const createCategoryFilter = title => ({
  *
  * @param {object} params - Config parameters
  * @param {object[]} params.filters - Which buttons are visible to operate over the resources
- * @param {object[]} params.actions - Actions
+ * @param {GlobalAction[]} params.actions - Actions
  * @returns {object} Action with filters
  */
 export const createActions = ({ filters = {}, actions = [] }) => {

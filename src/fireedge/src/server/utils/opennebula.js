@@ -467,15 +467,8 @@ const generateNewResourceTemplate = (
 const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
   const rtn = []
   if (stringConsole) {
-    console.log('all -->', JSON.stringify(stringConsole))
     const lines = stringConsole.split(regexLine)
     lines.forEach(line => {
-      let test = ''
-      for (const c of line) {
-        test += c.charCodeAt(0) + ' '
-      }
-      console.log('-->', test)
-
       let pass = true
       if (Array.isArray(excludeRegexs)) {
         excludeRegexs.forEach(rex => {

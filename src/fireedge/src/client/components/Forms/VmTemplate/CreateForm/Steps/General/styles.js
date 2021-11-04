@@ -19,7 +19,7 @@ export default makeStyles(theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '2em',
+    gap: theme.spacing(1),
     [theme.breakpoints.down('lg')]: {
       gridTemplateColumns: '1fr'
     }

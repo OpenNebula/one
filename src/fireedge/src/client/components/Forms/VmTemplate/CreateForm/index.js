@@ -27,7 +27,7 @@ import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/CreateForm/Steps'
 
 const CreateForm = ({ template, onSubmit }) => {
-  const stepsForm = useMemo(() => Steps(template, {}), [])
+  const stepsForm = useMemo(() => Steps(template, template), [])
   const { steps, defaultValues, resolver, transformBeforeSubmit } = stepsForm
 
   const methods = useForm({

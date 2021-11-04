@@ -142,9 +142,10 @@ const HUGEPAGES = {
     const hosts = useHost()
     const sizes = hosts
       .reduce((res, host) => res.concat(getHugepageSizes(host)), [])
+      .flat()
 
     return arrayToOptions([...new Set(sizes)], {
-      getText: size => prettyBytes(+size, 'MB')
+      getText: size => prettyBytes(+size)
     })
   },
   validation: string()
@@ -171,8 +172,10 @@ const MEMORY_ACCESS = {
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} List of NUMA fields
  */
-export const NUMA_FIELDS = hypervisor =>
+const FIELDS = hypervisor =>
   filterFieldsByHypervisor(
     [PIN_POLICY, CORES, SOCKETS, THREADS, HUGEPAGES, MEMORY_ACCESS],
     hypervisor
   )
+
+export { FIELDS }

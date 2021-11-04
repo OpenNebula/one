@@ -13,24 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
 
-import HistoryItem from 'client/components/Tabs/Vm/Placement/Item'
+const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const { saveAsTemplate } = require('./functions')
+const { POST } = httpMethod
 
-const HistoryList = ({ records, actions }) => (
-  <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
-    {records.map((history, idx) => (
-      <HistoryItem key={idx} history={history} actions={actions} />
-    ))}
-  </div>
-)
-
-HistoryList.propTypes = {
-  records: PropTypes.array,
-  actions: PropTypes.arrayOf(PropTypes.string)
+const routes = {
+  [POST]: {
+    save: {
+      action: saveAsTemplate,
+      params: {
+        id: {
+          from: fromData.resource,
+          name: 'id'
+        },
+        name: {
+          from: fromData.postBody,
+          name: 'name'
+        }
+      }
+    }
+  }
 }
 
-HistoryList.displayName = 'HistoryList'
-
-export default HistoryList
+const authApi = {
+  routes
+}
+module.exports = authApi

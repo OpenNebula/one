@@ -73,7 +73,7 @@ const PERIODIC_FIELD = {
   type: INPUT_TYPES.CHECKBOX,
   validation: yup
     .boolean()
-    .default(false),
+    .default(() => false),
   grid: { md: 12 }
 }
 
@@ -106,27 +106,16 @@ const REPEAT_FIELD = {
 
 const DAYS_FIELD = {
   name: 'DAYS',
-  dependOf: [PERIODIC_FIELD.name, REPEAT_FIELD.name],
-  multiple: (dependValues = {}) => {
-    const { [REPEAT_FIELD.name]: repeat } = dependValues
-
-    return REPEAT_VALUES.WEEKLY === repeat
-  },
-  type: (dependValues = {}) => {
-    const { [REPEAT_FIELD.name]: repeat } = dependValues
-
-    return REPEAT_VALUES.WEEKLY === repeat ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT
-  },
-  label: (dependValues = {}) => {
-    const { [REPEAT_FIELD.name]: repeat } = dependValues
-
-    return {
-      [REPEAT_VALUES.WEEKLY]: 'Days of week',
-      [REPEAT_VALUES.MONTHLY]: 'Days of month',
-      [REPEAT_VALUES.YEARLY]: 'Days of year',
-      [REPEAT_VALUES.HOURLY]: "Each 'x' hours"
-    }[repeat]
-  },
+  dependOf: [REPEAT_FIELD.name, PERIODIC_FIELD.name],
+  multiple: ([repeat] = []) => REPEAT_VALUES.WEEKLY === repeat,
+  type: ([repeat] = []) =>
+    REPEAT_VALUES.WEEKLY === repeat ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT,
+  label: ([repeat] = []) => ({
+    [REPEAT_VALUES.WEEKLY]: 'Days of week',
+    [REPEAT_VALUES.MONTHLY]: 'Days of month',
+    [REPEAT_VALUES.YEARLY]: 'Days of year',
+    [REPEAT_VALUES.HOURLY]: "Each 'x' hours"
+  }[repeat]),
   values: [
     { text: T.Sunday, value: '0' },
     { text: T.Monday, value: '1' },
@@ -136,12 +125,9 @@ const DAYS_FIELD = {
     { text: T.Friday, value: '5' },
     { text: T.Saturday, value: '6' }
   ],
-  htmlType: (dependValues = {}) => {
-    const { [PERIODIC_FIELD.name]: periodic, [REPEAT_FIELD.name]: repeat } = dependValues
-
-    if (!periodic) return INPUT_TYPES.HIDDEN
-
-    return REPEAT_VALUES.HOURLY === repeat ? 'number' : undefined
+  htmlType: ([repeat, isPeriodic] = []) => {
+    if (!isPeriodic) return INPUT_TYPES.HIDDEN
+    if (repeat === REPEAT_VALUES.HOURLY) return 'number'
   },
   validation: yup
     .string()

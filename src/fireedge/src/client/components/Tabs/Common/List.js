@@ -32,6 +32,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.palette.divider}`
   },
   item: {
+    height: '2.4em',
     gap: '1em',
     '& > *': {
       flex: '1 1 50%',

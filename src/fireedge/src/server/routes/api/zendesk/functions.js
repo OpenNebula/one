@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
-import PropTypes from 'prop-types'
+const { global } = require('window-or-global')
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
-import HistoryList from 'client/components/Tabs/Vm/Placement/List'
-
-import { getHypervisor, getHistoryRecords, isAvailableAction } from 'client/models/VirtualMachine'
-import { getActionsAvailable } from 'client/models/Helper'
-
-const VmPlacementTab = ({ tabProps: { actions } = {} }) => {
-  const { data: vm } = useContext(TabContext)
-
-  const [records, actionsAvailable] = useMemo(() => {
-    const hypervisor = getHypervisor(vm)
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
-
-    return [getHistoryRecords(vm), actionsByState]
-  }, [vm])
-
-  return (
-    <HistoryList actions={actionsAvailable} records={records} />
-  )
+/**
+ * Get data fireedge session.
+ *
+ * @param {string} username - username
+ * @param {string} token - pass
+ * @returns {object} user session
+ */
+const getSession = (username = '', token = '') => {
+  if (
+    username &&
+    token &&
+    global &&
+    global.users &&
+    username &&
+    global.users[username] &&
+    global.users[username].tokens
+  ) {
+    const session = global.users[username].tokens.find(
+      (curr = {}, index = 0) => {
+        return curr.token && curr.token === token
+      }
+    )
+    return session
+  }
 }
 
-VmPlacementTab.propTypes = {
-  tabProps: PropTypes.object
+const functions = {
+  getSession
 }
 
-VmPlacementTab.displayName = 'VmPlacementTab'
-
-export default VmPlacementTab
+module.exports = functions

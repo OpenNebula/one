@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, number } from 'yup'
 
-import { Field, arrayToOptions, filterFieldsByHypervisor } from 'client/utils'
+import { Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
@@ -130,21 +130,14 @@ export const IO_THREADS = {
     .default(() => undefined)
 }
 
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of Features fields
- */
-export const FEATURES_FIELDS = hypervisor =>
-  filterFieldsByHypervisor(
-    [
-      ACPI,
-      PAE,
-      APIC,
-      HYPERV,
-      LOCALTIME,
-      GUEST_AGENT,
-      VIRTIO_SCSI_QUEUES,
-      IO_THREADS
-    ],
-    hypervisor
-  )
+/** @type {Field[]} List of Features fields */
+export const FEATURES_FIELDS = [
+  ACPI,
+  PAE,
+  APIC,
+  HYPERV,
+  LOCALTIME,
+  GUEST_AGENT,
+  VIRTIO_SCSI_QUEUES,
+  IO_THREADS
+]

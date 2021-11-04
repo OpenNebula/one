@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { string } from 'yup'
 
+import { Field, Section } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 
+/** @type {Field} Host requirement field */
 const HOST_REQ_FIELD = {
   name: 'SCHED_REQUIREMENTS',
   label: T.HostReqExpression,
@@ -26,6 +27,7 @@ const HOST_REQ_FIELD = {
   validation: string().trim().notRequired()
 }
 
+/** @type {Field} Host rank requirement field */
 const HOST_RANK_FIELD = {
   name: 'SCHED_RANK',
   label: T.HostPolicyExpression,
@@ -34,6 +36,7 @@ const HOST_RANK_FIELD = {
   validation: string().trim().notRequired()
 }
 
+/** @type {Field} Datastore requirement field */
 const DS_REQ_FIELD = {
   name: 'DS_SCHED_REQUIREMENTS',
   label: T.DatastoreReqExpression,
@@ -42,6 +45,7 @@ const DS_REQ_FIELD = {
   validation: string().trim().notRequired()
 }
 
+/** @type {Field} Datastore rank requirement field */
 const DS_RANK_FIELD = {
   name: 'DS_SCHED_RANK',
   label: T.DatastorePolicyExpression,
@@ -50,8 +54,26 @@ const DS_RANK_FIELD = {
   validation: string().trim().notRequired()
 }
 
-export const PLACEMENT_HOST_FIELDS = [HOST_REQ_FIELD, HOST_RANK_FIELD]
+/** @type {Section[]} Sections */
+const SECTIONS = [
+  {
+    id: 'placement-host',
+    legend: T.Host,
+    fields: [HOST_REQ_FIELD, HOST_RANK_FIELD]
+  },
+  {
+    id: 'placement-ds',
+    legend: T.Datastore,
+    fields: [DS_REQ_FIELD, DS_RANK_FIELD]
+  }
+]
 
-export const PLACEMENT_DS_FIELDS = [DS_REQ_FIELD, DS_RANK_FIELD]
+/** @type {Field[]} List of Placement fields */
+const FIELDS = [
+  HOST_REQ_FIELD,
+  HOST_RANK_FIELD,
+  DS_REQ_FIELD,
+  DS_RANK_FIELD
+]
 
-export const PLACEMENT_FIELDS = [PLACEMENT_HOST_FIELDS, PLACEMENT_DS_FIELDS]
+export { SECTIONS, FIELDS }

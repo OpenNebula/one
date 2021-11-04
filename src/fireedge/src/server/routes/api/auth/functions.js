@@ -573,7 +573,8 @@ const functionRoutes = {
   setRes,
   updaterResponse,
   setNodeConnect,
-  connectOpennebula
+  connectOpennebula,
+  getCreatedTokenOpennebula
 }
 
 module.exports = functionRoutes

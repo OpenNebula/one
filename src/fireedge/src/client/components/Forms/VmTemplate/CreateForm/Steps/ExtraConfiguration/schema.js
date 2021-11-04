@@ -16,37 +16,39 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { array, object } from 'yup'
 
-import { PLACEMENT_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
-import { OS_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
-import { NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+import { FIELDS as PLACEMENT_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
+import { FIELDS as OS_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
+import { FIELDS as NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+import { SCHEMA as IO_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
+import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
 import { getObjectSchemaFromFields } from 'client/utils'
 
-export const SCHEMA = hypervisor => object({
-  DISK: array()
-    .ensure()
-    .transform(disks => disks?.map((disk, idx) => ({
-      ...disk,
-      NAME: disk?.NAME?.startsWith('DISK') || !disk?.NAME
-        ? `DISK${idx}`
-        : disk?.NAME
-    }))),
-  NIC: array()
-    .ensure()
-    .transform(nics => nics?.map((nic, idx) => ({
-      ...nic,
-      NAME: nic?.NAME?.startsWith('NIC') || !nic?.NAME
-        ? `NIC${idx}`
-        : nic?.NAME
-    }))),
-  SCHED_ACTION: array()
-    .ensure()
-    .transform(actions => actions?.map((action, idx) => ({
-      ...action,
-      NAME: action?.NAME?.startsWith('SCHED_ACTION') || !action?.NAME
-        ? `SCHED_ACTION${idx}`
-        : action?.NAME
-    })))
+export const mapNameByIndex = (prefixName) => (resource, idx) => ({
+  ...resource,
+  NAME: resource?.NAME?.startsWith(prefixName) || !resource?.NAME
+    ? `${prefixName}${idx}`
+    : resource?.NAME
 })
+
+export const DISK_SCHEMA = array()
+  .ensure()
+  .transform(disks => disks.map(mapNameByIndex('DISK')))
+
+export const NIC_SCHEMA = array()
+  .ensure()
+  .transform(nics => nics.map(mapNameByIndex('NIC')))
+
+export const SCHED_ACTION_SCHEMA = array()
+  .ensure()
+  .transform(actions => actions.map(mapNameByIndex('SCHED_ACTION')))
+
+export const SCHEMA = hypervisor => object({
+  DISK: DISK_SCHEMA,
+  NIC: NIC_SCHEMA,
+  SCHED_ACTION: SCHED_ACTION_SCHEMA,
+  USER_INPUTS: CONTEXT_SCHEMA
+})
+  .concat(IO_SCHEMA(hypervisor))
   .concat(getObjectSchemaFromFields([
     ...PLACEMENT_FIELDS,
     ...OS_FIELDS(hypervisor),
