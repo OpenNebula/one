@@ -493,10 +493,11 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
         keys_to_remove = []
         vm['config.extraConfig'].each do |extraconfig|
-            if extraconfig.key.include?('opennebula.disk') ||
-               extraconfig.key.include?('opennebula.vm')
-                keys_to_remove << extraconfig.key
-            end
+            next unless extraconfig.key.include?('opennebula.disk') ||
+               extraconfig.key.include?('opennebula.vm') ||
+               extraconfig.key.downcase.include?('remotedisplay')
+
+            keys_to_remove << extraconfig.key
         end
 
         [vm, keys_to_remove]
