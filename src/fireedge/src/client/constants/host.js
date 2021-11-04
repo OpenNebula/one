@@ -16,6 +16,22 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
+/**
+ * @typedef {object} PciDevice - PCI device
+ * @property {string} DOMAIN - PCI address domain
+ * @property {string} BUS - PCI address bus
+ * @property {string} SLOT - PCI address slot
+ * @property {string} FUNCTION - PCI address function
+ * @property {string} ADDRESS - PCI address, bus, slot and function
+ * @property {string} DEVICE - Id of PCI device
+ * @property {string} CLASS - Id of PCI device class
+ * @property {string} VENDOR - Id of PCI device vendor
+ * @property {string} VMID - Id using this device, -1 if free
+ * @property {string} [DEVICE_NAME] - Name of PCI device
+ * @property {string} [VENDOR_NAME] - Name of PCI device vendor
+ * @property {string} [CLASS_NAME] - Name of PCI device class
+ */
+
 /** @type {STATES.StateInfo[]} Host states */
 export const HOST_STATES = [
   {

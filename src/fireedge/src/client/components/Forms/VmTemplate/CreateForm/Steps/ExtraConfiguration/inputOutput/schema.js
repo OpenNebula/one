@@ -17,6 +17,7 @@ import { object, ObjectSchema } from 'yup'
 
 import { GRAPHICS_FIELDS } from './graphicsSchema'
 import { INPUTS_SCHEMA } from './inputsSchema'
+import { PCI_DEVICES_SCHEMA } from './pciDevicesSchema'
 import { Field, getObjectSchemaFromFields } from 'client/utils'
 
 /**
@@ -31,10 +32,12 @@ export const INPUT_OUTPUT_FIELDS = hypervisor =>
  * @returns {ObjectSchema} I/O schema
  */
 export const SCHEMA = hypervisor => object({
-  INPUT: INPUTS_SCHEMA
+  INPUT: INPUTS_SCHEMA,
+  PCI: PCI_DEVICES_SCHEMA
 }).concat(getObjectSchemaFromFields([
   ...GRAPHICS_FIELDS(hypervisor)
 ]))
 
 export * from './graphicsSchema'
 export * from './inputsSchema'
+export * from './pciDevicesSchema'

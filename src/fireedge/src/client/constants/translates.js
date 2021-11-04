@@ -473,6 +473,11 @@ module.exports = {
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
   Inputs: 'Inputs',
+  PciDevices: 'PCI Devices',
+  DeviceName: 'Device name',
+  Device: 'Device',
+  Vendor: 'Vendor',
+  Class: 'Class',
   /* VM Template schema - Input/Output - graphics */
   Graphics: 'Graphics',
   VMRC: 'VMRC',
