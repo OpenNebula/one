@@ -96,6 +96,7 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   }
   frontPath = '../client'
 }
+app.use(helmet.xssFilter())
 app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
