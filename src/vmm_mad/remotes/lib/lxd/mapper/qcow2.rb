@@ -24,7 +24,8 @@ require 'mapper'
 class Qcow2Mapper < Mapper
 
     # Version --fork option was introduced in qemu-nbd command
-    QEMU_NBD_FORK_VERSION = "2.8.0"
+    QEMU_NBD_FORK_VERSION = '2.8.0'
+    CACHE_MODES = %w[none writethrough writeback directsync unsafe]
 
     def do_map(one_vm, disk, _directory)
         device = nbd_device
@@ -34,9 +35,13 @@ class Qcow2Mapper < Mapper
         dsrc = one_vm.disk_source(disk)
         File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
-        map = "#{COMMANDS[:nbd]}"
-        map.concat(" --fork") if fork_supported
-        map.concat(" -c #{device} #{dsrc}")
+        map = (COMMANDS[:nbd]).to_s
+
+        map << " --cache=#{disk['CACHE']}" if
+            CACHE_MODES.include?(disk['CACHE'])
+
+        map << ' --fork' if fork_supported
+        map << " -c #{device} #{dsrc}"
 
         rc, _out, err = Command.execute(map, true)
 
@@ -73,7 +78,7 @@ class Qcow2Mapper < Mapper
     def fork_supported
         tgt_ver = nbd_version
 
-        return false if tgt_ver == "0.0.0"
+        return false if tgt_ver == '0.0.0'
 
         Gem::Version.new(tgt_ver) >= Gem::Version.new(QEMU_NBD_FORK_VERSION)
     end
@@ -83,11 +88,11 @@ class Qcow2Mapper < Mapper
 
         rc, out, _err = Command.execute(cmd, false)
 
-        return "0.0.0" unless rc.zero?
+        return '0.0.0' unless rc.zero?
 
         match_v = out.match(/qemu-nbd(?: version)? ((?:[0-9]+\.?)+)\s?\(?.*$/)
 
-        return "0.0.0" if match_v.nil?
+        return '0.0.0' if match_v.nil?
 
         match_v[1]
     end
@@ -95,7 +100,7 @@ class Qcow2Mapper < Mapper
     # Detects Max number of block devices
     def nbds_max
         File.read('/sys/module/nbd/parameters/nbds_max').chomp.to_i
-    rescue => e
+    rescue StandardError => e
         OpenNebula.log_error("Cannot load kernel module parameter\n#{e}")
         0
     end
