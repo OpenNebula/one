@@ -25,6 +25,7 @@ require 'storageutils'
 class Qcow2Mapper
 
     QEMU_NBD_FORK_VERSION = '2.8.0'
+    CACHE_MODES = %w[none writethrough writeback directsync unsafe]
 
     COMMANDS = {
         :map     => 'sudo -n qemu-nbd --fork -c',
@@ -37,6 +38,9 @@ class Qcow2Mapper
         device = nbd_device.strip
 
         cmd = "#{COMMANDS[:map]} #{device} #{file}"
+
+        cmd << " --cache=#{disk['CACHE']}" if
+            CACHE_MODES.include?(disk['CACHE'])
 
         rc = Command.execute_rc_log(cmd, false)
 
