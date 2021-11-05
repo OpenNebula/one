@@ -17,17 +17,17 @@
 <div class="row name_row">
   <div class="large-12 columns">
     <label for="username">{{tr "Username"}}</label>
-    <input required type="text" name="username" id="{{idPrefix}}_username" />
+    <input required type="text" autocomplete="username" name="username" id="{{idPrefix}}_username" />
   </div>
 </div>
 <div class="row password_row">
   <div class="large-12 columns">
     <label for="pass">{{tr "Password"}}</label>
-    <input required type="password" name="pass" id="{{idPrefix}}_pass" />
+    <input required type="password" autocomplete="new-password" name="pass" id="{{idPrefix}}_pass" />
   </div>
   <div class="large-12 columns">
     <label for="confirm_password">{{tr "Confirm Password"}}</label>
-    <input data-equalto="{{idPrefix}}_pass" type="password" name="confirm_password" id="{{idPrefix}}_confirm_password" />
+    <input data-equalto="{{idPrefix}}_pass" autocomplete="new-password" type="password" name="confirm_password" id="{{idPrefix}}_confirm_password" />
     <small class="form-error">{{tr "Passwords do not match"}}</small>
   </div>
 </div>

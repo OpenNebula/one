@@ -67,12 +67,12 @@
           <form id="provision_change_password_form">
             <div class="row">
               <div class="large-12 columns">
-                <input type="password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}"/>
+                <input type="password" autocomplete="new-password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}"/>
               </div>
             </div>
             <div class="row">
               <div class="large-12 columns">
-                <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
+                <input type="password" autocomplete="new-password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
               </div>
             </div>
             {{#if cantChangePassword}}
