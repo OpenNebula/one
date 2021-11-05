@@ -226,27 +226,32 @@ class Container
 
         begin
             stop(:force => force)
-        rescue StandardError => e
+        rescue Net::ReadTimeout => e
             OpenNebula.log_error "LXD Error: #{e}"
 
-            real_status = 'Unknown'
+            # Container queries will timeout for a while after shutdown timeout
+            10.times do
+                OpenNebula.log_error 'Re-trying shutdown'
+                sleep 5
 
-            2.times do
-                # This call may return an operation output instead of a
-                # container data in case of timeout. The call breaks
-                # the container info. It needs to be read again
-
-                real_status = check_status
-                break if %w[Running Stopped].include? real_status
+                begin
+                    case check_status
+                    when 'Running'
+                        stop(:force => true)
+                        return
+                    when 'Stopped'
+                        return
+                    else
+                        next
+                    end
+                rescue Net::ReadTimeout
+                    next
+                end
             end
 
-            begin
-                stop(:force => true) if real_status == 'Running'
-            rescue StandardError => e
-                error = "LXD Error: Cannot shut down container #{e}"
+            OpenNebula.log_error 'LXD Error: Cannot shut down container'
 
-                OpenNebula.log_error error
-            end
+            raise e
         end
     end
 
