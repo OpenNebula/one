@@ -114,7 +114,7 @@ begin
         exit(-1)
     end
 
-    equinxi.delete_ip(equinix_id)
+    equinix.delete_ip(equinix_id)
 rescue StandardError => e
     STDERR.puts e.to_s
     exit(-1)
