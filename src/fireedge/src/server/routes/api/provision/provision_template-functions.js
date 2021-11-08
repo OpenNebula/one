@@ -27,12 +27,12 @@ const {
 const {
   httpResponse,
   parsePostData,
-  executeCommand
+  executeCommand,
+  removeFile
 } = require('server/utils/server')
 const {
   createYMLContent,
   createTemporalFile,
-  removeFile,
   getEndpoint,
   getSpecificConfig
 } = require('./functions')

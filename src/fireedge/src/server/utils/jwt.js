@@ -35,7 +35,7 @@ const createJWT = (
   exp = ''
 ) => {
   let rtn = null
-  if (iss && aud && jti && iat && exp && global && global.paths && global.paths.FIREEDGE_KEY) {
+  if (iss && aud && jti && iat && exp) {
     const payload = {
       iss,
       aud,
@@ -43,9 +43,43 @@ const createJWT = (
       iat,
       exp
     }
+    rtn = jwtEncode(payload)
+  }
+  return rtn
+}
+
+/**
+ * Encode JWT.
+ *
+ * @param {object} payload - data object
+ * @returns {object} - jwt or null
+ */
+const jwtEncode = (payload = {}) => {
+  let rtn = null
+  if (global && global.paths && global.paths.FIREEDGE_KEY) {
     rtn = jwt.encode(payload, global.paths.FIREEDGE_KEY)
   }
   return rtn
+}
+
+/**
+ * Decode JWT.
+ *
+ * @param {string} token - token JWT
+ * @returns {object} data JWT
+ */
+const jwtDecode = (token = '') => {
+  if (global && global.paths && global.paths.FIREEDGE_KEY) {
+    try {
+      return jwt.decode(token, global.paths.FIREEDGE_KEY)
+    } catch (messageError) {
+      messageTerminal({
+        color: 'red',
+        message: 'invalid: %s',
+        error: messageError
+      })
+    }
+  }
 }
 
 /**
@@ -60,10 +94,9 @@ const validateAuth = (req = {}) => {
     const authorization = req.headers.authorization
     const removeBearer = /^Bearer /i
     const token = authorization.replace(removeBearer, '')
-    const fireedgeKey = global && global.paths && global.paths.FIREEDGE_KEY
-    if (token && fireedgeKey) {
+    if (token) {
       try {
-        const payload = jwt.decode(token, fireedgeKey)
+        const payload = jwtDecode(token)
         if (
           payload &&
           'iss' in payload &&
@@ -84,7 +117,7 @@ const validateAuth = (req = {}) => {
       } catch (error) {
       }
     } else {
-      const messageError = (!token && 'jwt') || (!fireedgeKey && 'fireedge_key')
+      const messageError = token || (global && global.paths && global.paths.FIREEDGE_KEY)
       if (messageError) {
         messageTerminal({
           color: 'red',
@@ -117,6 +150,7 @@ const check2Fa = (secret = '', token = '') => {
 }
 
 module.exports = {
+  jwtDecode,
   createJWT,
   validateAuth,
   check2Fa

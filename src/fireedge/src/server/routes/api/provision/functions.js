@@ -22,7 +22,6 @@ const events = require('events')
 const { Document, scalarOptions, stringify } = require('yaml')
 const {
   writeFileSync,
-  removeSync,
   readdirSync,
   statSync,
   existsSync,
@@ -147,21 +146,6 @@ const createYMLContent = (content = '') => {
     messageTerminal(defaultError(error && error.message))
   }
   return rtn
-}
-
-/**
- * Delete file.
- *
- * @param {string} path - the path for delete
- */
-const removeFile = (path = '') => {
-  if (path) {
-    try {
-      removeSync(path, { force: true })
-    } catch (error) {
-      messageTerminal(defaultError(error && error.message))
-    }
-  }
 }
 
 /**
@@ -308,7 +292,6 @@ const functionRoutes = {
   createYMLContent,
   createTemporalFile,
   createFolderWithFiles,
-  removeFile,
   renameFolder,
   moveToFolder,
   findRecursiveFolder,

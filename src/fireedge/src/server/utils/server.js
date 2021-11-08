@@ -20,13 +20,14 @@ const { global } = require('window-or-global')
 const { resolve } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
-const { existsSync, readFileSync, createWriteStream, readdirSync, statSync } = require('fs-extra')
+const { existsSync, readFileSync, createWriteStream, readdirSync, statSync, removeSync } = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
 const { spawnSync, spawn } = require('child_process')
 const {
+  defaultApps,
   from: fromData,
   defaultAppName,
   defaultConfigFile,
@@ -134,9 +135,10 @@ const getKey = () => key
  * @param {object} response - response http
  * @param {string} data - data for response http
  * @param {string} message - message
+ * @param {string} file - file
  * @returns {object} {data, message, id}
  */
-const httpResponse = (response = null, data = '', message = '') => {
+const httpResponse = (response = null, data = '', message = '', file = '') => {
   let rtn = Map(internalServerError).toObject()
   rtn.data = data
   if (response) {
@@ -147,6 +149,11 @@ const httpResponse = (response = null, data = '', message = '') => {
   }
   if (message) {
     rtn.message = message
+  }
+  if (file) {
+    rtn.message && delete rtn.message
+    rtn.data && delete rtn.data
+    rtn.file = file
   }
   return rtn
 }
@@ -725,6 +732,32 @@ const executeCommand = (command = '', resource = '', prependCommand = '', option
   }
   return rtn
 }
+/**
+ * Check app name.
+ *
+ * @param {string} appName - app name
+ * @returns {object} app
+ */
+const checkValidApp = (appName = '') => defaultApps[appName]
+
+/**
+ * Delete file.
+ *
+ * @param {string} path - the path for delete
+ * @returns {boolean} flag if file is deleted
+ */
+const removeFile = (path = '') => {
+  let rtn = false
+  if (path) {
+    try {
+      removeSync(path, { force: true })
+      rtn = true
+    } catch (error) {
+      messageTerminal(defaultError(error && error.message))
+    }
+  }
+  return rtn
+}
 
 /**
  * Run Asynchronous commands for CLI.
@@ -800,5 +833,7 @@ module.exports = {
   getFiles,
   getFilesbyEXT,
   executeCommand,
-  executeCommandAsync
+  executeCommandAsync,
+  checkValidApp,
+  removeFile
 }

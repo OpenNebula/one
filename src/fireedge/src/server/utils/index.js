@@ -89,13 +89,14 @@ const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
  *
  * @param {string} route - route
  * @param {string} httpMethod - http method
+ * @param {boolean} authenticated - user authenticated
  * @returns {object} route function
  */
-const checkIfIsARouteFunction = (route, httpMethod) => {
+const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
   let rtn = false
   if (route && route.length) {
     const { private: functionPrivate, public: functionPublic } = functionRoutes
-    const functions = [...functionPrivate, ...functionPublic]
+    const functions = authenticated ? functionPrivate : functionPublic
     /**
      * Finder command.
      *
@@ -110,6 +111,7 @@ const checkIfIsARouteFunction = (route, httpMethod) => {
       rtnCommand.httpMethod === httpMethod &&
       rtnCommand.action &&
       typeof rtnCommand.action === 'function'
+
     const find = functions.find(finderCommand)
     if (find) {
       rtn = find

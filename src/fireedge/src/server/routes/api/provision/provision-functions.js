@@ -37,7 +37,8 @@ const {
   getDirectories,
   getFilesbyEXT,
   executeCommand,
-  executeCommandAsync
+  executeCommandAsync,
+  removeFile
 } = require('server/utils/server')
 const { checkEmptyObject } = require('server/utils/general')
 const {
@@ -50,7 +51,6 @@ const {
   createTemporalFile,
   createFolderWithFiles,
   createYMLContent,
-  removeFile,
   renameFolder,
   moveToFolder,
   findRecursiveFolder,
