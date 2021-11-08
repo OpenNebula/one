@@ -26,7 +26,7 @@ import { useAuth } from 'client/features/Auth'
 import { useProvisionTemplate } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
-import { sanitize } from 'client/utils'
+import { sanitize, deepmerge } from 'client/utils'
 import { isValidProviderTemplate, getProvisionTypeFromTemplate } from 'client/models/ProviderTemplate'
 import { T } from 'client/constants'
 
@@ -107,6 +107,7 @@ const Content = ({ data, setFormData }) => {
 
   const handleClick = (template, isSelected) => {
     const { name, description } = template
+    const extraPlainInfo = { plain: { provision_type: provisionSelected } }
 
     // reset rest of form when change template
     setFormData({
@@ -116,7 +117,7 @@ const Content = ({ data, setFormData }) => {
 
     isSelected
       ? handleUnselect(name)
-      : handleSelect(template)
+      : handleSelect(deepmerge(template, extraPlainInfo))
   }
 
   const RenderDescription = ({ description = '' }) => {
