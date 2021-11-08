@@ -34,12 +34,12 @@ const {
   parsePostData,
   getFilesbyEXT,
   existsFile,
-  executeCommand
+  executeCommand,
+  removeFile
 } = require('server/utils/server')
 const {
   createTemporalFile,
   createYMLContent,
-  removeFile,
   getEndpoint,
   getSpecificConfig
 } = require('./functions')

@@ -92,21 +92,25 @@ router.all(
     }
     const zoneData = getDataZone(zone, defaultOpennebulaZones)
     if (zoneData) {
+      const user = getUserOpennebula()
+      const password = getPassOpennebula()
+      const userId = getIdUserOpennebula()
       const { rpc } = zoneData
+
       /**
        * Instance of connection to opennebula.
        *
        * @param {string} user - opennegula user
-       * @param {string} pass - opennebula pass
+       * @param {string} password - opennebula pass
        * @returns {Function} opennebula executer calls to XMLRPC
        */
       const connectOpennebula = (
-        user = getUserOpennebula(),
-        pass = getPassOpennebula()
-      ) => opennebulaConnect(user, pass, rpc)
+        user,
+        password
+      ) => opennebulaConnect(user, password, rpc)
 
       const { resource } = req.params
-      const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
+      const routeFunction = checkIfIsARouteFunction(resource, httpMethod, !!userId.length)
       res.locals.httpCode = httpResponse(methodNotAllowed)
 
       const dataSources = {
@@ -126,14 +130,13 @@ router.all(
         )
         req.serverDataSource = dataSources
         if (valRouteFunction) {
-          const userIdOpennebula = getIdUserOpennebula()
           valRouteFunction(
             req,
             res,
             next,
             connectOpennebula,
-            userIdOpennebula,
-            { id: userIdOpennebula, user: getUserOpennebula(), password: getPassOpennebula() }
+            userId,
+            { id: userId, user, password }
           )
         } else {
           next()
@@ -190,7 +193,6 @@ router.all(
           }
 
           //* worker thread */
-          const user = getUserOpennebula()
           const paramsCommand = getOpennebulaMethod(dataSources)
           let workerPath = [__dirname]
           if (env && env.NODE_ENV === defaultWebpackMode) {
@@ -213,7 +215,7 @@ router.all(
             {
               globalState: (global && global.paths) || {},
               user,
-              password: getPassOpennebula(),
+              password,
               rpc,
               command,
               paramsCommand
@@ -231,7 +233,11 @@ router.all(
   (req, res) => {
     clearStates()
     const { httpCode } = res.locals
-    res.status(httpCode.id).json(httpCode)
+    if (httpCode.file) {
+      res.sendFile(httpCode.file)
+    } else {
+      res.status(httpCode.id).json(httpCode)
+    }
   }
 )
 

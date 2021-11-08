@@ -66,6 +66,7 @@ const defaults = {
   defaultFilesRoutes: [
     '2fa',
     'auth',
+    'files',
     'oneflow',
     'support',
     'vcenter',
