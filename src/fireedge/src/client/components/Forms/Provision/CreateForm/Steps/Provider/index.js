@@ -48,10 +48,11 @@ const Provider = () => ({
 
       return providers.filter(provider => {
         const { TEMPLATE: { PLAIN = {} } } = provider ?? {}
-        const provisionType = [providerConfig[PLAIN.provider]?.provision_type ?? []].flat()
 
-        return PLAIN.provider === provisionTemplateSelected.provider &&
-          provisionType.includes(templateProvisionType)
+        return (
+          PLAIN.provider === provisionTemplateSelected.provider &&
+          PLAIN.provision_type === templateProvisionType
+        )
       })
     }, [])
 
