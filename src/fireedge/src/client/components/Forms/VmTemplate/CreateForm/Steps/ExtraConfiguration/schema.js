@@ -45,9 +45,9 @@ export const SCHED_ACTION_SCHEMA = array()
 export const SCHEMA = hypervisor => object({
   DISK: DISK_SCHEMA,
   NIC: NIC_SCHEMA,
-  SCHED_ACTION: SCHED_ACTION_SCHEMA,
-  USER_INPUTS: CONTEXT_SCHEMA
+  SCHED_ACTION: SCHED_ACTION_SCHEMA
 })
+  .concat(CONTEXT_SCHEMA)
   .concat(IO_SCHEMA(hypervisor))
   .concat(getObjectSchemaFromFields([
     ...PLACEMENT_FIELDS,

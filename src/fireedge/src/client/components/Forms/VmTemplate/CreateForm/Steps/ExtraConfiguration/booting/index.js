@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, Box } from '@mui/material'
+import { Stack, FormControl } from '@mui/material'
 import { SystemShut as OsIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
@@ -44,10 +44,11 @@ const Booting = ({ hypervisor, ...props }) => {
         !!props.data?.[STORAGE_ID]?.length ||
         !!props.data?.[NIC_ID]?.length
       ) && (
-        <Box component='fieldset' gridColumn='1/-1'>
+
+        <FormControl component='fieldset' sx={{ width: '100%', gridColumn: '1 / -1' }}>
           <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
           <BootOrder {...props} />
-        </Box>
+        </FormControl>
       )}
       {sections.map(({ id, ...section }) => (
         <FormWithSchema

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import DOMPurify from 'dompurify'
-import { object, reach, BaseSchema } from 'yup'
+import { object, reach, ObjectSchema, BaseSchema } from 'yup'
 import { HYPERVISORS } from 'client/constants'
 
 /**
@@ -107,7 +107,7 @@ export const getValidationFromFields = fields =>
  * Returns fields in schema object.
  *
  * @param {{name: string, validation: BaseSchema}[]} fields - Fields
- * @returns {BaseSchema} Object schema
+ * @returns {ObjectSchema} Object schema
  * @example
  * [{ name: 'VM.NAME', validation: string() }]
  *  => object({ 'VM': object({ NAME: string() }) })

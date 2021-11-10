@@ -55,7 +55,7 @@ const User = () => {
                   color='secondary'
                   href={`${APP_URL}/${appName}`}
                 >
-                  <DevTypography label={appName} />
+                  <DevTypography>{appName}</DevTypography>
                 </Link>
               </MenuItem>
             ))

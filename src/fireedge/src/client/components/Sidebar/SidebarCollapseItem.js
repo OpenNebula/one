@@ -37,7 +37,7 @@ import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
 
-const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
+const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
   const classes = sidebarStyles()
   const { pathname } = useLocation()
   const { isFixMenu } = useGeneral()
@@ -63,29 +63,26 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
           </ListItemIcon>
         )}
         <ListItemText
-          className={classes.itemText}
-          data-max-label={label}
           data-cy={label}
-          data-min-label={label.slice(0, 3)}
+          primary={label}
+          primaryTypographyProps={{ variant: 'body1' }}
         />
         {expanded ? <CollapseIcon/> : <ExpandMoreIcon />}
       </ListItemButton>
-      {routes
-        ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')
-        ?.map((subItem, index) => (
-          <Collapse
-            key={`subitem-${index}`}
-            in={expanded}
-            timeout='auto'
-            unmountOnExit
-            className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
-          >
-            <List component='div'>
-              <SidebarLink {...subItem} isSubItem />
-            </List>
-          </Collapse>
-        ))
-      }
+      <Collapse
+        in={expanded}
+        timeout='auto'
+        unmountOnExit
+        className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
+      >
+        <List component='div' disablePadding>
+          {routes
+            ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')
+            ?.map((subItem, index) => (
+              <SidebarLink key={`subitem-${index}`} isSubItem {...subItem} />
+            ))}
+        </List>
+      </Collapse>
     </>
   )
 }
@@ -105,12 +102,6 @@ SidebarCollapseItem.propTypes = {
       path: PropTypes.string
     })
   )
-}
-
-SidebarCollapseItem.defaultProps = {
-  label: '',
-  icon: null,
-  routes: []
 }
 
 export default SidebarCollapseItem

@@ -66,7 +66,6 @@ const Sidebar = ({ endpoints }) => {
   return (
     <Drawer
       variant='permanent'
-      className={clsx({ [classes.drawerFixed]: isFixMenu })}
       classes={{
         paper: clsx(classes.drawerPaper, {
           [classes.drawerFixed]: isFixMenu
@@ -81,7 +80,7 @@ const Sidebar = ({ endpoints }) => {
           width='100%'
           height={50}
           withText
-          className={classes.svg}
+          className={classes.logo}
           disabledBetaText
         />
         {!isUpLg || isFixMenu ? (
@@ -96,7 +95,7 @@ const Sidebar = ({ endpoints }) => {
       </Box>
       <Divider />
       <Box className={classes.menu}>
-        <List className={classes.list} data-cy='main-menu'>
+        <List data-cy='main-menu'>
           {SidebarEndpoints}
         </List>
       </Box>

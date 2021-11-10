@@ -26,8 +26,8 @@ const NetworkList = ({ nics, actions }) => (
     paddingBlock: '0.8em'
   }}>
     {nics.map(nic => {
-      const { IP, MAC } = nic
-      const key = IP ?? MAC
+      const { IP, MAC, ADDRESS } = nic
+      const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
 
       return <NetworkItem key={key} actions={actions} nic={nic} />
     })}

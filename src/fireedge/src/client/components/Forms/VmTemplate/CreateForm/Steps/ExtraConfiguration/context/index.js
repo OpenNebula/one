@@ -13,177 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { forwardRef } from 'react'
 import PropTypes from 'prop-types'
-import {
-  Folder as ContextIcon,
-  WarningCircledOutline as WarningIcon,
-  DeleteCircledOutline,
-  AddCircledOutline
-} from 'iconoir-react'
-import {
-  styled,
-  FormControl,
-  Stack,
-  IconButton,
-  Button,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText
-} from '@mui/material'
+import { Folder as ContextIcon } from 'iconoir-react'
 
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { useFieldArray, useForm, FormProvider, useFormContext, get } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import ConfigurationSection, { SECTION_ID as CONFIGURATION_ID } from './configurationSection'
+import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
 
-import { Tooltip } from 'client/components/FormControl'
-import { FormWithSchema, Legend } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
-
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { FIELDS, USER_INPUT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { getUserInputString } from 'client/models/Helper'
 import { T } from 'client/constants'
 
-export const TAB_ID = 'USER_INPUTS'
-
-const UserItemDraggable = styled(ListItem)(({ theme }) => ({
-  '&:before': {
-    content: "''",
-    display: 'block',
-    width: 16,
-    height: 10,
-    background: `linear-gradient(
-      to bottom,
-      ${theme.palette.action.active} 4px,
-      transparent 4px,
-      transparent 6px,
-      ${theme.palette.action.active} 6px
-    )`
-  }
-}))
-
-const UserInputItem = forwardRef(({
-  removeAction,
-  error,
-  userInput: { name, ...ui } = {},
-  ...props
-}, ref) => (
-  <UserItemDraggable
-    ref={ref}
-    secondaryAction={
-      <IconButton onClick={removeAction}>
-        <DeleteCircledOutline />
-      </IconButton>
-    }
-    sx={{ '&:hover': { bgcolor: 'action.hover' } }}
-    {...props}
-  >
-    {!!error && (
-      <ListItemIcon sx={{ '& svg': { color: 'error.dark' } }}>
-        <Tooltip title={error?.default.message}>
-          <WarningIcon />
-        </Tooltip>
-      </ListItemIcon>
-    )}
-    <ListItemText
-      inset={!error}
-      primary={name}
-      primaryTypographyProps={{ variant: 'body1' }}
-      secondary={getUserInputString(ui)}
-    />
-  </UserItemDraggable>
-))
-
-UserInputItem.propTypes = {
-  removeAction: PropTypes.func,
-  error: PropTypes.object,
-  userInput: PropTypes.object
-}
-
-UserInputItem.displayName = 'UserInputItem'
+export const TAB_ID = [CONFIGURATION_ID, USER_INPUTS_ID]
 
 const Context = () => {
-  const { formState: { errors } } = useFormContext()
-  const { fields: userInputs, append, remove, move } = useFieldArray({
-    name: `${EXTRA_ID}.${TAB_ID}`
-  })
-
-  const methods = useForm({
-    defaultValues: USER_INPUT_SCHEMA.default(),
-    resolver: yupResolver(USER_INPUT_SCHEMA)
-  })
-
-  const onSubmit = newInput => {
-    append(newInput)
-    methods.reset()
-  }
-
-  /** @param {DropResult} result - Drop result */
-  const onDragEnd = result => {
-    const { destination, source } = result ?? {}
-
-    if (destination && destination.index !== source.index) {
-      move(source.index, destination.index)
-    }
-  }
-
   return (
-    <FormControl component='fieldset' sx={{ width: '100%' }}>
-      <Legend title={T.UserInputs} tooltip={T.UserInputsConcept} />
-      <FormProvider {...methods}>
-        <Stack
-          direction='row' alignItems='flex-start' gap='0.5rem'
-          component='form'
-          onSubmit={methods.handleSubmit(onSubmit)}
-        >
-          <FormWithSchema
-            cy={`create-vm-template-${EXTRA_ID}.context-user-input`}
-            fields={FIELDS}
-            rootProps={{ sx: { m: 0 } }}
-          />
-          <Button
-            variant='outlined'
-            type='submit'
-            startIcon={<AddCircledOutline />}
-            sx={{ mt: '1em' }}
-          >
-            <Translate word={T.Add} />
-          </Button>
-        </Stack>
-      </FormProvider>
-      <Divider />
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId='context'>
-          {({ droppableProps, innerRef: outerRef, placeholder }) => (
-            <List ref={outerRef} {...droppableProps}>
-              {userInputs?.map(({ id, ...userInput }, index) => (
-                <Draggable
-                  key={`ui[${index}]`}
-                  draggableId={`ui-${index}`}
-                  index={index}
-                >
-                  {({ draggableProps, dragHandleProps, innerRef }) => (
-                    <UserInputItem
-                      key={id}
-                      ref={innerRef}
-                      userInput={userInput}
-                      error={get(errors, `${EXTRA_ID}.${TAB_ID}.${index}`)}
-                      removeAction={() => remove(index)}
-                      {...draggableProps}
-                      {...dragHandleProps}
-                    />
-                  )}
-                </Draggable>
-              ))}
-              {placeholder}
-            </List>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </FormControl>
+    <>
+      <ConfigurationSection />
+      <UserInputsSection />
+    </>
   )
 }
 
@@ -200,7 +46,7 @@ const TAB = {
   name: T.Context,
   icon: ContextIcon,
   Content: Context,
-  getError: error => !!error?.[TAB_ID]
+  getError: error => TAB_ID.some(id => error?.[id])
 }
 
 export default TAB

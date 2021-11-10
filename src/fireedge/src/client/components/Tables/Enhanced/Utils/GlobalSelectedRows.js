@@ -50,7 +50,7 @@ const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
   const allSelected = numberOfRowSelected === preFilteredRows.length
 
   return withAlert ? (
-    <MessageStyled icon={false} severity='debug' variant='outlined'>
+    <MessageStyled icon={false} severity='info' variant='outlined'>
       <span>
         <Translate word={T.NumberOfResourcesSelected} values={numberOfRowSelected} />{'.'}
       </span>

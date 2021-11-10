@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, array, object, ObjectSchema, ArraySchema } from 'yup'
+import { string, array, ObjectSchema, ArraySchema } from 'yup'
 
 import { useHost } from 'client/features/One'
 import { getPciDevices } from 'client/models/Host'
-import { Field, arrayToOptions, filterFieldsByHypervisor, getValidationFromFields } from 'client/utils'
+import { Field, arrayToOptions, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
@@ -86,7 +86,7 @@ export const PCI_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor([DEVICE_NAME, DEVICE, VENDOR, CLASS], hypervisor)
 
 /** @type {ObjectSchema} PCI devices object schema */
-export const PCI_SCHEMA = object(getValidationFromFields([DEVICE, VENDOR, CLASS]))
+export const PCI_SCHEMA = getObjectSchemaFromFields([DEVICE, VENDOR, CLASS])
 
 /** @type {ArraySchema} PCI devices schema */
 export const PCI_DEVICES_SCHEMA = array(PCI_SCHEMA).ensure()

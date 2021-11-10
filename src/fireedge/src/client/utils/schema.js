@@ -197,7 +197,10 @@ const parseUserInputValue = value => {
     return 'YES'
   } else if (value === false) {
     return 'NO'
-  } else if (Array.isArray(value)) {
+  } else if (
+    Array.isArray(value) &&
+    value.every(v => typeof v === 'string')
+  ) {
     return value.join(',')
   } else return value
 }
@@ -215,9 +218,9 @@ const parseUserInputValue = value => {
  */
 export const schemaUserInput = ({ mandatory, name, type, options, default: defaultValue }) => {
   switch (type) {
-    case [USER_INPUT_TYPES.text]:
-    case [USER_INPUT_TYPES.text64]:
-    case [USER_INPUT_TYPES.password]: return {
+    case USER_INPUT_TYPES.text:
+    case USER_INPUT_TYPES.text64:
+    case USER_INPUT_TYPES.password: return {
       type: INPUT_TYPES.TEXT,
       htmlType: type === 'password' ? 'password' : 'text',
       validation: string()
@@ -225,8 +228,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         .concat(requiredSchema(mandatory, name, string()))
         .default(defaultValue || undefined)
     }
-    case [USER_INPUT_TYPES.number]:
-    case [USER_INPUT_TYPES.numberFloat]: return {
+    case USER_INPUT_TYPES.number:
+    case USER_INPUT_TYPES.numberFloat: return {
       type: INPUT_TYPES.TEXT,
       htmlType: 'number',
       validation: number()
@@ -235,8 +238,8 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         .transform(value => !isNaN(value) ? value : null)
         .default(() => parseFloat(defaultValue) ?? undefined)
     }
-    case [USER_INPUT_TYPES.range]:
-    case [USER_INPUT_TYPES.rangeFloat]: {
+    case USER_INPUT_TYPES.range:
+    case USER_INPUT_TYPES.rangeFloat: {
       const [min, max] = getRange(options)
 
       return {
@@ -251,13 +254,13 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 }
       }
     }
-    case [USER_INPUT_TYPES.boolean]: return {
+    case USER_INPUT_TYPES.boolean: return {
       type: INPUT_TYPES.CHECKBOX,
       validation: boolean()
         .concat(requiredSchema(mandatory, name, boolean()))
         .default(defaultValue === 'YES' ?? false)
     }
-    case [USER_INPUT_TYPES.list]: {
+    case USER_INPUT_TYPES.list: {
       const values = getOptionsFromList(options)
       const firstOption = values?.[0]?.value ?? undefined
 
@@ -271,7 +274,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
           .default(defaultValue || firstOption)
       }
     }
-    case [USER_INPUT_TYPES.array]: {
+    case USER_INPUT_TYPES.array: {
       const defaultValues = getValuesFromArray(defaultValue)
 
       return {
@@ -283,7 +286,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         fieldProps: { freeSolo: true }
       }
     }
-    case [USER_INPUT_TYPES.listMultiple]: {
+    case USER_INPUT_TYPES.listMultiple: {
       const values = getOptionsFromList(options)
       const defaultValues = defaultValue?.split(',') ?? undefined
 

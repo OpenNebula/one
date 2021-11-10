@@ -159,11 +159,13 @@ export const getNics = (vm, options = {}) => {
   const { NIC = [], NIC_ALIAS = [], PCI = [] } = TEMPLATE
   const { GUEST_IP, GUEST_IP_ADDRESSES = '' } = MONITORING
 
+  const pciNics = PCI.filter(({ NIC_ID } = {}) => NIC_ID !== undefined)
+
   const extraIps = [GUEST_IP, ...GUEST_IP_ADDRESSES?.split(',')]
     .filter(Boolean)
     .map(ip => ({ NIC_ID: '-', IP: ip, NETWORK: 'Additional IP', BRIDGE: '-' }))
 
-  let nics = [NIC, NIC_ALIAS, PCI, extraIps].flat().filter(Boolean)
+  let nics = [NIC, NIC_ALIAS, pciNics, extraIps].flat().filter(Boolean)
 
   if (groupAlias) {
     nics = nics
