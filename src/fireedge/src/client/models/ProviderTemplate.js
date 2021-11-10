@@ -107,23 +107,3 @@ export const getConnectionEditable = (template = {}, providerConfig) => {
     ...(!keys?.includes(name) && { [name]: value })
   }), {})
 }
-
-/**
- * Returns the provision type from a provider template.
- *
- * @param {object} provisionTemplates - List of provision templates, from: /provision/defaults
- * @param {object} template - Provider template
- * @param {string} template.name - Name
- * @param {string} template.provider - Provider type
- * @returns {string} - Provision type. eg: 'onprem'
- */
-export const getProvisionTypeFromTemplate = (provisionTemplates, template) => {
-  const { name, provider } = template ?? {}
-
-  return Object.entries(provisionTemplates)
-    .find(([_, { providers = {} } = {}]) =>
-      Object.values(providers)
-        .flat()
-        .some(prov => prov.name === name && prov.provider === provider)
-    )?.[0]
-}
