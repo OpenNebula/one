@@ -67,8 +67,9 @@ const InputsSection = ({ fields }) => {
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
-            variant='outlined'
+            variant='contained'
             type='submit'
+            color='secondary'
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
           >

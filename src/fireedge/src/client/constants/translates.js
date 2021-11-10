@@ -459,8 +459,8 @@ module.exports = {
     `Number of vCPU queues to use in the virtio-scsi controller.
     Leave blank to use the default value`,
   IoThreads: 'Iothreads',
-  IoThreadsConcept:
-    `Number of iothreads for virtio disks.
+  IoThreadsConcept: `
+    Number of iothreads for virtio disks.
     By default threads will be assign to disk by round robin algorithm.
     Disk thread id can be forced by disk IOTHREAD attribute`,
   RawData: 'Raw data',
@@ -470,6 +470,24 @@ module.exports = {
     By default, the data will be checked against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
+  SshPublicKey: 'SSH public key',
+  AddUserSshPublicKey: 'Add user SSH public key',
+  AddNetworkContextualization: 'Add Network contextualization',
+  AddNetworkContextualizationConcept: `
+    Add network contextualization parameters. For each NIC defined in
+    the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be
+    included in the CONTEXT section and will be available in the Virtual Machine`,
+  AddOneGateToken: 'Add OneGate token',
+  AddOneGateTokenConcept: `
+    Add a file (token.txt) to the context containing the token to push
+    custom metrics to the Virtual Machine through OneGate`,
+  ReportReadyToOneGate: 'Report Ready to OneGate',
+  ReportReadyToOneGateConcept: 'Sends READY=YES to OneGate, useful for OneFlow',
+  StartScript: 'Start script',
+  StartScriptConcept: `
+    Text of the script executed when the machine starts up. It can contain
+    shebang in case it is not shell script`,
+  EncodeScriptInBase64: 'Encode script in Base64',
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
   Inputs: 'Inputs',

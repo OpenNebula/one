@@ -54,7 +54,7 @@ const FormWithSchema = ({ id, cy, fields, rootProps, className, legend, legendTo
 
   const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
 
-  if (getFields.length === 0) return null
+  if (!getFields || getFields?.length === 0) return null
 
   const addIdToName = name => name.startsWith('$')
     ? name.slice(1) // removes character '$' and returns

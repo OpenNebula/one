@@ -18,7 +18,12 @@ import PropTypes from 'prop-types'
 
 import { Typography, Chip, Box } from '@mui/material'
 
-const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
+const DevTypography = memo(({
+  labelProps = {},
+  color = 'secondary',
+  chipProps = {},
+  children = ''
+}) => (
   <Box
     component='span'
     display='inline-flex'
@@ -31,7 +36,7 @@ const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
       sx={{ textTransform: 'capitalize' }}
       {...labelProps}
     >
-      {label}
+      {children}
     </Typography>
     <Chip
       size='small'
@@ -49,18 +54,8 @@ const DevTypography = memo(({ label, labelProps, color, chipProps }) => (
 DevTypography.propTypes = {
   chipProps: PropTypes.object,
   color: PropTypes.string,
-  label: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.string.isRequired
-  ]),
-  labelProps: PropTypes.object
-}
-
-DevTypography.defaultProps = {
-  chipProps: undefined,
-  color: 'secondary',
-  label: '',
-  labelProps: undefined
+  labelProps: PropTypes.object,
+  children: PropTypes.any
 }
 
 DevTypography.displayName = 'DevTypography'

@@ -72,8 +72,9 @@ const PciDevicesSection = ({ fields }) => {
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
-            variant='outlined'
+            variant='contained'
             type='submit'
+            color='secondary'
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
           >
@@ -84,8 +85,8 @@ const PciDevicesSection = ({ fields }) => {
       <Divider />
       <List>
         {pciDevices?.map(({ id, DEVICE, VENDOR, CLASS }, index) => {
-          const deviceName = pciDevicesAvailable
-            .find(pciDevice => pciDevice?.DEVICE === DEVICE)?.DEVICE_NAME
+          const { DEVICE_NAME, VENDOR_NAME } = pciDevicesAvailable
+            .find(pciDevice => pciDevice?.DEVICE === DEVICE) ?? {}
 
           return (
             <ListItem
@@ -98,11 +99,11 @@ const PciDevicesSection = ({ fields }) => {
               sx={{ '&:hover': { bgcolor: 'action.hover' } }}
             >
               <ListItemText
-                primary={deviceName}
+                primary={DEVICE_NAME}
                 primaryTypographyProps={{ variant: 'body1' }}
                 secondary={[
                   `#${DEVICE}`,
-                  `Vendor: ${VENDOR}`,
+                  `Vendor: ${VENDOR_NAME}(${VENDOR})`,
                   `Class: ${CLASS}`].join(' | ')}
               />
             </ListItem>

@@ -54,9 +54,6 @@ export default makeStyles(theme => ({
         },
         '& $subItemWrapper': {
           display: 'none'
-        },
-        '& $itemText::before': {
-          content: 'attr(data-min-label)'
         }
       }
     }
@@ -78,9 +75,6 @@ export default makeStyles(theme => ({
       },
       '& $subItemWrapper': {
         display: 'block !important'
-      },
-      '& $itemText::before': {
-        content: 'attr(data-max-label) !important'
       }
     }
   },
@@ -104,7 +98,7 @@ export default makeStyles(theme => ({
       minHeight: toolbar.sm
     }
   },
-  svg: {
+  logo: {
     minWidth: 100
   },
   // -------------------------------
@@ -114,11 +108,7 @@ export default makeStyles(theme => ({
     overflowY: 'auto',
     overflowX: 'hidden',
     textTransform: 'capitalize',
-    color: 'transparent',
     transition: 'color 0.3s',
-    '&:hover': {
-      color: theme.palette.primary.light
-    },
     '&::-webkit-scrollbar': {
       width: 14
     },
@@ -130,19 +120,5 @@ export default makeStyles(theme => ({
       color: theme.palette.secondary.light
     }
   },
-  list: {
-    color: theme.palette.text.primary
-  },
-  itemText: {
-    '&::before': {
-      ...theme.typography.body1,
-      display: 'block',
-      minWidth: 100,
-      content: 'attr(data-max-label)'
-    }
-  },
-  subItemWrapper: {},
-  subItem: {
-    paddingLeft: theme.spacing(4)
-  }
+  subItemWrapper: {}
 }))

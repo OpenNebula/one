@@ -42,9 +42,7 @@ const Accordion = styled(props => (
   '&:before': { display: 'none' }
 }))
 
-const Summary = styled(props => (
-  <AccordionSummary expandIcon={<ExpandIcon />} {...props} />
-))(({
+const Summary = styled(AccordionSummary)(({
   [`&.${accordionSummaryClasses.root}`]: {
     backgroundColor: 'rgba(0, 0, 0, .03)',
     flexDirection: 'row-reverse',
@@ -90,7 +88,8 @@ const NetworkItem = ({ nic = {}, actions }) => {
   const { detachNic } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const { NIC_ID, NETWORK = '-', IP, MAC, PCI_ID, ALIAS, SECURITY_GROUPS } = nic
+  const { NIC_ID, NETWORK = '-', IP, MAC, PCI_ID, ADDRESS, ALIAS, SECURITY_GROUPS } = nic
+  const isPciDevice = PCI_ID !== undefined
 
   const hasDetails = useMemo(
     () => !!ALIAS.length || !!SECURITY_GROUPS?.length,
@@ -117,7 +116,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
   return (
     <>
       <Accordion>
-        <Summary>
+        <Summary {...(hasDetails && { expandIcon: <ExpandIcon /> })}>
           <Row>
             <Typography noWrap>
               {`${NIC_ID} | ${NETWORK}`}
@@ -126,10 +125,10 @@ const NetworkItem = ({ nic = {}, actions }) => {
               <MultipleTags
                 clipboard
                 limitTags={isMobile ? 1 : 3}
-                tags={[IP, MAC, PCI_ID].filter(Boolean)}
+                tags={[IP, MAC, ADDRESS].filter(Boolean)}
               />
             </Labels>
-            {!isMobile && detachAction(NIC_ID)}
+            {!isMobile && !isPciDevice && detachAction(NIC_ID)}
           </Row>
         </Summary>
         {hasDetails && (
@@ -146,7 +145,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
                     tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
                   />
                 </Labels>
-                {!isMobile && detachAction(NIC_ID, true)}
+                {!isMobile && !isPciDevice && detachAction(NIC_ID, true)}
               </Row>
             ))}
             {!!SECURITY_GROUPS?.length && (

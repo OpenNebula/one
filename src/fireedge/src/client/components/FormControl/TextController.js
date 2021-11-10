@@ -68,7 +68,7 @@ const TextController = memo(
         InputProps={{
           endAdornment: tooltip && <Tooltip title={tooltip} />
         }}
-        inputProps={{ 'data-cy': cy, ...fieldProps }}
+        inputProps={{ 'data-cy': cy }}
         error={Boolean(error)}
         helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
@@ -97,14 +97,7 @@ TextController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string)
   ]),
-  fieldProps: PropTypes.object,
-  formContext: PropTypes.shape({
-    setValue: PropTypes.func,
-    setError: PropTypes.func,
-    clearErrors: PropTypes.func,
-    watch: PropTypes.func,
-    register: PropTypes.func
-  })
+  fieldProps: PropTypes.object
 }
 
 TextController.displayName = 'TextController'

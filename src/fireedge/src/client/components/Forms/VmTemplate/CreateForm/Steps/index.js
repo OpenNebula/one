@@ -17,7 +17,7 @@ import General, { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTempla
 import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 // import { jsonToXml } from 'client/models/Helper'
 import { userInputsToArray, userInputsToObject } from 'client/models/Helper'
-import { createSteps } from 'client/utils'
+import { createSteps, isBase64 } from 'client/utils'
 
 const Steps = createSteps(
   [General, ExtraConfiguration],
@@ -36,11 +36,21 @@ const Steps = createSteps(
     transformBeforeSubmit: formData => {
       const {
         [GENERAL_ID]: general = {},
-        [EXTRA_ID]: { USER_INPUTS, ...extraTemplate } = {}
+        [EXTRA_ID]: { USER_INPUTS, CONTEXT, ...extraTemplate } = {}
       } = formData ?? {}
 
       // const templateXML = jsonToXml({ ...general, ...extraTemplate })
       // return { template: templateXML }
+
+      const { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext } = CONTEXT
+
+      const context = {
+        ...restOfContext,
+        [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
+          ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
+            ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
+            : START_SCRIPT
+      }
 
       const userInputs = userInputsToObject(USER_INPUTS)
       const inputsOrder = USER_INPUTS.map(({ name }) => name).join(',')
@@ -48,6 +58,7 @@ const Steps = createSteps(
       return {
         ...general,
         ...extraTemplate,
+        CONTEXT: context,
         USER_INPUTS: userInputs,
         INPUTS_ORDER: inputsOrder
       }
