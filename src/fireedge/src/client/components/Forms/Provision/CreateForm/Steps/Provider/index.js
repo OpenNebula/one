@@ -19,10 +19,9 @@ import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
-import { useProvider, useProvisionTemplate } from 'client/features/One'
+import { useProvider } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
-import { getProvisionTypeFromTemplate } from 'client/models/ProvisionTemplate'
 import { T } from 'client/constants'
 
 import { STEP_ID as INPUTS_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
@@ -37,24 +36,19 @@ const Provider = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const providers = useProvider()
-    const provisionTemplates = useProvisionTemplate()
     const { providerConfig } = useAuth()
 
     const provisionTemplateSelected = useWatch({ name: TEMPLATE_ID })?.[0] ?? {}
 
-    const providersAvailable = useMemo(() => {
-      const templateProvisionType =
-        getProvisionTypeFromTemplate(provisionTemplates, provisionTemplateSelected)
-
-      return providers.filter(provider => {
+    const providersAvailable = useMemo(() =>
+      providers.filter(provider => {
         const { TEMPLATE: { PLAIN = {} } } = provider ?? {}
 
         return (
           PLAIN.provider === provisionTemplateSelected.provider &&
-          PLAIN.provision_type === templateProvisionType
+          PLAIN.provision_type === provisionTemplateSelected.provision_type
         )
-      })
-    }, [])
+      }), [])
 
     const {
       handleSelect,

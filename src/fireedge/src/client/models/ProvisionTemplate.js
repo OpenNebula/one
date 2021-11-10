@@ -56,23 +56,3 @@ export const isValidProvisionTemplate = template => {
     [name, provider].includes(undefined)
   )
 }
-
-/**
- * Returns the provision type from a provider template.
- *
- * @param {object} provisionTemplates - List of provision templates, from: /provision/defaults
- * @param {object} template - Provision template
- * @param {string} template.name - Name
- * @param {string} template.playbook - Provider type
- * @returns {string} - Provision type. eg: 'onprem'
- */
-export const getProvisionTypeFromTemplate = (provisionTemplates, template) => {
-  const { provider } = template ?? {}
-
-  return Object.entries(provisionTemplates)
-    .find(([_, { provisions = {} } = {}]) =>
-      Object.values(provisions)
-        .flat()
-        .some(prov => prov.provider === provider)
-    )?.[0]
-}

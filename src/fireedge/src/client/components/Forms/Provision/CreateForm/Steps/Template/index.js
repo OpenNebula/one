@@ -25,7 +25,7 @@ import { useProvider, useProvisionTemplate } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
 import { sanitize } from 'client/utils'
-import { isValidProvisionTemplate, getProvisionTypeFromTemplate } from 'client/models/ProvisionTemplate'
+import { isValidProvisionTemplate } from 'client/models/ProvisionTemplate'
 import { T } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
@@ -61,12 +61,9 @@ const Template = () => ({
       )
     ], [])
 
-    const provisionTypeSelected = useMemo(() => (
-      getProvisionTypeFromTemplate(provisionTemplates, templateSelected)
-    ), [])
-
-    const [provisionSelected, setProvision] = useState(() => provisionTypeSelected ?? provisionTypes[0])
     const [providerSelected, setProvider] = useState(() => templateSelected?.provider)
+    const [provisionSelected, setProvision] =
+      useState(() => templateSelected?.provision_type ?? provisionTypes[0])
 
     const [templatesByProvisionSelected, providerTypes, description] = useMemo(() => {
       const templates = Object.values(provisionTemplates[provisionSelected]?.provisions).flat()
@@ -122,7 +119,7 @@ const Template = () => ({
 
       isSelected
         ? handleUnselect(name, item => item.name === name)
-        : handleSelect(template)
+        : handleSelect({ ...template, provision_type: provisionSelected })
     }
 
     const RenderDescription = ({ description = '' }) => {
