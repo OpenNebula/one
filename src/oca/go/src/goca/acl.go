@@ -60,14 +60,14 @@ func (ac *ACLsController) CreateRule(user, resource, rights string, zone ...stri
 	}
 
 	parameters := []interface{}{
-		"one.acl.addrule", user, resource, rights,
+		user, resource, rights,
 	}
 
 	for _, z := range zone {
 		parameters = append(parameters, z)
 	}
 
-	response, err := ac.c.Client.Call(parameters...)
+	response, err := ac.c.Client.Call("one.acl.addrule", parameters...)
 	if err != nil {
 		return -1, err
 	}
