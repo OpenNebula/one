@@ -24,7 +24,7 @@ def xml_elem(xml, xpath)
     rexml = REXML::Document.new(xml).root
     rexml.elements[xpath].text.to_s
 rescue StandardError
-    nil
+    ''
 end
 
 ds_loc = xml_elem(STDIN.read, 'DATASTORE_LOCATION')
