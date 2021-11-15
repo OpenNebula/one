@@ -561,6 +561,9 @@ Layout/LineEndStringConcatenationIndentation:
 # STYLE
 #######
 
+Style/OpenStructUse:
+    Enabled: false
+
 Style/OptionalBooleanParameter:
     Enabled: false
 
