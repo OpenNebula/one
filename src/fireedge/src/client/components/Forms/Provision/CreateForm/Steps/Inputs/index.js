@@ -25,6 +25,7 @@ import { useProviderApi } from 'client/features/One'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 import { T } from 'client/constants'
+import { deepmerge } from 'client/utils'
 
 import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Template'
@@ -64,14 +65,16 @@ const Inputs = () => ({
         const { [TEMPLATE_ID]: provisionTemplateSelected = [] } = watch()
         const { TEMPLATE: { PROVISION_BODY } = {} } = fetchData
 
-        const provisionTemplate = provisionTemplateSelected?.[0]
+        const templateInputs = provisionTemplateSelected?.[0]?.inputs ?? []
 
         // MERGE INPUTS provision template + PROVISION_BODY.inputs (provider fetch)
-        inputs = provisionTemplate.inputs.map(templateInput =>
-          PROVISION_BODY.inputs?.find(
+        inputs = templateInputs.map(templateInput => {
+          const providerInput = PROVISION_BODY.inputs?.find(
             providerInput => providerInput.name === templateInput.name
-          ) || templateInput
-        ) ?? []
+          ) ?? {}
+
+          return deepmerge(templateInput, providerInput)
+        })
 
         setFields(FORM_FIELDS(inputs))
         reset({ ...watch(), [STEP_ID]: STEP_FORM_SCHEMA(inputs).default() })
