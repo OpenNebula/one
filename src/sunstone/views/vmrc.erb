@@ -1,115 +1,219 @@
 <!DOCTYPE html>
-  <html>
-    <head>
-      <title><%= params['vm_name']%></title>
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
-      <link rel="apple-touch-icon" href="images/screen_57x57.png">
-      <!-- Stylesheets -->
-      <link rel="stylesheet" type="text/css" href="css/app.css" title="plain">
-      <link rel="stylesheet" type="text/css" href="css/vmrc-custom.css" title="plain">
-      <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
-      <!-- JQuery -->
-      <script src="bower_components/jquery/dist/jquery.min.js"></script>
-      <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-      <!-- Scripts -->
-      <script type="text/javascript">
-          var csrftoken = '<%= session[:csrftoken] %>';
-          var view = JSON.parse('<%= view.to_json %>')
-          var available_views = JSON.parse('["<%=
-              $views_config.available_views(session[:user], session[:user_gname]).join('","')
-            %>"]')
-          var all_labels = JSON.parse('["<%=
-              $views_config.get_all_labels(session[:user_gname]).join('","')
-            %>"]')
-          var all_views = JSON.parse('["<%=
-              $views_config.get_all_views.join('","')
-            %>"]')
-          if ('<%= $conf[:addons] %>'){
-            var addons = JSON.parse('<%= $conf[:addons].to_json %>');
-          }
-          var config = {
-            'user_config' : {
-                'lang' : '<%= session[:lang] %>',
-                'vnc_wss' : '<%= session[:vnc_wss] %>',
-                'table_order' : '<%= session[:table_order] %>',
-                'default_view' : '<%= session[:default_view] %>',
-                'page_length' : '<%= session[:page_length] %>'
-            },
-            'system_config' : {
-                'marketplace_url' : '<%= $conf[:marketplace_url] %>',
-                'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
-                'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
-                'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
-                'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
-            },
-            'view' : view,
-            'available_views' : available_views,
-            'all_labels' : all_labels,
-            'all_views' : all_views,
-            'user_id' : '<%= session[:user_id] %>',
-            'user_gid' : '<%= session[:user_gid] %>',
-            'display_name' : '<%= session[:display_name] %>',
-            'zone_name' : '<%= session[:zone_name] %>',
-            'zone_id' : '<%= session[:zone_id] %>',
-            'federation_mode' : '<%= session[:federation_mode] %>',
-            'vm_logos' : <%= logos_conf.to_json %>,
-            'oned_conf' : <%= oned_conf.to_json %>,
-            'support' : <%= support.to_json %>,
-            'upgrade' : <%= upgrade.to_json %>,
-            'mode' : '<%= session[:mode] %>'
-          };
-      </script>
-      <script src="bower_components/wmks/wmks.min.js"></script>
-      <script src="dist/console/vmrc.js?v=<%= OpenNebula::VERSION %>"></script>
-    </head>
-    <body style="margin: 0px;">
-      <div id="VMRC_screen">
-        <div style="background: #f7f7f7; padding: 1.5em 1.5em 0.8em;">
-          <div style="max-width: 1250px; margin: 0 auto;">
-            <div id="VMRC_status_bar" class="noVNC_status_bar" style="display: flex; align-items: center;">
-              <img src="images/opennebula-5.0.png" style="height:40px;">
-              
-              <h5 id="VMRC_status" style="position: relative;">
-                <div class="container">
-                  <div class="remote_logo">
-                    <img src="images/remote_console/vmrc.png">
-                  </div>
-                  <div id="VMRC_status_msg">
-                    Loading
-                  </div>
+<html>
+  <head>
+    <title><%= params['vm_name']%></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
+    <link rel="apple-touch-icon" href="images/screen_57x57.png">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="css/app.css" title="plain">
+    <link rel="stylesheet" type="text/css" href="css/vmrc-custom.css" title="plain">
+    <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
+    <!-- JQuery -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <!-- WMKS -->
+    <script src="bower_components/wmks/wmks.js"></script>
+    <!-- Scripts -->
+    <script type="text/javascript">
+        var csrftoken = '<%= session[:csrftoken] %>';
+        var view = JSON.parse('<%= view.to_json %>')
+        var available_views = JSON.parse('["<%=
+            $views_config.available_views(session[:user], session[:user_gname]).join('","')
+          %>"]')
+        var all_labels = JSON.parse('["<%=
+            $views_config.get_all_labels(session[:user_gname]).join('","')
+          %>"]')
+        var all_views = JSON.parse('["<%=
+            $views_config.get_all_views.join('","')
+          %>"]')
+        if ('<%= $conf[:addons] %>'){
+          var addons = JSON.parse('<%= $conf[:addons].to_json %>');
+        }
+        var config = {
+          'user_config' : {
+              'lang' : '<%= session[:lang] %>',
+              'vnc_wss' : '<%= session[:vnc_wss] %>',
+              'table_order' : '<%= session[:table_order] %>',
+              'default_view' : '<%= session[:default_view] %>',
+              'page_length' : '<%= session[:page_length] %>'
+          },
+          'system_config' : {
+              'marketplace_url' : '<%= $conf[:marketplace_url] %>',
+              'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
+              'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
+              'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
+              'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
+          },
+          'view' : view,
+          'available_views' : available_views,
+          'all_labels' : all_labels,
+          'all_views' : all_views,
+          'user_id' : '<%= session[:user_id] %>',
+          'user_gid' : '<%= session[:user_gid] %>',
+          'display_name' : '<%= session[:display_name] %>',
+          'zone_name' : '<%= session[:zone_name] %>',
+          'zone_id' : '<%= session[:zone_id] %>',
+          'federation_mode' : '<%= session[:federation_mode] %>',
+          'vm_logos' : <%= logos_conf.to_json %>,
+          'oned_conf' : <%= oned_conf.to_json %>,
+          'support' : <%= support.to_json %>,
+          'upgrade' : <%= upgrade.to_json %>,
+          'mode' : '<%= session[:mode] %>'
+        };
+    </script>
+  </head>
+  <body style="margin: 0px;">
+    <div id="VMRC_screen">
+      <div style="background: #f7f7f7; padding: 1.5em 1.5em 0.8em;">
+        <div style="max-width: 1250px; margin: 0 auto;">
+          <div id="VMRC_status_bar" class="noVNC_status_bar" style="display: flex; align-items: center;">
+            <img src="images/opennebula-5.0.png" style="height:40px;">
+
+            <h5 id="VMRC_status" style="position: relative;">
+              <div class="container">
+                <div class="remote_logo">
+                  <img src="images/remote_console/vmrc.png">
                 </div>
-              </h5>
-
-              <div id="VMRC_buttons">
-                <button class="button alert" id="sendCtrlAltDelButton">Send CtrlAltDel</button>
-                <button class="button info" id="fullScreenButton"><i class="fas fa-expand"></i></button>
-                <button class="button info" id="keyboardSelector"><i class="fas fa-keyboard"></i></button>
-                <select style="width: auto;" id="selectLanguage" hidden>
-                  <option value="en-US">English</option>
-                  <option value="ja-JP_106/109">Japanese</option>
-                  <option value="de-DE">German</option>
-                  <option value="it-IT">Italian</option>
-                  <option value="es-ES">Spanish</option>
-                  <option value="pt-PT">Portuguese</option>
-                  <option value="fr-FR">French</option>
-                  <option value="fr-CH">Swiss-French</option>
-                  <option value="de-CH">Swiss-German</option>
-                </select>
+                <div id="VMRC_status_msg">
+                  Loading
+                </div>
               </div>
-            </div>
-            <div class="VMRC_info"></div>
-          </div>
-        </div>
+            </h5>
 
-        <div id="VMRC_canvas">
-          <div id="wmksContainer" class="wmksContainer"></div>
-          <div class="VMRC_message"></div>
+            <div id="VMRC_buttons">
+              <button class="button alert" id="sendCtrlAltDelButton">Send CtrlAltDel</button>
+              <button class="button info" id="fullScreenButton"><i class="fas fa-expand"></i></button>
+              <button class="button info" id="keyboardSelector"><i class="fas fa-keyboard"></i></button>
+              <select style="width: auto;" id="selectLanguage" hidden>
+                <option value="en-US">English</option>
+                <option value="fr-FR">French</option>
+                <option value="fr-CH">French (Switzerland)</option>
+                <option value="de-DE">German</option>
+                <option value="de-CH">German (Switzerland)</option>
+                <option value="it-IT">Italian</option>
+                <option value="ja-JP_106/109">Japanese</option>
+                <option value="pt-PT">Portuguese</option>
+                <option value="es-ES">Spanish</option>
+                <option value="sv_SE">Swedish</option>
+              </select>
+            </div>
+          </div>
+          <div class="VMRC_info"></div>
         </div>
       </div>
-    </body>
-  </html>
+
+      <div id="VMRC_canvas">
+        <div id="wmksContainer" class="wmksContainer"></div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        var cad = $("#sendCtrlAltDelButton");
+        var container = $("#container");
+        var fullscreen = $("#fullScreenButton");
+        var languageSelector = $("#selectLanguage");
+        var keyboardSelector = $("#keyboardSelector");
+
+        /**
+         * Send the Ctrl + Alt + Del Action.
+         */
+        cad.on("click", function() {
+          wmks.sendCAD();
+        });
+
+        /**
+         * When language is selected, update the console language to match with
+         * The expected behavior.
+         */
+        languageSelector.on("change", function (evt) {
+          var keyboardLayoutId = languageSelector.find(":selected").val();
+          wmks.setOption('keyboardLayoutId',keyboardLayoutId);
+        });
+
+        /**
+         * Toggle the language selector.
+         */
+        keyboardSelector.on("click", function(){
+          languageSelector.toggle();
+        });
+
+        function updateStatus(){
+          $("#VMRC_status_msg").text("VMRC " + wmks.connectionState);
+        }
+
+        /**
+         * This function adjusts the console size.
+         */
+        function layout() {
+          var w = $(window).width();
+          var h = $(window).height();
+          container.width(w).height(h);
+          if(!wmks.isFullScreen()) {
+            wmks.updateScreen();
+          } else {
+            container.css({
+              top: 0,
+              left: 0
+            });
+          }
+        }
+
+        // Create the wmks variable to control the VMRC console
+        var wmks = WMKS.createWMKS("wmksContainer", {});
+
+        /**
+         * When the connection state change, update the status message.
+         */
+        wmks.register(WMKS.CONST.Events.CONNECTION_STATE_CHANGE, function(evt, data) {
+          updateStatus();
+        });
+
+        /**
+         * When an error occurs write it in the console.
+         */
+        wmks.register(WMKS.CONST.Events.ERROR, function(evt, data) {
+          console.log("VMRC Error: " + data.errorType);
+        });
+
+        /**
+         * When the screen size changes, resize the console.
+         */
+        wmks.register(WMKS.CONST.Events.REMOTE_SCREEN_SIZE_CHANGE, function(evt, data) {
+          layout();
+        });
+
+        if (wmks.canFullScreen()) {
+          fullscreen.on("click", function (evt) {
+            wmks.enterFullScreen();
+          });
+        } else {
+          fullscreen.hide();
+        }
+
+        //listen for window events
+        $(window).on("resize", layout);
+
+        // if params are provided, no need to show chrome
+        if (location.search) {
+          var endpoint = new URL(window.location.href);
+          var encoded_socket = endpoint.searchParams.get("socket");
+          var socket_string = atob(encoded_socket);
+
+          var socket_endpoint = new URL(socket_string);
+          wmks.connect(socket_string);
+          layout();
+
+          // After the VMRC console is connected, import the info bar to have
+          // The VM information in this view
+          $.getScript("dist/console/vmrc.js?v=<%= OpenNebula::VERSION %>");
+        }
+      });
+    </script>
+  </body>
+</html>
