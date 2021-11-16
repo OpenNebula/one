@@ -15,8 +15,6 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require("foundation");
-
   var OpenNebulaVM = require("opennebula/vm");
   var OpenNebulaService = require("opennebula/service");
 

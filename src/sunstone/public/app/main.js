@@ -25,8 +25,6 @@ require.config({
     /* jQuery */
     "jquery": "../bower_components/jquery/dist/jquery",
     "jquery-ui": "../bower_components/jquery-ui/jquery-ui",
-    /* WMKS */
-    "wmks" : "../bower_components/wmks/wmks_AMD.min",
 
     /** Wickedpicker */
     "wickedpicker": "../bower_components/wickedpicker/dist/wickedpicker.min",
@@ -114,7 +112,6 @@ require.config({
         "jquery",
         "foundation",
         "jquery-ui",
-        "wmks",
         "tabs/provision-tab",
         "tabs/dashboard-tab",
         "tabs/system-top-tab",
@@ -172,14 +169,6 @@ require.config({
     /* Foundation */
     "foundation": {
       deps: ["jquery"]
-    },
-    /* WMKS */
-    "wmks": {
-      deps: [
-        "jquery",
-        "jquery-ui"
-      ],
-      exports: "WMKS"
     },
 
     /* Flot Graphs */
