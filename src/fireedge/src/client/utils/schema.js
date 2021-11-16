@@ -255,7 +255,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
           .trim()
           .concat(requiredSchema(mandatory, name, string()))
           .oneOf(values.map(({ value }) => value))
-          .default(defaultValue ?? firstOption)
+          .default(defaultValue || firstOption)
       }
     }
     case 'array': {
