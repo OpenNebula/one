@@ -30,6 +30,10 @@ const routes = {
         name: {
           from: fromData.postBody,
           name: 'name'
+        },
+        persistent: {
+          from: fromData.postBody,
+          name: 'persistent'
         }
       }
     }

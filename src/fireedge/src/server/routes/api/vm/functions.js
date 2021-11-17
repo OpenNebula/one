@@ -43,13 +43,19 @@ const regexpSplitLine = /\r|\n/
  */
 const saveAsTemplate = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   let rtn = httpBadRequest
-  if (params && params.id && params.name) {
-    const paramsCommand = ['save', `${params.id}`, `${params.name}`]
+  const { id, name, persistent } = params
+  if (id && name) {
+    let message = ''
+    const paramsCommand = ['save', `${id}`, `${name}`]
+
+    if (persistent && persistent === 'true') {
+      paramsCommand.push('--persistent')
+    }
 
     const executedCommand = executeCommand(defaultCommandVM, paramsCommand, prependCommand)
 
     const response = executedCommand.success ? ok : internalServerError
-    let message = ''
+
     if (executedCommand.data) {
       message = executedCommand.data.replace(regexpSplitLine, '')
     }
