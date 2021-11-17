@@ -30,6 +30,10 @@ const publicRoutes = {
         token: {
           from: fromData.query,
           name: 'token'
+        },
+        app: {
+          from: fromData.query,
+          name: 'app'
         }
       }
     }
@@ -59,6 +63,10 @@ const privateRoutes = {
         files: {
           from: 'files',
           name: 'files'
+        },
+        root: {
+          from: fromData.query,
+          name: 'public'
         }
       }
     }

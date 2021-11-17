@@ -35,6 +35,8 @@ const {
   defaultLogFilename,
   defaultLogPath,
   defaultSharePath,
+  defaultSystemPath,
+  defaultSourceSystemPath,
   defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
@@ -542,9 +544,12 @@ const getDataZone = (zone = '0', configuredZones) => {
  * Generate a resource paths.
  */
 const genPathResources = () => {
+  const devMode = env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode
+
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
   const SHARE_LOCATION = !ONE_LOCATION ? defaultSharePath : `${ONE_LOCATION}/share`
+  const SYSTEM_LOCATION = (devMode && resolve(__dirname, '../../client')) || (!ONE_LOCATION ? resolve(defaultSystemPath) : resolve(`${ONE_LOCATION}${defaultSourceSystemPath}`))
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
@@ -570,6 +575,9 @@ const genPathResources = () => {
     }
     if (!global.paths.SUNSTONE_CONFIG) {
       global.paths.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneConfig}`
+    }
+    if (!global.paths.SUNSTONE_IMAGES) {
+      global.paths.SUNSTONE_IMAGES = `${SYSTEM_LOCATION}/assets/images/logos`
     }
     if (!global.paths.SUNSTONE_VIEWS) {
       global.paths.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
