@@ -21,6 +21,8 @@ const internalSunstonePath = `${appName}/${appNameSunstone}`
 const internalProvisionPath = `${appName}/${appNameProvision}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
+const severityPrepend = 'severity_'
+const assetsClient = '/lib/one/fireedge/dist/client'
 const apps = {
   [appNameSunstone]: {
     theme: appNameSunstone,
@@ -128,6 +130,8 @@ const defaults = {
   defaultProductionWebpackMode: 'production',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
+  defaultSourceSystemPath: assetsClient,
+  defaultSystemPath: `/usr/${assetsClient}`,
   defaultSharePath: '/usr/share/one',
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',

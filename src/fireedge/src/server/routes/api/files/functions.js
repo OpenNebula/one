@@ -35,15 +35,15 @@ const { Actions: ActionUser } = require('server/utils/constants/commands/user')
 const { httpResponse, checkValidApp, getFiles, existsFile, removeFile } = require('server/utils/server')
 
 const httpBadRequest = httpResponse(badRequest, '', '')
-const groupAdministrator = ['0', '1']
+const groupAdministrator = ['0']
 
 /**
  * Check if user is a administrator.
  *
- * @param {*} oneConnection - one connection function
- * @param {*} id - user ID
- * @param {*} success - callback success
- * @param {*} error - callback error
+ * @param {Function} oneConnection - one connection function
+ * @param {string} id - user ID
+ * @param {Function} success - callback success
+ * @param {Function} error - callback error
  */
 const checkUserAdmin = (
   oneConnection = defaultEmptyFunction,
@@ -81,6 +81,52 @@ const checkUserAdmin = (
     error()
   }
 }
+/**
+ * Parse File path.
+ *
+ * @param {string} file - filename
+ * @returns {Array | undefined} - if user is the file owner
+ */
+const parseFilePath = (file = '') => {
+  const parsedFile = parse(file)
+  if (parsedFile && parsedFile.dir) {
+    return parsedFile.dir.split(sep)
+  }
+}
+
+/**
+ * Check if file no have owner, but have app
+ *
+ * @param {string} file - filename
+ * @returns {boolean} - if user is the file owner
+ */
+const validateFileWithoutOwner = (file = '') => {
+  const parsedFile = parseFilePath(file)
+  return (
+    Array.isArray(parsedFile) &&
+    parsedFile[0] &&
+    checkValidApp(parsedFile[0]) &&
+    !parsedFile[1]
+  )
+}
+
+/**
+ * Check if user is a file owner.
+ *
+ * @param {string} file - filename
+ * @param {number} id - user id
+ * @returns {boolean} - if user is the file owner
+ */
+const validateFileWithOwner = (file = '', id = '') => {
+  const parsedFile = parseFilePath(file)
+  return (
+    Array.isArray(parsedFile) &&
+    parsedFile[0] &&
+    checkValidApp(parsedFile[0]) &&
+    parsedFile[1] &&
+    parsedFile[1] === id
+  )
+}
 
 /**
  * Upload File.
@@ -89,45 +135,91 @@ const checkUserAdmin = (
  * @param {Function} next - express stepper
  * @param {string} params - data response http
  * @param {object} userData - user of http request
+ * @param {Function} oneConnection - xmlrpc connection
  */
-const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
-  let rtn = httpBadRequest
+const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+  const { app, files, root } = params
+  const { id, user, password } = userData
   if (
     global.paths.CPI &&
-    params &&
-    params.app &&
-    checkValidApp(params.app) &&
-    params.files &&
-    userData &&
-    userData.id
+    app &&
+    checkValidApp(app) &&
+    files &&
+    id &&
+    user &&
+    password
   ) {
-    const pathUserData = `${params.app}/${userData.id}`
-    const pathUser = `${global.paths.CPI}/${pathUserData}`
-    if (!existsSync(pathUser)) {
-      mkdirsSync(pathUser)
-    }
-    let method = ok
-    let message = ''
-    const data = []
-    for (const file of params.files) {
-      if (file && file.originalname && file.path && file.filename) {
-        const extFile = extname(file.originalname)
-        try {
-          const filenameApi = `${pathUserData}/${file.filename}${extFile}`
-          const filename = `${pathUser}/${file.filename}${extFile}`
-          moveSync(file.path, filename)
-          data.push(filenameApi)
-        } catch (error) {
-          method = internalServerError
-          message = error && error.message
-          break
+    const oneConnect = oneConnection(user, password)
+    checkUserAdmin(
+      oneConnect,
+      id,
+      (admin = false) => {
+        const pathUserData = root && admin ? `${app}` : `${app}${sep}${id}`
+        const pathUser = `${global.paths.CPI}${sep}${pathUserData}`
+        if (!existsSync(pathUser)) {
+          mkdirsSync(pathUser)
+        }
+        let method = ok
+        let message = ''
+        const data = []
+        for (const file of files) {
+          if (file && file.originalname && file.path && file.filename) {
+            const extFile = extname(file.originalname)
+            try {
+              const filenameApi = `${pathUserData}${sep}${file.filename}${extFile}`
+              const filename = `${pathUser}${sep}${file.filename}${extFile}`
+              moveSync(file.path, filename)
+              data.push(filenameApi)
+            } catch (error) {
+              method = internalServerError
+              message = error && error.message
+              break
+            }
+          }
+        }
+        res.locals.httpCode = httpResponse(method, data.length ? data : '', message)
+        next()
+      },
+      () => {
+        res.locals.httpCode = internalServerError
+        next()
+      }
+    )
+  } else {
+    res.locals.httpCode = httpBadRequest
+    next()
+  }
+}
+
+/**
+ * Get default files for app.
+ *
+ * @param {string} app - app
+ * @param {boolean} multiple - find multiple files
+ * @param {string} defaultFile - default file
+ * @returns {Array | string} - file
+ */
+const getDefaultFilesforApps = (app = '', multiple = false, defaultFile = '') => {
+  let rtn = ''
+  switch (app) {
+    case 'sunstone':
+      if (global.paths.SUNSTONE_IMAGES) {
+        const path = global.paths.SUNSTONE_IMAGES
+        if (multiple) {
+          rtn = getFiles(path, true).map(
+            file => file.replace(`${path}${sep}`, '')
+          )
+        } else {
+          rtn = `${path}${sep}${defaultFile}`
         }
       }
-    }
-    rtn = httpResponse(method, data.length ? data : '', message)
+      break
+    case 'provision':
+      break
+    default:
+      break
   }
-  res.locals.httpCode = rtn
-  next()
+  return rtn
 }
 
 /**
@@ -141,37 +233,36 @@ const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {
  */
 const list = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const { user, password, id } = userData
+  const { app } = params
   const rtn = httpBadRequest
   if (
-    params &&
-    params.app &&
-    checkValidApp(params.app) &&
+    app &&
+    checkValidApp(app) &&
     user &&
     password &&
     id
   ) {
-    const oneConnect = oneConnection(user, password)
-    checkUserAdmin(
-      oneConnect,
-      id,
-      (admin = false) => {
-        let data = []
-        let pathUserData = `${params.app}/${id}`
-        if (admin) {
-          pathUserData = `${params.app}`
-        }
-        const pathUser = `${global.paths.CPI}/${pathUserData}`
-        data = getFiles(pathUser, true).map(
-          file => file.replace(`${global.paths.CPI}/`, '')
-        )
-        res.locals.httpCode = httpResponse(ok, data)
-        next()
-      },
-      () => {
-        res.locals.httpCode = internalServerError
-        next()
-      }
-    )
+    const path = `${global.paths.CPI}${sep}`
+    const userPath = `${app}${sep}${id}`
+
+    let data = []
+
+    // get defaulf files for app
+    data = data.concat(getDefaultFilesforApps(app, true))
+
+    // find root files
+    const rootPath = `${path}${app}`
+    data = data.concat(getFiles(rootPath, false).map(
+      file => file.replace(path, '')
+    ))
+
+    // find user files
+    const pathUser = `${path}${userPath}`
+    data = data.concat(getFiles(pathUser, true).map(
+      file => file.replace(path, '')
+    ))
+    res.locals.httpCode = httpResponse(ok, data)
+    next()
   } else {
     res.locals.httpCode = rtn
     next()
@@ -184,51 +275,34 @@ const list = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
  * @param {object} res - response http
  * @param {Function} next - express stepper
  * @param {string} params - data response http
- * @param {object} userData - user of http request
  */
-const show = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const show = (res = {}, next = defaultEmptyFunction, params = {}) => {
   const rtn = httpBadRequest
-  const { file, token } = params
-  if (token && file && jwtDecode(token)) {
-    if (file) {
-      const pathFile = `${global.paths.CPI}/${file}`
-      existsFile(
-        pathFile,
-        () => {
-          res.locals.httpCode = httpResponse(ok, '', '', resolve(pathFile))
-          next()
-        },
-        () => {
-          res.locals.httpCode = httpResponse(internalServerError, '', '')
-          next()
-        }
-      )
+  const { file, token, app } = params
+  const userData = jwtDecode(token)
+  if (token && file && app && checkValidApp(app) && userData) {
+    let pathFile = getDefaultFilesforApps(app, false, file)
+    if (
+      validateFileWithOwner(file, userData.iss) ||
+      validateFileWithoutOwner(file)
+    ) {
+      pathFile = `${global.paths.CPI}${sep}${file}`
     }
+    existsFile(
+      pathFile,
+      () => {
+        res.locals.httpCode = httpResponse(ok, '', '', resolve(pathFile))
+        next()
+      },
+      () => {
+        res.locals.httpCode = httpResponse(internalServerError, '', '')
+        next()
+      }
+    )
   } else {
     res.locals.httpCode = rtn
     next()
   }
-}
-
-/**
- * Check if user is a file owner.
- *
- * @param {string} file - filename
- * @param {number} id - user id
- * @returns {boolean} - if user is the file owner
- */
-const checkFile = (file = '', id = '') => {
-  let rtn = false
-  if (file) {
-    const parsedFile = parse(file)
-    if (parsedFile && parsedFile.dir) {
-      const splitParsedFile = parsedFile.dir.split(sep)
-      if (Array.isArray(splitParsedFile) && checkValidApp(splitParsedFile[0]) && splitParsedFile[1] === id) {
-        rtn = true
-      }
-    }
-  }
-  return rtn
 }
 
 /**
@@ -240,16 +314,16 @@ const checkFile = (file = '', id = '') => {
  * @param {object} userData - user of http request
  */
 const deleteFile = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+  const { file } = params
+  const { id } = userData
   const rtn = httpBadRequest
   if (
     global.paths.CPI &&
-    params &&
-    params.file &&
-    userData &&
-    userData.id &&
-    checkFile(params.file, userData.id)
+    file &&
+    id &&
+    validateFileWithOwner(file, id)
   ) {
-    const pathFile = `${global.paths.CPI}/${params.file}`
+    const pathFile = `${global.paths.CPI}${sep}${file}`
     existsFile(
       pathFile,
       () => {
@@ -277,17 +351,16 @@ const deleteFile = (res = {}, next = defaultEmptyFunction, params = {}, userData
  */
 const update = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const rtn = httpBadRequest
+  const { files, name } = params
+  const { id } = userData
   if (
     global.paths.CPI &&
-    params &&
-    params.name &&
-    params.files &&
-    userData &&
-    userData.id &&
-    checkFile(params.name, userData.id)
+    name &&
+    files &&
+    id &&
+    validateFileWithOwner(name, id)
   ) {
-    const nameFile = params.name
-    const pathFile = `${global.paths.CPI}/${nameFile}`
+    const pathFile = `${global.paths.CPI}${sep}${name}`
     existsFile(
       pathFile,
       () => {
@@ -298,7 +371,7 @@ const update = (res = {}, next = defaultEmptyFunction, params = {}, userData = {
           if (file && file.originalname && file.path && file.filename) {
             try {
               moveSync(file.path, pathFile, { overwrite: true })
-              data = nameFile
+              data = name
             } catch (error) {
               method = internalServerError
               message = error && error.message
