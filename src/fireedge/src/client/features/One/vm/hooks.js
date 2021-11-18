@@ -62,6 +62,7 @@ export const useVmApi = () => {
     attachDisk: (id, template) => unwrapDispatch(actions.attachDisk({ id, template })),
     detachDisk: (id, disk) => unwrapDispatch(actions.detachDisk({ id, disk })),
     saveAsDisk: (id, data) => unwrapDispatch(actions.saveAsDisk({ id, ...data })),
+    saveAsTemplate: (id, data) => unwrapDispatch(actions.saveAsTemplate({ id, ...data })),
     resizeDisk: (id, data) => unwrapDispatch(actions.resizeDisk({ id, ...data })),
     createDiskSnapshot: (id, data) =>
       unwrapDispatch(actions.createDiskSnapshot({ id, ...data })),

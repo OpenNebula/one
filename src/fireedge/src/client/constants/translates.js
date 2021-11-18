@@ -360,6 +360,8 @@ module.exports = {
   /* VM schema - general */
   Logo: 'Logo',
   Hypervisor: 'Hypervisor',
+  TemplateName: 'Template name',
+  MakeNewImagePersistent: 'Make the new images persistent',
   /* VM schema - ownership */
   InstantiateAsUser: 'Instantiate as different User',
   InstantiateAsGroup: 'Instantiate as different Group',
@@ -402,11 +404,11 @@ module.exports = {
   vCenterInstanceId: 'vCenter instance ID',
   vCenterVmFolder: 'vCenter VM folder',
   vCenterVmFolderConcept: `
-  If specified, the the VMs and Template folder path where
-  the VM will be created inside the data center.
-  The path is delimited by slashes (e.g /Management/VMs).
-  If no path is set the VM will be placed in the same folder where
-  the template is located.
+    If specified, the VMs and Template folder path where
+    the VM will be created inside the data center.
+    The path is delimited by slashes (e.g /Management/VMs).
+    If no path is set the VM will be placed in the same folder where
+    the template is located.
   `,
   /* VM Template schema - placement */
   HostReqExpression: 'Host requirements expression',

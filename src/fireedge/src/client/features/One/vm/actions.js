@@ -72,6 +72,7 @@ export const changeOwnership = createAction(`${VM}/chown`, vmService.changeOwner
 export const attachDisk = createAction(`${VM}/attach/disk`, vmService.attachDisk)
 export const detachDisk = createAction(`${VM}/detach/disk`, vmService.detachDisk)
 export const saveAsDisk = createAction(`${VM}/saveas/disk`, vmService.saveAsDisk)
+export const saveAsTemplate = createAction(`${VM}/saveas/template`, vmService.saveAsTemplate)
 export const resizeDisk = createAction(`${VM}/resize/disk`, vmService.resizeDisk)
 export const createDiskSnapshot = createAction(`${VM}/create/disk-snapshot`, vmService.createDiskSnapshot)
 export const renameDiskSnapshot = createAction(`${VM}/rename/disk-snapshot`, vmService.renameDiskSnapshot)
