@@ -13,42 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
+import { string, ObjectSchema } from 'yup'
 
-import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
+import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { Field, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
 
-import { T } from 'client/constants'
+const { vcenter } = HYPERVISORS
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = props => {
-  return (
-    <>
-      <ConfigurationSection />
-      <FilesSection {...props} />
-      <UserInputsSection />
-    </>
-  )
+/** @type {Field} Files field */
+export const FILES_DS = {
+  name: 'CONTEXT.FILES_DS',
+  label: T.ContextFiles,
+  tooltip: T.ContextFilesConcept,
+  notOnHypervisors: [vcenter],
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .notRequired(),
+  grid: { md: 12 }
 }
 
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object
+/** @type {Field} Init scripts field */
+export const INIT_SCRIPTS = {
+  name: 'CONTEXT.INIT_SCRIPTS',
+  label: T.InitScripts,
+  tooltip: T.InitScriptsConcept,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .notRequired(),
+  grid: { md: 12 }
 }
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: error => TAB_ID.some(id => error?.[id])
-}
+/** @type {Field[]} List of Context Files fields */
+export const FILES_FIELDS = hypervisor =>
+  filterFieldsByHypervisor([FILES_DS, INIT_SCRIPTS], hypervisor)
 
-export default TAB
+/** @type {ObjectSchema} Context Files schema */
+export const FILES_SCHEMA = hypervisor =>
+  getObjectSchemaFromFields(FILES_FIELDS(hypervisor))

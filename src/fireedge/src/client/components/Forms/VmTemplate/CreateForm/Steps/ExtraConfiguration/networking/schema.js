@@ -13,42 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
+import { object, string, array, ObjectSchema } from 'yup'
 
-import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
+import { T, INPUT_TYPES } from 'client/constants'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { mapNameByIndex } from '../schema'
 
-import { T } from 'client/constants'
-
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = props => {
-  return (
-    <>
-      <ConfigurationSection />
-      <FilesSection {...props} />
-      <UserInputsSection />
-    </>
-  )
+/** @returns {Field} NIC filter field */
+const FILTER = {
+  name: 'NIC_DEFAULT.FILTER',
+  label: T.DefaultNicFilter,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
 }
 
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object
+/** @returns {Field} NIC model field */
+const MODEL = {
+  name: 'NIC_DEFAULT.MODEL',
+  label: T.DefaultNicModel,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
 }
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: error => TAB_ID.some(id => error?.[id])
-}
+/** @type {Field[]} List of Network defaults fields */
+const FIELDS = [FILTER, MODEL]
 
-export default TAB
+/** @type {ObjectSchema} Network schema */
+const SCHEMA = object({
+  NIC: array()
+    .ensure()
+    .transform(nics => nics.map(mapNameByIndex('NIC')))
+}).concat(getObjectSchemaFromFields(FIELDS))
+
+export { FIELDS, SCHEMA }

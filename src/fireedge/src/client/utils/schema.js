@@ -328,7 +328,7 @@ export const mapUserInputs = (userInputs = {}) =>
  *
  * @param {any[]} array - List of option values
  * @param {object} [options] - Options to conversion
- * @param {boolean} [options.addEmpty] - If `true`, add an empty option
+ * @param {boolean|string} [options.addEmpty] - If `true`, add an empty option
  * @param {function(any):any} [options.getText] - Function to get the text option
  * @param {function(any):any} [options.getValue] - Function to get the value option
  * @returns {SelectOption} Options
@@ -338,7 +338,11 @@ export const arrayToOptions = (array = [], options = {}) => {
 
   const values = array.map(item => ({ text: getText(item), value: getValue(item) }))
 
-  addEmpty && values.unshift({ text: '-', value: '' })
+  if (addEmpty) {
+    typeof addEmpty === 'string'
+      ? values.unshift({ text: addEmpty, value: '' })
+      : values.unshift({ text: '-', value: '' })
+  }
 
   return values
 }

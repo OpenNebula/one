@@ -69,7 +69,6 @@ const ButtonToTriggerForm = ({
         aria-expanded={open ? 'true' : undefined}
         aria-haspopup={isGroupButton ? 'true' : false}
         disabled={!options.length}
-
         endicon={isGroupButton ? <NavArrowDown /> : undefined}
         onClick={evt => !isGroupButton
           ? openDialogForm(options[0])

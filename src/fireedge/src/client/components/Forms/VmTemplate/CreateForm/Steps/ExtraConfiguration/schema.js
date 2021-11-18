@@ -21,6 +21,8 @@ import { FIELDS as OS_FIELDS } from 'client/components/Forms/VmTemplate/CreateFo
 import { FIELDS as NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { SCHEMA as IO_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
+import { SCHEMA as STORAGE_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
+import { SCHEMA as NETWORK_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
 import { getObjectSchemaFromFields } from 'client/utils'
 
 export const mapNameByIndex = (prefixName) => (resource, idx) => ({
@@ -30,28 +32,19 @@ export const mapNameByIndex = (prefixName) => (resource, idx) => ({
     : resource?.NAME
 })
 
-export const DISK_SCHEMA = array()
-  .ensure()
-  .transform(disks => disks.map(mapNameByIndex('DISK')))
-
-export const NIC_SCHEMA = array()
-  .ensure()
-  .transform(nics => nics.map(mapNameByIndex('NIC')))
-
 export const SCHED_ACTION_SCHEMA = array()
   .ensure()
   .transform(actions => actions.map(mapNameByIndex('SCHED_ACTION')))
 
 export const SCHEMA = hypervisor => object({
-  DISK: DISK_SCHEMA,
-  NIC: NIC_SCHEMA,
   SCHED_ACTION: SCHED_ACTION_SCHEMA
 })
-  .concat(CONTEXT_SCHEMA)
+  .concat(NETWORK_SCHEMA)
+  .concat(STORAGE_SCHEMA)
+  .concat(CONTEXT_SCHEMA(hypervisor))
   .concat(IO_SCHEMA(hypervisor))
   .concat(getObjectSchemaFromFields([
     ...PLACEMENT_FIELDS,
     ...OS_FIELDS(hypervisor),
     ...NUMA_FIELDS(hypervisor)
   ]))
-  .noUnknown(false)

@@ -35,6 +35,21 @@ export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
 export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 
 /**
+ * Return the TM_MAD_SYSTEM attribute.
+ *
+ * @param {object} datastore - Datastore
+ * @returns {string[]} - The list of deploy modes available
+ */
+export const getDeployMode = (datastore = {}) => {
+  const { TEMPLATE = {} } = datastore
+  const isImage = getType(datastore)?.name === DATASTORE_TYPES[0]?.name
+
+  return isImage
+    ? TEMPLATE?.TM_MAD_SYSTEM?.split(',')?.filter(Boolean) ?? []
+    : []
+}
+
+/**
  * Returns information about datastore capacity.
  *
  * @param {object} props - Props object

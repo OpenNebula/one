@@ -13,42 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
 
-import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
+import { FormWithSchema } from 'client/components/Forms'
 
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { FILES_FIELDS } from './schema'
 import { T } from 'client/constants'
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
+export const SECTION_ID = 'CONTEXT'
 
-const Context = props => {
-  return (
-    <>
-      <ConfigurationSection />
-      <FilesSection {...props} />
-      <UserInputsSection />
-    </>
-  )
-}
+/**
+ * @param {object} props - Props
+ * @param {string} props.hypervisor - VM hypervisor
+ * @returns {JSXElementConstructor} - Files section
+ */
+const FilesSection = ({ hypervisor }) => (
+  <FormWithSchema
+    cy={`create-vm-template-${EXTRA_ID}.context-files`}
+    legend={T.Files}
+    fields={() => FILES_FIELDS(hypervisor)}
+    id={EXTRA_ID}
+  />
+)
 
-Context.propTypes = {
+FilesSection.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object
 }
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: error => TAB_ID.some(id => error?.[id])
-}
-
-export default TAB
+export default FilesSection

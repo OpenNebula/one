@@ -354,6 +354,17 @@ module.exports = {
   /* VM schema - ownership */
   InstantiateAsUser: 'Instantiate as different User',
   InstantiateAsGroup: 'Instantiate as different Group',
+  /* VM Template schema - storage */
+  StorageOptions: 'Storage Options',
+  DeployMode: 'Deploy Mode',
+  DeployModeConcept: 'Set an alternative mode to deploy VM disks to the hosts',
+  /* VM Template schema - network */
+  NetworkDefaults: 'Network Defaults',
+  NetworkDefaultsConcept: `
+    Values that will be copied to each new NIC.
+    Final users may not be aware of this`,
+  DefaultNicModel: 'Default hardware model to emulate for all NICs',
+  DefaultNicFilter: 'Default network filtering rule for all NICs',
   /* VM Template schema - capacity */
   MaxMemory: 'Max memory',
   MemoryModification: 'Memory modification',
@@ -485,9 +496,16 @@ module.exports = {
   ReportReadyToOneGateConcept: 'Sends READY=YES to OneGate, useful for OneFlow',
   StartScript: 'Start script',
   StartScriptConcept: `
-    Text of the script executed when the machine starts up. It can contain
-    shebang in case it is not shell script`,
+  Text of the script executed when the machine starts up. It can contain
+  shebang in case it is not shell script`,
   EncodeScriptInBase64: 'Encode script in Base64',
+  ContextFiles: 'Files Datastores',
+  ContextFilesConcept: 'List of File images to include in context device',
+  InitScripts: 'Init scripts',
+  InitScriptsConcept: `
+    The contextualization package executes an init.sh file if it exists.
+    If more than one script file is added, this list contains the scripts
+    to run and their order`,
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
   Inputs: 'Inputs',
