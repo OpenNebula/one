@@ -204,9 +204,11 @@ const getListProviders = (res = {}, next = defaultEmptyFunction, params = {}, us
         data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection
       ) {
         const encryptedData = {}
-        for (const key of Object.keys(data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection)) {
-          encryptedData[key] = defaultHideCredentialReplacer
-        }
+        Object.keys(data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection).forEach(
+          key => {
+            encryptedData[key] = defaultHideCredentialReplacer
+          }
+        )
         data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection = encryptedData
       }
 
