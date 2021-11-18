@@ -100,6 +100,29 @@ export const vmService = ({
   },
 
   /**
+   * Clones the VM's source Template, replacing the disks with live snapshots
+   * of the current disks. The VM capacity and NICs are also preserved.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Virtual machine id
+   * @param {string} params.name - Template name
+   * @param {boolean} params.persistent - Make the new images persistent
+   * @returns {number} Virtual machine id
+   * @throws Fails when response isn't code 200
+   */
+  saveAsTemplate: async ({ id, name, persistent }) => {
+    const res = await RestClient.request({
+      url: `/api/vm/save/${id}`,
+      method: 'POST',
+      data: { name, persistent }
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Renames a virtual machine.
    *
    * @param {object} params - Request parameters

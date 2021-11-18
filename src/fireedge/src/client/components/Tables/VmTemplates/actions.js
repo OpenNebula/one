@@ -245,7 +245,7 @@ const Actions = () => {
           onSubmit: async (_, rows) => {
             const ids = rows?.map?.(({ original }) => original?.ID)
             await Promise.all(ids.map(id => remove(id)))
-            await Promise.all(ids.map(id => getVmTemplate(id)))
+            await getVmTemplates()
           }
         }]
       }

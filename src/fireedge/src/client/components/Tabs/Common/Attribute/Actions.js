@@ -122,7 +122,7 @@ const Cancel = props => <ActionButton action='cancel' icon={CancelIcon} {...prop
 Copy.displayName = 'CopyActionButton'
 
 Copy.propTypes = {
-  ...ActionButton,
+  name: PropTypes.string.isRequired,
   value: PropTypes.string
 }
 

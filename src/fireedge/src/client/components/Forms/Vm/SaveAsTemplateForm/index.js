@@ -13,30 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
-import ChangeUserForm from 'client/components/Forms/Vm/ChangeUserForm'
-import ChangeGroupForm from 'client/components/Forms/Vm/ChangeGroupForm'
-import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
-import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
-import MigrateForm from 'client/components/Forms/Vm/MigrateForm'
-import RecoverForm from 'client/components/Forms/Vm/RecoverForm'
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
-import ResizeDiskForm from 'client/components/Forms/Vm/ResizeDiskForm'
-import SaveAsDiskForm from 'client/components/Forms/Vm/SaveAsDiskForm'
-import SaveAsTemplateForm from 'client/components/Forms/Vm/SaveAsTemplateForm'
-export * from 'client/components/Forms/Vm/AttachDiskForm'
-export * from 'client/components/Forms/Vm/CreateSchedActionForm'
+import { createForm } from 'client/utils'
+import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/SaveAsTemplateForm/schema'
 
-export {
-  AttachNicForm,
-  ChangeUserForm,
-  ChangeGroupForm,
-  CreateDiskSnapshotForm,
-  CreateSnapshotForm,
-  MigrateForm,
-  RecoverForm,
-  ResizeCapacityForm,
-  ResizeDiskForm,
-  SaveAsDiskForm,
-  SaveAsTemplateForm
-}
+const SaveAsTemplateForm = createForm(SCHEMA, FIELDS)
+
+export default SaveAsTemplateForm

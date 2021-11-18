@@ -31,10 +31,18 @@ import {
 } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import { useDatastore, useVmApi } from 'client/features/One'
 import { Translate } from 'client/components/HOC'
 
-import { RecoverForm, ChangeUserForm, ChangeGroupForm, MigrateForm } from 'client/components/Forms/Vm'
+import {
+  RecoverForm,
+  ChangeUserForm,
+  ChangeGroupForm,
+  MigrateForm,
+  SaveAsTemplateForm
+} from 'client/components/Forms/Vm'
+
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
@@ -52,7 +60,12 @@ const ListVmNames = ({ rows = [] }) => {
     const DS_NAME = datastores?.find(ds => ds?.ID === DS_ID)?.NAME ?? '--'
 
     return (
-      <Typography key={`vm-${id}`} variant='inherit'>
+      <Typography
+        key={`vm-${id}`}
+        variant='inherit'
+        component='span'
+        display='block'
+      >
         <Translate
           word={T.WhereIsRunning}
           values={[
@@ -78,9 +91,11 @@ const MessageToConfirmAction = rows => (
 const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useAuth()
+  const { enqueueSuccess } = useGeneralApi()
   const {
     getVm,
     getVms,
+    saveAsTemplate,
     terminate,
     terminateHard,
     undeploy,
@@ -144,7 +159,18 @@ const Actions = () => {
         tooltip: T.SaveAsTemplate,
         selected: { max: 1 },
         icon: SaveFloppyDisk,
-        action: () => {}
+        options: [{
+          dialogProps: {
+            title: T.SaveAsTemplate,
+            subheader: SubHeader
+          },
+          form: SaveAsTemplateForm,
+          onSubmit: async (formData, rows) => {
+            const vmId = rows?.[0]?.original?.ID
+            const response = await saveAsTemplate(vmId, formData)
+            enqueueSuccess(response)
+          }
+        }]
       },
       {
         tooltip: T.Manage,
