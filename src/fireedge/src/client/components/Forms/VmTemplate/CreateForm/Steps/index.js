@@ -62,7 +62,7 @@ const Steps = createSteps(
       }
 
       // add user inputs to context
-      const userInputsNames = Object.keys(USER_INPUTS).forEach(name => {
+      Object.keys(USER_INPUTS).forEach(name => {
         const upperName = String(name).toUpperCase()
         context[upperName] = `$${upperName}`
       })
