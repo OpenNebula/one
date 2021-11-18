@@ -236,7 +236,6 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       MuiCssBaseline: {
         styleOverrides: {
           '@font-face': UbuntuFont,
-          body: isDarkMode ? darkScrollbar() : null,
           '.description__link': {
             margin: 0,
             color: isDarkMode ? secondary.main : secondary.dark,

@@ -57,7 +57,7 @@ const MuiProvider = ({ theme: appTheme, children }) => {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={muitheme}>
-        <CssBaseline />
+        <CssBaseline enableColorScheme />
         <StylesProvider generateClassName={generateClassName}>
           {children}
         </StylesProvider>
