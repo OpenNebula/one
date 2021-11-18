@@ -2865,6 +2865,7 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/cluster-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-template-tab.yaml"
 
