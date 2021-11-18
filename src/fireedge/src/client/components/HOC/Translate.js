@@ -126,7 +126,10 @@ TranslateProvider.propTypes = {
 }
 
 Translate.propTypes = {
-  word: PropTypes.string,
+  word: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.array
+  ]),
   values: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

@@ -15,28 +15,18 @@
  * ------------------------------------------------------------------------- */
 import { object, ObjectSchema } from 'yup'
 
-import { GRAPHICS_FIELDS } from './graphicsSchema'
+import { GRAPHICS_SCHEMA } from './graphicsSchema'
 import { INPUTS_SCHEMA } from './inputsSchema'
 import { PCI_DEVICES_SCHEMA } from './pciDevicesSchema'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
-
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of I/O fields
- */
-export const INPUT_OUTPUT_FIELDS = hypervisor =>
-  [...GRAPHICS_FIELDS(hypervisor)]
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {ObjectSchema} I/O schema
  */
-export const SCHEMA = hypervisor => object({
-  INPUT: INPUTS_SCHEMA,
-  PCI: PCI_DEVICES_SCHEMA
-}).concat(getObjectSchemaFromFields([
-  ...GRAPHICS_FIELDS(hypervisor)
-]))
+export const SCHEMA = hypervisor => object()
+  .concat(INPUTS_SCHEMA)
+  .concat(PCI_DEVICES_SCHEMA)
+  .concat(GRAPHICS_SCHEMA(hypervisor))
 
 export * from './graphicsSchema'
 export * from './inputsSchema'

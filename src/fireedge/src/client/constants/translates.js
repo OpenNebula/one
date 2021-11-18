@@ -102,6 +102,7 @@ module.exports = {
   Select: 'Select',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
+  SelectNetwork: 'Select a network',
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
   Share: 'Share',
@@ -212,6 +213,7 @@ module.exports = {
   System: 'System',
   Language: 'Language',
   DisableDashboardAnimations: 'Disable dashboard animations',
+  ConfigurationUI: 'Configuration UI',
 
   /* sections - system */
   User: 'User',
@@ -346,6 +348,11 @@ module.exports = {
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',
+  AsAnAlias: 'Attach as an alias',
+  RdpConnection: 'RDP connection',
+  SshConnection: 'SSH connection',
+  External: 'External',
+  ExternalConcept: 'The NIC will be attached as an external alias of the VM',
 
   /* VM Template schema */
   /* VM schema - general */

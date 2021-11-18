@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import NetworksTable, { STEP_ID as NETWORK_ID } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
 import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
-import { mapUserInputs, createSteps } from 'client/utils'
+import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
   [NetworksTable, AdvancedOptions],
@@ -52,7 +52,7 @@ const Steps = createSteps(
         NETWORK_UID: UID,
         NETWORK_UNAME: UNAME,
         SECURITY_GROUPS,
-        ...mapUserInputs(advanced)
+        ...advanced
       }
     }
   }

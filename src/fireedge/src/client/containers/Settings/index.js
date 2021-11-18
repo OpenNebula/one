@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
-
-import { Container, Paper, Box, Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-
+import { JSXElementConstructor } from 'react'
+import { Container, Paper, Box, Typography, Divider } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -28,38 +24,14 @@ import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useUserApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import { Tr } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
-import { mapUserInputs } from 'client/utils'
 import * as Helper from 'client/models/Helper'
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    paddingTop: '1rem'
-  },
-  title: {
-    flexGrow: 1,
-    letterSpacing: 0.1,
-    fontWeight: 500
-  },
-  wrapper: {
-    backgroundColor: theme.palette.background.default,
-    maxWidth: 550,
-    padding: '1rem'
-  },
-  subheader: {
-    marginBottom: '1rem'
-  },
-  actions: {
-    padding: '1rem 0',
-    textAlign: 'end'
-  }
-}))
-
+/** @returns {JSXElementConstructor} Settings container */
 const Settings = () => {
-  const classes = useStyles()
   const { user, settings } = useAuth()
   const { getAuthUser } = useAuthApi()
   const { updateUser } = useUserApi()
@@ -67,47 +39,43 @@ const Settings = () => {
 
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
-    defaultValues: settings,
+    defaultValues: FORM_SCHEMA.cast(settings),
     resolver: yupResolver(FORM_SCHEMA)
   })
 
-  useEffect(() => {
-    reset(
-      FORM_SCHEMA.cast(settings),
-      { keepIsSubmitted: false, keepErrors: false }
-    )
-  }, [settings])
-
   const onSubmit = async dataForm => {
     try {
-      const inputs = mapUserInputs(dataForm)
-      const template = Helper.jsonToXml({ FIREEDGE: inputs })
-
+      const template = Helper.jsonToXml({ FIREEDGE: dataForm })
       await updateUser(user.ID, { template }).then(getAuthUser)
     } catch {
-      enqueueError(Tr(T.SomethingWrong))
+      enqueueError(T.SomethingWrong)
     }
   }
 
   return (
     <Container disableGutters>
-      <div className={classes.header}>
-        <Typography variant='h5' className={classes.title}>
-          {Tr(T.Settings)}
-        </Typography>
-      </div>
+      <Typography variant='h5' pt='1em'>
+        <Translate word={T.Settings} />
+      </Typography>
 
-      <hr />
+      <Divider sx={{ my: '1em' }} />
 
-      <Paper className={classes.wrapper} variant='outlined'>
-        <Typography variant='overline' component='div' className={classes.subheader}>
-          {`${Tr(T.Configuration)} UI`}
-        </Typography>
+      <Paper
+        variant='outlined'
+        sx={{
+          p: '1em',
+          maxWidth: { sm: 'auto', md: 550 }
+        }}
+      >
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <FormProvider {...methods}>
-            <FormWithSchema cy='settings' fields={FORM_FIELDS} />
+            <FormWithSchema
+              cy='settings'
+              fields={FORM_FIELDS}
+              legend={T.ConfigurationUI}
+            />
           </FormProvider>
-          <div className={classes.actions}>
+          <Box py='1em' textAlign='end'>
             <SubmitButton
               color='secondary'
               data-cy='settings-submit-button'
@@ -116,7 +84,7 @@ const Settings = () => {
               disabled={!formState.isDirty}
               isSubmitting={formState.isSubmitting}
             />
-          </div>
+          </Box>
         </Box>
       </Paper>
     </Container>

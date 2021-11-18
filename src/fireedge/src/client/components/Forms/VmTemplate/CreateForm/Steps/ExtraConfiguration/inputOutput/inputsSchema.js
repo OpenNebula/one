@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, array, object, ObjectSchema, ArraySchema } from 'yup'
+import { string, array, object, ObjectSchema } from 'yup'
 import { PcMouse, PenTablet, Usb, PlugTypeG } from 'iconoir-react'
 
 import { Field, arrayToOptions, filterFieldsByHypervisor, getValidationFromFields } from 'client/utils'
@@ -69,5 +69,7 @@ export const INPUTS_FIELDS = (hypervisor) =>
 /** @type {ObjectSchema} Graphic input object schema */
 export const INPUT_SCHEMA = object(getValidationFromFields([TYPE, BUS]))
 
-/** @type {ArraySchema} Graphic inputs schema */
-export const INPUTS_SCHEMA = array(INPUT_SCHEMA).ensure()
+/** @type {ObjectSchema} Graphic inputs schema */
+export const INPUTS_SCHEMA = object({
+  INPUT: array(INPUT_SCHEMA).ensure()
+})

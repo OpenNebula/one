@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
 
 import { useAuth } from 'client/features/Auth'
@@ -28,7 +29,7 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'general'
 
-const Content = () => {
+const Content = ({ isUpdate }) => {
   const classes = useStyles()
   const { view, getResourceView } = useAuth()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
@@ -37,7 +38,7 @@ const Content = () => {
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return SECTIONS(hypervisor)
+    return SECTIONS(hypervisor, isUpdate)
       .filter(({ id, required }) => required || sectionsAvailable.includes(id))
   }, [view, hypervisor])
 
@@ -62,15 +63,23 @@ const Content = () => {
   )
 }
 
-const General = () => ({
-  id: STEP_ID,
-  label: T.General,
-  resolver: formData => {
-    const hypervisor = formData?.[STEP_ID]?.HYPERVISOR
-    return SCHEMA(hypervisor)
-  },
-  optionsValidate: { abortEarly: false },
-  content: Content
-})
+const General = initialValues => {
+  const isUpdate = initialValues?.NAME
+
+  return {
+    id: STEP_ID,
+    label: T.General,
+    resolver: formData => {
+      const hypervisor = formData?.[STEP_ID]?.HYPERVISOR
+      return SCHEMA(hypervisor, isUpdate)
+    },
+    optionsValidate: { abortEarly: false },
+    content: () => Content({ isUpdate })
+  }
+}
+
+Content.propTypes = {
+  isUpdate: PropTypes.bool
+}
 
 export default General

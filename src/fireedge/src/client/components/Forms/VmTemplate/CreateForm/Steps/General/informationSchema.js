@@ -19,8 +19,11 @@ import Image from 'client/components/Image'
 import { T, LOGO_IMAGES_URL, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 import { Field, arrayToOptions } from 'client/utils'
 
-/** @type {Field} Name field */
-export const NAME = {
+/**
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @returns {Field} Name field
+ */
+export const NAME = isUpdate => ({
   name: 'NAME',
   label: T.Name,
   type: INPUT_TYPES.TEXT,
@@ -28,8 +31,9 @@ export const NAME = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { sm: 6 }
-}
+  grid: { sm: 6 },
+  ...(isUpdate && { fieldProps: { disabled: true } })
+})
 
 /** @type {Field} Description field */
 export const DESCRIPTION = {
@@ -100,9 +104,12 @@ export const LOGO = {
     .default(() => undefined)
 }
 
-/** @type {Field[]} List of information fields */
-export const FIELDS = [
-  NAME,
+/**
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @returns {Field[]} List of information fields
+ */
+export const FIELDS = isUpdate => [
+  NAME(isUpdate),
   DESCRIPTION,
   LOGO
 ]

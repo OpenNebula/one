@@ -23,7 +23,7 @@ import { FormWithSchema } from 'client/components/Forms'
 import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
 import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
-import { INPUT_OUTPUT_FIELDS, INPUTS_FIELDS, PCI_FIELDS } from './schema'
+import { GRAPHICS_FIELDS, INPUTS_FIELDS, PCI_FIELDS } from './schema'
 import { T } from 'client/constants'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID]
@@ -40,7 +40,7 @@ const InputOutput = ({ hypervisor }) => {
     >
       <FormWithSchema
         cy={`create-vm-template-${EXTRA_ID}.io-graphics`}
-        fields={INPUT_OUTPUT_FIELDS(hypervisor)}
+        fields={GRAPHICS_FIELDS(hypervisor)}
         legend={T.Graphics}
         id={EXTRA_ID}
       />

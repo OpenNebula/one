@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
+import { useEffect, JSXElementConstructor } from 'react'
 import { Container, Box, Grid } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
 import { useProvisionApi, useProviderApi } from 'client/features/One'
 import * as Widgets from 'client/components/Widgets'
-import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
+import { stringToBoolean } from 'client/models/Helper'
 
-function Dashboard () {
+/** @returns {JSXElementConstructor} Provision dashboard container */
+function ProvisionDashboard () {
   const { status, fetchRequestAll, STATUS } = useFetchAll()
   const { INIT, PENDING } = STATUS
 
@@ -31,9 +31,6 @@ function Dashboard () {
   const { getProviders } = useProviderApi()
 
   const { settings: { disableanimations } = {} } = useAuth()
-  const classes = dashboardStyles({ disableanimations })
-
-  const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
 
   useEffect(() => {
     fetchRequestAll([
@@ -45,8 +42,12 @@ function Dashboard () {
   return (
     <Container
       disableGutters
-      {...withoutAnimations && {
-        className: classes.withoutAnimations
+      {...stringToBoolean(disableanimations) && {
+        sx: {
+          '& *, & *::before, & *::after': {
+            animation: 'none !important'
+          }
+        }
       }}
     >
       <Box py={3}>
@@ -72,4 +73,4 @@ function Dashboard () {
   )
 }
 
-export default Dashboard
+export default ProvisionDashboard

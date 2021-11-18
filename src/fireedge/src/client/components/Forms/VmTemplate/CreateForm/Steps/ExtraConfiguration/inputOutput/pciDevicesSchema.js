@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, array, ObjectSchema, ArraySchema } from 'yup'
+import { object, string, array, ObjectSchema } from 'yup'
 
 import { useHost } from 'client/features/One'
 import { getPciDevices } from 'client/models/Host'
@@ -88,5 +88,7 @@ export const PCI_FIELDS = (hypervisor) =>
 /** @type {ObjectSchema} PCI devices object schema */
 export const PCI_SCHEMA = getObjectSchemaFromFields([DEVICE, VENDOR, CLASS])
 
-/** @type {ArraySchema} PCI devices schema */
-export const PCI_DEVICES_SCHEMA = array(PCI_SCHEMA).ensure()
+/** @type {ObjectSchema} PCI devices schema */
+export const PCI_DEVICES_SCHEMA = object({
+  PCI: array(PCI_SCHEMA).ensure()
+})

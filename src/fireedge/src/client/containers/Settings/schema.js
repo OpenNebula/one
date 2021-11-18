@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+import { object, boolean, string } from 'yup'
 import { T, INPUT_TYPES, SCHEMES, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
@@ -26,11 +26,10 @@ const SCHEME = {
     { text: T.Dark, value: SCHEMES.DARK },
     { text: T.Light, value: SCHEMES.LIGHT }
   ],
-  validation: yup
-    .string()
+  validation: string()
     .trim()
-    .required('Scheme field is required')
-    .default(DEFAULT_SCHEME),
+    .required()
+    .default(() => DEFAULT_SCHEME),
   grid: { md: 12 }
 }
 
@@ -40,11 +39,10 @@ const LANGUAGES = {
   type: INPUT_TYPES.SELECT,
   values: () =>
     window?.langs?.map(({ key, value }) => ({ text: value, value: key })) ?? [],
-  validation: yup
-    .string()
+  validation: string()
     .trim()
-    .required('Language field is required')
-    .default(DEFAULT_LANGUAGE),
+    .required()
+    .default(() => DEFAULT_LANGUAGE),
   grid: { md: 12 }
 }
 
@@ -52,19 +50,12 @@ const DISABLE_ANIMATIONS = {
   name: 'disableanimations',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
-  validation: yup
-    .boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(false),
+  validation: boolean()
+    .yesOrNo()
+    .default(() => false),
   grid: { md: 12 }
 }
 
 export const FORM_FIELDS = [SCHEME, LANGUAGES, DISABLE_ANIMATIONS]
 
-export const FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-)
+export const FORM_SCHEMA = object(getValidationFromFields(FORM_FIELDS))

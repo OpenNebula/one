@@ -20,7 +20,7 @@ import { Button, MobileStepper, Typography, Box, alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { NavArrowLeft as PreviousIcon, NavArrowRight as NextIcon } from 'iconoir-react'
 
-import { Tr, Translate, labelCanBeTranslated } from 'client/components/HOC'
+import { Translate, labelCanBeTranslated } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
@@ -61,8 +61,8 @@ const CustomMobileStepper = ({
         </Typography>
         {Boolean(errors[id]) && (
           <Typography className={classes.error} variant='caption' color='error'>
-            {labelCanBeTranslated(errors[id]?.message)
-              ? Tr(errors[id]?.message) : errors[id]?.message}
+            {labelCanBeTranslated(label)
+              ? <Translate word={errors[id]?.message} /> : errors[id]?.message}
           </Typography>
         )}
       </Box>

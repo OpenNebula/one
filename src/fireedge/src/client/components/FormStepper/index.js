@@ -114,7 +114,7 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
 
       if (activeStep === lastStep) {
         const submitData = { ...formData, [id]: data }
-        const schemaData = schema().cast(submitData, { context: submitData })
+        const schemaData = schema().cast(submitData, { context: submitData, isSubmit: true })
         onSubmit(schemaData)
       } else {
         setFormData(prev => ({ ...prev, [id]: data }))

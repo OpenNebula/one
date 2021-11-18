@@ -43,13 +43,7 @@ export const ENABLE_HR_MEMORY = {
   name: 'HOT_RESIZE.MEMORY_HOT_ADD_ENABLED',
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(() => false),
+  validation: boolean().yesOrNo(),
   grid: { xs: 4, md: 6 }
 }
 
@@ -94,13 +88,7 @@ export const ENABLE_HR_VCPU = {
   name: 'HOT_RESIZE.CPU_HOT_ADD_ENABLED',
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(() => false),
+  validation: boolean().yesOrNo(),
   grid: { xs: 4, md: 6 }
 }
 
