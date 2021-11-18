@@ -15,19 +15,19 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
-import { ServerConnection as NetworkIcon, Edit, Trash } from 'iconoir-react'
+import { ServerConnection as NetworkIcon } from 'iconoir-react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { AttachNicForm } from 'client/components/Forms/Vm'
-import { Translate } from 'client/components/HOC'
+import { FormWithSchema } from 'client/components/Forms'
 
 import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
-import { stringToBoolean } from 'client/models/Helper'
+import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
 import { T } from 'client/constants'
+import NicItem from './NicItem'
 
 export const TAB_ID = 'NIC'
 
@@ -48,6 +48,10 @@ const Networking = () => {
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
   }
 
+  const handleUpdate = (updatedNic, index) => {
+    update(index, mapNameFunction(updatedNic, index))
+  }
+
   return (
     <>
       <ButtonToTriggerForm
@@ -63,69 +67,31 @@ const Networking = () => {
           onSubmit: nic => append(mapNameFunction(nic, nics.length))
         }]}
       />
-      <Stack
-        pb='1em'
-        display='grid'
-        gridTemplateColumns='repeat(auto-fit, minmax(300px, 0.5fr))'
-        gap='1em'
-        mt='1em'
+      <Stack pb='1em' display='grid' gap='1em' mt='1em'
+        sx={{
+          gridTemplateColumns: {
+            sm: '1fr',
+            md: 'repeat(auto-fit, minmax(300px, 0.5fr))'
+          }
+        }}
       >
-        {nics?.map((item, index) => {
-          const { id, NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
-          const hasAlias = nics?.some(nic => nic.PARENT === NAME)
-
-          return (
-            <SelectCard
-              key={id ?? NAME}
-              title={[NAME, NETWORK].filter(Boolean).join(' - ')}
-              subheader={<>
-                {Object
-                  .entries({
-                    RDP: stringToBoolean(RDP),
-                    SSH: stringToBoolean(SSH),
-                    EXTERNAL: stringToBoolean(EXTERNAL),
-                    [`PARENT: ${PARENT}`]: PARENT
-                  })
-                  .map(([k, v]) => v ? `${k}` : '')
-                  .filter(Boolean)
-                  .join(' | ')
-                }
-              </>}
-              action={
-                <>
-                  {!hasAlias &&
-                    <Action
-                      data-cy={`remove-${NAME}`}
-                      handleClick={() => removeAndReorder(NAME)}
-                      icon={<Trash />}
-                    />
-                  }
-                  <ButtonToTriggerForm
-                    buttonProps={{
-                      'data-cy': `edit-${NAME}`,
-                      icon: <Edit />,
-                      tooltip: <Translate word={T.Edit} />
-                    }}
-                    options={[{
-                      dialogProps: {
-                        title: (
-                          <Translate
-                            word={T.EditSomething}
-                            values={[`${NAME} - ${NETWORK}`]}
-                          />
-                        )
-                      },
-                      form: () => AttachNicForm({ nics }, item),
-                      onSubmit: updatedNic =>
-                        update(index, mapNameFunction(updatedNic, index))
-                    }]}
-                  />
-                </>
-              }
-            />
-          )
-        })}
+        {nics?.map(({ id, ...item }, index) => (
+          <NicItem
+            key= {id ?? item?.NAME}
+            item={item}
+            nics={nics}
+            handleRemove={() => removeAndReorder(item?.NAME)}
+            handleUpdate={updatedNic => handleUpdate(updatedNic, index)}
+          />
+        ))}
       </Stack>
+      <FormWithSchema
+        cy={`create-vm-template-${EXTRA_ID}.network-options`}
+        fields={FIELDS}
+        legend={T.NetworkDefaults}
+        legendTooltip={T.NetworkDefaultsConcept}
+        id={EXTRA_ID}
+      />
     </>
   )
 }

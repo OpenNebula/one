@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { useMemo, JSXElementConstructor } from 'react'
 import { Stack, FormControl, Button } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
 
@@ -23,21 +23,20 @@ import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateFo
 import { SSH_PUBLIC_KEY, SCRIPT_FIELDS, OTHER_FIELDS } from './schema'
 import { T } from 'client/constants'
 
-export const SECTION_ID = 'CONTEXT'
-
 const SSH_KEY_USER = '$USER[SSH_PUBLIC_KEY]'
 
 /** @returns {JSXElementConstructor} - Configuration section */
 const ConfigurationSection = () => {
   const { setValue, getValues } = useFormContext()
-  const SSH_PUBLIC_KEY_PATH = `${EXTRA_ID}.${SSH_PUBLIC_KEY.name}`
+  const SSH_PUBLIC_KEY_PATH = useMemo(() => `${EXTRA_ID}.${SSH_PUBLIC_KEY.name}`, [])
 
   const handleClearKey = () => setValue(SSH_PUBLIC_KEY_PATH)
 
   const handleAddUserKey = () => {
-    const currentSshPublicKey = getValues(SSH_PUBLIC_KEY_PATH) ?? ''
+    let currentKey = getValues(SSH_PUBLIC_KEY_PATH)
+    currentKey &&= currentKey + '\n'
 
-    setValue(SSH_PUBLIC_KEY_PATH, currentSshPublicKey + `\n${SSH_KEY_USER}`)
+    setValue(SSH_PUBLIC_KEY_PATH, `${currentKey ?? ''}${SSH_KEY_USER}`)
   }
 
   return (

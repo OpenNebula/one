@@ -183,5 +183,6 @@ export const USER_INPUT_SCHEMA = getObjectSchemaFromFields(USER_INPUT_FIELDS)
 
 /** @type {ObjectSchema} User Inputs schema */
 export const USER_INPUTS_SCHEMA = object({
-  USER_INPUTS: array(USER_INPUT_SCHEMA).ensure()
+  USER_INPUTS: array(USER_INPUT_SCHEMA).ensure(),
+  INPUTS_ORDER: string().trim().strip()
 })

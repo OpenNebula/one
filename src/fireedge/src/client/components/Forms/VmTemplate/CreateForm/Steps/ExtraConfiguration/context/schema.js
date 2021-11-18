@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object } from 'yup'
+import { object, ObjectSchema } from 'yup'
 
 import { USER_INPUTS_SCHEMA } from './userInputsSchema'
 import { CONFIGURATION_SCHEMA } from './configurationSchema'
+import { FILES_SCHEMA } from './filesSchema'
 
-export const SCHEMA = object()
+/**
+ * @param {string} [hypervisor] - VM hypervisor
+ * @returns {ObjectSchema} Context schema
+ */
+export const SCHEMA = hypervisor => object()
   .concat(CONFIGURATION_SCHEMA)
   .concat(USER_INPUTS_SCHEMA)
+  .concat(FILES_SCHEMA(hypervisor))
 
 export * from './userInputsSchema'
 export * from './configurationSchema'
+export * from './filesSchema'

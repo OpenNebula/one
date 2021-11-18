@@ -13,42 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
+import { object, string, array, ObjectSchema } from 'yup'
 
-import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
+import { useDatastore } from 'client/features/One'
+import { getDeployMode } from 'client/models/Datastore'
+import { T, INPUT_TYPES } from 'client/constants'
+import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
+import { mapNameByIndex } from '../schema'
 
-import { T } from 'client/constants'
+/** @returns {Field} Deploy mode field */
+const TM_MAD_SYSTEM = {
+  name: 'TM_MAD_SYSTEM',
+  label: T.DeployMode,
+  tooltip: T.DeployModeConcept,
+  type: INPUT_TYPES.SELECT,
+  values: () => {
+    const datastores = useDatastore()
+    const modes = datastores?.map(getDeployMode)?.flat()
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = props => {
-  return (
-    <>
-      <ConfigurationSection />
-      <FilesSection {...props} />
-      <UserInputsSection />
-    </>
-  )
+    return arrayToOptions([...new Set(modes)], { addEmpty: 'Default' })
+  },
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
 }
 
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object
-}
+/** @type {Field[]} List of Storage fields */
+const FIELDS = [TM_MAD_SYSTEM]
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: error => TAB_ID.some(id => error?.[id])
-}
+/** @type {ObjectSchema} Storage schema */
+const SCHEMA = object({
+  ...getValidationFromFields(FIELDS),
+  DISK: array()
+    .ensure()
+    .transform(disks => disks.map(mapNameByIndex('DISK')))
+})
 
-export default TAB
+export { FIELDS, SCHEMA }

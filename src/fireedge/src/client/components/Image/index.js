@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, memo, JSXElementConstructor } from 'react'
+import { useState, memo, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { DEFAULT_IMAGE, IMAGE_FORMATS } from 'client/constants'
@@ -45,6 +45,10 @@ const Image = memo(
       loading: 'lazy',
       ...imgProps
     }
+
+    useEffect(() => {
+      error && setError(INITIAL_STATE)
+    }, [src])
 
     /** Increment retries by one in error state. */
     const addRetry = () => {

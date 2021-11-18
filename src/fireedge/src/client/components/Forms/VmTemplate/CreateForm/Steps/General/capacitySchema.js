@@ -40,10 +40,16 @@ export const MEMORY = {
 
 /** @type {Field} Hot reloading on memory field */
 export const ENABLE_HR_MEMORY = {
-  name: 'ENABLE_HR_MEMORY',
+  name: 'HOT_RESIZE.MEMORY_HOT_ADD_ENABLED',
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
+  validation: boolean()
+    .transform(value => {
+      if (typeof value === 'boolean') return value
+
+      return String(value).toUpperCase() === 'YES'
+    })
+    .default(() => false),
   grid: { xs: 4, md: 6 }
 }
 
@@ -85,10 +91,16 @@ export const VIRTUAL_CPU = {
 
 /** @type {Field} Hot reloading on virtual CPU field */
 export const ENABLE_HR_VCPU = {
-  name: 'ENABLE_HR_VCPU',
+  name: 'HOT_RESIZE.CPU_HOT_ADD_ENABLED',
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
+  validation: boolean()
+    .transform(value => {
+      if (typeof value === 'boolean') return value
+
+      return String(value).toUpperCase() === 'YES'
+    })
+    .default(() => false),
   grid: { xs: 4, md: 6 }
 }
 

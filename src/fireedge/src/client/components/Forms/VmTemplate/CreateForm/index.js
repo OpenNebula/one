@@ -22,7 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 import { useFetch } from 'client/hooks'
 // import { useUserApi, useVmGroupApi, useVmTemplateApi } from 'client/features/One'
-import { useVmTemplateApi, useHostApi, useImageApi } from 'client/features/One'
+import { useVmTemplateApi, useHostApi, useImageApi, useDatastoreApi } from 'client/features/One'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/CreateForm/Steps'
 
@@ -52,6 +52,7 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
   // const { getVmGroups } = useVmGroupApi()
   const { getHosts } = useHostApi()
   const { getImages } = useImageApi()
+  const { getDatastores } = useDatastoreApi()
   const { getVmTemplate } = useVmTemplateApi()
   const { fetchRequest, data } = useFetch(
     () => getVmTemplate(templateId, { extended: true })
@@ -61,6 +62,7 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
     templateId && fetchRequest()
     getHosts()
     getImages()
+    getDatastores()
     // getUsers()
     // getVmGroups()
   }, [])

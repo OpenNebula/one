@@ -31,7 +31,7 @@ const Steps = createSteps(
           ...vmTemplate?.TEMPLATE,
           USER_INPUTS: userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS)
         }
-      }, { context: { [EXTRA_ID]: vmTemplate.TEMPLATE } })
+      }, { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } })
     }),
     transformBeforeSubmit: formData => {
       const {
@@ -42,22 +42,28 @@ const Steps = createSteps(
       // const templateXML = jsonToXml({ ...general, ...extraTemplate })
       // return { template: templateXML }
 
+      const userInputs = userInputsToObject(USER_INPUTS)
+      const inputsOrder = USER_INPUTS.map(({ name }) => name).join(',')
       const { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext } = CONTEXT
 
       const context = {
         ...restOfContext,
+        // transform start script to base64 if needed
         [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
           ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
             ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
             : START_SCRIPT
       }
 
-      const userInputs = userInputsToObject(USER_INPUTS)
-      const inputsOrder = USER_INPUTS.map(({ name }) => name).join(',')
+      // add user inputs to context
+      for (const { name } of USER_INPUTS) {
+        const upperName = String(name).toUpperCase()
+        context[upperName] = `$${upperName}`
+      }
 
       return {
-        ...general,
         ...extraTemplate,
+        ...general,
         CONTEXT: context,
         USER_INPUTS: userInputs,
         INPUTS_ORDER: inputsOrder

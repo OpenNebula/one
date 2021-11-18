@@ -37,7 +37,7 @@ export default [
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => DatastoreModel.getType(row)
+    accessor: row => DatastoreModel.getType(row)?.name
   },
   {
     Header: 'Clusters IDs',
