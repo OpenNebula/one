@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createTheme, darkScrollbar, ThemeOptions, colors, alpha } from '@mui/material'
+import { createTheme, ThemeOptions, colors, alpha } from '@mui/material'
 import { UbuntuFont } from 'client/theme/fonts'
 import { SCHEMES } from 'client/constants'
 
