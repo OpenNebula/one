@@ -13,32 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { /* useHistory, */ useLocation } from 'react-router'
+import { JSXElementConstructor } from 'react'
+import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
-// import { useGeneralApi } from 'client/features/General'
-// import { useVmTemplateApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
+import { useVmTemplateApi } from 'client/features/One'
 import { CreateForm } from 'client/components/Forms/VmTemplate'
-// import { PATH } from 'client/apps/sunstone/routesOne'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { isDevelopment } from 'client/utils'
 
+/**
+ * Displays the creation or modification form to a VM Template.
+ *
+ * @returns {JSXElementConstructor} VM Template form
+ */
 function CreateVmTemplate () {
-  // const history = useHistory()
-  const { state: { ID: templateId } = {} } = useLocation()
+  const history = useHistory()
+  const { state: { ID: templateId, NAME } = {} } = useLocation()
 
-  // const { enqueueInfo } = useGeneralApi()
-  // const { instantiate } = useVmTemplateApi()
+  const { enqueueSuccess } = useGeneralApi()
+  const { update, allocate } = useVmTemplateApi()
 
-  const onSubmit = async formData => {
+  const onSubmit = async template => {
     try {
-      console.log({ formData })
-      /* const { ID, NAME } = templateSelected
-
-      await Promise.all(templates.map(template => instantiate(ID, template)))
-
-      history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
-      enqueueInfo(`VM Template instantiated x${templates.length} - #${ID} ${NAME}`) */
+      if (templateId === undefined) {
+        await allocate(template)
+        history.push(PATH.TEMPLATE.VMS.LIST)
+        enqueueSuccess(`VM Template created - #${templateId}`)
+      } else {
+        await update(templateId, template)
+        history.push(PATH.TEMPLATE.VMS.LIST)
+        enqueueSuccess(`VM Template updated - #${templateId} ${NAME}`)
+      }
     } catch (err) {
       isDevelopment() && console.error(err)
     }

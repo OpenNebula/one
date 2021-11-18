@@ -20,13 +20,7 @@ import { Field, getObjectSchemaFromFields } from 'client/utils'
 
 const switchField = {
   type: INPUT_TYPES.SWITCH,
-  validation: boolean()
-    .notRequired()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    }),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 

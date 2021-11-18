@@ -13,45 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { boolean, string, object, ObjectSchema } from 'yup'
 
-import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { Field, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
+/** @type {Field} RDP connection field */
 const RDP_FIELD = {
   name: 'RDP',
-  label: 'RDP connection',
+  label: T.RdpConnection,
   type: INPUT_TYPES.SWITCH,
-  validation: yup
-    .boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(false),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 
+/** @type {Field} SSH connection field */
 const SSH_FIELD = {
   name: 'SSH',
-  label: 'SSH connection',
+  label: T.SshConnection,
   type: INPUT_TYPES.SWITCH,
-  validation: yup
-    .boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(false),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 
-const ALIAS_FIELD = ({ nics = [] } = {}) => ({
+/**
+ * @param {object} currentFormData - Current form data
+ * @param {object[]} currentFormData.nics - Nics
+ * @returns {Field} Alias field
+ */
+const ALIAS_FIELD = ({ nics = [] }) => ({
   name: 'PARENT',
-  label: 'Attach as an alias',
+  label: T.AsAnAlias,
   dependOf: 'NAME',
   type: name => {
     const hasAlias = nics?.some(nic => nic.PARENT === name)
@@ -70,35 +62,33 @@ const ALIAS_FIELD = ({ nics = [] } = {}) => ({
         return { text, value: NAME }
       })
   ],
-  validation: yup
-    .string()
+  validation: string()
     .trim()
     .notRequired()
-    .default(undefined)
+    .default(() => undefined)
 })
 
+/** @type {Field} External field */
 const EXTERNAL_FIELD = {
   name: 'EXTERNAL',
-  label: 'External',
+  label: T.External,
+  tooltip: T.ExternalConcept,
   type: INPUT_TYPES.SWITCH,
-  tooltip: 'The NIC will be attached as an external alias of the VM',
-  dependOf: ALIAS_FIELD().name,
-  htmlType: type => !type?.length ? INPUT_TYPES.HIDDEN : undefined,
-  validation: yup
-    .boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(false)
+  dependOf: 'PARENT',
+  htmlType: parent => !parent?.length && INPUT_TYPES.HIDDEN,
+  validation: boolean().yesOrNo()
 }
 
-export const FIELDS = props => [
+/**
+ * @param {object} [currentFormData] - Current form data
+ * @returns {Field[]} List of Graphics fields
+ */
+export const FIELDS = (currentFormData = {}) => [
   RDP_FIELD,
   SSH_FIELD,
-  ALIAS_FIELD(props),
+  ALIAS_FIELD(currentFormData),
   EXTERNAL_FIELD
 ]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS()))
+/** @type {ObjectSchema} Advanced options schema */
+export const SCHEMA = object(getValidationFromFields(FIELDS()))

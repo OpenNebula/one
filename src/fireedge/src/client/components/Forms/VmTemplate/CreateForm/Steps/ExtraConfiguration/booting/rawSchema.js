@@ -54,13 +54,7 @@ const VALIDATE = {
   tooltip: T.RawValidateConcept,
   type: INPUT_TYPES.CHECKBOX,
   notOnHypervisors: [lxc, vcenter, firecracker],
-  validation: boolean()
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(() => false),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 

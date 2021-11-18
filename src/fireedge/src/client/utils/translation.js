@@ -14,14 +14,41 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-/* eslint-disable react/display-name */
-/* eslint-disable react/prop-types */
-import { setLocale, addMethod, number, string } from 'yup'
+import { setLocale, addMethod, number, string, boolean, object, array, date } from 'yup'
 
 import { T } from 'client/constants'
 import { isDivisibleBy, isBase64 } from 'client/utils/helpers'
 
 const buildMethods = () => {
+  [number, string, boolean, object, array, date].forEach(schemaType => {
+    addMethod(schemaType, 'afterSubmit', function (fn) {
+      this.submit = (...args) => typeof fn === 'function' ? fn(...args) : args[0]
+      return this
+    })
+    addMethod(schemaType, 'cast', function (value, options = {}) {
+      const resolvedSchema = this.resolve({ value, ...options })
+      let result = resolvedSchema._cast(value, options)
+
+      if (options.isSubmit) {
+        result = this.submit?.(result, options) ?? result
+      }
+
+      return result
+    })
+  })
+  addMethod(boolean, 'yesOrNo', function (addAfterSubmit = true) {
+    const schema = this.transform(function (value) {
+      return !this.isType(value)
+        ? String(value).toUpperCase() === 'YES'
+        : value
+    })
+
+    if (addAfterSubmit) {
+      schema.afterSubmit(value => value ? 'YES' : 'NO')
+    }
+
+    return schema
+  })
   addMethod(number, 'isDivisibleBy', function (divisor) {
     return this.test(
       'is-divisible',

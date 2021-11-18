@@ -33,7 +33,7 @@ const initial = () => ({
   settings: {
     scheme: DEFAULT_SCHEME,
     lang: DEFAULT_LANGUAGE,
-    disableAnimations: 'NO'
+    disableanimations: 'NO'
   },
   isLoginInProgress: false,
   isLoading: false

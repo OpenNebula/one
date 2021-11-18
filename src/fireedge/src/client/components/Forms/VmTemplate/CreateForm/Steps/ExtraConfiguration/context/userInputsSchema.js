@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, array, string, boolean, number, ref, ObjectSchema } from 'yup'
 
+import { userInputsToObject } from 'client/models/Helper'
 import { UserInputType, T, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
 import { Field, arrayToOptions, sentenceCase, getObjectSchemaFromFields } from 'client/utils'
 
@@ -183,6 +184,13 @@ export const USER_INPUT_SCHEMA = getObjectSchemaFromFields(USER_INPUT_FIELDS)
 
 /** @type {ObjectSchema} User Inputs schema */
 export const USER_INPUTS_SCHEMA = object({
-  USER_INPUTS: array(USER_INPUT_SCHEMA).ensure(),
-  INPUTS_ORDER: string().trim().strip()
+  USER_INPUTS: array(USER_INPUT_SCHEMA)
+    .ensure()
+    .afterSubmit(userInputs => userInputsToObject(userInputs)),
+  INPUTS_ORDER: string()
+    .trim()
+    .afterSubmit((_, { context }) => {
+      const userInputs = context?.extra?.USER_INPUTS
+      return userInputs?.map(({ name }) => name).join(',')
+    })
 })

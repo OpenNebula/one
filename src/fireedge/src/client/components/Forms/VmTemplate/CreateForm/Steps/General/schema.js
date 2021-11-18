@@ -26,14 +26,15 @@ import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @param {boolean} [isUpdate] - If `true`, the form is being updated
  * @returns {Section[]} Fields
  */
-const SECTIONS = hypervisor => [
+const SECTIONS = (hypervisor, isUpdate) => [
   {
     id: 'information',
     legend: T.Information,
     required: true,
-    fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(INFORMATION_FIELDS(isUpdate), hypervisor)
   },
   {
     id: 'capacity',

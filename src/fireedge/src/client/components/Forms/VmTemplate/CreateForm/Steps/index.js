@@ -15,36 +15,42 @@
  * ------------------------------------------------------------------------- */
 import General, { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-// import { jsonToXml } from 'client/models/Helper'
-import { userInputsToArray, userInputsToObject } from 'client/models/Helper'
+import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps, isBase64 } from 'client/utils'
 
 const Steps = createSteps(
   [General, ExtraConfiguration],
   {
-    transformInitialValue: (vmTemplate, schema) => ({
-      ...schema.pick([GENERAL_ID]).cast({
-        [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE }
-      }, { stripUnknown: true }),
-      ...schema.pick([EXTRA_ID]).cast({
-        [EXTRA_ID]: {
-          ...vmTemplate?.TEMPLATE,
-          USER_INPUTS: userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS)
-        }
-      }, { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } })
-    }),
+    transformInitialValue: (vmTemplate, schema) => {
+      const generalStep = schema
+        .pick([GENERAL_ID])
+        .cast(
+          { [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE } },
+          { stripUnknown: true }
+        )
+
+      const inputsOrder = vmTemplate?.TEMPLATE?.INPUTS_ORDER?.split(',') ?? []
+      const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS)
+        .sort((a, b) => inputsOrder.indexOf(a.name) - inputsOrder.indexOf(b.name))
+
+      const configurationStep = schema
+        .pick([EXTRA_ID])
+        .cast(
+          { [EXTRA_ID]: { ...vmTemplate?.TEMPLATE, USER_INPUTS: userInputs } },
+          { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } }
+        )
+
+      return { ...generalStep, ...configurationStep }
+    },
     transformBeforeSubmit: formData => {
       const {
         [GENERAL_ID]: general = {},
-        [EXTRA_ID]: { USER_INPUTS, CONTEXT, ...extraTemplate } = {}
+        [EXTRA_ID]: {
+          USER_INPUTS,
+          CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
+          ...extraTemplate
+        } = {}
       } = formData ?? {}
-
-      // const templateXML = jsonToXml({ ...general, ...extraTemplate })
-      // return { template: templateXML }
-
-      const userInputs = userInputsToObject(USER_INPUTS)
-      const inputsOrder = USER_INPUTS.map(({ name }) => name).join(',')
-      const { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext } = CONTEXT
 
       const context = {
         ...restOfContext,
@@ -56,18 +62,17 @@ const Steps = createSteps(
       }
 
       // add user inputs to context
-      for (const { name } of USER_INPUTS) {
+      const userInputsNames = Object.keys(USER_INPUTS).forEach(name => {
         const upperName = String(name).toUpperCase()
         context[upperName] = `$${upperName}`
-      }
+      })
 
-      return {
+      return jsonToXml({
         ...extraTemplate,
         ...general,
         CONTEXT: context,
-        USER_INPUTS: userInputs,
-        INPUTS_ORDER: inputsOrder
-      }
+        USER_INPUTS: USER_INPUTS
+      })
     }
   }
 )

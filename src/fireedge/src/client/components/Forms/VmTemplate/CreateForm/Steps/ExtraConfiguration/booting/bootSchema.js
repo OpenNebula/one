@@ -178,7 +178,7 @@ export const FIRMWARE = {
   grid: { md: 12 }
 }
 
-/** @type {Field} Feature secure field  */
+/** @type {Field} Firmware secure field  */
 export const FIRMWARE_SECURE = {
   name: 'OS.FIRMWARE_SECURE',
   label: T.FirmwareSecure,
@@ -186,13 +186,7 @@ export const FIRMWARE_SECURE = {
   type: INPUT_TYPES.CHECKBOX,
   dependOf: FEATURE_CUSTOM_ENABLED.name,
   htmlType: custom => !custom && INPUT_TYPES.HIDDEN,
-  validation: boolean()
-    .default(() => false)
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    }),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 

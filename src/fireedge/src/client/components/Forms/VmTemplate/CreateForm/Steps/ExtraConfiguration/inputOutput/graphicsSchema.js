@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean } from 'yup'
+import { string, boolean, ObjectSchema } from 'yup'
 
-import { Field, arrayToOptions, filterFieldsByHypervisor } from 'client/utils'
+import { Field, arrayToOptions, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, kvm } = HYPERVISORS
@@ -90,13 +90,7 @@ const RANDOM_PASSWD = {
   type: INPUT_TYPES.CHECKBOX,
   dependOf: TYPE.name,
   htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: boolean()
-    .default(() => false)
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    }),
+  validation: boolean().yesOrNo(),
   grid: { md: 12 }
 }
 
@@ -139,3 +133,7 @@ export const GRAPHICS_FIELDS = hypervisor =>
     [TYPE, LISTEN, PORT, KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
     hypervisor
   )
+
+/** @type {ObjectSchema} Context Files schema */
+export const GRAPHICS_SCHEMA = hypervisor =>
+  getObjectSchemaFromFields(GRAPHICS_FIELDS(hypervisor))

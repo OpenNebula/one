@@ -52,7 +52,7 @@ const Content = ({ data, setFormData }) => {
 
 const NetworkStep = () => ({
   id: STEP_ID,
-  label: T.Network,
+  label: T.SelectNetwork,
   resolver: SCHEMA,
   content: Content
 })
