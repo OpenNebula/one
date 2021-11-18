@@ -64,6 +64,13 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
 
   template:
     enabled: true
