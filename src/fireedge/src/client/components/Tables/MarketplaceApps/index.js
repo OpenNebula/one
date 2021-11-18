@@ -21,15 +21,20 @@ import { useFetch } from 'client/hooks'
 import { useMarketplaceApp, useMarketplaceAppApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import MarketplaceAppColumns from 'client/components/Tables/MarketplaceApps/columns'
 import MarketplaceAppRow from 'client/components/Tables/MarketplaceApps/row'
 
-const MarketplaceAppsTable = () => {
-  const columns = useMemo(() => MarketplaceAppColumns, [])
+const MarketplaceAppsTable = props => {
+  const { view, getResourceView, filterPool } = useAuth()
+
+  const columns = useMemo(() => createColumns({
+    filters: getResourceView('MARKETPLACE-APP')?.filters,
+    columns: MarketplaceAppColumns
+  }), [view])
 
   const marketplaceApps = useMarketplaceApp()
   const { getMarketplaceApps } = useMarketplaceAppApi()
-  const { filterPool } = useAuth()
 
   const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaceApps)
   const { INIT, PENDING } = STATUS
@@ -47,6 +52,7 @@ const MarketplaceAppsTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={MarketplaceAppRow}
+      {...props}
     />
   )
 }

@@ -35,7 +35,7 @@ export const marketplaceAppService = ({
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-    return res?.data?.MARKETAPP ?? {}
+    return res?.data?.MARKETPLACEAPP ?? {}
   },
 
   /**

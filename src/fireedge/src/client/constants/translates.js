@@ -286,6 +286,7 @@ module.exports = {
   ID: 'ID',
   Name: 'Name',
   State: 'State',
+  Size: 'Size',
   Description: 'Description',
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
@@ -295,6 +296,7 @@ module.exports = {
   Type: 'Type',
   Data: 'Data',
   Validate: 'Validate',
+  Format: 'Format',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -577,6 +579,11 @@ module.exports = {
   /* Cluster schema - capacity */
   ReservedMemory: 'Allocated Memory',
   ReservedCpu: 'Allocated CPU',
+
+  /* Marketplace App schema */
+  /* Marketplace App - general */
+  Version: 'Version',
+  AppTemplate: 'App Template',
 
   /* User inputs */
   UserInputs: 'User Inputs',
