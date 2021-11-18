@@ -115,8 +115,8 @@ export const PATH = {
       DETAIL: '/marketplace/:id'
     },
     MARKETPLACE_APPS: {
-      LIST: '/marketplaces-app',
-      DETAIL: '/marketplaces-app/:id'
+      LIST: '/marketplace-app',
+      DETAIL: '/marketplace-app/:id'
     }
   },
   NETWORK: {
