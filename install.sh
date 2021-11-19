@@ -540,7 +540,8 @@ ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/models"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula"
+                 $LIB_LOCATION/ruby/opennebula \
+                 $LIB_LOCATION/ruby/opennebula/flow"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
@@ -2407,8 +2408,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/hook_log.rb \
                             src/oca/ruby/opennebula/flow.rb"
 
-RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow \
-                                 src/oca/ruby/opennebula/flow/grammar.rb \
+RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow/grammar.rb \
                                  src/oca/ruby/opennebula/flow/service_pool.rb \
                                  src/oca/ruby/opennebula/flow/service_template_pool.rb \
                                  src/oca/ruby/opennebula/flow/service_template.rb \
