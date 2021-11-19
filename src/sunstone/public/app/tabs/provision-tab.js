@@ -1572,20 +1572,30 @@ define(function(require) {
             var extra_info = ServiceUtils.getExtraInfo(context, Config.isFeatureEnabled("show_vnet_instantiate_flow"));
 
             $(".provision_create_flow_role", context).each(function(){
-              var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
-
               var role_template = $(this).data("opennebula");
-
               var cardinality = WizardFields.retrieve( $(".provision_cardinality_selector", $(this)) )["cardinality"];
+              var temp_inputs = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
+              var vm_template_contents = TemplateUtils.stringToTemplate(role_template.vm_template_contents);
+
+              $.each(temp_inputs, function(inputName, inputValue) {
+                if (Array.isArray(inputValue)) {
+                  delete temp_inputs[inputName];
+                  temp_inputs[inputName] = inputValue.join(",");
+                }
+    
+                // removes duplicated inputs in context
+                delete vm_template_contents[inputName];
+              });
 
               extra_info.merge_template.roles.push($.extend(role_template, {
-                "cardinality": cardinality,
-                "user_inputs_values": user_inputs_values
+                cardinality: cardinality,
+                user_inputs_values: temp_inputs,
+                vm_template_contents: TemplateUtils.templateToString(vm_template_contents),
               }));
             });
 
-            if (flow_name){
-              extra_info["merge_template"]["name"] = flow_name;
+            if (flow_name) {
+              extra_info.merge_template.name = flow_name;
             }
 
             Sunstone.runAction("Provision.Flow.instantiate", template_id, extra_info);
