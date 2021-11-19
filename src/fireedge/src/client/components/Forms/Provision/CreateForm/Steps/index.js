@@ -24,7 +24,7 @@ const Steps = createSteps(
   [Template, Provider, BasicConfiguration, Inputs],
   {
     transformBeforeSubmit: formData => {
-      const { template, provider, configuration, inputs: dirtyInputs } = formData
+      const { template, provider, configuration, inputs } = formData
       const { name, description } = configuration
       const providerName = provider?.[0]?.NAME
 
@@ -40,11 +40,15 @@ const Steps = createSteps(
         })
       }
 
-      const parseInputs = mapUserInputs(dirtyInputs)
-      const inputs = provisionTemplateSelected?.inputs
-        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
+      const resolvedInputs = provisionTemplateSelected?.inputs
+        ?.map(input => ({ ...input, value: `${inputs[input?.name]}` }))
 
-      return { ...provisionTemplateSelected, name, description, inputs }
+      return {
+        ...provisionTemplateSelected,
+        name,
+        description,
+        inputs: resolvedInputs
+      }
     }
   }
 )

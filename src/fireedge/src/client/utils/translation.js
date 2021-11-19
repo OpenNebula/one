@@ -22,7 +22,10 @@ import { isDivisibleBy, isBase64 } from 'client/utils/helpers'
 const buildMethods = () => {
   [number, string, boolean, object, array, date].forEach(schemaType => {
     addMethod(schemaType, 'afterSubmit', function (fn) {
-      this.submit = (...args) => typeof fn === 'function' ? fn(...args) : args[0]
+      this._mutate = true // allows to mutate the initial schema
+      this.submit = (...args) =>
+        typeof fn === 'function' ? fn(...args) : args[0]
+
       return this
     })
     addMethod(schemaType, 'cast', function (value, options = {}) {

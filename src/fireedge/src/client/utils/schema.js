@@ -23,7 +23,7 @@ import { string, number, boolean, array, object, BaseSchema } from 'yup'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
-import { UserInputObject, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
+import { UserInputObject, T, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
 
 // ----------------------------------------------------------
 // Types
@@ -176,14 +176,14 @@ import { UserInputObject, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants
 // Constants
 // ----------------------------------------------------------
 
-const requiredSchema = (mandatory, name, schema) =>
-  mandatory
-    ? schema.required(`${name} field is required`)
-    : schema.notRequired().nullable()
+const SEMICOLON_CHAR = ';'
+
+const requiredSchema = (mandatory, schema) =>
+  mandatory ? schema.required() : schema.notRequired().nullable()
 
 const getRange = options => options?.split('..').map(option => parseFloat(option))
 
-const getValuesFromArray = (options, separator = ';') => options?.split(separator)
+const getValuesFromArray = (options, separator = SEMICOLON_CHAR) => options?.split(separator)
 
 const getOptionsFromList = options => options
   ?.map(option => typeof option === 'string'
@@ -225,7 +225,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
       htmlType: type === 'password' ? 'password' : 'text',
       validation: string()
         .trim()
-        .concat(requiredSchema(mandatory, name, string()))
+        .concat(requiredSchema(mandatory, string()))
         .default(defaultValue || undefined)
     }
     case USER_INPUT_TYPES.number:
@@ -233,8 +233,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
       type: INPUT_TYPES.TEXT,
       htmlType: 'number',
       validation: number()
-        .typeError(`${name} must be a number`)
-        .concat(requiredSchema(mandatory, name, number()))
+        .concat(requiredSchema(mandatory, number()))
         .transform(value => !isNaN(value) ? value : null)
         .default(() => parseFloat(defaultValue) ?? undefined)
     }
@@ -245,10 +244,9 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
       return {
         type: INPUT_TYPES.SLIDER,
         validation: number()
-          .typeError(`${name} must be a number`)
-          .concat(requiredSchema(mandatory, name, number()))
-          .min(min, `${name} must be greater than or equal to ${min}`)
-          .max(max, `${name} must be less than or equal to ${max}`)
+          .concat(requiredSchema(mandatory, number()))
+          .min(min)
+          .max(max)
           .transform(value => !isNaN(value) ? value : undefined)
           .default(parseFloat(defaultValue) ?? undefined),
         fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 }
@@ -257,8 +255,9 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
     case USER_INPUT_TYPES.boolean: return {
       type: INPUT_TYPES.CHECKBOX,
       validation: boolean()
-        .concat(requiredSchema(mandatory, name, boolean()))
+        .concat(requiredSchema(mandatory, boolean()))
         .default(defaultValue === 'YES' ?? false)
+        .yesOrNo()
     }
     case USER_INPUT_TYPES.list: {
       const values = getOptionsFromList(options)
@@ -269,9 +268,9 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         type: INPUT_TYPES.SELECT,
         validation: string()
           .trim()
-          .concat(requiredSchema(mandatory, name, string()))
+          .concat(requiredSchema(mandatory, string()))
           .oneOf(values.map(({ value }) => value))
-          .default(defaultValue || firstOption)
+          .default(() => defaultValue || firstOption)
       }
     }
     case USER_INPUT_TYPES.array: {
@@ -280,10 +279,12 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
       return {
         type: INPUT_TYPES.AUTOCOMPLETE,
         multiple: true,
+        tooltip: [T.PressKeysToAddAValue, ['ENTER, semicolon (;)']],
+        fieldProps: { freeSolo: true, separators: [SEMICOLON_CHAR] },
         validation: array(string().trim())
-          .concat(requiredSchema(mandatory, name, array()))
-          .default(defaultValues),
-        fieldProps: { freeSolo: true }
+          .concat(requiredSchema(mandatory, array()))
+          .default(() => defaultValues)
+          .afterSubmit(value => value?.join(SEMICOLON_CHAR))
       }
     }
     case USER_INPUT_TYPES.listMultiple: {
@@ -295,7 +296,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         type: INPUT_TYPES.SELECT,
         multiple: true,
         validation: array(string().trim())
-          .concat(requiredSchema(mandatory, name, array()))
+          .concat(requiredSchema(mandatory, array()))
           .default(defaultValues)
       }
     }
@@ -303,7 +304,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
       type: INPUT_TYPES.TEXT,
       validation: string()
         .trim()
-        .concat(requiredSchema(mandatory, name, string()))
+        .concat(requiredSchema(mandatory, string()))
         .default(defaultValue || undefined)
     }
   }
