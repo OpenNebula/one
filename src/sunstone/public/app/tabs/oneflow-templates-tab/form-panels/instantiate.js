@@ -289,26 +289,32 @@ define(function(require) {
         });
         extra_info.merge_template.custom_attrs_values = $.extend({}, optionalCustomAttrs, extra_info.merge_template.custom_attrs_values);
       }
-      if(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles){
+      if (that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles) {
         var charters = "";
         var scheduleActionsList = ScheduleActions.retrieve(context, true)
+
         $.each(scheduleActionsList, function(_,sched_action){
           charters += TemplateUtils.templateToString(sched_action);
         });
+
         $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-          var temp_role = {};
-          $.extend( temp_role, role);
-          vm_template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
-          var div_id = "user_input_role_"+index;
-          var tmp_json = {};
-          $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-          $.each(tmp_json, function(key, value){
-            if (Array.isArray(value)){
-              delete vm_template_contents[key];
-              vm_template_contents[key] = value.join(",");
+          var temp_role = $.extend({}, role);
+          var temp_inputs = $.extend({}, WizardFields.retrieve($("#user_input_role_"+index, context)));
+          var vm_template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
+
+          $.each(temp_inputs, function(inputName, inputValue) {
+            if (Array.isArray(inputValue)) {
+              delete temp_inputs[inputName];
+              temp_inputs[inputName] = inputValue.join(",");
             }
+
+            // removes duplicated inputs in context
+            delete vm_template_contents[inputName];
           });
+
+          temp_role.user_inputs_values = temp_inputs;
           temp_role.vm_template_contents = TemplateUtils.templateToString(vm_template_contents);
+
           var stringCustomValues = TemplateUtils.templateToString(customAttrsValues);
           if (stringCustomValues) {
             (temp_role.vm_template_contents)
