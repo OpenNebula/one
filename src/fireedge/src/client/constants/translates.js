@@ -603,6 +603,7 @@ module.exports = {
   Max: 'Max',
   DefaultValue: 'Default value',
   Mandatory: 'Mandatory',
+  PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
 
   /* Validation */
   /* Validation - mixed */

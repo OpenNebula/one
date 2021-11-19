@@ -32,7 +32,7 @@ const AutocompleteController = memo(
     tooltip = '',
     multiple = false,
     values = [],
-    fieldProps = {}
+    fieldProps: { separators, ...fieldProps } = {}
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
@@ -87,6 +87,15 @@ const AutocompleteController = memo(
         {...(tooltip && {
           loading: true,
           loadingText: labelCanBeTranslated(tooltip) ? Tr(tooltip) : tooltip
+        })}
+        {...(Array.isArray(separators) && {
+          autoSelect: true,
+          onInputChange: (event, newInputValue) => {
+            if (separators.includes(newInputValue.at(-1))) {
+              event.target.blur()
+              event.target.focus()
+            }
+          }
         })}
         {...fieldProps}
       />
