@@ -14,47 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
+const { setApiRoutes } = require('server/utils/server')
 const { routes: zendeskRoutes } = require('./zendesk')
 const { ZENDESK } = require('./string-routes')
 
-const privateRoutes = []
-const publicRoutes = []
-
-/**
- * Set private routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPrivateRoutes = (routes = {}, path = '', action = () => undefined) => {
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      privateRoutes.push(
-        setFunctionRoute(route, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
-          }
-        )
-      )
-    })
-  }
-}
-
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePrivateRoutes = () => {
-  setPrivateRoutes(zendeskRoutes, ZENDESK, addFunctionAsRoute)
-  return privateRoutes
-}
-
 const functionRoutes = {
-  private: generatePrivateRoutes(),
-  public: publicRoutes
+  private: setApiRoutes(zendeskRoutes, ZENDESK),
+  public: []
 }
 
 module.exports = functionRoutes

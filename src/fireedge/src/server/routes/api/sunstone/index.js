@@ -14,47 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
+const { setApiRoutes } = require('server/utils/server')
 const { routes: sunstoneRoutes } = require('./sunstone')
 
 const { SUNSTONE } = require('./string-routes')
 
-const privateRoutes = []
-const publicRoutes = []
-
-/**
- * Set private routes.
- *
- * @param {object} methods - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPrivateRoutes = (methods = {}, path = '', action = () => undefined) => {
-  if (Object.keys(methods).length > 0 && methods.constructor === Object) {
-    Object.keys(methods).forEach((method) => {
-      privateRoutes.push(
-        setFunctionRoute(method, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, methods[method], user, connection)
-          })
-      )
-    })
-  }
-}
-
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePrivateRoutes = () => {
-  setPrivateRoutes(sunstoneRoutes, SUNSTONE, addFunctionAsRoute)
-  return privateRoutes
-}
-
 const functionRoutes = {
-  private: generatePrivateRoutes(),
-  public: publicRoutes
+  private: setApiRoutes(sunstoneRoutes, SUNSTONE),
+  public: []
 }
 
 module.exports = functionRoutes

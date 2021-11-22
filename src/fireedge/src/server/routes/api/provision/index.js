@@ -14,52 +14,27 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
+const { setApiRoutes } = require('server/utils/server')
 const { routes: provisionRoutes } = require('./provision')
 const { routes: provisionTemplateRoutes } = require('./provision_template')
 const { routes: providerRoutes } = require('./provider')
 
 const { PROVIDER, PROVISION, PROVISION_TEMPLATE } = require('./string-routes')
 
-const privateRoutes = []
-const publicRoutes = []
-
-/**
- * Set private routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPrivateRoutes = (routes = {}, path = '', action = () => undefined) => {
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      privateRoutes.push(
-        setFunctionRoute(route, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
-          }
-        )
-      )
-    })
-  }
-}
-
 /**
  * Add routes.
  *
  * @returns {Array} routes
  */
-const generatePrivateRoutes = () => {
-  setPrivateRoutes(provisionRoutes, PROVISION, addFunctionAsRoute)
-  setPrivateRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE, addFunctionAsRoute)
-  setPrivateRoutes(providerRoutes, PROVIDER, addFunctionAsRoute)
-  return privateRoutes
-}
+const generatePrivateRoutes = () => [
+  ...setApiRoutes(provisionRoutes, PROVISION),
+  ...setApiRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE),
+  ...setApiRoutes(providerRoutes, PROVIDER)
+]
 
 const functionRoutes = {
   private: generatePrivateRoutes(),
-  public: publicRoutes
+  public: []
 }
 
 module.exports = functionRoutes
