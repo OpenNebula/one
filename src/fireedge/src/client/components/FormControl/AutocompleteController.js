@@ -91,7 +91,7 @@ const AutocompleteController = memo(
         {...(Array.isArray(separators) && {
           autoSelect: true,
           onInputChange: (event, newInputValue) => {
-            if (separators.includes(newInputValue.at(-1))) {
+            if (separators.includes([...newInputValue].at(-1))) {
               event.target.blur()
               event.target.focus()
             }
