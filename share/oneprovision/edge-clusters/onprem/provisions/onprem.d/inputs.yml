@@ -18,7 +18,7 @@
 inputs:
   - name: 'hosts_names'
     type: array
-    description: 'Comma separated list of FQDNs or IP addresses of the hosts to be added to the cluster'
+    description: 'Semicolon separated list of FQDNs or IP addresses of the hosts to be added to the cluster'
 
   - name: 'one_hypervisor'
     type: list
