@@ -80,10 +80,16 @@ class VirtualMachineDB
         time = Time.now.to_i
         last = @db.execute("SELECT value from #{@settings} where key = 'LAST_SYNC'").flatten[0].to_i
 
-        return sync_status(@host, @host_id) if last == 0 || time > (last + @conf[:sync].to_i)
+        sync_state = last == 0 || time > (last + @conf[:sync].to_i)
 
         status_str  = ''
         monitor_ids = []
+
+        if sync_state then
+            status_str = "SYNC_STATE=yes\nMISSING_STATE=#{@conf[:missing_state]}\n"
+            
+            @db.execute("REPLACE INTO #{@settings} VALUES ('LAST_SYNC', #{time.to_s})")
+        end
 
         vms = DomainList.state_info(@host, @host_id)
 
@@ -118,6 +124,7 @@ class VirtualMachineDB
                 )
 
                 status_str << vm_to_status(vm)
+                
                 next
             end
 
@@ -132,7 +139,7 @@ class VirtualMachineDB
                 "#{filter}"
             )
 
-            if vm_db[col_name_to_idx('state')] != vm[:state]
+            if sync_state || vm_db[col_name_to_idx('state')] != vm[:state]
                 status_str << vm_to_status(vm)
             end
         end
@@ -157,6 +164,8 @@ class VirtualMachineDB
 
                 @db.execute("DELETE FROM #{@dataset} WHERE uuid = \"#{uuid}\"")
             else
+                status_str << vm_db_to_status(vm_db) if sync_state
+                
                 @db.execute(
                     "UPDATE #{@dataset} SET " \
                     "timestamp = #{time}, " \
@@ -186,34 +195,6 @@ class VirtualMachineDB
     end
 
     private
-
-    def sync_status(host, host_id)
-        time = Time.now.to_i
-
-        @db.execute("DELETE FROM #{@dataset}")
-
-        status_str = "SYNC_STATE=yes\nMISSING_STATE=#{@conf[:missing_state]}\n"
-
-        DomainList.state_info(host, host_id).each do |uuid, vm|
-            @db.execute(
-                "INSERT INTO #{@dataset} VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                [uuid,
-                 vm[:id].to_i,
-                 vm[:name],
-                 vm[:deploy_id],
-                 time,
-                 0,
-                 vm[:state],
-                 @conf[:hyperv]]
-            )
-
-            status_str << vm_to_status(vm)
-        end
-
-        @db.execute("REPLACE INTO #{@settings} VALUES ('LAST_SYNC', #{time.to_s})")
-
-        status_str
-    end
 
     def vm_to_status(vm, state = vm[:state])
         "VM = [ ID=\"#{vm[:id]}\", DEPLOY_ID=\"#{vm[:deploy_id]}\", " \
