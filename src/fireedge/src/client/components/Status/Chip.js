@@ -87,7 +87,7 @@ const StatusChip = memo(({
       <Typography
         component='span'
         className={classes.text}
-        onClick={callAll(onClick, handleCopy)}
+        onClick={callAll(onClick, clipboard && handleCopy)}
         {...props}
       >
         {text}
