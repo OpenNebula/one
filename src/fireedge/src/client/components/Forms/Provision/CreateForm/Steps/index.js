@@ -18,7 +18,7 @@ import Template from 'client/components/Forms/Provision/CreateForm/Steps/Templat
 import Provider from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import BasicConfiguration from 'client/components/Forms/Provision/CreateForm/Steps/BasicConfiguration'
 import Inputs from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
-import { set, createSteps, cloneObject, mapUserInputs } from 'client/utils'
+import { set, createSteps, cloneObject } from 'client/utils'
 
 const Steps = createSteps(
   [Template, Provider, BasicConfiguration, Inputs],
