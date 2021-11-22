@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, JSXElementConstructor } from 'react'
-import { Container, TextField, Grid, Box } from '@mui/material'
+import { Container, TextField, Autocomplete, Grid, Box } from '@mui/material'
 
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
 import { InputCode } from 'client/components/FormControl'
@@ -36,7 +36,7 @@ function TestApi () {
   const [name, setName] = useState(() => COMMANDS[0])
   const [response, setResponse] = useState('')
 
-  const handleChangeCommand = evt => setName(evt?.target?.value)
+  const handleChangeCommand = (_, value) => setName(value)
   const handleChangeResponse = res => setResponse(res)
 
   return (
@@ -46,23 +46,16 @@ function TestApi () {
     >
       <Grid container direction='row' spacing={2} className={classes.root}>
         <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            select
+          <Autocomplete
+            disablePortal
             color='secondary'
-            label={Tr(T.SelectRequest)}
+            options={useMemo(() => COMMANDS, [])}
             value={name}
             onChange={handleChangeCommand}
-          >
-            <option value=''>{Tr(T.None)}</option>
-            {useMemo(() =>
-              COMMANDS.map(commandName => (
-                <option key={`request-${commandName}`} value={commandName}>
-                  {commandName}
-                </option>
-              ), [])
+            renderInput={(params) => (
+              <TextField {...params} label={Tr(T.SelectRequest)} />
             )}
-          </TextField>
+          />
           {name && name !== '' && (
             <ResponseForm
               handleChangeResponse={handleChangeResponse}
