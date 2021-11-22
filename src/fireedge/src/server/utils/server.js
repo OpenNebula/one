@@ -74,6 +74,30 @@ const setFunctionRoute = (method, endpoint, action) => ({
 })
 
 /**
+ * Set functions to API routes.
+ *
+ * @param {object} routes - object of routes
+ * @param {string} path - principal route
+ * @param {Function} action - function of route
+ * @returns {Array} parsed routes
+ */
+const setApiRoutes = (routes = {}, path = '', action = () => undefined) => {
+  const rtn = []
+  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
+    Object.keys(routes).forEach((route) => {
+      rtn.push(
+        setFunctionRoute(route, path,
+          (req, res, next, connection, userId, user) => {
+            action(req, res, next, routes[route], user, connection)
+          }
+        )
+      )
+    })
+  }
+  return rtn
+}
+
+/**
  * Execute actions Function routes
  *
  * @param {Function} action - action.
@@ -907,6 +931,7 @@ const executeCommandAsync = (
 
 module.exports = {
   setFunctionRoute,
+  setApiRoutes,
   addFunctionAsRoute,
   encrypt,
   decrypt,
