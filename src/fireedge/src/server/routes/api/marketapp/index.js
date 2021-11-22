@@ -14,21 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setApiRoutes } = require('server/utils/server')
+const { setApiRoutes } = require('server/utils/server')
 const { routes: marketappRoutes } = require('./marketapp')
 const { MARKETAPP } = require('./string-routes')
 
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePrivateRoutes = () => {
-  return setApiRoutes(marketappRoutes, MARKETAPP, addFunctionAsRoute)
-}
-
 const functionRoutes = {
-  private: generatePrivateRoutes(),
+  private: setApiRoutes(marketappRoutes, MARKETAPP),
   public: []
 }
 

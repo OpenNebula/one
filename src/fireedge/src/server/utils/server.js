@@ -78,17 +78,16 @@ const setFunctionRoute = (method, endpoint, action) => ({
  *
  * @param {object} routes - object of routes
  * @param {string} path - principal route
- * @param {Function} action - function of route
  * @returns {Array} parsed routes
  */
-const setApiRoutes = (routes = {}, path = '', action = () => undefined) => {
+const setApiRoutes = (routes = {}, path = '') => {
   const rtn = []
   if (Object.keys(routes).length > 0 && routes.constructor === Object) {
     Object.keys(routes).forEach((route) => {
       rtn.push(
         setFunctionRoute(route, path,
           (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
+            addFunctionAsRoute(req, res, next, routes[route], user, connection)
           }
         )
       )

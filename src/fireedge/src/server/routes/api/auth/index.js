@@ -14,46 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
+const { setApiRoutes } = require('server/utils/server')
 const { routes: authRoutes } = require('./auth')
 const { AUTH } = require('./string-routes')
 
-const privateRoutes = []
-const publicRoutes = []
-
-/**
- * Set private routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPublicRoutes = (routes = {}, path = '', action = () => undefined) => {
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      publicRoutes.push(
-        setFunctionRoute(route, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
-          })
-      )
-    })
-  }
-}
-
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePublicRoutes = () => {
-  setPublicRoutes(authRoutes, AUTH, addFunctionAsRoute)
-  return publicRoutes
-}
-
 const functionRoutes = {
-  private: privateRoutes,
-  public: generatePublicRoutes()
+  private: [],
+  public: setApiRoutes(authRoutes, AUTH)
 }
 
 module.exports = functionRoutes
