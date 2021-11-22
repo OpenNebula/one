@@ -35,14 +35,14 @@ const ResponseForm = ({
   handleChangeResponse,
   command: { name, httpMethod, params }
 }) => {
-  const { control, handleSubmit, errors, formState } = useForm()
+  const { control, handleSubmit, formState } = useForm()
   const memoParams = useMemo(() => Object.entries(params), [name])
 
   const onSubmit = async dataForm => {
     try {
       const config = requestConfig(dataForm, { name, httpMethod, params })
 
-      const { id, ...res } = await RestClient.request(config) ?? {}
+      const res = await RestClient.request(config) ?? {}
       handleChangeResponse(JSON.stringify(res, null, '\t'))
     } catch (err) {
       handleChangeResponse(JSON.stringify(err.data, null, '\t'))
@@ -68,66 +68,70 @@ const ResponseForm = ({
         onSubmit={handleSubmit(onSubmit)}
         autoComplete='off'
       >
-        {memoParams?.map(([nameParam, { default: defaultValue }]) => (
-          <Grid item xs={12} key={`param-${nameParam}`}>
-            <Controller
-              render={({ value, onChange, ...controllerProps }) => ({
-                boolean: <FormControlLabel
-                  control={(
-                    <Checkbox
-                      color='primary'
-                      onChange={e => onChange(e.target.checked)}
-                    />
-                  )}
-                  label={nameParam}
-                  labelPlacement='end'
-                />,
-                object: <Autocomplete
-                  fullWidth
-                  multiple
-                  color='secondary'
-                  freeSolo
-                  options={[]}
-                  onChange={(_, newValue) => onChange(newValue ?? '')}
-                  renderTags={(tags, getTagProps) =>
-                    tags.map((tag, index) => (
-                      <Chip
-                        key={`${index}-${tag}`}
-                        variant='outlined'
-                        label={tag}
-                        {...getTagProps({ index })}
+        {memoParams?.map(([paramName, { default: defaultValue }]) => {
+          const { message: errorMessage } = formState.errors[paramName] ?? {}
+
+          return (
+            <Grid item xs={12} key={`param-${paramName}`}>
+              <Controller
+                render={({ value, onChange, ...controllerProps }) => ({
+                  boolean: <FormControlLabel
+                    control={(
+                      <Checkbox
+                        color='primary'
+                        onChange={e => onChange(e.target.checked)}
                       />
-                    ))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      label={nameParam}
-                      color='secondary'
-                      error={Boolean(errors[name])}
-                      helperText={errors[name]?.message}
-                    />
-                  )}
-                />
-              }[typeof defaultValue] ?? (
-                <TextField
-                  error={Boolean(errors[name])}
-                  helperText={errors[name]?.message}
-                  fullWidth
-                  value={value ?? ''}
-                  label={nameParam}
-                  color='secondary'
-                  onChange={onChange}
-                  {...controllerProps}
-                />
-              ))}
-              control={control}
-              name={`${nameParam}`}
-              defaultValue={defaultValue}
-            />
-          </Grid>
-        ))}
+                    )}
+                    label={paramName}
+                    labelPlacement='end'
+                  />,
+                  object: <Autocomplete
+                    fullWidth
+                    multiple
+                    color='secondary'
+                    freeSolo
+                    options={[]}
+                    onChange={(_, newValue) => onChange(newValue ?? '')}
+                    renderTags={(tags, getTagProps) =>
+                      tags.map((tag, index) => (
+                        <Chip
+                          key={`${index}-${tag}`}
+                          variant='outlined'
+                          label={tag}
+                          {...getTagProps({ index })}
+                        />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        label={paramName}
+                        color='secondary'
+                        error={Boolean(errorMessage)}
+                        helperText={errorMessage}
+                      />
+                    )}
+                  />
+                }[typeof defaultValue] ?? (
+                  <TextField
+                    error={Boolean(errorMessage)}
+                    helperText={errorMessage}
+                    fullWidth
+                    value={value ?? ''}
+                    label={paramName}
+                    color='secondary'
+                    onChange={onChange}
+                    {...controllerProps}
+                  />
+                ))}
+                control={control}
+                name={`${paramName}`}
+                defaultValue={defaultValue}
+              />
+            </Grid>
+          )
+        })}
         <Grid item xs={12}>
           <SubmitButton
             color='secondary'
