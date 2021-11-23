@@ -492,7 +492,7 @@ define(function(require) {
     context.on("click", ".provision_change_cardinality_button", function() {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
       var role_name = $(this).attr("role_id");
-      var cardinality = $(".cardinality_slider_div", context).val();
+      var cardinality = $(".cardinality_slider_div input.visor", context).val();
 
       OpenNebula.Role.scale({
         data : {
