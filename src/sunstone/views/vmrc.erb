@@ -88,19 +88,6 @@
             <div id="VMRC_buttons">
               <button class="button alert" id="sendCtrlAltDelButton">Send CtrlAltDel</button>
               <button class="button info" id="fullScreenButton"><i class="fas fa-expand"></i></button>
-              <button class="button info" id="keyboardSelector"><i class="fas fa-keyboard"></i></button>
-              <select style="width: auto;" id="selectLanguage" hidden>
-                <option value="en-US">English</option>
-                <option value="fr-FR">French</option>
-                <option value="fr-CH">French (Switzerland)</option>
-                <option value="de-DE">German</option>
-                <option value="de-CH">German (Switzerland)</option>
-                <option value="it-IT">Italian</option>
-                <option value="ja-JP_106/109">Japanese</option>
-                <option value="pt-PT">Portuguese</option>
-                <option value="es-ES">Spanish</option>
-                <option value="sv_SE">Swedish</option>
-              </select>
             </div>
           </div>
           <div class="VMRC_info"></div>
@@ -117,30 +104,12 @@
         var cad = $("#sendCtrlAltDelButton");
         var container = $("#container");
         var fullscreen = $("#fullScreenButton");
-        var languageSelector = $("#selectLanguage");
-        var keyboardSelector = $("#keyboardSelector");
 
         /**
          * Send the Ctrl + Alt + Del Action.
          */
         cad.on("click", function() {
           wmks.sendCAD();
-        });
-
-        /**
-         * When language is selected, update the console language to match with
-         * The expected behavior.
-         */
-        languageSelector.on("change", function (evt) {
-          var keyboardLayoutId = languageSelector.find(":selected").val();
-          wmks.setOption('keyboardLayoutId',keyboardLayoutId);
-        });
-
-        /**
-         * Toggle the language selector.
-         */
-        keyboardSelector.on("click", function(){
-          languageSelector.toggle();
         });
 
         function updateStatus(){
