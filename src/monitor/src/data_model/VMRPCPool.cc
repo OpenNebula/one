@@ -66,6 +66,11 @@ int VMRPCPool::update_monitoring(const VirtualMachineMonitorInfo& monitoring)
 
 bool VMRPCPool::get_monitoring(int vmid, VirtualMachineMonitorInfo& vm)
 {
+    if (monitor_expiration <= 0)
+    {
+        return false;
+    }
+
     ostringstream cmd;
     string monitor_str;
 
@@ -126,7 +131,7 @@ int VMRPCPool::get_vmid(const string& deploy_id)
 
 int VMRPCPool::clean_expired_monitoring()
 {
-    if (monitor_expiration == 0)
+    if (monitor_expiration <= 0)
     {
         return 0;
     }

@@ -66,7 +66,7 @@ int HostRPCPool::update_monitoring(const HostMonitoringTemplate& monitoring)
 
 int HostRPCPool::clean_expired_monitoring()
 {
-    if (monitor_expiration == 0)
+    if (monitor_expiration <= 0)
     {
         return 0;
     }
