@@ -196,7 +196,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     }
 
     // -------------------------------------------------------------------------
-    // Create connection pool to the server
+    // Create connection pool to the server and database
     // -------------------------------------------------------------------------
     for (int i=0 ; i < max_connections ; i++)
     {
@@ -205,8 +205,11 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         bool reconnect = true;
         mysql_options(connections[i], MYSQL_OPT_RECONNECT, &reconnect);
 
+        mysql_options(connections[i], MYSQL_SET_CHARSET_NAME, encoding.c_str());
+
         rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
-                password.c_str(), 0, port, NULL, 0);
+                password.c_str(), database.c_str(), port, NULL, 
+                CLIENT_REMEMBER_OPTIONS);
 
         if ( rc == nullptr)
         {
@@ -215,6 +218,8 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
 
             throw runtime_error(error);
         }
+
+        db_connect.push(connections[i]);
     }
 
     // -------------------------------------------------------------------------
@@ -239,32 +244,6 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         error.append(mysql_error(db_escape_connect));
 
         throw runtime_error(error);
-    }
-
-    // -------------------------------------------------------------------------
-    // Connect to OpenNebula Database
-    // -------------------------------------------------------------------------
-    string use_sql = "USE " + database;
-
-    for (int i=0 ; i < max_connections ; i++)
-    {
-        if ( mysql_query(connections[i], use_sql.c_str()) != 0 )
-        {
-            string error = "Could not connect to database: ";
-            error.append(mysql_error(connections[i]));
-
-            throw runtime_error(error);
-        }
-
-        if ( mysql_set_character_set(connections[i], encoding.c_str()) != 0 )
-        {
-            string error = "Could not set encoding : ";
-            error.append(mysql_error(connections[i]));
-
-            throw runtime_error(error);
-        }
-
-        db_connect.push(connections[i]);
     }
 
     oss << "Set up " << max_connections << " DB connections using encoding " <<
