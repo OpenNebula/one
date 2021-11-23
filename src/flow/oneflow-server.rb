@@ -512,9 +512,13 @@ get '/service_template/:id' do
 end
 
 delete '/service_template/:id' do
-    delete_type      = JSON.parse(request.body.read)['delete_type']
     service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
                                                                @client)
+    begin
+        delete_type = JSON.parse(request.body.read)['delete_type']
+    rescue StandardError
+        delete_type = 'none'
+    end
 
     rc = service_template.delete(delete_type)
 
