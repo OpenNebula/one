@@ -44,7 +44,7 @@ const Row = ({ original, value, ...props }) => {
           </Typography>
           <span className={classes.labels}>
             {LOCK && <Lock />}
-            <StatusChip text={TYPE?.name} />
+            <StatusChip text={TYPE} />
           </span>
         </div>
         <div className={classes.caption}>

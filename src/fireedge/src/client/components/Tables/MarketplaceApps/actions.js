@@ -16,11 +16,19 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 // import { useHistory } from 'react-router-dom'
-import { RefreshDouble } from 'iconoir-react'
+import {
+  RefreshDouble,
+  CloudDownload
+} from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import { useMarketplaceAppApi } from 'client/features/One'
 import { Translate } from 'client/components/HOC'
+
+import {
+  ExportForm
+} from 'client/components/Forms/MarketplaceApp'
 
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 // import { PATH } from 'client/apps/sunstone/routesOne'
@@ -46,7 +54,8 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const { view, getResourceView } = useAuth()
-  const { getMarketplaceApps } = useMarketplaceAppApi()
+  const { enqueueSuccess } = useGeneralApi()
+  const { getMarketplaceApps, exportApp } = useMarketplaceAppApi()
 
   const marketplaceAppActions = useMemo(() => createActions({
     filters: getResourceView('MARKETPLACE-APP')?.actions,
@@ -58,17 +67,25 @@ const Actions = () => {
         action: async () => {
           await getMarketplaceApps()
         }
+      },
+      {
+        accessor: MARKETPLACE_APP_ACTIONS.EXPORT,
+        tooltip: T.ImportIntoDatastore,
+        selected: { max: 1 },
+        icon: CloudDownload,
+        options: [{
+          dialogProps: { title: T.DownloadAppToOpenNebula },
+          form: rows => {
+            const app = rows?.map(({ original }) => original)[0]
+            return ExportForm(app, app)
+          },
+          onSubmit: async (formData, rows) => {
+            const appId = rows?.[0]?.original?.ID
+            const response = await exportApp(appId, formData)
+            enqueueSuccess(response)
+          }
+        }]
       }
-      /* {
-        accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: T.CreateMarketApp,
-        icon: AddSquare,
-        action: () => {
-          const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
-
-          history.push(path)
-        }
-      } */
     ]
   }), [view])
 

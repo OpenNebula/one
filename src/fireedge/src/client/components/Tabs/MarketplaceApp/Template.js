@@ -19,21 +19,16 @@ import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { TabContext } from 'client/components/Tabs/TabProvider'
+import { decodeBase64 } from 'client/utils'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
-
-const parseTemplateInB64 = template => {
-  try {
-    return decodeURIComponent(escape(atob(template)))
-  } catch (e) { return {} }
-}
 
 const AppTemplateTab = () => {
   const { data: marketplaceApp = {} } = useContext(TabContext)
   const { TEMPLATE: { APPTEMPLATE64, VMTEMPLATE64 } } = marketplaceApp
 
-  const appTemplate = useMemo(() => parseTemplateInB64(APPTEMPLATE64), [APPTEMPLATE64])
-  const vmTemplate = useMemo(() => parseTemplateInB64(VMTEMPLATE64), [VMTEMPLATE64])
+  const appTemplate = useMemo(() => decodeBase64(APPTEMPLATE64), [APPTEMPLATE64])
+  const vmTemplate = useMemo(() => decodeBase64(VMTEMPLATE64), [VMTEMPLATE64])
 
   return (
     <>

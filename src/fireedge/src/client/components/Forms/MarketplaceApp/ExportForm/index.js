@@ -13,22 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createAction } from 'client/features/One/utils'
-import { marketplaceAppService } from 'client/features/One/marketplaceApp/services'
-import { RESOURCES } from 'client/features/One/slice'
-
-/** @see {@link RESOURCES.app}  */
-const APP = 'app'
-
-export const getMarketplaceApp = createAction(
-  `${APP}/detail`,
-  marketplaceAppService.getMarketplaceApp
-)
-
-export const getMarketplaceApps = createAction(
-  `${APP}/pool`,
-  marketplaceAppService.getMarketplaceApps,
-  response => ({ [RESOURCES.app]: response })
-)
-
-export const exportApp = createAction(`${APP}/export`, marketplaceAppService.export)
+export { default } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps'

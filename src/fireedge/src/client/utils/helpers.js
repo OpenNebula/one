@@ -57,9 +57,22 @@ export function sanitize (text, ...values) {
 }
 
 /**
+ * Decodes an string in base 64.
+ *
+ * @param {string} string - Value to decode
+ * @param {any} defaultValue - Default value if it fails
+ * @returns {any} Decoded value from string in base 64
+ */
+export const decodeBase64 = (string, defaultValue = {}) => {
+  try {
+    return decodeURIComponent(escape(atob(string)))
+  } catch (e) { return defaultValue }
+}
+
+/**
  * Converts a long string of units into a readable format e.g KB, MB, GB, TB, YB.
  *
- * @param {number} value - The quantity of units.
+ * @param {number|string} value - The quantity of units.
  * @param {string} unit - The unit of value.
  * @param {number} fractionDigits
  * - Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
@@ -67,17 +80,18 @@ export function sanitize (text, ...values) {
  */
 export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
   const UNITS = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  let ensuredValue = +value
 
-  if (Math.abs(value) === 0) return `${value} ${UNITS[0]}`
+  if (Math.abs(ensuredValue) === 0) return `${value} ${UNITS[0]}`
 
   let idxUnit = UNITS.indexOf(unit)
 
-  while (value > 1024) {
-    value /= 1024
+  while (ensuredValue > 1024) {
+    ensuredValue /= 1024
     idxUnit += 1
   }
 
-  return `${value.toFixed(fractionDigits)} ${UNITS[idxUnit]}`
+  return `${ensuredValue.toFixed(fractionDigits)} ${UNITS[idxUnit]}`
 }
 
 /**

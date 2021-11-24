@@ -59,5 +59,32 @@ export const marketplaceAppService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.MARKETPLACEAPP_POOL?.MARKETPLACEAPP ?? []].flat()
+  },
+
+  /**
+   * Exports the marketplace app to the OpenNebula cloud.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - App id
+   * @param {string} params.name - Image name
+   * @param {string|number} params.datastore - Datastore id or name
+   * @param {string|number} params.file - File datastore id or name
+   * @param {string} params.tag - DockerHub image tag (default latest)
+   * @param {string|number} params.template - Associate with VM template
+   * @param {boolean} params.associated - If `true`, Do not import/export associated VM templates/images
+   * @param {string} params.vmname - The name for the new VM Template, if the App contains one
+   * @returns {number} Template id
+   * @throws Fails when response isn't code 200
+   */
+  export: async ({ id, ...data }) => {
+    const res = await RestClient.request({
+      url: `/api/marketapp/export/${id}`,
+      method: 'POST',
+      data
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
   }
 })
