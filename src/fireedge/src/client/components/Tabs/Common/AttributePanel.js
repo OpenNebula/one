@@ -28,7 +28,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import makeStyles from '@mui/styles/makeStyles'
 
@@ -57,7 +57,6 @@ const SPECIAL_ATTRIBUTES = {
     [DELETE]: false
   },
   VCENTER_PASSWORD: {
-    [EDIT]: true,
     [DELETE]: false
   },
   VCENTER_USER: {
@@ -87,21 +86,24 @@ const AttributePanel = memo(({
   handleEdit,
   handleDelete,
   handleAdd,
-  actions
+  actions = [],
+  filtersSpecialAttributes = true
 }) => {
   const classes = useStyles()
+
+  const canUseAction = useCallback((name, action) => (
+    actions?.includes?.(action) &&
+    (!filtersSpecialAttributes || SPECIAL_ATTRIBUTES[name]?.[action] === undefined)
+  ), [actions?.length])
 
   const formatAttributes = Object.entries(attributes)
     .map(([name, value]) => ({
       name,
       value,
       showActionsOnHover: true,
-      canCopy:
-        actions?.includes?.(COPY) && !SPECIAL_ATTRIBUTES[name]?.[COPY],
-      canEdit:
-        actions?.includes?.(EDIT) && !SPECIAL_ATTRIBUTES[name]?.[EDIT],
-      canDelete:
-        actions?.includes?.(DELETE) && !SPECIAL_ATTRIBUTES[name]?.[DELETE],
+      canCopy: canUseAction(name, COPY),
+      canEdit: canUseAction(name, EDIT),
+      canDelete: canUseAction(name, DELETE),
       handleEdit,
       handleDelete
     }))
@@ -124,7 +126,8 @@ AttributePanel.propTypes = {
   handleAdd: PropTypes.func,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
-  title: PropTypes.string
+  title: PropTypes.string,
+  filtersSpecialAttributes: PropTypes.bool
 }
 
 AttributePanel.displayName = 'AttributePanel'

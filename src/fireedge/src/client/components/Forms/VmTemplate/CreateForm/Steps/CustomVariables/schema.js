@@ -13,44 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, ObjectSchema } from 'yup'
+import { object, ObjectSchema } from 'yup'
 
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
-import { Field, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
+import { } from 'client/utils'
+import { } from 'client/constants'
 
-const { vcenter } = HYPERVISORS
+/** @type {ObjectSchema} Step schema */
+const SCHEMA = object()
 
-/** @type {Field} Files field */
-export const FILES_DS = {
-  name: 'CONTEXT.FILES_DS',
-  label: T.ContextFiles,
-  tooltip: T.ContextFilesConcept,
-  notOnHypervisors: [vcenter],
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure(),
-  grid: { md: 12 }
-}
-
-/** @type {Field} Init scripts field */
-export const INIT_SCRIPTS = {
-  name: 'CONTEXT.INIT_SCRIPTS',
-  label: T.InitScripts,
-  tooltip: T.InitScriptsConcept,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure(),
-  grid: { md: 12 }
-}
-
-/** @type {Field[]} List of Context Files fields */
-export const FILES_FIELDS = hypervisor =>
-  filterFieldsByHypervisor([FILES_DS, INIT_SCRIPTS], hypervisor)
-
-/** @type {ObjectSchema} Context Files schema */
-export const FILES_SCHEMA = hypervisor =>
-  getObjectSchemaFromFields(FILES_FIELDS(hypervisor))
+export { SCHEMA }

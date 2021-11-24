@@ -328,7 +328,7 @@ module.exports = {
   UserTemplate: 'User Template',
   Template: 'Template',
   WhereIsRunning:
-  'VM %1$s is currently running on Host %2$s and Datastore %3$s',
+    'VM %1$s is currently running on Host %2$s and Datastore %3$s',
   /* VM schema - capacity */
   Capacity: 'Capacity',
   PhysicalCpu: 'Physical CPU',
@@ -357,11 +357,12 @@ module.exports = {
   ExternalConcept: 'The NIC will be attached as an external alias of the VM',
 
   /* VM Template schema */
-  /* VM schema - general */
+  /* VM Template schema - general */
   Logo: 'Logo',
   Hypervisor: 'Hypervisor',
   TemplateName: 'Template name',
   MakeNewImagePersistent: 'Make the new images persistent',
+  CustomVariables: 'Custom Variables',
   /* VM schema - ownership */
   InstantiateAsUser: 'Instantiate as different User',
   InstantiateAsGroup: 'Instantiate as different Group',
