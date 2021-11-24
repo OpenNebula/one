@@ -16,7 +16,7 @@
 import { string, boolean, ref, ObjectSchema } from 'yup'
 
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { Field, getObjectSchemaFromFields, decodeBase64 } from 'client/utils'
 
 const switchField = {
   type: INPUT_TYPES.SWITCH,
@@ -86,7 +86,7 @@ export const START_SCRIPT = {
     .when(
       '$extra.CONTEXT.START_SCRIPT_BASE64',
       (scriptEncoded, schema) => scriptEncoded
-        ? schema.default(() => decodeURIComponent(escape(atob(scriptEncoded))))
+        ? schema.default(() => decodeBase64(scriptEncoded))
         : schema
     ),
   grid: { md: 12 },

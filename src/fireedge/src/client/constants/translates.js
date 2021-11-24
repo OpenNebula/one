@@ -105,6 +105,7 @@ module.exports = {
   SelectNetwork: 'Select a network',
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
+  SelectDatastore: 'Select a Datastore to store the resource',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
@@ -587,6 +588,11 @@ module.exports = {
   /* Marketplace App - general */
   Version: 'Version',
   AppTemplate: 'App Template',
+  ImportIntoDatastore: 'Import into Datastore',
+  DownloadAppToOpenNebula: 'Download App to OpenNebula',
+  ExportAppNameConcept: 'Name that the resource will get for description purposes',
+  ExportTemplateNameConcept: 'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
+  DontAssociateApp: 'Do not import/export associated VM templates/images',
 
   /* User inputs */
   UserInputs: 'User Inputs',

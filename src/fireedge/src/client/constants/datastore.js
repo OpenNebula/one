@@ -16,21 +16,8 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-/** @type {{name: string, shortName: string}} Datastore type information */
-export const DATASTORE_TYPES = [
-  {
-    name: 'IMAGE',
-    shortName: 'img'
-  },
-  {
-    name: 'SYSTEM',
-    shortName: 'sys'
-  },
-  {
-    name: 'FILE',
-    shortName: 'fil'
-  }
-]
+/** @type {string[]} Datastore type information */
+export const DATASTORE_TYPES = ['IMAGE', 'SYSTEM', 'FILE']
 
 /** @type {STATES.StateInfo[]} Datastore states */
 export const DATASTORE_STATES = [

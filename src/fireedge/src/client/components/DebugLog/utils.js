@@ -39,7 +39,7 @@ export const getSeverityFromData = data =>
 export const getMessageInfo = (data = '') => {
   try {
     const { message, timestamp, severity } = JSON.parse(data)
-    const decryptMessage = atob(message)
+    const decryptMessage = decodeURIComponent(escape(atob(message)))
 
     return { timestamp, severity, message: decryptMessage }
   } catch {

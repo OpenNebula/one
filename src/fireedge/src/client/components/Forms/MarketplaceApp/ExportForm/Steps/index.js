@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createAction } from 'client/features/One/utils'
-import { marketplaceAppService } from 'client/features/One/marketplaceApp/services'
-import { RESOURCES } from 'client/features/One/slice'
+import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration'
+import DatastoresTable, { STEP_ID as DATASTORE_ID } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable'
+import { createSteps } from 'client/utils'
 
-/** @see {@link RESOURCES.app}  */
-const APP = 'app'
+const Steps = createSteps(
+  [BasicConfiguration, DatastoresTable],
+  {
+    transformInitialValue: (app, schema) => schema.cast({}, { context: { app } }),
+    transformBeforeSubmit: formData => {
+      const {
+        [BASIC_ID]: configuration,
+        [DATASTORE_ID]: [datastore] = []
+      } = formData
 
-export const getMarketplaceApp = createAction(
-  `${APP}/detail`,
-  marketplaceAppService.getMarketplaceApp
+      return {
+        datastore: datastore?.ID,
+        ...configuration
+      }
+    }
+  }
 )
 
-export const getMarketplaceApps = createAction(
-  `${APP}/pool`,
-  marketplaceAppService.getMarketplaceApps,
-  response => ({ [RESOURCES.app]: response })
-)
-
-export const exportApp = createAction(`${APP}/export`, marketplaceAppService.export)
+export default Steps

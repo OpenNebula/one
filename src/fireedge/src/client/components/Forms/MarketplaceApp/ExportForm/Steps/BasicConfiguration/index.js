@@ -13,22 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createAction } from 'client/features/One/utils'
-import { marketplaceAppService } from 'client/features/One/marketplaceApp/services'
-import { RESOURCES } from 'client/features/One/slice'
+/* eslint-disable jsdoc/require-jsdoc */
+import PropTypes from 'prop-types'
 
-/** @see {@link RESOURCES.app}  */
-const APP = 'app'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-export const getMarketplaceApp = createAction(
-  `${APP}/detail`,
-  marketplaceAppService.getMarketplaceApp
+import { SCHEMA, FIELDS } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration/schema'
+import { Step } from 'client/utils'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'configuration'
+
+const Content = () => (
+  <FormWithSchema
+    cy='export-app-configuration'
+    id={STEP_ID}
+    fields={FIELDS}
+  />
 )
 
-export const getMarketplaceApps = createAction(
-  `${APP}/pool`,
-  marketplaceAppService.getMarketplaceApps,
-  response => ({ [RESOURCES.app]: response })
-)
+/**
+ * Step to configure the marketplace app.
+ *
+ * @returns {Step} Configuration step
+ */
+const ConfigurationStep = () => ({
+  id: STEP_ID,
+  label: T.Configuration,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content
+})
 
-export const exportApp = createAction(`${APP}/export`, marketplaceAppService.export)
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+  nics: PropTypes.array
+}
+
+export default ConfigurationStep

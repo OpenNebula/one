@@ -37,7 +37,13 @@ export default [
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => DatastoreModel.getType(row)?.name
+    accessor: row => DatastoreModel.getType(row),
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'Type'
+    }),
+    filter: 'includesValue'
   },
   {
     Header: 'Clusters IDs',

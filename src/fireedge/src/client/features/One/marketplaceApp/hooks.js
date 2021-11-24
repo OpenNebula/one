@@ -35,6 +35,7 @@ export const useMarketplaceAppApi = () => {
 
   return {
     getMarketplaceApp: id => unwrapDispatch(actions.getMarketplaceApp({ id })),
-    getMarketplaceApps: () => unwrapDispatch(actions.getMarketplaceApps())
+    getMarketplaceApps: () => unwrapDispatch(actions.getMarketplaceApps()),
+    exportApp: (id, data) => unwrapDispatch(actions.exportApp({ id, ...data }))
   }
 }
