@@ -38,7 +38,7 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
   const nameInputKey = useMemo(() => `name-${key}`, [key])
   const valueInputKey = useMemo(() => `value-${key}`, [key])
 
-  const { handleSubmit, reset, control, formState } = useForm({
+  const { handleSubmit, reset, control } = useForm({
     defaultValues: { [nameInputKey]: '', [valueInputKey]: '' }
   })
 
@@ -59,8 +59,8 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
       <Controller
         control={control}
         name={nameInputKey}
-        render={fieldProps =>
-          <Inputs.Text {...fieldProps} disabled={formState.isSubmitting} />
+        render={({ field, formState }) =>
+          <Inputs.Text {...field} disabled={formState.isSubmitting} />
         }
       />
 
@@ -69,8 +69,8 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
         <Controller
           control={control}
           name={valueInputKey}
-          render={fieldProps =>
-            <Inputs.Text {...fieldProps} disabled={formState.isSubmitting} />
+          render={({ field, formState }) =>
+            <Inputs.Text {...field} disabled={formState.isSubmitting} />
           }
         />
         <Actions.Add

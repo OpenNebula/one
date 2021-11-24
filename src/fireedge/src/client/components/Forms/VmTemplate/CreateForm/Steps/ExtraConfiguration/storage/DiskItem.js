@@ -74,7 +74,7 @@ const DiskItem = memo(({
           <Translate word={T.VolatileDisk} />
         </>
       ) : (
-        <Stack component='span' alignItems='center' gap='0.5em'>
+        <Stack component='span' direction='row' alignItems='center' gap='0.5em'>
           <StatusCircle color={state?.color} tooltip={state?.name} />
           {`${NAME}: ${IMAGE}`}
           {isPersistent && <StatusChip text='PERSISTENT' />}
