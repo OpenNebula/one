@@ -89,8 +89,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given User.
-        def info()
-            super(USER_METHODS[:info], 'USER')
+        def info(decrypt = false)
+            super(USER_METHODS[:info], 'USER', decrypt)
         end
 
         alias_method :info!, :info

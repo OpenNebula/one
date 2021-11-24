@@ -573,7 +573,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, [:userid, nil],
-            :options => OpenNebulaHelper::FORMAT do
+            :options => [OpenNebulaHelper::FORMAT, OpenNebulaHelper::DECRYPT] do
         user = args[0] || OpenNebula::User::SELF
         helper.show_resource(user, options)
     end

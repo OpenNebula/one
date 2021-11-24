@@ -734,6 +734,7 @@ void Nebula::start(bool bootstrap_only)
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const SingleAttribute *> user_restricted;
         vector<const SingleAttribute *> group_restricted;
+        vector<const SingleAttribute *> user_encrypted;
 
         time_t  expiration_time;
 
@@ -743,9 +744,10 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
         nebula_configuration->get("USER_RESTRICTED_ATTR", user_restricted);
+        nebula_configuration->get("USER_ENCRYPTED_ATTR", user_encrypted);
 
         upool = new UserPool(db_ptr, expiration_time, is_federation_slave(),
-                user_restricted);
+                user_restricted, user_encrypted);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
         string  image_type;
