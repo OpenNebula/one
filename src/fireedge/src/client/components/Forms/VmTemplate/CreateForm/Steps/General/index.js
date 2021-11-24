@@ -65,12 +65,13 @@ const Content = ({ isUpdate }) => {
 
 const General = initialValues => {
   const isUpdate = initialValues?.NAME
+  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.General,
     resolver: formData => {
-      const hypervisor = formData?.[STEP_ID]?.HYPERVISOR
+      const hypervisor = formData?.[STEP_ID]?.HYPERVISOR ?? initialHypervisor
       return SCHEMA(hypervisor, isUpdate)
     },
     optionsValidate: { abortEarly: false },

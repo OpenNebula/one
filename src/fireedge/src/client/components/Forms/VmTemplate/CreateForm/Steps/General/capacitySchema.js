@@ -56,7 +56,7 @@ export const MEMORY_MAX = {
   htmlType: enabledHr => enabledHr ? 'number' : INPUT_TYPES.HIDDEN,
   validation: commonValidation
     .when(ENABLE_HR_MEMORY.name, (enabledHr, schema) =>
-      enabledHr ? schema.required() : schema.strip().notRequired()
+      enabledHr ? schema.required() : schema.notRequired()
     ),
   grid: { xs: 8, md: 6 }
 }
@@ -101,7 +101,7 @@ export const VCPU_MAX = {
   htmlType: enabledHr => enabledHr ? 'number' : INPUT_TYPES.HIDDEN,
   validation: commonValidation
     .when(ENABLE_HR_VCPU.name, (enabledHr, schema) =>
-      enabledHr ? schema.required() : schema.strip().notRequired()
+      enabledHr ? schema.required() : schema.notRequired()
     ),
   grid: { xs: 8, md: 6 }
 }
