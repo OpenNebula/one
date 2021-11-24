@@ -176,6 +176,7 @@ define(function(require) {
           showback.VMNAME,
           showback.UNAME,
           showback.HOURS,
+          showback.RHOURS,
           showback.TOTAL_COST
         ]);
 
