@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import DOMPurify from 'dompurify'
 import { object, reach, ObjectSchema, BaseSchema } from 'yup'
+import { isMergeableObject } from 'client/utils/merge'
 import { HYPERVISORS } from 'client/constants'
 
 /**
@@ -265,6 +266,62 @@ export const groupBy = (list, key) =>
  * @returns {object} Object cloned
  */
 export const cloneObject = obj => JSON.parse(JSON.stringify(obj))
+
+/**
+ * Removes undefined and null values from object.
+ *
+ * @param {object} obj - Object value
+ * @returns {object} - Cleaned object
+ */
+export const cleanEmptyObject = obj => {
+  const entries = Object.entries(obj)
+    .filter(([_, value]) =>
+      // filter object/array values without attributes
+      isMergeableObject(value)
+        ? Object.values(value).some(v => v != null)
+        : Array.isArray(value) ? value.length > 0 : true
+    )
+    .map(([key, value]) => {
+      let cleanedValue = value
+
+      if (isMergeableObject(value)) {
+        cleanedValue = cleanEmptyObject(value)
+      } else if (Array.isArray(value)) {
+        cleanedValue = cleanEmptyArray(value)
+      }
+
+      return [key, cleanedValue]
+    })
+
+  return entries?.length > 0
+    ? entries.reduce((cleanedObject, [key, value]) => {
+      // `value == null` checks against undefined and null
+      return value == null ? cleanedObject : { ...cleanedObject, [key]: value }
+    }, {})
+    : undefined
+}
+
+/**
+ * Removes undefined and null values from array.
+ *
+ * @param {Array} arr - Array value
+ * @returns {object} - Cleaned object
+ */
+export const cleanEmptyArray = arr => arr
+  .map(value => isMergeableObject(value) ? cleanEmpty(value) : value)
+  .filter(value =>
+    !(value == null) || // `value == null` checks against undefined and null
+    (Array.isArray(value) && value.length > 0)
+  )
+
+/**
+ * Removes undefined and null values from variable.
+ *
+ * @param {Array|object} variable - Variable
+ * @returns {Array|object} - Cleaned variable
+ */
+export const cleanEmpty = variable =>
+  Array.isArray(variable) ? cleanEmptyArray(variable) : cleanEmptyObject(variable)
 
 /**
  * Check if value is in base64.

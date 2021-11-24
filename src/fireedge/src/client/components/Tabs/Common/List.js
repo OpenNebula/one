@@ -36,7 +36,8 @@ const useStyles = makeStyles(theme => ({
     gap: '1em',
     '& > *': {
       flex: '1 1 50%',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      minHeight: '100%'
     },
     '&:hover': {
       backgroundColor: alpha(theme.palette.text.primary, 0.05)

@@ -137,10 +137,10 @@ const Attribute = memo(({
               }
             </Typography>
             <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
-              {canCopy && (
+              {value && canCopy && (
                 <Actions.Copy name={name} value={value} />
               )}
-              {canEdit && (
+              {(value || numberOfParents > 0) && canEdit && (
                 <Actions.Edit name={name} handleClick={handleActiveEditForm} />
               )}
               {canDelete && (

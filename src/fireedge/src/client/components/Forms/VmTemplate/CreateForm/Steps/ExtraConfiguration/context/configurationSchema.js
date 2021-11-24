@@ -32,7 +32,8 @@ export const SSH_PUBLIC_KEY = {
   multiline: true,
   validation: string()
     .trim()
-    .notRequired(),
+    .notRequired()
+    .ensure(),
   grid: { md: 12 },
   fieldProps: { rows: 4 }
 }
@@ -81,6 +82,7 @@ export const START_SCRIPT = {
   validation: string()
     .trim()
     .notRequired()
+    .ensure()
     .when(
       '$extra.CONTEXT.START_SCRIPT_BASE64',
       (scriptEncoded, schema) => scriptEncoded
