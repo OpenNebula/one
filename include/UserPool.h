@@ -40,7 +40,8 @@ class UserPool : public PoolSQL
 public:
 
     UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
-        std::vector<const SingleAttribute *>& restricted_attrs);
+        std::vector<const SingleAttribute *>& restricted_attrs,
+        std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~UserPool() = default;
 

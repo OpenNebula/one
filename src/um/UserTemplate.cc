@@ -20,3 +20,5 @@
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string>> UserTemplate::restricted;
+
+std::map<std::string, std::set<std::string> > UserTemplate::encrypted;
