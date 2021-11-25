@@ -15,12 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
-
-import { Typography } from '@mui/material'
 import { useController } from 'react-hook-form'
 
-import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import Legend from 'client/components/Forms/Legend'
+import { ErrorHelper } from 'client/components/FormControl'
 import { generateKey } from 'client/utils'
 
 const defaultGetRowId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
@@ -46,19 +44,13 @@ const TableController = memo(
 
     return (
       <>
-        {error ? (
+        <Legend title={label} tooltip={tooltip} />
+        {error && (
           <ErrorHelper
             data-cy={`${cy}-error`}
             label={error?.message}
             mb={2}
           />
-        ) : (
-          label && (
-            <Typography variant='body1' mb={2}>
-              {tooltip && <Tooltip title={tooltip} position='start' />}
-              {labelCanBeTranslated(label) ? Tr(label) : label}
-            </Typography>
-          )
         )}
         <Table
           pageSize={4}
