@@ -26,6 +26,7 @@ resource_name: "VM"
 actions:
   refresh: true
   create_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: true
   migrate: true
   migrate_live: true

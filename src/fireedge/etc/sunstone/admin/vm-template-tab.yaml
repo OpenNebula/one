@@ -29,6 +29,7 @@ actions:
   import_dialog: true
   update_dialog: true
   instantiate_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   clone: true
   delete: true
   chown: true
