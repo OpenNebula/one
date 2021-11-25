@@ -223,6 +223,8 @@ int Image::insert(SqlDB *db, string& error_str)
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
 
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Image
     //--------------------------------------------------------------------------
