@@ -52,8 +52,8 @@ const ToggleController = memo(
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
     const {
-      field: { ref, value: optionSelected = defaultValue, onChange, ...inputProps },
-      fieldState: { error }
+      field: { ref, value: optionSelected = defaultValue, onChange },
+      fieldState: { error: { message } = {} }
     } = useController({ name, control })
 
     useEffect(() => {
@@ -66,13 +66,12 @@ const ToggleController = memo(
     return (
       <FormControl fullWidth margin='dense'>
         {label && (
-          <Label htmlFor={cy} error={error ? 'error' : undefined}>
+          <Label htmlFor={cy} error={Boolean(message)}>
             {labelCanBeTranslated(label) ? Tr(label) : label}
             {tooltip && <Tooltip title={tooltip} />}
           </Label>
         )}
         <ToggleButtonGroup
-          {...inputProps}
           onChange={(_, newValues) => onChange(newValues)}
           ref={ref}
           id={cy}
@@ -88,9 +87,9 @@ const ToggleController = memo(
             </ToggleButton>
           )}
         </ToggleButtonGroup>
-        {Boolean(error) && (
+        {Boolean(message) && (
           <FormHelperText data-cy={`${cy}-error`}>
-            <ErrorHelper label={error?.message} />
+            <ErrorHelper label={message} />
           </FormHelperText>
         )}
       </FormControl>

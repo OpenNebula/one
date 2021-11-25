@@ -20,7 +20,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
 import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
@@ -56,5 +56,8 @@ const VmTemplatesTable = props => {
     />
   )
 }
+
+VmTemplatesTable.propTypes = EnhancedTableProps
+VmTemplatesTable.displayName = 'VmTemplatesTable'
 
 export default VmTemplatesTable

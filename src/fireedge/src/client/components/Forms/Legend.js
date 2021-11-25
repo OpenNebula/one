@@ -17,8 +17,8 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 import { styled, Typography } from '@mui/material'
 
-import { Translate } from 'client/components/HOC'
 import AdornmentWithTooltip from 'client/components/FormControl/Tooltip'
+import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 
 const StyledLegend = styled(props => (
   <Typography variant='subtitle1' component='legend' {...props} />
@@ -35,7 +35,7 @@ const StyledLegend = styled(props => (
 const Legend = memo(({ title, tooltip }) => {
   return (
     <StyledLegend tooltip={tooltip}>
-      <Translate word={title} />
+      {labelCanBeTranslated(title) ? Tr(title) : title}
       {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
     </StyledLegend>
   )

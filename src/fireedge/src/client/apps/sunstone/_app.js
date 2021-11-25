@@ -22,6 +22,7 @@ import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useSystem, useSystemApi } from 'client/features/One'
 
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
@@ -42,6 +43,8 @@ const SunstoneApp = () => {
 
   const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
+  const { config: oneConfig } = useSystem()
+  const { getOneConfig } = useSystemApi()
 
   useEffect(() => {
     (async () => {
@@ -52,6 +55,7 @@ const SunstoneApp = () => {
           getAuthUser()
           !view && await getSunstoneViews()
           !config && await getSunstoneConfig()
+          !oneConfig && getOneConfig()
         }
       } catch {
         logout()
