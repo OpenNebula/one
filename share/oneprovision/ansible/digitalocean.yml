@@ -24,4 +24,3 @@
       frr_iface: 'eth1'
       # Use /20 for the internal management network address
       frr_prefix_length: 20
-
