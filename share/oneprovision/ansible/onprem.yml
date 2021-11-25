@@ -19,4 +19,3 @@
       frr_iface: '{{ oneprovision_private_phydev }}'
       # Use /25 for the internal management network address
       frr_prefix_length: 25
-
