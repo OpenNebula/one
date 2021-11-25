@@ -61,6 +61,8 @@ int VMTemplatePool::allocate (
         goto error_duplicated;
     }
 
+    vm_template->encrypt();
+
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
