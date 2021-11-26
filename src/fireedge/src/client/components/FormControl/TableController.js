@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useController } from 'react-hook-form'
 
@@ -22,6 +22,10 @@ import { ErrorHelper } from 'client/components/FormControl'
 import { generateKey } from 'client/utils'
 
 const defaultGetRowId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
+
+const getSelectedRowIds = value => [value ?? []]
+  .flat()
+  .reduce((initialSelected, rowId) => ({ ...initialSelected, [rowId]: true }), {})
 
 const TableController = memo(
   ({
@@ -33,14 +37,22 @@ const TableController = memo(
     Table,
     singleSelect = true,
     getRowId = defaultGetRowId,
-    formContext = {}
+    formContext = {},
+    fieldProps: { initialState, ...fieldProps } = {}
   }) => {
     const { clearErrors } = formContext
 
     const {
-      field: { onChange },
+      field: { value, onChange },
       fieldState: { error }
     } = useController({ name, control })
+
+    const [initialRows, setInitialRows] = useState(() => getSelectedRowIds(value))
+
+    useEffect(() => {
+      onChange(singleSelect ? undefined : [])
+      setInitialRows({})
+    }, [Table])
 
     return (
       <>
@@ -58,12 +70,14 @@ const TableController = memo(
           onlyGlobalSearch
           onlyGlobalSelectedRows
           getRowId={getRowId}
+          initialState={{ ...initialState, selectedRowIds: initialRows }}
           onSelectedRowsChange={rows => {
             const rowValues = rows?.map(({ original }) => getRowId(original))
 
             onChange(singleSelect ? rowValues?.[0] : rowValues)
             clearErrors(name)
           }}
+          {...fieldProps}
         />
       </>
     )
@@ -71,6 +85,7 @@ const TableController = memo(
   (prevProps, nextProps) =>
     prevProps.error === nextProps.error &&
     prevProps.label === nextProps.label &&
+    prevProps.Table === nextProps.Table &&
     prevProps.tooltip === nextProps.tooltip
 )
 

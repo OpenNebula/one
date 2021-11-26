@@ -21,6 +21,7 @@ export const VM_TEMPLATE_ACTIONS = {
   IMPORT_DIALOG: 'import_dialog',
   UPDATE_DIALOG: 'update_dialog',
   INSTANTIATE_DIALOG: 'instantiate_dialog',
+  CREATE_APP_DIALOG: 'create_app_dialog',
   CLONE: 'clone',
   DELETE: 'delete',
   LOCK: 'lock',

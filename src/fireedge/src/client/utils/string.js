@@ -20,7 +20,7 @@
  * @param {string} input - Input string
  * @returns {string} Input string modified
  */
-export const upperCaseFirst = input => input.charAt(0).toUpperCase() + input.substr(1)
+export const upperCaseFirst = input => input?.charAt(0)?.toUpperCase() + input?.substr(1)
 
 /**
  * Transform into a lower case with spaces between words, then capitalize the string.
@@ -34,10 +34,10 @@ export const upperCaseFirst = input => input.charAt(0).toUpperCase() + input.sub
  */
 export const sentenceCase = input => {
   const sentence = input
-    .replace(/[-_]([A-Za-z])/g, ' $1')
-    .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .toLowerCase()
+    ?.replace(/[-_]([A-Za-z])/g, ' $1')
+    ?.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+    ?.replace(/([a-z])([A-Z])/g, '$1 $2')
+    ?.toLowerCase()
 
   return upperCaseFirst(sentence)
 }

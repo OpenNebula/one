@@ -46,7 +46,7 @@ import {
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
-import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const isDisabled = action => rows =>
   isAvailableAction(action)(rows, ({ values }) => values?.STATE)
@@ -151,6 +151,19 @@ const Actions = () => {
           const ids = rows?.map?.(({ original }) => original?.ID)
           await Promise.all(ids.map(id => resume(id)))
           ids?.length > 1 && (await Promise.all(ids.map(id => getVm(id))))
+        }
+      },
+      {
+        accessor: VM_ACTIONS.CREATE_APP_DIALOG,
+        disabled: isDisabled(VM_ACTIONS.CREATE_APP_DIALOG),
+        tooltip: T.CreateMarketApp,
+        selected: { max: 1 },
+        icon: Cart,
+        action: rows => {
+          const vm = rows?.[0]?.original ?? {}
+          const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
+
+          history.push(path, [RESOURCE_NAMES.VM, vm])
         }
       },
       {
@@ -518,23 +531,7 @@ const Actions = () => {
     ]
   }), [view])
 
-  const marketplaceAppActions = useMemo(() => createActions({
-    filters: getResourceView('MARKETPLACE-APP')?.actions,
-    actions: [
-      {
-        accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: T.CreateMarketApp,
-        icon: Cart,
-        selected: { max: 1 },
-        disabled: true,
-        action: rows => {
-          // TODO: go to Marketplace App CREATE form
-        }
-      }
-    ]
-  }), [view])
-
-  return [...vmActions, ...marketplaceAppActions]
+  return vmActions
 }
 
 export default Actions

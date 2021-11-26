@@ -43,6 +43,7 @@ import {
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
+import { RESOURCE_NAMES } from 'client/constants'
 
 const VirtualMachines = loadable(() => import('client/containers/VirtualMachines'), { ssr: false })
 const VirtualMachineDetail = loadable(() => import('client/containers/VirtualMachines/Detail'), { ssr: false })
@@ -57,9 +58,9 @@ const CreateVmTemplate = loadable(() => import('client/containers/VmTemplates/Cr
 
 const Datastores = loadable(() => import('client/containers/Datastores'), { ssr: false })
 const Images = loadable(() => import('client/containers/Images'), { ssr: false })
-// const Files = loadable(() => import('client/containers/Files'), { ssr: false })
 const Marketplaces = loadable(() => import('client/containers/Marketplaces'), { ssr: false })
 const MarketplaceApps = loadable(() => import('client/containers/MarketplaceApps'), { ssr: false })
+const CreateMarketplaceApp = loadable(() => import('client/containers/MarketplaceApps/Create'), { ssr: false })
 
 const VirtualNetworks = loadable(() => import('client/containers/VirtualNetworks'), { ssr: false })
 const VNetworkTemplates = loadable(() => import('client/containers/VNetworkTemplates'), { ssr: false })
@@ -82,79 +83,76 @@ const GroupDetail = loadable(() => import('client/containers/Groups/Detail'), { 
 export const PATH = {
   INSTANCE: {
     VMS: {
-      LIST: '/vm',
-      DETAIL: '/vm/:id'
+      LIST: `/${RESOURCE_NAMES.VM}`,
+      DETAIL: `/${RESOURCE_NAMES.VM}/:id`
     },
     VROUTERS: {
-      LIST: '/virtual-router'
+      LIST: `/${RESOURCE_NAMES.V_ROUTER}`
     }
   },
   TEMPLATE: {
     VMS: {
-      LIST: '/vm-template',
-      DETAIL: '/vm-template/:id',
-      INSTANTIATE: '/vm-template/instantiate',
-      CREATE: '/vm-template/create'
+      LIST: `/${RESOURCE_NAMES.VM_TEMPLATE}`,
+      DETAIL: `/${RESOURCE_NAMES.VM_TEMPLATE}/:id`,
+      INSTANTIATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/instantiate`,
+      CREATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/create`
     }
   },
   STORAGE: {
     DATASTORES: {
-      LIST: '/datastore',
-      DETAIL: '/datastore/:id'
+      LIST: `/${RESOURCE_NAMES.DATASTORE}`,
+      DETAIL: `/${RESOURCE_NAMES.DATASTORE}/:id`
     },
     IMAGES: {
-      LIST: '/image',
-      DETAIL: '/image/:id'
-    },
-    FILES: {
-      LIST: '/file',
-      DETAIL: '/file/:id'
+      LIST: `/${RESOURCE_NAMES.IMAGE}`,
+      DETAIL: `/${RESOURCE_NAMES.IMAGE}/:id`
     },
     MARKETPLACES: {
-      LIST: '/marketplace',
-      DETAIL: '/marketplace/:id'
+      LIST: `/${RESOURCE_NAMES.MARKETPLACE}`,
+      DETAIL: `/${RESOURCE_NAMES.MARKETPLACE}/:id`
     },
     MARKETPLACE_APPS: {
-      LIST: '/marketplace-app',
-      DETAIL: '/marketplace-app/:id'
+      LIST: `/${RESOURCE_NAMES.APP}`,
+      DETAIL: `/${RESOURCE_NAMES.APP}/:id`,
+      CREATE: `/${RESOURCE_NAMES.APP}/create`
     }
   },
   NETWORK: {
     VNETS: {
-      LIST: '/virtual-network',
-      DETAIL: '/virtual-network/:id'
+      LIST: `/${RESOURCE_NAMES.VNET}`,
+      DETAIL: `/${RESOURCE_NAMES.VNET}/:id`
     },
     VN_TEMPLATES: {
-      LIST: '/network-template',
-      DETAIL: '/network-template/:id'
+      LIST: `/${RESOURCE_NAMES.VN_TEMPLATE}`,
+      DETAIL: `/${RESOURCE_NAMES.VN_TEMPLATE}/:id`
     },
     SEC_GROUPS: {
-      LIST: '/security-group',
-      DETAIL: '/security-group/:id'
+      LIST: `/${RESOURCE_NAMES.SEC_GROUP}`,
+      DETAIL: `/${RESOURCE_NAMES.SEC_GROUP}/:id`
     }
   },
   INFRASTRUCTURE: {
     CLUSTERS: {
-      LIST: '/cluster',
-      DETAIL: '/cluster/:id'
+      LIST: `/${RESOURCE_NAMES.CLUSTER}`,
+      DETAIL: `/${RESOURCE_NAMES.CLUSTER}/:id`
     },
     HOSTS: {
-      LIST: '/host',
-      DETAIL: '/host/:id'
+      LIST: `/${RESOURCE_NAMES.HOST}`,
+      DETAIL: `/${RESOURCE_NAMES.HOST}/:id`
     },
     ZONES: {
-      LIST: '/zone',
-      DETAIL: '/zone/:id'
+      LIST: `/${RESOURCE_NAMES.ZONE}`,
+      DETAIL: `/${RESOURCE_NAMES.ZONE}/:id`
     }
   },
   SYSTEM: {
     USERS: {
-      LIST: '/user',
-      DETAIL: '/user/:id'
+      LIST: `/${RESOURCE_NAMES.USER}`,
+      DETAIL: `/${RESOURCE_NAMES.USER}/:id`
     },
     GROUPS: {
-      LIST: '/group',
-      DETAIL: '/group/:id'
+      LIST: `/${RESOURCE_NAMES.GROUP}`,
+      DETAIL: `/${RESOURCE_NAMES.GROUP}/:id`
     }
   }
 }
@@ -242,6 +240,11 @@ const ENDPOINTS = [
         sidebar: true,
         icon: MarketplaceAppIcon,
         Component: MarketplaceApps
+      },
+      {
+        label: 'Create Marketplace App',
+        path: PATH.STORAGE.MARKETPLACE_APPS.CREATE,
+        Component: CreateMarketplaceApp
       }
     ]
   },

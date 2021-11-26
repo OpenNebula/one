@@ -34,7 +34,13 @@ import { Tr, Translate } from 'client/components/HOC'
 import { CloneForm } from 'client/components/Forms/VmTemplate'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { T, VM_TEMPLATE_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+
+import {
+  T,
+  VM_TEMPLATE_ACTIONS,
+  MARKETPLACE_APP_ACTIONS,
+  RESOURCE_NAMES
+} from 'client/constants'
 
 const MessageToConfirmAction = rows => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -107,6 +113,18 @@ const Actions = () => {
           const path = PATH.TEMPLATE.VMS.INSTANTIATE
 
           history.push(path, template)
+        }
+      },
+      {
+        accessor: VM_TEMPLATE_ACTIONS.CREATE_APP_DIALOG,
+        tooltip: T.CreateMarketApp,
+        selected: { max: 1 },
+        icon: Cart,
+        action: rows => {
+          const template = rows?.[0]?.original ?? {}
+          const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
+
+          history.push(path, [RESOURCE_NAMES.VM_TEMPLATE, template])
         }
       },
       {

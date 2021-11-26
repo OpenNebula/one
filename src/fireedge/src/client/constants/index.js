@@ -87,6 +87,25 @@ export const SOCKETS = {
   PROVISION: 'provision'
 }
 
+/** @enum {string} Names of resource */
+export const RESOURCE_NAMES = {
+  APP: 'marketplace-app',
+  CLUSTER: 'cluster',
+  DATASTORE: 'datastore',
+  GROUP: 'group',
+  HOST: 'host',
+  IMAGE: 'image',
+  MARKETPLACE: 'marketplace',
+  SEC_GROUP: 'security-group',
+  USER: 'user',
+  V_ROUTER: 'virtual-router',
+  VM_TEMPLATE: 'vm-template',
+  VM: 'vm',
+  VN_TEMPLATE: 'network-template',
+  VNET: 'virtual-network',
+  ZONE: 'zone'
+}
+
 export * as T from 'client/constants/translates'
 export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'

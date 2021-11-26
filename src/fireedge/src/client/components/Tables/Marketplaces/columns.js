@@ -36,7 +36,17 @@ export default [
     }),
     filter: 'includesValue'
   },
-  { Header: 'Market', accessor: 'MARKET_MAD' },
+  {
+    Header: 'Market',
+    accessor: 'MARKET_MAD',
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'Market mad'
+    }),
+    filter: 'includesValue'
+  },
   { Header: 'Total Capacity', accessor: 'TOTAL_MB' },
   { Header: 'Free Capacity', accessor: 'USED_MB' },
   { Header: 'Zone ID', accessor: 'ZONE_ID' },

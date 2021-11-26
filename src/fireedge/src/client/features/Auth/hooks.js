@@ -23,6 +23,7 @@ import * as provisionActions from 'client/features/Auth/provision'
 import * as sunstoneActions from 'client/features/Auth/sunstone'
 import { name as authSlice } from 'client/features/Auth/slice'
 import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
+import { RESOURCE_NAMES } from 'client/constants'
 
 export const useAuth = () => {
   const auth = useSelector(state => state[authSlice], shallowEqual)
@@ -40,7 +41,7 @@ export const useAuth = () => {
   /**
    * Looking for resource view of user authenticated.
    *
-   * @param {string} resourceName - Name of resource: VM, HOST, IMAGE, etc
+   * @param {RESOURCE_NAMES} resourceName - Name of resource
    * @returns {{
    * resource_name: string,
    * actions: object[],
