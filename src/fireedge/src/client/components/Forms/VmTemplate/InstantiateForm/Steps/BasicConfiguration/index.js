@@ -57,15 +57,21 @@ const Content = () => {
   )
 }
 
-const BasicConfiguration = () => ({
-  id: STEP_ID,
-  label: T.Configuration,
-  resolver: formData => {
-    const hypervisor = formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR
-    return SCHEMA(hypervisor)
-  },
-  optionsValidate: { abortEarly: false },
-  content: Content
-})
+const BasicConfiguration = initialValues => {
+  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
+
+  return {
+    id: STEP_ID,
+    label: T.Configuration,
+    resolver: formData => {
+      const hypervisor =
+        formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
+
+      return SCHEMA(hypervisor)
+    },
+    optionsValidate: { abortEarly: false },
+    content: Content
+  }
+}
 
 export default BasicConfiguration

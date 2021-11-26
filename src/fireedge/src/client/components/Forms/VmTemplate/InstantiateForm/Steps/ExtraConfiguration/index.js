@@ -16,20 +16,19 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-
 import { useFormContext } from 'react-hook-form'
-import { useTheme } from '@mui/material'
-import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
+import { SystemShut as OsIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import Tabs from 'client/components/Tabs'
-import Storage from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/storage'
-import Networking from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/networking'
-import Placement from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/placement'
-import ScheduleAction from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/scheduleAction'
-import Booting from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/booting'
+import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
+import Networking from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
+import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement'
+import Scheduling from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
+import BootOrder from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
 
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
@@ -38,72 +37,69 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
+/** @type {TabType[]} */
+export const TABS = [
+  Storage,
+  Networking,
+  Placement,
+  Scheduling,
+  {
+    id: 'booting',
+    name: T.OSBooting,
+    icon: OsIcon,
+    Content: BootOrder,
+    getError: error => !!error?.OS
+  }
+]
+
 const Content = ({ data, setFormData }) => {
-  const theme = useTheme()
   const { watch, formState: { errors }, control } = useFormContext()
   const { view, getResourceView } = useAuth()
 
-  const tabs = useMemo(() => {
-    const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
-    const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
+  const hypervisor = useMemo(() => watch(`${TEMPLATE_ID}.0.HYPERVISOR`), [])
 
-    return [
-      {
-        id: 'storage',
-        name: Tr(T.Storage),
-        renderContent: <Storage {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[0] && (
-          <WarningIcon color={theme.palette.error.main} />
-        )
-      },
-      {
-        id: 'network',
-        name: Tr(T.Network),
-        renderContent: <Networking {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[1] && (
-          <WarningIcon color={theme.palette.error.main} />
-        )
-      },
-      {
-        id: 'placement',
-        name: Tr(T.Placement),
-        renderContent: <Placement {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[2] && (
-          <WarningIcon color={theme.palette.error.main} />
-        )
-      },
-      {
-        id: 'sched_action',
-        name: Tr(T.ScheduledAction),
-        renderContent: <ScheduleAction {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[3] && (
-          <WarningIcon color={theme.palette.error.main} />
-        )
-      },
-      {
-        id: 'booting',
-        name: Tr(T.OSBooting),
-        renderContent: <Booting {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[4] && (
-          <WarningIcon color={theme.palette.error.main} />
-        )
-      }
-    ].filter(({ id }) => sectionsAvailable.includes(id))
-  }, [errors[STEP_ID], view, control])
+  const sectionsAvailable = useMemo(() => {
+    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+    return getSectionsAvailable(dialog, hypervisor)
+  }, [view])
+
+  const totalErrors = Object.keys(errors[STEP_ID] ?? {}).length
+
+  const tabs = useMemo(
+    () => TABS
+      .filter(({ id }) => sectionsAvailable.includes(id))
+      .map(({ Content: TabContent, name, getError, ...section }) => ({
+        ...section,
+        name,
+        label: <Translate word={name} />,
+        // eslint-disable-next-line react/display-name
+        renderContent: () => <TabContent {...{ data, setFormData, hypervisor, control }} />,
+        error: getError?.(errors[STEP_ID])
+      })),
+    [totalErrors, view, control]
+  )
 
   return (
     <Tabs tabs={tabs} />
   )
 }
 
-const ExtraConfiguration = () => ({
-  id: STEP_ID,
-  label: T.AdvancedOptions,
-  resolver: SCHEMA,
-  optionsValidate: { abortEarly: false },
-  content: Content
-})
+const ExtraConfiguration = initialValues => {
+  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
+
+  return {
+    id: STEP_ID,
+    label: T.AdvancedOptions,
+    resolver: formData => {
+      const hypervisor =
+        formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
+
+      return SCHEMA(hypervisor)
+    },
+    optionsValidate: { abortEarly: false },
+    content: Content
+  }
+}
 
 Content.propTypes = {
   data: PropTypes.any,

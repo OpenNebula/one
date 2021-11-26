@@ -59,7 +59,7 @@ const Content = ({ data, setFormData }) => {
       // needs hypervisor to strip unknown attributes
       [CONFIGURATION_ID]: CONFIGURATION_SCHEMA?.({ [STEP_ID]: [extendedTemplate] })
         .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true }),
-      [EXTRA_ID]: EXTRA_SCHEMA
+      [EXTRA_ID]: EXTRA_SCHEMA(extendedTemplate?.TEMPLATE?.HYPERVISOR)
         .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true })
     }))
 
