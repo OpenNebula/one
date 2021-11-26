@@ -20,7 +20,11 @@ import { jsonToXml } from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  [VmTemplatesTable, BasicConfiguration, ExtraConfiguration],
+  vmTemplate => [
+    !vmTemplate?.ID && VmTemplatesTable,
+    BasicConfiguration,
+    ExtraConfiguration
+  ].filter(Boolean),
   {
     transformInitialValue: (vmTemplate, schema) => ({
       ...schema.cast({
