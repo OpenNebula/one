@@ -25,12 +25,13 @@ import { isDevelopment } from 'client/utils'
 
 function InstantiateVmTemplate () {
   const history = useHistory()
-  const { state: { ID: templateId } = {} } = useLocation()
+  const { state: template = {} } = useLocation()
+  const { ID: templateId } = template ?? {}
 
   const { enqueueInfo } = useGeneralApi()
   const { instantiate } = useVmTemplateApi()
 
-  const onSubmit = async ([templateSelected, templates]) => {
+  const onSubmit = async ([templateSelected = template, templates]) => {
     try {
       const { ID, NAME } = templateSelected
 

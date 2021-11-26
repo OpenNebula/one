@@ -14,83 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { array, object, string } from 'yup'
+import { ObjectSchema } from 'yup'
 
-import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils'
+// get schemas from VmTemplate/CreateForm
+import { SCHEMA as CREATE_EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
+import { HYPERVISORS } from 'client/constants'
 
-export const HOST_REQ_FIELD = {
-  name: 'SCHED_REQUIREMENTS',
-  label: 'Host requirements expression',
-  tooltip: `
-    Boolean expression that rules out provisioning hosts
-    from list of machines suitable to run this VM`,
-  type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
-}
-
-export const HOST_RANK_FIELD = {
-  name: 'SCHED_RANK',
-  label: 'Host policy expression',
-  tooltip: `
-    This field sets which attribute will be used
-    to sort the suitable hosts for this VM`,
-  type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
-}
-
-export const DS_REQ_FIELD = {
-  name: 'DS_SCHED_REQUIREMENTS',
-  label: 'Datastore requirements expression',
-  tooltip: `
-    Boolean expression that rules out entries from
-    the pool of datastores suitable to run this VM.`,
-  type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
-}
-
-export const DS_RANK_FIELD = {
-  name: 'DS_SCHED_RANK',
-  label: 'Datastore policy expression',
-  tooltip: `
-    This field sets which attribute will be used to
-    sort the suitable datastores for this VM`,
-  type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
-}
-
-export const SCHEMA = object({
-  DISK: array()
-    .ensure()
-    .transform(disks => disks?.map((disk, idx) => ({
-      ...disk,
-      NAME: disk?.NAME?.startsWith('DISK') || !disk?.NAME
-        ? `DISK${idx}`
-        : disk?.NAME
-    }))),
-  NIC: array()
-    .ensure()
-    .transform(nics => nics?.map((nic, idx) => ({
-      ...nic,
-      NAME: nic?.NAME?.startsWith('NIC') || !nic?.NAME
-        ? `NIC${idx}`
-        : nic?.NAME
-    }))),
-  SCHED_ACTION: array()
-    .ensure()
-    .transform(actions => actions?.map((action, idx) => ({
-      ...action,
-      NAME: action?.NAME?.startsWith('SCHED_ACTION') || !action?.NAME
-        ? `SCHED_ACTION${idx}`
-        : action?.NAME
-    }))),
-  OS: object({
-    BOOT: string().trim().notRequired()
-  }),
-  ...getValidationFromFields([
-    HOST_REQ_FIELD,
-    HOST_RANK_FIELD,
-    DS_REQ_FIELD,
-    DS_RANK_FIELD
-  ])
-}).noUnknown(false)
+/**
+ * @param {HYPERVISORS} hypervisor - VM hypervisor
+ * @returns {ObjectSchema} Extra configuration schema
+ */
+export const SCHEMA = hypervisor => CREATE_EXTRA_SCHEMA(hypervisor).noUnknown(false)
