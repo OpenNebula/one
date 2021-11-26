@@ -450,6 +450,10 @@ module OpenNebula
         private
 
         def build_accounting(filter_flag, options, &block)
+
+            options[:start_time] = -1 if options[:start_time].nil?
+            options[:end_time]   = -1 if options[:end_time].nil?
+
             xml_str = @client.call(VM_POOL_METHODS[:accounting],
                         filter_flag,
                         options[:start_time],
