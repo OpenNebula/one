@@ -15,21 +15,27 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useMarketplace, useMarketplaceApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
 
-const MarketplacesTable = () => {
-  const columns = useMemo(() => MarketplaceColumns, [])
+const MarketplacesTable = ({ filter, ...props }) => {
+  const { view, getResourceView, filterPool } = useAuth()
+
+  const columns = useMemo(() => createColumns({
+    filters: getResourceView('MARKETPLACE')?.filters,
+    columns: MarketplaceColumns
+  }), [view])
 
   const marketplaces = useMarketplace()
   const { getMarketplaces } = useMarketplaceApi()
-  const { filterPool } = useAuth()
 
   const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaces)
   const { INIT, PENDING } = STATUS
@@ -43,12 +49,23 @@ const MarketplacesTable = () => {
   return (
     <EnhancedTable
       columns={columns}
-      data={marketplaces}
+      data={typeof filter === 'function'
+        ? marketplaces?.filter(filter)
+        : marketplaces
+      }
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={MarketplaceRow}
+      {...props}
     />
   )
 }
+
+MarketplacesTable.propTypes = {
+  filter: PropTypes.func,
+  ...EnhancedTable.propTypes
+}
+
+MarketplacesTable.displayName = 'MarketplacesTable'
 
 export default MarketplacesTable

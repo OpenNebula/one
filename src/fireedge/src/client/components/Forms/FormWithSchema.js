@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createElement, useMemo } from 'react'
+import { createElement, useMemo, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { FormControl, Grid } from '@mui/material'
@@ -27,7 +27,6 @@ import { INPUT_TYPES } from 'client/constants'
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
   'transform',
-  'Table',
   'getRowId',
   'renderValue'
 ]
@@ -90,9 +89,11 @@ const FormWithSchema = ({ id, cy, fields, rootProps, className, legend, legendTo
                 const [key, value] = attribute
                 const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
 
-                const finalValue = typeof value === 'function' && !isNotDependAttribute
-                  ? value(valueOfDependField, formContext)
-                  : value
+                const finalValue = (
+                  typeof value === 'function' &&
+                  !isNotDependAttribute &&
+                  !isValidElement(value())
+                ) ? value(valueOfDependField, formContext) : value
 
                 return { ...field, [key]: finalValue }
               }, {})

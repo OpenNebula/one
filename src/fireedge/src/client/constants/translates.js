@@ -106,6 +106,7 @@ module.exports = {
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
   SelectDatastore: 'Select a Datastore to store the resource',
+  SelectMarketplace: 'Select Marketplace',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',

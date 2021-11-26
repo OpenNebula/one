@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/MarketplaceApp/CreateForm'
-import ExportForm from 'client/components/Forms/MarketplaceApp/ExportForm'
+import { array, object, ArraySchema } from 'yup'
 
-export {
-  CreateForm,
-  ExportForm
-}
+/** @type {ArraySchema} Marketplace table schema */
+export const SCHEMA = array(object())
+  .min(1)
+  .max(1)
+  .required()
+  .ensure()
+  .default(() => [])

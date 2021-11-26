@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
-// import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import {
   RefreshDouble,
+  AddSquare,
   CloudDownload
 } from 'iconoir-react'
 
@@ -26,12 +27,10 @@ import { useGeneralApi } from 'client/features/General'
 import { useMarketplaceAppApi } from 'client/features/One'
 import { Translate } from 'client/components/HOC'
 
-import {
-  ExportForm
-} from 'client/components/Forms/MarketplaceApp'
+import { ExportForm } from 'client/components/Forms/MarketplaceApp'
 
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
-// import { PATH } from 'client/apps/sunstone/routesOne'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 
 const MessageToConfirmAction = rows => {
@@ -53,6 +52,7 @@ const MessageToConfirmAction = rows => {
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
+  const history = useHistory()
   const { view, getResourceView } = useAuth()
   const { enqueueSuccess } = useGeneralApi()
   const { getMarketplaceApps, exportApp } = useMarketplaceAppApi()
@@ -66,6 +66,14 @@ const Actions = () => {
         icon: RefreshDouble,
         action: async () => {
           await getMarketplaceApps()
+        }
+      },
+      {
+        accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
+        tooltip: T.CreateMarketApp,
+        icon: AddSquare,
+        action: () => {
+          history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
         }
       },
       {

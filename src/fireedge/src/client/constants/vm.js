@@ -434,6 +434,7 @@ export const VM_LCM_STATES = [
 export const VM_ACTIONS = {
   REFRESH: 'refresh',
   CREATE_DIALOG: 'create_dialog',
+  CREATE_APP_DIALOG: 'create_app_dialog',
   DEPLOY: 'deploy',
   HOLD: 'hold',
   LOCK: 'lock',
@@ -515,6 +516,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.UNDEPLOYED,
     STATES.UNKNOWN
   ],
+  [VM_ACTIONS.CREATE_APP_DIALOG]: [STATES.POWEROFF],
   [VM_ACTIONS.HOLD]: [STATES.PENDING],
   [VM_ACTIONS.LOCK]: [],
   [VM_ACTIONS.MIGRATE_LIVE]: [STATES.RUNNING, STATES.UNKNOWN],

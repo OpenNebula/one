@@ -13,10 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/MarketplaceApp/CreateForm'
-import ExportForm from 'client/components/Forms/MarketplaceApp/ExportForm'
+import PropTypes from 'prop-types'
 
-export {
-  CreateForm,
-  ExportForm
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { FIELDS, SCHEMA } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration/schema'
+import { Step } from 'client/utils'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'configuration'
+
+const Content = () => {
+  return (
+    <FormWithSchema
+      cy={'create-marketplace-app.configuration'}
+      fields={FIELDS}
+      id={STEP_ID}
+    />
+  )
 }
+
+/**
+ * Step to configure the marketplace app.
+ *
+ * @returns {Step} Configuration step
+ */
+const ConfigurationStep = () => ({
+  id: STEP_ID,
+  label: T.Configuration,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func
+}
+
+export default ConfigurationStep
