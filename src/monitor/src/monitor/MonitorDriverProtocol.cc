@@ -67,7 +67,6 @@ void MonitorDriverProtocol::_monitor_vm(message_t msg)
         NebulaLog::warn("MDP", "Failed to monitor VM for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
-        hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 
@@ -276,7 +275,6 @@ void MonitorDriverProtocol::_state_vm(message_t msg)
         NebulaLog::warn("MDP", "Failed to monitor VM state for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
-        hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 
