@@ -121,9 +121,12 @@ module VNMMAD
                 return if !deploy_id || !vm.vm_info[:dumpxml].nil? || deploy_id.empty?
 
                 cmd = "#{@lxc_cmd} config show #{deploy_id}"
-                config, _e, s = Open3.capture3(cmd)
+                config, e, s = Open3.capture3(cmd)
 
-                return unless s.exitstatus.zero?
+                if !s.exitstatus.zero?
+                    OpenNebula.log_error "#{e}\n#{config}"
+                    return
+                end
 
                 vm.vm_info[:dumpxml] = YAML.safe_load(config)
 
