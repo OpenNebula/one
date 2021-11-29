@@ -4,4 +4,9 @@ require_relative '../../../lib/kvm'
 
 KVM.load_conf
 
-puts DomainList.wilds_info
+begin
+    puts DomainList.info
+rescue StandardError => e
+    STDERR.puts e.message
+    exit(-1)
+end
