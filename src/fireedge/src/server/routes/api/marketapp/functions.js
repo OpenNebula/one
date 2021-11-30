@@ -38,6 +38,14 @@ const prependCommand = appConfig.sunstone_prepend || ''
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {number} params.id - app id
+ * @param {string} params.name - app name
+ * @param {number} params.datastore - app datastore
+ * @param {string} [params.file] - app file
+ * @param {string} [params.associated] - app associated resource
+ * @param {string} [params.tag] - app tag
+ * @param {string} [params.template] - app template
+ * @param {string} [params.vmname] - app vm name
  * @param {object} userData - user of http request
  */
 const exportApp = (
@@ -58,21 +66,53 @@ const exportApp = (
       '--datastore',
       datastore,
     ]
-    if (file) {
-      paramsCommand.push('--file-datastore', file)
+
+    file && paramsCommand.push('--file-datastore', file)
+    associated && associated === 'true' && paramsCommand.push('--no')
+    tag && paramsCommand.push('--tag', tag)
+    template && paramsCommand.push('--template', template)
+    vmname && paramsCommand.push('--vmname', vmname)
+
+    const executedCommand = executeCommand(
+      defaultCommandMarketApp,
+      paramsCommand,
+      prependCommand
+    )
+    const response = executedCommand.success ? ok : internalServerError
+    if (executedCommand.data) {
+      message = executedCommand.data
     }
-    if (associated && associated === 'true') {
-      paramsCommand.push('--no')
-    }
-    if (tag) {
-      paramsCommand.push('--tag', tag)
-    }
-    if (template) {
-      paramsCommand.push('--template', template)
-    }
-    if (vmname) {
-      paramsCommand.push('--vmname', vmname)
-    }
+    rtn = httpResponse(response, message)
+  }
+  res.locals.httpCode = rtn
+  next()
+}
+
+/**
+ * Import the marketplace VM or VM TEPLATE to the OpenNebula cloud.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {number} [params.vmId] - vm id
+ * @param {number} [params.templateId] - template id
+ * @param {number} [params.marketId] - market id
+ * @param {string} [params.associated=''] - associated resource
+ * @param {number} [params.vmname] - vm name
+ */
+const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
+  let rtn = httpBadRequest
+  const { vmId, templateId, marketId, associated, vmname } = params
+  const resource = vmId ? 'vm' : 'vm-template'
+  const id = vmId || templateId
+  if (id) {
+    let message = ''
+    const paramsCommand = [resource, 'import', `${id}`]
+
+    paramsCommand.push(associated && associated === 'true' ? '--yes' : '--no')
+    marketId && paramsCommand.push('--market', marketId)
+    vmname && paramsCommand.push('--vmname', vmname)
+
     const executedCommand = executeCommand(
       defaultCommandMarketApp,
       paramsCommand,
@@ -90,5 +130,6 @@ const exportApp = (
 
 const functionRoutes = {
   exportApp,
+  importMarket,
 }
 module.exports = functionRoutes

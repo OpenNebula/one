@@ -18,7 +18,7 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { exportApp } = require('./functions')
+const { exportApp, importMarket } = require('./functions')
 const { POST } = httpMethod
 
 const routes = {
@@ -53,6 +53,56 @@ const routes = {
         template: {
           from: fromData.postBody,
           name: 'template',
+        },
+        vmname: {
+          from: fromData.postBody,
+          name: 'vmname',
+        },
+      },
+    },
+    vmimport: {
+      action: importMarket,
+      params: {
+        vmId: {
+          from: fromData.resource,
+          name: 'id',
+        },
+        name: {
+          from: fromData.postBody,
+          name: 'name',
+        },
+        associated: {
+          from: fromData.postBody,
+          name: 'associated',
+        },
+        marketId: {
+          from: fromData.postBody,
+          name: 'marketId',
+        },
+        vmname: {
+          from: fromData.postBody,
+          name: 'vmname',
+        },
+      },
+    },
+    templateimport: {
+      action: importMarket,
+      params: {
+        templateId: {
+          from: fromData.resource,
+          name: 'id',
+        },
+        name: {
+          from: fromData.postBody,
+          name: 'name',
+        },
+        associated: {
+          from: fromData.postBody,
+          name: 'associated',
+        },
+        marketId: {
+          from: fromData.postBody,
+          name: 'marketId',
         },
         vmname: {
           from: fromData.postBody,
