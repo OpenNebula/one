@@ -35,12 +35,13 @@ const useSearch = ({ list, listOptions }) => {
   const [result, setResult] = useState(undefined)
 
   const listFuse = useMemo(
-    () => new Fuse(list, listOptions, Fuse.createIndex(listOptions?.keys, list)),
+    () =>
+      new Fuse(list, listOptions, Fuse.createIndex(listOptions?.keys, list)),
     [list, listOptions]
   )
 
   const debounceResult = useCallback(
-    debounce(value => {
+    debounce((value) => {
       const search = listFuse.search(value)?.map(({ item }) => item)
 
       setResult(value ? search : undefined)
@@ -48,7 +49,7 @@ const useSearch = ({ list, listOptions }) => {
     [list]
   )
 
-  const handleChange = event => {
+  const handleChange = (event) => {
     const { value: nextValue } = event?.target
 
     setQuery(nextValue)

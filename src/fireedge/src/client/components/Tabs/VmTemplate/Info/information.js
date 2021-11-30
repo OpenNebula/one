@@ -30,21 +30,19 @@ const InformationPanel = ({ template = {}, handleRename, actions }) => {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME),
-      handleEdit: handleRename
+      handleEdit: handleRename,
     },
     {
       name: T.StartTime,
-      value: Helper.timeToString(REGTIME)
+      value: Helper.timeToString(REGTIME),
     },
     {
       name: T.Locked,
-      value: Helper.levelLockToString(LOCK?.LOCKED)
-    }
+      value: Helper.levelLockToString(LOCK?.LOCKED),
+    },
   ]
 
-  return (
-    <List title={T.Information} list={info} />
-  )
+  return <List title={T.Information} list={info} />
 }
 
 InformationPanel.displayName = 'InformationPanel'
@@ -52,7 +50,7 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   handleRename: PropTypes.func,
-  template: PropTypes.object
+  template: PropTypes.object,
 }
 
 export default InformationPanel

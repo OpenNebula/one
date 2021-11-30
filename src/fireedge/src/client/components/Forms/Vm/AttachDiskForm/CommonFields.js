@@ -26,11 +26,7 @@ export const TARGET = {
     Device to map image disk.
     If set, it will overwrite the default device mapping.`,
   type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const READONLY = {
@@ -40,13 +36,13 @@ export const READONLY = {
   type: INPUT_TYPES.SELECT,
   values: [
     { text: T.Yes, value: 'YES' },
-    { text: T.No, value: 'NO' }
+    { text: T.No, value: 'NO' },
   ],
   validation: yup
     .string()
     .trim()
     .notRequired()
-    .default(() => 'NO')
+    .default(() => 'NO'),
 }
 
 export const DEV_PREFIX = {
@@ -59,13 +55,9 @@ export const DEV_PREFIX = {
     { text: 'Virtio', value: 'vd' },
     { text: 'CSI/SATA', value: 'sd' },
     { text: 'Parallel ATA (IDE)', value: 'hd' },
-    { text: 'Custom', value: 'custom' }
+    { text: 'Custom', value: 'custom' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const VCENTER_ADAPTER_TYPE = {
@@ -78,13 +70,9 @@ export const VCENTER_ADAPTER_TYPE = {
     { text: 'lsiLogic', value: 'lsiLogic' },
     { text: 'ide', value: 'ide' },
     { text: 'busLogic', value: 'busLogic' },
-    { text: 'Custom', value: 'custom' }
+    { text: 'Custom', value: 'custom' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const VCENTER_DISK_TYPE = {
@@ -97,13 +85,9 @@ export const VCENTER_DISK_TYPE = {
     { text: 'Thin', value: 'thin' },
     { text: 'Thick', value: 'thick' },
     { text: 'Eager Zeroed Thick', value: 'eagerZeroedThick' },
-    { text: 'Custom', value: 'custom' }
+    { text: 'Custom', value: 'custom' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const CACHE = {
@@ -117,13 +101,9 @@ export const CACHE = {
     { text: 'Writethrough', value: 'writethrough' },
     { text: 'Writeback', value: 'writeback' },
     { text: 'Directsync', value: 'directsync' },
-    { text: 'Unsafe', value: 'unsafe' }
+    { text: 'Unsafe', value: 'unsafe' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const IO = {
@@ -134,13 +114,9 @@ export const IO = {
   values: [
     { text: '', value: '' },
     { text: 'Threads', value: 'threads' },
-    { text: 'Native', value: 'native' }
+    { text: 'Native', value: 'native' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }
 
 export const DISCARD = {
@@ -151,11 +127,7 @@ export const DISCARD = {
   values: [
     { text: '', value: '' },
     { text: 'Ignore', value: 'ignore' },
-    { text: 'Unmap', value: 'unmap' }
+    { text: 'Unmap', value: 'unmap' },
   ],
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default(undefined)
+  validation: yup.string().trim().notRequired().default(undefined),
 }

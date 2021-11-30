@@ -17,7 +17,10 @@ import { memo, useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import makeStyles from '@mui/styles/makeStyles'
-import { AddCircledOutline as AddIcon, Selection as SelectAllIcon } from 'iconoir-react'
+import {
+  AddCircledOutline as AddIcon,
+  Selection as SelectAllIcon,
+} from 'iconoir-react'
 
 import ReactFlow, { Background } from 'react-flow-renderer'
 import { useFormContext } from 'react-hook-form'
@@ -37,16 +40,16 @@ const useStyles = makeStyles(() => ({
       height: 10,
       backgroundColor: 'rgba(0,0,0,0.2)',
       '&-bottom': {
-        bottom: -6
+        bottom: -6,
       },
       '&-connecting': {
-        backgroundColor: '#ff6060'
+        backgroundColor: '#ff6060',
       },
       '&-valid': {
-        backgroundColor: '#55dd99'
-      }
-    }
-  }
+        backgroundColor: '#55dd99',
+      },
+    },
+  },
 }))
 
 /**
@@ -68,14 +71,13 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
     handleRemoveElements,
     handleConnect,
     handleUpdatePosition,
-    handleSelectAll
+    handleSelectAll,
   } = useFlowGraph({ nodeFields: dataFields, setList: handleSetData })
 
   useEffect(() => {
-    handleRefreshFlow(
-      watch(TIER_ID),
-      ({ id }) => ({ handleEdit: () => handleEdit(id) })
-    )
+    handleRefreshFlow(watch(TIER_ID), ({ id }) => ({
+      handleEdit: () => handleEdit(id),
+    }))
   }, [watch])
 
   const actions = useMemo(
@@ -83,13 +85,13 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       {
         icon: <AddIcon />,
         name: 'Add',
-        handleClick: handleCreate
+        handleClick: handleCreate,
       },
       {
         icon: <SelectAllIcon />,
         name: 'Select all',
-        handleClick: handleSelectAll
-      }
+        handleClick: handleSelectAll,
+      },
     ],
     [handleCreate, handleSelectAll]
   )
@@ -105,7 +107,7 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       selectionKeyCode={NOT_KEY_CODE}
     >
       <SpeedDial actions={actions} />
-      <Background color='#aaa' gap={16} />
+      <Background color="#aaa" gap={16} />
     </ReactFlow>
   )
 })
@@ -114,14 +116,14 @@ Flow.propTypes = {
   dataFields: PropTypes.arrayOf(PropTypes.string),
   handleCreate: PropTypes.func,
   handleEdit: PropTypes.func,
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 Flow.defaultProps = {
   dataFields: [],
   handleCreate: undefined,
   handleEdit: undefined,
-  handleSetData: undefined
+  handleSetData: undefined,
 }
 
 export default Flow

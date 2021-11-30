@@ -61,10 +61,12 @@ export const getDeployMode = (datastore = {}) => {
  * }} - Datastore used percentage and label.
  */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
-  const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
+  const percentOfUsed = (+USED_MB * 100) / +TOTAL_MB || 0
   const usedBytes = prettyBytes(+USED_MB, 'MB')
   const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
-  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
+  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(
+    percentOfUsed
+  )}%)`
 
   return { percentOfUsed, percentLabel }
 }
@@ -79,8 +81,11 @@ export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
  */
 export const isMarketExportSupport = ({ NAME } = {}, oneConfig) => {
   // When in doubt, allow the action and let oned return failure
-  return !NAME || oneConfig?.DS_MAD_CONF?.some(dsMad => (
-    dsMad?.NAME === NAME &&
-    dsMad?.MARKETPLACE_ACTIONS?.includes?.('export')
-  ))
+  return (
+    !NAME ||
+    oneConfig?.DS_MAD_CONF?.some(
+      (dsMad) =>
+        dsMad?.NAME === NAME && dsMad?.MARKETPLACE_ACTIONS?.includes?.('export')
+    )
+  )
 }

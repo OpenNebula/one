@@ -18,7 +18,7 @@ const socketIO = require('socket.io')
 const { messageTerminal, checkEmptyObject } = require('server/utils/general')
 const {
   defaultFilesWebsockets,
-  defaultConfigErrorMessage
+  defaultConfigErrorMessage,
 } = require('server/utils/constants/defaults')
 
 /**
@@ -35,42 +35,43 @@ const websockets = (appServer = {}) => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    Object.entries(defaultFilesWebsockets).forEach(([filename = '', info = {}]) => {
-      if (filename && info && !checkEmptyObject(info)) {
-        const path = info && info.path
-        const methods = info && info.methods
-        if (path && methods) {
-          const io = socketIO(
-            {
+    Object.entries(defaultFilesWebsockets).forEach(
+      ([filename = '', info = {}]) => {
+        if (filename && info && !checkEmptyObject(info)) {
+          const path = info && info.path
+          const methods = info && info.methods
+          if (path && methods) {
+            const io = socketIO({
               path,
               cors: {
                 origin: '*',
                 methods,
-                credentials: true
+                credentials: true,
+              },
+            }).listen(appServer)
+            try {
+              // eslint-disable-next-line global-require
+              const fileInfo = require(`./${filename}`)
+              if (fileInfo.main && typeof fileInfo.main === 'function') {
+                sockets.push(io)
+                fileInfo.main(io, filename)
               }
-            }
-          ).listen(appServer)
-          try {
-            // eslint-disable-next-line global-require
-            const fileInfo = require(`./${filename}`)
-            if (fileInfo.main && typeof fileInfo.main === 'function') {
-              sockets.push(io)
-              fileInfo.main(io, filename)
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              const config = defaultConfigErrorMessage
-              config.error = error.message
-              messageTerminal(config)
+            } catch (error) {
+              if (error instanceof Error) {
+                const config = defaultConfigErrorMessage
+                config.error = error.message
+                messageTerminal(config)
+              }
             }
           }
         }
       }
-    })
+    )
   }
+
   return sockets
 }
 
 module.exports = {
-  websockets
+  websockets,
 }

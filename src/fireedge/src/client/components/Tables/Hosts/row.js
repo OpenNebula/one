@@ -19,7 +19,11 @@ import PropTypes from 'prop-types'
 import { Server, ModernTv } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
+import {
+  StatusCircle,
+  LinearProgressWithLabel,
+  StatusChip,
+} from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import { Tr } from 'client/components/HOC'
 
@@ -29,16 +33,18 @@ import { T } from 'client/constants'
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, IM_MAD, VM_MAD, RUNNING_VMS,
-    TOTAL_VMS, CLUSTER, TEMPLATE
+    ID,
+    NAME,
+    IM_MAD,
+    VM_MAD,
+    RUNNING_VMS,
+    TOTAL_VMS,
+    CLUSTER,
+    TEMPLATE,
   } = value
 
-  const {
-    percentCpuUsed,
-    percentCpuLabel,
-    percentMemUsed,
-    percentMemLabel
-  } = HostModel.getAllocatedInfo(value)
+  const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
+    HostModel.getAllocatedInfo(value)
 
   const { color: stateColor, name: stateName } = HostModel.getState(original)
 
@@ -51,11 +57,11 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography noWrap component='span'>
+          <Typography noWrap component="span">
             {TEMPLATE?.NAME ?? NAME}
           </Typography>
           <span className={classes.labels}>
-            {labels.map(label => (
+            {labels.map((label) => (
               <StatusChip key={label} text={label} />
             ))}
           </span>
@@ -92,7 +98,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

@@ -22,7 +22,9 @@ import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import MAccordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
-import AccordionSummary, { accordionSummaryClasses } from '@mui/material/AccordionSummary'
+import AccordionSummary, {
+  accordionSummaryClasses,
+} from '@mui/material/AccordionSummary'
 import { Trash as TrashIcon, NavArrowRight as ExpandIcon } from 'iconoir-react'
 
 import { useVmApi } from 'client/features/One'
@@ -35,60 +37,70 @@ import MultipleTags from 'client/components/MultipleTags'
 import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const Accordion = styled(props => (
+const Accordion = styled((props) => (
   <MAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
-  '&:before': { display: 'none' }
+  '&:before': { display: 'none' },
 }))
 
-const Summary = styled(AccordionSummary)(({
+const Summary = styled(AccordionSummary)({
   [`&.${accordionSummaryClasses.root}`]: {
     backgroundColor: 'rgba(0, 0, 0, .03)',
     flexDirection: 'row-reverse',
-    '&:hover': { backgroundColor: 'rgba(0, 0, 0, .07)' }
+    '&:hover': { backgroundColor: 'rgba(0, 0, 0, .07)' },
   },
-  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
-    transform: 'rotate(90deg)'
-  }
-}))
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]:
+    {
+      transform: 'rotate(90deg)',
+    },
+})
 
 const Row = styled('div')({
   display: 'flex',
   width: '100%',
   gap: '0.5em',
   alignItems: 'center',
-  flexWrap: 'nowrap'
+  flexWrap: 'nowrap',
 })
 
 const Labels = styled('span')({
   display: 'inline-flex',
   gap: '0.5em',
-  alignItems: 'center'
+  alignItems: 'center',
 })
 
 const Details = styled(AccordionDetails)({
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5em',
-  marginLeft: '1em'
+  marginLeft: '1em',
 })
 
 const SecGroups = styled(Paper)({
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5em',
-  padding: '0.8em'
+  padding: '0.8em',
 })
 
 const NetworkItem = ({ nic = {}, actions }) => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
   const { display, show, hide, values } = useDialog()
   const { detachNic } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const { NIC_ID, NETWORK = '-', IP, MAC, PCI_ID, ADDRESS, ALIAS, SECURITY_GROUPS } = nic
+  const {
+    NIC_ID,
+    NETWORK = '-',
+    IP,
+    MAC,
+    PCI_ID,
+    ADDRESS,
+    ALIAS,
+    SECURITY_GROUPS,
+  } = nic
   const isPciDevice = PCI_ID !== undefined
 
   const hasDetails = useMemo(
@@ -97,7 +109,8 @@ const NetworkItem = ({ nic = {}, actions }) => {
   )
 
   const handleDetach = async () => {
-    const response = values?.id !== undefined && (await detachNic(vm.ID, values.id))
+    const response =
+      values?.id !== undefined && (await detachNic(vm.ID, values.id))
 
     String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
     hide()
@@ -118,9 +131,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
       <Accordion>
         <Summary {...(hasDetails && { expandIcon: <ExpandIcon /> })}>
           <Row>
-            <Typography noWrap>
-              {`${NIC_ID} | ${NETWORK}`}
-            </Typography>
+            <Typography noWrap>{`${NIC_ID} | ${NETWORK}`}</Typography>
             <Labels>
               <MultipleTags
                 clipboard
@@ -135,29 +146,43 @@ const NetworkItem = ({ nic = {}, actions }) => {
           <Details>
             {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
               <Row key={NIC_ID}>
-                <Typography noWrap variant='body2'>
-                  <Translate word={T.Alias} />{`${NIC_ID} | ${NETWORK}`}
+                <Typography noWrap variant="body2">
+                  <Translate word={T.Alias} />
+                  {`${NIC_ID} | ${NETWORK}`}
                 </Typography>
                 <Labels>
                   <MultipleTags
                     clipboard
                     limitTags={isMobile ? 1 : 3}
-                    tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(Boolean)}
+                    tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(
+                      Boolean
+                    )}
                   />
                 </Labels>
                 {!isMobile && !isPciDevice && detachAction(NIC_ID, true)}
               </Row>
             ))}
             {!!SECURITY_GROUPS?.length && (
-              <SecGroups variant='outlined'>
-                <Typography variant='body1'>
+              <SecGroups variant="outlined">
+                <Typography variant="body1">
                   <Translate word={T.SecurityGroups} />
                 </Typography>
 
-                {SECURITY_GROUPS
-                  ?.map(({ ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID }, idx) => (
+                {SECURITY_GROUPS?.map(
+                  (
+                    {
+                      ID,
+                      NAME,
+                      PROTOCOL,
+                      RULE_TYPE,
+                      ICMP_TYPE,
+                      RANGE,
+                      NETWORK_ID,
+                    },
+                    idx
+                  ) => (
                     <Row key={`${idx}-${NAME}`}>
-                      <Typography noWrap variant='body2'>
+                      <Typography noWrap variant="body2">
                         {`${ID} | ${NAME}`}
                       </Typography>
                       <Labels>
@@ -168,12 +193,13 @@ const NetworkItem = ({ nic = {}, actions }) => {
                             RULE_TYPE,
                             RANGE,
                             NETWORK_ID,
-                            ICMP_TYPE
+                            ICMP_TYPE,
                           ].filter(Boolean)}
                         />
                       </Labels>
                     </Row>
-                  ))}
+                  )
+                )}
               </SecGroups>
             )}
           </Details>
@@ -185,7 +211,8 @@ const NetworkItem = ({ nic = {}, actions }) => {
           title={
             <Translate
               word={T.DetachSomething}
-              values={`${values?.isAlias ? T.Alias : T.NIC} #${values?.id}`} />
+              values={`${values?.isAlias ? T.Alias : T.NIC} #${values?.id}`}
+            />
           }
           handleAccept={handleDetach}
           handleCancel={hide}
@@ -201,7 +228,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
 
 NetworkItem.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  nic: PropTypes.object
+  nic: PropTypes.object,
 }
 
 NetworkItem.displayName = 'NetworkItem'

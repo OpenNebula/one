@@ -17,7 +17,15 @@ import { useMemo, SetStateAction, JSXElementConstructor } from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
-import { TextField, Grid, Typography, FormControlLabel, Checkbox, Autocomplete, Chip } from '@mui/material'
+import {
+  TextField,
+  Grid,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+  Autocomplete,
+  Chip,
+} from '@mui/material'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { RestClient, requestConfig } from 'client/utils'
@@ -33,16 +41,16 @@ import { RestClient, requestConfig } from 'client/utils'
  */
 const ResponseForm = ({
   handleChangeResponse,
-  command: { name, httpMethod, params }
+  command: { name, httpMethod, params },
 }) => {
   const { control, handleSubmit, formState } = useForm()
   const memoParams = useMemo(() => Object.entries(params), [name])
 
-  const onSubmit = async dataForm => {
+  const onSubmit = async (dataForm) => {
     try {
       const config = requestConfig(dataForm, { name, httpMethod, params })
 
-      const res = await RestClient.request(config) ?? {}
+      const res = (await RestClient.request(config)) ?? {}
       handleChangeResponse(JSON.stringify(res, null, '\t'))
     } catch (err) {
       handleChangeResponse(JSON.stringify(err.data, null, '\t'))
@@ -53,9 +61,9 @@ const ResponseForm = ({
   return (
     <>
       <Typography
-        color='textPrimary'
-        component='h2'
-        variant='h2'
+        color="textPrimary"
+        component="h2"
+        variant="h2"
         style={{ padding: '16px 0' }}
       >
         {name || 'Request'}
@@ -63,10 +71,10 @@ const ResponseForm = ({
       <Grid
         container
         spacing={1}
-        justifyContent='flex-start'
-        component='form'
+        justifyContent="flex-start"
+        component="form"
         onSubmit={handleSubmit(onSubmit)}
-        autoComplete='off'
+        autoComplete="off"
       >
         {memoParams?.map(([paramName, { default: defaultValue }]) => {
           const { message: errorMessage } = formState.errors[paramName] ?? {}
@@ -74,57 +82,63 @@ const ResponseForm = ({
           return (
             <Grid item xs={12} key={`param-${paramName}`}>
               <Controller
-                render={({ value, onChange, ...controllerProps }) => ({
-                  boolean: <FormControlLabel
-                    control={(
-                      <Checkbox
-                        color='primary'
-                        onChange={e => onChange(e.target.checked)}
-                      />
-                    )}
-                    label={paramName}
-                    labelPlacement='end'
-                  />,
-                  object: <Autocomplete
-                    fullWidth
-                    multiple
-                    color='secondary'
-                    freeSolo
-                    options={[]}
-                    onChange={(_, newValue) => onChange(newValue ?? '')}
-                    renderTags={(tags, getTagProps) =>
-                      tags.map((tag, index) => (
-                        <Chip
-                          key={`${index}-${tag}`}
-                          variant='outlined'
-                          label={tag}
-                          {...getTagProps({ index })}
-                        />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
+                render={({ value, onChange, ...controllerProps }) =>
+                  ({
+                    boolean: (
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            color="primary"
+                            onChange={(e) => onChange(e.target.checked)}
+                          />
+                        }
                         label={paramName}
-                        color='secondary'
-                        error={Boolean(errorMessage)}
-                        helperText={errorMessage}
+                        labelPlacement="end"
                       />
-                    )}
-                  />
-                }[typeof defaultValue] ?? (
-                  <TextField
-                    error={Boolean(errorMessage)}
-                    helperText={errorMessage}
-                    fullWidth
-                    value={value ?? ''}
-                    label={paramName}
-                    color='secondary'
-                    onChange={onChange}
-                    {...controllerProps}
-                  />
-                ))}
+                    ),
+                    object: (
+                      <Autocomplete
+                        fullWidth
+                        multiple
+                        color="secondary"
+                        freeSolo
+                        options={[]}
+                        onChange={(_, newValue) => onChange(newValue ?? '')}
+                        renderTags={(tags, getTagProps) =>
+                          tags.map((tag, index) => (
+                            <Chip
+                              key={`${index}-${tag}`}
+                              variant="outlined"
+                              label={tag}
+                              {...getTagProps({ index })}
+                            />
+                          ))
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            label={paramName}
+                            color="secondary"
+                            error={Boolean(errorMessage)}
+                            helperText={errorMessage}
+                          />
+                        )}
+                      />
+                    ),
+                  }[typeof defaultValue] ?? (
+                    <TextField
+                      error={Boolean(errorMessage)}
+                      helperText={errorMessage}
+                      fullWidth
+                      value={value ?? ''}
+                      label={paramName}
+                      color="secondary"
+                      onChange={onChange}
+                      {...controllerProps}
+                    />
+                  ))
+                }
                 control={control}
                 name={`${paramName}`}
                 defaultValue={defaultValue}
@@ -134,7 +148,7 @@ const ResponseForm = ({
         })}
         <Grid item xs={12}>
           <SubmitButton
-            color='secondary'
+            color="secondary"
             isSubmitting={formState.isSubmitting}
           />
         </Grid>
@@ -147,17 +161,17 @@ ResponseForm.propTypes = {
   command: shape({
     name: string.isRequired,
     httpMethod: string.isRequired,
-    params: object.isRequired
+    params: object.isRequired,
   }).isRequired,
-  handleChangeResponse: func.isRequired
+  handleChangeResponse: func.isRequired,
 }
 
 ResponseForm.defaultProps = {
   command: {
     name: '',
     httpMethod: 'GET',
-    params: {}
+    params: {},
   },
-  handleChangeResponse: () => undefined
+  handleChangeResponse: () => undefined,
 }
 export default ResponseForm

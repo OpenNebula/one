@@ -24,4 +24,5 @@ import { HYPERVISORS } from 'client/constants'
  * @param {HYPERVISORS} hypervisor - VM hypervisor
  * @returns {ObjectSchema} Extra configuration schema
  */
-export const SCHEMA = hypervisor => CREATE_EXTRA_SCHEMA(hypervisor).noUnknown(false)
+export const SCHEMA = (hypervisor) =>
+  CREATE_EXTRA_SCHEMA(hypervisor).noUnknown(false)

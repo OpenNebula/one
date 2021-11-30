@@ -40,24 +40,29 @@ const Provider = () => ({
 
     const provisionTemplateSelected = useWatch({ name: TEMPLATE_ID })?.[0] ?? {}
 
-    const providersAvailable = useMemo(() =>
-      providers.filter(provider => {
-        const { TEMPLATE: { PLAIN = {} } } = provider ?? {}
+    const providersAvailable = useMemo(
+      () =>
+        providers.filter((provider) => {
+          const {
+            TEMPLATE: { PLAIN = {} },
+          } = provider ?? {}
 
-        return (
-          PLAIN.provider === provisionTemplateSelected.provider &&
-          PLAIN.provision_type === provisionTemplateSelected.provision_type
-        )
-      }), [])
+          return (
+            PLAIN.provider === provisionTemplateSelected.provider &&
+            PLAIN.provision_type === provisionTemplateSelected.provision_type
+          )
+        }),
+      []
+    )
 
-    const {
-      handleSelect,
-      handleClear
-    } = useListForm({ key: STEP_ID, setList: setFormData })
+    const { handleSelect, handleClear } = useListForm({
+      key: STEP_ID,
+      setList: setFormData,
+    })
 
     const handleClick = (provider, isSelected) => {
       // reset inputs when selected provider changes
-      setFormData(prev => ({ ...prev, [INPUTS_ID]: undefined }))
+      setFormData((prev) => ({ ...prev, [INPUTS_ID]: undefined }))
 
       isSelected ? handleClear() : handleSelect(provider)
     }
@@ -70,19 +75,19 @@ const Provider = () => ({
         gridProps={{ 'data-cy': 'providers' }}
         cardsProps={({ value = {} }) => {
           const { ID, TEMPLATE } = value
-          const isSelected = data?.some(selected => selected.ID === ID)
+          const isSelected = data?.some((selected) => selected.ID === ID)
           const image = providerConfig?.[TEMPLATE?.PLAIN?.provider]?.image
 
           return {
             image,
             isProvider: true,
             isSelected,
-            handleClick: () => handleClick(value, isSelected)
+            handleClick: () => handleClick(value, isSelected),
           }
         }}
       />
     )
-  }, [])
+  }, []),
 })
 
 export default Provider

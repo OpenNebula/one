@@ -23,7 +23,7 @@ import { Field, arrayToOptions } from 'client/utils'
  * @param {boolean} isUpdate - If `true`, the form is being updated
  * @returns {Field} Name field
  */
-export const NAME = isUpdate => ({
+export const NAME = (isUpdate) => ({
   name: 'NAME',
   label: T.Name,
   type: INPUT_TYPES.TEXT,
@@ -32,7 +32,7 @@ export const NAME = isUpdate => ({
     .required()
     .default(() => undefined),
   grid: { sm: 6 },
-  ...(isUpdate && { fieldProps: { disabled: true } })
+  ...(isUpdate && { fieldProps: { disabled: true } }),
 })
 
 /** @type {Field} Description field */
@@ -43,7 +43,7 @@ export const DESCRIPTION = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Hypervisor field */
@@ -52,13 +52,13 @@ export const HYPERVISOR_FIELD = {
   type: INPUT_TYPES.TOGGLE,
   values: arrayToOptions(Object.values(HYPERVISORS), {
     addEmpty: false,
-    getText: hypervisor => hypervisor.toUpperCase()
+    getText: (hypervisor) => hypervisor.toUpperCase(),
   }),
   validation: string()
     .trim()
     .required()
     .default(() => HYPERVISORS.kvm),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Logo field */
@@ -85,15 +85,15 @@ export const LOGO = {
     { text: 'Suse', value: 'suse.png' },
     { text: 'Ubuntu', value: 'ubuntu.png' },
     { text: 'Windows xp', value: 'windowsxp.png' },
-    { text: 'Windows 10', value: 'windows8.png' }
+    { text: 'Windows 10', value: 'windows8.png' },
   ],
   // eslint-disable-next-line react/display-name
-  renderValue: value => (
+  renderValue: (value) => (
     <Image
       imgProps={{
         height: 25,
         width: 25,
-        style: { marginRight: 10 }
+        style: { marginRight: 10 },
       }}
       src={`${LOGO_IMAGES_URL}/${value}`}
     />
@@ -101,15 +101,11 @@ export const LOGO = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated
  * @returns {Field[]} List of information fields
  */
-export const FIELDS = isUpdate => [
-  NAME(isUpdate),
-  DESCRIPTION,
-  LOGO
-]
+export const FIELDS = (isUpdate) => [NAME(isUpdate), DESCRIPTION, LOGO]

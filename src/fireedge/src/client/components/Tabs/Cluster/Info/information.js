@@ -30,13 +30,13 @@ const InformationPanel = ({ cluster = {}, handleRename, actions }) => {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(CLUSTER_ACTIONS.RENAME),
-      handleEdit: handleRename
-    }
+      handleEdit: handleRename,
+    },
   ]
 
   const overcommitment = [
     { name: T.ReservedMemory, value: RESERVED_MEM },
-    { name: T.ReservedCpu, value: RESERVED_CPU }
+    { name: T.ReservedCpu, value: RESERVED_CPU },
   ]
 
   return (
@@ -52,7 +52,7 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   handleRename: PropTypes.func,
-  cluster: PropTypes.object
+  cluster: PropTypes.object,
 }
 
 export default InformationPanel

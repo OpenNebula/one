@@ -28,7 +28,7 @@ import { ApplicationCard } from 'client/components/Cards'
 
 import { T } from 'client/constants'
 
-function ApplicationsInstances () {
+function ApplicationsInstances() {
   const [showDialog, setShowDialog] = useState(false)
 
   const applications = useApplication()
@@ -36,7 +36,9 @@ function ApplicationsInstances () {
 
   const { error, fetchRequest, loading, reloading } = useFetch(getApplications)
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   // const list = useMemo(() => (
   //   applications.length > 0
@@ -54,7 +56,7 @@ function ApplicationsInstances () {
         reloadButtonProps={{
           'data-cy': 'refresh-application-list',
           onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
-          isSubmitting: Boolean(loading || reloading)
+          isSubmitting: Boolean(loading || reloading),
         }}
       />
       <Box p={3}>
@@ -67,7 +69,7 @@ function ApplicationsInstances () {
             gridProps={{ 'data-cy': 'applications' }}
             CardComponent={ApplicationCard}
             cardsProps={({ value }) => ({
-              handleShow: () => setShowDialog(value)
+              handleShow: () => setShowDialog(value),
             })}
           />
         )}

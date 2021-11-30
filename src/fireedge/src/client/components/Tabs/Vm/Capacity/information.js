@@ -35,37 +35,37 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
   const capacity = [
     {
       name: T.PhysicalCpu,
-      value: TEMPLATE?.CPU
+      value: TEMPLATE?.CPU,
     },
     {
       name: T.VirtualCpu,
-      value: TEMPLATE?.VCPU ?? '-'
+      value: TEMPLATE?.VCPU ?? '-',
     },
-    (isVCenter && {
+    isVCenter && {
       name: T.VirtualCores,
       value: (
         <>
           {`${Tr(T.Cores)} x ${TEMPLATE?.TOPOLOGY?.CORES || '-'} |
           ${Tr(T.Sockets)} ${TEMPLATE?.TOPOLOGY?.SOCKETS || '-'}`}
         </>
-      )
-    }),
+      ),
+    },
     {
       name: T.Memory,
-      value: prettyBytes(+TEMPLATE?.MEMORY, 'MB')
+      value: prettyBytes(+TEMPLATE?.MEMORY, 'MB'),
     },
     {
       name: T.CostCpu,
-      value: TEMPLATE?.CPU_COST || 0
+      value: TEMPLATE?.CPU_COST || 0,
     },
     {
       name: T.CostMByte,
-      value: TEMPLATE?.MEMORY_COST || 0
-    }
+      value: TEMPLATE?.MEMORY_COST || 0,
+    },
   ].filter(Boolean)
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.actions}>
         {actions?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
           <ButtonToTriggerForm
@@ -73,13 +73,15 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
               color: 'secondary',
               'data-cy': 'resize-capacity',
               label: T.Resize,
-              variant: 'outlined'
+              variant: 'outlined',
             }}
-            options={[{
-              dialogProps: { title: T.ResizeCapacity },
-              form: () => ResizeCapacityForm(undefined, vm.TEMPLATE),
-              onSubmit: handleResizeCapacity
-            }]}
+            options={[
+              {
+                dialogProps: { title: T.ResizeCapacity },
+                form: () => ResizeCapacityForm(undefined, vm.TEMPLATE),
+                onSubmit: handleResizeCapacity,
+              },
+            ]}
           />
         )}
       </div>
@@ -88,7 +90,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
           <Typography className={classes.title} noWrap title={name}>
             {name}
           </Typography>
-          <Typography variant='body2' noWrap title={value}>
+          <Typography variant="body2" noWrap title={value}>
             {value}
           </Typography>
         </div>
@@ -100,7 +102,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
 InformationPanel.propTypes = {
   handleResizeCapacity: PropTypes.func,
   actions: PropTypes.array,
-  vm: PropTypes.object
+  vm: PropTypes.object,
 }
 
 InformationPanel.displayName = 'InformationPanel'

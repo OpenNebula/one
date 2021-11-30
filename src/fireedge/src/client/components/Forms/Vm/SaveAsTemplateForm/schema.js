@@ -26,7 +26,7 @@ const NAME = {
   validation: string()
     .trim()
     .required()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Persistent field */
@@ -35,7 +35,7 @@ const PERSISTENT = {
   label: T.MakeNewImagePersistent,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of fields */

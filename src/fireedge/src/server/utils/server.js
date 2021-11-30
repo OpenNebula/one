@@ -19,9 +19,23 @@ const { Map } = require('immutable')
 const multer = require('multer')
 const { global } = require('window-or-global')
 const { resolve } = require('path')
-// eslint-disable-next-line node/no-deprecated-api
-const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
-const { existsSync, readFileSync, createWriteStream, readdirSync, statSync, removeSync } = require('fs-extra')
+const {
+  createCipheriv,
+  // eslint-disable-next-line node/no-deprecated-api
+  createCipher,
+  createDecipheriv,
+  // eslint-disable-next-line node/no-deprecated-api
+  createDecipher,
+  createHash,
+} = require('crypto')
+const {
+  existsSync,
+  readFileSync,
+  createWriteStream,
+  readdirSync,
+  statSync,
+  removeSync,
+} = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
@@ -51,7 +65,7 @@ const {
   defaultSunstoneConfig,
   defaultProvisionPath,
   defaultProvisionConfig,
-  defaultEmptyFunction
+  defaultEmptyFunction,
 } = require('./constants/defaults')
 
 const upload = multer({ dest: '/tmp' })
@@ -70,7 +84,7 @@ let key = ''
 const setFunctionRoute = (method, endpoint, action) => ({
   httpMethod: method,
   endpoint,
-  action
+  action,
 })
 
 /**
@@ -85,7 +99,9 @@ const setApiRoutes = (routes = {}, path = '') => {
   if (Object.keys(routes).length > 0 && routes.constructor === Object) {
     Object.keys(routes).forEach((route) => {
       rtn.push(
-        setFunctionRoute(route, path,
+        setFunctionRoute(
+          route,
+          path,
           (req, res, next, connection, userId, user) => {
             addFunctionAsRoute(req, res, next, routes[route], user, connection)
           }
@@ -93,6 +109,7 @@ const setApiRoutes = (routes = {}, path = '') => {
       )
     })
   }
+
   return rtn
 }
 
@@ -136,12 +153,15 @@ const parseFiles = (files = []) => {
   let rtn
   if (files && Array.isArray(files)) {
     rtn = {}
-    files.forEach(file => {
+    files.forEach((file) => {
       if (file.fieldname) {
-        rtn[file.fieldname] ? rtn[file.fieldname].push(file) : rtn[file.fieldname] = [file]
+        rtn[file.fieldname]
+          ? rtn[file.fieldname].push(file)
+          : (rtn[file.fieldname] = [file])
       }
     })
   }
+
   return rtn
 }
 
@@ -156,14 +176,34 @@ const parseFiles = (files = []) => {
  * @param {Function} oneConnection - function one XMLRPC
  * @param {string} index - resource index
  */
-const addFunctionAsRoute = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
+const addFunctionAsRoute = (
+  req = {},
+  res = {},
+  next = defaultEmptyFunction,
+  routes = {},
+  user = {},
+  oneConnection = defaultEmptyFunction,
+  index = 0
+) => {
   if (req && req.serverDataSource && res && next && routes) {
     const serverDataSource = req.serverDataSource
     const resources = Object.keys(serverDataSource[fromData.resource])
-    const route = routes[`${serverDataSource[fromData.resource][resources[index]]}`.toLowerCase()]
-    if (fromData && fromData.resource && serverDataSource[fromData.resource] && route) {
+    const route =
+      routes[
+        `${serverDataSource[fromData.resource][resources[index]]}`.toLowerCase()
+      ]
+    if (
+      fromData &&
+      fromData.resource &&
+      serverDataSource[fromData.resource] &&
+      route
+    ) {
       if (Object.keys(route).length > 0 && route.constructor === Object) {
-        if (route.action && route.params && typeof route.action === 'function') {
+        if (
+          route.action &&
+          route.params &&
+          typeof route.action === 'function'
+        ) {
           const uploadFiles = getRequestFiles(route.params)
           if (uploadFiles && uploadFiles.length) {
             const files = upload.array(uploadFiles)
@@ -174,22 +214,46 @@ const addFunctionAsRoute = (req = {}, res = {}, next = defaultEmptyFunction, rou
                 messageTerminal({
                   color: 'red',
                   message: 'Error: %s',
-                  error: errorData
+                  error: errorData,
                 })
               }
               const dataSources = {
                 [fromData.resource]: serverDataSource[fromData.resource],
                 [fromData.query]: req.query,
-                [fromData.postBody]: req.body
+                [fromData.postBody]: req.body,
               }
               dataSources.files = parseFiles(req && req.files)
-              executeAction(route.action, res, next, route.params, dataSources, user, oneConnection)
+              executeAction(
+                route.action,
+                res,
+                next,
+                route.params,
+                dataSources,
+                user,
+                oneConnection
+              )
             })
           } else {
-            executeAction(route.action, res, next, route.params, serverDataSource, user, oneConnection)
+            executeAction(
+              route.action,
+              res,
+              next,
+              route.params,
+              serverDataSource,
+              user,
+              oneConnection
+            )
           }
         } else {
-          addFunctionAsRoute(req, res, next, route, user, oneConnection, index + 1)
+          addFunctionAsRoute(
+            req,
+            res,
+            next,
+            route,
+            user,
+            oneConnection,
+            index + 1
+          )
         }
       } else {
         next()
@@ -209,10 +273,14 @@ const addFunctionAsRoute = (req = {}, res = {}, next = defaultEmptyFunction, rou
  */
 const validateServerIsSecure = () => {
   const folder = 'cert/'
-  const dirCerts = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../', folder] : ['../', folder]
+  const dirCerts =
+    env && env.NODE_ENV === defaultWebpackMode
+      ? ['../', '../', '../', folder]
+      : ['../', folder]
   const pathfile = resolve(__dirname, ...dirCerts)
   cert = `${pathfile}/cert.pem`
   key = `${pathfile}/key.pem`
+
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
 }
 /**
@@ -255,6 +323,7 @@ const httpResponse = (response = null, data = '', message = '', file = '') => {
     rtn.data && delete rtn.data
     rtn.file = file
   }
+
   return rtn
 }
 
@@ -266,13 +335,10 @@ const httpResponse = (response = null, data = '', message = '', file = '') => {
  */
 const getQueryData = (server = {}) => {
   let rtn = {}
-  if (
-    server &&
-    server.handshake &&
-    server.handshake.query
-  ) {
+  if (server && server.handshake && server.handshake.query) {
     rtn = server.handshake.query
   }
+
   return rtn
 }
 
@@ -287,9 +353,10 @@ const validateAuthWebsocket = (server = {}) => {
   const { token } = getQueryData(server)
   if (token) {
     rtn = validateAuth({
-      headers: { authorization: token }
+      headers: { authorization: token },
     })
   }
+
   return rtn
 }
 
@@ -302,6 +369,7 @@ const validateAuthWebsocket = (server = {}) => {
 const getResourceDataForRequest = (server = {}) => {
   const { id, resource } = getQueryData(server)
   const { aud: username } = validateAuthWebsocket(server)
+
   return { id, resource, username }
 }
 
@@ -311,7 +379,10 @@ const getResourceDataForRequest = (server = {}) => {
  * @param {object} server - express app
  * @param {Function} next - express stepper
  */
-const middlewareValidateResourceForHookConnection = (server = {}, next = () => undefined) => {
+const middlewareValidateResourceForHookConnection = (
+  server = {},
+  next = () => undefined
+) => {
   const { id, resource, username } = getResourceDataForRequest(server)
   if (
     id &&
@@ -322,7 +393,8 @@ const middlewareValidateResourceForHookConnection = (server = {}, next = () => u
     global.users[username] &&
     global.users[username].resourcesHooks &&
     global.users[username].resourcesHooks[resource.toLowerCase()] >= 0 &&
-    global.users[username].resourcesHooks[resource.toLowerCase()] === parseInt(id, 10)
+    global.users[username].resourcesHooks[resource.toLowerCase()] ===
+      parseInt(id, 10)
   ) {
     next()
   } else {
@@ -336,7 +408,10 @@ const middlewareValidateResourceForHookConnection = (server = {}, next = () => u
  * @param {object} server - express app
  * @param {Function} next - express stepper
  */
-const middlewareValidateAuthWebsocket = (server = {}, next = () => undefined) => {
+const middlewareValidateAuthWebsocket = (
+  server = {},
+  next = () => undefined
+) => {
   if (validateAuthWebsocket(server)) {
     next()
   } else {
@@ -356,7 +431,9 @@ const encrypt = (data = '', key = '', iv = '') => {
   let rtn
   if (data && key) {
     try {
-      const cipher = iv ? createCipheriv(defaultTypeCrypto, key, iv) : createCipher(defaultTypeCrypto, key)
+      const cipher = iv
+        ? createCipheriv(defaultTypeCrypto, key, iv)
+        : createCipher(defaultTypeCrypto, key)
       let encryptData = cipher.update(data, 'ascii', 'base64')
       encryptData += cipher.final('base64')
       rtn = encryptData
@@ -366,10 +443,11 @@ const encrypt = (data = '', key = '', iv = '') => {
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
-        error: errorData
+        error: errorData,
       })
     }
   }
+
   return rtn
 }
 
@@ -385,7 +463,9 @@ const decrypt = (data = '', key = '', iv = '') => {
   let rtn
   if (data && key) {
     try {
-      const cipher = iv ? createDecipheriv(defaultTypeCrypto, key, iv) : createDecipher(defaultTypeCrypto, key)
+      const cipher = iv
+        ? createDecipheriv(defaultTypeCrypto, key, iv)
+        : createDecipher(defaultTypeCrypto, key)
       let decryptData = cipher.update(data, 'base64', 'ascii')
       decryptData += cipher.final('ascii')
       rtn = decryptData
@@ -395,10 +475,11 @@ const decrypt = (data = '', key = '', iv = '') => {
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
-        error: errorData
+        error: errorData,
       })
     }
   }
+
   return rtn
 }
 
@@ -410,7 +491,11 @@ const decrypt = (data = '', key = '', iv = '') => {
  * @param {Function} error - function executed when file no exists
  * @returns {boolean} validate if file exists
  */
-const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEmptyFunction) => {
+const existsFile = (
+  path = '',
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
   let rtn = false
   let file
   let errorData
@@ -426,7 +511,7 @@ const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEm
     messageTerminal({
       color: 'red',
       message: 'Error: %s',
-      error: errorData
+      error: errorData,
     })
   }
   if (rtn) {
@@ -434,6 +519,7 @@ const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEm
   } else {
     error(errorData)
   }
+
   return rtn
 }
 
@@ -446,7 +532,12 @@ const existsFile = (path = '', success = defaultEmptyFunction, error = defaultEm
  * @param {Function} error - run function when file creation failed
  * @returns {boolean} check if file is created
  */
-const createFile = (path = '', data = '', callback = () => undefined, error = () => undefined) => {
+const createFile = (
+  path = '',
+  data = '',
+  callback = () => undefined,
+  error = () => undefined
+) => {
   let rtn = false
   try {
     const stream = createWriteStream(path)
@@ -456,6 +547,7 @@ const createFile = (path = '', data = '', callback = () => undefined, error = ()
   } catch (err) {
     error(err)
   }
+
   return rtn
 }
 
@@ -470,22 +562,26 @@ const genFireedgeKey = () => {
       uuidv4 = uuidv4.replace(/-/g, '').toUpperCase()
       existsFile(
         global.paths.FIREEDGE_KEY_PATH,
-        filedata => {
+        (filedata) => {
           if (filedata) {
             uuidv4 = filedata
           }
         },
         () => {
           createFile(
-            global.paths.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
+            global.paths.FIREEDGE_KEY_PATH,
+            uuidv4.replace(/-/g, ''),
+            () => undefined,
+            (err) => {
               const errorData = (err && err.message) || ''
               writeInLogger(errorData)
               messageTerminal({
                 color: 'red',
                 message: 'Error: %s',
-                error: errorData
+                error: errorData,
               })
-            })
+            }
+          )
         }
       )
     }
@@ -504,6 +600,7 @@ const replaceEscapeSequence = (text = '') => {
   if (text) {
     rtn = text.replace(/\r|\n/g, '')
   }
+
   return rtn
 }
 
@@ -515,30 +612,36 @@ const replaceEscapeSequence = (text = '') => {
 const getSunstoneAuth = () => {
   let rtn
   if (global && global.paths && global.paths.SUNSTONE_AUTH_PATH) {
-    existsFile(global.paths.SUNSTONE_AUTH_PATH,
-      filedata => {
+    existsFile(
+      global.paths.SUNSTONE_AUTH_PATH,
+      (filedata) => {
         if (filedata) {
           const serverAdminData = filedata.split(':')
           if (serverAdminData[0] && serverAdminData[1]) {
             const { hash, digest } = defaultHash
             const username = replaceEscapeSequence(serverAdminData[0])
-            const password = createHash(hash).update(replaceEscapeSequence(serverAdminData[1])).digest(digest)
+            const password = createHash(hash)
+              .update(replaceEscapeSequence(serverAdminData[1]))
+              .digest(digest)
             const key = password.substring(0, 32)
             const iv = key.substring(0, 16)
             rtn = { username, key, iv }
           }
         }
-      }, err => {
+      },
+      (err) => {
         const errorData = err.message || ''
         const config = {
           color: 'red',
           message: 'Error: %s',
-          error: errorData
+          error: errorData,
         }
         writeInLogger(errorData)
         messageTerminal(config)
-      })
+      }
+    )
   }
+
   return rtn
 }
 
@@ -551,15 +654,17 @@ const getSunstoneAuth = () => {
  */
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
-  const zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
+  const zones =
+    (global && global.zones) || configuredZones || defaultOpennebulaZones
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
     if (zone !== null) {
       rtn = zones.find(
-        zn => zn && zn.id !== undefined && String(zn.id) === zone
+        (zn) => zn && zn.id !== undefined && String(zn.id) === zone
       )
     }
   }
+
   return rtn
 }
 
@@ -571,8 +676,14 @@ const genPathResources = () => {
 
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
-  const SHARE_LOCATION = !ONE_LOCATION ? defaultSharePath : `${ONE_LOCATION}/share`
-  const SYSTEM_LOCATION = (devMode && resolve(__dirname, '../../client')) || (!ONE_LOCATION ? resolve(defaultSystemPath) : resolve(`${ONE_LOCATION}${defaultSourceSystemPath}`))
+  const SHARE_LOCATION = !ONE_LOCATION
+    ? defaultSharePath
+    : `${ONE_LOCATION}/share`
+  const SYSTEM_LOCATION =
+    (devMode && resolve(__dirname, '../../client')) ||
+    (!ONE_LOCATION
+      ? resolve(defaultSystemPath)
+      : resolve(`${ONE_LOCATION}${defaultSourceSystemPath}`))
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
@@ -633,11 +744,16 @@ const genPathResources = () => {
  * @returns {Array} - params file
  */
 const getRequestFiles = (params = {}) => {
-  if (params && Object.keys(params).length > 0 && params.constructor === Object) {
+  if (
+    params &&
+    Object.keys(params).length > 0 &&
+    params.constructor === Object
+  ) {
     const arrayParams = Object.keys(params)
     const fileParams = arrayParams.filter((key = '') => {
       return key && params[key] && params[key].from === 'files'
     })
+
     return fileParams
   }
 }
@@ -651,13 +767,18 @@ const getRequestFiles = (params = {}) => {
  */
 const getRequestParameters = (params = {}, req = {}) => {
   const rtn = {}
-  if (params && Object.keys(params).length > 0 && params.constructor === Object) {
+  if (
+    params &&
+    Object.keys(params).length > 0 &&
+    params.constructor === Object
+  ) {
     Object.entries(params).forEach(([param, value]) => {
       if (param && value && value.from && req[value.from]) {
         rtn[param] = value.name ? req[value.from][value.name] : req[value.from]
       }
     })
   }
+
   return rtn
 }
 
@@ -671,7 +792,7 @@ const getRequestParameters = (params = {}, req = {}) => {
 const defaultError = (err = '', message = 'Error: %s') => ({
   color: 'red',
   message,
-  error: err || ''
+  error: err || '',
 })
 
 /**
@@ -686,7 +807,7 @@ const getFiles = (path = '', recursive = false, files = []) => {
   if (path) {
     try {
       const dirs = readdirSync(path)
-      dirs.forEach(dir => {
+      dirs.forEach((dir) => {
         const name = `${path}/${dir}`
         if (recursive && statSync(name).isDirectory()) {
           const internal = getFiles(name, recursive)
@@ -705,6 +826,7 @@ const getFiles = (path = '', recursive = false, files = []) => {
       messageTerminal(defaultError(errorData))
     }
   }
+
   return files
 }
 
@@ -716,13 +838,17 @@ const getFiles = (path = '', recursive = false, files = []) => {
  * @param {Function} errorCallback - run this function if it cant read directory
  * @returns {Array} array of pathfiles
  */
-const getFilesbyEXT = (dir = '', ext = '', errorCallback = defaultEmptyFunction) => {
+const getFilesbyEXT = (
+  dir = '',
+  ext = '',
+  errorCallback = defaultEmptyFunction
+) => {
   const pathFiles = []
   if (dir && ext) {
     const exp = new RegExp('\\w*\\.' + ext + '+$\\b', 'gi')
     try {
       const files = readdirSync(dir)
-      files.forEach(file => {
+      files.forEach((file) => {
         const name = `${dir}/${file}`
         if (statSync(name).isDirectory()) {
           getFiles(name)
@@ -739,6 +865,7 @@ const getFilesbyEXT = (dir = '', ext = '', errorCallback = defaultEmptyFunction)
       errorCallback(errorMsg)
     }
   }
+
   return pathFiles
 }
 
@@ -754,7 +881,7 @@ const getDirectories = (dir = '', errorCallback = () => undefined) => {
   if (dir) {
     try {
       const files = readdirSync(dir)
-      files.forEach(file => {
+      files.forEach((file) => {
         const name = `${dir}/${file}`
         if (statSync(name).isDirectory()) {
           directories.push({ filename: file, path: name })
@@ -767,6 +894,7 @@ const getDirectories = (dir = '', errorCallback = () => undefined) => {
       errorCallback(errorMsg)
     }
   }
+
   return directories
 }
 
@@ -791,6 +919,7 @@ const parsePostData = (postData = {}) => {
       rtn[key] = value
     }
   })
+
   return rtn
 }
 
@@ -808,7 +937,7 @@ const addPrependCommand = (command = '', resource = '', prepend = '') => {
   let newRsc = rsc
 
   if (prepend) {
-    const splitPrepend = prepend.split(' ').filter(el => el !== '')
+    const splitPrepend = prepend.split(' ').filter((el) => el !== '')
     newCommand = splitPrepend[0]
     // remove command
     splitPrepend.shift()
@@ -821,7 +950,7 @@ const addPrependCommand = (command = '', resource = '', prepend = '') => {
 
   return {
     cmd: newCommand,
-    rsc: newRsc
+    rsc: newRsc,
   }
 }
 
@@ -834,7 +963,12 @@ const addPrependCommand = (command = '', resource = '', prepend = '') => {
  * @param {object} options - optional params for the command
  * @returns {object} CLI output
  */
-const executeCommand = (command = '', resource = '', prependCommand = '', options = {}) => {
+const executeCommand = (
+  command = '',
+  resource = '',
+  prependCommand = '',
+  options = {}
+) => {
   let rtn = { success: false, data: null }
   const { cmd, rsc } = addPrependCommand(command, resource, prependCommand)
   const execute = spawnSync(cmd, rsc, options)
@@ -845,13 +979,11 @@ const executeCommand = (command = '', resource = '', prependCommand = '', option
     } else if (execute.stderr && execute.stderr.length > 0) {
       rtn = { success: false, data: execute.stderr.toString() }
       messageTerminal(
-        defaultError(
-          execute.stderr.toString(),
-          'Error command: %s'
-        )
+        defaultError(execute.stderr.toString(), 'Error command: %s')
       )
     }
   }
+
   return rtn
 }
 /**
@@ -878,6 +1010,7 @@ const removeFile = (path = '') => {
       messageTerminal(defaultError(error && error.message))
     }
   }
+
   return rtn
 }
 
@@ -896,12 +1029,21 @@ const executeCommandAsync = (
   callbacks = {
     err: defaultEmptyFunction,
     out: defaultEmptyFunction,
-    close: defaultEmptyFunction
+    close: defaultEmptyFunction,
   }
 ) => {
-  const err = callbacks && callbacks.err && typeof callbacks.err === 'function' ? callbacks.err : defaultEmptyFunction
-  const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : defaultEmptyFunction
-  const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : defaultEmptyFunction
+  const err =
+    callbacks && callbacks.err && typeof callbacks.err === 'function'
+      ? callbacks.err
+      : defaultEmptyFunction
+  const out =
+    callbacks && callbacks.out && typeof callbacks.out === 'function'
+      ? callbacks.out
+      : defaultEmptyFunction
+  const close =
+    callbacks && callbacks.close && typeof callbacks.close === 'function'
+      ? callbacks.close
+      : defaultEmptyFunction
 
   const { cmd, rsc } = addPrependCommand(command, resource, prependCommand)
 
@@ -915,7 +1057,7 @@ const executeCommandAsync = (
       out(data)
     })
 
-    execute.on('error', error => {
+    execute.on('error', (error) => {
       messageTerminal(defaultError(error && error.message, 'Error command: %s'))
     })
 
@@ -959,5 +1101,5 @@ module.exports = {
   executeCommand,
   executeCommandAsync,
   checkValidApp,
-  removeFile
+  removeFile,
 }

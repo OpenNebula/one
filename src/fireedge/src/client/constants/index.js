@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { defaultApps, defaultAppName, availableLanguages } from 'server/utils/constants/defaults'
+import {
+  defaultApps,
+  defaultAppName,
+  availableLanguages,
+} from 'server/utils/constants/defaults'
 import * as Setting from 'client/constants/setting'
 
 export const JWT_NAME = 'FireedgeToken'
 
 export const BY = {
   text: 'by OpenNebula',
-  url: 'https://opennebula.io/'
+  url: 'https://opennebula.io/',
 }
 
 export const TIME_HIDE_LOGO = 1500
@@ -54,7 +58,7 @@ export const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',
   USER_RESOURCES: '-3',
   ALL_RESOURCES: '-2',
-  USER_GROUPS_RESOURCES: '-1'
+  USER_GROUPS_RESOURCES: '-1',
 }
 
 /** @enum {string} Input types */
@@ -70,21 +74,21 @@ export const INPUT_TYPES = {
   SLIDER: 'slider',
   TEXT: 'text',
   TABLE: 'table',
-  TOGGLE: 'toggle'
+  TOGGLE: 'toggle',
 }
 
 export const DEBUG_LEVEL = {
   ERROR: 'ERROR',
   WARN: 'WARN',
   INFO: 'INFO',
-  DEBUG: 'DEBUG'
+  DEBUG: 'DEBUG',
 }
 
 export const SOCKETS = {
   CONNECT: 'connect',
   DISCONNECT: 'disconnect',
   HOOKS: 'hooks',
-  PROVISION: 'provision'
+  PROVISION: 'provision',
 }
 
 /** @enum {string} Names of resource */
@@ -103,7 +107,7 @@ export const RESOURCE_NAMES = {
   VM: 'vm',
   VN_TEMPLATE: 'network-template',
   VNET: 'virtual-network',
-  ZONE: 'zone'
+  ZONE: 'zone',
 }
 
 export * as T from 'client/constants/translates'

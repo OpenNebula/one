@@ -28,11 +28,11 @@ const AlertError = ({ children, ...props }) => (
 )
 
 AlertError.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+  children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 }
 
 AlertError.defaultProps = {
-  children: 'Error!'
+  children: 'Error!',
 }
 
 export default AlertError

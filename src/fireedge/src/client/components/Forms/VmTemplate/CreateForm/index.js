@@ -26,7 +26,7 @@ import {
   useVmTemplateApi,
   useHostApi,
   useImageApi,
-  useDatastoreApi
+  useDatastoreApi,
 } from 'client/features/One'
 
 import { useFetch } from 'client/hooks'
@@ -40,7 +40,7 @@ const CreateForm = ({ template, onSubmit }) => {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver?.())
+    resolver: yupResolver(resolver?.()),
   })
 
   return (
@@ -48,7 +48,7 @@ const CreateForm = ({ template, onSubmit }) => {
       <FormStepper
         steps={steps}
         schema={resolver}
-        onSubmit={data => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+        onSubmit={(data) => onSubmit(transformBeforeSubmit?.(data) ?? data)}
       />
     </FormProvider>
   )
@@ -62,8 +62,8 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
   const { getDatastores } = useDatastoreApi()
   const { getVmTemplate } = useVmTemplateApi()
 
-  const { fetchRequest, data } = useFetch(
-    () => getVmTemplate(templateId, { extended: true })
+  const { fetchRequest, data } = useFetch(() =>
+    getVmTemplate(templateId, { extended: true })
   )
 
   useEffect(() => {
@@ -75,19 +75,21 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
     getVmGroups()
   }, [])
 
-  return (templateId && !data)
-    ? <SkeletonStepsForm />
-    : <CreateForm template={data} onSubmit={onSubmit} />
+  return templateId && !data ? (
+    <SkeletonStepsForm />
+  ) : (
+    <CreateForm template={data} onSubmit={onSubmit} />
+  )
 }
 
 PreFetchingForm.propTypes = {
   templateId: PropTypes.string,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 CreateForm.propTypes = {
   template: PropTypes.object,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 export default PreFetchingForm

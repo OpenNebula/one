@@ -32,11 +32,11 @@ const AutocompleteController = memo(
     tooltip = '',
     multiple = false,
     values = [],
-    fieldProps: { separators, ...fieldProps } = {}
+    fieldProps: { separators, ...fieldProps } = {},
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     const selected = multiple
@@ -46,13 +46,13 @@ const AutocompleteController = memo(
     return (
       <Autocomplete
         fullWidth
-        color='secondary'
+        color="secondary"
         onBlur={onBlur}
         onChange={(_, newValue) => {
           const newValueToChange = multiple
-            ? newValue?.map(value =>
-              typeof value === 'string' ? value : ({ text: value, value })
-            )
+            ? newValue?.map((value) =>
+                typeof value === 'string' ? value : { text: value, value }
+              )
             : newValue?.value
 
           return onChange(newValueToChange ?? '')
@@ -65,28 +65,30 @@ const AutocompleteController = memo(
           tags.map((tag, index) => (
             <Chip
               key={tag}
-              size='small'
-              variant='outlined'
+              size="small"
+              variant="outlined"
               label={tag}
               {...getTagProps({ index })}
             />
           ))
         }
-        getOptionLabel={option => option.text}
-        isOptionEqualToValue={option => option.value === renderValue}
+        getOptionLabel={(option) => option.text}
+        isOptionEqualToValue={(option) => option.value === renderValue}
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField
             label={labelCanBeTranslated(label) ? Tr(label) : label}
             inputProps={{ ...inputProps, 'data-cy': cy }}
             error={Boolean(error)}
-            helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+            helperText={
+              Boolean(error) && <ErrorHelper label={error?.message} />
+            }
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
             {...inputParams}
           />
         )}
         {...(tooltip && {
           loading: true,
-          loadingText: labelCanBeTranslated(tooltip) ? Tr(tooltip) : tooltip
+          loadingText: labelCanBeTranslated(tooltip) ? Tr(tooltip) : tooltip,
         })}
         {...(Array.isArray(separators) && {
           autoSelect: true,
@@ -95,16 +97,15 @@ const AutocompleteController = memo(
               event.target.blur()
               event.target.focus()
             }
-          }
+          },
         })}
         {...fieldProps}
       />
     )
   },
-  (prevProps, nextProps) => (
-    prevProps.error === nextProps.error &&
-    prevProps.values === nextProps.values
-  ))
+  (prevProps, nextProps) =>
+    prevProps.error === nextProps.error && prevProps.values === nextProps.values
+)
 
 AutocompleteController.propTypes = {
   control: PropTypes.object,
@@ -114,7 +115,7 @@ AutocompleteController.propTypes = {
   tooltip: PropTypes.any,
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object),
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

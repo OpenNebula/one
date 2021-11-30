@@ -14,9 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const {
-  opennebulaConnect
-} = require('../../../src/server/utils/opennebula')
+const { opennebulaConnect } = require('../../../src/server/utils/opennebula')
 
 // eslint-disable-next-line no-undef
 onmessage = function (ev = {}) {
@@ -30,7 +28,14 @@ onmessage = function (ev = {}) {
   }
 
   if (ev && ev.data) {
-    const { globalState = {}, user = '', password = '', rpc = '', command = '', paramsCommand = [] } = ev.data
+    const {
+      globalState = {},
+      user = '',
+      password = '',
+      rpc = '',
+      command = '',
+      paramsCommand = [],
+    } = ev.data
     if (globalState && user && password && rpc && command) {
       pass = false
       global.paths = globalState

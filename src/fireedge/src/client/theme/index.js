@@ -14,13 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createTheme as createMuiTheme, responsiveFontSizes } from '@mui/material'
+import {
+  createTheme as createMuiTheme,
+  responsiveFontSizes,
+} from '@mui/material'
 import createGenerateClassName from '@mui/styles/createGenerateClassName'
 
 import defaultTheme from 'client/theme/defaults'
 
 export const generateClassName = createGenerateClassName({
-  productionPrefix: 'one-'
+  productionPrefix: 'one-',
 })
 
 export const createTheme = (theme, scheme) =>

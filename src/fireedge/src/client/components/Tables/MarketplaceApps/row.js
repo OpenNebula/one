@@ -29,11 +29,20 @@ import { prettyBytes } from 'client/utils'
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, UNAME, GNAME, LOCK, TYPE,
-    REGTIME, MARKETPLACE, ZONE_ID, SIZE
+    ID,
+    NAME,
+    UNAME,
+    GNAME,
+    LOCK,
+    TYPE,
+    REGTIME,
+    MARKETPLACE,
+    ZONE_ID,
+    SIZE,
   } = value
 
-  const { color: stateColor, name: stateName } = MarketplaceAppModel.getState(original)
+  const { color: stateColor, name: stateName } =
+    MarketplaceAppModel.getState(original)
 
   const time = Helper.timeFromMilliseconds(+REGTIME)
   const timeAgo = `registered ${time.toRelative()}`
@@ -45,18 +54,14 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
+          <Typography component="span">{NAME}</Typography>
           {LOCK && <Lock />}
           <span className={classes.labels}>
             <StatusChip text={TYPE} />
           </span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>
-            {`#${ID} ${timeAgo}`}
-          </span>
+          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
           <span title={`Owner: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
@@ -85,7 +90,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

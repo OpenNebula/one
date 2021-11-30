@@ -15,26 +15,26 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   permissions: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
   },
   list: {
     '& p': {
       ...theme.typography.body2,
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
+      textOverflow: 'ellipsis',
     },
     '&.w-50 p': {
-      width: '50%'
+      width: '50%',
     },
     '&.w-25 p': {
-      width: '25%'
-    }
+      width: '25%',
+    },
   },
   title: {
     '& p.bold': {
-      fontWeight: theme.typography.fontWeightBold
-    }
-  }
+      fontWeight: theme.typography.fontWeightBold,
+    },
+  },
 }))

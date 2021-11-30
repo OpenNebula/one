@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/marketapp'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const marketplaceAppService = ({
+export const marketplaceAppService = {
   /**
    * Retrieves information for the marketplace app.
    *
@@ -80,11 +80,11 @@ export const marketplaceAppService = ({
     const res = await RestClient.request({
       url: `/api/marketapp/export/${id}`,
       method: 'POST',
-      data
+      data,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
     return res?.data
-  }
-})
+  },
+}

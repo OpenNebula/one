@@ -17,7 +17,11 @@
 const { env } = require('process')
 const zendesk = require('node-zendesk')
 const { getSunstoneConfig } = require('server/utils/yml')
-const { defaultEmptyFunction, defaultSeverities, defaultWebpackMode } = require('server/utils/constants/defaults')
+const {
+  defaultEmptyFunction,
+  defaultSeverities,
+  defaultWebpackMode,
+} = require('server/utils/constants/defaults')
 const { httpResponse } = require('server/utils/server')
 const { getSession } = require('./functions')
 
@@ -25,34 +29,33 @@ const {
   ok,
   internalServerError,
   badRequest,
-  unauthorized
+  unauthorized,
 } = require('server/utils/constants/http-codes')
 
-const formatCreate = (
-  {
-    subject = '',
-    body = '',
-    version = '',
-    severity = ''
-  }
-) => {
+const formatCreate = ({
+  subject = '',
+  body = '',
+  version = '',
+  severity = '',
+}) => {
   let rtn
   if (subject && body && version && severity) {
     rtn = {
       request: {
         subject,
         comment: {
-          body
+          body,
         },
         custom_fields: [
           { id: 391130, value: version }, // version
-          { id: 391197, value: severity } // severity
+          { id: 391197, value: severity }, // severity
         ],
         can_be_solved_by_me: false,
-        tags: [severity]
-      }
+        tags: [severity],
+      },
     }
   }
+
   return rtn
 }
 
@@ -63,17 +66,18 @@ const formatComment = ({ body = '', solved = '', attachments = [] }) => {
       request: {
         comment: {
           body,
-          public: true
-        }
-      }
+          public: true,
+        },
+      },
     }
     if (solved) {
       rtn.solved = 'true'
     }
     if (attachments && Array.isArray(attachments) && attachments.length > 0) {
-      rtn.request.comment.uploads = attachments.filter(att => att)
+      rtn.request.comment.uploads = attachments.filter((att) => att)
     }
   }
+
   return rtn
 }
 
@@ -82,15 +86,14 @@ const parseBufferError = (err) => {
   let errorJson = {}
   if (err && err.result) {
     try {
-      errorJson = JSON.parse(
-        err.result.toString()
-      )
+      errorJson = JSON.parse(err.result.toString())
     } catch {}
     if (errorJson && errorJson.error) {
       rtn = errorJson.error.title ? `${errorJson.error.title}: ` : ''
       rtn += errorJson.error.message ? errorJson.error.message : ''
     }
   }
+
   return rtn
 }
 
@@ -104,7 +107,12 @@ const httpBadRequest = httpResponse(badRequest, '', '')
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const login = (response = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const login = (
+  response = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const sunstoneConfig = getSunstoneConfig()
   const remoteUri = sunstoneConfig.support_url || ''
 
@@ -121,7 +129,7 @@ const login = (response = {}, next = defaultEmptyFunction, params = {}, userData
       username: params.user,
       password: params.pass,
       remoteUri,
-      debug: env.NODE_ENV === defaultWebpackMode
+      debug: env.NODE_ENV === defaultWebpackMode,
     }
     const session = getSession(userData.user, userData.password)
     /** ZENDESK AUTH */
@@ -139,7 +147,7 @@ const login = (response = {}, next = defaultEmptyFunction, params = {}, userData
       if (result && result.authenticity_token) {
         const zendeskUserData = {
           ...zendeskData,
-          id: result.id
+          id: result.id,
         }
         session.zendesk = zendeskUserData
       }
@@ -161,12 +169,13 @@ const login = (response = {}, next = defaultEmptyFunction, params = {}, userData
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const list = (response = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
-  if (
-    userData &&
-    userData.user &&
-    userData.password
-  ) {
+const list = (
+  response = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  if (userData && userData.user && userData.password) {
     const session = getSession(userData.user, userData.password)
     if (session.zendesk && session.zendesk.id) {
       /** LIST ZENDESK */
@@ -184,7 +193,7 @@ const list = (response = {}, next = defaultEmptyFunction, params = {}, userData 
             let pendings = 0
             let opens = 0
             const tickets = Array.isArray(result) ? result : result
-            tickets.forEach(ticket => {
+            tickets.forEach((ticket) => {
               if (ticket && ticket.status) {
                 switch (ticket.status) {
                   case 'pending':
@@ -199,14 +208,11 @@ const list = (response = {}, next = defaultEmptyFunction, params = {}, userData 
             data = {
               tickets: result,
               pendings,
-              opens
+              opens,
             }
           }
 
-          response.locals.httpCode = httpResponse(
-            method,
-            data
-          )
+          response.locals.httpCode = httpResponse(method, data)
           next()
         }
       )
@@ -228,34 +234,31 @@ const list = (response = {}, next = defaultEmptyFunction, params = {}, userData 
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const comments = (response = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
-  if (
-    params.id &&
-    userData &&
-    userData.user &&
-    userData.password
-  ) {
+const comments = (
+  response = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  if (params.id && userData && userData.user && userData.password) {
     const session = getSession(userData.user, userData.password)
     if (session.zendesk) {
       /** GET COMMENTS ON TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      zendeskClient.requests.listComments(
-        params.id,
-        (err, req, result) => {
-          let method = ok
-          let data = ''
+      zendeskClient.requests.listComments(params.id, (err, req, result) => {
+        let method = ok
+        let data = ''
 
-          if (err) {
-            method = internalServerError
-            data = parseBufferError(err)
-          } else if (result) {
-            data = result
-          }
-
-          response.locals.httpCode = httpResponse(method, data)
-          next()
+        if (err) {
+          method = internalServerError
+          data = parseBufferError(err)
+        } else if (result) {
+          data = result
         }
-      )
+
+        response.locals.httpCode = httpResponse(method, data)
+        next()
+      })
     } else {
       response.locals.httpCode = httpResponse(unauthorized)
       next()
@@ -274,7 +277,12 @@ const comments = (response = {}, next = defaultEmptyFunction, params = {}, userD
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const create = (response = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const create = (
+  response = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   if (
     params &&
     params.subject &&
@@ -291,21 +299,18 @@ const create = (response = {}, next = defaultEmptyFunction, params = {}, userDat
       /** CREATE TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
       const ticket = formatCreate(params)
-      zendeskClient.requests.create(
-        ticket,
-        (err, req, result) => {
-          let method = ok
-          let data = ''
-          if (err) {
-            method = internalServerError
-            data = parseBufferError(err)
-          } else if (result) {
-            data = result
-          }
-          response.locals.httpCode = httpResponse(method, data)
-          next()
+      zendeskClient.requests.create(ticket, (err, req, result) => {
+        let method = ok
+        let data = ''
+        if (err) {
+          method = internalServerError
+          data = parseBufferError(err)
+        } else if (result) {
+          data = result
         }
-      )
+        response.locals.httpCode = httpResponse(method, data)
+        next()
+      })
     } else {
       response.locals.httpCode = httpResponse(unauthorized)
       next()
@@ -324,7 +329,12 @@ const create = (response = {}, next = defaultEmptyFunction, params = {}, userDat
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const update = (response = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const update = (
+  response = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   if (
     params.id &&
     params.body &&
@@ -339,44 +349,49 @@ const update = (response = {}, next = defaultEmptyFunction, params = {}, userDat
       const sendRequest = (params = {}) => {
         /** UPDATE TICKET ZENDESK */
         const ticket = formatComment(params)
-        zendeskClient.requests.update(
-          params.id,
-          ticket,
-          (err, req, result) => {
-            let method = ok
-            let data = ''
+        zendeskClient.requests.update(params.id, ticket, (err, req, result) => {
+          let method = ok
+          let data = ''
 
-            if (err) {
-              method = internalServerError
-              data = parseBufferError(err)
-            } else if (result) {
-              data = result
-            }
-            response.locals.httpCode = httpResponse(method, data)
-            next()
+          if (err) {
+            method = internalServerError
+            data = parseBufferError(err)
+          } else if (result) {
+            data = result
           }
-        )
+          response.locals.httpCode = httpResponse(method, data)
+          next()
+        })
       }
 
       /** UPLOAD FILES */
       let attachments
-      if (params && params.attachments && zendeskClient.attachments && typeof zendeskClient.attachments.upload === 'function') {
+      if (
+        params &&
+        params.attachments &&
+        zendeskClient.attachments &&
+        typeof zendeskClient.attachments.upload === 'function'
+      ) {
         params.attachments.forEach((att = {}) => {
           if (att && att.originalname && att.path) {
             zendeskClient.attachments.upload(
               att.path,
               {
-                filename: att.originalname
+                filename: att.originalname,
               },
               (err, req, result) => {
-                const token = (result && result.upload && result.upload.token) || ''
+                const token =
+                  (result && result.upload && result.upload.token) || ''
                 if (attachments) {
                   attachments.push(token)
                 } else {
                   attachments = [token]
                 }
                 if (!err && token) {
-                  if (attachments && attachments.length === params.attachments.length) {
+                  if (
+                    attachments &&
+                    attachments.length === params.attachments.length
+                  ) {
                     sendRequest({ ...params, attachments })
                   }
                 }
@@ -402,6 +417,6 @@ const functionRoutes = {
   list,
   comments,
   create,
-  update
+  update,
 }
 module.exports = functionRoutes

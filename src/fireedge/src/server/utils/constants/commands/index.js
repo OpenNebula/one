@@ -57,5 +57,5 @@ module.exports = {
   ...vn,
   ...vntemplate,
   ...vrouter,
-  ...zone
+  ...zone,
 }

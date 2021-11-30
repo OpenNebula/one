@@ -17,14 +17,17 @@
 import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
 const Content = ({ hypervisor }) => (
   <FormWithSchema
-    cy='attach-disk-advanced'
+    cy="attach-disk-advanced"
     id={STEP_ID}
     fields={FIELDS(hypervisor)}
   />
@@ -35,13 +38,13 @@ const AdvancedOptions = ({ hypervisor } = {}) => ({
   label: T.AdvancedOptions,
   resolver: () => SCHEMA(hypervisor),
   optionsValidate: { abortEarly: false },
-  content: () => Content({ hypervisor })
+  content: () => Content({ hypervisor }),
 })
 
 Content.propTypes = {
   hypervisor: PropTypes.any,
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default AdvancedOptions

@@ -24,7 +24,7 @@ import { Cancel as CloseIcon } from 'iconoir-react'
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
 const CloseButton = ({ handleClick }) => (
-  <IconButton onClick={handleClick} component='span'>
+  <IconButton onClick={handleClick} component="span">
     <CloseIcon />
   </IconButton>
 )
@@ -37,12 +37,12 @@ const Notifier = () => {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const storeDisplayed = id => {
+  const storeDisplayed = (id) => {
     displayed = [...displayed, id]
   }
 
-  const removeDisplayed = id => {
-    displayed = [...displayed.filter(key => id !== key)]
+  const removeDisplayed = (id) => {
+    displayed = [...displayed.filter((key) => id !== key)]
   }
 
   useEffect(() => {
@@ -50,6 +50,7 @@ const Notifier = () => {
       ({ key, message, options = {}, dismissed = false }) => {
         if (dismissed) {
           closeSnackbar(key)
+
           return
         }
 
@@ -62,7 +63,7 @@ const Notifier = () => {
           onExited: (_, myKey) => {
             deleteSnackbar(myKey)
             removeDisplayed(myKey)
-          }
+          },
         })
 
         // keep track of snackBars that we've displayed
@@ -75,11 +76,11 @@ const Notifier = () => {
 }
 
 CloseButton.propTypes = {
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 CloseButton.defaultProps = {
-  handleClick: undefined
+  handleClick: undefined,
 }
 
 export default Notifier

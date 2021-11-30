@@ -17,7 +17,7 @@
 const VCENTER = 'vcenter'
 
 const Actions = {
-  VCENTER
+  VCENTER,
 }
 
 module.exports = Actions

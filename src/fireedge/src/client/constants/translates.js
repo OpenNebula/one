@@ -175,7 +175,8 @@ module.exports = {
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
-  ErrorOneProvisionGUI: 'FireEdge is not correctly configured to operate the OneProvision GUI',
+  ErrorOneProvisionGUI:
+    'FireEdge is not correctly configured to operate the OneProvision GUI',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
@@ -449,7 +450,7 @@ module.exports = {
     Could be used to force ID for licensing purposes`,
   Firmware: 'Firmware',
   FirmwareConcept:
-  'This attribute allows to define the type of firmware used to boot the VM',
+    'This attribute allows to define the type of firmware used to boot the VM',
   FirmwareSecure: 'Firmware secure',
   CpuModel: 'CPU Model',
   CustomPath: 'Customize with path',
@@ -476,12 +477,10 @@ module.exports = {
   LocaltimeConcept:
     'The guest clock will be synchronized to the hosts configured timezone when booted',
   GuestAgent: 'QEMU Guest Agent',
-  GuestAgentConcept:
-    `Enables the QEMU Guest Agent communication.
+  GuestAgentConcept: `Enables the QEMU Guest Agent communication.
     This does not start the Guest Agent inside the VM`,
   VirtioQueues: 'Virtio-scsi Queues',
-  VirtioQueuesConcept:
-    `Number of vCPU queues to use in the virtio-scsi controller.
+  VirtioQueuesConcept: `Number of vCPU queues to use in the virtio-scsi controller.
     Leave blank to use the default value`,
   IoThreads: 'Iothreads',
   IoThreadsConcept: `
@@ -591,8 +590,10 @@ module.exports = {
   AppTemplate: 'App Template',
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
-  ExportAppNameConcept: 'Name that the resource will get for description purposes',
-  ExportTemplateNameConcept: 'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
+  ExportAppNameConcept:
+    'Name that the resource will get for description purposes',
+  ExportTemplateNameConcept:
+    'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
   DontAssociateApp: 'Do not import/export associated VM templates/images',
 
   /* User inputs */
@@ -658,5 +659,5 @@ module.exports = {
   /* Validation - array  */
   'validation.array.min': 'Must have at least %s items',
   'validation.array.max': 'Must have less than or equal to %s items',
-  'validation.array.length': 'Must have %s items'
+  'validation.array.length': 'Must have %s items',
 }

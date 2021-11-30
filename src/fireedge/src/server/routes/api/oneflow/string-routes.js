@@ -19,7 +19,7 @@ const SERVICE_TEMPLATE = 'service_template'
 
 const Actions = {
   SERVICE,
-  SERVICE_TEMPLATE
+  SERVICE_TEMPLATE,
 }
 
 module.exports = Actions

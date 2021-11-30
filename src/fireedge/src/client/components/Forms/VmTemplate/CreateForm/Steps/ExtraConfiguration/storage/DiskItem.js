@@ -40,98 +40,109 @@ import { T } from 'client/constants'
  * @param {string} props.handleUpdate - Update function
  * @returns {JSXElementConstructor} - Disk card
  */
-const DiskItem = memo(({
-  item,
-  hypervisor,
-  handleRemove,
-  handleUpdate
-}) => {
-  const {
-    NAME,
-    TYPE,
-    IMAGE,
-    IMAGE_ID,
-    IMAGE_STATE,
-    ORIGINAL_SIZE,
-    SIZE = ORIGINAL_SIZE,
-    READONLY,
-    DATASTORE,
-    PERSISTENT
-  } = item
+const DiskItem = memo(
+  ({ item, hypervisor, handleRemove, handleUpdate }) => {
+    const {
+      NAME,
+      TYPE,
+      IMAGE,
+      IMAGE_ID,
+      IMAGE_STATE,
+      ORIGINAL_SIZE,
+      SIZE = ORIGINAL_SIZE,
+      READONLY,
+      DATASTORE,
+      PERSISTENT,
+    } = item
 
-  const isVolatile = !IMAGE && !IMAGE_ID
-  const isPersistent = stringToBoolean(PERSISTENT)
-  const state = !isVolatile && getState({ STATE: IMAGE_STATE })
-  const type = isVolatile ? TYPE : getDiskType(item)
-  const originalSize = +ORIGINAL_SIZE ? prettyBytes(+ORIGINAL_SIZE, 'MB') : '-'
-  const size = prettyBytes(+SIZE, 'MB')
+    const isVolatile = !IMAGE && !IMAGE_ID
+    const isPersistent = stringToBoolean(PERSISTENT)
+    const state = !isVolatile && getState({ STATE: IMAGE_STATE })
+    const type = isVolatile ? TYPE : getDiskType(item)
+    const originalSize = +ORIGINAL_SIZE
+      ? prettyBytes(+ORIGINAL_SIZE, 'MB')
+      : '-'
+    const size = prettyBytes(+SIZE, 'MB')
 
-  return (
-    <SelectCard
-      title={isVolatile ? (
-        <>
-          {`${NAME} - `}
-          <Translate word={T.VolatileDisk} />
-        </>
-      ) : (
-        <Stack component='span' direction='row' alignItems='center' gap='0.5em'>
-          <StatusCircle color={state?.color} tooltip={state?.name} />
-          {`${NAME}: ${IMAGE}`}
-          {isPersistent && <StatusChip text='PERSISTENT' />}
-        </Stack>
-      )}
-      subheader={<>
-        {Object
-          .entries({
-            [DATASTORE]: DATASTORE,
-            READONLY: stringToBoolean(READONLY),
-            PERSISTENT: stringToBoolean(PERSISTENT),
-            [isVolatile || ORIGINAL_SIZE === SIZE
-              ? size : `${originalSize}/${size}`]: true,
-            [type]: type
-          })
-          .map(([k, v]) => v ? `${k}` : '')
-          .filter(Boolean)
-          .join(' | ')
+    return (
+      <SelectCard
+        title={
+          isVolatile ? (
+            <>
+              {`${NAME} - `}
+              <Translate word={T.VolatileDisk} />
+            </>
+          ) : (
+            <Stack
+              component="span"
+              direction="row"
+              alignItems="center"
+              gap="0.5em"
+            >
+              <StatusCircle color={state?.color} tooltip={state?.name} />
+              {`${NAME}: ${IMAGE}`}
+              {isPersistent && <StatusChip text="PERSISTENT" />}
+            </Stack>
+          )
         }
-      </>}
-      action={
-        <>
-          <Action
-            data-cy={`remove-${NAME}`}
-            tooltip={<Translate word={T.Remove} />}
-            handleClick={handleRemove}
-            color='error'
-            icon={<Trash />}
-          />
-          <ButtonToTriggerForm
-            buttonProps={{
-              'data-cy': `edit-${NAME}`,
-              icon: <Edit />,
-              tooltip: <Translate word={T.Edit} />
-            }}
-            options={[{
-              dialogProps: {
-                title: <Translate word={T.EditSomething} values={[NAME]} />
-              },
-              form: () => isVolatile
-                ? VolatileSteps({ hypervisor }, item)
-                : ImageSteps({ hypervisor }, item),
-              onSubmit: handleUpdate
-            }]}
-          />
-        </>
-      }
-    />
-  )
-}, (prev, next) => prev.item?.NAME === next.item?.NAME)
+        subheader={
+          <>
+            {Object.entries({
+              [DATASTORE]: DATASTORE,
+              READONLY: stringToBoolean(READONLY),
+              PERSISTENT: stringToBoolean(PERSISTENT),
+              [isVolatile || ORIGINAL_SIZE === SIZE
+                ? size
+                : `${originalSize}/${size}`]: true,
+              [type]: type,
+            })
+              .map(([k, v]) => (v ? `${k}` : ''))
+              .filter(Boolean)
+              .join(' | ')}
+          </>
+        }
+        action={
+          <>
+            <Action
+              data-cy={`remove-${NAME}`}
+              tooltip={<Translate word={T.Remove} />}
+              handleClick={handleRemove}
+              color="error"
+              icon={<Trash />}
+            />
+            <ButtonToTriggerForm
+              buttonProps={{
+                'data-cy': `edit-${NAME}`,
+                icon: <Edit />,
+                tooltip: <Translate word={T.Edit} />,
+              }}
+              options={[
+                {
+                  dialogProps: {
+                    title: <Translate word={T.EditSomething} values={[NAME]} />,
+                  },
+                  form: () =>
+                    isVolatile
+                      ? VolatileSteps({ hypervisor }, item)
+                      : ImageSteps({ hypervisor }, item),
+                  onSubmit: handleUpdate,
+                },
+              ]}
+            />
+          </>
+        }
+      />
+    )
+  },
+  (prev, next) => prev.item?.NAME === next.item?.NAME
+)
 
 DiskItem.propTypes = {
   index: PropTypes.number,
   item: PropTypes.object,
   hypervisor: PropTypes.string,
   handleRemove: PropTypes.func,
-  handleUpdate: PropTypes.func
+  handleUpdate: PropTypes.func,
 }
 
 DiskItem.displayName = 'DiskItem'

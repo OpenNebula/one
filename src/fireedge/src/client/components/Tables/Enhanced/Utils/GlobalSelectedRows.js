@@ -30,8 +30,8 @@ const MessageStyled = styled(Alert)({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 })
 
 /**
@@ -43,30 +43,44 @@ const MessageStyled = styled(Alert)({
  * @returns {JSXElementConstructor} Component JSX
  */
 const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
-  const { preFilteredRows, toggleAllRowsSelected, state: { selectedRowIds } } = useTableProps
+  const {
+    preFilteredRows,
+    toggleAllRowsSelected,
+    state: { selectedRowIds },
+  } = useTableProps
 
-  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+  const selectedRows = preFilteredRows.filter((row) => !!selectedRowIds[row.id])
   const numberOfRowSelected = selectedRows.length
   const allSelected = numberOfRowSelected === preFilteredRows.length
 
   return withAlert ? (
-    <MessageStyled icon={false} severity='info' variant='outlined'>
+    <MessageStyled icon={false} severity="info" variant="outlined">
       <span>
-        <Translate word={T.NumberOfResourcesSelected} values={numberOfRowSelected} />{'.'}
+        <Translate
+          word={T.NumberOfResourcesSelected}
+          values={numberOfRowSelected}
+        />
+        {'.'}
       </span>
       <Button
         sx={{ mx: 1, p: 0.5, fontSize: 'inherit', lineHeight: 'normal' }}
         onClick={() => toggleAllRowsSelected(!allSelected)}
       >
-        {allSelected
-          ? <Translate word={T.ClearSelection} />
-          : <Translate word={T.SelectAllResources} values={preFilteredRows.length} />}
+        {allSelected ? (
+          <Translate word={T.ClearSelection} />
+        ) : (
+          <Translate
+            word={T.SelectAllResources}
+            values={preFilteredRows.length}
+          />
+        )}
       </Button>
     </MessageStyled>
   ) : (
     <div>
       {selectedRows?.map(({ original, id, toggleRowSelected }) => (
-        <Chip key={id}
+        <Chip
+          key={id}
           label={original?.NAME ?? id}
           onDelete={() => toggleRowSelected(false)}
         />
@@ -77,7 +91,7 @@ const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
 
 GlobalSelectedRows.propTypes = {
   withAlert: PropTypes.bool,
-  useTableProps: PropTypes.object.isRequired
+  useTableProps: PropTypes.object.isRequired,
 }
 
 GlobalSelectedRows.displayName = ' GlobalSelectedRows'

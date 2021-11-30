@@ -23,20 +23,20 @@ const action = {
       properties: {
         perform: {
           type: 'string',
-          required: true
+          required: true,
         },
         params: {
           type: 'object',
           properties: {
             merge_template: {
               type: 'object',
-              required: false
-            }
-          }
-        }
-      }
-    }
-  }
+              required: false,
+            },
+          },
+        },
+      },
+    },
+  },
 }
 
 const role = {
@@ -45,46 +45,46 @@ const role = {
   properties: {
     name: {
       type: 'string',
-      required: true
+      required: true,
     },
     cardinality: {
       type: 'integer',
       default: 1,
-      minimum: 0
+      minimum: 0,
     },
     vm_template: {
       type: 'integer',
-      required: true
+      required: true,
     },
     vm_template_contents: {
       type: 'string',
-      required: false
+      required: false,
     },
     parents: {
       type: 'array',
       items: {
-        type: 'string'
-      }
+        type: 'string',
+      },
     },
     shutdown_action: {
       type: 'string',
       enum: ['shutdown', 'shutdown-hard'],
-      required: false
+      required: false,
     },
     min_vms: {
       type: 'integer',
       required: false,
-      minimum: 0
+      minimum: 0,
     },
     max_vms: {
       type: 'integer',
       required: false,
-      minimum: 0
+      minimum: 0,
     },
     cooldown: {
       type: 'integer',
       required: false,
-      minimum: 0
+      minimum: 0,
     },
     elasticity_policies: {
       type: 'array',
@@ -94,38 +94,38 @@ const role = {
           type: {
             type: 'string',
             enum: ['CHANGE', 'CARDINALITY', 'PERCENTAGE_CHANGE'],
-            required: true
+            required: true,
           },
           adjust: {
             type: 'integer',
-            required: true
+            required: true,
           },
           min_adjust_step: {
             type: 'integer',
             required: false,
-            minimum: 1
+            minimum: 1,
           },
           period_number: {
             type: 'integer',
             required: false,
-            minimum: 0
+            minimum: 0,
           },
           period: {
             type: 'integer',
             required: false,
-            minimum: 0
+            minimum: 0,
           },
           expression: {
             type: 'string',
-            required: true
+            required: true,
           },
           cooldown: {
             type: 'integer',
             required: false,
-            minimum: 0
-          }
-        }
-      }
+            minimum: 0,
+          },
+        },
+      },
     },
     scheduled_policies: {
       type: 'array',
@@ -135,29 +135,29 @@ const role = {
           type: {
             type: 'string',
             enum: ['CHANGE', 'CARDINALITY', 'PERCENTAGE_CHANGE'],
-            required: true
+            required: true,
           },
           adjust: {
             type: 'integer',
-            required: true
+            required: true,
           },
           min_adjust_step: {
             type: 'integer',
             required: false,
-            minimum: 1
+            minimum: 1,
           },
           start_time: {
             type: 'string',
-            required: false
+            required: false,
           },
           recurrence: {
             type: 'string',
-            required: false
-          }
-        }
-      }
-    }
-  }
+            required: false,
+          },
+        },
+      },
+    },
+  },
 }
 
 const service = {
@@ -165,61 +165,61 @@ const service = {
   properties: {
     name: {
       type: 'string',
-      required: true
+      required: true,
     },
     deployment: {
       type: 'string',
       enum: ['none', 'straight'],
-      default: 'none'
+      default: 'none',
     },
     description: {
       type: 'string',
-      required: false
+      required: false,
     },
     shutdown_action: {
       type: 'string',
       enum: ['terminate', 'terminate-hard', 'shutdown', 'shutdown-hard'],
-      required: false
+      required: false,
     },
     roles: {
       type: 'array',
       items: { $ref: '/Role' },
-      required: true
+      required: true,
     },
     custom_attrs: {
       type: 'object',
       properties: {},
-      required: false
+      required: false,
     },
     custom_attrs_values: {
       type: 'object',
       properties: {},
-      required: false
+      required: false,
     },
     networks: {
       type: 'object',
       properties: {},
-      required: false
+      required: false,
     },
     networks_values: {
       type: 'array',
       items: {
         type: 'object',
-        properties: {}
+        properties: {},
       },
-      required: false
+      required: false,
     },
     ready_status_gate: {
       type: 'boolean',
-      required: false
-    }
-  }
+      required: false,
+    },
+  },
 }
 
 const schemas = {
   action,
   role,
-  service
+  service,
 }
 
 module.exports = schemas

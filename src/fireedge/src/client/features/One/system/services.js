@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/system'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const systemService = ({
+export const systemService = {
   /**
    * Returns the OpenNebula core version.
    *
@@ -52,5 +52,5 @@ export const systemService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
     return res?.data?.OPENNEBULA_CONFIGURATION
-  }
-})
+  },
+}

@@ -28,5 +28,5 @@ export const getVmGroup = createAction(
 export const getVmGroups = createAction(
   `${VM_GROUP}/pool`,
   vmGroupService.getVmGroups,
-  response => ({ [RESOURCES.vmgroup]: response })
+  (response) => ({ [RESOURCES.vmgroup]: response })
 )

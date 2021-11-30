@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/datastore/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useDatastore = () => (
-  useSelector(state => state[name]?.[RESOURCES.datastore] ?? [])
-)
+export const useDatastore = () =>
+  useSelector((state) => state[name]?.[RESOURCES.datastore] ?? [])
 
 export const useDatastoreApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getDatastore: id => unwrapDispatch(actions.getDatastore({ id })),
-    getDatastores: options => unwrapDispatch(actions.getDatastores(options))
+    getDatastore: (id) => unwrapDispatch(actions.getDatastore({ id })),
+    getDatastores: (options) => unwrapDispatch(actions.getDatastores(options)),
   }
 }

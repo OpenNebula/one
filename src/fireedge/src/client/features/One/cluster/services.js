@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/cluster'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const clusterService = ({
+export const clusterService = {
   /**
    * Retrieves information for the cluster.
    *
@@ -54,5 +54,5 @@ export const clusterService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.CLUSTER_POOL?.CLUSTER ?? []].flat()
-  }
-})
+  },
+}

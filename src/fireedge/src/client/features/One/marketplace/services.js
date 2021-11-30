@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/market'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const marketplaceService = ({
+export const marketplaceService = {
   /**
    * Retrieves information for the marketplace.
    *
@@ -54,5 +54,5 @@ export const marketplaceService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.MARKETPLACE_POOL?.MARKETPLACE ?? []].flat()
-  }
-})
+  },
+}

@@ -21,9 +21,11 @@ import makeStyles from '@mui/styles/makeStyles'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import DialogConfirmation, { DialogPropTypes } from 'client/components/Dialogs/DialogConfirmation'
+import DialogConfirmation, {
+  DialogPropTypes,
+} from 'client/components/Dialogs/DialogConfirmation'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   content: {
     width: '80vw',
     height: '60vh',
@@ -34,42 +36,46 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     [theme.breakpoints.only('xs')]: {
       width: '100vw',
-      height: '100vh'
-    }
-  }
+      height: '100vh',
+    },
+  },
 }))
 
-const DialogForm = ({ values, resolver, handleSubmit, dialogProps, children }) => {
+const DialogForm = ({
+  values,
+  resolver,
+  handleSubmit,
+  dialogProps,
+  children,
+}) => {
   const classes = useStyles()
 
   const { className, ...contentProps } = dialogProps.contentProps ?? {}
 
   dialogProps.contentProps = {
     className: clsx(classes.content, className),
-    ...contentProps
+    ...contentProps,
   }
 
   const methods = useForm({
     mode: 'onBlur',
     reValidateMode: 'onSubmit',
     defaultValues: values,
-    resolver: yupResolver(resolver())
+    resolver: yupResolver(resolver()),
   })
 
   return (
     <DialogConfirmation
       handleAccept={handleSubmit && methods.handleSubmit(handleSubmit)}
       acceptButtonProps={{
-        isSubmitting: methods.formState.isSubmitting
+        isSubmitting: methods.formState.isSubmitting,
       }}
       cancelButtonProps={{
-        disabled: methods.formState.isSubmitting
+        disabled: methods.formState.isSubmitting,
       }}
       {...dialogProps}
     >
-      <FormProvider {...methods}>
-        {children}
-      </FormProvider>
+      <FormProvider {...methods}>{children}</FormProvider>
     </DialogConfirmation>
   )
 }
@@ -77,7 +83,7 @@ const DialogForm = ({ values, resolver, handleSubmit, dialogProps, children }) =
 DialogForm.propTypes = {
   values: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.any),
-    PropTypes.objectOf(PropTypes.any)
+    PropTypes.objectOf(PropTypes.any),
   ]),
   resolver: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func,
@@ -85,8 +91,8 @@ DialogForm.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
-    PropTypes.func
-  ])
+    PropTypes.func,
+  ]),
 }
 
 export default DialogForm

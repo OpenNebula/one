@@ -19,7 +19,11 @@ import PropTypes from 'prop-types'
 import { User, Group, CloudDownload } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
+import {
+  StatusCircle,
+  LinearProgressWithLabel,
+  StatusChip,
+} from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import * as MarketplaceModel from 'client/models/Datastore'
@@ -28,9 +32,11 @@ const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, MARKET_MAD, TOTAL_APPS } = value
 
-  const { name: stateName, color: stateColor } = MarketplaceModel.getState(original)
+  const { name: stateName, color: stateColor } =
+    MarketplaceModel.getState(original)
 
-  const { percentOfUsed, percentLabel } = MarketplaceModel.getCapacityInfo(value)
+  const { percentOfUsed, percentLabel } =
+    MarketplaceModel.getCapacityInfo(value)
 
   return (
     <div {...props}>
@@ -39,9 +45,7 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
+          <Typography component="span">{NAME}</Typography>
           <span className={classes.labels}>
             <StatusChip text={MARKET_MAD} />
           </span>
@@ -73,7 +77,7 @@ Row.propTypes = {
   value: PropTypes.object,
   original: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

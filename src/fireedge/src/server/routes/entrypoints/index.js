@@ -21,5 +21,5 @@ const entrypointApp = require('./App')
 module.exports = {
   entrypoint404,
   entrypointApi,
-  entrypointApp
+  entrypointApp,
 }

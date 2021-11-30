@@ -24,8 +24,8 @@ const ControlWrapper = styled('div')(({ theme }) => ({
   gap: '1em',
   [theme.breakpoints.down('lg')]: {
     justifyContent: 'space-between',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 }))
 
 /**
@@ -34,17 +34,17 @@ const ControlWrapper = styled('div')(({ theme }) => ({
  * @returns {JSXElementConstructor} Skeleton loader component
  */
 const SkeletonStepsForm = memo(() => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('lg'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('lg'))
 
   return (
     <div>
-      <Skeleton variant="rectangular" height={120} width='100%' />
+      <Skeleton variant="rectangular" height={120} width="100%" />
       <ControlWrapper>
         <Skeleton variant="rectangular" height={35} width={95} />
-        {isMobile && <Skeleton variant="rectangular" height={8} width='100%' />}
+        {isMobile && <Skeleton variant="rectangular" height={8} width="100%" />}
         <Skeleton variant="rectangular" height={35} width={95} />
       </ControlWrapper>
-      <Skeleton variant="rectangular" height={200} width='100%' />
+      <Skeleton variant="rectangular" height={200} width="100%" />
     </div>
   )
 })

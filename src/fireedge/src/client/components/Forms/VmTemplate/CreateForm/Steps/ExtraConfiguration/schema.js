@@ -27,24 +27,28 @@ import { getObjectSchemaFromFields } from 'client/utils'
 
 export const mapNameByIndex = (prefixName) => (resource, idx) => ({
   ...resource,
-  NAME: resource?.NAME?.startsWith(prefixName) || !resource?.NAME
-    ? `${prefixName}${idx}`
-    : resource?.NAME
+  NAME:
+    resource?.NAME?.startsWith(prefixName) || !resource?.NAME
+      ? `${prefixName}${idx}`
+      : resource?.NAME,
 })
 
 export const SCHED_ACTION_SCHEMA = array()
   .ensure()
-  .transform(actions => actions.map(mapNameByIndex('SCHED_ACTION')))
+  .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION')))
 
-export const SCHEMA = hypervisor => object({
-  SCHED_ACTION: SCHED_ACTION_SCHEMA
-})
-  .concat(NETWORK_SCHEMA)
-  .concat(STORAGE_SCHEMA)
-  .concat(CONTEXT_SCHEMA(hypervisor))
-  .concat(IO_SCHEMA(hypervisor))
-  .concat(getObjectSchemaFromFields([
-    ...PLACEMENT_FIELDS,
-    ...OS_FIELDS(hypervisor),
-    ...NUMA_FIELDS(hypervisor)
-  ]))
+export const SCHEMA = (hypervisor) =>
+  object({
+    SCHED_ACTION: SCHED_ACTION_SCHEMA,
+  })
+    .concat(NETWORK_SCHEMA)
+    .concat(STORAGE_SCHEMA)
+    .concat(CONTEXT_SCHEMA(hypervisor))
+    .concat(IO_SCHEMA(hypervisor))
+    .concat(
+      getObjectSchemaFromFields([
+        ...PLACEMENT_FIELDS,
+        ...OS_FIELDS(hypervisor),
+        ...NUMA_FIELDS(hypervisor),
+      ])
+    )

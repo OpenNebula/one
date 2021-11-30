@@ -36,7 +36,7 @@ const User = () => {
 
   return (
     <HeaderPopover
-      id='user-menu'
+      id="user-menu"
       buttonLabel={user?.NAME}
       icon={<UserIcon />}
       buttonProps={{ 'data-cy': 'header-user-button' }}
@@ -44,22 +44,21 @@ const User = () => {
     >
       {() => (
         <MenuList disablePadding>
-          <MenuItem onClick={logout} data-cy='header-logout-button'>
+          <MenuItem onClick={logout} data-cy="header-logout-button">
             <Translate word={T.SignOut} />
           </MenuItem>
           {isDevelopment() &&
-            APPS?.map(appName => (
+            APPS?.map((appName) => (
               <MenuItem key={appName}>
                 <Link
-                  width='100%'
-                  color='secondary'
+                  width="100%"
+                  color="secondary"
                   href={`${APP_URL}/${appName}`}
                 >
                   <DevTypography>{appName}</DevTypography>
                 </Link>
               </MenuItem>
-            ))
-          }
+            ))}
         </MenuList>
       )}
     </HeaderPopover>

@@ -21,8 +21,14 @@ import { SystemShut as OsIcon } from 'iconoir-react'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import Legend from 'client/components/Forms/Legend'
 
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import BootOrder, { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import BootOrder, {
+  BOOT_ORDER_NAME,
+  reorderBootAfterRemove,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
 import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
@@ -36,16 +42,16 @@ const Booting = ({ hypervisor, ...props }) => {
 
   return (
     <Stack
-      display='grid'
-      gap='1em'
+      display="grid"
+      gap="1em"
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
-      {(
-        !!props.data?.[STORAGE_ID]?.length ||
-        !!props.data?.[NIC_ID]?.length
-      ) && (
-
-        <FormControl component='fieldset' sx={{ width: '100%', gridColumn: '1 / -1' }}>
+      {(!!props.data?.[STORAGE_ID]?.length ||
+        !!props.data?.[NIC_ID]?.length) && (
+        <FormControl
+          component="fieldset"
+          sx={{ width: '100%', gridColumn: '1 / -1' }}
+        >
           <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
           <BootOrder {...props} />
         </FormControl>
@@ -66,7 +72,7 @@ Booting.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 /** @type {TabType} */
@@ -75,7 +81,7 @@ const TAB = {
   name: T.OSAndCpu,
   icon: OsIcon,
   Content: Booting,
-  getError: error => !!error?.[TAB_ID]
+  getError: (error) => !!error?.[TAB_ID],
 }
 
 export default TAB

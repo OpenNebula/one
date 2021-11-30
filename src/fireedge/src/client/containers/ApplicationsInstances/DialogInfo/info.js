@@ -34,18 +34,18 @@ const InfoTab = memo(({ info }) => {
     deployment,
     state,
     ready_status_gate: gate,
-    shutdown_action: shutdown
+    shutdown_action: shutdown,
   } = TEMPLATE?.BODY
 
   const stateInfo = APPLICATION_STATES[state]
 
-  const isChecked = checked =>
+  const isChecked = (checked) =>
     checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -69,7 +69,10 @@ const InfoTab = memo(({ info }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.State)}</Typography>
-              <StatusChip stateColor={stateInfo?.color} text={stateInfo?.name} />
+              <StatusChip
+                stateColor={stateInfo?.color}
+                text={stateInfo?.name}
+              />
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.ReadyStatusGate)}</Typography>
@@ -79,7 +82,7 @@ const InfoTab = memo(({ info }) => {
         </Paper>
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined' className={classes.permissions}>
+        <Paper variant="outlined" className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -108,7 +111,7 @@ const InfoTab = memo(({ info }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>
@@ -130,11 +133,11 @@ const InfoTab = memo(({ info }) => {
 })
 
 InfoTab.propTypes = {
-  info: PropTypes.object.isRequired
+  info: PropTypes.object.isRequired,
 }
 
 InfoTab.defaultProps = {
-  info: {}
+  info: {},
 }
 
 InfoTab.displayName = 'InfoTab'

@@ -34,45 +34,45 @@ const TotalProvisionsByState = ({ isLoading }) => {
   const chartData = useMemo(() => {
     const groups = groupBy(provisions, 'TEMPLATE.BODY.state')
 
-    return PROVISIONS_STATES.map((_, stateIndex) =>
-      groups[stateIndex]?.length ?? 0
+    return PROVISIONS_STATES.map(
+      (_, stateIndex) => groups[stateIndex]?.length ?? 0
     )
   }, [totalProvisions])
 
-  const title = useMemo(() => (
-    <div className={classes.title}>
-      <Typography className={classes.titlePrimary}>
-        <NumberEasing value={`${totalProvisions}`} />
-        <span>{T.Provisions}</span>
-      </Typography>
-      <Typography className={classes.titleSecondary}>
-        {T.InTotal}
-      </Typography>
-    </div>
-  ), [classes, totalProvisions])
+  const title = useMemo(
+    () => (
+      <div className={classes.title}>
+        <Typography className={classes.titlePrimary}>
+          <NumberEasing value={`${totalProvisions}`} />
+          <span>{T.Provisions}</span>
+        </Typography>
+        <Typography className={classes.titleSecondary}>{T.InTotal}</Typography>
+      </div>
+    ),
+    [classes, totalProvisions]
+  )
 
-  return useMemo(() => (
-    !totalProvisions && isLoading ? (
-      <Skeleton
-        variant='rectangular'
-        sx={{ height: { xs: 210, sm: 350 } }}
-      />
-    ) : (
-      <Paper
-        data-cy='dashboard-widget-provisions-by-states'
-        className={classes.root}
-      >
-        {title}
-        <div className={classes.content}>
-          <SingleBar
-            legend={PROVISIONS_STATES}
-            data={chartData}
-            total={totalProvisions}
-          />
-        </div>
-      </Paper>
-    )
-  ), [classes, chartData, totalProvisions, isLoading])
+  return useMemo(
+    () =>
+      !totalProvisions && isLoading ? (
+        <Skeleton variant="rectangular" sx={{ height: { xs: 210, sm: 350 } }} />
+      ) : (
+        <Paper
+          data-cy="dashboard-widget-provisions-by-states"
+          className={classes.root}
+        >
+          {title}
+          <div className={classes.content}>
+            <SingleBar
+              legend={PROVISIONS_STATES}
+              data={chartData}
+              total={totalProvisions}
+            />
+          </div>
+        </Paper>
+      ),
+    [classes, chartData, totalProvisions, isLoading]
+  )
 }
 
 TotalProvisionsByState.displayName = 'TotalProvisionsByState'

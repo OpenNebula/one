@@ -18,7 +18,12 @@ import { useEffect, useState, memo } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
-import { Container, LinearProgress, IconButton, Typography } from '@mui/material'
+import {
+  Container,
+  LinearProgress,
+  IconButton,
+  Typography,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetch, useSocket } from 'client/hooks'
@@ -34,17 +39,17 @@ import { T } from 'client/constants'
 const useStyles = makeStyles({
   container: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   title: {
     marginBottom: '1em',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '0.8em'
-  }
+    gap: '0.8em',
+  },
 })
 
-function ProvisionCreateForm () {
+function ProvisionCreateForm() {
   const classes = useStyles()
   const [uuid, setUuid] = useState(undefined)
 
@@ -54,7 +59,7 @@ function ProvisionCreateForm () {
   const { getProviders } = useProviderApi()
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
-  const onSubmit = async formData => {
+  const onSubmit = async (formData) => {
     try {
       const response = await createProvision(formData)
       enqueueInfo('Creating provision')
@@ -78,7 +83,7 @@ function ProvisionCreateForm () {
   }
 
   return !data || loading ? (
-    <LinearProgress color='secondary' />
+    <LinearProgress color="secondary" />
   ) : (
     <Container className={classes.container} disableGutters>
       <CreateForm onSubmit={onSubmit} />
@@ -93,10 +98,10 @@ const Title = memo(() => {
 
   return (
     <div className={classes.title}>
-      <IconButton size='medium' onClick={backToProvisionList}>
+      <IconButton size="medium" onClick={backToProvisionList}>
         <ArrowBackIcon />
       </IconButton>
-      <Typography variant='body1' component='span'>
+      <Typography variant="body1" component="span">
         <Translate word={T.BackToList} values={T.Provisions} />
       </Typography>
     </div>

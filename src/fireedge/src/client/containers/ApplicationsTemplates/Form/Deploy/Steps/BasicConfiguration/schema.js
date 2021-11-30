@@ -25,7 +25,7 @@ const NAME = {
   validation: yup
     .string()
     .trim()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 const INSTANCES = {
@@ -38,11 +38,9 @@ const INSTANCES = {
     .min(1, 'Instances minimum is 1')
     .integer('Instances should be an integer number')
     .required('Instances field is required')
-    .default(1)
+    .default(1),
 }
 
 export const FORM_FIELDS = [NAME, INSTANCES]
 
-export const STEP_FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-)
+export const STEP_FORM_SCHEMA = yup.object(getValidationFromFields(FORM_FIELDS))

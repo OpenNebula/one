@@ -23,7 +23,7 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  IconButton
+  IconButton,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import { Cancel as CancelIcon } from 'iconoir-react'
@@ -64,9 +64,9 @@ const DialogConfirmation = memo(
     handleEntering,
     fixedWidth,
     fixedHeight,
-    children
+    children,
   }) => {
-    const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
     return (
       <Dialog
@@ -75,43 +75,45 @@ const DialogConfirmation = memo(
           elevation: 0,
           sx: {
             minWidth: fixedWidth ? '80vw' : 'auto',
-            minHeight: fixedHeight ? '80vh' : 'auto'
-          }
+            minHeight: fixedHeight ? '80vh' : 'auto',
+          },
         }}
         open={open}
         onClose={handleCancel}
-        maxWidth='lg'
-        scroll='paper'
+        maxWidth="lg"
+        scroll="paper"
         TransitionProps={{
-          onEntering: handleEntering
-        }}>
+          onEntering: handleEntering,
+        }}
+      >
         <DialogTitle
           sx={{
             display: 'flex',
             flexWrap: 'nowrap',
             alignItems: 'center',
-            gap: '2em'
+            gap: '2em',
           }}
         >
           <Box flexGrow={1}>
             {title && (
-              <Typography variant='h6'>
+              <Typography variant="h6">
                 {typeof title === 'string' ? Tr(title) : title}
               </Typography>
             )}
             {subheader && (
-              <Typography variant='body1'>
+              <Typography variant="body1">
                 {typeof subheader === 'string' ? Tr(subheader) : subheader}
               </Typography>
             )}
           </Box>
           {handleCancel && (
             <IconButton
-              aria-label='close'
+              aria-label="close"
               onClick={handleCancel}
-              data-cy='dg-cancel-button'
+              data-cy="dg-cancel-button"
               {...cancelButtonProps}
-              size="large">
+              size="large"
+            >
               <CancelIcon />
             </IconButton>
           )}
@@ -124,9 +126,9 @@ const DialogConfirmation = memo(
         {handleAccept && (
           <DialogActions>
             <Action
-              aria-label='accept'
-              color='secondary'
-              data-cy='dg-accept-button'
+              aria-label="accept"
+              color="secondary"
+              data-cy="dg-accept-button"
               handleClick={handleAccept}
               label={T.Accept}
               {...acceptButtonProps}
@@ -140,14 +142,8 @@ const DialogConfirmation = memo(
 
 export const DialogPropTypes = {
   open: PropTypes.bool,
-  title: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
-  subheader: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   contentProps: PropTypes.object,
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.object,
@@ -156,7 +152,7 @@ export const DialogPropTypes = {
   handleEntering: PropTypes.func,
   fixedWidth: PropTypes.bool,
   fixedHeight: PropTypes.bool,
-  children: PropTypes.any
+  children: PropTypes.any,
 }
 
 DialogConfirmation.propTypes = DialogPropTypes

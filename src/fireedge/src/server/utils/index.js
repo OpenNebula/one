@@ -29,7 +29,7 @@ const {
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkOpennebulaCommand,
-  fillResourceforHookConnection
+  fillResourceforHookConnection,
 } = require('./opennebula')
 
 /**
@@ -40,10 +40,11 @@ const {
 const createParamsState = () => {
   const rtn = {}
   if (params && Array.isArray(params)) {
-    params.forEach(param => {
+    params.forEach((param) => {
       rtn[param] = null
     })
   }
+
   return rtn
 }
 
@@ -56,10 +57,11 @@ const createQueriesState = () => {
   const rtn = {}
   const queries = getAllowedQueryParams()
   if (queries && Array.isArray(queries)) {
-    queries.forEach(query => {
+    queries.forEach((query) => {
       rtn[query] = null
     })
   }
+
   return rtn
 }
 
@@ -81,6 +83,7 @@ const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
   ) {
     rtn = routeFunction.action
   }
+
   return rtn
 }
 
@@ -103,7 +106,7 @@ const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
      * @param {object} rtnCommand - command to validate
      * @returns {object} command
      */
-    const finderCommand = rtnCommand =>
+    const finderCommand = (rtnCommand) =>
       rtnCommand &&
       rtnCommand.endpoint &&
       rtnCommand.endpoint === route &&
@@ -117,6 +120,7 @@ const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
       rtn = find
     }
   }
+
   return rtn
 }
 
@@ -139,5 +143,5 @@ module.exports = {
   httpResponse,
   getDataZone,
   checkEmptyObject,
-  fillResourceforHookConnection
+  fillResourceforHookConnection,
 }

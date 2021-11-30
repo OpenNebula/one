@@ -22,7 +22,7 @@ import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/For
 
 import { templateToObject } from 'client/utils'
 
-const parseNetwork = input => {
+const parseNetwork = (input) => {
   const [name, values] = input
   const network = String(values).split('|')
   // 0 mandatory; 1 network (user input type); 2 description; 3 empty; 4 info_network;
@@ -42,11 +42,11 @@ const parseNetwork = input => {
     description,
     type,
     idVnet,
-    extra
+    extra,
   }
 }
 
-const parseCluster = tiers => {
+const parseCluster = (tiers) => {
   const NUM_REG = /(\d+)/g
 
   const clusters = tiers?.map(({ vm_template_contents: content = '' }) => {
@@ -55,7 +55,7 @@ const parseCluster = tiers => {
     return schedRequirements?.match(NUM_REG)?.join()
   })
 
-  return clusters?.find(i => i !== undefined)
+  return clusters?.find((i) => i !== undefined)
 }
 
 const parseTiers = (roles, networking) =>
@@ -73,7 +73,7 @@ const parseTiers = (roles, networking) =>
         vm_template_contents: content = '',
         elasticity_policies: elasticityPolicies = [],
         scheduled_policies: scheduledPolicies = [],
-        position = { x: 0, y: 0 }
+        position = { x: 0, y: 0 },
       } = data
 
       const hash = templateToObject(content)
@@ -82,7 +82,8 @@ const parseTiers = (roles, networking) =>
       const networks =
         nics?.map(({ network_id: networkId }) => {
           const nicName = networkId?.replace('$', '')
-          const network = networking?.find(vnet => vnet.name === nicName)
+          const network = networking?.find((vnet) => vnet.name === nicName)
+
           return network.id
         }) ?? []
 
@@ -96,14 +97,15 @@ const parseTiers = (roles, networking) =>
             ...JSON.parse(JSON.stringify(rest)),
             ...(recurrence && {
               time_format: 'recurrence',
-              time_expression: recurrence
+              time_expression: recurrence,
             }),
             ...(time && {
               time_format: 'start_time',
-              time_expression: time
-            })
+              time_expression: time,
+            }),
           }
-        })
+        }
+      )
 
       return [
         ...res,
@@ -117,16 +119,17 @@ const parseTiers = (roles, networking) =>
             max_vms: maxVms,
             cooldown,
             elasticity,
-            scheduled
+            scheduled,
           },
           position,
-          tier: { name, cardinality, shutdown_action: shutdownAction }
-        }
+          tier: { name, cardinality, shutdown_action: shutdownAction },
+        },
       ]
     }, [])
     .reduce((res, tier, _, src) => {
-      const parents = tier.parents?.map(name => {
-        const parent = src.find(item => item.tier.name === name)
+      const parents = tier.parents?.map((name) => {
+        const parent = src.find((item) => item.tier.name === name)
+
         return parent?.id
       })
 
@@ -139,12 +142,12 @@ const parseTiers = (roles, networking) =>
  * @param {object} data - OpenNebula service
  * @returns {object} Form data
  */
-const mapApplicationToForm = data => {
+const mapApplicationToForm = (data) => {
   const {
     NAME,
     TEMPLATE: {
-      BODY: { networks = [], roles, ...application }
-    }
+      BODY: { networks = [], roles, ...application },
+    },
   } = data
 
   const networking = Object.entries(networks)?.map(parseNetwork) ?? []
@@ -154,11 +157,11 @@ const mapApplicationToForm = data => {
   return {
     [APPLICATION_ID]: {
       ...application,
-      name: NAME
+      name: NAME,
     },
     [NETWORKING_ID]: networking,
     [CLUSTER_ID]: cluster,
-    [TIERS_ID]: tiers
+    [TIERS_ID]: tiers,
   }
 }
 

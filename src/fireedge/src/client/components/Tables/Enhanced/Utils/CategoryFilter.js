@@ -16,7 +16,14 @@
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListSubheader, ListItemButton, Typography, IconButton, Tooltip } from '@mui/material'
+import {
+  List,
+  ListSubheader,
+  ListItemButton,
+  Typography,
+  IconButton,
+  Tooltip,
+} from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'react-table'
 
@@ -33,12 +40,17 @@ import { T } from 'client/constants'
  * @param {boolean} [props.multiple] - If `true`, can be more than one filter
  * @returns {JSXElementConstructor} Component JSX
  */
-const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => {
+const CategoryFilter = ({
+  title,
+  column,
+  accessorOption,
+  multiple = false,
+}) => {
   const {
     setFilter,
     id,
     preFilteredRows,
-    filterValue = multiple ? [] : undefined
+    filterValue = multiple ? [] : undefined,
   } = column
 
   useEffect(() => () => setFilter(undefined), [])
@@ -47,7 +59,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
   const options = useMemo(() => {
     const options = {}
 
-    preFilteredRows?.forEach(row => {
+    preFilteredRows?.forEach((row) => {
       const value = row.values[id]
 
       if (!value) return
@@ -59,19 +71,20 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
     return options
   }, [id, preFilteredRows])
 
-  const handleSelect = value => {
+  const handleSelect = (value) => {
     setFilter(multiple ? [...filterValue, value] : value)
   }
 
-  const handleUnselect = value => {
-    setFilter(multiple ? filterValue.filter(v => v !== value) : undefined)
+  const handleUnselect = (value) => {
+    setFilter(multiple ? filterValue.filter((v) => v !== value) : undefined)
   }
 
   const handleClear = () => setFilter(multiple ? [] : undefined)
 
-  const isFiltered = useMemo(() => (
-    multiple ? filterValue?.length > 0 : filterValue !== undefined
-  ), [filterValue])
+  const isFiltered = useMemo(
+    () => (multiple ? filterValue?.length > 0 : filterValue !== undefined),
+    [filterValue]
+  )
 
   if (Object.keys(options).length === 0) {
     return null
@@ -89,8 +102,8 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
           {Tr(title)}
           {isFiltered && (
             <Tooltip title={<Translate word={T.Clear} />}>
-              <IconButton disableRipple size='small' onClick={handleClear}>
-                <Cancel/>
+              <IconButton disableRipple size="small" onClick={handleClear}>
+                <Cancel />
               </IconButton>
             </Tooltip>
           )}
@@ -112,7 +125,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple = false }) => 
               isSelected ? handleUnselect(value) : handleSelect(value)
             }
           >
-            <Typography noWrap variant='subtitle2' title={value}>
+            <Typography noWrap variant="subtitle2" title={value}>
               {`${value} (${count})`}
             </Typography>
           </ListItemButton>
@@ -127,7 +140,7 @@ CategoryFilter.propTypes = {
   accessorOption: PropTypes.string,
   icon: PropTypes.node,
   title: PropTypes.string,
-  multiple: PropTypes.bool
+  multiple: PropTypes.bool,
 }
 
 export default CategoryFilter

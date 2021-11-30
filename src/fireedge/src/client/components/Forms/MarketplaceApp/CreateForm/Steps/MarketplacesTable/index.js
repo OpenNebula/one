@@ -29,7 +29,7 @@ const Content = ({ data }) => {
   const { setValue } = useFormContext()
   const { config: oneConfig } = useSystem()
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     setValue(STEP_ID, original.ID !== undefined ? [original] : [])
@@ -40,13 +40,15 @@ const Content = ({ data }) => {
       singleSelect
       onlyGlobalSearch
       onlyGlobalSelectedRows
-      getRowId={market => String(market.NAME)}
-      filter={market =>
+      getRowId={(market) => String(market.NAME)}
+      filter={(market) =>
         oneConfig?.FEDERATION?.ZONE_ID === market.ZONE_ID &&
-        oneConfig?.MARKET_MAD_CONF?.some(marketMad => (
-          marketMad?.APP_ACTIONS?.includes('create') &&
-          `${marketMad?.NAME}`.toUpperCase() === `${market?.MARKET_MAD}`.toUpperCase()
-        ))
+        oneConfig?.MARKET_MAD_CONF?.some(
+          (marketMad) =>
+            marketMad?.APP_ACTIONS?.includes('create') &&
+            `${marketMad?.NAME}`.toUpperCase() ===
+              `${market?.MARKET_MAD}`.toUpperCase()
+        )
       }
       initialState={{ selectedRowIds: { [NAME]: true } }}
       onSelectedRowsChange={handleSelectedRows}
@@ -63,12 +65,12 @@ const MarketplaceStep = () => ({
   id: STEP_ID,
   label: T.SelectMarketplace,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default MarketplaceStep

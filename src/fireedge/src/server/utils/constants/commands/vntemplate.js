@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const VNTEMPLATE_ALLOCATE = 'vntemplate.allocate'
@@ -44,7 +44,7 @@ const Actions = {
   VNTEMPLATE_INFO,
   VNTEMPLATE_LOCK,
   VNTEMPLATE_UNLOCK,
-  VNTEMPLATE_POOL_INFO
+  VNTEMPLATE_POOL_INFO,
 }
 
 module.exports = {
@@ -56,9 +56,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VNTEMPLATE_CLONE]: {
       // inspected
@@ -66,13 +66,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VNTEMPLATE_DELETE]: {
       // inspected
@@ -80,9 +80,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VNTEMPLATE_INSTANTIATE]: {
       // inspected
@@ -90,17 +90,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VNTEMPLATE_UPDATE]: {
       // inspected
@@ -108,17 +108,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VNTEMPLATE_CHMOD]: {
       // inspected
@@ -126,45 +126,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VNTEMPLATE_CHOWN]: {
       // inspected
@@ -172,17 +172,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         userId: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupId: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VNTEMPLATE_RENAME]: {
       // inspected
@@ -190,13 +190,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VNTEMPLATE_INFO]: {
       // inspected
@@ -204,13 +204,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VNTEMPLATE_LOCK]: {
       // inspected
@@ -218,13 +218,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [VNTEMPLATE_UNLOCK]: {
       // inspected
@@ -232,9 +232,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VNTEMPLATE_POOL_INFO]: {
       // inspected
@@ -242,17 +242,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

@@ -29,7 +29,7 @@ const USER = {
     .trim()
     .required('You must select an user')
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FIELDS = [USER]

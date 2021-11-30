@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration'
-import MarketplacesTable, { STEP_ID as MARKET_ID } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/MarketplacesTable'
+import BasicConfiguration, {
+  STEP_ID as BASIC_ID,
+} from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration'
+import MarketplacesTable, {
+  STEP_ID as MARKET_ID,
+} from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/MarketplacesTable'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps(
-  [BasicConfiguration, MarketplacesTable],
-  {
-    transformInitialValue: (initialValues, schema) => {
-      return schema.cast({ [BASIC_ID]: initialValues }, { stripUnknown: true })
-    },
-    transformBeforeSubmit: formData => {
-      const { [BASIC_ID]: configuration, [MARKET_ID]: [market] = [] } = formData
+const Steps = createSteps([BasicConfiguration, MarketplacesTable], {
+  transformInitialValue: (initialValues, schema) => {
+    return schema.cast({ [BASIC_ID]: initialValues }, { stripUnknown: true })
+  },
+  transformBeforeSubmit: (formData) => {
+    const { [BASIC_ID]: configuration, [MARKET_ID]: [market] = [] } = formData
 
-      return { market: market?.ID, ...configuration }
-    }
-  }
-)
+    return { market: market?.ID, ...configuration }
+  },
+})
 
 export default Steps

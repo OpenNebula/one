@@ -29,12 +29,8 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
   const { ID, NAME, IM_MAD, VM_MAD, CLUSTER_ID, CLUSTER } = host
   const { name: stateName, color: stateColor } = getState(host)
   const datastores = getDatastores(host)
-  const {
-    percentCpuUsed,
-    percentCpuLabel,
-    percentMemUsed,
-    percentMemLabel
-  } = getAllocatedInfo(host)
+  const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
+    getAllocatedInfo(host)
 
   const info = [
     { name: T.ID, value: ID },
@@ -42,36 +38,52 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
-      handleEdit: handleRename
+      handleEdit: handleRename,
     },
     {
       name: T.State,
-      value: <StatusChip text={stateName} stateColor={stateColor} />
+      value: <StatusChip text={stateName} stateColor={stateColor} />,
     },
     {
       name: T.Cluster,
       value: `#${CLUSTER_ID} ${CLUSTER}`,
-      link: !Number.isNaN(+CLUSTER_ID) &&
-        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: CLUSTER_ID })
+      link:
+        !Number.isNaN(+CLUSTER_ID) &&
+        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: CLUSTER_ID }),
     },
     { name: T.IM_MAD, value: IM_MAD },
-    { name: T.VM_MAD, value: VM_MAD }
+    { name: T.VM_MAD, value: VM_MAD },
   ]
 
-  const capacity = [{
-    name: T.AllocatedMemory,
-    value: <LinearProgressWithLabel value={percentMemUsed} label={percentMemLabel} />
-  }, {
-    name: T.AllocatedCpu,
-    value: <LinearProgressWithLabel value={percentCpuUsed} label={percentCpuLabel} />
-  }]
+  const capacity = [
+    {
+      name: T.AllocatedMemory,
+      value: (
+        <LinearProgressWithLabel
+          value={percentMemUsed}
+          label={percentMemLabel}
+        />
+      ),
+    },
+    {
+      name: T.AllocatedCpu,
+      value: (
+        <LinearProgressWithLabel
+          value={percentCpuUsed}
+          label={percentCpuLabel}
+        />
+      ),
+    },
+  ]
 
-  const datastore = datastores.map(ds => {
+  const datastore = datastores.map((ds) => {
     const { percentOfUsed, percentLabel } = getCapacityInfo(ds)
 
     return {
       name: `#${ds?.ID}`, // TODO: add datastore name
-      value: <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+      value: (
+        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+      ),
     }
   })
 
@@ -93,7 +105,7 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   handleRename: PropTypes.func,
-  host: PropTypes.object
+  host: PropTypes.object,
 }
 
 export default InformationPanel

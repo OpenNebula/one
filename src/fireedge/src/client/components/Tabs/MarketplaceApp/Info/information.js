@@ -27,7 +27,17 @@ import { T, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 const InformationPanel = ({ marketplaceApp = {}, handleRename, actions }) => {
-  const { ID, NAME, REGTIME, LOCK, MARKETPLACE, MARKETPLACE_ID, SIZE, FORMAT, VERSION } = marketplaceApp
+  const {
+    ID,
+    NAME,
+    REGTIME,
+    LOCK,
+    MARKETPLACE,
+    MARKETPLACE_ID,
+    SIZE,
+    FORMAT,
+    VERSION,
+  } = marketplaceApp
   const typeName = getType(marketplaceApp)
   const { name: stateName, color: stateColor } = getState(marketplaceApp)
 
@@ -37,27 +47,28 @@ const InformationPanel = ({ marketplaceApp = {}, handleRename, actions }) => {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(MARKETPLACE_APP_ACTIONS.RENAME),
-      handleEdit: handleRename
+      handleEdit: handleRename,
     },
     {
       name: T.Marketplace,
       value: `#${MARKETPLACE_ID} ${MARKETPLACE}`,
-      link: !Number.isNaN(+MARKETPLACE_ID) &&
-        generatePath(PATH.STORAGE.MARKETPLACES.DETAIL, { id: MARKETPLACE_ID })
+      link:
+        !Number.isNaN(+MARKETPLACE_ID) &&
+        generatePath(PATH.STORAGE.MARKETPLACES.DETAIL, { id: MARKETPLACE_ID }),
     },
     {
       name: T.StartTime,
-      value: timeToString(REGTIME)
+      value: timeToString(REGTIME),
     },
     { name: T.Type, value: typeName },
     { name: T.Size, value: prettyBytes(SIZE, 'MB') },
     {
       name: T.State,
-      value: <StatusChip text={stateName} stateColor={stateColor} />
+      value: <StatusChip text={stateName} stateColor={stateColor} />,
     },
     { name: T.Locked, value: levelLockToString(LOCK?.LOCKED) },
     { name: T.Format, value: FORMAT },
-    { name: T.Version, value: VERSION }
+    { name: T.Version, value: VERSION },
   ]
 
   return (
@@ -74,7 +85,7 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   handleRename: PropTypes.func,
-  marketplaceApp: PropTypes.object
+  marketplaceApp: PropTypes.object,
 }
 
 export default InformationPanel

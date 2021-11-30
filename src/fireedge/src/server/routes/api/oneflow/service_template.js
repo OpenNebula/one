@@ -14,13 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const {
   serviceTemplate,
   serviceTemplateDelete,
   serviceTemplateCreate,
   serviceTemplateUpdate,
-  serviceTemplateAction
+  serviceTemplateAction,
 } = require('./service_template-functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
@@ -29,46 +32,46 @@ const routes = {
     list: {
       action: serviceTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [POST]: {
     create: {
       action: serviceTemplateCreate,
       params: {
-        template: { from: fromData.postBody, front: true }
-      }
+        template: { from: fromData.postBody, front: true },
+      },
     },
     action: {
       action: serviceTemplateAction,
       params: {
         id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
-      }
-    }
+        template: { from: fromData.postBody, front: true },
+      },
+    },
   },
   [PUT]: {
     update: {
       action: serviceTemplateUpdate,
       params: {
         id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
-      }
-    }
+        template: { from: fromData.postBody, front: true },
+      },
+    },
   },
   [DELETE]: {
     delete: {
       action: serviceTemplateDelete,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
-  }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
+  },
 }
 
 const serviceTemplateApi = {
-  routes
+  routes,
 }
 
 module.exports = serviceTemplateApi

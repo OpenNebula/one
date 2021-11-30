@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/zone'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const zoneService = ({
+export const zoneService = {
   /**
    * Retrieves information for the zone.
    *
@@ -54,5 +54,5 @@ export const zoneService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.ZONE_POOL?.ZONE ?? []].flat()
-  }
-})
+  },
+}

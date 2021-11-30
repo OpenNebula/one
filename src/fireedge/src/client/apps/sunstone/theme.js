@@ -22,7 +22,7 @@ export default {
       light: '#2a2d3d',
       main: '#222431',
       dark: '#191924',
-      contrastText: '#ffffff'
+      contrastText: '#ffffff',
     },
     secondary: {
       100: '#dff2f8',
@@ -37,7 +37,7 @@ export default {
       light: '#bfe6f0',
       main: '#40b3da',
       dark: '#0099c3',
-      contrastText: '#fff'
-    }
-  }
+      contrastText: '#fff',
+    },
+  },
 }

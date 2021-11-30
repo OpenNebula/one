@@ -14,8 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
-const { importVcenter, list, listAll, cleartags, hosts } = require('./functions')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
+const {
+  importVcenter,
+  list,
+  listAll,
+  cleartags,
+  hosts,
+} = require('./functions')
 const { POST, GET } = httpMethod
 
 const routes = {
@@ -25,52 +34,52 @@ const routes = {
       params: {
         vobject: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         host: {
           from: fromData.postBody,
-          name: 'host'
+          name: 'host',
         },
         datastore: {
           from: fromData.postBody,
-          name: 'datastore'
+          name: 'datastore',
         },
         id: {
           from: fromData.postBody,
-          name: 'id'
+          name: 'id',
         },
         answers: {
           from: fromData.postBody,
-          name: 'answers'
-        }
-      }
+          name: 'answers',
+        },
+      },
     },
     cleartags: {
       action: cleartags,
       params: {
         id: {
           from: fromData.resource,
-          name: 'id'
-        }
-      }
+          name: 'id',
+        },
+      },
     },
     hosts: {
       action: hosts,
       params: {
         vcenter: {
           from: fromData.postBody,
-          name: 'vcenter'
+          name: 'vcenter',
         },
         user: {
           from: fromData.postBody,
-          name: 'user'
+          name: 'user',
         },
         pass: {
           from: fromData.postBody,
-          name: 'pass'
-        }
-      }
-    }
+          name: 'pass',
+        },
+      },
+    },
   },
   [GET]: {
     list: {
@@ -78,39 +87,39 @@ const routes = {
       params: {
         vobject: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         host: {
           from: fromData.query,
-          name: 'host'
+          name: 'host',
         },
         datastore: {
           from: fromData.query,
-          name: 'datastore'
-        }
-      }
+          name: 'datastore',
+        },
+      },
     },
     listall: {
       action: listAll,
       params: {
         vobject: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         host: {
           from: fromData.query,
-          name: 'host'
+          name: 'host',
         },
         datastore: {
           from: fromData.query,
-          name: 'datastore'
-        }
-      }
-    }
-  }
+          name: 'datastore',
+        },
+      },
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

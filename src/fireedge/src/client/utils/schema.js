@@ -17,13 +17,26 @@
 
 // eslint-disable-next-line no-unused-vars
 import { JSXElementConstructor, SetStateAction } from 'react'
-// eslint-disable-next-line no-unused-vars
-import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@mui/material'
+import {
+  // eslint-disable-next-line no-unused-vars
+  GridProps,
+  // eslint-disable-next-line no-unused-vars
+  TextFieldProps,
+  // eslint-disable-next-line no-unused-vars
+  CheckboxProps,
+  // eslint-disable-next-line no-unused-vars
+  InputBaseComponentProps,
+} from '@mui/material'
 import { string, number, boolean, array, object, BaseSchema } from 'yup'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
-import { UserInputObject, T, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
+import {
+  UserInputObject,
+  T,
+  INPUT_TYPES,
+  USER_INPUT_TYPES,
+} from 'client/constants'
 
 // ----------------------------------------------------------
 // Types
@@ -181,25 +194,27 @@ const SEMICOLON_CHAR = ';'
 const requiredSchema = (mandatory, schema) =>
   mandatory ? schema.required() : schema.notRequired().nullable()
 
-const getRange = options => options?.split('..').map(option => parseFloat(option))
+const getRange = (options) =>
+  options?.split('..').map((option) => parseFloat(option))
 
-const getValuesFromArray = (options, separator = SEMICOLON_CHAR) => options?.split(separator)
+const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
+  options?.split(separator)
 
-const getOptionsFromList = options => options
-  ?.map(option => typeof option === 'string'
-    ? ({ text: option, value: option })
-    : option
-  )
-  ?.filter(({ text, value } = {}) => text && value)
+const getOptionsFromList = (options) =>
+  options
+    ?.map((option) =>
+      typeof option === 'string' ? { text: option, value: option } : option
+    )
+    ?.filter(({ text, value } = {}) => text && value)
 
-const parseUserInputValue = value => {
+const parseUserInputValue = (value) => {
   if (value === true) {
     return 'YES'
   } else if (value === false) {
     return 'NO'
   } else if (
     Array.isArray(value) &&
-    value.every(v => typeof v === 'string')
+    value.every((v) => typeof v === 'string')
   ) {
     return value.join(',')
   } else return value
@@ -216,27 +231,35 @@ const parseUserInputValue = value => {
  * @param {number|string|string[]} [userInput.default] - Default value for the input
  * @returns {Field} Field properties
  */
-export const schemaUserInput = ({ mandatory, name, type, options, default: defaultValue }) => {
+export const schemaUserInput = ({
+  mandatory,
+  name,
+  type,
+  options,
+  default: defaultValue,
+}) => {
   switch (type) {
     case USER_INPUT_TYPES.text:
     case USER_INPUT_TYPES.text64:
-    case USER_INPUT_TYPES.password: return {
-      type: INPUT_TYPES.TEXT,
-      htmlType: type === 'password' ? 'password' : 'text',
-      validation: string()
-        .trim()
-        .concat(requiredSchema(mandatory, string()))
-        .default(defaultValue || undefined)
-    }
+    case USER_INPUT_TYPES.password:
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: type === 'password' ? 'password' : 'text',
+        validation: string()
+          .trim()
+          .concat(requiredSchema(mandatory, string()))
+          .default(defaultValue || undefined),
+      }
     case USER_INPUT_TYPES.number:
-    case USER_INPUT_TYPES.numberFloat: return {
-      type: INPUT_TYPES.TEXT,
-      htmlType: 'number',
-      validation: number()
-        .concat(requiredSchema(mandatory, number()))
-        .transform(value => !isNaN(value) ? value : null)
-        .default(() => parseFloat(defaultValue) ?? undefined)
-    }
+    case USER_INPUT_TYPES.numberFloat:
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: 'number',
+        validation: number()
+          .concat(requiredSchema(mandatory, number()))
+          .transform((value) => (!isNaN(value) ? value : null))
+          .default(() => parseFloat(defaultValue) ?? undefined),
+      }
     case USER_INPUT_TYPES.range:
     case USER_INPUT_TYPES.rangeFloat: {
       const [min, max] = getRange(options)
@@ -247,18 +270,19 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
           .concat(requiredSchema(mandatory, number()))
           .min(min)
           .max(max)
-          .transform(value => !isNaN(value) ? value : undefined)
+          .transform((value) => (!isNaN(value) ? value : undefined))
           .default(parseFloat(defaultValue) ?? undefined),
-        fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 }
+        fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 },
       }
     }
-    case USER_INPUT_TYPES.boolean: return {
-      type: INPUT_TYPES.CHECKBOX,
-      validation: boolean()
-        .concat(requiredSchema(mandatory, boolean()))
-        .default(defaultValue === 'YES' ?? false)
-        .yesOrNo()
-    }
+    case USER_INPUT_TYPES.boolean:
+      return {
+        type: INPUT_TYPES.CHECKBOX,
+        validation: boolean()
+          .concat(requiredSchema(mandatory, boolean()))
+          .default(defaultValue === 'YES' ?? false)
+          .yesOrNo(),
+      }
     case USER_INPUT_TYPES.list: {
       const values = getOptionsFromList(options)
       const firstOption = values?.[0]?.value ?? undefined
@@ -270,7 +294,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
           .trim()
           .concat(requiredSchema(mandatory, string()))
           .oneOf(values.map(({ value }) => value))
-          .default(() => defaultValue || firstOption)
+          .default(() => defaultValue || firstOption),
       }
     }
     case USER_INPUT_TYPES.array: {
@@ -284,7 +308,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         validation: array(string().trim())
           .concat(requiredSchema(mandatory, array()))
           .default(() => defaultValues)
-          .afterSubmit(value => value?.join(SEMICOLON_CHAR))
+          .afterSubmit((value) => value?.join(SEMICOLON_CHAR)),
       }
     }
     case USER_INPUT_TYPES.listMultiple: {
@@ -297,16 +321,17 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
         multiple: true,
         validation: array(string().trim())
           .concat(requiredSchema(mandatory, array()))
-          .default(defaultValues)
+          .default(defaultValues),
       }
     }
-    default: return {
-      type: INPUT_TYPES.TEXT,
-      validation: string()
-        .trim()
-        .concat(requiredSchema(mandatory, string()))
-        .default(defaultValue || undefined)
-    }
+    default:
+      return {
+        type: INPUT_TYPES.TEXT,
+        validation: string()
+          .trim()
+          .concat(requiredSchema(mandatory, string()))
+          .default(defaultValue || undefined),
+      }
   }
 }
 
@@ -320,9 +345,13 @@ export const schemaUserInput = ({ mandatory, name, type, options, default: defau
  * @returns {object} - Returns same object with values can be operated by OpenNebula
  */
 export const mapUserInputs = (userInputs = {}) =>
-  Object.entries(userInputs)?.reduce((res, [key, value]) => ({
-    ...res, [key]: parseUserInputValue(value)
-  }), {})
+  Object.entries(userInputs)?.reduce(
+    (res, [key, value]) => ({
+      ...res,
+      [key]: parseUserInputValue(value),
+    }),
+    {}
+  )
 
 /**
  * Converts a list of values to usable options.
@@ -335,9 +364,12 @@ export const mapUserInputs = (userInputs = {}) =>
  * @returns {SelectOption} Options
  */
 export const arrayToOptions = (array = [], options = {}) => {
-  const { addEmpty = true, getText = o => o, getValue = o => o } = options
+  const { addEmpty = true, getText = (o) => o, getValue = (o) => o } = options
 
-  const values = array.map(item => ({ text: getText(item), value: getValue(item) }))
+  const values = array.map((item) => ({
+    text: getText(item),
+    value: getValue(item),
+  }))
 
   if (addEmpty) {
     typeof addEmpty === 'string'
@@ -365,12 +397,13 @@ export const clearNames = (names = '') =>
  * @param {ExtraParams} [extraParams] - Extra parameters
  * @returns {CreateStepsCallback} Function to get steps
  */
-export const createSteps = (steps, extraParams = {}) =>
+export const createSteps =
+  (steps, extraParams = {}) =>
   (stepProps = {}, initialValues) => {
     const { transformInitialValue = () => initialValues } = extraParams
 
     const stepCallbacks = typeof steps === 'function' ? steps(stepProps) : steps
-    const performedSteps = stepCallbacks.map(step => step(stepProps))
+    const performedSteps = stepCallbacks.map((step) => step(stepProps))
 
     const schemas = {}
     for (const { id, resolver } of performedSteps) {
@@ -389,7 +422,7 @@ export const createSteps = (steps, extraParams = {}) =>
       steps: performedSteps,
       defaultValues,
       resolver: () => allResolver,
-      ...extraParams
+      ...extraParams,
     }
   }
 
@@ -401,7 +434,8 @@ export const createSteps = (steps, extraParams = {}) =>
  * @param {ExtraParams} [extraParams] - Extra parameters
  * @returns {CreateFormCallback} Function to get form parameters
  */
-export const createForm = (schema, fields, extraParams = {}) =>
+export const createForm =
+  (schema, fields, extraParams = {}) =>
   (props = {}, initialValues) => {
     const schemaCallback = typeof schema === 'function' ? schema(props) : schema
     const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
@@ -419,6 +453,6 @@ export const createForm = (schema, fields, extraParams = {}) =>
       resolver: () => schemaCallback,
       fields: () => fieldsCallback,
       defaultValues,
-      ...extraParams
+      ...extraParams,
     }
   }

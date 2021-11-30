@@ -34,7 +34,7 @@ const appConfig = getFireedgeConfig()
  */
 const returnSchemaError = (error = []) =>
   error
-    .map(element => (element && element.stack ? element.stack : ''))
+    .map((element) => (element && element.stack ? element.stack : ''))
     .toString()
 
 /**
@@ -43,10 +43,8 @@ const returnSchemaError = (error = []) =>
  * @param {string} validate - number to validate
  * @returns {number}number to int
  */
-const parseToNumber = validate =>
-  isNaN(parseInt(validate, 10))
-    ? validate
-    : parseInt(validate, 10)
+const parseToNumber = (validate) =>
+  isNaN(parseInt(validate, 10)) ? validate : parseInt(validate, 10)
 
 /**
  * Connection to one flow server.
@@ -55,7 +53,11 @@ const parseToNumber = validate =>
  * @param {Function} success - callback success function
  * @param {Function} error - callback error function
  */
-const oneFlowConnection = (requestData = {}, success = () => undefined, error = () => undefined) => {
+const oneFlowConnection = (
+  requestData = {},
+  success = () => undefined,
+  error = () => undefined
+) => {
   const { method, path, user, password, request, post } = requestData
   const optionMethod = method || GET
   const optionPath = path || '/'
@@ -65,16 +67,16 @@ const oneFlowConnection = (requestData = {}, success = () => undefined, error = 
     baseURL: appConfig.oneflow_server || defaultOneFlowServer,
     url: request ? addPrintf(optionPath, request || '') : optionPath,
     headers: {
-      Authorization: `Basic ${optionAuth}`
+      Authorization: `Basic ${optionAuth}`,
     },
-    validateStatus: status => status
+    validateStatus: (status) => status,
   }
 
   if (post) {
     options.data = post
   }
   axios(options)
-    .then(response => {
+    .then((response) => {
       if (response && response.statusText) {
         if (response.status >= 200 && response.status < 400) {
           if (response.data) {
@@ -82,7 +84,7 @@ const oneFlowConnection = (requestData = {}, success = () => undefined, error = 
           }
           if (
             response.config.method &&
-              response.config.method.toUpperCase() === DELETE
+            response.config.method.toUpperCase() === DELETE
           ) {
             return Array.isArray(request)
               ? parseToNumber(request[0])
@@ -94,17 +96,17 @@ const oneFlowConnection = (requestData = {}, success = () => undefined, error = 
       }
       throw Error(response.statusText)
     })
-    .then(data => {
+    .then((data) => {
       success(data)
     })
-    .catch(e => {
+    .catch((e) => {
       error(e)
     })
 }
 
 const functionRoutes = {
   oneFlowConnection,
-  returnSchemaError
+  returnSchemaError,
 }
 
 module.exports = functionRoutes

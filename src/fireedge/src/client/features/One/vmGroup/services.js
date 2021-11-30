@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/vmgroup'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const vmGroupService = ({
+export const vmGroupService = {
   /**
    * Retrieves information for the VM group.
    *
@@ -27,7 +27,7 @@ export const vmGroupService = ({
    * @returns {object} Get VM group identified by id
    * @throws Fails when response isn't code 200
    */
-  getVmGroup: async params => {
+  getVmGroup: async (params) => {
     const name = Actions.VM_GROUP_INFO
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -60,5 +60,5 @@ export const vmGroupService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.VM_GROUP_POOL?.VM_GROUP ?? []].flat()
-  }
-})
+  },
+}

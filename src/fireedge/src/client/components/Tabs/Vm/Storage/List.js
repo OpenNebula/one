@@ -28,7 +28,7 @@ const StorageList = ({ disks, actions }) => (
 
 StorageList.propTypes = {
   disks: PropTypes.array,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 StorageList.displayName = 'StorageList'

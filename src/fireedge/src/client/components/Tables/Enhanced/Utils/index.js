@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
-import GlobalActions, { Action, ActionPropTypes } from 'client/components/Tables/Enhanced/Utils/GlobalActions'
+import GlobalActions, {
+  Action,
+  ActionPropTypes,
+} from 'client/components/Tables/Enhanced/Utils/GlobalActions'
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 import GlobalSelectedRows from 'client/components/Tables/Enhanced/Utils/GlobalSelectedRows'
 import GlobalSort from 'client/components/Tables/Enhanced/Utils/GlobalSort'
@@ -30,5 +33,5 @@ export {
   GlobalFilter,
   GlobalSelectedRows,
   GlobalSort,
-  LabelFilter
+  LabelFilter,
 }

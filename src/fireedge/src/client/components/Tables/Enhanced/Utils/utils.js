@@ -28,19 +28,17 @@ import { GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActi
 export const createColumns = ({ filters = {}, columns = [] }) => {
   if (Object.keys(filters).length === 0) return columns
 
-  return columns.map(column => {
+  return columns.map((column) => {
     const { Header, id = '', accessor } = column
 
     const filterById = !!filters[String(id.toLowerCase())]
 
     const filterByAccessor =
-      typeof accessor === 'string' &&
-      !!filters[String(accessor.toLowerCase())]
+      typeof accessor === 'string' && !!filters[String(accessor.toLowerCase())]
 
     return {
       ...column,
-      ...((filterById || filterByAccessor) && createCategoryFilter(Header)
-      )
+      ...((filterById || filterByAccessor) && createCategoryFilter(Header)),
     }
   })
 }
@@ -51,14 +49,15 @@ export const createColumns = ({ filters = {}, columns = [] }) => {
  * @param {string} title - Title
  * @returns {Column} - Category filter
  */
-export const createCategoryFilter = title => ({
+export const createCategoryFilter = (title) => ({
   disableFilters: false,
-  Filter: ({ column }) => CategoryFilter({
-    column,
-    multiple: true,
-    title
-  }),
-  filter: 'includesValue'
+  Filter: ({ column }) =>
+    CategoryFilter({
+      column,
+      multiple: true,
+      title,
+    }),
+  filter: 'includesValue',
 })
 
 /**
@@ -73,16 +72,17 @@ export const createActions = ({ filters = {}, actions = [] }) => {
   if (Object.keys(filters).length === 0) return actions
 
   return actions
-    .filter(({ accessor }) =>
-      !accessor || filters[String(accessor.toLowerCase())] === true
+    .filter(
+      ({ accessor }) =>
+        !accessor || filters[String(accessor.toLowerCase())] === true
     )
-    .map(action => {
+    .map((action) => {
       const { accessor, options } = action
 
       if (accessor) return action
 
-      const groupActions = options?.filter(option =>
-        filters[String(option.accessor?.toLowerCase())] === true
+      const groupActions = options?.filter(
+        (option) => filters[String(option.accessor?.toLowerCase())] === true
       )
 
       return groupActions?.length > 0

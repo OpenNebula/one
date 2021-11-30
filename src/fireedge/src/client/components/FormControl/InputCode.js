@@ -37,7 +37,7 @@ const WrapperToLoadMode = ({ children, mode }) => {
       // remove all styles when component will be unmounted
       document
         .querySelectorAll('[id^=ace]')
-        .forEach(child => child.parentNode.removeChild(child))
+        .forEach((child) => child.parentNode.removeChild(child))
     }
   }, [])
 
@@ -64,7 +64,7 @@ const InputCode = ({ code, mode, ...props }) => (
           editorProps={{ $blockScrolling: true }}
           setOptions={{
             useWorker: false,
-            tabSize: 2
+            tabSize: 2,
           }}
           {...props}
         />
@@ -81,13 +81,13 @@ InputCode.propTypes = {
     'css',
     'dockerfile',
     'markdown',
-    'xml'
-  ])
+    'xml',
+  ]),
 }
 
 InputCode.defaultProps = {
   code: '',
-  mode: 'json'
+  mode: 'json',
 }
 
 export default InputCode

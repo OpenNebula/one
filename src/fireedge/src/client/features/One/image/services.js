@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/image'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const imageService = ({
+export const imageService = {
   /**
    * Retrieves information for the image.
    *
@@ -59,5 +59,5 @@ export const imageService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.IMAGE_POOL?.IMAGE ?? []].flat()
-  }
-})
+  },
+}

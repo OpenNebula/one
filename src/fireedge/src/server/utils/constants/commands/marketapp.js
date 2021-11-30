@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, PUT, DELETE }
+  httpMethod: { GET, PUT, DELETE },
 } = require('../defaults')
 
 const MARKETAPP_ALLOCATE = 'marketapp.allocate'
@@ -42,7 +42,7 @@ const Actions = {
   MARKETAPP_INFO,
   MARKETAPP_LOCK,
   MARKETAPP_UNLOCK,
-  MARKETAPP_POOL_INFO
+  MARKETAPP_POOL_INFO,
 }
 
 module.exports = {
@@ -54,13 +54,13 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKETAPP_DELETE]: {
       // inspected
@@ -68,9 +68,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKETAPP_ENABLE]: {
       // inspected
@@ -78,13 +78,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         enable: {
           from: postBody,
-          default: true
-        }
-      }
+          default: true,
+        },
+      },
     },
     [MARKETAPP_UPDATE]: {
       // inspected
@@ -92,17 +92,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKETAPP_CHMOD]: {
       // inspected
@@ -110,45 +110,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [MARKETAPP_CHOWN]: {
       // inspected
@@ -156,17 +156,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         userId: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupId: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [MARKETAPP_RENAME]: {
       // inspected
@@ -174,13 +174,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [MARKETAPP_INFO]: {
       // inspected
@@ -188,9 +188,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [MARKETAPP_LOCK]: {
       // inspected
@@ -198,13 +198,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [MARKETAPP_UNLOCK]: {
       // inspected
@@ -212,9 +212,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKETAPP_POOL_INFO]: {
       // inspected
@@ -222,17 +222,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

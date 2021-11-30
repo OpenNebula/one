@@ -17,7 +17,10 @@
 import { useMemo, useEffect } from 'react'
 
 import { useFetch } from 'client/hooks'
-import { useVNetworkTemplate, useVNetworkTemplateApi } from 'client/features/One'
+import {
+  useVNetworkTemplate,
+  useVNetworkTemplateApi,
+} from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import VNetworkTemplateColumns from 'client/components/Tables/VNetworkTemplates/columns'
@@ -29,10 +32,13 @@ const VNetworkTemplatesTable = () => {
   const vNetworkTemplates = useVNetworkTemplate()
   const { getVNetworkTemplates } = useVNetworkTemplateApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVNetworkTemplates)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getVNetworkTemplates)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   if (vNetworkTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -43,7 +49,7 @@ const VNetworkTemplatesTable = () => {
       columns={columns}
       data={vNetworkTemplates}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VNetworkTemplateRow}
     />
   )

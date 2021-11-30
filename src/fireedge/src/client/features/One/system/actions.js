@@ -26,8 +26,8 @@ export const getOneVersion = createAction(
   (response, one) => ({
     [RESOURCES.system]: {
       ...one[RESOURCES.system],
-      version: response
-    }
+      version: response,
+    },
   })
 )
 
@@ -37,7 +37,7 @@ export const getOneConfig = createAction(
   (response, one) => ({
     [RESOURCES.system]: {
       ...one[RESOURCES.system],
-      config: response
-    }
+      config: response,
+    },
   })
 )

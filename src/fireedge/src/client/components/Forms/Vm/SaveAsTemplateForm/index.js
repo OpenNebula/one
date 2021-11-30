@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/SaveAsTemplateForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/SaveAsTemplateForm/schema'
 
 const SaveAsTemplateForm = createForm(SCHEMA, FIELDS)
 

@@ -20,7 +20,10 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 const { readFileSync } = require('fs-extra')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
-const { genPathResources, validateServerIsSecure } = require('server/utils/server')
+const {
+  genPathResources,
+  validateServerIsSecure,
+} = require('server/utils/server')
 const { writeInLogger } = require('server/utils/logger')
 const { endpointVmrc, defaultPort } = require('server/utils/constants/defaults')
 
@@ -31,7 +34,7 @@ const port = appConfig.port || defaultPort
 const protocol = validateServerIsSecure() ? 'https' : 'http'
 const url = `${protocol}://localhost:${port}`
 const config = {
-  color: 'red'
+  color: 'red',
 }
 const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   target: url,
@@ -39,14 +42,14 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   ws: true,
   secure: /^(https):\/\/[^ "]+$/.test(url),
   logLevel: 'debug',
-  pathRewrite: path => path.replace(endpointVmrc, '/ticket'),
-  onError: err => {
+  pathRewrite: (path) => path.replace(endpointVmrc, '/ticket'),
+  onError: (err) => {
     config.error = err.message
     config.message = 'Error connection : %s'
     messageTerminal(config)
   },
   // eslint-disable-next-line consistent-return
-  router: req => {
+  router: (req) => {
     if (req && req.url) {
       const parseURL = parse(req.url)
       if (parseURL && parseURL.pathname) {
@@ -56,13 +59,14 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
           const esxi = readFileSync(
             `${global.paths.VMRC_TOKENS || ''}/${ticket}`
           ).toString()
+
           return esxi
         } catch (error) {
           writeInLogger(ticket, 'Error to read vmrc token file: %s')
         }
       }
     }
-  }
+  },
 })
 
 /**
@@ -70,7 +74,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
  *
  * @param {object} appServer - express app
  */
-const vmrc = appServer => {
+const vmrc = (appServer) => {
   if (
     appServer &&
     appServer.on &&
@@ -83,5 +87,5 @@ const vmrc = appServer => {
 }
 
 module.exports = {
-  vmrc
+  vmrc,
 }

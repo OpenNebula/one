@@ -21,13 +21,13 @@ import {
   isEdge,
   addEdge,
   removeElements,
-  useStoreActions
+  useStoreActions,
 } from 'react-flow-renderer'
 
 const useFlowGraph = ({ nodeFields, setList }) => {
   const [flow, setFlow] = useState([])
   const setSelectedElements = useStoreActions(
-    actions => actions.setSelectedElements
+    (actions) => actions.setSelectedElements
   )
 
   const getParents = (currentFlow, childId) =>
@@ -36,16 +36,16 @@ const useFlowGraph = ({ nodeFields, setList }) => {
       .filter(({ target }) => childId === target)
       .map(({ source }) => source)
 
-  const getList = currentFlow =>
+  const getList = (currentFlow) =>
     currentFlow?.filter(isNode)?.map(({ data: nodeData, position }) =>
       Object.keys(nodeData)
-        .filter(key => nodeFields.includes(key))
+        .filter((key) => nodeFields.includes(key))
         .reduce(
           (res, key) => ({
             ...res,
             [key]: nodeData[key],
             parents: getParents(currentFlow, nodeData.id),
-            position
+            position,
           }),
           {}
         )
@@ -60,37 +60,37 @@ const useFlowGraph = ({ nodeFields, setList }) => {
             id,
             type: 'tier',
             position,
-            data: { id, ...item, ...extraItemProps({ id }) }
+            data: { id, ...item, ...extraItemProps({ id }) },
           },
-          ...(parents?.map(parent => ({
+          ...(parents?.map((parent) => ({
             id: `edge__${id}__${parent}`,
             source: parent,
             target: id,
-            animated: true
-          })) ?? [])
+            animated: true,
+          })) ?? []),
         ],
         []
       )
     )
   }, [])
 
-  const updateList = newFlow => {
+  const updateList = (newFlow) => {
     const list = getList(newFlow)
     setList(list)
   }
 
-  const handleRemoveElements = elements => {
+  const handleRemoveElements = (elements) => {
     const newFlow = removeElements(elements, flow)
     updateList(newFlow)
   }
 
-  const handleConnect = params => {
+  const handleConnect = (params) => {
     const newFlow = addEdge({ ...params, animated: true }, flow)
     updateList(newFlow)
   }
 
   const handleUpdatePosition = (_, node) => {
-    const newFlow = flow.map(element =>
+    const newFlow = flow.map((element) =>
       element.id === node.id ? node : element
     )
     updateList(newFlow)
@@ -107,7 +107,7 @@ const useFlowGraph = ({ nodeFields, setList }) => {
     handleRemoveElements,
     handleConnect,
     handleUpdatePosition,
-    handleSelectAll
+    handleSelectAll,
   }
 }
 

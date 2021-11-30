@@ -17,12 +17,15 @@
 const { Validator } = require('jsonschema')
 const { role, service, action } = require('./schemas')
 const { oneFlowConection } = require('./functions')
-const { httpMethod, defaultEmptyFunction } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  defaultEmptyFunction,
+} = require('server/utils/constants/defaults')
 const { httpResponse, parsePostData } = require('server/utils/server')
 const {
   ok,
   internalServerError,
-  methodNotAllowed
+  methodNotAllowed,
 } = require('server/utils/constants/http-codes')
 const { returnSchemaError } = require('./functions')
 const { GET, POST, DELETE, PUT } = httpMethod
@@ -35,7 +38,13 @@ const { GET, POST, DELETE, PUT } = httpMethod
  * @param {string} data - data response http
  */
 const success = (next = defaultEmptyFunction, res = {}, data = '') => {
-  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
+  if (
+    next &&
+    typeof next === 'function' &&
+    res &&
+    res.locals &&
+    res.locals.httpCode
+  ) {
     res.locals.httpCode = httpResponse(ok, data)
     next()
   }
@@ -49,8 +58,17 @@ const success = (next = defaultEmptyFunction, res = {}, data = '') => {
  * @param {string} data - data response http
  */
 const error = (next = defaultEmptyFunction, res = {}, data = '') => {
-  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
+  if (
+    next &&
+    typeof next === 'function' &&
+    res &&
+    res.locals &&
+    res.locals.httpCode
+  ) {
+    res.locals.httpCode = httpResponse(
+      internalServerError,
+      data && data.message
+    )
     next()
   }
 }
@@ -63,7 +81,12 @@ const error = (next = defaultEmptyFunction, res = {}, data = '') => {
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const serviceTemplate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
 
   if (user && password) {
@@ -71,9 +94,17 @@ const serviceTemplate = (res = {}, next = () => undefined, params = {}, userData
     if (params && params.id) {
       config.path = '/service_template/{0}'
       config.request = params.id
-      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
-      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     }
   }
 }
@@ -86,12 +117,27 @@ const serviceTemplate = (res = {}, next = () => undefined, params = {}, userData
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceTemplateDelete = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const serviceTemplateDelete = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
 
   if (params && params.id && user && password) {
-    const config = { method: DELETE, path: '/service_template/{0}', user, password, request: params.id }
-    oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+    const config = {
+      method: DELETE,
+      path: '/service_template/{0}',
+      user,
+      password,
+      request: params.id,
+    }
+    oneFlowConection(
+      config,
+      (data) => success(next, res, data),
+      (data) => error(next, res, data)
+    )
   } else {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,
@@ -110,7 +156,12 @@ const serviceTemplateDelete = (res = {}, next = () => undefined, params = {}, us
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceTemplateCreate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const serviceTemplateCreate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.template && user && password) {
     const v = new Validator()
@@ -123,9 +174,13 @@ const serviceTemplateCreate = (res = {}, next = () => undefined, params = {}, us
         path: '/service_template',
         user,
         password,
-        post: template
+        post: template,
       }
-      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -151,7 +206,12 @@ const serviceTemplateCreate = (res = {}, next = () => undefined, params = {}, us
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceTemplateUpdate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const serviceTemplateUpdate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.id && params.template && user && password) {
     const v = new Validator()
@@ -165,9 +225,13 @@ const serviceTemplateUpdate = (res = {}, next = () => undefined, params = {}, us
         user,
         password,
         request: params.id,
-        post: template
+        post: template,
       }
-      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -194,7 +258,12 @@ const serviceTemplateUpdate = (res = {}, next = () => undefined, params = {}, us
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceTemplateAction = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const serviceTemplateAction = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.id && params.template && user && password) {
     const v = new Validator()
@@ -207,9 +276,13 @@ const serviceTemplateAction = (res = {}, next = () => undefined, params = {}, us
         user,
         password,
         request: params.id,
-        post: template
+        post: template,
       }
-      oneFlowConection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -233,6 +306,6 @@ const serviceTemplateApi = {
   serviceTemplateDelete,
   serviceTemplateCreate,
   serviceTemplateUpdate,
-  serviceTemplateAction
+  serviceTemplateAction,
 }
 module.exports = serviceTemplateApi

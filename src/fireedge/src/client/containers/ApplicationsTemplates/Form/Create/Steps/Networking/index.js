@@ -43,18 +43,13 @@ const Networks = () => ({
     const { getVNetworks } = useVNetworkApi()
     const { getVNetworkTemplates } = useVNetworkTemplateApi()
 
-    const {
-      editingData,
-      handleSave,
-      handleEdit,
-      handleClone,
-      handleRemove
-    } = useListForm({
-      key: STEP_ID,
-      list: data,
-      setList: setFormData,
-      defaultValue: NETWORK_FORM_SCHEMA.default()
-    })
+    const { editingData, handleSave, handleEdit, handleClone, handleRemove } =
+      useListForm({
+        key: STEP_ID,
+        list: data,
+        setList: setFormData,
+        defaultValue: NETWORK_FORM_SCHEMA.default(),
+      })
 
     useEffect(() => {
       getVNetworks()
@@ -81,7 +76,7 @@ const Networks = () => ({
                 setShowDialog(true)
               },
               handleClone: () => handleClone(id),
-              handleRemove: !isUsed ? () => handleRemove(id) : undefined
+              handleRemove: !isUsed ? () => handleRemove(id) : undefined,
             }
           }}
         />
@@ -91,7 +86,7 @@ const Networks = () => ({
             resolver={() => NETWORK_FORM_SCHEMA}
             open={showDialog}
             values={editingData}
-            onSubmit={values => {
+            onSubmit={(values) => {
               handleSave(values)
               setShowDialog(false)
             }}
@@ -102,7 +97,7 @@ const Networks = () => ({
         )}
       </>
     )
-  }, [])
+  }, []),
 })
 
 export default Networks

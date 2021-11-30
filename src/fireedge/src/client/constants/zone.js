@@ -18,12 +18,14 @@ import COLOR from 'client/constants/color'
 
 /** @type {STATES.StateInfo[]} Zone states */
 export const ZONE_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.ENABLED,
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
-  { // 1
+  {
+    // 1
     name: STATES.DISABLED,
-    color: COLOR.debug.main
-  }
+    color: COLOR.debug.main,
+  },
 ]

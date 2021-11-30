@@ -38,7 +38,7 @@ const Clusters = () => ({
 
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
-      setList: setFormData
+      setList: setFormData,
     })
 
     useEffect(() => {
@@ -52,14 +52,15 @@ const Clusters = () => ({
         EmptyComponent={<EmptyCard title={'Your clusters list is empty'} />}
         CardComponent={ClusterCard}
         cardsProps={({ value: { ID } }) => {
-          const isSelected = data?.some(selected => selected === ID)
-          const handleClick = () => isSelected ? handleUnselect(ID) : handleSelect(ID)
+          const isSelected = data?.some((selected) => selected === ID)
+          const handleClick = () =>
+            isSelected ? handleUnselect(ID) : handleSelect(ID)
 
           return { isSelected, handleClick }
         }}
       />
     )
-  }, [])
+  }, []),
 })
 
 export default Clusters

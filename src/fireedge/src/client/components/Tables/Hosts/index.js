@@ -20,26 +20,37 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useHost, useHostApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
+import {
+  SkeletonTable,
+  EnhancedTable,
+  EnhancedTableProps,
+} from 'client/components/Tables'
 import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
 
-const HostsTable = props => {
+const HostsTable = (props) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('HOST')?.filters,
-    columns: HostColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('HOST')?.filters,
+        columns: HostColumns,
+      }),
+    [view]
+  )
 
   const hosts = useHost()
   const { getHosts } = useHostApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getHosts)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getHosts)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (hosts?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -50,7 +61,7 @@ const HostsTable = props => {
       columns={columns}
       data={hosts}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={HostRow}
       {...props}
     />

@@ -16,7 +16,4 @@
 import CircleChart from 'client/components/Charts/CircleChart'
 import SingleBar from 'client/components/Charts/SingleBar'
 
-export {
-  CircleChart,
-  SingleBar
-}
+export { CircleChart, SingleBar }

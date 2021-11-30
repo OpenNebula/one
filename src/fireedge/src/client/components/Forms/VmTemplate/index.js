@@ -17,8 +17,4 @@ import CloneForm from 'client/components/Forms/VmTemplate/CloneForm'
 import CreateForm from 'client/components/Forms/VmTemplate/CreateForm'
 import InstantiateForm from 'client/components/Forms/VmTemplate/InstantiateForm'
 
-export {
-  CloneForm,
-  CreateForm,
-  InstantiateForm
-}
+export { CloneForm, CreateForm, InstantiateForm }

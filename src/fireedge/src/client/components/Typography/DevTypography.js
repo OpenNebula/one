@@ -18,44 +18,36 @@ import PropTypes from 'prop-types'
 
 import { Typography, Chip, Box } from '@mui/material'
 
-const DevTypography = memo(({
-  labelProps = {},
-  color = 'secondary',
-  chipProps = {},
-  children = ''
-}) => (
-  <Box
-    component='span'
-    display='inline-flex'
-    gap='1em'
-    width='100%'
-  >
-    <Typography
-      flexGrow={1}
-      variant='inherit'
-      sx={{ textTransform: 'capitalize' }}
-      {...labelProps}
-    >
-      {children}
-    </Typography>
-    <Chip
-      size='small'
-      label='DEV'
-      color={color}
-      sx={{
-        height: 'auto',
-        cursor: 'inherit'
-      }}
-      {...chipProps}
-    />
-  </Box>
-))
+const DevTypography = memo(
+  ({ labelProps = {}, color = 'secondary', chipProps = {}, children = '' }) => (
+    <Box component="span" display="inline-flex" gap="1em" width="100%">
+      <Typography
+        flexGrow={1}
+        variant="inherit"
+        sx={{ textTransform: 'capitalize' }}
+        {...labelProps}
+      >
+        {children}
+      </Typography>
+      <Chip
+        size="small"
+        label="DEV"
+        color={color}
+        sx={{
+          height: 'auto',
+          cursor: 'inherit',
+        }}
+        {...chipProps}
+      />
+    </Box>
+  )
+)
 
 DevTypography.propTypes = {
   chipProps: PropTypes.object,
   color: PropTypes.string,
   labelProps: PropTypes.object,
-  children: PropTypes.any
+  children: PropTypes.any,
 }
 
 DevTypography.displayName = 'DevTypography'

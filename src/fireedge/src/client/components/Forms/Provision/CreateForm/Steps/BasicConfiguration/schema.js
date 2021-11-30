@@ -26,7 +26,7 @@ const NAME = {
     .min(1, 'Name field is required')
     .trim()
     .required('Name field is required')
-    .default('')
+    .default(''),
 }
 
 const DESCRIPTION = {
@@ -34,14 +34,9 @@ const DESCRIPTION = {
   label: 'Description',
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: yup
-    .string()
-    .trim()
-    .default('')
+  validation: yup.string().trim().default(''),
 }
 
 export const FORM_FIELDS = [NAME, DESCRIPTION]
 
-export const STEP_FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-)
+export const STEP_FORM_SCHEMA = yup.object(getValidationFromFields(FORM_FIELDS))

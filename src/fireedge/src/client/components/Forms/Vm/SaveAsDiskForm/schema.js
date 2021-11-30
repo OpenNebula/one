@@ -27,11 +27,9 @@ const NAME = {
     .string()
     .trim()
     .required('Name field is required')
-    .default('')
+    .default(''),
 }
 
-export const FIELDS = [
-  NAME
-]
+export const FIELDS = [NAME]
 
 export const SCHEMA = yup.object(getValidationFromFields(FIELDS))

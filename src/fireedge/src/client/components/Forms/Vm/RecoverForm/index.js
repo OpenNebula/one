@@ -18,19 +18,15 @@ import { Typography } from '@mui/material'
 import { createForm } from 'client/utils'
 import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/RecoverForm/schema'
 
-const RecoverForm = createForm(
-  SCHEMA,
-  FIELDS,
-  {
-    description: (
-      <Typography variant='subtitle1' padding='1rem'>
-        {`Recovers a stuck VM that is waiting for a driver operation.
+const RecoverForm = createForm(SCHEMA, FIELDS, {
+  description: (
+    <Typography variant="subtitle1" padding="1rem">
+      {`Recovers a stuck VM that is waiting for a driver operation.
           The recovery may be done by failing, succeeding or retrying the
           current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
           to decide if the operation was successful or not, or if it can be retried.`}
-      </Typography>
-    )
-  }
-)
+    </Typography>
+  ),
+})
 
 export default RecoverForm

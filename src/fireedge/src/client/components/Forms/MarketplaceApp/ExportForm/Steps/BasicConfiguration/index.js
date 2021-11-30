@@ -18,18 +18,17 @@ import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { SCHEMA, FIELDS } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration/schema'
 import { Step } from 'client/utils'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
 const Content = () => (
-  <FormWithSchema
-    cy='export-app-configuration'
-    id={STEP_ID}
-    fields={FIELDS}
-  />
+  <FormWithSchema cy="export-app-configuration" id={STEP_ID} fields={FIELDS} />
 )
 
 /**
@@ -42,13 +41,13 @@ const ConfigurationStep = () => ({
   label: T.Configuration,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
-  nics: PropTypes.array
+  nics: PropTypes.array,
 }
 
 export default ConfigurationStep

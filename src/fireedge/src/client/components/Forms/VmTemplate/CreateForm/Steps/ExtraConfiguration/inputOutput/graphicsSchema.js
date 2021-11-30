@@ -15,7 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean, ObjectSchema } from 'yup'
 
-import { Field, arrayToOptions, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
+import {
+  Field,
+  arrayToOptions,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, kvm } = HYPERVISORS
@@ -28,7 +33,7 @@ const TYPE = {
   values: (hypervisor = kvm) => {
     const types = {
       [vcenter]: [T.VMRC],
-      [lxc]: [T.VNC]
+      [lxc]: [T.VNC],
     }[hypervisor] ?? [T.VNC, T.SDL, T.SPICE]
 
     return arrayToOptions(types)
@@ -37,7 +42,7 @@ const TYPE = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Listen field */
@@ -46,13 +51,13 @@ const LISTEN = {
   label: T.ListenOnIp,
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
+  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
   fieldProps: { placeholder: '0.0.0.0' },
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Port field */
@@ -62,11 +67,11 @@ const PORT = {
   tooltip: T.ServerPortConcept,
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
+  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Keymap field */
@@ -75,12 +80,12 @@ const KEYMAP = {
   label: T.Keymap,
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
+  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
-  fieldProps: { placeholder: 'en-us' }
+  fieldProps: { placeholder: 'en-us' },
 }
 
 /** @type {Field} Password random field  */
@@ -89,9 +94,9 @@ const RANDOM_PASSWD = {
   label: T.GenerateRandomPassword,
   type: INPUT_TYPES.CHECKBOX,
   dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
+  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Password field */
@@ -106,7 +111,7 @@ const PASSWD = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Command field */
@@ -116,24 +121,24 @@ const COMMAND = {
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
+  htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} List of Graphics fields
  */
-export const GRAPHICS_FIELDS = hypervisor =>
+export const GRAPHICS_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
     [TYPE, LISTEN, PORT, KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
     hypervisor
   )
 
 /** @type {ObjectSchema} Context Files schema */
-export const GRAPHICS_SCHEMA = hypervisor =>
+export const GRAPHICS_SCHEMA = (hypervisor) =>
   getObjectSchemaFromFields(GRAPHICS_FIELDS(hypervisor))

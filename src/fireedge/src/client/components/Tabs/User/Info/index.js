@@ -27,12 +27,13 @@ import { T } from 'client/constants'
 import * as Helper from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
-const HIDDEN_ATTRIBUTES_REG = /^(SSH_PUBLIC_KEY|SSH_PRIVATE_KEY|SSH_PASSPHRASE|SUNSTONE|FIREEDGE)$/
+const HIDDEN_ATTRIBUTES_REG =
+  /^(SSH_PUBLIC_KEY|SSH_PRIVATE_KEY|SSH_PASSPHRASE|SUNSTONE|FIREEDGE)$/
 
 const UserInfoTab = ({ tabProps = {} }) => {
   const {
     information_panel: informationPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
   const { updateUser } = useUserApi()
@@ -52,23 +53,27 @@ const UserInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = actions => Helper.getActionsAvailable(actions)
+  const getActions = (actions) => Helper.getActionsAvailable(actions)
 
-  const { attributes } = Helper.filterAttributes(TEMPLATE, { hidden: HIDDEN_ATTRIBUTES_REG })
+  const { attributes } = Helper.filterAttributes(TEMPLATE, {
+    hidden: HIDDEN_ATTRIBUTES_REG,
+  })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: handleAttributeInXml
+    handleDelete: handleAttributeInXml,
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -88,7 +93,7 @@ const UserInfoTab = ({ tabProps = {} }) => {
 }
 
 UserInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 UserInfoTab.displayName = 'UserInfoTab'

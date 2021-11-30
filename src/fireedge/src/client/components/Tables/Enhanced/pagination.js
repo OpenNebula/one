@@ -27,7 +27,7 @@ const Pagination = ({
   count = 0,
   handleChangePage,
   useTableProps,
-  showPageCount = true
+  showPageCount = true,
 }) => {
   /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
@@ -45,24 +45,24 @@ const Pagination = ({
   return (
     <>
       <Button
-        aria-label='previous page'
+        aria-label="previous page"
         disabled={pageIndex === 0}
         onClick={handleBackButtonClick}
-        size='small'
-        color='inherit'
+        size="small"
+        color="inherit"
       >
         <NavArrowLeft />
         {T.Previous}
       </Button>
-      <Typography variant='body2' component='span'>
+      <Typography variant="body2" component="span">
         {`${pageIndex + 1} of ${showPageCount ? pageCount : 'many'}`}
       </Typography>
       <Button
-        aria-label='next page'
+        aria-label="next page"
         disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
         onClick={handleNextButtonClick}
-        size='small'
-        color='inherit'
+        size="small"
+        color="inherit"
       >
         {T.Next}
         <NavArrowRight />
@@ -75,7 +75,7 @@ Pagination.propTypes = {
   handleChangePage: PropTypes.func.isRequired,
   useTableProps: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
-  showPageCount: PropTypes.bool
+  showPageCount: PropTypes.bool,
 }
 
 export default Pagination

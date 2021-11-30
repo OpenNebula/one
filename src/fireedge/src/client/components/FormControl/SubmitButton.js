@@ -17,22 +17,28 @@ import { forwardRef, memo } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-import { CircularProgress, Button, IconButton, Tooltip, Typography } from '@mui/material'
+import {
+  CircularProgress,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { Tr, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     transition: 'disabled 0.5s ease',
-    boxShadow: 'none'
+    boxShadow: 'none',
   },
   disabled: {
     '& svg': {
-      color: theme.palette.action.disabled
-    }
-  }
+      color: theme.palette.action.disabled,
+    },
+  },
 }))
 
 const ButtonComponent = forwardRef(
@@ -42,8 +48,9 @@ const ButtonComponent = forwardRef(
         {children}
       </IconButton>
     ) : (
-      <Button ref={ref}
-        type='submit'
+      <Button
+        ref={ref}
+        type="submit"
         endIcon={endicon}
         variant={variant}
         {...props}
@@ -56,16 +63,14 @@ const ButtonComponent = forwardRef(
 const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
   <ConditionalWrap
     condition={tooltip && tooltip !== ''}
-    wrap={wrapperChildren => (
+    wrap={(wrapperChildren) => (
       <Tooltip
         arrow
-        placement='bottom'
-        title={<Typography variant='subtitle2'>{tooltip}</Typography>}
+        placement="bottom"
+        title={<Typography variant="subtitle2">{tooltip}</Typography>}
         {...tooltipProps}
       >
-        <span>
-          {wrapperChildren}
-        </span>
+        <span>{wrapperChildren}</span>
       </Tooltip>
     )}
   >
@@ -81,18 +86,16 @@ const SubmitButton = memo(
     return (
       <TooltipComponent {...props}>
         <ButtonComponent
-          className={clsx(
-            classes.root,
-            className,
-            { [classes.disabled]: disabled }
-          )}
+          className={clsx(classes.root, className, {
+            [classes.disabled]: disabled,
+          })}
           disabled={disabled || isSubmitting}
           icon={icon}
           aria-label={label ?? T.Submit}
           {...props}
         >
           {isSubmitting && (
-            <CircularProgress color='secondary' size={progressSize} />
+            <CircularProgress color="secondary" size={progressSize} />
           )}
           {!isSubmitting && (icon ?? label ?? Tr(T.Submit))}
         </ButtonComponent>
@@ -118,7 +121,7 @@ export const SubmitButtonPropTypes = {
   className: PropTypes.string,
   color: PropTypes.string,
   size: PropTypes.string,
-  variant: PropTypes.string
+  variant: PropTypes.string,
 }
 
 TooltipComponent.propTypes = SubmitButtonPropTypes

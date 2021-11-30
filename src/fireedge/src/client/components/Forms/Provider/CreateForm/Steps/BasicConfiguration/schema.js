@@ -27,7 +27,7 @@ const NAME = {
     .min(1, 'Name field is required')
     .trim()
     .required('Name field is required')
-    .default('')
+    .default(''),
 }
 
 const DESCRIPTION = {
@@ -35,17 +35,11 @@ const DESCRIPTION = {
   label: 'Description',
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: yup
-    .string()
-    .trim()
-    .default('')
+  validation: yup.string().trim().default(''),
 }
 
-export const FORM_FIELDS = ({ isUpdate }) => [
-  !isUpdate && NAME,
-  DESCRIPTION
-].filter(Boolean)
+export const FORM_FIELDS = ({ isUpdate }) =>
+  [!isUpdate && NAME, DESCRIPTION].filter(Boolean)
 
-export const STEP_FORM_SCHEMA = ({ isUpdate }) => yup.object(
-  getValidationFromFields(FORM_FIELDS({ isUpdate }))
-)
+export const STEP_FORM_SCHEMA = ({ isUpdate }) =>
+  yup.object(getValidationFromFields(FORM_FIELDS({ isUpdate })))

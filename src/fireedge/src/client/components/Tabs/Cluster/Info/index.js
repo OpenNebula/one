@@ -32,14 +32,14 @@ const HIDDEN_ATTRIBUTES_REG = /^(HOST|RESERVED_CPU|RESERVED_MEM)$/
 const ClusterInfoTab = ({ tabProps = {} }) => {
   const {
     information_panel: informationPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
   const { rename, update } = useClusterApi()
   const { handleRefetch, data: cluster = {} } = useContext(TabContext)
   const { ID, TEMPLATE } = cluster
 
-  const handleRename = async newName => {
+  const handleRename = async (newName) => {
     const response = await rename(ID, newName)
     String(response) === String(ID) && (await handleRefetch?.())
   }
@@ -57,23 +57,27 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = actions => Helper.getActionsAvailable(actions)
+  const getActions = (actions) => Helper.getActionsAvailable(actions)
 
-  const { attributes } = Helper.filterAttributes(TEMPLATE, { hidden: HIDDEN_ATTRIBUTES_REG })
+  const { attributes } = Helper.filterAttributes(TEMPLATE, {
+    hidden: HIDDEN_ATTRIBUTES_REG,
+  })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: handleAttributeInXml
+    handleDelete: handleAttributeInXml,
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -94,7 +98,7 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
 }
 
 ClusterInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 ClusterInfoTab.displayName = 'ClusterInfoTab'

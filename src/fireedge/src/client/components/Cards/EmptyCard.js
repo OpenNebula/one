@@ -21,16 +21,16 @@ import makeStyles from '@mui/styles/makeStyles'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    height: '100%'
+    height: '100%',
   },
   content: {
     height: '100%',
     minHeight: 140,
     padding: theme.spacing(1),
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 }))
 
 const EmptyCard = memo(({ title }) => {
@@ -49,11 +49,11 @@ const EmptyCard = memo(({ title }) => {
 })
 
 EmptyCard.propTypes = {
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
 }
 
 EmptyCard.defaultProps = {
-  title: undefined
+  title: undefined,
 }
 
 EmptyCard.displayName = 'EmptyCard'

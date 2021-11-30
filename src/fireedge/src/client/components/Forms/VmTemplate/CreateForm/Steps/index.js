@@ -13,77 +13,79 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import General, { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
-import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import CustomVariables, { STEP_ID as CUSTOM_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables'
+import General, {
+  STEP_ID as GENERAL_ID,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
+import ExtraConfiguration, {
+  STEP_ID as EXTRA_ID,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import CustomVariables, {
+  STEP_ID as CUSTOM_ID,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables'
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps, isBase64 } from 'client/utils'
 
-const Steps = createSteps(
-  [General, ExtraConfiguration, CustomVariables],
-  {
-    transformInitialValue: (vmTemplate, schema) => {
-      const inputsOrder = vmTemplate?.TEMPLATE?.INPUTS_ORDER?.split(',') ?? []
-      const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS)
-        .sort((a, b) => inputsOrder.indexOf(a.name) - inputsOrder.indexOf(b.name))
+const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
+  transformInitialValue: (vmTemplate, schema) => {
+    const inputsOrder = vmTemplate?.TEMPLATE?.INPUTS_ORDER?.split(',') ?? []
+    const userInputs = userInputsToArray(
+      vmTemplate?.TEMPLATE?.USER_INPUTS
+    ).sort((a, b) => inputsOrder.indexOf(a.name) - inputsOrder.indexOf(b.name))
 
-      const knownTemplate = schema.cast(
-        {
-          [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
-          [EXTRA_ID]: { ...vmTemplate?.TEMPLATE, USER_INPUTS: userInputs }
-        },
-        { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } }
-      )
+    const knownTemplate = schema.cast(
+      {
+        [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
+        [EXTRA_ID]: { ...vmTemplate?.TEMPLATE, USER_INPUTS: userInputs },
+      },
+      { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } }
+    )
 
-      const customVars = {}
-      const knownAttributes = Object.getOwnPropertyNames({
-        ...knownTemplate[GENERAL_ID],
-        ...knownTemplate[EXTRA_ID]
-      })
+    const customVars = {}
+    const knownAttributes = Object.getOwnPropertyNames({
+      ...knownTemplate[GENERAL_ID],
+      ...knownTemplate[EXTRA_ID],
+    })
 
-      Object.entries(vmTemplate?.TEMPLATE)
-        .forEach(([key, value]) => {
-          if (!knownAttributes.includes(key) && value) {
-            customVars[key] = value
-          }
-        })
-
-      return { ...knownTemplate, [CUSTOM_ID]: customVars }
-    },
-    transformBeforeSubmit: formData => {
-      const {
-        [GENERAL_ID]: general = {},
-        [CUSTOM_ID]: customVariables = {},
-        [EXTRA_ID]: {
-          CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
-          ...extraTemplate
-        } = {}
-      } = formData ?? {}
-
-      const context = {
-        ...restOfContext,
-        // transform start script to base64 if needed
-        [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
-          ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
-            ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
-            : START_SCRIPT
+    Object.entries(vmTemplate?.TEMPLATE).forEach(([key, value]) => {
+      if (!knownAttributes.includes(key) && value) {
+        customVars[key] = value
       }
+    })
 
-      // add user inputs to context
-      Object.keys(extraTemplate?.USER_INPUTS ?? {})
-        .forEach(name => {
-          const upperName = String(name).toUpperCase()
-          context[upperName] = `$${upperName}`
-        })
+    return { ...knownTemplate, [CUSTOM_ID]: customVars }
+  },
+  transformBeforeSubmit: (formData) => {
+    const {
+      [GENERAL_ID]: general = {},
+      [CUSTOM_ID]: customVariables = {},
+      [EXTRA_ID]: {
+        CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
+        ...extraTemplate
+      } = {},
+    } = formData ?? {}
 
-      return jsonToXml({
-        ...customVariables,
-        ...extraTemplate,
-        ...general,
-        CONTEXT: context
-      })
+    const context = {
+      ...restOfContext,
+      // transform start script to base64 if needed
+      [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
+        ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
+          ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
+          : START_SCRIPT,
     }
-  }
-)
+
+    // add user inputs to context
+    Object.keys(extraTemplate?.USER_INPUTS ?? {}).forEach((name) => {
+      const upperName = String(name).toUpperCase()
+      context[upperName] = `$${upperName}`
+    })
+
+    return jsonToXml({
+      ...customVariables,
+      ...extraTemplate,
+      ...general,
+      CONTEXT: context,
+    })
+  },
+})
 
 export default Steps

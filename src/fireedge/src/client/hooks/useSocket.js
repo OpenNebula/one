@@ -21,16 +21,20 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneral } from 'client/features/General'
-import { eventUpdateResourceState, getResourceFromEventState } from 'client/features/One/socket/actions'
+import {
+  eventUpdateResourceState,
+  getResourceFromEventState,
+} from 'client/features/One/socket/actions'
 import { updateResourceFromFetch } from 'client/features/One/actions'
 
-const createWebsocket = (path, query) => socketIO({
-  path: `${WEBSOCKET_URL}/${path}`,
-  query,
-  autoConnect: false,
-  timeout: 10_000,
-  reconnectionAttempts: 5
-})
+const createWebsocket = (path, query) =>
+  socketIO({
+    path: `${WEBSOCKET_URL}/${path}`,
+    query,
+    autoConnect: false,
+    timeout: 10_000,
+    reconnectionAttempts: 5,
+  })
 
 /**
  * Hook to manage the OpenNebula sockets.
@@ -51,51 +55,59 @@ const useSocket = () => {
    * @returns {{ connect: Function, disconnect: Function }}
    * - Functions to manage the socket connections
    */
-  const getHooksSocket = useCallback(({ resource, id }) => {
-    const socket = createWebsocket(
-      SOCKETS.HOOKS,
-      { token: jwt, zone, resource, id }
-    )
+  const getHooksSocket = useCallback(
+    ({ resource, id }) => {
+      const socket = createWebsocket(SOCKETS.HOOKS, {
+        token: jwt,
+        zone,
+        resource,
+        id,
+      })
 
-    return {
-      connect: ({ dataFromFetch, callback }) => {
-        dataFromFetch && socket.on(SOCKETS.CONNECT, () => {
-          // update redux state from data fetched
-          dispatch(updateResourceFromFetch({ data: dataFromFetch, resource }))
-        })
+      return {
+        connect: ({ dataFromFetch, callback }) => {
+          dataFromFetch &&
+            socket.on(SOCKETS.CONNECT, () => {
+              // update redux state from data fetched
+              dispatch(
+                updateResourceFromFetch({ data: dataFromFetch, resource })
+              )
+            })
 
-        socket.on(SOCKETS.HOOKS, ({ data } = {}) => {
-          // update the list on redux state
-          dispatch(eventUpdateResourceState(data))
-          // return data from event
-          callback(getResourceFromEventState(data).value)
-        })
+          socket.on(SOCKETS.HOOKS, ({ data } = {}) => {
+            // update the list on redux state
+            dispatch(eventUpdateResourceState(data))
+            // return data from event
+            callback(getResourceFromEventState(data).value)
+          })
 
-        socket.connect()
-      },
-      disconnect: () => socket.connected && socket.disconnect()
-    }
-  }, [jwt, zone])
+          socket.connect()
+        },
+        disconnect: () => socket.connected && socket.disconnect(),
+      }
+    },
+    [jwt, zone]
+  )
 
   /**
    * @param {Function} callback - Callback from socket
    * @returns {{ on: Function, off: Function }}
    * - Functions to manage the socket connections
    */
-  const getProvisionSocket = useCallback(callback => {
+  const getProvisionSocket = useCallback((callback) => {
     const socket = createWebsocket(SOCKETS.PROVISION, { token: jwt, zone })
 
     socket.on(SOCKETS.PROVISION, callback)
 
     return {
       on: () => socket.connect(),
-      off: () => socket.disconnect()
+      off: () => socket.disconnect(),
     }
   }, [])
 
   return {
     getHooksSocket,
-    getProvisionSocket
+    getProvisionSocket,
   }
 }
 

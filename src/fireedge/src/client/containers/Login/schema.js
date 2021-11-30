@@ -35,8 +35,8 @@ export const USERNAME = {
     autoFocus: true,
     required: true,
     autoComplete: 'username',
-    size: 'medium'
-  }
+    size: 'medium',
+  },
 }
 
 export const PASSWORD = {
@@ -52,18 +52,16 @@ export const PASSWORD = {
   fieldProps: {
     required: true,
     autoComplete: 'current-password',
-    size: 'medium'
-  }
+    size: 'medium',
+  },
 }
 
 export const REMEMBER = {
   name: 'remember',
   label: T.KeepLoggedIn,
   type: INPUT_TYPES.CHECKBOX,
-  validation: yup
-    .boolean()
-    .default(() => false),
-  grid: { md: 12 }
+  validation: yup.boolean().default(() => false),
+  grid: { md: 12 },
 }
 
 export const TOKEN = {
@@ -79,8 +77,8 @@ export const TOKEN = {
   fieldProps: {
     autoFocus: true,
     required: true,
-    margin: 'normal'
-  }
+    margin: 'normal',
+  },
 }
 
 export const GROUP = {
@@ -96,29 +94,33 @@ export const GROUP = {
       addEmpty: false,
       getText: ({ ID, NAME }) => {
         const isPrimary = user?.GID === ID ? `(${Tr(T.Primary)})` : ''
+
         return `${ID} - ${NAME} ${isPrimary}`
       },
-      getValue: ({ ID }) => String(ID)
+      getValue: ({ ID }) => String(ID),
     })
 
-    return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
-      .concat(formatGroups)
+    return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }].concat(
+      formatGroups
+    )
   },
-  validation: yup
-    .string()
-    .trim()
-    .nullable()
-    .default(FILTER_POOL.ALL_RESOURCES),
+  validation: yup.string().trim().nullable().default(FILTER_POOL.ALL_RESOURCES),
   grid: { md: 12 },
   fieldProps: {
-    margin: 'normal'
-  }
+    margin: 'normal',
+  },
 }
 
 export const FORM_USER_FIELDS = [USERNAME, PASSWORD, REMEMBER]
 export const FORM_2FA_FIELDS = [TOKEN]
 export const FORM_GROUP_FIELDS = [GROUP]
 
-export const FORM_USER_SCHEMA = yup.object(getValidationFromFields(FORM_USER_FIELDS))
-export const FORM_2FA_SCHEMA = yup.object(getValidationFromFields(FORM_2FA_FIELDS))
-export const FORM_GROUP_SCHEMA = yup.object(getValidationFromFields(FORM_GROUP_FIELDS))
+export const FORM_USER_SCHEMA = yup.object(
+  getValidationFromFields(FORM_USER_FIELDS)
+)
+export const FORM_2FA_SCHEMA = yup.object(
+  getValidationFromFields(FORM_2FA_FIELDS)
+)
+export const FORM_GROUP_SCHEMA = yup.object(
+  getValidationFromFields(FORM_GROUP_FIELDS)
+)

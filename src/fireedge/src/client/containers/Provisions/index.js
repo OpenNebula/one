@@ -35,7 +35,7 @@ import { DialogRequest } from 'client/components/Dialogs'
 import DialogInfo from 'client/containers/Provisions/DialogInfo'
 import { T } from 'client/constants'
 
-function Provisions () {
+function Provisions() {
   const history = useHistory()
   const [{ content, ...showDialog } = {}, setShowDialog] = useState()
   const handleCloseDialog = () => setShowDialog()
@@ -43,21 +43,19 @@ function Provisions () {
   const { enqueueInfo } = useGeneralApi()
   const provisions = useProvision()
 
-  const {
-    getProvisions,
-    getProvision,
-    configureProvision,
-    deleteProvision
-  } = useProvisionApi()
+  const { getProvisions, getProvision, configureProvision, deleteProvision } =
+    useProvisionApi()
 
   const { error, fetchRequest, loading, reloading } = useFetch(getProvisions)
 
   const { result, handleChange } = useSearch({
     list: provisions,
-    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
+    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] },
   })
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   return (
     <Container disableGutters>
@@ -66,11 +64,11 @@ function Provisions () {
         reloadButtonProps={{
           'data-cy': 'refresh-provision-list',
           onClick: () => fetchRequest(undefined, { reload: true }),
-          isSubmitting: Boolean(loading || reloading)
+          isSubmitting: Boolean(loading || reloading),
         }}
         addButtonProps={{
           'data-cy': 'create-provision',
-          onClick: () => history.push(PATH.PROVISIONS.CREATE)
+          onClick: () => history.push(PATH.PROVISIONS.CREATE),
         }}
         searchProps={{ handleChange }}
       />
@@ -84,50 +82,57 @@ function Provisions () {
             gridProps={{ 'data-cy': 'provisions' }}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
-              handleClick: () => setShowDialog({
-                id: ID,
-                title: `#${ID} ${NAME}`,
-                content: props => createElement(DialogInfo, {
-                  ...props,
-                  displayName: 'DialogDetailProvision'
-                })
-              }),
+              handleClick: () =>
+                setShowDialog({
+                  id: ID,
+                  title: `#${ID} ${NAME}`,
+                  content: (props) =>
+                    createElement(DialogInfo, {
+                      ...props,
+                      displayName: 'DialogDetailProvision',
+                    }),
+                }),
               actions: [
                 {
-                  handleClick: () => configureProvision(ID)
-                    .then(() => enqueueInfo(`Configuring provision - ID: ${ID}`))
-                    .then(() => fetchRequest(undefined, { reload: true })),
+                  handleClick: () =>
+                    configureProvision(ID)
+                      .then(() =>
+                        enqueueInfo(`Configuring provision - ID: ${ID}`)
+                      )
+                      .then(() => fetchRequest(undefined, { reload: true })),
                   icon: <EditIcon />,
-                  cy: 'provision-configure'
-                }
+                  cy: 'provision-configure',
+                },
               ],
               deleteAction: {
                 buttonProps: {
                   'data-cy': 'provision-delete',
                   icon: <DeleteIcon />,
-                  color: 'error'
+                  color: 'error',
                 },
-                options: [{
-                  dialogProps: {
-                    title: (
-                      <Translate
-                        word={T.DeleteSomething}
-                        values={`#${ID} ${NAME}`}
-                      />
-                    )
+                options: [
+                  {
+                    dialogProps: {
+                      title: (
+                        <Translate
+                          word={T.DeleteSomething}
+                          values={`#${ID} ${NAME}`}
+                        />
+                      ),
+                    },
+                    form: DeleteForm,
+                    onSubmit: async (formData) => {
+                      try {
+                        await deleteProvision(ID, formData)
+                        enqueueInfo(`Deleting provision - ID: ${ID}`)
+                      } finally {
+                        handleCloseDialog()
+                        fetchRequest(undefined, { reload: true })
+                      }
+                    },
                   },
-                  form: DeleteForm,
-                  onSubmit: async formData => {
-                    try {
-                      await deleteProvision(ID, formData)
-                      enqueueInfo(`Deleting provision - ID: ${ID}`)
-                    } finally {
-                      handleCloseDialog()
-                      fetchRequest(undefined, { reload: true })
-                    }
-                  }
-                }]
-              }
+                ],
+              },
             })}
           />
         )}
@@ -140,10 +145,10 @@ function Provisions () {
             fixedWidth: true,
             fixedHeight: true,
             handleCancel: handleCloseDialog,
-            ...showDialog
+            ...showDialog,
           }}
         >
-          {props => content(props)}
+          {(props) => content(props)}
         </DialogRequest>
       )}
     </Container>

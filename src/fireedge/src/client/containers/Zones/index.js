@@ -19,14 +19,14 @@ import { Container, Box } from '@mui/material'
 
 import { ZonesTable } from 'client/components/Tables'
 
-function Zones () {
+function Zones() {
   return (
     <Box
       height={1}
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       <ZonesTable />

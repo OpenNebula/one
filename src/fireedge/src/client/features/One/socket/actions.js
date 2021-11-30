@@ -25,7 +25,7 @@ const MESSAGE_PROVISION_SUCCESS_CREATED = 'Provision successfully created'
 const COMMANDS = {
   create: 'create',
   update: 'update',
-  delete: 'delete'
+  delete: 'delete',
 }
 
 /**
@@ -33,7 +33,7 @@ const COMMANDS = {
  * @returns {{name: ('vm'|'host'|'image'), value: object}}
  * - Name and new value of resource
  */
-export const getResourceFromEventState = data => {
+export const getResourceFromEventState = (data) => {
   const { HOOK_OBJECT: name, [name]: value } = data?.HOOK_MESSAGE ?? {}
 
   return { name: String(name).toLowerCase(), value }
@@ -63,8 +63,9 @@ export const getResourceFromEventApi = (data = {}) => {
   const resource = RESOURCES[resourceName]
   const name = resource?.[value?.TYPE] ?? resource
 
-  const [, { VALUE: output }] = PARAMETERS?.PARAMETER
-    ?.filter(({ TYPE }) => TYPE === 'OUT')
+  const [, { VALUE: output }] = PARAMETERS?.PARAMETER?.filter(
+    ({ TYPE }) => TYPE === 'OUT'
+  )
 
   return { action, name, value, success, output }
 }
@@ -79,10 +80,12 @@ export const eventApi = createAsyncThunk(
 
     // console.log({ action, name, value, success, output })
 
-    return (success && value && action !== COMMANDS.delete) ? { [name]: value } : {}
+    return success && value && action !== COMMANDS.delete
+      ? { [name]: value }
+      : {}
   },
   {
-    condition: ({ data } = {}) => data?.HOOK_MESSAGE?.HOOK_TYPE === 'API'
+    condition: ({ data } = {}) => data?.HOOK_MESSAGE?.HOOK_TYPE === 'API',
   }
 )
 
@@ -110,7 +113,7 @@ export const eventUpdateResourceState = createAsyncThunk(
         // update the list if event returns resource value
         value !== ''
       )
-    }
+    },
   }
 )
 
@@ -120,20 +123,19 @@ export const eventUpdateResourceState = createAsyncThunk(
 export const onCreateProvision = createAsyncThunk(
   'socket/create-provision',
   (_, { dispatch }) => {
-    dispatch(actions.enqueueSnackbar({
-      key: generateKey(),
-      message: MESSAGE_PROVISION_SUCCESS_CREATED,
-      options: { variant: 'success' }
-    }))
+    dispatch(
+      actions.enqueueSnackbar({
+        key: generateKey(),
+        message: MESSAGE_PROVISION_SUCCESS_CREATED,
+        options: { variant: 'success' },
+      })
+    )
   },
   {
     condition: (payload = {}) => {
       const { command, data } = payload
 
-      return (
-        command === 'create' &&
-        data === MESSAGE_PROVISION_SUCCESS_CREATED
-      )
-    }
+      return command === 'create' && data === MESSAGE_PROVISION_SUCCESS_CREATED
+    },
   }
 )

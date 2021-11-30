@@ -14,10 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm/schema'
 
 const RelativeForm = createForm(SCHEMA, FIELDS, {
-  transformBeforeSubmit: formData => {
+  transformBeforeSubmit: (formData) => {
     const { ARGS, TIME: time, PERIOD: _, ...restOfData } = formData
     const argValues = Object.values(ARGS)
 
@@ -26,7 +29,7 @@ const RelativeForm = createForm(SCHEMA, FIELDS, {
     argValues.length && (newSchedAction.ARGS = argValues.join(','))
 
     return newSchedAction
-  }
+  },
 })
 
 export default RelativeForm

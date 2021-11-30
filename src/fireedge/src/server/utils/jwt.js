@@ -29,11 +29,7 @@ const speakeasy = require('speakeasy')
  * @param {number} exp - epoch expire time
  * @returns {string} JWT
  */
-const createJWT = (
-  { id: iss, user: aud, token: jti },
-  iat = '',
-  exp = ''
-) => {
+const createJWT = ({ id: iss, user: aud, token: jti }, iat = '', exp = '') => {
   let rtn = null
   if (iss && aud && jti && iat && exp) {
     const payload = {
@@ -41,10 +37,11 @@ const createJWT = (
       aud,
       jti,
       iat,
-      exp
+      exp,
     }
     rtn = jwtEncode(payload)
   }
+
   return rtn
 }
 
@@ -59,6 +56,7 @@ const jwtEncode = (payload = {}) => {
   if (global && global.paths && global.paths.FIREEDGE_KEY) {
     rtn = jwt.encode(payload, global.paths.FIREEDGE_KEY)
   }
+
   return rtn
 }
 
@@ -76,7 +74,7 @@ const jwtDecode = (token = '') => {
       messageTerminal({
         color: 'red',
         message: 'invalid: %s',
-        error: messageError
+        error: messageError,
       })
     }
   }
@@ -111,22 +109,23 @@ const validateAuth = (req = {}) => {
             aud,
             jti,
             iat,
-            exp
+            exp,
           }
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     } else {
-      const messageError = token || (global && global.paths && global.paths.FIREEDGE_KEY)
+      const messageError =
+        token || (global && global.paths && global.paths.FIREEDGE_KEY)
       if (messageError) {
         messageTerminal({
           color: 'red',
           message: 'invalid: %s',
-          error: messageError
+          error: messageError,
         })
       }
     }
   }
+
   return rtn
 }
 
@@ -143,9 +142,10 @@ const check2Fa = (secret = '', token = '') => {
     rtn = speakeasy.totp.verify({
       secret,
       encoding: 'base32',
-      token
+      token,
     })
   }
+
   return rtn
 }
 
@@ -153,5 +153,5 @@ module.exports = {
   jwtDecode,
   createJWT,
   validateAuth,
-  check2Fa
+  check2Fa,
 }

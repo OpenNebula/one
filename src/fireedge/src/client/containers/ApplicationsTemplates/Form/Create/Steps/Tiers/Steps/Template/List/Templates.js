@@ -39,19 +39,21 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
       renderResult={({ ID, NAME }) => {
         const isSelected = ID === String(currentValue)
 
-        return <SelectCard
-          key={`tmp-${ID}`}
-          title={`📁 ${NAME}`}
-          isSelected={isSelected}
-          handleClick={() => handleSetData(!isSelected && ID)}
-        />
+        return (
+          <SelectCard
+            key={`tmp-${ID}`}
+            title={`📁 ${NAME}`}
+            isSelected={isSelected}
+            handleClick={() => handleSetData(!isSelected && ID)}
+          />
+        )
       }}
       searchBoxProps={{
         style: {
           display: 'flex',
           padding: '1rem 0',
-          gap: 10
-        }
+          gap: 10,
+        },
       }}
     />
   )
@@ -60,13 +62,13 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
 ListTemplates.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 ListTemplates.defaultProps = {
   backButton: null,
   currentValue: undefined,
-  handleSetData: () => undefined
+  handleSetData: () => undefined,
 }
 
 export default ListTemplates

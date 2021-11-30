@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration'
-import DatastoresTable, { STEP_ID as DATASTORE_ID } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable'
+import BasicConfiguration, {
+  STEP_ID as BASIC_ID,
+} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration'
+import DatastoresTable, {
+  STEP_ID as DATASTORE_ID,
+} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps(
-  [BasicConfiguration, DatastoresTable],
-  {
-    transformInitialValue: (app, schema) => schema.cast({}, { context: { app } }),
-    transformBeforeSubmit: formData => {
-      const {
-        [BASIC_ID]: configuration,
-        [DATASTORE_ID]: [datastore] = []
-      } = formData
+const Steps = createSteps([BasicConfiguration, DatastoresTable], {
+  transformInitialValue: (app, schema) => schema.cast({}, { context: { app } }),
+  transformBeforeSubmit: (formData) => {
+    const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
+      formData
 
-      return {
-        datastore: datastore?.ID,
-        ...configuration
-      }
+    return {
+      datastore: datastore?.ID,
+      ...configuration,
     }
-  }
-)
+  },
+})
 
 export default Steps

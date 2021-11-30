@@ -28,13 +28,13 @@ const ENFORCE = {
     resize requests will always be enforced`,
   validation: yup
     .boolean()
-    .transform(value => {
+    .transform((value) => {
       if (typeof value === 'boolean') return value
 
       return String(value).toUpperCase() === 'YES'
     })
     .default(false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const MEMORY = {
@@ -48,7 +48,7 @@ const MEMORY = {
     .typeError('Memory value must be a number')
     .required('Memory field is required')
     .positive()
-    .default(undefined)
+    .default(undefined),
 }
 
 const PHYSICAL_CPU = {
@@ -64,7 +64,7 @@ const PHYSICAL_CPU = {
     .typeError('Physical CPU value must be a number')
     .required('Physical CPU field is required')
     .positive()
-    .default(undefined)
+    .default(undefined),
 }
 
 const VIRTUAL_CPU = {
@@ -78,14 +78,9 @@ const VIRTUAL_CPU = {
   validation: yup
     .number()
     .typeError('Virtual CPU value must be a number')
-    .default(undefined)
+    .default(undefined),
 }
 
-export const FIELDS = [
-  ENFORCE,
-  MEMORY,
-  PHYSICAL_CPU,
-  VIRTUAL_CPU
-]
+export const FIELDS = [ENFORCE, MEMORY, PHYSICAL_CPU, VIRTUAL_CPU]
 
 export const SCHEMA = yup.object(getValidationFromFields(FIELDS))

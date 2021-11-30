@@ -39,86 +39,92 @@ const {
   COPY_ATTRIBUTE: COPY,
   ADD_ATTRIBUTE: ADD,
   EDIT_ATTRIBUTE: EDIT,
-  DELETE_ATTRIBUTE: DELETE
+  DELETE_ATTRIBUTE: DELETE,
 } = ACTIONS
 
 // This attributes has special restrictions
 const SPECIAL_ATTRIBUTES = {
   VCENTER_CCR_REF: {
     [EDIT]: false,
-    [DELETE]: false
+    [DELETE]: false,
   },
   VCENTER_HOST: {
     [EDIT]: false,
-    [DELETE]: false
+    [DELETE]: false,
   },
   VCENTER_INSTANCE_ID: {
     [EDIT]: false,
-    [DELETE]: false
+    [DELETE]: false,
   },
   VCENTER_PASSWORD: {
-    [DELETE]: false
+    [DELETE]: false,
   },
   VCENTER_USER: {
     [EDIT]: false,
-    [DELETE]: false
+    [DELETE]: false,
   },
   VCENTER_VERSION: {
     [EDIT]: false,
-    [DELETE]: false
-  }
+    [DELETE]: false,
+  },
 }
 
 const useStyles = makeStyles({
   container: {
-    gridColumn: '1 / -1'
+    gridColumn: '1 / -1',
   },
   item: {
     '& > *:first-child': {
-      flex: '1 1 20%'
-    }
+      flex: '1 1 20%',
+    },
+  },
+})
+
+const AttributePanel = memo(
+  ({
+    title,
+    attributes = {},
+    handleEdit,
+    handleDelete,
+    handleAdd,
+    actions = [],
+    filtersSpecialAttributes = true,
+  }) => {
+    const classes = useStyles()
+
+    const canUseAction = useCallback(
+      (name, action) =>
+        actions?.includes?.(action) &&
+        (!filtersSpecialAttributes ||
+          SPECIAL_ATTRIBUTES[name]?.[action] === undefined),
+      [actions?.length]
+    )
+
+    const formatAttributes = Object.entries(attributes).map(
+      ([name, value]) => ({
+        name,
+        value,
+        showActionsOnHover: true,
+        canCopy: canUseAction(name, COPY),
+        canEdit: canUseAction(name, EDIT),
+        canDelete: canUseAction(name, DELETE),
+        handleEdit,
+        handleDelete,
+      })
+    )
+
+    return (
+      <List
+        containerProps={{ className: classes.container }}
+        itemProps={{ dense: true, className: classes.item }}
+        subListProps={{ disablePadding: true }}
+        title={title}
+        list={formatAttributes}
+        handleAdd={actions?.includes?.(ADD) && handleAdd}
+      />
+    )
   }
-})
-
-const AttributePanel = memo(({
-  title,
-  attributes = {},
-  handleEdit,
-  handleDelete,
-  handleAdd,
-  actions = [],
-  filtersSpecialAttributes = true
-}) => {
-  const classes = useStyles()
-
-  const canUseAction = useCallback((name, action) => (
-    actions?.includes?.(action) &&
-    (!filtersSpecialAttributes || SPECIAL_ATTRIBUTES[name]?.[action] === undefined)
-  ), [actions?.length])
-
-  const formatAttributes = Object.entries(attributes)
-    .map(([name, value]) => ({
-      name,
-      value,
-      showActionsOnHover: true,
-      canCopy: canUseAction(name, COPY),
-      canEdit: canUseAction(name, EDIT),
-      canDelete: canUseAction(name, DELETE),
-      handleEdit,
-      handleDelete
-    }))
-
-  return (
-    <List
-      containerProps={{ className: classes.container }}
-      itemProps={{ dense: true, className: classes.item }}
-      subListProps={{ disablePadding: true }}
-      title={title}
-      list={formatAttributes}
-      handleAdd={actions?.includes?.(ADD) && handleAdd}
-    />
-  )
-})
+)
 
 AttributePanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
@@ -127,7 +133,7 @@ AttributePanel.propTypes = {
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
   title: PropTypes.string,
-  filtersSpecialAttributes: PropTypes.bool
+  filtersSpecialAttributes: PropTypes.bool,
 }
 
 AttributePanel.displayName = 'AttributePanel'

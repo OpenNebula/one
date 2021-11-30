@@ -28,20 +28,19 @@ import { camelCase } from 'client/utils'
 import TabProvider from 'client/components/Tabs/TabProvider'
 import Info from 'client/components/Tabs/Host/Info'
 
-const getTabComponent = tabName => ({
-  info: Info
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    info: Info,
+  }[tabName])
 
 const HostTabs = memo(({ id }) => {
   const { getHooksSocket } = useSocket()
   const { getHost } = useHostApi()
 
-  const {
-    data,
-    fetchRequest,
-    loading,
-    error
-  } = useFetch(getHost, getHooksSocket({ resource: 'host', id }))
+  const { data, fetchRequest, loading, error } = useFetch(
+    getHost,
+    getHooksSocket({ resource: 'host', id })
+  )
 
   const handleRefetch = () => fetchRequest(id, { reload: true })
 
@@ -55,22 +54,26 @@ const HostTabs = memo(({ id }) => {
   useEffect(() => {
     const infoTabs = getResourceView('HOST')?.['info-tabs'] ?? {}
 
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
+    setTabs(() =>
+      Object.entries(infoTabs)
+        ?.filter(([_, { enabled } = {}]) => !!enabled)
+        ?.map(([tabName, tabProps]) => {
+          const camelName = camelCase(tabName)
+          const TabContent = getTabComponent(camelName)
 
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+          return (
+            TabContent && {
+              name: camelName,
+              renderContent: (props) => TabContent({ ...props, tabProps }),
+            }
+          )
+        })
+        ?.filter(Boolean)
+    )
   }, [view])
 
   if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+    return <LinearProgress color="secondary" style={{ width: '100%' }} />
   }
 
   return (
@@ -81,7 +84,7 @@ const HostTabs = memo(({ id }) => {
 })
 
 HostTabs.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
 }
 
 HostTabs.displayName = 'HostTabs'

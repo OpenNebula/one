@@ -30,19 +30,17 @@ const InformationPanel = ({ user = {} }) => {
     { name: T.Name, value: NAME },
     {
       name: T.State,
-      value: Helper.booleanToString(isEnabled)
-    }
+      value: Helper.booleanToString(isEnabled),
+    },
   ]
 
-  return (
-    <List title={T.Information} list={info} />
-  )
+  return <List title={T.Information} list={info} />
 }
 
 InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
-  user: PropTypes.object
+  user: PropTypes.object,
 }
 
 export default InformationPanel

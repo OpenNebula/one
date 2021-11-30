@@ -23,10 +23,11 @@ import { FILES_SCHEMA } from './filesSchema'
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {ObjectSchema} Context schema
  */
-export const SCHEMA = hypervisor => object()
-  .concat(CONFIGURATION_SCHEMA)
-  .concat(USER_INPUTS_SCHEMA)
-  .concat(FILES_SCHEMA(hypervisor))
+export const SCHEMA = (hypervisor) =>
+  object()
+    .concat(CONFIGURATION_SCHEMA)
+    .concat(USER_INPUTS_SCHEMA)
+    .concat(FILES_SCHEMA(hypervisor))
 
 export * from './userInputsSchema'
 export * from './configurationSchema'

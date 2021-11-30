@@ -21,7 +21,7 @@ import makeStyles from '@mui/styles/makeStyles'
 import {
   NavArrowLeft as BackIcon,
   SimpleCart as MarketplaceIcon,
-  EmptyPage as TemplateIcon
+  EmptyPage as TemplateIcon,
 } from 'iconoir-react'
 
 import { DockerLogo } from 'client/components/Icons'
@@ -37,32 +37,32 @@ const SCREENS = [
   {
     id: 'id',
     button: <TemplateIcon style={{ fontSize: 100 }} />,
-    content: ListTemplates
+    content: ListTemplates,
   },
   {
     id: 'app',
     button: <MarketplaceIcon style={{ fontSize: 100 }} />,
-    content: ListMarketApps
+    content: ListMarketApps,
   },
   {
     id: 'docker',
     button: <DockerLogo width="100" height="100%" color="#066da5" />,
-    content: DockerFile
-  }
+    content: DockerFile,
+  },
 ]
 
 const useStyles = makeStyles(() => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   wrapper: {
     height: '100%',
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
-  button: { backgroundColor: '#fff' }
+  button: { backgroundColor: '#fff' },
 }))
 
 const Template = () => ({
@@ -76,14 +76,14 @@ const Template = () => ({
     useEffect(() => {
       if (Object.keys(data).length > 0) {
         const currentScreen = Object.keys(data)[0]
-        setScreen(SCREENS.find(src => src.id === currentScreen))
+        setScreen(SCREENS.find((src) => src.id === currentScreen))
       }
     }, [])
 
-    const handleSetTemplate = template =>
-      setFormData(prevData => ({
+    const handleSetTemplate = (template) =>
+      setFormData((prevData) => ({
         ...prevData,
-        [STEP_ID]: template ? { [screen.id]: template } : undefined
+        [STEP_ID]: template ? { [screen.id]: template } : undefined,
       }))
 
     const handleBack = () => {
@@ -106,7 +106,7 @@ const Template = () => ({
     ) : (
       <div className={classes.root}>
         <div className={classes.wrapper}>
-          {SCREENS?.map(scr => (
+          {SCREENS?.map((scr) => (
             <Fade in timeout={500} key={`option-${scr.id}`}>
               <Button
                 variant="contained"
@@ -120,7 +120,7 @@ const Template = () => ({
         </div>
       </div>
     )
-  }, [])
+  }, []),
 })
 
 export default Template

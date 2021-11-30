@@ -24,20 +24,26 @@ import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 const ErrorTypo = styled(Typography)(({ theme }) => ({
   ...theme.typography.body1,
   paddingLeft: theme.spacing(1),
-  overflowWrap: 'anywhere'
+  overflowWrap: 'anywhere',
 }))
 
 const ErrorHelper = memo(({ label, ...rest }) => (
-  <Stack component='span' color='error.dark' direction='row' alignItems='center' {...rest}>
+  <Stack
+    component="span"
+    color="error.dark"
+    direction="row"
+    alignItems="center"
+    {...rest}
+  >
     <WarningIcon />
-    <ErrorTypo component='span' data-cy='error-text'>
+    <ErrorTypo component="span" data-cy="error-text">
       {labelCanBeTranslated(label) ? Tr(label) : label}
     </ErrorTypo>
   </Stack>
 ))
 
 ErrorHelper.propTypes = {
-  label: oneOfType([string, node])
+  label: oneOfType([string, node]),
 }
 
 ErrorHelper.displayName = 'ErrorHelper'

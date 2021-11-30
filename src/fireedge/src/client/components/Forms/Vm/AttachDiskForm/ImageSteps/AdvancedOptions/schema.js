@@ -35,15 +35,15 @@ const SIZE = {
     .number()
     .typeError('Size value must be a number')
     .notRequired()
-    .default(undefined)
+    .default(undefined),
 }
 
-export const FIELDS = hypervisor => [
-  SIZE,
-  ...Object.values(COMMON_FIELDS)
-]
-  .map(field => typeof field === 'function' ? field(hypervisor) : field)
-  .filter(({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor))
+export const FIELDS = (hypervisor) =>
+  [SIZE, ...Object.values(COMMON_FIELDS)]
+    .map((field) => (typeof field === 'function' ? field(hypervisor) : field))
+    .filter(
+      ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
+    )
 
-export const SCHEMA = hypervisor =>
+export const SCHEMA = (hypervisor) =>
   yup.object(getValidationFromFields(FIELDS(hypervisor)))

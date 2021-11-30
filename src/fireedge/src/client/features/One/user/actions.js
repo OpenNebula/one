@@ -20,16 +20,16 @@ import { RESOURCES } from 'client/features/One/slice'
 /** @see {@link RESOURCES.user}  */
 const USER = 'user'
 
-export const getUser = createAction(
-  `${USER}/detail`,
-  userService.getUser
-)
+export const getUser = createAction(`${USER}/detail`, userService.getUser)
 
 export const getUsers = createAction(
   `${USER}/pool`,
   userService.getUsers,
-  response => ({ [RESOURCES.user]: response })
+  (response) => ({ [RESOURCES.user]: response })
 )
 
 export const updateUser = createAction(`${USER}/update`, userService.updateUser)
-export const changeGroup = createAction(`${USER}/change-group`, userService.changeGroup)
+export const changeGroup = createAction(
+  `${USER}/change-group`,
+  userService.changeGroup
+)

@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { cloneElement, Component, ReactElement, JSXElementConstructor } from 'react'
+import {
+  cloneElement,
+  Component,
+  ReactElement,
+  JSXElementConstructor,
+} from 'react'
 
 /**
  * @param {object} props - Props

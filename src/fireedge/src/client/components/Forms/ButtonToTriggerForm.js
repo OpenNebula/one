@@ -21,16 +21,19 @@ import { Grow, Menu, MenuItem, Typography, ListItemIcon } from '@mui/material'
 import { NavArrowDown } from 'iconoir-react'
 
 import { useDialog } from 'client/hooks'
-import { DialogConfirmation, DialogForm, DialogPropTypes } from 'client/components/Dialogs'
+import {
+  DialogConfirmation,
+  DialogForm,
+  DialogPropTypes,
+} from 'client/components/Dialogs'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
+import SubmitButton, {
+  SubmitButtonPropTypes,
+} from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
 
-const ButtonToTriggerForm = ({
-  buttonProps = {},
-  options = []
-}) => {
+const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button'
   const isGroupButton = options.length > 1
 
@@ -38,12 +41,24 @@ const ButtonToTriggerForm = ({
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { onSubmit: handleSubmit, form, isConfirmDialog = false, dialogProps = {} } = Form ?? {}
+  const {
+    onSubmit: handleSubmit,
+    form,
+    isConfirmDialog = false,
+    dialogProps = {},
+  } = Form ?? {}
 
   const formConfig = useMemo(() => form?.() ?? {}, [form])
-  const { steps, defaultValues, resolver, description, fields, transformBeforeSubmit } = formConfig
+  const {
+    steps,
+    defaultValues,
+    resolver,
+    description,
+    fields,
+    transformBeforeSubmit,
+  } = formConfig
 
-  const handleTriggerSubmit = async formData => {
+  const handleTriggerSubmit = async (formData) => {
     try {
       const data = transformBeforeSubmit?.(formData) ?? formData
       await handleSubmit?.(data)
@@ -52,12 +67,12 @@ const ButtonToTriggerForm = ({
     }
   }
 
-  const openDialogForm = formParams => {
+  const openDialogForm = (formParams) => {
     show(formParams)
     handleClose()
   }
 
-  const handleToggle = evt => setAnchorEl(evt.currentTarget)
+  const handleToggle = (evt) => setAnchorEl(evt.currentTarget)
   const handleClose = () => setAnchorEl(null)
 
   return (
@@ -70,9 +85,8 @@ const ButtonToTriggerForm = ({
         aria-haspopup={isGroupButton ? 'true' : false}
         disabled={!options.length}
         endicon={isGroupButton ? <NavArrowDown /> : undefined}
-        onClick={evt => !isGroupButton
-          ? openDialogForm(options[0])
-          : handleToggle(evt)
+        onClick={(evt) =>
+          !isGroupButton ? openDialogForm(options[0]) : handleToggle(evt)
         }
         {...buttonProps}
       />
@@ -99,7 +113,7 @@ const ButtonToTriggerForm = ({
                   <Icon />
                 </ListItemIcon>
               )}
-              <Typography variant='inherit' noWrap>
+              <Typography variant="inherit" noWrap>
                 <Translate word={name} />
               </Typography>
             </MenuItem>
@@ -107,8 +121,8 @@ const ButtonToTriggerForm = ({
         </Menu>
       )}
 
-      {display && (
-        isConfirmDialog ? (
+      {display &&
+        (isConfirmDialog ? (
           <DialogConfirmation
             handleAccept={handleTriggerSubmit}
             handleCancel={hide}
@@ -130,12 +144,11 @@ const ButtonToTriggerForm = ({
             ) : (
               <>
                 {description}
-                <FormWithSchema cy='form-dg' fields={fields} />
+                <FormWithSchema cy="form-dg" fields={fields} />
               </>
             )}
           </DialogForm>
-        )
-      )}
+        ))}
     </>
   )
 }
@@ -150,9 +163,9 @@ export const ButtonToTriggerFormPropTypes = {
       name: PropTypes.string,
       icon: PropTypes.any,
       form: PropTypes.func,
-      onSubmit: PropTypes.func
+      onSubmit: PropTypes.func,
     })
-  )
+  ),
 }
 
 ButtonToTriggerForm.propTypes = ButtonToTriggerFormPropTypes

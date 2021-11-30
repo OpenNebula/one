@@ -17,34 +17,34 @@ import makeStyles from '@mui/styles/makeStyles'
 
 import { SCHEMES } from 'client/constants'
 
-const styles = makeStyles(theme => ({
+const styles = makeStyles((theme) => ({
   root: ({ isSelected }) => ({
     height: '100%',
-    transition: theme.transitions.create(
-      ['background-color', 'box-shadow'], { duration: '0.2s' }
-    ),
+    transition: theme.transitions.create(['background-color', 'box-shadow'], {
+      duration: '0.2s',
+    }),
     '&:hover': {
-      boxShadow: theme.shadows['5']
+      boxShadow: theme.shadows['5'],
     },
     ...(isSelected && {
       color: theme.palette.secondary.contrastText,
       backgroundColor: theme.palette.secondary.main,
       '& .badge': {
         color: theme.palette.secondary.main,
-        backgroundColor: theme.palette.secondary.contrastText
-      }
-    })
+        backgroundColor: theme.palette.secondary.contrastText,
+      },
+    }),
   }),
   actionArea: {
     '&:disabled': {
-      filter: 'brightness(0.5)'
-    }
+      filter: 'brightness(0.5)',
+    },
   },
   mediaActionArea: {
     '&:hover': {
       backgroundColor: theme.palette.secondary.contrastText,
-      '& $media': { filter: 'none' }
-    }
+      '& $media': { filter: 'none' },
+    },
   },
   media: {
     width: '100%',
@@ -58,26 +58,27 @@ const styles = makeStyles(theme => ({
       height: '100%',
       objectFit: 'cover',
       position: 'absolute',
-      userSelect: 'none'
+      userSelect: 'none',
     },
     transition: theme.transitions.create('filter', { duration: '0.2s' }),
     filter: ({ isSelected, disableFilterImage }) =>
       disableFilterImage
         ? 'none'
-        : (theme.palette.mode === SCHEMES.DARK || isSelected)
-          ? 'contrast(0) brightness(2)'
-          : 'contrast(0) brightness(0.8)'
+        : theme.palette.mode === SCHEMES.DARK || isSelected
+        ? 'contrast(0) brightness(2)'
+        : 'contrast(0) brightness(0.8)',
   },
   headerRoot: {
     // align header icon to top
-    alignItems: 'start'
+    alignItems: 'start',
   },
   headerContent: { overflow: 'auto' },
   headerAvatar: {
     display: 'flex',
-    color: ({ isSelected }) => isSelected
-      ? theme.palette.secondary.contrastText
-      : theme.palette.text.primary
+    color: ({ isSelected }) =>
+      isSelected
+        ? theme.palette.secondary.contrastText
+        : theme.palette.text.primary,
   },
   subheader: {
     color: ({ isSelected }) =>
@@ -87,8 +88,8 @@ const styles = makeStyles(theme => ({
     whiteSpace: 'initial',
     display: '-webkit-box',
     lineClamp: 2,
-    boxOrient: 'vertical'
-  }
+    boxOrient: 'vertical',
+  },
 }))
 
 export default styles

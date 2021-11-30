@@ -37,7 +37,7 @@ const Networks = () => ({
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
       multiple: true,
-      setList: setFormData
+      setList: setFormData,
     })
 
     return (
@@ -45,17 +45,18 @@ const Networks = () => ({
         list={list[NETWORKING]}
         CardComponent={ApplicationNetworkCard}
         cardsProps={({ value: { id, name } }) => {
-          const isSelected = data?.some(selected => selected === id)
+          const isSelected = data?.some((selected) => selected === id)
 
           return {
             title: name,
             isSelected,
-            handleClick: () => isSelected ? handleUnselect(id) : handleSelect(id)
+            handleClick: () =>
+              isSelected ? handleUnselect(id) : handleSelect(id),
           }
         }}
       />
     )
-  }, [])
+  }, []),
 })
 
 export default Networks

@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/host'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const hostService = ({
+export const hostService = {
   /**
    * Retrieves information for the host.
    *
@@ -54,5 +54,5 @@ export const hostService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.HOST_POOL?.HOST ?? []].flat()
-  }
-})
+  },
+}

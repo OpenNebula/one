@@ -21,7 +21,7 @@ const One = require('client/features/One/slice')
 const rootReducer = combineReducers({
   general: General.reducer,
   auth: Auth.reducer,
-  one: One.reducer
+  one: One.reducer,
 })
 
 module.exports = rootReducer

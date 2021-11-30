@@ -17,18 +17,25 @@ import { object, string, array, ObjectSchema } from 'yup'
 
 import { useHost } from 'client/features/One'
 import { getPciDevices } from 'client/models/Host'
-import { Field, arrayToOptions, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
+import {
+  Field,
+  arrayToOptions,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
 
 const transformPciToString = (pciDevice = {}) => {
   const { DEVICE = '', VENDOR = '', CLASS = '' } = pciDevice
+
   return [DEVICE, VENDOR, CLASS].join(',')
 }
 
 const getPciAttributes = (pciDevice = '') => {
   const [DEVICE, VENDOR, CLASS] = pciDevice.split(',')
+
   return { DEVICE, VENDOR, CLASS }
 }
 
@@ -44,20 +51,20 @@ const DEVICE_NAME = {
 
     return arrayToOptions(pciDevices, {
       getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
-      getValue: transformPciToString
+      getValue: transformPciToString,
     })
   },
   validation: string().trim().notRequired(),
-  grid: { sm: 12, md: 3 }
+  grid: { sm: 12, md: 3 },
 }
 
 /** @type {Field} Common field properties */
-const commonFieldProps = name => ({
+const commonFieldProps = (name) => ({
   name,
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.TEXT,
   dependOf: DEVICE_NAME.name,
-  watcher: pciDevice => {
+  watcher: (pciDevice) => {
     if (pciDevice) {
       const { [name]: attribute } = getPciAttributes(pciDevice)
 
@@ -66,7 +73,7 @@ const commonFieldProps = name => ({
   },
   validation: string().trim().required(),
   fieldProps: { disabled: true },
-  grid: { xs: 12, sm: 4, md: 3 }
+  grid: { xs: 12, sm: 4, md: 3 },
 })
 
 /** @type {Field} PCI device field */
@@ -90,5 +97,5 @@ export const PCI_SCHEMA = getObjectSchemaFromFields([DEVICE, VENDOR, CLASS])
 
 /** @type {ObjectSchema} PCI devices schema */
 export const PCI_DEVICES_SCHEMA = object({
-  PCI: array(PCI_SCHEMA).ensure()
+  PCI: array(PCI_SCHEMA).ensure(),
 })

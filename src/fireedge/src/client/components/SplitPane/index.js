@@ -20,14 +20,14 @@ import PropTypes from 'prop-types'
 import { Divider } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   splitPane: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%'
+    height: '100%',
   },
   topPane: {
-    flex: 1
+    flex: 1,
   },
   separator: {
     position: 'relative',
@@ -48,9 +48,9 @@ const useStyles = makeStyles(theme => ({
       width: 8,
       height: 8,
       transform: 'rotate(45deg)',
-      backgroundColor: theme.palette.action.active
-    }
-  }
+      backgroundColor: theme.palette.action.active,
+    },
+  },
 }))
 
 const SplitPane = ({ children, containerProps }) => {
@@ -61,11 +61,11 @@ const SplitPane = ({ children, containerProps }) => {
   const topRef = createRef()
   const separatorYPosition = useRef(null)
 
-  const onMouseDown = event => {
+  const onMouseDown = (event) => {
     separatorYPosition.current = event?.touches?.[0]?.clientY ?? event.clientY
   }
 
-  const onMouseMove = event => {
+  const onMouseMove = (event) => {
     if (!separatorYPosition.current) return
 
     const clientY = event?.touches?.[0]?.clientY || event.clientY
@@ -136,7 +136,7 @@ const SplitPane = ({ children, containerProps }) => {
 
 SplitPane.propTypes = {
   children: PropTypes.array.isRequired,
-  containerProps: PropTypes.object
+  containerProps: PropTypes.object,
 }
 
 export default SplitPane

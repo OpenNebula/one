@@ -22,31 +22,40 @@ import Detail from 'client/components/Tables/Images/detail'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 
-function Images () {
+function Images() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
 
   return (
-    <Stack height={1} py={2} overflow='auto' component={Container}>
+    <Stack height={1} py={2} overflow="auto" component={Container}>
       <SplitPane>
         <ImagesTable onSelectedRowsChange={onSelectedRowsChange} />
 
         {selectedRows?.length > 0 && (
-          <Stack overflow='auto'>
-            {selectedRows?.length === 1
-              ? <Detail id={selectedRows[0]?.values.ID} />
-              : <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
+          <Stack overflow="auto">
+            {selectedRows?.length === 1 ? (
+              <Detail id={selectedRows[0]?.values.ID} />
+            ) : (
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                alignItems="center"
+              >
                 <MultipleTags
                   limitTags={10}
-                  tags={selectedRows?.map(({ original, id, toggleRowSelected }) => (
-                    <Chip key={id}
-                      variant='text'
-                      label={original?.NAME ?? id}
-                      onDelete={() => toggleRowSelected(false)}
-                    />
-                  ))}
+                  tags={selectedRows?.map(
+                    ({ original, id, toggleRowSelected }) => (
+                      <Chip
+                        key={id}
+                        variant="text"
+                        label={original?.NAME ?? id}
+                        onDelete={() => toggleRowSelected(false)}
+                      />
+                    )
+                  )}
                 />
               </Stack>
-            }
+            )}
           </Stack>
         )}
       </SplitPane>

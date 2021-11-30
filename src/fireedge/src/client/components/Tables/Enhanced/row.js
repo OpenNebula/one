@@ -22,14 +22,18 @@ const Row = ({ row, handleClick }) => {
   /** @type {RowType} */
   const { getRowProps, cells, isSelected } = row
 
-  const renderCell = useCallback(cell => (
-    <div {...cell.getCellProps()} data-header={cell.column.Header}>
-      {cell.render('Cell')}
-    </div>
-  ), [])
+  const renderCell = useCallback(
+    (cell) => (
+      <div {...cell.getCellProps()} data-header={cell.column.Header}>
+        {cell.render('Cell')}
+      </div>
+    ),
+    []
+  )
 
   return (
-    <div {...getRowProps()}
+    <div
+      {...getRowProps()}
       className={isSelected ? 'selected' : ''}
       onClick={handleClick}
     >
@@ -40,12 +44,12 @@ const Row = ({ row, handleClick }) => {
 
 Row.propTypes = {
   row: PropTypes.object,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 Row.defaultProps = {
   row: {},
-  handleClick: undefined
+  handleClick: undefined,
 }
 
 export default Row

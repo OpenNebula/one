@@ -16,7 +16,7 @@
 import { alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     top: 0,
     position: 'sticky',
@@ -28,43 +28,43 @@ export default makeStyles(theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     [theme.breakpoints.up('sm')]: {
-      borderBottom: `1px solid ${theme.palette.divider}`
-    }
+      borderBottom: `1px solid ${theme.palette.divider}`,
+    },
   },
   title: {
     flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
     [theme.breakpoints.only('xs')]: {
-      borderBottom: `1px solid ${theme.palette.divider}`
-    }
+      borderBottom: `1px solid ${theme.palette.divider}`,
+    },
   },
   titleText: {
     flexGrow: 1,
     letterSpacing: 0.1,
-    fontWeight: 500
+    fontWeight: 500,
   },
   actions: {
     display: 'flex',
     alignItems: 'center',
     [theme.breakpoints.only('xs')]: {
       width: '100%',
-      borderBottom: `1px solid ${theme.palette.divider}`
-    }
+      borderBottom: `1px solid ${theme.palette.divider}`,
+    },
   },
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.primary.dark, 0.15),
     '&:hover': {
-      backgroundColor: alpha(theme.palette.primary.dark, 0.25)
+      backgroundColor: alpha(theme.palette.primary.dark, 0.25),
     },
     margin: theme.spacing(1, 0),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(1),
-      width: 'auto'
-    }
+      width: 'auto',
+    },
   },
   searchIcon: {
     padding: theme.spacing(0, 2),
@@ -73,13 +73,13 @@ export default makeStyles(theme => ({
     pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   inputRoot: { color: 'inherit' },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    width: '100%'
-  }
+    width: '100%',
+  },
 }))

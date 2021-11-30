@@ -26,7 +26,7 @@ import { isDevelopment } from 'client/utils'
 const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
 
-const labelCanBeTranslated = val =>
+const labelCanBeTranslated = (val) =>
   typeof val === 'string' || (Array.isArray(val) && val.length === 2)
 
 const GenerateScript = (
@@ -43,7 +43,8 @@ const GenerateScript = (
     root.document.body.appendChild(script)
     languageScript = script
   } catch (error) {
-    isDevelopment() && console.error('Error while generating script language', error)
+    isDevelopment() &&
+      console.error('Error while generating script language', error)
   }
 }
 
@@ -57,7 +58,10 @@ const TranslateProvider = ({ children = [] }) => {
 
   useEffect(() => {
     GenerateScript(lang, setHash)
-    return () => { RemoveScript() }
+
+    return () => {
+      RemoveScript()
+    }
   }, [lang])
 
   const changeLang = (language = DEFAULT_LANGUAGE) => {
@@ -68,7 +72,7 @@ const TranslateProvider = ({ children = [] }) => {
   const value = {
     lang,
     hash,
-    changeLang
+    changeLang,
   }
 
   return (
@@ -121,21 +125,18 @@ const Translate = ({ word = '', values = [] }) => {
 TranslateProvider.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node
-  ])
+    PropTypes.node,
+  ]),
 }
 
 Translate.propTypes = {
-  word: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.array
-  ]),
+  word: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   values: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
     PropTypes.bool,
-    PropTypes.array
-  ])
+    PropTypes.array,
+  ]),
 }
 
 export {
@@ -143,5 +144,5 @@ export {
   TranslateProvider,
   Translate,
   Tr,
-  labelCanBeTranslated
+  labelCanBeTranslated,
 }

@@ -22,28 +22,33 @@ import withStyles from '@mui/styles/withStyles'
 const BorderLinearProgress = withStyles(({ palette }) => ({
   root: {
     height: 15,
-    borderRadius: 5
+    borderRadius: 5,
   },
   colorPrimary: {
-    backgroundColor: palette.grey[palette.mode === 'light' ? 400 : 700]
+    backgroundColor: palette.grey[palette.mode === 'light' ? 400 : 700],
   },
   bar: {
     borderRadius: 5,
-    backgroundColor: palette.primary.main
-  }
+    backgroundColor: palette.primary.main,
+  },
 }))(LinearProgress)
 
-const LinearProgressWithLabel = memo(({ value, label, title }) => (
-  <div style={{ textAlign: 'end' }} title={title}>
-    <Typography component='span' variant='body2' noWrap>{label}</Typography>
-    <BorderLinearProgress variant='determinate' value={value} />
-  </div>
-), (prev, next) => prev.value === next.value && prev.label === next.label)
+const LinearProgressWithLabel = memo(
+  ({ value, label, title }) => (
+    <div style={{ textAlign: 'end' }} title={title}>
+      <Typography component="span" variant="body2" noWrap>
+        {label}
+      </Typography>
+      <BorderLinearProgress variant="determinate" value={value} />
+    </div>
+  ),
+  (prev, next) => prev.value === next.value && prev.label === next.label
+)
 
 LinearProgressWithLabel.propTypes = {
   value: PropTypes.number.isRequired,
   label: PropTypes.string.isRequired,
-  title: PropTypes.string
+  title: PropTypes.string,
 }
 
 LinearProgressWithLabel.displayName = 'LinearProgressWithLabel'

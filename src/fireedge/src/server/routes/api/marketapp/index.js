@@ -20,7 +20,7 @@ const { MARKETAPP } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(marketappRoutes, MARKETAPP),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

@@ -17,7 +17,14 @@
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { AppBar, Box, Toolbar, Typography, IconButton, Stack } from '@mui/material'
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  IconButton,
+  Stack,
+} from '@mui/material'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
@@ -36,13 +43,13 @@ const Header = () => {
   const appAsSentence = useMemo(() => sentenceCase(appTitle), [appTitle])
 
   return (
-    <AppBar data-cy='header' elevation={0} position='absolute'>
+    <AppBar data-cy="header" elevation={0} position="absolute">
       <Toolbar>
         <IconButton
           onClick={() => fixMenu(true)}
-          edge='start'
-          size='small'
-          variant='outlined'
+          edge="start"
+          size="small"
+          variant="outlined"
           sx={{ display: { lg: 'none' } }}
         >
           <MenuIcon />
@@ -52,50 +59,47 @@ const Header = () => {
           ml={2}
           sx={{
             display: { xs: 'none', sm: 'inline-flex' },
-            userSelect: 'none'
+            userSelect: 'none',
           }}
         >
-          <Typography
-            variant='h6'
-            data-cy='header-app-title'
-          >
+          <Typography variant="h6" data-cy="header-app-title">
             {'One'}
             <Typography
               variant={'inherit'}
-              color='secondary.800'
-              component='span'
+              color="secondary.800"
+              component="span"
               sx={{ textTransform: 'capitalize' }}
             >
               {appAsSentence}
             </Typography>
             {isBeta && (
               <Typography
-                variant='overline'
-                color='primary.contrastText'
-                ml='0.5rem'
+                variant="overline"
+                color="primary.contrastText"
+                ml="0.5rem"
               >
                 {'BETA'}
               </Typography>
             )}
           </Typography>
           <Typography
-            variant='h6'
-            data-cy='header-description'
+            variant="h6"
+            data-cy="header-description"
             sx={{
               display: { xs: 'none', xl: 'block' },
               '&::before': {
                 content: '"|"',
                 margin: '0.5em',
-                color: 'primary.contrastText'
-              }
+                color: 'primary.contrastText',
+              },
             }}
           >
             {title}
           </Typography>
         </Box>
         <Stack
-          direction='row'
-          justifyContent='end'
+          direction="row"
+          justifyContent="end"
           sx={{ flexGrow: { xs: 1, sm: 0 } }}
         >
           <User />
@@ -109,11 +113,11 @@ const Header = () => {
 }
 
 Header.propTypes = {
-  scrollContainer: PropTypes.object
+  scrollContainer: PropTypes.object,
 }
 
 Header.defaultProps = {
-  scrollContainer: null
+  scrollContainer: null,
 }
 
 export default Header

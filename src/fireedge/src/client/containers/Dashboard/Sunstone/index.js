@@ -18,12 +18,17 @@ import { Container, Box, Grid } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
-import { useUserApi, useImageApi, useVNetworkApi, useDatastoreApi } from 'client/features/One'
+import {
+  useUserApi,
+  useImageApi,
+  useVNetworkApi,
+  useDatastoreApi,
+} from 'client/features/One'
 import * as Widgets from 'client/components/Widgets'
 import { stringToBoolean } from 'client/models/Helper'
 
 /** @returns {JSXElementConstructor} Sunstone dashboard container */
-function SunstoneDashboard () {
+function SunstoneDashboard() {
   const { status, fetchRequestAll, STATUS } = useFetchAll()
   const { INIT, PENDING } = STATUS
 
@@ -35,24 +40,19 @@ function SunstoneDashboard () {
   const { settings: { disableanimations } = {} } = useAuth()
 
   useEffect(() => {
-    fetchRequestAll([
-      getUsers(),
-      getImages(),
-      getVNetworks(),
-      getDatastores()
-    ])
+    fetchRequestAll([getUsers(), getImages(), getVNetworks(), getDatastores()])
   }, [])
 
   return (
     <Container
       disableGutters
-      {...stringToBoolean(disableanimations) && {
+      {...(stringToBoolean(disableanimations) && {
         sx: {
           '& *, & *::before, & *::after': {
-            animation: 'none !important'
-          }
-        }
-      }}
+            animation: 'none !important',
+          },
+        },
+      })}
     >
       <Box py={3}>
         <Grid container spacing={3}>

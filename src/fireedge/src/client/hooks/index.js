@@ -33,6 +33,5 @@ export {
   useNearScreen,
   useSearch,
   useSocket,
-
-  CLIPBOARD_STATUS
+  CLIPBOARD_STATUS,
 }

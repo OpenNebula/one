@@ -23,7 +23,7 @@ const {
   getQueriesState,
   getIdUserOpennebula,
   getUserOpennebula,
-  getPassOpennebula
+  getPassOpennebula,
 } = require('./api')
 
 module.exports = {
@@ -35,5 +35,5 @@ module.exports = {
   getQueriesState,
   getIdUserOpennebula,
   getUserOpennebula,
-  getPassOpennebula
+  getPassOpennebula,
 }

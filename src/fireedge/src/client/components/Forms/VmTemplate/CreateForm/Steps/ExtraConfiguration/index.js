@@ -50,56 +50,70 @@ import { T } from 'client/constants'
 export const STEP_ID = 'extra'
 
 /** @type {TabType[]} */
-export const TABS = [Storage, Networking, Booting, InputOutput, Context, ScheduleAction, Placement, Numa]
+export const TABS = [
+  Storage,
+  Networking,
+  Booting,
+  InputOutput,
+  Context,
+  ScheduleAction,
+  Placement,
+  Numa,
+]
 
 const Content = ({ data, setFormData }) => {
-  const { watch, formState: { errors }, control } = useFormContext()
+  const {
+    watch,
+    formState: { errors },
+    control,
+  } = useFormContext()
   const { view, getResourceView } = useAuth()
 
   const hypervisor = useMemo(() => watch(`${GENERAL_ID}.HYPERVISOR`), [])
 
   const sectionsAvailable = useMemo(() => {
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
+
     return getSectionsAvailable(dialog, hypervisor)
   }, [view])
 
   const totalErrors = Object.keys(errors[STEP_ID] ?? {}).length
 
   const tabs = useMemo(
-    () => TABS
-      .filter(({ id }) => sectionsAvailable.includes(id))
-      .map(({ Content: TabContent, name, getError, ...section }) => ({
-        ...section,
-        name,
-        label: <Translate word={name} />,
-        // eslint-disable-next-line react/display-name
-        renderContent: () => <TabContent {...{ data, setFormData, hypervisor, control }} />,
-        error: getError?.(errors[STEP_ID])
-      })),
+    () =>
+      TABS.filter(({ id }) => sectionsAvailable.includes(id)).map(
+        ({ Content: TabContent, name, getError, ...section }) => ({
+          ...section,
+          name,
+          label: <Translate word={name} />,
+          // eslint-disable-next-line react/display-name
+          renderContent: () => (
+            <TabContent {...{ data, setFormData, hypervisor, control }} />
+          ),
+          error: getError?.(errors[STEP_ID]),
+        })
+      ),
     [totalErrors, view, control]
   )
 
-  return tabs.length > 0 ? (
-    <Tabs tabs={tabs} />
-  ) : (
-    <span>{Tr(T.Empty)}</span>
-  )
+  return tabs.length > 0 ? <Tabs tabs={tabs} /> : <span>{Tr(T.Empty)}</span>
 }
 
 const ExtraConfiguration = () => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
-  resolver: formData => {
+  resolver: (formData) => {
     const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR
+
     return SCHEMA(hypervisor)
   },
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ExtraConfiguration

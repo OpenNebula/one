@@ -16,12 +16,16 @@
 import loadable from '@loadable/component'
 import { Code as DevIcon } from 'iconoir-react'
 
-const TestApi = loadable(() => import('client/containers/TestApi'), { ssr: false })
-const TestForm = loadable(() => import('client/containers/TestForm'), { ssr: false })
+const TestApi = loadable(() => import('client/containers/TestApi'), {
+  ssr: false,
+})
+const TestForm = loadable(() => import('client/containers/TestForm'), {
+  ssr: false,
+})
 
 export const PATH = {
   TEST_API: '/test-api',
-  TEST_FORM: '/test-form'
+  TEST_FORM: '/test-form',
 }
 
 export const ENDPOINTS = [
@@ -31,7 +35,7 @@ export const ENDPOINTS = [
     devMode: true,
     sidebar: true,
     icon: DevIcon,
-    Component: TestApi
+    Component: TestApi,
   },
   {
     label: 'Test Form',
@@ -39,8 +43,8 @@ export const ENDPOINTS = [
     devMode: true,
     sidebar: true,
     icon: DevIcon,
-    Component: TestForm
-  }
+    Component: TestForm,
+  },
 ]
 
 export default { PATH, ENDPOINTS }

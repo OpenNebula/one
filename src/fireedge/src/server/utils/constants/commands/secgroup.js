@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const SECGROUP_ALLOCATE = 'secgroup.allocate'
@@ -40,7 +40,7 @@ const Actions = {
   SECGROUP_CHOWN,
   SECGROUP_RENAME,
   SECGROUP_INFO,
-  SECGROUP_POOL_INFO
+  SECGROUP_POOL_INFO,
 }
 
 module.exports = {
@@ -52,9 +52,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [SECGROUP_CLONE]: {
       // inspected
@@ -62,13 +62,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [SECGROUP_DELETE]: {
       // inspected
@@ -76,9 +76,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [SECGROUP_UPDATE]: {
       // inspected
@@ -86,17 +86,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [SECGROUP_COMMIT]: {
       // inspected
@@ -104,13 +104,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         vms: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [SECGROUP_CHMOD]: {
       // inspected
@@ -118,45 +118,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [SECGROUP_CHOWN]: {
       // inspected
@@ -164,17 +164,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [SECGROUP_RENAME]: {
       // inspected
@@ -182,13 +182,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [SECGROUP_INFO]: {
       // inspected
@@ -196,13 +196,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [SECGROUP_POOL_INFO]: {
       // inspected
@@ -210,17 +210,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -3
+          default: -3,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

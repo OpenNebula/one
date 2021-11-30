@@ -21,22 +21,22 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/user/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useUser = () => (
-  useSelector(state => state[name]?.[RESOURCES.user] ?? [])
-)
+export const useUser = () =>
+  useSelector((state) => state[name]?.[RESOURCES.user] ?? [])
 
 export const useUserApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getUser: id => unwrapDispatch(actions.getUser({ id })),
+    getUser: (id) => unwrapDispatch(actions.getUser({ id })),
     getUsers: () => unwrapDispatch(actions.getUsers()),
-    changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
-    updateUser: (id, data) => unwrapDispatch(actions.updateUser({ id, ...data }))
+    changeGroup: (data) => unwrapDispatch(actions.changeGroup(data)),
+    updateUser: (id, data) =>
+      unwrapDispatch(actions.updateUser({ id, ...data })),
   }
 }

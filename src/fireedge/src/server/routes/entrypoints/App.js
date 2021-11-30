@@ -23,7 +23,9 @@ const { ServerStyleSheets } = require('@mui/styles')
 const rootReducer = require('client/store/reducers')
 const { getFireedgeConfig } = require('server/utils/yml')
 const {
-  availableLanguages, defaultWebpackMode, defaultApps
+  availableLanguages,
+  defaultWebpackMode,
+  defaultApps,
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 const { upperCaseFirst } = require('client/utils')
@@ -33,10 +35,10 @@ const appConfig = getFireedgeConfig()
 const langs = appConfig.langs || availableLanguages
 const scriptLanguages = []
 const languages = Object.keys(langs)
-languages.map(language =>
+languages.map((language) =>
   scriptLanguages.push({
     key: language,
-    value: `${langs[language]}`
+    value: `${langs[language]}`,
   })
 )
 
@@ -52,11 +54,16 @@ router.get('*', (req, res) => {
   let storeRender = ''
 
   // production
-  if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
+  if (
+    env &&
+    (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))
+  ) {
     const apps = Object.keys(defaultApps)
-    const parseUrl = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)
+    const parseUrl = req.url
+      .split(/\//gi)
+      .filter((sub) => sub && sub.length > 0)
 
-    parseUrl.forEach(element => {
+    parseUrl.forEach((element) => {
       if (element && apps.includes(element)) {
         app = element
         title = element
@@ -65,18 +72,17 @@ router.get('*', (req, res) => {
 
     const App = require(`../../../client/apps/${app}/index.js`).default
     const sheets = new ServerStyleSheets()
-    const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
+    const composeEnhancer =
+      (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
     // SSR redux store
     store = createStore(rootReducer, composeEnhancer(applyMiddleware(thunk)))
-    storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${
-      JSON.stringify(store.getState()).replace(/</g, '\\u003c')
-    }</script>`
+    storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
+      store.getState()
+    ).replace(/</g, '\\u003c')}</script>`
 
     component = renderToString(
-      sheets.collect(
-        <App location={req.url} context={context} store={store} />
-      )
+      sheets.collect(<App location={req.url} context={context} store={store} />)
     )
 
     css = `<style id="jss-server-side">${sheets.toString()}</style>`

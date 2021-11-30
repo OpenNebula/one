@@ -44,7 +44,7 @@ export const login = createAsyncThunk(
         jwt: token,
         user: { ID: id },
         isOneAdmin,
-        isLoginInProgress: !!token && !isOneAdmin
+        isLoginInProgress: !!token && !isOneAdmin,
       }
     } catch (error) {
       const { message, data, statusText } = error
@@ -65,32 +65,37 @@ export const getUser = createAsyncThunk(
       const userSettings = user?.TEMPLATE?.FIREEDGE ?? {}
       const userGroupIds = [user?.GROUPS?.ID].flat()
 
-      if (!groups.some(group => userGroupIds.includes(group?.ID))) {
+      if (!groups.some((group) => userGroupIds.includes(group?.ID))) {
         await dispatch(getGroups())
       }
 
       // Merge user settings with the existing one
       const settings = {
         ...auth?.settings,
-        ...Object.entries(userSettings).reduce((res, [key, value]) =>
-          ({ ...res, [String(key).toLowerCase()]: value })
-        , {})
+        ...Object.entries(userSettings).reduce(
+          (res, [key, value]) => ({
+            ...res,
+            [String(key).toLowerCase()]: value,
+          }),
+          {}
+        ),
       }
 
       return { user, settings, isOneAdmin }
     } catch (error) {
       dispatch(logout(T.SessionExpired))
     }
-  }, {
+  },
+  {
     condition: (_, { getState }) => {
       const { isLoading } = getState().auth
 
       return !isLoading
-    }
+    },
   }
 )
 
-export const logout = createAction('logout', errorMessage => {
+export const logout = createAction('logout', (errorMessage) => {
   removeStoreData([JWT_NAME])
 
   return { error: errorMessage }
@@ -98,7 +103,7 @@ export const logout = createAction('logout', errorMessage => {
 
 export const changeFilter = createAction(
   'auth/change-filter',
-  filterPool => ({ payload: { filterPool, isLoginInProgress: false } })
+  (filterPool) => ({ payload: { filterPool, isLoginInProgress: false } })
 )
 
 export const changeGroup = createAsyncThunk(
@@ -118,8 +123,8 @@ export const changeGroup = createAsyncThunk(
         return {
           user: {
             ...user,
-            GID: group
-          }
+            GID: group,
+          },
         }
       }
     } catch (error) {

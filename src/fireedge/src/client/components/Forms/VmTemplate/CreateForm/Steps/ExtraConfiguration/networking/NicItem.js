@@ -33,74 +33,74 @@ import { T } from 'client/constants'
  * @param {string} props.handleUpdate - Update function
  * @returns {JSXElementConstructor} - NIC card
  */
-const NicItem = memo(({
-  item,
-  nics,
-  handleRemove,
-  handleUpdate
-}) => {
-  const { id, NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
-  const hasAlias = nics?.some(nic => nic.PARENT === NAME)
+const NicItem = memo(
+  ({ item, nics, handleRemove, handleUpdate }) => {
+    const { id, NAME, RDP, SSH, NETWORK, PARENT, EXTERNAL } = item
+    const hasAlias = nics?.some((nic) => nic.PARENT === NAME)
 
-  return (
-    <SelectCard
-      key={id ?? NAME}
-      title={[NAME, NETWORK].filter(Boolean).join(' - ')}
-      subheader={<>
-        {Object
-          .entries({
-            RDP: stringToBoolean(RDP),
-            SSH: stringToBoolean(SSH),
-            EXTERNAL: stringToBoolean(EXTERNAL),
-            [`PARENT: ${PARENT}`]: PARENT
-          })
-          .map(([k, v]) => v ? `${k}` : '')
-          .filter(Boolean)
-          .join(' | ')
+    return (
+      <SelectCard
+        key={id ?? NAME}
+        title={[NAME, NETWORK].filter(Boolean).join(' - ')}
+        subheader={
+          <>
+            {Object.entries({
+              RDP: stringToBoolean(RDP),
+              SSH: stringToBoolean(SSH),
+              EXTERNAL: stringToBoolean(EXTERNAL),
+              [`PARENT: ${PARENT}`]: PARENT,
+            })
+              .map(([k, v]) => (v ? `${k}` : ''))
+              .filter(Boolean)
+              .join(' | ')}
+          </>
         }
-      </>}
-      action={
-        <>
-          {!hasAlias &&
-            <Action
-              data-cy={`remove-${NAME}`}
-              tooltip={<Translate word={T.Remove} />}
-              handleClick={handleRemove}
-              color='error'
-              icon={<Trash />}
+        action={
+          <>
+            {!hasAlias && (
+              <Action
+                data-cy={`remove-${NAME}`}
+                tooltip={<Translate word={T.Remove} />}
+                handleClick={handleRemove}
+                color="error"
+                icon={<Trash />}
+              />
+            )}
+            <ButtonToTriggerForm
+              buttonProps={{
+                'data-cy': `edit-${NAME}`,
+                icon: <Edit />,
+                tooltip: <Translate word={T.Edit} />,
+              }}
+              options={[
+                {
+                  dialogProps: {
+                    title: (
+                      <Translate
+                        word={T.EditSomething}
+                        values={[`${NAME} - ${NETWORK}`]}
+                      />
+                    ),
+                  },
+                  form: () => AttachNicForm({ nics }, item),
+                  onSubmit: handleUpdate,
+                },
+              ]}
             />
-          }
-          <ButtonToTriggerForm
-            buttonProps={{
-              'data-cy': `edit-${NAME}`,
-              icon: <Edit />,
-              tooltip: <Translate word={T.Edit} />
-            }}
-            options={[{
-              dialogProps: {
-                title: (
-                  <Translate
-                    word={T.EditSomething}
-                    values={[`${NAME} - ${NETWORK}`]}
-                  />
-                )
-              },
-              form: () => AttachNicForm({ nics }, item),
-              onSubmit: handleUpdate
-            }]}
-          />
-        </>
-      }
-    />
-  )
-}, (prev, next) => prev.item?.NAME === next.item?.NAME)
+          </>
+        }
+      />
+    )
+  },
+  (prev, next) => prev.item?.NAME === next.item?.NAME
+)
 
 NicItem.propTypes = {
   index: PropTypes.number,
   item: PropTypes.object,
   nics: PropTypes.array,
   handleRemove: PropTypes.func,
-  handleUpdate: PropTypes.func
+  handleUpdate: PropTypes.func,
 }
 
 NicItem.displayName = 'NicItem'

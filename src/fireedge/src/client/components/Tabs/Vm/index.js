@@ -36,28 +36,27 @@ import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
 
-const getTabComponent = tabName => ({
-  capacity: Capacity,
-  configuration: Configuration,
-  info: Info,
-  log: Log,
-  network: Network,
-  history: History,
-  schedActions: SchedActions,
-  snapshot: Snapshot,
-  storage: Storage
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    capacity: Capacity,
+    configuration: Configuration,
+    info: Info,
+    log: Log,
+    network: Network,
+    history: History,
+    schedActions: SchedActions,
+    snapshot: Snapshot,
+    storage: Storage,
+  }[tabName])
 
 const VmTabs = memo(({ id }) => {
   const { getHooksSocket } = useSocket()
   const { getVm } = useVmApi()
 
-  const {
-    data,
-    fetchRequest,
-    loading,
-    error
-  } = useFetch(getVm, getHooksSocket({ resource: 'vm', id }))
+  const { data, fetchRequest, loading, error } = useFetch(
+    getVm,
+    getHooksSocket({ resource: 'vm', id })
+  )
 
   const handleRefetch = () => fetchRequest(id, { reload: true })
 
@@ -71,22 +70,26 @@ const VmTabs = memo(({ id }) => {
   useEffect(() => {
     const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
 
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
+    setTabs(() =>
+      Object.entries(infoTabs)
+        ?.filter(([_, { enabled } = {}]) => !!enabled)
+        ?.map(([tabName, tabProps]) => {
+          const camelName = camelCase(tabName)
+          const TabContent = getTabComponent(camelName)
 
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+          return (
+            TabContent && {
+              name: camelName,
+              renderContent: (props) => TabContent({ ...props, tabProps }),
+            }
+          )
+        })
+        ?.filter(Boolean)
+    )
   }, [view])
 
   if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+    return <LinearProgress color="secondary" style={{ width: '100%' }} />
   }
 
   return (
@@ -97,7 +100,7 @@ const VmTabs = memo(({ id }) => {
 })
 
 VmTabs.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
 }
 
 VmTabs.displayName = 'VmTabs'

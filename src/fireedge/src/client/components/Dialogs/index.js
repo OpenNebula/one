@@ -18,8 +18,4 @@ import DialogRequest from 'client/components/Dialogs/DialogRequest'
 import DialogConfirmation from 'client/components/Dialogs/DialogConfirmation'
 export * from 'client/components/Dialogs/DialogConfirmation'
 
-export {
-  DialogConfirmation,
-  DialogForm,
-  DialogRequest
-}
+export { DialogConfirmation, DialogForm, DialogRequest }

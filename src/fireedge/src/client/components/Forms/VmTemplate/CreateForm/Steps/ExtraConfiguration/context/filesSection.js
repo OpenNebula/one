@@ -42,7 +42,7 @@ FilesSection.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 export default FilesSection

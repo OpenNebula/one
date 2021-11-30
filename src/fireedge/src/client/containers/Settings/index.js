@@ -40,10 +40,10 @@ const Settings = () => {
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues: FORM_SCHEMA.cast(settings),
-    resolver: yupResolver(FORM_SCHEMA)
+    resolver: yupResolver(FORM_SCHEMA),
   })
 
-  const onSubmit = async dataForm => {
+  const onSubmit = async (dataForm) => {
     try {
       const template = Helper.jsonToXml({ FIREEDGE: dataForm })
       await updateUser(user.ID, { template }).then(getAuthUser)
@@ -54,31 +54,31 @@ const Settings = () => {
 
   return (
     <Container disableGutters>
-      <Typography variant='h5' pt='1em'>
+      <Typography variant="h5" pt="1em">
         <Translate word={T.Settings} />
       </Typography>
 
       <Divider sx={{ my: '1em' }} />
 
       <Paper
-        variant='outlined'
+        variant="outlined"
         sx={{
           p: '1em',
-          maxWidth: { sm: 'auto', md: 550 }
+          maxWidth: { sm: 'auto', md: 550 },
         }}
       >
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <FormProvider {...methods}>
             <FormWithSchema
-              cy='settings'
+              cy="settings"
               fields={FORM_FIELDS}
               legend={T.ConfigurationUI}
             />
           </FormProvider>
-          <Box py='1em' textAlign='end'>
+          <Box py="1em" textAlign="end">
             <SubmitButton
-              color='secondary'
-              data-cy='settings-submit-button'
+              color="secondary"
+              data-cy="settings-submit-button"
               label={Tr(T.Save)}
               onClick={handleSubmit}
               disabled={!formState.isDirty}

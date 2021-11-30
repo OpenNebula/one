@@ -28,5 +28,5 @@ export const getCluster = createAction(
 export const getClusters = createAction(
   `${CLUSTER}/pool`,
   clusterService.getClusters,
-  response => ({ [RESOURCES.cluster]: response })
+  (response) => ({ [RESOURCES.cluster]: response })
 )

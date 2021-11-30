@@ -22,10 +22,22 @@ export const getProvider = createAction('provider', providerService.getProvider)
 export const getProviders = createAction(
   'provider/pool',
   providerService.getProviders,
-  res => ({ [RESOURCES.document[102]]: res })
+  (res) => ({ [RESOURCES.document[102]]: res })
 )
 
-export const getProviderConnection = createAction('provider', providerService.getProviderConnection)
-export const createProvider = createAction('provider/create', providerService.createProvider)
-export const updateProvider = createAction('provider/update', providerService.updateProvider)
-export const deleteProvider = createAction('provider/delete', providerService.deleteProvider)
+export const getProviderConnection = createAction(
+  'provider',
+  providerService.getProviderConnection
+)
+export const createProvider = createAction(
+  'provider/create',
+  providerService.createProvider
+)
+export const updateProvider = createAction(
+  'provider/update',
+  providerService.updateProvider
+)
+export const deleteProvider = createAction(
+  'provider/delete',
+  providerService.deleteProvider
+)

@@ -18,6 +18,6 @@ import makeStyles from '@mui/styles/makeStyles'
 export default makeStyles({
   root: {
     minHeight: '100%',
-    width: '100%'
-  }
+    width: '100%',
+  },
 })

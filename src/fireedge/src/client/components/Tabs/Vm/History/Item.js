@@ -38,7 +38,7 @@ const HistoryItem = ({ history }) => {
     STIME,
     ETIME,
     PSTIME,
-    PETIME
+    PETIME,
   } = history
 
   const now = Math.round(Date.now() / 1000)
@@ -56,10 +56,10 @@ const HistoryItem = ({ history }) => {
   const action = VirtualMachine.getHistoryAction(+ACTION)
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
+          <Typography component="span">
             {`#${SEQ} | #${HID} ${HOSTNAME} | Action: ${action}`}
           </Typography>
         </div>
@@ -74,7 +74,9 @@ const HistoryItem = ({ history }) => {
               <span>{` ${ownerInfo}`}</span>
             </span>
           )}
-          <span title={`Time when the state changed: ${startTime.toFormat('ff')}`}>
+          <span
+            title={`Time when the state changed: ${startTime.toFormat('ff')}`}
+          >
             {`| start ${startTime.toRelative()}`}
           </span>
           <span title={'Total time in this state'}>
@@ -91,7 +93,7 @@ const HistoryItem = ({ history }) => {
 
 HistoryItem.propTypes = {
   history: PropTypes.object.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 HistoryItem.displayName = 'HistoryItem'

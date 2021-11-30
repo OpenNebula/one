@@ -22,27 +22,31 @@ const Header = ({ useTableProps }) => {
   /** @type {UseTableInstanceProps} */
   const { headerGroups } = useTableProps
 
-  const renderHeaderColumn = useCallback(column => (
-    <div {...column.getHeaderProps()}>
-      {column.render('Header')}
-    </div>
-  ), [])
+  const renderHeaderColumn = useCallback(
+    (column) => (
+      <div {...column.getHeaderProps()}>{column.render('Header')}</div>
+    ),
+    []
+  )
 
-  const renderHeaderGroup = useCallback(headerGroup => (
-    <div {...headerGroup.getHeaderGroupProps()}>
-      {headerGroup.headers.map(renderHeaderColumn)}
-    </div>
-  ), [])
+  const renderHeaderGroup = useCallback(
+    (headerGroup) => (
+      <div {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map(renderHeaderColumn)}
+      </div>
+    ),
+    []
+  )
 
   return headerGroups.map(renderHeaderGroup)
 }
 
 Header.propTypes = {
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 Header.defaultProps = {
-  useTableProps: {}
+  useTableProps: {},
 }
 
 export default Header

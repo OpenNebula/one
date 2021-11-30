@@ -22,47 +22,59 @@ import { useFetch, useSocket } from 'client/hooks'
 import { useProvisionApi } from 'client/features/One'
 import DebugLog, { LogUtils } from 'client/components/DebugLog'
 
-const Log = memo(({ hidden, data: { ID } }) => {
-  const { getProvisionSocket } = useSocket()
-  const { getProvisionLog } = useProvisionApi()
+const Log = memo(
+  ({ hidden, data: { ID } }) => {
+    const { getProvisionSocket } = useSocket()
+    const { getProvisionLog } = useProvisionApi()
 
-  const {
-    data: { uuid = ID, log } = {},
-    fetchRequest,
-    loading
-  } = useFetch(getProvisionLog)
+    const {
+      data: { uuid = ID, log } = {},
+      fetchRequest,
+      loading,
+    } = useFetch(getProvisionLog)
 
-  useEffect(() => {
-    (!log && !hidden) && fetchRequest(ID)
-  }, [hidden])
+    useEffect(() => {
+      !log && !hidden && fetchRequest(ID)
+    }, [hidden])
 
-  const parsedLog = useMemo(() =>
-    log
-      ?.map(entry => {
-        try { return JSON.parse(entry) } catch { return entry }
-      })
-      ?.reduce(LogUtils.concatNewMessageToLog, {})
-  , [loading])
+    const parsedLog = useMemo(
+      () =>
+        log
+          ?.map((entry) => {
+            try {
+              return JSON.parse(entry)
+            } catch {
+              return entry
+            }
+          })
+          ?.reduce(LogUtils.concatNewMessageToLog, {}),
+      [loading]
+    )
 
-  return loading ? (
-    <LinearProgress color='secondary' style={{ width: '100%' }} />
-  ) : (
-    <DebugLog uuid={uuid} socket={getProvisionSocket} logDefault={parsedLog} />
-  )
-}, (prev, next) =>
-  prev.hidden === next.hidden && prev.reloading === next.reloading
+    return loading ? (
+      <LinearProgress color="secondary" style={{ width: '100%' }} />
+    ) : (
+      <DebugLog
+        uuid={uuid}
+        socket={getProvisionSocket}
+        logDefault={parsedLog}
+      />
+    )
+  },
+  (prev, next) =>
+    prev.hidden === next.hidden && prev.reloading === next.reloading
 )
 
 Log.propTypes = {
   data: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
-  fetchRequest: PropTypes.func
+  fetchRequest: PropTypes.func,
 }
 
 Log.defaultProps = {
   data: {},
   hidden: false,
-  fetchRequest: () => undefined
+  fetchRequest: () => undefined,
 }
 
 Log.displayName = 'Log'

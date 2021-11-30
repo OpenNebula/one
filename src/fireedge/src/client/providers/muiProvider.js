@@ -21,7 +21,7 @@ import {
   CssBaseline,
   ThemeProvider,
   StyledEngineProvider,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 import StylesProvider from '@mui/styles/StylesProvider'
 import { createTheme, generateClassName } from 'client/theme'
@@ -70,8 +70,8 @@ MuiProvider.propTypes = {
   theme: PropTypes.object,
   children: PropTypes.oneOfType([
     PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node)
-  ])
+    PropTypes.arrayOf(PropTypes.node),
+  ]),
 }
 
 export default MuiProvider

@@ -25,9 +25,14 @@ import { T } from 'client/constants'
 
 const AppTemplateTab = () => {
   const { data: marketplaceApp = {} } = useContext(TabContext)
-  const { TEMPLATE: { APPTEMPLATE64, VMTEMPLATE64 } } = marketplaceApp
+  const {
+    TEMPLATE: { APPTEMPLATE64, VMTEMPLATE64 },
+  } = marketplaceApp
 
-  const appTemplate = useMemo(() => decodeBase64(APPTEMPLATE64), [APPTEMPLATE64])
+  const appTemplate = useMemo(
+    () => decodeBase64(APPTEMPLATE64),
+    [APPTEMPLATE64]
+  )
   const vmTemplate = useMemo(() => decodeBase64(VMTEMPLATE64), [VMTEMPLATE64])
 
   return (
@@ -38,7 +43,9 @@ const AppTemplateTab = () => {
         </AccordionSummary>
         <AccordionDetails>
           <pre>
-            <code style={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}>
+            <code
+              style={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}
+            >
               {appTemplate}
             </code>
           </pre>
@@ -50,7 +57,9 @@ const AppTemplateTab = () => {
         </AccordionSummary>
         <AccordionDetails>
           <pre>
-            <code style={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}>
+            <code
+              style={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}
+            >
               {vmTemplate}
             </code>
           </pre>

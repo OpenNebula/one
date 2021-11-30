@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const DATASTORE_ALLOCATE = 'datastore.allocate'
@@ -38,7 +38,7 @@ const Actions = {
   DATASTORE_RENAME,
   DATASTORE_ENABLE,
   DATASTORE_INFO,
-  DATASTORE_POOL_INFO
+  DATASTORE_POOL_INFO,
 }
 
 module.exports = {
@@ -50,13 +50,13 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         cluster: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [DATASTORE_DELETE]: {
       // inspected
@@ -64,9 +64,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DATASTORE_UPDATE]: {
       // inspected
@@ -74,17 +74,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DATASTORE_CHMOD]: {
       // inspected
@@ -92,45 +92,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [DATASTORE_CHOWN]: {
       // inspected
@@ -138,17 +138,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [DATASTORE_RENAME]: {
       // inspected
@@ -156,13 +156,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [DATASTORE_ENABLE]: {
       // inspected
@@ -170,13 +170,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         enable: {
           from: postBody,
-          default: true
-        }
-      }
+          default: true,
+        },
+      },
     },
     [DATASTORE_INFO]: {
       // inspected
@@ -184,18 +184,18 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [DATASTORE_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

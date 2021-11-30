@@ -24,8 +24,7 @@ export default [
   {
     Header: 'Provision ID',
     id: 'PROVISION_ID',
-    accessor: row => row?.TEMPLATE?.PROVISION?.ID,
-    disableSortBy: true
-  }
-
+    accessor: (row) => row?.TEMPLATE?.PROVISION?.ID,
+    disableSortBy: true,
+  },
 ]

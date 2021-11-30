@@ -19,13 +19,15 @@ import PropTypes from 'prop-types'
 import NetworkItem from 'client/components/Tabs/Vm/Network/Item'
 
 const NetworkList = ({ nics, actions }) => (
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1em',
-    paddingBlock: '0.8em'
-  }}>
-    {nics.map(nic => {
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1em',
+      paddingBlock: '0.8em',
+    }}
+  >
+    {nics.map((nic) => {
       const { IP, MAC, ADDRESS } = nic
       const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
 
@@ -36,7 +38,7 @@ const NetworkList = ({ nics, actions }) => (
 
 NetworkList.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  nics: PropTypes.array
+  nics: PropTypes.array,
 }
 
 NetworkList.displayName = 'NetworkList'

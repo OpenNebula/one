@@ -22,7 +22,7 @@ import {
   Edit as EditIcon,
   Trash as DeleteIcon,
   Check as AcceptIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
 } from 'iconoir-react'
 
 import { useClipboard } from 'client/hooks'
@@ -36,7 +36,8 @@ import { T } from 'client/constants'
  * @param {string} attr - Attribute name
  * @returns {string} Merge action and attributes name
  */
-const getAttributeCy = (action, attr) => `${action}-${camelCase(attr.toLowerCase())}`
+const getAttributeCy = (action, attr) =>
+  `${action}-${camelCase(attr.toLowerCase())}`
 
 /**
  * @typedef {object} ActionButtonProps
@@ -54,12 +55,7 @@ const ActionButton = ({ action, name, icon: Icon, handleClick, ...props }) => {
   const dataCy = useMemo(() => getAttributeCy(action, name), [name])
 
   return (
-    <Action
-      cy={dataCy}
-      icon={<Icon />}
-      handleClick={handleClick}
-      {...props}
-    />
+    <Action cy={dataCy} icon={<Icon />} handleClick={handleClick} {...props} />
   )
 }
 
@@ -67,72 +63,79 @@ ActionButton.propTypes = {
   action: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   icon: PropTypes.object.isRequired,
-  handleClick: PropTypes.func.isRequired
+  handleClick: PropTypes.func.isRequired,
 }
 
 /**
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
-const Copy = memo(({ value, ...props }) => {
-  const { copy, isCopied } = useClipboard(1000)
+const Copy = memo(
+  ({ value, ...props }) => {
+    const { copy, isCopied } = useClipboard(1000)
 
-  return (
-    <ActionButton
-      action='copy'
-      tooltip={<>{'✔️'}<Translate word={T.CopiedToClipboard} /></>}
-      tooltipProps={{ open: isCopied }}
-      handleClick={async () => await copy(value)}
-      icon={CopyIcon}
-      {...props}
-    />
-  )
-}, (prev, next) => prev.value === next.value)
-
-/**
- * @param {ActionButtonProps} props - Action button props
- * @returns {JSXElementConstructor} Action button with props
- */
-const Add = props => <ActionButton action='add' icon={AddIcon} {...props}/>
-
-/**
- * @param {ActionButtonProps} props - Action button props
- * @returns {JSXElementConstructor} Action button with props
- */
-const Edit = props => <ActionButton action='edit' icon={EditIcon} {...props}/>
+    return (
+      <ActionButton
+        action="copy"
+        tooltip={
+          <>
+            {'✔️'}
+            <Translate word={T.CopiedToClipboard} />
+          </>
+        }
+        tooltipProps={{ open: isCopied }}
+        handleClick={async () => await copy(value)}
+        icon={CopyIcon}
+        {...props}
+      />
+    )
+  },
+  (prev, next) => prev.value === next.value
+)
 
 /**
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
-const Delete = props => <ActionButton action='delete' icon={DeleteIcon} {...props}/>
+const Add = (props) => <ActionButton action="add" icon={AddIcon} {...props} />
 
 /**
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
-const Accept = props => <ActionButton action='accept' icon={AcceptIcon} {...props}/>
+const Edit = (props) => (
+  <ActionButton action="edit" icon={EditIcon} {...props} />
+)
 
 /**
  * @param {ActionButtonProps} props - Action button props
  * @returns {JSXElementConstructor} Action button with props
  */
-const Cancel = props => <ActionButton action='cancel' icon={CancelIcon} {...props}/>
+const Delete = (props) => (
+  <ActionButton action="delete" icon={DeleteIcon} {...props} />
+)
+
+/**
+ * @param {ActionButtonProps} props - Action button props
+ * @returns {JSXElementConstructor} Action button with props
+ */
+const Accept = (props) => (
+  <ActionButton action="accept" icon={AcceptIcon} {...props} />
+)
+
+/**
+ * @param {ActionButtonProps} props - Action button props
+ * @returns {JSXElementConstructor} Action button with props
+ */
+const Cancel = (props) => (
+  <ActionButton action="cancel" icon={CancelIcon} {...props} />
+)
 
 Copy.displayName = 'CopyActionButton'
 
 Copy.propTypes = {
   name: PropTypes.string.isRequired,
-  value: PropTypes.string
+  value: PropTypes.string,
 }
 
-export {
-  getAttributeCy,
-  ActionButton,
-  Copy,
-  Add,
-  Accept,
-  Cancel,
-  Delete,
-  Edit
-}
+export { getAttributeCy, ActionButton, Copy, Add, Accept, Cancel, Delete, Edit }

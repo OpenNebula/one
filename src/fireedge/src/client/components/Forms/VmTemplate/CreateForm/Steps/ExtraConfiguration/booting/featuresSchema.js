@@ -31,7 +31,7 @@ export const ACPI = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} PAE field  */
@@ -45,7 +45,7 @@ export const PAE = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} APIC field  */
@@ -59,7 +59,7 @@ export const APIC = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} HYPER-V field  */
@@ -73,7 +73,7 @@ export const HYPERV = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Local time field  */
@@ -87,7 +87,7 @@ export const LOCALTIME = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Guest agent field  */
@@ -101,7 +101,7 @@ export const GUEST_AGENT = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Virtio-SCSI queues field  */
@@ -115,7 +115,7 @@ export const VIRTIO_SCSI_QUEUES = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} IO threads field  */
@@ -126,8 +126,7 @@ export const IO_THREADS = {
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: number()
-    .default(() => undefined)
+  validation: number().default(() => undefined),
 }
 
 /** @type {Field[]} List of Features fields */
@@ -139,5 +138,5 @@ export const FEATURES_FIELDS = [
   LOCALTIME,
   GUEST_AGENT,
   VIRTIO_SCSI_QUEUES,
-  IO_THREADS
+  IO_THREADS,
 ]

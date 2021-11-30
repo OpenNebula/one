@@ -26,31 +26,35 @@ import NumberEasing from 'client/components/NumberEasing'
  * @param {string} props.color - Color of component: primary, secondary or inherit
  * @returns {JSXElementConstructor} Circular progress bar component
  */
-const Circle = memo(({ color = 'secondary' }) => {
-  const [progress, setProgress] = useState(0)
+const Circle = memo(
+  ({ color = 'secondary' }) => {
+    const [progress, setProgress] = useState(0)
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress(prevProgress => {
-        const nextProgress = prevProgress + 2
-        if (nextProgress === 100) clearInterval(timer)
-        return nextProgress
-      })
-    }, 50)
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setProgress((prevProgress) => {
+          const nextProgress = prevProgress + 2
+          if (nextProgress === 100) clearInterval(timer)
 
-    return () => clearInterval(timer)
-  }, [])
+          return nextProgress
+        })
+      }, 50)
 
-  return (
-    <CircularProgress
-      color={color}
-      size={150}
-      thickness={5}
-      value={progress}
-      variant='determinate'
-    />
-  )
-}, (prev, next) => prev.color === next.color)
+      return () => clearInterval(timer)
+    }, [])
+
+    return (
+      <CircularProgress
+        color={color}
+        size={150}
+        thickness={5}
+        value={progress}
+        variant="determinate"
+      />
+    )
+  },
+  (prev, next) => prev.color === next.color
+)
 
 Circle.propTypes = { color: PropTypes.string }
 Circle.displayName = 'Circle'
@@ -67,32 +71,39 @@ Circle.displayName = 'Circle'
  * @param {object} props.labelProps - Props of text
  * @returns {JSXElementConstructor} Circular chart component
  */
-const CircleChart = memo(({ label, labelProps }) => (
-  <Box position='relative' display='inline-flex' width={1}>
-    <Box display='flex' flexDirection='column' alignItems='center' width={1}>
-      <Circle />
-    </Box>
-    <Box top={0} left={0} bottom={0} right={0}
-      position='absolute'
-      display='flex'
-      alignItems='center'
-      justifyContent='center'
-    >
-      <Typography
-        variant='h4'
-        component='div'
-        style={{ cursor: 'pointer' }}
-        {...labelProps}
+const CircleChart = memo(
+  ({ label, labelProps }) => (
+    <Box position="relative" display="inline-flex" width={1}>
+      <Box display="flex" flexDirection="column" alignItems="center" width={1}>
+        <Circle />
+      </Box>
+      <Box
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        position="absolute"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
       >
-        <NumberEasing value={label} />
-      </Typography>
+        <Typography
+          variant="h4"
+          component="div"
+          style={{ cursor: 'pointer' }}
+          {...labelProps}
+        >
+          <NumberEasing value={label} />
+        </Typography>
+      </Box>
     </Box>
-  </Box>
-), (prev, next) => prev.label === next.label)
+  ),
+  (prev, next) => prev.label === next.label
+)
 
 CircleChart.propTypes = {
   label: PropTypes.string,
-  labelProps: PropTypes.object
+  labelProps: PropTypes.object,
 }
 
 CircleChart.displayName = 'CircleChart'

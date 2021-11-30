@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import SelectCard, { SelectCardProps } from 'client/components/Cards/SelectCard/SelectCard'
+import SelectCard, {
+  SelectCardProps,
+} from 'client/components/Cards/SelectCard/SelectCard'
 import Action from 'client/components/Cards/SelectCard/Action'
 
 export { Action, SelectCardProps }

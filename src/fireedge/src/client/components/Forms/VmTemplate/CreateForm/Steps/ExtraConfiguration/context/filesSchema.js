@@ -16,7 +16,11 @@
 import { string, ObjectSchema } from 'yup'
 
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
-import { Field, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
+import {
+  Field,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 
 const { vcenter } = HYPERVISORS
 
@@ -27,11 +31,8 @@ export const FILES_DS = {
   tooltip: T.ContextFilesConcept,
   notOnHypervisors: [vcenter],
   type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure(),
-  grid: { md: 12 }
+  validation: string().trim().notRequired().ensure(),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Init scripts field */
@@ -40,17 +41,14 @@ export const INIT_SCRIPTS = {
   label: T.InitScripts,
   tooltip: T.InitScriptsConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure(),
-  grid: { md: 12 }
+  validation: string().trim().notRequired().ensure(),
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of Context Files fields */
-export const FILES_FIELDS = hypervisor =>
+export const FILES_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor([FILES_DS, INIT_SCRIPTS], hypervisor)
 
 /** @type {ObjectSchema} Context Files schema */
-export const FILES_SCHEMA = hypervisor =>
+export const FILES_SCHEMA = (hypervisor) =>
   getObjectSchemaFromFields(FILES_FIELDS(hypervisor))

@@ -23,7 +23,7 @@ const resources = {
   DATASTORES,
   TEMPLATES,
   NETWORKS,
-  IMAGES
+  IMAGES,
 }
 
 const questions = {
@@ -31,34 +31,40 @@ const questions = {
   [TEMPLATES]: [
     {
       question: 'Type',
-      flag: '--type'
-    }, {
+      flag: '--type',
+    },
+    {
       question: 'Folder',
-      flag: '--folder'
-    }, {
+      flag: '--folder',
+    },
+    {
       question: 'Linked Clone',
-      flag: '--linked-clone'
-    }
+      flag: '--linked-clone',
+    },
   ],
   [NETWORKS]: [
     {
       question: 'Size',
-      flag: '--size'
-    }, {
+      flag: '--size',
+    },
+    {
       question: 'Type',
-      flag: '--type'
-    }, {
+      flag: '--type',
+    },
+    {
       question: 'MAC',
-      flag: '--mac'
-    }, {
+      flag: '--mac',
+    },
+    {
       question: 'Cluster(s) to import',
-      flag: '--cluster-imports'
-    }, {
+      flag: '--cluster-imports',
+    },
+    {
       question: 'Unimported Cluster(s)',
-      flag: '--cluster-unimported'
-    }
+      flag: '--cluster-unimported',
+    },
   ],
-  [IMAGES]: []
+  [IMAGES]: [],
 }
 
 module.exports = { resources, questions }

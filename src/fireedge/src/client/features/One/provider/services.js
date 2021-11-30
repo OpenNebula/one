@@ -19,7 +19,7 @@ import { RestClient } from 'client/utils'
 
 const { POST, PUT, DELETE } = defaults?.httpMethod || {}
 
-export const providerService = ({
+export const providerService = {
   /**
    * Retrieves information for the provider.
    *
@@ -30,7 +30,7 @@ export const providerService = ({
    */
   getProvider: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVIDER}/list/${id}`
+      url: `/api/${PROVIDER}/list/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -46,7 +46,7 @@ export const providerService = ({
    */
   getProviders: async () => {
     const res = await RestClient.request({
-      url: `/api/${PROVIDER}/list`
+      url: `/api/${PROVIDER}/list`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -66,7 +66,7 @@ export const providerService = ({
    */
   getProviderConnection: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVIDER}/connection/${id}`
+      url: `/api/${PROVIDER}/connection/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -86,7 +86,7 @@ export const providerService = ({
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${PROVIDER}/create`
+      url: `/api/${PROVIDER}/create`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -107,7 +107,7 @@ export const providerService = ({
     const res = await RestClient.request({
       data,
       method: PUT,
-      url: `/api/${PROVIDER}/update/${id}`
+      url: `/api/${PROVIDER}/update/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -126,11 +126,11 @@ export const providerService = ({
   deleteProvider: async ({ id }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVIDER}/delete/${id}`
+      url: `/api/${PROVIDER}/delete/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data ?? {}
-  }
-})
+  },
+}

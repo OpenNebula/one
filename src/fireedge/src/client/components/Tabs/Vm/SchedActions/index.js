@@ -19,10 +19,17 @@ import PropTypes from 'prop-types'
 
 import { useAuth } from 'client/features/Auth'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { CreateSchedAction, CharterAction } from 'client/components/Tabs/Vm/SchedActions/Actions'
+import {
+  CreateSchedAction,
+  CharterAction,
+} from 'client/components/Tabs/Vm/SchedActions/Actions'
 import SchedulingList from 'client/components/Tabs/Vm/SchedActions/List'
 
-import { getScheduleActions, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import {
+  getScheduleActions,
+  getHypervisor,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
 import { VM_ACTIONS } from 'client/constants'
 
@@ -33,8 +40,9 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
   const [scheduling, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return [getScheduleActions(vm), actionsByState]
   }, [vm])
@@ -44,9 +52,8 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
       {actionsAvailable?.includes?.(VM_ACTIONS.SCHED_ACTION_CREATE) && (
         <CreateSchedAction />
       )}
-      {actionsAvailable?.includes?.(VM_ACTIONS.CHARTER_CREATE) && config?.leases && (
-        <CharterAction />
-      )}
+      {actionsAvailable?.includes?.(VM_ACTIONS.CHARTER_CREATE) &&
+        config?.leases && <CharterAction />}
 
       <SchedulingList actions={actionsAvailable} scheduling={scheduling} />
     </>
@@ -54,7 +61,7 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmSchedulingTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmSchedulingTab.displayName = 'VmSchedulingTab'

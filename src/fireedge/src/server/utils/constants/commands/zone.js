@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const ZONE_ALLOCATE = 'zone.allocate'
@@ -34,7 +34,7 @@ const Actions = {
   ZONE_RENAME,
   ZONE_INFO,
   ZONE_RAFTSTATUS,
-  ZONE_POOL_INFO
+  ZONE_POOL_INFO,
 }
 
 module.exports = {
@@ -46,9 +46,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [ZONE_DELETE]: {
       // inspected
@@ -56,9 +56,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [ZONE_UPDATE]: {
       // inspected
@@ -66,17 +66,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [ZONE_RENAME]: {
       // inspected
@@ -84,13 +84,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [ZONE_INFO]: {
       // inspected
@@ -98,23 +98,23 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [ZONE_RAFTSTATUS]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [ZONE_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

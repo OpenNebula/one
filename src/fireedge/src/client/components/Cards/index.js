@@ -44,5 +44,5 @@ export {
   SelectCard,
   TierCard,
   VirtualMachineCard,
-  WavesCard
+  WavesCard,
 }

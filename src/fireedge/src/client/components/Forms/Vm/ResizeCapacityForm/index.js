@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/ResizeCapacityForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/ResizeCapacityForm/schema'
 
 const ResizeCapacityForm = createForm(SCHEMA, FIELDS)
 

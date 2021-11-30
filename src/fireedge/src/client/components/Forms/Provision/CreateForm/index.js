@@ -28,7 +28,7 @@ const CreateForm = ({ onSubmit }) => {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver())
+    resolver: yupResolver(resolver()),
   })
 
   return (
@@ -36,7 +36,7 @@ const CreateForm = ({ onSubmit }) => {
       <FormStepper
         steps={steps}
         schema={resolver}
-        onSubmit={data => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+        onSubmit={(data) => onSubmit(transformBeforeSubmit?.(data) ?? data)}
       />
     </FormProvider>
   )
@@ -44,7 +44,7 @@ const CreateForm = ({ onSubmit }) => {
 
 CreateForm.propTypes = {
   initialValues: PropTypes.object,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 export default CreateForm

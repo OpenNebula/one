@@ -28,7 +28,7 @@ const SnapshotList = ({ snapshots, actions }) => (
 
 SnapshotList.propTypes = {
   snapshots: PropTypes.array,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 SnapshotList.displayName = 'SnapshotList'

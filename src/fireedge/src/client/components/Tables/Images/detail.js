@@ -42,14 +42,26 @@ const ImageDetail = ({ id }) => {
   }, [id])
 
   if (isLoading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+    return <LinearProgress color="secondary" style={{ width: '100%' }} />
   }
 
   if (error) {
     return <div>{error}</div>
   }
 
-  const { ID, NAME, UNAME, GNAME, REGTIME, SIZE, PERSISTENT, LOCK, DATASTORE, VMS, RUNNING_VMS } = data
+  const {
+    ID,
+    NAME,
+    UNAME,
+    GNAME,
+    REGTIME,
+    SIZE,
+    PERSISTENT,
+    LOCK,
+    DATASTORE,
+    VMS,
+    RUNNING_VMS,
+  } = data
 
   const { name: stateName, color: stateColor } = ImageModel.getState(data)
   const type = ImageModel.getType(data)
@@ -66,11 +78,9 @@ const ImageDetail = ({ id }) => {
             <StatusBadge
               title={stateName}
               stateColor={stateColor}
-              customTransform='translate(150%, 50%)'
+              customTransform="translate(150%, 50%)"
             />
-            <span style={{ marginLeft: 20 }}>
-              {`#${ID} - ${NAME}`}
-            </span>
+            <span style={{ marginLeft: 20 }}>{`#${ID} - ${NAME}`}</span>
           </div>
           <div>
             <p>Owner: {UNAME}</p>
@@ -84,17 +94,15 @@ const ImageDetail = ({ id }) => {
             <p>Running VMS: {` ${RUNNING_VMS} / ${usedByVms}`}</p>
           </div>
         </div>
-      )
-    }
+      ),
+    },
   ]
 
-  return (
-    <Tabs tabs={tabs} />
-  )
+  return <Tabs tabs={tabs} />
 }
 
 ImageDetail.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
 }
 
 export default ImageDetail

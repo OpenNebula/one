@@ -26,11 +26,11 @@ const TiersTab = ({ info }) => {
 }
 
 TiersTab.propTypes = {
-  info: PropTypes.object.isRequired
+  info: PropTypes.object.isRequired,
 }
 
 TiersTab.defaultProps = {
-  info: {}
+  info: {},
 }
 
 TiersTab.displayName = 'TiersTab'

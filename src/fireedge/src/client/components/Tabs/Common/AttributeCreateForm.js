@@ -27,9 +27,9 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     '& > *:first-child': {
-      flexGrow: 1
-    }
-  }
+      flexGrow: 1,
+    },
+  },
 })
 
 const AttributeCreateForm = memo(({ handleAdd }) => {
@@ -39,16 +39,13 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
   const valueInputKey = useMemo(() => `value-${key}`, [key])
 
   const { handleSubmit, reset, control } = useForm({
-    defaultValues: { [nameInputKey]: '', [valueInputKey]: '' }
+    defaultValues: { [nameInputKey]: '', [valueInputKey]: '' },
   })
 
-  const handleCreateAttribute = async data => {
+  const handleCreateAttribute = async (data) => {
     const { [nameInputKey]: name, [valueInputKey]: value } = data
 
-    await handleAdd?.(
-      String(name).toUpperCase(),
-      String(value).toUpperCase()
-    )
+    await handleAdd?.(String(name).toUpperCase(), String(value).toUpperCase())
 
     reset()
   }
@@ -59,9 +56,9 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
       <Controller
         control={control}
         name={nameInputKey}
-        render={({ field, formState }) =>
+        render={({ field, formState }) => (
           <Inputs.Text {...field} disabled={formState.isSubmitting} />
-        }
+        )}
       />
 
       {/* VALUE ATTRIBUTE */}
@@ -69,9 +66,9 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
         <Controller
           control={control}
           name={valueInputKey}
-          render={({ field, formState }) =>
+          render={({ field, formState }) => (
             <Inputs.Text {...field} disabled={formState.isSubmitting} />
-          }
+          )}
         />
         <Actions.Add
           name={'action-add'}
@@ -83,7 +80,7 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
 })
 
 AttributeCreateForm.propTypes = {
-  handleAdd: PropTypes.func
+  handleAdd: PropTypes.func,
 }
 
 AttributeCreateForm.displayName = 'AttributeCreateForm'

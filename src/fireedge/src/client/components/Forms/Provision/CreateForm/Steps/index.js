@@ -20,37 +20,40 @@ import BasicConfiguration from 'client/components/Forms/Provision/CreateForm/Ste
 import Inputs from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
 import { set, createSteps, cloneObject } from 'client/utils'
 
-const Steps = createSteps(
-  [Template, Provider, BasicConfiguration, Inputs],
-  {
-    transformBeforeSubmit: formData => {
-      const { template, provider, configuration, inputs } = formData
-      const { name, description } = configuration
-      const providerName = provider?.[0]?.NAME
+const Steps = createSteps([Template, Provider, BasicConfiguration, Inputs], {
+  transformBeforeSubmit: (formData) => {
+    const { template, provider, configuration, inputs } = formData
+    const { name, description } = configuration
+    const providerName = provider?.[0]?.NAME
 
-      // clone object from redux store
-      const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
+    // clone object from redux store
+    const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
 
-      // update provider name if changed during form
-      if (provisionTemplateSelected.defaults?.provision?.provider_name) {
-        set(provisionTemplateSelected, 'defaults.provision.provider_name', providerName)
-      } else if (provisionTemplateSelected.hosts?.length > 0) {
-        provisionTemplateSelected.hosts.forEach(host => {
-          set(host, 'provision.provider_name', providerName)
-        })
-      }
-
-      const resolvedInputs = provisionTemplateSelected?.inputs
-        ?.map(input => ({ ...input, value: `${inputs[input?.name]}` }))
-
-      return {
-        ...provisionTemplateSelected,
-        name,
-        description,
-        inputs: resolvedInputs
-      }
+    // update provider name if changed during form
+    if (provisionTemplateSelected.defaults?.provision?.provider_name) {
+      set(
+        provisionTemplateSelected,
+        'defaults.provision.provider_name',
+        providerName
+      )
+    } else if (provisionTemplateSelected.hosts?.length > 0) {
+      provisionTemplateSelected.hosts.forEach((host) => {
+        set(host, 'provision.provider_name', providerName)
+      })
     }
-  }
-)
+
+    const resolvedInputs = provisionTemplateSelected?.inputs?.map((input) => ({
+      ...input,
+      value: `${inputs[input?.name]}`,
+    }))
+
+    return {
+      ...provisionTemplateSelected,
+      name,
+      description,
+      inputs: resolvedInputs,
+    }
+  },
+})
 
 export default Steps

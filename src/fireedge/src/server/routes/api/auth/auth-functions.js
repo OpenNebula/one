@@ -26,20 +26,23 @@ const {
   setRes,
   setNodeConnect,
   connectOpennebula,
-  updaterResponse
+  updaterResponse,
 } = require('./functions')
 
-const { internalServerError, unauthorized } = require('server/utils/constants/http-codes')
+const {
+  internalServerError,
+  unauthorized,
+} = require('server/utils/constants/http-codes')
 const { Actions } = require('server/utils/constants/commands/user')
 const {
   httpMethod,
-  defaultEmptyFunction
+  defaultEmptyFunction,
 } = require('server/utils/constants/defaults')
 
 const { GET } = httpMethod
 
 const {
-  getDefaultParamsOfOpennebulaCommand
+  getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
 
 const { writeInLogger } = require('server/utils/logger')
@@ -52,7 +55,12 @@ const { writeInLogger } = require('server/utils/logger')
  * @param {Function} success - success
  * @param {Function} error - error
  */
-const loginUser = (err = '', value = '', success = defaultEmptyFunction, error = defaultEmptyFunction) => {
+const loginUser = (
+  err = '',
+  value = '',
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
   if (value && value.USER && !err) {
     success(value)
   } else {
@@ -69,7 +77,13 @@ const loginUser = (err = '', value = '', success = defaultEmptyFunction, error =
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const auth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, token, type, token2fa, remember } = params
   setRes(res)
   setNext(next)
@@ -83,7 +97,7 @@ const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
      *
      * @param {object} oneValue - opennebula value
      */
-    const success = oneValue => {
+    const success = (oneValue) => {
       setUser(user || '')
       setPass(token || '')
       setType(type || '')
@@ -115,6 +129,6 @@ const auth = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
 }
 
 const authApi = {
-  auth
+  auth,
 }
 module.exports = authApi

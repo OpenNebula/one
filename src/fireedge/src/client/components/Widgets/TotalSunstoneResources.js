@@ -20,7 +20,7 @@ import {
   User as UserIcon,
   Group as GroupIcon,
   Archive as ImageIcon,
-  NetworkAlt as NetworkIcon
+  NetworkAlt as NetworkIcon,
 } from 'iconoir-react'
 import { Skeleton, Grid } from '@mui/material'
 
@@ -38,56 +38,59 @@ const TotalProvisionInfrastructures = ({ isLoading }) => {
   const images = useImage()
   const vNetworks = useVNetwork()
 
-  return useMemo(() => (
-    <Grid
-      data-cy='dashboard-widget-total-sunstone-resources'
-      container
-      spacing={3}
-    >
-      {!users?.length && isLoading ? (
-        Array.from(Array(TOTAL_WIDGETS)).map((_, index) => (
-          <Grid item {...breakpoints} key={index}>
-            <Skeleton variant='rectangular' height={120} />
-          </Grid>
-        ))
-      ) : (
-        <>
-          <Grid item {...breakpoints}>
-            <WavesCard
-              text={T.Users}
-              value={<NumberEasing value={`${users.length}`} />}
-              bgColor='#fa7892'
-              icon={UserIcon}
-            />
-          </Grid>
-          <Grid item {...breakpoints}>
-            <WavesCard
-              text={T.Groups}
-              value={<NumberEasing value={`${groups.length}`} />}
-              bgColor='#b25aff'
-              icon={GroupIcon}
-            />
-          </Grid>
-          <Grid item {...breakpoints}>
-            <WavesCard
-              text={T.Images}
-              value={<NumberEasing value={`${images.length}`} />}
-              bgColor='#1fbbc6'
-              icon={ImageIcon}
-            />
-          </Grid>
-          <Grid item {...breakpoints}>
-            <WavesCard
-              text={T.VirtualNetwork}
-              value={<NumberEasing value={`${vNetworks.length}`} />}
-              bgColor='#f09d42'
-              icon={NetworkIcon}
-            />
-          </Grid>
-        </>
-      )}
-    </Grid>
-  ), [users?.length, isLoading])
+  return useMemo(
+    () => (
+      <Grid
+        data-cy="dashboard-widget-total-sunstone-resources"
+        container
+        spacing={3}
+      >
+        {!users?.length && isLoading ? (
+          Array.from(Array(TOTAL_WIDGETS)).map((_, index) => (
+            <Grid item {...breakpoints} key={index}>
+              <Skeleton variant="rectangular" height={120} />
+            </Grid>
+          ))
+        ) : (
+          <>
+            <Grid item {...breakpoints}>
+              <WavesCard
+                text={T.Users}
+                value={<NumberEasing value={`${users.length}`} />}
+                bgColor="#fa7892"
+                icon={UserIcon}
+              />
+            </Grid>
+            <Grid item {...breakpoints}>
+              <WavesCard
+                text={T.Groups}
+                value={<NumberEasing value={`${groups.length}`} />}
+                bgColor="#b25aff"
+                icon={GroupIcon}
+              />
+            </Grid>
+            <Grid item {...breakpoints}>
+              <WavesCard
+                text={T.Images}
+                value={<NumberEasing value={`${images.length}`} />}
+                bgColor="#1fbbc6"
+                icon={ImageIcon}
+              />
+            </Grid>
+            <Grid item {...breakpoints}>
+              <WavesCard
+                text={T.VirtualNetwork}
+                value={<NumberEasing value={`${vNetworks.length}`} />}
+                bgColor="#f09d42"
+                icon={NetworkIcon}
+              />
+            </Grid>
+          </>
+        )}
+      </Grid>
+    ),
+    [users?.length, isLoading]
+  )
 }
 
 TotalProvisionInfrastructures.displayName = 'TotalProvisionInfrastructures'

@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const VROUTER_ALLOCATE = 'vrouter.allocate'
@@ -46,7 +46,7 @@ const Actions = {
   VROUTER_INFO,
   VROUTER_LOCK,
   VROUTER_UNLOCK,
-  VROUTER_POOL_INFO
+  VROUTER_POOL_INFO,
 }
 
 module.exports = {
@@ -58,9 +58,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VROUTER_DELETE]: {
       // inspected
@@ -68,13 +68,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         images: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VROUTER_INSTANTIATE]: {
       // inspected
@@ -82,29 +82,29 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         number: {
           from: postBody,
-          default: 1
+          default: 1,
         },
         templateId: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         pending: {
           from: postBody,
-          default: false
+          default: false,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VROUTER_NIC_ATTACH]: {
       // inspected
@@ -112,13 +112,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VROUTER_NIC_DETACH]: {
       // inspected
@@ -126,13 +126,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         nic: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VROUTER_UPDATE]: {
       // inspected
@@ -140,17 +140,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         update: {
           from: postBody,
-          default: 1
-        }
-      }
+          default: 1,
+        },
+      },
     },
     [VROUTER_CHMOD]: {
       // inspected
@@ -158,45 +158,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VROUTER_CHOWN]: {
       // inspected
@@ -204,17 +204,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         userId: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupId: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VROUTER_RENAME]: {
       // inspected
@@ -222,13 +222,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VROUTER_INFO]: {
       // inspected
@@ -236,13 +236,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VROUTER_LOCK]: {
       // inspected
@@ -250,13 +250,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [VROUTER_UNLOCK]: {
       // inspected
@@ -264,9 +264,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VROUTER_POOL_INFO]: {
       // inspected
@@ -274,17 +274,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

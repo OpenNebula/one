@@ -20,7 +20,10 @@ import clsx from 'clsx'
 import { alpha, debounce, InputBase } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { Search as SearchIcon } from 'iconoir-react'
-import { UseGlobalFiltersInstanceProps, UseGlobalFiltersState } from 'react-table'
+import {
+  UseGlobalFiltersInstanceProps,
+  UseGlobalFiltersState,
+} from 'react-table'
 
 const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   search: {
@@ -28,12 +31,12 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
     borderRadius: shape.borderRadius,
     backgroundColor: alpha(palette.divider, 0.15),
     '&:hover': {
-      backgroundColor: alpha(palette.divider, 0.25)
+      backgroundColor: alpha(palette.divider, 0.25),
     },
     width: '100%',
     [breakpoints.up('sm')]: {
-      width: 'auto'
-    }
+      width: 'auto',
+    },
   },
   searchIcon: {
     padding: spacing(0, 2),
@@ -42,17 +45,17 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
     pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   inputRoot: {
     color: 'inherit',
-    width: '100%'
+    width: '100%',
   },
   inputInput: {
     padding: spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${spacing(4)})`
-  }
+    paddingLeft: `calc(1em + ${spacing(4)})`,
+  },
 }))
 
 /**
@@ -75,7 +78,9 @@ const GlobalFilter = ({ useTableProps, className }) => {
 
   const handleChange = useCallback(
     // Set undefined to remove the filter entirely
-    debounce(value => { setGlobalFilter(value || undefined) }, 200)
+    debounce((value) => {
+      setGlobalFilter(value || undefined)
+    }, 200)
   )
 
   return (
@@ -85,14 +90,14 @@ const GlobalFilter = ({ useTableProps, className }) => {
       </div>
       <InputBase
         value={value ?? ''}
-        onChange={event => {
+        onChange={(event) => {
           setValue(event.target.value)
           handleChange(event.target.value)
         }}
         placeholder={'Search...'}
         classes={{
           root: classes.inputRoot,
-          input: classes.inputInput
+          input: classes.inputInput,
         }}
         inputProps={{ 'aria-label': 'search' }}
       />
@@ -102,7 +107,7 @@ const GlobalFilter = ({ useTableProps, className }) => {
 
 GlobalFilter.propTypes = {
   className: PropTypes.string,
-  useTableProps: PropTypes.object.isRequired
+  useTableProps: PropTypes.object.isRequired,
 }
 
 export default GlobalFilter

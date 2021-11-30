@@ -16,21 +16,25 @@
 import { useState, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { SpeedDial as MSpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material'
+import {
+  SpeedDial as MSpeedDial,
+  SpeedDialIcon,
+  SpeedDialAction,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     position: 'absolute',
     '&.MuiSpeedDial-directionUp, &.MuiSpeedDial-directionLeft': {
       bottom: theme.spacing(2),
-      right: theme.spacing(2)
+      right: theme.spacing(2),
     },
     '&.MuiSpeedDial-directionDown, &.MuiSpeedDial-directionRight': {
       top: theme.spacing(2),
-      left: theme.spacing(2)
-    }
-  }
+      left: theme.spacing(2),
+    },
+  },
 }))
 
 /**
@@ -59,16 +63,16 @@ const SpeedDial = ({ hidden = false, actions = [] }) => {
 
   return (
     <MSpeedDial
-      ariaLabel='SpeedDial'
+      ariaLabel="SpeedDial"
       className={classes.root}
       hidden={hidden}
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
       open={open}
-      direction='up'
+      direction="up"
     >
-      {actions?.map(action => (
+      {actions?.map((action) => (
         <SpeedDialAction
           key={action.name}
           icon={action.icon}
@@ -86,14 +90,14 @@ SpeedDial.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       icon: PropTypes.node.isRequired,
-      handleClick: PropTypes.func
+      handleClick: PropTypes.func,
     })
-  )
+  ),
 }
 
 SpeedDial.defaultProps = {
   hidden: false,
-  actions: []
+  actions: [],
 }
 
 export default SpeedDial

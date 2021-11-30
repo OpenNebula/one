@@ -21,36 +21,35 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/vm/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useVm = () => (
-  useSelector(state => state[name]?.[RESOURCES.vm] ?? [])
-)
+export const useVm = () =>
+  useSelector((state) => state[name]?.[RESOURCES.vm] ?? [])
 
 export const useVmApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getVm: id => unwrapDispatch(actions.getVm({ id })),
-    getVms: options => unwrapDispatch(actions.getVms(options)),
-    terminate: id => unwrapDispatch(actions.terminate({ id })),
-    terminateHard: id => unwrapDispatch(actions.terminateHard({ id })),
-    undeploy: id => unwrapDispatch(actions.undeploy({ id })),
-    undeployHard: id => unwrapDispatch(actions.undeployHard({ id })),
-    poweroff: id => unwrapDispatch(actions.poweroff({ id })),
-    poweroffHard: id => unwrapDispatch(actions.poweroffHard({ id })),
-    reboot: id => unwrapDispatch(actions.reboot({ id })),
-    rebootHard: id => unwrapDispatch(actions.rebootHard({ id })),
-    hold: id => unwrapDispatch(actions.hold({ id })),
-    release: id => unwrapDispatch(actions.release({ id })),
-    stop: id => unwrapDispatch(actions.stop({ id })),
-    suspend: id => unwrapDispatch(actions.suspend({ id })),
-    resume: id => unwrapDispatch(actions.resume({ id })),
-    resched: id => unwrapDispatch(actions.resched({ id })),
-    unresched: id => unwrapDispatch(actions.unresched({ id })),
+    getVm: (id) => unwrapDispatch(actions.getVm({ id })),
+    getVms: (options) => unwrapDispatch(actions.getVms(options)),
+    terminate: (id) => unwrapDispatch(actions.terminate({ id })),
+    terminateHard: (id) => unwrapDispatch(actions.terminateHard({ id })),
+    undeploy: (id) => unwrapDispatch(actions.undeploy({ id })),
+    undeployHard: (id) => unwrapDispatch(actions.undeployHard({ id })),
+    poweroff: (id) => unwrapDispatch(actions.poweroff({ id })),
+    poweroffHard: (id) => unwrapDispatch(actions.poweroffHard({ id })),
+    reboot: (id) => unwrapDispatch(actions.reboot({ id })),
+    rebootHard: (id) => unwrapDispatch(actions.rebootHard({ id })),
+    hold: (id) => unwrapDispatch(actions.hold({ id })),
+    release: (id) => unwrapDispatch(actions.release({ id })),
+    stop: (id) => unwrapDispatch(actions.stop({ id })),
+    suspend: (id) => unwrapDispatch(actions.suspend({ id })),
+    resume: (id) => unwrapDispatch(actions.resume({ id })),
+    resched: (id) => unwrapDispatch(actions.resched({ id })),
+    unresched: (id) => unwrapDispatch(actions.unresched({ id })),
     updateUserTemplate: (id, template, replace) =>
       unwrapDispatch(actions.updateUserTemplate({ id, template, replace })),
     rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
@@ -59,11 +58,15 @@ export const useVmApi = () => {
       unwrapDispatch(actions.changePermissions({ id, permissions })),
     changeOwnership: (id, ownership) =>
       unwrapDispatch(actions.changeOwnership({ id, ownership })),
-    attachDisk: (id, template) => unwrapDispatch(actions.attachDisk({ id, template })),
+    attachDisk: (id, template) =>
+      unwrapDispatch(actions.attachDisk({ id, template })),
     detachDisk: (id, disk) => unwrapDispatch(actions.detachDisk({ id, disk })),
-    saveAsDisk: (id, data) => unwrapDispatch(actions.saveAsDisk({ id, ...data })),
-    saveAsTemplate: (id, data) => unwrapDispatch(actions.saveAsTemplate({ id, ...data })),
-    resizeDisk: (id, data) => unwrapDispatch(actions.resizeDisk({ id, ...data })),
+    saveAsDisk: (id, data) =>
+      unwrapDispatch(actions.saveAsDisk({ id, ...data })),
+    saveAsTemplate: (id, data) =>
+      unwrapDispatch(actions.saveAsTemplate({ id, ...data })),
+    resizeDisk: (id, data) =>
+      unwrapDispatch(actions.resizeDisk({ id, ...data })),
     createDiskSnapshot: (id, data) =>
       unwrapDispatch(actions.createDiskSnapshot({ id, ...data })),
     renameDiskSnapshot: (id, data) =>
@@ -72,7 +75,8 @@ export const useVmApi = () => {
       unwrapDispatch(actions.revertDiskSnapshot({ id, ...data })),
     deleteDiskSnapshot: (id, data) =>
       unwrapDispatch(actions.deleteDiskSnapshot({ id, ...data })),
-    attachNic: (id, template) => unwrapDispatch(actions.attachNic({ id, template })),
+    attachNic: (id, template) =>
+      unwrapDispatch(actions.attachNic({ id, template })),
     detachNic: (id, nic) => unwrapDispatch(actions.detachNic({ id, nic })),
     createSnapshot: (id, data) =>
       unwrapDispatch(actions.createSnapshot({ id, ...data })),
@@ -86,11 +90,14 @@ export const useVmApi = () => {
       unwrapDispatch(actions.updateScheduledAction({ id, ...data })),
     deleteScheduledAction: (id, data) =>
       unwrapDispatch(actions.deleteScheduledAction({ id, ...data })),
-    recover: (id, operation) => unwrapDispatch(actions.recover({ id, operation })),
+    recover: (id, operation) =>
+      unwrapDispatch(actions.recover({ id, operation })),
     lock: (id, data) => unwrapDispatch(actions.lock({ id, ...data })),
-    unlock: id => unwrapDispatch(actions.unlock({ id })),
+    unlock: (id) => unwrapDispatch(actions.unlock({ id })),
     deploy: (id, data) => unwrapDispatch(actions.deploy({ id, ...data })),
-    migrate: (id, data) => unwrapDispatch(actions.migrate({ id, ...data, live: false })),
-    migrateLive: (id, data) => unwrapDispatch(actions.migrate({ id, ...data, live: true }))
+    migrate: (id, data) =>
+      unwrapDispatch(actions.migrate({ id, ...data, live: false })),
+    migrateLive: (id, data) =>
+      unwrapDispatch(actions.migrate({ id, ...data, live: true })),
   }
 }

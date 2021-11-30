@@ -21,24 +21,25 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/provider/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useProvider = () => (
-  useSelector(state => state[name]?.[RESOURCES.document[102]])
-)
+export const useProvider = () =>
+  useSelector((state) => state[name]?.[RESOURCES.document[102]])
 
 export const useProviderApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getProvider: id => unwrapDispatch(actions.getProvider({ id })),
+    getProvider: (id) => unwrapDispatch(actions.getProvider({ id })),
     getProviders: () => dispatch(actions.getProviders()),
-    getProviderConnection: id => unwrapDispatch(actions.getProviderConnection({ id })),
-    createProvider: data => unwrapDispatch(actions.createProvider({ data })),
-    updateProvider: (id, data) => unwrapDispatch(actions.updateProvider({ id, data })),
-    deleteProvider: id => unwrapDispatch(actions.deleteProvider({ id }))
+    getProviderConnection: (id) =>
+      unwrapDispatch(actions.getProviderConnection({ id })),
+    createProvider: (data) => unwrapDispatch(actions.createProvider({ data })),
+    updateProvider: (id, data) =>
+      unwrapDispatch(actions.updateProvider({ id, data })),
+    deleteProvider: (id) => unwrapDispatch(actions.deleteProvider({ id })),
   }
 }

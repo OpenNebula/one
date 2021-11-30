@@ -18,18 +18,27 @@ import { Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { List as MList, ListItem, Typography, Paper, alpha } from '@mui/material'
+import {
+  List as MList,
+  ListItem,
+  Typography,
+  Paper,
+  alpha,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-import { Attribute, AttributePropTypes } from 'client/components/Tabs/Common/Attribute'
+import {
+  Attribute,
+  AttributePropTypes,
+} from 'client/components/Tabs/Common/Attribute'
 import AttributeCreateForm from 'client/components/Tabs/Common/AttributeCreateForm'
 
 import { Tr } from 'client/components/HOC'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: theme.typography.fontWeightBold,
-    borderBottom: `1px solid ${theme.palette.divider}`
+    borderBottom: `1px solid ${theme.palette.divider}`,
   },
   item: {
     height: '2.4em',
@@ -37,13 +46,13 @@ const useStyles = makeStyles(theme => ({
     '& > *': {
       flex: '1 1 50%',
       overflow: 'hidden',
-      minHeight: '100%'
+      minHeight: '100%',
     },
     '&:hover': {
-      backgroundColor: alpha(theme.palette.text.primary, 0.05)
-    }
+      backgroundColor: alpha(theme.palette.text.primary, 0.05),
+    },
   },
-  typo: theme.typography.body2
+  typo: theme.typography.body2,
 }))
 
 const AttributeList = ({
@@ -53,7 +62,7 @@ const AttributeList = ({
   containerProps = {},
   itemProps = {},
   listProps = {},
-  subListProps = {}
+  subListProps = {},
 }) => {
   const classes = useStyles()
   const { className: itemClassName, ...restOfItemProps } = itemProps
@@ -71,13 +80,17 @@ const AttributeList = ({
           <Attribute
             path={parentPath || name}
             {...attribute}
-            { ...(isParent && { canEdit: false, value: undefined })}
+            {...(isParent && { canEdit: false, value: undefined })}
           />
         </ListItem>
         {isParent && (
           <MList {...subListProps}>
             {Object.entries(value).map(([childName, childValue]) => {
-              const subAttributeProps = { ...attribute, name: childName, value: childValue }
+              const subAttributeProps = {
+                ...attribute,
+                name: childName,
+                value: childValue,
+              }
               const attributePath = `${parentPath || name}.${childName}`
 
               return renderList(subAttributeProps, attributePath)
@@ -89,18 +102,16 @@ const AttributeList = ({
   }
 
   return (
-    <Paper variant='outlined' {...containerProps}>
+    <Paper variant="outlined" {...containerProps}>
       <MList {...listProps}>
         {/* TITLE */}
         {title && (
           <ListItem className={classes.title}>
-            <Typography noWrap>
-              {Tr(title)}
-            </Typography>
+            <Typography noWrap>{Tr(title)}</Typography>
           </ListItem>
         )}
         {/* LIST */}
-        {list.map(attr => renderList(attr))}
+        {list.map((attr) => renderList(attr))}
         {/* ADD ACTION */}
         {handleAdd && (
           <ListItem className={clsx(classes.item, itemClassName)}>
@@ -114,17 +125,12 @@ const AttributeList = ({
 
 AttributeList.propTypes = {
   containerProps: PropTypes.object,
-  handleAdd: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.bool
-  ]),
+  handleAdd: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   itemProps: PropTypes.object,
   title: PropTypes.any,
-  list: PropTypes.arrayOf(
-    PropTypes.shape(AttributePropTypes)
-  ),
+  list: PropTypes.arrayOf(PropTypes.shape(AttributePropTypes)),
   listProps: PropTypes.object,
-  subListProps: PropTypes.object
+  subListProps: PropTypes.object,
 }
 
 AttributeList.displayName = 'AttributeList'

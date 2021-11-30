@@ -22,7 +22,10 @@ import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
 
-const ramdiskValidation = string().trim().notRequired().default(() => undefined)
+const ramdiskValidation = string()
+  .trim()
+  .notRequired()
+  .default(() => undefined)
 
 /** @type {Field} Ramdisk path field  */
 export const RAMDISK_PATH_ENABLED = {
@@ -30,7 +33,9 @@ export const RAMDISK_PATH_ENABLED = {
   label: T.CustomPath,
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().strip().default(() => false)
+  validation: boolean()
+    .strip()
+    .default(() => false),
 }
 
 /** @type {Field} Ramdisk DS field  */
@@ -40,13 +45,16 @@ export const RAMDISK_DS = {
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: RAMDISK_PATH_ENABLED.name,
-  htmlType: enabled => enabled && INPUT_TYPES.HIDDEN,
+  htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
   values: () => {
     const images = useImage()
 
     return images
-      ?.filter(image => getType(image) === IMAGE_TYPES_STR.RAMDISK)
-      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: `$FILE[IMAGE_ID=${ID}]` }))
+      ?.filter((image) => getType(image) === IMAGE_TYPES_STR.RAMDISK)
+      ?.map(({ ID, NAME }) => ({
+        text: `#${ID} ${NAME}`,
+        value: `$FILE[IMAGE_ID=${ID}]`,
+      }))
       ?.sort((a, b) => {
         const compareOptions = { numeric: true, ignorePunctuation: true }
 
@@ -55,8 +63,8 @@ export const RAMDISK_DS = {
   },
   validation: ramdiskValidation.when(
     clearNames(RAMDISK_PATH_ENABLED.name),
-    (enabled, schema) => enabled ? schema.strip() : schema
-  )
+    (enabled, schema) => (enabled ? schema.strip() : schema)
+  ),
 }
 
 /** @type {Field} Ramdisk path field  */
@@ -66,11 +74,11 @@ export const RAMDISK = {
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.TEXT,
   dependOf: RAMDISK_PATH_ENABLED.name,
-  htmlType: enabled => !enabled && INPUT_TYPES.HIDDEN,
+  htmlType: (enabled) => !enabled && INPUT_TYPES.HIDDEN,
   validation: ramdiskValidation.when(
     clearNames(RAMDISK_PATH_ENABLED.name),
-    (enabled, schema) => enabled ? schema : schema.strip()
-  )
+    (enabled, schema) => (enabled ? schema : schema.strip())
+  ),
 }
 
 /** @type {Field[]} List of Ramdisk fields */

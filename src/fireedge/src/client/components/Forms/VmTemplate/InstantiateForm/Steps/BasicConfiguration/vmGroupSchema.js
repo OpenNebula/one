@@ -38,7 +38,7 @@ export const VM_GROUP_FIELD = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 export const ROLE_FIELD = {
@@ -46,8 +46,9 @@ export const ROLE_FIELD = {
   label: 'Role',
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: VM_GROUP_FIELD.name,
-  htmlType: vmGroup => vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
-  values: vmGroupSelected => {
+  htmlType: (vmGroup) =>
+    vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
+  values: (vmGroupSelected) => {
     const vmGroups = useVmGroup()
 
     const roles = vmGroups
@@ -57,20 +58,17 @@ export const ROLE_FIELD = {
       )
       ?.flat()
 
-    return roles.map(role => ({ text: role, value: role }))
+    return roles.map((role) => ({ text: role, value: role }))
   },
   grid: { md: 12 },
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(
-      'VMGROUP_ID',
-      (vmGroup, schema) =>
-        vmGroup && vmGroup !== '' ? schema.required('Role field is required') : schema
-    )
+    .when('VMGROUP_ID', (vmGroup, schema) =>
+      vmGroup && vmGroup !== ''
+        ? schema.required('Role field is required')
+        : schema
+    ),
 }
 
-export const FIELDS = [
-  VM_GROUP_FIELD,
-  ROLE_FIELD
-]
+export const FIELDS = [VM_GROUP_FIELD, ROLE_FIELD]

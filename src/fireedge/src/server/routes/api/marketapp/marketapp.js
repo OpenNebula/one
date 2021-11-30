@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const { exportApp } = require('./functions')
 const { POST } = httpMethod
 
@@ -25,42 +28,42 @@ const routes = {
       params: {
         id: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         name: {
           from: fromData.postBody,
-          name: 'name'
+          name: 'name',
         },
         datastore: {
           from: fromData.postBody,
-          name: 'datastore'
+          name: 'datastore',
         },
         file: {
           from: fromData.postBody,
-          name: 'file'
+          name: 'file',
         },
         associated: {
           from: fromData.postBody,
-          name: 'associated'
+          name: 'associated',
         },
         tag: {
           from: fromData.postBody,
-          name: 'tag'
+          name: 'tag',
         },
         template: {
           from: fromData.postBody,
-          name: 'template'
+          name: 'template',
         },
         vmname: {
           from: fromData.postBody,
-          name: 'vmname'
-        }
-      }
-    }
-  }
+          name: 'vmname',
+        },
+      },
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

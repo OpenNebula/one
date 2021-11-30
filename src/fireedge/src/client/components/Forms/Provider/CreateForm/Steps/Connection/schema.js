@@ -24,13 +24,10 @@ const CREDENTIAL_INPUT = 'credentials'
 
 export const FORM_FIELDS = ({ connection, fileCredentials }) =>
   Object.entries(connection)?.map(([name, label]) => {
-    const isInputFile = fileCredentials && String(name).toLowerCase() === CREDENTIAL_INPUT
+    const isInputFile =
+      fileCredentials && String(name).toLowerCase() === CREDENTIAL_INPUT
 
-    let validation = yup
-      .string()
-      .trim()
-      .required()
-      .default(undefined)
+    let validation = yup.string().trim().required().default(undefined)
 
     if (isInputFile) {
       validation = validation.isBase64()
@@ -43,21 +40,27 @@ export const FORM_FIELDS = ({ connection, fileCredentials }) =>
       validation,
       ...(isInputFile && {
         fieldProps: { accept: JSON_FORMAT },
-        validationBeforeTransform: [{
-          message: `Only the following formats are accepted: ${JSON_FORMAT}`,
-          test: value => value?.type !== JSON_FORMAT
-        }, {
-          message: `The file is too large. Max ${prettyBytes(MAX_SIZE_JSON, '')}`,
-          test: value => value?.size > MAX_SIZE_JSON
-        }],
-        transform: async file => {
+        validationBeforeTransform: [
+          {
+            message: `Only the following formats are accepted: ${JSON_FORMAT}`,
+            test: (value) => value?.type !== JSON_FORMAT,
+          },
+          {
+            message: `The file is too large. Max ${prettyBytes(
+              MAX_SIZE_JSON,
+              ''
+            )}`,
+            test: (value) => value?.size > MAX_SIZE_JSON,
+          },
+        ],
+        transform: async (file) => {
           const json = await new Response(file ?? '{}').json()
+
           return btoa(JSON.stringify(json))
-        }
-      })
+        },
+      }),
     }
   })
 
-export const STEP_FORM_SCHEMA = props => yup.object(
-  getValidationFromFields(FORM_FIELDS(props))
-)
+export const STEP_FORM_SCHEMA = (props) =>
+  yup.object(getValidationFromFields(FORM_FIELDS(props)))

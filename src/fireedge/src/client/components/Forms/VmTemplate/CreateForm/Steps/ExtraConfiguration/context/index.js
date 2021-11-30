@@ -17,7 +17,9 @@ import PropTypes from 'prop-types'
 import { Folder as ContextIcon } from 'iconoir-react'
 
 import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, { SECTION_ID as USER_INPUTS_ID } from './userInputsSection'
+import UserInputsSection, {
+  SECTION_ID as USER_INPUTS_ID,
+} from './userInputsSection'
 import ConfigurationSection from './configurationSection'
 import FilesSection from './filesSection'
 
@@ -25,7 +27,7 @@ import { T } from 'client/constants'
 
 export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
 
-const Context = props => {
+const Context = (props) => {
   return (
     <>
       <ConfigurationSection />
@@ -39,7 +41,7 @@ Context.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 /** @type {TabType} */
@@ -48,7 +50,7 @@ const TAB = {
   name: T.Context,
   icon: ContextIcon,
   Content: Context,
-  getError: error => TAB_ID.some(id => error?.[id])
+  getError: (error) => TAB_ID.some((id) => error?.[id]),
 }
 
 export default TAB

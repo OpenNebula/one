@@ -15,10 +15,25 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 
-import { login, getUser, logout, changeFilter, changeGroup } from 'client/features/Auth/actions'
+import {
+  login,
+  getUser,
+  logout,
+  changeFilter,
+  changeGroup,
+} from 'client/features/Auth/actions'
 import { getProviderConfig } from 'client/features/Auth/provision'
-import { getSunstoneViews, getSunstoneConfig, changeView } from 'client/features/Auth/sunstone'
-import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
+import {
+  getSunstoneViews,
+  getSunstoneConfig,
+  changeView,
+} from 'client/features/Auth/sunstone'
+import {
+  JWT_NAME,
+  FILTER_POOL,
+  DEFAULT_SCHEME,
+  DEFAULT_LANGUAGE,
+} from 'client/constants'
 import { isBackend } from 'client/utils'
 
 const initial = () => ({
@@ -33,16 +48,16 @@ const initial = () => ({
   settings: {
     scheme: DEFAULT_SCHEME,
     lang: DEFAULT_LANGUAGE,
-    disableanimations: 'NO'
+    disableanimations: 'NO',
   },
   isLoginInProgress: false,
-  isLoading: false
+  isLoading: false,
 })
 
 const { name, actions, reducer } = createSlice({
   name: 'auth',
-  initialState: ({ ...initial(), firstRender: true }),
-  extraReducers: builder => {
+  initialState: { ...initial(), firstRender: true },
+  extraReducers: (builder) => {
     builder
       .addMatcher(
         ({ type }) => type === logout.type,
@@ -60,18 +75,18 @@ const { name, actions, reducer } = createSlice({
             // sunstone
             getSunstoneViews.fulfilled.type,
             getSunstoneConfig.fulfilled.type,
-            changeView.type
+            changeView.type,
           ].includes(type)
         },
         (state, { payload }) => ({ ...state, ...payload })
       )
       .addMatcher(
         ({ type }) => type.startsWith('auth/') && type.endsWith('/pending'),
-        state => ({ ...state, isLoading: true, error: null })
+        (state) => ({ ...state, isLoading: true, error: null })
       )
       .addMatcher(
         ({ type }) => type.startsWith('auth/') && type.endsWith('/fulfilled'),
-        state => ({ ...state, isLoading: false, firstRender: false })
+        (state) => ({ ...state, isLoading: false, firstRender: false })
       )
       .addMatcher(
         ({ type }) => type.startsWith('auth/') && type.endsWith('/rejected'),
@@ -81,10 +96,10 @@ const { name, actions, reducer } = createSlice({
           isLoginInProgress: false,
           isLoading: false,
           firstRender: false,
-          jwt: null
+          jwt: null,
         })
       )
-  }
+  },
 })
 
 export { name, actions, reducer }

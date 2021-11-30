@@ -70,11 +70,12 @@ import { set } from 'client/utils'
 // ----------------------------------------------------------
 
 const ZERO_DELETE_COUNT = 0
-const NEXT_INDEX = index => index + 1
-const EXISTS_INDEX = index => index !== -1
+const NEXT_INDEX = (index) => index + 1
+const EXISTS_INDEX = (index) => index !== -1
 
 // parent ? [parent.id, index].join('.')
-const defaultGetItemId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
+const defaultGetItemId = (item) =>
+  typeof item === 'object' ? item?.id ?? item?.ID : item
 const defaultAddItemId = (item, id) => ({ ...item, id })
 
 // ----------------------------------------------------------
@@ -113,7 +114,7 @@ const useListForm = ({
   setList,
   defaultValue,
   getItemId = defaultGetItemId,
-  addItemId = defaultAddItemId
+  addItemId = defaultAddItemId,
 }) => {
   const [editingData, setEditingData] = useState(() => undefined)
 
@@ -124,46 +125,43 @@ const useListForm = ({
   )
 
   const handleSetList = useCallback(
-    newList => setList(
-      data => {
+    (newList) =>
+      setList((data) => {
         const path = parent ? [parent, key].join('.') : key
         const newData = set({ ...data }, path, newList)
 
         return parent ? { ...data, [parent]: newData } : { ...data, ...newData }
-      }
-    ),
+      }),
     [key, parent, setList]
   )
 
   const handleSelect = useCallback(
-    id => {
-      setList(prevList => ({
+    (id) => {
+      setList((prevList) => ({
         ...prevList,
-        [key]: multiple ? [...(prevList[key] ?? []), id] : [id]
+        [key]: multiple ? [...(prevList[key] ?? []), id] : [id],
       }))
     },
     [key, setList, multiple]
   )
 
   const handleUnselect = useCallback(
-    id => {
-      const newList = [...list]
-        ?.filter((item, idx) => getItemId(item, idx) !== id)
+    (id) => {
+      const newList = [...list]?.filter(
+        (item, idx) => getItemId(item, idx) !== id
+      )
 
       handleSetList(newList)
     },
     [list, setList]
   )
 
-  const handleClear = useCallback(
-    () => {
-      setList(prevList => ({ ...prevList, [key]: [] }))
-    },
-    [key]
-  )
+  const handleClear = useCallback(() => {
+    setList((prevList) => ({ ...prevList, [key]: [] }))
+  }, [key])
 
   const handleClone = useCallback(
-    id => {
+    (id) => {
       const itemIndex = getIndexById(list, id)
       const cloneItem = addItemId(list[itemIndex], undefined, itemIndex)
       const cloneList = [...list]
@@ -182,9 +180,9 @@ const useListForm = ({
       const itemIndex = getIndexById(list, id)
       const index = EXISTS_INDEX(itemIndex) ? itemIndex : list.length
 
-      const newList = Object.assign([], [...list],
-        { [index]: getItemId(values) ? values : addItemId(values, id, index) }
-      )
+      const newList = Object.assign([], [...list], {
+        [index]: getItemId(values) ? values : addItemId(values, id, index),
+      })
 
       handleSetList(newList)
     },
@@ -192,7 +190,7 @@ const useListForm = ({
   )
 
   const handleEdit = useCallback(
-    id => {
+    (id) => {
       const index = getIndexById(list, id)
       const openData = list[index] ?? defaultValue
 
@@ -212,7 +210,7 @@ const useListForm = ({
     handleSetList,
 
     handleSave,
-    handleEdit
+    handleEdit,
   }
 }
 

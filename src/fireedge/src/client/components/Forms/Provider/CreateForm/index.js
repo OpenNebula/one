@@ -38,7 +38,7 @@ const CreateForm = ({ provider, providerConfig, connection, onSubmit }) => {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver())
+    resolver: yupResolver(resolver()),
   })
 
   return (
@@ -46,7 +46,7 @@ const CreateForm = ({ provider, providerConfig, connection, onSubmit }) => {
       <FormStepper
         steps={steps}
         schema={resolver}
-        onSubmit={data =>
+        onSubmit={(data) =>
           onSubmit(transformBeforeSubmit?.(data, providerConfig) ?? data)
         }
       />
@@ -61,36 +61,39 @@ const PreFetchingForm = ({ providerId, onSubmit }) => {
   const [provider, connection] = data ?? []
 
   useEffect(() => {
-    providerId && fetchRequestAll([
-      getProvider(providerId),
-      getProviderConnection(providerId)
-    ])
+    providerId &&
+      fetchRequestAll([
+        getProvider(providerId),
+        getProviderConnection(providerId),
+      ])
   }, [])
 
   if (error) {
     return <Redirect to={PATH.PROVIDERS.LIST} />
   }
 
-  return (providerId && !data)
-    ? <SkeletonStepsForm />
-    : <CreateForm
+  return providerId && !data ? (
+    <SkeletonStepsForm />
+  ) : (
+    <CreateForm
       provider={provider}
       providerConfig={providerConfig}
       connection={connection}
       onSubmit={onSubmit}
     />
+  )
 }
 
 PreFetchingForm.propTypes = {
   providerId: PropTypes.string,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 CreateForm.propTypes = {
   provider: PropTypes.object,
   connection: PropTypes.object,
   providerConfig: PropTypes.object,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 export default PreFetchingForm

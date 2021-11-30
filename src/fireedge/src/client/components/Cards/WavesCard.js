@@ -23,9 +23,11 @@ import makeStyles from '@mui/styles/makeStyles'
 import { addOpacityToColor } from 'client/utils'
 import { SCHEMES } from 'client/constants'
 
-const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.mode === SCHEMES.DARK ? darken : lighten
-  const getContrastBackgroundColor = theme.palette.mode === SCHEMES.LIGHT ? darken : lighten
+const useStyles = makeStyles((theme) => {
+  const getBackgroundColor =
+    theme.palette.mode === SCHEMES.DARK ? darken : lighten
+  const getContrastBackgroundColor =
+    theme.palette.mode === SCHEMES.LIGHT ? darken : lighten
 
   return {
     root: {
@@ -36,8 +38,8 @@ const useStyles = makeStyles(theme => {
       [theme.breakpoints.only('xs')]: {
         display: 'flex',
         alignItems: 'baseline',
-        gap: '1em'
-      }
+        gap: '1em',
+      },
     },
     icon: {
       position: 'absolute',
@@ -49,8 +51,8 @@ const useStyles = makeStyles(theme => {
       '& > svg': {
         color: addOpacityToColor(theme.palette.common.white, 0.2),
         height: '100%',
-        width: '30%'
-      }
+        width: '30%',
+      },
     },
     wave: {
       display: 'block',
@@ -60,57 +62,66 @@ const useStyles = makeStyles(theme => {
       left: '50%',
       width: 220,
       height: 220,
-      borderRadius: '43%'
+      borderRadius: '43%',
     },
     wave1: {
-      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.3),
-      animation: '$drift 7s infinite linear'
+      backgroundColor: ({ bgColor }) =>
+        getContrastBackgroundColor(bgColor, 0.3),
+      animation: '$drift 7s infinite linear',
     },
     wave2: {
-      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.5),
-      animation: '$drift 5s infinite linear'
+      backgroundColor: ({ bgColor }) =>
+        getContrastBackgroundColor(bgColor, 0.5),
+      animation: '$drift 5s infinite linear',
     },
     '@keyframes drift': {
       from: { transform: 'rotate(0deg)' },
-      to: { transform: 'rotate(360deg)' }
-    }
+      to: { transform: 'rotate(360deg)' },
+    },
   }
 })
 
-const WavesCard = memo(({ text, value, bgColor, icon: Icon }) => {
-  const classes = useStyles({ bgColor })
+const WavesCard = memo(
+  ({ text, value, bgColor, icon: Icon }) => {
+    const classes = useStyles({ bgColor })
 
-  return (
-    <Paper className={classes.root}>
-      <Typography variant='h6' zIndex={2}>{text}</Typography>
-      <Typography variant='h4' zIndex={2}>{value}</Typography>
-      <span className={clsx(classes.wave, classes.wave1)} />
-      <span className={clsx(classes.wave, classes.wave2)} />
-      {Icon && (
-        <span className={classes.icon}>
-          <Icon />
-        </span>
-      )}
-    </Paper>
-  )
-}, (prev, next) => prev.value === next.value)
+    return (
+      <Paper className={classes.root}>
+        <Typography variant="h6" zIndex={2}>
+          {text}
+        </Typography>
+        <Typography variant="h4" zIndex={2}>
+          {value}
+        </Typography>
+        <span className={clsx(classes.wave, classes.wave1)} />
+        <span className={clsx(classes.wave, classes.wave2)} />
+        {Icon && (
+          <span className={classes.icon}>
+            <Icon />
+          </span>
+        )}
+      </Paper>
+    )
+  },
+  (prev, next) => prev.value === next.value
+)
 
 WavesCard.propTypes = {
   text: PropTypes.string,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.element
+    PropTypes.element,
   ]),
   bgColor: PropTypes.string,
-  icon: PropTypes.any
+  icon: PropTypes.any,
 }
 
 WavesCard.defaultProps = {
   text: undefined,
   value: undefined,
   bgColor: '#ffffff00',
-  icon: undefined
+  icon: undefined,
 }
 
 WavesCard.displayName = 'WavesCard'

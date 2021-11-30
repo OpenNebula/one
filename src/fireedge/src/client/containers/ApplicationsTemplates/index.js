@@ -21,7 +21,10 @@ import { Container, Box } from '@mui/material'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
 import { useFetch } from 'client/hooks'
-import { useApplicationTemplate, useApplicationTemplateApi } from 'client/features/One'
+import {
+  useApplicationTemplate,
+  useApplicationTemplateApi,
+} from 'client/features/One'
 
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
 import { ListHeader, ListCards } from 'client/components/List'
@@ -29,16 +32,20 @@ import AlertError from 'client/components/Alerts/Error'
 import { ApplicationTemplateCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-function ApplicationsTemplates () {
+function ApplicationsTemplates() {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
   const applicationsTemplates = useApplicationTemplate()
   const { getApplicationsTemplates } = useApplicationTemplateApi()
 
-  const { error, fetchRequest, loading, reloading } = useFetch(getApplicationsTemplates)
+  const { error, fetchRequest, loading, reloading } = useFetch(
+    getApplicationsTemplates
+  )
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   return (
     <Container disableGutters>
@@ -48,11 +55,11 @@ function ApplicationsTemplates () {
         reloadButtonProps={{
           'data-cy': 'refresh-application-template-list',
           onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
-          isSubmitting: Boolean(loading || reloading)
+          isSubmitting: Boolean(loading || reloading),
         }}
         addButtonProps={{
           'data-cy': 'create-application-template',
-          onClick: () => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)
+          onClick: () => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE),
         }}
       />
       <Box p={3}>
@@ -66,9 +73,13 @@ function ApplicationsTemplates () {
             CardComponent={ApplicationTemplateCard}
             cardsProps={({ value }) => ({
               handleEdit: () =>
-                history.push(generatePath(PATH.APPLICATIONS_TEMPLATES.EDIT, { id: value?.ID })),
+                history.push(
+                  generatePath(PATH.APPLICATIONS_TEMPLATES.EDIT, {
+                    id: value?.ID,
+                  })
+                ),
               handleDeploy: () => setShowDialog(value),
-              handleRemove: undefined // TODO
+              handleRemove: undefined, // TODO
             })}
           />
         )}

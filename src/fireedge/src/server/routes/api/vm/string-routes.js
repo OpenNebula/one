@@ -17,7 +17,7 @@
 const VM = 'vm'
 
 const Actions = {
-  VM
+  VM,
 }
 
 module.exports = Actions

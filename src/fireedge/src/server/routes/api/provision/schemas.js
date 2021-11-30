@@ -20,7 +20,7 @@ const provision = {
   properties: {
     name: {
       type: 'string',
-      required: true
+      required: true,
     },
     defaults: {
       type: 'object',
@@ -30,29 +30,29 @@ const provision = {
           type: 'object',
           properties: {
             driver: {
-              type: 'string'
+              type: 'string',
             },
             packet_token: {
-              type: 'string'
+              type: 'string',
             },
             packet_project: {
-              type: 'string'
+              type: 'string',
             },
             facility: {
-              type: 'string'
+              type: 'string',
             },
             plan: {
-              type: 'string'
+              type: 'string',
             },
             os: {
-              type: 'string'
-            }
-          }
+              type: 'string',
+            },
+          },
         },
         configuration: {
-          type: 'object'
-        }
-      }
+          type: 'object',
+        },
+      },
     },
     hosts: {
       type: 'array',
@@ -62,38 +62,38 @@ const provision = {
         properties: {
           reserved_cpu: {
             type: 'integer',
-            required: true
+            required: true,
           },
           im_mad: {
             type: 'string',
             enum: ['kvm', 'firecraker'],
-            required: true
+            required: true,
           },
           vm_mad: {
             type: 'string',
             enum: ['kvm', 'firecraker'],
-            required: true
+            required: true,
           },
           provision: {
             type: 'object',
             properties: {
               hostname: {
                 type: 'string',
-                required: true
+                required: true,
               },
               os: {
                 type: 'string',
-                required: true
-              }
+                required: true,
+              },
             },
-            required: true
-          }
-        }
-      }
+            required: true,
+          },
+        },
+      },
     },
     clusters: {
       type: 'array',
-      required: true
+      required: true,
     },
     datastores: {
       type: 'array',
@@ -103,18 +103,18 @@ const provision = {
         properties: {
           name: {
             type: 'string',
-            required: false
+            required: false,
           },
           type: {
             type: 'string',
-            required: false
+            required: false,
           },
           tm_mad: {
             type: 'string',
-            required: false
-          }
-        }
-      }
+            required: false,
+          },
+        },
+      },
     },
     networks: {
       type: 'array',
@@ -122,19 +122,19 @@ const provision = {
       items: {
         name: {
           type: 'string',
-          required: false
+          required: false,
         },
         vn_mad: {
           type: 'string',
-          required: false
+          required: false,
         },
         bridge: {
           type: 'string',
-          required: false
+          required: false,
         },
         description: {
           type: 'string',
-          required: false
+          required: false,
         },
         ar: {
           type: 'array',
@@ -143,26 +143,26 @@ const provision = {
             properties: {
               ip: {
                 type: 'string',
-                required: true
+                required: true,
               },
               size: {
                 type: 'integer',
-                required: true
+                required: true,
               },
               type: {
                 type: 'string',
-                required: true
-              }
-            }
+                required: true,
+              },
+            },
           },
-          required: false
-        }
-      }
-    }
-  }
+          required: false,
+        },
+      },
+    },
+  },
 }
 const schemas = {
-  provision
+  provision,
 }
 
 module.exports = schemas

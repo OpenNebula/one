@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const TEMPLATE_ALLOCATE = 'template.allocate'
@@ -44,7 +44,7 @@ const Actions = {
   TEMPLATE_LOCK,
   TEMPLATE_UNLOCK,
   TEMPLATE_INFO,
-  TEMPLATE_POOL_INFO
+  TEMPLATE_POOL_INFO,
 }
 
 module.exports = {
@@ -56,9 +56,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [TEMPLATE_CLONE]: {
       // inspected
@@ -66,17 +66,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         image: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_DELETE]: {
       // inspected
@@ -84,13 +84,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         image: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_INSTANTIATE]: {
       // inspected
@@ -98,25 +98,25 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         hold: {
           from: postBody,
-          default: false
+          default: false,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         persistent: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_UPDATE]: {
       // inspected
@@ -124,17 +124,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [TEMPLATE_CHMOD]: {
       // inspected
@@ -142,49 +142,49 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         image: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_CHOWN]: {
       // inspected
@@ -192,17 +192,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [TEMPLATE_RENAME]: {
       // inspected
@@ -210,13 +210,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [TEMPLATE_LOCK]: {
       // inspected
@@ -224,17 +224,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         level: {
           from: postBody,
-          default: 4
+          default: 4,
         },
         test: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_UNLOCK]: {
       // inspected
@@ -242,9 +242,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [TEMPLATE_INFO]: {
       // inspected
@@ -252,17 +252,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         extended: {
           from: query,
-          default: false
+          default: false,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [TEMPLATE_POOL_INFO]: {
       // inspected
@@ -270,17 +270,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

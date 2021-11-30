@@ -25,13 +25,10 @@ import {
   ListItemButton,
   ListItemText,
   ListItemIcon,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 
-import {
-  Minus as CollapseIcon,
-  Plus as ExpandMoreIcon
-} from 'iconoir-react'
+import { Minus as CollapseIcon, Plus as ExpandMoreIcon } from 'iconoir-react'
 
 import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
@@ -41,7 +38,7 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
   const classes = sidebarStyles()
   const { pathname } = useLocation()
   const { isFixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'))
 
   const [expanded, setExpanded] = useState(() => false)
 
@@ -67,17 +64,20 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
           primary={label}
           primaryTypographyProps={{ variant: 'body1' }}
         />
-        {expanded ? <CollapseIcon/> : <ExpandMoreIcon />}
+        {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
       </ListItemButton>
       <Collapse
         in={expanded}
-        timeout='auto'
+        timeout="auto"
         unmountOnExit
         className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
       >
-        <List component='div' disablePadding>
+        <List component="div" disablePadding>
           {routes
-            ?.filter(({ sidebar = false, label }) => sidebar && typeof label === 'string')
+            ?.filter(
+              ({ sidebar = false, label }) =>
+                sidebar && typeof label === 'string'
+            )
             ?.map((subItem, index) => (
               <SidebarLink key={`subitem-${index}`} isSubItem {...subItem} />
             ))}
@@ -89,19 +89,13 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
 
 SidebarCollapseItem.propTypes = {
   label: PropTypes.string.isRequired,
-  icon: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.object
-  ]),
+  icon: PropTypes.oneOfType([PropTypes.node, PropTypes.object]),
   routes: PropTypes.arrayOf(
     PropTypes.shape({
-      label: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.func
-      ]),
-      path: PropTypes.string
+      label: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+      path: PropTypes.string,
     })
-  )
+  ),
 }
 
 export default SidebarCollapseItem

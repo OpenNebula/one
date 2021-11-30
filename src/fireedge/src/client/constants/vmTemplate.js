@@ -31,7 +31,7 @@ export const VM_TEMPLATE_ACTIONS = {
 
   RENAME: ACTIONS.RENAME,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
 
 export const NUMA_PIN_POLICIES = ['NONE', 'THREAD', 'SHARED', 'CORE']
@@ -51,7 +51,7 @@ export const FIRMWARE_TYPES = ['BIOS']
 
 export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
   '/usr/share/OVMF/OVMF_CODE.fd',
-  '/usr/share/OVMF/OVMF_CODE.secboot.fd'
+  '/usr/share/OVMF/OVMF_CODE.secboot.fd',
 ])
 
 export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])

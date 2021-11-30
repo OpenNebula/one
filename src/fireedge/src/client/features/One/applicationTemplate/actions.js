@@ -28,7 +28,7 @@ export const getApplicationTemplate = createAction(
 export const getApplicationsTemplates = createAction(
   `${SERVICE_TEMPLATE}/pool`,
   applicationTemplateService.getApplicationsTemplates,
-  response => ({ [RESOURCES.document[101]]: response })
+  (response) => ({ [RESOURCES.document[101]]: response })
 )
 
 export const createApplicationTemplate = createAction(

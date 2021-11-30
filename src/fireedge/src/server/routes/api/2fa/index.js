@@ -20,7 +20,7 @@ const { TFA } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(tfaRoutes, TFA),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

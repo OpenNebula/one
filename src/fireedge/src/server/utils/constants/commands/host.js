@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, PUT, DELETE }
+  httpMethod: { GET, PUT, DELETE },
 } = require('../defaults')
 
 const HOST_ALLOCATE = 'host.allocate'
@@ -38,7 +38,7 @@ const Actions = {
   HOST_INFO,
   HOST_MONITORING,
   HOST_POOL_INFO,
-  HOST_POOL_MONITORING
+  HOST_POOL_MONITORING,
 }
 
 module.exports = {
@@ -50,21 +50,21 @@ module.exports = {
       params: {
         hostname: {
           from: postBody,
-          default: ''
+          default: '',
         },
         information: {
           from: postBody,
-          default: ''
+          default: '',
         },
         manager: {
           from: postBody,
-          default: ''
+          default: '',
         },
         cluster: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [HOST_DELETE]: {
       // inspected
@@ -72,9 +72,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOST_STATUS]: {
       // inspected
@@ -82,13 +82,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         status: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOST_UPDATE]: {
       // inspected
@@ -96,17 +96,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOST_RENAME]: {
       // inspected
@@ -114,13 +114,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [HOST_INFO]: {
       // inspected
@@ -128,13 +128,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [HOST_MONITORING]: {
       // inspected
@@ -142,19 +142,19 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOST_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [HOST_POOL_MONITORING]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

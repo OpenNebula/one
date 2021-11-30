@@ -52,7 +52,7 @@ export const ICMP_STRING = {
   40: '40: Photuris',
   41: '41: ICMP messages utilized by experimental mobility protocols such as Seamoby',
   253: '253: RFC3692-style Experiment 1',
-  254: '254: RFC3692-style Experiment 2'
+  254: '254: RFC3692-style Experiment 2',
 }
 
 /**
@@ -68,7 +68,7 @@ export const ICMP_V6_STRING = {
   3: '3: Time exceeded',
   4: '4: Parameter problem',
   128: '128/0: Echo request',
-  129: '129/0: Echo reply'
+  129: '129/0: Echo reply',
 }
 
 /** @enum {string} Security group protocol */
@@ -78,11 +78,11 @@ export const PROTOCOL_STRING = {
   ICMP: T.ICMP,
   ICMPV6: T.ICMPV6,
   IPSEC: T.IPSEC,
-  ALL: T.All
+  ALL: T.All,
 }
 
 /** @enum {string} Security group rule type */
 export const RULE_TYPE_STRING = {
   OUTBOUND: T.Outbound,
-  INBOUND: T.Inbound
+  INBOUND: T.Inbound,
 }

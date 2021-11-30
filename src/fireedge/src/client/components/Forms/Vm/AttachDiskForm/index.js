@@ -16,7 +16,4 @@
 import ImageSteps from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps'
 import VolatileSteps from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps'
 
-export {
-  ImageSteps,
-  VolatileSteps
-}
+export { ImageSteps, VolatileSteps }

@@ -16,7 +16,10 @@
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Db as ProviderIcon, SettingsCloud as ProvisionIcon } from 'iconoir-react'
+import {
+  Db as ProviderIcon,
+  SettingsCloud as ProvisionIcon,
+} from 'iconoir-react'
 
 import { SelectCard } from 'client/components/Cards'
 import Image from 'client/components/Image'
@@ -32,7 +35,7 @@ const ProvisionTemplateCard = memo(
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
     const imageUrl = useMemo(
-      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      () => (isExternalImage ? image : `${IMAGES_URL}/${image}`),
       [isExternalImage]
     )
 
@@ -47,11 +50,8 @@ const ProvisionTemplateCard = memo(
         mediaProps={{
           component: 'div',
           children: (
-            <Image
-              src={imageUrl}
-              withSources={image && !isExternalImage}
-            />
-          )
+            <Image src={imageUrl} withSources={image && !isExternalImage} />
+          ),
         }}
         subheader={description}
         title={name}
@@ -67,7 +67,7 @@ ProvisionTemplateCard.propTypes = {
   isSelected: PropTypes.bool,
   isValid: PropTypes.bool,
   image: PropTypes.string,
-  value: PropTypes.object
+  value: PropTypes.object,
 }
 
 ProvisionTemplateCard.defaultProps = {
@@ -76,7 +76,7 @@ ProvisionTemplateCard.defaultProps = {
   isSelected: false,
   isValid: true,
   image: undefined,
-  value: { name: '', description: '' }
+  value: { name: '', description: '' },
 }
 
 ProvisionTemplateCard.displayName = 'ProvisionTemplateCard'

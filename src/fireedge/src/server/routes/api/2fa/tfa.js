@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const { setup, qr, del } = require('./tfa-functions')
 const { POST, DELETE, GET } = httpMethod
 
@@ -25,26 +28,26 @@ const routes = {
       params: {
         token: {
           from: fromData.postBody,
-          name: 'token'
-        }
-      }
-    }
+          name: 'token',
+        },
+      },
+    },
   },
   [GET]: {
     null: {
       action: qr,
-      params: {}
-    }
+      params: {},
+    },
   },
   [DELETE]: {
     null: {
       action: del,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

@@ -39,7 +39,7 @@ export const VM_GROUP_FIELD = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Role field */
@@ -48,8 +48,9 @@ export const ROLE_FIELD = {
   label: T.Role,
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: VM_GROUP_FIELD.name,
-  htmlType: vmGroup => vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
-  values: vmGroupSelected => {
+  htmlType: (vmGroup) =>
+    vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
+  values: (vmGroupSelected) => {
     const vmGroups = useVmGroup()
 
     const roles = vmGroups
@@ -59,20 +60,16 @@ export const ROLE_FIELD = {
       )
       ?.flat()
 
-    return roles.map(role => ({ text: role, value: role }))
+    return roles.map((role) => ({ text: role, value: role }))
   },
   grid: { md: 12 },
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(
-      'VMGROUP_ID',
-      (vmGroup, schema) => vmGroup ? schema.required() : schema
-    )
+    .when('VMGROUP_ID', (vmGroup, schema) =>
+      vmGroup ? schema.required() : schema
+    ),
 }
 
 /** @type {Field[]} List of VM Group fields */
-export const FIELDS = [
-  VM_GROUP_FIELD,
-  ROLE_FIELD
-]
+export const FIELDS = [VM_GROUP_FIELD, ROLE_FIELD]

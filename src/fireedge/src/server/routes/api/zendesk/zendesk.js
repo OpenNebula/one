@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const { login, list, comments, create, update } = require('./zendesk-functions')
 const { POST, GET, PUT } = httpMethod
 
@@ -25,35 +28,35 @@ const routes = {
       params: {
         user: {
           from: fromData.postBody,
-          name: 'user'
+          name: 'user',
         },
         pass: {
           from: fromData.postBody,
-          name: 'pass'
-        }
-      }
+          name: 'pass',
+        },
+      },
     },
     create: {
       action: create,
       params: {
         subject: {
           from: fromData.postBody,
-          name: 'subject'
+          name: 'subject',
         },
         body: {
           from: fromData.postBody,
-          name: 'body'
+          name: 'body',
         },
         version: {
           from: fromData.postBody,
-          name: 'version'
+          name: 'version',
         },
         severity: {
           from: fromData.postBody,
-          name: 'severity'
-        }
-      }
-    }
+          name: 'severity',
+        },
+      },
+    },
   },
   [PUT]: {
     update: {
@@ -61,41 +64,41 @@ const routes = {
       params: {
         id: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         body: {
           from: fromData.postBody,
-          name: 'body'
+          name: 'body',
         },
         solved: {
           from: fromData.postBody,
-          name: 'solved'
+          name: 'solved',
         },
         attachments: {
           from: 'files',
-          name: 'attachments'
-        }
-      }
-    }
+          name: 'attachments',
+        },
+      },
+    },
   },
   [GET]: {
     list: {
       action: list,
-      params: {}
+      params: {},
     },
     comments: {
       action: comments,
       params: {
         id: {
           from: fromData.resource,
-          name: 'id'
-        }
-      }
-    }
-  }
+          name: 'id',
+        },
+      },
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

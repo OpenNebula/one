@@ -27,12 +27,12 @@ export const STEP_ID = 'network'
 const Content = ({ data, setFormData }) => {
   const { NAME } = data?.[0] ?? {}
 
-  const {
-    handleSelect,
-    handleClear
-  } = useListForm({ key: STEP_ID, setList: setFormData })
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     original.ID !== undefined ? handleSelect(original) : handleClear()
@@ -43,7 +43,7 @@ const Content = ({ data, setFormData }) => {
       singleSelect
       onlyGlobalSearch
       onlyGlobalSelectedRows
-      getRowId={row => String(row.NAME)}
+      getRowId={(row) => String(row.NAME)}
       initialState={{ selectedRowIds: { [NAME]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
@@ -54,12 +54,12 @@ const NetworkStep = () => ({
   id: STEP_ID,
   label: T.SelectNetwork,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default NetworkStep

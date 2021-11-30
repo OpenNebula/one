@@ -15,13 +15,20 @@
  * ------------------------------------------------------------------------- */
 import { BaseSchema } from 'yup'
 
-import { FIELDS as INFORMATION_FIELDS, HYPERVISOR_FIELD } from './informationSchema'
+import {
+  FIELDS as INFORMATION_FIELDS,
+  HYPERVISOR_FIELD,
+} from './informationSchema'
 import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
 import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
 
-import { Section, filterFieldsByHypervisor, getObjectSchemaFromFields } from 'client/utils'
+import {
+  Section,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
 /**
@@ -34,37 +41,40 @@ const SECTIONS = (hypervisor, isUpdate) => [
     id: 'information',
     legend: T.Information,
     required: true,
-    fields: filterFieldsByHypervisor(INFORMATION_FIELDS(isUpdate), hypervisor)
+    fields: filterFieldsByHypervisor(INFORMATION_FIELDS(isUpdate), hypervisor),
   },
   {
     id: 'capacity',
     legend: T.Capacity,
-    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor),
   },
   {
     id: 'ownership',
     legend: T.Ownership,
-    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
   },
   {
     id: 'vm_group',
     legend: T.VMGroup,
-    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
   },
   {
     id: 'vcenter',
     legend: T.vCenterDeployment,
-    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor)
-  }
+    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+  },
 ]
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = hypervisor => getObjectSchemaFromFields([
-  HYPERVISOR_FIELD,
-  ...SECTIONS(hypervisor).map(({ fields }) => fields).flat()
-])
+const SCHEMA = (hypervisor) =>
+  getObjectSchemaFromFields([
+    HYPERVISOR_FIELD,
+    ...SECTIONS(hypervisor)
+      .map(({ fields }) => fields)
+      .flat(),
+  ])
 
 export { SECTIONS, SCHEMA }

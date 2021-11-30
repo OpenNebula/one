@@ -20,7 +20,11 @@ import { styled, FormControl, FormHelperText } from '@mui/material'
 import { Check as CheckIcon, Page as FileIcon } from 'iconoir-react'
 import { useController } from 'react-hook-form'
 
-import { ErrorHelper, Tooltip, SubmitButton } from 'client/components/FormControl'
+import {
+  ErrorHelper,
+  Tooltip,
+  SubmitButton,
+} from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
@@ -31,8 +35,8 @@ const Label = styled('label')(({ theme, error }) => ({
   alignItems: 'center',
   gap: '1em',
   ...(error && {
-    color: theme.palette.error.main
-  })
+    color: theme.palette.error.main,
+  }),
 }))
 
 const FileController = memo(
@@ -45,30 +49,33 @@ const FileController = memo(
     validationBeforeTransform,
     transform,
     fieldProps = {},
-    formContext = {}
+    formContext = {},
   }) => {
     const { setValue, setError, clearErrors, watch } = formContext
 
     const {
       field: { ref, value, onChange, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     const [isLoading, setLoading] = useState(() => false)
     const [success, setSuccess] = useState(() => !error && !!watch(name))
     const timer = useRef()
 
-    useEffect(() => () => {
-      clearTimeout(timer.current)
-    }, [])
+    useEffect(
+      () => () => {
+        clearTimeout(timer.current)
+      },
+      []
+    )
 
     /**
      * Simulate 1 second loading, then set success or error.
      *
      * @param {string} message - Message
      */
-    const handleDelayState = message => {
-    // simulate is loading for one second
+    const handleDelayState = (message) => {
+      // simulate is loading for one second
       timer.current = setTimeout(() => {
         setSuccess(!message)
         setLoading(false)
@@ -82,7 +89,7 @@ const FileController = memo(
      *
      * @param {ChangeEvent} event - Change event object
      */
-    const handleChange = async event => {
+    const handleChange = async (event) => {
       try {
         const file = event.target.files?.[0]
 
@@ -108,19 +115,19 @@ const FileController = memo(
     }
 
     return (
-      <FormControl fullWidth margin='dense'>
+      <FormControl fullWidth margin="dense">
         <HiddenInput
           {...inputProps}
           ref={ref}
           id={cy}
-          type='file'
+          type="file"
           onChange={handleChange}
           {...fieldProps}
         />
         <Label htmlFor={cy} error={error ? 'error' : undefined}>
           <SubmitButton
             color={success ? 'success' : 'secondary'}
-            component='span'
+            component="span"
             data-cy={`${cy}-button`}
             isSubmitting={isLoading}
             label={success ? <CheckIcon /> : <FileIcon />}
@@ -151,7 +158,7 @@ FileController.propTypes = {
   validationBeforeTransform: PropTypes.arrayOf(
     PropTypes.shape({
       message: PropTypes.string,
-      test: PropTypes.func
+      test: PropTypes.func,
     })
   ),
   transform: PropTypes.func,
@@ -161,8 +168,8 @@ FileController.propTypes = {
     setError: PropTypes.func,
     clearErrors: PropTypes.func,
     watch: PropTypes.func,
-    register: PropTypes.func
-  })
+    register: PropTypes.func,
+  }),
 }
 
 FileController.displayName = 'FileController'

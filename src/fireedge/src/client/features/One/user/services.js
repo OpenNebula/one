@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/user'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const userService = ({
+export const userService = {
   /**
    * Retrieves information for the user.
    *
@@ -64,7 +64,7 @@ export const userService = ({
    * @returns {number} User id
    * @throws Fails when response isn't code 200
    */
-  changeGroup: async params => {
+  changeGroup: async (params) => {
     const name = Actions.USER_CHGRP
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -89,7 +89,7 @@ export const userService = ({
    * @returns {number} User id
    * @throws Fails when response isn't code 200
    */
-  updateUser: async params => {
+  updateUser: async (params) => {
     const name = Actions.USER_UPDATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -99,5 +99,5 @@ export const userService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data ?? {}
-  }
-})
+  },
+}

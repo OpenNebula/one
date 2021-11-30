@@ -16,7 +16,10 @@
 import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { FIELDS, SCHEMA } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration/schema'
+import {
+  FIELDS,
+  SCHEMA,
+} from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration/schema'
 import { Step } from 'client/utils'
 import { T } from 'client/constants'
 
@@ -42,12 +45,12 @@ const ConfigurationStep = () => ({
   label: T.Configuration,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ConfigurationStep

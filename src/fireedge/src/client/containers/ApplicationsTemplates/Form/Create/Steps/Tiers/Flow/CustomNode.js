@@ -20,7 +20,7 @@ import {
   Handle,
   useStoreState,
   getOutgoers,
-  addEdge
+  addEdge,
 } from 'react-flow-renderer'
 
 import { TierCard } from 'client/components/Cards'
@@ -35,8 +35,8 @@ import { TierCard } from 'client/components/Cards'
  */
 const CustomNode = memo(({ data, selected }) => {
   const { tier, handleEdit } = data
-  const elements = useStoreState(state => state.elements)
-  const nodes = useStoreState(state => state.nodes)
+  const elements = useStoreState((state) => state.elements)
+  const nodes = useStoreState((state) => state.nodes)
 
   /**
    * Algorithm to detect if a sequence of vertices starting
@@ -67,6 +67,7 @@ const CustomNode = memo(({ data, selected }) => {
       }
 
       recStack[nodeId] = false
+
       return false
     },
     []
@@ -82,7 +83,7 @@ const CustomNode = memo(({ data, selected }) => {
    * @returns {boolean} Returns `true` if the edge is a cycle
    */
   const detectCycle = useCallback(
-    params => {
+    (params) => {
       const elementsTemp = addEdge(params, elements)
       const visited = {}
       const recStack = {}
@@ -118,17 +119,17 @@ const CustomNode = memo(({ data, selected }) => {
         handleEdit={handleEdit}
         cardProps={{
           elevation: selected ? 6 : 1,
-          style: { width: 300 }
+          style: { width: 300 },
         }}
       />
       <Handle
-        type='target'
-        position='top'
+        type="target"
+        position="top"
         isValidConnection={isValidConnection}
       />
       <Handle
-        type='source'
-        position='bottom'
+        type="source"
+        position="bottom"
         isValidConnection={isValidConnection}
       />
     </>
@@ -137,12 +138,12 @@ const CustomNode = memo(({ data, selected }) => {
 
 CustomNode.propTypes = {
   data: PropTypes.objectOf(PropTypes.any),
-  selected: PropTypes.bool
+  selected: PropTypes.bool,
 }
 
 CustomNode.defaultProps = {
   data: {},
-  selected: false
+  selected: false,
 }
 
 CustomNode.displayName = 'CustomFlowNode'

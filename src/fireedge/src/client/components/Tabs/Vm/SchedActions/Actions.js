@@ -33,7 +33,7 @@ const CreateSchedAction = memo(() => {
   const { addScheduledAction } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const handleCreateSchedAction = async formData => {
+  const handleCreateSchedAction = async (formData) => {
     const data = { template: Helper.jsonToXml({ SCHED_ACTION: formData }) }
     const response = await addScheduledAction(vm.ID, data)
 
@@ -46,22 +46,24 @@ const CreateSchedAction = memo(() => {
         color: 'secondary',
         'data-cy': 'create-sched-action',
         label: T.AddAction,
-        variant: 'outlined'
+        variant: 'outlined',
       }}
-      options={[{
-        cy: 'create-sched-action-punctual',
-        name: 'Punctual action',
-        dialogProps: { title: T.ScheduledAction },
-        form: () => PunctualForm(vm),
-        onSubmit: handleCreateSchedAction
-      },
-      {
-        cy: 'create-sched-action-relative',
-        name: 'Relative action',
-        dialogProps: { title: T.ScheduledAction },
-        form: () => RelativeForm(vm),
-        onSubmit: handleCreateSchedAction
-      }]}
+      options={[
+        {
+          cy: 'create-sched-action-punctual',
+          name: 'Punctual action',
+          dialogProps: { title: T.ScheduledAction },
+          form: () => PunctualForm(vm),
+          onSubmit: handleCreateSchedAction,
+        },
+        {
+          cy: 'create-sched-action-relative',
+          name: 'Relative action',
+          dialogProps: { title: T.ScheduledAction },
+          form: () => RelativeForm(vm),
+          onSubmit: handleCreateSchedAction,
+        },
+      ]}
     />
   )
 })
@@ -72,10 +74,10 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
   const { updateScheduledAction } = useVmApi()
   const { handleRefetch, data: vm } = useContext(TabContext)
 
-  const handleUpdate = async formData => {
+  const handleUpdate = async (formData) => {
     const data = {
       id_sched: ID,
-      template: Helper.jsonToXml({ SCHED_ACTION: formData })
+      template: Helper.jsonToXml({ SCHED_ACTION: formData }),
     }
 
     const response = await updateScheduledAction(vm.ID, data)
@@ -88,17 +90,20 @@ const UpdateSchedAction = memo(({ schedule, name }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`,
         icon: <Edit />,
-        tooltip: <Translate word={T.Edit} />
+        tooltip: <Translate word={T.Edit} />,
       }}
-      options={[{
-        dialogProps: {
-          title: <Translate word={T.UpdateScheduledAction} values={[name]} />
+      options={[
+        {
+          dialogProps: {
+            title: <Translate word={T.UpdateScheduledAction} values={[name]} />,
+          },
+          form: () =>
+            isRelative
+              ? RelativeForm(vm, schedule)
+              : PunctualForm(vm, schedule),
+          onSubmit: handleUpdate,
         },
-        form: () => isRelative
-          ? RelativeForm(vm, schedule)
-          : PunctualForm(vm, schedule),
-        onSubmit: handleUpdate
-      }]}
+      ]}
     />
   )
 })
@@ -120,16 +125,18 @@ const DeleteSchedAction = memo(({ schedule, name }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
         icon: <Trash />,
-        tooltip: <Translate word={T.Delete} />
+        tooltip: <Translate word={T.Delete} />,
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.DeleteScheduledAction} values={[name]} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: <Translate word={T.DeleteScheduledAction} values={[name]} />,
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleDelete,
         },
-        onSubmit: handleDelete
-      }]}
+      ]}
     />
   )
 })
@@ -142,21 +149,26 @@ const CharterAction = memo(() => {
   const leases = Object.entries(config?.leases ?? {})
 
   const handleCreateCharter = async () => {
-    const schedActions = leases
-      .map(([action, { time, warning: { time: warningTime } = {} } = {}]) => ({
+    const schedActions = leases.map(
+      ([action, { time, warning: { time: warningTime } = {} } = {}]) => ({
         TIME: `+${+time}`,
         ACTION: action,
-        ...(warningTime && { WARNING: `-${+warningTime}` })
-      }))
+        ...(warningTime && { WARNING: `-${+warningTime}` }),
+      })
+    )
 
     const response = await Promise.all(
-      schedActions.map(schedAction => {
-        const data = { template: Helper.jsonToXml({ SCHED_ACTION: schedAction }) }
+      schedActions.map((schedAction) => {
+        const data = {
+          template: Helper.jsonToXml({ SCHED_ACTION: schedAction }),
+        }
+
         return addScheduledAction(vm.ID, data)
       })
     )
 
-    response.some(res => String(res) === String(vm?.ID)) && (await handleRefetch?.(vm.ID))
+    response.some((res) => String(res) === String(vm?.ID)) &&
+      (await handleRefetch?.(vm.ID))
   }
 
   return (
@@ -164,48 +176,50 @@ const CharterAction = memo(() => {
       buttonProps={{
         'data-cy': 'create-charter',
         icon: <ClockOutline />,
-        tooltip: <Translate word={T.Charter} />
+        tooltip: <Translate word={T.Charter} />,
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: Tr(T.ScheduledAction),
-          children: (
-            <>
-              {leases.map(([action, { time } = {}], idx) => {
-                const allPeriods = {
-                  years: time / 365 / 24 / 3600,
-                  months: time / 30 / 24 / 3600,
-                  weeks: time / 7 / 24 / 3600,
-                  days: time / 24 / 3600,
-                  hours: time / 3600,
-                  minutes: time / 60
-                }
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: Tr(T.ScheduledAction),
+            children: (
+              <>
+                {leases.map(([action, { time } = {}], idx) => {
+                  const allPeriods = {
+                    years: time / 365 / 24 / 3600,
+                    months: time / 30 / 24 / 3600,
+                    weeks: time / 7 / 24 / 3600,
+                    days: time / 24 / 3600,
+                    hours: time / 3600,
+                    minutes: time / 60,
+                  }
 
-                const [period, parsedTime] = Object
-                  .entries(allPeriods)
-                  .find(([_, time]) => time >= 1)
+                  const [period, parsedTime] = Object.entries(allPeriods).find(
+                    ([_, time]) => time >= 1
+                  )
 
-                return (
-                  <p key={`${action}-${idx}`}>
-                    {`${action} - ${parsedTime} ${period}`}
-                  </p>
-                )
-              })}
-              <hr />
-              <p>{Tr(T.DoYouWantProceed)}</p>
-            </>
-          )
+                  return (
+                    <p key={`${action}-${idx}`}>
+                      {`${action} - ${parsedTime} ${period}`}
+                    </p>
+                  )
+                })}
+                <hr />
+                <p>{Tr(T.DoYouWantProceed)}</p>
+              </>
+            ),
+          },
+          onSubmit: handleCreateCharter,
         },
-        onSubmit: handleCreateCharter
-      }]}
+      ]}
     />
   )
 })
 
 const ActionPropTypes = {
   schedule: PropTypes.object,
-  name: PropTypes.string
+  name: PropTypes.string,
 }
 
 CreateSchedAction.propTypes = ActionPropTypes
@@ -221,5 +235,5 @@ export {
   CharterAction,
   CreateSchedAction,
   DeleteSchedAction,
-  UpdateSchedAction
+  UpdateSchedAction,
 }

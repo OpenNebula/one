@@ -22,9 +22,15 @@ import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 import { FormWithSchema } from 'client/components/Forms'
 
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import {
+  BOOT_ORDER_NAME,
+  reorderBootAfterRemove,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
 import { T } from 'client/constants'
 import DiskItem from './DiskItem'
@@ -35,14 +41,25 @@ const mapNameFunction = mapNameByIndex('DISK')
 
 const Storage = ({ hypervisor }) => {
   const { getValues, setValue } = useFormContext()
-  const { fields: disks, append, update, replace } = useFieldArray({
-    name: `${EXTRA_ID}.${TAB_ID}`
+  const {
+    fields: disks,
+    append,
+    update,
+    replace,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID}`,
   })
 
-  const removeAndReorder = diskName => {
-    const updatedDisks = disks.filter(({ NAME }) => NAME !== diskName).map(mapNameFunction)
+  const removeAndReorder = (diskName) => {
+    const updatedDisks = disks
+      .filter(({ NAME }) => NAME !== diskName)
+      .map(mapNameFunction)
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
-    const updatedBootOrder = reorderBootAfterRemove(diskName, disks, currentBootOrder)
+    const updatedBootOrder = reorderBootAfterRemove(
+      diskName,
+      disks,
+      currentBootOrder
+    )
 
     replace(updatedDisks)
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
@@ -59,7 +76,7 @@ const Storage = ({ hypervisor }) => {
           color: 'secondary',
           'data-cy': 'add-disk',
           label: T.AttachDisk,
-          variant: 'outlined'
+          variant: 'outlined',
         }}
         options={[
           {
@@ -67,23 +84,27 @@ const Storage = ({ hypervisor }) => {
             name: T.Image,
             dialogProps: { title: T.AttachImage },
             form: () => ImageSteps({ hypervisor }),
-            onSubmit: image => append(mapNameFunction(image, disks.length))
+            onSubmit: (image) => append(mapNameFunction(image, disks.length)),
           },
           {
             cy: 'attach-volatile-disk',
             name: T.Volatile,
             dialogProps: { title: T.AttachVolatile },
             form: () => VolatileSteps({ hypervisor }),
-            onSubmit: image => append(mapNameFunction(image, disks.length))
-          }
+            onSubmit: (image) => append(mapNameFunction(image, disks.length)),
+          },
         ]}
       />
-      <Stack pb='1em' display='grid' gap='1em' mt='1em'
+      <Stack
+        pb="1em"
+        display="grid"
+        gap="1em"
+        mt="1em"
         sx={{
           gridTemplateColumns: {
             sm: '1fr',
-            md: 'repeat(auto-fit, minmax(300px, 0.5fr))'
-          }
+            md: 'repeat(auto-fit, minmax(300px, 0.5fr))',
+          },
         }}
       >
         {disks?.map(({ id, ...item }, index) => (
@@ -91,7 +112,7 @@ const Storage = ({ hypervisor }) => {
             key={id ?? item?.NAME}
             item={item}
             handleRemove={() => removeAndReorder(item?.NAME)}
-            handleUpdate={updatedDisk => handleUpdate(updatedDisk, index)}
+            handleUpdate={(updatedDisk) => handleUpdate(updatedDisk, index)}
           />
         ))}
       </Stack>
@@ -109,7 +130,7 @@ Storage.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 /** @type {TabType} */
@@ -118,7 +139,7 @@ const TAB = {
   name: T.Storage,
   icon: DatastoreIcon,
   Content: Storage,
-  getError: error => !!error?.[TAB_ID]
+  getError: (error) => !!error?.[TAB_ID],
 }
 
 export default TAB

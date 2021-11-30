@@ -20,7 +20,7 @@ import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 import { rowStyles } from 'client/components/Tables/styles'
 
 const SkeletonTable = memo(() => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
   const classes = EnhancedTableStyles()
   const rowClasses = rowStyles()
 
@@ -51,7 +51,9 @@ const SkeletonTable = memo(() => {
   return (
     <div className={classes.root}>
       <div className={classes.toolbar}>
-        {!isMobile && <Skeleton variant="rectangular" height={35} width={100} />}
+        {!isMobile && (
+          <Skeleton variant="rectangular" height={35} width={100} />
+        )}
         <div className={classes.pagination}>
           <Skeleton variant="rectangular" height={35} width={85} />
           <Skeleton variant="rectangular" height={35} width={85} />
@@ -60,10 +62,18 @@ const SkeletonTable = memo(() => {
       </div>
       <div className={classes.table}>
         {isMobile ? (
-          <Skeleton variant="rectangular" height={40} style={{ marginBottom: '1em' }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            style={{ marginBottom: '1em' }}
+          />
         ) : (
-          <Card variant='outlined' style={{ padding: '1em' }}>
-            <Skeleton variant="rectangular" height={40} style={{ marginBottom: '1em' }} />
+          <Card variant="outlined" style={{ padding: '1em' }}>
+            <Skeleton
+              variant="rectangular"
+              height={40}
+              style={{ marginBottom: '1em' }}
+            />
             <div>
               <SkeletonCategory />
               <SkeletonCategory numberOfItems={3} />

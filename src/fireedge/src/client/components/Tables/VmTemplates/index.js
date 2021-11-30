@@ -20,26 +20,37 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
+import {
+  SkeletonTable,
+  EnhancedTable,
+  EnhancedTableProps,
+} from 'client/components/Tables'
 import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
 
-const VmTemplatesTable = props => {
+const VmTemplatesTable = (props) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('VM-TEMPLATE')?.filters,
-    columns: VmTemplateColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('VM-TEMPLATE')?.filters,
+        columns: VmTemplateColumns,
+      }),
+    [view]
+  )
 
   const vmTemplates = useVmTemplate()
   const { getVmTemplates } = useVmTemplateApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVmTemplates)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getVmTemplates)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (vmTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -50,7 +61,7 @@ const VmTemplatesTable = props => {
       columns={columns}
       data={vmTemplates}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VmTemplateRow}
       {...props}
     />

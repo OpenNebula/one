@@ -20,7 +20,7 @@ const {
   createProvisionTemplate,
   instantiateProvisionTemplate,
   updateProvisionTemplate,
-  deleteProvisionTemplate
+  deleteProvisionTemplate,
 } = require('./provision_template-functions')
 const { httpMethod } = require('server/utils/constants/defaults')
 
@@ -31,44 +31,44 @@ const routes = {
     list: {
       action: getListProvisionTemplates,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [POST]: {
     create: {
       action: createProvisionTemplate,
       params: {
-        resource: { from: fromData.postBody, front: true }
-      }
+        resource: { from: fromData.postBody, front: true },
+      },
     },
     instantiate: {
       action: instantiateProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [PUT]: {
     update: {
       action: updateProvisionTemplate,
       params: {
         resource: { from: fromData.postBody, front: true },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [DELETE]: {
     delete: {
       action: deleteProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
-  }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
+  },
 }
 
 const provisionTemplateApi = {
-  routes
+  routes,
 }
 module.exports = provisionTemplateApi

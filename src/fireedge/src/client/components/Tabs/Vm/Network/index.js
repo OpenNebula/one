@@ -24,7 +24,11 @@ import NetworkList from 'client/components/Tabs/Vm/Network/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AttachNicForm } from 'client/components/Forms/Vm'
 
-import { getNics, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import {
+  getNics,
+  getHypervisor,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
 import { jsonToXml, getActionsAvailable } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
@@ -34,16 +38,20 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
   const { handleRefetch, data: vm } = useContext(TabContext)
 
   const [nics, actionsAvailable] = useMemo(() => {
-    const groupedNics = getNics(vm, { groupAlias: true, securityGroupsFromTemplate: true })
+    const groupedNics = getNics(vm, {
+      groupAlias: true,
+      securityGroupsFromTemplate: true,
+    })
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return [groupedNics, actionsByState]
   }, [vm])
 
-  const handleAttachNic = async formData => {
+  const handleAttachNic = async (formData) => {
     const isAlias = !!formData?.PARENT?.length
     const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
 
@@ -61,13 +69,15 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
             color: 'secondary',
             'data-cy': 'attach-nic',
             label: T.AttachNic,
-            variant: 'outlined'
+            variant: 'outlined',
           }}
-          options={[{
-            dialogProps: { title: T.AttachNic },
-            form: () => AttachNicForm({ nics }),
-            onSubmit: handleAttachNic
-          }]}
+          options={[
+            {
+              dialogProps: { title: T.AttachNic },
+              form: () => AttachNicForm({ nics }),
+              onSubmit: handleAttachNic,
+            },
+          ]}
         />
       )}
 
@@ -77,7 +87,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmNetworkTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'

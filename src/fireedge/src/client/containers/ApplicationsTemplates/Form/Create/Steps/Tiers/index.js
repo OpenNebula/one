@@ -14,13 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import {
-  useEffect,
-  useState,
-  useCallback,
-  createContext,
-  useMemo
-} from 'react'
+import { useEffect, useState, useCallback, createContext, useMemo } from 'react'
 
 import * as yup from 'yup'
 import { useWatch } from 'react-hook-form'
@@ -57,19 +51,15 @@ const Tiers = () => {
       const [nestedForm, setNestedForm] = useState({})
       const form = useWatch({})
 
-      const {
-        editingData,
-        handleSetList,
-        handleSave,
-        handleEdit
-      } = useListForm({
-        key: STEP_ID,
-        list: data,
-        setList: setFormData,
-        defaultValue: defaultValues
-      })
+      const { editingData, handleSetList, handleSave, handleEdit } =
+        useListForm({
+          key: STEP_ID,
+          list: data,
+          setList: setFormData,
+          defaultValue: defaultValues,
+        })
 
-      const handleEditTier = id => {
+      const handleEditTier = (id) => {
         handleEdit(id)
         setShowDialog(true)
       }
@@ -111,7 +101,7 @@ const Tiers = () => {
                   <FormStepper
                     steps={formSteps}
                     schema={resolvers}
-                    onSubmit={values => {
+                    onSubmit={(values) => {
                       handleSave(values)
                       setShowDialog(false)
                     }}
@@ -122,7 +112,7 @@ const Tiers = () => {
           )}
         </>
       )
-    }, [])
+    }, []),
   }
 }
 

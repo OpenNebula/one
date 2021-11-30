@@ -27,27 +27,29 @@ import * as VirtualNetworkModel from 'client/models/VirtualNetwork'
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, UNAME, GNAME, LOCK, CLUSTERS,
-    USED_LEASES, TOTAL_LEASES, PROVISION_ID
+    ID,
+    NAME,
+    UNAME,
+    GNAME,
+    LOCK,
+    CLUSTERS,
+    USED_LEASES,
+    TOTAL_LEASES,
+    PROVISION_ID,
   } = value
 
-  const { percentOfUsed, percentLabel } = VirtualNetworkModel.getLeasesInfo(original)
+  const { percentOfUsed, percentLabel } =
+    VirtualNetworkModel.getLeasesInfo(original)
 
   return (
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-          </span>
+          <Typography component="span">{NAME}</Typography>
+          <span className={classes.labels}>{LOCK && <Lock />}</span>
         </div>
         <div className={classes.caption}>
-          <span>
-            {`#${ID}`}
-          </span>
+          <span>{`#${ID}`}</span>
           <span title={`Owner: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
@@ -60,10 +62,12 @@ const Row = ({ original, value, ...props }) => {
             <Server />
             <span>{` ${CLUSTERS}`}</span>
           </span>
-          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud />
-            <span>{` ${PROVISION_ID}`}</span>
-          </span>}
+          {PROVISION_ID && (
+            <span title={`Provision ID: #${PROVISION_ID}`}>
+              <Cloud />
+              <span>{` ${PROVISION_ID}`}</span>
+            </span>
+          )}
         </div>
       </div>
       <div className={classes.secondary}>
@@ -81,7 +85,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

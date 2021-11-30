@@ -38,27 +38,33 @@ export const SECTION_ID = 'INPUT'
  * @returns {JSXElementConstructor} - Inputs section
  */
 const InputsSection = ({ fields }) => {
-  const { fields: inputs, append, remove } = useFieldArray({
-    name: `${EXTRA_ID}.${SECTION_ID}`
+  const {
+    fields: inputs,
+    append,
+    remove,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${SECTION_ID}`,
   })
 
   const methods = useForm({
     defaultValues: INPUT_SCHEMA.default(),
-    resolver: yupResolver(INPUT_SCHEMA)
+    resolver: yupResolver(INPUT_SCHEMA),
   })
 
-  const onSubmit = newInput => {
+  const onSubmit = (newInput) => {
     append(newInput)
     methods.reset()
   }
 
   return (
-    <FormControl component='fieldset' sx={{ width: '100%' }}>
+    <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.Inputs} />
       <FormProvider {...methods}>
         <Stack
-          direction='row' alignItems='flex-start' gap='0.5rem'
-          component='form'
+          direction="row"
+          alignItems="flex-start"
+          gap="0.5rem"
+          component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
@@ -67,9 +73,9 @@ const InputsSection = ({ fields }) => {
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
-            variant='contained'
-            type='submit'
-            color='secondary'
+            variant="contained"
+            type="submit"
+            color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
           >
@@ -98,14 +104,14 @@ const InputsSection = ({ fields }) => {
               <ListItemText
                 primary={
                   <Stack
-                    component='span'
-                    direction='row'
+                    component="span"
+                    direction="row"
                     spacing={2}
                     sx={{ '& > *': { width: 36 } }}
                   >
                     {deviceIcon}
                     <span>{deviceInfo}</span>
-                    <Divider orientation='vertical' flexItem />
+                    <Divider orientation="vertical" flexItem />
                     {busIcon}
                     <span>{busInfo}</span>
                   </Stack>
@@ -121,7 +127,7 @@ const InputsSection = ({ fields }) => {
 }
 
 InputsSection.propTypes = {
-  fields: PropTypes.array
+  fields: PropTypes.array,
 }
 
 InputsSection.displayName = 'InputsSection'

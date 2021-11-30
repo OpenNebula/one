@@ -29,21 +29,22 @@ import { cloneObject, set } from 'client/utils'
 
 const NSX_ATTRIBUTES_REG = /^NSX_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_(?!(RESOURCE_POOL)$)/
-const HIDDEN_ATTRIBUTES_REG = /^(HOST|VM|WILDS|ZOMBIES|RESERVED_CPU|RESERVED_MEM|EC2_ACCESS|EC2_SECRET|CAPACITY|REGION_NAME)$/
+const HIDDEN_ATTRIBUTES_REG =
+  /^(HOST|VM|WILDS|ZOMBIES|RESERVED_CPU|RESERVED_MEM|EC2_ACCESS|EC2_SECRET|CAPACITY|REGION_NAME)$/
 
 const HostInfoTab = ({ tabProps = {} }) => {
   const {
     information_panel: informationPanel,
     vcenter_panel: vcenterPanel,
     nsx_panel: nsxPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
   const { rename, updateUserTemplate } = useHostApi()
   const { handleRefetch, data: host = {} } = useContext(TabContext)
   const { ID, TEMPLATE } = host
 
-  const handleRename = async newName => {
+  const handleRename = async (newName) => {
     const response = await rename(ID, newName)
     String(response) === String(ID) && (await handleRefetch?.())
   }
@@ -61,33 +62,35 @@ const HostInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = actions => Helper.getActionsAvailable(actions)
+  const getActions = (actions) => Helper.getActionsAvailable(actions)
 
   const {
     attributes,
     nsx: nsxAttributes,
-    vcenter: vcenterAttributes
+    vcenter: vcenterAttributes,
   } = Helper.filterAttributes(TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
-      nsx: NSX_ATTRIBUTES_REG
+      nsx: NSX_ATTRIBUTES_REG,
     },
-    hidden: HIDDEN_ATTRIBUTES_REG
+    hidden: HIDDEN_ATTRIBUTES_REG,
   })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: handleAttributeInXml
+    handleDelete: handleAttributeInXml,
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -124,7 +127,7 @@ const HostInfoTab = ({ tabProps = {} }) => {
 }
 
 HostInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 HostInfoTab.displayName = 'HostInfoTab'

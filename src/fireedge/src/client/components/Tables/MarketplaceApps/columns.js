@@ -25,26 +25,28 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => MarketplaceAppModel.getState(row)?.name,
+    accessor: (row) => MarketplaceAppModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => MarketplaceAppModel.getType(row),
+    accessor: (row) => MarketplaceAppModel.getType(row),
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'Type'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'Type',
+      }),
+    filter: 'includesValue',
   },
   { Header: 'Size', accessor: 'SIZE' },
   { Header: 'Registration Time', accessor: 'REGTIME' },
@@ -52,12 +54,13 @@ export default [
     Header: 'Marketplace',
     accessor: 'MARKETPLACE',
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'Marketplace'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'Marketplace',
+      }),
+    filter: 'includesValue',
   },
-  { Header: 'Zone ID', accessor: 'ZONE_ID' }
+  { Header: 'Zone ID', accessor: 'ZONE_ID' },
 ]

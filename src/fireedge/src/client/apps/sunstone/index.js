@@ -45,12 +45,12 @@ const Sunstone = ({ store = {}, location = '', context = {} }) => (
       <MuiProvider theme={theme}>
         <NotistackProvider>
           {location && context ? (
-          // server build
+            // server build
             <StaticRouter location={location} context={context}>
               <App />
             </StaticRouter>
           ) : (
-          // browser build
+            // browser build
             <BrowserRouter basename={`${APP_URL}/${SunstoneAppName}`}>
               <App />
             </BrowserRouter>
@@ -64,7 +64,7 @@ const Sunstone = ({ store = {}, location = '', context = {} }) => (
 Sunstone.propTypes = {
   location: PropTypes.string,
   context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+  store: PropTypes.shape({}),
 }
 
 Sunstone.displayName = 'SunstoneApp'

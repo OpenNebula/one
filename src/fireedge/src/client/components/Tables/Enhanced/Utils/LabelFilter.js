@@ -29,7 +29,7 @@ const buildTree = (data = [], separator = '/') => {
   const tree = {
     id: 'root',
     name: 'Labels',
-    children: []
+    children: [],
   }
 
   for (const labelString of data) {
@@ -67,7 +67,7 @@ const LabelFilter = ({ title, column }) => {
   const labels = useMemo(() => {
     const labels = new Set()
 
-    preFilteredRows?.forEach(row => {
+    preFilteredRows?.forEach((row) => {
       const labelsFromTemplate = row.values[id]
 
       labelsFromTemplate.forEach(labels.add, labels)
@@ -78,36 +78,41 @@ const LabelFilter = ({ title, column }) => {
 
   const tree = useMemo(() => buildTree(labels), [labels])
 
-  const handleSelect = value =>
-    setFilter([...filterValue, value])
+  const handleSelect = (value) => setFilter([...filterValue, value])
 
-  const handleUnselect = value =>
-    setFilter(filterValue.filter(v => v !== value))
+  const handleUnselect = (value) =>
+    setFilter(filterValue.filter((v) => v !== value))
 
   const handleClear = () => setFilter(undefined)
 
-  const isFiltered = useMemo(() => (
-    filterValue?.length > 0
-  ), [filterValue])
+  const isFiltered = useMemo(() => filterValue?.length > 0, [filterValue])
 
   const renderTree = ({ id, name, children }) => (
     <TreeItem key={id} nodeId={id} label={name}>
       {Array.isArray(children)
-        ? children.map(node => renderTree(node)) : null}
+        ? children.map((node) => renderTree(node))
+        : null}
     </TreeItem>
   )
 
   return (
     <List>
       {title && (
-        <ListSubheader disableSticky disableGutters
+        <ListSubheader
+          disableSticky
+          disableGutters
           title={Tr(title)}
           style={{ display: 'flex', alignItems: 'center' }}
         >
           {Tr(title)}
           {isFiltered && (
-            <IconButton disableRipple disablePadding size='small' onClick={handleClear}>
-              <Cancel/>
+            <IconButton
+              disableRipple
+              disablePadding
+              size="small"
+              onClick={handleClear}
+            >
+              <Cancel />
             </IconButton>
           )}
         </ListSubheader>
@@ -133,7 +138,7 @@ const LabelFilter = ({ title, column }) => {
 LabelFilter.propTypes = {
   column: PropTypes.object,
   icon: PropTypes.node,
-  title: PropTypes.string
+  title: PropTypes.string,
 }
 
 export default LabelFilter

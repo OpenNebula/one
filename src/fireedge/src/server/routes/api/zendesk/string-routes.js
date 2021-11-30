@@ -17,7 +17,7 @@
 const ZENDESK = 'zendesk'
 
 const Actions = {
-  ZENDESK
+  ZENDESK,
 }
 
 module.exports = Actions

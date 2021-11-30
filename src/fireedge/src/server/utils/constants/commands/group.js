@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const GROUP_ALLOCATE = 'group.allocate'
@@ -40,7 +40,7 @@ const Actions = {
   GROUP_QUOTA,
   GROUP_POOL_INFO,
   GROUP_QUOTA_INFO,
-  GROUP_QUOTA_UPDATE
+  GROUP_QUOTA_UPDATE,
 }
 
 module.exports = {
@@ -52,9 +52,9 @@ module.exports = {
       params: {
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [GROUP_DELETE]: {
       // inspected
@@ -62,9 +62,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [GROUP_INFO]: {
       // inspected
@@ -72,13 +72,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [GROUP_UPDATE]: {
       // inspected
@@ -86,17 +86,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [GROUP_ADDADMIN]: {
       // inspected
@@ -104,13 +104,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [GROUP_DELADMIN]: {
       // inspected
@@ -118,13 +118,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [GROUP_QUOTA]: {
       // inspected
@@ -132,23 +132,23 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: resource,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [GROUP_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [GROUP_QUOTA_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [GROUP_QUOTA_UPDATE]: {
       // inspected
@@ -156,9 +156,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
-    }
-  }
+          default: '',
+        },
+      },
+    },
+  },
 }

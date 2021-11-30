@@ -25,6 +25,7 @@ import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
  */
 export const jsonToXml = (json, addRoot = true) => {
   const parser = new Parser()
+
   return parser.parse(addRoot ? { ROOT: json } : json)
 }
 
@@ -34,7 +35,7 @@ export const jsonToXml = (json, addRoot = true) => {
  * @param {boolean} bool - Boolean value.
  * @returns {'Yes'|'No'} - If true return 'Yes', in other cases, return 'No'.
  */
-export const booleanToString = bool => bool ? T.Yes : T.No
+export const booleanToString = (bool) => (bool ? T.Yes : T.No)
 
 /**
  * Converts the string value into a boolean.
@@ -43,7 +44,7 @@ export const booleanToString = bool => bool ? T.Yes : T.No
  * @returns {boolean} - If str is "yes" or 1 then returns true,
  * in other cases, return false.
  */
-export const stringToBoolean = str =>
+export const stringToBoolean = (str) =>
   String(str).toLowerCase() === 'yes' || +str === 1
 
 /**
@@ -53,7 +54,7 @@ export const stringToBoolean = str =>
  * @returns {string} - Time string.
  * @example 02521251251 =>  "4/23/1981, 11:04:41 AM"
  */
-export const timeToString = time =>
+export const timeToString = (time) =>
   +time ? new Date(+time * 1000).toLocaleString() : '-'
 
 /**
@@ -62,8 +63,7 @@ export const timeToString = time =>
  * @param {number|string} time - Time to convert
  * @returns {DateTime} - DateTime object.
  */
-export const timeFromMilliseconds = time =>
-  DateTime.fromMillis(+time * 1000)
+export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
 
 /**
  * Returns the epoch milliseconds of the date.
@@ -71,7 +71,7 @@ export const timeFromMilliseconds = time =>
  * @param {number|string} date - Date
  * @returns {number} - Total milliseconds.
  */
-export const dateToMilliseconds = date =>
+export const dateToMilliseconds = (date) =>
   DateTime.fromJSDate(date).toMillis() / 1000
 
 /**
@@ -80,7 +80,7 @@ export const dateToMilliseconds = date =>
  * @param {number|string} date - Date
  * @returns {number} - Total milliseconds.
  */
-export const isoDateToMilliseconds = date =>
+export const isoDateToMilliseconds = (date) =>
   DateTime.fromISO(date).toMillis() / 1000
 
 /**
@@ -117,13 +117,14 @@ export const timeDiff = (start, end) => {
  * @param {number} level - Level code number.
  * @returns {string} - Lock level text.
  */
-export const levelLockToString = level => ({
-  0: T.None,
-  1: T.Use,
-  2: T.Manage,
-  3: T.Admin,
-  4: T.All
-}[level] || '-')
+export const levelLockToString = (level) =>
+  ({
+    0: T.None,
+    1: T.Use,
+    2: T.Manage,
+    3: T.Admin,
+    4: T.All,
+  }[level] || '-')
 
 /**
  * Returns the permission numeric code.
@@ -134,11 +135,10 @@ export const levelLockToString = level => ({
  * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
  * @returns {number} Permission code number.
  */
-const getCategoryValue = ([u, m, a]) => (
+const getCategoryValue = ([u, m, a]) =>
   (stringToBoolean(u) ? 4 : 0) +
   (stringToBoolean(m) ? 2 : 0) +
   (stringToBoolean(a) ? 1 : 0)
-)
 
 /**
  * Transform the permission from OpenNebula template to octal format.
@@ -155,18 +155,26 @@ const getCategoryValue = ([u, m, a]) => (
  * @param {('YES'|'NO')} permissions.OTHER_A - Other access permission.
  * @returns {string} - Permissions in octal format.
  */
-export const permissionsToOctal = permissions => {
+export const permissionsToOctal = (permissions) => {
   const {
-    OWNER_U, OWNER_M, OWNER_A,
-    GROUP_U, GROUP_M, GROUP_A,
-    OTHER_U, OTHER_M, OTHER_A
+    OWNER_U,
+    OWNER_M,
+    OWNER_A,
+    GROUP_U,
+    GROUP_M,
+    GROUP_A,
+    OTHER_U,
+    OTHER_M,
+    OTHER_A,
   } = permissions
 
   return [
     [OWNER_U, OWNER_M, OWNER_A],
     [GROUP_U, GROUP_M, GROUP_A],
-    [OTHER_U, OTHER_M, OTHER_A]
-  ].map(getCategoryValue).join('')
+    [OTHER_U, OTHER_M, OTHER_A],
+  ]
+    .map(getCategoryValue)
+    .join('')
 }
 
 /**
@@ -202,20 +210,21 @@ export const filterAttributes = (list = {}, options = {}) => {
   const addAttributeToList = (listName, [attributeName, attributeValue]) => {
     response[listName] = {
       ...response[listName],
-      [attributeName]: attributeValue
+      [attributeName]: attributeValue,
     }
   }
 
   Object.entries(list)
-    .filter(attribute => {
-      const [filterName] = Object.entries(extra)
-        .find(([_, regexp]) => attribute[0].match(regexp)) ?? []
+    .filter((attribute) => {
+      const [filterName] =
+        Object.entries(extra).find(([_, regexp]) =>
+          attribute[0].match(regexp)
+        ) ?? []
 
       return filterName ? addAttributeToList(filterName, attribute) : true
     })
-    .forEach(attribute => {
-      !attribute[0].match(hidden) &&
-        addAttributeToList('attributes', attribute)
+    .forEach((attribute) => {
+      !attribute[0].match(hidden) && addAttributeToList('attributes', attribute)
     })
 
   return response
@@ -239,12 +248,12 @@ const OPTIONAL = 'O'
  * mandatory | type | description | options | defaultValue
  * @returns {UserInputObject} User input object
  */
-export const getUserInputParams = userInputString => {
+export const getUserInputParams = (userInputString) => {
   const params = String(userInputString).split(PARAMS_SEPARATOR)
 
   const options = [
     USER_INPUT_TYPES.range,
-    USER_INPUT_TYPES.rangeFloat
+    USER_INPUT_TYPES.rangeFloat,
   ].includes(params[1])
     ? params[3].split(RANGE_SEPARATOR)
     : params[3].split(LIST_SEPARATOR)
@@ -256,7 +265,7 @@ export const getUserInputParams = userInputString => {
     options: options,
     default: params[4],
     min: options[0],
-    max: options[1]
+    max: options[1],
   }
 }
 
@@ -264,7 +273,7 @@ export const getUserInputParams = userInputString => {
  * @param {UserInputObject} userInput - User input object
  * @returns {string} User input in string format
  */
-export const getUserInputString = userInput => {
+export const getUserInputString = (userInput) => {
   const {
     mandatory,
     mandatoryString = mandatory ? MANDATORY : OPTIONAL,
@@ -274,7 +283,7 @@ export const getUserInputString = userInput => {
     max,
     range = [min, max].filter(Boolean).join(RANGE_SEPARATOR),
     options,
-    default: defaultValue
+    default: defaultValue,
   } = userInput
 
   // mandatory|type|description|range/options/' '|defaultValue
@@ -283,8 +292,8 @@ export const getUserInputString = userInput => {
   range?.length > 0
     ? uiString.push(range)
     : options?.length > 0
-      ? uiString.push(options.join(LIST_SEPARATOR))
-      : uiString.push(OPTIONS_DEFAULT)
+    ? uiString.push(options.join(LIST_SEPARATOR))
+    : uiString.push(OPTIONS_DEFAULT)
 
   return uiString.concat(defaultValue).join(PARAMS_SEPARATOR)
 }
@@ -296,9 +305,10 @@ export const getUserInputString = userInput => {
  * @returns {UserInputObject[]} User input object
  */
 export const userInputsToArray = (userInputs = {}) => {
-  return Object
-    .entries(userInputs)
-    .map(([name, ui]) => ({ name, ...getUserInputParams(ui) }))
+  return Object.entries(userInputs).map(([name, ui]) => ({
+    name,
+    ...getUserInputParams(ui),
+  }))
 }
 
 /**
@@ -307,8 +317,11 @@ export const userInputsToArray = (userInputs = {}) => {
  * @param {UserInputObject[]} userInputs - List of user inputs in object format
  * @returns {object} User input object
  */
-export const userInputsToObject = userInputs =>
-  userInputs.reduce((res, { name, ...userInput }) => ({
-    ...res,
-    [String(name).toUpperCase()]: getUserInputString(userInput)
-  }), {})
+export const userInputsToObject = (userInputs) =>
+  userInputs.reduce(
+    (res, { name, ...userInput }) => ({
+      ...res,
+      [String(name).toUpperCase()]: getUserInputString(userInput),
+    }),
+    {}
+  )

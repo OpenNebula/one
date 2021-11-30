@@ -16,7 +16,7 @@
 import { httpCodes } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
 
-export const authService = ({
+export const authService = {
   /**
    * @param {object} data - User credentials
    * @param {string} data.user - Username
@@ -26,8 +26,12 @@ export const authService = ({
    * @returns {object} Response data from request
    * @throws Fails when response isn't code 200
    */
-  login: async data => {
-    const res = await RestClient.request({ url: '/api/auth', data, method: 'POST' })
+  login: async (data) => {
+    const res = await RestClient.request({
+      url: '/api/auth',
+      data,
+      method: 'POST',
+    })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
       if (res?.id === httpCodes.accepted.id) return res
@@ -79,5 +83,5 @@ export const authService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data ?? {}
-  }
-})
+  },
+}

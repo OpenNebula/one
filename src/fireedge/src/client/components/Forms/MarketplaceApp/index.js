@@ -16,7 +16,4 @@
 import CreateForm from 'client/components/Forms/MarketplaceApp/CreateForm'
 import ExportForm from 'client/components/Forms/MarketplaceApp/ExportForm'
 
-export {
-  CreateForm,
-  ExportForm
-}
+export { CreateForm, ExportForm }

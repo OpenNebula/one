@@ -28,7 +28,7 @@ const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
   'transform',
   'getRowId',
-  'renderValue'
+  'renderValue',
 ]
 
 const INPUT_CONTROLLER = {
@@ -42,86 +42,97 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.FILE]: FC.FileController,
   [INPUT_TYPES.TIME]: FC.TimeController,
   [INPUT_TYPES.TABLE]: FC.TableController,
-  [INPUT_TYPES.TOGGLE]: FC.ToggleController
+  [INPUT_TYPES.TOGGLE]: FC.ToggleController,
 }
 
-const FormWithSchema = ({ id, cy, fields, rootProps, className, legend, legendTooltip }) => {
+const FormWithSchema = ({
+  id,
+  cy,
+  fields,
+  rootProps,
+  className,
+  legend,
+  legendTooltip,
+}) => {
   const formContext = useFormContext()
   const { control, watch } = formContext
 
   const { sx: sxRoot, restOfRootProps } = rootProps ?? {}
 
-  const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
+  const getFields = useMemo(
+    () => (typeof fields === 'function' ? fields() : fields),
+    []
+  )
 
   if (!getFields || getFields?.length === 0) return null
 
-  const addIdToName = name => name.startsWith('$')
-    ? name.slice(1) // removes character '$' and returns
-    : id ? `${id}.${name}` : name // concat form ID if exists
+  const addIdToName = (name) =>
+    name.startsWith('$')
+      ? name.slice(1) // removes character '$' and returns
+      : id
+      ? `${id}.${name}`
+      : name // concat form ID if exists
 
   return (
     <FormControl
-      component='fieldset'
+      component="fieldset"
       className={className}
       sx={{ width: '100%', ...sxRoot }}
       {...restOfRootProps}
     >
-      {legend && (
-        <Legend title={legend} tooltip={legendTooltip} />
-      )}
-      <Grid container spacing={1} alignContent='flex-start'>
-        {getFields?.map?.(
-          ({ dependOf, ...attributes }) => {
-            let valueOfDependField = null
-            let nameOfDependField = null
+      {legend && <Legend title={legend} tooltip={legendTooltip} />}
+      <Grid container spacing={1} alignContent="flex-start">
+        {getFields?.map?.(({ dependOf, ...attributes }) => {
+          let valueOfDependField = null
+          let nameOfDependField = null
 
-            if (dependOf) {
-              nameOfDependField = Array.isArray(dependOf)
-                ? dependOf.map(addIdToName)
-                : addIdToName(dependOf)
+          if (dependOf) {
+            nameOfDependField = Array.isArray(dependOf)
+              ? dependOf.map(addIdToName)
+              : addIdToName(dependOf)
 
-              valueOfDependField = watch(nameOfDependField)
-            }
-
-            const { name, type, htmlType, grid, ...fieldProps } = Object
-              .entries(attributes)
-              .reduce((field, attribute) => {
-                const [key, value] = attribute
-                const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
-
-                const finalValue = (
-                  typeof value === 'function' &&
-                  !isNotDependAttribute &&
-                  !isValidElement(value())
-                ) ? value(valueOfDependField, formContext) : value
-
-                return { ...field, [key]: finalValue }
-              }, {})
-
-            const dataCy = `${cy}-${name}`
-            const inputName = addIdToName(name)
-
-            const isHidden = htmlType === INPUT_TYPES.HIDDEN
-
-            if (isHidden) return null
-
-            return (
-              INPUT_CONTROLLER[type] && (
-                <Grid key={dataCy} item xs={12} md={6} {...grid}>
-                  {createElement(INPUT_CONTROLLER[type], {
-                    control,
-                    cy: dataCy,
-                    formContext,
-                    dependencies: nameOfDependField,
-                    name: inputName,
-                    type: htmlType === false ? undefined : htmlType,
-                    ...fieldProps
-                  })}
-                </Grid>
-              )
-            )
+            valueOfDependField = watch(nameOfDependField)
           }
-        )}
+
+          const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
+            attributes
+          ).reduce((field, attribute) => {
+            const [key, value] = attribute
+            const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+
+            const finalValue =
+              typeof value === 'function' &&
+              !isNotDependAttribute &&
+              !isValidElement(value())
+                ? value(valueOfDependField, formContext)
+                : value
+
+            return { ...field, [key]: finalValue }
+          }, {})
+
+          const dataCy = `${cy}-${name}`
+          const inputName = addIdToName(name)
+
+          const isHidden = htmlType === INPUT_TYPES.HIDDEN
+
+          if (isHidden) return null
+
+          return (
+            INPUT_CONTROLLER[type] && (
+              <Grid key={dataCy} item xs={12} md={6} {...grid}>
+                {createElement(INPUT_CONTROLLER[type], {
+                  control,
+                  cy: dataCy,
+                  formContext,
+                  dependencies: nameOfDependField,
+                  name: inputName,
+                  type: htmlType === false ? undefined : htmlType,
+                  ...fieldProps,
+                })}
+              </Grid>
+            )
+          )
+        })}
       </Grid>
     </FormControl>
   )
@@ -132,12 +143,12 @@ FormWithSchema.propTypes = {
   cy: PropTypes.string,
   fields: PropTypes.oneOfType([
     PropTypes.func,
-    PropTypes.arrayOf(PropTypes.object)
+    PropTypes.arrayOf(PropTypes.object),
   ]),
   legend: PropTypes.string,
   legendTooltip: PropTypes.string,
   rootProps: PropTypes.object,
-  className: PropTypes.string
+  className: PropTypes.string,
 }
 
 export default FormWithSchema

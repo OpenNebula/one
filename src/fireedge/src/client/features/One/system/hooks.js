@@ -21,24 +21,27 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/system/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useSystem = () => (
-  useSelector(state => state[name]?.[RESOURCES.system] ?? [])
-)
+export const useSystem = () =>
+  useSelector((state) => state[name]?.[RESOURCES.system] ?? [])
 
 export const useSystemApi = () => {
   const dispatch = useDispatch()
 
-  const unwrapDispatch = useCallback(async action => {
-    try {
-      const response = await dispatch(action)
-      return unwrapResult(response)
-    } catch (error) {
-      return error
-    }
-  }, [dispatch])
+  const unwrapDispatch = useCallback(
+    async (action) => {
+      try {
+        const response = await dispatch(action)
+
+        return unwrapResult(response)
+      } catch (error) {
+        return error
+      }
+    },
+    [dispatch]
+  )
 
   return {
     getOneVersion: () => unwrapDispatch(actions.getOneVersion()),
-    getOneConfig: () => unwrapDispatch(actions.getOneConfig())
+    getOneConfig: () => unwrapDispatch(actions.getOneConfig()),
   }
 }

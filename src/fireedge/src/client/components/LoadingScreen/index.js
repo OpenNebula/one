@@ -24,22 +24,19 @@ import { OpenNebulaLogo } from 'client/components/Icons'
  * @returns {JSXElementConstructor} Container with logo inside
  */
 const LoadingScreen = () => (
-  <Box sx={{
-    width: '100%',
-    height: '100vh',
-    backgroundColor: 'background.default',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'fixed',
-    zIndex: 10000
-  }}>
-    <OpenNebulaLogo
-      width={360}
-      height={360}
-      spinner
-      withText
-    />
+  <Box
+    sx={{
+      width: '100%',
+      height: '100vh',
+      backgroundColor: 'background.default',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'fixed',
+      zIndex: 10000,
+    }}
+  >
+    <OpenNebulaLogo width={360} height={360} spinner withText />
   </Box>
 )
 

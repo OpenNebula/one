@@ -29,10 +29,13 @@ const VRoutersTable = () => {
   const vRouters = useVRouter()
   const { getVRouters } = useVRouterApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVRouters)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getVRouters)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   if (vRouters?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -43,7 +46,7 @@ const VRoutersTable = () => {
       columns={columns}
       data={vRouters}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VRouterRow}
     />
   )

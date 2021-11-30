@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/group/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useGroup = () => (
-  useSelector(state => state[name]?.[RESOURCES.group] ?? [])
-)
+export const useGroup = () =>
+  useSelector((state) => state[name]?.[RESOURCES.group] ?? [])
 
 export const useGroupApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getGroup: id => unwrapDispatch(actions.getGroup({ id })),
-    getGroups: () => unwrapDispatch(actions.getGroups())
+    getGroup: (id) => unwrapDispatch(actions.getGroup({ id })),
+    getGroups: () => unwrapDispatch(actions.getGroups()),
   }
 }

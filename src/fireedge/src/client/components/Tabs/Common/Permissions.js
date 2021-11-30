@@ -29,19 +29,19 @@ import * as Helper from 'client/models/Helper'
 const CATEGORIES = [
   { title: T.Owner, category: 'owner' },
   { title: T.Group, category: 'group' },
-  { title: T.Other, category: 'other' }
+  { title: T.Other, category: 'other' },
 ]
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   list: {
     '& > * > *': {
-      width: '25%'
-    }
+      width: '25%',
+    },
   },
   title: {
     fontWeight: theme.typography.fontWeightBold,
-    borderBottom: `1px solid ${theme.palette.divider}`
-  }
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
 }))
 
 const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
@@ -49,16 +49,16 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
 
   const handleChange = async (name, value) => {
     const newPermission = {
-      [name]: Helper.stringToBoolean(value) ? '0' : '1'
+      [name]: Helper.stringToBoolean(value) ? '0' : '1',
     }
 
     await handleEdit?.(newPermission)
   }
 
-  const getIcon = checked => +checked ? <CheckIcon /> : <BlankSquareIcon />
+  const getIcon = (checked) => (+checked ? <CheckIcon /> : <BlankSquareIcon />)
 
   return (
-    <Paper variant='outlined'>
+    <Paper variant="outlined">
       <List className={classes.list}>
         <ListItem className={classes.title}>
           <Typography noWrap>{Tr(T.Permissions)}</Typography>
@@ -69,7 +69,7 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
         {CATEGORIES.map(({ title, category }) => (
           <ListItem key={category} className={classes.item} dense>
             {/* TITLE */}
-            <Typography variant='body2' noWrap title={title}>
+            <Typography variant="body2" noWrap title={title}>
               {Tr(title)}
             </Typography>
 
@@ -85,10 +85,11 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
                       icon={getIcon(permission)}
                       handleClick={() => handleChange(key, permission)}
                     />
-                  ) : getIcon(permission)}
+                  ) : (
+                    getIcon(permission)
+                  )}
                 </span>
-              ))
-            }
+              ))}
           </ListItem>
         ))}
       </List>
@@ -107,7 +108,7 @@ Permissions.propTypes = {
   otherUse: PropTypes.string.isRequired,
   ownerAdmin: PropTypes.string.isRequired,
   ownerManage: PropTypes.string.isRequired,
-  ownerUse: PropTypes.string.isRequired
+  ownerUse: PropTypes.string.isRequired,
 }
 
 Permissions.displayName = 'Permissions'

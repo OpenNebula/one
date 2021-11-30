@@ -26,7 +26,7 @@ import {
   FIRMWARE_TYPES,
   KVM_FIRMWARE_TYPES,
   VCENTER_FIRMWARE_TYPES,
-  HYPERVISORS
+  HYPERVISORS,
 } from 'client/constants'
 
 const { vcenter, firecracker, lxc, kvm } = HYPERVISORS
@@ -41,7 +41,7 @@ export const ARCH = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Bus for SD disks field */
@@ -50,11 +50,11 @@ export const SD_DISK_BUS = {
   label: T.BusForSdDisks,
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(SD_DISK_BUSES, { getText: o => o.toUpperCase() }),
+  values: arrayToOptions(SD_DISK_BUSES, { getText: (o) => o.toUpperCase() }),
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Machine type field */
@@ -72,7 +72,7 @@ export const MACHINE_TYPES = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} CPU Model field */
@@ -90,7 +90,7 @@ export const CPU_MODEL = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Root device field */
@@ -102,7 +102,7 @@ export const ROOT_DEVICE = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Kernel CMD field */
@@ -115,7 +115,7 @@ export const KERNEL_CMD = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  fieldProps: { placeholder: 'ro console=tty1' }
+  fieldProps: { placeholder: 'ro console=tty1' },
 }
 
 /** @type {Field} Path bootloader field */
@@ -128,7 +128,7 @@ export const BOOTLOADER = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} UUID field */
@@ -142,7 +142,7 @@ export const UUID = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Feature custom field  */
@@ -151,8 +151,10 @@ export const FEATURE_CUSTOM_ENABLED = {
   label: T.CustomPath,
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().strip().default(() => false),
-  grid: { md: 12 }
+  validation: boolean()
+    .strip()
+    .default(() => false),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Firmware field */
@@ -161,21 +163,22 @@ export const FIRMWARE = {
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
   notOnHypervisors: [firecracker, lxc],
-  type: ([_, custom]) => custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT,
+  type: ([_, custom]) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
   dependOf: ['$general.HYPERVISOR', FEATURE_CUSTOM_ENABLED.name],
   values: ([hypervisor] = []) => {
-    const types = {
-      [vcenter]: VCENTER_FIRMWARE_TYPES,
-      [kvm]: KVM_FIRMWARE_TYPES
-    }[hypervisor] ?? FIRMWARE_TYPES
+    const types =
+      {
+        [vcenter]: VCENTER_FIRMWARE_TYPES,
+        [kvm]: KVM_FIRMWARE_TYPES,
+      }[hypervisor] ?? FIRMWARE_TYPES
 
     return arrayToOptions(types)
   },
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Firmware secure field  */
@@ -185,9 +188,9 @@ export const FIRMWARE_SECURE = {
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.CHECKBOX,
   dependOf: FEATURE_CUSTOM_ENABLED.name,
-  htmlType: custom => !custom && INPUT_TYPES.HIDDEN,
+  htmlType: (custom) => !custom && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of Boot fields */
@@ -202,5 +205,5 @@ export const BOOT_FIELDS = [
   UUID,
   FEATURE_CUSTOM_ENABLED,
   FIRMWARE,
-  FIRMWARE_SECURE
+  FIRMWARE_SECURE,
 ]

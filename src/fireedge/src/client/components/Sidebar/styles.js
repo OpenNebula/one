@@ -16,7 +16,7 @@
 import makeStyles from '@mui/styles/makeStyles'
 import { sidebar, toolbar } from 'client/theme/defaults'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   // -------------------------------
   // CONTAINER MENU
   // -------------------------------
@@ -31,7 +31,7 @@ export default makeStyles(theme => ({
     flexShrink: 0,
     transition: theme.transitions.create(['width', 'visibility', 'display'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
+      duration: theme.transitions.duration.leavingScreen,
     }),
     [theme.breakpoints.up('lg')]: {
       width: sidebar.minified,
@@ -41,42 +41,42 @@ export default makeStyles(theme => ({
         width: sidebar.fixed,
         transition: theme.transitions.create('width', {
           easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen
+          duration: theme.transitions.duration.enteringScreen,
         }),
         '& #logo__text': {
-          visibility: 'visible'
-        }
+          visibility: 'visible',
+        },
       },
       // CONTAINER ONLY WHEN MINIFIED
       '&:not(:hover)': {
         '& #logo__text': {
-          visibility: 'hidden'
+          visibility: 'hidden',
         },
         '& $subItemWrapper': {
-          display: 'none'
-        }
-      }
-    }
+          display: 'none',
+        },
+      },
+    },
   },
   drawerFixed: {
     width: sidebar.fixed,
     visibility: 'visible',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.only('xs')]: {
-      width: '100%'
+      width: '100%',
     },
     [theme.breakpoints.up('lg')]: {
       width: sidebar.fixed,
       '& #logo__text': {
-        visibility: 'visible !important'
+        visibility: 'visible !important',
       },
       '& $subItemWrapper': {
-        display: 'block !important'
-      }
-    }
+        display: 'block !important',
+      },
+    },
   },
   // -------------------------------
   // HEADER MENU
@@ -92,14 +92,14 @@ export default makeStyles(theme => ({
     height: toolbar.regular,
     minHeight: toolbar.regular,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
-      minHeight: toolbar.xs
+      minHeight: toolbar.xs,
     },
     [theme.breakpoints.up('sm')]: {
-      minHeight: toolbar.sm
-    }
+      minHeight: toolbar.sm,
+    },
   },
   logo: {
-    minWidth: 100
+    minWidth: 100,
   },
   // -------------------------------
   // LIST MENU
@@ -110,15 +110,15 @@ export default makeStyles(theme => ({
     textTransform: 'capitalize',
     transition: 'color 0.3s',
     '&::-webkit-scrollbar': {
-      width: 14
+      width: 14,
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundClip: 'content-box',
       border: '4px solid transparent',
       borderRadius: 7,
       boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light
-    }
+      color: theme.palette.secondary.light,
+    },
   },
-  subItemWrapper: {}
+  subItemWrapper: {},
 }))

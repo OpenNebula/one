@@ -24,16 +24,16 @@ import makeStyles from '@mui/styles/makeStyles'
 import { useFetch } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
-    color: theme.palette.common.white
+    color: theme.palette.common.white,
   },
   withTabs: {
     overflow: 'hidden',
     display: 'flex',
-    flexDirection: 'column'
-  }
+    flexDirection: 'column',
+  },
 }))
 
 const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
@@ -41,14 +41,16 @@ const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
   const fetchProps = useFetch(request)
   const { data, fetchRequest, loading, error } = fetchProps
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   error && dialogProps?.handleCancel()
 
   if (!data || loading) {
     return (
       <Backdrop open className={classes.backdrop}>
-        <CircularProgress color='inherit' />
+        <CircularProgress color="inherit" />
       </Backdrop>
     )
   }
@@ -58,7 +60,7 @@ const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
 
     dialogProps.contentProps = {
       className: clsx(classes.withTabs, className),
-      ...contentProps
+      ...contentProps,
     }
   }
 
@@ -79,9 +81,9 @@ DialogRequest.propTypes = {
     acceptButtonProps: PropTypes.objectOf(PropTypes.any),
     handleCancel: PropTypes.func,
     cancelButtonProps: PropTypes.objectOf(PropTypes.any),
-    handleEntering: PropTypes.func
+    handleEntering: PropTypes.func,
   }),
-  children: PropTypes.func
+  children: PropTypes.func,
 }
 
 DialogRequest.defaultProps = {
@@ -94,9 +96,9 @@ DialogRequest.defaultProps = {
     acceptButtonProps: undefined,
     handleCancel: undefined,
     cancelButtonProps: undefined,
-    handleEntering: undefined
+    handleEntering: undefined,
   },
-  children: () => undefined
+  children: () => undefined,
 }
 
 DialogRequest.displayName = 'DialogRequest'

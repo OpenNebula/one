@@ -17,7 +17,7 @@
 const AUTH = 'auth'
 
 const Actions = {
-  AUTH
+  AUTH,
 }
 
 module.exports = Actions

@@ -23,5 +23,5 @@ module.exports = {
   defaults,
   httpCodes,
   params,
-  opennebulaCommands
+  opennebulaCommands,
 }

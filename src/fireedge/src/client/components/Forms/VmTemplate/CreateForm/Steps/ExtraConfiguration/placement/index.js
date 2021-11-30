@@ -18,8 +18,14 @@ import { NetworkAlt as PlacementIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { SECTIONS, FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  SECTIONS,
+  FIELDS,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
 
 const Placement = () => {
@@ -45,7 +51,7 @@ const Placement = () => {
 
 Placement.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 Placement.displayName = 'Placement'
@@ -56,7 +62,7 @@ const TAB = {
   name: T.Placement,
   icon: PlacementIcon,
   Content: Placement,
-  getError: error => FIELDS.some(({ name }) => error?.[name])
+  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
 }
 
 export default TAB

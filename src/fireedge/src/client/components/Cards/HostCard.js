@@ -21,21 +21,25 @@ import makeStyles from '@mui/styles/makeStyles'
 import { HardDrive as HostIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+import {
+  StatusBadge,
+  StatusChip,
+  LinearProgressWithLabel,
+} from 'client/components/Status'
 
 import * as HostModel from 'client/models/Host'
 
 const useStyles = makeStyles({
   title: {
     display: 'flex',
-    gap: '0.5rem'
+    gap: '0.5rem',
   },
   content: {
     padding: '2em',
     display: 'flex',
     flexFlow: 'column',
-    gap: '1em'
-  }
+    gap: '1em',
+  },
 })
 
 const HostCard = memo(
@@ -44,12 +48,8 @@ const HostCard = memo(
 
     const { ID, NAME, IM_MAD, VM_MAD } = value
 
-    const {
-      percentCpuUsed,
-      percentCpuLabel,
-      percentMemUsed,
-      percentMemLabel
-    } = HostModel.getAllocatedInfo(value)
+    const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
+      HostModel.getAllocatedInfo(value)
 
     const state = HostModel.getState(value)
 
@@ -57,9 +57,9 @@ const HostCard = memo(
 
     return (
       <SelectCard
-        action={actions?.map(action =>
+        action={actions?.map((action) => (
           <Action key={action?.cy} {...action} />
-        )}
+        ))}
         icon={
           <StatusBadge title={state?.name} stateColor={state.color}>
             <HostIcon />
@@ -67,7 +67,7 @@ const HostCard = memo(
         }
         title={
           <span className={classes.title}>
-            <Typography title={NAME} noWrap component='span'>
+            <Typography title={NAME} noWrap component="span">
               {NAME}
             </Typography>
             <StatusChip text={mad} />
@@ -78,16 +78,21 @@ const HostCard = memo(
         handleClick={handleClick}
       >
         <div className={classes.content}>
-          <LinearProgressWithLabel value={percentCpuUsed} label={percentCpuLabel} />
-          <LinearProgressWithLabel value={percentMemUsed} label={percentMemLabel} />
+          <LinearProgressWithLabel
+            value={percentCpuUsed}
+            label={percentCpuLabel}
+          />
+          <LinearProgressWithLabel
+            value={percentMemUsed}
+            label={percentMemLabel}
+          />
         </div>
       </SelectCard>
     )
   },
-  (prev, next) => (
+  (prev, next) =>
     prev.isSelected === next.isSelected &&
     prev.value?.STATE === next.value?.STATE
-  )
 )
 
 HostCard.propTypes = {
@@ -102,8 +107,8 @@ HostCard.propTypes = {
       CPU_USAGE: PropTypes.string,
       TOTAL_CPU: PropTypes.string,
       MEM_USAGE: PropTypes.string,
-      TOTAL_MEM: PropTypes.string
-    })
+      TOTAL_MEM: PropTypes.string,
+    }),
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
@@ -111,16 +116,16 @@ HostCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 HostCard.defaultProps = {
   value: {},
   isSelected: false,
   handleClick: undefined,
-  actions: undefined
+  actions: undefined,
 }
 
 HostCard.displayName = 'HostCard'

@@ -28,5 +28,5 @@ export const getApplication = createAction(
 export const getApplications = createAction(
   `${SERVICE_APPLICATION}/pool`,
   applicationService.getApplications,
-  response => ({ [RESOURCES.document[100]]: response })
+  (response) => ({ [RESOURCES.document[100]]: response })
 )

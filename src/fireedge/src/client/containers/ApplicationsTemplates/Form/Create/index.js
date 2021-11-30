@@ -29,7 +29,7 @@ import { useFetch } from 'client/hooks'
 import { useApplicationTemplateApi } from 'client/features/One'
 import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
 
-function ApplicationsTemplatesCreateForm () {
+function ApplicationsTemplatesCreateForm() {
   const history = useHistory()
   const { id } = useParams()
   const { steps, defaultValues, resolvers } = Steps()
@@ -37,7 +37,7 @@ function ApplicationsTemplatesCreateForm () {
   const {
     getApplicationTemplate,
     createApplicationTemplate,
-    updateApplicationTemplate
+    updateApplicationTemplate,
   } = useApplicationTemplateApi()
 
   const { data, fetchRequest, loading, error } = useFetch(
@@ -47,18 +47,20 @@ function ApplicationsTemplatesCreateForm () {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolvers())
+    resolver: yupResolver(resolvers()),
   })
 
-  const onSubmit = formData => {
+  const onSubmit = (formData) => {
     const application = parseFormToApplication(formData)
 
     if (id) {
-      updateApplicationTemplate(id, application)
-        .then(res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST))
+      updateApplicationTemplate(id, application).then(
+        (res) => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
+      )
     } else {
-      createApplicationTemplate(application)
-        .then(res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST))
+      createApplicationTemplate(application).then(
+        (res) => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
+      )
     }
   }
 
@@ -77,7 +79,7 @@ function ApplicationsTemplatesCreateForm () {
   }
 
   return (id && !data) || loading ? (
-    <LinearProgress color='secondary' />
+    <LinearProgress color="secondary" />
   ) : (
     <Container
       disableGutters

@@ -22,40 +22,45 @@ import { RAMDISK_FIELDS } from './ramdiskSchema'
 import { FEATURES_FIELDS } from './featuresSchema'
 import { RAW_FIELDS } from './rawSchema'
 
-import { Field, Section, getObjectSchemaFromFields, filterFieldsByHypervisor } from 'client/utils'
+import {
+  Field,
+  Section,
+  getObjectSchemaFromFields,
+  filterFieldsByHypervisor,
+} from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @returns {Section[]} Sections
  */
-const SECTIONS = hypervisor => [
+const SECTIONS = (hypervisor) => [
   {
     id: 'os-boot',
     legend: T.Boot,
-    fields: filterFieldsByHypervisor(BOOT_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
   },
   {
     id: 'os-features',
     legend: T.Features,
-    fields: filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
   },
   {
     id: 'os-kernel',
     legend: T.Kernel,
-    fields: filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor),
   },
   {
     id: 'os-ramdisk',
     legend: T.Ramdisk,
-    fields: filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
   },
   {
     id: 'os-raw',
     legend: T.RawData,
     legendTooltip: T.RawDataConcept,
-    fields: filterFieldsByHypervisor(RAW_FIELDS, hypervisor)
-  }
+    fields: filterFieldsByHypervisor(RAW_FIELDS, hypervisor),
+  },
 ]
 
 /** @type {Field} Boot order field */
@@ -64,22 +69,24 @@ const BOOT_ORDER = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => '')
+    .default(() => ''),
 }
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} All 'OS & CPU' fields
  */
-const FIELDS = hypervisor => [
+const FIELDS = (hypervisor) => [
   BOOT_ORDER,
-  ...SECTIONS(hypervisor).map(({ fields }) => fields).flat()
+  ...SECTIONS(hypervisor)
+    .map(({ fields }) => fields)
+    .flat(),
 ]
 
 /**
  * @param {HYPERVISORS} [hypervisor] - VM hypervisor
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = hypervisor => getObjectSchemaFromFields(FIELDS(hypervisor))
+const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
 
 export { SECTIONS, FIELDS, SCHEMA }

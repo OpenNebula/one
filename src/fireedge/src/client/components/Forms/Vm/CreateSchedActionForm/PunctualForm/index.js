@@ -15,29 +15,38 @@
  * ------------------------------------------------------------------------- */
 import { isoDateToMilliseconds } from 'client/models/Helper'
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm/schema'
 
 const PunctualForm = createForm(SCHEMA, FIELDS, {
-  transformBeforeSubmit: formData => {
-    const { ARGS, TIME: time, END_VALUE, END_TYPE, PERIODIC: _, ...restOfData } = formData
+  transformBeforeSubmit: (formData) => {
+    const {
+      ARGS,
+      TIME: time,
+      END_VALUE,
+      END_TYPE,
+      PERIODIC: _,
+      ...restOfData
+    } = formData
     const argValues = Object.values(ARGS)
 
     const newSchedAction = {
       TIME: isoDateToMilliseconds(time),
       END_TYPE,
-      ...restOfData
+      ...restOfData,
     }
 
     argValues.length && (newSchedAction.ARGS = argValues.join(','))
 
     if (END_VALUE) {
-      newSchedAction.END_VALUE = END_TYPE === '1'
-        ? END_VALUE
-        : isoDateToMilliseconds(END_VALUE)
+      newSchedAction.END_VALUE =
+        END_TYPE === '1' ? END_VALUE : isoDateToMilliseconds(END_VALUE)
     }
 
     return newSchedAction
-  }
+  },
 })
 
 export default PunctualForm

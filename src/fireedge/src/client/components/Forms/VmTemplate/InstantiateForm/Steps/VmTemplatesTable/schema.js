@@ -22,8 +22,8 @@ const TEMPLATE_SCHEMA = object({
     DISK: array().ensure(),
     NIC: array().ensure(),
     SCHED_ACTION: array().ensure(),
-    HYPERVISOR: string()
-  })
+    HYPERVISOR: string(),
+  }),
 })
 
 export const SCHEMA = array(TEMPLATE_SCHEMA)

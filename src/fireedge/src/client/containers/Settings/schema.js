@@ -14,7 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { object, boolean, string } from 'yup'
-import { T, INPUT_TYPES, SCHEMES, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
+import {
+  T,
+  INPUT_TYPES,
+  SCHEMES,
+  DEFAULT_SCHEME,
+  DEFAULT_LANGUAGE,
+} from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
 const SCHEME = {
@@ -24,13 +30,13 @@ const SCHEME = {
   values: [
     { text: T.System, value: SCHEMES.SYSTEM },
     { text: T.Dark, value: SCHEMES.DARK },
-    { text: T.Light, value: SCHEMES.LIGHT }
+    { text: T.Light, value: SCHEMES.LIGHT },
   ],
   validation: string()
     .trim()
     .required()
     .default(() => DEFAULT_SCHEME),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const LANGUAGES = {
@@ -43,7 +49,7 @@ const LANGUAGES = {
     .trim()
     .required()
     .default(() => DEFAULT_LANGUAGE),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const DISABLE_ANIMATIONS = {
@@ -53,7 +59,7 @@ const DISABLE_ANIMATIONS = {
   validation: boolean()
     .yesOrNo()
     .default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FORM_FIELDS = [SCHEME, LANGUAGES, DISABLE_ANIMATIONS]

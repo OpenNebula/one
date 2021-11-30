@@ -20,14 +20,14 @@ const { global } = require('window-or-global')
 
 const {
   private: authenticated,
-  public: nonAuthenticated
+  public: nonAuthenticated,
 } = require('../../../api')
 const { httpCodes, params, defaults } = require('server/utils/constants')
 const {
   validateAuth,
   getAllowedQueryParams,
   createParamsState,
-  createQueriesState
+  createQueriesState,
 } = require('server/utils')
 const { defaultWebpackMode } = defaults
 
@@ -83,17 +83,19 @@ const getPassOpennebula = () => passOpennebula
  */
 const userValidation = (user = '', token = '') => {
   let rtn = false
-  if (user &&
+  if (
+    user &&
     token &&
     global &&
     global.users &&
     global.users[user] &&
     global.users[user].tokens &&
     Array.isArray(global.users[user].tokens) &&
-    global.users[user].tokens.some(x => x && x.token === token)
+    global.users[user].tokens.some((x) => x && x.token === token)
   ) {
     rtn = true
   }
+
   return rtn
 }
 
@@ -118,7 +120,7 @@ const validateResourceAndSession = (req, res, next) => {
      * @param {object} rtnCommand - command
      * @returns {object} command
      */
-    const finderCommand = rtnCommand =>
+    const finderCommand = (rtnCommand) =>
       rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource
     if (authenticated.some(finderCommand)) {
       const session = validateAuth(req)
@@ -128,26 +130,30 @@ const validateResourceAndSession = (req, res, next) => {
         passOpennebula = session.jti
         if (env && (!env.NODE_ENV || env.NODE_ENV !== defaultWebpackMode)) {
           /*********************************************************
-            * Validate user in production mode
-          *********************************************************/
+           * Validate user in production mode
+           *********************************************************/
 
           if (userValidation(userOpennebula, passOpennebula)) {
             next()
+
             return
           }
         } else {
           /*********************************************************
-            * Validate user in development mode
-          *********************************************************/
+           * Validate user in development mode
+           *********************************************************/
 
           if (global && !global.users) {
             global.users = {}
           }
           if (!global.users[userOpennebula]) {
-            global.users[userOpennebula] = { tokens: [{ token: passOpennebula, time: session.exp }] }
+            global.users[userOpennebula] = {
+              tokens: [{ token: passOpennebula, time: session.exp }],
+            }
           }
           if (userValidation(userOpennebula, passOpennebula)) {
             next()
+
             return
           }
         }
@@ -156,6 +162,7 @@ const validateResourceAndSession = (req, res, next) => {
     }
     if (nonAuthenticated.some(finderCommand)) {
       next()
+
       return
     }
   }
@@ -172,16 +179,17 @@ const setOptionalParameters = (req, res, next) => {
   if (req && req.params) {
     let start = true
     const keys = Object.keys(req.params)
-    keys.forEach(param => {
+    keys.forEach((param) => {
       if (start) {
         // The params[0] is the resource
         start = false
+
         return start
       }
       if (req.params[param]) {
         const matches = req.params[param].match(/(^[\w]*=)/gi)
         if (matches && matches[0]) {
-          params.forEach(parameter => {
+          params.forEach((parameter) => {
             if (
               matches[0].replace(/=/g, '').toLowerCase() ===
               parameter.toLowerCase()
@@ -199,6 +207,7 @@ const setOptionalParameters = (req, res, next) => {
           paramsState[param] = req.params[param]
         }
       }
+
       return ''
     })
   }
@@ -215,7 +224,7 @@ const setOptionalQueries = (req, res, next) => {
   if (req && req.query) {
     const keys = Object.keys(req.query)
     const queries = getAllowedQueryParams()
-    keys.forEach(query => {
+    keys.forEach((query) => {
       if (req.query[query] && queries.includes(query)) {
         queriesState[query] = req.query[query]
       }
@@ -244,5 +253,5 @@ module.exports = {
   getQueriesState,
   getIdUserOpennebula,
   getUserOpennebula,
-  getPassOpennebula
+  getPassOpennebula,
 }

@@ -18,7 +18,7 @@ import { number } from 'yup'
 
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
-const MEMORY = hypervisor => {
+const MEMORY = (hypervisor) => {
   let validation = number()
     .integer('Memory should be integer number')
     .positive('Memory should be positive number')
@@ -37,7 +37,7 @@ const MEMORY = hypervisor => {
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
     validation,
-    grid: { md: 12 }
+    grid: { md: 12 },
   }
 }
 
@@ -54,7 +54,7 @@ const PHYSICAL_CPU = {
     .typeError('CPU must be a number')
     .required('CPU field is required')
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const VIRTUAL_CPU = {
@@ -69,11 +69,7 @@ const VIRTUAL_CPU = {
     .positive('Virtual CPU should be positive number')
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
-export const FIELDS = [
-  MEMORY,
-  PHYSICAL_CPU,
-  VIRTUAL_CPU
-]
+export const FIELDS = [MEMORY, PHYSICAL_CPU, VIRTUAL_CPU]

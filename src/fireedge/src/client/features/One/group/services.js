@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/group'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const groupService = ({
+export const groupService = {
   /**
    * Retrieves information for the group.
    *
@@ -54,5 +54,5 @@ export const groupService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.GROUP_POOL?.GROUP ?? []].flat()
-  }
-})
+  },
+}

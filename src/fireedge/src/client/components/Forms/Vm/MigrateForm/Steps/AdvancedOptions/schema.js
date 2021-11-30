@@ -28,7 +28,7 @@ const ENFORCE = {
     resize requests will always be enforced.`,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const DATASTORE = {
@@ -40,7 +40,7 @@ const DATASTORE = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FIELDS = [ENFORCE, DATASTORE]

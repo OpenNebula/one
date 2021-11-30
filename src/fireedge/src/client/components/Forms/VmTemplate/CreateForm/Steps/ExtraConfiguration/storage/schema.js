@@ -36,7 +36,7 @@ const TM_MAD_SYSTEM = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field[]} List of Storage fields */
@@ -47,7 +47,7 @@ const SCHEMA = object({
   ...getValidationFromFields(FIELDS),
   DISK: array()
     .ensure()
-    .transform(disks => disks.map(mapNameByIndex('DISK')))
+    .transform((disks) => disks.map(mapNameByIndex('DISK'))),
 })
 
 export { FIELDS, SCHEMA }

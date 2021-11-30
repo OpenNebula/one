@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/vnetwork/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useVNetwork = () => (
-  useSelector(state => state[name]?.[RESOURCES.vn] ?? [])
-)
+export const useVNetwork = () =>
+  useSelector((state) => state[name]?.[RESOURCES.vn] ?? [])
 
 export const useVNetworkApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getVNetwork: id => unwrapDispatch(actions.getVNetwork({ id })),
-    getVNetworks: () => unwrapDispatch(actions.getVNetworks())
+    getVNetwork: (id) => unwrapDispatch(actions.getVNetwork({ id })),
+    getVNetworks: () => unwrapDispatch(actions.getVNetworks()),
   }
 }

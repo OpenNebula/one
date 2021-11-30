@@ -28,5 +28,5 @@ export const getDatastore = createAction(
 export const getDatastores = createAction(
   `${DATASTORE}/pool`,
   datastoreService.getDatastores,
-  response => ({ [RESOURCES.datastore]: response })
+  (response) => ({ [RESOURCES.datastore]: response })
 )

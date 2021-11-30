@@ -21,7 +21,7 @@ const PROVISION_TEMPLATE = 'provision-template'
 const Actions = {
   PROVIDER,
   PROVISION,
-  PROVISION_TEMPLATE
+  PROVISION_TEMPLATE,
 }
 
 module.exports = Actions

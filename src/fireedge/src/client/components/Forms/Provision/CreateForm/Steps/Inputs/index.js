@@ -30,7 +30,8 @@ import { deepmerge } from 'client/utils'
 import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Template'
 import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
+  FORM_FIELDS,
+  STEP_FORM_SCHEMA,
 } from 'client/components/Forms/Provision/CreateForm/Steps/Inputs/schema'
 
 export const STEP_ID = 'inputs'
@@ -50,7 +51,8 @@ const Inputs = () => ({
     const { watch, reset } = useFormContext()
 
     useEffect(() => {
-      const { [PROVIDER_ID]: providerSelected = [], [STEP_ID]: currentInputs } = watch()
+      const { [PROVIDER_ID]: providerSelected = [], [STEP_ID]: currentInputs } =
+        watch()
 
       if (!currentInputs) {
         changeLoading(true) // disable finish button until provider is fetched
@@ -68,10 +70,11 @@ const Inputs = () => ({
         const templateInputs = provisionTemplateSelected?.[0]?.inputs ?? []
 
         // MERGE INPUTS provision template + PROVISION_BODY.inputs (provider fetch)
-        inputs = templateInputs.map(templateInput => {
-          const providerInput = PROVISION_BODY.inputs?.find(
-            providerInput => providerInput.name === templateInput.name
-          ) ?? {}
+        inputs = templateInputs.map((templateInput) => {
+          const providerInput =
+            PROVISION_BODY.inputs?.find(
+              (providerInput) => providerInput.name === templateInput.name
+            ) ?? {}
 
           return deepmerge(templateInput, providerInput)
         })
@@ -82,15 +85,15 @@ const Inputs = () => ({
     }, [fetchData])
 
     if (!fields) {
-      return <LinearProgress color='secondary' />
+      return <LinearProgress color="secondary" />
     }
 
-    return (fields?.length === 0) ? (
+    return fields?.length === 0 ? (
       <EmptyCard title={'✔️ There is not inputs to fill'} />
     ) : (
       <FormWithSchema cy="form-provision" fields={fields} id={STEP_ID} />
     )
-  }, [])
+  }, []),
 })
 
 export default Inputs

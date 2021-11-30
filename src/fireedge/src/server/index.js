@@ -27,20 +27,27 @@ import webpack from 'webpack'
 import {
   entrypoint404,
   entrypointApi,
-  entrypointApp
+  entrypointApp,
 } from './routes/entrypoints'
 import { websockets } from './routes/websockets'
 import { guacamole } from './routes/websockets/guacamole'
 import { vmrc } from './routes/websockets/vmrc'
 import { getFireedgeConfig, messageTerminal } from './utils'
 import {
-  defaultAppName, defaultApps,
-  defaultEvents, defaultHost,
-  defaultPort, defaultWebpackMode
+  defaultAppName,
+  defaultApps,
+  defaultEvents,
+  defaultHost,
+  defaultPort,
+  defaultWebpackMode,
 } from './utils/constants/defaults'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
-  genFireedgeKey, genPathResources, getCert, getKey, validateServerIsSecure
+  genFireedgeKey,
+  genPathResources,
+  getCert,
+  getKey,
+  validateServerIsSecure,
 } from './utils/server'
 
 // set paths
@@ -74,7 +81,7 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
     app.use(
       // eslint-disable-next-line import/no-extraneous-dependencies
       require('webpack-dev-middleware')(compiler, {
-        publicPath: webpackConfig.output.publicPath
+        publicPath: webpackConfig.output.publicPath,
       })
     )
 
@@ -83,14 +90,14 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
       require('webpack-hot-middleware')(compiler, {
         log: false,
         path: '/__webpack_hmr',
-        heartbeat: 10 * 1000
+        heartbeat: 10 * 1000,
       })
     )
   } catch (error) {
     if (error) {
       messageTerminal({
         color: 'red',
-        error
+        error,
       })
     }
   }
@@ -117,7 +124,7 @@ app.use(express.json())
 
 app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
 const frontApps = Object.keys(defaultApps)
-frontApps.forEach(frontApp => {
+frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
@@ -126,22 +133,28 @@ app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
 app.get('*', entrypoint404)
 
 const appServer = validateServerIsSecure()
-  ? secureServer({ key: readFileSync(getKey(), 'utf8'), cert: readFileSync(getCert(), 'utf8') }, app)
+  ? secureServer(
+      {
+        key: readFileSync(getKey(), 'utf8'),
+        cert: readFileSync(getCert(), 'utf8'),
+      },
+      app
+    )
   : unsecureServer(app)
 
 const sockets = websockets(appServer) || []
 
 let config = {
   color: 'red',
-  message: 'Server could not be started'
+  message: 'Server could not be started',
 }
 
-appServer.listen(port, host, err => {
+appServer.listen(port, host, (err) => {
   if (!err) {
     config = {
       color: 'green',
       error: `${host}:${port}`,
-      message: 'Server listen in %s'
+      message: 'Server listen in %s',
     }
   }
   messageTerminal(config)

@@ -28,17 +28,17 @@ const VirtualMachineCard = memo(
 
     return (
       <SelectCard
-        action={actions?.map(action =>
+        action={actions?.map((action) => (
           <Action key={action?.cy} {...action} />
-        )}
+        ))}
         skeletonHeight={75}
         dataCy={`vm-${ID}`}
         handleClick={handleClick}
-        icon={(
+        icon={
           <StatusBadge title={name} stateColor={color}>
             <VmIcon />
           </StatusBadge>
-        )}
+        }
         isSelected={isSelected}
         subheader={`#${ID}`}
         title={NAME}
@@ -59,16 +59,16 @@ VirtualMachineCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.object.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 VirtualMachineCard.defaultProps = {
   handleClick: undefined,
   isSelected: false,
   value: {},
-  actions: undefined
+  actions: undefined,
 }
 
 VirtualMachineCard.displayName = 'VirtualMachineCard'

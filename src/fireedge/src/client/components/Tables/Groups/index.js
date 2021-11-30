@@ -25,21 +25,28 @@ import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
 
-const GroupsTable = props => {
+const GroupsTable = (props) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('GROUP')?.filters,
-    columns: GroupColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('GROUP')?.filters,
+        columns: GroupColumns,
+      }),
+    [view]
+  )
 
   const groups = useGroup()
   const { getGroups } = useGroupApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getGroups)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getGroups)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (groups?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -50,7 +57,7 @@ const GroupsTable = props => {
       columns={columns}
       data={groups}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={GroupRow}
       {...props}
     />

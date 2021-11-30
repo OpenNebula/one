@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/application/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useApplication = () => (
-  useSelector(state => state[name]?.[RESOURCES.document[100]] ?? [])
-)
+export const useApplication = () =>
+  useSelector((state) => state[name]?.[RESOURCES.document[100]] ?? [])
 
 export const useApplicationApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getApplication: id => unwrapDispatch(actions.getApplication({ id })),
-    getApplications: () => unwrapDispatch(actions.getApplications())
+    getApplication: (id) => unwrapDispatch(actions.getApplication({ id })),
+    getApplications: () => unwrapDispatch(actions.getApplications()),
   }
 }

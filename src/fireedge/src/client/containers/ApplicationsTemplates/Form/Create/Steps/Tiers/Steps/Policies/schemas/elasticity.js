@@ -25,7 +25,7 @@ import {
   EXPRESSION,
   PERIOD_NUMBER,
   PERIOD,
-  COOLDOWN
+  COOLDOWN,
 } from './fields'
 
 export const TAB_ID = 'elasticity'
@@ -40,11 +40,12 @@ export const ELASTICITY_FORM_FIELDS = [
   EXPRESSION,
   PERIOD_NUMBER,
   PERIOD,
-  COOLDOWN
+  COOLDOWN,
 ]
 
-export const ELASTICITY_FORM_SCHEMA = yup
-  .object(getValidationFromFields(ELASTICITY_FORM_FIELDS))
+export const ELASTICITY_FORM_SCHEMA = yup.object(
+  getValidationFromFields(ELASTICITY_FORM_FIELDS)
+)
 
 export const ELASTICITY_TAB_SCHEMA = yup
   .array(ELASTICITY_FORM_SCHEMA)

@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { configureStore, getDefaultMiddleware, EnhancedStore } from '@reduxjs/toolkit'
+import {
+  configureStore,
+  getDefaultMiddleware,
+  EnhancedStore,
+} from '@reduxjs/toolkit'
 import thunkMiddleware from 'redux-thunk'
 
 import rootReducer from 'client/store/reducers'
@@ -29,7 +33,7 @@ export const createStore = ({ initState = {}, services }) => {
   const middleware = getDefaultMiddleware({
     immutableCheck: true,
     serializableCheck: false,
-    thunk: false
+    thunk: false,
   })
 
   middleware.push(thunkMiddleware.withExtraArgument({ services }))
@@ -38,7 +42,7 @@ export const createStore = ({ initState = {}, services }) => {
     reducer: rootReducer,
     devTools: isDevelopment(),
     middleware,
-    preloadedState: initState
+    preloadedState: initState,
   })
 
   return { store }

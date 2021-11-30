@@ -16,23 +16,23 @@
 const { resolve, extname, parse, sep } = require('path')
 const { global } = require('window-or-global')
 const { jwtDecode } = require('server/utils/jwt')
-const {
-  existsSync,
-  mkdirsSync,
-  moveSync
-} = require('fs-extra')
+const { existsSync, mkdirsSync, moveSync } = require('fs-extra')
 
-const {
-  defaultEmptyFunction
-} = require('server/utils/constants/defaults')
+const { defaultEmptyFunction } = require('server/utils/constants/defaults')
 
 const {
   ok,
   internalServerError,
-  badRequest
+  badRequest,
 } = require('server/utils/constants/http-codes')
 const { Actions: ActionUser } = require('server/utils/constants/commands/user')
-const { httpResponse, checkValidApp, getFiles, existsFile, removeFile } = require('server/utils/server')
+const {
+  httpResponse,
+  checkValidApp,
+  getFiles,
+  existsFile,
+  removeFile,
+} = require('server/utils/server')
 
 const httpBadRequest = httpResponse(badRequest, '', '')
 const groupAdministrator = ['0']
@@ -61,9 +61,17 @@ const checkUserAdmin = (
       ActionUser.USER_INFO,
       [parseInt(id, 10)],
       (err, value) => {
-        if (!err && value && value.USER && value.USER.GROUPS && value.USER.GROUPS.ID) {
+        if (
+          !err &&
+          value &&
+          value.USER &&
+          value.USER.GROUPS &&
+          value.USER.GROUPS.ID
+        ) {
           let admin = false
-          const groups = Array.isArray(value.USER.GROUPS.ID) ? value.USER.GROUPS.ID : [value.USER.GROUPS.ID]
+          const groups = Array.isArray(value.USER.GROUPS.ID)
+            ? value.USER.GROUPS.ID
+            : [value.USER.GROUPS.ID]
           for (const group of groups) {
             if (groupAdministrator.includes(group)) {
               admin = true
@@ -95,13 +103,14 @@ const parseFilePath = (file = '') => {
 }
 
 /**
- * Check if file no have owner, but have app
+ * Check if file no have owner, but have app.
  *
  * @param {string} file - filename
  * @returns {boolean} - if user is the file owner
  */
 const validateFileWithoutOwner = (file = '') => {
   const parsedFile = parseFilePath(file)
+
   return (
     Array.isArray(parsedFile) &&
     parsedFile[0] &&
@@ -119,6 +128,7 @@ const validateFileWithoutOwner = (file = '') => {
  */
 const validateFileWithOwner = (file = '', id = '') => {
   const parsedFile = parseFilePath(file)
+
   return (
     Array.isArray(parsedFile) &&
     parsedFile[0] &&
@@ -137,7 +147,13 @@ const validateFileWithOwner = (file = '', id = '') => {
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - xmlrpc connection
  */
-const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const upload = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { app, files, root } = params
   const { id, user, password } = userData
   if (
@@ -177,7 +193,11 @@ const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {
             }
           }
         }
-        res.locals.httpCode = httpResponse(method, data.length ? data : '', message)
+        res.locals.httpCode = httpResponse(
+          method,
+          data.length ? data : '',
+          message
+        )
         next()
       },
       () => {
@@ -199,15 +219,19 @@ const upload = (res = {}, next = defaultEmptyFunction, params = {}, userData = {
  * @param {string} defaultFile - default file
  * @returns {Array | string} - file
  */
-const getDefaultFilesforApps = (app = '', multiple = false, defaultFile = '') => {
+const getDefaultFilesforApps = (
+  app = '',
+  multiple = false,
+  defaultFile = ''
+) => {
   let rtn = ''
   switch (app) {
     case 'sunstone':
       if (global.paths.SUNSTONE_IMAGES) {
         const path = global.paths.SUNSTONE_IMAGES
         if (multiple) {
-          rtn = getFiles(path, true).map(
-            file => file.replace(`${path}${sep}`, '')
+          rtn = getFiles(path, true).map((file) =>
+            file.replace(`${path}${sep}`, '')
           )
         } else {
           rtn = `${path}${sep}${defaultFile}`
@@ -219,6 +243,7 @@ const getDefaultFilesforApps = (app = '', multiple = false, defaultFile = '') =>
     default:
       break
   }
+
   return rtn
 }
 
@@ -231,17 +256,17 @@ const getDefaultFilesforApps = (app = '', multiple = false, defaultFile = '') =>
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - one connection XMLRPC
  */
-const list = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const list = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, password, id } = userData
   const { app } = params
   const rtn = httpBadRequest
-  if (
-    app &&
-    checkValidApp(app) &&
-    user &&
-    password &&
-    id
-  ) {
+  if (app && checkValidApp(app) && user && password && id) {
     const path = `${global.paths.CPI}${sep}`
     const userPath = `${app}${sep}${id}`
 
@@ -252,15 +277,15 @@ const list = (res = {}, next = defaultEmptyFunction, params = {}, userData = {},
 
     // find root files
     const rootPath = `${path}${app}`
-    data = data.concat(getFiles(rootPath, false).map(
-      file => file.replace(path, '')
-    ))
+    data = data.concat(
+      getFiles(rootPath, false).map((file) => file.replace(path, ''))
+    )
 
     // find user files
     const pathUser = `${path}${userPath}`
-    data = data.concat(getFiles(pathUser, true).map(
-      file => file.replace(path, '')
-    ))
+    data = data.concat(
+      getFiles(pathUser, true).map((file) => file.replace(path, ''))
+    )
     res.locals.httpCode = httpResponse(ok, data)
     next()
   } else {
@@ -313,21 +338,25 @@ const show = (res = {}, next = defaultEmptyFunction, params = {}) => {
  * @param {string} params - data response http
  * @param {object} userData - user of http request
  */
-const deleteFile = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const deleteFile = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { file } = params
   const { id } = userData
   const rtn = httpBadRequest
-  if (
-    global.paths.CPI &&
-    file &&
-    id &&
-    validateFileWithOwner(file, id)
-  ) {
+  if (global.paths.CPI && file && id && validateFileWithOwner(file, id)) {
     const pathFile = `${global.paths.CPI}${sep}${file}`
     existsFile(
       pathFile,
       () => {
-        res.locals.httpCode = httpResponse(removeFile(pathFile) ? ok : internalServerError, '', '')
+        res.locals.httpCode = httpResponse(
+          removeFile(pathFile) ? ok : internalServerError,
+          '',
+          ''
+        )
         next()
       },
       () => {
@@ -349,7 +378,12 @@ const deleteFile = (res = {}, next = defaultEmptyFunction, params = {}, userData
  * @param {string} params - data response http
  * @param {object} userData - user of http request
  */
-const update = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const update = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const rtn = httpBadRequest
   const { files, name } = params
   const { id } = userData
@@ -379,7 +413,11 @@ const update = (res = {}, next = defaultEmptyFunction, params = {}, userData = {
             }
           }
         }
-        res.locals.httpCode = httpResponse(method, data.length ? data : '', message)
+        res.locals.httpCode = httpResponse(
+          method,
+          data.length ? data : '',
+          message
+        )
         next()
       },
       () => {
@@ -398,6 +436,6 @@ const functionRoutes = {
   deleteFile,
   update,
   show,
-  list
+  list,
 }
 module.exports = functionRoutes

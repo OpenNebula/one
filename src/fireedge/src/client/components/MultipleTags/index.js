@@ -42,18 +42,14 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
           title={tags.map((tag, idx) => (
             <Typography
               key={`${idx}-${tag}`}
-              variant='subtitle2'
+              variant="subtitle2"
               sx={{ height: 'max-content' }}
             >
               {tag}
             </Typography>
           ))}
         >
-          <Typography
-            component='span'
-            variant='subtitle2'
-            sx={{ ml: 1 }}
-          >
+          <Typography component="span" variant="subtitle2" sx={{ ml: 1 }}>
             {`+${more} more`}
           </Typography>
         </Tooltip>
@@ -64,11 +60,8 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
 
 MultipleTags.propTypes = {
   tags: PropTypes.array,
-  clipboard: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.string
-  ]),
-  limitTags: PropTypes.number
+  clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  limitTags: PropTypes.number,
 }
 
 export default MultipleTags

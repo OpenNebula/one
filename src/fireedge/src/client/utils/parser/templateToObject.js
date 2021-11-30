@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const SINGLE_VARIABLE_REG = /^\s*(?<key>[\w\d_-]+)\s*=\s*(?<value>[^[\],]+?)(?:#.*)?$/gm
-const ARRAY_VARIABLE_REG = /\s*(?<masterKey>[\w\d_-]+)\s*=\s*\[(?<pieces>.*?)\]/gm
+const SINGLE_VARIABLE_REG =
+  /^\s*(?<key>[\w\d_-]+)\s*=\s*(?<value>[^[\],]+?)(?:#.*)?$/gm
+const ARRAY_VARIABLE_REG =
+  /\s*(?<masterKey>[\w\d_-]+)\s*=\s*\[(?<pieces>.*?)\]/gm
 
-const sanitizeKey = key => key?.trim().toLowerCase()
+const sanitizeKey = (key) => key?.trim().toLowerCase()
 
-const sanitizeValue = value => value?.trim().replaceAll(/[\\"]/g, '')
+const sanitizeValue = (value) => value?.trim().replaceAll(/[\\"]/g, '')
 
 /**
  * Parses OpenNebula resource template to json.
@@ -26,7 +28,7 @@ const sanitizeValue = value => value?.trim().replaceAll(/[\\"]/g, '')
  * @param {string} template - OpenNebula resource template
  * @returns {object} JSON of template
  */
-const parseTemplateToObject = template => {
+const parseTemplateToObject = (template) => {
   const stringWithoutNewLines = JSON.stringify(template).replaceAll(/\\n/g, '')
 
   return {
@@ -46,16 +48,17 @@ const parseTemplateToObject = template => {
 
         const vars = pieces.reduce((vrs, piece) => {
           const [key, value] = piece.split('=')
+
           return { ...vrs, [sanitizeKey(key)]: sanitizeValue(value) }
         }, {})
 
         return {
           ...result,
-          [masterKey]: [...(result[masterKey] ?? []), vars]
+          [masterKey]: [...(result[masterKey] ?? []), vars],
         }
       },
       {}
-    )
+    ),
   }
 }
 

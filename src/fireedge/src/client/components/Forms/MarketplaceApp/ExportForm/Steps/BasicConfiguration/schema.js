@@ -29,7 +29,7 @@ const NAME_FIELD = {
       .trim()
       .required()
       .default(() => context.app.NAME)
-  })
+  }),
 }
 
 /** @type {Field} Template name field */
@@ -43,7 +43,7 @@ const TEMPLATE_NAME_FIELD = {
       .trim()
       .required()
       .default(() => context.app.NAME)
-  })
+  }),
 }
 
 /** @type {Field} Associate field */
@@ -52,15 +52,11 @@ const ASSOCIATED_FIELD = {
   label: T.DontAssociateApp,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of fields */
-export const FIELDS = [
-  NAME_FIELD,
-  TEMPLATE_NAME_FIELD,
-  ASSOCIATED_FIELD
-]
+export const FIELDS = [NAME_FIELD, TEMPLATE_NAME_FIELD, ASSOCIATED_FIELD]
 
 /** @type {ObjectSchema} Advanced options schema */
 export const SCHEMA = object(getValidationFromFields(FIELDS))

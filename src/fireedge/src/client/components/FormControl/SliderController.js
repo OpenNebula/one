@@ -16,7 +16,13 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Typography, TextField, Slider, FormHelperText, Grid } from '@mui/material'
+import {
+  Typography,
+  TextField,
+  Slider,
+  FormHelperText,
+  Grid,
+} from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
@@ -29,11 +35,11 @@ const SliderController = memo(
     cy = `slider-${generateKey()}`,
     name = '',
     label = '',
-    fieldProps = {}
+    fieldProps = {},
   }) => {
     const {
       field: { value, onChange, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     const sliderId = `${cy}-slider`
@@ -44,13 +50,13 @@ const SliderController = memo(
         <Typography id={sliderId} gutterBottom>
           {labelCanBeTranslated(label) ? Tr(label) : label}
         </Typography>
-        <Grid container spacing={2} alignItems='center'>
+        <Grid container spacing={2} alignItems="center">
           <Grid item xs>
             <Slider
-              color='secondary'
+              color="secondary"
               value={typeof value === 'number' ? value : 0}
               aria-labelledby={sliderId}
-              valueLabelDisplay='auto'
+              valueLabelDisplay="auto"
               data-cy={sliderId}
               onChange={(_, val) => onChange(val)}
               {...fieldProps}
@@ -62,15 +68,17 @@ const SliderController = memo(
               fullWidth
               value={value}
               error={Boolean(error)}
-              type='number'
+              type="number"
               inputProps={{
                 'data-cy': inputId,
                 'aria-labelledby': sliderId,
-                ...fieldProps
+                ...fieldProps,
               }}
-              onChange={evt => onChange(
-                evt.target.value === '' ? '0' : Number(evt.target.value)
-              )}
+              onChange={(evt) =>
+                onChange(
+                  evt.target.value === '' ? '0' : Number(evt.target.value)
+                )
+              }
             />
           </Grid>
         </Grid>
@@ -93,7 +101,7 @@ SliderController.propTypes = {
   tooltip: PropTypes.any,
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 SliderController.displayName = 'SliderController'

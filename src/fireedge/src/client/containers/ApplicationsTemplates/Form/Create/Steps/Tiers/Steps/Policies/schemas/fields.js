@@ -20,19 +20,15 @@ import { v4 as uuidv4 } from 'uuid'
 import { INPUT_TYPES } from 'client/constants'
 import { TYPES_POLICY, TIME_FORMATS, hasMinValue, isDateFormat } from './types'
 
-const CRON_REG = /(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/g
+const CRON_REG =
+  /(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/g
 
 export const ID = {
   name: 'id',
   label: 'ID',
   type: INPUT_TYPES.TEXT,
   htmlType: INPUT_TYPES.HIDDEN,
-  validation: yup
-    .string()
-    .trim()
-    .uuid()
-    .required()
-    .default(uuidv4)
+  validation: yup.string().trim().uuid().required().default(uuidv4),
 }
 
 // --------------------------------------------
@@ -53,7 +49,7 @@ export const TYPE = {
     .trim()
     .oneOf(TYPES_POLICY.map(({ value }) => value))
     .required('Type field is required')
-    .default(TYPES_POLICY[0].value)
+    .default(TYPES_POLICY[0].value),
 }
 
 export const ADJUST = {
@@ -69,7 +65,7 @@ export const ADJUST = {
     .number()
     .typeError('Adjust value must be a number')
     .required('Adjust field is required')
-    .default(undefined)
+    .default(undefined),
 }
 
 export const MIN_ADJUST_STEP = {
@@ -80,7 +76,8 @@ export const MIN_ADJUST_STEP = {
   tooltip: `
     If present, the policy will change the cardinality by
     at least the number of VMs set in this attribute`,
-  htmlType: dependValue => hasMinValue(dependValue) ? INPUT_TYPES.HIDDEN : 'number',
+  htmlType: (dependValue) =>
+    hasMinValue(dependValue) ? INPUT_TYPES.HIDDEN : 'number',
   validation: yup
     .number()
     .typeError('Min. adjust step must be a number')
@@ -89,7 +86,7 @@ export const MIN_ADJUST_STEP = {
       hasMinValue(type) ? schema.strip() : schema
     )
     .notRequired()
-    .default(undefined)
+    .default(undefined),
 }
 
 // --------------------------------------------
@@ -104,7 +101,7 @@ export const EXPRESSION = {
     .string()
     .trim()
     .required('Expression field is required')
-    .default(undefined)
+    .default(undefined),
 }
 
 export const PERIOD_NUMBER = {
@@ -119,7 +116,7 @@ export const PERIOD_NUMBER = {
     .typeError('Period must be a number')
     .min(0, 'Period number minimum is 0')
     .notRequired()
-    .default(undefined)
+    .default(undefined),
 }
 
 export const PERIOD = {
@@ -136,7 +133,7 @@ export const PERIOD = {
       value ? schema.strip() : schema
     )
     .notRequired()
-    .default(undefined)
+    .default(undefined),
 }
 
 export const COOLDOWN = {
@@ -152,7 +149,7 @@ export const COOLDOWN = {
     .number()
     .typeError('Cooldown must be a number')
     .notRequired()
-    .default(undefined)
+    .default(undefined),
 }
 
 // --------------------------------------------
@@ -173,7 +170,7 @@ export const TIME_FORMAT = {
     .trim()
     .notRequired()
     .oneOf(TIME_FORMATS.map(({ value }) => value))
-    .default(TIME_FORMATS[0].value)
+    .default(TIME_FORMATS[0].value),
 }
 
 export const TIME_EXPRESSION = {
@@ -181,8 +178,8 @@ export const TIME_EXPRESSION = {
   label: 'Time expression',
   type: INPUT_TYPES.TEXT,
   dependOf: TIME_FORMAT.name,
-  htmlType: dependValue => isDateFormat(dependValue)
-    ? 'datetime-local' : INPUT_TYPES.TEXT,
+  htmlType: (dependValue) =>
+    isDateFormat(dependValue) ? 'datetime-local' : INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()
@@ -192,5 +189,5 @@ export const TIME_EXPRESSION = {
         ? schema
         : schema.matches(CRON_REG, { message: 'Invalid chars' })
     )
-    .default(undefined)
+    .default(undefined),
 }

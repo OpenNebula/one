@@ -29,11 +29,9 @@ const SIZE = {
     .typeError('Size value must be a number')
     .required('Size field is required')
     .positive()
-    .default(undefined)
+    .default(undefined),
 }
 
-export const FIELDS = [
-  SIZE
-]
+export const FIELDS = [SIZE]
 
 export const SCHEMA = yup.object(getValidationFromFields(FIELDS))

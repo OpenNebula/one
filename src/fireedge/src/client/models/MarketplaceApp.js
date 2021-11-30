@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { MARKETPLACE_APP_STATES, MARKETPLACE_APP_TYPES, StateInfo } from 'client/constants'
+import {
+  MARKETPLACE_APP_STATES,
+  MARKETPLACE_APP_TYPES,
+  StateInfo,
+} from 'client/constants'
 
 /**
  * Returns the name of marketplace app type.

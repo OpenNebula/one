@@ -28,7 +28,10 @@ const SSH_KEY_USER = '$USER[SSH_PUBLIC_KEY]'
 /** @returns {JSXElementConstructor} - Configuration section */
 const ConfigurationSection = () => {
   const { setValue, getValues } = useFormContext()
-  const SSH_PUBLIC_KEY_PATH = useMemo(() => `${EXTRA_ID}.${SSH_PUBLIC_KEY.name}`, [])
+  const SSH_PUBLIC_KEY_PATH = useMemo(
+    () => `${EXTRA_ID}.${SSH_PUBLIC_KEY.name}`,
+    []
+  )
 
   const handleClearKey = () => setValue(SSH_PUBLIC_KEY_PATH)
 
@@ -40,11 +43,11 @@ const ConfigurationSection = () => {
   }
 
   return (
-    <FormControl component='fieldset' sx={{ width: '100%' }}>
+    <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.Configuration} />
       <Stack
-        display='grid'
-        gap='1em'
+        display="grid"
+        gap="1em"
         sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
       >
         <FormWithSchema
@@ -58,11 +61,11 @@ const ConfigurationSection = () => {
             fields={[SSH_PUBLIC_KEY]}
             id={EXTRA_ID}
           />
-          <Stack direction='row' gap='1em'>
-            <Button onClick={handleAddUserKey} variant='contained'>
+          <Stack direction="row" gap="1em">
+            <Button onClick={handleAddUserKey} variant="contained">
               {T.AddUserSshPublicKey}
             </Button>
-            <Button onClick={handleClearKey} variant='outlined'>
+            <Button onClick={handleClearKey} variant="outlined">
               {T.Clear}
             </Button>
           </Stack>

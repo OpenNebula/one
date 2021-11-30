@@ -26,14 +26,17 @@ import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
 import { RESOURCE_NAMES } from 'client/constants'
 
 export const useAuth = () => {
-  const auth = useSelector(state => state[authSlice], shallowEqual)
-  const groups = useSelector(state => state[oneSlice][RESOURCES.group], shallowEqual)
+  const auth = useSelector((state) => state[authSlice], shallowEqual)
+  const groups = useSelector(
+    (state) => state[oneSlice][RESOURCES.group],
+    shallowEqual
+  )
 
   const { user, jwt, view, views, isLoginInProgress } = auth
 
   const userGroups = [user?.GROUPS?.ID]
     .flat()
-    .map(id => groups.find(({ ID }) => ID === id))
+    .map((id) => groups.find(({ ID }) => ID === id))
     .filter(Boolean)
 
   const isLogged = !!jwt && !!userGroups?.length && !isLoginInProgress
@@ -51,8 +54,8 @@ export const useAuth = () => {
    * }} Returns view of resource
    */
   const getResourceView = useCallback(
-    resourceName => views?.[view]
-      ?.find(({ resource_name: name }) => name === resourceName),
+    (resourceName) =>
+      views?.[view]?.find(({ resource_name: name }) => name === resourceName),
     [view]
   )
 
@@ -63,24 +66,22 @@ export const useAuthApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    login: user => unwrapDispatch(actions.login(user)),
+    login: (user) => unwrapDispatch(actions.login(user)),
     getAuthUser: () => dispatch(actions.getUser()),
-    changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
+    changeGroup: (data) => unwrapDispatch(actions.changeGroup(data)),
     logout: () => dispatch(actions.logout()),
 
     getProviderConfig: () =>
       unwrapDispatch(provisionActions.getProviderConfig()),
 
-    getSunstoneViews: () =>
-      unwrapDispatch(sunstoneActions.getSunstoneViews()),
+    getSunstoneViews: () => unwrapDispatch(sunstoneActions.getSunstoneViews()),
     getSunstoneConfig: () =>
       unwrapDispatch(sunstoneActions.getSunstoneConfig()),
-    changeView: data =>
-      dispatch(sunstoneActions.changeView(data))
+    changeView: (data) => dispatch(sunstoneActions.changeView(data)),
   }
 }

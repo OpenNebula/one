@@ -29,17 +29,11 @@ const Row = ({ original, value, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {!+ENABLED && <Lock />}
-          </span>
+          <Typography component="span">{NAME}</Typography>
+          <span className={classes.labels}>{!+ENABLED && <Lock />}</span>
         </div>
         <div className={classes.caption}>
-          <span>
-            {`#${ID}`}
-          </span>
+          <span>{`#${ID}`}</span>
           <span title={`Group: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
@@ -58,7 +52,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

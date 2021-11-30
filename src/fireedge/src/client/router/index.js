@@ -22,7 +22,7 @@ import { LinearProgress } from '@mui/material'
 
 import {
   PATH as COMMON_PATH,
-  ENDPOINTS as COMMON_ENDPOINTS
+  ENDPOINTS as COMMON_ENDPOINTS,
 } from 'client/router/common'
 
 import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
@@ -31,7 +31,7 @@ import { InternalLayout } from 'client/components/HOC'
 const renderRoute = ({ Component, label, ...rest }, index) => (
   <ProtectedRoute key={index} exact {...rest}>
     <InternalLayout title={label}>
-      <Component fallback={<LinearProgress color='secondary' />} />
+      <Component fallback={<LinearProgress color="secondary" />} />
     </InternalLayout>
   </ProtectedRoute>
 )
@@ -51,11 +51,16 @@ const Router = ({ redirectWhenAuth, endpoints }) => (
           ? subRoutes?.map(renderRoute)
           : renderRoute(rest, index)
       )}
-      {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) =>
-        <NoAuthRoute key={index} exact redirectWhenAuth={redirectWhenAuth} {...rest}>
+      {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) => (
+        <NoAuthRoute
+          key={index}
+          exact
+          redirectWhenAuth={redirectWhenAuth}
+          {...rest}
+        >
           <Component />
         </NoAuthRoute>
-      )}
+      ))}
       <Route component={() => <Redirect to={COMMON_PATH.LOGIN} />} />
     </Switch>
   </TransitionGroup>
@@ -70,14 +75,14 @@ Router.propTypes = {
       label: PropTypes.string.isRequired,
       path: PropTypes.string,
       sidebar: PropTypes.bool,
-      routes: PropTypes.array
+      routes: PropTypes.array,
     })
-  )
+  ),
 }
 
 Router.defaultProps = {
   redirectWhenAuth: '/dashboard',
-  endpoints: []
+  endpoints: [],
 }
 
 Router.displayName = 'Router'

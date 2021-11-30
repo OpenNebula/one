@@ -28,7 +28,10 @@ export const getMarketplaceApp = createAction(
 export const getMarketplaceApps = createAction(
   `${APP}/pool`,
   marketplaceAppService.getMarketplaceApps,
-  response => ({ [RESOURCES.app]: response })
+  (response) => ({ [RESOURCES.app]: response })
 )
 
-export const exportApp = createAction(`${APP}/export`, marketplaceAppService.export)
+export const exportApp = createAction(
+  `${APP}/export`,
+  marketplaceAppService.export
+)

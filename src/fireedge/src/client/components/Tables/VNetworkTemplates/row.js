@@ -34,17 +34,11 @@ const Row = ({ original, value, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-          </span>
+          <Typography component="span">{NAME}</Typography>
+          <span className={classes.labels}>{LOCK && <Lock />}</span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>
-            {`#${ID} ${timeAgo}`}
-          </span>
+          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
           <span title={`Owner: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
@@ -53,10 +47,12 @@ const Row = ({ original, value, ...props }) => {
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud />
-            <span>{` ${PROVISION_ID}`}</span>
-          </span>}
+          {PROVISION_ID && (
+            <span title={`Provision ID: #${PROVISION_ID}`}>
+              <Cloud />
+              <span>{` ${PROVISION_ID}`}</span>
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -67,7 +63,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

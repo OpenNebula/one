@@ -30,11 +30,11 @@ const TimeController = memo(
     name = '',
     label = '',
     type = 'datetime-local',
-    fieldProps = {}
+    fieldProps = {},
   }) => {
     const {
       field: { ref, value, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     return (
@@ -53,8 +53,7 @@ const TimeController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
-    prevProps.label === nextProps.label
+    prevProps.error === nextProps.error && prevProps.label === nextProps.label
 )
 
 TimeController.propTypes = {
@@ -71,8 +70,8 @@ TimeController.propTypes = {
     setError: PropTypes.func,
     clearErrors: PropTypes.func,
     watch: PropTypes.func,
-    register: PropTypes.func
-  })
+    register: PropTypes.func,
+  }),
 }
 
 TimeController.displayName = 'TimeController'

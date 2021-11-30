@@ -17,7 +17,7 @@
 const FILES = 'files'
 
 const Actions = {
-  FILES
+  FILES,
 }
 
 module.exports = Actions

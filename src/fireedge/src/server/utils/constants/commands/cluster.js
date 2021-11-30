@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const CLUSTER_ALLOCATE = 'cluster.allocate'
@@ -43,7 +43,7 @@ const Actions = {
   CLUSTER_DELVNET,
   CLUSTER_RENAME,
   CLUSTER_INFO,
-  CLUSTER_POOL_INFO
+  CLUSTER_POOL_INFO,
 }
 
 module.exports = {
@@ -55,9 +55,9 @@ module.exports = {
       params: {
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [CLUSTER_DELETE]: {
       // inspected
@@ -65,9 +65,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_UPDATE]: {
       // inspected
@@ -75,17 +75,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_ADDHOST]: {
       // inspected
@@ -93,13 +93,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         host: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_DELHOST]: {
       // inspected
@@ -107,13 +107,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         host: {
           from: query,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_ADDDATASTORE]: {
       // inspected
@@ -121,13 +121,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         datastore: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_DELDATASTORE]: {
       // inspected
@@ -135,13 +135,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         datastore: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_ADDVNET]: {
       // inspected
@@ -149,13 +149,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         vnet: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_DELVNET]: {
       // inspected
@@ -163,13 +163,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         vnet: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [CLUSTER_RENAME]: {
       // inspected
@@ -177,13 +177,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [CLUSTER_INFO]: {
       // inspected
@@ -191,18 +191,18 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [CLUSTER_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

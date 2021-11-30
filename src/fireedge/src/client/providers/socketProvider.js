@@ -23,10 +23,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 import * as sockets from 'client/features/One/socket/actions'
 
-const createProvisionWebsocket = query => socketIO({
-  path: `${WEBSOCKET_URL}/${SOCKETS.PROVISION}`,
-  query
-})
+const createProvisionWebsocket = (query) =>
+  socketIO({
+    path: `${WEBSOCKET_URL}/${SOCKETS.PROVISION}`,
+    query,
+  })
 
 export const SocketContext = createContext(null)
 
@@ -34,9 +35,9 @@ const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState({})
 
   const dispatch = useDispatch()
-  const { jwt, zone } = useSelector(state => ({
+  const { jwt, zone } = useSelector((state) => ({
     zone: state?.general?.zone,
-    jwt: state?.auth?.jwt
+    jwt: state?.auth?.jwt,
   }))
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const SocketProvider = ({ children }) => {
     const client = createProvisionWebsocket({ token: jwt, zone })
     setSocket(client)
 
-    client.on(SOCKETS.PROVISION, data => {
+    client.on(SOCKETS.PROVISION, (data) => {
       dispatch(sockets.onCreateProvision(data))
     })
 
@@ -65,12 +66,12 @@ const SocketProvider = ({ children }) => {
 SocketProvider.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node)
-  ])
+    PropTypes.arrayOf(PropTypes.node),
+  ]),
 }
 
 SocketProvider.defaultProps = {
-  children: undefined
+  children: undefined,
 }
 
 export default SocketProvider

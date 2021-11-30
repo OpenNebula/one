@@ -33,7 +33,7 @@ import { DialogRequest } from 'client/components/Dialogs'
 import Information from 'client/containers/Providers/Sections/info'
 import { T } from 'client/constants'
 
-function Providers () {
+function Providers() {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
@@ -46,10 +46,12 @@ function Providers () {
 
   const { result, handleChange } = useSearch({
     list: providers,
-    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
+    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] },
   })
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   const handleCancel = () => setShowDialog(false)
 
@@ -60,11 +62,11 @@ function Providers () {
         reloadButtonProps={{
           'data-cy': 'refresh-provider-list',
           onClick: () => fetchRequest(undefined, { reload: true }),
-          isSubmitting: Boolean(loading || reloading)
+          isSubmitting: Boolean(loading || reloading),
         }}
         addButtonProps={{
           'data-cy': 'create-provider',
-          onClick: () => history.push(PATH.PROVIDERS.CREATE)
+          onClick: () => history.push(PATH.PROVIDERS.CREATE),
         }}
         searchProps={{ handleChange }}
       />
@@ -80,34 +82,38 @@ function Providers () {
             cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
               image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
               isProvider: true,
-              handleClick: () => setShowDialog({
-                id: ID,
-                title: `#${ID} ${NAME}`
-              }),
+              handleClick: () =>
+                setShowDialog({
+                  id: ID,
+                  title: `#${ID} ${NAME}`,
+                }),
               actions: [
                 {
                   handleClick: () =>
                     history.push(generatePath(PATH.PROVIDERS.EDIT, { id: ID })),
                   icon: <EditIcon />,
-                  cy: 'provider-edit'
+                  cy: 'provider-edit',
                 },
                 {
-                  handleClick: () => setShowDialog({
-                    id: ID,
-                    title: `DELETE | #${ID} ${NAME}`,
-                    handleAccept: () => {
-                      setShowDialog(false)
+                  handleClick: () =>
+                    setShowDialog({
+                      id: ID,
+                      title: `DELETE | #${ID} ${NAME}`,
+                      handleAccept: () => {
+                        setShowDialog(false)
 
-                      return deleteProvider(ID)
-                        .then(() => enqueueSuccess(`Provider deleted - ID: ${ID}`))
-                        .then(() => fetchRequest(undefined, { reload: true }))
-                    }
-                  }),
+                        return deleteProvider(ID)
+                          .then(() =>
+                            enqueueSuccess(`Provider deleted - ID: ${ID}`)
+                          )
+                          .then(() => fetchRequest(undefined, { reload: true }))
+                      },
+                    }),
                   icon: <DeleteIcon />,
                   color: 'error',
-                  cy: 'provider-delete'
-                }
-              ]
+                  cy: 'provider-delete',
+                },
+              ],
             })}
           />
         )}
@@ -117,7 +123,7 @@ function Providers () {
           request={() => getProvider(showDialog.id)}
           dialogProps={{ fixedWidth: true, handleCancel, ...showDialog }}
         >
-          {fetchProps => <Information {...fetchProps} />}
+          {(fetchProps) => <Information {...fetchProps} />}
         </DialogRequest>
       )}
     </Container>

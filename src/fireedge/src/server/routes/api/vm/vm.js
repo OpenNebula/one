@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const { saveAsTemplate } = require('./functions')
 const { POST } = httpMethod
 
@@ -25,22 +28,22 @@ const routes = {
       params: {
         id: {
           from: fromData.resource,
-          name: 'id'
+          name: 'id',
         },
         name: {
           from: fromData.postBody,
-          name: 'name'
+          name: 'name',
         },
         persistent: {
           from: fromData.postBody,
-          name: 'persistent'
-        }
-      }
-    }
-  }
+          name: 'persistent',
+        },
+      },
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

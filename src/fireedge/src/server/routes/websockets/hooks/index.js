@@ -23,7 +23,7 @@ const {
   middlewareValidateResourceForHookConnection,
   getResourceDataForRequest,
   getDataZone,
-  getQueryData
+  getQueryData,
 } = require('server/utils/server')
 
 /**
@@ -51,28 +51,25 @@ const main = (app = {}, type = '') => {
           })
           zeromqSock.on('message', (...args) => {
             const mssgs = []
-            Array.prototype.slice.call(args).forEach(arg => {
+            Array.prototype.slice.call(args).forEach((arg) => {
               mssgs.push(arg.toString())
             })
             if (mssgs[0] && mssgs[1]) {
-              xml2json(
-                atob(mssgs[1]),
-                (error, result) => {
-                  if (error) {
-                    const configErrorParser = {
-                      color: 'red',
-                      error,
-                      message: 'Error parser: %s'
-                    }
-                    messageTerminal(configErrorParser)
-                  } else {
-                    server.emit(type, {
-                      command: mssgs[0],
-                      data: result
-                    })
+              xml2json(atob(mssgs[1]), (error, result) => {
+                if (error) {
+                  const configErrorParser = {
+                    color: 'red',
+                    error,
+                    message: 'Error parser: %s',
                   }
+                  messageTerminal(configErrorParser)
+                } else {
+                  server.emit(type, {
+                    command: mssgs[0],
+                    data: result,
+                  })
                 }
-              )
+              })
             }
           })
         }
@@ -81,12 +78,12 @@ const main = (app = {}, type = '') => {
     const configErrorHooks = {
       color: 'red',
       error,
-      message: '%s'
+      message: '%s',
     }
     messageTerminal(configErrorHooks)
   }
 }
 
 module.exports = {
-  main
+  main,
 }

@@ -25,11 +25,12 @@ const CLEANUP = {
   tooltip: `
     Force to terminate VMs running on provisioned Hosts
     and delete all images in the datastores.`,
-  validation: yup.boolean().notRequired().default(() => false)
+  validation: yup
+    .boolean()
+    .notRequired()
+    .default(() => false),
 }
 
-export const FIELDS = [
-  CLEANUP
-]
+export const FIELDS = [CLEANUP]
 
 export const SCHEMA = yup.object(getValidationFromFields(FIELDS))

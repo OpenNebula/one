@@ -31,7 +31,7 @@ const {
   responseOpennebula,
   httpResponse,
   getDataZone,
-  fillResourceforHookConnection
+  fillResourceforHookConnection,
 } = require('../../utils')
 
 const { writeInLogger } = require('../../utils/logger')
@@ -45,7 +45,7 @@ const {
   getQueriesState,
   getIdUserOpennebula,
   getUserOpennebula,
-  getPassOpennebula
+  getPassOpennebula,
 } = require('./middlewares')
 
 const {
@@ -54,7 +54,7 @@ const {
   httpMethod: httpMethods,
   from: fromData,
   defaultOpennebulaZones,
-  defaultWebpackMode
+  defaultWebpackMode,
 } = defaults
 
 const router = express.Router()
@@ -104,19 +104,21 @@ router.all(
        * @param {string} password - opennebula pass
        * @returns {Function} opennebula executer calls to XMLRPC
        */
-      const connectOpennebula = (
-        user,
-        password
-      ) => opennebulaConnect(user, password, rpc)
+      const connectOpennebula = (user, password) =>
+        opennebulaConnect(user, password, rpc)
 
       const { resource } = req.params
-      const routeFunction = checkIfIsARouteFunction(resource, httpMethod, !!userId.length)
+      const routeFunction = checkIfIsARouteFunction(
+        resource,
+        httpMethod,
+        !!userId.length
+      )
       res.locals.httpCode = httpResponse(methodNotAllowed)
 
       const dataSources = {
         [fromData.resource]: getParamsState(),
         [fromData.query]: req.query,
-        [fromData.postBody]: req.body
+        [fromData.postBody]: req.body,
       }
 
       if (routeFunction) {
@@ -130,14 +132,11 @@ router.all(
         )
         req.serverDataSource = dataSources
         if (valRouteFunction) {
-          valRouteFunction(
-            req,
-            res,
-            next,
-            connectOpennebula,
-            userId,
-            { id: userId, user, password }
-          )
+          valRouteFunction(req, res, next, connectOpennebula, userId, {
+            id: userId,
+            user,
+            password,
+          })
         } else {
           next()
         }
@@ -186,7 +185,7 @@ router.all(
            *
            * @param {object} code - http code
            */
-          const updaterResponse = code => {
+          const updaterResponse = (code) => {
             if ('id' in code && 'message' in code) {
               res.locals.httpCode = code
             }
@@ -211,16 +210,14 @@ router.all(
             writeInLogger([command, JSON.stringify(value)], 'worker: %s : %s')
             responseOpennebula(updaterResponse, err, value, response, next)
           }
-          worker.postMessage(
-            {
-              globalState: (global && global.paths) || {},
-              user,
-              password,
-              rpc,
-              command,
-              paramsCommand
-            }
-          )
+          worker.postMessage({
+            globalState: (global && global.paths) || {},
+            user,
+            password,
+            rpc,
+            command,
+            paramsCommand,
+          })
         } else {
           next()
         }

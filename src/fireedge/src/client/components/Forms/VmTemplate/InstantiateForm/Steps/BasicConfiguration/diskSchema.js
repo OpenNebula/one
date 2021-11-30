@@ -25,8 +25,10 @@ import { T, INPUT_TYPES } from 'client/constants'
 
 export const PARENT = 'DISK'
 
-const addParentToField = ({ name, ...field }, idx) =>
-  ({ ...field, name: [`${PARENT}[${idx}]`, name].join('.') })
+const addParentToField = ({ name, ...field }, idx) => ({
+  ...field,
+  name: [`${PARENT}[${idx}]`, name].join('.'),
+})
 
 const SIZE_FIELD = ({
   DISK_ID,
@@ -34,7 +36,7 @@ const SIZE_FIELD = ({
   IMAGE_ID,
   IMAGE_STATE,
   SIZE,
-  PERSISTENT
+  PERSISTENT,
 } = {}) => {
   const isVolatile = !IMAGE && !IMAGE_ID
   const isPersistent = stringToBoolean(PERSISTENT)
@@ -51,7 +53,7 @@ const SIZE_FIELD = ({
       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
         <StatusCircle color={state?.color} tooltip={state?.name} />
         {`DISK ${DISK_ID}: ${IMAGE}`}
-        {isPersistent && <StatusChip text='PERSISTENT' />}
+        {isPersistent && <StatusChip text="PERSISTENT" />}
       </span>
     ),
     type: INPUT_TYPES.TEXT,
@@ -68,18 +70,20 @@ const SIZE_FIELD = ({
       .required('Disk size field is required')
       .default(() => +SIZE),
     grid: { md: 12 },
-    fieldProps: { disabled: isPersistent }
+    fieldProps: { disabled: isPersistent },
   }
 }
 
-export const FIELDS = vmTemplate => {
+export const FIELDS = (vmTemplate) => {
   const disks = [vmTemplate?.TEMPLATE?.DISK ?? []].flat()
 
   return disks?.map(SIZE_FIELD).map(addParentToField)
 }
 
 export const SCHEMA = object({
-  [PARENT]: array(object({
-    [SIZE_FIELD().name]: SIZE_FIELD().validation
-  })).ensure()
+  [PARENT]: array(
+    object({
+      [SIZE_FIELD().name]: SIZE_FIELD().validation,
+    })
+  ).ensure(),
 })

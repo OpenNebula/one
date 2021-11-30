@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/vm'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const vmService = ({
+export const vmService = {
   /**
    * Retrieves information for the virtual machine.
    *
@@ -26,7 +26,7 @@ export const vmService = ({
    * @returns {object} Get user identified by id
    * @throws Fails when response isn't code 200
    */
-  getVm: async params => {
+  getVm: async (params) => {
     const name = Actions.VM_INFO
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -50,7 +50,7 @@ export const vmService = ({
    * @returns {Array} List of VMs
    * @throws Fails when response isn't code 200
    */
-  getVms: async params => {
+  getVms: async (params) => {
     const name = Actions.VM_POOL_INFO
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -87,7 +87,7 @@ export const vmService = ({
    * @returns {Response} Response
    * @throws Fails when response isn't code 200
    */
-  actionVm: async params => {
+  actionVm: async (params) => {
     const name = Actions.VM_ACTION
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -114,7 +114,7 @@ export const vmService = ({
     const res = await RestClient.request({
       url: `/api/vm/save/${id}`,
       method: 'POST',
-      data: { name, persistent }
+      data: { name, persistent },
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
@@ -131,7 +131,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  rename: async params => {
+  rename: async (params) => {
     const name = Actions.VM_RENAME
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -154,7 +154,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  resize: async params => {
+  resize: async (params) => {
     const name = Actions.VM_RESIZE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -179,7 +179,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  updateUserTemplate: async params => {
+  updateUserTemplate: async (params) => {
     const name = Actions.VM_UPDATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -253,7 +253,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  attachDisk: async params => {
+  attachDisk: async (params) => {
     const name = Actions.VM_DISK_ATTACH
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -274,7 +274,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  detachDisk: async params => {
+  detachDisk: async (params) => {
     const name = Actions.VM_DISK_DETACH
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -300,7 +300,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  saveAsDisk: async params => {
+  saveAsDisk: async (params) => {
     const name = Actions.VM_DISK_SAVEAS
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -323,7 +323,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  resizeDisk: async params => {
+  resizeDisk: async (params) => {
     const name = Actions.VM_DISK_RESIZE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -345,7 +345,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  createDiskSnapshot: async params => {
+  createDiskSnapshot: async (params) => {
     const name = Actions.VM_DISK_SNAP_CREATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -368,7 +368,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  renameDiskSnapshot: async params => {
+  renameDiskSnapshot: async (params) => {
     const name = Actions.VM_DISK_SNAP_RENAME
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -390,7 +390,7 @@ export const vmService = ({
    * @returns {number} The snapshot id used
    * @throws Fails when response isn't code 200
    */
-  revertDiskSnapshot: async params => {
+  revertDiskSnapshot: async (params) => {
     const name = Actions.VM_DISK_SNAP_REVERT
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -412,7 +412,7 @@ export const vmService = ({
    * @returns {number} The id of the snapshot deleted
    * @throws Fails when response isn't code 200
    */
-  deleteDiskSnapshot: async params => {
+  deleteDiskSnapshot: async (params) => {
     const name = Actions.VM_DISK_SNAP_DELETE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -434,7 +434,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  attachNic: async params => {
+  attachNic: async (params) => {
     const name = Actions.VM_NIC_ATTACH
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -455,7 +455,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  detachNic: async params => {
+  detachNic: async (params) => {
     const name = Actions.VM_NIC_DETACH
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -476,7 +476,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  createSnapshot: async params => {
+  createSnapshot: async (params) => {
     const name = Actions.VM_SNAP_CREATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -497,7 +497,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  revertSnapshot: async params => {
+  revertSnapshot: async (params) => {
     const name = Actions.VM_SNAP_REVERT
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -518,7 +518,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  deleteSnapshot: async params => {
+  deleteSnapshot: async (params) => {
     const name = Actions.VM_SNAP_DELETE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -539,7 +539,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  addScheduledAction: async params => {
+  addScheduledAction: async (params) => {
     const name = Actions.VM_SCHED_ADD
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -561,7 +561,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  updateScheduledAction: async params => {
+  updateScheduledAction: async (params) => {
     const name = Actions.VM_SCHED_UPDATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -582,7 +582,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  deleteScheduledAction: async params => {
+  deleteScheduledAction: async (params) => {
     const name = Actions.VM_SCHED_DELETE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -608,7 +608,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  recover: async params => {
+  recover: async (params) => {
     const name = Actions.VM_RECOVER
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -635,7 +635,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  lock: async params => {
+  lock: async (params) => {
     const name = Actions.VM_LOCK
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -655,7 +655,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  unlock: async params => {
+  unlock: async (params) => {
     const name = Actions.VM_UNLOCK
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -680,7 +680,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  deploy: async params => {
+  deploy: async (params) => {
     const name = Actions.VM_DEPLOY
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -708,7 +708,7 @@ export const vmService = ({
    * @returns {number} Virtual machine id
    * @throws Fails when response isn't code 200
    */
-  migrate: async params => {
+  migrate: async (params) => {
     const name = Actions.VM_MIGRATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -718,5 +718,5 @@ export const vmService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
     return res?.data
-  }
-})
+  },
+}

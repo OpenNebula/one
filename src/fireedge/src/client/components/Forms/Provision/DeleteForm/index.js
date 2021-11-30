@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Provision/DeleteForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Provision/DeleteForm/schema'
 
 const DeleteForm = createForm(SCHEMA, FIELDS)
 

@@ -25,7 +25,7 @@ import { useAuth, useAuthApi } from 'client/features/Auth'
  * @returns {Redirect|Route}
  * - If current user isn't authenticated, then redirect to landing page
  */
-const ProtectedRoute = props => {
+const ProtectedRoute = (props) => {
   const { isLogged, jwt } = useAuth()
   const { getAuthUser } = useAuthApi()
 
@@ -33,7 +33,7 @@ const ProtectedRoute = props => {
     jwt && getAuthUser()
   }, [])
 
-  return isLogged ? <Route {...props}/> : <Redirect to='/' />
+  return isLogged ? <Route {...props} /> : <Redirect to="/" />
 }
 
 export default ProtectedRoute

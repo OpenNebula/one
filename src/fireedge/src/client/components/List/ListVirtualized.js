@@ -23,29 +23,29 @@ import makeStyles from '@mui/styles/makeStyles'
 
 import { useNearScreen } from 'client/hooks'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
     overflow: 'auto',
     '&::-webkit-scrollbar': {
-      width: 14
+      width: 14,
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundClip: 'content-box',
       border: '4px solid transparent',
       borderRadius: 7,
       boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light
-    }
+      color: theme.palette.secondary.light,
+    },
   },
   container: {
     width: '100%',
-    position: 'relative'
+    position: 'relative',
   },
   loading: {
     width: '100%',
-    marginTop: 10
-  }
+    marginTop: 10,
+  },
 }))
 
 const ListVirtualized = ({
@@ -54,7 +54,7 @@ const ListVirtualized = ({
   data,
   isLoading,
   fetchMore,
-  children
+  children,
 }) => {
   // STYLES
   const classes = useStyles()
@@ -64,7 +64,7 @@ const ListVirtualized = ({
   const { isNearScreen } = useNearScreen({
     distance: '100px',
     externalRef: isLoading ? null : loaderRef,
-    once: false
+    once: false,
   })
 
   // VIRTUALIZER
@@ -74,7 +74,7 @@ const ListVirtualized = ({
     parentRef,
     overscan: 20,
     estimateSize: useCallback(() => 40, []),
-    keyExtractor: index => data[index]?.id
+    keyExtractor: (index) => data[index]?.id,
   })
 
   const debounceHandleNextPage = useCallback(debounce(fetchMore, 200), [])
@@ -85,7 +85,8 @@ const ListVirtualized = ({
 
   return (
     <Box ref={parentRef} className={classes.root}>
-      <Box {...containerProps}
+      <Box
+        {...containerProps}
         className={classes.container}
         height={rowVirtualizer.totalSize}
       >
@@ -95,7 +96,7 @@ const ListVirtualized = ({
       {!canFetchMore && (
         <LinearProgress
           ref={loaderRef}
-          color='secondary'
+          color="secondary"
           className={classes.loading}
         />
       )}
@@ -109,7 +110,7 @@ ListVirtualized.propTypes = {
   data: PropTypes.arrayOf(PropTypes.any),
   isLoading: PropTypes.bool,
   fetchMore: PropTypes.func,
-  children: PropTypes.func
+  children: PropTypes.func,
 }
 
 ListVirtualized.defaultProps = {
@@ -118,7 +119,7 @@ ListVirtualized.defaultProps = {
   data: [],
   isLoading: false,
   fetchMore: () => undefined,
-  children: () => undefined
+  children: () => undefined,
 }
 
 export default ListVirtualized

@@ -20,5 +20,5 @@ export const CLUSTER_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   DELETE: 'delete',
 
-  RENAME: ACTIONS.RENAME
+  RENAME: ACTIONS.RENAME,
 }

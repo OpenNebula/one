@@ -16,7 +16,4 @@
 import PunctualForm from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm'
 import RelativeForm from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm'
 
-export {
-  PunctualForm,
-  RelativeForm
-}
+export { PunctualForm, RelativeForm }
