@@ -44,7 +44,7 @@ const Row = ({ original, value, ...props }) => {
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`template-${ID}`}>
       <div className={classes.figure}>
         <Image src={logoSource} imgProps={{ className: classes.image }} />
       </div>

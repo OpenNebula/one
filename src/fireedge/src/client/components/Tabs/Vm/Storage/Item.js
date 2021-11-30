@@ -63,23 +63,42 @@ const StorageItem = ({ disk, actions = [] }) => {
     }[type]
 
   const labels = [
-    ...new Set([
-      TYPE,
-      Helper.stringToBoolean(PERSISTENT) && 'PERSISTENT',
-      Helper.stringToBoolean(READONLY) && 'READONLY',
-      Helper.stringToBoolean(SAVE) && 'SAVE',
-      Helper.stringToBoolean(CLONE) && 'CLONE',
-    ]),
-  ].filter(Boolean)
+    {
+      label: TYPE,
+      dataCy: 'type',
+    },
+    {
+      label: Helper.stringToBoolean(PERSISTENT) && 'PERSISTENT',
+      dataCy: 'persistent',
+    },
+    {
+      label: Helper.stringToBoolean(READONLY) && 'READONLY',
+      dataCy: 'readonly',
+    },
+    {
+      label: Helper.stringToBoolean(SAVE) && 'SAVE',
+      dataCy: 'save',
+    },
+    {
+      label: Helper.stringToBoolean(CLONE) && 'CLONE',
+      dataCy: 'clone',
+    },
+  ].filter(({ label } = {}) => Boolean(label))
 
   return (
-    <Paper variant="outlined" className={classes.root}>
+    <Paper
+      variant="outlined"
+      className={classes.root}
+      data-cy={`disk-${DISK_ID}`}
+    >
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{image}</Typography>
+          <Typography component="span" data-cy={'name'}>
+            {image}
+          </Typography>
           <span className={classes.labels}>
-            {labels.map((label) => (
-              <StatusChip key={label} text={label} />
+            {labels.map(({ label, dataCy }) => (
+              <StatusChip key={label} text={label} dataCy={dataCy} />
             ))}
           </span>
         </div>
@@ -88,18 +107,18 @@ const StorageItem = ({ disk, actions = [] }) => {
           {TARGET && (
             <span title={`Target: ${TARGET}`}>
               <DatabaseSettings />
-              <span>{` ${TARGET}`}</span>
+              <span data-cy={'target'}>{` ${TARGET}`}</span>
             </span>
           )}
           {DATASTORE && (
             <span title={`Datastore Name: ${DATASTORE}`}>
               <Folder />
-              <span>{` ${DATASTORE}`}</span>
+              <span data-cy={'datastore'}>{` ${DATASTORE}`}</span>
             </span>
           )}
           <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
             <ModernTv />
-            <span>{` ${monitorSize}/${size}`}</span>
+            <span data-cy={'monitorsize'}>{` ${monitorSize}/${size}`}</span>
           </span>
         </div>
       </div>

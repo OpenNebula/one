@@ -38,7 +38,10 @@ const InternalLayout = ({ title, children }) => {
   }, [title])
 
   return (
-    <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
+    <Box
+      data-cy="main-layout"
+      className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}
+    >
       <Header scrollContainer={container.current} />
       <Box component="main" className={classes.main}>
         <CSSTransition

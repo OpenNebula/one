@@ -53,6 +53,7 @@ const Attribute = memo(
     showActionsOnHover = false,
     value,
     valueInOptionList,
+    dataCy,
   }) => {
     const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
 
@@ -131,6 +132,7 @@ const Attribute = memo(
                 variant="body2"
                 flexGrow={1}
                 title={typeof value === 'string' ? value : undefined}
+                data-cy={dataCy}
               >
                 {link ? (
                   <Link color="secondary" component={RouterLink} to={link}>
@@ -183,6 +185,7 @@ export const AttributePropTypes = {
   showActionsOnHover: PropTypes.bool,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   valueInOptionList: PropTypes.string,
+  dataCy: PropTypes.string,
 }
 
 Attribute.propTypes = AttributePropTypes

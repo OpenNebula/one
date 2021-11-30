@@ -37,6 +37,10 @@ import MultipleTags from 'client/components/MultipleTags'
 import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
+const DATACYSECURITY = 'securitygroup-'
+const DATACYNETWORK = 'network-'
+const DATACYALIAS = 'alias-'
+
 const Accordion = styled((props) => (
   <MAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
@@ -126,17 +130,34 @@ const NetworkItem = ({ nic = {}, actions }) => {
       />
     )
 
+  const tags = [
+    {
+      text: IP,
+      dataCy: `${DATACYNETWORK}ip`,
+    },
+    {
+      text: MAC,
+      dataCy: `${DATACYNETWORK}mac`,
+    },
+    {
+      text: ADDRESS,
+      dataCy: `${DATACYNETWORK}address`,
+    },
+  ].filter(({ text } = {}) => Boolean(text))
+
   return (
     <>
-      <Accordion>
+      <Accordion data-cy={`${DATACYNETWORK}${NIC_ID}`}>
         <Summary {...(hasDetails && { expandIcon: <ExpandIcon /> })}>
           <Row>
-            <Typography noWrap>{`${NIC_ID} | ${NETWORK}`}</Typography>
+            <Typography noWrap data-cy={`${DATACYNETWORK}name`}>
+              {`${NIC_ID} | ${NETWORK}`}
+            </Typography>
             <Labels>
               <MultipleTags
                 clipboard
                 limitTags={isMobile ? 1 : 3}
-                tags={[IP, MAC, ADDRESS].filter(Boolean)}
+                tags={tags}
               />
             </Labels>
             {!isMobile && !isPciDevice && detachAction(NIC_ID)}
@@ -144,24 +165,43 @@ const NetworkItem = ({ nic = {}, actions }) => {
         </Summary>
         {hasDetails && (
           <Details>
-            {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => (
-              <Row key={NIC_ID}>
-                <Typography noWrap variant="body2">
-                  <Translate word={T.Alias} />
-                  {`${NIC_ID} | ${NETWORK}`}
-                </Typography>
-                <Labels>
-                  <MultipleTags
-                    clipboard
-                    limitTags={isMobile ? 1 : 3}
-                    tags={[IP, MAC, BRIDGE && `BRIDGE - ${BRIDGE}`].filter(
-                      Boolean
-                    )}
-                  />
-                </Labels>
-                {!isMobile && !isPciDevice && detachAction(NIC_ID, true)}
-              </Row>
-            ))}
+            {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => {
+              const tags = [
+                {
+                  text: IP,
+                  dataCy: `${DATACYALIAS}ip`,
+                },
+                {
+                  text: MAC,
+                  dataCy: `${DATACYALIAS}mac`,
+                },
+                {
+                  text: BRIDGE && `BRIDGE - ${BRIDGE}`,
+                  dataCy: `${DATACYALIAS}bridge`,
+                },
+              ].filter(({ text } = {}) => Boolean(text))
+
+              return (
+                <Row key={NIC_ID} data-cy={`${DATACYALIAS}${NIC_ID}`}>
+                  <Typography
+                    noWrap
+                    variant="body2"
+                    data-cy={`${DATACYALIAS}name`}
+                  >
+                    <Translate word={T.Alias} />
+                    {`${NIC_ID} | ${NETWORK}`}
+                  </Typography>
+                  <Labels>
+                    <MultipleTags
+                      clipboard
+                      limitTags={isMobile ? 1 : 3}
+                      tags={tags}
+                    />
+                  </Labels>
+                  {!isMobile && !isPciDevice && detachAction(NIC_ID, true)}
+                </Row>
+              )
+            })}
             {!!SECURITY_GROUPS?.length && (
               <SecGroups variant="outlined">
                 <Typography variant="body1">
@@ -172,6 +212,7 @@ const NetworkItem = ({ nic = {}, actions }) => {
                   (
                     {
                       ID,
+                      SECURITY_GROUP_ID,
                       NAME,
                       PROTOCOL,
                       RULE_TYPE,
@@ -180,25 +221,51 @@ const NetworkItem = ({ nic = {}, actions }) => {
                       NETWORK_ID,
                     },
                     idx
-                  ) => (
-                    <Row key={`${idx}-${NAME}`}>
-                      <Typography noWrap variant="body2">
-                        {`${ID} | ${NAME}`}
-                      </Typography>
-                      <Labels>
-                        <MultipleTags
-                          limitTags={isMobile ? 2 : 5}
-                          tags={[
-                            PROTOCOL,
-                            RULE_TYPE,
-                            RANGE,
-                            NETWORK_ID,
-                            ICMP_TYPE,
-                          ].filter(Boolean)}
-                        />
-                      </Labels>
-                    </Row>
-                  )
+                  ) => {
+                    const tags = [
+                      {
+                        text: PROTOCOL,
+                        dataCy: `${DATACYSECURITY}protocol`,
+                      },
+                      {
+                        text: RULE_TYPE,
+                        dataCy: `${DATACYSECURITY}ruletype`,
+                      },
+                      {
+                        text: RANGE,
+                        dataCy: `${DATACYSECURITY}range`,
+                      },
+                      {
+                        text: NETWORK_ID,
+                        dataCy: `${DATACYSECURITY}networkid`,
+                      },
+                      {
+                        text: ICMP_TYPE,
+                        dataCy: `${DATACYSECURITY}icmp_type`,
+                      },
+                    ].filter(({ text } = {}) => Boolean(text))
+
+                    return (
+                      <Row
+                        key={`${idx}-${NAME}`}
+                        data-cy={`${DATACYSECURITY}${idx}`}
+                      >
+                        <Typography
+                          noWrap
+                          variant="body2"
+                          data-cy={`${DATACYSECURITY}name`}
+                        >
+                          {`${ID} | ${NAME}`}
+                        </Typography>
+                        <Labels>
+                          <MultipleTags
+                            limitTags={isMobile ? 2 : 5}
+                            tags={tags}
+                          />
+                        </Labels>
+                      </Row>
+                    )
+                  }
                 )}
               </SecGroups>
             )}

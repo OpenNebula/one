@@ -36,10 +36,12 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
     {
       name: T.PhysicalCpu,
       value: TEMPLATE?.CPU,
+      dataCy: 'cpu',
     },
     {
       name: T.VirtualCpu,
       value: TEMPLATE?.VCPU ?? '-',
+      dataCy: 'virtualcpu',
     },
     isVCenter && {
       name: T.VirtualCores,
@@ -49,18 +51,22 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
           ${Tr(T.Sockets)} ${TEMPLATE?.TOPOLOGY?.SOCKETS || '-'}`}
         </>
       ),
+      dataCy: 'virtualcores',
     },
     {
       name: T.Memory,
       value: prettyBytes(+TEMPLATE?.MEMORY, 'MB'),
+      dataCy: 'memory',
     },
     {
       name: T.CostCpu,
       value: TEMPLATE?.CPU_COST || 0,
+      dataCy: 'cpucost',
     },
     {
       name: T.CostMByte,
       value: TEMPLATE?.MEMORY_COST || 0,
+      dataCy: 'memorycost',
     },
   ].filter(Boolean)
 
@@ -85,12 +91,12 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
           />
         )}
       </div>
-      {capacity.map(({ name, value }) => (
+      {capacity.map(({ name, value, dataCy }) => (
         <div key={name} className={classes.item}>
           <Typography className={classes.title} noWrap title={name}>
             {name}
           </Typography>
-          <Typography variant="body2" noWrap title={value}>
+          <Typography variant="body2" noWrap title={value} data-cy={dataCy}>
             {value}
           </Typography>
         </div>

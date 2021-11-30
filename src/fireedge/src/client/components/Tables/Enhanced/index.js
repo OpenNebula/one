@@ -58,6 +58,7 @@ const EnhancedTable = ({
   showPageCount,
   singleSelect = false,
   classes = {},
+  rootProps = {},
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -140,7 +141,11 @@ const EnhancedTable = ({
   }
 
   return (
-    <Box {...getTableProps()} className={clsx(styles.root, classes.root)}>
+    <Box
+      {...getTableProps()}
+      className={clsx(styles.root, classes.root)}
+      {...rootProps}
+    >
       <div className={styles.toolbar}>
         {/* TOOLBAR */}
         {!isFetching && (
@@ -235,6 +240,9 @@ export const EnhancedTableProps = {
   classes: PropTypes.shape({
     root: PropTypes.string,
     body: PropTypes.string,
+  }),
+  rootProps: PropTypes.shape({
+    'data-cy': PropTypes.string,
   }),
   isLoading: PropTypes.bool,
   onlyGlobalSearch: PropTypes.bool,

@@ -47,7 +47,7 @@ const Row = ({ original, value, ...props }) => {
     VirtualMachineModel.getState(original)
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`vm-${ID}`}>
       <div>
         <StatusCircle color={stateColor} tooltip={stateName} />
       </div>

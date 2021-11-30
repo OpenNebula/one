@@ -42,9 +42,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ButtonComponent = forwardRef(
-  ({ icon, endicon, children, size, variant = 'contained', ...props }, ref) =>
+  (
+    { icon, endicon, children, size, variant = 'contained', value, ...props },
+    ref
+  ) =>
     icon && !endicon ? (
-      <IconButton ref={ref} {...props}>
+      <IconButton ref={ref} {...props} value={value}>
         {children}
       </IconButton>
     ) : (
@@ -122,6 +125,7 @@ export const SubmitButtonPropTypes = {
   color: PropTypes.string,
   size: PropTypes.string,
   variant: PropTypes.string,
+  value: PropTypes.string,
 }
 
 TooltipComponent.propTypes = SubmitButtonPropTypes
