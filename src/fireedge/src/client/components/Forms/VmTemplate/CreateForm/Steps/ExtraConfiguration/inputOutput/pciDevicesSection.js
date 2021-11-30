@@ -79,7 +79,7 @@ const PciDevicesSection = ({ fields }) => {
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
-            cy={`create-vm-template-${EXTRA_ID}.io-pci-devices`}
+            cy={`${EXTRA_ID}.io-pci-devices`}
             fields={fields}
             rootProps={{ sx: { m: 0 } }}
           />

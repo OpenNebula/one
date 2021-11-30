@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { array, object } from 'yup'
+import { array, object, ObjectSchema } from 'yup'
 
-import { FIELDS as PLACEMENT_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
-import { FIELDS as OS_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
-import { FIELDS as NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
-import { SCHEMA as IO_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
-import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { SCHEMA as STORAGE_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
-import { SCHEMA as NETWORK_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
+import { HYPERVISORS } from 'client/constants'
 import { getObjectSchemaFromFields } from 'client/utils'
+import { FIELDS as PLACEMENT_FIELDS } from './placement/schema'
+import { FIELDS as OS_FIELDS } from './booting/schema'
+import { FIELDS as NUMA_FIELDS } from './numa/schema'
+import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
+import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
+import { SCHEMA as STORAGE_SCHEMA } from './storage/schema'
+import { SCHEMA as NETWORK_SCHEMA } from './networking/schema'
 
+/**
+ * Map name attribute if not exists.
+ *
+ * @param {string} prefixName - Prefix to add in name
+ * @returns {object[]} Resource object
+ */
 export const mapNameByIndex = (prefixName) => (resource, idx) => ({
   ...resource,
   NAME:
@@ -33,14 +39,19 @@ export const mapNameByIndex = (prefixName) => (resource, idx) => ({
       : resource?.NAME,
 })
 
-export const SCHED_ACTION_SCHEMA = array()
-  .ensure()
-  .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION')))
+export const SCHED_ACTION_SCHEMA = object({
+  SCHED_ACTION: array()
+    .ensure()
+    .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION'))),
+})
 
+/**
+ * @param {HYPERVISORS} hypervisor - VM hypervisor
+ * @returns {ObjectSchema} Extra configuration schema
+ */
 export const SCHEMA = (hypervisor) =>
-  object({
-    SCHED_ACTION: SCHED_ACTION_SCHEMA,
-  })
+  object()
+    .concat(SCHED_ACTION_SCHEMA)
     .concat(NETWORK_SCHEMA)
     .concat(STORAGE_SCHEMA)
     .concat(CONTEXT_SCHEMA(hypervisor))

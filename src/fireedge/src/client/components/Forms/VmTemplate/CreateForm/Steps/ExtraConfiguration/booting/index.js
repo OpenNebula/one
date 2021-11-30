@@ -53,14 +53,14 @@ const Booting = ({ hypervisor, ...props }) => {
           sx={{ width: '100%', gridColumn: '1 / -1' }}
         >
           <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
-          <BootOrder {...props} />
+          <BootOrder />
         </FormControl>
       )}
       {sections.map(({ id, ...section }) => (
         <FormWithSchema
           key={id}
           id={EXTRA_ID}
-          cy={`create-vm-template-${EXTRA_ID}.${id}`}
+          cy={`${EXTRA_ID}.${id}`}
           {...section}
         />
       ))}

@@ -117,7 +117,7 @@ const Storage = ({ hypervisor }) => {
         ))}
       </Stack>
       <FormWithSchema
-        cy={`create-vm-template-${EXTRA_ID}.storage-options`}
+        cy={`${EXTRA_ID}.storage-options`}
         fields={FIELDS}
         legend={T.StorageOptions}
         id={EXTRA_ID}

@@ -32,12 +32,12 @@ const Numa = ({ hypervisor }) => {
   return (
     <>
       <FormWithSchema
-        cy={`create-vm-template-${EXTRA_ID}.vcpu`}
+        cy={`${EXTRA_ID}.vcpu`}
         fields={[VCPU_FIELD]}
         id={GENERAL_ID}
       />
       <FormWithSchema
-        cy={`create-vm-template-${EXTRA_ID}.numa`}
+        cy={`${EXTRA_ID}.numa`}
         fields={NUMA_FIELDS(hypervisor)}
         id={EXTRA_ID}
       />

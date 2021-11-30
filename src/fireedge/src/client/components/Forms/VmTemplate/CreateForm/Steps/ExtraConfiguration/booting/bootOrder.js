@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useMemo, useState, JSXElementConstructor } from 'react'
-import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
 import { NetworkAlt as NetworkIcon, BoxIso as ImageIcon } from 'iconoir-react'
@@ -222,13 +221,6 @@ const BootOrder = () => {
       </Stack>
     </DragDropContext>
   )
-}
-
-BootOrder.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
 }
 
 BootOrder.displayName = 'BootOrder'

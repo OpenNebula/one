@@ -109,7 +109,7 @@ const Networking = () => {
         ))}
       </Stack>
       <FormWithSchema
-        cy={`create-vm-template-${EXTRA_ID}.network-options`}
+        cy={`${EXTRA_ID}.network-options`}
         fields={FIELDS}
         legend={T.NetworkDefaults}
         legendTooltip={T.NetworkDefaultsConcept}
