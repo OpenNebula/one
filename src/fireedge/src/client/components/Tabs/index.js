@@ -81,6 +81,7 @@ const Tabs = ({
               icon={error ? <WarningIcon /> : Icon && <Icon />}
               value={value ?? idx}
               label={label ?? name}
+              data-cy={`tab-${name}`}
             />
           )
         })}

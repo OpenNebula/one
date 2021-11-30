@@ -50,7 +50,7 @@ const Content = () => {
         <FormWithSchema
           key={id}
           className={classes[id]}
-          cy={`instantiate-vm-template-configuration.${id}`}
+          cy={id}
           fields={fields}
           legend={legend}
           id={STEP_ID}

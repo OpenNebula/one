@@ -68,7 +68,14 @@ const callAll =
     fns.forEach((fn) => fn && fn?.(...args))
 
 const StatusChip = memo(
-  ({ stateColor, text = '', clipboard = false, onClick, ...props }) => {
+  ({
+    stateColor,
+    text = '',
+    dataCy = '',
+    clipboard = false,
+    onClick,
+    ...props
+  }) => {
     const { copy, isCopied } = useClipboard()
     const textToCopy = typeof clipboard === 'string' ? clipboard : text
     const classes = useStyles({ stateColor, clipboard })
@@ -93,6 +100,7 @@ const StatusChip = memo(
           component="span"
           className={classes.text}
           onClick={callAll(onClick, clipboard && handleCopy)}
+          data-cy={dataCy}
           {...props}
         >
           {text}
@@ -113,6 +121,7 @@ StatusChip.propTypes = {
   stateColor: PropTypes.string,
   text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  dataCy: PropTypes.string,
   onClick: PropTypes.func,
 }
 

@@ -83,6 +83,7 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
                       cy={`permission-${key}`}
                       disabled={permission === undefined}
                       icon={getIcon(permission)}
+                      value={permission}
                       handleClick={() => handleChange(key, permission)}
                     />
                   ) : (

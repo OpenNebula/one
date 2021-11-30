@@ -57,36 +57,48 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
   }, [])
 
   const info = [
-    { name: T.ID, value: ID },
+    {
+      name: T.ID,
+      value: ID,
+      dataCy: 'id',
+    },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
       handleEdit: handleRename,
+      dataCy: 'name',
     },
     {
       name: T.State,
-      value: <StatusChip text={stateName} stateColor={stateColor} />,
+      value: (
+        <StatusChip dataCy={'state'} text={stateName} stateColor={stateColor} />
+      ),
     },
     {
       name: T.Reschedule,
       value: Helper.booleanToString(+RESCHED),
+      dataCy: 'reschedule',
     },
     {
       name: T.Locked,
       value: Helper.levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
     },
     {
       name: T.IP,
       value: ips?.length ? <MultipleTags tags={ips} /> : '--',
+      dataCy: 'ips',
     },
     {
       name: T.StartTime,
       value: Helper.timeToString(STIME),
+      dataCy: 'starttime',
     },
     {
       name: T.EndTime,
       value: Helper.timeToString(ETIME),
+      dataCy: 'endtime',
     },
     hostId && {
       name: T.Host,
@@ -94,6 +106,7 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
       link:
         !Number.isNaN(+hostId) &&
         generatePath(PATH.INFRASTRUCTURE.HOSTS.DETAIL, { id: hostId }),
+      dataCy: 'hostid',
     },
     clusterId && {
       name: T.Cluster,
@@ -101,10 +114,12 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
       link:
         !Number.isNaN(+clusterId) &&
         generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: clusterId }),
+      dataCy: 'clusterid',
     },
     {
       name: T.DeployID,
       value: DEPLOY_ID,
+      dataCy: 'deployid',
     },
   ].filter(Boolean)
 

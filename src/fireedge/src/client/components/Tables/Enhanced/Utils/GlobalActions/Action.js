@@ -62,6 +62,7 @@ const ActionItem = memo(
   ({ item, selectedRows }) => {
     const {
       accessor,
+      dataCy,
       tooltip,
       label,
       color,
@@ -75,7 +76,8 @@ const ActionItem = memo(
     const buttonProps = {
       color,
       variant,
-      'data-cy': accessor && `action.${accessor}`,
+      'data-cy':
+        (dataCy && `action-${dataCy}`) ?? (accessor && `action-${accessor}`),
       disabled:
         typeof disabled === 'function' ? disabled(selectedRows) : disabled,
       icon: Icon && <Icon />,
@@ -141,6 +143,7 @@ const ActionItem = memo(
 
 export const ActionPropTypes = PropTypes.shape({
   accessor: PropTypes.string,
+  dataCy: PropTypes.string,
   variant: PropTypes.string,
   color: PropTypes.string,
   size: PropTypes.string,

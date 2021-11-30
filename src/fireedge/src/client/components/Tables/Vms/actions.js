@@ -135,6 +135,7 @@ const Actions = () => {
           },
           {
             accessor: VM_ACTIONS.CREATE_DIALOG,
+            dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
             icon: AddSquare,
             action: () => {

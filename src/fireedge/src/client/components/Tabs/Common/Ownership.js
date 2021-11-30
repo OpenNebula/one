@@ -53,6 +53,7 @@ const Ownership = memo(
         canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
         handleGetOptionList: getUserOptions,
         handleEdit: (_, user) => handleEdit?.({ user }),
+        dataCy: 'owner',
       },
       {
         name: T.Group,
@@ -62,6 +63,7 @@ const Ownership = memo(
         canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
         handleGetOptionList: getGroupOptions,
         handleEdit: (_, group) => handleEdit?.({ group }),
+        dataCy: 'group',
       },
     ]
 

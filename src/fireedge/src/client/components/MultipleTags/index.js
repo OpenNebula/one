@@ -27,11 +27,18 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
 
   const more = tags.length - limitTags
 
-  const Tags = tags
-    .splice(0, limitTags)
-    .map((tag, idx) => (
-      <StatusChip key={`${idx}-${tag}`} text={tag} clipboard={clipboard} />
-    ))
+  const Tags = tags.splice(0, limitTags).map((tag, idx) => {
+    const text = tag.text ?? tag
+
+    return (
+      <StatusChip
+        key={`${idx}-${text}`}
+        text={text}
+        clipboard={clipboard}
+        dataCy={tag.dataCy ?? ''}
+      />
+    )
+  })
 
   return (
     <>
@@ -39,15 +46,20 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
       {more > 0 && (
         <Tooltip
           arrow
-          title={tags.map((tag, idx) => (
-            <Typography
-              key={`${idx}-${tag}`}
-              variant="subtitle2"
-              sx={{ height: 'max-content' }}
-            >
-              {tag}
-            </Typography>
-          ))}
+          title={tags.map((tag, idx) => {
+            const text = tag.text ?? tag
+
+            return (
+              <Typography
+                key={`${idx}-${text}`}
+                variant="subtitle2"
+                sx={{ height: 'max-content' }}
+                {...(tag.dataCy && { dataCy: tag.dataCy })}
+              >
+                {text}
+              </Typography>
+            )
+          })}
         >
           <Typography component="span" variant="subtitle2" sx={{ ml: 1 }}>
             {`+${more} more`}
