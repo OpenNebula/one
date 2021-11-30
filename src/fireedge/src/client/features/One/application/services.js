@@ -17,7 +17,7 @@ import { SERVICE } from 'server/routes/api/oneflow/string-routes'
 import { httpCodes } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
 
-export const applicationService = ({
+export const applicationService = {
   /**
    * Retrieves information for the service.
    *
@@ -28,7 +28,7 @@ export const applicationService = ({
    */
   getApplication: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE}/list/${id}`
+      url: `/api/${SERVICE}/list/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -44,11 +44,11 @@ export const applicationService = ({
    */
   getApplications: async () => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE}/list`
+      url: `/api/${SERVICE}/list`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
-  }
-})
+  },
+}

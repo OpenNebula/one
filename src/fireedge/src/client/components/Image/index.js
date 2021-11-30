@@ -35,7 +35,7 @@ const Image = memo(
     imageInError = DEFAULT_IMAGE,
     withSources = false,
     pictureProps = {},
-    imgProps = {}
+    imgProps = {},
   }) => {
     const [error, setError] = useState(INITIAL_STATE)
 
@@ -43,7 +43,7 @@ const Image = memo(
       decoding: 'async',
       draggable: false,
       loading: 'lazy',
-      ...imgProps
+      ...imgProps,
     }
 
     useEffect(() => {
@@ -52,12 +52,12 @@ const Image = memo(
 
     /** Increment retries by one in error state. */
     const addRetry = () => {
-      setError(prev => ({ ...prev, retries: prev.retries + 1 }))
+      setError((prev) => ({ ...prev, retries: prev.retries + 1 }))
     }
 
     /** Set failed state. */
     const onImageFail = () => {
-      setError(prev => ({ fail: true, retries: prev.retries + 1 }))
+      setError((prev) => ({ fail: true, retries: prev.retries + 1 }))
     }
 
     if (error.retries >= MAX_RETRIES) {
@@ -65,35 +65,41 @@ const Image = memo(
     }
 
     if (error.fail) {
-      return <img
-        {...imageProps}
-        src={imageInError}
-        draggable={false}
-        onError={addRetry}
-      />
+      return (
+        <img
+          {...imageProps}
+          src={imageInError}
+          draggable={false}
+          onError={addRetry}
+        />
+      )
     }
 
     return withSources ? (
       <picture {...pictureProps}>
-        {withSources && IMAGE_FORMATS.map(format => (
-          <source key={format}
-            srcSet={`${src}.${format}`}
-            type={`image/${format}`}
-          />
-        ))}
+        {withSources &&
+          IMAGE_FORMATS.map((format) => (
+            <source
+              key={format}
+              srcSet={`${src}.${format}`}
+              type={`image/${format}`}
+            />
+          ))}
         <img {...imageProps} src={src} onError={onImageFail} />
       </picture>
     ) : (
       <img {...imageProps} src={src} onError={onImageFail} />
     )
-  }, (prev, next) => prev.src === next.src)
+  },
+  (prev, next) => prev.src === next.src
+)
 
 Image.propTypes = {
   src: PropTypes.string,
   imageInError: PropTypes.string,
   withSources: PropTypes.bool,
   pictureProps: PropTypes.object,
-  imgProps: PropTypes.object
+  imgProps: PropTypes.object,
 }
 
 Image.displayName = 'Image'

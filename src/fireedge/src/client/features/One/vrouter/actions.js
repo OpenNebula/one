@@ -28,5 +28,5 @@ export const getVRouter = createAction(
 export const getVRouters = createAction(
   `${VROUTER}/pool`,
   vRouterService.getVRouters,
-  response => ({ [RESOURCES.vrouter]: response })
+  (response) => ({ [RESOURCES.vrouter]: response })
 )

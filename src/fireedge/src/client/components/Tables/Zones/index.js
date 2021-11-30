@@ -29,10 +29,13 @@ const ZonesTable = () => {
   const zones = useZone()
   const { getZones } = useZoneApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getZones)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getZones)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   if (zones?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -43,7 +46,7 @@ const ZonesTable = () => {
       columns={columns}
       data={zones}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={ZoneRow}
     />
   )

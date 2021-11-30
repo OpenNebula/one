@@ -38,5 +38,5 @@ export {
   ResizeCapacityForm,
   ResizeDiskForm,
   SaveAsDiskForm,
-  SaveAsTemplateForm
+  SaveAsTemplateForm,
 }

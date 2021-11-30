@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/vntemplate'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const vNetworkTemplateService = ({
+export const vNetworkTemplateService = {
   /**
    * Retrieves information for the virtual network template.
    *
@@ -59,5 +59,5 @@ export const vNetworkTemplateService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.VNTEMPLATE_POOL?.VNTEMPLATE ?? []].flat()
-  }
-})
+  },
+}

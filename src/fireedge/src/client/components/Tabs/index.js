@@ -16,25 +16,30 @@
 import { useState, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { styled, Tabs as MTabs, TabsProps, Tab as MTab, Box, Fade } from '@mui/material'
+import {
+  styled,
+  Tabs as MTabs,
+  TabsProps,
+  Tab as MTab,
+  Box,
+  Fade,
+} from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
 
 const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
-  color: theme.palette.error.main
+  color: theme.palette.error.main,
 }))
 
 const Content = ({ name, renderContent: RenderContent, hidden }) => (
   <Fade in timeout={400} key={`tab-${name}`}>
     <Box
       sx={{
-        p: theme => theme.spacing(2, 1),
+        p: (theme) => theme.spacing(2, 1),
         height: '100%',
-        display: hidden ? 'none' : 'block'
+        display: hidden ? 'none' : 'block',
       }}
     >
-      {typeof RenderContent === 'function'
-        ? <RenderContent />
-        : RenderContent}
+      {typeof RenderContent === 'function' ? <RenderContent /> : RenderContent}
     </Box>
   </Fade>
 )
@@ -49,44 +54,51 @@ const Content = ({ name, renderContent: RenderContent, hidden }) => (
 const Tabs = ({
   tabs = [],
   tabsProps: { sx, ...tabsProps } = {},
-  renderHiddenTabs = false
+  renderHiddenTabs = false,
 }) => {
   const [tabSelected, setTab] = useState(() => 0)
 
-  const renderTabs = useMemo(() => (
-    <MTabs
-      value={tabSelected}
-      variant='scrollable'
-      scrollButtons='auto'
-      onChange={(_, tab) => setTab(tab)}
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: theme => theme.zIndex.appBar,
-        ...sx
-      }}
-      {...tabsProps}
-    >
-      {tabs.map(({ value, name, label, error, icon: Icon }, idx) => {
-        return <MTab
-          key={`tab-${name}`}
-          id={`tab-${name}`}
-          icon={error ? <WarningIcon /> : (Icon && <Icon />)}
-          value={value ?? idx}
-          label={label ?? name}
-        />
-      }
-      )}
-    </MTabs>
-  ), [tabs, tabSelected])
+  const renderTabs = useMemo(
+    () => (
+      <MTabs
+        value={tabSelected}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, tab) => setTab(tab)}
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: (theme) => theme.zIndex.appBar,
+          ...sx,
+        }}
+        {...tabsProps}
+      >
+        {tabs.map(({ value, name, label, error, icon: Icon }, idx) => {
+          return (
+            <MTab
+              key={`tab-${name}`}
+              id={`tab-${name}`}
+              icon={error ? <WarningIcon /> : Icon && <Icon />}
+              value={value ?? idx}
+              label={label ?? name}
+            />
+          )
+        })}
+      </MTabs>
+    ),
+    [tabs, tabSelected]
+  )
 
-  const renderAllHiddenTabContents = useMemo(() =>
-    tabs.map((tabProps, idx) => {
-      const { name, value = idx } = tabProps
-      const hidden = tabSelected !== value
+  const renderAllHiddenTabContents = useMemo(
+    () =>
+      tabs.map((tabProps, idx) => {
+        const { name, value = idx } = tabProps
+        const hidden = tabSelected !== value
 
-      return <Content key={`tab-${name}`} {...tabProps} hidden={hidden} />
-    }), [tabSelected])
+        return <Content key={`tab-${name}`} {...tabProps} hidden={hidden} />
+      }),
+    [tabSelected]
+  )
 
   return (
     <>
@@ -96,7 +108,9 @@ const Tabs = ({
       {renderHiddenTabs ? (
         renderAllHiddenTabContents
       ) : (
-        <Content {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
+        <Content
+          {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
+        />
       )}
     </>
   )
@@ -108,16 +122,13 @@ Content.displayName = 'Content'
 Tabs.propTypes = {
   tabs: PropTypes.array,
   tabsProps: PropTypes.object,
-  renderHiddenTabs: PropTypes.bool
+  renderHiddenTabs: PropTypes.bool,
 }
 
 Content.propTypes = {
   name: PropTypes.string,
-  renderContent: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.func
-  ]),
-  hidden: PropTypes.bool
+  renderContent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  hidden: PropTypes.bool,
 }
 
 export default Tabs

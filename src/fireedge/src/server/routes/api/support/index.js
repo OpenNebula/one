@@ -20,7 +20,7 @@ const publicRoutes = []
 
 const functionRoutes = {
   private: privateRoutes,
-  public: publicRoutes
+  public: publicRoutes,
 }
 
 module.exports = functionRoutes

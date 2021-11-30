@@ -15,81 +15,81 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(
-  ({ palette, typography, breakpoints }) => ({
-    root: {
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'auto'
-    },
-    toolbar: {
-      ...typography.body1,
-      marginBottom: 16,
-      display: 'grid',
-      gridTemplateColumns: '1fr auto',
-      alignItems: 'start',
-      gap: '1em',
-      '& > .summary': { // global sort and selected rows
-        gridRow: '2',
-        gridColumn: '1 / -1',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(auto, 300px) 1fr',
-        gap: '0.8em',
-        [breakpoints.down('md')]: {
-          gridTemplateColumns: '1fr'
-        }
-      }
-    },
-    pagination: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'end',
-      gap: '1em'
-    },
-    loading: {
-      transition: '200ms'
-    },
-    table: {
+export default makeStyles(({ palette, typography, breakpoints }) => ({
+  root: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+  },
+  toolbar: {
+    ...typography.body1,
+    marginBottom: 16,
+    display: 'grid',
+    gridTemplateColumns: '1fr auto',
+    alignItems: 'start',
+    gap: '1em',
+    '& > .summary': {
+      // global sort and selected rows
+      gridRow: '2',
+      gridColumn: '1 / -1',
       display: 'grid',
       gridTemplateColumns: 'minmax(auto, 300px) 1fr',
       gap: '0.8em',
-      overflow: 'auto',
       [breakpoints.down('md')]: {
-        gridTemplateColumns: 'minmax(0, 1fr)'
-      }
+        gridTemplateColumns: '1fr',
+      },
     },
-    body: {
-      overflow: 'auto',
-      display: 'grid',
-      gap: '1em',
+  },
+  pagination: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'end',
+    gap: '1em',
+  },
+  loading: {
+    transition: '200ms',
+  },
+  table: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(auto, 300px) 1fr',
+    gap: '0.8em',
+    overflow: 'auto',
+    [breakpoints.down('md')]: {
       gridTemplateColumns: 'minmax(0, 1fr)',
-      gridAutoRows: 'max-content',
-      '& > [role=row]': {
-        padding: '0.8em',
-        cursor: 'pointer',
-        color: palette.text.primary,
-        backgroundColor: palette.background.paper,
-        fontWeight: typography.fontWeightRegular,
-        fontSize: '1em',
-        border: `1px solid ${palette.divider}`,
-        borderRadius: '0.5em',
-        display: 'flex',
-        gap: '1em',
-        '&:hover': {
-          backgroundColor: palette.action.hover
-        },
-        '&.selected': {
-          border: `2px solid ${palette.secondary.main}`
-        }
-      }
     },
-    noDataMessage: {
-      ...typography.h6,
-      color: palette.text.hint,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '0.8em',
-      padding: '1em'
-    }
-  }))
+  },
+  body: {
+    overflow: 'auto',
+    display: 'grid',
+    gap: '1em',
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    gridAutoRows: 'max-content',
+    '& > [role=row]': {
+      padding: '0.8em',
+      cursor: 'pointer',
+      color: palette.text.primary,
+      backgroundColor: palette.background.paper,
+      fontWeight: typography.fontWeightRegular,
+      fontSize: '1em',
+      border: `1px solid ${palette.divider}`,
+      borderRadius: '0.5em',
+      display: 'flex',
+      gap: '1em',
+      '&:hover': {
+        backgroundColor: palette.action.hover,
+      },
+      '&.selected': {
+        border: `2px solid ${palette.secondary.main}`,
+      },
+    },
+  },
+  noDataMessage: {
+    ...typography.h6,
+    color: palette.text.hint,
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.8em',
+    padding: '1em',
+  },
+}))

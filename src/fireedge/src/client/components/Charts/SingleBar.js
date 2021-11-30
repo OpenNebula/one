@@ -22,11 +22,11 @@ import makeStyles from '@mui/styles/makeStyles'
 import { TypographyWithPoint } from 'client/components/Typography'
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   legend: {
     display: 'grid',
     gridGap: '1rem',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(125px, 1fr))'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(125px, 1fr))',
   },
   bar: {
     marginTop: '1rem',
@@ -36,11 +36,11 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: '#616161e0',
     transition: '1s',
     gridTemplateColumns: ({ fragments }) =>
-      fragments?.map(fragment => `${fragment}fr`)?.join(' '),
+      fragments?.map((fragment) => `${fragment}fr`)?.join(' '),
     [theme.breakpoints.only('xs')]: {
-      display: 'none'
-    }
-  }
+      display: 'none',
+    },
+  },
 }))
 
 /**
@@ -53,7 +53,7 @@ const useStyles = makeStyles(theme => ({
  * @returns {JSXElementConstructor} Chart bar component
  */
 const SingleBar = ({ legend, data, total = 0 }) => {
-  const fragments = data.map(data => Math.floor(data * 10 / (total || 1)))
+  const fragments = data.map((data) => Math.floor((data * 10) / (total || 1)))
 
   const classes = useStyles({ fragments })
 
@@ -62,7 +62,11 @@ const SingleBar = ({ legend, data, total = 0 }) => {
       {/* LEGEND */}
       <div className={classes.legend}>
         {legend?.map(({ name, color }, idx) => (
-          <TypographyWithPoint key={name} pointColor={color} data-attr={data[idx]}>
+          <TypographyWithPoint
+            key={name}
+            pointColor={color}
+            data-attr={data[idx]}
+          >
             {name}
           </TypographyWithPoint>
         ))}
@@ -75,11 +79,16 @@ const SingleBar = ({ legend, data, total = 0 }) => {
           const color = legend[idx]?.color
           const style = {
             backgroundColor: color,
-            '&:hover': { backgroundColor: addOpacityToColor(color, 0.6) }
+            '&:hover': { backgroundColor: addOpacityToColor(color, 0.6) },
           }
 
           return (
-            <Tooltip arrow key={label} placement='top' title={`${label}: ${value}`}>
+            <Tooltip
+              arrow
+              key={label}
+              placement="top"
+              title={`${label}: ${value}`}
+            >
               <div style={style}></div>
             </Tooltip>
           )
@@ -90,17 +99,16 @@ const SingleBar = ({ legend, data, total = 0 }) => {
 }
 
 SingleBar.propTypes = {
-  legend: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string,
-    color: PropTypes.string
-  })),
-  data: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ])
+  legend: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      color: PropTypes.string,
+    })
   ),
-  total: PropTypes.number
+  data: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ),
+  total: PropTypes.number,
 }
 
 SingleBar.displayName = 'SingleBar'

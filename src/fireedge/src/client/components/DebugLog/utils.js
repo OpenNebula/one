@@ -21,14 +21,14 @@ import { DEBUG_LEVEL } from 'client/constants'
  * @param {string} data - Message text
  * @returns {string} Severity type (debug level)
  */
-export const getSeverityFromData = data =>
+export const getSeverityFromData = (data) =>
   data.includes(DEBUG_LEVEL.ERROR)
     ? DEBUG_LEVEL.ERROR
     : data.includes(DEBUG_LEVEL.INFO)
-      ? DEBUG_LEVEL.INFO
-      : data.includes(DEBUG_LEVEL.WARN)
-        ? DEBUG_LEVEL.WARN
-        : DEBUG_LEVEL.DEBUG
+    ? DEBUG_LEVEL.INFO
+    : data.includes(DEBUG_LEVEL.WARN)
+    ? DEBUG_LEVEL.WARN
+    : DEBUG_LEVEL.DEBUG
 
 /**
  * Returns the message information as json.
@@ -67,7 +67,7 @@ export const concatNewMessageToLog = (log, message = {}) => {
   return {
     ...log,
     [command]: {
-      [commandId]: [...(log?.[command]?.[commandId] ?? []), data]
-    }
+      [commandId]: [...(log?.[command]?.[commandId] ?? []), data],
+    },
   }
 }

@@ -24,7 +24,7 @@ const TabProvider = ({ initialState = {}, children }) => {
   const { data } = initialState
 
   useEffect(() => {
-    data && setTabInformation(prev => ({ ...prev, data }))
+    data && setTabInformation((prev) => ({ ...prev, data }))
   }, [data])
 
   return (
@@ -38,8 +38,8 @@ TabProvider.propTypes = {
   initialState: PropTypes.object,
   children: PropTypes.oneOfType([
     PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node)
-  ])
+    PropTypes.arrayOf(PropTypes.node),
+  ]),
 }
 
 export default TabProvider

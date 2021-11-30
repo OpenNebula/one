@@ -14,13 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { setLocale, addMethod, number, string, boolean, object, array, date } from 'yup'
+import {
+  setLocale,
+  addMethod,
+  number,
+  string,
+  boolean,
+  object,
+  array,
+  date,
+} from 'yup'
 
 import { T } from 'client/constants'
 import { isDivisibleBy, isBase64 } from 'client/utils/helpers'
 
 const buildMethods = () => {
-  [number, string, boolean, object, array, date].forEach(schemaType => {
+  ;[number, string, boolean, object, array, date].forEach((schemaType) => {
     addMethod(schemaType, 'afterSubmit', function (fn) {
       this._mutate = true // allows to mutate the initial schema
       this.submit = (...args) =>
@@ -41,13 +50,11 @@ const buildMethods = () => {
   })
   addMethod(boolean, 'yesOrNo', function (addAfterSubmit = true) {
     const schema = this.transform(function (value) {
-      return !this.isType(value)
-        ? String(value).toUpperCase() === 'YES'
-        : value
+      return !this.isType(value) ? String(value).toUpperCase() === 'YES' : value
     })
 
     if (addAfterSubmit) {
-      schema.afterSubmit(value => value ? 'YES' : 'NO')
+      schema.afterSubmit((value) => (value ? 'YES' : 'NO'))
     }
 
     return schema
@@ -56,14 +63,14 @@ const buildMethods = () => {
     return this.test(
       'is-divisible',
       [T['validation.number.isDivisible'], divisor],
-      value => isDivisibleBy(value, divisor)
+      (value) => isDivisibleBy(value, divisor)
     )
   })
   addMethod(string, 'isBase64', function () {
     return this.test(
       'is-base64',
       T['validation.string.invalidFormat'],
-      value => isBase64(value)
+      (value) => isBase64(value)
     )
   })
   addMethod(string, 'includesInOptions', function (options, separator = ',') {
@@ -74,8 +81,8 @@ const buildMethods = () => {
       test: function (values) {
         return values
           ?.split(separator)
-          ?.every(value => this.resolve(options).includes(value))
-      }
+          ?.every((value) => this.resolve(options).includes(value))
+      },
     })
   })
 }
@@ -94,7 +101,7 @@ const buildTranslationLocale = () => {
       oneOf: ({ values }) => [T['validation.mixed.oneOf'], values],
       notOneOf: ({ values }) => [T['validation.mixed.notOneOf'], values],
       notType: ({ type }) =>
-        T[`validation.mixed.notType.${type}`] ?? T['validation.mixed.notType']
+        T[`validation.mixed.notType.${type}`] ?? T['validation.mixed.notType'],
     },
     string: {
       length: ({ length }) => [T['validation.string.length'], length],
@@ -106,7 +113,7 @@ const buildTranslationLocale = () => {
       uuid: () => T['validation.string.uuid'],
       trim: () => T['validation.string.trim'],
       lowercase: () => T['validation.string.lowercase'],
-      uppercase: () => T['validation.string.uppercase']
+      uppercase: () => T['validation.string.uppercase'],
     },
     number: {
       min: ({ min }) => [T['validation.number.min'], min],
@@ -115,23 +122,26 @@ const buildTranslationLocale = () => {
       moreThan: ({ more }) => [T['validation.number.moreThan'], more],
       positive: () => T['validation.number.positive'],
       negative: () => T['validation.number.negative'],
-      integer: () => T['validation.number.integer']
+      integer: () => T['validation.number.integer'],
     },
     boolean: {
-      isValue: ({ value }) => [T['validation.boolean.isValue'], value]
+      isValue: ({ value }) => [T['validation.boolean.isValue'], value],
     },
     date: {
       min: ({ min }) => [T['validation.date.min'], min],
-      max: ({ max }) => [T['validation.date.max'], max]
+      max: ({ max }) => [T['validation.date.max'], max],
     },
     object: {
-      noUnknown: ({ nounknown }) => [T['validation.object.noUnknown'], nounknown]
+      noUnknown: ({ nounknown }) => [
+        T['validation.object.noUnknown'],
+        nounknown,
+      ],
     },
     array: {
       min: ({ min }) => [T['validation.array.min'], min],
       max: ({ max }) => [T['validation.array.max'], max],
-      length: ({ length }) => [T['validation.array.length'], length]
-    }
+      length: ({ length }) => [T['validation.array.length'], length],
+    },
   })
 }
 

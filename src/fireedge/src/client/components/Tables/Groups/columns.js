@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -22,7 +23,7 @@ export default [
   {
     Header: 'Total Users',
     id: 'TOTAL_USERS',
-    accessor: row => getTotalOfResources(row?.USERS),
-    sortType: 'number'
-  }
+    accessor: (row) => getTotalOfResources(row?.USERS),
+    sortType: 'number',
+  },
 ]

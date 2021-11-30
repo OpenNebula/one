@@ -37,12 +37,13 @@ const getSession = (username = '', token = '') => {
         return curr.token && curr.token === token
       }
     )
+
     return session
   }
 }
 
 const functions = {
-  getSession
+  getSession,
 }
 
 module.exports = functions

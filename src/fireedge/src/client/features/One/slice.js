@@ -20,7 +20,7 @@ import { updateResourceList } from 'client/features/One/utils'
 import { eventUpdateResourceState } from 'client/features/One/socket/actions'
 import { updateResourceFromFetch } from 'client/features/One/actions'
 
-const getNameListFromType = type => RESOURCES[type.split('/')[0]]
+const getNameListFromType = (type) => RESOURCES[type.split('/')[0]]
 
 const RESOURCES = {
   acl: 'acl',
@@ -49,8 +49,8 @@ const RESOURCES = {
     102: 'providers',
     103: 'provisions',
     // extra: only for client
-    defaults: 'provisionsTemplates'
-  }
+    defaults: 'provisionsTemplates',
+  },
 }
 
 const initial = {
@@ -80,30 +80,36 @@ const initial = {
   [RESOURCES.document[101]]: [],
   [RESOURCES.document[102]]: [],
   [RESOURCES.document[103]]: [],
-  [RESOURCES.document.defaults]: []
+  [RESOURCES.document.defaults]: [],
 }
 
 const { name, actions, reducer } = createSlice({
   name: 'one',
   initialState: initial,
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
-        ({ type }) => type.startsWith(RESOURCES.system) && type.endsWith('/fulfilled'),
+        ({ type }) => type === logout.type,
+        () => initial
+      )
+      .addMatcher(
+        ({ type }) =>
+          type.startsWith(RESOURCES.system) && type.endsWith('/fulfilled'),
         (state, { payload }) => ({ ...state, ...payload })
       )
       .addMatcher(
         ({ type }) =>
           type === updateResourceFromFetch.type ||
-          (
-            type.endsWith('/fulfilled') &&
-            (type.includes(eventUpdateResourceState.typePrefix) || type.includes('/detail'))
-          ),
+          (type.endsWith('/fulfilled') &&
+            (type.includes(eventUpdateResourceState.typePrefix) ||
+              type.includes('/detail'))),
         (state, { payload, type }) => {
           // TYPE and DATA can be force by payload
           const name = getNameListFromType(payload?.type ?? type)
-          const newList = updateResourceList(state[name], payload?.data ?? payload)
+          const newList = updateResourceList(
+            state[name],
+            payload?.data ?? payload
+          )
 
           return { ...state, [name]: newList }
         }
@@ -126,11 +132,11 @@ const { name, actions, reducer } = createSlice({
           return {
             ...state,
             ...(isFulfilled(action) && payload),
-            requests: restOfRequests
+            requests: restOfRequests,
           }
         }
       )
-  }
+  },
 })
 
 export { name, actions, reducer, RESOURCES }

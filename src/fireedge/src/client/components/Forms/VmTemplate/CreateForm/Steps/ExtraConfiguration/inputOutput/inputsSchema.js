@@ -16,19 +16,30 @@
 import { string, array, object, ObjectSchema } from 'yup'
 import { PcMouse, PenTablet, Usb, PlugTypeG } from 'iconoir-react'
 
-import { Field, arrayToOptions, filterFieldsByHypervisor, getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES, DEVICE_TYPES, DEVICE_BUS_TYPES, HYPERVISORS } from 'client/constants'
+import {
+  Field,
+  arrayToOptions,
+  filterFieldsByHypervisor,
+  getValidationFromFields,
+} from 'client/utils'
+import {
+  T,
+  INPUT_TYPES,
+  DEVICE_TYPES,
+  DEVICE_BUS_TYPES,
+  HYPERVISORS,
+} from 'client/constants'
 
 const { vcenter, lxc } = HYPERVISORS
 
 export const deviceTypeIcons = {
   [DEVICE_TYPES.mouse]: <PcMouse />,
-  [DEVICE_TYPES.tablet]: <PenTablet />
+  [DEVICE_TYPES.tablet]: <PenTablet />,
 }
 
 export const busTypeIcons = {
   [DEVICE_BUS_TYPES.usb]: <Usb />,
-  [DEVICE_BUS_TYPES.ps2]: <PlugTypeG />
+  [DEVICE_BUS_TYPES.ps2]: <PlugTypeG />,
 }
 
 /** @type {Field} Type field */
@@ -42,7 +53,7 @@ const TYPE = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { sm: 6, md: 6 }
+  grid: { sm: 6, md: 6 },
 }
 
 /** @type {Field} Bus field */
@@ -56,7 +67,7 @@ const BUS = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { sm: 6, md: 6 }
+  grid: { sm: 6, md: 6 },
 }
 
 /**
@@ -71,5 +82,5 @@ export const INPUT_SCHEMA = object(getValidationFromFields([TYPE, BUS]))
 
 /** @type {ObjectSchema} Graphic inputs schema */
 export const INPUTS_SCHEMA = object({
-  INPUT: array(INPUT_SCHEMA).ensure()
+  INPUT: array(INPUT_SCHEMA).ensure(),
 })

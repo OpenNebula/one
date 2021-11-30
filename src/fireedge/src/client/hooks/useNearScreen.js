@@ -36,15 +36,17 @@ const useNearScreen = ({ externalRef, distance, once = true }) => {
     let observer
     const element = externalRef ? externalRef.current : fromRef.current
 
-    const onChange = entries => {
-      observer && element && entries.forEach(({ isIntersecting }) => {
-        if (isIntersecting) {
-          setShow(true)
-          once && observer.disconnect()
-        } else {
-          !once && setShow(false)
-        }
-      })
+    const onChange = (entries) => {
+      observer &&
+        element &&
+        entries.forEach(({ isIntersecting }) => {
+          if (isIntersecting) {
+            setShow(true)
+            once && observer.disconnect()
+          } else {
+            !once && setShow(false)
+          }
+        })
     }
 
     Promise.resolve(
@@ -53,7 +55,7 @@ const useNearScreen = ({ externalRef, distance, once = true }) => {
         : import('intersection-observer')
     ).then(() => {
       observer = new IntersectionObserver(onChange, {
-        rootMargin: distance
+        rootMargin: distance,
       })
 
       if (element) observer.observe(element)

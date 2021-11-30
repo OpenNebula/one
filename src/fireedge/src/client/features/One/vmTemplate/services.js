@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/template'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const vmTemplateService = ({
+export const vmTemplateService = {
   /**
    * Retrieves information for the vm template.
    *
@@ -28,7 +28,7 @@ export const vmTemplateService = ({
    * @returns {object} Get template identified by id
    * @throws Fails when response isn't code 200
    */
-  getVmTemplate: async params => {
+  getVmTemplate: async (params) => {
     const name = Actions.TEMPLATE_INFO
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -51,7 +51,7 @@ export const vmTemplateService = ({
    * @returns {Array} List of VM templates
    * @throws Fails when response isn't code 200
    */
-  getVmTemplates: async params => {
+  getVmTemplates: async (params) => {
     const name = Actions.TEMPLATE_POOL_INFO
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -71,7 +71,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  allocate: async params => {
+  allocate: async (params) => {
     const name = Actions.TEMPLATE_ALLOCATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -95,7 +95,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  clone: async params => {
+  clone: async (params) => {
     const name = Actions.TEMPLATE_CLONE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -117,7 +117,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  delete: async params => {
+  delete: async (params) => {
     const name = Actions.TEMPLATE_DELETE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -142,7 +142,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  update: async params => {
+  update: async (params) => {
     const name = Actions.TEMPLATE_UPDATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -217,7 +217,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  rename: async params => {
+  rename: async (params) => {
     const name = Actions.TEMPLATE_RENAME
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -244,7 +244,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  lock: async params => {
+  lock: async (params) => {
     const name = Actions.TEMPLATE_LOCK
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -264,7 +264,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  unlock: async params => {
+  unlock: async (params) => {
     const name = Actions.TEMPLATE_UNLOCK
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -288,7 +288,7 @@ export const vmTemplateService = ({
    * @returns {number} Template id
    * @throws Fails when response isn't code 200
    */
-  instantiate: async params => {
+  instantiate: async (params) => {
     const name = Actions.TEMPLATE_INSTANTIATE
     const command = { name, ...Commands[name] }
     const config = requestConfig(params, command)
@@ -298,5 +298,5 @@ export const vmTemplateService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data
-  }
-})
+  },
+}

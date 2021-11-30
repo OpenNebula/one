@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/vmGroup/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useVmGroup = () => (
-  useSelector(state => state[name]?.[RESOURCES.vmgroup])
-)
+export const useVmGroup = () =>
+  useSelector((state) => state[name]?.[RESOURCES.vmgroup])
 
 export const useVmGroupApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getVmGroup: id => unwrapDispatch(actions.getVmGroup({ id })),
-    getVmGroups: () => unwrapDispatch(actions.getVmGroups())
+    getVmGroup: (id) => unwrapDispatch(actions.getVmGroup({ id })),
+    getVmGroups: () => unwrapDispatch(actions.getVmGroups()),
   }
 }

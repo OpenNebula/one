@@ -17,34 +17,49 @@ import {
   ReportColumns as DashboardIcon,
   DatabaseSettings as ProvidersIcon,
   SettingsCloud as ProvisionsIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
 
-const Dashboard = loadable(() => import('client/containers/Dashboard/Provision'), { ssr: false })
+const Dashboard = loadable(
+  () => import('client/containers/Dashboard/Provision'),
+  { ssr: false }
+)
 
-const Providers = loadable(() => import('client/containers/Providers'), { ssr: false })
-const CreateProvider = loadable(() => import('client/containers/Providers/Create'), { ssr: false })
+const Providers = loadable(() => import('client/containers/Providers'), {
+  ssr: false,
+})
+const CreateProvider = loadable(
+  () => import('client/containers/Providers/Create'),
+  { ssr: false }
+)
 
-const Provisions = loadable(() => import('client/containers/Provisions'), { ssr: false })
-const CreateProvision = loadable(() => import('client/containers/Provisions/Create'), { ssr: false })
+const Provisions = loadable(() => import('client/containers/Provisions'), {
+  ssr: false,
+})
+const CreateProvision = loadable(
+  () => import('client/containers/Provisions/Create'),
+  { ssr: false }
+)
 
-const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
+const Settings = loadable(() => import('client/containers/Settings'), {
+  ssr: false,
+})
 
 export const PATH = {
   DASHBOARD: '/dashboard',
   PROVIDERS: {
     LIST: '/providers',
     CREATE: '/providers/create',
-    EDIT: '/providers/edit/:id'
+    EDIT: '/providers/edit/:id',
   },
   PROVISIONS: {
     LIST: '/provisions',
     CREATE: '/provisions/create',
-    EDIT: '/provisions/edit/:id'
+    EDIT: '/provisions/edit/:id',
   },
-  SETTINGS: '/settings'
+  SETTINGS: '/settings',
 }
 
 export const ENDPOINTS = [
@@ -53,49 +68,49 @@ export const ENDPOINTS = [
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
-    Component: Dashboard
+    Component: Dashboard,
   },
   {
     label: 'Providers',
     path: PATH.PROVIDERS.LIST,
     sidebar: true,
     icon: ProvidersIcon,
-    Component: Providers
+    Component: Providers,
   },
   {
     label: 'Create Provider',
     path: PATH.PROVIDERS.CREATE,
-    Component: CreateProvider
+    Component: CreateProvider,
   },
   {
     label: 'Edit Provider template',
     path: PATH.PROVIDERS.EDIT,
-    Component: CreateProvider
+    Component: CreateProvider,
   },
   {
     label: 'Provisions',
     path: PATH.PROVISIONS.LIST,
     sidebar: true,
     icon: ProvisionsIcon,
-    Component: Provisions
+    Component: Provisions,
   },
   {
     label: 'Create Provision',
     path: PATH.PROVISIONS.CREATE,
-    Component: CreateProvision
+    Component: CreateProvision,
   },
   {
     label: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
-    Component: CreateProvision
+    Component: CreateProvision,
   },
   {
     label: 'Settings',
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,
-    Component: Settings
-  }
+    Component: Settings,
+  },
 ]
 
 export default { PATH, ENDPOINTS }

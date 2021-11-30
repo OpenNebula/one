@@ -19,19 +19,28 @@ import PropTypes from 'prop-types'
 
 import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { Permissions, Ownership, AttributePanel } from 'client/components/Tabs/Common'
+import {
+  Permissions,
+  Ownership,
+  AttributePanel,
+} from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import { getHypervisor } from 'client/models/VirtualMachine'
-import { getActionsAvailable, filterAttributes, jsonToXml } from 'client/models/Helper'
+import {
+  getActionsAvailable,
+  filterAttributes,
+  jsonToXml,
+} from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG = /^(USER_INPUTS|BACKUP|HOT_RESIZE)$|SCHED_|ERROR/
-const HIDDEN_MONITORING_REG = /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
+const HIDDEN_MONITORING_REG =
+  /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
 const VmInfoTab = ({ tabProps = {} }) => {
   const {
@@ -41,19 +50,21 @@ const VmInfoTab = ({ tabProps = {} }) => {
     vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
     monitoring_panel: monitoringPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
-  const { changeOwnership, changePermissions, rename, updateUserTemplate } = useVmApi()
+  const { changeOwnership, changePermissions, rename, updateUserTemplate } =
+    useVmApi()
   const { handleRefetch, data: vm = {} } = useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
+  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } =
+    vm
 
-  const handleChangeOwnership = async newOwnership => {
+  const handleChangeOwnership = async (newOwnership) => {
     const response = await changeOwnership(ID, newOwnership)
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const handleChangePermission = async newPermission => {
+  const handleChangePermission = async (newPermission) => {
     const response = await changePermissions(ID, newPermission)
     String(response) === String(ID) && (await handleRefetch?.())
   }
@@ -77,39 +88,41 @@ const VmInfoTab = ({ tabProps = {} }) => {
   }
 
   const getActions = useCallback(
-    actions => getActionsAvailable(actions, getHypervisor(vm)),
+    (actions) => getActionsAvailable(actions, getHypervisor(vm)),
     [vm]
   )
 
   const {
     attributes,
     lxc: lxcAttributes,
-    vcenter: vcenterAttributes
+    vcenter: vcenterAttributes,
   } = filterAttributes(USER_TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
-      lxc: LXC_ATTRIBUTES_REG
+      lxc: LXC_ATTRIBUTES_REG,
     },
-    hidden: HIDDEN_ATTRIBUTES_REG
+    hidden: HIDDEN_ATTRIBUTES_REG,
   })
 
-  const {
-    attributes: monitoringAttributes
-  } = filterAttributes(MONITORING, { hidden: HIDDEN_MONITORING_REG })
+  const { attributes: monitoringAttributes } = filterAttributes(MONITORING, {
+    hidden: HIDDEN_MONITORING_REG,
+  })
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: handleAttributeInXml
+    handleDelete: handleAttributeInXml,
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -178,7 +191,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
 }
 
 VmInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmInfoTab.displayName = 'VmInfoTab'

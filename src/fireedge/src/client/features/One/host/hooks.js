@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/host/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useHost = () => (
-  useSelector(state => state[name]?.[RESOURCES.host])
-)
+export const useHost = () =>
+  useSelector((state) => state[name]?.[RESOURCES.host])
 
 export const useHostApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getHost: id => unwrapDispatch(actions.getHost({ id })),
-    getHosts: options => unwrapDispatch(actions.getHosts(options))
+    getHost: (id) => unwrapDispatch(actions.getHost({ id })),
+    getHosts: (options) => unwrapDispatch(actions.getHosts(options)),
   }
 }

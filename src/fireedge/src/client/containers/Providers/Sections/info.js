@@ -21,7 +21,7 @@ import { List, ListItem, Typography, Grid, Paper, Divider } from '@mui/material'
 import {
   Check as CheckIcon,
   Square as BlankSquareIcon,
-  EyeEmpty as EyeIcon
+  EyeEmpty as EyeIcon,
 } from 'iconoir-react'
 
 import { useFetch } from 'client/hooks'
@@ -36,25 +36,29 @@ const Info = memo(({ fetchProps }) => {
   const classes = useStyles()
   const { getProviderConnection } = useProviderApi()
 
-  const { data: showConnection, fetchRequest, loading } = useFetch(getProviderConnection)
+  const {
+    data: showConnection,
+    fetchRequest,
+    loading,
+  } = useFetch(getProviderConnection)
 
   const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = fetchProps?.data
   const {
     connection,
     description,
     provider: providerName,
-    registration_time: time
+    registration_time: time,
   } = TEMPLATE?.PROVISION_BODY
 
   const hasConnection = connection && Object.keys(connection).length > 0
 
-  const isChecked = checked =>
+  const isChecked = (checked) =>
     checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined' className={classes.marginBottom}>
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -66,33 +70,33 @@ const Info = memo(({ fetchProps }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography data-cy='provider-name'>{NAME}</Typography>
+              <Typography data-cy="provider-name">{NAME}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography data-cy='provider-description' noWrap>{description}</Typography>
+              <Typography data-cy="provider-description" noWrap>
+                {description}
+              </Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography data-cy='provider-type'>{providerName}</Typography>
+              <Typography data-cy="provider-type">{providerName}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.RegistrationTime)}</Typography>
-              <Typography>
-                {new Date(time * 1000).toLocaleString()}
-              </Typography>
+              <Typography>{new Date(time * 1000).toLocaleString()}</Typography>
             </ListItem>
           </List>
         </Paper>
         {hasConnection && (
-          <Paper variant='outlined'>
+          <Paper variant="outlined">
             <List className={clsx(classes.list, 'w-50')}>
               <ListItem className={classes.title}>
                 <Typography>{Tr(T.Credentials)}</Typography>
                 {!showConnection && (
                   <span className={classes.alignToRight}>
                     <SubmitButton
-                      data-cy='provider-connection'
+                      data-cy="provider-connection"
                       icon={<EyeIcon />}
                       onClick={() => fetchRequest(ID)}
                       isSubmitting={loading}
@@ -101,21 +105,23 @@ const Info = memo(({ fetchProps }) => {
                 )}
               </ListItem>
               <Divider />
-              {Object.entries(connection)?.map(([key, value]) =>
-                typeof value === 'string' && (
-                  <ListItem key={key}>
-                    <Typography>{key}</Typography>
-                    <Typography data-cy={`provider-${key}`}>
-                      {showConnection?.[key] ?? value}
-                    </Typography>
-                  </ListItem>
-                ))}
+              {Object.entries(connection)?.map(
+                ([key, value]) =>
+                  typeof value === 'string' && (
+                    <ListItem key={key}>
+                      <Typography>{key}</Typography>
+                      <Typography data-cy={`provider-${key}`}>
+                        {showConnection?.[key] ?? value}
+                      </Typography>
+                    </ListItem>
+                  )
+              )}
             </List>
           </Paper>
         )}
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined' className={classes.marginBottom}>
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -144,7 +150,7 @@ const Info = memo(({ fetchProps }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>
@@ -167,14 +173,14 @@ const Info = memo(({ fetchProps }) => {
 
 Info.propTypes = {
   fetchProps: PropTypes.shape({
-    data: PropTypes.object.isRequired
-  }).isRequired
+    data: PropTypes.object.isRequired,
+  }).isRequired,
 }
 
 Info.defaultProps = {
   fetchProps: {
-    data: {}
-  }
+    data: {},
+  },
 }
 
 Info.displayName = 'Info'

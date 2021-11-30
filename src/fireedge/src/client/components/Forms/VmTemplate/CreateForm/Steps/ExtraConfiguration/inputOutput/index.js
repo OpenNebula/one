@@ -20,7 +20,10 @@ import { DataTransferBoth as IOIcon } from 'iconoir-react'
 
 import { FormWithSchema } from 'client/components/Forms'
 
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
 import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
 import { GRAPHICS_FIELDS, INPUTS_FIELDS, PCI_FIELDS } from './schema'
@@ -34,8 +37,8 @@ const InputOutput = ({ hypervisor }) => {
 
   return (
     <Stack
-      display='grid'
-      gap='1em'
+      display="grid"
+      gap="1em"
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
       <FormWithSchema
@@ -44,9 +47,7 @@ const InputOutput = ({ hypervisor }) => {
         legend={T.Graphics}
         id={EXTRA_ID}
       />
-      {inputsFields.length > 0 && (
-        <InputsSection fields={inputsFields} />
-      )}
+      {inputsFields.length > 0 && <InputsSection fields={inputsFields} />}
       {pciDevicesFields.length > 0 && (
         <PciDevicesSection fields={pciDevicesFields} />
       )}
@@ -58,7 +59,7 @@ InputOutput.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 InputOutput.displayName = 'InputOutput'
@@ -69,7 +70,7 @@ const TAB = {
   name: T.InputOrOutput,
   icon: IOIcon,
   Content: InputOutput,
-  getError: error => TAB_ID.some(id => error?.[id])
+  getError: (error) => TAB_ID.some((id) => error?.[id]),
 }
 
 export default TAB

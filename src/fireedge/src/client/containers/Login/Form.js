@@ -29,14 +29,22 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transitionProps }) => {
+const Form = ({
+  onBack,
+  onSubmit,
+  resolver,
+  fields,
+  error,
+  isLoading,
+  transitionProps,
+}) => {
   const defaultValues = resolver.default()
   const classes = loginStyles()
 
   const { handleSubmit, setError, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver)
+    resolver: yupResolver(resolver),
   })
 
   useEffect(() => {
@@ -51,22 +59,22 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
       {...transitionProps}
     >
       <Box
-        component='form'
+        component="form"
         onSubmit={handleSubmit(onSubmit)}
         className={clsx(classes.form, { [classes.loading]: isLoading })}
       >
         <FormProvider {...methods}>
-          <FormWithSchema cy='login' fields={fields} />
+          <FormWithSchema cy="login" fields={fields} />
         </FormProvider>
-        <Stack direction='row' gap={1} m={2}>
+        <Stack direction="row" gap={1} m={2}>
           {onBack && (
-            <Button color='secondary' onClick={onBack} disabled={isLoading}>
+            <Button color="secondary" onClick={onBack} disabled={isLoading}>
               {Tr(T.Back)}
             </Button>
           )}
           <SubmitButton
-            color='secondary'
-            data-cy='login-button'
+            color="secondary"
+            data-cy="login-button"
             isSubmitting={isLoading}
             sx={{ textTransform: 'uppercase', padding: '0.5em' }}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
@@ -82,15 +90,15 @@ Form.propTypes = {
   resolver: PropTypes.object,
   fields: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string
+      name: PropTypes.string,
     })
   ),
   onSubmit: PropTypes.func.isRequired,
   error: PropTypes.string,
   isLoading: PropTypes.bool,
   transitionProps: PropTypes.shape({
-    name: PropTypes.string
-  })
+    name: PropTypes.string,
+  }),
 }
 
 Form.defaultProps = {
@@ -100,7 +108,7 @@ Form.defaultProps = {
   fields: [],
   error: undefined,
   isLoading: false,
-  transitionProps: undefined
+  transitionProps: undefined,
 }
 
 export default Form

@@ -16,7 +16,13 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { styled, FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material'
+import {
+  styled,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Switch,
+} from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
@@ -26,7 +32,7 @@ import { generateKey } from 'client/utils'
 const Label = styled('span')({
   display: 'flex',
   alignItems: 'center',
-  gap: '0.5em'
+  gap: '0.5em',
 })
 
 const SwitchController = memo(
@@ -36,22 +42,22 @@ const SwitchController = memo(
     name = '',
     label = '',
     tooltip,
-    fieldProps = {}
+    fieldProps = {},
   }) => {
     const {
       field: { value = false, onChange },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     return (
-      <FormControl fullWidth error={Boolean(error)} margin='dense'>
+      <FormControl fullWidth error={Boolean(error)} margin="dense">
         <FormControlLabel
           control={
             <Switch
-              onChange={e => onChange(e.target.checked)}
+              onChange={(e) => onChange(e.target.checked)}
               name={name}
               checked={Boolean(value)}
-              color='secondary'
+              color="secondary"
               inputProps={{ 'data-cy': cy }}
               {...fieldProps}
             />
@@ -62,7 +68,7 @@ const SwitchController = memo(
               {tooltip && <Tooltip title={tooltip} />}
             </Label>
           }
-          labelPlacement='end'
+          labelPlacement="end"
         />
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
@@ -81,7 +87,7 @@ SwitchController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
   tooltip: PropTypes.any,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 SwitchController.displayName = 'SwitchController'

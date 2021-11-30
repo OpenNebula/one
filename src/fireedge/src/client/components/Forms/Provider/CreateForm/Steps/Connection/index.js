@@ -26,7 +26,10 @@ import { getConnectionEditable } from 'client/models/ProviderTemplate'
 import { sentenceCase } from 'client/utils'
 import { T } from 'client/constants'
 
-import { FORM_FIELDS, STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
+import {
+  FORM_FIELDS,
+  STEP_FORM_SCHEMA,
+} from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Template'
 
 export const STEP_ID = 'connection'
@@ -42,27 +45,31 @@ const Content = ({ isUpdate }) => {
   useEffect(() => {
     const {
       [TEMPLATE_ID]: templateSelected,
-      [STEP_ID]: currentConnection = {}
+      [STEP_ID]: currentConnection = {},
     } = watch()
 
     const template = templateSelected?.[0] ?? {}
 
-    fileCredentials = Boolean(providerConfig?.[template?.provider]?.file_credentials)
+    fileCredentials = Boolean(
+      providerConfig?.[template?.provider]?.file_credentials
+    )
 
     connection = isUpdate
-      // when is updating, connections have the name as input label
-      ? Object.keys(currentConnection)
-        .reduce((res, name) => ({ ...res, [name]: sentenceCase(name) }), {})
-        // set connections from template, to take values as input labels
-      : getConnectionEditable(template, providerConfig)
+      ? // when is updating, connections have the name as input label
+        Object.keys(currentConnection).reduce(
+          (res, name) => ({ ...res, [name]: sentenceCase(name) }),
+          {}
+        )
+      : // set connections from template, to take values as input labels
+        getConnectionEditable(template, providerConfig)
 
     setFields(FORM_FIELDS({ connection, fileCredentials }))
   }, [])
 
-  return (fields?.length === 0) ? (
+  return fields?.length === 0 ? (
     <EmptyCard title={"There aren't connections to fill"} />
   ) : (
-    <FormWithSchema cy='form-provider' fields={fields} id={STEP_ID} />
+    <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
   )
 }
 
@@ -71,11 +78,11 @@ const Connection = ({ isUpdate }) => ({
   label: T.ConfigureConnection,
   resolver: () => STEP_FORM_SCHEMA({ connection, fileCredentials }),
   optionsValidate: { abortEarly: false },
-  content: () => Content({ isUpdate })
+  content: () => Content({ isUpdate }),
 })
 
 Content.propTypes = {
-  isUpdate: PropTypes.bool
+  isUpdate: PropTypes.bool,
 }
 
 export * from 'client/components/Forms/Provider/CreateForm/Steps/Connection/schema'

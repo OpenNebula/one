@@ -41,7 +41,7 @@ export const storage = (name = '', data = '', keepData = false) => {
 export const removeStoreData = (items = []) => {
   const itemsToRemove = !Array.isArray(items) ? [items] : items
 
-  itemsToRemove.forEach(item => {
+  itemsToRemove.forEach((item) => {
     root?.localStorage?.removeItem(item)
     root?.sessionStorage?.removeItem(item)
   })

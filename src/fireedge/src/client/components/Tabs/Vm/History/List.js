@@ -28,7 +28,7 @@ const HistoryList = ({ records, actions }) => (
 
 HistoryList.propTypes = {
   records: PropTypes.array,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 HistoryList.displayName = 'HistoryList'

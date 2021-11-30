@@ -21,23 +21,24 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/vmTemplate/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useVmTemplate = () => (
-  useSelector(state => state[name]?.[RESOURCES.template] ?? [])
-)
+export const useVmTemplate = () =>
+  useSelector((state) => state[name]?.[RESOURCES.template] ?? [])
 
 export const useVmTemplateApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getVmTemplate: (id, data) => unwrapDispatch(actions.getVmTemplate({ id, ...data })),
+    getVmTemplate: (id, data) =>
+      unwrapDispatch(actions.getVmTemplate({ id, ...data })),
     getVmTemplates: () => unwrapDispatch(actions.getVmTemplates()),
-    instantiate: (id, data) => unwrapDispatch(actions.instantiate({ id, ...data })),
-    allocate: template => unwrapDispatch(actions.allocate({ template })),
+    instantiate: (id, data) =>
+      unwrapDispatch(actions.instantiate({ id, ...data })),
+    allocate: (template) => unwrapDispatch(actions.allocate({ template })),
     clone: (id, data) => unwrapDispatch(actions.clone({ id, ...data })),
     remove: (id, image) => unwrapDispatch(actions.remove({ id, image })),
     update: (id, template, replace) =>
@@ -48,6 +49,6 @@ export const useVmTemplateApi = () => {
       unwrapDispatch(actions.changeOwnership({ id, ownership })),
     rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
     lock: (id, data) => unwrapDispatch(actions.lock({ id, ...data })),
-    unlock: id => unwrapDispatch(actions.unlock({ id }))
+    unlock: (id) => unwrapDispatch(actions.unlock({ id })),
   }
 }

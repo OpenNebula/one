@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { forwardRef, useState, ForwardedRef, JSXElementConstructor } from 'react'
+import {
+  forwardRef,
+  useState,
+  ForwardedRef,
+  JSXElementConstructor,
+} from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
@@ -36,8 +41,8 @@ import { Actions } from 'client/components/Tabs/Common/Attribute'
 
 const useStyles = makeStyles({
   select: {
-    textOverflow: 'ellipsis'
-  }
+    textOverflow: 'ellipsis',
+  },
 })
 
 const Select = forwardRef(
@@ -50,13 +55,13 @@ const Select = forwardRef(
     const classes = useStyles()
     const [newValue, setNewValue] = useState(() => initialValue)
 
-    const handleChange = event => setNewValue(event.target.value)
+    const handleChange = (event) => setNewValue(event.target.value)
 
     return (
       <TextField
         inputProps={{
           'data-cy': Actions.getAttributeCy('select', name),
-          className: classes.select
+          className: classes.select,
         }}
         inputRef={ref}
         onChange={handleChange}
@@ -83,12 +88,12 @@ const Text = forwardRef(
   ({ name = '', initialValue = '', ...props }, ref) => {
     const [newValue, setNewValue] = useState(() => initialValue)
 
-    const handleChange = event => setNewValue(event.target.value)
+    const handleChange = (event) => setNewValue(event.target.value)
 
     return (
       <TextField
         inputProps={{
-          'data-cy': Actions.getAttributeCy('text', name)
+          'data-cy': Actions.getAttributeCy('text', name),
         }}
         inputRef={ref}
         onChange={handleChange}
@@ -106,9 +111,9 @@ const InputPropTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
       text: PropTypes.string.isRequired,
-      value: PropTypes.string
+      value: PropTypes.string,
     })
-  )
+  ),
 }
 
 Select.displayName = 'Select'

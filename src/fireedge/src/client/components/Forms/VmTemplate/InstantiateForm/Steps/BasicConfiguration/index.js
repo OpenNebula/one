@@ -22,7 +22,10 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
@@ -57,20 +60,20 @@ const Content = () => {
   )
 }
 
-const BasicConfiguration = initialValues => {
+const BasicConfiguration = (initialValues) => {
   const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.Configuration,
-    resolver: formData => {
+    resolver: (formData) => {
       const hypervisor =
         formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
 
       return SCHEMA(hypervisor)
     },
     optionsValidate: { abortEarly: false },
-    content: Content
+    content: Content,
   }
 }
 

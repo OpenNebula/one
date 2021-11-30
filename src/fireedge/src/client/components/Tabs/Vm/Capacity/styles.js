@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     marginBlock: '0.8em',
     padding: '1em',
@@ -23,29 +23,29 @@ export default makeStyles(theme => ({
     gap: '1em',
     gridAutoFlow: 'column',
     [theme.breakpoints.down('md')]: {
-      gridAutoFlow: 'initial'
-    }
+      gridAutoFlow: 'initial',
+    },
   },
   item: {
     [theme.breakpoints.down('md')]: {
       display: 'flex',
       gap: '1em',
       '& > *': {
-        width: '50%'
-      }
-    }
+        width: '50%',
+      },
+    },
   },
   actions: {
     [theme.breakpoints.down('md')]: {
       borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: '1em'
+      padding: '1em',
     },
     [theme.breakpoints.up('md')]: {
       order: 1,
-      textAlign: 'end'
-    }
+      textAlign: 'end',
+    },
   },
   title: {
-    fontWeight: theme.typography.fontWeightMedium
-  }
+    fontWeight: theme.typography.fontWeightMedium,
+  },
 }))

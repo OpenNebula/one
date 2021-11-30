@@ -22,9 +22,15 @@ import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AttachNicForm } from 'client/components/Forms/Vm'
 import { FormWithSchema } from 'client/components/Forms'
 
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { BOOT_ORDER_NAME, reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import {
+  BOOT_ORDER_NAME,
+  reorderBootAfterRemove,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
 import { T } from 'client/constants'
 import NicItem from './NicItem'
@@ -35,14 +41,25 @@ const mapNameFunction = mapNameByIndex('NIC')
 
 const Networking = () => {
   const { setValue, getValues } = useFormContext()
-  const { fields: nics, replace, update, append } = useFieldArray({
-    name: `${EXTRA_ID}.${TAB_ID}`
+  const {
+    fields: nics,
+    replace,
+    update,
+    append,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID}`,
   })
 
-  const removeAndReorder = nicName => {
-    const updatedNics = nics.filter(({ NAME }) => NAME !== nicName).map(mapNameFunction)
+  const removeAndReorder = (nicName) => {
+    const updatedNics = nics
+      .filter(({ NAME }) => NAME !== nicName)
+      .map(mapNameFunction)
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
-    const updatedBootOrder = reorderBootAfterRemove(nicName, nics, currentBootOrder)
+    const updatedBootOrder = reorderBootAfterRemove(
+      nicName,
+      nics,
+      currentBootOrder
+    )
 
     replace(updatedNics)
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
@@ -59,29 +76,35 @@ const Networking = () => {
           color: 'secondary',
           'data-cy': 'add-nic',
           label: T.AttachNic,
-          variant: 'outlined'
+          variant: 'outlined',
         }}
-        options={[{
-          dialogProps: { title: T.AttachNic },
-          form: () => AttachNicForm({ nics }),
-          onSubmit: nic => append(mapNameFunction(nic, nics.length))
-        }]}
+        options={[
+          {
+            dialogProps: { title: T.AttachNic },
+            form: () => AttachNicForm({ nics }),
+            onSubmit: (nic) => append(mapNameFunction(nic, nics.length)),
+          },
+        ]}
       />
-      <Stack pb='1em' display='grid' gap='1em' mt='1em'
+      <Stack
+        pb="1em"
+        display="grid"
+        gap="1em"
+        mt="1em"
         sx={{
           gridTemplateColumns: {
             sm: '1fr',
-            md: 'repeat(auto-fit, minmax(300px, 0.5fr))'
-          }
+            md: 'repeat(auto-fit, minmax(300px, 0.5fr))',
+          },
         }}
       >
         {nics?.map(({ id, ...item }, index) => (
           <NicItem
-            key= {id ?? item?.NAME}
+            key={id ?? item?.NAME}
             item={item}
             nics={nics}
             handleRemove={() => removeAndReorder(item?.NAME)}
-            handleUpdate={updatedNic => handleUpdate(updatedNic, index)}
+            handleUpdate={(updatedNic) => handleUpdate(updatedNic, index)}
           />
         ))}
       </Stack>
@@ -100,7 +123,7 @@ Networking.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 /** @type {TabType} */
@@ -109,7 +132,7 @@ const TAB = {
   name: T.Network,
   icon: NetworkIcon,
   Content: Networking,
-  getError: error => !!error?.[TAB_ID]
+  getError: (error) => !!error?.[TAB_ID],
 }
 
 export default TAB

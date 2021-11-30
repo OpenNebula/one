@@ -41,29 +41,25 @@ const SchedulingItem = ({ schedule, actions = [] }) => {
   const titleAction = `#${ID} ${sentenceCase(ACTION)}`
   const isRelative = String(TIME).includes('+')
 
-  const time = timeFromMilliseconds(
-    isRelative ? (vmStartTime + +TIME) : +TIME
-  )
+  const time = timeFromMilliseconds(isRelative ? vmStartTime + +TIME : +TIME)
 
   const doneTime = timeFromMilliseconds(+DONE)
 
   const now = Math.round(Date.now() / 1000)
-  const isWarning = WARNING && (now - vmStartTime) > +WARNING
+  const isWarning = WARNING && now - vmStartTime > +WARNING
 
   const labels = [...new Set([MESSAGE])].filter(Boolean)
 
   const { repeat, end } = VirtualMachine.periodicityToString(schedule)
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {titleAction}
-          </Typography>
+          <Typography component="span">{titleAction}</Typography>
           {!!labels.length && (
             <span className={classes.labels}>
-              {labels.map(label => (
+              {labels.map((label) => (
                 <StatusChip key={label} text={label} />
               ))}
             </span>
@@ -78,9 +74,7 @@ const SchedulingItem = ({ schedule, actions = [] }) => {
             </span>
           )}
           <span style={{ display: 'flex', gap: '0.5em' }}>
-            <span title={time.toFormat('ff')}>
-              {`${time.toRelative()}`}
-            </span>
+            <span title={time.toFormat('ff')}>{`${time.toRelative()}`}</span>
             {isWarning && <WarningIcon color={palette.warning.main} />}
           </span>
         </div>
@@ -101,7 +95,7 @@ const SchedulingItem = ({ schedule, actions = [] }) => {
 
 SchedulingItem.propTypes = {
   schedule: PropTypes.object.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 SchedulingItem.displayName = 'SchedulingItem'

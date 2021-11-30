@@ -15,20 +15,20 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '100vh'
+    height: '100vh',
   },
   progress: {
     height: 4,
     width: '100%',
     [theme.breakpoints.only('xs')]: {
       top: 0,
-      position: 'fixed'
-    }
+      position: 'fixed',
+    },
   },
   paper: {
     overflow: 'hidden',
@@ -36,18 +36,18 @@ export default makeStyles(theme => ({
     minHeight: 440,
     [theme.breakpoints.up('xs')]: {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
     },
     [theme.breakpoints.only('xs')]: {
       border: 'none',
       height: 'calc(100vh - 4px)',
-      backgroundColor: 'transparent'
-    }
+      backgroundColor: 'transparent',
+    },
   },
   wrapperForm: {
     padding: theme.spacing(2, 1),
     display: 'flex',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   form: {
     width: '100%',
@@ -55,13 +55,13 @@ export default makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     [theme.breakpoints.up('xs')]: {
-      justifyContent: 'center'
-    }
+      justifyContent: 'center',
+    },
   },
   loading: {
-    opacity: 0.7
+    opacity: 0.7,
   },
   helper: {
-    animation: '1s ease-out 0s 1'
-  }
+    animation: '1s ease-out 0s 1',
+  },
 }))

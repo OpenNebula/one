@@ -25,9 +25,9 @@ const DockerFile = ({ backButton, handleSetData, currentValue }) => (
       <h1 style={{ marginLeft: 5, flexGrow: 1 }}>Docker file</h1>
     </div>
     <InputCode
-      mode='dockerfile'
+      mode="dockerfile"
       defaultValue={currentValue}
-      onChange={newValue => handleSetData(newValue)}
+      onChange={(newValue) => handleSetData(newValue)}
     />
   </>
 )
@@ -35,13 +35,13 @@ const DockerFile = ({ backButton, handleSetData, currentValue }) => (
 DockerFile.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.string,
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 DockerFile.defaultProps = {
   backButton: null,
   currentValue: undefined,
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 export default DockerFile

@@ -27,7 +27,7 @@ import { isDevelopment } from 'client/utils'
  *
  * @returns {JSXElementConstructor} Marketplace App form
  */
-function CreateMarketplaceApp () {
+function CreateMarketplaceApp() {
   const history = useHistory()
   const { state: [resourceName, { ID } = {}] = [] } = useLocation()
   const initialValues = useMemo(() => ({ type: resourceName, id: ID }), [])
@@ -35,7 +35,7 @@ function CreateMarketplaceApp () {
   const { enqueueSuccess } = useGeneralApi()
   // const { } = useMarketplaceAppApi()
 
-  const onSubmit = async template => {
+  const onSubmit = async (template) => {
     try {
       isDevelopment() && console.log({ template })
       history.goBack()

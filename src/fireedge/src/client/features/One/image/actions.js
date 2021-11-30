@@ -20,13 +20,10 @@ import { RESOURCES } from 'client/features/One/slice'
 /** @see {@link RESOURCES.image}  */
 const IMAGE = 'image'
 
-export const getImage = createAction(
-  `${IMAGE}/detail`,
-  imageService.getImage
-)
+export const getImage = createAction(`${IMAGE}/detail`, imageService.getImage)
 
 export const getImages = createAction(
   `${IMAGE}/pool`,
   imageService.getImages,
-  response => ({ [RESOURCES.image]: response })
+  (response) => ({ [RESOURCES.image]: response })
 )

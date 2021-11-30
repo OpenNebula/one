@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const IMAGE_ALLOCATE = 'image.allocate'
@@ -54,7 +54,7 @@ const Actions = {
   IMAGE_INFO,
   IMAGE_LOCK,
   IMAGE_UNLOCK,
-  IMAGE_POOL_INFO
+  IMAGE_POOL_INFO,
 }
 
 module.exports = {
@@ -66,17 +66,17 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         datastore: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         capacity: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [IMAGE_CLONE]: {
       // inspected
@@ -84,17 +84,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         datastore: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [IMAGE_DELETE]: {
       // inspected
@@ -102,9 +102,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_ENABLE]: {
       // inspected
@@ -112,13 +112,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         enable: {
           from: postBody,
-          default: true
-        }
-      }
+          default: true,
+        },
+      },
     },
     [IMAGE_PERSISTENT]: {
       // inspected
@@ -126,13 +126,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         persistent: {
           from: postBody,
-          default: true
-        }
-      }
+          default: true,
+        },
+      },
     },
     [IMAGE_CHTYPE]: {
       // inspected
@@ -140,13 +140,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         type: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [IMAGE_UPDATE]: {
       // inspected
@@ -154,17 +154,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_CHMOD]: {
       // inspected
@@ -172,45 +172,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [IMAGE_CHOWN]: {
       // inspected
@@ -218,17 +218,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [IMAGE_RENAME]: {
       // inspected
@@ -236,13 +236,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [IMAGE_SNAPDEL]: {
       // inspected
@@ -250,13 +250,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_SNAPREV]: {
       // inspected
@@ -264,13 +264,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_SNAPFLAT]: {
       // inspected
@@ -278,13 +278,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_INFO]: {
       // inspected
@@ -292,13 +292,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [IMAGE_LOCK]: {
       // inspected
@@ -306,13 +306,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [IMAGE_UNLOCK]: {
       // inspected
@@ -320,9 +320,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [IMAGE_POOL_INFO]: {
       // inspected
@@ -330,17 +330,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

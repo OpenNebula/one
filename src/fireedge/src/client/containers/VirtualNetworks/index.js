@@ -19,14 +19,14 @@ import { Container, Box } from '@mui/material'
 
 import { VNetworksTable } from 'client/components/Tables'
 
-function VirtualNetworks () {
+function VirtualNetworks() {
   return (
     <Box
       height={1}
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       <VNetworksTable />

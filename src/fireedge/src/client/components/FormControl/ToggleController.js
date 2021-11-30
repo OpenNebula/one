@@ -21,7 +21,7 @@ import {
   FormControl,
   ToggleButtonGroup,
   ToggleButton,
-  FormHelperText
+  FormHelperText,
 } from '@mui/material'
 import { useController } from 'react-hook-form'
 
@@ -34,8 +34,8 @@ const Label = styled('label')(({ theme, error }) => ({
   alignItems: 'center',
   gap: '1em',
   ...(error && {
-    color: theme.palette.error.main
-  })
+    color: theme.palette.error.main,
+  }),
 }))
 
 const ToggleController = memo(
@@ -47,24 +47,24 @@ const ToggleController = memo(
     multiple = false,
     values = [],
     tooltip,
-    fieldProps = {}
+    fieldProps = {},
   }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
     const {
       field: { ref, value: optionSelected = defaultValue, onChange },
-      fieldState: { error: { message } = {} }
+      fieldState: { error: { message } = {} },
     } = useController({ name, control })
 
     useEffect(() => {
       if (optionSelected) {
-        const exists = values?.find(option => option.value === optionSelected)
+        const exists = values?.find((option) => option.value === optionSelected)
         !exists && onChange()
       }
     }, [])
 
     return (
-      <FormControl fullWidth margin='dense'>
+      <FormControl fullWidth margin="dense">
         {label && (
           <Label htmlFor={cy} error={Boolean(message)}>
             {labelCanBeTranslated(label) ? Tr(label) : label}
@@ -81,11 +81,11 @@ const ToggleController = memo(
           data-cy={cy}
           {...fieldProps}
         >
-          {values?.map(({ text, value = '' }) =>
+          {values?.map(({ text, value = '' }) => (
             <ToggleButton key={`${name}-${value}`} value={value}>
               {text}
             </ToggleButton>
-          )}
+          ))}
         </ToggleButtonGroup>
         {Boolean(message) && (
           <FormHelperText data-cy={`${cy}-error`}>
@@ -111,7 +111,7 @@ ToggleController.propTypes = {
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 ToggleController.displayName = 'ToggleController'

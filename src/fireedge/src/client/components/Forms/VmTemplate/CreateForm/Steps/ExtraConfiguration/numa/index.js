@@ -18,7 +18,10 @@ import { ElectronicsChip as NumaIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
-import { STEP_ID as EXTRA_ID, TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { VIRTUAL_CPU as VCPU_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
 import { FIELDS as NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { T } from 'client/constants'
@@ -46,7 +49,7 @@ Numa.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
 /** @type {TabType} */
@@ -55,9 +58,7 @@ const TAB = {
   name: T.Numa,
   icon: NumaIcon,
   Content: Numa,
-  getError: error =>
-    !!error?.[TAB_ID] ||
-    !!error?.[VCPU_FIELD.name]
+  getError: (error) => !!error?.[TAB_ID] || !!error?.[VCPU_FIELD.name],
 }
 
 export default TAB

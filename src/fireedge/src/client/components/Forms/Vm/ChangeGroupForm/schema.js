@@ -29,7 +29,7 @@ const GROUP = {
     .trim()
     .required('You must select a group')
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FIELDS = [GROUP]

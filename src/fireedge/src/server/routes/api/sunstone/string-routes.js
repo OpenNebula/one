@@ -17,7 +17,7 @@
 const SUNSTONE = 'sunstone'
 
 const Actions = {
-  SUNSTONE
+  SUNSTONE,
 }
 
 module.exports = Actions

@@ -27,7 +27,7 @@ const FILTER = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @returns {Field} NIC model field */
@@ -38,7 +38,7 @@ const MODEL = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field[]} List of Network defaults fields */
@@ -48,7 +48,7 @@ const FIELDS = [FILTER, MODEL]
 const SCHEMA = object({
   NIC: array()
     .ensure()
-    .transform(nics => nics.map(mapNameByIndex('NIC')))
+    .transform((nics) => nics.map(mapNameByIndex('NIC'))),
 }).concat(getObjectSchemaFromFields(FIELDS))
 
 export { FIELDS, SCHEMA }

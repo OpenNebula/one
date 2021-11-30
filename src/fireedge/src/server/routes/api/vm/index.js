@@ -20,7 +20,7 @@ const { VM } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(vmRoutes, VM),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

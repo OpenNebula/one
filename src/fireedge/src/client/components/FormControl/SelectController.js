@@ -33,17 +33,23 @@ const SelectController = memo(
     values = [],
     renderValue,
     tooltip,
-    fieldProps = {}
+    fieldProps = {},
   }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
     const {
-      field: { ref, value: optionSelected = defaultValue, onChange, ...inputProps },
-      fieldState: { error }
+      field: {
+        ref,
+        value: optionSelected = defaultValue,
+        onChange,
+        ...inputProps
+      },
+      fieldState: { error },
     } = useController({ name, control })
 
     const needShrink = useMemo(
-      () => multiple || values.find(v => v.value === optionSelected)?.text !== '',
+      () =>
+        multiple || values.find((v) => v.value === optionSelected)?.text !== '',
       [optionSelected]
     )
 
@@ -58,16 +64,22 @@ const SelectController = memo(
         {...inputProps}
         inputRef={ref}
         value={optionSelected}
-        onChange={!multiple ? onChange : evt => {
-          const { target: { options } } = evt
-          const newValue = []
+        onChange={
+          !multiple
+            ? onChange
+            : (evt) => {
+                const {
+                  target: { options },
+                } = evt
+                const newValue = []
 
-          for (const option of options) {
-            option.selected && newValue.push(option.value)
-          }
+                for (const option of options) {
+                  option.selected && newValue.push(option.value)
+                }
 
-          onChange(newValue)
-        }}
+                onChange(newValue)
+              }
+        }
         select
         fullWidth
         SelectProps={{ native: true, multiple }}
@@ -76,7 +88,7 @@ const SelectController = memo(
         InputProps={{
           startAdornment:
             (optionSelected && renderValue?.(optionSelected)) ||
-            (tooltip && <Tooltip title={tooltip} position='start' />)
+            (tooltip && <Tooltip title={tooltip} position="start" />),
         }}
         inputProps={{ 'data-cy': cy }}
         error={Boolean(error)}
@@ -84,11 +96,11 @@ const SelectController = memo(
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
       >
-        {values?.map(({ text, value = '' }) =>
+        {values?.map(({ text, value = '' }) => (
           <option key={`${name}-${value}`} value={value}>
             {text}
           </option>
-        )}
+        ))}
       </TextField>
     )
   },
@@ -109,7 +121,7 @@ SelectController.propTypes = {
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 SelectController.displayName = 'SelectController'

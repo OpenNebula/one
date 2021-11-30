@@ -21,36 +21,39 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/provision/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useProvisionTemplate = () => (
-  useSelector(state => state[name]?.[RESOURCES.document.defaults])
-)
+export const useProvisionTemplate = () =>
+  useSelector((state) => state[name]?.[RESOURCES.document.defaults])
 
-export const useProvision = () => (
-  useSelector(state => state[name]?.[RESOURCES.document[103]])
-)
+export const useProvision = () =>
+  useSelector((state) => state[name]?.[RESOURCES.document[103]])
 
 export const useProvisionApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getProvisionsTemplates: () => unwrapDispatch(actions.getProvisionsTemplates()),
-    createProvisionTemplate: () => unwrapDispatch(actions.createProvisionTemplate()),
+    getProvisionsTemplates: () =>
+      unwrapDispatch(actions.getProvisionsTemplates()),
+    createProvisionTemplate: () =>
+      unwrapDispatch(actions.createProvisionTemplate()),
 
-    getProvision: id => unwrapDispatch(actions.getProvision({ id })),
+    getProvision: (id) => unwrapDispatch(actions.getProvision({ id })),
     getProvisions: () => dispatch(actions.getProvisions()),
-    createProvision: data => unwrapDispatch(actions.createProvision({ data })),
-    configureProvision: id => unwrapDispatch(actions.configureProvision({ id })),
-    deleteProvision: (id, data) => unwrapDispatch(actions.deleteProvision({ id, ...data })),
-    getProvisionLog: id => unwrapDispatch(actions.getProvisionLog({ id })),
+    createProvision: (data) =>
+      unwrapDispatch(actions.createProvision({ data })),
+    configureProvision: (id) =>
+      unwrapDispatch(actions.configureProvision({ id })),
+    deleteProvision: (id, data) =>
+      unwrapDispatch(actions.deleteProvision({ id, ...data })),
+    getProvisionLog: (id) => unwrapDispatch(actions.getProvisionLog({ id })),
 
-    deleteDatastore: id => unwrapDispatch(actions.deleteDatastore({ id })),
-    deleteVNetwork: id => unwrapDispatch(actions.deleteVNetwork({ id })),
-    deleteHost: id => unwrapDispatch(actions.deleteHost({ id })),
-    configureHost: id => unwrapDispatch(actions.configureHost({ id }))
+    deleteDatastore: (id) => unwrapDispatch(actions.deleteDatastore({ id })),
+    deleteVNetwork: (id) => unwrapDispatch(actions.deleteVNetwork({ id })),
+    deleteHost: (id) => unwrapDispatch(actions.deleteHost({ id })),
+    configureHost: (id) => unwrapDispatch(actions.configureHost({ id })),
   }
 }

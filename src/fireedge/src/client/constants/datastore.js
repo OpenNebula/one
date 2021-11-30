@@ -24,11 +24,11 @@ export const DATASTORE_STATES = [
   {
     name: STATES.READY,
     shortName: 'on',
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
   {
     name: STATES.DISABLED,
     shortName: 'off',
-    color: COLOR.error.dark
-  }
+    color: COLOR.error.dark,
+  },
 ]

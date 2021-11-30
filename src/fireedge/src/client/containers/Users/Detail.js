@@ -19,19 +19,19 @@ import { Container, Box } from '@mui/material'
 
 import UserTabs from 'client/components/Tabs/User'
 
-function UserDetail () {
+function UserDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to='/' />
+    return <Redirect to="/" />
   }
 
   return (
     <Box
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       <UserTabs id={id} />

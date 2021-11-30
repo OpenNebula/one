@@ -15,6 +15,4 @@
  * ------------------------------------------------------------------------- */
 import CreateForm from 'client/components/Forms/Provider/CreateForm'
 
-export {
-  CreateForm
-}
+export { CreateForm }

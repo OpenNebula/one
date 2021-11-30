@@ -67,7 +67,7 @@ const Provision = ({ store = {}, location = '', context = {} }) => (
 Provision.propTypes = {
   location: PropTypes.string,
   context: PropTypes.object,
-  store: PropTypes.object
+  store: PropTypes.object,
 }
 
 Provision.displayName = 'ProvisionApp'

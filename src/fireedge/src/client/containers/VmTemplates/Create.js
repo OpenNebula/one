@@ -28,14 +28,14 @@ import { isDevelopment } from 'client/utils'
  *
  * @returns {JSXElementConstructor} VM Template form
  */
-function CreateVmTemplate () {
+function CreateVmTemplate() {
   const history = useHistory()
   const { state: { ID: templateId, NAME } = {} } = useLocation()
 
   const { enqueueSuccess } = useGeneralApi()
   const { update, allocate } = useVmTemplateApi()
 
-  const onSubmit = async template => {
+  const onSubmit = async (template) => {
     try {
       if (templateId === undefined) {
         await allocate(template)

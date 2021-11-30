@@ -21,7 +21,7 @@ import { Field, getObjectSchemaFromFields, decodeBase64 } from 'client/utils'
 const switchField = {
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} SSH public key field */
@@ -30,12 +30,9 @@ export const SSH_PUBLIC_KEY = {
   label: T.SshPublicKey,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure(),
+  validation: string().trim().notRequired().ensure(),
   grid: { md: 12 },
-  fieldProps: { rows: 4 }
+  fieldProps: { rows: 4 },
 }
 
 /** @type {Field} Network context field */
@@ -43,7 +40,7 @@ const NETWORK = {
   name: 'CONTEXT.NETWORK',
   label: T.AddNetworkContextualization,
   tooltip: T.AddNetworkContextualizationConcept,
-  ...switchField
+  ...switchField,
 }
 
 /** @type {Field} Token OneGate token field */
@@ -51,7 +48,7 @@ const TOKEN = {
   name: 'CONTEXT.TOKEN',
   label: T.AddOneGateToken,
   tooltip: T.AddOneGateTokenConcept,
-  ...switchField
+  ...switchField,
 }
 
 /** @type {Field} Report READY to OneGate field */
@@ -59,7 +56,7 @@ const REPORT_READY = {
   name: 'CONTEXT.REPORT_READY',
   label: T.ReportReadyToOneGate,
   tooltip: T.ReportReadyToOneGateConcept,
-  ...switchField
+  ...switchField,
 }
 
 /** @type {Field} Encode start script field */
@@ -68,8 +65,8 @@ export const ENCODE_START_SCRIPT = {
   label: T.EncodeScriptInBase64,
   ...switchField,
   validation: boolean()
-    .transform(value => Boolean(value))
-    .default(() => ref('$extra.CONTEXT.START_SCRIPT_BASE64'))
+    .transform((value) => Boolean(value))
+    .default(() => ref('$extra.CONTEXT.START_SCRIPT_BASE64')),
 }
 
 /** @type {Field} Start script field */
@@ -83,20 +80,17 @@ export const START_SCRIPT = {
     .trim()
     .notRequired()
     .ensure()
-    .when(
-      '$extra.CONTEXT.START_SCRIPT_BASE64',
-      (scriptEncoded, schema) => scriptEncoded
-        ? schema.default(() => decodeBase64(scriptEncoded))
-        : schema
+    .when('$extra.CONTEXT.START_SCRIPT_BASE64', (scriptEncoded, schema) =>
+      scriptEncoded ? schema.default(() => decodeBase64(scriptEncoded)) : schema
     ),
   grid: { md: 12 },
-  fieldProps: { rows: 4 }
+  fieldProps: { rows: 4 },
 }
 
 /** @type {Field} Start script in base64 field */
 export const START_SCRIPT_BASE64 = {
   name: 'CONTEXT.START_SCRIPT_BASE64',
-  validation: string().strip()
+  validation: string().strip(),
 }
 
 export const SCRIPT_FIELDS = [START_SCRIPT, ENCODE_START_SCRIPT]
@@ -109,5 +103,5 @@ export const CONFIGURATION_SCHEMA = getObjectSchemaFromFields([
   SSH_PUBLIC_KEY,
   START_SCRIPT_BASE64,
   ...SCRIPT_FIELDS,
-  ...OTHER_FIELDS
+  ...OTHER_FIELDS,
 ])

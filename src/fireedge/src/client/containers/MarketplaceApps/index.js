@@ -27,12 +27,12 @@ import MultipleTags from 'client/components/MultipleTags'
  *
  * @returns {JSXElementConstructor} List of Marketplace Apps
  */
-function MarketplaceApps () {
+function MarketplaceApps() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = MarketplaceAppActions()
 
   return (
-    <Stack height={1} py={2} overflow='auto' component={Container}>
+    <Stack height={1} py={2} overflow="auto" component={Container}>
       <SplitPane>
         <MarketplaceAppsTable
           onSelectedRowsChange={onSelectedRowsChange}
@@ -40,22 +40,31 @@ function MarketplaceApps () {
         />
 
         {selectedRows?.length > 0 && (
-          <Stack overflow='auto'>
-            {selectedRows?.length === 1
-              ? <MarketplaceAppsTabs id={selectedRows[0]?.values.ID} />
-              : <Stack direction='row' flexWrap='wrap' gap={1} alignItems='center'>
+          <Stack overflow="auto">
+            {selectedRows?.length === 1 ? (
+              <MarketplaceAppsTabs id={selectedRows[0]?.values.ID} />
+            ) : (
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                alignItems="center"
+              >
                 <MultipleTags
                   limitTags={10}
-                  tags={selectedRows?.map(({ original, id, toggleRowSelected }) => (
-                    <Chip key={id}
-                      variant='text'
-                      label={original?.NAME ?? id}
-                      onDelete={() => toggleRowSelected(false)}
-                    />
-                  ))}
+                  tags={selectedRows?.map(
+                    ({ original, id, toggleRowSelected }) => (
+                      <Chip
+                        key={id}
+                        variant="text"
+                        label={original?.NAME ?? id}
+                        onDelete={() => toggleRowSelected(false)}
+                      />
+                    )
+                  )}
                 />
               </Stack>
-            }
+            )}
           </Stack>
         )}
       </SplitPane>

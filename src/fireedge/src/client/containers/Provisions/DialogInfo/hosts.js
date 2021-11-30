@@ -26,16 +26,15 @@ import { HostCard } from 'client/components/Cards'
 
 const Hosts = memo(
   ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const {
-      hosts = []
-    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+    const { hosts = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
     const { enqueueSuccess, enqueueInfo } = useGeneralApi()
     const { configureHost, deleteHost } = useProvisionApi()
     const { getHost } = useHostApi()
 
     const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchHosts = () => fetchRequestAll(hosts?.map(({ id }) => getHost(id)))
+    const fetchHosts = () =>
+      fetchRequestAll(hosts?.map(({ id }) => getHost(id)))
 
     useEffect(() => {
       !hidden && !list && fetchHosts()
@@ -50,37 +49,43 @@ const Hosts = memo(
         list={list}
         isLoading={!list && loading}
         CardComponent={HostCard}
-        cardsProps={({ value: { ID } }) => !disableAllActions && ({
-          actions: [
-            {
-              handleClick: () => configureHost(ID)
-                .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
-                .then(refetchProvision),
-              icon: <ConfigureIcon />,
-              cy: `provision-host-configure-${ID}`
-            },
-            {
-              handleClick: () => deleteHost(ID)
-                .then(refetchProvision)
-                .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
-              icon: <DeleteIcon color='error' />,
-              cy: `provision-host-delete-${ID}`
-            }
-          ]
-        })}
+        cardsProps={({ value: { ID } }) =>
+          !disableAllActions && {
+            actions: [
+              {
+                handleClick: () =>
+                  configureHost(ID)
+                    .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
+                    .then(refetchProvision),
+                icon: <ConfigureIcon />,
+                cy: `provision-host-configure-${ID}`,
+              },
+              {
+                handleClick: () =>
+                  deleteHost(ID)
+                    .then(refetchProvision)
+                    .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
+                icon: <DeleteIcon color="error" />,
+                cy: `provision-host-delete-${ID}`,
+              },
+            ],
+          }
+        }
         displayEmpty
         breakpoints={{ xs: 12, md: 6 }}
       />
     )
-  }, (prev, next) =>
-    prev.hidden === next.hidden && prev.reloading === next.reloading)
+  },
+  (prev, next) =>
+    prev.hidden === next.hidden && prev.reloading === next.reloading
+)
 
 Hosts.propTypes = {
   data: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   refetchProvision: PropTypes.func,
   reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool
+  disableAllActions: PropTypes.bool,
 }
 
 Hosts.defaultProps = {
@@ -88,7 +93,7 @@ Hosts.defaultProps = {
   hidden: false,
   refetchProvision: () => undefined,
   reloading: false,
-  disableAllActions: false
+  disableAllActions: false,
 }
 
 Hosts.displayName = 'Hosts'

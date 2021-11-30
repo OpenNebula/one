@@ -27,7 +27,7 @@ const { subscriber } = require('server/routes/api/provision/functions')
 const configErrorProvision = (error = '') => ({
   color: 'red',
   error,
-  message: '%s'
+  message: '%s',
 })
 
 /**
@@ -38,24 +38,19 @@ const configErrorProvision = (error = '') => ({
  */
 const main = (app = {}, type = '') => {
   try {
-    app
-      .use(middlewareValidateAuthWebsocket)
-      .on('connection', (server = {}) => {
-        server.on('disconnect', () => {
-          messageTerminal(configErrorProvision('disconnect'))
-        })
-        subscriber(
-          'oneprovision',
-          data => {
-            app.emit(type, data)
-          }
-        )
+    app.use(middlewareValidateAuthWebsocket).on('connection', (server = {}) => {
+      server.on('disconnect', () => {
+        messageTerminal(configErrorProvision('disconnect'))
       })
+      subscriber('oneprovision', (data) => {
+        app.emit(type, data)
+      })
+    })
   } catch (error) {
     messageTerminal(configErrorProvision(error))
   }
 }
 
 module.exports = {
-  main
+  main,
 }

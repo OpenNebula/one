@@ -19,7 +19,7 @@ import { RestClient } from 'client/utils'
 
 const { POST, PUT, DELETE } = defaults?.httpMethod || {}
 
-export const provisionService = ({
+export const provisionService = {
   // --------------------------------------------
   // PROVISION TEMPLATE requests
   // --------------------------------------------
@@ -33,7 +33,7 @@ export const provisionService = ({
    */
   getProvisionsTemplates: async () => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/defaults`
+      url: `/api/${PROVISION}/defaults`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -47,7 +47,7 @@ export const provisionService = ({
    * @returns {Promise} TODO
    */
   createProvisionTemplate: () => {
-    return Promise.resolve().then(res => res?.data?.DOCUMENT ?? {})
+    return Promise.resolve().then((res) => res?.data?.DOCUMENT ?? {})
   },
 
   // --------------------------------------------
@@ -64,7 +64,7 @@ export const provisionService = ({
    */
   getProvision: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/list/${id}`
+      url: `/api/${PROVISION}/list/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -80,7 +80,7 @@ export const provisionService = ({
    */
   getProvisions: async () => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/list`
+      url: `/api/${PROVISION}/list`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -100,7 +100,7 @@ export const provisionService = ({
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${PROVISION}/create`
+      url: `/api/${PROVISION}/create`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -122,7 +122,7 @@ export const provisionService = ({
   configureProvision: async ({ id }) => {
     const res = await RestClient.request({
       method: PUT,
-      url: `/api/${PROVISION}/configure/${id}`
+      url: `/api/${PROVISION}/configure/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -148,7 +148,7 @@ export const provisionService = ({
     const res = await RestClient.request({
       method: DELETE,
       url: `/api/${PROVISION}/delete/${id}`,
-      data
+      data,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -169,7 +169,7 @@ export const provisionService = ({
    */
   getProvisionLog: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/log/${id}`
+      url: `/api/${PROVISION}/log/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -195,7 +195,7 @@ export const provisionService = ({
   deleteDatastore: async ({ id }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVISION}/datastore/${id}`
+      url: `/api/${PROVISION}/datastore/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -214,7 +214,7 @@ export const provisionService = ({
   deleteVNetwork: async ({ id }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVISION}/network/${id}`
+      url: `/api/${PROVISION}/network/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -233,7 +233,7 @@ export const provisionService = ({
   deleteHost: async ({ id }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVISION}/host/${id}`
+      url: `/api/${PROVISION}/host/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -252,7 +252,7 @@ export const provisionService = ({
   configureHost: async ({ id }) => {
     const res = await RestClient.request({
       method: PUT,
-      url: `/api/${PROVISION}/host/${id}`
+      url: `/api/${PROVISION}/host/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -261,5 +261,5 @@ export const provisionService = ({
     }
 
     return res?.data ?? {}
-  }
-})
+  },
+}

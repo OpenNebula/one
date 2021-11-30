@@ -25,13 +25,7 @@ const { sprintf } = require('sprintf-js')
  * @param {string} config.error - error mesage
  * @param {string} config.message - formar error
  */
-const messageTerminal = (
-  {
-    color = 'red',
-    error = '',
-    message = '%s'
-  }
-) => {
+const messageTerminal = ({ color = 'red', error = '', message = '%s' }) => {
   const reset = '\x1b[0m'
   let consoleColor = ''
   switch (color) {
@@ -63,6 +57,7 @@ const addPrintf = (string = '', args = '') => {
       typeof replacers[number] !== 'undefined' ? replacers[number] : match
     )
   }
+
   return rtn
 }
 
@@ -78,5 +73,5 @@ const checkEmptyObject = (obj = {}) =>
 module.exports = {
   messageTerminal,
   addPrintf,
-  checkEmptyObject
+  checkEmptyObject,
 }

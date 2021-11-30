@@ -20,12 +20,14 @@ const { defaultEmptyFunction } = require('server/utils/constants/defaults')
 const { existsFile, httpResponse, getFiles } = require('server/utils/server')
 const { sensitiveDataRemoverConfig } = require('server/utils/opennebula')
 const { Actions: ActionsUser } = require('server/utils/constants/commands/user')
-const { Actions: ActionsGroup } = require('server/utils/constants/commands/group')
+const {
+  Actions: ActionsGroup,
+} = require('server/utils/constants/commands/group')
 
 const {
   ok,
   internalServerError,
-  notFound
+  notFound,
 } = require('server/utils/constants/http-codes')
 
 const sensitiveData = ['support_url', 'support_token']
@@ -39,7 +41,11 @@ const httpInternalError = httpResponse(internalServerError, '', '')
  * @param {string} idGroup - id of group
  * @param {Function} callback - run function when have group information
  */
-const getInfoGroup = (connect = defaultEmptyFunction, idGroup, callback = defaultEmptyFunction) => {
+const getInfoGroup = (
+  connect = defaultEmptyFunction,
+  idGroup,
+  callback = defaultEmptyFunction
+) => {
   connect(
     ActionsGroup.GROUP_INFO,
     [parseInt(idGroup, 10), false],
@@ -71,9 +77,22 @@ const responseHttp = (res = {}, next = defaultEmptyFunction, httpCode) => {
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - xmlrpc function
  */
-const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const getViews = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, password } = userData
-  if (user && password && global && global.paths && global.paths.SUNSTONE_VIEWS && global.paths.SUNSTONE_PATH) {
+  if (
+    user &&
+    password &&
+    global &&
+    global.paths &&
+    global.paths.SUNSTONE_VIEWS &&
+    global.paths.SUNSTONE_PATH
+  ) {
     const connect = oneConnection(user, password)
     connect(
       ActionsUser.USER_INFO,
@@ -87,34 +106,33 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
                 existsFile(
                   global.paths.SUNSTONE_VIEWS,
-                  filedata => {
+                  (filedata) => {
                     const jsonFileData = parse(filedata) || {}
-                    if (jsonFileData && jsonFileData.groups && jsonFileData.default) {
-                      const views = jsonFileData.groups[vmgroupData.GROUP.NAME] || jsonFileData.default
+                    if (
+                      jsonFileData &&
+                      jsonFileData.groups &&
+                      jsonFileData.default
+                    ) {
+                      const views =
+                        jsonFileData.groups[vmgroupData.GROUP.NAME] ||
+                        jsonFileData.default
                       const rtn = {}
-                      views.forEach(view => {
+                      views.forEach((view) => {
                         getFiles(
                           `${global.paths.SUNSTONE_PATH}${view}`
-                        ).forEach(viewPath => {
-                          existsFile(
-                            viewPath,
-                            (viewData = '') => {
-                              if (!rtn[view]) {
-                                rtn[view] = []
-                              }
-                              const jsonViewData = parse(viewData) || {}
-                              if (jsonViewData && jsonViewData.resource_name) {
-                                rtn[view].push(jsonViewData)
-                              }
+                        ).forEach((viewPath) => {
+                          existsFile(viewPath, (viewData = '') => {
+                            if (!rtn[view]) {
+                              rtn[view] = []
                             }
-                          )
+                            const jsonViewData = parse(viewData) || {}
+                            if (jsonViewData && jsonViewData.resource_name) {
+                              rtn[view].push(jsonViewData)
+                            }
+                          })
                         })
                       })
-                      responseHttp(
-                        res,
-                        next,
-                        httpResponse(ok, rtn)
-                      )
+                      responseHttp(res, next, httpResponse(ok, rtn))
                     }
                   },
                   () => {
@@ -145,30 +163,27 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const getConfig = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const getConfig = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   let error
-  const config = getSunstoneConfig(
-    err => {
-      error = err
-    }
-  )
+  const config = getSunstoneConfig((err) => {
+    error = err
+  })
   responseHttp(
     res,
     next,
     error
       ? httpResponse(notFound, error)
-      : httpResponse(
-        ok,
-        sensitiveDataRemoverConfig(
-          config,
-          sensitiveData
-        )
-      )
+      : httpResponse(ok, sensitiveDataRemoverConfig(config, sensitiveData))
   )
 }
 
 const sunstoneApi = {
   getViews,
-  getConfig
+  getConfig,
 }
 module.exports = sunstoneApi

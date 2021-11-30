@@ -17,7 +17,8 @@
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as MarketplaceModel from 'client/models/Datastore'
 
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -27,25 +28,27 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => MarketplaceModel.getState(row)?.name,
+    accessor: (row) => MarketplaceModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'Market',
     accessor: 'MARKET_MAD',
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'Market mad'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'Market mad',
+      }),
+    filter: 'includesValue',
   },
   { Header: 'Total Capacity', accessor: 'TOTAL_MB' },
   { Header: 'Free Capacity', accessor: 'USED_MB' },
@@ -53,6 +56,6 @@ export default [
   {
     Header: 'Total Apps',
     id: 'TOTAL_APPS',
-    accessor: row => getTotalOfResources(row?.MARKETPLACEAPPS)
-  }
+    accessor: (row) => getTotalOfResources(row?.MARKETPLACEAPPS),
+  },
 ]

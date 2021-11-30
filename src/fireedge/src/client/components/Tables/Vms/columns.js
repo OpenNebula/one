@@ -22,7 +22,7 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => VirtualMachineModel.getState(row)?.name
+    accessor: (row) => VirtualMachineModel.getState(row)?.name,
   },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
@@ -32,12 +32,12 @@ export default [
   {
     Header: 'Ips',
     id: 'IPS',
-    accessor: row => VirtualMachineModel.getIps(row).join(','),
-    sortType: 'length'
+    accessor: (row) => VirtualMachineModel.getIps(row).join(','),
+    sortType: 'length',
   },
   {
     Header: 'Hostname',
     id: 'HOSTNAME',
-    accessor: row => VirtualMachineModel.getLastHistory(row)?.HOSTNAME
-  }
+    accessor: (row) => VirtualMachineModel.getLastHistory(row)?.HOSTNAME,
+  },
 ]

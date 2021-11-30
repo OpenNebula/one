@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/CloneForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/VmTemplate/CloneForm/schema'
 
 const CloneForm = createForm(SCHEMA, FIELDS)
 

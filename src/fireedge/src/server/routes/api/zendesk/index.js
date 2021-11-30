@@ -20,7 +20,7 @@ const { ZENDESK } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(zendeskRoutes, ZENDESK),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

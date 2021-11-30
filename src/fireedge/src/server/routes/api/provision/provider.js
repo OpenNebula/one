@@ -21,7 +21,7 @@ const {
   createProviders,
   updateProviders,
   deleteProvider,
-  getProviderConfig
+  getProviderConfig,
 } = require('./provider-functions')
 const { httpMethod } = require('server/utils/constants/defaults')
 
@@ -32,48 +32,48 @@ const routes = {
     list: {
       action: getListProviders,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     connection: {
       action: getConnectionProviders,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     config: {
       action: getProviderConfig,
-      params: {}
-    }
+      params: {},
+    },
   },
   [POST]: {
     create: {
       action: createProviders,
       params: {
-        resource: { from: fromData.postBody, front: true }
-      }
-    }
+        resource: { from: fromData.postBody, front: true },
+      },
+    },
   },
   [PUT]: {
     update: {
       action: updateProviders,
       params: {
         resource: { from: fromData.postBody, front: true },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [DELETE]: {
     delete: {
       action: deleteProvider,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
-  }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
+  },
 }
 
 const providerApi = {
-  routes
+  routes,
 }
 module.exports = providerApi

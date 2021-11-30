@@ -19,19 +19,19 @@ import { Container, Box } from '@mui/material'
 
 import ClusterTabs from 'client/components/Tabs/Cluster'
 
-function ClusterDetail () {
+function ClusterDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to='/' />
+    return <Redirect to="/" />
   }
 
   return (
     <Box
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       {<ClusterTabs id={id} />}

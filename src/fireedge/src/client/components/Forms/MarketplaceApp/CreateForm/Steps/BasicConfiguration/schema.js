@@ -17,19 +17,28 @@ import { string, boolean, object, ObjectSchema } from 'yup'
 import { makeStyles } from '@mui/styles'
 
 import { useSystem, useDatastore } from 'client/features/One'
-import { ImagesTable, VmsTable, VmTemplatesTable } from 'client/components/Tables'
-import { Field, arrayToOptions, getValidationFromFields, sentenceCase } from 'client/utils'
+import {
+  ImagesTable,
+  VmsTable,
+  VmTemplatesTable,
+} from 'client/components/Tables'
+import {
+  Field,
+  arrayToOptions,
+  getValidationFromFields,
+  sentenceCase,
+} from 'client/utils'
 import { isMarketExportSupport } from 'client/models/Datastore'
 import { T, INPUT_TYPES, STATES, RESOURCE_NAMES } from 'client/constants'
 
 const TYPES = {
   IMAGE: RESOURCE_NAMES.IMAGE.toUpperCase(),
   VM: RESOURCE_NAMES.VM.toUpperCase(),
-  VM_TEMPLATE: RESOURCE_NAMES.VM_TEMPLATE.toUpperCase()
+  VM_TEMPLATE: RESOURCE_NAMES.VM_TEMPLATE.toUpperCase(),
 }
 
 const useTableStyles = makeStyles({
-  body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' }
+  body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
 })
 
 /** @type {Field} Type field */
@@ -38,14 +47,14 @@ const TYPE = {
   type: INPUT_TYPES.TOGGLE,
   values: arrayToOptions(Object.values(TYPES), {
     addEmpty: false,
-    getText: type => sentenceCase(type).toUpperCase()
+    getText: (type) => sentenceCase(type).toUpperCase(),
   }),
   validation: string()
     .trim()
     .required()
     .uppercase()
     .default(() => TYPES.IMAGE),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} App name field */
@@ -57,7 +66,7 @@ const NAME = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { md: 12, lg: 6 }
+  grid: { md: 12, lg: 6 },
 }
 
 /** @type {Field} Import image/templates field */
@@ -66,7 +75,7 @@ const IMPORT = {
   label: T.DontAssociateApp,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
-  grid: { md: 12, lg: 6 }
+  grid: { md: 12, lg: 6 },
 }
 
 /** @type {Field} Resource table field */
@@ -74,36 +83,40 @@ const RES_TABLE = {
   name: 'id',
   type: INPUT_TYPES.TABLE,
   dependOf: 'type',
-  label: type => `Select the ${
-    sentenceCase(type) ?? 'resource'} to create the App`,
-  Table: type => ({
-    [TYPES.IMAGE]: ImagesTable,
-    [TYPES.VM]: VmsTable,
-    [TYPES.VM_TEMPLATE]: VmTemplatesTable
-  })[type],
+  label: (type) =>
+    `Select the ${sentenceCase(type) ?? 'resource'} to create the App`,
+  Table: (type) =>
+    ({
+      [TYPES.IMAGE]: ImagesTable,
+      [TYPES.VM]: VmsTable,
+      [TYPES.VM_TEMPLATE]: VmTemplatesTable,
+    }[type]),
   validation: string()
     .trim()
     .required()
     .default(() => undefined),
   grid: { md: 12 },
-  fieldProps: type => {
+  fieldProps: (type) => {
     const { config: oneConfig } = useSystem()
     const datastores = useDatastore()
     const classes = useTableStyles()
 
     return {
       [TYPES.IMAGE]: {
-        filter: image => {
-          const datastore = datastores?.find(ds => ds?.ID === image?.DATASTORE_ID)
+        filter: (image) => {
+          const datastore = datastores?.find(
+            (ds) => ds?.ID === image?.DATASTORE_ID
+          )
+
           return isMarketExportSupport(datastore, oneConfig)
-        }
+        },
       },
       [TYPES.VM]: {
-        initialState: { filters: [{ id: 'STATE', value: STATES.POWEROFF }] }
+        initialState: { filters: [{ id: 'STATE', value: STATES.POWEROFF }] },
       },
-      [TYPES.VM_TEMPLATE]: { classes }
+      [TYPES.VM_TEMPLATE]: { classes },
     }[type]
-  }
+  },
 }
 
 /** @type {Field[]} - List of fields */

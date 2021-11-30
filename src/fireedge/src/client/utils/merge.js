@@ -23,19 +23,21 @@
  * @param {object|Array} val - Value
  * @returns {boolean} Returns `true` if value isn't regex or date object
  */
-export const isMergeableObject = val => {
-  var nonNullObject = val && typeof val === 'object'
+export const isMergeableObject = (val) => {
+  const nonNullObject = val && typeof val === 'object'
 
-  return nonNullObject &&
-      Object.prototype.toString.call(val) !== '[object RegExp]' &&
-      Object.prototype.toString.call(val) !== '[object Date]'
+  return (
+    nonNullObject &&
+    Object.prototype.toString.call(val) !== '[object RegExp]' &&
+    Object.prototype.toString.call(val) !== '[object Date]'
+  )
 }
 
 /**
  * @param {object|Array} val - Value
  * @returns {object|Array} Empty value
  */
-export const emptyTarget = val => Array.isArray(val) ? [] : {}
+export const emptyTarget = (val) => (Array.isArray(val) ? [] : {})
 
 /**
  * @param {Array} value - Value
@@ -43,8 +45,9 @@ export const emptyTarget = val => Array.isArray(val) ? [] : {}
  * @returns {*} Returns the value as clone if required
  */
 export const cloneIfNecessary = (value, options) => {
-  return (options?.clone === true && isMergeableObject(value))
-    ? deepmerge(emptyTarget(value), value, options) : value
+  return options?.clone === true && isMergeableObject(value)
+    ? deepmerge(emptyTarget(value), value, options)
+    : value
 }
 
 /**
@@ -54,7 +57,7 @@ export const cloneIfNecessary = (value, options) => {
  * @returns {Array} Two arrays merged
  */
 export const defaultArrayMerge = (target, source, options) => {
-  var destination = target.slice()
+  const destination = target.slice()
   source.forEach(function (e, i) {
     if (typeof destination[i] === 'undefined') {
       destination[i] = cloneIfNecessary(e, options)
@@ -64,6 +67,7 @@ export const defaultArrayMerge = (target, source, options) => {
       destination.push(cloneIfNecessary(e, options))
     }
   })
+
   return destination
 }
 
@@ -74,7 +78,7 @@ export const defaultArrayMerge = (target, source, options) => {
  * @returns {object} Two object merged
  */
 export const mergeObject = (target, source, options) => {
-  var destination = {}
+  const destination = {}
   if (isMergeableObject(target)) {
     Object.keys(target).forEach(function (key) {
       destination[key] = cloneIfNecessary(target[key], options)
@@ -87,6 +91,7 @@ export const mergeObject = (target, source, options) => {
       destination[key] = deepmerge(target[key], source[key], options)
     }
   })
+
   return destination
 }
 
@@ -99,7 +104,7 @@ export const mergeObject = (target, source, options) => {
  * @returns {object} Two object merged
  */
 export const deepmerge = (target, source, options = {}) => {
-  var array = Array.isArray(source)
+  const array = Array.isArray(source)
   const { arrayMerge = defaultArrayMerge } = options
 
   if (array) {
@@ -111,9 +116,11 @@ export const deepmerge = (target, source, options = {}) => {
   }
 }
 
-deepmerge.all = function deepmergeAll (array, options) {
+deepmerge.all = function deepmergeAll(array, options) {
   if (!Array.isArray(array) || array.length < 2) {
-    throw new Error('first argument should be an array with at least two elements')
+    throw new Error(
+      'first argument should be an array with at least two elements'
+    )
   }
 
   // we are sure there are at least 2 values, so it is safe to have no initial value

@@ -60,13 +60,13 @@ const useList = ({ list, initLength }) => {
 
     fakeDelay(500)
       .then(() =>
-        setShortList(prev => prev.concat(fullList.slice(prev.length, length)))
+        setShortList((prev) => prev.concat(fullList.slice(prev.length, length)))
       )
       .then(() => setLoadingNextPage(false))
       .then(() => setFinish(shortList.length >= fullList.length))
   }, [length, setLength])
 
-  const reset = newList => {
+  const reset = (newList) => {
     /* RESET VALUES */
     setLength(initLength)
     setFullList(newList)
@@ -79,12 +79,12 @@ const useList = ({ list, initLength }) => {
 
 useList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.object).isRequired,
-  initLength: PropTypes.string
+  initLength: PropTypes.string,
 }
 
 useList.defaultProps = {
   list: [],
-  initLength: 50
+  initLength: 50,
 }
 
 export default useList

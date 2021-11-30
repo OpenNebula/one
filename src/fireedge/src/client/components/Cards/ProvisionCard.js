@@ -28,12 +28,24 @@ import {
   PROVISIONS_STATES,
   PROVIDER_IMAGES_URL,
   PROVISION_IMAGES_URL,
-  DEFAULT_IMAGE
+  DEFAULT_IMAGE,
 } from 'client/constants'
 
 const ProvisionCard = memo(
-  ({ value, image: propImage, isSelected, handleClick, isProvider, actions, deleteAction }) => {
-    const { ID, NAME, TEMPLATE: { BODY = {} } } = value
+  ({
+    value,
+    image: propImage,
+    isSelected,
+    handleClick,
+    isProvider,
+    actions,
+    deleteAction,
+  }) => {
+    const {
+      ID,
+      NAME,
+      TEMPLATE: { BODY = {} },
+    } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
 
@@ -43,22 +55,22 @@ const ProvisionCard = memo(
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
     const imageUrl = useMemo(
-      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      () => (isExternalImage ? image : `${IMAGES_URL}/${image}`),
       [isExternalImage]
     )
 
     return (
       <SelectCard
-        action={(actions?.length > 0 || deleteAction) && (
-          <>
-            {actions?.map(action =>
-              <Action key={action?.cy} {...action} />
-            )}
-            {deleteAction && (
-              <ButtonToTriggerForm {...deleteAction} />
-            )}
-          </>
-        )}
+        action={
+          (actions?.length > 0 || deleteAction) && (
+            <>
+              {actions?.map((action) => (
+                <Action key={action?.cy} {...action} />
+              ))}
+              {deleteAction && <ButtonToTriggerForm {...deleteAction} />}
+            </>
+          )
+        }
         dataCy={isProvider ? 'provider' : 'provision'}
         handleClick={handleClick}
         icon={
@@ -74,21 +86,18 @@ const ProvisionCard = memo(
         mediaProps={{
           component: 'div',
           children: (
-            <Image
-              src={imageUrl}
-              withSources={image && !isExternalImage}
-            />
-          )
+            <Image src={imageUrl} withSources={image && !isExternalImage} />
+          ),
         }}
         subheader={`#${ID}`}
         title={NAME}
         disableFilterImage={isExternalImage}
       />
     )
-  }, (prev, next) => (
+  },
+  (prev, next) =>
     prev.isSelected === next.isSelected &&
     prev.value?.TEMPLATE?.BODY?.state === next.value?.TEMPLATE?.BODY?.state
-  )
 )
 
 ProvisionCard.propTypes = {
@@ -102,9 +111,9 @@ ProvisionCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.object.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 ProvisionCard.defaultProps = {
@@ -114,7 +123,7 @@ ProvisionCard.defaultProps = {
   isSelected: undefined,
   image: undefined,
   deleteAction: undefined,
-  value: {}
+  value: {},
 }
 
 ProvisionCard.displayName = 'ProvisionCard'

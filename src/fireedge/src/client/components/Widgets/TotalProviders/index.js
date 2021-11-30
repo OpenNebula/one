@@ -37,69 +37,74 @@ const TotalProviders = ({ isLoading }) => {
   const chartData = useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
-    return Object.entries(providerConfig)
-      .map(([id, { name, color }]) => ({
-        color,
-        title: name,
-        value: groups[id]?.length ?? 0
-      }))
+    return Object.entries(providerConfig).map(([id, { name, color }]) => ({
+      color,
+      title: name,
+      value: groups[id]?.length ?? 0,
+    }))
   }, [totalProviders])
 
-  const title = useMemo(() => (
-    <div className={classes.title}>
-      <Typography className={classes.titlePrimary}>
-        <NumberEasing value={`${totalProviders}`} />
-        <span>{T.Providers}</span>
-      </Typography>
-      <Typography className={classes.titleSecondary}>
-        {T.InTotal}
-      </Typography>
-    </div>
-  ), [classes, totalProviders])
+  const title = useMemo(
+    () => (
+      <div className={classes.title}>
+        <Typography className={classes.titlePrimary}>
+          <NumberEasing value={`${totalProviders}`} />
+          <span>{T.Providers}</span>
+        </Typography>
+        <Typography className={classes.titleSecondary}>{T.InTotal}</Typography>
+      </div>
+    ),
+    [classes, totalProviders]
+  )
 
-  const legend = useMemo(() => (
-    <div>
-      {chartData?.map(({ title: titleLegend, value, color }) =>
-        <TypographyWithPoint key={titleLegend} pointColor={color}>
-          <NumberEasing value={`${value}`} />
-          <span className={classes.legendSecondary} title={titleLegend}>
-            {titleLegend}
-          </span>
-        </TypographyWithPoint>
-      )}
-    </div>
-  ), [classes, chartData])
+  const legend = useMemo(
+    () => (
+      <div>
+        {chartData?.map(({ title: titleLegend, value, color }) => (
+          <TypographyWithPoint key={titleLegend} pointColor={color}>
+            <NumberEasing value={`${value}`} />
+            <span className={classes.legendSecondary} title={titleLegend}>
+              {titleLegend}
+            </span>
+          </TypographyWithPoint>
+        ))}
+      </div>
+    ),
+    [classes, chartData]
+  )
 
-  const chart = useMemo(() => (
-    <PieChart
-      className={classes.chart}
-      background={totalProviders === 0 && '#c3c3c3'}
-      data={chartData}
-      lineWidth={18}
-      rounded
-      animate
-    />
-  ), [classes, chartData])
-
-  return useMemo(() => (
-    !totalProviders && isLoading ? (
-      <Skeleton
-        variant='rectangular'
-        sx={{ height: { xs: 210, sm: 350 } }}
+  const chart = useMemo(
+    () => (
+      <PieChart
+        className={classes.chart}
+        background={totalProviders === 0 && '#c3c3c3'}
+        data={chartData}
+        lineWidth={18}
+        rounded
+        animate
       />
-    ) : (
-      <Paper
-        data-cy='dashboard-widget-total-providers-by-type'
-        className={classes.root}
-      >
-        {title}
-        <div className={classes.content}>
-          {chart}
-          {legend}
-        </div>
-      </Paper>
-    )
-  ), [classes, chart, totalProviders, isLoading])
+    ),
+    [classes, chartData]
+  )
+
+  return useMemo(
+    () =>
+      !totalProviders && isLoading ? (
+        <Skeleton variant="rectangular" sx={{ height: { xs: 210, sm: 350 } }} />
+      ) : (
+        <Paper
+          data-cy="dashboard-widget-total-providers-by-type"
+          className={classes.root}
+        >
+          {title}
+          <div className={classes.content}>
+            {chart}
+            {legend}
+          </div>
+        </Paper>
+      ),
+    [classes, chart, totalProviders, isLoading]
+  )
 }
 
 TotalProviders.displayName = 'TotalProviders'

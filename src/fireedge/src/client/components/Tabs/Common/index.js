@@ -20,9 +20,4 @@ import Permissions from 'client/components/Tabs/Common/Permissions'
 
 export * from 'client/components/Tabs/Common/Attribute'
 
-export {
-  AttributePanel,
-  List,
-  Ownership,
-  Permissions
-}
+export { AttributePanel, List, Ownership, Permissions }

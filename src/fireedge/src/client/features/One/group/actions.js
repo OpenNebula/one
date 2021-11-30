@@ -20,13 +20,10 @@ import { RESOURCES } from 'client/features/One/slice'
 /** @see {@link RESOURCES.group}  */
 const GROUP = 'group'
 
-export const getGroup = createAction(
-  `${GROUP}/detail`,
-  groupService.getGroup
-)
+export const getGroup = createAction(`${GROUP}/detail`, groupService.getGroup)
 
 export const getGroups = createAction(
   `${GROUP}/pool`,
   groupService.getGroups,
-  response => ({ [RESOURCES.group]: response })
+  (response) => ({ [RESOURCES.group]: response })
 )

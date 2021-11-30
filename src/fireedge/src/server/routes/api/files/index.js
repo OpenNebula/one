@@ -15,12 +15,15 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { privateRoutes: filePrivateRoutes, publicRoutes: filePublicRoutes } = require('./files')
+const {
+  privateRoutes: filePrivateRoutes,
+  publicRoutes: filePublicRoutes,
+} = require('./files')
 const { FILES } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(filePrivateRoutes, FILES),
-  public: setApiRoutes(filePublicRoutes, FILES)
+  public: setApiRoutes(filePublicRoutes, FILES),
 }
 
 module.exports = functionRoutes

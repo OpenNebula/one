@@ -30,7 +30,7 @@ export const getSunstoneViews = createAsyncThunk(
 
       return {
         views,
-        view: Object.keys(views)[0]
+        view: Object.keys(views)[0],
       }
     } catch (error) {
       error?.status === httpCodes.unauthorized.id &&
@@ -53,7 +53,6 @@ export const getSunstoneConfig = createAsyncThunk(
   }
 )
 
-export const changeView = createAction(
-  'sunstone/change-view',
-  view => ({ payload: { view } })
-)
+export const changeView = createAction('sunstone/change-view', (view) => ({
+  payload: { view },
+}))

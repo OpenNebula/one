@@ -24,7 +24,7 @@ const HOST_REQ_FIELD = {
   label: T.HostReqExpression,
   tooltip: T.HostReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
 /** @type {Field} Host rank requirement field */
@@ -33,7 +33,7 @@ const HOST_RANK_FIELD = {
   label: T.HostPolicyExpression,
   tooltip: T.HostPolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
 /** @type {Field} Datastore requirement field */
@@ -42,7 +42,7 @@ const DS_REQ_FIELD = {
   label: T.DatastoreReqExpression,
   tooltip: T.DatastoreReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
 /** @type {Field} Datastore rank requirement field */
@@ -51,7 +51,7 @@ const DS_RANK_FIELD = {
   label: T.DatastorePolicyExpression,
   tooltip: T.DatastorePolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
 /** @type {Section[]} Sections */
@@ -59,21 +59,16 @@ const SECTIONS = [
   {
     id: 'placement-host',
     legend: T.Host,
-    fields: [HOST_REQ_FIELD, HOST_RANK_FIELD]
+    fields: [HOST_REQ_FIELD, HOST_RANK_FIELD],
   },
   {
     id: 'placement-ds',
     legend: T.Datastore,
-    fields: [DS_REQ_FIELD, DS_RANK_FIELD]
-  }
+    fields: [DS_REQ_FIELD, DS_RANK_FIELD],
+  },
 ]
 
 /** @type {Field[]} List of Placement fields */
-const FIELDS = [
-  HOST_REQ_FIELD,
-  HOST_RANK_FIELD,
-  DS_REQ_FIELD,
-  DS_RANK_FIELD
-]
+const FIELDS = [HOST_REQ_FIELD, HOST_RANK_FIELD, DS_REQ_FIELD, DS_RANK_FIELD]
 
 export { SECTIONS, FIELDS }

@@ -20,13 +20,10 @@ import { RESOURCES } from 'client/features/One/slice'
 /** @see {@link RESOURCES.zone}  */
 const ZONE = 'zone'
 
-export const getZone = createAction(
-  `${ZONE}/detail`,
-  zoneService.getZone
-)
+export const getZone = createAction(`${ZONE}/detail`, zoneService.getZone)
 
 export const getZones = createAction(
   `${ZONE}/pool`,
   zoneService.getZones,
-  response => ({ [RESOURCES.zone]: response })
+  (response) => ({ [RESOURCES.zone]: response })
 )

@@ -32,12 +32,10 @@ const SnapshotItem = ({ snapshot, actions = [] }) => {
   const timeAgo = `created ${time.toRelative()}`
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
+          <Typography component="span">{NAME}</Typography>
         </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')}>
@@ -61,7 +59,7 @@ const SnapshotItem = ({ snapshot, actions = [] }) => {
 
 SnapshotItem.propTypes = {
   snapshot: PropTypes.object.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 SnapshotItem.displayName = 'SnapshotItem'

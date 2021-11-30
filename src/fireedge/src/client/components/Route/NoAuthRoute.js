@@ -32,11 +32,15 @@ const NoAuthRoute = ({ redirectWhenAuth, ...props }) => {
   const { isLogged, isLoginInProgress, isLoading } = useAuth()
   const isAuthenticated = isLogged && !isLoginInProgress && !isLoading
 
-  return isAuthenticated ? <Redirect to={redirectWhenAuth} /> : <Route exact {...props}/>
+  return isAuthenticated ? (
+    <Redirect to={redirectWhenAuth} />
+  ) : (
+    <Route exact {...props} />
+  )
 }
 
 NoAuthRoute.propTypes = {
-  redirectWhenAuth: PropTypes.string
+  redirectWhenAuth: PropTypes.string,
 }
 
 export default NoAuthRoute

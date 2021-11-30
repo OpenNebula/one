@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useMemo, useCallback, useEffect, JSXElementConstructor } from 'react'
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  JSXElementConstructor,
+} from 'react'
 import PropTypes from 'prop-types'
 
 import { sprintf } from 'sprintf-js'
@@ -42,8 +48,14 @@ const FIRST_STEP = 0
  * @returns {JSXElementConstructor} Stepper form component
  */
 const FormStepper = ({ steps = [], schema, onSubmit }) => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-  const { control, watch, reset, formState: { errors }, setError } = useFormContext()
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
+  const {
+    control,
+    watch,
+    reset,
+    formState: { errors },
+    setError,
+  } = useFormContext()
   const { isLoading } = useGeneral()
 
   const [formData, setFormData] = useState(() => watch())
@@ -57,12 +69,13 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     reset({ ...formData }, { keepErrors: false })
   }, [formData])
 
-  const validateSchema = async stepIdx => {
+  const validateSchema = async (stepIdx) => {
     const { id, resolver, optionsValidate: options, ...step } = steps[stepIdx]
     const stepData = watch(id)
 
     const allData = { ...formData, [id]: stepData }
-    const stepSchema = typeof resolver === 'function' ? resolver(allData) : resolver
+    const stepSchema =
+      typeof resolver === 'function' ? resolver(allData) : resolver
 
     await stepSchema.validate(stepData, { context: allData, ...options })
 
@@ -74,7 +87,10 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     const totalErrors = Object.keys(errorsByPath).length
 
     totalErrors > 0
-      ? setError(id, { type: 'manual', message: [T.ErrorsOcurred, totalErrors] })
+      ? setError(id, {
+          type: 'manual',
+          message: [T.ErrorsOcurred, totalErrors],
+        })
       : setError(id, rest)
 
     inner?.forEach(({ path, type, errors: message }) => {
@@ -88,7 +104,7 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     })
   }
 
-  const handleStep = stepToAdvance => {
+  const handleStep = (stepToAdvance) => {
     const isBackAction = activeStep > stepToAdvance
 
     isBackAction && handleBack(stepToAdvance)
@@ -99,7 +115,8 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
       try {
         const { id, data } = await validateSchema(stepIdx)
 
-        activeStep === stepIdx && setFormData(prev => ({ ...prev, [id]: data }))
+        activeStep === stepIdx &&
+          setFormData((prev) => ({ ...prev, [id]: data }))
 
         stepIdx === stepsToValidate.length - 1 && setActiveStep(stepToAdvance)
       } catch (validateError) {
@@ -114,64 +131,76 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
 
       if (activeStep === lastStep) {
         const submitData = { ...formData, [id]: data }
-        const schemaData = schema().cast(submitData, { context: submitData, isSubmit: true })
+        const schemaData = schema().cast(submitData, {
+          context: submitData,
+          isSubmit: true,
+        })
         onSubmit(schemaData)
       } else {
-        setFormData(prev => ({ ...prev, [id]: data }))
-        setActiveStep(prevActiveStep => prevActiveStep + 1)
+        setFormData((prev) => ({ ...prev, [id]: data }))
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
       }
     } catch (validateError) {
       setErrors(validateError)
     }
   }
 
-  const handleBack = useCallback(stepToBack => {
-    if (activeStep < FIRST_STEP) return
+  const handleBack = useCallback(
+    (stepToBack) => {
+      if (activeStep < FIRST_STEP) return
 
-    const { id } = steps[activeStep]
-    const stepData = watch(id)
+      const { id } = steps[activeStep]
+      const stepData = watch(id)
 
-    setFormData(prev => ({ ...prev, [id]: stepData }))
-    setActiveStep(prevStep => Number.isInteger(stepToBack) ? stepToBack : (prevStep - 1))
-  }, [activeStep])
+      setFormData((prev) => ({ ...prev, [id]: stepData }))
+      setActiveStep((prevStep) =>
+        Number.isInteger(stepToBack) ? stepToBack : prevStep - 1
+      )
+    },
+    [activeStep]
+  )
 
-  const { id, content: Content } = useMemo(() => steps[activeStep], [
-    formData,
-    activeStep
-  ])
+  const { id, content: Content } = useMemo(
+    () => steps[activeStep],
+    [formData, activeStep]
+  )
 
   return (
     <>
       {/* STEPPER */}
-      {useMemo(() => isMobile ? (
-        <CustomMobileStepper
-          steps={steps}
-          totalSteps={totalSteps}
-          activeStep={activeStep}
-          lastStep={lastStep}
-          disabledBack={disabledBack}
-          isSubmitting={isLoading}
-          handleNext={handleNext}
-          handleBack={handleBack}
-          errors={errors}
-        />
-      ) : (
-        <CustomStepper
-          steps={steps}
-          activeStep={activeStep}
-          lastStep={lastStep}
-          disabledBack={disabledBack}
-          isSubmitting={isLoading}
-          handleStep={handleStep}
-          handleNext={handleNext}
-          handleBack={handleBack}
-          errors={errors}
-        />
-      ), [isLoading, isMobile, activeStep, errors[id]])}
+      {useMemo(
+        () =>
+          isMobile ? (
+            <CustomMobileStepper
+              steps={steps}
+              totalSteps={totalSteps}
+              activeStep={activeStep}
+              lastStep={lastStep}
+              disabledBack={disabledBack}
+              isSubmitting={isLoading}
+              handleNext={handleNext}
+              handleBack={handleBack}
+              errors={errors}
+            />
+          ) : (
+            <CustomStepper
+              steps={steps}
+              activeStep={activeStep}
+              lastStep={lastStep}
+              disabledBack={disabledBack}
+              isSubmitting={isLoading}
+              handleStep={handleStep}
+              handleNext={handleNext}
+              handleBack={handleBack}
+              errors={errors}
+            />
+          ),
+        [isLoading, isMobile, activeStep, errors[id]]
+      )}
       {/* FORM CONTENT */}
       {Content && <Content data={formData[id]} setFormData={setFormData} />}
 
-      {isDevelopment() && <DevTool control={control} placement='top-left' />}
+      {isDevelopment() && <DevTool control={control} placement="top-left" />}
     </>
   )
 }
@@ -182,25 +211,21 @@ FormStepper.propTypes = {
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
       content: PropTypes.func.isRequired,
-      resolver: PropTypes.oneOfType([
-        PropTypes.func,
-        PropTypes.object
-      ]).isRequired,
+      resolver: PropTypes.oneOfType([PropTypes.func, PropTypes.object])
+        .isRequired,
       optionsValidate: PropTypes.shape({
         strict: PropTypes.bool,
         abortEarly: PropTypes.bool,
         stripUnknown: PropTypes.bool,
         recursive: PropTypes.bool,
-        context: PropTypes.object
-      })
+        context: PropTypes.object,
+      }),
     })
   ).isRequired,
   schema: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
-export {
-  SkeletonStepsForm
-}
+export { SkeletonStepsForm }
 
 export default FormStepper

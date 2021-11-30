@@ -23,7 +23,7 @@ export const IMAGE_TYPES_STR = {
   DATABLOCK: 'DATABLOCK',
   KERNEL: 'KERNEL',
   RAMDISK: 'RAMDISK',
-  CONTEXT: 'CONTEXT'
+  CONTEXT: 'CONTEXT',
 }
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type */
@@ -33,7 +33,7 @@ export const IMAGE_TYPES = [
   IMAGE_TYPES_STR.DATABLOCK,
   IMAGE_TYPES_STR.KERNEL,
   IMAGE_TYPES_STR.RAMDISK,
-  IMAGE_TYPES_STR.CONTEXT
+  IMAGE_TYPES_STR.CONTEXT,
 ]
 
 /** @enum {string} Disk type */
@@ -47,7 +47,7 @@ export const DISK_TYPES_STR = {
   GLUSTER_CDROM: 'GLUSTER CDROM',
   SHEEPDOG: 'SHEEPDOG',
   SHEEPDOG_CDROM: 'SHEEPDOG CDROM',
-  ISCSI: 'ISCII'
+  ISCSI: 'ISCII',
 }
 /** @enum {DISK_TYPES_STR[]} Return the string representation of a Disk type */
 export const DISK_TYPES = [
@@ -60,53 +60,64 @@ export const DISK_TYPES = [
   DISK_TYPES_STR.GLUSTER_CDROM,
   DISK_TYPES_STR.SHEEPDOG,
   DISK_TYPES_STR.SHEEPDOG_CDROM,
-  DISK_TYPES_STR.ISCSI
+  DISK_TYPES_STR.ISCSI,
 ]
 
 /** @type {STATES.StateInfo[]} Image states */
 export const IMAGE_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.INIT,
-    color: COLOR.debug.main
+    color: COLOR.debug.main,
   },
-  { // 1
+  {
+    // 1
     name: STATES.READY,
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
-  { // 2
+  {
+    // 2
     name: STATES.USED,
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
-  { // 3
+  {
+    // 3
     name: STATES.DISABLED,
-    color: COLOR.debug.light
+    color: COLOR.debug.light,
   },
-  { // 4
+  {
+    // 4
     name: STATES.LOCKED,
-    color: COLOR.warning.main
+    color: COLOR.warning.main,
   },
-  { // 5
+  {
+    // 5
     name: STATES.ERROR,
-    color: COLOR.error.main
+    color: COLOR.error.main,
   },
-  { // 6
+  {
+    // 6
     name: STATES.CLONE,
-    color: COLOR.info.light
+    color: COLOR.info.light,
   },
-  { // 7
+  {
+    // 7
     name: STATES.DELETE,
-    color: COLOR.error.main
+    color: COLOR.error.main,
   },
-  { // 8
+  {
+    // 8
     name: STATES.USED_PERS,
-    color: COLOR.error.light
+    color: COLOR.error.light,
   },
-  { // 9
+  {
+    // 9
     name: STATES.LOCKED_USED,
-    color: COLOR.warning.light
+    color: COLOR.warning.light,
   },
-  { // 10
+  {
+    // 10
     name: STATES.LOCKED_USED_PERS,
-    color: COLOR.error.light
-  }
+    color: COLOR.error.light,
+  },
 ]

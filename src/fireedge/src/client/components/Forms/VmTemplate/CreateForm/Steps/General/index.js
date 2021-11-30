@@ -23,7 +23,10 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
 
 import { HYPERVISOR_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/informationSchema'
-import { SCHEMA, SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
+import {
+  SCHEMA,
+  SECTIONS,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T } from 'client/constants'
 
@@ -38,8 +41,9 @@ const Content = ({ isUpdate }) => {
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return SECTIONS(hypervisor, isUpdate)
-      .filter(({ id, required }) => required || sectionsAvailable.includes(id))
+    return SECTIONS(hypervisor, isUpdate).filter(
+      ({ id, required }) => required || sectionsAvailable.includes(id)
+    )
   }, [view, hypervisor])
 
   return (
@@ -63,24 +67,25 @@ const Content = ({ isUpdate }) => {
   )
 }
 
-const General = initialValues => {
+const General = (initialValues) => {
   const isUpdate = initialValues?.NAME
   const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.General,
-    resolver: formData => {
+    resolver: (formData) => {
       const hypervisor = formData?.[STEP_ID]?.HYPERVISOR ?? initialHypervisor
+
       return SCHEMA(hypervisor, isUpdate)
     },
     optionsValidate: { abortEarly: false },
-    content: () => Content({ isUpdate })
+    content: () => Content({ isUpdate }),
   }
 }
 
 Content.propTypes = {
-  isUpdate: PropTypes.bool
+  isUpdate: PropTypes.bool,
 }
 
 export default General

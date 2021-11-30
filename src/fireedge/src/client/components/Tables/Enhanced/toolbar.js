@@ -24,7 +24,7 @@ import {
   GlobalAction,
   ActionPropTypes,
   GlobalSelectedRows,
-  GlobalSort
+  GlobalSort,
 } from 'client/components/Tables/Enhanced/Utils'
 
 /**
@@ -35,8 +35,8 @@ import {
  * @returns {JSXElementConstructor} Returns table toolbar
  */
 const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
-  const isSmallDevice = useMediaQuery(theme => theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
+  const isSmallDevice = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
   /** @type {UseRowSelectState} */
   const { selectedRowIds } = useTableProps?.state ?? {}
@@ -47,13 +47,17 @@ const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
 
   return isMobile ? null : (
     <>
-      <Stack alignItems='start' gap='1em'>
-        <GlobalActions globalActions={globalActions} useTableProps={useTableProps} />
+      <Stack alignItems="start" gap="1em">
+        <GlobalActions
+          globalActions={globalActions}
+          useTableProps={useTableProps}
+        />
       </Stack>
-      <Stack className='summary'
-        direction='row'
-        flexWrap='wrap'
-        alignItems='center'
+      <Stack
+        className="summary"
+        direction="row"
+        flexWrap="wrap"
+        alignItems="center"
         gap={'1em'}
         width={1}
       >
@@ -63,7 +67,8 @@ const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
           </div>
         )}
         {!!Object.keys(selectedRowIds).length && (
-          <GlobalSelectedRows withAlert useTableProps={useTableProps} />)}
+          <GlobalSelectedRows withAlert useTableProps={useTableProps} />
+        )}
       </Stack>
     </>
   )
@@ -72,7 +77,7 @@ const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
 Toolbar.propTypes = {
   globalActions: PropTypes.arrayOf(ActionPropTypes),
   onlyGlobalSelectedRows: PropTypes.bool,
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 export default Toolbar

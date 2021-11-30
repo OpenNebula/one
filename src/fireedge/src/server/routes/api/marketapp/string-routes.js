@@ -17,7 +17,7 @@
 const MARKETAPP = 'marketapp'
 
 const Actions = {
-  MARKETAPP
+  MARKETAPP,
 }
 
 module.exports = Actions

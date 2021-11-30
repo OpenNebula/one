@@ -24,7 +24,11 @@ import StorageList from 'client/components/Tabs/Vm/Storage/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 
-import { getDisks, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import {
+  getDisks,
+  getHypervisor,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
 import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
@@ -36,13 +40,14 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
   const [disks, hypervisor, actionsAvailable] = useMemo(() => {
     const hyperV = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hyperV)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return [getDisks(vm), hyperV, actionsByState]
   }, [vm])
 
-  const handleAttachDisk = async formData => {
+  const handleAttachDisk = async (formData) => {
     const template = jsonToXml({ DISK: formData })
 
     await attachDisk(vm.ID, template)
@@ -56,7 +61,7 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
             color: 'secondary',
             'data-cy': 'attach-disk',
             label: T.AttachDisk,
-            variant: 'outlined'
+            variant: 'outlined',
           }}
           options={[
             {
@@ -64,15 +69,15 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
               name: T.Image,
               dialogProps: { title: T.AttachImage },
               form: () => ImageSteps({ hypervisor }),
-              onSubmit: handleAttachDisk
+              onSubmit: handleAttachDisk,
             },
             {
               cy: 'attach-volatile-disk',
               name: T.Volatile,
               dialogProps: { title: T.AttachVolatile },
               form: () => VolatileSteps({ hypervisor }),
-              onSubmit: handleAttachDisk
-            }
+              onSubmit: handleAttachDisk,
+            },
           ]}
         />
       )}
@@ -83,7 +88,7 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmStorageTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmStorageTab.displayName = 'VmStorageTab'

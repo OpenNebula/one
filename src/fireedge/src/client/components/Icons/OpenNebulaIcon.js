@@ -21,24 +21,60 @@ import { useGeneral } from 'client/features/General'
 import { SCHEMES } from 'client/constants'
 
 const OpenNebulaLogo = memo(
-  ({ width, height, spinner, withText, viewBox, disabledBetaText, ...props }) => {
+  ({
+    width,
+    height,
+    spinner,
+    withText,
+    viewBox,
+    disabledBetaText,
+    ...props
+  }) => {
     const { isBeta } = useGeneral()
-    const { palette: { mode } } = useTheme()
+    const {
+      palette: { mode },
+    } = useTheme()
     const isDarkMode = mode === SCHEMES.DARK
 
-    const cloudColor = useMemo(() => ({
-      child1: { from: '#bfe6f2', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#bfe6f2' },
-      child2: { from: '#80cde6', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#80cde6' },
-      child3: { from: '#40b3d9', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#40b3d9' },
-      child4: { from: '#0098c3', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#0098c3' },
-      child5: { from: '#0098c3', to: '#ffffff', static: isDarkMode ? '#ffffff' : '#0098c3' }
-    }), [isDarkMode])
+    const cloudColor = useMemo(
+      () => ({
+        child1: {
+          from: '#bfe6f2',
+          to: '#ffffff',
+          static: isDarkMode ? '#ffffff' : '#bfe6f2',
+        },
+        child2: {
+          from: '#80cde6',
+          to: '#ffffff',
+          static: isDarkMode ? '#ffffff' : '#80cde6',
+        },
+        child3: {
+          from: '#40b3d9',
+          to: '#ffffff',
+          static: isDarkMode ? '#ffffff' : '#40b3d9',
+        },
+        child4: {
+          from: '#0098c3',
+          to: '#ffffff',
+          static: isDarkMode ? '#ffffff' : '#0098c3',
+        },
+        child5: {
+          from: '#0098c3',
+          to: '#ffffff',
+          static: isDarkMode ? '#ffffff' : '#0098c3',
+        },
+      }),
+      [isDarkMode]
+    )
 
-    const textColor = useMemo(() => ({
-      top: 'currentColor',
-      bottom: isDarkMode ? 'currentColor' : '#0098c3',
-      beta: '#ffffff'
-    }), [isDarkMode])
+    const textColor = useMemo(
+      () => ({
+        top: 'currentColor',
+        bottom: isDarkMode ? 'currentColor' : '#0098c3',
+        beta: '#ffffff',
+      }),
+      [isDarkMode]
+    )
 
     return (
       <svg viewBox={viewBox} width={width} height={height} {...props}>
@@ -64,7 +100,7 @@ const OpenNebulaLogo = memo(
           </defs>
         )}
         {/*  --------------- CLOUD ------------------ */}
-        <g id='logo__cloud'>
+        <g id="logo__cloud">
           <path
             fill={spinner ? 'url(#gradient__child1)' : cloudColor.child1.static}
             d="M38.48,39.19c-1.38.33-2.72.66-4.1,1A162,162,0,0,1,8.9,43.53c-.54-.06.21.33.33.45,2.28,1.65,5.24,2,8.05,2H37.82a.58.58,0,0,0,.51-.21.89.89,0,0,0,.15-.51Z"
@@ -93,7 +129,7 @@ const OpenNebulaLogo = memo(
         </g>
 
         {withText && (
-          <g id='logo__text'>
+          <g id="logo__text">
             {/*  --------------- TEXT TOP ------------------ */}
             <path
               fill={textColor.top}
@@ -136,7 +172,13 @@ const OpenNebulaLogo = memo(
               d="M102.91,32.31H99.8v6.1a6,6,0,0,1-.48,3.12A2.6,2.6,0,0,1,97,42.72a2.19,2.19,0,0,1-1.82-.8c-.45-.57-.63-1.5-.63-3.27V32.31H91.39v6.94c0,2.19.24,3.35,1,4.4A5.11,5.11,0,0,0,100,44v1.23h2.87Z"
               transform="translate(-4.95 -3.72)"
             />
-            <rect fill={textColor.bottom} x="100.45" y="24.28" width="3.11" height="17.31" />
+            <rect
+              fill={textColor.bottom}
+              x="100.45"
+              y="24.28"
+              width="3.11"
+              height="17.31"
+            />
             <path
               fill={textColor.bottom}
               d="M117.37,34.85a3.76,3.76,0,0,1,3.81,4,4.37,4.37,0,0,1-.93,2.67,3.51,3.51,0,0,1-2.82,1.16,3.62,3.62,0,0,1-3.83-3.8A3.76,3.76,0,0,1,117.37,34.85Zm6.74-2.54h-2.84V34A4.79,4.79,0,0,0,117,32a6.47,6.47,0,0,0-6.58,6.82A6.41,6.41,0,0,0,117,45.57a5.09,5.09,0,0,0,4.29-2v1.68h2.84Z"
@@ -149,38 +191,49 @@ const OpenNebulaLogo = memo(
             <path
               fill={textColor.beta}
               d="M32.72,41.7v.67a1,1,0,0,0-.39-.51,1.06,1.06,0,0,0-.67-.2,1.22,1.22,0,0,0-1.13.69,1.89,1.89,0,0,0-.17.78,2,2,0,0,0,.17.79,1.25,1.25,0,0,0,.46.51,1.45,1.45,0,0,0,.67.17,1.21,1.21,0,0,0,.67-.19,1.08,1.08,0,0,0,.39-.51v.67h.59V41.7Zm-.09,1.88a.89.89,0,0,1-.31.33.87.87,0,0,1-.45.12.93.93,0,0,1-.63-.25,1.06,1.06,0,0,1-.24-.7,1,1,0,0,1,.24-.69.8.8,0,0,1,.63-.26.71.71,0,0,1,.45.12.76.76,0,0,1,.31.33.86.86,0,0,1,.12.5A.9.9,0,0,1,32.63,43.58Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               fill={textColor.beta}
               d="M29.28,42.2v1.42a.47.47,0,0,0,.1.34.55.55,0,0,0,.31,0H30l0,.58h-.36a1.1,1.1,0,0,1-.7-.22,1.06,1.06,0,0,1-.23-.74V42.15h-.42v-.5h.45V41h.59v.71H30v.5Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               fill={textColor.beta}
               d="M27.8,42.32a1.08,1.08,0,0,0-.49-.48,1.32,1.32,0,0,0-.73-.18,1.38,1.38,0,0,0-.74.18,1.29,1.29,0,0,0-.5.51,1.72,1.72,0,0,0-.18.78,1.82,1.82,0,0,0,.18.79,1.36,1.36,0,0,0,.5.51,1.61,1.61,0,0,0,.74.17,1.57,1.57,0,0,0,.65-.13,1.25,1.25,0,0,0,.71-.9h-.63a.63.63,0,0,1-.26.4.87.87,0,0,1-.5.15.91.91,0,0,1-.57-.21,1,1,0,0,1-.24-.66H28v0a1.5,1.5,0,0,0,0-.2A1.32,1.32,0,0,0,27.8,42.32Zm-2.06.61A.89.89,0,0,1,26,42.3a.83.83,0,0,1,.59-.21.78.78,0,0,1,.4.09.57.57,0,0,1,.29.28.83.83,0,0,1,.1.47Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               fill={textColor.beta}
               d="M24.54,42.94a.92.92,0,0,0-.54-.32.88.88,0,0,0,.48-.29.82.82,0,0,0,.18-.56.84.84,0,0,0-.29-.68,1.28,1.28,0,0,0-.85-.25H22.08v3.68h1.47a1.34,1.34,0,0,0,.89-.27.9.9,0,0,0,.3-.73A.81.81,0,0,0,24.54,42.94Zm-1.85-1.61h.7a.69.69,0,0,1,.5.14.59.59,0,0,1,0,.81.72.72,0,0,1-.47.15h-.73ZM24,43.83a.79.79,0,0,1-.52.16h-.75V42.86h.73A.78.78,0,0,1,24,43a.53.53,0,0,1,.19.44A.51.51,0,0,1,24,43.83Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               d="M24.15,43.41a.51.51,0,0,1-.19.42.79.79,0,0,1-.52.16h-.75V42.86h.73A.78.78,0,0,1,24,43,.53.53,0,0,1,24.15,43.41Z"
-              transform="translate(-4.95 -3.72)" />
-            <path d="M24.05,41.87a.5.5,0,0,1-.16.41.72.72,0,0,1-.47.15h-.73v-1.1h.7a.69.69,0,0,1,.5.14A.5.5,0,0,1,24.05,41.87Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
+            <path
+              d="M24.05,41.87a.5.5,0,0,1-.16.41.72.72,0,0,1-.47.15h-.73v-1.1h.7a.69.69,0,0,1,.5.14A.5.5,0,0,1,24.05,41.87Z"
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               d="M27.37,42.93H25.74A.89.89,0,0,1,26,42.3a.83.83,0,0,1,.59-.21.78.78,0,0,1,.4.09.57.57,0,0,1,.29.28A.83.83,0,0,1,27.37,42.93Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               d="M32.75,43.08a.9.9,0,0,1-.12.5.89.89,0,0,1-.31.33.87.87,0,0,1-.45.12.93.93,0,0,1-.63-.25,1.06,1.06,0,0,1-.24-.7,1,1,0,0,1,.24-.69.8.8,0,0,1,.63-.26.71.71,0,0,1,.45.12.76.76,0,0,1,.31.33A.86.86,0,0,1,32.75,43.08Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
             <path
               d="M35.19,39.35h-15a3.3,3.3,0,1,0,0,6.6H38a.5.5,0,0,0,.5-.5v-2.8A3.29,3.29,0,0,0,35.19,39.35Zm-10.75,4.9a1.34,1.34,0,0,1-.89.27H22.08V40.84h1.44a1.28,1.28,0,0,1,.85.25.84.84,0,0,1,.29.68.82.82,0,0,1-.18.56.88.88,0,0,1-.48.29.92.92,0,0,1,.54.32.81.81,0,0,1,.2.58A.9.9,0,0,1,24.44,44.25Zm3.51-1v0H25.74a1,1,0,0,0,.24.66.91.91,0,0,0,.57.21.87.87,0,0,0,.5-.15.63.63,0,0,0,.26-.4h.63a1.25,1.25,0,0,1-.71.9,1.57,1.57,0,0,1-.65.13,1.61,1.61,0,0,1-.74-.17,1.36,1.36,0,0,1-.5-.51,1.82,1.82,0,0,1-.18-.79,1.72,1.72,0,0,1,.18-.78,1.29,1.29,0,0,1,.5-.51,1.38,1.38,0,0,1,.74-.18,1.32,1.32,0,0,1,.73.18,1.08,1.08,0,0,1,.49.48A1.32,1.32,0,0,1,28,43,1.5,1.5,0,0,1,28,43.2Zm2-1h-.7v1.42a.47.47,0,0,0,.1.34.55.55,0,0,0,.31,0H30l0,.58h-.36a1.1,1.1,0,0,1-.7-.22,1.06,1.06,0,0,1-.23-.74V42.15h-.42v-.5h.45V41h.59v.71H30Zm3.33,2.37h-.59V43.9a1.08,1.08,0,0,1-.39.51,1.21,1.21,0,0,1-.67.19,1.45,1.45,0,0,1-.67-.17,1.25,1.25,0,0,1-.46-.51,2,2,0,0,1-.17-.79,1.89,1.89,0,0,1,.17-.78,1.22,1.22,0,0,1,1.13-.69,1.06,1.06,0,0,1,.67.2,1,1,0,0,1,.39.51V41.7h.59Z"
-              transform="translate(-4.95 -3.72)" />
+              transform="translate(-4.95 -3.72)"
+            />
           </g>
         )}
       </svg>
     )
-  })
+  }
+)
 
 OpenNebulaLogo.propTypes = {
   width: oneOfType([number, string]).isRequired,
@@ -188,7 +241,7 @@ OpenNebulaLogo.propTypes = {
   viewBox: string,
   spinner: bool,
   withText: bool,
-  disabledBetaText: bool
+  disabledBetaText: bool,
 }
 
 OpenNebulaLogo.defaultProps = {
@@ -197,7 +250,7 @@ OpenNebulaLogo.defaultProps = {
   viewBox: '0 0 120 45',
   spinner: false,
   withText: false,
-  disabledBetaText: false
+  disabledBetaText: false,
 }
 
 OpenNebulaLogo.displayName = 'OpenNebulaLogo'

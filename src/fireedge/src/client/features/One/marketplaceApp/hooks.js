@@ -21,21 +21,21 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/marketplaceApp/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useMarketplaceApp = () => (
-  useSelector(state => state[name]?.[RESOURCES.app])
-)
+export const useMarketplaceApp = () =>
+  useSelector((state) => state[name]?.[RESOURCES.app])
 
 export const useMarketplaceAppApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getMarketplaceApp: id => unwrapDispatch(actions.getMarketplaceApp({ id })),
+    getMarketplaceApp: (id) =>
+      unwrapDispatch(actions.getMarketplaceApp({ id })),
     getMarketplaceApps: () => unwrapDispatch(actions.getMarketplaceApps()),
-    exportApp: (id, data) => unwrapDispatch(actions.exportApp({ id, ...data }))
+    exportApp: (id, data) => unwrapDispatch(actions.exportApp({ id, ...data })),
   }
 }

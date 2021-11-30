@@ -23,15 +23,9 @@ const NAME = {
   label: 'Snapshot name',
   type: INPUT_TYPES.TEXT,
   tooltip: 'The new snapshot name. It can be empty.',
-  validation: yup
-    .string()
-    .trim()
-    .notRequired()
-    .default('')
+  validation: yup.string().trim().notRequired().default(''),
 }
 
-export const FIELDS = [
-  NAME
-]
+export const FIELDS = [NAME]
 
 export const SCHEMA = yup.object(getValidationFromFields(FIELDS))

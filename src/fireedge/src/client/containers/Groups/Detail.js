@@ -19,19 +19,19 @@ import { Container, Box } from '@mui/material'
 
 // import GroupTabs from 'client/components/Tabs/Group'
 
-function GroupDetail () {
+function GroupDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to='/' />
+    return <Redirect to="/" />
   }
 
   return (
     <Box
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       {/* <GroupTabs id={id} /> */}

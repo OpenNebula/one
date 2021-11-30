@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { T, PROTOCOL_STRING, RULE_TYPE_STRING, ICMP_STRING, ICMP_V6_STRING } from 'client/constants'
+import {
+  T,
+  PROTOCOL_STRING,
+  RULE_TYPE_STRING,
+  ICMP_STRING,
+  ICMP_V6_STRING,
+} from 'client/constants'
 
 /**
  * @typedef {object} SecurityGroupRule
@@ -65,7 +71,7 @@ export const prettySecurityGroup = ({
   ICMP_TYPE: ICMP_STRING[+icmpType] ?? '',
   ICMPv6_TYPE: ICMP_V6_STRING[+icmpv6Type] ?? '',
   RANGE: range || T.All,
-  ...rest
+  ...rest,
 })
 
 /**
@@ -82,5 +88,7 @@ export const getSecurityGroupsFromResource = (resource, securityGroups) => {
     ? securityGroups
     : securityGroups?.split(',')
 
-  return rules.filter(({ SECURITY_GROUP_ID }) => groups?.includes?.(SECURITY_GROUP_ID))
+  return rules.filter(({ SECURITY_GROUP_ID }) =>
+    groups?.includes?.(SECURITY_GROUP_ID)
+  )
 }

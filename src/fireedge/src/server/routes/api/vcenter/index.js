@@ -20,7 +20,7 @@ const { VCENTER } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(vcenterRoutes, VCENTER),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

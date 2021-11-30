@@ -19,20 +19,27 @@ import { useMemo, useEffect } from 'react'
 import { useFetch } from 'client/hooks'
 import { useVNetwork, useVNetworkApi } from 'client/features/One'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
+import {
+  SkeletonTable,
+  EnhancedTable,
+  EnhancedTableProps,
+} from 'client/components/Tables'
 import VNetworkColumns from 'client/components/Tables/VNetworks/columns'
 import VNetworkRow from 'client/components/Tables/VNetworks/row'
 
-const VNetworksTable = props => {
+const VNetworksTable = (props) => {
   const columns = useMemo(() => VNetworkColumns, [])
 
   const vNetworks = useVNetwork()
   const { getVNetworks } = useVNetworkApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVNetworks)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getVNetworks)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [])
+  useEffect(() => {
+    fetchRequest()
+  }, [])
 
   if (vNetworks?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -43,7 +50,7 @@ const VNetworksTable = props => {
       columns={columns}
       data={vNetworks}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VNetworkRow}
       {...props}
     />

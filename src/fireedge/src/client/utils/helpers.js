@@ -24,7 +24,8 @@ import { HYPERVISORS } from 'client/constants'
  * @param {number} ms - Delay in milliseconds
  * @returns {Promise} Promise resolved with a delay
  */
-export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
+export const fakeDelay = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
  * Determines if url is external.
@@ -32,7 +33,7 @@ export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
  * @param {string} url - URL
  * @returns {boolean} `true` if url is external
  */
-export const isExternalURL = url => RegExp(/^(http|https):/g).test(url)
+export const isExternalURL = (url) => /^(http|https):/g.test(url)
 
 /**
  * Generates a random key.
@@ -49,9 +50,11 @@ export const generateKey = () =>
  * @param {...string} values - Rest of text
  * @returns {string} Clean and secure string
  */
-export function sanitize (text, ...values) {
-  const dirty = text.reduce((prev, next, i) =>
-    `${prev}${next}${values[i] || ''}`, '')
+export function sanitize(text, ...values) {
+  const dirty = text.reduce(
+    (prev, next, i) => `${prev}${next}${values[i] || ''}`,
+    ''
+  )
 
   return DOMPurify.sanitize(dirty)
 }
@@ -66,7 +69,9 @@ export function sanitize (text, ...values) {
 export const decodeBase64 = (string, defaultValue = {}) => {
   try {
     return decodeURIComponent(escape(atob(string)))
-  } catch (e) { return defaultValue }
+  } catch (e) {
+    return defaultValue
+  }
 }
 
 /**
@@ -103,6 +108,7 @@ export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
  */
 export const addOpacityToColor = (color, opacity) => {
   const opacityHex = Math.round(opacity * 255).toString(16)
+
   return `${color}${opacityHex}`
 }
 
@@ -112,11 +118,14 @@ export const addOpacityToColor = (color, opacity) => {
  * @param {Array} fields - Field schemas
  * @returns {object} List of validations
  */
-export const getValidationFromFields = fields =>
-  fields.reduce((schema, field) => ({
-    ...schema,
-    [field?.name]: field?.validation
-  }), {})
+export const getValidationFromFields = (fields) =>
+  fields.reduce(
+    (schema, field) => ({
+      ...schema,
+      [field?.name]: field?.validation,
+    }),
+    {}
+  )
 
 /**
  * Returns fields in schema object.
@@ -127,7 +136,7 @@ export const getValidationFromFields = fields =>
  * [{ name: 'VM.NAME', validation: string() }]
  *  => object({ 'VM': object({ NAME: string() }) })
  */
-export const getObjectSchemaFromFields = fields =>
+export const getObjectSchemaFromFields = (fields) =>
   fields.reduce((schema, field) => {
     const { name, validation } = field
 
@@ -166,10 +175,12 @@ export const getObjectSchemaFromFields = fields =>
       // Needs to find the next schema in field path
       const nextIdx = idx + 1
       const nextPath = paths.at(nextIdx)
+
       return getSchemaByPath(path, sumSchemas(nextPath, nextIdx))
     }
 
     schema = schema.concat(sumSchemas())
+
     return schema
   }, object())
 
@@ -178,10 +189,15 @@ export const getObjectSchemaFromFields = fields =>
  * @param {HYPERVISORS} hypervisor - Hypervisor
  * @returns {Array} Filtered fields
  */
-export const filterFieldsByHypervisor = (fields, hypervisor = HYPERVISORS.kvm) =>
+export const filterFieldsByHypervisor = (
+  fields,
+  hypervisor = HYPERVISORS.kvm
+) =>
   fields
-    .map(field => typeof field === 'function' ? field(hypervisor) : field)
-    .filter(({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor))
+    .map((field) => (typeof field === 'function' ? field(hypervisor) : field))
+    .filter(
+      ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
+    )
 
 /**
  * Filter an object list by property.
@@ -192,7 +208,7 @@ export const filterFieldsByHypervisor = (fields, hypervisor = HYPERVISORS.kvm) =
  */
 export const filterBy = (arr, predicate) => {
   const callback =
-    typeof predicate === 'function' ? predicate : output => output[predicate]
+    typeof predicate === 'function' ? predicate : (output) => output[predicate]
 
   return [
     ...arr
@@ -203,7 +219,7 @@ export const filterBy = (arr, predicate) => {
 
         return map
       }, new Map())
-      .values()
+      .values(),
   ]
 }
 
@@ -216,13 +232,17 @@ export const filterBy = (arr, predicate) => {
  * @returns {*} Value of property
  */
 export const get = (obj, path, defaultValue = undefined) => {
-  const travel = regexp =>
+  const travel = (regexp) =>
     String.prototype.split
       .call(path, regexp)
       .filter(Boolean)
-      .reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj)
+      .reduce(
+        (res, key) => (res !== null && res !== undefined ? res[key] : res),
+        obj
+      )
 
   const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/)
+
   return result === undefined || result === obj ? defaultValue : result
 }
 
@@ -279,7 +299,7 @@ export const groupBy = (list, key) =>
  * @param {object} obj - Object
  * @returns {object} Object cloned
  */
-export const cloneObject = obj => JSON.parse(JSON.stringify(obj))
+export const cloneObject = (obj) => JSON.parse(JSON.stringify(obj))
 
 /**
  * Removes undefined and null values from object.
@@ -287,13 +307,15 @@ export const cloneObject = obj => JSON.parse(JSON.stringify(obj))
  * @param {object} obj - Object value
  * @returns {object} - Cleaned object
  */
-export const cleanEmptyObject = obj => {
+export const cleanEmptyObject = (obj) => {
   const entries = Object.entries(obj)
     .filter(([_, value]) =>
       // filter object/array values without attributes
       isMergeableObject(value)
-        ? Object.values(value).some(v => v != null)
-        : Array.isArray(value) ? value.length > 0 : true
+        ? Object.values(value).some((v) => v != null)
+        : Array.isArray(value)
+        ? value.length > 0
+        : true
     )
     .map(([key, value]) => {
       let cleanedValue = value
@@ -309,9 +331,11 @@ export const cleanEmptyObject = obj => {
 
   return entries?.length > 0
     ? entries.reduce((cleanedObject, [key, value]) => {
-      // `value == null` checks against undefined and null
-      return value == null ? cleanedObject : { ...cleanedObject, [key]: value }
-    }, {})
+        // `value == null` checks against undefined and null
+        return value == null
+          ? cleanedObject
+          : { ...cleanedObject, [key]: value }
+      }, {})
     : undefined
 }
 
@@ -321,12 +345,14 @@ export const cleanEmptyObject = obj => {
  * @param {Array} arr - Array value
  * @returns {object} - Cleaned object
  */
-export const cleanEmptyArray = arr => arr
-  .map(value => isMergeableObject(value) ? cleanEmpty(value) : value)
-  .filter(value =>
-    !(value == null) || // `value == null` checks against undefined and null
-    (Array.isArray(value) && value.length > 0)
-  )
+export const cleanEmptyArray = (arr) =>
+  arr
+    .map((value) => (isMergeableObject(value) ? cleanEmpty(value) : value))
+    .filter(
+      (value) =>
+        !(value == null) || // `value == null` checks against undefined and null
+        (Array.isArray(value) && value.length > 0)
+    )
 
 /**
  * Removes undefined and null values from variable.
@@ -334,8 +360,10 @@ export const cleanEmptyArray = arr => arr
  * @param {Array|object} variable - Variable
  * @returns {Array|object} - Cleaned variable
  */
-export const cleanEmpty = variable =>
-  Array.isArray(variable) ? cleanEmptyArray(variable) : cleanEmptyObject(variable)
+export const cleanEmpty = (variable) =>
+  Array.isArray(variable)
+    ? cleanEmptyArray(variable)
+    : cleanEmptyObject(variable)
 
 /**
  * Check if value is in base64.
@@ -350,8 +378,10 @@ export const isBase64 = (stringToValidate, options = {}) => {
 
   const { exact = true } = options
 
-  const BASE64_REG = /(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g
-  const EXACT_BASE64_REG = /(?:^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$)/
+  const BASE64_REG =
+    /(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g
+  const EXACT_BASE64_REG =
+    /(?:^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$)/
 
   const regex = exact ? EXACT_BASE64_REG : BASE64_REG
 
@@ -364,7 +394,8 @@ export const isBase64 = (stringToValidate, options = {}) => {
  * @param {string|number} value - Number to check
  * @returns {boolean} Returns `true` if string is divisible by 4
  */
-export const isDivisibleBy4 = value => /[048]|\d*([02468][048]|[13579][26])/g.test(value)
+export const isDivisibleBy4 = (value) =>
+  /[048]|\d*([02468][048]|[13579][26])/g.test(value)
 
 /**
  * Check if value is divisible by another number.
@@ -381,5 +412,5 @@ export const isDivisibleBy = (number, divisor) => !(number % divisor)
  * @param {number} value - Number
  * @returns {number[]} Returns list of numbers
  */
-export const getFactorsOfNumber = value =>
-  [...Array(+value + 1).keys()].filter(idx => value % idx === 0)
+export const getFactorsOfNumber = (value) =>
+  [...Array(+value + 1).keys()].filter((idx) => value % idx === 0)

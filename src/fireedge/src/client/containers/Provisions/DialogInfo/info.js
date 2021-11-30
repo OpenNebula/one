@@ -34,19 +34,20 @@ const Info = memo(({ data = {} }) => {
     name,
     provider: providerName,
     start_time: time,
-    provision: { infrastructure = {} }
+    provision: { infrastructure = {} },
   } = TEMPLATE?.BODY
 
-  const { id: clusterId = '', name: clusterName = '' } = infrastructure?.clusters?.[0] ?? {}
+  const { id: clusterId = '', name: clusterName = '' } =
+    infrastructure?.clusters?.[0] ?? {}
   const stateInfo = PROVISIONS_STATES[state]
 
-  const isChecked = checked =>
+  const isChecked = (checked) =>
     checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -58,35 +59,38 @@ const Info = memo(({ data = {} }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography data-cy='provision-name'>{name}</Typography>
+              <Typography data-cy="provision-name">{name}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography data-cy='provision-description' noWrap>{description}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.Provider)}</Typography>
-              <Typography data-cy='provider-name'>{providerName}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.Cluster)}</Typography>
-              <Typography data-cy='provider-cluster'>{`${clusterId} - ${clusterName}`}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.StartTime)}</Typography>
-              <Typography>
-                {new Date(time * 1000).toLocaleString()}
+              <Typography data-cy="provision-description" noWrap>
+                {description}
               </Typography>
             </ListItem>
             <ListItem>
+              <Typography>{Tr(T.Provider)}</Typography>
+              <Typography data-cy="provider-name">{providerName}</Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>{Tr(T.Cluster)}</Typography>
+              <Typography data-cy="provider-cluster">{`${clusterId} - ${clusterName}`}</Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>{Tr(T.StartTime)}</Typography>
+              <Typography>{new Date(time * 1000).toLocaleString()}</Typography>
+            </ListItem>
+            <ListItem>
               <Typography>{Tr(T.State)}</Typography>
-              <StatusChip stateColor={stateInfo?.color} text={stateInfo?.name} />
+              <StatusChip
+                stateColor={stateInfo?.color}
+                text={stateInfo?.name}
+              />
             </ListItem>
           </List>
         </Paper>
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined' className={classes.permissions}>
+        <Paper variant="outlined" className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -115,7 +119,7 @@ const Info = memo(({ data = {} }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>
@@ -137,11 +141,11 @@ const Info = memo(({ data = {} }) => {
 })
 
 Info.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
 }
 
 Info.defaultProps = {
-  data: undefined
+  data: undefined,
 }
 
 Info.displayName = 'Info'

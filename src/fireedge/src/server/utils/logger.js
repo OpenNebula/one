@@ -33,8 +33,9 @@ const initLogger = () => {
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
       trans.push(
         new transports.Console({
-          format: format.simple()
-        }))
+          format: format.simple(),
+        })
+      )
     } else {
       trans.push(
         new transports.File({
@@ -44,25 +45,27 @@ const initLogger = () => {
           handleExceptions: true,
           format: format.simple(),
           maxsize: 5242880, // 5MB
-          colorize: false
+          colorize: false,
         })
       )
     }
 
     logger = createLogger({
       transports: trans,
-      exitOnError: false
+      exitOnError: false,
     })
 
     logger.stream = {
       write: (message = '') => {
         writeInLogger(message)
-      }
+      },
     }
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-      logger.clear().add(new transports.Console({
-        format: format.simple()
-      }))
+      logger.clear().add(
+        new transports.Console({
+          format: format.simple(),
+        })
+      )
     }
   }
 }

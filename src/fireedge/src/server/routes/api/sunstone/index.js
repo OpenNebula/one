@@ -21,7 +21,7 @@ const { SUNSTONE } = require('./string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(sunstoneRoutes, SUNSTONE),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

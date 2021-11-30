@@ -23,10 +23,11 @@ import { PCI_DEVICES_SCHEMA } from './pciDevicesSchema'
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {ObjectSchema} I/O schema
  */
-export const SCHEMA = hypervisor => object()
-  .concat(INPUTS_SCHEMA)
-  .concat(PCI_DEVICES_SCHEMA)
-  .concat(GRAPHICS_SCHEMA(hypervisor))
+export const SCHEMA = (hypervisor) =>
+  object()
+    .concat(INPUTS_SCHEMA)
+    .concat(PCI_DEVICES_SCHEMA)
+    .concat(GRAPHICS_SCHEMA(hypervisor))
 
 export * from './graphicsSchema'
 export * from './inputsSchema'

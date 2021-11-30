@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/image/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useImage = () => (
-  useSelector(state => state[name]?.[RESOURCES.image] ?? [])
-)
+export const useImage = () =>
+  useSelector((state) => state[name]?.[RESOURCES.image] ?? [])
 
 export const useImageApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getImage: id => unwrapDispatch(actions.getImage({ id })),
-    getImages: () => unwrapDispatch(actions.getImages())
+    getImage: (id) => unwrapDispatch(actions.getImage({ id })),
+    getImages: () => unwrapDispatch(actions.getImages()),
   }
 }

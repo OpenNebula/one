@@ -16,7 +16,11 @@
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
 
 import Router from 'client/router'
-import { ENDPOINTS, PATH, getEndpointsByView } from 'client/apps/sunstone/routes'
+import {
+  ENDPOINTS,
+  PATH,
+  getEndpointsByView,
+} from 'client/apps/sunstone/routes'
 import { ENDPOINTS as ONE_ENDPOINTS } from 'client/apps/sunstone/routesOne'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
@@ -39,7 +43,8 @@ export const APP_NAME = _APPS.sunstone.name
  */
 const SunstoneApp = () => {
   const { isLogged, jwt, firstRender, view, views, config } = useAuth()
-  const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } = useAuthApi()
+  const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } =
+    useAuthApi()
 
   const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
@@ -47,14 +52,14 @@ const SunstoneApp = () => {
   const { getOneConfig } = useSystemApi()
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       appTitle !== APP_NAME && changeAppTitle(APP_NAME)
 
       try {
         if (jwt) {
           getAuthUser()
-          !view && await getSunstoneViews()
-          !config && await getSunstoneConfig()
+          !view && (await getSunstoneViews())
+          !config && (await getSunstoneConfig())
           !oneConfig && getOneConfig()
         }
       } catch {
@@ -63,11 +68,14 @@ const SunstoneApp = () => {
     })()
   }, [jwt])
 
-  const endpoints = useMemo(() => [
-    ...ENDPOINTS,
-    ...(view ? getEndpointsByView(views?.[view], ONE_ENDPOINTS) : []),
-    ...(isDevelopment() ? DEV_ENDPOINTS : [])
-  ], [view])
+  const endpoints = useMemo(
+    () => [
+      ...ENDPOINTS,
+      ...(view ? getEndpointsByView(views?.[view], ONE_ENDPOINTS) : []),
+      ...(isDevelopment() ? DEV_ENDPOINTS : []),
+    ],
+    [view]
+  )
 
   if (jwt && firstRender) {
     return <LoadingScreen />

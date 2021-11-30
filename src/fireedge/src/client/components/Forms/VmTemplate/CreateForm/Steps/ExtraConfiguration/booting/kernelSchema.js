@@ -22,7 +22,10 @@ import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
 
 const { vcenter, lxc } = HYPERVISORS
 
-const kernelValidation = string().trim().notRequired().default(() => undefined)
+const kernelValidation = string()
+  .trim()
+  .notRequired()
+  .default(() => undefined)
 
 /** @type {Field} Kernel path field  */
 export const KERNEL_PATH_ENABLED = {
@@ -30,7 +33,9 @@ export const KERNEL_PATH_ENABLED = {
   label: T.CustomPath,
   notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().strip().default(() => false)
+  validation: boolean()
+    .strip()
+    .default(() => false),
 }
 
 /** @type {Field} Kernel DS field  */
@@ -40,13 +45,16 @@ export const KERNEL_DS = {
   notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: KERNEL_PATH_ENABLED.name,
-  htmlType: enabled => enabled && INPUT_TYPES.HIDDEN,
+  htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
   values: () => {
     const images = useImage()
 
     return images
-      ?.filter(image => getType(image) === IMAGE_TYPES_STR.KERNEL)
-      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: `$FILE[IMAGE_ID=${ID}]` }))
+      ?.filter((image) => getType(image) === IMAGE_TYPES_STR.KERNEL)
+      ?.map(({ ID, NAME }) => ({
+        text: `#${ID} ${NAME}`,
+        value: `$FILE[IMAGE_ID=${ID}]`,
+      }))
       ?.sort((a, b) => {
         const compareOptions = { numeric: true, ignorePunctuation: true }
 
@@ -55,8 +63,8 @@ export const KERNEL_DS = {
   },
   validation: kernelValidation.when(
     clearNames(KERNEL_PATH_ENABLED.name),
-    (enabled, schema) => enabled ? schema.strip() : schema
-  )
+    (enabled, schema) => (enabled ? schema.strip() : schema)
+  ),
 }
 
 /** @type {Field} Kernel path field  */
@@ -66,11 +74,11 @@ export const KERNEL = {
   notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.TEXT,
   dependOf: KERNEL_PATH_ENABLED.name,
-  htmlType: enabled => !enabled && INPUT_TYPES.HIDDEN,
+  htmlType: (enabled) => !enabled && INPUT_TYPES.HIDDEN,
   validation: kernelValidation.when(
     clearNames(KERNEL_PATH_ENABLED.name),
-    (enabled, schema) => enabled ? schema : schema.strip()
-  )
+    (enabled, schema) => (enabled ? schema : schema.strip())
+  ),
 }
 
 /** @type {Field[]} List of Kernel fields */

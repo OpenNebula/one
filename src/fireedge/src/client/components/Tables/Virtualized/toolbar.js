@@ -25,18 +25,18 @@ import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useToolbarStyles = makeStyles(theme => ({
+const useToolbarStyles = makeStyles((theme) => ({
   filterWrapper: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: '1em'
+    gap: '1em',
   },
   filterButton: {
     ...theme.typography.body1,
     fontWeight: theme.typography.fontWeightBold,
-    textTransform: 'none'
-  }
+    textTransform: 'none',
+  },
 }))
 
 const Toolbar = ({ useTableProps }) => {
@@ -50,9 +50,7 @@ const Toolbar = ({ useTableProps }) => {
 
   return (
     <div className={classes.filterWrapper}>
-      <Button startIcon={<FilterIcon />}
-        className={classes.filterButton}
-      >
+      <Button startIcon={<FilterIcon />} className={classes.filterButton}>
         {Tr(T.Filters)}
       </Button>
       <GlobalFilter
@@ -65,11 +63,11 @@ const Toolbar = ({ useTableProps }) => {
 }
 
 Toolbar.propTypes = {
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 Toolbar.defaultProps = {
-  useTableProps: {}
+  useTableProps: {},
 }
 
 export default Toolbar

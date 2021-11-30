@@ -37,13 +37,15 @@ export const getState = ({ STATE } = {}) => MARKETPLACE_STATES[+STATE]
  * }} Marketplace capacity information
  */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
-  const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
+  const percentOfUsed = (+USED_MB * 100) / +TOTAL_MB || 0
   const usedBytes = prettyBytes(+USED_MB, 'MB')
   const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
-  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
+  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(
+    percentOfUsed
+  )}%)`
 
   return {
     percentOfUsed,
-    percentLabel
+    percentLabel,
   }
 }

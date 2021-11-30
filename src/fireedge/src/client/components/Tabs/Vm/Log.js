@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-const VmLogTab = data => {
+const VmLogTab = (data) => {
   return (
     <div>
       <p>WIP - LOG</p>

@@ -34,11 +34,17 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
 
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
   const { name: stateName, color: stateColor } = getState(vm)
-  const { HID: hostId, HOSTNAME: hostname = '--', CID: clusterId } = getLastHistory(vm)
+  const {
+    HID: hostId,
+    HOSTNAME: hostname = '--',
+    CID: clusterId,
+  } = getLastHistory(vm)
   const ips = getIps(vm)
 
-  const [clusterName, setClusterName] = useState(
-    () => clusterId === '-1' ? 'default' : clusters.find(c => c.ID === clusterId)?.NAME
+  const [clusterName, setClusterName] = useState(() =>
+    clusterId === '-1'
+      ? 'default'
+      : clusters.find((c) => c.ID === clusterId)?.NAME
   )
 
   useEffect(() => {
@@ -56,48 +62,50 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
-      handleEdit: handleRename
+      handleEdit: handleRename,
     },
     {
       name: T.State,
-      value: <StatusChip text={stateName} stateColor={stateColor} />
+      value: <StatusChip text={stateName} stateColor={stateColor} />,
     },
     {
       name: T.Reschedule,
-      value: Helper.booleanToString(+RESCHED)
+      value: Helper.booleanToString(+RESCHED),
     },
     {
       name: T.Locked,
-      value: Helper.levelLockToString(LOCK?.LOCKED)
+      value: Helper.levelLockToString(LOCK?.LOCKED),
     },
     {
       name: T.IP,
-      value: ips?.length ? <MultipleTags tags={ips} /> : '--'
+      value: ips?.length ? <MultipleTags tags={ips} /> : '--',
     },
     {
       name: T.StartTime,
-      value: Helper.timeToString(STIME)
+      value: Helper.timeToString(STIME),
     },
     {
       name: T.EndTime,
-      value: Helper.timeToString(ETIME)
+      value: Helper.timeToString(ETIME),
     },
     hostId && {
       name: T.Host,
       value: `#${hostId} ${hostname}`,
-      link: !Number.isNaN(+hostId) &&
-        generatePath(PATH.INFRASTRUCTURE.HOSTS.DETAIL, { id: hostId })
+      link:
+        !Number.isNaN(+hostId) &&
+        generatePath(PATH.INFRASTRUCTURE.HOSTS.DETAIL, { id: hostId }),
     },
     clusterId && {
       name: T.Cluster,
       value: clusterName ? `#${clusterId} ${clusterName}` : `#${clusterId} --`,
-      link: !Number.isNaN(+clusterId) &&
-        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: clusterId })
+      link:
+        !Number.isNaN(+clusterId) &&
+        generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: clusterId }),
     },
     {
       name: T.DeployID,
-      value: DEPLOY_ID
-    }
+      value: DEPLOY_ID,
+    },
   ].filter(Boolean)
 
   return (
@@ -114,7 +122,7 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   handleRename: PropTypes.func,
-  vm: PropTypes.object
+  vm: PropTypes.object,
 }
 
 export default InformationPanel

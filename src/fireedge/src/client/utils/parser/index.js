@@ -22,5 +22,5 @@ export {
   templateToObject,
   parseApplicationToForm,
   parseFormToApplication,
-  parseFormToDeployApplication
+  parseFormToDeployApplication,
 }

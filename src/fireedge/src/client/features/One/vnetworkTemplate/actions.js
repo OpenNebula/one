@@ -28,5 +28,5 @@ export const getVNetworkTemplate = createAction(
 export const getVNetworkTemplates = createAction(
   `${VNET_TEMPLATE}/pool`,
   vNetworkTemplateService.getVNetworkTemplates,
-  response => ({ [RESOURCES.vntemplate]: response })
+  (response) => ({ [RESOURCES.vntemplate]: response })
 )

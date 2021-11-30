@@ -22,18 +22,18 @@ import {
   Server as ClusterIcon,
   HardDrive as HostIcon,
   NetworkAlt as NetworkIcon,
-  Folder as DatastoreIcon
+  Folder as DatastoreIcon,
 } from 'iconoir-react'
 
 import { SelectCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   badgesWrapper: {
     display: 'flex',
-    gap: theme.typography.pxToRem(12)
-  }
+    gap: theme.typography.pxToRem(12),
+  },
 }))
 
 const ClusterCard = memo(
@@ -100,25 +100,25 @@ ClusterCard.propTypes = {
     NAME: PropTypes.string.isRequired,
     HOSTS: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
-      PropTypes.object
+      PropTypes.object,
     ]),
     VNETS: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
-      PropTypes.object
+      PropTypes.object,
     ]),
     DATASTORES: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.object),
-      PropTypes.object
-    ])
+      PropTypes.object,
+    ]),
   }),
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 ClusterCard.defaultProps = {
   value: {},
   isSelected: false,
-  handleClick: undefined
+  handleClick: undefined,
 }
 
 ClusterCard.displayName = 'ClusterCard'

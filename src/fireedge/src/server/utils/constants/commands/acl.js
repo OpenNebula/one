@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 const {
   from: { resource, postBody },
-  httpMethod: { GET, POST, DELETE }
+  httpMethod: { GET, POST, DELETE },
 } = require('../defaults')
 
 const ACL_ADDRULE = 'acl.addrule'
@@ -25,7 +25,7 @@ const ACL_INFO = 'acl.info'
 const Actions = {
   ACL_ADDRULE,
   ACL_DELRULE,
-  ACL_INFO
+  ACL_INFO,
 }
 
 module.exports = {
@@ -37,17 +37,17 @@ module.exports = {
       params: {
         user: {
           from: postBody,
-          default: '0x100000000'
+          default: '0x100000000',
         },
         resource: {
           from: postBody,
-          default: '0x1000000000'
+          default: '0x1000000000',
         },
         right: {
           from: postBody,
-          default: '0x1'
-        }
-      }
+          default: '0x1',
+        },
+      },
     },
     [ACL_DELRULE]: {
       // inspected
@@ -55,14 +55,14 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [ACL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

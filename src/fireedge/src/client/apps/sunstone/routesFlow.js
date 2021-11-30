@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import {
   List as TemplatesIcons,
-  Cell4X4 as InstancesIcons
+  Cell4X4 as InstancesIcons,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -39,11 +39,11 @@ export const PATH = {
   APPLICATIONS_TEMPLATES: {
     LIST: '/applications-templates',
     CREATE: '/applications-templates/create',
-    EDIT: '/applications-templates/edit/:id'
+    EDIT: '/applications-templates/edit/:id',
   },
   APPLICATIONS: {
-    LIST: '/applications'
-  }
+    LIST: '/applications',
+  },
 }
 
 export const ENDPOINTS = [
@@ -52,25 +52,25 @@ export const ENDPOINTS = [
     path: PATH.APPLICATIONS_TEMPLATES.LIST,
     sidebar: true,
     icon: TemplatesIcons,
-    Component: ApplicationsTemplates
+    Component: ApplicationsTemplates,
   },
   {
     label: 'Create Application template',
     path: PATH.APPLICATIONS_TEMPLATES.CREATE,
-    Component: ApplicationsTemplatesFormCreate
+    Component: ApplicationsTemplatesFormCreate,
   },
   {
     label: 'Edit Application template',
     path: PATH.APPLICATIONS_TEMPLATES.EDIT,
-    Component: ApplicationsTemplatesFormCreate
+    Component: ApplicationsTemplatesFormCreate,
   },
   {
     label: 'Service Instances',
     path: PATH.APPLICATIONS.LIST,
     sidebar: true,
     icon: InstancesIcons,
-    Component: ApplicationsInstances
-  }
+    Component: ApplicationsInstances,
+  },
 ]
 
 export default { PATH, ENDPOINTS }

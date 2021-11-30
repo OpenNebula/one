@@ -20,13 +20,10 @@ import { RESOURCES } from 'client/features/One/slice'
 /** @see {@link RESOURCES.host}  */
 const HOST = 'host'
 
-export const getHost = createAction(
-  `${HOST}/detail`,
-  hostService.getHost
-)
+export const getHost = createAction(`${HOST}/detail`, hostService.getHost)
 
 export const getHosts = createAction(
   `${HOST}/pool`,
   hostService.getHosts,
-  response => ({ [RESOURCES.host]: response })
+  (response) => ({ [RESOURCES.host]: response })
 )

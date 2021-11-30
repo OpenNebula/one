@@ -19,11 +19,19 @@ import PropTypes from 'prop-types'
 
 import { useMarketplaceAppApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
-import { Permissions, Ownership, AttributePanel } from 'client/components/Tabs/Common'
+import {
+  Permissions,
+  Ownership,
+  AttributePanel,
+} from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/MarketplaceApp/Info/information'
 
 import { Tr } from 'client/components/HOC'
-import { getActionsAvailable, filterAttributes, jsonToXml } from 'client/models/Helper'
+import {
+  getActionsAvailable,
+  filterAttributes,
+  jsonToXml,
+} from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 import { T } from 'client/constants'
 
@@ -34,19 +42,20 @@ const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
-  const { rename, changeOwnership, changePermissions, updateTemplate } = useMarketplaceAppApi()
+  const { rename, changeOwnership, changePermissions, updateTemplate } =
+    useMarketplaceAppApi()
   const { handleRefetch, data: marketplaceApp = {} } = useContext(TabContext)
   const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = marketplaceApp
 
-  const handleChangeOwnership = async newOwnership => {
+  const handleChangeOwnership = async (newOwnership) => {
     const response = await changeOwnership(ID, newOwnership)
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const handleChangePermission = async newPermission => {
+  const handleChangePermission = async (newPermission) => {
     const response = await changePermissions(ID, newPermission)
     String(response) === String(ID) && (await handleRefetch?.())
   }
@@ -68,17 +77,21 @@ const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = actions => getActionsAvailable(actions)
+  const getActions = (actions) => getActionsAvailable(actions)
 
-  const { attributes } = filterAttributes(TEMPLATE, { hidden: HIDDEN_ATTRIBUTES_REG })
+  const { attributes } = filterAttributes(TEMPLATE, {
+    hidden: HIDDEN_ATTRIBUTES_REG,
+  })
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -126,7 +139,7 @@ const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
 }
 
 MarketplaceAppInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 MarketplaceAppInfoTab.displayName = 'MarketplaceAppInfoTab'

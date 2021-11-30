@@ -36,7 +36,7 @@ const Zone = () => {
 
   return (
     <HeaderPopover
-      id='zone-menu'
+      id="zone-menu"
       tooltip={T.Zone}
       icon={<ZoneIcon />}
       buttonProps={{ 'data-cy': 'header-zone-button' }}
@@ -49,20 +49,19 @@ const Zone = () => {
 
         return (
           <>
-            {loading && <LinearProgress color='secondary' />}
+            {loading && <LinearProgress color="secondary" />}
             <MenuList>
-              {zones?.length
-                ? zones?.map(({ ID, NAME }) => (
+              {zones?.length ? (
+                zones?.map(({ ID, NAME }) => (
                   <MenuItem key={`zone-${ID}`} onClick={handleClose}>
                     {NAME}
                   </MenuItem>
                 ))
-                : (
-                  <MenuItem disabled>
-                    <Translate word={T.NotFound} />
-                  </MenuItem>
-                )
-              }
+              ) : (
+                <MenuItem disabled>
+                  <Translate word={T.NotFound} />
+                </MenuItem>
+              )}
             </MenuList>
           </>
         )

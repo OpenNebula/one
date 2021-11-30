@@ -28,12 +28,23 @@ import * as Helper from 'client/models/Helper'
 
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, HOSTNAME = '--', LOCK } = value
+  const {
+    ID,
+    NAME,
+    UNAME,
+    GNAME,
+    IPS,
+    STIME,
+    ETIME,
+    HOSTNAME = '--',
+    LOCK,
+  } = value
 
   const time = Helper.timeFromMilliseconds(+ETIME || +STIME)
   const timeAgo = `${+ETIME ? 'done' : 'started'} ${time.toRelative()}`
 
-  const { color: stateColor, name: stateName } = VirtualMachineModel.getState(original)
+  const { color: stateColor, name: stateName } =
+    VirtualMachineModel.getState(original)
 
   return (
     <div {...props}>
@@ -42,17 +53,13 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography noWrap component='span'>
+          <Typography noWrap component="span">
             {NAME}
           </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-          </span>
+          <span className={classes.labels}>{LOCK && <Lock />}</span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>
-            {`#${ID} ${timeAgo}`}
-          </span>
+          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
           <span title={`Owner: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
@@ -69,7 +76,7 @@ const Row = ({ original, value, ...props }) => {
       </div>
       {!!IPS?.length && (
         <div className={classes.secondary}>
-          <Stack flexWrap='wrap' justifyContent='end' alignItems='center'>
+          <Stack flexWrap="wrap" justifyContent="end" alignItems="center">
             <MultipleTags tags={IPS.split(',')} />
           </Stack>
         </div>
@@ -82,7 +89,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

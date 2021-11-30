@@ -31,14 +31,14 @@ DockerLogo.propTypes = {
   width: oneOfType([number, string]).isRequired,
   height: oneOfType([number, string]).isRequired,
   viewBox: string,
-  color: string
+  color: string,
 }
 
 DockerLogo.defaultProps = {
   width: 360,
   height: 360,
   viewBox: '0 0 512 512',
-  color: '#066da5'
+  color: '#066da5',
 }
 
 DockerLogo.displayName = 'DockerLogo'

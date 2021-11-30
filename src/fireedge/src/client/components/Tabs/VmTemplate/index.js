@@ -29,10 +29,11 @@ import TabProvider from 'client/components/Tabs/TabProvider'
 import Info from 'client/components/Tabs/VmTemplate/Info'
 import Template from 'client/components/Tabs/VmTemplate/Template'
 
-const getTabComponent = tabName => ({
-  info: Info,
-  template: Template
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    info: Info,
+    template: Template,
+  }[tabName])
 
 const VmTemplateTabs = memo(({ id }) => {
   const { getVmTemplate } = useVmTemplateApi()
@@ -50,22 +51,26 @@ const VmTemplateTabs = memo(({ id }) => {
   useEffect(() => {
     const infoTabs = getResourceView('VM-TEMPLATE')?.['info-tabs'] ?? {}
 
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
+    setTabs(() =>
+      Object.entries(infoTabs)
+        ?.filter(([_, { enabled } = {}]) => !!enabled)
+        ?.map(([tabName, tabProps]) => {
+          const camelName = camelCase(tabName)
+          const TabContent = getTabComponent(camelName)
 
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+          return (
+            TabContent && {
+              name: camelName,
+              renderContent: (props) => TabContent({ ...props, tabProps }),
+            }
+          )
+        })
+        ?.filter(Boolean)
+    )
   }, [view])
 
   if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+    return <LinearProgress color="secondary" style={{ width: '100%' }} />
   }
 
   return (
@@ -76,7 +81,7 @@ const VmTemplateTabs = memo(({ id }) => {
 })
 
 VmTemplateTabs.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
 }
 
 VmTemplateTabs.displayName = 'VmTemplateTabs'

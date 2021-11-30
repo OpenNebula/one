@@ -51,12 +51,16 @@ const InternalLayout = ({ title, children }) => {
             enterDone: classes.enterDone,
             exit: classes.exit,
             exitActive: classes.exitActive,
-            exitDone: classes.exitDone
+            exitDone: classes.exitDone,
           }}
           timeout={300}
           unmountOnExit
         >
-          <Container ref={container} maxWidth={false} className={classes.scrollable}>
+          <Container
+            ref={container}
+            maxWidth={false}
+            className={classes.scrollable}
+          >
             {children}
           </Container>
         </CSSTransition>
@@ -67,11 +71,8 @@ const InternalLayout = ({ title, children }) => {
 }
 
 InternalLayout.propTypes = {
-  title: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.func
-  ]),
-  children: PropTypes.any
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  children: PropTypes.any,
 }
 
 export default InternalLayout

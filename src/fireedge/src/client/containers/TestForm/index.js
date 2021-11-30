@@ -25,30 +25,37 @@ import { FormWithSchema } from 'client/components/Forms'
  * @returns {JSXElementConstructor}
  * - Component that allows you to test a form and their components
  */
-function TestForm () {
-  const fields = useMemo(() => [/* To add the fields validation */], [])
+function TestForm() {
+  const fields = useMemo(
+    () => [
+      /* To add the fields validation */
+    ],
+    []
+  )
   const resolver = useMemo(() => object() /* To add the form schema */, [])
 
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues: resolver.default(),
-    resolver: yupResolver(resolver, { isSubmit: true })
+    resolver: yupResolver(resolver, { isSubmit: true }),
   })
 
-  const onSubmit = values => {
+  const onSubmit = (values) => {
     console.log({ values })
   }
 
   return (
-    <Container component='form' onSubmit={methods.handleSubmit(onSubmit)}>
-      <Grid container direction='row' spacing={2}>
+    <Container component="form" onSubmit={methods.handleSubmit(onSubmit)}>
+      <Grid container direction="row" spacing={2}>
         <Grid item xs={12}>
           <FormProvider {...methods}>
             <FormWithSchema fields={fields} />
           </FormProvider>
         </Grid>
         <Grid item xs={12}>
-          <Button type='submit' variant='contained'>{'Submit'}</Button>
+          <Button type="submit" variant="contained">
+            {'Submit'}
+          </Button>
         </Grid>
       </Grid>
     </Container>

@@ -17,13 +17,20 @@
 import * as yup from 'yup'
 
 import {
-  TARGET, READONLY, CACHE, IO, DISCARD, DEV_PREFIX, VCENTER_DISK_TYPE
+  TARGET,
+  READONLY,
+  CACHE,
+  IO,
+  DISCARD,
+  DEV_PREFIX,
+  VCENTER_DISK_TYPE,
 } from 'client/components/Forms/Vm/AttachDiskForm/CommonFields'
 import { getValidationFromFields } from 'client/utils'
 
-export const FIELDS = hypervisor => [
-  TARGET, READONLY, CACHE, IO, DISCARD, DEV_PREFIX, VCENTER_DISK_TYPE
-].filter(({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor))
+export const FIELDS = (hypervisor) =>
+  [TARGET, READONLY, CACHE, IO, DISCARD, DEV_PREFIX, VCENTER_DISK_TYPE].filter(
+    ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
+  )
 
-export const SCHEMA = hypervisor =>
+export const SCHEMA = (hypervisor) =>
   yup.object(getValidationFromFields(FIELDS(hypervisor)))

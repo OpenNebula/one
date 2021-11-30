@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const DOCUMENT_ALLOCATE = 'document.allocate'
@@ -42,7 +42,7 @@ const Actions = {
   DOCUMENT_INFO,
   DOCUMENT_LOCK,
   DOCUMENT_UNLOCK,
-  DOCUMENT_POOL_INFO
+  DOCUMENT_POOL_INFO,
 }
 
 module.exports = {
@@ -54,13 +54,13 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         type: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DOCUMENT_CLONE]: {
       // inspected
@@ -68,13 +68,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [DOCUMENT_DELETE]: {
       // inspected
@@ -82,9 +82,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DOCUMENT_UPDATE]: {
       // inspected
@@ -92,17 +92,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DOCUMENT_CHMOD]: {
       // inspected
@@ -110,45 +110,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [DOCUMENT_CHOWN]: {
       // inspected
@@ -156,17 +156,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [DOCUMENT_RENAME]: {
       // inspected
@@ -174,13 +174,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [DOCUMENT_INFO]: {
       // inspected
@@ -188,13 +188,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [DOCUMENT_LOCK]: {
       // inspected
@@ -202,13 +202,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [DOCUMENT_UNLOCK]: {
       // inspected
@@ -216,9 +216,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [DOCUMENT_POOL_INFO]: {
       // inspected
@@ -226,21 +226,21 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
+          default: -1,
         },
         type: {
           from: query,
-          default: 100
-        }
-      }
-    }
-  }
+          default: 100,
+        },
+      },
+    },
+  },
 }

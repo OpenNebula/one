@@ -31,7 +31,7 @@ const BasicConfiguration = () => ({
   content: useCallback(
     () => <FormWithSchema cy="form-flow" fields={FORM_FIELDS} id={STEP_ID} />,
     []
-  )
+  ),
 })
 
 export default BasicConfiguration

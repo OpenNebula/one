@@ -22,14 +22,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const CustomDialog = ({ title, handleClose, children }) => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
   return (
     <Dialog
@@ -41,8 +41,8 @@ const CustomDialog = ({ title, handleClose, children }) => {
       PaperProps={{
         style: {
           height: isMobile ? '100%' : '90%',
-          width: isMobile ? '100%' : '90%'
-        }
+          width: isMobile ? '100%' : '90%',
+        },
       }}
     >
       <DialogTitle>{title}</DialogTitle>
@@ -51,13 +51,13 @@ const CustomDialog = ({ title, handleClose, children }) => {
         style={{
           overflow: 'hidden',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}
       >
         {children}
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' onClick={handleClose}>
+        <Button color="secondary" onClick={handleClose}>
           {Tr(T.Cancel)}
         </Button>
       </DialogActions>
@@ -68,13 +68,13 @@ const CustomDialog = ({ title, handleClose, children }) => {
 CustomDialog.propTypes = {
   title: PropTypes.string,
   handleClose: PropTypes.func,
-  children: PropTypes.any
+  children: PropTypes.any,
 }
 
 CustomDialog.defaultProps = {
   title: 'Application',
   handleClose: undefined,
-  children: undefined
+  children: undefined,
 }
 
 export default CustomDialog

@@ -38,8 +38,7 @@
  * @returns {string} Provider name
  */
 export const getProviderName = ({ defaults, hosts }) =>
-  defaults?.provision?.provider_name ??
-    hosts?.[0]?.provision.provider_name
+  defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
 
 /**
  * Check if the provision template is valid format.
@@ -47,12 +46,9 @@ export const getProviderName = ({ defaults, hosts }) =>
  * @param {ProvisionTemplate} template - Provision template
  * @returns {boolean} Returns `true` if template is valid
  */
-export const isValidProvisionTemplate = template => {
+export const isValidProvisionTemplate = (template) => {
   const { name, provider } = template
   const providerName = getProviderName(template)
 
-  return !(
-    providerName === undefined ||
-    [name, provider].includes(undefined)
-  )
+  return !(providerName === undefined || [name, provider].includes(undefined))
 }

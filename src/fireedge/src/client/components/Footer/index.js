@@ -32,15 +32,15 @@ const FooterBox = styled('footer')(({ theme }) => ({
   right: 0,
   zIndex: theme.zIndex.appBar,
   textAlign: 'center',
-  padding: theme.spacing(0.6)
+  padding: theme.spacing(0.6),
 }))
 
 const HeartIcon = styled('span')(({ theme }) => ({
   margin: theme.spacing(0, 1),
   color: theme.palette.error.dark,
   '&:before': {
-    content: "'❤️'"
-  }
+    content: "'❤️'",
+  },
 }))
 
 const Footer = memo(() => {
@@ -54,15 +54,13 @@ const Footer = memo(() => {
 
   return (
     <FooterBox>
-      <Typography variant='body2'>
+      <Typography variant="body2">
         {'Made with'}
-        <HeartIcon role='img' aria-label='heart-emoji' />
-        <Link href={BY.url} color='primary.contrastText'>
+        <HeartIcon role="img" aria-label="heart-emoji" />
+        <Link href={BY.url} color="primary.contrastText">
           {BY.text}
         </Link>
-        {version && (
-          <StatusChip stateColor='secondary' text={version} mx={1} />
-        )}
+        {version && <StatusChip stateColor="secondary" text={version} mx={1} />}
       </Typography>
     </FooterBox>
   )

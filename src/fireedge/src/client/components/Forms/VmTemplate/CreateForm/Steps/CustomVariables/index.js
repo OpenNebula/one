@@ -27,7 +27,7 @@ const ALL_ACTIONS = [
   ACTIONS.COPY_ATTRIBUTE,
   ACTIONS.ADD_ATTRIBUTE,
   ACTIONS.EDIT_ATTRIBUTE,
-  ACTIONS.DELETE_ATTRIBUTE
+  ACTIONS.DELETE_ATTRIBUTE,
 ]
 
 export const STEP_ID = 'custom-variables'
@@ -44,7 +44,7 @@ const Content = () => {
   }
 
   return (
-    <Box display='grid' gap='1em'>
+    <Box display="grid" gap="1em">
       <AttributePanel
         handleAdd={handleChangeAttribute}
         handleEdit={handleChangeAttribute}
@@ -62,11 +62,11 @@ const CustomVariables = () => ({
   label: T.CustomVariables,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
-  data: PropTypes.any
+  data: PropTypes.any,
 }
 
 export default CustomVariables

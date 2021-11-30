@@ -27,36 +27,39 @@ import { T, FILTER_POOL } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
-const ButtonGroup = memo(({ group, handleClick }) => {
-  const { changeGroup } = useAuthApi()
-  const { user, filterPool } = useAuth()
+const ButtonGroup = memo(
+  ({ group, handleClick }) => {
+    const { changeGroup } = useAuthApi()
+    const { user, filterPool } = useAuth()
 
-  const { ID, NAME } = group
+    const { ID, NAME } = group
 
-  const isSelected =
+    const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
       (filterPool === PRIMARY_GROUP_RESOURCES && user?.GID === ID)
 
-  return (
-    <Button
-      fullWidth
-      color='debug'
-      variant='outlined'
-      onClick={() => {
-        ID && changeGroup({ id: user.ID, group: ID })
-        handleClick()
-      }}
-      sx={{
-        color: theme => theme.palette.text.primary,
-        justifyContent: 'start',
-        '& svg:first-of-type': { my: 0, mx: 2 }
-      }}
-    >
-      {NAME}
-      {isSelected && <SelectIcon />}
-    </Button>
-  )
-}, (prev, next) => prev.group.ID === next.group.ID)
+    return (
+      <Button
+        fullWidth
+        color="debug"
+        variant="outlined"
+        onClick={() => {
+          ID && changeGroup({ id: user.ID, group: ID })
+          handleClick()
+        }}
+        sx={{
+          color: (theme) => theme.palette.text.primary,
+          justifyContent: 'start',
+          '& svg:first-of-type': { my: 0, mx: 2 },
+        }}
+      >
+        {NAME}
+        {isSelected && <SelectIcon />}
+      </Button>
+    )
+  },
+  (prev, next) => prev.group.ID === next.group.ID
+)
 
 /**
  * Menu to select the user group that
@@ -68,21 +71,20 @@ const Group = () => {
   const { user, groups } = useAuth()
 
   const sortGroupAsMainFirst = (a, b) => {
-    return a.ID === user?.GUID
-      ? -1
-      : b.ID === user?.GUID ? 1 : 0
+    return a.ID === user?.GUID ? -1 : b.ID === user?.GUID ? 1 : 0
   }
 
   const sortMainGroupFirst = useMemo(
-    () => [{ ID: ALL_RESOURCES, NAME: <Translate word={T.ShowAll} /> }]
-      ?.concat(groups)
-      ?.sort(sortGroupAsMainFirst),
+    () =>
+      [{ ID: ALL_RESOURCES, NAME: <Translate word={T.ShowAll} /> }]
+        ?.concat(groups)
+        ?.sort(sortGroupAsMainFirst),
     [user?.GUID]
   )
 
   return (
     <HeaderPopover
-      id='group-list'
+      id="group-list"
       icon={<GroupIcon />}
       tooltip={<Translate word={T.SwitchGroup} />}
       buttonProps={{ 'data-cy': 'header-group-button' }}
@@ -94,10 +96,10 @@ const Group = () => {
           listOptions={{
             shouldSort: true,
             sortFn: sortGroupAsMainFirst,
-            keys: ['NAME']
+            keys: ['NAME'],
           }}
           maxResults={5}
-          renderResult={group => (
+          renderResult={(group) => (
             <ButtonGroup
               key={`switcher-group-${group?.ID}`}
               group={group}
@@ -113,12 +115,9 @@ const Group = () => {
 ButtonGroup.propTypes = {
   group: PropTypes.shape({
     ID: PropTypes.string,
-    NAME: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.node
-    ])
+    NAME: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   }).isRequired,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 ButtonGroup.displayName = 'ButtonGroup'

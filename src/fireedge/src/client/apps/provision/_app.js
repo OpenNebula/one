@@ -47,14 +47,14 @@ const ProvisionApp = () => {
   const { changeAppTitle } = useGeneralApi()
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       appTitle !== APP_NAME && changeAppTitle(APP_NAME)
 
       try {
         if (jwt) {
           getAuthUser()
-          !providerConfig && await getProviderConfig()
-          !provisionTemplate?.length && await getProvisionsTemplates()
+          !providerConfig && (await getProviderConfig())
+          !provisionTemplate?.length && (await getProvisionsTemplates())
         }
       } catch {
         logout()
@@ -62,10 +62,10 @@ const ProvisionApp = () => {
     })()
   }, [jwt])
 
-  const endpoints = useMemo(() => [
-    ...ENDPOINTS,
-    ...(isDevelopment() ? DEV_ENDPOINTS : [])
-  ], [])
+  const endpoints = useMemo(
+    () => [...ENDPOINTS, ...(isDevelopment() ? DEV_ENDPOINTS : [])],
+    []
+  )
 
   if (jwt && firstRender) {
     return <LoadingScreen />

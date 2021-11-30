@@ -17,7 +17,8 @@
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as ImageModel from 'client/models/Image'
 
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -27,24 +28,25 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => ImageModel.getState(row)?.name,
+    accessor: (row) => ImageModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => ImageModel.getType(row)
+    accessor: (row) => ImageModel.getType(row),
   },
   {
     Header: 'Disk Type',
     id: 'DISK_TYPE',
-    accessor: row => ImageModel.getDiskType(row)
+    accessor: (row) => ImageModel.getDiskType(row),
   },
   { Header: 'Registration Time', accessor: 'REGTIME' },
   { Header: 'Datastore', accessor: 'DATASTORE' },
@@ -52,12 +54,12 @@ export default [
   {
     Header: 'Running VMs',
     accessor: 'RUNNING_VMS',
-    sortType: 'number'
+    sortType: 'number',
   },
   {
     Header: 'Total VMs',
     id: 'TOTAL_VMS',
-    accessor: row => getTotalOfResources(row?.VMS),
-    sortType: 'number'
-  }
+    accessor: (row) => getTotalOfResources(row?.VMS),
+    sortType: 'number',
+  },
 ]

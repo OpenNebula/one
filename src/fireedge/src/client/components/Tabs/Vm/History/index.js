@@ -20,7 +20,11 @@ import PropTypes from 'prop-types'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import HistoryList from 'client/components/Tabs/Vm/History/List'
 
-import { getHypervisor, getHistoryRecords, isAvailableAction } from 'client/models/VirtualMachine'
+import {
+  getHypervisor,
+  getHistoryRecords,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
 
 const VmHistoryTab = ({ tabProps: { actions } = {} }) => {
@@ -29,19 +33,18 @@ const VmHistoryTab = ({ tabProps: { actions } = {} }) => {
   const [records, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return [getHistoryRecords(vm), actionsByState]
   }, [vm])
 
-  return (
-    <HistoryList actions={actionsAvailable} records={records} />
-  )
+  return <HistoryList actions={actionsAvailable} records={records} />
 }
 
 VmHistoryTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmHistoryTab.displayName = 'VmHistoryTab'

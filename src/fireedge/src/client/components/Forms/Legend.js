@@ -20,33 +20,33 @@ import { styled, Typography } from '@mui/material'
 import AdornmentWithTooltip from 'client/components/FormControl/Tooltip'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 
-const StyledLegend = styled(props => (
-  <Typography variant='subtitle1' component='legend' {...props} />
+const StyledLegend = styled((props) => (
+  <Typography variant="subtitle1" component="legend" {...props} />
 ))(({ theme, tooltip }) => ({
   marginBottom: '1em',
   padding: '0em 1em 0.2em 0.5em',
   borderBottom: `2px solid ${theme.palette.secondary.main}`,
   ...(!!tooltip && {
     display: 'inline-flex',
-    alignItems: 'center'
-  })
+    alignItems: 'center',
+  }),
 }))
 
-const Legend = memo(({ title, tooltip }) => {
-  return (
-    <StyledLegend tooltip={tooltip}>
-      {labelCanBeTranslated(title) ? Tr(title) : title}
-      {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
-    </StyledLegend>
-  )
-}, (prev, next) =>
-  prev.title === next.title &&
-  prev.tooltip === next.tooltip
+const Legend = memo(
+  ({ title, tooltip }) => {
+    return (
+      <StyledLegend tooltip={tooltip}>
+        {labelCanBeTranslated(title) ? Tr(title) : title}
+        {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
+      </StyledLegend>
+    )
+  },
+  (prev, next) => prev.title === next.title && prev.tooltip === next.tooltip
 )
 
 Legend.propTypes = {
   title: PropTypes.string,
-  tooltip: PropTypes.string
+  tooltip: PropTypes.string,
 }
 
 Legend.displayName = 'FieldsetLegend'

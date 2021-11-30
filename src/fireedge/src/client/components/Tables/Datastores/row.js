@@ -19,7 +19,11 @@ import PropTypes from 'prop-types'
 import { User, Group, Lock, Cloud, Server } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
+import {
+  StatusCircle,
+  LinearProgressWithLabel,
+  StatusChip,
+} from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import * as DatastoreModel from 'client/models/Datastore'
@@ -30,7 +34,8 @@ const Row = ({ original, value, ...props }) => {
 
   const { percentOfUsed, percentLabel } = DatastoreModel.getCapacityInfo(value)
 
-  const { color: stateColor, name: stateName } = DatastoreModel.getState(original)
+  const { color: stateColor, name: stateName } =
+    DatastoreModel.getState(original)
 
   return (
     <div {...props}>
@@ -39,9 +44,7 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
+          <Typography component="span">{NAME}</Typography>
           <span className={classes.labels}>
             {LOCK && <Lock />}
             <StatusChip text={TYPE} />
@@ -57,10 +60,12 @@ const Row = ({ original, value, ...props }) => {
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud />
-            <span>{` ${PROVISION_ID}`}</span>
-          </span>}
+          {PROVISION_ID && (
+            <span title={`Provision ID: #${PROVISION_ID}`}>
+              <Cloud />
+              <span>{` ${PROVISION_ID}`}</span>
+            </span>
+          )}
           <span title={`Cluster IDs: ${CLUSTERS.join(',')}`}>
             <Server />
             <span>{` ${CLUSTERS.join(',')}`}</span>
@@ -78,7 +83,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

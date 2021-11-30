@@ -23,7 +23,7 @@ import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { isDevelopment } from 'client/utils'
 
-function InstantiateVmTemplate () {
+function InstantiateVmTemplate() {
   const history = useHistory()
   const { state: template = {} } = useLocation()
   const { ID: templateId } = template ?? {}
@@ -35,10 +35,12 @@ function InstantiateVmTemplate () {
     try {
       const { ID, NAME } = templateSelected
 
-      await Promise.all(templates.map(template => instantiate(ID, template)))
+      await Promise.all(templates.map((template) => instantiate(ID, template)))
 
       history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
-      enqueueInfo(`VM Template instantiated x${templates.length} - #${ID} ${NAME}`)
+      enqueueInfo(
+        `VM Template instantiated x${templates.length} - #${ID} ${NAME}`
+      )
     } catch (err) {
       isDevelopment() && console.error(err)
     }

@@ -18,14 +18,16 @@ import COLOR from 'client/constants/color'
 
 /** @type {STATES.StateInfo[]} Marketplace states */
 export const MARKETPLACE_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.ENABLED,
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
-  { // 1
+  {
+    // 1
     name: STATES.DISABLED,
-    color: COLOR.debug.main
-  }
+    color: COLOR.debug.main,
+  },
 ]
 
 /**
@@ -40,29 +42,34 @@ export const MARKETPLACE_APP_TYPES = [
   'UNKNOWN',
   'IMAGE',
   'VM TEMPLATE',
-  'SERVICE TEMPLATE'
+  'SERVICE TEMPLATE',
 ]
 
 /** @type {STATES.StateInfo[]} Marketplace app states */
 export const MARKETPLACE_APP_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.INIT,
-    color: COLOR.info.main
+    color: COLOR.info.main,
   },
-  { // 1
+  {
+    // 1
     name: STATES.READY,
-    color: COLOR.success.main
+    color: COLOR.success.main,
   },
-  { // 2
+  {
+    // 2
     name: STATES.LOCKED,
-    color: COLOR.debug.main
+    color: COLOR.debug.main,
   },
-  { // 3
+  {
+    // 3
     name: STATES.ERROR,
-    color: COLOR.error.main
+    color: COLOR.error.main,
   },
-  { // 4
+  {
+    // 4
     name: STATES.DISABLED,
-    color: COLOR.debug.light
-  }
+    color: COLOR.debug.light,
+  },
 ]

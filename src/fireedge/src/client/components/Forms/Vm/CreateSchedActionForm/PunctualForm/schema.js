@@ -20,61 +20,69 @@ import { DateTime } from 'luxon'
 import { T, INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields, sentenceCase } from 'client/utils'
 import { timeFromMilliseconds } from 'client/models/Helper'
-import { COMMON_FIELDS, COMMON_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
+import {
+  COMMON_FIELDS,
+  COMMON_SCHEMA,
+} from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
 
 const ISO_FORMAT = "yyyy-MM-dd'T'HH:mm"
 const ISO_REG = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/
 const MONTH_DAYS_REG = /^(3[01]|[12][0-9]|[1-9])(,(3[01]|[12][0-9]|[1-9]))*$/
-const YEAR_DAYS_REG = /^(36[0-5]|3[0-5]\d|[12]\d{2}|[0-9]\d?)(,(36[0-5]|3[0-5]\d|[12]\d{2}|[1-9]\d?))*$/
+const YEAR_DAYS_REG =
+  /^(36[0-5]|3[0-5]\d|[12]\d{2}|[0-9]\d?)(,(36[0-5]|3[0-5]\d|[12]\d{2}|[1-9]\d?))*$/
 const HOURS_REG = /^(16[0-8]|1[01][0-9]|[1-9]?[0-9])$/
 
 const REPEAT_VALUES = {
   WEEKLY: '0',
   MONTHLY: '1',
   YEARLY: '2',
-  HOURLY: '3'
+  HOURLY: '3',
 }
 
 const END_TYPE_VALUES = {
   NEVER: '0',
   REPETITION: '1',
-  DATE: '2'
+  DATE: '2',
 }
 
-const REPEAT_OPTIONS = Object.entries(REPEAT_VALUES)
-  .map(([text, value]) => ({ text: sentenceCase(text), value }))
+const REPEAT_OPTIONS = Object.entries(REPEAT_VALUES).map(([text, value]) => ({
+  text: sentenceCase(text),
+  value,
+}))
 
-const END_TYPE_OPTIONS = Object.entries(END_TYPE_VALUES)
-  .map(([text, value]) => ({ text: sentenceCase(text), value }))
+const END_TYPE_OPTIONS = Object.entries(END_TYPE_VALUES).map(
+  ([text, value]) => ({ text: sentenceCase(text), value })
+)
 
-const isoDateValidation = nameInput => yup
-  .string()
-  .trim()
-  .default(() => DateTime.local().toFormat(ISO_FORMAT))
-  .matches(
-    ISO_REG,
-    { message: `${nameInput} should be a date with ISO format: yyyy-MM-ddTHH:mm` }
-  )
-  .transform((value, originalValue) => {
-    if (value.length < 10 || (isNaN(value) && value.match(ISO_REG) === null)) {
-      return value
-    }
+const isoDateValidation = (nameInput) =>
+  yup
+    .string()
+    .trim()
+    .default(() => DateTime.local().toFormat(ISO_FORMAT))
+    .matches(ISO_REG, {
+      message: `${nameInput} should be a date with ISO format: yyyy-MM-ddTHH:mm`,
+    })
+    .transform((value, originalValue) => {
+      if (
+        value.length < 10 ||
+        (isNaN(value) && value.match(ISO_REG) === null)
+      ) {
+        return value
+      }
 
-    const newValue = isNaN(originalValue)
-      ? DateTime.fromISO(originalValue)
-      : timeFromMilliseconds(originalValue)
+      const newValue = isNaN(originalValue)
+        ? DateTime.fromISO(originalValue)
+        : timeFromMilliseconds(originalValue)
 
-    return newValue.isValid ? newValue.toFormat(ISO_FORMAT) : originalValue
-  })
+      return newValue.isValid ? newValue.toFormat(ISO_FORMAT) : originalValue
+    })
 
 const PERIODIC_FIELD = {
   name: 'PERIODIC',
   label: 'Periodic',
   type: INPUT_TYPES.CHECKBOX,
-  validation: yup
-    .boolean()
-    .default(() => false),
-  grid: { md: 12 }
+  validation: yup.boolean().default(() => false),
+  grid: { md: 12 },
 }
 
 const TIME_FIELD = {
@@ -84,7 +92,7 @@ const TIME_FIELD = {
   validation: yup
     .string()
     .required('Time field is required')
-    .concat(isoDateValidation('Time'))
+    .concat(isoDateValidation('Time')),
 }
 
 const REPEAT_FIELD = {
@@ -92,16 +100,15 @@ const REPEAT_FIELD = {
   label: 'Granularity of the action',
   type: INPUT_TYPES.SELECT,
   dependOf: PERIODIC_FIELD.name,
-  htmlType: isPeriodic => !isPeriodic ? INPUT_TYPES.HIDDEN : undefined,
+  htmlType: (isPeriodic) => (!isPeriodic ? INPUT_TYPES.HIDDEN : undefined),
   values: REPEAT_OPTIONS,
   validation: yup
     .string()
     .trim()
     .default(REPEAT_OPTIONS[0].value)
-    .when(
-      PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
-    )
+    .when(PERIODIC_FIELD.name, (isPeriodic, schema) =>
+      isPeriodic ? schema : schema.strip().notRequired()
+    ),
 }
 
 const DAYS_FIELD = {
@@ -110,12 +117,13 @@ const DAYS_FIELD = {
   multiple: ([repeat] = []) => REPEAT_VALUES.WEEKLY === repeat,
   type: ([repeat] = []) =>
     REPEAT_VALUES.WEEKLY === repeat ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT,
-  label: ([repeat] = []) => ({
-    [REPEAT_VALUES.WEEKLY]: 'Days of week',
-    [REPEAT_VALUES.MONTHLY]: 'Days of month',
-    [REPEAT_VALUES.YEARLY]: 'Days of year',
-    [REPEAT_VALUES.HOURLY]: "Each 'x' hours"
-  }[repeat]),
+  label: ([repeat] = []) =>
+    ({
+      [REPEAT_VALUES.WEEKLY]: 'Days of week',
+      [REPEAT_VALUES.MONTHLY]: 'Days of month',
+      [REPEAT_VALUES.YEARLY]: 'Days of year',
+      [REPEAT_VALUES.HOURLY]: "Each 'x' hours",
+    }[repeat]),
   values: [
     { text: T.Sunday, value: '0' },
     { text: T.Monday, value: '1' },
@@ -123,7 +131,7 @@ const DAYS_FIELD = {
     { text: T.Wednesday, value: '3' },
     { text: T.Thursday, value: '4' },
     { text: T.Friday, value: '5' },
-    { text: T.Saturday, value: '6' }
+    { text: T.Saturday, value: '6' },
   ],
   htmlType: ([repeat, isPeriodic] = []) => {
     if (!isPeriodic) return INPUT_TYPES.HIDDEN
@@ -134,29 +142,39 @@ const DAYS_FIELD = {
     .default(undefined)
     .when(
       REPEAT_FIELD.name,
-      (repeatType, schema) => ({
-        [REPEAT_VALUES.WEEKLY]: schema
-          .transform(value => Array.isArray(value) ? value.join(',') : value)
-          .required('Days field is required: between 0 (Sunday) and 6 (Saturday)'),
-        [REPEAT_VALUES.MONTHLY]: schema
-          .trim()
-          .matches(MONTH_DAYS_REG, { message: 'Days should be between 1 and 31' })
-          .required('Days field is required: between 1 and 31'),
-        [REPEAT_VALUES.YEARLY]: schema
-          .trim()
-          .matches(YEAR_DAYS_REG, { message: 'Days should be between 0 and 365' })
-          .required('Days field is required: between 0 and 365'),
-        [REPEAT_VALUES.HOURLY]: schema
-          .trim()
-          .matches(HOURS_REG, { message: 'Hours should be between 0 and 168' })
-          .required('Hours field is required: between 0 and 168')
-      }[repeatType] ?? schema)
+      (repeatType, schema) =>
+        ({
+          [REPEAT_VALUES.WEEKLY]: schema
+            .transform((value) =>
+              Array.isArray(value) ? value.join(',') : value
+            )
+            .required(
+              'Days field is required: between 0 (Sunday) and 6 (Saturday)'
+            ),
+          [REPEAT_VALUES.MONTHLY]: schema
+            .trim()
+            .matches(MONTH_DAYS_REG, {
+              message: 'Days should be between 1 and 31',
+            })
+            .required('Days field is required: between 1 and 31'),
+          [REPEAT_VALUES.YEARLY]: schema
+            .trim()
+            .matches(YEAR_DAYS_REG, {
+              message: 'Days should be between 0 and 365',
+            })
+            .required('Days field is required: between 0 and 365'),
+          [REPEAT_VALUES.HOURLY]: schema
+            .trim()
+            .matches(HOURS_REG, {
+              message: 'Hours should be between 0 and 168',
+            })
+            .required('Hours field is required: between 0 and 168'),
+        }[repeatType] ?? schema)
     )
-    .when(
-      PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
+    .when(PERIODIC_FIELD.name, (isPeriodic, schema) =>
+      isPeriodic ? schema : schema.strip().notRequired()
     ),
-  fieldProps: { min: 0, max: 168, step: 1 }
+  fieldProps: { min: 0, max: 168, step: 1 },
 }
 
 const END_TYPE_FIELD = {
@@ -164,16 +182,15 @@ const END_TYPE_FIELD = {
   label: 'End type',
   type: INPUT_TYPES.SELECT,
   dependOf: PERIODIC_FIELD.name,
-  htmlType: isPeriodic => !isPeriodic ? INPUT_TYPES.HIDDEN : undefined,
+  htmlType: (isPeriodic) => (!isPeriodic ? INPUT_TYPES.HIDDEN : undefined),
   values: END_TYPE_OPTIONS,
   validation: yup
     .string()
     .trim()
     .default(END_TYPE_OPTIONS[0].value)
-    .when(
-      PERIODIC_FIELD.name,
-      (isPeriodic, schema) => isPeriodic ? schema : schema.strip().notRequired()
-    )
+    .when(PERIODIC_FIELD.name, (isPeriodic, schema) =>
+      isPeriodic ? schema : schema.strip().notRequired()
+    ),
 }
 
 const END_VALUE_FIELD = {
@@ -183,16 +200,22 @@ const END_VALUE_FIELD = {
   type: (dependValues = {}) => {
     const { [END_TYPE_FIELD.name]: endType } = dependValues
 
-    return endType === END_TYPE_VALUES.DATE ? INPUT_TYPES.TIME : INPUT_TYPES.TEXT
+    return endType === END_TYPE_VALUES.DATE
+      ? INPUT_TYPES.TIME
+      : INPUT_TYPES.TEXT
   },
   htmlType: (dependValues = {}) => {
-    const { [PERIODIC_FIELD.name]: isPeriodic, [END_TYPE_FIELD.name]: endType } = dependValues
+    const {
+      [PERIODIC_FIELD.name]: isPeriodic,
+      [END_TYPE_FIELD.name]: endType,
+    } = dependValues
 
-    if (!isPeriodic || END_TYPE_VALUES.NEVER === endType) return INPUT_TYPES.HIDDEN
+    if (!isPeriodic || END_TYPE_VALUES.NEVER === endType)
+      return INPUT_TYPES.HIDDEN
 
     return {
       [END_TYPE_VALUES.REPETITION]: 'number',
-      [END_TYPE_VALUES.DATE]: 'datetime-local'
+      [END_TYPE_VALUES.DATE]: 'datetime-local',
     }[endType]
   },
   validation: yup
@@ -201,14 +224,16 @@ const END_VALUE_FIELD = {
     .default(undefined)
     .when(
       END_TYPE_FIELD.name,
-      (endType, schema) => ({
-        [END_TYPE_VALUES.REPETITION]: schema
-          .required('Number of repetitions is required'),
-        [END_TYPE_VALUES.DATE]: schema
-          .concat(isoDateValidation('Date'))
-          .required('Date to finish the action is required')
-      }[endType] ?? schema)
-    )
+      (endType, schema) =>
+        ({
+          [END_TYPE_VALUES.REPETITION]: schema.required(
+            'Number of repetitions is required'
+          ),
+          [END_TYPE_VALUES.DATE]: schema
+            .concat(isoDateValidation('Date'))
+            .required('Date to finish the action is required'),
+        }[endType] ?? schema)
+    ),
 }
 
 export const PUNCTUAL_FIELDS = [
@@ -217,24 +242,25 @@ export const PUNCTUAL_FIELDS = [
   REPEAT_FIELD,
   DAYS_FIELD,
   END_TYPE_FIELD,
-  END_VALUE_FIELD
+  END_VALUE_FIELD,
 ]
 
-export const FIELDS = vm => [
-  ...COMMON_FIELDS(vm),
-  ...PUNCTUAL_FIELDS
-]
+export const FIELDS = (vm) => [...COMMON_FIELDS(vm), ...PUNCTUAL_FIELDS]
 
 export const SCHEMA = yup
   .object(getValidationFromFields(PUNCTUAL_FIELDS))
   .concat(COMMON_SCHEMA)
-  .transform(value => {
-    const { [DAYS_FIELD.name]: DAYS, [REPEAT_FIELD.name]: REPEAT, ...rest } = value
+  .transform((value) => {
+    const {
+      [DAYS_FIELD.name]: DAYS,
+      [REPEAT_FIELD.name]: REPEAT,
+      ...rest
+    } = value
 
     return {
       ...rest,
       [DAYS_FIELD.name]: DAYS,
       [REPEAT_FIELD.name]: REPEAT,
-      [PERIODIC_FIELD.name]: !!(DAYS || REPEAT)
+      [PERIODIC_FIELD.name]: !!(DAYS || REPEAT),
     }
   })

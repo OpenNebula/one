@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/datastore'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const datastoreService = ({
+export const datastoreService = {
   /**
    * Retrieves information for the datastore.
    *
@@ -54,5 +54,5 @@ export const datastoreService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DATASTORE_POOL?.DATASTORE ?? []].flat()
-  }
-})
+  },
+}

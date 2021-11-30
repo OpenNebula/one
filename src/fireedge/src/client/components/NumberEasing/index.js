@@ -49,7 +49,7 @@ const NumberEasing = ({ value = '0', speed = 200 }) => {
 
 NumberEasing.propTypes = {
   value: PropTypes.string,
-  speed: PropTypes.number
+  speed: PropTypes.number,
 }
 
 NumberEasing.displayName = 'NumberEasing'

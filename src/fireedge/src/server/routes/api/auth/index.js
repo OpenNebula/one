@@ -20,7 +20,7 @@ const { AUTH } = require('./string-routes')
 
 const functionRoutes = {
   private: [],
-  public: setApiRoutes(authRoutes, AUTH)
+  public: setApiRoutes(authRoutes, AUTH),
 }
 
 module.exports = functionRoutes

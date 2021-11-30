@@ -31,24 +31,24 @@ const COMMANDS = Object.keys(Commands)?.sort()
  * @returns {JSXElementConstructor} - Component that allows you
  * to fetch, resolve, and interact with OpenNebula API.
  */
-function TestApi () {
+function TestApi() {
   const classes = testApiStyles()
   const [name, setName] = useState(() => COMMANDS[0])
   const [response, setResponse] = useState('')
 
   const handleChangeCommand = (_, value) => setName(value)
-  const handleChangeResponse = res => setResponse(res)
+  const handleChangeResponse = (res) => setResponse(res)
 
   return (
     <Container
       disableGutters
       sx={{ display: 'flex', flexFlow: 'column', height: '100%' }}
     >
-      <Grid container direction='row' spacing={2} className={classes.root}>
+      <Grid container direction="row" spacing={2} className={classes.root}>
         <Grid item xs={12} md={6}>
           <Autocomplete
             disablePortal
-            color='secondary'
+            color="secondary"
             options={useMemo(() => COMMANDS, [])}
             value={name}
             onChange={handleChangeCommand}
@@ -64,7 +64,7 @@ function TestApi () {
           )}
         </Grid>
         <Grid item xs={12} md={6}>
-          <Box height='100%' minHeight={200}>
+          <Box height="100%" minHeight={200}>
             <InputCode code={response} readOnly />
           </Box>
         </Grid>

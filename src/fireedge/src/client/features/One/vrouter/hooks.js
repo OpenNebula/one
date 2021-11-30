@@ -21,20 +21,19 @@ import { unwrapResult } from '@reduxjs/toolkit'
 import * as actions from 'client/features/One/vrouter/actions'
 import { name, RESOURCES } from 'client/features/One/slice'
 
-export const useVRouter = () => (
-  useSelector(state => state[name]?.[RESOURCES.vrouter] ?? [])
-)
+export const useVRouter = () =>
+  useSelector((state) => state[name]?.[RESOURCES.vrouter] ?? [])
 
 export const useVRouterApi = () => {
   const dispatch = useDispatch()
 
   const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+    (action) => dispatch(action).then(unwrapResult),
+    [dispatch]
   )
 
   return {
-    getVRouter: id => unwrapDispatch(actions.getVRouter({ id })),
-    getVRouters: () => unwrapDispatch(actions.getVRouters())
+    getVRouter: (id) => unwrapDispatch(actions.getVRouter({ id })),
+    getVRouters: () => unwrapDispatch(actions.getVRouters()),
   }
 }

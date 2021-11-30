@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardActions,
   CardMedia,
-  Skeleton
+  Skeleton,
 } from '@mui/material'
 
 import useNearScreen from 'client/hooks/useNearScreen'
@@ -32,129 +32,139 @@ import { ConditionalWrap } from 'client/components/HOC'
 import { Action } from 'client/components/Cards/SelectCard'
 import selectCardStyles from 'client/components/Cards/SelectCard/styles'
 
-const SelectCard = memo(({
-  action,
-  actions,
-  cardActionsProps,
-  cardHeaderProps,
-  cardProps,
-  cardActionAreaProps,
-  children,
-  dataCy,
-  disableFilterImage,
-  handleClick,
-  icon,
-  isSelected,
-  mediaProps,
-  observerOff,
-  skeletonHeight,
-  stylesProps,
-  subheader,
-  title
-}) => {
-  const classes = selectCardStyles({ ...stylesProps, isSelected, disableFilterImage })
-  const { isNearScreen, fromRef } = useNearScreen({
-    distance: '100px'
-  })
+const SelectCard = memo(
+  ({
+    action,
+    actions,
+    cardActionsProps,
+    cardHeaderProps,
+    cardProps,
+    cardActionAreaProps,
+    children,
+    dataCy,
+    disableFilterImage,
+    handleClick,
+    icon,
+    isSelected,
+    mediaProps,
+    observerOff,
+    skeletonHeight,
+    stylesProps,
+    subheader,
+    title,
+  }) => {
+    const classes = selectCardStyles({
+      ...stylesProps,
+      isSelected,
+      disableFilterImage,
+    })
+    const { isNearScreen, fromRef } = useNearScreen({
+      distance: '100px',
+    })
 
-  return (
-    <ConditionalWrap
-      condition={!observerOff}
-      wrap={children => <span ref={fromRef}>{children}</span>}>
-      {observerOff || isNearScreen ? (
-        <Card
-          {...cardProps}
-          className={clsx(classes.root, cardProps?.className, {
-            [classes.actionArea]: !handleClick
-          })}
-          data-cy={dataCy ? `${dataCy}-card` : undefined}
-        >
-
-          {/* CARD ACTION AREA */}
-          <ConditionalWrap
-            condition={handleClick && !action}
-            wrap={children =>
-              <CardActionArea
-                {...cardActionAreaProps}
-                className={clsx(classes.actionArea, cardActionAreaProps?.className)}
-                onClick={handleClick}
-                data-cy={(dataCy && isSelected) && `${dataCy}-card-selected`}
-              >
-                {children}
-              </CardActionArea>
-            }
+    return (
+      <ConditionalWrap
+        condition={!observerOff}
+        wrap={(children) => <span ref={fromRef}>{children}</span>}
+      >
+        {observerOff || isNearScreen ? (
+          <Card
+            {...cardProps}
+            className={clsx(classes.root, cardProps?.className, {
+              [classes.actionArea]: !handleClick,
+            })}
+            data-cy={dataCy ? `${dataCy}-card` : undefined}
           >
-            {/* CARD HEADER */}
-            {(title || subheader || icon || action) && (
-              <CardHeader
-                {...cardHeaderProps}
-                action={action}
-                avatar={icon}
-                classes={{
-                  root: classes.headerRoot,
-                  content: classes.headerContent,
-                  avatar: classes.headerAvatar
-                }}
-                title={title}
-                titleTypographyProps={{
-                  variant: 'body1',
-                  noWrap: true,
-                  className: classes.header,
-                  title: typeof title === 'string' ? title : undefined,
-                  ...(dataCy && { 'data-cy': `${dataCy}-card-title` })
-                }}
-                subheader={subheader}
-                subheaderTypographyProps={{
-                  variant: 'body2',
-                  noWrap: true,
-                  className: classes.subheader,
-                  title: typeof subheader === 'string' ? subheader : undefined,
-                  ...(dataCy && { 'data-cy': `${dataCy}-card-subheader` })
-                }}
-                {...cardHeaderProps}
-              />
-            )}
+            {/* CARD ACTION AREA */}
+            <ConditionalWrap
+              condition={handleClick && !action}
+              wrap={(children) => (
+                <CardActionArea
+                  {...cardActionAreaProps}
+                  className={clsx(
+                    classes.actionArea,
+                    cardActionAreaProps?.className
+                  )}
+                  onClick={handleClick}
+                  data-cy={dataCy && isSelected && `${dataCy}-card-selected`}
+                >
+                  {children}
+                </CardActionArea>
+              )}
+            >
+              {/* CARD HEADER */}
+              {(title || subheader || icon || action) && (
+                <CardHeader
+                  {...cardHeaderProps}
+                  action={action}
+                  avatar={icon}
+                  classes={{
+                    root: classes.headerRoot,
+                    content: classes.headerContent,
+                    avatar: classes.headerAvatar,
+                  }}
+                  title={title}
+                  titleTypographyProps={{
+                    variant: 'body1',
+                    noWrap: true,
+                    className: classes.header,
+                    title: typeof title === 'string' ? title : undefined,
+                    ...(dataCy && { 'data-cy': `${dataCy}-card-title` }),
+                  }}
+                  subheader={subheader}
+                  subheaderTypographyProps={{
+                    variant: 'body2',
+                    noWrap: true,
+                    className: classes.subheader,
+                    title:
+                      typeof subheader === 'string' ? subheader : undefined,
+                    ...(dataCy && { 'data-cy': `${dataCy}-card-subheader` }),
+                  }}
+                  {...cardHeaderProps}
+                />
+              )}
 
-            {/* CARD CONTENT */}
-            {children}
+              {/* CARD CONTENT */}
+              {children}
 
-            {/* CARD MEDIA */}
-            {mediaProps && (
-              <ConditionalWrap
-                condition={handleClick && action}
-                wrap={children =>
-                  <CardActionArea
-                    className={classes.mediaActionArea}
-                    onClick={handleClick}
-                  >
-                    {children}
-                  </CardActionArea>
-                }
-              >
-                <CardMedia className={classes.media} {...mediaProps} />
-              </ConditionalWrap>
-            )}
+              {/* CARD MEDIA */}
+              {mediaProps && (
+                <ConditionalWrap
+                  condition={handleClick && action}
+                  wrap={(children) => (
+                    <CardActionArea
+                      className={classes.mediaActionArea}
+                      onClick={handleClick}
+                    >
+                      {children}
+                    </CardActionArea>
+                  )}
+                >
+                  <CardMedia className={classes.media} {...mediaProps} />
+                </ConditionalWrap>
+              )}
 
-            {/* CARD ACTIONS */}
-            {actions?.length > 0 && (
-              <CardActions {...cardActionsProps}>
-                {actions?.map(action => (
-                  <Action key={action?.cy} {...action} />
-                ))}
-              </CardActions>
-            )}
-          </ConditionalWrap>
-        </Card>
-      ) : (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={skeletonHeight}
-        />
-      )}
-    </ConditionalWrap>
-  )
-})
+              {/* CARD ACTIONS */}
+              {actions?.length > 0 && (
+                <CardActions {...cardActionsProps}>
+                  {actions?.map((action) => (
+                    <Action key={action?.cy} {...action} />
+                  ))}
+                </CardActions>
+              )}
+            </ConditionalWrap>
+          </Card>
+        ) : (
+          <Skeleton
+            variant="rectangular"
+            width="100%"
+            height={skeletonHeight}
+          />
+        )}
+      </ConditionalWrap>
+    )
+  }
+)
 
 export const SelectCardProps = {
   stylesProps: PropTypes.object,
@@ -163,25 +173,16 @@ export const SelectCardProps = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
   ),
   cardActionsProps: PropTypes.shape({
     className: PropTypes.string,
-    style: PropTypes.object
+    style: PropTypes.object,
   }),
-  icon: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]),
-  title: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]),
-  subheader: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]),
+  icon: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   cardHeaderProps: PropTypes.object,
   mediaProps: PropTypes.shape({
     classes: PropTypes.object,
@@ -189,7 +190,7 @@ export const SelectCardProps = {
     component: PropTypes.elementType,
     image: PropTypes.string,
     src: PropTypes.string,
-    style: PropTypes.object
+    style: PropTypes.object,
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
@@ -199,11 +200,11 @@ export const SelectCardProps = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
-    PropTypes.string
+    PropTypes.string,
   ]),
   dataCy: PropTypes.string,
   disableFilterImage: PropTypes.bool,
-  skeletonHeight: PropTypes.number
+  skeletonHeight: PropTypes.number,
 }
 
 SelectCard.defaultProps = {
@@ -224,7 +225,7 @@ SelectCard.defaultProps = {
   stylesProps: undefined,
   subheader: undefined,
   title: undefined,
-  skeletonHeight: 140
+  skeletonHeight: 140,
 }
 
 SelectCard.propTypes = SelectCardProps

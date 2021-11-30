@@ -17,9 +17,7 @@
 import { useSelector, shallowEqual } from 'react-redux'
 import { name } from 'client/features/One/slice'
 
-export const useOne = () => (
-  useSelector(state => state[name], shallowEqual)
-)
+export const useOne = () => useSelector((state) => state[name], shallowEqual)
 
 export * from 'client/features/One/application/hooks'
 export * from 'client/features/One/applicationTemplate/hooks'

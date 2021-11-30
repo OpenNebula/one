@@ -26,16 +26,15 @@ import { DatastoreCard } from 'client/components/Cards'
 
 const Datastores = memo(
   ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const {
-      datastores = []
-    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+    const { datastores = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
     const { enqueueSuccess } = useGeneralApi()
     const { deleteDatastore } = useProvisionApi()
     const { getDatastore } = useDatastoreApi()
 
     const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchDatastores = () => fetchRequestAll(datastores?.map(({ id }) => getDatastore(id)))
+    const fetchDatastores = () =>
+      fetchRequestAll(datastores?.map(({ id }) => getDatastore(id)))
 
     useEffect(() => {
       !hidden && !list && fetchDatastores()
@@ -50,20 +49,28 @@ const Datastores = memo(
         list={list}
         isLoading={!list && loading}
         CardComponent={DatastoreCard}
-        cardsProps={({ value: { ID } }) => !disableAllActions && ({
-          actions: [{
-            handleClick: () => deleteDatastore(ID)
-              .then(refetchProvision)
-              .then(() => enqueueSuccess(`Datastore deleted - ID: ${ID}`)),
-            icon: <DeleteIcon color='error' />,
-            cy: `provision-datastore-delete-${ID}`
-          }]
-        })}
+        cardsProps={({ value: { ID } }) =>
+          !disableAllActions && {
+            actions: [
+              {
+                handleClick: () =>
+                  deleteDatastore(ID)
+                    .then(refetchProvision)
+                    .then(() =>
+                      enqueueSuccess(`Datastore deleted - ID: ${ID}`)
+                    ),
+                icon: <DeleteIcon color="error" />,
+                cy: `provision-datastore-delete-${ID}`,
+              },
+            ],
+          }
+        }
         displayEmpty
         breakpoints={{ xs: 12, md: 6 }}
       />
     )
-  }, (prev, next) =>
+  },
+  (prev, next) =>
     prev.hidden === next.hidden && prev.reloading === next.reloading
 )
 
@@ -72,7 +79,7 @@ Datastores.propTypes = {
   hidden: PropTypes.bool,
   refetchProvision: PropTypes.func,
   reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool
+  disableAllActions: PropTypes.bool,
 }
 
 Datastores.defaultProps = {
@@ -80,7 +87,7 @@ Datastores.defaultProps = {
   hidden: false,
   refetchProvision: () => undefined,
   reloading: false,
-  disableAllActions: false
+  disableAllActions: false,
 }
 
 Datastores.displayName = 'Datastores'

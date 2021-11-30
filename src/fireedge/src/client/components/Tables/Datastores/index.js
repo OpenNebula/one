@@ -25,21 +25,28 @@ import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
 
-const DatastoresTable = props => {
+const DatastoresTable = (props) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('DATASTORE')?.filters,
-    columns: DatastoreColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('DATASTORE')?.filters,
+        columns: DatastoreColumns,
+      }),
+    [view]
+  )
 
   const datastores = useDatastore()
   const { getDatastores } = useDatastoreApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getDatastores)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getDatastores)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (datastores?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -50,7 +57,7 @@ const DatastoresTable = props => {
       columns={columns}
       data={datastores}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={DatastoreRow}
       {...props}
     />

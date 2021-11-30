@@ -15,17 +15,22 @@
  * ------------------------------------------------------------------------- */
 import {
   ReportColumns as DashboardIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
 
-const Dashboard = loadable(() => import('client/containers/Dashboard/Sunstone'), { ssr: false })
-const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
+const Dashboard = loadable(
+  () => import('client/containers/Dashboard/Sunstone'),
+  { ssr: false }
+)
+const Settings = loadable(() => import('client/containers/Settings'), {
+  ssr: false,
+})
 
 export const PATH = {
   DASHBOARD: '/dashboard',
-  SETTINGS: '/settings'
+  SETTINGS: '/settings',
 }
 
 export const ENDPOINTS = [
@@ -35,7 +40,7 @@ export const ENDPOINTS = [
     sidebar: true,
     icon: DashboardIcon,
     position: 1,
-    Component: Dashboard
+    Component: Dashboard,
   },
   {
     label: 'Settings',
@@ -43,8 +48,8 @@ export const ENDPOINTS = [
     sidebar: true,
     icon: SettingsIcon,
     position: -1,
-    Component: Settings
-  }
+    Component: Settings,
+  },
 ]
 
 /**
@@ -69,7 +74,7 @@ export const getEndpointsByView = (views, endpoints = []) => {
    * @param {string} [route.path] - Pathname route
    * @returns {boolean | object} If user view yaml contains the route, return it
    */
-  const hasRoutePermission = route =>
+  const hasRoutePermission = (route) =>
     views?.some(({ resource_name: name = '', actions: bulkActions = [] }) => {
       // eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
       const paths = route?.path

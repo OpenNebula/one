@@ -31,11 +31,8 @@ const VCENTER_FOLDER_FIELD = {
   `,
   notOnHypervisors: Object.values(hypervisors),
   type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(undefined),
-  grid: { md: 12 }
+  validation: string().trim().notRequired().default(undefined),
+  grid: { md: 12 },
 }
 
 export const FIELDS = [VCENTER_FOLDER_FIELD]

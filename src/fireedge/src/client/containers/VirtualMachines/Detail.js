@@ -19,19 +19,19 @@ import { Container, Box } from '@mui/material'
 
 import VmTabs from 'client/components/Tabs/Vm'
 
-function VirtualMachineDetail () {
+function VirtualMachineDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to='/' />
+    return <Redirect to="/" />
   }
 
   return (
     <Box
       py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
+      overflow="auto"
+      display="flex"
+      flexDirection="column"
       component={Container}
     >
       <VmTabs id={id} />

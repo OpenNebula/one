@@ -24,17 +24,20 @@ import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
 
-const ClustersTable = props => {
+const ClustersTable = (props) => {
   const columns = useMemo(() => ClusterColumns, [])
 
   const clusters = useCluster()
   const { getClusters } = useClusterApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getClusters)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getClusters)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (clusters?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -45,7 +48,7 @@ const ClustersTable = props => {
       columns={columns}
       data={clusters}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={ClusterRow}
       {...props}
     />

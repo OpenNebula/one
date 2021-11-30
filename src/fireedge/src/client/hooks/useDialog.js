@@ -15,7 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { useState } from 'react'
 
-const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn?.(...args))
+const callAll =
+  (...fns) =>
+  (...args) =>
+    fns.forEach((fn) => fn && fn?.(...args))
 
 /**
  * Hook to manage a dialog.
@@ -34,9 +37,9 @@ const useDialog = () => {
   const [display, setDisplay] = useState(false)
   const [values, setValues] = useState(null)
 
-  const toggle = () => setDisplay(prev => !prev)
+  const toggle = () => setDisplay((prev) => !prev)
 
-  const show = newValues => {
+  const show = (newValues) => {
     setDisplay(true)
     newValues && setValues(newValues)
   }
@@ -50,7 +53,7 @@ const useDialog = () => {
     'aria-controls': 'target',
     'aria-expanded': Boolean(display),
     ...props,
-    onClick: callAll(props.onClick, toggle)
+    onClick: callAll(props.onClick, toggle),
   })
 
   const getContainerProps = (props = {}) => ({
@@ -59,7 +62,7 @@ const useDialog = () => {
     onKeyDown: callAll(
       props.onKeyDown,
       ({ keyCode }) => keyCode === 27 && hide()
-    )
+    ),
   })
 
   return {
@@ -69,7 +72,7 @@ const useDialog = () => {
     hide,
     toggle,
     getToggleProps,
-    getContainerProps
+    getContainerProps,
   }
 }
 

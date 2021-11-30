@@ -55,5 +55,5 @@ export const USER_INPUT_TYPES = {
   boolean: 'boolean',
   list: 'list',
   array: 'array',
-  listMultiple: 'list-multiple'
+  listMultiple: 'list-multiple',
 }

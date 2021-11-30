@@ -16,8 +16,18 @@
 import { object, array, string, boolean, number, ref, ObjectSchema } from 'yup'
 
 import { userInputsToObject } from 'client/models/Helper'
-import { UserInputType, T, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
-import { Field, arrayToOptions, sentenceCase, getObjectSchemaFromFields } from 'client/utils'
+import {
+  UserInputType,
+  T,
+  INPUT_TYPES,
+  USER_INPUT_TYPES,
+} from 'client/constants'
+import {
+  Field,
+  arrayToOptions,
+  sentenceCase,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 
 const {
   password: uiPassword,
@@ -27,7 +37,7 @@ const {
   numberFloat: uiNumberFloat,
   range: uiRange,
   rangeFloat: uiRangeFloat,
-  boolean: uiBoolean
+  boolean: uiBoolean,
 } = USER_INPUT_TYPES
 
 const { array: _, ...userInputTypes } = USER_INPUT_TYPES
@@ -42,14 +52,14 @@ const TYPE = {
   type: INPUT_TYPES.SELECT,
   values: arrayToOptions(valuesOfUITypes, {
     addEmpty: false,
-    getText: type => sentenceCase(type)
+    getText: (type) => sentenceCase(type),
   }),
   validation: string()
     .trim()
     .required()
     .oneOf(valuesOfUITypes)
     .default(() => valuesOfUITypes[0]),
-  grid: { sm: 6, md: 4 }
+  grid: { sm: 6, md: 4 },
 }
 
 /** @type {Field} Name field */
@@ -61,7 +71,7 @@ const NAME = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { sm: 6, md: 4 }
+  grid: { sm: 6, md: 4 },
 }
 
 /** @type {Field} Description field */
@@ -73,7 +83,7 @@ const DESCRIPTION = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { sm: 6, md: 4 }
+  grid: { sm: 6, md: 4 },
 }
 
 /** @type {Field} Options field */
@@ -84,21 +94,20 @@ const OPTIONS = {
   dependOf: TYPE.name,
   type: INPUT_TYPES.AUTOCOMPLETE,
   multiple: true,
-  htmlType: type =>
+  htmlType: (type) =>
     ![uiList, uiListMultiple].includes(type) && INPUT_TYPES.HIDDEN,
   validation: array(string().trim())
     .default(() => [])
-    .when(
-      TYPE.name,
-      (type, schema) => [uiList, uiListMultiple].includes(type)
+    .when(TYPE.name, (type, schema) =>
+      [uiList, uiListMultiple].includes(type)
         ? schema.required()
         : schema.strip().notRequired()
     ),
   fieldProps: {
     freeSolo: true,
-    placeholder: 'optA,optB,optC'
+    placeholder: 'optA,optB,optC',
   },
-  grid: { md: 8 }
+  grid: { md: 8 },
 }
 
 /** @type {{ MIN: Field, MAX: Field }} Range fields */
@@ -106,23 +115,34 @@ const { MIN, MAX } = (() => {
   const validation = number()
     .positive()
     .default(() => undefined)
-    .when(TYPE.name, (type, schema) => [uiRange, uiRangeFloat].includes(type)
-      ? schema.required()
-      : schema.strip().notRequired()
+    .when(TYPE.name, (type, schema) =>
+      [uiRange, uiRangeFloat].includes(type)
+        ? schema.required()
+        : schema.strip().notRequired()
     )
 
   const common = {
     dependOf: TYPE.name,
     type: INPUT_TYPES.TEXT,
-    htmlType: type =>
+    htmlType: (type) =>
       [uiRange, uiRangeFloat].includes(type) ? 'number' : INPUT_TYPES.HIDDEN,
     grid: { sm: 6, md: 4 },
-    fieldProps: type => ({ step: type === uiRangeFloat ? 0.01 : 1 })
+    fieldProps: (type) => ({ step: type === uiRangeFloat ? 0.01 : 1 }),
   }
 
   return {
-    MIN: { ...common, name: 'min', label: T.Min, validation: validation.lessThan(ref('max')) },
-    MAX: { ...common, name: 'max', label: T.Max, validation: validation.moreThan(ref('min')) }
+    MIN: {
+      ...common,
+      name: 'min',
+      label: T.Min,
+      validation: validation.lessThan(ref('max')),
+    },
+    MAX: {
+      ...common,
+      name: 'max',
+      label: T.Max,
+      validation: validation.moreThan(ref('min')),
+    },
   }
 })()
 
@@ -131,31 +151,36 @@ const DEFAULT_VALUE = {
   name: 'default',
   label: T.DefaultValue,
   dependOf: [TYPE.name, OPTIONS.name],
-  type: ([type] = []) => [uiBoolean, uiList, uiListMultiple].includes(type)
-    ? INPUT_TYPES.SELECT
-    : INPUT_TYPES.TEXT,
-  htmlType: ([type] = []) => ({
-    [uiNumber]: 'number',
-    [uiNumberFloat]: 'number',
-    [uiPassword]: INPUT_TYPES.HIDDEN
-  }[type]),
+  type: ([type] = []) =>
+    [uiBoolean, uiList, uiListMultiple].includes(type)
+      ? INPUT_TYPES.SELECT
+      : INPUT_TYPES.TEXT,
+  htmlType: ([type] = []) =>
+    ({
+      [uiNumber]: 'number',
+      [uiNumberFloat]: 'number',
+      [uiPassword]: INPUT_TYPES.HIDDEN,
+    }[type]),
   multiple: ([type] = []) => type === uiListMultiple,
-  values: ([type, options = []] = []) => type === uiBoolean
-    ? arrayToOptions(['NO', 'YES'])
-    : arrayToOptions(options),
+  values: ([type, options = []] = []) =>
+    type === uiBoolean
+      ? arrayToOptions(['NO', 'YES'])
+      : arrayToOptions(options),
   validation: string()
     .trim()
     .default(() => undefined)
     .when([TYPE.name, OPTIONS.name], (type, options = [], schema) => {
-      return {
-        [uiList]: schema.oneOf(options).notRequired(),
-        [uiListMultiple]: schema.includesInOptions(options),
-        [uiRange]: number().min(ref(MIN.name)).max(ref(MAX.name)).integer(),
-        [uiRangeFloat]: number().min(ref(MIN.name)).max(ref(MAX.name)),
-        [uiPassword]: schema.strip().notRequired()
-      }[type] ?? schema
+      return (
+        {
+          [uiList]: schema.oneOf(options).notRequired(),
+          [uiListMultiple]: schema.includesInOptions(options),
+          [uiRange]: number().min(ref(MIN.name)).max(ref(MAX.name)).integer(),
+          [uiRangeFloat]: number().min(ref(MIN.name)).max(ref(MAX.name)),
+          [uiPassword]: schema.strip().notRequired(),
+        }[type] ?? schema
+      )
     }),
-  grid: { sm: 6, md: 4 }
+  grid: { sm: 6, md: 4 },
 }
 
 /** @type {Field} Mandatory field */
@@ -164,7 +189,7 @@ const MANDATORY = {
   label: T.Mandatory,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of User Inputs fields */
@@ -176,7 +201,7 @@ export const USER_INPUT_FIELDS = [
   OPTIONS,
   MIN,
   MAX,
-  MANDATORY
+  MANDATORY,
 ]
 
 /** @type {ObjectSchema} User Input object schema */
@@ -186,11 +211,12 @@ export const USER_INPUT_SCHEMA = getObjectSchemaFromFields(USER_INPUT_FIELDS)
 export const USER_INPUTS_SCHEMA = object({
   USER_INPUTS: array(USER_INPUT_SCHEMA)
     .ensure()
-    .afterSubmit(userInputs => userInputsToObject(userInputs)),
+    .afterSubmit((userInputs) => userInputsToObject(userInputs)),
   INPUTS_ORDER: string()
     .trim()
     .afterSubmit((_, { context }) => {
       const userInputs = context?.extra?.USER_INPUTS
+
       return userInputs?.map(({ name }) => name).join(',')
-    })
+    }),
 })

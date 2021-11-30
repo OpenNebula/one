@@ -39,19 +39,21 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
       renderResult={({ ID, NAME }) => {
         const isSelected = ID === String(currentValue)
 
-        return <SelectCard
-          key={`app-${ID}`}
-          title={`📦 ${NAME}`}
-          isSelected={isSelected}
-          handleClick={() => handleSetData(!isSelected && ID)}
-        />
+        return (
+          <SelectCard
+            key={`app-${ID}`}
+            title={`📦 ${NAME}`}
+            isSelected={isSelected}
+            handleClick={() => handleSetData(!isSelected && ID)}
+          />
+        )
       }}
       searchBoxProps={{
         style: {
           display: 'flex',
           padding: '1rem 0',
-          gap: 10
-        }
+          gap: 10,
+        },
       }}
     />
   )
@@ -60,13 +62,13 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
 ListMarketApp.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 ListMarketApp.defaultProps = {
   backButton: null,
   currentValue: undefined,
-  handleSetData: () => undefined
+  handleSetData: () => undefined,
 }
 
 export default ListMarketApp

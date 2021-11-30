@@ -32,8 +32,8 @@ export const STEP_ID = 'template'
 
 const useStyles = makeStyles({
   body: {
-    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))'
-  }
+    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+  },
 })
 
 const Content = ({ data, setFormData }) => {
@@ -43,24 +43,29 @@ const Content = ({ data, setFormData }) => {
 
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
-    setList: setFormData
+    setList: setFormData,
   })
 
-  const handleSelectedRows = async rows => {
+  const handleSelectedRows = async (rows) => {
     const { original: templateSelected } = rows?.[0] ?? {}
     const { ID } = templateSelected ?? {}
 
     if (!ID) return handleClear()
 
-    const extendedTemplate = ID ? await getVmTemplate(ID, { extended: true }) : {}
+    const extendedTemplate = ID
+      ? await getVmTemplate(ID, { extended: true })
+      : {}
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       // needs hypervisor to strip unknown attributes
-      [CONFIGURATION_ID]: CONFIGURATION_SCHEMA?.({ [STEP_ID]: [extendedTemplate] })
-        .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true }),
-      [EXTRA_ID]: EXTRA_SCHEMA(extendedTemplate?.TEMPLATE?.HYPERVISOR)
-        .cast(extendedTemplate?.TEMPLATE, { stripUnknown: true })
+      [CONFIGURATION_ID]: CONFIGURATION_SCHEMA?.({
+        [STEP_ID]: [extendedTemplate],
+      }).cast(extendedTemplate?.TEMPLATE, { stripUnknown: true }),
+      [EXTRA_ID]: EXTRA_SCHEMA(extendedTemplate?.TEMPLATE?.HYPERVISOR).cast(
+        extendedTemplate?.TEMPLATE,
+        { stripUnknown: true }
+      ),
     }))
 
     handleSelect(extendedTemplate)
@@ -80,14 +85,14 @@ const Content = ({ data, setFormData }) => {
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 const VmTemplateStep = () => ({
   id: STEP_ID,
   label: T.SelectVmTemplate,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 export default VmTemplateStep

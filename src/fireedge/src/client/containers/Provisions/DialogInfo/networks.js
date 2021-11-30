@@ -26,16 +26,15 @@ import { NetworkCard } from 'client/components/Cards'
 
 const Networks = memo(
   ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const {
-      networks = []
-    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+    const { networks = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
     const { enqueueSuccess } = useGeneralApi()
     const { deleteVNetwork } = useProvisionApi()
     const { getVNetwork } = useVNetworkApi()
 
     const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchVNetworks = () => fetchRequestAll(networks?.map(({ id }) => getVNetwork(id)))
+    const fetchVNetworks = () =>
+      fetchRequestAll(networks?.map(({ id }) => getVNetwork(id)))
 
     useEffect(() => {
       !hidden && !list && fetchVNetworks()
@@ -50,20 +49,26 @@ const Networks = memo(
         list={list}
         isLoading={!list && loading}
         CardComponent={NetworkCard}
-        cardsProps={({ value: { ID } }) => !disableAllActions && ({
-          actions: [{
-            handleClick: () => deleteVNetwork(ID)
-              .then(refetchProvision)
-              .then(() => enqueueSuccess(`VNetwork deleted - ID: ${ID}`)),
-            icon: <DeleteIcon color='error' />,
-            cy: `provision-vnet-delete-${ID}`
-          }]
-        })}
+        cardsProps={({ value: { ID } }) =>
+          !disableAllActions && {
+            actions: [
+              {
+                handleClick: () =>
+                  deleteVNetwork(ID)
+                    .then(refetchProvision)
+                    .then(() => enqueueSuccess(`VNetwork deleted - ID: ${ID}`)),
+                icon: <DeleteIcon color="error" />,
+                cy: `provision-vnet-delete-${ID}`,
+              },
+            ],
+          }
+        }
         displayEmpty
         breakpoints={{ xs: 12, md: 6 }}
       />
     )
-  }, (prev, next) =>
+  },
+  (prev, next) =>
     prev.hidden === next.hidden && prev.reloading === next.reloading
 )
 
@@ -72,7 +77,7 @@ Networks.propTypes = {
   hidden: PropTypes.bool,
   refetchProvision: PropTypes.func,
   reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool
+  disableAllActions: PropTypes.bool,
 }
 
 Networks.defaultProps = {
@@ -80,7 +85,7 @@ Networks.defaultProps = {
   hidden: false,
   refetchProvision: () => undefined,
   reloading: false,
-  disableAllActions: false
+  disableAllActions: false,
 }
 
 Networks.displayName = 'Networks'

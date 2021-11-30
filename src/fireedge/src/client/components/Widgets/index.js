@@ -22,5 +22,5 @@ export {
   TotalProviders,
   TotalProvisionInfrastructures,
   TotalProvisionsByState,
-  TotalSunstoneResources
+  TotalSunstoneResources,
 }

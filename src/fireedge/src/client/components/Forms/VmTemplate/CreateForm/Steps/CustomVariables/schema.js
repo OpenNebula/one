@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { object, ObjectSchema } from 'yup'
 
-import { } from 'client/utils'
-import { } from 'client/constants'
+import {} from 'client/utils'
+import {} from 'client/constants'
 
 /** @type {ObjectSchema} Step schema */
 const SCHEMA = object()

@@ -21,18 +21,18 @@ import makeStyles from '@mui/styles/makeStyles'
 import {
   Page as FileIcon,
   HardDrive as HostIcon,
-  Network as NetworkIcon
+  Network as NetworkIcon,
 } from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   badgesWrapper: {
     display: 'flex',
-    gap: theme.typography.pxToRem(12)
-  }
+    gap: theme.typography.pxToRem(12),
+  },
 }))
 
 const ApplicationTemplateCard = memo(
@@ -47,11 +47,7 @@ const ApplicationTemplateCard = memo(
     const badgePosition = { vertical: 'top', horizontal: 'right' }
 
     return (
-      <SelectCard
-        icon={<FileIcon />}
-        title={NAME}
-        subheader={description}
-      >
+      <SelectCard icon={<FileIcon />} title={NAME} subheader={description}>
         <CardContent>
           <Box className={classes.badgesWrapper}>
             <Badge
@@ -126,14 +122,14 @@ ApplicationTemplateCard.propTypes = {
       BODY: PropTypes.shape({
         description: PropTypes.string,
         networks: PropTypes.object,
-        roles: PropTypes.arrayOf(PropTypes.object)
-      }).isRequired
-    }).isRequired
+        roles: PropTypes.arrayOf(PropTypes.object),
+      }).isRequired,
+    }).isRequired,
   }),
   handleEdit: PropTypes.func,
   handleDeploy: PropTypes.func,
   handleShow: PropTypes.func,
-  handleRemove: PropTypes.func
+  handleRemove: PropTypes.func,
 }
 
 ApplicationTemplateCard.defaultProps = {
@@ -141,7 +137,7 @@ ApplicationTemplateCard.defaultProps = {
   handleEdit: undefined,
   handleDeploy: undefined,
   handleShow: undefined,
-  handleRemove: undefined
+  handleRemove: undefined,
 }
 
 ApplicationTemplateCard.displayName = 'Application TemplateCard'

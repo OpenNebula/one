@@ -48,62 +48,68 @@ export const TABS = [
     name: T.OSBooting,
     icon: OsIcon,
     Content: BootOrder,
-    getError: error => !!error?.OS
-  }
+    getError: (error) => !!error?.OS,
+  },
 ]
 
 const Content = ({ data, setFormData }) => {
-  const { watch, formState: { errors }, control } = useFormContext()
+  const {
+    watch,
+    formState: { errors },
+    control,
+  } = useFormContext()
   const { view, getResourceView } = useAuth()
 
   const hypervisor = useMemo(() => watch(`${TEMPLATE_ID}.0.HYPERVISOR`), [])
 
   const sectionsAvailable = useMemo(() => {
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+
     return getSectionsAvailable(dialog, hypervisor)
   }, [view])
 
   const totalErrors = Object.keys(errors[STEP_ID] ?? {}).length
 
   const tabs = useMemo(
-    () => TABS
-      .filter(({ id }) => sectionsAvailable.includes(id))
-      .map(({ Content: TabContent, name, getError, ...section }) => ({
-        ...section,
-        name,
-        label: <Translate word={name} />,
-        // eslint-disable-next-line react/display-name
-        renderContent: () => <TabContent {...{ data, setFormData, hypervisor, control }} />,
-        error: getError?.(errors[STEP_ID])
-      })),
+    () =>
+      TABS.filter(({ id }) => sectionsAvailable.includes(id)).map(
+        ({ Content: TabContent, name, getError, ...section }) => ({
+          ...section,
+          name,
+          label: <Translate word={name} />,
+          // eslint-disable-next-line react/display-name
+          renderContent: () => (
+            <TabContent {...{ data, setFormData, hypervisor, control }} />
+          ),
+          error: getError?.(errors[STEP_ID]),
+        })
+      ),
     [totalErrors, view, control]
   )
 
-  return (
-    <Tabs tabs={tabs} />
-  )
+  return <Tabs tabs={tabs} />
 }
 
-const ExtraConfiguration = initialValues => {
+const ExtraConfiguration = (initialValues) => {
   const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.AdvancedOptions,
-    resolver: formData => {
+    resolver: (formData) => {
       const hypervisor =
         formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
 
       return SCHEMA(hypervisor)
     },
     optionsValidate: { abortEarly: false },
-    content: Content
+    content: Content,
   }
 }
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ExtraConfiguration

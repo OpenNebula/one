@@ -16,7 +16,7 @@
 import makeStyles from '@mui/styles/makeStyles'
 import { sidebar, toolbar, footer } from 'client/theme/defaults'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     flex: '1 1 auto',
     display: 'flex',
@@ -25,16 +25,16 @@ export default makeStyles(theme => ({
     flexDirection: 'column',
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.minified
-    }
+      marginLeft: sidebar.minified,
+    },
   },
   isDrawerFixed: {
     [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.fixed
-    }
+      marginLeft: sidebar.fixed,
+    },
   },
   main: {
     height: '100vh',
@@ -42,11 +42,11 @@ export default makeStyles(theme => ({
     paddingBottom: footer.regular,
     paddingTop: toolbar.regular,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
-      paddingTop: toolbar.xs
+      paddingTop: toolbar.xs,
     },
     [theme.breakpoints.up('sm')]: {
-      paddingTop: toolbar.sm
-    }
+      paddingTop: toolbar.sm,
+    },
   },
   scrollable: {
     backgroundColor: theme.palette.background.default,
@@ -55,34 +55,34 @@ export default makeStyles(theme => ({
     height: '100%',
     overflow: 'auto',
     '&::-webkit-scrollbar': {
-      width: 14
+      width: 14,
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundClip: 'content-box',
       border: '4px solid transparent',
       borderRadius: 7,
       boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light
-    }
+      color: theme.palette.secondary.light,
+    },
   },
   /* ROUTES TRANSITIONS */
   appear: {},
   appearActive: {},
   enter: {
-    opacity: 0
+    opacity: 0,
   },
   enterActive: {
     opacity: 1,
-    transition: 'opacity 300ms'
+    transition: 'opacity 300ms',
   },
   exit: {
     opacity: 1,
-    transform: 'scale(1)'
+    transform: 'scale(1)',
   },
   exitActive: {
     opacity: 0,
-    transition: 'opacity 300ms'
+    transition: 'opacity 300ms',
   },
   enterDone: {},
-  exitDone: {}
+  exitDone: {},
 }))

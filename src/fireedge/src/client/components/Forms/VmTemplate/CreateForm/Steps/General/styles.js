@@ -15,16 +15,16 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: theme.spacing(1),
     [theme.breakpoints.down('lg')]: {
-      gridTemplateColumns: '1fr'
-    }
+      gridTemplateColumns: '1fr',
+    },
   },
   information: {
-    gridColumn: '1 / -1'
-  }
+    gridColumn: '1 / -1',
+  },
 }))

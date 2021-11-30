@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as Helper from 'client/models/Helper'
-import { } from 'client/constants'
+import {} from 'client/constants'
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -28,18 +28,19 @@ export default [
   {
     Header: 'Logo',
     id: 'LOGO',
-    accessor: row => row?.TEMPLATE?.LOGO
+    accessor: (row) => row?.TEMPLATE?.LOGO,
   },
   {
     Header: 'Virtual Router',
     id: 'VROUTER',
-    accessor: row =>
+    accessor: (row) =>
       Helper.stringToBoolean(row?.TEMPLATE?.VROUTER) && 'VROUTER',
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      title: 'Virtual Router'
-    }),
-    filter: 'exact'
-  }
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        title: 'Virtual Router',
+      }),
+    filter: 'exact',
+  },
 ]

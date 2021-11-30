@@ -23,7 +23,7 @@ import * as Widgets from 'client/components/Widgets'
 import { stringToBoolean } from 'client/models/Helper'
 
 /** @returns {JSXElementConstructor} Provision dashboard container */
-function ProvisionDashboard () {
+function ProvisionDashboard() {
   const { status, fetchRequestAll, STATUS } = useFetchAll()
   const { INIT, PENDING } = STATUS
 
@@ -33,22 +33,19 @@ function ProvisionDashboard () {
   const { settings: { disableanimations } = {} } = useAuth()
 
   useEffect(() => {
-    fetchRequestAll([
-      getProviders(),
-      getProvisions()
-    ])
+    fetchRequestAll([getProviders(), getProvisions()])
   }, [])
 
   return (
     <Container
       disableGutters
-      {...stringToBoolean(disableanimations) && {
+      {...(stringToBoolean(disableanimations) && {
         sx: {
           '& *, & *::before, & *::after': {
-            animation: 'none !important'
-          }
-        }
-      }}
+            animation: 'none !important',
+          },
+        },
+      })}
     >
       <Box py={3}>
         <Grid container spacing={3}>

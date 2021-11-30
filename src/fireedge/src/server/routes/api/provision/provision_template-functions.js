@@ -17,24 +17,21 @@
 const { Validator } = require('jsonschema')
 const {
   defaultFolderTmpProvision,
-  defaultCommandProvisionTemplate
+  defaultCommandProvisionTemplate,
 } = require('server/utils/constants/defaults')
 
-const {
-  ok,
-  internalServerError
-} = require('server/utils/constants/http-codes')
+const { ok, internalServerError } = require('server/utils/constants/http-codes')
 const {
   httpResponse,
   parsePostData,
   executeCommand,
-  removeFile
+  removeFile,
 } = require('server/utils/server')
 const {
   createYMLContent,
   createTemporalFile,
   getEndpoint,
-  getSpecificConfig
+  getSpecificConfig,
 } = require('./functions')
 const { provider } = require('./schemas')
 
@@ -48,7 +45,12 @@ const httpInternalError = httpResponse(internalServerError, '', '')
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const getListProvisionTemplates = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
@@ -56,13 +58,27 @@ const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}
     const authCommand = ['--user', user, '--password', password]
     let paramsCommand = ['list', ...authCommand, '--json']
     if (params && params.id) {
-      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
+      paramsCommand = [
+        'show',
+        `${params.id}`.toLowerCase(),
+        ...authCommand,
+        ...endpoint,
+        '--json',
+      ]
     }
-    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
+    const executedCommand = executeCommand(
+      defaultCommandProvisionTemplate,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      res.locals.httpCode = httpResponse(
+        response,
+        JSON.parse(executedCommand.data)
+      )
       next()
+
       return
     } catch (error) {
       rtn = httpResponse(internalServerError, '', executedCommand.data)
@@ -80,7 +96,12 @@ const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const createProvisionTemplate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -92,23 +113,41 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(
+          `${global.paths.CPI}/${defaultFolderTmpProvision}`,
+          'yaml',
+          content
+        )
         if (file && file.name && file.path) {
-          const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
+          const paramsCommand = [
+            'create',
+            file.path,
+            ...authCommand,
+            ...endpoint,
+          ]
+          const executedCommand = executeCommand(
+            defaultCommandProvisionTemplate,
+            paramsCommand,
+            getSpecificConfig('oneprovision_prepend_command')
+          )
           res.locals.httpCode = httpResponse(internalServerError)
-          if (executedCommand && executedCommand.success && executedCommand.data) {
+          if (
+            executedCommand &&
+            executedCommand.success &&
+            executedCommand.data
+          ) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
           }
           removeFile(file.path)
           next()
+
           return
         }
       }
     } else {
       const errors = []
       if (valSchema && valSchema.errors) {
-        valSchema.errors.forEach(error => {
+        valSchema.errors.forEach((error) => {
           errors.push(error.stack.replace(/^instance./, ''))
         })
         rtn = httpResponse(internalServerError, '', errors.toString())
@@ -127,18 +166,36 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const instantiateProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const instantiateProvisionTemplate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const paramsCommand = ['instantiate', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
+    const paramsCommand = [
+      'instantiate',
+      `${params.id}`.toLowerCase(),
+      ...authCommand,
+      ...endpoint,
+    ]
+    const executedCommand = executeCommand(
+      defaultCommandProvisionTemplate,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      res.locals.httpCode = httpResponse(
+        response,
+        JSON.parse(executedCommand.data)
+      )
       next()
+
       return
     } catch (error) {
       rtn = httpResponse(internalServerError, '', executedCommand.data)
@@ -156,7 +213,12 @@ const instantiateProvisionTemplate = (res = {}, next = () => undefined, params =
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const updateProvisionTemplate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
@@ -168,23 +230,42 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(`${global.paths.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
+        const file = createTemporalFile(
+          `${global.paths.CPI}/${defaultFolderTmpProvision}`,
+          'yaml',
+          content
+        )
         if (file && file.name && file.path) {
-          const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
+          const paramsCommand = [
+            'update',
+            params.id,
+            file.path,
+            ...authCommand,
+            ...endpoint,
+          ]
+          const executedCommand = executeCommand(
+            defaultCommandProvisionTemplate,
+            paramsCommand,
+            getSpecificConfig('oneprovision_prepend_command')
+          )
           res.locals.httpCode = httpResponse(internalServerError)
-          if (executedCommand && executedCommand.success && executedCommand.data) {
+          if (
+            executedCommand &&
+            executedCommand.success &&
+            executedCommand.data
+          ) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
           }
           removeFile(file.path)
           next()
+
           return
         }
       }
     } else {
       const errors = []
       if (valSchema && valSchema.errors) {
-        valSchema.errors.forEach(error => {
+        valSchema.errors.forEach((error) => {
           errors.push(error.stack.replace(/^instance./, ''))
         })
         rtn = httpResponse(internalServerError, '', errors.toString())
@@ -203,18 +284,36 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const deleteProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const deleteProvisionTemplate = (
+  res = {},
+  next = () => undefined,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand, getSpecificConfig('oneprovision_prepend_command'))
+    const paramsCommand = [
+      'delete',
+      `${params.id}`.toLowerCase(),
+      ...authCommand,
+      ...endpoint,
+    ]
+    const executedCommand = executeCommand(
+      defaultCommandProvisionTemplate,
+      paramsCommand,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      res.locals.httpCode = httpResponse(
+        response,
+        JSON.parse(executedCommand.data)
+      )
       next()
+
       return
     } catch (error) {
       rtn = httpResponse(internalServerError, '', executedCommand.data)
@@ -229,6 +328,6 @@ const provisionTemplateFunctionsApi = {
   createProvisionTemplate,
   instantiateProvisionTemplate,
   updateProvisionTemplate,
-  deleteProvisionTemplate
+  deleteProvisionTemplate,
 }
 module.exports = provisionTemplateFunctionsApi

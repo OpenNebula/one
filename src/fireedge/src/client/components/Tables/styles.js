@@ -28,14 +28,14 @@ export const rowStyles = makeStyles(
       gap: 8,
       boxShadow: shadows[1],
       [breakpoints.down('md')]: {
-        flexWrap: 'wrap'
-      }
+        flexWrap: 'wrap',
+      },
     },
     figure: {
       flexBasis: '20%',
       paddingTop: '12.5%',
       overflow: 'hidden',
-      position: 'relative'
+      position: 'relative',
     },
     image: {
       top: 0,
@@ -44,12 +44,12 @@ export const rowStyles = makeStyles(
       height: '100%',
       objectFit: 'contain',
       position: 'absolute',
-      userSelect: 'none'
+      userSelect: 'none',
     },
     main: {
       flex: 'auto',
       overflow: 'hidden',
-      alignSelf: 'start'
+      alignSelf: 'start',
     },
     title: {
       color: palette.text.primary,
@@ -57,11 +57,11 @@ export const rowStyles = makeStyles(
       gap: 6,
       alignItems: 'center',
       flexWrap: 'wrap',
-      marginBottom: 8
+      marginBottom: 8,
     },
     labels: {
       display: 'inline-flex',
-      gap: 6
+      gap: 6,
     },
     caption: {
       ...typography.caption,
@@ -72,8 +72,8 @@ export const rowStyles = makeStyles(
       flexWrap: 'wrap',
       wordWrap: 'break-word',
       '& > .full-width': {
-        flexBasis: '100%'
-      }
+        flexBasis: '100%',
+      },
     },
     secondary: {
       width: '25%',
@@ -81,15 +81,15 @@ export const rowStyles = makeStyles(
       whiteSpace: 'nowrap',
       textAlign: 'right',
       [breakpoints.down('sm')]: {
-        display: 'none'
+        display: 'none',
       },
       '& > *': {
         flexShrink: 0,
-        whiteSpace: 'nowrap'
-      }
+        whiteSpace: 'nowrap',
+      },
     },
     actions: {
-      flexShrink: 0
-    }
+      flexShrink: 0,
+    },
   })
 )

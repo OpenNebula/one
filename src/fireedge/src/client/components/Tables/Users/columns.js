@@ -18,5 +18,5 @@ export default [
   { Header: 'Name', accessor: 'NAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Enabled', accessor: 'ENABLED' },
-  { Header: 'Auth driver', accessor: 'AUTH_DRIVER' }
+  { Header: 'Auth driver', accessor: 'AUTH_DRIVER' },
 ]

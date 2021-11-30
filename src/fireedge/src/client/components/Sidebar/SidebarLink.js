@@ -22,63 +22,64 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import { DevTypography } from 'client/components/Typography'
 
-const SidebarLink = memo(({
-  label = '',
-  path = '/',
-  icon: Icon,
-  devMode = false,
-  isSubItem = false
-}) => {
-  const isUpLg = useMediaQuery(
-    theme => theme.breakpoints.up('lg'),
-    { noSsr: true }
-  )
+const SidebarLink = memo(
+  ({
+    label = '',
+    path = '/',
+    icon: Icon,
+    devMode = false,
+    isSubItem = false,
+  }) => {
+    const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
+      noSsr: true,
+    })
 
-  const history = useHistory()
-  const { pathname } = useLocation()
-  const { fixMenu } = useGeneralApi()
+    const history = useHistory()
+    const { pathname } = useLocation()
+    const { fixMenu } = useGeneralApi()
 
-  const handleClick = () => {
-    history.push(path)
-    !isUpLg && fixMenu(false)
+    const handleClick = () => {
+      history.push(path)
+      !isUpLg && fixMenu(false)
+    }
+
+    return (
+      <ListItemButton
+        data-cy="main-menu-item"
+        onClick={handleClick}
+        selected={pathname === path}
+        {...(isSubItem && { sx: { pl: 4 } })}
+      >
+        {Icon && (
+          <ListItemIcon>
+            <Icon />
+          </ListItemIcon>
+        )}
+        <ListItemText
+          primary={label}
+          primaryTypographyProps={{
+            ...(devMode && { component: DevTypography }),
+            'data-cy': 'main-menu-item-text',
+            variant: 'body1',
+          }}
+        />
+      </ListItemButton>
+    )
   }
-
-  return (
-    <ListItemButton
-      data-cy='main-menu-item'
-      onClick={handleClick}
-      selected={pathname === path}
-      {...(isSubItem && { sx: { pl: 4 } })}
-    >
-      {Icon && (
-        <ListItemIcon>
-          <Icon />
-        </ListItemIcon>
-      )}
-      <ListItemText
-        primary={label}
-        primaryTypographyProps={{
-          ...(devMode && { component: DevTypography }),
-          'data-cy': 'main-menu-item-text',
-          variant: 'body1'
-        }}
-      />
-    </ListItemButton>
-  )
-})
+)
 
 SidebarLink.propTypes = {
   label: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
   icon: PropTypes.any,
   devMode: PropTypes.bool,
-  isSubItem: PropTypes.bool
+  isSubItem: PropTypes.bool,
 }
 
 SidebarLink.displayName = 'SidebarLink'

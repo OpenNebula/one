@@ -17,12 +17,23 @@
 import { memo, useContext } from 'react'
 import PropTypes from 'prop-types'
 
-import { Trash, Edit, UndoAction, SaveActionFloppy, Camera, Expand } from 'iconoir-react'
+import {
+  Trash,
+  Edit,
+  UndoAction,
+  SaveActionFloppy,
+  Camera,
+  Expand,
+} from 'iconoir-react'
 
 import { useVmApi } from 'client/features/One'
 import { TabContext } from 'client/components/Tabs/TabProvider'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { SaveAsDiskForm, CreateDiskSnapshotForm, ResizeDiskForm } from 'client/components/Forms/Vm'
+import {
+  SaveAsDiskForm,
+  CreateDiskSnapshotForm,
+  ResizeDiskForm,
+} from 'client/components/Forms/Vm'
 
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
@@ -39,16 +50,23 @@ const DetachAction = memo(({ disk, name: imageName }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
         icon: <Trash />,
-        tooltip: Tr(T.Detach)
+        tooltip: Tr(T.Detach),
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.DetachSomething} values={`#${DISK_ID} - ${imageName}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.DetachSomething}
+                values={`#${DISK_ID} - ${imageName}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleDetach,
         },
-        onSubmit: handleDetach
-      }]}
+      ]}
     />
   )
 })
@@ -72,18 +90,28 @@ const SaveAsAction = memo(({ disk, snapshot, name: imageName }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.DISK_SAVEAS}-${diskId}`,
         icon: <SaveActionFloppy />,
-        tooltip: Tr(T.SaveAs)
+        tooltip: Tr(T.SaveAs),
       }}
-      options={[{
-        dialogProps: {
-          title: snapshot
-            ? <Translate word={T.SaveAsImage} values={`#${snapshotId} - ${snapshotName}`} />
-            : <Translate word={T.SaveAsImage} values={`#${diskId} - ${imageName}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          dialogProps: {
+            title: snapshot ? (
+              <Translate
+                word={T.SaveAsImage}
+                values={`#${snapshotId} - ${snapshotName}`}
+              />
+            ) : (
+              <Translate
+                word={T.SaveAsImage}
+                values={`#${diskId} - ${imageName}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          form: () => SaveAsDiskForm(),
+          onSubmit: handleSaveAs,
         },
-        form: () => SaveAsDiskForm(),
-        onSubmit: handleSaveAs
-      }]}
+      ]}
     />
   )
 })
@@ -103,20 +131,22 @@ const ResizeAction = memo(({ disk, name: imageName }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`,
         icon: <Expand />,
-        tooltip: Tr(T.Resize)
+        tooltip: Tr(T.Resize),
       }}
-      options={[{
-        dialogProps: {
-          title: (
-            <Translate
-              word={T.ResizeSomething}
-              values={`#${DISK_ID} - ${imageName}`}
-            />
-          )
+      options={[
+        {
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.ResizeSomething}
+                values={`#${DISK_ID} - ${imageName}`}
+              />
+            ),
+          },
+          form: () => ResizeDiskForm(undefined, disk),
+          onSubmit: handleResize,
         },
-        form: () => ResizeDiskForm(undefined, disk),
-        onSubmit: handleResize
-      }]}
+      ]}
     />
   )
 })
@@ -136,20 +166,22 @@ const SnapshotCreateAction = memo(({ disk, name: imageName }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_CREATE}-${DISK_ID}`,
         icon: <Camera />,
-        tooltip: Tr(T.TakeSnapshot)
+        tooltip: Tr(T.TakeSnapshot),
       }}
-      options={[{
-        dialogProps: {
-          title: (
-            <Translate
-              word={T.TakeSnapshotSomething}
-              values={`#${DISK_ID} - ${imageName}`}
-            />
-          )
+      options={[
+        {
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.TakeSnapshotSomething}
+                values={`#${DISK_ID} - ${imageName}`}
+              />
+            ),
+          },
+          form: () => CreateDiskSnapshotForm(),
+          onSubmit: handleSnapshotCreate,
         },
-        form: () => CreateDiskSnapshotForm(),
-        onSubmit: handleSnapshotCreate
-      }]}
+      ]}
     />
   )
 })
@@ -172,16 +204,20 @@ const SnapshotRenameAction = memo(({ disk, snapshot }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_RENAME}-${DISK_ID}-${ID}`,
         icon: <Edit />,
-        tooltip: Tr(T.Edit)
+        tooltip: Tr(T.Edit),
       }}
-      options={[{
-        dialogProps: {
-          title: <Translate word={T.RenameSomething} values={`#${ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          dialogProps: {
+            title: (
+              <Translate word={T.RenameSomething} values={`#${ID} - ${NAME}`} />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          form: () => CreateDiskSnapshotForm(undefined, snapshot),
+          onSubmit: handleRename,
         },
-        form: () => CreateDiskSnapshotForm(undefined, snapshot),
-        onSubmit: handleRename
-      }]}
+      ]}
     />
   )
 })
@@ -202,16 +238,20 @@ const SnapshotRevertAction = memo(({ disk, snapshot }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_REVERT}-${DISK_ID}-${ID}`,
         icon: <UndoAction />,
-        tooltip: Tr(T.Revert)
+        tooltip: Tr(T.Revert),
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.RevertSomething} values={`#${ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate word={T.RevertSomething} values={`#${ID} - ${NAME}`} />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleRevert,
         },
-        onSubmit: handleRevert
-      }]}
+      ]}
     />
   )
 })
@@ -232,16 +272,20 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_DELETE}-${DISK_ID}-${ID}`,
         icon: <Trash />,
-        tooltip: Tr(T.Delete)
+        tooltip: Tr(T.Delete),
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.DeleteSomething} values={`#${ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate word={T.DeleteSomething} values={`#${ID} - ${NAME}`} />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleDelete,
         },
-        onSubmit: handleDelete
-      }]}
+      ]}
     />
   )
 })
@@ -249,7 +293,7 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
 const ActionPropTypes = {
   disk: PropTypes.object,
   snapshot: PropTypes.object,
-  name: PropTypes.string
+  name: PropTypes.string,
 }
 
 DetachAction.propTypes = ActionPropTypes
@@ -274,5 +318,5 @@ export {
   SnapshotCreateAction,
   SnapshotDeleteAction,
   SnapshotRenameAction,
-  SnapshotRevertAction
+  SnapshotRevertAction,
 }

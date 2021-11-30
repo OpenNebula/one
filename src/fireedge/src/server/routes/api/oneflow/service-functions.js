@@ -17,12 +17,15 @@
 const { Validator } = require('jsonschema')
 const { action } = require('./schemas')
 const { oneFlowConnection } = require('./functions')
-const { httpMethod, defaultEmptyFunction } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  defaultEmptyFunction,
+} = require('server/utils/constants/defaults')
 const { httpResponse, parsePostData } = require('server/utils/server')
 const {
   ok,
   internalServerError,
-  methodNotAllowed
+  methodNotAllowed,
 } = require('server/utils/constants/http-codes')
 const { returnSchemaError } = require('./functions')
 const { generateNewResourceTemplate } = require('server/utils/opennebula')
@@ -37,7 +40,13 @@ const { GET, POST, DELETE } = httpMethod
  * @param {string} data - data response http
  */
 const success = (next = defaultEmptyFunction, res = {}, data = '') => {
-  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
+  if (
+    next &&
+    typeof next === 'function' &&
+    res &&
+    res.locals &&
+    res.locals.httpCode
+  ) {
     res.locals.httpCode = httpResponse(ok, data)
     next()
   }
@@ -51,8 +60,17 @@ const success = (next = defaultEmptyFunction, res = {}, data = '') => {
  * @param {string} data - data response http
  */
 const error = (next = defaultEmptyFunction, res = {}, data = '') => {
-  if ((next && typeof next === 'function') && (res && res.locals && res.locals.httpCode)) {
-    res.locals.httpCode = httpResponse(internalServerError, data && data.message)
+  if (
+    next &&
+    typeof next === 'function' &&
+    res &&
+    res.locals &&
+    res.locals.httpCode
+  ) {
+    res.locals.httpCode = httpResponse(
+      internalServerError,
+      data && data.message
+    )
     next()
   }
 }
@@ -65,16 +83,29 @@ const error = (next = defaultEmptyFunction, res = {}, data = '') => {
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const service = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const service = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (user && password) {
     const config = { method: GET, path: '/service', user, password }
     if (params && params.id) {
       config.path = '/service/{0}'
       config.request = params.id
-      oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
-      oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     }
   }
 }
@@ -87,11 +118,26 @@ const service = (res = {}, next = defaultEmptyFunction, params = {}, userData = 
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceDelete = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const serviceDelete = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.id && user && password) {
-    const config = { method: DELETE, path: '/service/{0}', user, password, request: params.id }
-    oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+    const config = {
+      method: DELETE,
+      path: '/service/{0}',
+      user,
+      password,
+      request: params.id,
+    }
+    oneFlowConnection(
+      config,
+      (data) => success(next, res, data),
+      (data) => error(next, res, data)
+    )
   } else {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,
@@ -110,22 +156,32 @@ const serviceDelete = (res = {}, next = defaultEmptyFunction, params = {}, userD
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceAddAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const serviceAddAction = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
     const valSchema = v.validate(postAction, action)
-    if (valSchema.valid) { // validate if "action" is required
+    if (valSchema.valid) {
+      // validate if "action" is required
       const config = {
         method: POST,
         path: '/service/{0}/action',
         user,
         password,
         request: params.id,
-        post: postAction
+        post: postAction,
       }
-      oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -152,22 +208,32 @@ const serviceAddAction = (res = {}, next = defaultEmptyFunction, params = {}, us
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceAddScale = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const serviceAddScale = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
     const valSchema = v.validate(postAction, action)
-    if (valSchema.valid) { // validate if "action" is required
+    if (valSchema.valid) {
+      // validate if "action" is required
       const config = {
         method: POST,
         path: '/service/{0}/scale',
         user,
         password,
         request: params.id,
-        post: postAction
+        post: postAction,
       }
-      oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -194,22 +260,32 @@ const serviceAddScale = (res = {}, next = defaultEmptyFunction, params = {}, use
  * @param {object} params - params
  * @param {object} userData - user data
  */
-const serviceAddRoleAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const serviceAddRoleAction = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   const { user, password } = userData
   if (params && params.role && params.id && params.action && user && password) {
     const v = new Validator()
     const postAction = parsePostData(params.action)
     const valSchema = v.validate(postAction, action)
-    if (valSchema.valid) { // validate if "action" is required
+    if (valSchema.valid) {
+      // validate if "action" is required
       const config = {
         method: POST,
         path: '/service/{0}/role/{1}',
         user,
         password,
         request: [params.role, params.id],
-        post: postAction
+        post: postAction,
       }
-      oneFlowConnection(config, data => success(next, res, data), data => error(next, res, data))
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
     } else {
       res.locals.httpCode = httpResponse(
         internalServerError,
@@ -237,21 +313,41 @@ const serviceAddRoleAction = (res = {}, next = defaultEmptyFunction, params = {}
  * @param {Function} success - callback when have service info data
  * @param {Function} error - callback when no have service info data
  */
-const getNodesService = (user = '', password = '', serviceID = 0, success = defaultEmptyFunction, error = defaultEmptyFunction) => {
+const getNodesService = (
+  user = '',
+  password = '',
+  serviceID = 0,
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
   if (user && password && serviceID) {
-    const config = { method: GET, path: '/service/{0}', user, password, request: serviceID }
+    const config = {
+      method: GET,
+      path: '/service/{0}',
+      user,
+      password,
+      request: serviceID,
+    }
     oneFlowConnection(
       config,
       (serviceData = {}) => {
         const vms = []
-        if (serviceData && serviceData.DOCUMENT && serviceData.DOCUMENT.TEMPLATE && serviceData.DOCUMENT.TEMPLATE.BODY && serviceData.DOCUMENT.TEMPLATE.BODY.roles) {
+        if (
+          serviceData &&
+          serviceData.DOCUMENT &&
+          serviceData.DOCUMENT.TEMPLATE &&
+          serviceData.DOCUMENT.TEMPLATE.BODY &&
+          serviceData.DOCUMENT.TEMPLATE.BODY.roles
+        ) {
           let roles = serviceData.DOCUMENT.TEMPLATE.BODY.roles
           roles = Array.isArray(roles) ? roles : [roles]
-          roles.forEach(role => {
+          roles.forEach((role) => {
             if (role && role.nodes) {
               let nodes = role.nodes
               nodes = Array.isArray(nodes) ? nodes : [nodes]
-              const filteredNodes = nodes.filter(node => node && node.deploy_id >= 0)
+              const filteredNodes = nodes.filter(
+                (node) => node && node.deploy_id >= 0
+              )
               vms.push(...filteredNodes)
             }
           })
@@ -279,7 +375,9 @@ const parseSchedActionsToString = (schedAction = '') => {
   try {
     const parsedSchedAction = JSON.parse(schedAction)
     if (Array.isArray(parsedSchedAction)) {
-      rtn = parsedSchedAction.map(action => generateNewResourceTemplate({}, action, [], wrapper)).join(' ')
+      rtn = parsedSchedAction
+        .map((action) => generateNewResourceTemplate({}, action, [], wrapper))
+        .join(' ')
     } else if (typeof parsedSchedAction === 'object') {
       rtn = generateNewResourceTemplate({}, parsedSchedAction, [], wrapper)
     } else {
@@ -288,6 +386,7 @@ const parseSchedActionsToString = (schedAction = '') => {
   } catch (err) {
     rtn = schedAction
   }
+
   return rtn
 }
 
@@ -300,7 +399,13 @@ const parseSchedActionsToString = (schedAction = '') => {
  * @param {object} userData - user data
  * @param {Function} oneConnection - xmlrpc connection
  */
-const serviceAddSchedAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const serviceAddSchedAction = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, password } = userData
   if (params && params.id && params.sched_action && user && password) {
     const schedTemplate = parseSchedActionsToString(params.sched_action)
@@ -346,9 +451,22 @@ const serviceAddSchedAction = (res = {}, next = defaultEmptyFunction, params = {
  * @param {object} userData - user data
  * @param {Function} oneConnection - xmlrpc connection
  */
-const serviceUpdateSchedAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const serviceUpdateSchedAction = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, password } = userData
-  if (params && params.id && params.id_sched && params.sched_action && user && password) {
+  if (
+    params &&
+    params.id &&
+    params.id_sched &&
+    params.sched_action &&
+    user &&
+    password
+  ) {
     const schedTemplate = parseSchedActionsToString(params.sched_action)
     const nodesUpdated = []
     getNodesService(
@@ -392,7 +510,13 @@ const serviceUpdateSchedAction = (res = {}, next = defaultEmptyFunction, params 
  * @param {object} userData - user data
  * @param {Function} oneConnection - xmlrpc connection
  */
-const serviceDeleteSchedAction = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const serviceDeleteSchedAction = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { user, password } = userData
   if (params && params.id && params.id_sched && user && password) {
     const nodesUpdated = []
@@ -436,6 +560,6 @@ const serviceApi = {
   serviceAddRoleAction,
   serviceAddSchedAction,
   serviceUpdateSchedAction,
-  serviceDeleteSchedAction
+  serviceDeleteSchedAction,
 }
 module.exports = serviceApi

@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const { auth } = require('./auth-functions')
 const { POST } = httpMethod
 
@@ -25,30 +28,30 @@ const routes = {
       params: {
         user: {
           from: fromData.postBody,
-          name: 'user'
+          name: 'user',
         },
         token: {
           from: fromData.postBody,
-          name: 'token'
+          name: 'token',
         },
         type: {
           from: fromData.postBody,
-          name: 'type'
+          name: 'type',
         },
         token2fa: {
           from: fromData.postBody,
-          name: 'token2fa'
+          name: 'token2fa',
         },
         remember: {
           from: fromData.postBody,
-          name: 'remember'
-        }
-      }
-    }
-  }
+          name: 'remember',
+        },
+      },
+    },
+  },
 }
 
 const authApi = {
-  routes
+  routes,
 }
 module.exports = authApi

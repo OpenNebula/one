@@ -23,11 +23,11 @@ import MessageList from 'client/components/DebugLog/messagelist'
 import Filters from 'client/components/DebugLog/filters'
 import * as LogUtils from 'client/components/DebugLog/utils'
 
-const debugLogStyles = makeStyles(theme => ({
+const debugLogStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexFlow: 'column',
-    height: '100%'
+    height: '100%',
   },
   containerScroll: {
     width: '100%',
@@ -37,71 +37,74 @@ const debugLogStyles = makeStyles(theme => ({
     backgroundColor: '#1d1f21',
     wordBreak: 'break-word',
     '&::-webkit-scrollbar': {
-      width: 14
+      width: 14,
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundClip: 'content-box',
       border: '4px solid transparent',
       borderRadius: 7,
       boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light
-    }
-  }
+      color: theme.palette.secondary.light,
+    },
+  },
 }))
 
-const DebugLog = memo(({ uuid, socket, logDefault, title }) => {
-  const classes = debugLogStyles()
+const DebugLog = memo(
+  ({ uuid, socket, logDefault, title }) => {
+    const classes = debugLogStyles()
 
-  const [log, setLog] = useState(logDefault)
+    const [log, setLog] = useState(logDefault)
 
-  const [filters, setFilters] = useState(() => ({
-    command: undefined,
-    severity: undefined
-  }))
+    const [filters, setFilters] = useState(() => ({
+      command: undefined,
+      severity: undefined,
+    }))
 
-  useEffect(() => {
-    const { on, off } = socket((socketData = {}) => {
-      socketData.id === uuid &&
-        setLog(prevLog => LogUtils.concatNewMessageToLog(prevLog, socketData))
-    })
+    useEffect(() => {
+      const { on, off } = socket((socketData = {}) => {
+        socketData.id === uuid &&
+          setLog((prevLog) =>
+            LogUtils.concatNewMessageToLog(prevLog, socketData)
+          )
+      })
 
-    uuid && on()
-    return off
-  }, [])
+      uuid && on()
 
-  return (
-    <div className={classes.root}>
-      {title}
+      return off
+    }, [])
 
-      <Filters log={log} filters={filters} setFilters={setFilters} />
+    return (
+      <div className={classes.root}>
+        {title}
 
-      <div className={classes.containerScroll}>
-        <AutoScrollBox scrollBehavior='auto'>
-          <MessageList log={log} filters={filters} />
-        </AutoScrollBox>
+        <Filters log={log} filters={filters} setFilters={setFilters} />
+
+        <div className={classes.containerScroll}>
+          <AutoScrollBox scrollBehavior="auto">
+            <MessageList log={log} filters={filters} />
+          </AutoScrollBox>
+        </div>
       </div>
-    </div>
-  )
-}, (prev, next) => prev.uuid === next.uuid)
+    )
+  },
+  (prev, next) => prev.uuid === next.uuid
+)
 
 DebugLog.propTypes = {
   uuid: PropTypes.string,
   socket: PropTypes.func.isRequired,
   logDefault: PropTypes.object,
-  title: PropTypes.oneOfType([
-    PropTypes.element,
-    PropTypes.string
-  ])
+  title: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 }
 
 DebugLog.defaultProps = {
   uuid: undefined,
   socket: {
     on: () => undefined,
-    off: () => undefined
+    off: () => undefined,
   },
   logDefault: {},
-  title: null
+  title: null,
 }
 
 DebugLog.displayName = 'DebugLog'

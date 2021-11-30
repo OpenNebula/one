@@ -37,16 +37,23 @@ const RevertAction = memo(({ snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
-        icon: <UndoAction />
+        icon: <UndoAction />,
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.RevertSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.RevertSomething}
+                values={`#${SNAPSHOT_ID} - ${NAME}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleRevert,
         },
-        onSubmit: handleRevert
-      }]}
+      ]}
     />
   )
 })
@@ -62,23 +69,30 @@ const DeleteAction = memo(({ snapshot }) => {
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
-        icon: <Trash />
+        icon: <Trash />,
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.DeleteSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.DeleteSomething}
+                values={`#${SNAPSHOT_ID} - ${NAME}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleDelete,
         },
-        onSubmit: handleDelete
-      }]}
+      ]}
     />
   )
 })
 
 const ActionPropTypes = {
   snapshot: PropTypes.object,
-  name: PropTypes.string
+  name: PropTypes.string,
 }
 
 RevertAction.propTypes = ActionPropTypes
@@ -86,7 +100,4 @@ RevertAction.displayName = 'RevertActionButton'
 DeleteAction.propTypes = ActionPropTypes
 DeleteAction.displayName = 'DeleteActionButton'
 
-export {
-  DeleteAction,
-  RevertAction
-}
+export { DeleteAction, RevertAction }

@@ -34,50 +34,50 @@ const useStyles = makeStyles({
       borderRadius: '50%',
       animation: '$ripple 1.2s infinite ease-in-out',
       border: '1px solid currentColor',
-      content: '""'
-    }
+      content: '""',
+    },
   },
   '@keyframes ripple': {
     from: {
       transform: 'scale(.8)',
-      opacity: 1
+      opacity: 1,
     },
     to: {
       transform: 'scale(2.4)',
-      opacity: 0
-    }
-  }
+      opacity: 0,
+    },
+  },
 })
 
-const StatusBadge = memo(({ stateColor, children, customTransform, ...props }) => {
-  const classes = useStyles({ stateColor, customTransform })
+const StatusBadge = memo(
+  ({ stateColor, children, customTransform, ...props }) => {
+    const classes = useStyles({ stateColor, customTransform })
 
-  return (
-    <Badge
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      classes={{ badge: classes.badge }}
-      overlap='circular'
-      variant='dot'
-      {...props}
-    >
-      {children}
-    </Badge>
-  )
-}, (prev, next) => prev.stateColor === next.stateColor)
+    return (
+      <Badge
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        classes={{ badge: classes.badge }}
+        overlap="circular"
+        variant="dot"
+        {...props}
+      >
+        {children}
+      </Badge>
+    )
+  },
+  (prev, next) => prev.stateColor === next.stateColor
+)
 
 StatusBadge.propTypes = {
   stateColor: PropTypes.string,
   customTransform: PropTypes.string,
-  children: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ])
+  children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 }
 
 StatusBadge.defaultProps = {
   stateColor: undefined,
   customTransform: undefined,
-  children: ''
+  children: '',
 }
 
 StatusBadge.displayName = 'StatusBadge'

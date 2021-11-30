@@ -23,20 +23,20 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => ZoneModel.getState(row)?.name,
+    accessor: (row) => ZoneModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'ENDPOINT',
     id: 'ENDPOINT',
-    accessor: row => row?.TEMPLATE?.ENDPOINT,
-    disableSortBy: true
-  }
-
+    accessor: (row) => row?.TEMPLATE?.ENDPOINT,
+    disableSortBy: true,
+  },
 ]

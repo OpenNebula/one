@@ -28,9 +28,10 @@ import { camelCase } from 'client/utils'
 import TabProvider from 'client/components/Tabs/TabProvider'
 import Info from 'client/components/Tabs/User/Info'
 
-const getTabComponent = tabName => ({
-  info: Info
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    info: Info,
+  }[tabName])
 
 const UserTabs = memo(({ id }) => {
   const { getUser } = useUserApi()
@@ -48,22 +49,26 @@ const UserTabs = memo(({ id }) => {
   useEffect(() => {
     const infoTabs = getResourceView('USER')?.['info-tabs'] ?? {}
 
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
+    setTabs(() =>
+      Object.entries(infoTabs)
+        ?.filter(([_, { enabled } = {}]) => !!enabled)
+        ?.map(([tabName, tabProps]) => {
+          const camelName = camelCase(tabName)
+          const TabContent = getTabComponent(camelName)
 
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+          return (
+            TabContent && {
+              name: camelName,
+              renderContent: (props) => TabContent({ ...props, tabProps }),
+            }
+          )
+        })
+        ?.filter(Boolean)
+    )
   }, [view])
 
   if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+    return <LinearProgress color="secondary" style={{ width: '100%' }} />
   }
 
   return (
@@ -74,7 +79,7 @@ const UserTabs = memo(({ id }) => {
 })
 
 UserTabs.propTypes = {
-  id: PropTypes.string.isRequired
+  id: PropTypes.string.isRequired,
 }
 
 UserTabs.displayName = 'UserTabs'

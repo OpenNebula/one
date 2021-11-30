@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createForm } from 'client/utils'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/CreateDiskSnapshotForm/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/CreateDiskSnapshotForm/schema'
 
 const CreateDiskSnapshotForm = createForm(SCHEMA, FIELDS)
 

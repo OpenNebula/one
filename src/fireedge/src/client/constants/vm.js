@@ -19,415 +19,496 @@ import COLOR from 'client/constants/color'
 
 /** @type {STATES.StateInfo[]} Virtual machine states */
 export const VM_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.INIT,
     color: COLOR.info.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 1
+  {
+    // 1
     name: STATES.PENDING,
     color: COLOR.info.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 2
+  {
+    // 2
     name: STATES.HOLD,
     color: COLOR.error.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 3
+  {
+    // 3
     name: STATES.ACTIVE,
     color: COLOR.success.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 4
+  {
+    // 4
     name: STATES.STOPPED,
     color: COLOR.error.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 5
+  {
+    // 5
     name: STATES.SUSPENDED,
     color: COLOR.error.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 6
+  {
+    // 6
     name: STATES.DONE,
     color: COLOR.debug.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 7
+  {
+    // 7
     name: STATES.FAILED,
     color: COLOR.error.dark,
-    meaning: ''
+    meaning: '',
   },
-  { // 8
+  {
+    // 8
     name: STATES.POWEROFF,
     color: COLOR.error.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 9
+  {
+    // 9
     name: STATES.UNDEPLOYED,
     color: COLOR.error.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 10
+  {
+    // 10
     name: STATES.CLONING,
     color: COLOR.info.light,
-    meaning: ''
+    meaning: '',
   },
-  { // 11
+  {
+    // 11
     name: STATES.CLONING_FAILURE,
     color: COLOR.error.dark,
-    meaning: ''
-  }
+    meaning: '',
+  },
 ]
 
 /** @type {STATES.StateInfo[]} Virtual machine lcm states */
 export const VM_LCM_STATES = [
-  { // 0
+  {
+    // 0
     name: STATES.LCM_INIT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 1
+  {
+    // 1
     name: STATES.PROLOG,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 2
+  {
+    // 2
     name: STATES.BOOT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 3
+  {
+    // 3
     name: STATES.RUNNING,
     color: COLOR.success.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 4
+  {
+    // 4
     name: STATES.MIGRATE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 5
+  {
+    // 5
     name: STATES.SAVE_STOP,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 6
+  {
+    // 6
     name: STATES.SAVE_SUSPEND,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 7
+  {
+    // 7
     name: STATES.SAVE_MIGRATE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 8
+  {
+    // 8
     name: STATES.PROLOG_MIGRATE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 9
+  {
+    // 9
     name: STATES.PROLOG_RESUME,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 10
+  {
+    // 10
     name: STATES.EPILOG_STOP,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 11
+  {
+    // 11
     name: STATES.EPILOG,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 12
+  {
+    // 12
     name: STATES.SHUTDOWN,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 13
+  {
+    // 13
     name: STATES.CANCEL,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 14
+  {
+    // 14
     name: STATES.FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 15
+  {
+    // 15
     name: STATES.CLEANUP_RESUBMIT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 16
+  {
+    // 16
     name: STATES.UNKNOWN,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 17
+  {
+    // 17
     name: STATES.HOTPLUG,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 18
+  {
+    // 18
     name: STATES.SHUTDOWN_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 19
+  {
+    // 19
     name: STATES.BOOT_UNKNOWN,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 20
+  {
+    // 20
     name: STATES.BOOT_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 21
+  {
+    // 21
     name: STATES.BOOT_SUSPENDED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 22
+  {
+    // 22
     name: STATES.BOOT_STOPPED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 23
+  {
+    // 23
     name: STATES.CLEANUP_DELETE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 24
+  {
+    // 24
     name: STATES.HOTPLUG_SNAPSHOT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 25
+  {
+    // 25
     name: STATES.HOTPLUG_NIC,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 26
+  {
+    // 26
     name: STATES.HOTPLUG_SAVEAS,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 27
+  {
+    // 27
     name: STATES.HOTPLUG_SAVEAS_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 28
+  {
+    // 28
     name: STATES.HOTPLUG_SAVEAS_SUSPENDED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 29
+  {
+    // 29
     name: STATES.SHUTDOWN_UNDEPLOY,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 30
+  {
+    // 30
     name: STATES.EPILOG_UNDEPLOY,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 31
+  {
+    // 31
     name: STATES.PROLOG_UNDEPLOY,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 32
+  {
+    // 32
     name: STATES.BOOT_UNDEPLOY,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 33
+  {
+    // 33
     name: STATES.HOTPLUG_PROLOG_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 34
+  {
+    // 34
     name: STATES.HOTPLUG_EPILOG_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 35
+  {
+    // 35
     name: STATES.BOOT_MIGRATE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 36
+  {
+    // 36
     name: STATES.BOOT_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 37
+  {
+    // 37
     name: STATES.BOOT_MIGRATE_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 38
+  {
+    // 38
     name: STATES.PROLOG_MIGRATE_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 39
+  {
+    // 39
     name: STATES.PROLOG_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 40
+  {
+    // 40
     name: STATES.EPILOG_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 41
+  {
+    // 41
     name: STATES.EPILOG_STOP_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 42
+  {
+    // 42
     name: STATES.EPILOG_UNDEPLOY_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 43
+  {
+    // 43
     name: STATES.PROLOG_MIGRATE_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 44
+  {
+    // 44
     name: STATES.PROLOG_MIGRATE_POWEROFF_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 45
+  {
+    // 45
     name: STATES.PROLOG_MIGRATE_SUSPEND,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 46
+  {
+    // 46
     name: STATES.PROLOG_MIGRATE_SUSPEND_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 47
+  {
+    // 47
     name: STATES.BOOT_UNDEPLOY_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 48
+  {
+    // 48
     name: STATES.BOOT_STOPPED_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 49
+  {
+    // 49
     name: STATES.PROLOG_RESUME_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 50
+  {
+    // 50
     name: STATES.PROLOG_UNDEPLOY_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 51
+  {
+    // 51
     name: STATES.DISK_SNAPSHOT_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 52
+  {
+    // 52
     name: STATES.DISK_SNAPSHOT_REVERT_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 53
+  {
+    // 53
     name: STATES.DISK_SNAPSHOT_DELETE_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 54
+  {
+    // 54
     name: STATES.DISK_SNAPSHOT_SUSPENDED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 55
+  {
+    // 55
     name: STATES.DISK_SNAPSHOT_REVERT_SUSPENDED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 56
+  {
+    // 56
     name: STATES.DISK_SNAPSHOT_DELETE_SUSPENDED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 57
+  {
+    // 57
     name: STATES.DISK_SNAPSHOT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 58
+  {
+    // 58
     name: STATES.DISK_SNAPSHOT_REVERT,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 59
+  {
+    // 59
     name: STATES.DISK_SNAPSHOT_DELETE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 60
+  {
+    // 60
     name: STATES.PROLOG_MIGRATE_UNKNOWN,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 61
+  {
+    // 61
     name: STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 62
+  {
+    // 62
     name: STATES.DISK_RESIZE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 63
+  {
+    // 63
     name: STATES.DISK_RESIZE_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 64
+  {
+    // 64
     name: STATES.DISK_RESIZE_UNDEPLOYED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 65
+  {
+    // 65
     name: STATES.HOTPLUG_NIC_POWEROFF,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 66
+  {
+    // 66
     name: STATES.HOTPLUG_RESIZE,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 67
+  {
+    // 67
     name: STATES.HOTPLUG_SAVEAS_UNDEPLOYED,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
-  { // 68
+  {
+    // 68
     name: STATES.HOTPLUG_SAVEAS_STOPPED,
     color: COLOR.info.main,
-    meaning: ''
-  }
+    meaning: '',
+  },
 ]
 
 /** @enum {string} Virtual machine actions */
@@ -504,7 +585,7 @@ export const VM_ACTIONS = {
   CHARTER_CREATE: 'charter_create',
 
   // CONFIGURATION
-  UPDATE_CONF: 'update_configuration'
+  UPDATE_CONF: 'update_configuration',
 }
 
 /** @enum {string} Virtual machine actions by state */
@@ -514,7 +595,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.HOLD,
     STATES.STOPPED,
     STATES.UNDEPLOYED,
-    STATES.UNKNOWN
+    STATES.UNKNOWN,
   ],
   [VM_ACTIONS.CREATE_APP_DIALOG]: [STATES.POWEROFF],
   [VM_ACTIONS.HOLD]: [STATES.PENDING],
@@ -526,7 +607,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.SUSPENDED,
     STATES.POWEROFF,
     STATES.RUNNING,
-    STATES.UNKNOWN
+    STATES.UNKNOWN,
   ],
   [VM_ACTIONS.POWEROFF_HARD]: [STATES.RUNNING, STATES.UNKNOWN],
   [VM_ACTIONS.POWEROFF]: [STATES.RUNNING, STATES.UNKNOWN],
@@ -541,7 +622,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.POWEROFF,
     STATES.UNDEPLOYED,
     STATES.CLONING,
-    STATES.CLONING_FAILURE
+    STATES.CLONING_FAILURE,
   ],
   [VM_ACTIONS.RELEASE]: [STATES.HOLD],
   [VM_ACTIONS.RESCHED]: [STATES.POWEROFF, STATES.RUNNING, STATES.UNKNOWN],
@@ -550,7 +631,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.SUSPENDED,
     STATES.POWEROFF,
     STATES.UNDEPLOYED,
-    STATES.UNKNOWN
+    STATES.UNKNOWN,
   ],
   [VM_ACTIONS.SAVE_AS_TEMPLATE]: [STATES.POWEROFF],
   [VM_ACTIONS.STOP]: [STATES.SUSPENDED, STATES.RUNNING],
@@ -566,7 +647,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.CLONING,
     STATES.CLONING_FAILURE,
     STATES.RUNNING,
-    STATES.UNKNOWN
+    STATES.UNKNOWN,
   ],
   [VM_ACTIONS.TERMINATE]: [
     STATES.RUNNING,
@@ -584,7 +665,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.BOOT_STOPPED_FAILURE,
     STATES.PROLOG_RESUME_FAILURE,
     STATES.PROLOG_UNDEPLOY_FAILURE,
-    STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE
+    STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE,
   ],
   [VM_ACTIONS.UNDEPLOY_HARD]: [STATES.POWEROFF, STATES.RUNNING, STATES.UNKNOWN],
   [VM_ACTIONS.UNDEPLOY]: [STATES.POWEROFF, STATES.RUNNING, STATES.UNKNOWN],
@@ -615,16 +696,24 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.POWEROFF,
     STATES.UNDEPLOYED,
     STATES.CLONING,
-    STATES.CLONING_FAILURE
+    STATES.CLONING_FAILURE,
   ],
 
   // STORAGE
   [VM_ACTIONS.ATTACH_DISK]: [STATES.POWEROFF, STATES.RUNNING],
   [VM_ACTIONS.DETACH_DISK]: [STATES.POWEROFF, STATES.RUNNING],
-  [VM_ACTIONS.SNAPSHOT_DISK_CREATE]: [STATES.SUSPENDED, STATES.POWEROFF, STATES.RUNNING],
+  [VM_ACTIONS.SNAPSHOT_DISK_CREATE]: [
+    STATES.SUSPENDED,
+    STATES.POWEROFF,
+    STATES.RUNNING,
+  ],
   [VM_ACTIONS.SNAPSHOT_DISK_RENAME]: [],
   [VM_ACTIONS.SNAPSHOT_DISK_REVERT]: [STATES.SUSPENDED, STATES.POWEROFF],
-  [VM_ACTIONS.SNAPSHOT_DISK_DELETE]: [STATES.SUSPENDED, STATES.POWEROFF, STATES.RUNNING],
+  [VM_ACTIONS.SNAPSHOT_DISK_DELETE]: [
+    STATES.SUSPENDED,
+    STATES.POWEROFF,
+    STATES.RUNNING,
+  ],
   [VM_ACTIONS.RESIZE_DISK]: [STATES.POWEROFF, STATES.RUNNING],
   [VM_ACTIONS.DISK_SAVEAS]: [STATES.SUSPENDED, STATES.POWEROFF, STATES.RUNNING],
 
@@ -674,8 +763,8 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.PROLOG_UNDEPLOY_FAILURE,
     STATES.DISK_SNAPSHOT_POWEROFF,
     STATES.DISK_SNAPSHOT_REVERT_POWEROFF,
-    STATES.DISK_SNAPSHOT_DELETE_POWEROFF
-  ]
+    STATES.DISK_SNAPSHOT_DELETE_POWEROFF,
+  ],
 }
 
 /** @enum {string} Hypervisors */
@@ -683,7 +772,7 @@ export const HYPERVISORS = {
   kvm: 'kvm',
   vcenter: 'vcenter',
   firecracker: 'firecracker',
-  lxc: 'lxc'
+  lxc: 'lxc',
 }
 
 /** @type {string[]} Actions that can be scheduled */
@@ -706,7 +795,7 @@ export const VM_ACTIONS_WITH_SCHEDULE = [
   VM_ACTIONS.SNAPSHOT_DISK_DELETE,
   VM_ACTIONS.SNAPSHOT_CREATE,
   VM_ACTIONS.SNAPSHOT_REVERT,
-  VM_ACTIONS.SNAPSHOT_DELETE
+  VM_ACTIONS.SNAPSHOT_DELETE,
 ]
 
 /**
@@ -813,7 +902,7 @@ export const HISTORY_ACTIONS = [
   'alias-attach',
   'alias-detach',
   'poweroff-migrate',
-  'poweroff-hard-migrate'
+  'poweroff-hard-migrate',
 ]
 
 /**
@@ -834,7 +923,7 @@ export const NIC_ALIAS_IP_ATTRS = [
   'IP6_ULA',
   'VROUTER_IP',
   'VROUTER_IP6_GLOBAL',
-  'VROUTER_IP6_ULA'
+  'VROUTER_IP6_ULA',
 ]
 
 /**
@@ -855,5 +944,5 @@ export const EXTERNAL_IP_ATTRS = [
   'AWS_PUBLIC_IP_ADDRESS',
   'AWS_PRIVATE_IP_ADDRESS',
   'AZ_IPADDRESS',
-  'SL_PRIMARYIPADDRESS'
+  'SL_PRIMARYIPADDRESS',
 ]

@@ -26,12 +26,12 @@ export const STEP_ID = 'image'
 const Content = ({ data, setFormData }) => {
   const { ID } = data?.[0] ?? {}
 
-  const {
-    handleSelect,
-    handleClear
-  } = useListForm({ key: STEP_ID, setList: setFormData })
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     original.ID !== undefined ? handleSelect(original) : handleClear()
@@ -52,12 +52,12 @@ const ImageStep = () => ({
   id: STEP_ID,
   label: T.Image,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ImageStep

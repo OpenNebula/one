@@ -23,7 +23,7 @@ import {
   useTable,
   useGlobalFilter,
   useRowSelect,
-  useFlexLayout
+  useFlexLayout,
 } from 'react-table'
 
 import { ListVirtualized } from 'client/components/List'
@@ -31,17 +31,17 @@ import Toolbar from 'client/components/Tables/Virtualized/toolbar'
 import Header from 'client/components/Tables/Virtualized/header'
 import Row from 'client/components/Tables/Virtualized/row'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   table: {
     height: '100%',
     overflow: 'auto',
     border: `1px solid ${theme.palette.action.disabledBackground}`,
-    borderRadius: 6
+    borderRadius: 6,
   },
   body: {
     '& *[role=row]': {
@@ -57,12 +57,12 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.text.primary,
       borderTop: `1px solid ${theme.palette.action.disabledBackground}`,
       '&:hover': {
-        backgroundColor: theme.palette.action.hover
+        backgroundColor: theme.palette.action.hover,
       },
       '&:first-of-type': {
-        borderTopColor: 'transparent'
-      }
-    }
+        borderTopColor: 'transparent',
+      },
+    },
   },
   toolbar: {
     ...theme.typography.body1,
@@ -72,14 +72,14 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '1em'
+    gap: '1em',
   },
   total: {
     display: 'flex',
     alignItems: 'center',
     gap: '1em',
-    transition: 200
-  }
+    transition: 200,
+  },
 }))
 
 const DefaultCell = memo(({ value }) => value ?? '--')
@@ -91,14 +91,17 @@ const VirtualizedTable = ({
   columns,
   isLoading,
   canFetchMore,
-  fetchMore
+  fetchMore,
 }) => {
   const classes = useStyles()
 
-  const defaultColumn = useMemo(() => ({
-    // Filter: DefaultFilter,
-    Cell: DefaultCell
-  }), [])
+  const defaultColumn = useMemo(
+    () => ({
+      // Filter: DefaultFilter,
+      Cell: DefaultCell,
+    }),
+    []
+  )
 
   const useTableProps = useTable(
     { columns, data, defaultColumn },
@@ -111,12 +114,11 @@ const VirtualizedTable = ({
 
   return (
     <Box {...getTableProps()} className={classes.root}>
-
       <div className={classes.toolbar}>
         <Toolbar useTableProps={useTableProps} />
         <div className={classes.total}>
-          {isLoading && <CircularProgress size='1em' color='secondary' />}
-            Total loaded: {useTableProps.rows.length}
+          {isLoading && <CircularProgress size="1em" color="secondary" />}
+          Total loaded: {useTableProps.rows.length}
         </div>
       </div>
 
@@ -131,12 +133,14 @@ const VirtualizedTable = ({
             isLoading={isLoading}
             fetchMore={fetchMore}
           >
-            {virtualItems => virtualItems?.map(virtualRow => (
-              <Row key={virtualRow.index}
-                virtualRow={virtualRow}
-                useTableProps={useTableProps}
-              />
-            ))
+            {(virtualItems) =>
+              virtualItems?.map((virtualRow) => (
+                <Row
+                  key={virtualRow.index}
+                  virtualRow={virtualRow}
+                  useTableProps={useTableProps}
+                />
+              ))
             }
           </ListVirtualized>
         </div>
@@ -150,7 +154,7 @@ VirtualizedTable.propTypes = {
   columns: PropTypes.array,
   isLoading: PropTypes.bool,
   canFetchMore: PropTypes.bool,
-  fetchMore: PropTypes.func
+  fetchMore: PropTypes.func,
 }
 
 export default VirtualizedTable

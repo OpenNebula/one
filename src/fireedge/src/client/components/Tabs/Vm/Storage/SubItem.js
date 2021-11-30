@@ -38,7 +38,7 @@ const StorageSubItem = ({ disk, snapshot = {}, actions = [] }) => {
     ACTIVE,
     DATE,
     SIZE: SNAPSHOT_SIZE,
-    MONITOR_SIZE: SNAPSHOT_MONITOR_SIZE
+    MONITOR_SIZE: SNAPSHOT_MONITOR_SIZE,
   } = snapshot
 
   const isActive = Helper.stringToBoolean(ACTIVE)
@@ -51,19 +51,17 @@ const StorageSubItem = ({ disk, snapshot = {}, actions = [] }) => {
     : '-'
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>{NAME}</Typography>
+          <Typography component="span">{NAME}</Typography>
           <span className={classes.labels}>
             {isActive && <StatusChip text={<Translate word={T.Active} />} />}
             <StatusChip text={<Translate word={T.Snapshot} />} />
           </span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>
-            {`#${ID} ${timeAgo}`}
-          </span>
+          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
           <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
             <ModernTv />
             <span>{` ${monitorSize}/${size}`}</span>
@@ -93,7 +91,7 @@ const StorageSubItem = ({ disk, snapshot = {}, actions = [] }) => {
 StorageSubItem.propTypes = {
   disk: PropTypes.object.isRequired,
   snapshot: PropTypes.object.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 StorageSubItem.displayName = 'StorageSubItem'

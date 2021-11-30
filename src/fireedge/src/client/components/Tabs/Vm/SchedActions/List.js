@@ -20,19 +20,15 @@ import SchedulingItem from 'client/components/Tabs/Vm/SchedActions/Item'
 
 const SchedulingList = ({ scheduling, actions }) => (
   <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
-    {scheduling.map(schedule => (
-      <SchedulingItem
-        key={schedule.ID}
-        schedule={schedule}
-        actions={actions}
-      />
+    {scheduling.map((schedule) => (
+      <SchedulingItem key={schedule.ID} schedule={schedule} actions={actions} />
     ))}
   </div>
 )
 
 SchedulingList.propTypes = {
   scheduling: PropTypes.array,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 SchedulingList.displayName = 'SchedulingList'

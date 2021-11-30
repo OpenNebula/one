@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const VDC_ALLOCATE = 'vdc.allocate'
@@ -52,7 +52,7 @@ const Actions = {
   VDC_ADDVNET,
   VDC_DELVNET,
   VDC_INFO,
-  VDC_POOL_INFO
+  VDC_POOL_INFO,
 }
 
 module.exports = {
@@ -64,13 +64,13 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         cluster: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VDC_DELETE]: {
       // inspected
@@ -78,9 +78,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_UPDATE]: {
       // inspected
@@ -88,17 +88,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_RENAME]: {
       // inspected
@@ -106,13 +106,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VDC_INFO]: {
       // inspected
@@ -120,18 +120,18 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VDC_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [VDC_ADDGROUP]: {
       // inspected
@@ -139,13 +139,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         group: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_DELGROUP]: {
       // inspected
@@ -153,13 +153,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         group: {
           from: query,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_ADDCLUSTER]: {
       // inspected
@@ -167,17 +167,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         cluster: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_DELCLUSTER]: {
       // inspected
@@ -185,17 +185,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: query,
-          default: 0
+          default: 0,
         },
         cluster: {
           from: query,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_ADDHOST]: {
       // inspected
@@ -203,17 +203,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         host: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_DELHOST]: {
       // inspected
@@ -221,17 +221,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         host: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_ADDDATASTORE]: {
       // inspected
@@ -239,17 +239,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         datastore: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_DELDATASTORE]: {
       // inspected
@@ -257,17 +257,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         datastore: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_ADDVNET]: {
       // inspected
@@ -275,17 +275,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         vnet: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VDC_DELVNET]: {
       // inspected
@@ -293,17 +293,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         zone: {
           from: query,
-          default: 0
+          default: 0,
         },
         vnet: {
           from: query,
-          default: 0
-        }
-      }
-    }
-  }
+          default: 0,
+        },
+      },
+    },
+  },
 }

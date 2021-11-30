@@ -29,18 +29,25 @@ import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
 const MarketplacesTable = ({ filter, ...props }) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('MARKETPLACE')?.filters,
-    columns: MarketplaceColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('MARKETPLACE')?.filters,
+        columns: MarketplaceColumns,
+      }),
+    [view]
+  )
 
   const marketplaces = useMarketplace()
   const { getMarketplaces } = useMarketplaceApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaces)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getMarketplaces)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (marketplaces?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -49,12 +56,13 @@ const MarketplacesTable = ({ filter, ...props }) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={typeof filter === 'function'
-        ? marketplaces?.filter(filter)
-        : marketplaces
+      data={
+        typeof filter === 'function'
+          ? marketplaces?.filter(filter)
+          : marketplaces
       }
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={MarketplaceRow}
       {...props}
     />
@@ -63,7 +71,7 @@ const MarketplacesTable = ({ filter, ...props }) => {
 
 MarketplacesTable.propTypes = {
   filter: PropTypes.func,
-  ...EnhancedTable.propTypes
+  ...EnhancedTable.propTypes,
 }
 
 MarketplacesTable.displayName = 'MarketplacesTable'

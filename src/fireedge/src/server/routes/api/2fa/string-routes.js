@@ -17,7 +17,7 @@
 const TFA = 'tfa'
 
 const Actions = {
-  TFA
+  TFA,
 }
 
 module.exports = Actions

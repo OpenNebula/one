@@ -29,7 +29,9 @@ const NAME = {
     When creating several VMs, the wildcard %%idx will be
     replaced with a number starting from 0`,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().default(() => undefined)
+  validation: string()
+    .trim()
+    .default(() => undefined),
 }
 
 const INSTANCES = {
@@ -41,7 +43,7 @@ const INSTANCES = {
     .min(1, 'Instances minimum is 1')
     .integer('Instances should be an integer number')
     .required('Instances field is required')
-    .default(() => 1)
+    .default(() => 1),
 }
 
 const HOLD = {
@@ -55,7 +57,9 @@ const HOLD = {
       const actions = getResourceView('VM')?.actions
       const actionsAvailable = getActionsAvailable(actions)
 
-      return !actionsAvailable?.includes?.(VM_ACTIONS.HOLD) && INPUT_TYPES.HIDDEN
+      return (
+        !actionsAvailable?.includes?.(VM_ACTIONS.HOLD) && INPUT_TYPES.HIDDEN
+      )
     }, [view])
   },
   tooltip: `
@@ -63,7 +67,7 @@ const HOLD = {
     The scheduler will not deploy VMs in this state.
     It can be released later, or deployed manually.`,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const PERSISTENT = {
@@ -74,12 +78,7 @@ const PERSISTENT = {
     Creates a private persistent copy of the template
     plus any image defined in DISK, and instantiates that copy.`,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
-export const FIELDS = [
-  NAME,
-  INSTANCES,
-  HOLD,
-  PERSISTENT
-]
+export const FIELDS = [NAME, INSTANCES, HOLD, PERSISTENT]

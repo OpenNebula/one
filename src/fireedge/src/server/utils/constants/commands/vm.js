@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const VM_ALLOCATE = 'vm.allocate'
@@ -94,7 +94,7 @@ const Actions = {
   VM_POOL_MONITORING,
   VM_POOL_ACCOUNTING,
   VM_POOL_SHOWBACK,
-  VM_POOL_CALCULATE_SHOWBACK
+  VM_POOL_CALCULATE_SHOWBACK,
 }
 
 module.exports = {
@@ -106,13 +106,13 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         status: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VM_DEPLOY]: {
       // inspected
@@ -120,21 +120,21 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         host: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         enforce: {
           from: postBody,
-          default: false
+          default: false,
         },
         datastore: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_ACTION]: {
       // inspected
@@ -142,13 +142,13 @@ module.exports = {
       params: {
         action: {
           from: postBody,
-          default: 'stop'
+          default: 'stop',
         },
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_MIGRATE]: {
       // inspected
@@ -156,29 +156,29 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         host: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         live: {
           from: postBody,
-          default: false
+          default: false,
         },
         enforce: {
           from: postBody,
-          default: false
+          default: false,
         },
         datastore: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         type: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_DISK_SAVEAS]: {
       // inspected
@@ -186,25 +186,25 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
+          default: '',
         },
         type: {
           from: postBody,
-          default: ''
+          default: '',
         },
         snapshot: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_DISK_SNAP_CREATE]: {
       // inspected
@@ -212,17 +212,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_DISK_SNAP_DELETE]: {
       // inspected
@@ -230,17 +230,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: query,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: query,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_DISK_SNAP_REVERT]: {
       // inspected
@@ -248,17 +248,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_DISK_SNAP_RENAME]: {
       // inspected
@@ -266,21 +266,21 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_DISK_ATTACH]: {
       // inspected
@@ -288,13 +288,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_DISK_DETACH]: {
       // inspected
@@ -302,13 +302,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_DISK_RESIZE]: {
       // inspected
@@ -316,17 +316,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         disk: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         size: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_NIC_ATTACH]: {
       // inspected
@@ -334,13 +334,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_NIC_DETACH]: {
       // inspected
@@ -348,13 +348,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         nic: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_CHMOD]: {
       // inspected
@@ -362,45 +362,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_CHOWN]: {
       // inspected
@@ -408,17 +408,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         user: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         group: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_RENAME]: {
       // inspected
@@ -426,13 +426,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_SNAP_CREATE]: {
       // inspected
@@ -440,13 +440,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_SNAP_REVERT]: {
       // inspected
@@ -454,13 +454,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_SNAP_DELETE]: {
       // inspected
@@ -468,13 +468,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         snapshot: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_RESIZE]: {
       // inspected
@@ -482,17 +482,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         enforce: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VM_UPDATE]: {
       // inspected
@@ -500,17 +500,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_CONF_UPDATE]: {
       // inspected
@@ -518,13 +518,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: resource,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_RECOVER]: {
       // inspected
@@ -532,13 +532,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         operation: {
           from: postBody,
-          default: 1
-        }
-      }
+          default: 1,
+        },
+      },
     },
     [VM_INFO]: {
       // inspected
@@ -546,13 +546,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VM_MONITORING]: {
       // inspected
@@ -560,9 +560,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_LOCK]: {
       // inspected
@@ -570,17 +570,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         level: {
           from: postBody,
-          default: 4
+          default: 4,
         },
         test: {
           from: postBody,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [VM_UNLOCK]: {
       // inspected
@@ -588,52 +588,52 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_SCHED_ADD]: {
       httpMethod: POST,
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_SCHED_UPDATE]: {
       httpMethod: PUT,
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         id_sched: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_SCHED_DELETE]: {
       httpMethod: DELETE,
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         id_sched: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [VM_POOL_INFO]: {
       // inspected
@@ -641,25 +641,25 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -2
+          default: -2,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
+          default: -1,
         },
         state: {
           from: query,
-          default: -2
+          default: -2,
         },
         filterByKey: {
           from: query,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_POOL_INFO_EXTENDED]: {
       // inspected
@@ -667,25 +667,25 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -2
+          default: -2,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
+          default: -1,
         },
         state: {
           from: query,
-          default: -2
+          default: -2,
         },
         filterBykey: {
           from: query,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [VM_POOL_MONITORING]: {
       // inspected
@@ -693,9 +693,9 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -2
-        }
-      }
+          default: -2,
+        },
+      },
     },
     [VM_POOL_ACCOUNTING]: {
       // inspected
@@ -703,17 +703,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -2
+          default: -2,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_POOL_SHOWBACK]: {
       // inspected
@@ -721,25 +721,25 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -2
+          default: -2,
         },
         startMonth: {
           filter: query,
-          default: -1
+          default: -1,
         },
         startYear: {
           filter: query,
-          default: -1
+          default: -1,
         },
         endMonth: {
           filter: query,
-          default: -1
+          default: -1,
         },
         endYear: {
           filter: query,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [VM_POOL_CALCULATE_SHOWBACK]: {
       // inspected
@@ -747,21 +747,21 @@ module.exports = {
       params: {
         startMonth: {
           filter: query,
-          default: -1
+          default: -1,
         },
         startYear: {
           filter: query,
-          default: -1
+          default: -1,
         },
         endMonth: {
           filter: query,
-          default: -1
+          default: -1,
         },
         endYear: {
           filter: query,
-          default: -1
-        }
-      }
-    }
-  }
+          default: -1,
+        },
+      },
+    },
+  },
 }

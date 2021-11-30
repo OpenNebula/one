@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import * as VirtualNetworkModel from 'client/models/VirtualNetwork'
 
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -27,25 +28,24 @@ export default [
   {
     Header: 'Total Clusters',
     id: 'CLUSTERS',
-    accessor: row => getTotalOfResources(row?.CLUSTERS),
-    sortType: 'number'
+    accessor: (row) => getTotalOfResources(row?.CLUSTERS),
+    sortType: 'number',
   },
   {
     Header: 'Used Leases',
     accessor: 'USED_LEASES',
-    sortType: 'number'
+    sortType: 'number',
   },
   {
     Header: 'Total Leases',
     id: 'TOTAL_LEASES',
-    accessor: row => VirtualNetworkModel.getTotalLeases(row),
-    sortType: 'number'
+    accessor: (row) => VirtualNetworkModel.getTotalLeases(row),
+    sortType: 'number',
   },
   {
     Header: 'Provision ID',
     id: 'PROVISION_ID',
-    accessor: row => row?.TEMPLATE?.PROVISION?.ID,
-    disableSortBy: true
-  }
-
+    accessor: (row) => row?.TEMPLATE?.PROVISION?.ID,
+    disableSortBy: true,
+  },
 ]

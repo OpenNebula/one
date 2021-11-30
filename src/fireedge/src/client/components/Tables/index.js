@@ -15,7 +15,9 @@
  * ------------------------------------------------------------------------- */
 import ClustersTable from 'client/components/Tables/Clusters'
 import DatastoresTable from 'client/components/Tables/Datastores'
-import EnhancedTable, { EnhancedTableProps } from 'client/components/Tables/Enhanced'
+import EnhancedTable, {
+  EnhancedTableProps,
+} from 'client/components/Tables/Enhanced'
 import GroupsTable from 'client/components/Tables/Groups'
 import HostsTable from 'client/components/Tables/Hosts'
 import ImagesTable from 'client/components/Tables/Images'
@@ -36,7 +38,6 @@ export {
   EnhancedTable,
   EnhancedTableProps,
   VirtualizedTable,
-
   ClustersTable,
   DatastoresTable,
   GroupsTable,
@@ -50,5 +51,5 @@ export {
   VNetworksTable,
   VNetworkTemplatesTable,
   VRoutersTable,
-  ZonesTable
+  ZonesTable,
 }

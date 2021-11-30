@@ -18,7 +18,7 @@ import { defaults } from 'server/utils/constants'
 
 const { from: resourceFrom } = defaults
 
-const getQueries = params =>
+const getQueries = (params) =>
   Object.entries(params)
     ?.filter(
       ([, { from, value }]) =>
@@ -27,13 +27,13 @@ const getQueries = params =>
     ?.map(([name, { value }]) => `${name}=${encodeURI(value)}`)
     ?.join('&')
 
-const getResources = params =>
+const getResources = (params) =>
   Object.values(params)
     ?.filter(({ from }) => from === resourceFrom.resource)
     ?.map(({ value }) => value)
     ?.join('/')
 
-const getDataBody = params =>
+const getDataBody = (params) =>
   Object.entries(params)
     ?.filter(([, { from }]) => from === resourceFrom.postBody)
     ?.reduce((acc, [name, { value }]) => ({ ...acc, [name]: value }), {})
@@ -51,14 +51,13 @@ export const requestConfig = (data, command) => {
   const { name, httpMethod, params = {} } = command
 
   /* Spread 'from' values in current params */
-  const mappedParams =
-    Object.entries(params)?.reduce(
-      (params, [paraName, { from }]) => ({
-        ...params,
-        [paraName]: { from, value: data[paraName] }
-      }),
-      {}
-    )
+  const mappedParams = Object.entries(params)?.reduce(
+    (params, [paraName, { from }]) => ({
+      ...params,
+      [paraName]: { from, value: data[paraName] },
+    }),
+    {}
+  )
 
   const queries = getQueries(mappedParams)
   const resources = getResources(mappedParams)
@@ -69,6 +68,6 @@ export const requestConfig = (data, command) => {
   return {
     url: `${url}/${resources}?${queries}`,
     data: body,
-    method: httpMethod
+    method: httpMethod,
   }
 }

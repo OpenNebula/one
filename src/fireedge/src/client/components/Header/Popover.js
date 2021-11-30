@@ -29,114 +29,117 @@ import {
   Fade,
   Box,
   buttonClasses,
-  ClickAwayListener
+  ClickAwayListener,
 } from '@mui/material'
 
-const HeaderPopover = memo(({
-  id,
-  icon,
-  buttonLabel,
-  buttonProps,
-  headerTitle,
-  popperProps,
-  children
-}) => {
-  const { zIndex } = useTheme()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+const HeaderPopover = memo(
+  ({
+    id,
+    icon,
+    buttonLabel,
+    buttonProps,
+    headerTitle,
+    popperProps,
+    children,
+  }) => {
+    const { zIndex } = useTheme()
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
-  const [open, setOpen] = useState(false)
-  const [anchorEl, setAnchorEl] = useState(null)
+    const [open, setOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = useState(null)
 
-  const handleClick = event => {
-    setAnchorEl(isMobile ? window.document : event.currentTarget)
-    setOpen((previousOpen) => !previousOpen)
+    const handleClick = (event) => {
+      setAnchorEl(isMobile ? window.document : event.currentTarget)
+      setOpen((previousOpen) => !previousOpen)
+    }
+
+    const handleClose = () => setOpen(false)
+
+    const mobileStyles = useMemo(
+      () => ({
+        ...(isMobile && {
+          width: '100%',
+          height: '100%',
+        }),
+      }),
+      [isMobile]
+    )
+
+    const canBeOpen = open && Boolean(anchorEl)
+    const hasId = canBeOpen ? id : undefined
+
+    useEffect(() => {
+      !isMobile && open && setOpen(false)
+    }, [isMobile])
+
+    return (
+      <>
+        <Button
+          aria-haspopup
+          aria-describedby={hasId}
+          aria-expanded={open ? 'true' : 'false'}
+          onClick={handleClick}
+          size="small"
+          endIcon={<CaretIcon />}
+          startIcon={icon}
+          sx={{
+            [`.${buttonClasses.startIcon}`]: {
+              mr: !isMobile && buttonLabel ? 1 : 0,
+            },
+          }}
+          {...buttonProps}
+        >
+          {!isMobile && buttonLabel}
+        </Button>
+        <Popper
+          id={hasId}
+          open={open}
+          anchorEl={anchorEl}
+          transition
+          placement="bottom-end"
+          keepMounted={false}
+          style={{
+            zIndex: zIndex.appBar + 1,
+            ...mobileStyles,
+          }}
+          {...popperProps}
+        >
+          {({ TransitionProps }) => (
+            <ClickAwayListener onClickAway={handleClose}>
+              <Fade {...TransitionProps} timeout={300}>
+                <Paper
+                  variant="outlined"
+                  style={mobileStyles}
+                  sx={{ p: headerTitle ? 2 : 0 }}
+                >
+                  {(headerTitle || isMobile) && (
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      borderBottom="1px solid"
+                      borderColor="divider"
+                    >
+                      {headerTitle && (
+                        <Typography variant="body1">{headerTitle}</Typography>
+                      )}
+                      {isMobile && (
+                        <IconButton onClick={handleClose} size="large">
+                          <CloseIcon />
+                        </IconButton>
+                      )}
+                    </Box>
+                  )}
+                  {children({ handleClose: handleClose })}
+                </Paper>
+              </Fade>
+            </ClickAwayListener>
+          )}
+        </Popper>
+      </>
+    )
   }
-
-  const handleClose = () => setOpen(false)
-
-  const mobileStyles = useMemo(() => ({
-    ...(isMobile && {
-      width: '100%',
-      height: '100%'
-    })
-  }), [isMobile])
-
-  const canBeOpen = open && Boolean(anchorEl)
-  const hasId = canBeOpen ? id : undefined
-
-  useEffect(() => {
-    !isMobile && open && setOpen(false)
-  }, [isMobile])
-
-  return (
-    <>
-      <Button
-        aria-haspopup
-        aria-describedby={hasId}
-        aria-expanded={open ? 'true' : 'false'}
-        onClick={handleClick}
-        size='small'
-        endIcon={<CaretIcon />}
-        startIcon={icon}
-        sx={{
-          [`.${buttonClasses.startIcon}`]: {
-            mr: !isMobile && buttonLabel ? 1 : 0
-          }
-        }}
-        {...buttonProps}
-      >
-        {!isMobile && buttonLabel}
-      </Button>
-      <Popper
-        id={hasId}
-        open={open}
-        anchorEl={anchorEl}
-        transition
-        placement='bottom-end'
-        keepMounted={false}
-        style={{
-          zIndex: zIndex.appBar + 1,
-          ...mobileStyles
-        }}
-        {...popperProps}
-      >
-        {({ TransitionProps }) => (
-          <ClickAwayListener onClickAway={handleClose}>
-            <Fade {...TransitionProps} timeout={300}>
-              <Paper
-                variant='outlined'
-                style={mobileStyles}
-                sx={{ p: headerTitle ? 2 : 0 }}
-              >
-                {(headerTitle || isMobile) && (
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    borderBottom='1px solid'
-                    borderColor='divider'
-                  >
-                    {headerTitle && (
-                      <Typography variant='body1'>
-                        {headerTitle}
-                      </Typography>
-                    )}
-                    {isMobile && (
-                      <IconButton onClick={handleClose} size='large'>
-                        <CloseIcon />
-                      </IconButton>
-                    )}
-                  </Box>
-                )}
-                {children({ handleClose: handleClose })}
-              </Paper>
-            </Fade>
-          </ClickAwayListener>
-        )}
-      </Popper>
-    </>
-  )
-})
+)
 
 HeaderPopover.propTypes = {
   id: PropTypes.string,
@@ -147,7 +150,7 @@ HeaderPopover.propTypes = {
   headerTitle: PropTypes.any,
   disablePadding: PropTypes.bool,
   popperProps: PropTypes.object,
-  children: PropTypes.func
+  children: PropTypes.func,
 }
 
 HeaderPopover.defaultProps = {
@@ -159,7 +162,7 @@ HeaderPopover.defaultProps = {
   headerTitle: undefined,
   disablePadding: false,
   popperProps: {},
-  children: () => undefined
+  children: () => undefined,
 }
 
 HeaderPopover.displayName = 'HeaderPopover'

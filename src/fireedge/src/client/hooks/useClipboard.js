@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react'
 export const CLIPBOARD_STATUS = {
   INIT: 'INIT',
   ERROR: 'ERROR',
-  COPIED: 'COPIED'
+  COPIED: 'COPIED',
 }
 
 const { INIT, ERROR, COPIED } = CLIPBOARD_STATUS
@@ -48,7 +48,7 @@ const useClipboard = ({ tooltipDelay = 2000 } = {}) => {
   const [state, setState] = useState(() => INIT)
   const isCopied = useMemo(() => state === COPIED, [state])
 
-  const copy = async text => {
+  const copy = async (text) => {
     try {
       // Use the Async Clipboard API when available.
       // Requires a secure browsing context (i.e. HTTPS)

@@ -16,7 +16,4 @@
 import CreateForm from 'client/components/Forms/Provision/CreateForm'
 import DeleteForm from 'client/components/Forms/Provision/DeleteForm'
 
-export {
-  CreateForm,
-  DeleteForm
-}
+export { CreateForm, DeleteForm }

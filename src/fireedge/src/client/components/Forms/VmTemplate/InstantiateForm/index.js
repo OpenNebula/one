@@ -21,7 +21,11 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import { useFetch } from 'client/hooks'
-import { useUserApi, useVmGroupApi, useVmTemplateApi } from 'client/features/One'
+import {
+  useUserApi,
+  useVmGroupApi,
+  useVmTemplateApi,
+} from 'client/features/One'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
@@ -32,7 +36,7 @@ const InstantiateForm = ({ template, onSubmit }) => {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolver?.())
+    resolver: yupResolver(resolver?.()),
   })
 
   return (
@@ -40,7 +44,7 @@ const InstantiateForm = ({ template, onSubmit }) => {
       <FormStepper
         steps={steps}
         schema={resolver}
-        onSubmit={data => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+        onSubmit={(data) => onSubmit(transformBeforeSubmit?.(data) ?? data)}
       />
     </FormProvider>
   )
@@ -50,8 +54,8 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
   const { getUsers } = useUserApi()
   const { getVmGroups } = useVmGroupApi()
   const { getVmTemplate } = useVmTemplateApi()
-  const { fetchRequest, data } = useFetch(
-    () => getVmTemplate(templateId, { extended: true })
+  const { fetchRequest, data } = useFetch(() =>
+    getVmTemplate(templateId, { extended: true })
   )
 
   useEffect(() => {
@@ -60,19 +64,21 @@ const PreFetchingForm = ({ templateId, onSubmit }) => {
     getVmGroups()
   }, [])
 
-  return (templateId && !data)
-    ? <SkeletonStepsForm />
-    : <InstantiateForm template={data} onSubmit={onSubmit} />
+  return templateId && !data ? (
+    <SkeletonStepsForm />
+  ) : (
+    <InstantiateForm template={data} onSubmit={onSubmit} />
+  )
 }
 
 PreFetchingForm.propTypes = {
   templateId: PropTypes.string,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 InstantiateForm.propTypes = {
   template: PropTypes.object,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }
 
 export default PreFetchingForm

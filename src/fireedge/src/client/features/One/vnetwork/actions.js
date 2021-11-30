@@ -28,5 +28,5 @@ export const getVNetwork = createAction(
 export const getVNetworks = createAction(
   `${VNET}/pool`,
   vNetworkService.getVNetworks,
-  response => ({ [RESOURCES.vn]: response })
+  (response) => ({ [RESOURCES.vn]: response })
 )

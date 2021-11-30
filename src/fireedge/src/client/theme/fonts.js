@@ -26,5 +26,5 @@ export const UbuntuFont = {
     url(${FONTS_URL}/Ubuntu/ubuntu.woff) format('woff'),
     url(${FONTS_URL}/Ubuntu/ubuntu.ttf) format('truetype'),
     url(${FONTS_URL}/Ubuntu/ubuntu.svg#Ubuntu) format('svg');
-  `
+  `,
 }

@@ -31,11 +31,10 @@ export const MEMORY = {
   htmlType: 'number',
   validation: commonValidation
     .required()
-    .when('HYPERVISOR', (hypervisor, schema) => hypervisor === HYPERVISORS.vcenter
-      ? schema.isDivisibleBy(4)
-      : schema
+    .when('HYPERVISOR', (hypervisor, schema) =>
+      hypervisor === HYPERVISORS.vcenter ? schema.isDivisibleBy(4) : schema
     ),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Hot reloading on memory field */
@@ -44,7 +43,7 @@ export const ENABLE_HR_MEMORY = {
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { xs: 4, md: 6 }
+  grid: { xs: 4, md: 6 },
 }
 
 /** @type {Field} Maximum memory field */
@@ -53,12 +52,13 @@ export const MEMORY_MAX = {
   label: T.MaxMemory,
   dependOf: ENABLE_HR_MEMORY.name,
   type: INPUT_TYPES.TEXT,
-  htmlType: enabledHr => enabledHr ? 'number' : INPUT_TYPES.HIDDEN,
-  validation: commonValidation
-    .when(ENABLE_HR_MEMORY.name, (enabledHr, schema) =>
+  htmlType: (enabledHr) => (enabledHr ? 'number' : INPUT_TYPES.HIDDEN),
+  validation: commonValidation.when(
+    ENABLE_HR_MEMORY.name,
+    (enabledHr, schema) =>
       enabledHr ? schema.required() : schema.notRequired()
-    ),
-  grid: { xs: 8, md: 6 }
+  ),
+  grid: { xs: 8, md: 6 },
 }
 
 /** @type {Field} Physical CPU field */
@@ -69,7 +69,7 @@ export const PHYSICAL_CPU = {
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: commonValidation.required(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Virtual CPU field */
@@ -80,7 +80,7 @@ export const VIRTUAL_CPU = {
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: commonValidation,
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Hot reloading on virtual CPU field */
@@ -89,7 +89,7 @@ export const ENABLE_HR_VCPU = {
   label: T.EnableHotResize,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { xs: 4, md: 6 }
+  grid: { xs: 4, md: 6 },
 }
 
 /** @type {Field} Maximum virtual CPU field */
@@ -98,12 +98,11 @@ export const VCPU_MAX = {
   label: T.MaxVirtualCpu,
   dependOf: ENABLE_HR_VCPU.name,
   type: INPUT_TYPES.TEXT,
-  htmlType: enabledHr => enabledHr ? 'number' : INPUT_TYPES.HIDDEN,
-  validation: commonValidation
-    .when(ENABLE_HR_VCPU.name, (enabledHr, schema) =>
-      enabledHr ? schema.required() : schema.notRequired()
-    ),
-  grid: { xs: 8, md: 6 }
+  htmlType: (enabledHr) => (enabledHr ? 'number' : INPUT_TYPES.HIDDEN),
+  validation: commonValidation.when(ENABLE_HR_VCPU.name, (enabledHr, schema) =>
+    enabledHr ? schema.required() : schema.notRequired()
+  ),
+  grid: { xs: 8, md: 6 },
 }
 
 /** @type {Field[]} List of capacity fields */
@@ -114,5 +113,5 @@ export const FIELDS = [
   PHYSICAL_CPU,
   VIRTUAL_CPU,
   ENABLE_HR_VCPU,
-  VCPU_MAX
+  VCPU_MAX,
 ]

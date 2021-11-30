@@ -24,7 +24,11 @@ import SnapshotList from 'client/components/Tabs/Vm/Snapshot/List'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { CreateSnapshotForm } from 'client/components/Forms/Vm'
 
-import { getSnapshotList, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import {
+  getSnapshotList,
+  getHypervisor,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
 import { T, VM_ACTIONS } from 'client/constants'
 
@@ -36,8 +40,9 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
   const [snapshots, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return [getSnapshotList(vm), actionsByState]
   }, [vm])
@@ -54,13 +59,15 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
             color: 'secondary',
             'data-cy': 'snapshot-create',
             label: T.TakeSnapshot,
-            variant: 'outlined'
+            variant: 'outlined',
           }}
-          options={[{
-            dialogProps: { title: T.TakeSnapshot },
-            form: () => CreateSnapshotForm(),
-            onSubmit: handleSnapshotCreate
-          }]}
+          options={[
+            {
+              dialogProps: { title: T.TakeSnapshot },
+              form: () => CreateSnapshotForm(),
+              onSubmit: handleSnapshotCreate,
+            },
+          ]}
         />
       )}
 
@@ -70,7 +77,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmSnapshotTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmSnapshotTab.displayName = 'VmSnapshotTab'

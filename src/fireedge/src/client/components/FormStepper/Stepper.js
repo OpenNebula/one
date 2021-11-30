@@ -22,7 +22,9 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import StepButton from '@mui/material/StepButton'
 import StepIcon, { stepIconClasses } from '@mui/material/StepIcon'
-import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector'
+import StepConnector, {
+  stepConnectorClasses,
+} from '@mui/material/StepConnector'
 import { styled } from '@mui/styles'
 
 import { SubmitButton } from 'client/components/FormControl'
@@ -34,43 +36,44 @@ const StepperStyled = styled(Stepper)(({ theme }) => ({
   top: -15,
   minHeight: 100,
   background: alpha(theme.palette.background.paper, 0.95),
-  zIndex: theme.zIndex.mobileStepper
+  zIndex: theme.zIndex.mobileStepper,
 }))
 
 const ConnectorStyled = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 10,
     left: 'calc(-50% + 16px)',
-    right: 'calc(50% + 16px)'
+    right: 'calc(50% + 16px)',
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.secondary[700]
-    }
+      borderColor: theme.palette.secondary[700],
+    },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.secondary[700]
-    }
+      borderColor: theme.palette.secondary[700],
+    },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    borderColor: theme.palette.mode === SCHEMES.DARK
-      ? theme.palette.grey[600]
-      : theme.palette.grey[400],
+    borderColor:
+      theme.palette.mode === SCHEMES.DARK
+        ? theme.palette.grey[600]
+        : theme.palette.grey[400],
     borderTopWidth: 2,
-    borderRadius: 1
-  }
+    borderRadius: 1,
+  },
 }))
 
 const StepIconStyled = styled(StepIcon)(({ theme }) => ({
   color: theme.palette.text.hint,
   display: 'block',
   [`&.${stepIconClasses.completed}, &.${stepIconClasses.active}`]: {
-    color: theme.palette.secondary[700]
+    color: theme.palette.secondary[700],
   },
   [`&.${stepIconClasses.error}`]: {
-    color: theme.palette.error.main
-  }
+    color: theme.palette.error.main,
+  },
 }))
 
 const CustomStepper = ({
@@ -82,21 +85,28 @@ const CustomStepper = ({
   handleNext,
   handleBack,
   errors,
-  isSubmitting
+  isSubmitting,
 }) => (
   <>
-    <StepperStyled nonLinear activeStep={activeStep} connector={<ConnectorStyled />}>
+    <StepperStyled
+      nonLinear
+      activeStep={activeStep}
+      connector={<ConnectorStyled />}
+    >
       {steps?.map(({ id, label }, stepIdx) => (
         <Step key={id} completed={activeStep > stepIdx}>
           <StepButton
             onClick={() => handleStep(stepIdx)}
             disabled={activeStep + 1 < stepIdx}
-            optional={errors[id] && (
-              <Typography variant='caption' color='error'>
-                {labelCanBeTranslated(errors[id]?.message)
-                  ? Tr(errors[id]?.message) : errors[id]?.message}
-              </Typography>
-            )}
+            optional={
+              errors[id] && (
+                <Typography variant="caption" color="error">
+                  {labelCanBeTranslated(errors[id]?.message)
+                    ? Tr(errors[id]?.message)
+                    : errors[id]?.message}
+                </Typography>
+              )
+            }
           >
             <StepLabel
               StepIconComponent={StepIconStyled}
@@ -108,21 +118,21 @@ const CustomStepper = ({
         </Step>
       ))}
     </StepperStyled>
-    <Box marginY={2} textAlign='end'>
+    <Box marginY={2} textAlign="end">
       <Button
-        data-cy='stepper-back-button'
+        data-cy="stepper-back-button"
         disabled={disabledBack || isSubmitting}
         onClick={handleBack}
-        size='small'
+        size="small"
       >
         <Translate word={T.Back} />
       </Button>
       <SubmitButton
-        color='secondary'
-        data-cy='stepper-next-button'
+        color="secondary"
+        data-cy="stepper-next-button"
         isSubmitting={isSubmitting}
         onClick={handleNext}
-        size='small'
+        size="small"
         label={<Translate word={activeStep === lastStep ? T.Finish : T.Next} />}
       />
     </Box>
@@ -132,11 +142,8 @@ const CustomStepper = ({
 CustomStepper.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-      ]).isRequired,
-      label: PropTypes.string.isRequired
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      label: PropTypes.string.isRequired,
     })
   ),
   activeStep: PropTypes.number.isRequired,
@@ -147,8 +154,8 @@ CustomStepper.propTypes = {
   handleNext: PropTypes.func,
   handleBack: PropTypes.func,
   errors: PropTypes.shape({
-    message: PropTypes.string
-  })
+    message: PropTypes.string,
+  }),
 }
 
 CustomStepper.defaultProps = {
@@ -160,7 +167,7 @@ CustomStepper.defaultProps = {
   handleNext: () => undefined,
   handleBack: () => undefined,
   errors: undefined,
-  isSubmitting: false
+  isSubmitting: false,
 }
 
 CustomStepper.displayName = 'Stepper'

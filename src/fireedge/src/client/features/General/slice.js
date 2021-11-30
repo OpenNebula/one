@@ -28,13 +28,13 @@ const initial = {
   isLoading: false,
   isFixMenu: false,
 
-  notifications: []
+  notifications: [],
 }
 
 const { name, reducer } = createSlice({
   name: 'general',
   initialState: initial,
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
       /* UI ACTIONS */
       .addCase(actions.fixMenu, (state, { payload }) => {
@@ -61,10 +61,7 @@ const { name, reducer } = createSlice({
 
         return {
           ...state,
-          notifications: [
-            ...state.notifications,
-            { key, options, message }
-          ]
+          notifications: [...state.notifications, { key, options, message }],
         }
       })
       .addCase(actions.dismissSnackbar, (state, { payload }) => {
@@ -72,11 +69,11 @@ const { name, reducer } = createSlice({
 
         return {
           ...state,
-          notifications: state.notifications.map(notification =>
+          notifications: state.notifications.map((notification) =>
             dismissAll || notification.key !== key
               ? { ...notification, dismissed: true }
               : { ...notification }
-          )
+          ),
         }
       })
       .addCase(actions.deleteSnackbar, (state, { payload }) => {
@@ -85,38 +82,43 @@ const { name, reducer } = createSlice({
         return {
           ...state,
           notifications: state.notifications.filter(
-            notification => notification.key !== key
-          )
+            (notification) => notification.key !== key
+          ),
         }
       })
 
       /*  REQUESTS API MATCHES */
-      .addMatcher(({ type }) => type === logout.type, () => initial)
+      .addMatcher(
+        ({ type }) => type === logout.type,
+        () => initial
+      )
       .addMatcher(
         ({ type }) => type.endsWith('/pending') && !type.includes('auth'),
-        state => ({ ...state, isLoading: true })
+        (state) => ({ ...state, isLoading: true })
       )
       .addMatcher(
         ({ type }) => type.endsWith('/fulfilled') && !type.includes('auth'),
-        state => ({ ...state, isLoading: false })
+        (state) => ({ ...state, isLoading: false })
       )
       .addMatcher(
         ({ type, meta }) =>
-          !meta?.aborted && type.endsWith('/rejected') && !type.includes('auth'),
+          !meta?.aborted &&
+          type.endsWith('/rejected') &&
+          !type.includes('auth'),
         (state, { payload }) => ({
           ...state,
           isLoading: false,
           notifications: [
             ...state.notifications,
-            (payload?.length > 0 && {
+            payload?.length > 0 && {
               key: generateKey(),
               message: payload,
-              options: { variant: 'error' }
-            })
-          ].filter(Boolean)
+              options: { variant: 'error' },
+            },
+          ].filter(Boolean),
         })
       )
-  }
+  },
 })
 
 export { name, reducer }

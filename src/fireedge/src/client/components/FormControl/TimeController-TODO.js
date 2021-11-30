@@ -27,7 +27,7 @@ const WrapperToLoadLib = ({ children, id, lib }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadLib = async lib => {
+    const loadLib = async (lib) => {
       try {
         await import(lib)
       } finally {
@@ -41,7 +41,7 @@ const WrapperToLoadLib = ({ children, id, lib }) => {
       // remove all styles when component will be unmounted
       document
         .querySelectorAll(`[id^=${id}]`)
-        .forEach(child => child.parentNode.removeChild(child))
+        .forEach((child) => child.parentNode.removeChild(child))
     }
   }, [])
 
@@ -50,7 +50,10 @@ const WrapperToLoadLib = ({ children, id, lib }) => {
 
 const TimeController = memo(
   ({ control, cy, name, label, error, fieldProps }) => (
-    <WrapperToLoadLib id='flatpicker' lib={'flatpickr/dist/themes/material_blue.css'}>
+    <WrapperToLoadLib
+      id="flatpicker"
+      lib={'flatpickr/dist/themes/material_blue.css'}
+    >
       <Controller
         render={({ value, onChange, onBlur }) => {
           const translated = typeof label === 'string' ? Tr(label) : label
@@ -60,7 +63,9 @@ const TimeController = memo(
               onblur={onBlur}
               onChange={onChange}
               // onCreate={function (flatpickr) { this.calendar = flatpickr }}
-              onDestroy={() => { onChange(undefined) }}
+              onDestroy={() => {
+                onChange(undefined)
+              }}
               data-enable-time
               options={{ allowInput: true }}
               render={({ defaultValue, ...props }, ref) => (
@@ -103,8 +108,8 @@ TimeController.propTypes = {
     setError: PropTypes.func,
     clearErrors: PropTypes.func,
     watch: PropTypes.func,
-    register: PropTypes.func
-  })
+    register: PropTypes.func,
+  }),
 }
 
 TimeController.defaultProps = {
@@ -113,7 +118,7 @@ TimeController.defaultProps = {
   name: '',
   label: '',
   error: false,
-  fieldProps: undefined
+  fieldProps: undefined,
 }
 
 TimeController.displayName = 'TimeController'

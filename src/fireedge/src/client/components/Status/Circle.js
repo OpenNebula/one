@@ -25,46 +25,46 @@ const useStyles = makeStyles({
     color,
     fill: 'currentColor',
     verticalAlign: 'middle',
-    pointerEvents: 'auto'
-  })
+    pointerEvents: 'auto',
+  }),
 })
 
-const StatusCircle = memo(({ color, tooltip, size }) => {
-  const classes = useStyles({ color })
+const StatusCircle = memo(
+  ({ color, tooltip, size }) => {
+    const classes = useStyles({ color })
 
-  return (
-    <Tooltip
-      arrow
-      placement='right-end'
-      title={<Typography variant='subtitle2'>{tooltip}</Typography>}
-    >
-      <svg
-        viewBox='0 0 100 100'
-        version='1.1'
-        width={size}
-        height={size}
-        aria-hidden='true'
-        className={classes.circle}
+    return (
+      <Tooltip
+        arrow
+        placement="right-end"
+        title={<Typography variant="subtitle2">{tooltip}</Typography>}
       >
-        <circle cx='50' cy='50' r='50' />
-      </svg>
-    </Tooltip>
-  )
-}, (prev, next) => prev.color === next.color && prev.tooltip === next.tooltip)
+        <svg
+          viewBox="0 0 100 100"
+          version="1.1"
+          width={size}
+          height={size}
+          aria-hidden="true"
+          className={classes.circle}
+        >
+          <circle cx="50" cy="50" r="50" />
+        </svg>
+      </Tooltip>
+    )
+  },
+  (prev, next) => prev.color === next.color && prev.tooltip === next.tooltip
+)
 
 StatusCircle.propTypes = {
   tooltip: PropTypes.string,
   color: PropTypes.string,
-  size: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ])
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 }
 
 StatusCircle.defaultProps = {
   tooltip: undefined,
   color: undefined,
-  size: 12
+  size: 12,
 }
 
 StatusCircle.displayName = 'StatusCircle'

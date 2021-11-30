@@ -25,26 +25,26 @@ import { GlobalFilter } from 'client/components/Tables/Enhanced/Utils'
 
 const useToolbarStyles = makeStyles({
   root: {
-    display: 'flex'
+    display: 'flex',
   },
   rootNoFilters: {
     gridColumn: '1 / -1',
     '& ~ div': {
-      gridColumn: '1 / -1'
-    }
+      gridColumn: '1 / -1',
+    },
   },
   content: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   contentWithFilter: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1em'
+    gap: '1em',
   },
   filters: {
     flexGrow: 1,
-    overflow: 'auto'
-  }
+    overflow: 'auto',
+  },
 })
 
 /**
@@ -55,20 +55,22 @@ const useToolbarStyles = makeStyles({
  */
 const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   const classes = useToolbarStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
   /** @type {UseTableInstanceProps} */
   const { rows, columns } = useTableProps
 
-  const filters = useMemo(() => (
-    columns
-      .filter(({ canFilter }) => canFilter)
-      .map((column, idx) => column.canFilter ? (
-        <Fragment key={idx}>
-          {column.render('Filter')}
-        </Fragment>
-      ) : null)
-  ), [rows])
+  const filters = useMemo(
+    () =>
+      columns
+        .filter(({ canFilter }) => canFilter)
+        .map((column, idx) =>
+          column.canFilter ? (
+            <Fragment key={idx}>{column.render('Filter')}</Fragment>
+          ) : null
+        ),
+    [rows]
+  )
 
   if (isMobile || onlyGlobalSearch) {
     return (
@@ -82,11 +84,14 @@ const Filters = ({ onlyGlobalSearch, useTableProps }) => {
   const noFilters = filters.length === 0
 
   return (
-    <Card variant='outlined'
+    <Card
+      variant="outlined"
       className={clsx(classes.root, { [classes.rootNoFilters]: noFilters })}
     >
       <CardContent
-        className={clsx(classes.content, { [classes.contentWithFilter]: !noFilters })}
+        className={clsx(classes.content, {
+          [classes.contentWithFilter]: !noFilters,
+        })}
       >
         <GlobalFilter useTableProps={useTableProps} />
 
@@ -98,12 +103,12 @@ const Filters = ({ onlyGlobalSearch, useTableProps }) => {
 
 Filters.propTypes = {
   onlyGlobalSearch: PropTypes.bool,
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 Filters.defaultProps = {
   onlyGlobalSearch: false,
-  useTableProps: {}
+  useTableProps: {},
 }
 
 export default Filters

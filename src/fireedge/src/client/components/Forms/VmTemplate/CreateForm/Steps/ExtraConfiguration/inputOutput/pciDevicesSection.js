@@ -41,29 +41,41 @@ export const SECTION_ID = 'PCI'
  */
 const PciDevicesSection = ({ fields }) => {
   const hosts = useHost()
-  const pciDevicesAvailable = useMemo(() => hosts.map(getPciDevices).flat(), [hosts.length])
+  const pciDevicesAvailable = useMemo(
+    () => hosts.map(getPciDevices).flat(),
+    [hosts.length]
+  )
 
-  const { fields: pciDevices, append, remove } = useFieldArray({
-    name: `${EXTRA_ID}.${SECTION_ID}`
+  const {
+    fields: pciDevices,
+    append,
+    remove,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${SECTION_ID}`,
   })
 
   const methods = useForm({
     defaultValues: PCI_SCHEMA.default(),
-    resolver: yupResolver(PCI_SCHEMA)
+    resolver: yupResolver(PCI_SCHEMA),
   })
 
-  const onSubmit = newInput => {
+  const onSubmit = (newInput) => {
     append(newInput)
     methods.reset()
   }
 
   return (
-    <FormControl component='fieldset' sx={{ width: '100%', gridColumn: '1 / -1' }}>
+    <FormControl
+      component="fieldset"
+      sx={{ width: '100%', gridColumn: '1 / -1' }}
+    >
       <Legend title={T.PciDevices} />
       <FormProvider {...methods}>
         <Stack
-          direction='row' alignItems='flex-start' gap='0.5rem'
-          component='form'
+          direction="row"
+          alignItems="flex-start"
+          gap="0.5rem"
+          component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
@@ -72,9 +84,9 @@ const PciDevicesSection = ({ fields }) => {
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
-            variant='contained'
-            type='submit'
-            color='secondary'
+            variant="contained"
+            type="submit"
+            color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
           >
@@ -85,8 +97,10 @@ const PciDevicesSection = ({ fields }) => {
       <Divider />
       <List>
         {pciDevices?.map(({ id, DEVICE, VENDOR, CLASS }, index) => {
-          const { DEVICE_NAME, VENDOR_NAME } = pciDevicesAvailable
-            .find(pciDevice => pciDevice?.DEVICE === DEVICE) ?? {}
+          const { DEVICE_NAME, VENDOR_NAME } =
+            pciDevicesAvailable.find(
+              (pciDevice) => pciDevice?.DEVICE === DEVICE
+            ) ?? {}
 
           return (
             <ListItem
@@ -104,7 +118,8 @@ const PciDevicesSection = ({ fields }) => {
                 secondary={[
                   `#${DEVICE}`,
                   `Vendor: ${VENDOR_NAME}(${VENDOR})`,
-                  `Class: ${CLASS}`].join(' | ')}
+                  `Class: ${CLASS}`,
+                ].join(' | ')}
               />
             </ListItem>
           )
@@ -115,7 +130,7 @@ const PciDevicesSection = ({ fields }) => {
 }
 
 PciDevicesSection.propTypes = {
-  fields: PropTypes.array
+  fields: PropTypes.array,
 }
 
 PciDevicesSection.displayName = 'PciDevicesSection'

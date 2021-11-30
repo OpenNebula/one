@@ -33,13 +33,14 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
   const actionsAvailable = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
+    const actionsByState = actionsByHypervisor.filter(
+      (action) => !isAvailableAction(action)(vm)
+    )
 
     return actionsByState
   }, [vm])
 
-  const handleResizeCapacity = async formData => {
+  const handleResizeCapacity = async (formData) => {
     const { enforce, ...restOfData } = formData
     const template = jsonToXml(restOfData)
 
@@ -57,7 +58,7 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmCapacityTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmCapacityTab.displayName = 'VmCapacityTab'

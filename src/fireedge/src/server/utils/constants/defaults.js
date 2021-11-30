@@ -27,12 +27,12 @@ const apps = {
   [appNameSunstone]: {
     theme: appNameSunstone,
     name: appNameSunstone,
-    assets: true
+    assets: true,
   },
   [appNameProvision]: {
     name: appNameProvision,
-    theme: appNameProvision
-  }
+    theme: appNameProvision,
+  },
 }
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
@@ -52,17 +52,17 @@ const defaults = {
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
-    message: 'file not found: %s'
+    message: 'file not found: %s',
   },
   defaultFilesWebsockets: {
     hooks: {
       path: `${baseUrl}${baseUrlWebsockets}hooks`,
-      methods: ['GET', 'POST']
+      methods: ['GET', 'POST'],
     },
     provision: {
       path: `${baseUrl}${baseUrlWebsockets}${appNameProvision}`,
-      methods: ['GET', 'POST']
-    }
+      methods: ['GET', 'POST'],
+    },
   },
   defaultFilesRoutes: [
     '2fa',
@@ -75,32 +75,32 @@ const defaults = {
     'vm',
     'zendesk',
     appNameProvision,
-    appNameSunstone
+    appNameSunstone,
   ],
   defaultApps: apps,
   httpMethod: {
     GET: 'GET',
     POST: 'POST',
     PUT: 'PUT',
-    DELETE: 'DELETE'
+    DELETE: 'DELETE',
   },
   defaultHash: {
     hash: 'sha256',
-    digest: 'hex'
+    digest: 'hex',
   },
   defaultFileStats: '-stats.json',
   from: {
     resource: 'RESOURCE',
     query: 'QUERY',
-    postBody: 'POST_BODY'
+    postBody: 'POST_BODY',
   },
   defaultOpennebulaZones: [
     {
       id: '0',
       name: 'OpenNebula',
       rpc: `${protocol}://${defaultIp}:2633/RPC2`,
-      zeromq: `tcp://${defaultIp}:2101`
-    }
+      zeromq: `tcp://${defaultIp}:2101`,
+    },
   ],
   defaultConfigParseXML: {
     attributeNamePrefix: '',
@@ -110,7 +110,7 @@ const defaults = {
     allowBooleanAttributes: false,
     parseNodeValue: false,
     parseAttributeValue: true,
-    trimValues: true
+    trimValues: true,
   },
   defaultCommandProvision: 'oneprovision',
   defaultCommandProvisionTemplate: 'oneprovision-template',
@@ -154,7 +154,12 @@ const defaults = {
   defaultGetMethod: 'info',
   defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
   defaultIP: defaultIp,
-  defaultSeverities: [`${severityPrepend}1`, `${severityPrepend}2`, `${severityPrepend}3`, `${severityPrepend}4`],
+  defaultSeverities: [
+    `${severityPrepend}1`,
+    `${severityPrepend}2`,
+    `${severityPrepend}3`,
+    `${severityPrepend}4`,
+  ],
   defaultProtocolHotReload: 'http',
   defaultHost: '0.0.0.0',
   defaultPort: 2616,
@@ -198,8 +203,8 @@ const defaults = {
     uk: 'Ukrainian',
     vi: 'Vietnamese',
     zh_CN: 'Chinese (China)',
-    zh_TW: 'Chinese (Taiwan)'
-  }
+    zh_TW: 'Chinese (Taiwan)',
+  },
 }
 
 module.exports = defaults

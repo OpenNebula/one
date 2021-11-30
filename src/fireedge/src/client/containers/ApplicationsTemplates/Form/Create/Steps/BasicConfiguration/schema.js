@@ -19,13 +19,13 @@ import { getValidationFromFields } from 'client/utils'
 
 const STRATEGIES_DEPLOY = [
   { text: 'None', value: 'none' },
-  { text: 'Straight', value: 'straight' }
+  { text: 'Straight', value: 'straight' },
 ]
 
 const SHUTDOWN_ACTIONS = [
   { text: 'None', value: 'none' },
   { text: 'Terminate', value: 'terminate' },
-  { text: 'Terminate hard', value: 'terminate-hard' }
+  { text: 'Terminate hard', value: 'terminate-hard' },
 ]
 
 export const FORM_FIELDS = [
@@ -33,9 +33,7 @@ export const FORM_FIELDS = [
     name: 'registration_time',
     type: INPUT_TYPES.TEXT,
     htmlType: INPUT_TYPES.HIDDEN,
-    validation: yup
-      .number()
-      .default(undefined)
+    validation: yup.number().default(undefined),
   },
   {
     name: 'name',
@@ -46,17 +44,14 @@ export const FORM_FIELDS = [
       .min(1, 'Name field is required')
       .trim()
       .required('Name field is required')
-      .default('')
+      .default(''),
   },
   {
     name: 'description',
     label: 'Description',
     type: INPUT_TYPES.TEXT,
     multiline: true,
-    validation: yup
-      .string()
-      .trim()
-      .default('')
+    validation: yup.string().trim().default(''),
   },
   {
     name: 'deployment',
@@ -68,7 +63,7 @@ export const FORM_FIELDS = [
       .trim()
       .required('Strategy deployment field is required')
       .oneOf(STRATEGIES_DEPLOY.map(({ value }) => value))
-      .default(STRATEGIES_DEPLOY[1].value)
+      .default(STRATEGIES_DEPLOY[1].value),
   },
   {
     name: 'shutdown_action',
@@ -78,7 +73,7 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value))
-      .default(SHUTDOWN_ACTIONS[0].value)
+      .default(SHUTDOWN_ACTIONS[0].value),
   },
   {
     name: 'ready_status_gate',
@@ -86,16 +81,14 @@ export const FORM_FIELDS = [
     tooltip:
       'Wait for VM/containers to finish their boot process to report that they are READY and allow children tiers to spawn',
     type: INPUT_TYPES.CHECKBOX,
-    validation: yup.boolean().default(false)
+    validation: yup.boolean().default(false),
   },
   {
     name: 'automatic_deletion',
     label: 'Automatic delete service if all tiers are terminated',
     type: INPUT_TYPES.CHECKBOX,
-    validation: yup.boolean().default(false)
-  }
+    validation: yup.boolean().default(false),
+  },
 ]
 
-export const STEP_FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-)
+export const STEP_FORM_SCHEMA = yup.object(getValidationFromFields(FORM_FIELDS))

@@ -20,40 +20,47 @@ import { QuestionMarkCircle } from 'iconoir-react'
 import { InputAdornment, Typography, Tooltip } from '@mui/material'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 
-const AdornmentWithTooltip = memo(({ title, position = 'end', children }) => {
-  if (!title || title === '' || (Array.isArray(title) && title.length === 0)) {
-    return null
-  }
+const AdornmentWithTooltip = memo(
+  ({ title, position = 'end', children }) => {
+    if (
+      !title ||
+      title === '' ||
+      (Array.isArray(title) && title.length === 0)
+    ) {
+      return null
+    }
 
-  return (
-    <Tooltip
-      arrow
-      placement='bottom'
-      title={
-        <Typography variant='subtitle2'>
-          {labelCanBeTranslated(title) ? Tr(title) : title}
-        </Typography>
-      }
-    >
-      <InputAdornment position={position} style={{ cursor: 'help' }}>
-        {children ?? <QuestionMarkCircle />}
-      </InputAdornment>
-    </Tooltip>
-  )
-}, (prevProps, nextProps) =>
-  Array.isArray(nextProps.title)
-    ? prevProps.title?.[0] === nextProps.title?.[0] || prevProps.title === nextProps.title?.[0]
-    : prevProps.title === nextProps.title
+    return (
+      <Tooltip
+        arrow
+        placement="bottom"
+        title={
+          <Typography variant="subtitle2">
+            {labelCanBeTranslated(title) ? Tr(title) : title}
+          </Typography>
+        }
+      >
+        <InputAdornment position={position} style={{ cursor: 'help' }}>
+          {children ?? <QuestionMarkCircle />}
+        </InputAdornment>
+      </Tooltip>
+    )
+  },
+  (prevProps, nextProps) =>
+    Array.isArray(nextProps.title)
+      ? prevProps.title?.[0] === nextProps.title?.[0] ||
+        prevProps.title === nextProps.title?.[0]
+      : prevProps.title === nextProps.title
 )
 
 AdornmentWithTooltip.propTypes = {
   title: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node,
-    PropTypes.object
+    PropTypes.object,
   ]),
   children: PropTypes.any,
-  position: PropTypes.oneOf(['start', 'end'])
+  position: PropTypes.oneOf(['start', 'end']),
 }
 
 AdornmentWithTooltip.displayName = 'AdornmentWithTooltip'

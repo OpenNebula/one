@@ -34,17 +34,19 @@ const TextController = memo(
     tooltip,
     watcher,
     dependencies,
-    fieldProps = {}
+    fieldProps = {},
   }) => {
-    const watch = dependencies && useWatch({
-      control,
-      name: dependencies,
-      disabled: dependencies === null
-    })
+    const watch =
+      dependencies &&
+      useWatch({
+        control,
+        name: dependencies,
+        disabled: dependencies === null,
+      })
 
     const {
       field: { ref, value = '', onChange, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     useEffect(() => {
@@ -66,7 +68,7 @@ const TextController = memo(
         type={type}
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputProps={{
-          endAdornment: tooltip && <Tooltip title={tooltip} />
+          endAdornment: tooltip && <Tooltip title={tooltip} />,
         }}
         inputProps={{ 'data-cy': cy }}
         error={Boolean(error)}
@@ -95,9 +97,9 @@ TextController.propTypes = {
   watcher: PropTypes.func,
   dependencies: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
+    PropTypes.arrayOf(PropTypes.string),
   ]),
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 TextController.displayName = 'TextController'

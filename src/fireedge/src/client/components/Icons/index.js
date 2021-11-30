@@ -16,7 +16,4 @@
 import DockerLogo from 'client/components/Icons/DockerIcon'
 import OpenNebulaLogo from 'client/components/Icons/OpenNebulaIcon'
 
-export {
-  DockerLogo,
-  OpenNebulaLogo
-}
+export { DockerLogo, OpenNebulaLogo }

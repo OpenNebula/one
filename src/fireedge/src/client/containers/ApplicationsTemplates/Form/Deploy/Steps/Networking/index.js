@@ -56,7 +56,7 @@ const Networks = () => ({
         />
       </Paper>
     ))
-  }, [])
+  }, []),
 })
 
 export default Networks

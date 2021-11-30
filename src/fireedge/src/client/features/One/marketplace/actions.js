@@ -28,5 +28,5 @@ export const getMarketplace = createAction(
 export const getMarketplaces = createAction(
   `${MARKETPLACE}/pool`,
   marketplaceService.getMarketplaces,
-  response => ({ [RESOURCES.marketplace]: response })
+  (response) => ({ [RESOURCES.marketplace]: response })
 )

@@ -29,12 +29,12 @@ const { PROVIDER, PROVISION, PROVISION_TEMPLATE } = require('./string-routes')
 const generatePrivateRoutes = () => [
   ...setApiRoutes(provisionRoutes, PROVISION),
   ...setApiRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE),
-  ...setApiRoutes(providerRoutes, PROVIDER)
+  ...setApiRoutes(providerRoutes, PROVIDER),
 ]
 
 const functionRoutes = {
   private: generatePrivateRoutes(),
-  public: []
+  public: [],
 }
 
 module.exports = functionRoutes

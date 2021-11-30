@@ -30,10 +30,11 @@ const Content = ({ data, app }) => {
 
   const isKernelType = useMemo(() => {
     const appTemplate = String(decodeBase64(app?.TEMPLATE?.APPTEMPLATE64, ''))
+
     return appTemplate.includes('TYPE="KERNEL"')
   }, [])
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     setValue(STEP_ID, original.ID !== undefined ? [original] : [])
@@ -44,10 +45,10 @@ const Content = ({ data, app }) => {
       singleSelect
       onlyGlobalSearch
       onlyGlobalSelectedRows
-      getRowId={row => String(row.NAME)}
+      getRowId={(row) => String(row.NAME)}
       initialState={{
         selectedRowIds: { [NAME]: true },
-        filters: [{ id: 'TYPE', value: isKernelType ? 'FILE' : 'IMAGE' }]
+        filters: [{ id: 'TYPE', value: isKernelType ? 'FILE' : 'IMAGE' }],
       }}
       onSelectedRowsChange={handleSelectedRows}
     />
@@ -60,17 +61,17 @@ const Content = ({ data, app }) => {
  * @param {object} app - Marketplace App resource
  * @returns {Step} Datastore step
  */
-const DatastoreStep = app => ({
+const DatastoreStep = (app) => ({
   id: STEP_ID,
   label: T.SelectDatastore,
   resolver: SCHEMA,
-  content: props => Content({ ...props, app })
+  content: (props) => Content({ ...props, app }),
 })
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
-  app: PropTypes.object
+  app: PropTypes.object,
 }
 
 export default DatastoreStep

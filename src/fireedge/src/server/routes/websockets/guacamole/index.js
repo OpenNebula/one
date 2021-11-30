@@ -37,24 +37,31 @@ const formatError = 'Error: %s'
 const configError = (error) => ({
   color: 'red',
   message: formatError,
-  error: error && error.message
+  error: error && error.message,
 })
 
 // guacamole client options
 const clientOptions = {
   crypt: {
     cypher: 'AES-256-CBC',
-    key: (global && global.paths && global.paths.FIREEDGE_KEY) || ''
+    key: (global && global.paths && global.paths.FIREEDGE_KEY) || '',
   },
   allowedUnencryptedConnectionSettings: {
     rdp: ['width', 'height', 'dpi'],
     vnc: ['width', 'height', 'dpi'],
     ssh: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi'],
-    telnet: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi']
+    telnet: [
+      'color-scheme',
+      'font-name',
+      'font-size',
+      'width',
+      'height',
+      'dpi',
+    ],
   },
   log: {
-    level: 'ERRORS'
-  }
+    level: 'ERRORS',
+  },
 }
 
 const clientCallbacks = {
@@ -62,8 +69,9 @@ const clientCallbacks = {
     if (settings.expiration && settings.expiration < Date.now()) {
       return callback(new Error('Token expired'))
     }
+
     return callback(null, settings)
-  }
+  },
 }
 
 const appConfig = getFireedgeConfig()
@@ -76,7 +84,7 @@ const guacdHost = guacd.host || 'localhost'
  *
  * @param {object} appServer - express app
  */
-const guacamole = appServer => {
+const guacamole = (appServer) => {
   if (
     appServer &&
     appServer.constructor &&
@@ -98,5 +106,5 @@ const guacamole = appServer => {
 
 module.exports = {
   endpointGuacamole,
-  guacamole
+  guacamole,
 }

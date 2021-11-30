@@ -19,21 +19,16 @@ import PropTypes from 'prop-types'
 import useFetch from 'client/hooks/useFetch'
 import { SubmitButton } from 'client/components/FormControl'
 
-const Action = memo(({
-  cy,
-  handleClick,
-  stopPropagation,
-  ...props
-}) => {
-  const { fetchRequest, data, loading } = useFetch(
-    e => Promise.resolve(handleClick?.(e))
+const Action = memo(({ cy, handleClick, stopPropagation, ...props }) => {
+  const { fetchRequest, data, loading } = useFetch((e) =>
+    Promise.resolve(handleClick?.(e))
   )
 
   return (
     <SubmitButton
       data-cy={cy}
       isSubmitting={loading}
-      onClick={evt => {
+      onClick={(evt) => {
         stopPropagation && evt?.stopPropagation?.()
         fetchRequest()
       }}
@@ -47,12 +42,12 @@ Action.propTypes = {
   cy: PropTypes.string,
   handleClick: PropTypes.func.isRequired,
   icon: PropTypes.node,
-  stopPropagation: PropTypes.bool
+  stopPropagation: PropTypes.bool,
 }
 
 Action.defaultProps = {
   icon: undefined,
-  cy: 'action-card'
+  cy: 'action-card',
 }
 
 Action.displayName = 'ActionCard'

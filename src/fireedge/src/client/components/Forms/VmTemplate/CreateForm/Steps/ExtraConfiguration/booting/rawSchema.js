@@ -33,7 +33,7 @@ const TYPE = {
     .equals([kvm])
     .default(() => kvm),
   fieldProps: { disabled: true },
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Raw data field */
@@ -44,7 +44,7 @@ const DATA = {
   multiline: true,
   notOnHypervisors: [lxc, vcenter, firecracker],
   validation: string().trim().notRequired(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} Raw validate field */
@@ -55,7 +55,7 @@ const VALIDATE = {
   type: INPUT_TYPES.CHECKBOX,
   notOnHypervisors: [lxc, vcenter, firecracker],
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of Boot fields */

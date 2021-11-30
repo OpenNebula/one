@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import {
   WarningCircledOutline as WarningIcon,
   DeleteCircledOutline,
-  AddCircledOutline
+  AddCircledOutline,
 } from 'iconoir-react'
 import {
   styled,
@@ -30,11 +30,22 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
 } from '@mui/material'
 
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { useFieldArray, useForm, FormProvider, useFormContext, get } from 'react-hook-form'
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from 'react-beautiful-dnd'
+import {
+  useFieldArray,
+  useForm,
+  FormProvider,
+  useFormContext,
+  get,
+} from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import { Tooltip } from 'client/components/FormControl'
@@ -60,69 +71,73 @@ const UserItemDraggable = styled(ListItem)(({ theme }) => ({
       transparent 4px,
       transparent 6px,
       ${theme.palette.action.active} 6px
-    )`
-  }
+    )`,
+  },
 }))
 
-const UserInputItem = forwardRef(({
-  removeAction,
-  error,
-  userInput: { name, ...ui } = {},
-  ...props
-}, ref) => (
-  <UserItemDraggable
-    ref={ref}
-    secondaryAction={
-      <IconButton onClick={removeAction}>
-        <DeleteCircledOutline />
-      </IconButton>
-    }
-    sx={{ '&:hover': { bgcolor: 'action.hover' } }}
-    {...props}
-  >
-    {!!error && (
-      <ListItemIcon sx={{ '& svg': { color: 'error.dark' } }}>
-        <Tooltip title={error?.default.message}>
-          <WarningIcon />
-        </Tooltip>
-      </ListItemIcon>
-    )}
-    <ListItemText
-      inset={!error}
-      primary={name}
-      primaryTypographyProps={{ variant: 'body1' }}
-      secondary={getUserInputString(ui)}
-    />
-  </UserItemDraggable>
-))
+const UserInputItem = forwardRef(
+  ({ removeAction, error, userInput: { name, ...ui } = {}, ...props }, ref) => (
+    <UserItemDraggable
+      ref={ref}
+      secondaryAction={
+        <IconButton onClick={removeAction}>
+          <DeleteCircledOutline />
+        </IconButton>
+      }
+      sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+      {...props}
+    >
+      {!!error && (
+        <ListItemIcon sx={{ '& svg': { color: 'error.dark' } }}>
+          <Tooltip title={error?.default.message}>
+            <WarningIcon />
+          </Tooltip>
+        </ListItemIcon>
+      )}
+      <ListItemText
+        inset={!error}
+        primary={name}
+        primaryTypographyProps={{ variant: 'body1' }}
+        secondary={getUserInputString(ui)}
+      />
+    </UserItemDraggable>
+  )
+)
 
 UserInputItem.propTypes = {
   removeAction: PropTypes.func,
   error: PropTypes.object,
-  userInput: PropTypes.object
+  userInput: PropTypes.object,
 }
 
 UserInputItem.displayName = 'UserInputItem'
 
 /** @returns {JSXElementConstructor} - User Inputs section */
 const UserInputsSection = () => {
-  const { formState: { errors } } = useFormContext()
-  const { fields: userInputs, append, remove, move } = useFieldArray({
-    name: `${EXTRA_ID}.${SECTION_ID}`
+  const {
+    formState: { errors },
+  } = useFormContext()
+  const {
+    fields: userInputs,
+    append,
+    remove,
+    move,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${SECTION_ID}`,
   })
 
   const methods = useForm({
     defaultValues: USER_INPUT_SCHEMA.default(),
-    resolver: yupResolver(USER_INPUT_SCHEMA)
+    resolver: yupResolver(USER_INPUT_SCHEMA),
   })
 
-  const onSubmit = newInput => {
+  const onSubmit = (newInput) => {
     append(newInput)
     methods.reset()
   }
 
   /** @param {DropResult} result - Drop result */
-  const onDragEnd = result => {
+  const onDragEnd = (result) => {
     const { destination, source } = result ?? {}
 
     if (destination && destination.index !== source.index) {
@@ -131,12 +146,14 @@ const UserInputsSection = () => {
   }
 
   return (
-    <FormControl component='fieldset' sx={{ width: '100%' }}>
+    <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.UserInputs} tooltip={T.UserInputsConcept} />
       <FormProvider {...methods}>
         <Stack
-          direction='row' alignItems='flex-start' gap='0.5rem'
-          component='form'
+          direction="row"
+          alignItems="flex-start"
+          gap="0.5rem"
+          component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
@@ -145,9 +162,9 @@ const UserInputsSection = () => {
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
-            variant='contained'
-            type='submit'
-            color='secondary'
+            variant="contained"
+            type="submit"
+            color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
           >
@@ -157,7 +174,7 @@ const UserInputsSection = () => {
       </FormProvider>
       <Divider />
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId='context'>
+        <Droppable droppableId="context">
           {({ droppableProps, innerRef: outerRef, placeholder }) => (
             <List ref={outerRef} {...droppableProps}>
               {userInputs?.map(({ id, ...userInput }, index) => (

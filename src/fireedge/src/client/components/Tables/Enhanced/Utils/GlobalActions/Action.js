@@ -58,66 +58,86 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @param {Row[]} props.selectedRows - Selected rows
  * @returns {JSXElementConstructor} Component JSX
  */
-const ActionItem = memo(({ item, selectedRows }) => {
-  const {
-    accessor,
-    tooltip,
-    label,
-    color,
-    variant = 'contained',
-    icon: Icon,
-    options,
-    action,
-    disabled
-  } = item
+const ActionItem = memo(
+  ({ item, selectedRows }) => {
+    const {
+      accessor,
+      tooltip,
+      label,
+      color,
+      variant = 'contained',
+      icon: Icon,
+      options,
+      action,
+      disabled,
+    } = item
 
-  const buttonProps = {
-    color,
-    variant,
-    'data-cy': accessor && `action.${accessor}`,
-    disabled: typeof disabled === 'function' ? disabled(selectedRows) : disabled,
-    icon: Icon && <Icon />,
-    label: label && Tr(label),
-    title: tooltip && Tr(tooltip)
+    const buttonProps = {
+      color,
+      variant,
+      'data-cy': accessor && `action.${accessor}`,
+      disabled:
+        typeof disabled === 'function' ? disabled(selectedRows) : disabled,
+      icon: Icon && <Icon />,
+      label: label && Tr(label),
+      title: tooltip && Tr(tooltip),
+    }
+
+    return action ? (
+      <Action {...buttonProps} handleClick={() => action?.(selectedRows)} />
+    ) : (
+      <ButtonToTriggerForm
+        buttonProps={buttonProps}
+        options={options?.map((option) => {
+          const {
+            accessor,
+            form,
+            onSubmit,
+            dialogProps,
+            disabled: optionDisabled,
+          } = option ?? {}
+          const { description, subheader, title, children } = dialogProps ?? {}
+
+          return {
+            ...option,
+            cy: accessor && `action.${accessor}`,
+            disabled:
+              typeof optionDisabled === 'function'
+                ? optionDisabled(selectedRows)
+                : optionDisabled,
+            dialogProps: {
+              ...dialogProps,
+              description:
+                typeof description === 'function'
+                  ? description(selectedRows)
+                  : description,
+              subheader:
+                typeof subheader === 'function'
+                  ? subheader(selectedRows)
+                  : subheader,
+              title: typeof title === 'function' ? title(selectedRows) : title,
+              children:
+                typeof children === 'function'
+                  ? children(selectedRows)
+                  : children,
+            },
+            form: form ? () => form(selectedRows) : undefined,
+            onSubmit: (data) => onSubmit(data, selectedRows),
+          }
+        })}
+      />
+    )
+  },
+  (prev, next) => {
+    const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
+    const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
+
+    return (
+      prev.selectedRows?.length === next.selectedRows?.length &&
+      prevStates?.every((prevState) => nextStates?.includes(prevState))
+    )
   }
-
-  return action ? (
-    <Action {...buttonProps} handleClick={() => action?.(selectedRows)} />
-  ) : (
-    <ButtonToTriggerForm
-      buttonProps={buttonProps}
-      options={options?.map(option => {
-        const { accessor, form, onSubmit, dialogProps, disabled: optionDisabled } = option ?? {}
-        const { description, subheader, title, children } = dialogProps ?? {}
-
-        return {
-          ...option,
-          cy: accessor && `action.${accessor}`,
-          disabled: typeof optionDisabled === 'function'
-            ? optionDisabled(selectedRows)
-            : optionDisabled,
-          dialogProps: {
-            ...dialogProps,
-            description: typeof description === 'function' ? description(selectedRows) : description,
-            subheader: typeof subheader === 'function' ? subheader(selectedRows) : subheader,
-            title: typeof title === 'function' ? title(selectedRows) : title,
-            children: typeof children === 'function' ? children(selectedRows) : children
-          },
-          form: form ? () => form(selectedRows) : undefined,
-          onSubmit: data => onSubmit(data, selectedRows)
-        }
-      })}
-    />
-  )
-}, (prev, next) => {
-  const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
-  const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
-
-  return (
-    prev.selectedRows?.length === next.selectedRows?.length &&
-    prevStates?.every(prevState => nextStates?.includes(prevState))
-  )
-})
+)
 
 export const ActionPropTypes = PropTypes.shape({
   accessor: PropTypes.string,
@@ -127,16 +147,13 @@ export const ActionPropTypes = PropTypes.shape({
   label: PropTypes.string,
   tooltip: PropTypes.string,
   icon: PropTypes.any,
-  disabled: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.func
-  ]),
+  disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   selected: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.shape({
       min: PropTypes.number,
-      max: PropTypes.number
-    })
+      max: PropTypes.number,
+    }),
   ]),
   action: PropTypes.func,
   isConfirmDialog: PropTypes.bool,
@@ -145,34 +162,22 @@ export const ActionPropTypes = PropTypes.shape({
       accessor: PropTypes.string,
       name: PropTypes.string,
       icon: PropTypes.any,
-      disabled: PropTypes.oneOfType([
-        PropTypes.bool,
-        PropTypes.func
-      ]),
+      disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
       form: PropTypes.func,
       onSubmit: PropTypes.func,
       dialogProps: PropTypes.shape({
         ...DialogPropTypes,
-        description: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ]),
-        subheader: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ]),
-        title: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ])
-      })
+        description: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+        subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+        title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+      }),
     })
-  )
+  ),
 })
 
 ActionItem.propTypes = {
   item: ActionPropTypes,
-  selectedRows: PropTypes.array
+  selectedRows: PropTypes.array,
 }
 
 ActionItem.displayName = 'ActionItem'

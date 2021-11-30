@@ -18,31 +18,34 @@ import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
-const Content = props => (
+const Content = (props) => (
   <FormWithSchema
-    cy='attach-nic-advanced'
+    cy="attach-nic-advanced"
     id={STEP_ID}
     fields={FIELDS(props)}
   />
 )
 
-const AdvancedOptions = props => ({
+const AdvancedOptions = (props) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: () => Content(props)
+  content: () => Content(props),
 })
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
-  nics: PropTypes.array
+  nics: PropTypes.array,
 }
 
 export default AdvancedOptions

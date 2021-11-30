@@ -21,11 +21,16 @@ import Legend from 'client/components/Forms/Legend'
 import { ErrorHelper } from 'client/components/FormControl'
 import { generateKey } from 'client/utils'
 
-const defaultGetRowId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
+const defaultGetRowId = (item) =>
+  typeof item === 'object' ? item?.id ?? item?.ID : item
 
-const getSelectedRowIds = value => [value ?? []]
-  .flat()
-  .reduce((initialSelected, rowId) => ({ ...initialSelected, [rowId]: true }), {})
+const getSelectedRowIds = (value) =>
+  [value ?? []]
+    .flat()
+    .reduce(
+      (initialSelected, rowId) => ({ ...initialSelected, [rowId]: true }),
+      {}
+    )
 
 const TableController = memo(
   ({
@@ -38,16 +43,18 @@ const TableController = memo(
     singleSelect = true,
     getRowId = defaultGetRowId,
     formContext = {},
-    fieldProps: { initialState, ...fieldProps } = {}
+    fieldProps: { initialState, ...fieldProps } = {},
   }) => {
     const { clearErrors } = formContext
 
     const {
       field: { value, onChange },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
-    const [initialRows, setInitialRows] = useState(() => getSelectedRowIds(value))
+    const [initialRows, setInitialRows] = useState(() =>
+      getSelectedRowIds(value)
+    )
 
     useEffect(() => {
       onChange(singleSelect ? undefined : [])
@@ -58,11 +65,7 @@ const TableController = memo(
       <>
         <Legend title={label} tooltip={tooltip} />
         {error && (
-          <ErrorHelper
-            data-cy={`${cy}-error`}
-            label={error?.message}
-            mb={2}
-          />
+          <ErrorHelper data-cy={`${cy}-error`} label={error?.message} mb={2} />
         )}
         <Table
           pageSize={4}
@@ -71,7 +74,7 @@ const TableController = memo(
           onlyGlobalSelectedRows
           getRowId={getRowId}
           initialState={{ ...initialState, selectedRowIds: initialRows }}
-          onSelectedRowsChange={rows => {
+          onSelectedRowsChange={(rows) => {
             const rowValues = rows?.map(({ original }) => getRowId(original))
 
             onChange(singleSelect ? rowValues?.[0] : rowValues)
@@ -105,8 +108,8 @@ TableController.propTypes = {
     setError: PropTypes.func,
     clearErrors: PropTypes.func,
     watch: PropTypes.func,
-    register: PropTypes.func
-  })
+    register: PropTypes.func,
+  }),
 }
 
 TableController.displayName = 'TableController'

@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const HOOK_ALLOCATE = 'hook.allocate'
@@ -38,7 +38,7 @@ const Actions = {
   HOOK_UNLOCK,
   HOOK_RETRY,
   HOOK_POOL_INFO,
-  HOOK_LOG_INFO
+  HOOK_LOG_INFO,
 }
 
 module.exports = {
@@ -50,9 +50,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [HOOK_DELETE]: {
       // inspected
@@ -60,9 +60,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOOK_DELETE]: {
       // inspected
@@ -70,17 +70,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOOK_RENAME]: {
       // inspected
@@ -88,13 +88,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [HOOK_INFO]: {
       // inspected
@@ -102,13 +102,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [HOOK_LOCK]: {
       // inspected
@@ -116,13 +116,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         lock: {
           from: postBody,
-          default: 4
-        }
-      }
+          default: 4,
+        },
+      },
     },
     [HOOK_UNLOCK]: {
       // inspected
@@ -130,9 +130,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOOK_RETRY]: {
       // inspected
@@ -140,13 +140,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         execution: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [HOOK_POOL_INFO]: {
       // inspected
@@ -154,17 +154,17 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1
+          default: -1,
         },
         start: {
           from: query,
-          default: -1
+          default: -1,
         },
         end: {
           from: query,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [HOOK_LOG_INFO]: {
       // inspected
@@ -172,21 +172,21 @@ module.exports = {
       params: {
         minimun: {
           from: postBody, // epoch time
-          default: ''
+          default: '',
         },
         maximun: {
           from: postBody, // epoch time
-          default: ''
+          default: '',
         },
         id: {
           from: postBody,
-          default: '' // check
+          default: '', // check
         },
         execution: {
           from: postBody,
-          default: 0
-        }
-      }
-    }
-  }
+          default: 0,
+        },
+      },
+    },
+  },
 }

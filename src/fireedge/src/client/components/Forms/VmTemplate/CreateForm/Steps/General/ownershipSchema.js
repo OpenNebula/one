@@ -31,11 +31,8 @@ export const UID_FIELD = {
       .map(({ ID: value, NAME: text }) => ({ text, value }))
       .sort((a, b) => a.value - b.value)
   },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(undefined),
-  grid: { md: 12 }
+  validation: string().trim().notRequired().default(undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Group id field */
@@ -50,15 +47,9 @@ export const GID_FIELD = {
       .map(({ ID: value, NAME: text }) => ({ text, value }))
       .sort((a, b) => a.value - b.value)
   },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(undefined),
-  grid: { md: 12 }
+  validation: string().trim().notRequired().default(undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of ownership fields */
-export const FIELDS = [
-  UID_FIELD,
-  GID_FIELD
-]
+export const FIELDS = [UID_FIELD, GID_FIELD]

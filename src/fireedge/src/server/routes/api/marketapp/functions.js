@@ -16,13 +16,13 @@
 
 const {
   defaultEmptyFunction,
-  defaultCommandMarketApp
+  defaultCommandMarketApp,
 } = require('server/utils/constants/defaults')
 
 const {
   ok,
   internalServerError,
-  badRequest
+  badRequest,
 } = require('server/utils/constants/http-codes')
 const { httpResponse, executeCommand } = require('server/utils/server')
 
@@ -40,12 +40,24 @@ const prependCommand = appConfig.sunstone_prepend || ''
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const exportApp = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const exportApp = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   let rtn = httpBadRequest
-  const { id, name, datastore, file, associated, tag, template, vmname } = params
+  const { id, name, datastore, file, associated, tag, template, vmname } =
+    params
   if (id && name && datastore) {
     let message = ''
-    const paramsCommand = ['export', `${id}`, `${name}`, '--datastore', datastore]
+    const paramsCommand = [
+      'export',
+      `${id}`,
+      `${name}`,
+      '--datastore',
+      datastore,
+    ]
     if (file) {
       paramsCommand.push('--file-datastore', file)
     }
@@ -61,7 +73,11 @@ const exportApp = (res = {}, next = defaultEmptyFunction, params = {}, userData 
     if (vmname) {
       paramsCommand.push('--vmname', vmname)
     }
-    const executedCommand = executeCommand(defaultCommandMarketApp, paramsCommand, prependCommand)
+    const executedCommand = executeCommand(
+      defaultCommandMarketApp,
+      paramsCommand,
+      prependCommand
+    )
     const response = executedCommand.success ? ok : internalServerError
     if (executedCommand.data) {
       message = executedCommand.data
@@ -73,6 +89,6 @@ const exportApp = (res = {}, next = defaultEmptyFunction, params = {}, userData 
 }
 
 const functionRoutes = {
-  exportApp
+  exportApp,
 }
 module.exports = functionRoutes

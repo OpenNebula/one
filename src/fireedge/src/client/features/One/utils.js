@@ -27,26 +27,36 @@ import { httpCodes } from 'server/utils/constants'
  * @returns {AsyncThunkAction} Asynchronous redux action
  */
 export const createAction = (type, service, wrapResult) =>
-  createAsyncThunk(type, async (payload, { dispatch, getState, rejectWithValue }) => {
-    try {
-      const { auth: { filterPool }, one } = getState()
+  createAsyncThunk(
+    type,
+    async (payload, { dispatch, getState, rejectWithValue }) => {
+      try {
+        const {
+          auth: { filterPool },
+          one,
+        } = getState()
 
-      const response = await service({
-        ...payload,
-        filter: filterPool
-      })
+        const response = await service({
+          ...payload,
+          filter: filterPool,
+        })
 
-      return wrapResult?.(response, one) ?? response
-    } catch (error) {
-      const { message, data, status, statusText } = error
+        return wrapResult?.(response, one) ?? response
+      } catch (error) {
+        const { message, data, status, statusText } = error
 
-      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+        status === httpCodes.unauthorized.id &&
+          dispatch(logout(T.SessionExpired))
 
-      return rejectWithValue(message ?? data?.data ?? data?.message ?? statusText)
+        return rejectWithValue(
+          message ?? data?.data ?? data?.message ?? statusText
+        )
+      }
+    },
+    {
+      condition: (_, { getState }) => !getState().one.requests[type],
     }
-  }, {
-    condition: (_, { getState }) => !getState().one.requests[type]
-  })
+  )
 
 /**
  * @param {object} currentList - Current list of resources from redux
@@ -60,7 +70,7 @@ export const updateResourceList = (currentList, value) => {
 
   // update if exists in current list, if not add it to list
   const updatedList = currentItem
-    ? currentList?.map(item => item?.ID === id ? value : item)
+    ? currentList?.map((item) => (item?.ID === id ? value : item))
     : [value, ...currentList]
 
   return updatedList

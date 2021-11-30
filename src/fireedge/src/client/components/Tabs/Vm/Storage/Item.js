@@ -46,7 +46,7 @@ const StorageItem = ({ disk, actions = [] }) => {
     SAVE,
     CLONE,
     IS_CONTEXT,
-    SNAPSHOTS
+    SNAPSHOTS,
   } = disk
 
   const size = +SIZE ? prettyBytes(+SIZE, 'MB') : '-'
@@ -55,36 +55,36 @@ const StorageItem = ({ disk, actions = [] }) => {
   const isImage = IMAGE_ID !== undefined
   const type = String(TYPE).toLowerCase()
 
-  const image = IMAGE ?? ({
-    fs: `${FORMAT} - ${size}`,
-    swap: size
-  }[type])
+  const image =
+    IMAGE ??
+    {
+      fs: `${FORMAT} - ${size}`,
+      swap: size,
+    }[type]
 
-  const labels = [...new Set([
-    TYPE,
-    Helper.stringToBoolean(PERSISTENT) && 'PERSISTENT',
-    Helper.stringToBoolean(READONLY) && 'READONLY',
-    Helper.stringToBoolean(SAVE) && 'SAVE',
-    Helper.stringToBoolean(CLONE) && 'CLONE'
-  ])].filter(Boolean)
+  const labels = [
+    ...new Set([
+      TYPE,
+      Helper.stringToBoolean(PERSISTENT) && 'PERSISTENT',
+      Helper.stringToBoolean(READONLY) && 'READONLY',
+      Helper.stringToBoolean(SAVE) && 'SAVE',
+      Helper.stringToBoolean(CLONE) && 'CLONE',
+    ]),
+  ].filter(Boolean)
 
   return (
-    <Paper variant='outlined' className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {image}
-          </Typography>
+          <Typography component="span">{image}</Typography>
           <span className={classes.labels}>
-            {labels.map(label => (
+            {labels.map((label) => (
               <StatusChip key={label} text={label} />
             ))}
           </span>
         </div>
         <div className={classes.caption}>
-          <span>
-            {`#${DISK_ID}`}
-          </span>
+          <span>{`#${DISK_ID}`}</span>
           {TARGET && (
             <span title={`Target: ${TARGET}`}>
               <DatabaseSettings />
@@ -121,7 +121,7 @@ const StorageItem = ({ disk, actions = [] }) => {
       )}
       {SNAPSHOTS?.length > 0 && (
         <div style={{ flexBasis: '100%' }}>
-          {SNAPSHOTS?.map(snapshot => (
+          {SNAPSHOTS?.map((snapshot) => (
             <StorageSubItem
               key={`${DISK_ID}-${snapshot.ID}`}
               disk={disk}
@@ -137,7 +137,7 @@ const StorageItem = ({ disk, actions = [] }) => {
 
 StorageItem.propTypes = {
   disk: PropTypes.object.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.string)
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
 StorageItem.displayName = 'StorageItem'

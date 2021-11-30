@@ -46,23 +46,18 @@ const Row = ({ original, value, ...props }) => {
   return (
     <div {...props}>
       <div className={classes.figure}>
-        <Image
-          src={logoSource}
-          imgProps={{ className: classes.image }}
-        />
+        <Image src={logoSource} imgProps={{ className: classes.image }} />
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
+          <Typography component="span">{NAME}</Typography>
           <span className={classes.labels}>
             {LOCK && <Lock />}
             {VROUTER && <StatusChip text={VROUTER} />}
           </span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')} className='full-width'>
+          <span title={time.toFormat('ff')} className="full-width">
             {`#${ID} ${timeAgo}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
@@ -83,7 +78,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

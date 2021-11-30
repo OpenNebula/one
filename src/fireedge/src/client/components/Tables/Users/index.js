@@ -25,21 +25,28 @@ import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
 
-const UsersTable = props => {
+const UsersTable = (props) => {
   const { view, getResourceView, filterPool } = useAuth()
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('USER')?.filters,
-    columns: UserColumns
-  }), [view])
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView('USER')?.filters,
+        columns: UserColumns,
+      }),
+    [view]
+  )
 
   const users = useUser()
   const { getUsers } = useUserApi()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getUsers)
+  const { status, fetchRequest, loading, reloading, STATUS } =
+    useFetch(getUsers)
   const { INIT, PENDING } = STATUS
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  useEffect(() => {
+    fetchRequest()
+  }, [filterPool])
 
   if (users?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
@@ -50,7 +57,7 @@ const UsersTable = props => {
       columns={columns}
       data={users}
       isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      getRowId={(row) => String(row.ID)}
       RowComponent={UserRow}
       {...props}
     />

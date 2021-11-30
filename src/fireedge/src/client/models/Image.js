@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { IMAGE_TYPES, DISK_TYPES, IMAGE_STATES, StateInfo } from 'client/constants'
+import {
+  IMAGE_TYPES,
+  DISK_TYPES,
+  IMAGE_STATES,
+  StateInfo,
+} from 'client/constants'
 
 /**
  * Returns the image type.

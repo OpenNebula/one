@@ -16,11 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import {
-  RefreshDouble,
-  AddSquare,
-  CloudDownload
-} from 'iconoir-react'
+import { RefreshDouble, AddSquare, CloudDownload } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
@@ -33,7 +29,7 @@ import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 
-const MessageToConfirmAction = rows => {
+const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
 
   return (
@@ -57,45 +53,52 @@ const Actions = () => {
   const { enqueueSuccess } = useGeneralApi()
   const { getMarketplaceApps, exportApp } = useMarketplaceAppApi()
 
-  const marketplaceAppActions = useMemo(() => createActions({
-    filters: getResourceView('MARKETPLACE-APP')?.actions,
-    actions: [
-      {
-        accessor: MARKETPLACE_APP_ACTIONS.REFRESH,
-        tooltip: T.Refresh,
-        icon: RefreshDouble,
-        action: async () => {
-          await getMarketplaceApps()
-        }
-      },
-      {
-        accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: T.CreateMarketApp,
-        icon: AddSquare,
-        action: () => {
-          history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
-        }
-      },
-      {
-        accessor: MARKETPLACE_APP_ACTIONS.EXPORT,
-        tooltip: T.ImportIntoDatastore,
-        selected: { max: 1 },
-        icon: CloudDownload,
-        options: [{
-          dialogProps: { title: T.DownloadAppToOpenNebula },
-          form: rows => {
-            const app = rows?.map(({ original }) => original)[0]
-            return ExportForm(app, app)
+  const marketplaceAppActions = useMemo(
+    () =>
+      createActions({
+        filters: getResourceView('MARKETPLACE-APP')?.actions,
+        actions: [
+          {
+            accessor: MARKETPLACE_APP_ACTIONS.REFRESH,
+            tooltip: T.Refresh,
+            icon: RefreshDouble,
+            action: async () => {
+              await getMarketplaceApps()
+            },
           },
-          onSubmit: async (formData, rows) => {
-            const appId = rows?.[0]?.original?.ID
-            const response = await exportApp(appId, formData)
-            enqueueSuccess(response)
-          }
-        }]
-      }
-    ]
-  }), [view])
+          {
+            accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
+            tooltip: T.CreateMarketApp,
+            icon: AddSquare,
+            action: () => {
+              history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
+            },
+          },
+          {
+            accessor: MARKETPLACE_APP_ACTIONS.EXPORT,
+            tooltip: T.ImportIntoDatastore,
+            selected: { max: 1 },
+            icon: CloudDownload,
+            options: [
+              {
+                dialogProps: { title: T.DownloadAppToOpenNebula },
+                form: (rows) => {
+                  const app = rows?.map(({ original }) => original)[0]
+
+                  return ExportForm(app, app)
+                },
+                onSubmit: async (formData, rows) => {
+                  const appId = rows?.[0]?.original?.ID
+                  const response = await exportApp(appId, formData)
+                  enqueueSuccess(response)
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    [view]
+  )
 
   return marketplaceAppActions
 }

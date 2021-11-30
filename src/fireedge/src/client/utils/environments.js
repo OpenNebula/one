@@ -16,7 +16,7 @@
 /** @enum {string} Mode */
 const MODE = {
   development: 'development',
-  production: 'production'
+  production: 'production',
 }
 
 /** @returns {boolean} `true` if is load in the server */

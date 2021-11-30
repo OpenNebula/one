@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import HostsTable, { STEP_ID as HOST_ID } from 'client/components/Forms/Vm/MigrateForm/Steps/HostsTable'
-import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions'
+import HostsTable, {
+  STEP_ID as HOST_ID,
+} from 'client/components/Forms/Vm/MigrateForm/Steps/HostsTable'
+import AdvancedOptions, {
+  STEP_ID as ADVANCED_ID,
+} from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps(
-  [HostsTable, AdvancedOptions],
-  {
-    transformBeforeSubmit: formData => {
-      const { [HOST_ID]: [host] = [], [ADVANCED_ID]: advanced } = formData
+const Steps = createSteps([HostsTable, AdvancedOptions], {
+  transformBeforeSubmit: (formData) => {
+    const { [HOST_ID]: [host] = [], [ADVANCED_ID]: advanced } = formData
 
-      return { host: host?.ID, ...advanced }
-    }
-  }
-)
+    return { host: host?.ID, ...advanced }
+  },
+})
 
 export default Steps

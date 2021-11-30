@@ -28,14 +28,16 @@ const NetworkCard = memo(
     const addresses = [AR_POOL?.AR ?? []].flat()
     const totalLeases = addresses.reduce((res, ar) => +ar.SIZE + res, 0)
 
-    const percentOfUsed = +USED_LEASES * 100 / +totalLeases || 0
-    const percentLabel = `${USED_LEASES} / ${totalLeases} (${Math.round(percentOfUsed)}%)`
+    const percentOfUsed = (+USED_LEASES * 100) / +totalLeases || 0
+    const percentLabel = `${USED_LEASES} / ${totalLeases} (${Math.round(
+      percentOfUsed
+    )}%)`
 
     return (
       <SelectCard
-        action={actions?.map(action =>
+        action={actions?.map((action) => (
           <Action key={action?.cy} {...action} />
-        )}
+        ))}
         icon={<NetworkIcon />}
         title={NAME}
         subheader={`#${ID}`}
@@ -59,8 +61,8 @@ NetworkCard.propTypes = {
     STATE: PropTypes.string,
     USED_LEASES: PropTypes.string,
     AR_POOL: PropTypes.shape({
-      AR: PropTypes.oneOfType([PropTypes.object, PropTypes.array])
-    })
+      AR: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+    }),
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
@@ -68,16 +70,16 @@ NetworkCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 NetworkCard.defaultProps = {
   value: {},
   isSelected: false,
   handleClick: undefined,
-  actions: undefined
+  actions: undefined,
 }
 
 NetworkCard.displayName = 'NetworkCard'

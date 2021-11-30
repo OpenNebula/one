@@ -17,5 +17,5 @@ export const MARKETPLACE_APP_ACTIONS = {
   REFRESH: 'refresh',
   CREATE_DIALOG: 'create_dialog',
   RENAME: 'rename',
-  EXPORT: 'export'
+  EXPORT: 'export',
 }

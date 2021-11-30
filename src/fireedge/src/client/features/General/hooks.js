@@ -20,55 +20,55 @@ import * as actions from 'client/features/General/actions'
 import { name as generalSlice } from 'client/features/General/slice'
 import { generateKey } from 'client/utils'
 
-export const useGeneral = () => (
-  useSelector(state => state[generalSlice], shallowEqual)
-)
+export const useGeneral = () =>
+  useSelector((state) => state[generalSlice], shallowEqual)
 
 export const useGeneralApi = () => {
   const dispatch = useDispatch()
 
   return {
-    fixMenu: isFixed => dispatch(actions.fixMenu(isFixed)),
-    changeLoading: isLoading => dispatch(actions.changeLoading(isLoading)),
-    changeTitle: title => dispatch(actions.changeTitle(title)),
-    changeAppTitle: appTitle => dispatch(actions.changeAppTitle(appTitle)),
-    changeZone: zone => dispatch(actions.changeZone(zone)),
+    fixMenu: (isFixed) => dispatch(actions.fixMenu(isFixed)),
+    changeLoading: (isLoading) => dispatch(actions.changeLoading(isLoading)),
+    changeTitle: (title) => dispatch(actions.changeTitle(title)),
+    changeAppTitle: (appTitle) => dispatch(actions.changeAppTitle(appTitle)),
+    changeZone: (zone) => dispatch(actions.changeZone(zone)),
 
     // dismiss all if no key has been defined
-    dismissSnackbar: key => dispatch(
-      actions.dismissSnackbar({ key, dismissAll: !key })
-    ),
-    deleteSnackbar: key => dispatch(
-      actions.deleteSnackbar({ key })
-    ),
+    dismissSnackbar: (key) =>
+      dispatch(actions.dismissSnackbar({ key, dismissAll: !key })),
+    deleteSnackbar: (key) => dispatch(actions.deleteSnackbar({ key })),
 
-    enqueueSnackbar: ({ message, options = {} } = {}) => dispatch(
-      actions.enqueueSnackbar({
-        key: generateKey(),
-        message,
-        options
-      })
-    ),
-    enqueueSuccess: message => dispatch(
-      actions.enqueueSnackbar({
-        key: generateKey(),
-        message,
-        options: { variant: 'success' }
-      })
-    ),
-    enqueueError: message => dispatch(
-      actions.enqueueSnackbar({
-        key: generateKey(),
-        message,
-        options: { variant: 'error' }
-      })
-    ),
-    enqueueInfo: message => dispatch(
-      actions.enqueueSnackbar({
-        key: generateKey(),
-        message,
-        options: { variant: 'info' }
-      })
-    )
+    enqueueSnackbar: ({ message, options = {} } = {}) =>
+      dispatch(
+        actions.enqueueSnackbar({
+          key: generateKey(),
+          message,
+          options,
+        })
+      ),
+    enqueueSuccess: (message) =>
+      dispatch(
+        actions.enqueueSnackbar({
+          key: generateKey(),
+          message,
+          options: { variant: 'success' },
+        })
+      ),
+    enqueueError: (message) =>
+      dispatch(
+        actions.enqueueSnackbar({
+          key: generateKey(),
+          message,
+          options: { variant: 'error' },
+        })
+      ),
+    enqueueInfo: (message) =>
+      dispatch(
+        actions.enqueueSnackbar({
+          key: generateKey(),
+          message,
+          options: { variant: 'info' },
+        })
+      ),
   }
 }

@@ -27,19 +27,19 @@ const VmTemplateInfoTab = ({ tabProps = {} }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
-    ownership_panel: ownershipPanel
+    ownership_panel: ownershipPanel,
   } = tabProps
 
   const { rename, changeOwnership, changePermissions } = useVmTemplateApi()
   const { handleRefetch, data: template = {} } = useContext(TabContext)
   const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = template
 
-  const handleChangeOwnership = async newOwnership => {
+  const handleChangeOwnership = async (newOwnership) => {
     const response = await changeOwnership(ID, newOwnership)
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const handleChangePermission = async newPermission => {
+  const handleChangePermission = async (newPermission) => {
     const response = await changePermissions(ID, newPermission)
     String(response) === String(ID) && (await handleRefetch?.())
   }
@@ -49,15 +49,17 @@ const VmTemplateInfoTab = ({ tabProps = {} }) => {
     String(response) === String(ID) && (await handleRefetch?.())
   }
 
-  const getActions = actions => Helper.getActionsAvailable(actions)
+  const getActions = (actions) => Helper.getActionsAvailable(actions)
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: '1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+        padding: '0.8em',
+      }}
+    >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
@@ -95,7 +97,7 @@ const VmTemplateInfoTab = ({ tabProps = {} }) => {
 }
 
 VmTemplateInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
 }
 
 VmTemplateInfoTab.displayName = 'VmTemplateInfoTab'

@@ -22,7 +22,7 @@ const {
   default2FAIssuer,
   defaultEmptyFunction,
   default2FAOpennebulaVar,
-  default2FAOpennebulaTmpVar
+  default2FAOpennebulaTmpVar,
 } = require('server/utils/constants/defaults')
 const { httpResponse } = require('server/utils/server')
 const { getFireedgeConfig } = require('server/utils/yml')
@@ -31,20 +31,19 @@ const { Actions } = require('server/utils/constants/commands/user')
 const {
   responseOpennebula,
   getDefaultParamsOfOpennebulaCommand,
-  generateNewResourceTemplate
+  generateNewResourceTemplate,
 } = require('server/utils/opennebula')
 
 // user config
 const appConfig = getFireedgeConfig()
-const twoFactorAuthIssuer =
-  appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
+const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 
 const { GET } = httpMethod
 
 const {
   ok,
   unauthorized,
-  internalServerError
+  internalServerError,
 } = require('server/utils/constants/http-codes')
 
 /**
@@ -54,7 +53,11 @@ const {
  * @param {Function} next - express stepper
  * @param {Function} callback - run if have user information
  */
-const getUserInfoAuthenticated = (connect = defaultEmptyFunction, next = defaultEmptyFunction, callback = defaultEmptyFunction) => {
+const getUserInfoAuthenticated = (
+  connect = defaultEmptyFunction,
+  next = defaultEmptyFunction,
+  callback = defaultEmptyFunction
+) => {
   connect(
     Actions.USER_INFO,
     getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
@@ -63,7 +66,7 @@ const getUserInfoAuthenticated = (connect = defaultEmptyFunction, next = default
         () => undefined,
         err,
         value,
-        info => {
+        (info) => {
           if (info !== undefined && info !== null) {
             callback(info)
           } else {
@@ -85,60 +88,62 @@ const getUserInfoAuthenticated = (connect = defaultEmptyFunction, next = default
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const setup = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const setup = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const { token } = params
   const oneConnect = oneConnection()
-  getUserInfoAuthenticated(
-    oneConnect,
-    next,
-    userData => {
-      if (
-        userData &&
-        userData.USER &&
-        userData.USER.ID &&
-        userData.USER.TEMPLATE &&
-        userData.USER.TEMPLATE.SUNSTONE &&
-        userData.USER.TEMPLATE.SUNSTONE[default2FAOpennebulaTmpVar] &&
-        token
-      ) {
-        const sunstone = userData.USER.TEMPLATE.SUNSTONE
-        const secret = sunstone[default2FAOpennebulaTmpVar]
-        if (check2Fa(secret, token)) {
-          oneConnect(
-            Actions.USER_UPDATE,
-            [
-              parseInt(userData.USER.ID, 10),
-              generateNewResourceTemplate(
-                userData.USER.TEMPLATE.SUNSTONE || {},
-                { [default2FAOpennebulaVar]: secret },
-                [default2FAOpennebulaTmpVar]
-              ),
-              1
-            ],
-            (error, value) => {
-              responseOpennebula(
-                () => undefined,
-                error,
-                value,
-                pass => {
-                  if (pass !== undefined && pass !== null) {
-                    res.locals.httpCode = httpResponse(ok)
-                  }
-                  next()
-                },
-                next
-              )
-            }
-          )
-        } else {
-          res.locals.httpCode = httpResponse(unauthorized)
-          next()
-        }
+  getUserInfoAuthenticated(oneConnect, next, (userData) => {
+    if (
+      userData &&
+      userData.USER &&
+      userData.USER.ID &&
+      userData.USER.TEMPLATE &&
+      userData.USER.TEMPLATE.SUNSTONE &&
+      userData.USER.TEMPLATE.SUNSTONE[default2FAOpennebulaTmpVar] &&
+      token
+    ) {
+      const sunstone = userData.USER.TEMPLATE.SUNSTONE
+      const secret = sunstone[default2FAOpennebulaTmpVar]
+      if (check2Fa(secret, token)) {
+        oneConnect(
+          Actions.USER_UPDATE,
+          [
+            parseInt(userData.USER.ID, 10),
+            generateNewResourceTemplate(
+              userData.USER.TEMPLATE.SUNSTONE || {},
+              { [default2FAOpennebulaVar]: secret },
+              [default2FAOpennebulaTmpVar]
+            ),
+            1,
+          ],
+          (error, value) => {
+            responseOpennebula(
+              () => undefined,
+              error,
+              value,
+              (pass) => {
+                if (pass !== undefined && pass !== null) {
+                  res.locals.httpCode = httpResponse(ok)
+                }
+                next()
+              },
+              next
+            )
+          }
+        )
       } else {
+        res.locals.httpCode = httpResponse(unauthorized)
         next()
       }
+    } else {
+      next()
     }
-  )
+  })
 }
 
 /**
@@ -150,10 +155,16 @@ const setup = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const qr = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const qr = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const secret = speakeasy.generateSecret({
     length: 10,
-    name: twoFactorAuthIssuer
+    name: twoFactorAuthIssuer,
   })
   if (secret && secret.otpauth_url && secret.base32) {
     const { otpauth_url: otpURL, base32 } = secret
@@ -163,46 +174,47 @@ const qr = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, o
         next()
       } else {
         const oneConnect = oneConnection()
-        getUserInfoAuthenticated(
-          oneConnect,
-          next,
-          userData => {
-            if (userData && userData.USER && userData.USER.ID && userData.USER.TEMPLATE) {
-              oneConnect(
-                Actions.USER_UPDATE,
-                [
-                  parseInt(userData.USER.ID, 10),
-                  generateNewResourceTemplate(
-                    userData.USER.TEMPLATE.SUNSTONE || {},
-                    { [default2FAOpennebulaTmpVar]: base32 },
-                    [default2FAOpennebulaVar]
-                  ),
-                  1
-                ],
-                (error, value) => {
-                  responseOpennebula(
-                    () => undefined,
-                    error,
-                    value,
-                    pass => {
-                      if (pass !== undefined && pass !== null) {
-                        res.locals.httpCode = httpResponse(ok, {
-                          img: dataURL
-                        })
-                        next()
-                      } else {
-                        next()
-                      }
-                    },
-                    next
-                  )
-                }
-              )
-            } else {
-              next()
-            }
+        getUserInfoAuthenticated(oneConnect, next, (userData) => {
+          if (
+            userData &&
+            userData.USER &&
+            userData.USER.ID &&
+            userData.USER.TEMPLATE
+          ) {
+            oneConnect(
+              Actions.USER_UPDATE,
+              [
+                parseInt(userData.USER.ID, 10),
+                generateNewResourceTemplate(
+                  userData.USER.TEMPLATE.SUNSTONE || {},
+                  { [default2FAOpennebulaTmpVar]: base32 },
+                  [default2FAOpennebulaVar]
+                ),
+                1,
+              ],
+              (error, value) => {
+                responseOpennebula(
+                  () => undefined,
+                  error,
+                  value,
+                  (pass) => {
+                    if (pass !== undefined && pass !== null) {
+                      res.locals.httpCode = httpResponse(ok, {
+                        img: dataURL,
+                      })
+                      next()
+                    } else {
+                      next()
+                    }
+                  },
+                  next
+                )
+              }
+            )
+          } else {
+            next()
           }
-        )
+        })
       }
     })
   } else {
@@ -219,52 +231,54 @@ const qr = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, o
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const del = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
+const del = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
   const oneConnect = oneConnection()
-  getUserInfoAuthenticated(
-    oneConnect,
-    next,
-    userData => {
-      if (
-        userData &&
-        userData.USER &&
-        userData.USER.ID &&
-        userData.USER.TEMPLATE &&
-        userData.USER.TEMPLATE.SUNSTONE
-      ) {
-        oneConnect(
-          Actions.USER_UPDATE,
-          [
-            parseInt(userData.USER.ID, 10),
-            generateNewResourceTemplate(
-              userData.USER.TEMPLATE.SUNSTONE || {},
-              {},
-              [default2FAOpennebulaTmpVar, default2FAOpennebulaVar]
-            ),
-            1
-          ],
-          (err, value) => {
-            responseOpennebula(
-              () => undefined,
-              err,
-              value,
-              pass => {
-                if (pass !== undefined && pass !== null) {
-                  res.locals.httpCode = httpResponse(ok)
-                }
-                next()
-              },
-              next
-            )
-          }
-        )
-      }
+  getUserInfoAuthenticated(oneConnect, next, (userData) => {
+    if (
+      userData &&
+      userData.USER &&
+      userData.USER.ID &&
+      userData.USER.TEMPLATE &&
+      userData.USER.TEMPLATE.SUNSTONE
+    ) {
+      oneConnect(
+        Actions.USER_UPDATE,
+        [
+          parseInt(userData.USER.ID, 10),
+          generateNewResourceTemplate(
+            userData.USER.TEMPLATE.SUNSTONE || {},
+            {},
+            [default2FAOpennebulaTmpVar, default2FAOpennebulaVar]
+          ),
+          1,
+        ],
+        (err, value) => {
+          responseOpennebula(
+            () => undefined,
+            err,
+            value,
+            (pass) => {
+              if (pass !== undefined && pass !== null) {
+                res.locals.httpCode = httpResponse(ok)
+              }
+              next()
+            },
+            next
+          )
+        }
+      )
     }
-  )
+  })
 }
 const tfaApi = {
   setup,
   qr,
-  del
+  del,
 }
 module.exports = tfaApi

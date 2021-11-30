@@ -24,7 +24,7 @@ const RDP_FIELD = {
   label: T.RdpConnection,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} SSH connection field */
@@ -33,7 +33,7 @@ const SSH_FIELD = {
   label: T.SshConnection,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /**
@@ -45,27 +45,27 @@ const ALIAS_FIELD = ({ nics = [] }) => ({
   name: 'PARENT',
   label: T.AsAnAlias,
   dependOf: 'NAME',
-  type: name => {
-    const hasAlias = nics?.some(nic => nic.PARENT === name)
+  type: (name) => {
+    const hasAlias = nics?.some((nic) => nic.PARENT === name)
 
     return name && hasAlias ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SELECT
   },
-  values: name => [
+  values: (name) => [
     { text: '', value: '' },
     ...nics
       .filter(({ PARENT }) => !PARENT) // filter nic alias
       .filter(({ NAME }) => NAME !== name || !name) // filter it self
-      .map(nic => {
+      .map((nic) => {
         const { NAME, IP = '', NETWORK = '', NIC_ID = '' } = nic
         const text = [NAME ?? NIC_ID, NETWORK, IP].filter(Boolean).join(' - ')
 
         return { text, value: NAME }
-      })
+      }),
   ],
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 })
 
 /** @type {Field} External field */
@@ -75,8 +75,8 @@ const EXTERNAL_FIELD = {
   tooltip: T.ExternalConcept,
   type: INPUT_TYPES.SWITCH,
   dependOf: 'PARENT',
-  htmlType: parent => !parent?.length && INPUT_TYPES.HIDDEN,
-  validation: boolean().yesOrNo()
+  htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,
+  validation: boolean().yesOrNo(),
 }
 
 /**
@@ -87,7 +87,7 @@ export const FIELDS = (currentFormData = {}) => [
   RDP_FIELD,
   SSH_FIELD,
   ALIAS_FIELD(currentFormData),
-  EXTERNAL_FIELD
+  EXTERNAL_FIELD,
 ]
 
 /** @type {ObjectSchema} Advanced options schema */

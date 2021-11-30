@@ -15,27 +15,24 @@
  * ------------------------------------------------------------------------- */
 
 const { httpMethod } = require('server/utils/constants/defaults')
-const {
-  getConfig,
-  getViews
-} = require('./sunstone-functions')
+const { getConfig, getViews } = require('./sunstone-functions')
 const { GET } = httpMethod
 
 const routes = {
   [GET]: {
     views: {
       action: getViews,
-      params: {}
+      params: {},
     },
     config: {
       action: getConfig,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }
 
 const sunstoneApi = {
-  routes
+  routes,
 }
 
 module.exports = sunstoneApi

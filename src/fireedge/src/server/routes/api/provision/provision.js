@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const {
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
 const {
   getListResourceProvision,
   getListProvisions,
@@ -27,7 +30,7 @@ const {
   configureProvision,
   configureHost,
   validate,
-  getProvisionDefaults
+  getProvisionDefaults,
 } = require('./provision-functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
@@ -36,192 +39,192 @@ const routes = {
     list: {
       action: getListProvisions,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     cluster: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     datastore: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     host: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     image: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     network: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     template: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     vntemplate: {
       action: getListResourceProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
-      }
+        resource: { from: fromData.resource, name: 'method' },
+      },
     },
     log: {
       action: getLogProvisions,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     defaults: {
       action: getProvisionDefaults,
-      params: {}
-    }
+      params: {},
+    },
   },
   [POST]: {
     create: {
       action: createProvision,
       params: {
-        resource: { from: fromData.postBody, front: true }
+        resource: { from: fromData.postBody, front: true },
       },
-      websocket: true
+      websocket: true,
     },
     validate: {
       action: validate,
       params: {
-        resource: { from: fromData.postBody, front: true }
-      }
+        resource: { from: fromData.postBody, front: true },
+      },
     },
     host: {
       poweroff: {
         action: hostCommand,
         params: {
           action: { from: fromData.resource, name: 'id' },
-          id: { from: fromData.resource, name: 'id2', front: true }
-        }
+          id: { from: fromData.resource, name: 'id2', front: true },
+        },
       },
       reboot: {
         action: hostCommand,
         params: {
           action: { from: fromData.resource, name: 'id' },
-          id: { from: fromData.resource, name: 'id2', front: true }
-        }
+          id: { from: fromData.resource, name: 'id2', front: true },
+        },
       },
       resume: {
         action: hostCommand,
         params: {
           action: { from: fromData.resource, name: 'id' },
-          id: { from: fromData.resource, name: 'id2', front: true }
-        }
+          id: { from: fromData.resource, name: 'id2', front: true },
+        },
       },
       ssh: {
         action: hostCommandSSH,
         params: {
           action: { from: fromData.resource, name: 'id' },
           id: { from: fromData.resource, name: 'id2', front: true },
-          command: { from: fromData.postBody, name: 'command', front: true }
-        }
-      }
-    }
+          command: { from: fromData.postBody, name: 'command', front: true },
+        },
+      },
+    },
   },
   [DELETE]: {
     delete: {
       action: deleteProvision,
       params: {
         id: { from: fromData.resource, name: 'id', front: true },
-        cleanup: { from: fromData.postBody, name: 'cleanup', front: true }
+        cleanup: { from: fromData.postBody, name: 'cleanup', front: true },
       },
-      websocket: true
+      websocket: true,
     },
     datastore: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     flowtemplate: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     host: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     image: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     network: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     vntemplate: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     template: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
     },
     cluster: {
       action: deleteResource,
       params: {
         resource: { from: fromData.resource, name: 'method' },
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
-    }
+        id: { from: fromData.resource, name: 'id', front: true },
+      },
+    },
   },
   [PUT]: {
     configure: {
       action: configureProvision,
       params: {
-        id: { from: fromData.resource, name: 'id' }
+        id: { from: fromData.resource, name: 'id' },
       },
-      websocket: true
+      websocket: true,
     },
     host: {
       action: configureHost,
       params: {
-        id: { from: fromData.resource, name: 'id' }
-      }
-    }
-  }
+        id: { from: fromData.resource, name: 'id' },
+      },
+    },
+  },
 }
 
 const provisionApi = {
-  routes
+  routes,
 }
 module.exports = provisionApi

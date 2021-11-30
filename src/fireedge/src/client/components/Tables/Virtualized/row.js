@@ -29,12 +29,12 @@ const useStyles = makeStyles(() => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '100%'
+    width: '100%',
   },
   virtual: ({ size, start }) => ({
     height: size,
-    transform: `translateY(${start}px)`
-  })
+    transform: `translateY(${start}px)`,
+  }),
 }))
 
 const Row = ({ virtualRow, useTableProps }) => {
@@ -51,14 +51,14 @@ const Row = ({ virtualRow, useTableProps }) => {
 
   prepareRow(row)
 
-  const renderCell = useCallback(cell => (
-    <Box {...cell.getCellProps()}>
-      {cell.render('Cell')}
-    </Box>
-  ), [])
+  const renderCell = useCallback(
+    (cell) => <Box {...cell.getCellProps()}>{cell.render('Cell')}</Box>,
+    []
+  )
 
   return (
-    <Box {...row.getRowProps()}
+    <Box
+      {...row.getRowProps()}
       ref={measureRef}
       className={clsx(classes.root, classes.virtual)}
     >
@@ -69,12 +69,12 @@ const Row = ({ virtualRow, useTableProps }) => {
 
 Row.propTypes = {
   virtualRow: PropTypes.object,
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 Row.defaultProps = {
   virtualRow: {},
-  useTableProps: {}
+  useTableProps: {},
 }
 
 export default Row

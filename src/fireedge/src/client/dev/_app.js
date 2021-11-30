@@ -28,20 +28,22 @@ import { _APPS, APPS } from 'client/constants'
  * @param {object} props - Props from server
  * @returns {JSXElementConstructor} Returns App
  */
-const DevelopmentApp = props => {
+const DevelopmentApp = (props) => {
   let appName = ''
 
   if (isDevelopment() && !isBackend()) {
     appName = window.location.pathname
       .split(/\//gi)
-      .filter(sub => sub?.length > 0)
-      .find(resource => APPS.includes(resource))
+      .filter((sub) => sub?.length > 0)
+      .find((resource) => APPS.includes(resource))
   }
 
-  return {
-    [_APPS.provision.name]: <ProvisionApp {...props} />,
-    [_APPS.sunstone.name]: <SunstoneApp {...props} />
-  }[appName] ?? <LoadingScreen />
+  return (
+    {
+      [_APPS.provision.name]: <ProvisionApp {...props} />,
+      [_APPS.sunstone.name]: <SunstoneApp {...props} />,
+    }[appName] ?? <LoadingScreen />
+  )
 }
 
 DevelopmentApp.displayName = 'DevelopmentApp'

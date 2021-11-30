@@ -19,7 +19,7 @@ import { RestClient } from 'client/utils'
 
 const { POST, PUT } = defaults?.httpMethod || {}
 
-export const applicationTemplateService = ({
+export const applicationTemplateService = {
   /**
    * Retrieves information for the service template.
    *
@@ -30,7 +30,7 @@ export const applicationTemplateService = ({
    */
   getApplicationTemplate: ({ id }) => {
     const res = RestClient.request({
-      url: `/api/${SERVICE_TEMPLATE}/list/${id}`
+      url: `/api/${SERVICE_TEMPLATE}/list/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -44,7 +44,7 @@ export const applicationTemplateService = ({
    */
   getApplicationsTemplates: async () => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE_TEMPLATE}/list`
+      url: `/api/${SERVICE_TEMPLATE}/list`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -64,7 +64,7 @@ export const applicationTemplateService = ({
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${SERVICE_TEMPLATE}/create`
+      url: `/api/${SERVICE_TEMPLATE}/create`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -85,7 +85,7 @@ export const applicationTemplateService = ({
     const res = RestClient.request({
       data,
       method: PUT,
-      url: `/api/${SERVICE_TEMPLATE}/update/${id}`
+      url: `/api/${SERVICE_TEMPLATE}/update/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -107,15 +107,15 @@ export const applicationTemplateService = ({
       data: {
         action: {
           perform: 'instantiate',
-          params: { merge_template: data }
-        }
+          params: { merge_template: data },
+        },
       },
       method: PUT,
-      url: `/api/${SERVICE_TEMPLATE}/action/${id}`
+      url: `/api/${SERVICE_TEMPLATE}/action/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data ?? {}
-  }
-})
+  },
+}

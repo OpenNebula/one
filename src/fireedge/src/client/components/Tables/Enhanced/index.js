@@ -29,7 +29,7 @@ import {
   useTable,
   useMountedLayoutEffect,
   // types
-  UseRowSelectRowProps
+  UseRowSelectRowProps,
 } from 'react-table'
 
 import Toolbar from 'client/components/Tables/Enhanced/toolbar'
@@ -57,21 +57,28 @@ const EnhancedTable = ({
   RowComponent,
   showPageCount,
   singleSelect = false,
-  classes = {}
+  classes = {},
 }) => {
   const styles = EnhancedTableStyles()
 
   const isFetching = isLoading && data === undefined
 
-  const defaultColumn = useMemo(() => ({
-    disableFilters: true
-  }), [])
+  const defaultColumn = useMemo(
+    () => ({
+      disableFilters: true,
+    }),
+    []
+  )
 
-  const sortTypes = useMemo(() => ({
-    length: (rowA, rowB, columnId, desc) => desc
-      ? rowB.values[columnId].length - rowA.values[columnId].length
-      : rowA.values[columnId].length - rowB.values[columnId].length
-  }), [])
+  const sortTypes = useMemo(
+    () => ({
+      length: (rowA, rowB, columnId, desc) =>
+        desc
+          ? rowB.values[columnId].length - rowA.values[columnId].length
+          : rowA.values[columnId].length - rowB.values[columnId].length,
+    }),
+    []
+  )
 
   const useTableProps = useTable(
     {
@@ -93,8 +100,8 @@ const EnhancedTable = ({
       // -------------------------------------
       initialState: {
         pageSize,
-        ...initialState
-      }
+        ...initialState,
+      },
     },
     useGlobalFilter,
     useFilters,
@@ -112,19 +119,22 @@ const EnhancedTable = ({
     page,
     gotoPage,
     pageCount,
-    state: { pageIndex, selectedRowIds }
+    state: { pageIndex, selectedRowIds },
   } = useTableProps
 
   useMountedLayoutEffect(() => {
-    const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+    const selectedRows = preFilteredRows.filter(
+      (row) => !!selectedRowIds[row.id]
+    )
 
     onSelectedRowsChange?.(selectedRows)
   }, [selectedRowIds])
 
-  const handleChangePage = newPage => {
+  const handleChangePage = (newPage) => {
     gotoPage(newPage)
 
-    const canNextPage = pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
+    const canNextPage =
+      pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
 
     newPage > pageIndex && canFetchMore && !canNextPage && fetchMore?.()
   }
@@ -155,7 +165,11 @@ const EnhancedTable = ({
       </div>
 
       {isLoading && (
-        <LinearProgress size='1em' color='secondary' className={styles.loading} />
+        <LinearProgress
+          size="1em"
+          color="secondary"
+          className={styles.loading}
+        />
       )}
 
       <div className={styles.table}>
@@ -177,11 +191,17 @@ const EnhancedTable = ({
           )}
 
           {/* DATALIST PER PAGE */}
-          {page.map(row => {
+          {page.map((row) => {
             prepareRow(row)
 
             /** @type {UseRowSelectRowProps} */
-            const { getRowProps, original, values, toggleRowSelected, isSelected } = row
+            const {
+              getRowProps,
+              original,
+              values,
+              toggleRowSelected,
+              isSelected,
+            } = row
             const { key, ...rowProps } = getRowProps()
 
             return (
@@ -214,7 +234,7 @@ export const EnhancedTableProps = {
   initialState: PropTypes.object,
   classes: PropTypes.shape({
     root: PropTypes.string,
-    body: PropTypes.string
+    body: PropTypes.string,
   }),
   isLoading: PropTypes.bool,
   onlyGlobalSearch: PropTypes.bool,
@@ -224,10 +244,10 @@ export const EnhancedTableProps = {
   RowComponent: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
-    PropTypes.func
+    PropTypes.func,
   ]),
   showPageCount: PropTypes.bool,
-  singleSelect: PropTypes.bool
+  singleSelect: PropTypes.bool,
 }
 
 EnhancedTable.propTypes = EnhancedTableProps

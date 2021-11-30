@@ -28,16 +28,40 @@ export const getVmTemplate = createAction(
 export const getVmTemplates = createAction(
   `${TEMPLATE}/pool`,
   vmTemplateService.getVmTemplates,
-  response => ({ [RESOURCES.template]: response })
+  (response) => ({ [RESOURCES.template]: response })
 )
 
-export const instantiate = createAction(`${TEMPLATE}/instantiate`, vmTemplateService.instantiate)
-export const allocate = createAction(`${TEMPLATE}/allocate`, vmTemplateService.allocate)
+export const instantiate = createAction(
+  `${TEMPLATE}/instantiate`,
+  vmTemplateService.instantiate
+)
+export const allocate = createAction(
+  `${TEMPLATE}/allocate`,
+  vmTemplateService.allocate
+)
 export const clone = createAction(`${TEMPLATE}/clone`, vmTemplateService.clone)
-export const remove = createAction(`${TEMPLATE}/delete`, vmTemplateService.delete)
-export const update = createAction(`${TEMPLATE}/update`, vmTemplateService.update)
-export const changePermissions = createAction(`${TEMPLATE}/chmod`, vmTemplateService.changePermissions)
-export const changeOwnership = createAction(`${TEMPLATE}/chown`, vmTemplateService.changeOwnership)
-export const rename = createAction(`${TEMPLATE}/rename`, vmTemplateService.rename)
+export const remove = createAction(
+  `${TEMPLATE}/delete`,
+  vmTemplateService.delete
+)
+export const update = createAction(
+  `${TEMPLATE}/update`,
+  vmTemplateService.update
+)
+export const changePermissions = createAction(
+  `${TEMPLATE}/chmod`,
+  vmTemplateService.changePermissions
+)
+export const changeOwnership = createAction(
+  `${TEMPLATE}/chown`,
+  vmTemplateService.changeOwnership
+)
+export const rename = createAction(
+  `${TEMPLATE}/rename`,
+  vmTemplateService.rename
+)
 export const lock = createAction(`${TEMPLATE}/lock`, vmTemplateService.lock)
-export const unlock = createAction(`${TEMPLATE}/unlock`, vmTemplateService.unlock)
+export const unlock = createAction(
+  `${TEMPLATE}/unlock`,
+  vmTemplateService.unlock
+)

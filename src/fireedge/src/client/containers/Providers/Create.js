@@ -25,7 +25,7 @@ import { isValidProviderTemplate } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
 import { isDevelopment } from 'client/utils'
 
-function ProviderCreateForm () {
+function ProviderCreateForm() {
   const history = useHistory()
   const { id } = useParams()
 
@@ -33,14 +33,16 @@ function ProviderCreateForm () {
   const { enqueueSuccess, enqueueError } = useGeneralApi()
   const { createProvider, updateProvider } = useProviderApi()
 
-  const onSubmit = async formData => {
+  const onSubmit = async (formData) => {
     try {
       if (id !== undefined) {
         await updateProvider(id, formData)
         enqueueSuccess(`Provider updated - ID: ${id}`)
       } else {
         if (!isValidProviderTemplate(formData, providerConfig)) {
-          enqueueError('The template selected has a bad format. Ask your cloud administrator')
+          enqueueError(
+            'The template selected has a bad format. Ask your cloud administrator'
+          )
           history.push(PATH.PROVIDERS.LIST)
         }
 

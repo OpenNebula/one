@@ -28,7 +28,7 @@ const PREFIX = {
   validation: string()
     .trim()
     .required('Prefix field is required')
-    .default(() => 'Copy of ')
+    .default(() => 'Copy of '),
 }
 
 const NAME = {
@@ -39,7 +39,7 @@ const NAME = {
   validation: string()
     .trim()
     .required('Name field is required')
-    .default(() => '')
+    .default(() => ''),
 }
 
 const IMAGES = {
@@ -50,10 +50,12 @@ const IMAGES = {
     They will be cloned to a new Image, and made persistent.`,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
-export const FIELDS = ({ isMultiple } = {}) =>
-  [isMultiple ? PREFIX : NAME, IMAGES]
+export const FIELDS = ({ isMultiple } = {}) => [
+  isMultiple ? PREFIX : NAME,
+  IMAGES,
+]
 
-export const SCHEMA = props => object(getValidationFromFields(FIELDS(props)))
+export const SCHEMA = (props) => object(getValidationFromFields(FIELDS(props)))

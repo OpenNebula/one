@@ -18,7 +18,7 @@ import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/F
 import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'
 import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 
-const mapNetworkToUserInput = network => {
+const mapNetworkToUserInput = (network) => {
   const { mandatory, description, type, idVnet, extra } = network
 
   const mandatoryValue = mandatory ? 'M' : 'O'
@@ -39,14 +39,14 @@ const mapNetworkToUserInput = network => {
  * @returns {Array} Roles
  */
 export const mapTiersToRoles = (tiers, networking, cluster) =>
-  tiers?.map(data => {
+  tiers?.map((data) => {
     const { template, networks, parents, policies, position, tier } = data
     const { shutdown_action: action, ...information } = tier
     const { elasticity, scheduled, ...adjustments } = policies
 
     const networksValue = networks
       ?.reduce((res, id, idx) => {
-        const network = networking.find(net => net.id === id)
+        const network = networking.find((net) => net.id === id)
         const networkString = `NIC = [\n NAME = "NIC${idx}",\n NETWORK_ID = "$${network.name}" ]\n`
 
         return [...res, networkString]
@@ -55,7 +55,8 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
       ?.concat(`SCHED_REQUIREMENTS = "ClUSTER_ID=\\"${cluster}\\""`)
 
     const parentsValue = parents?.reduce((res, id) => {
-      const parent = tiers.find(t => t.id === id)
+      const parent = tiers.find((t) => t.id === id)
+
       return [...res, parent?.tier?.name]
     }, [])
 
@@ -66,7 +67,7 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
     const scheduledValues = scheduled.map(
       ({ id, time_format: format, time_expression: expression, ...rest }) => ({
         ...JSON.parse(JSON.stringify(rest)),
-        ...(expression && { [format]: expression })
+        ...(expression && { [format]: expression }),
       })
     )
 
@@ -79,7 +80,7 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
       vm_template_contents: networksValue,
       elasticity_policies: elasticityValues,
       scheduled_policies: scheduledValues,
-      position
+      position,
     }
   })
 
@@ -89,12 +90,12 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
  * @param {object} formData - Form data
  * @returns {object} Formatted data ready to create or update the template.
  */
-const mapFormToApplication = formData => {
+const mapFormToApplication = (formData) => {
   const {
     [APPLICATION_ID]: application,
     [NETWORKING_ID]: networking,
     [CLUSTER_ID]: cluster,
-    [TIERS_ID]: tiers
+    [TIERS_ID]: tiers,
   } = formData
 
   const { shutdown_action: action, ...information } = application
@@ -106,11 +107,11 @@ const mapFormToApplication = formData => {
       networking?.reduce(
         (res, { name, ...network }) => ({
           ...res,
-          [name]: mapNetworkToUserInput(network)
+          [name]: mapNetworkToUserInput(network),
         }),
         {}
       ) ?? {},
-    roles: mapTiersToRoles(tiers, networking, cluster)
+    roles: mapTiersToRoles(tiers, networking, cluster),
   }
 }
 

@@ -17,7 +17,13 @@
 import PropTypes from 'prop-types'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
-import { CardActionArea, Card, Grid, LinearProgress, useMediaQuery } from '@mui/material'
+import {
+  CardActionArea,
+  Card,
+  Grid,
+  LinearProgress,
+  useMediaQuery,
+} from '@mui/material'
 import { Plus as PlusIcon } from 'iconoir-react'
 
 import { EmptyCard } from 'client/components/Cards'
@@ -36,22 +42,22 @@ const ListCards = ({
   EmptyComponent,
   displayEmpty,
   isLoading,
-  gridProps
+  gridProps,
 }) => {
   const classes = listCardsStyles()
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
   return (
     <>
       {isLoading && (
-        <LinearProgress color='secondary' className={classes.loading} />
+        <LinearProgress color="secondary" className={classes.loading} />
       )}
       <Grid container spacing={3} {...gridProps}>
         {/* CREATE CARD COMPONENT */}
-        {handleCreate && (ButtonCreateComponent ? (
-          <ButtonCreateComponent onClick={handleCreate} />
-        ) : (
-          isMobile ? (
+        {handleCreate &&
+          (ButtonCreateComponent ? (
+            <ButtonCreateComponent onClick={handleCreate} />
+          ) : isMobile ? (
             <FloatingActionButton icon={<PlusIcon />} onClick={handleCreate} />
           ) : (
             <Grid item {...breakpoints}>
@@ -61,8 +67,7 @@ const ListCards = ({
                 </CardActionArea>
               </Card>
             </Grid>
-          )
-        ))}
+          ))}
 
         {/* LIST */}
         {list.length > 0 ? (
@@ -78,7 +83,10 @@ const ListCards = ({
                   timeout={400}
                 >
                   <Grid item {...breakpoints} {...value?.breakpoints}>
-                    <CardComponent value={value} {...cardsProps({ index, value })} />
+                    <CardComponent
+                      value={value}
+                      {...cardsProps({ index, value })}
+                    />
                   </Grid>
                 </CSSTransition>
               )
@@ -106,30 +114,28 @@ ListCards.propTypes = {
     sm: PropTypes.oneOf(gridValues),
     md: PropTypes.oneOf(gridValues),
     lg: PropTypes.oneOf(gridValues),
-    xl: PropTypes.oneOf(gridValues)
+    xl: PropTypes.oneOf(gridValues),
   }),
   handleCreate: PropTypes.func,
   ButtonCreateComponent: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.node,
     PropTypes.object,
-    PropTypes.element
+    PropTypes.element,
   ]),
   CardComponent: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.node,
     PropTypes.object,
-    PropTypes.element
+    PropTypes.element,
   ]),
   cardsProps: PropTypes.func,
-  EmptyComponent: PropTypes.oneOfType([
-    PropTypes.element
-  ]),
+  EmptyComponent: PropTypes.oneOfType([PropTypes.element]),
   displayEmpty: PropTypes.bool,
   isLoading: PropTypes.bool,
   gridProps: PropTypes.shape({
-    'data-cy': PropTypes.string
-  })
+    'data-cy': PropTypes.string,
+  }),
 }
 
 ListCards.defaultProps = {
@@ -143,7 +149,7 @@ ListCards.defaultProps = {
   EmptyComponent: undefined,
   displayEmpty: false,
   isLoading: false,
-  gridProps: {}
+  gridProps: {},
 }
 
 ListCards.displayName = 'ListCards'

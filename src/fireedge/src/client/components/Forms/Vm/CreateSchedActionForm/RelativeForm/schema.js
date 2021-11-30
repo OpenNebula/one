@@ -18,7 +18,10 @@ import * as yup from 'yup'
 
 import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields, upperCaseFirst } from 'client/utils'
-import { COMMON_FIELDS, COMMON_SCHEMA } from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
+import {
+  COMMON_FIELDS,
+  COMMON_SCHEMA,
+} from 'client/components/Forms/Vm/CreateSchedActionForm/CommonSchema'
 
 const PERIOD_TYPES = {
   YEARS: 'years',
@@ -26,11 +29,13 @@ const PERIOD_TYPES = {
   WEEKS: 'weeks',
   DAYS: 'days',
   HOURS: 'hours',
-  MINUTES: 'minutes'
+  MINUTES: 'minutes',
 }
 
-const PERIOD_OPTIONS = Object.entries(PERIOD_TYPES)
-  .map(([text, value]) => ({ text: upperCaseFirst(text), value }))
+const PERIOD_OPTIONS = Object.entries(PERIOD_TYPES).map(([text, value]) => ({
+  text: upperCaseFirst(text),
+  value,
+}))
 
 const TIME_FIELD = {
   name: 'TIME',
@@ -42,7 +47,7 @@ const TIME_FIELD = {
     .typeError('Time value must be a number')
     .required('Time field is required')
     .positive()
-    .default(undefined)
+    .default(undefined),
 }
 
 const PERIOD_FIELD = {
@@ -54,24 +59,22 @@ const PERIOD_FIELD = {
     .string()
     .trim()
     .notRequired()
-    .default(PERIOD_OPTIONS[0].value)
+    .default(PERIOD_OPTIONS[0].value),
 }
 
-export const RELATIVE_FIELDS = [
-  TIME_FIELD,
-  PERIOD_FIELD
-]
+export const RELATIVE_FIELDS = [TIME_FIELD, PERIOD_FIELD]
 
-export const FIELDS = vm => [
-  ...COMMON_FIELDS(vm),
-  ...RELATIVE_FIELDS
-]
+export const FIELDS = (vm) => [...COMMON_FIELDS(vm), ...RELATIVE_FIELDS]
 
 export const SCHEMA = yup
   .object(getValidationFromFields(RELATIVE_FIELDS))
   .concat(COMMON_SCHEMA)
-  .transform(value => {
-    const { [PERIOD_FIELD.name]: PERIOD, [TIME_FIELD.name]: TIME, ...rest } = value
+  .transform((value) => {
+    const {
+      [PERIOD_FIELD.name]: PERIOD,
+      [TIME_FIELD.name]: TIME,
+      ...rest
+    } = value
 
     if (String(TIME).includes('+')) {
       const allPeriods = {
@@ -80,10 +83,12 @@ export const SCHEMA = yup
         [PERIOD_TYPES.WEEKS]: TIME / 7 / 24 / 3600,
         [PERIOD_TYPES.DAYS]: TIME / 24 / 3600,
         [PERIOD_TYPES.HOURS]: TIME / 3600,
-        [PERIOD_TYPES.MINUTES]: TIME / 60
+        [PERIOD_TYPES.MINUTES]: TIME / 60,
       }
 
-      const [period, time] = Object.entries(allPeriods).find(([_, time]) => time >= 1)
+      const [period, time] = Object.entries(allPeriods).find(
+        ([_, time]) => time >= 1
+      )
 
       return { ...rest, [PERIOD_FIELD.name]: period, [TIME_FIELD.name]: time }
     }
@@ -94,7 +99,7 @@ export const SCHEMA = yup
       [PERIOD_TYPES.WEEKS]: TIME * 7 * 24 * 3600,
       [PERIOD_TYPES.DAYS]: TIME * 24 * 3600,
       [PERIOD_TYPES.HOURS]: TIME * 3600,
-      [PERIOD_TYPES.MINUTES]: TIME * 60
+      [PERIOD_TYPES.MINUTES]: TIME * 60,
     }[PERIOD]
 
     return { ...rest, [TIME_FIELD.name]: timeInMilliseconds }

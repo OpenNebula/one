@@ -31,13 +31,14 @@ const MIN_VMS = {
   validation: yup
     .number()
     .typeError('Min. value must be a number')
-    .when(ELASTICITY_ID, (value, schema) => value?.length > 0
-      ? schema.required('Minimum field is required')
-      : schema.notRequired().nullable()
+    .when(ELASTICITY_ID, (value, schema) =>
+      value?.length > 0
+        ? schema.required('Minimum field is required')
+        : schema.notRequired().nullable()
     )
-    .transform(value => !isNaN(value) ? value : null)
+    .transform((value) => (!isNaN(value) ? value : null))
     .default(undefined),
-  grid: { sm: 4, md: 4 }
+  grid: { sm: 4, md: 4 },
 }
 
 const MAX_VMS = {
@@ -49,14 +50,18 @@ const MAX_VMS = {
   validation: yup
     .number()
     .typeError('Min. value must be a number')
-    .moreThan(yup.ref(MIN_VMS.name), 'Max. vms field must be greater than min vms')
-    .when(ELASTICITY_ID, (value, schema) => value?.length > 0
-      ? schema.required('Maximum field is required')
-      : schema.notRequired().nullable()
+    .moreThan(
+      yup.ref(MIN_VMS.name),
+      'Max. vms field must be greater than min vms'
     )
-    .transform(value => !isNaN(value) ? value : null)
+    .when(ELASTICITY_ID, (value, schema) =>
+      value?.length > 0
+        ? schema.required('Maximum field is required')
+        : schema.notRequired().nullable()
+    )
+    .transform((value) => (!isNaN(value) ? value : null))
     .default(undefined),
-  grid: { sm: 4, md: 4 }
+  grid: { sm: 4, md: 4 },
 }
 
 export const POLICIES_FORM_FIELDS = [
@@ -68,12 +73,12 @@ export const POLICIES_FORM_FIELDS = [
       Cooldown period duration after a scale operation, in seconds.
       If it is not set, the default set in oneflow-server.conf will be used
     `,
-    grid: { sm: 4, md: 4 }
-  }
+    grid: { sm: 4, md: 4 },
+  },
 ]
 
 export const POLICIES_SCHEMA = yup.object({
   ...getValidationFromFields(POLICIES_FORM_FIELDS),
   [ELASTICITY_ID]: ELASTICITY_TAB_SCHEMA,
-  [SCHEDULED_ID]: SCHEDULED_TAB_SCHEMA
+  [SCHEDULED_ID]: SCHEDULED_TAB_SCHEMA,
 })

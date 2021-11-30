@@ -14,7 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { from: fromData, httpMethod } = require('server/utils/constants/defaults')
+const {
+  from: fromData,
+  httpMethod,
+} = require('server/utils/constants/defaults')
 const { show, list, upload, update, deleteFile } = require('./functions')
 const { GET, POST, PUT, DELETE } = httpMethod
 
@@ -25,19 +28,19 @@ const publicRoutes = {
       params: {
         file: {
           from: fromData.query,
-          name: 'file'
+          name: 'file',
         },
         token: {
           from: fromData.query,
-          name: 'token'
+          name: 'token',
         },
         app: {
           from: fromData.query,
-          name: 'app'
-        }
-      }
-    }
-  }
+          name: 'app',
+        },
+      },
+    },
+  },
 }
 
 const privateRoutes = {
@@ -47,10 +50,10 @@ const privateRoutes = {
       params: {
         app: {
           from: fromData.query,
-          name: 'app'
-        }
-      }
-    }
+          name: 'app',
+        },
+      },
+    },
   },
   [POST]: {
     null: {
@@ -58,18 +61,18 @@ const privateRoutes = {
       params: {
         app: {
           from: fromData.query,
-          name: 'app'
+          name: 'app',
         },
         files: {
           from: 'files',
-          name: 'files'
+          name: 'files',
         },
         root: {
           from: fromData.query,
-          name: 'public'
-        }
-      }
-    }
+          name: 'public',
+        },
+      },
+    },
   },
   [PUT]: {
     null: {
@@ -77,14 +80,14 @@ const privateRoutes = {
       params: {
         name: {
           from: fromData.query,
-          name: 'name'
+          name: 'name',
         },
         files: {
           from: 'files',
-          name: 'files'
-        }
-      }
-    }
+          name: 'files',
+        },
+      },
+    },
   },
   [DELETE]: {
     null: {
@@ -92,15 +95,15 @@ const privateRoutes = {
       params: {
         file: {
           from: fromData.query,
-          name: 'file'
-        }
-      }
-    }
-  }
+          name: 'file',
+        },
+      },
+    },
+  },
 }
 
 const fileApi = {
   publicRoutes,
-  privateRoutes
+  privateRoutes,
 }
 module.exports = fileApi

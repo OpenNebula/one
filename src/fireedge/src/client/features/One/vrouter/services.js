@@ -17,7 +17,7 @@ import { Actions, Commands } from 'server/utils/constants/commands/vrouter'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, RestClient } from 'client/utils'
 
-export const vRouterService = ({
+export const vRouterService = {
   /**
    * Retrieves information for the virtual router.
    *
@@ -59,5 +59,5 @@ export const vRouterService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.VROUTER_POOL?.VROUTER ?? []].flat()
-  }
-})
+  },
+}

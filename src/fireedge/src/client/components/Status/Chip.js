@@ -27,13 +27,15 @@ import { T, SCHEMES } from 'client/constants'
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => {
   const getBackgroundColor = palette.mode === SCHEMES.DARK ? lighten : darken
-  const defaultStateColor = palette.grey[palette.mode === SCHEMES.DARK ? 300 : 700]
+  const defaultStateColor =
+    palette.grey[palette.mode === SCHEMES.DARK ? 300 : 700]
 
   return {
     text: ({ stateColor = defaultStateColor, clipboard }) => {
       const paletteColor = palette[stateColor]
 
-      const color = paletteColor?.contrastText ?? getBackgroundColor(stateColor, 0.75)
+      const color =
+        paletteColor?.contrastText ?? getBackgroundColor(stateColor, 0.75)
       const bgColor = paletteColor?.dark ?? stateColor
 
       return {
@@ -52,72 +54,66 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => {
           alignItems: 'center',
           gap: '0.5em',
           '&:hover > .copy-icon': {
-            color: bgColor
-          }
-        })
+            color: bgColor,
+          },
+        }),
       }
-    }
+    },
   }
 })
 
-const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn?.(...args))
+const callAll =
+  (...fns) =>
+  (...args) =>
+    fns.forEach((fn) => fn && fn?.(...args))
 
-const StatusChip = memo(({
-  stateColor,
-  text = '',
-  clipboard = false,
-  onClick,
-  ...props
-}) => {
-  const { copy, isCopied } = useClipboard()
-  const textToCopy = typeof clipboard === 'string' ? clipboard : text
-  const classes = useStyles({ stateColor, clipboard })
+const StatusChip = memo(
+  ({ stateColor, text = '', clipboard = false, onClick, ...props }) => {
+    const { copy, isCopied } = useClipboard()
+    const textToCopy = typeof clipboard === 'string' ? clipboard : text
+    const classes = useStyles({ stateColor, clipboard })
 
-  const handleCopy = evt => {
-    !isCopied && copy(textToCopy)
-    evt.stopPropagation()
-  }
+    const handleCopy = (evt) => {
+      !isCopied && copy(textToCopy)
+      evt.stopPropagation()
+    }
 
-  return (
-    <Tooltip
-      arrow
-      open={isCopied}
-      title={<>{'✔️'}<Translate word={T.CopiedToClipboard} /></>}
-    >
-      <Typography
-        component='span'
-        className={classes.text}
-        onClick={callAll(onClick, clipboard && handleCopy)}
-        {...props}
+    return (
+      <Tooltip
+        arrow
+        open={isCopied}
+        title={
+          <>
+            {'✔️'}
+            <Translate word={T.CopiedToClipboard} />
+          </>
+        }
       >
-        {text}
-        {clipboard && (
-          <CopyIcon
-            className='copy-icon'
-            title={Tr(T.ClickToCopy)}
-          />
-        )}
-      </Typography>
-    </Tooltip>
-  )
-},
-(prev, next) =>
-  prev.stateColor === next.stateColor &&
-  prev.text === next.text &&
-  prev.clipboard === next.clipboard
+        <Typography
+          component="span"
+          className={classes.text}
+          onClick={callAll(onClick, clipboard && handleCopy)}
+          {...props}
+        >
+          {text}
+          {clipboard && (
+            <CopyIcon className="copy-icon" title={Tr(T.ClickToCopy)} />
+          )}
+        </Typography>
+      </Tooltip>
+    )
+  },
+  (prev, next) =>
+    prev.stateColor === next.stateColor &&
+    prev.text === next.text &&
+    prev.clipboard === next.clipboard
 )
 
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
-  text: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
-  clipboard: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.string
-  ]),
-  onClick: PropTypes.func
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  onClick: PropTypes.func,
 }
 
 StatusChip.displayName = 'StatusChip'

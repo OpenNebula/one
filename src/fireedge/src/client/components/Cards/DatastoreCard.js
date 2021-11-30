@@ -21,22 +21,26 @@ import makeStyles from '@mui/styles/makeStyles'
 import { Folder as DatastoreIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+import {
+  StatusBadge,
+  StatusChip,
+  LinearProgressWithLabel,
+} from 'client/components/Status'
 
 import * as DatastoreModel from 'client/models/Datastore'
 
-const useStyles = makeStyles(({
+const useStyles = makeStyles({
   title: {
     display: 'flex',
-    gap: '0.5rem'
+    gap: '0.5rem',
   },
   content: {
     padding: '2em',
     display: 'flex',
     flexFlow: 'column',
-    gap: '1em'
-  }
-}))
+    gap: '1em',
+  },
+})
 
 const DatastoreCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
@@ -47,16 +51,14 @@ const DatastoreCard = memo(
     const type = DatastoreModel.getType(value)
     const state = DatastoreModel.getState(value)
 
-    const {
-      percentOfUsed,
-      percentLabel
-    } = DatastoreModel.getCapacityInfo(value)
+    const { percentOfUsed, percentLabel } =
+      DatastoreModel.getCapacityInfo(value)
 
     return (
       <SelectCard
-        action={actions?.map(action =>
+        action={actions?.map((action) => (
           <Action key={action?.cy} {...action} />
-        )}
+        ))}
         icon={
           <StatusBadge stateColor={state.color}>
             <DatastoreIcon />
@@ -64,7 +66,7 @@ const DatastoreCard = memo(
         }
         title={
           <span className={classes.title}>
-            <Typography title={NAME} noWrap component='span'>
+            <Typography title={NAME} noWrap component="span">
               {NAME}
             </Typography>
             <StatusChip text={type.name} />
@@ -80,10 +82,9 @@ const DatastoreCard = memo(
       </SelectCard>
     )
   },
-  (prev, next) => (
+  (prev, next) =>
     prev.isSelected === next.isSelected &&
     prev.value?.STATE === next.value?.STATE
-  )
 )
 
 DatastoreCard.propTypes = {
@@ -94,7 +95,7 @@ DatastoreCard.propTypes = {
     STATE: PropTypes.string,
     TOTAL_MB: PropTypes.string,
     FREE_MB: PropTypes.string,
-    USED_MB: PropTypes.string
+    USED_MB: PropTypes.string,
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
@@ -102,16 +103,16 @@ DatastoreCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 DatastoreCard.defaultProps = {
   value: {},
   isSelected: false,
   handleClick: undefined,
-  actions: undefined
+  actions: undefined,
 }
 
 DatastoreCard.displayName = 'DatastoreCard'

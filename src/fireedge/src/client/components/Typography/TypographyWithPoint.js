@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Typography } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStateStyles = makeStyles(theme => ({
+const useStateStyles = makeStyles((theme) => ({
   root: {
     color: theme.palette.text.secondary,
     '&::before': {
@@ -29,13 +29,14 @@ const useStateStyles = makeStyles(theme => ({
       height: '0.7rem',
       width: '0.7rem',
       background: ({ color }) => color,
-      borderRadius: '50%'
-    }
-  }
+      borderRadius: '50%',
+    },
+  },
 }))
 
 const TypographyWithPoint = ({ pointColor, children, ...props }) => {
   const classes = useStateStyles({ color: pointColor })
+
   return (
     <Typography noWrap className={classes.root} {...props}>
       {children}
@@ -48,13 +49,13 @@ TypographyWithPoint.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.array,
-    PropTypes.element
-  ])
+    PropTypes.element,
+  ]),
 }
 
 TypographyWithPoint.defaultProps = {
   pointColor: undefined,
-  children: undefined
+  children: undefined,
 }
 
 TypographyWithPoint.displayName = 'TypographyWithPoint'

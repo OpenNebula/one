@@ -16,11 +16,15 @@
 
 const { messageTerminal } = require('server/utils/general')
 const { getRouteForOpennebulaCommand } = require('server/utils/opennebula')
-const { defaultFilesRoutes, defaultConfigErrorMessage } = require('server/utils/constants/defaults')
+const {
+  defaultFilesRoutes,
+  defaultConfigErrorMessage,
+} = require('server/utils/constants/defaults')
 
 const filesDataPrivate = []
 const filesDataPublic = []
-defaultFilesRoutes.map(file => {
+
+defaultFilesRoutes.forEach((file) => {
   try {
     // eslint-disable-next-line global-require
     const fileInfo = require(`./${file}`)
@@ -39,9 +43,11 @@ defaultFilesRoutes.map(file => {
     }
   }
 })
+
 const opennebulaActions = getRouteForOpennebulaCommand()
 const routes = {
   private: [...opennebulaActions, ...filesDataPrivate],
-  public: [...filesDataPublic]
+  public: [...filesDataPublic],
 }
+
 module.exports = routes

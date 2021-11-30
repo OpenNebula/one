@@ -16,13 +16,13 @@
 
 const {
   defaultEmptyFunction,
-  defaultCommandVM
+  defaultCommandVM,
 } = require('server/utils/constants/defaults')
 
 const {
   ok,
   internalServerError,
-  badRequest
+  badRequest,
 } = require('server/utils/constants/http-codes')
 const { httpResponse, executeCommand } = require('server/utils/server')
 
@@ -41,7 +41,12 @@ const regexpSplitLine = /\r|\n/
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
  */
-const saveAsTemplate = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
+const saveAsTemplate = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
   let rtn = httpBadRequest
   const { id, name, persistent } = params
   if (id && name) {
@@ -52,7 +57,11 @@ const saveAsTemplate = (res = {}, next = defaultEmptyFunction, params = {}, user
       paramsCommand.push('--persistent')
     }
 
-    const executedCommand = executeCommand(defaultCommandVM, paramsCommand, prependCommand)
+    const executedCommand = executeCommand(
+      defaultCommandVM,
+      paramsCommand,
+      prependCommand
+    )
 
     const response = executedCommand.success ? ok : internalServerError
 
@@ -66,6 +75,6 @@ const saveAsTemplate = (res = {}, next = defaultEmptyFunction, params = {}, user
 }
 
 const functionRoutes = {
-  saveAsTemplate
+  saveAsTemplate,
 }
 module.exports = functionRoutes

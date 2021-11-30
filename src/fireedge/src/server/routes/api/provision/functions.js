@@ -27,7 +27,7 @@ const {
   existsSync,
   mkdirsSync,
   renameSync,
-  moveSync
+  moveSync,
 } = require('fs-extra')
 const { getFireedgeConfig, getProvisionConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
@@ -54,17 +54,15 @@ const publish = (eventName = '', message = {}) => {
  * @param {Function} callback - function executed when event is emited
  */
 const subscriber = (eventName = '', callback = () => undefined) => {
-  if (eventName &&
+  if (
+    eventName &&
     callback &&
     typeof callback === 'function' &&
     eventsEmitter.listenerCount(eventName) < 1
   ) {
-    eventsEmitter.on(
-      eventName,
-      message => {
-        callback(message)
-      }
-    )
+    eventsEmitter.on(eventName, (message) => {
+      callback(message)
+    })
   }
 }
 
@@ -86,16 +84,26 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
     }
     rtn.name = name
     if (files && Array.isArray(files)) {
-      files.forEach(file => {
+      files.forEach((file) => {
         if (file && file.name && file.ext) {
-          rtn.files.push({ name: file.name, ext: file.ext, path: `${internalPath}/${file.name}.${file.ext}` })
-          createTemporalFile(internalPath, file.ext, (file && file.content) || '', file.name)
+          rtn.files.push({
+            name: file.name,
+            ext: file.ext,
+            path: `${internalPath}/${file.name}.${file.ext}`,
+          })
+          createTemporalFile(
+            internalPath,
+            file.ext,
+            (file && file.content) || '',
+            file.name
+          )
         }
       })
     }
   } catch (error) {
     messageTerminal(defaultError(error && error.message))
   }
+
   return rtn
 }
 
@@ -108,7 +116,12 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
  * @param {string} filename - name of the temporal file
  * @returns {object} if file is created
  */
-const createTemporalFile = (path = '', ext = '', content = '', filename = '') => {
+const createTemporalFile = (
+  path = '',
+  ext = '',
+  content = '',
+  filename = ''
+) => {
   let rtn
   const name = filename || v4().replace(/-/g, '').toUpperCase()
   const file = `${path}/${name}.${ext}`
@@ -121,6 +134,7 @@ const createTemporalFile = (path = '', ext = '', content = '', filename = '') =>
   } catch (error) {
     messageTerminal(defaultError(error && error.message))
   }
+
   return rtn
 }
 
@@ -145,6 +159,7 @@ const createYMLContent = (content = '') => {
   } catch (error) {
     messageTerminal(defaultError(error && error.message))
   }
+
   return rtn
 }
 
@@ -188,6 +203,7 @@ const renameFolder = (path = '', name = '', type = 'replace', callback) => {
       messageTerminal(defaultError(error && error.message))
     }
   }
+
   return rtn
 }
 
@@ -208,6 +224,7 @@ const moveToFolder = (path = '', relative = '/../') => {
       messageTerminal(defaultError(error && error.message))
     }
   }
+
   return rtn
 }
 
@@ -217,7 +234,10 @@ const moveToFolder = (path = '', relative = '/../') => {
  * @returns {Array} command optional params
  */
 const addOptionalCreateCommand = () => {
-  const optionalCreateCommand = getSpecificConfig('oneprovision_optional_create_command')
+  const optionalCreateCommand = getSpecificConfig(
+    'oneprovision_optional_create_command'
+  )
+
   return [optionalCreateCommand].filter(Boolean) // return array position valids, no undefined or nulls
 }
 
@@ -233,7 +253,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
   if (path && finder) {
     try {
       const dirs = readdirSync(path)
-      dirs.forEach(dir => {
+      dirs.forEach((dir) => {
         const name = `${path}/${dir}`
         if (statSync(name).isDirectory()) {
           if (basename(name) === finder) {
@@ -247,6 +267,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
       messageTerminal(defaultError(error && error.message))
     }
   }
+
   return rtn
 }
 
@@ -264,6 +285,7 @@ const getEndpoint = () => {
     const host = parseUrl.host || ''
     rtn = ['--endpoint', `${protocol}//${host}`]
   }
+
   return rtn
 }
 
@@ -284,6 +306,7 @@ const getSpecificConfig = (key = '') => {
       return appConfig[key]
     }
   }
+
   return ''
 }
 
@@ -298,7 +321,7 @@ const functionRoutes = {
   publish,
   addOptionalCreateCommand,
   subscriber,
-  getSpecificConfig
+  getSpecificConfig,
 }
 
 module.exports = functionRoutes
