@@ -68,7 +68,7 @@ const InputsSection = ({ fields }) => {
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
-            cy={`create-vm-template-${EXTRA_ID}.io-inputs`}
+            cy={`${EXTRA_ID}.io-inputs`}
             fields={fields}
             rootProps={{ sx: { m: 0 } }}
           />

@@ -21,7 +21,7 @@ import { Edit, Trash } from 'iconoir-react'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
-import { StatusCircle, StatusChip } from 'client/components/Status'
+import { StatusCircle } from 'client/components/Status'
 import { Translate } from 'client/components/HOC'
 
 import { getState, getDiskType } from 'client/models/Image'
@@ -40,102 +40,95 @@ import { T } from 'client/constants'
  * @param {string} props.handleUpdate - Update function
  * @returns {JSXElementConstructor} - Disk card
  */
-const DiskItem = memo(
-  ({ item, hypervisor, handleRemove, handleUpdate }) => {
-    const {
-      NAME,
-      TYPE,
-      IMAGE,
-      IMAGE_ID,
-      IMAGE_STATE,
-      ORIGINAL_SIZE,
-      SIZE = ORIGINAL_SIZE,
-      READONLY,
-      DATASTORE,
-      PERSISTENT,
-    } = item
+const DiskItem = memo(({ item, hypervisor, handleRemove, handleUpdate }) => {
+  const {
+    NAME,
+    TYPE,
+    IMAGE,
+    IMAGE_ID,
+    IMAGE_STATE,
+    ORIGINAL_SIZE,
+    SIZE = ORIGINAL_SIZE,
+    READONLY,
+    DATASTORE,
+    PERSISTENT,
+  } = item
 
-    const isVolatile = !IMAGE && !IMAGE_ID
-    const isPersistent = stringToBoolean(PERSISTENT)
-    const state = !isVolatile && getState({ STATE: IMAGE_STATE })
-    const type = isVolatile ? TYPE : getDiskType(item)
-    const originalSize = +ORIGINAL_SIZE
-      ? prettyBytes(+ORIGINAL_SIZE, 'MB')
-      : '-'
-    const size = prettyBytes(+SIZE, 'MB')
+  const isVolatile = !IMAGE && !IMAGE_ID
+  const state = !isVolatile && getState({ STATE: IMAGE_STATE })
+  const type = isVolatile ? TYPE : getDiskType(item)
+  const originalSize = +ORIGINAL_SIZE ? prettyBytes(+ORIGINAL_SIZE, 'MB') : '-'
+  const size = prettyBytes(+SIZE, 'MB')
 
-    return (
-      <SelectCard
-        title={
-          isVolatile ? (
-            <>
-              {`${NAME} - `}
-              <Translate word={T.VolatileDisk} />
-            </>
-          ) : (
-            <Stack
-              component="span"
-              direction="row"
-              alignItems="center"
-              gap="0.5em"
-            >
-              <StatusCircle color={state?.color} tooltip={state?.name} />
-              {`${NAME}: ${IMAGE}`}
-              {isPersistent && <StatusChip text="PERSISTENT" />}
-            </Stack>
-          )
-        }
-        subheader={
+  return (
+    <SelectCard
+      title={
+        isVolatile ? (
           <>
-            {Object.entries({
-              [DATASTORE]: DATASTORE,
-              READONLY: stringToBoolean(READONLY),
-              PERSISTENT: stringToBoolean(PERSISTENT),
-              [isVolatile || ORIGINAL_SIZE === SIZE
-                ? size
-                : `${originalSize}/${size}`]: true,
-              [type]: type,
-            })
-              .map(([k, v]) => (v ? `${k}` : ''))
-              .filter(Boolean)
-              .join(' | ')}
+            {`${NAME} - `}
+            <Translate word={T.VolatileDisk} />
           </>
-        }
-        action={
-          <>
-            <Action
-              data-cy={`remove-${NAME}`}
-              tooltip={<Translate word={T.Remove} />}
-              handleClick={handleRemove}
-              color="error"
-              icon={<Trash />}
-            />
-            <ButtonToTriggerForm
-              buttonProps={{
-                'data-cy': `edit-${NAME}`,
-                icon: <Edit />,
-                tooltip: <Translate word={T.Edit} />,
-              }}
-              options={[
-                {
-                  dialogProps: {
-                    title: <Translate word={T.EditSomething} values={[NAME]} />,
-                  },
-                  form: () =>
-                    isVolatile
-                      ? VolatileSteps({ hypervisor }, item)
-                      : ImageSteps({ hypervisor }, item),
-                  onSubmit: handleUpdate,
+        ) : (
+          <Stack
+            component="span"
+            direction="row"
+            alignItems="center"
+            gap="0.5em"
+          >
+            <StatusCircle color={state?.color} tooltip={state?.name} />
+            {`${NAME}: ${IMAGE}`}
+          </Stack>
+        )
+      }
+      subheader={
+        <>
+          {Object.entries({
+            [DATASTORE]: DATASTORE,
+            READONLY: stringToBoolean(READONLY),
+            PERSISTENT: stringToBoolean(PERSISTENT),
+            [isVolatile || ORIGINAL_SIZE === SIZE
+              ? size
+              : `${originalSize}/${size}`]: true,
+            [type]: type,
+          })
+            .map(([k, v]) => (v ? `${k}` : ''))
+            .filter(Boolean)
+            .join(' | ')}
+        </>
+      }
+      action={
+        <>
+          <Action
+            data-cy={`remove-${NAME}`}
+            tooltip={<Translate word={T.Remove} />}
+            handleClick={handleRemove}
+            color="error"
+            icon={<Trash />}
+          />
+          <ButtonToTriggerForm
+            buttonProps={{
+              'data-cy': `edit-${NAME}`,
+              icon: <Edit />,
+              tooltip: <Translate word={T.Edit} />,
+            }}
+            options={[
+              {
+                dialogProps: {
+                  title: <Translate word={T.EditSomething} values={[NAME]} />,
                 },
-              ]}
-            />
-          </>
-        }
-      />
-    )
-  },
-  (prev, next) => prev.item?.NAME === next.item?.NAME
-)
+                form: () =>
+                  isVolatile
+                    ? VolatileSteps({ hypervisor }, item)
+                    : ImageSteps({ hypervisor }, item),
+                onSubmit: handleUpdate,
+              },
+            ]}
+          />
+        </>
+      }
+    />
+  )
+})
 
 DiskItem.propTypes = {
   index: PropTypes.number,

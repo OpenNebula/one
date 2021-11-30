@@ -21,7 +21,7 @@ import PropTypes from 'prop-types'
 import { useFormContext, FieldErrors } from 'react-hook-form'
 
 import { useAuth } from 'client/features/Auth'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 import Tabs from 'client/components/Tabs'
 import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
@@ -96,7 +96,7 @@ const Content = ({ data, setFormData }) => {
     [totalErrors, view, control]
   )
 
-  return tabs.length > 0 ? <Tabs tabs={tabs} /> : <span>{Tr(T.Empty)}</span>
+  return <Tabs tabs={tabs} />
 }
 
 const ExtraConfiguration = () => ({

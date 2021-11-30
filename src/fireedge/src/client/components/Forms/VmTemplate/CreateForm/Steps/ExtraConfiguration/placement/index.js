@@ -41,7 +41,7 @@ const Placement = () => {
         <FormWithSchema
           key={id}
           id={EXTRA_ID}
-          cy={`create-vm-template-${EXTRA_ID}.${id}`}
+          cy={`${EXTRA_ID}.${id}`}
           {...section}
         />
       ))}
