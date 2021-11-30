@@ -169,7 +169,9 @@ module OneDBFsck
                          :cluster_datastore_relation_new)
 
             @db.fetch('SELECT * from cluster_datastore_relation') do |row|
-                if cluster[row[:cid]][:datastores].count(row[:oid]) != 1
+                if !cluster[row[:cid]] || cluster[row[:cid]][:datastores].count(
+                    row[:oid]
+                ) != 1
                     log_error('Table cluster_datastore_relation contains ' \
                               "relation cluster #{row[:cid]}, datastore " \
                               "#{row[:oid]}, but it should not")
@@ -190,7 +192,9 @@ module OneDBFsck
                          :cluster_network_relation_new)
 
             @db.fetch('SELECT * from cluster_network_relation') do |row|
-                if cluster[row[:cid]][:vnets].count(row[:oid]) != 1
+                if !cluster[row[:cid]] || cluster[row[:cid]][:vnets].count(
+                    row[:oid]
+                ) != 1
                     log_error('Table cluster_network_relation contains ' \
                               "relation cluster #{row[:cid]}, " \
                               "vnet #{row[:oid]}, but it should not")
