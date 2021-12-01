@@ -18,8 +18,8 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { exportApp, importMarket } = require('./functions')
-const { POST } = httpMethod
+const { exportApp, importMarket, getDockerTags } = require('./functions')
+const { POST, GET } = httpMethod
 
 const routes = {
   [POST]: {
@@ -107,6 +107,25 @@ const routes = {
         vmname: {
           from: fromData.postBody,
           name: 'vmname',
+        },
+      },
+    },
+  },
+  [GET]: {
+    dockertags: {
+      action: getDockerTags,
+      params: {
+        id: {
+          from: fromData.resource,
+          name: 'id',
+        },
+        page: {
+          from: fromData.query,
+          name: 'page',
+        },
+        name: {
+          from: fromData.query,
+          name: 'name',
         },
       },
     },
