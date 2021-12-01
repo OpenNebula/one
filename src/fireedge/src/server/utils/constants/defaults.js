@@ -71,7 +71,6 @@ const defaults = {
     '2fa',
     'auth',
     'files',
-    'market',
     'marketapp',
     'oneflow',
     'support',

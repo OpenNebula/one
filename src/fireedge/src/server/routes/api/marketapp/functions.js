@@ -14,23 +14,56 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { sprintf } = require('sprintf-js')
+const { request: axios } = require('axios')
+
 const {
   defaultEmptyFunction,
   defaultCommandMarketApp,
+  dockerUrl,
 } = require('server/utils/constants/defaults')
 
 const {
   ok,
   internalServerError,
   badRequest,
+  notFound,
 } = require('server/utils/constants/http-codes')
-const { httpResponse, executeCommand } = require('server/utils/server')
 
+const {
+  Actions: ActionsMarketApp,
+} = require('server/utils/constants/commands/marketapp')
+
+const {
+  Actions: ActionsMarket,
+} = require('server/utils/constants/commands/market')
+
+const { httpResponse, executeCommand } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
 
 const httpBadRequest = httpResponse(badRequest, '', '')
+const httpNotFoundRequest = httpResponse(notFound, '', '')
+
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.sunstone_prepend || ''
+
+/**
+ * Response http request.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} httpCode - object http code
+ * @param {number} httpCode.id - http code number
+ * @param {string} httpCode.message - http message
+ * @param {object} [httpCode.data] - http data
+ * @param {string} [httpCode.file] - file path
+ */
+const responseHttp = (res = {}, next = defaultEmptyFunction, httpCode) => {
+  if (res && res.locals && res.locals.httpCode && httpCode) {
+    res.locals.httpCode = httpCode
+    next()
+  }
+}
 
 /**
  * Exports the marketplace app to the OpenNebula cloud.
@@ -128,8 +161,153 @@ const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
   next()
 }
 
+/**
+ * Request tags docker.
+ *
+ * @param {string} url - url
+ * @param {Function} success - success function
+ * @param {Function} error - error function
+ */
+const getTagsDocker = (
+  url = '',
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
+  axios({
+    method: 'GET',
+    url,
+    headers: {
+      'User-Agent': 'OpenNebula',
+    },
+    validateStatus: (status) => status >= 200 && status <= 400,
+  })
+    .then(({ data }) => {
+      success(data || '')
+    })
+    .catch(() => {
+      error()
+    })
+}
+
+/**
+ * Get market APP information.
+ *
+ * @param {Function} oneConnection - ONE connection
+ * @param {number} id - ID market app
+ * @param {Function} success - callback when have data
+ * @param {Function} error - error callback
+ */
+const getMarketApp = (
+  oneConnection = defaultEmptyFunction,
+  id,
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
+  oneConnection(
+    ActionsMarketApp.MARKETAPP_INFO,
+    [parseInt(id)],
+    (err = undefined, marketApp = {}) => {
+      if (err || !(marketApp && marketApp.MARKETPLACEAPP)) {
+        error()
+
+        return
+      }
+      success(marketApp && marketApp.MARKETPLACEAPP)
+    }
+  )
+}
+
+/**
+ * Get market information.
+ *
+ * @param {Function} oneConnection - ONE connection
+ * @param {number} id - ID market
+ * @param {Function} success - callback when have data
+ * @param {Function} error - error callback
+ */
+const getMarket = (
+  oneConnection = defaultEmptyFunction,
+  id,
+  success = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
+  oneConnection(
+    ActionsMarket.MARKET_INFO,
+    [parseInt(id)],
+    (err = undefined, market = {}) => {
+      if (err || !(market && market.MARKETPLACE)) {
+        error()
+
+        return
+      }
+      success(market && market.MARKETPLACE)
+    }
+  )
+}
+
+/**
+ * Get Docker Hub Tags.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {number} params.id - market id
+ * @param {number} [params.page] - page number
+ * @param {number} [params.name] - filter name
+ * @param {object} userData - user data.
+ * @param {string} userData.user - ONE username
+ * @param {string} userData.password - ONE password
+ * @param {Function} oneConnection - xmlrpc function
+ */
+const getDockerTags = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const { id, page, name } = params
+  const { user, password } = userData
+  if (id && user && password) {
+    const connect = oneConnection(user, password)
+
+    const callbackNotfound = () => responseHttp(res, next, httpNotFoundRequest)
+    const callbackBadRequest = () => responseHttp(res, next, httpBadRequest)
+    const market = ({ MARKETPLACE_ID, NAME: MARKETAPP_NAME }) => {
+      Number.isInteger(parseInt(MARKETPLACE_ID)) &&
+        getMarket(
+          connect,
+          MARKETPLACE_ID,
+          ({ NAME: MARKET_NAME, MARKET_MAD }) => {
+            if (MARKET_MAD !== 'dockerhub') {
+              return callbackBadRequest()
+            }
+
+            let url = sprintf(dockerUrl, MARKETAPP_NAME)
+            if (page) {
+              url += `&page=${page}`
+            }
+            if (name) {
+              url += `&name=${name}`
+            }
+            getTagsDocker(
+              url,
+              (tags) => responseHttp(res, next, httpResponse(ok, tags)),
+              callbackNotfound
+            )
+          },
+          callbackNotfound
+        )
+    }
+    getMarketApp(connect, id, market, callbackNotfound)
+  } else {
+    responseHttp(res, next, httpNotFoundRequest)
+  }
+}
+
 const functionRoutes = {
   exportApp,
   importMarket,
+  getDockerTags,
 }
 module.exports = functionRoutes
