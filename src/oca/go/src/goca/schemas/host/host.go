@@ -19,6 +19,7 @@ package host
 import (
 	"encoding/xml"
 
+	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
@@ -30,49 +31,43 @@ type Pool struct {
 
 // Host represents an OpenNebula Host
 type Host struct {
-	XMLName     xml.Name          `xml:"HOST"`
-	ID          int               `xml:"ID,omitempty"`
-	Name        string            `xml:"NAME"`
-	StateRaw    int               `xml:"STATE,omitempty"`
-	IMMAD       string            `xml:"IM_MAD,omitempty"`
-	VMMAD       string            `xml:"VM_MAD,omitempty"`
-	LastMonTime int               `xml:"LAST_MON_TIME,omitempty"`
-	ClusterID   int               `xml:"CLUSTER_ID,omitempty"`
-	Cluster     string            `xml:"CLUSTER,omitempty"`
-	Share       Share             `xml:"HOST_SHARE,omitempty"`
-	VMs         shared.EntitiesID `xml:"VMS,omitempty"`
-	Template    Template          `xml:"TEMPLATE,omitempty"`
+	XMLName         xml.Name          `xml:"HOST"`
+	ID              int               `xml:"ID,omitempty"`
+	Name            string            `xml:"NAME"`
+	StateRaw        int               `xml:"STATE,omitempty"`
+	IMMAD           string            `xml:"IM_MAD,omitempty"`
+	VMMAD           string            `xml:"VM_MAD,omitempty"`
+	ClusterID       int               `xml:"CLUSTER_ID,omitempty"`
+	Cluster         string            `xml:"CLUSTER,omitempty"`
+	Share           Share             `xml:"HOST_SHARE,omitempty"`
+	VMs             shared.EntitiesID `xml:"VMS,omitempty"`
+	MonitoringInfos Monitoring        `xml:"MONITORING,omitempty"`
+	Template        Template          `xml:"TEMPLATE,omitempty"`
+}
+
+type Monitoring struct {
+	dyn.Template
 }
 
 type Share struct {
-	DiskUsage int `xml:"DISK_USAGE,omitempty"`
-	MemUsage  int `xml:"MEM_USAGE,omitempty"`
-	CPUUsage  int `xml:"CPU_USAGE,omitempty"`
-	TotalMem  int `xml:"TOTAL_MEM,omitempty"`
-	TotalCPU  int `xml:"TOTAL_CPU,omitempty"`
+	MemUsage int `xml:"MEM_USAGE,omitempty"`
+	CPUUsage int `xml:"CPU_USAGE,omitempty"`
+	TotalMem int `xml:"TOTAL_MEM,omitempty"`
+	TotalCPU int `xml:"TOTAL_CPU,omitempty"`
 
-	MaxDisk int `xml:"MAX_DISK,omitempty"`
-	MaxMem  int `xml:"MAX_MEM,omitempty"`
-	MaxCPU  int `xml:"MAX_CPU,omitempty"`
-
-	FreeDisk int `xml:"FREE_DISK,omitempty"`
-	FreeMem  int `xml:"FREE_MEM,omitempty"`
-	FreeCPU  int `xml:"FREE_CPU,omitempty"`
-
-	UsedDisk int `xml:"USED_DISK,omitempty"`
-	UsedMem  int `xml:"USED_MEM,omitempty"`
-	UsedCPU  int `xml:"USED_CPU,omitempty"`
+	MaxMem int `xml:"MAX_MEM,omitempty"`
+	MaxCPU int `xml:"MAX_CPU,omitempty"`
 
 	RunningVMs int          `xml:"RUNNING_VMS,omitempty"`
-	Datastores []Datastores `xml:"DATASTORES>DS,omitempty"`
-	PCIDevices []PCIDevices  `xml:"PCI_DEVICES>PCI,omitempty"`
+	Datastores Datastores   `xml:"DATASTORES,omitempty"`
+	PCIDevices []PCIDevices `xml:"PCI_DEVICES>PCI,omitempty"`
 }
 
 type Datastores struct {
-	ID      int `xml:"ID,omitempty"`
-	UsedMB  int `xml:"USED_MB,omitempty"`
-	FreeMB  int `xml:"FREE_MB,omitempty"`
-	TotalMB int `xml:"TOTAL_MB,omitempty"`
+	DiskUsage int `xml:"DISK_USAGE,omitempty"`
+	FreeDisk  int `xml:"FREE_DISK,omitempty"`
+	MaxDisk   int `xml:"MAX_DISK,omitempty"`
+	UsedDisk  int `xml:"USED_DISK,omitempty"`
 }
 
 type PCIDevices struct {
