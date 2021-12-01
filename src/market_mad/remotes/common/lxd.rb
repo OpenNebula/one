@@ -22,12 +22,14 @@ module LXDMarket
     class << self
 
         # TODO: Make configurable
-        def template
+        def template(options = {})
             unindent(<<-EOS)
         SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
+        CPU = \"#{options[:cpu]}\"
+        VCPU = \"#{options[:vcpu]}\"
+        MEMORY = \"#{options[:memory]}\"
+        LXD_SECURITY_PRIVILEGED = \"#{options[:privileged]}\"
+        LXC_UNPRIVILEGED = \"#{!options[:privileged]}\"
         GRAPHICS = [
             LISTEN  =\"0.0.0.0\",
             TYPE  =\"vnc\"
