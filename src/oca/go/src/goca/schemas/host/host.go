@@ -60,6 +60,7 @@ type Share struct {
 
 	RunningVMs int          `xml:"RUNNING_VMS,omitempty"`
 	Datastores Datastores   `xml:"DATASTORES,omitempty"`
+	NumaNodes  []NumaNode   `xml:"NUMA_NODES>NODE,omitempty"`
 	PCIDevices []PCIDevices `xml:"PCI_DEVICES>PCI,omitempty"`
 }
 
@@ -71,19 +72,48 @@ type Datastores struct {
 }
 
 type PCIDevices struct {
-	Address      string `xml:"ADDRESS,omitempty"`
-	Bus          string `xml:"BUS,omitempty"`
-	Class        string `xml:"CLASS,omitempty"`
-	ClassName    string `xml:"CLASS_NAME,omitempty"`
-	Device       string `xml:"DEVICE,omitempty"`
-	DeviceName   string `xml:"DEVICE_NAME,omitempty"`
-	Domain       string `xml:"DOMAIN,omitempty"`
-	Function     string `xml:"FUNCTION,omitempty"`
-	NumaNode     string `xml:"NUMA_NODE,omitempty"`
-	ShortAddress string `xml:"SHORT_ADDRESS,omitempty"`
-	Slot         string `xml:"SLOT,omitempty"`
-	Type         string `xml:"TYPE,omitempty"`
-	Vendor       string `xml:"VENDOR,omitempty"`
-	VendorName   string `xml:"VENDOR_NAME,omitempty"`
-	VMID         int    `xml:"VMID,omitempty"`
+	Address      string     `xml:"ADDRESS,omitempty"`
+	Bus          string     `xml:"BUS,omitempty"`
+	Class        string     `xml:"CLASS,omitempty"`
+	ClassName    string     `xml:"CLASS_NAME,omitempty"`
+	Device       string     `xml:"DEVICE,omitempty"`
+	DeviceName   string     `xml:"DEVICE_NAME,omitempty"`
+	Domain       string     `xml:"DOMAIN,omitempty"`
+	Function     string     `xml:"FUNCTION,omitempty"`
+	NumaNodes    []NumaNode `xml:"NUMA_NODE,omitempty"`
+	ShortAddress string     `xml:"SHORT_ADDRESS,omitempty"`
+	Slot         string     `xml:"SLOT,omitempty"`
+	Type         string     `xml:"TYPE,omitempty"`
+	Vendor       string     `xml:"VENDOR,omitempty"`
+	VendorName   string     `xml:"VENDOR_NAME,omitempty"`
+	VMID         int        `xml:"VMID,omitempty"`
+}
+
+type NumaNode struct {
+	ID        int        `xml:"NODE_ID,omitempty"`
+	Cores     []Core     `xml:"CORE,omitempty"`
+	HugePages []HugePage `xml:"HUGEPAGE,omitempty"`
+	Memories  []Memory   `xml:"MEMORY,omitempty"`
+}
+
+type HugePage struct {
+	Free  int `xml:"FREE,omitempty"`
+	Pages int `xml:"PAGES,omitempty"`
+	Size  int `xml:"SIZE,omitempty"`
+	Usage int `xml:"USAGE,omitempty"`
+}
+
+type Memory struct {
+	Distance string `xml:"DISTANCE,omitempty"`
+	Free     int    `xml:"FREE,omitempty"`
+	Total    int    `xml:"TOTAL,omitempty"`
+	Usage    int    `xml:"USAGE,omitempty"`
+	Used     int    `xml:"USED,omitempty"`
+}
+
+type Core struct {
+	ID        int    `xml:"ID,omitempty"`
+	CPUs      string `xml:"CPUS,omitempty"`
+	Dedicated string `xml:"DEDICATED,omitempty"`
+	Free      int    `xml:"FREE,omitempty"`
 }
