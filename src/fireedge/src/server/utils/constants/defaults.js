@@ -154,7 +154,6 @@ const defaults = {
   default2FAIssuer: `${appName}-UI`,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
-  defaultGetMethod: 'info',
   defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
   defaultIP: defaultIp,
   defaultSeverities: [

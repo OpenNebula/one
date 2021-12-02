@@ -27,7 +27,6 @@ const {
   checkIfIsARouteFunction,
   commandXMLRPC,
   checkOpennebulaCommand,
-  checkMethodRouteFunction,
   responseOpennebula,
   httpResponse,
   getDataZone,
@@ -50,8 +49,6 @@ const {
 
 const {
   defaultMessageInvalidZone,
-  defaultGetMethod,
-  httpMethod: httpMethods,
   from: fromData,
   defaultOpennebulaZones,
   defaultWebpackMode,
@@ -80,8 +77,11 @@ router.all(
     const { method: httpMethod } = req
     res.locals.httpCode = httpResponse(internalServerError)
     const { zone } = getQueriesState()
-    // get data zones by config file
+
+    // get fireedge config
     const appConfig = getFireedgeConfig()
+
+    // set first zone
     if (
       appConfig.one_xmlrpc &&
       Array.isArray(defaultOpennebulaZones) &&
@@ -90,6 +90,8 @@ router.all(
     ) {
       defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
     }
+
+    // get data zone
     const zoneData = getDataZone(zone, defaultOpennebulaZones)
     if (zoneData) {
       const user = getUserOpennebula()
@@ -108,116 +110,94 @@ router.all(
         opennebulaConnect(user, password, rpc)
 
       const { resource } = req.params
-      const routeFunction = checkIfIsARouteFunction(
-        resource,
-        httpMethod,
-        !!userId.length
-      )
-      res.locals.httpCode = httpResponse(methodNotAllowed)
 
+      const { method } = getParamsState()
       const dataSources = {
         [fromData.resource]: getParamsState(),
         [fromData.query]: req.query,
         [fromData.postBody]: req.body,
       }
 
-      if (routeFunction) {
-        /*********************************************************
-         * This execute functions (routes)
-         *********************************************************/
+      const command = commandXMLRPC(resource, method)
+      const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
 
-        const valRouteFunction = checkMethodRouteFunction(
-          routeFunction,
-          httpMethod
-        )
-        req.serverDataSource = dataSources
-        if (valRouteFunction) {
-          valRouteFunction(req, res, next, connectOpennebula, userId, {
-            id: userId,
-            user,
-            password,
-          })
-        } else {
+      if (getOpennebulaMethod) {
+        /* XMLRPC */
+        dataSources[fromData.query] = getQueriesState()
+
+        const responser = (val = {}) => {
+          switch (typeof val) {
+            case 'string':
+              try {
+                res.locals.httpCode = httpResponse(ok, JSON.parse(val))
+              } catch (error) {
+                res.locals.httpCode = httpResponse(notFound, val)
+              }
+              break
+            case 'object':
+              res.locals.httpCode = httpResponse(ok, val)
+              break
+            case 'number':
+              res.locals.httpCode = httpResponse(ok, val)
+              break
+            default:
+              break
+          }
           next()
         }
+
+        const updaterResponse = (code) => {
+          if ('id' in code && 'message' in code) {
+            res.locals.httpCode = code
+          }
+        }
+
+        const paramsCommand = getOpennebulaMethod(dataSources)
+        let workerPath = [__dirname]
+        if (env && env.NODE_ENV === defaultWebpackMode) {
+          workerPath = ['src', 'server', 'utils']
+        } else {
+          require('server/utils/index.worker')
+        }
+        const worker = new Worker(resolve(...workerPath, 'index.worker.js'))
+        worker.onmessage = function (result) {
+          worker.terminate()
+          const err = result && result.data && result.data.err
+          const value = result && result.data && result.data.value
+          if (!err) {
+            fillResourceforHookConnection(user, command, paramsCommand)
+          }
+          writeInLogger([command, JSON.stringify(value)], 'worker: %s : %s')
+          responseOpennebula(updaterResponse, err, value, responser, next)
+        }
+        worker.postMessage({
+          globalState: (global && global.paths) || {},
+          user,
+          password,
+          rpc,
+          command,
+          paramsCommand,
+        })
       } else {
-        /*********************************************************
-         * This execute a XMLRPC commands
-         *********************************************************/
-
-        dataSources[fromData.query] = getQueriesState()
-        const { method } = getParamsState()
-        const command = commandXMLRPC(
+        /* FUNCTIONS */
+        res.locals.httpCode = httpResponse(methodNotAllowed)
+        const routeFunction = checkIfIsARouteFunction(
           resource,
-          method,
-          httpMethod === httpMethods.GET && defaultGetMethod
+          httpMethod,
+          !!userId.length
         )
-        const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
-        if (getOpennebulaMethod) {
-          /**
-           * Http response.
-           *
-           * @param {object} val - response http code
-           */
-          const response = (val = {}) => {
-            switch (typeof val) {
-              case 'string':
-                try {
-                  res.locals.httpCode = httpResponse(ok, JSON.parse(val))
-                } catch (error) {
-                  res.locals.httpCode = httpResponse(notFound, val)
-                }
-                break
-              case 'object':
-                res.locals.httpCode = httpResponse(ok, val)
-                break
-              case 'number':
-                res.locals.httpCode = httpResponse(ok, val)
-                break
-              default:
-                break
-            }
-            next()
-          }
 
-          /**
-           * Updater http response.
-           *
-           * @param {object} code - http code
-           */
-          const updaterResponse = (code) => {
-            if ('id' in code && 'message' in code) {
-              res.locals.httpCode = code
-            }
-          }
+        if (routeFunction) {
+          const { action } = routeFunction
+          req.serverDataSource = dataSources
 
-          //* worker thread */
-          const paramsCommand = getOpennebulaMethod(dataSources)
-          let workerPath = [__dirname]
-          if (env && env.NODE_ENV === defaultWebpackMode) {
-            workerPath = ['src', 'server', 'utils']
-          } else {
-            require('server/utils/index.worker')
-          }
-          const worker = new Worker(resolve(...workerPath, 'index.worker.js'))
-          worker.onmessage = function (result) {
-            worker.terminate()
-            const err = result && result.data && result.data.err
-            const value = result && result.data && result.data.value
-            if (!err) {
-              fillResourceforHookConnection(user, command, paramsCommand)
-            }
-            writeInLogger([command, JSON.stringify(value)], 'worker: %s : %s')
-            responseOpennebula(updaterResponse, err, value, response, next)
-          }
-          worker.postMessage({
-            globalState: (global && global.paths) || {},
-            user,
-            password,
-            rpc,
-            command,
-            paramsCommand,
-          })
+          action
+            ? action(req, res, next, connectOpennebula, userId, {
+                id: userId,
+                user,
+                password,
+              })
+            : next()
         } else {
           next()
         }
