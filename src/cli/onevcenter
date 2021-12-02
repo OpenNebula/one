@@ -98,6 +98,34 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Configuration file for custom options'
     }
 
+    LINKED_CLONE = {
+        :name => 'linked_clone',
+        :large => '--linked_clone linked_clone',
+        :format => String,
+        :description => 'Import template as linked clone, 0/1'
+    }
+
+    COPY = {
+        :name => 'copy',
+        :large => '--copy copy',
+        :format => String,
+        :description => 'Import template as copy, 0/1'
+    }
+
+    NAME = {
+        :name => 'name',
+        :large => '--name name',
+        :format => String,
+        :description => 'Import template copy with name'
+    }
+
+    FOLDER = {
+        :name => 'folder',
+        :large => '--folder folder',
+        :format => String,
+        :description => 'Import template in folder'
+    }
+
     VCENTER = {
         :name => 'vcenter',
         :large => '--vcenter vCenter',
@@ -269,7 +297,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :import_defaults,
             import_desc,
             [:oid, nil],
-            :options => [OBJECT, HOST, DATASTORE, CONFIG] do
+            :options => [
+                OBJECT, HOST, DATASTORE, CONFIG,
+                FOLDER, LINKED_CLONE, COPY, NAME
+            ] do
         begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client,
@@ -281,6 +312,26 @@ CommandParser::CmdParser.new(ARGV) do
             else
                 importer.retrieve_resources(helper.parse_opts(options))
                 indexes = importer.get_indexes(args.first)
+            end
+
+            if options[:object] == 'templates' &&
+              indexes &&
+              indexes.split(',').length == 1
+                opts = {
+                    :type => 'default',
+                    :linked_clone => '0',
+                    :copy => '0',
+                    :name => '',
+                    :folder => ''
+                }
+                if options[:linked_clone]
+                    opts[:linked_clone] = options[:linked_clone]
+                end
+                opts[:copy] = options[:copy] if options[:copy]
+                opts[:name] = options[:name] if options[:name]
+                opts[:folder] = options[:folder] if options[:folder]
+
+                options[indexes] = opts
             end
 
             importer.process_import(indexes, options)
