@@ -101,7 +101,7 @@ const exportApp = (
     ]
 
     file && paramsCommand.push('--file-datastore', file)
-    associated && associated === 'true' && paramsCommand.push('--no')
+    associated === 'false' && paramsCommand.push('--no')
     tag && paramsCommand.push('--tag', tag)
     template && paramsCommand.push('--template', template)
     vmname && paramsCommand.push('--vmname', vmname)
@@ -278,7 +278,7 @@ const getDockerTags = (
         getMarket(
           connect,
           MARKETPLACE_ID,
-          ({ NAME: MARKET_NAME, MARKET_MAD }) => {
+          ({ MARKET_MAD }) => {
             if (MARKET_MAD !== 'dockerhub') {
               return callbackBadRequest()
             }
