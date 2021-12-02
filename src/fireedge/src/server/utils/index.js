@@ -66,37 +66,14 @@ const createQueriesState = () => {
 }
 
 /**
- * Check method in route function.
- *
- * @param {object} routeFunction - data function route
- * @param {string} httpMethod - http method
- * @returns {Function} function route
- */
-const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
-  let rtn
-  if (
-    routeFunction &&
-    routeFunction.httpMethod &&
-    routeFunction.httpMethod === httpMethod &&
-    routeFunction.action &&
-    typeof routeFunction.action === 'function'
-  ) {
-    rtn = routeFunction.action
-  }
-
-  return rtn
-}
-
-/**
  * Check if route id a function.
  *
  * @param {string} route - route
  * @param {string} httpMethod - http method
  * @param {boolean} authenticated - user authenticated
- * @returns {object} route function
+ * @returns {object|undefined} route function
  */
 const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
-  let rtn = false
   if (route && route.length) {
     const { private: functionPrivate, public: functionPublic } = functionRoutes
     const functions = authenticated ? functionPrivate : functionPublic
@@ -106,6 +83,7 @@ const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
      * @param {object} rtnCommand - command to validate
      * @returns {object} command
      */
+
     const finderCommand = (rtnCommand) =>
       rtnCommand &&
       rtnCommand.endpoint &&
@@ -117,11 +95,9 @@ const checkIfIsARouteFunction = (route, httpMethod, authenticated) => {
 
     const find = functions.find(finderCommand)
     if (find) {
-      rtn = find
+      return find
     }
   }
-
-  return rtn
 }
 
 module.exports = {
@@ -137,7 +113,6 @@ module.exports = {
   commandXMLRPC,
   checkIfIsARouteFunction,
   checkOpennebulaCommand,
-  checkMethodRouteFunction,
   responseOpennebula,
   getFireedgeConfig,
   httpResponse,

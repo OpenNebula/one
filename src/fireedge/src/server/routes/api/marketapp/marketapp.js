@@ -67,10 +67,6 @@ const routes = {
           from: fromData.resource,
           name: 'id',
         },
-        name: {
-          from: fromData.postBody,
-          name: 'name',
-        },
         associated: {
           from: fromData.postBody,
           name: 'associated',
@@ -91,10 +87,6 @@ const routes = {
         templateId: {
           from: fromData.resource,
           name: 'id',
-        },
-        name: {
-          from: fromData.postBody,
-          name: 'name',
         },
         associated: {
           from: fromData.postBody,
