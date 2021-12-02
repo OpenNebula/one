@@ -1840,7 +1840,7 @@ module VCenterDriver
                             opts[:name]
                         )
                     unless template_copy_ref
-                        raise 'There is a problem creating creating' \
+                        raise 'There is a problem creating ' \
                               "your copy: #{error}"
                     end
 

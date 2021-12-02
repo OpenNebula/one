@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'opennebula/template_ext'
+require 'vcenter_driver'
 
 # Module to decorate VirtualMachine class with additional helpers not directly
 # exposed through the OpenNebula XMLRPC API. The extensions include
@@ -59,6 +60,85 @@ module OpenNebula::VirtualMachineExt
                                     IMAGE_ID IMAGE IMAGE_UNAME IMAGE_UID
                                     LN_TARGET TM_MAD TYPE OPENNEBULA_MANAGED]
 
+            def save_as_linked_clones(name, _desc, _opts = {})
+                deploy_id = self['DEPLOY_ID']
+                host_id = self['HISTORY_RECORDS/HISTORY[last()]/HID']
+                vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+                vm = RbVmomi::VIM::VirtualMachine(vi_client.vim, deploy_id)
+
+                disks = vm.config.hardware.device.grep(
+                  RbVmomi::VIM::VirtualMachine
+                )
+                disks.select { |x| x.backing.parent == nil }.each do |disk|
+                    spec = {
+                        deviceChange: [
+                            {
+                                operation: :remove,
+                                device: disk
+                            },
+                            {
+                                operation: :add,
+                                fileOperation: :create,
+                                device: disk.dup.tap { |x|
+                                    x.backing = x.backing.dup
+                                    x.backing.fileName = "[#{disk.backing.datastore.name}]"
+                                    x.backing.parent = disk.backing
+                                },
+                            }
+                        ]
+                    }
+                    vm.ReconfigVM_Task(spec: spec).wait_for_completion
+                end
+
+                relocateSpec = RbVmomi::VIM.VirtualMachineRelocateSpec(diskMoveType: :moveChildMostDiskBacking)
+
+                spec = RbVmomi::VIM.VirtualMachineCloneSpec(
+                  location: relocateSpec,
+                  powerOn: false,
+                  template: true)
+
+                new_template = vm.CloneVM_Task(
+                    folder: vm.parent,
+                    name: name,
+                    spec: spec
+                ).wait_for_completion
+
+                new_vm_template_ref = new_template._ref
+
+                one_client = OpenNebula::Client.new
+                importer = VCenterDriver::VmImporter.new(one_client, vi_client)
+
+                importer.retrieve_resources({})
+                importer.get_indexes(new_vm_template_ref)
+
+                importer.process_import(
+                    new_vm_template_ref,
+                    {
+                        new_vm_template_ref.to_s => {
+                            :type => 'default',
+                            :linked_clone => '1',
+                            :copy => '0',
+                            :name => '',
+                            :folder => ''
+                        }
+                    }
+                )
+
+                begin
+                    importer.output[:success][0][:id][0]
+                rescue StandardError => e
+                    message = 'Creating linked clones template' \
+                    " failed due to \"#{e.message}\".\n"
+
+                    if VCenterDriver::CONFIG[:debug_information]
+                        message += " #{e.backtrace}\n"
+                    end
+
+                    raise message
+                end
+            end
+
             def save_as_template(name, desc, opts = {})
                 opts = {
                     :persistent => false,
@@ -92,6 +172,15 @@ module OpenNebula::VirtualMachineExt
                     rc = poweroff
 
                     raise rc.message if OpenNebula.is_error?(rc)
+                end
+
+                # --------------------------------------------------------------
+                # Ask if source VM is linked clone
+                # --------------------------------------------------------------
+                use_linked_clones = self['USER_TEMPLATE/VCENTER_LINKED_CLONES']
+
+                if use_linked_clones && use_linked_clones.downcase == 'yes'
+                    return save_as_linked_clones(name, desc, opts)
                 end
 
                 # --------------------------------------------------------------
