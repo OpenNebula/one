@@ -202,7 +202,7 @@ module VCenterDriver
         # index associated to his own resource opt
         #
         # Example:
-        # {"vm-343" => {linked: '0', copy: '0'...}
+        # {"vm-343" => {:linked_clone: '0', :copy: '0'...}
         #
         # @ return [Hash] the list of unimported resources
         #
