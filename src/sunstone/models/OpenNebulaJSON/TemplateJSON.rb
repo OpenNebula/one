@@ -33,9 +33,9 @@ module OpenNebulaJSON
             end
 
             self.allocate(template)
-       end
+        end
 
-       def perform_action(template_json)
+        def perform_action(template_json)
             action_hash = parse_json(template_json, 'action')
             if OpenNebula.is_error?(action_hash)
                 return action_hash
@@ -51,8 +51,8 @@ module OpenNebulaJSON
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
                  when "delete_recursive" then self.delete_recursive(action_hash['params'])
-                 when "lock"       then self.lock(action_hash['params'])
-                 when "unlock"       then self.unlock(action_hash['params'])
+                 when "lock"        then self.lock_json(action_hash['params'])
+                 when "unlock"      then self.unlock_json(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -144,12 +144,12 @@ module OpenNebulaJSON
             self.delete(recursive)
         end
 
-        def lock(params=Hash.new)
-            super(params['level'].to_i)
+        def lock_json(params=Hash.new)
+            self.lock(params['level'].to_i)
         end
 
-        def unlock(params=Hash.new)
-            super()
+        def unlock_json(params=Hash.new)
+            self.unlock
         end
     end
 end
