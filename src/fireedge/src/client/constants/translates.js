@@ -100,13 +100,14 @@ module.exports = {
   SaveAsTemplate: 'Save as Template',
   Search: 'Search',
   Select: 'Select',
+  SelectDatastore: 'Select a Datastore to store the resource',
+  SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
+  SelectMarketplace: 'Select Marketplace',
   SelectNetwork: 'Select a network',
   SelectRequest: 'Select request',
   SelectVmTemplate: 'Select a VM Template',
-  SelectDatastore: 'Select a Datastore to store the resource',
-  SelectMarketplace: 'Select Marketplace',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
@@ -598,7 +599,7 @@ module.exports = {
     'Name that the resource will get for description purposes',
   ExportTemplateNameConcept:
     'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
-  DontAssociateApp: 'Do not import/export associated VM templates/images',
+  ExportAssociateApp: 'Export associated VM templates/images',
   ImportAssociateApp: 'Import associated VM templates/images',
 
   /* User inputs */

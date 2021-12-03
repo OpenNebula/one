@@ -24,12 +24,12 @@ const NAME_FIELD = {
   label: T.Name,
   tooltip: T.ExportAppNameConcept,
   type: INPUT_TYPES.TEXT,
-  validation: lazy((_, { context }) => {
-    return string()
+  validation: lazy((_, { context }) =>
+    string()
       .trim()
       .required()
       .default(() => context.app.NAME)
-  }),
+  ),
 }
 
 /** @type {Field} Template name field */
@@ -38,20 +38,20 @@ const TEMPLATE_NAME_FIELD = {
   label: T.VMTemplate,
   tooltip: T.ExportTemplateNameConcept,
   type: INPUT_TYPES.TEXT,
-  validation: lazy((_, { context }) => {
-    return string()
+  validation: lazy((_, { context }) =>
+    string()
       .trim()
       .required()
       .default(() => context.app.NAME)
-  }),
+  ),
 }
 
 /** @type {Field} Associate field */
 const ASSOCIATED_FIELD = {
   name: 'associated',
-  label: T.DontAssociateApp,
+  label: T.ExportAssociateApp,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
+  validation: boolean().default(() => true),
   grid: { md: 12 },
 }
 

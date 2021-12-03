@@ -62,6 +62,26 @@ export const marketplaceAppService = {
   },
 
   /**
+   * Retrieves DockerHub tags information for marketplace app.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - App id
+   * @param {string|number} [params.page] - Number of page
+   * @returns {object[]} List of DockerHub tags
+   * @throws Fails when response isn't code 200
+   */
+  getDockerHubTags: async ({ id, page }) => {
+    const res = await RestClient.request({
+      url: `/api/marketapp/dockertags/${id}`,
+      params: { page },
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
    * Exports the marketplace app to the OpenNebula cloud.
    *
    * @param {object} params - Request parameters
@@ -71,7 +91,7 @@ export const marketplaceAppService = {
    * @param {string|number} params.file - File datastore id or name
    * @param {string} params.tag - DockerHub image tag (default latest)
    * @param {string|number} params.template - Associate with VM template
-   * @param {boolean} params.associated - If `true`, don't export associated VM templates/images
+   * @param {boolean} params.associated - If `false`, Do not export associated VM templates/images
    * @param {string} params.vmname - The name for the new VM Template, if the App contains one
    * @returns {number} Template and image ids
    * @throws Fails when response isn't code 200

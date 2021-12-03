@@ -90,6 +90,7 @@ const GlobalFilter = ({ useTableProps, className }) => {
       </div>
       <InputBase
         value={value ?? ''}
+        type="search"
         onChange={(event) => {
           setValue(event.target.value)
           handleChange(event.target.value)

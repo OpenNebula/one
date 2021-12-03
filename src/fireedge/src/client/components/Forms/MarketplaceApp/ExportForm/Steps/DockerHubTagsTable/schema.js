@@ -13,44 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, {
-  STEP_ID as BASIC_ID,
-} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/BasicConfiguration'
-import DatastoresTable, {
-  STEP_ID as DATASTORE_ID,
-} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable'
-import DockerHubTagsTable, {
-  STEP_ID as TAG_ID,
-} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DockerHubTagsTable'
-import { createSteps } from 'client/utils'
+import { array, object, ArraySchema } from 'yup'
 
-const Steps = createSteps(
-  (app) => {
-    const isDockerImage = String(app?.MARKETPLACE).toLowerCase() === 'dockerhub'
-
-    return [
-      BasicConfiguration,
-      DatastoresTable,
-      isDockerImage && DockerHubTagsTable,
-    ].filter(Boolean)
-  },
-  {
-    transformInitialValue: (app, schema) =>
-      schema.cast({}, { context: { app } }),
-    transformBeforeSubmit: (formData) => {
-      const {
-        [BASIC_ID]: configuration,
-        [DATASTORE_ID]: [datastore] = [],
-        [TAG_ID]: [tag] = [],
-      } = formData
-
-      return {
-        datastore: datastore?.ID,
-        tag: tag?.name,
-        ...configuration,
-      }
-    },
-  }
-)
-
-export default Steps
+/** @type {ArraySchema} Datastore table schema */
+export const SCHEMA = array(object()).max(1).ensure()
