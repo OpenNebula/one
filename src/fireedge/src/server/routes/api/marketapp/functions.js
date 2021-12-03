@@ -253,7 +253,6 @@ const getMarket = (
  * @param {object} params - params of http request
  * @param {number} params.id - market id
  * @param {number} [params.page] - page number
- * @param {number} [params.name] - filter name
  * @param {object} userData - user data.
  * @param {string} userData.user - ONE username
  * @param {string} userData.password - ONE password
@@ -266,7 +265,7 @@ const getDockerTags = (
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
-  const { id, page, name } = params
+  const { id, page } = params
   const { user, password } = userData
   if (id && user && password) {
     const connect = oneConnection(user, password)
@@ -286,9 +285,6 @@ const getDockerTags = (
             let url = sprintf(dockerUrl, MARKETAPP_NAME)
             if (page) {
               url += `&page=${page}`
-            }
-            if (name) {
-              url += `&name=${name}`
             }
             getTagsDocker(
               url,

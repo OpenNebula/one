@@ -115,10 +115,6 @@ const routes = {
           from: fromData.query,
           name: 'page',
         },
-        name: {
-          from: fromData.query,
-          name: 'name',
-        },
       },
     },
   },
