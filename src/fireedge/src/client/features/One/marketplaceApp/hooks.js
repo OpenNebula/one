@@ -37,5 +37,10 @@ export const useMarketplaceAppApi = () => {
       unwrapDispatch(actions.getMarketplaceApp({ id })),
     getMarketplaceApps: () => unwrapDispatch(actions.getMarketplaceApps()),
     exportApp: (id, data) => unwrapDispatch(actions.exportApp({ id, ...data })),
+    create: (id, template) => unwrapDispatch(actions.create({ id, template })),
+    importVm: (id, data) =>
+      unwrapDispatch(actions.importApp('vm', { id, ...data })),
+    importVmTemplate: (id, data) =>
+      unwrapDispatch(actions.importApp('template', { id, ...data })),
   }
 }

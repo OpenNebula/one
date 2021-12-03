@@ -13,25 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useWatch } from 'react-hook-form'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import {
-  FIELDS,
-  SCHEMA,
-} from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/BasicConfiguration/schema'
 import { Step } from 'client/utils'
 import { T } from 'client/constants'
+
+import { TYPES, FIELDS, TEMPLATE_FIELDS, SCHEMA } from './schema'
 
 export const STEP_ID = 'configuration'
 
 const Content = () => {
+  const type = useWatch({ name: `${STEP_ID}.type` })
+
+  const imageFields = useMemo(
+    () => TYPES.IMAGE === type && TEMPLATE_FIELDS,
+    [type]
+  )
+
   return (
-    <FormWithSchema
-      cy={'create-marketplace-app.configuration'}
-      fields={FIELDS}
-      id={STEP_ID}
-    />
+    <>
+      <FormWithSchema cy={STEP_ID} fields={FIELDS} id={STEP_ID} />
+      <FormWithSchema
+        cy={`${STEP_ID}-template`}
+        fields={imageFields}
+        legend={T.TemplatesForTheApp}
+        legendTooltip={T.TemplatesForTheAppConcept}
+        id={STEP_ID}
+      />
+    </>
   )
 }
 

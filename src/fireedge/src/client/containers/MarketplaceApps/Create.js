@@ -18,9 +18,11 @@ import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
-// import { useMarketplaceAppApi } from 'client/features/One'
+import { useMarketplaceAppApi } from 'client/features/One'
 import { CreateForm } from 'client/components/Forms/MarketplaceApp'
+import { jsonToXml } from 'client/models/Helper'
 import { isDevelopment } from 'client/utils'
+import { RESOURCE_NAMES } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a Marketplace App.
@@ -33,13 +35,32 @@ function CreateMarketplaceApp() {
   const initialValues = useMemo(() => ({ type: resourceName, id: ID }), [])
 
   const { enqueueSuccess } = useGeneralApi()
-  // const { } = useMarketplaceAppApi()
+  const { create, importVm, importVmTemplate } = useMarketplaceAppApi()
 
-  const onSubmit = async (template) => {
+  const onSubmit = async ({ type, ...formData }) => {
     try {
-      isDevelopment() && console.log({ template })
+      const createApp = {
+        [RESOURCE_NAMES.IMAGE]: async () => {
+          const { id: imageId, marketId, name, image } = formData
+          const xml = jsonToXml({ ORIGIN_ID: imageId, NAME: name, ...image })
+
+          return await create(marketId, xml)
+        },
+        [RESOURCE_NAMES.VM]: async () => {
+          const { id: vmId, ...data } = formData
+
+          return await importVm(vmId, data)
+        },
+        [RESOURCE_NAMES.VM_TEMPLATE]: async () => {
+          const { id: templateId, ...data } = formData
+
+          return await importVmTemplate(templateId, data)
+        },
+      }[String(type).toLowerCase()]
+
+      const response = await createApp?.()
+      response && enqueueSuccess(`Marketplace App created: ${response}`)
       history.goBack()
-      enqueueSuccess('TODO: Marketplace app request')
     } catch (err) {
       isDevelopment() && console.error(err)
     }

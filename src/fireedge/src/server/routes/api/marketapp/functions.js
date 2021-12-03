@@ -142,7 +142,7 @@ const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
     let message = ''
     const paramsCommand = [resource, 'import', `${id}`]
 
-    paramsCommand.push(associated && associated === 'true' ? '--yes' : '--no')
+    paramsCommand.push(associated === 'true' ? '--yes' : '--no')
     marketId && paramsCommand.push('--market', marketId)
     vmname && paramsCommand.push('--vmname', vmname)
 

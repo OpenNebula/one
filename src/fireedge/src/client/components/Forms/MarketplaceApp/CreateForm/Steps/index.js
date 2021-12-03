@@ -28,7 +28,7 @@ const Steps = createSteps([BasicConfiguration, MarketplacesTable], {
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration, [MARKET_ID]: [market] = [] } = formData
 
-    return { market: market?.ID, ...configuration }
+    return { marketId: market?.ID, ...configuration }
   },
 })
 

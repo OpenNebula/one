@@ -71,9 +71,9 @@ export const marketplaceAppService = {
    * @param {string|number} params.file - File datastore id or name
    * @param {string} params.tag - DockerHub image tag (default latest)
    * @param {string|number} params.template - Associate with VM template
-   * @param {boolean} params.associated - If `true`, Do not import/export associated VM templates/images
+   * @param {boolean} params.associated - If `true`, don't export associated VM templates/images
    * @param {string} params.vmname - The name for the new VM Template, if the App contains one
-   * @returns {number} Template id
+   * @returns {number} Template and image ids
    * @throws Fails when response isn't code 200
    */
   export: async ({ id, ...data }) => {
@@ -81,6 +81,57 @@ export const marketplaceAppService = {
       url: `/api/marketapp/export/${id}`,
       method: 'POST',
       data,
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Allocates a new marketplace app in OpenNebula.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Marketplace id
+   * @param {string} params.template - A string containing the template of the marketplace app
+   * @returns {number} App id
+   * @throws Fails when response isn't code 200
+   */
+  create: async (params) => {
+    const name = Actions.MARKETAPP_ALLOCATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Imports a VM or VM Template into the marketplace.
+   *
+   * @param {'vm'|'template'} resourceName - Type of resource
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - VM or VM Template id
+   * @param {string|number} params.marketId - Market to import all objects
+   * @param {boolean} params.associated - If `true`, don't import associated VM templates/images
+   * @param {string} params.vmname - Selects the name for the new VM Template, if the App contains one
+   * @returns {number} App id
+   * @throws Fails when response isn't code 200
+   */
+  import: async (resourceName, { id, ...data }) => {
+    if (!['vm', 'template'].includes(resourceName)) {
+      throw Error(`Invalid resource to import: ${resourceName}`)
+    }
+
+    const { marketId, associated, vmname } = data
+
+    const res = await RestClient.request({
+      url: `/api/marketapp/${resourceName}import/${id}`,
+      method: 'POST',
+      data: { marketId, associated, vmname },
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data

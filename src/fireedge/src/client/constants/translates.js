@@ -588,6 +588,10 @@ module.exports = {
   /* Marketplace App - general */
   Version: 'Version',
   AppTemplate: 'App Template',
+  TemplatesForTheApp: 'Templates for the App',
+  TemplatesForTheAppConcept: `
+    VM Template to be created. A DISK element pointing to the App Image will be
+    automatically added when the App is exported`,
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
   ExportAppNameConcept:
@@ -595,6 +599,7 @@ module.exports = {
   ExportTemplateNameConcept:
     'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
   DontAssociateApp: 'Do not import/export associated VM templates/images',
+  ImportAssociateApp: 'Import associated VM templates/images',
 
   /* User inputs */
   UserInputs: 'User Inputs',
