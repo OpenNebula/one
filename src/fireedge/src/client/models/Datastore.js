@@ -79,13 +79,10 @@ export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
  * @param {object} oneConfig - One config from redux
  * @returns {boolean} - Datastore supports to export
  */
-export const isMarketExportSupport = ({ NAME } = {}, oneConfig) => {
+export const isMarketExportSupport = ({ NAME } = {}, oneConfig) =>
   // When in doubt, allow the action and let oned return failure
-  return (
-    !NAME ||
-    oneConfig?.DS_MAD_CONF?.some(
-      (dsMad) =>
-        dsMad?.NAME === NAME && dsMad?.MARKETPLACE_ACTIONS?.includes?.('export')
-    )
+  !NAME ||
+  oneConfig?.DS_MAD_CONF?.some(
+    (dsMad) =>
+      dsMad?.NAME === NAME && dsMad?.MARKETPLACE_ACTIONS?.includes?.('export')
   )
-}

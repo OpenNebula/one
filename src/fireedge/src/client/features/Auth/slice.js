@@ -64,8 +64,8 @@ const { name, actions, reducer } = createSlice({
         (_, { error }) => ({ ...initial(), error })
       )
       .addMatcher(
-        ({ type }) => {
-          return [
+        ({ type }) =>
+          [
             changeFilter.type,
             login.fulfilled.type,
             getUser.fulfilled.type,
@@ -76,8 +76,7 @@ const { name, actions, reducer } = createSlice({
             getSunstoneViews.fulfilled.type,
             getSunstoneConfig.fulfilled.type,
             changeView.type,
-          ].includes(type)
-        },
+          ].includes(type),
         (state, { payload }) => ({ ...state, ...payload })
       )
       .addMatcher(

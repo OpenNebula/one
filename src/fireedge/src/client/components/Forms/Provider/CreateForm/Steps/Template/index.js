@@ -75,7 +75,7 @@ const Content = ({ data, setFormData }) => {
     () => templateSelected?.plain?.provision_type ?? provisionTypes[0]
   )
 
-  const [templatesByProvisionSelected, providerTypes, description] =
+  const [templatesByProvisionSelected, providerTypes, providerDescription] =
     useMemo(() => {
       const templates = Object.values(
         provisionTemplates[provisionSelected]?.providers
@@ -194,8 +194,11 @@ const Content = ({ data, setFormData }) => {
 
       {/* -- DESCRIPTION -- */}
       {useMemo(
-        () => description && <RenderDescription description={description} />,
-        [description]
+        () =>
+          providerDescription && (
+            <RenderDescription description={providerDescription} />
+          ),
+        [providerDescription]
       )}
 
       <Divider style={{ margin: '1rem 0' }} />

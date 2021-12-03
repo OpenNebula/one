@@ -27,15 +27,13 @@ import { T } from 'client/constants'
 
 export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
 
-const Context = (props) => {
-  return (
-    <>
-      <ConfigurationSection />
-      <FilesSection {...props} />
-      <UserInputsSection />
-    </>
-  )
-}
+const Context = (props) => (
+  <>
+    <ConfigurationSection />
+    <FilesSection {...props} />
+    <UserInputsSection />
+  </>
+)
 
 Context.propTypes = {
   data: PropTypes.any,

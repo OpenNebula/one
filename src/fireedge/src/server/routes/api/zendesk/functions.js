@@ -33,9 +33,7 @@ const getSession = (username = '', token = '') => {
     global.users[username].tokens
   ) {
     const session = global.users[username].tokens.find(
-      (curr = {}, index = 0) => {
-        return curr.token && curr.token === token
-      }
+      (curr = {}, index = 0) => curr.token && curr.token === token
     )
 
     return session

@@ -250,16 +250,20 @@ const addOptionalCreateCommand = () => {
  * @returns {string} paths
  */
 const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
+  let search = rtn
+
   if (path && finder) {
     try {
       const dirs = readdirSync(path)
+
       dirs.forEach((dir) => {
         const name = `${path}/${dir}`
+
         if (statSync(name).isDirectory()) {
           if (basename(name) === finder) {
-            rtn = name
+            search = name
           } else {
-            rtn = findRecursiveFolder(name, finder, rtn)
+            search = findRecursiveFolder(name, finder, search)
           }
         }
       })
@@ -268,7 +272,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
     }
   }
 
-  return rtn
+  return search
 }
 
 /**

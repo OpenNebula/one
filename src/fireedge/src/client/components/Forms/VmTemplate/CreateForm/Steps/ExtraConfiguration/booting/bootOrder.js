@@ -70,7 +70,9 @@ const BootItemDraggable = styled('div')(({ theme, disabled }) => ({
  */
 export const reorderBootAfterRemove = (id, list, currentBootOrder) => {
   const type = String(id).toLowerCase().replace(/\d+/g, '') // nic | disk
-  const getIndexFromId = (id) => String(id).toLowerCase().replace(type, '')
+
+  const getIndexFromId = (bootId) => `${bootId}`.toLowerCase().replace(type, '')
+
   const idxToRemove = getIndexFromId(id)
 
   const otherIds = list
@@ -195,12 +197,16 @@ const BootOrder = () => {
                     draggableId={ID}
                     index={idx}
                   >
-                    {({ draggableProps, dragHandleProps, innerRef }) => (
+                    {({
+                      draggableProps,
+                      dragHandleProps,
+                      innerRef: dragRef,
+                    }) => (
                       <BootItemDraggable
                         {...draggableProps}
                         {...dragHandleProps}
                         disabled={disabled}
-                        ref={innerRef}
+                        ref={dragRef}
                       >
                         <Checkbox
                           checked={!disabled}

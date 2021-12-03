@@ -92,7 +92,7 @@ const ActionItem = memo(
         buttonProps={buttonProps}
         options={options?.map((option) => {
           const {
-            accessor,
+            accessor: optionAccessor,
             form,
             onSubmit,
             dialogProps,
@@ -102,7 +102,7 @@ const ActionItem = memo(
 
           return {
             ...option,
-            cy: accessor && `action.${accessor}`,
+            cy: optionAccessor && `action-${optionAccessor}`,
             disabled:
               typeof optionDisabled === 'function'
                 ? optionDisabled(selectedRows)

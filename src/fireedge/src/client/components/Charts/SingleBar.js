@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
  * @returns {JSXElementConstructor} Chart bar component
  */
 const SingleBar = ({ legend, data, total = 0 }) => {
-  const fragments = data.map((data) => Math.floor((data * 10) / (total || 1)))
+  const fragments = data.map((frag) => Math.floor((frag * 10) / (total || 1)))
 
   const classes = useStyles({ fragments })
 

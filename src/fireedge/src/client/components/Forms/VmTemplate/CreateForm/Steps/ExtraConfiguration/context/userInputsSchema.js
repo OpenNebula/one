@@ -40,7 +40,7 @@ const {
   boolean: uiBoolean,
 } = USER_INPUT_TYPES
 
-const { array: _, ...userInputTypes } = USER_INPUT_TYPES
+const { array: __, ...userInputTypes } = USER_INPUT_TYPES
 
 /** @type {UserInputType[]} User inputs types */
 const valuesOfUITypes = Object.values(userInputTypes)
@@ -169,17 +169,17 @@ const DEFAULT_VALUE = {
   validation: string()
     .trim()
     .default(() => undefined)
-    .when([TYPE.name, OPTIONS.name], (type, options = [], schema) => {
-      return (
-        {
+    .when(
+      [TYPE.name, OPTIONS.name],
+      (type, options = [], schema) =>
+        ({
           [uiList]: schema.oneOf(options).notRequired(),
           [uiListMultiple]: schema.includesInOptions(options),
           [uiRange]: number().min(ref(MIN.name)).max(ref(MAX.name)).integer(),
           [uiRangeFloat]: number().min(ref(MIN.name)).max(ref(MAX.name)),
           [uiPassword]: schema.strip().notRequired(),
-        }[type] ?? schema
-      )
-    }),
+        }[type] ?? schema)
+    ),
   grid: { sm: 6, md: 4 },
 }
 

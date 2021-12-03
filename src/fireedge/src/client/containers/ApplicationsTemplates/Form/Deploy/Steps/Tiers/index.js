@@ -23,7 +23,7 @@ import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
-import { ID, FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
+import { ID_FIELD, FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'tiers'
 
@@ -78,7 +78,7 @@ const Tiers = ({ tiers, vmTemplates }) => {
                 <div key={id} hidden={tabSelected !== id}>
                   <FormWithSchema
                     cy="deploy-tiers-id"
-                    fields={[ID]}
+                    fields={[ID_FIELD]}
                     id={`${STEP_ID}[${index}]`}
                   />
                   <FormWithSchema

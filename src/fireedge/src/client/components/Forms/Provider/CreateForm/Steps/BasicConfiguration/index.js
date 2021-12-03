@@ -25,15 +25,13 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = ({ isUpdate }) => {
-  return (
-    <FormWithSchema
-      cy="form-provider"
-      id={STEP_ID}
-      fields={FORM_FIELDS({ isUpdate })}
-    />
-  )
-}
+const Content = ({ isUpdate }) => (
+  <FormWithSchema
+    cy="form-provider"
+    id={STEP_ID}
+    fields={FORM_FIELDS({ isUpdate })}
+  />
+)
 
 const BasicConfiguration = ({ isUpdate }) => ({
   id: STEP_ID,

@@ -120,14 +120,15 @@ ansiHTML.setColors = function (colors) {
   }
 
   const _finalColors = {}
-  for (const key in _defColors) {
+  Object.entries(_defColors).forEach(([key, defHexColor]) => {
     let hex = Object.prototype.hasOwnProperty.call(colors, key)
       ? colors[key]
       : null
 
     if (!hex) {
-      _finalColors[key] = _defColors[key]
-      continue
+      _finalColors[key] = defHexColor
+
+      return
     }
 
     if (key === 'reset') {
@@ -138,16 +139,12 @@ ansiHTML.setColors = function (colors) {
       if (
         !Array.isArray(hex) ||
         hex.length === 0 ||
-        hex.some(function (h) {
-          return typeof h !== 'string'
-        })
+        hex.some((h) => typeof h !== 'string')
       ) {
         throw new Error(
           `The value of '${key}' property must be an Array and each item could only be a hex string, e.g.: FF0000`
         )
       }
-
-      const defHexColor = _defColors[key]
 
       if (!hex[0]) {
         hex[0] = defHexColor[0]
@@ -166,7 +163,8 @@ ansiHTML.setColors = function (colors) {
     }
 
     _finalColors[key] = hex
-  }
+  })
+
   _setTags(_finalColors)
 }
 
@@ -208,12 +206,11 @@ const _setTags = (colors) => {
   // dark grey
   _openTags[90] = `color:#${colors.darkgrey}`
 
-  for (const code in _styles) {
-    const color = _styles[code]
+  Object.entries(_styles).forEach(([code, color]) => {
     const oriColor = colors[color] || '000'
     _openTags[code] = `color:#${oriColor}`
     _openTags[(parseInt(code) + 10).toString()] = `background:#${oriColor}`
-  }
+  })
 }
 
 ansiHTML.reset()

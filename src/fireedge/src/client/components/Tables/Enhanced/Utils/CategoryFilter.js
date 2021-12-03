@@ -57,18 +57,18 @@ const CategoryFilter = ({
 
   // Calculate the options for filtering using the preFilteredRows
   const options = useMemo(() => {
-    const options = {}
+    const filteredOptions = {}
 
     preFilteredRows?.forEach((row) => {
       const value = row.values[id]
 
       if (!value) return
 
-      const count = options[value[accessorOption] ?? value] || 0
-      options[value[accessorOption] ?? value] = count + 1
+      const count = filteredOptions[value[accessorOption] ?? value] || 0
+      filteredOptions[value[accessorOption] ?? value] = count + 1
     })
 
-    return options
+    return filteredOptions
   }, [id, preFilteredRows])
 
   const handleSelect = (value) => {

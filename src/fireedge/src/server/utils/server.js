@@ -750,9 +750,9 @@ const getRequestFiles = (params = {}) => {
     params.constructor === Object
   ) {
     const arrayParams = Object.keys(params)
-    const fileParams = arrayParams.filter((key = '') => {
-      return key && params[key] && params[key].from === 'files'
-    })
+    const fileParams = arrayParams.filter(
+      (key = '') => key && params[key] && params[key].from === 'files'
+    )
 
     return fileParams
   }

@@ -102,7 +102,7 @@ router.all(
       /**
        * Instance of connection to opennebula.
        *
-       * @param {string} user - opennegula user
+       * @param {string} user - opennebula user
        * @param {string} password - opennebula pass
        * @returns {Function} opennebula executer calls to XMLRPC
        */

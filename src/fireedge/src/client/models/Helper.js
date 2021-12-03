@@ -305,12 +305,11 @@ export const getUserInputString = (userInput) => {
  * @param {object} userInputs - List of user inputs in string format
  * @returns {UserInputObject[]} User input object
  */
-export const userInputsToArray = (userInputs = {}) => {
-  return Object.entries(userInputs).map(([name, ui]) => ({
+export const userInputsToArray = (userInputs = {}) =>
+  Object.entries(userInputs).map(([name, ui]) => ({
     name,
     ...getUserInputParams(ui),
   }))
-}
 
 /**
  * Get list of user inputs in format valid to forms.

@@ -44,7 +44,9 @@ const InstantiateForm = ({ template, onSubmit }) => {
       <FormStepper
         steps={steps}
         schema={resolver}
-        onSubmit={(data) => onSubmit(transformBeforeSubmit?.(data) ?? data)}
+        onSubmit={(data) =>
+          onSubmit(transformBeforeSubmit?.(data, template) ?? data)
+        }
       />
     </FormProvider>
   )

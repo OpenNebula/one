@@ -37,23 +37,27 @@ const { name, reducer } = createSlice({
   extraReducers: (builder) => {
     builder
       /* UI ACTIONS */
-      .addCase(actions.fixMenu, (state, { payload }) => {
-        return { ...state, isFixMenu: !!payload }
-      })
-      .addCase(actions.changeLoading, (state, { payload }) => {
-        return { ...state, isLoading: !!payload }
-      })
-      .addCase(actions.changeTitle, (state, { payload }) => {
-        return { ...state, title: payload }
-      })
+      .addCase(actions.fixMenu, (state, { payload }) => ({
+        ...state,
+        isFixMenu: !!payload,
+      }))
+      .addCase(actions.changeLoading, (state, { payload }) => ({
+        ...state,
+        isLoading: !!payload,
+      }))
+      .addCase(actions.changeTitle, (state, { payload }) => ({
+        ...state,
+        title: payload,
+      }))
       .addCase(actions.changeAppTitle, (state, { payload }) => {
         const isBeta = APPS_IN_BETA?.includes(String(payload).toLowerCase())
 
         return { ...state, appTitle: payload, isBeta }
       })
-      .addCase(actions.changeZone, (state, { payload }) => {
-        return { ...state, zone: payload }
-      })
+      .addCase(actions.changeZone, (state, { payload }) => ({
+        ...state,
+        zone: payload,
+      }))
 
       /* NOTIFICATION ACTIONS */
       .addCase(actions.enqueueSnackbar, (state, { payload }) => {

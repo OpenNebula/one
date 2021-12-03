@@ -87,19 +87,22 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     const totalErrors = Object.keys(errorsByPath).length
 
     totalErrors > 0
-      ? setError(id, {
+      ? setError(stepId, {
           type: 'manual',
           message: [T.ErrorsOcurred, totalErrors],
         })
-      : setError(id, rest)
+      : setError(stepId, rest)
 
     inner?.forEach(({ path, type, errors: message }) => {
       if (isDevelopment()) {
         // the package @hookform/devtools requires message as string
         const [key, ...values] = [message].flat()
-        setError(`${id}.${path}`, { type, message: sprintf(key, ...values) })
+        setError(`${stepId}.${path}`, {
+          type,
+          message: sprintf(key, ...values),
+        })
       } else {
-        setError(`${id}.${path}`, { type, message })
+        setError(`${stepId}.${path}`, { type, message })
       }
     })
   }
@@ -160,7 +163,7 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     [activeStep]
   )
 
-  const { id, content: Content } = useMemo(
+  const { id: stepId, content: Content } = useMemo(
     () => steps[activeStep],
     [formData, activeStep]
   )
@@ -195,10 +198,10 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
               errors={errors}
             />
           ),
-        [isLoading, isMobile, activeStep, errors[id]]
+        [isLoading, isMobile, activeStep, errors[stepId]]
       )}
       {/* FORM CONTENT */}
-      {Content && <Content data={formData[id]} setFormData={setFormData} />}
+      {Content && <Content data={formData[stepId]} setFormData={setFormData} />}
 
       {isDevelopment() && <DevTool control={control} placement="top-left" />}
     </>

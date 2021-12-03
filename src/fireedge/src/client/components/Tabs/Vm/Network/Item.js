@@ -33,13 +33,13 @@ import { TabContext } from 'client/components/Tabs/TabProvider'
 import { Action } from 'client/components/Cards/SelectCard'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import MultipleTags from 'client/components/MultipleTags'
+import Alias from 'client/components/Tabs/Vm/Network/Alias'
+import SecGroup from 'client/components/Tabs/Vm/Network/SecGroup'
 
 import { Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const DATACYSECURITY = 'securitygroup-'
-const DATACYNETWORK = 'network-'
-const DATACYALIAS = 'alias-'
+const DATACY_NETWORK = 'network-'
 
 const Accordion = styled((props) => (
   <MAccordion disableGutters elevation={0} square {...props} />
@@ -133,24 +133,24 @@ const NetworkItem = ({ nic = {}, actions }) => {
   const tags = [
     {
       text: IP,
-      dataCy: `${DATACYNETWORK}ip`,
+      dataCy: `${DATACY_NETWORK}ip`,
     },
     {
       text: MAC,
-      dataCy: `${DATACYNETWORK}mac`,
+      dataCy: `${DATACY_NETWORK}mac`,
     },
     {
       text: ADDRESS,
-      dataCy: `${DATACYNETWORK}address`,
+      dataCy: `${DATACY_NETWORK}address`,
     },
   ].filter(({ text } = {}) => Boolean(text))
 
   return (
     <>
-      <Accordion data-cy={`${DATACYNETWORK}${NIC_ID}`}>
+      <Accordion data-cy={`${DATACY_NETWORK}${NIC_ID}`}>
         <Summary {...(hasDetails && { expandIcon: <ExpandIcon /> })}>
           <Row>
-            <Typography noWrap data-cy={`${DATACYNETWORK}name`}>
+            <Typography noWrap data-cy={`${DATACY_NETWORK}name`}>
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
             <Labels>
@@ -165,108 +165,27 @@ const NetworkItem = ({ nic = {}, actions }) => {
         </Summary>
         {hasDetails && (
           <Details>
-            {ALIAS?.map(({ NIC_ID, NETWORK = '-', BRIDGE, IP, MAC }) => {
-              const tags = [
-                {
-                  text: IP,
-                  dataCy: `${DATACYALIAS}ip`,
-                },
-                {
-                  text: MAC,
-                  dataCy: `${DATACYALIAS}mac`,
-                },
-                {
-                  text: BRIDGE && `BRIDGE - ${BRIDGE}`,
-                  dataCy: `${DATACYALIAS}bridge`,
-                },
-              ].filter(({ text } = {}) => Boolean(text))
-
-              return (
-                <Row key={NIC_ID} data-cy={`${DATACYALIAS}${NIC_ID}`}>
-                  <Typography
-                    noWrap
-                    variant="body2"
-                    data-cy={`${DATACYALIAS}name`}
-                  >
-                    <Translate word={T.Alias} />
-                    {`${NIC_ID} | ${NETWORK}`}
-                  </Typography>
-                  <Labels>
-                    <MultipleTags
-                      clipboard
-                      limitTags={isMobile ? 1 : 3}
-                      tags={tags}
-                    />
-                  </Labels>
-                  {!isMobile && !isPciDevice && detachAction(NIC_ID, true)}
-                </Row>
-              )
-            })}
+            {ALIAS?.map((alias) => (
+              <Alias
+                key={alias?.NIC_ID}
+                alias={alias}
+                isPciDevice={isPciDevice}
+                detachAction={detachAction}
+              />
+            ))}
             {!!SECURITY_GROUPS?.length && (
               <SecGroups variant="outlined">
                 <Typography variant="body1">
                   <Translate word={T.SecurityGroups} />
                 </Typography>
 
-                {SECURITY_GROUPS?.map(
-                  (
-                    {
-                      ID,
-                      SECURITY_GROUP_ID,
-                      NAME,
-                      PROTOCOL,
-                      RULE_TYPE,
-                      ICMP_TYPE,
-                      RANGE,
-                      NETWORK_ID,
-                    },
-                    idx
-                  ) => {
-                    const tags = [
-                      {
-                        text: PROTOCOL,
-                        dataCy: `${DATACYSECURITY}protocol`,
-                      },
-                      {
-                        text: RULE_TYPE,
-                        dataCy: `${DATACYSECURITY}ruletype`,
-                      },
-                      {
-                        text: RANGE,
-                        dataCy: `${DATACYSECURITY}range`,
-                      },
-                      {
-                        text: NETWORK_ID,
-                        dataCy: `${DATACYSECURITY}networkid`,
-                      },
-                      {
-                        text: ICMP_TYPE,
-                        dataCy: `${DATACYSECURITY}icmp_type`,
-                      },
-                    ].filter(({ text } = {}) => Boolean(text))
-
-                    return (
-                      <Row
-                        key={`${idx}-${NAME}`}
-                        data-cy={`${DATACYSECURITY}${idx}`}
-                      >
-                        <Typography
-                          noWrap
-                          variant="body2"
-                          data-cy={`${DATACYSECURITY}name`}
-                        >
-                          {`${ID} | ${NAME}`}
-                        </Typography>
-                        <Labels>
-                          <MultipleTags
-                            limitTags={isMobile ? 2 : 5}
-                            tags={tags}
-                          />
-                        </Labels>
-                      </Row>
-                    )
-                  }
-                )}
+                {SECURITY_GROUPS?.map((securityGroup, idx) => (
+                  <SecGroup
+                    key={`${idx}-${securityGroup.NAME}`}
+                    index={idx}
+                    securityGroup={securityGroup}
+                  />
+                ))}
               </SecGroups>
             )}
           </Details>

@@ -33,14 +33,12 @@ const StyledLegend = styled((props) => (
 }))
 
 const Legend = memo(
-  ({ title, tooltip }) => {
-    return (
-      <StyledLegend tooltip={tooltip}>
-        {labelCanBeTranslated(title) ? Tr(title) : title}
-        {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
-      </StyledLegend>
-    )
-  },
+  ({ title, tooltip }) => (
+    <StyledLegend tooltip={tooltip}>
+      {labelCanBeTranslated(title) ? Tr(title) : title}
+      {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
+    </StyledLegend>
+  ),
   (prev, next) => prev.title === next.title && prev.tooltip === next.tooltip
 )
 

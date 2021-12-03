@@ -28,26 +28,24 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
 
-const Placement = () => {
+const Placement = () => (
   // TODO - Host requirements: add button to select HOST in list => ID="<id>"
   // TODO - Host policy options: Packing|Stripping|Load-aware
 
   // TODO - DS requirements: add button to select DATASTORE in list => ID="<id>"
   // TODO - DS policy options: Packing|Stripping
 
-  return (
-    <>
-      {SECTIONS.map(({ id, ...section }) => (
-        <FormWithSchema
-          key={id}
-          id={EXTRA_ID}
-          cy={`${EXTRA_ID}.${id}`}
-          {...section}
-        />
-      ))}
-    </>
-  )
-}
+  <>
+    {SECTIONS.map(({ id, ...section }) => (
+      <FormWithSchema
+        key={id}
+        id={EXTRA_ID}
+        cy={`${EXTRA_ID}.${id}`}
+        {...section}
+      />
+    ))}
+  </>
+)
 
 Placement.propTypes = {
   data: PropTypes.any,

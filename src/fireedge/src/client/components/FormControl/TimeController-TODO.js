@@ -27,7 +27,7 @@ const WrapperToLoadLib = ({ children, id, lib }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadLib = async (lib) => {
+    const loadLib = async () => {
       try {
         await import(lib)
       } finally {

@@ -40,7 +40,7 @@ const getPciAttributes = (pciDevice = '') => {
 }
 
 /** @type {Field} Name PCI device field */
-const DEVICE_NAME = {
+const NAME_FIELD = {
   name: 'DEVICE_NAME',
   label: T.DeviceName,
   notOnHypervisors: [vcenter, lxc, firecracker],
@@ -63,7 +63,7 @@ const commonFieldProps = (name) => ({
   name,
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.TEXT,
-  dependOf: DEVICE_NAME.name,
+  dependOf: NAME_FIELD.name,
   watcher: (pciDevice) => {
     if (pciDevice) {
       const { [name]: attribute } = getPciAttributes(pciDevice)
@@ -77,23 +77,30 @@ const commonFieldProps = (name) => ({
 })
 
 /** @type {Field} PCI device field */
-const DEVICE = { label: T.Device, ...commonFieldProps('DEVICE') }
+const DEVICE_FIELD = { label: T.Device, ...commonFieldProps('DEVICE') }
 
 /** @type {Field} PCI device field */
-const VENDOR = { label: T.Vendor, ...commonFieldProps('VENDOR') }
+const VENDOR_FIELD = { label: T.Vendor, ...commonFieldProps('VENDOR') }
 
 /** @type {Field} PCI device field */
-const CLASS = { label: T.Class, ...commonFieldProps('CLASS') }
+const CLASS_FIELD = { label: T.Class, ...commonFieldProps('CLASS') }
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} List of Graphic inputs fields
  */
 export const PCI_FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor([DEVICE_NAME, DEVICE, VENDOR, CLASS], hypervisor)
+  filterFieldsByHypervisor(
+    [NAME_FIELD, DEVICE_FIELD, VENDOR_FIELD, CLASS_FIELD],
+    hypervisor
+  )
 
 /** @type {ObjectSchema} PCI devices object schema */
-export const PCI_SCHEMA = getObjectSchemaFromFields([DEVICE, VENDOR, CLASS])
+export const PCI_SCHEMA = getObjectSchemaFromFields([
+  DEVICE_FIELD,
+  VENDOR_FIELD,
+  CLASS_FIELD,
+])
 
 /** @type {ObjectSchema} PCI devices schema */
 export const PCI_DEVICES_SCHEMA = object({
