@@ -17,7 +17,7 @@
     "lint-fix": "eslint ./src/ --fix"
   },
   "author": "opennebula.io",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=10.21.0"
   },
