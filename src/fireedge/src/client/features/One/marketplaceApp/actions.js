@@ -31,6 +31,11 @@ export const getMarketplaceApps = createAction(
   (response) => ({ [RESOURCES.app]: response })
 )
 
+export const getDockerHubTags = createAction(
+  `${APP}/dockerhub-tags`,
+  marketplaceAppService.getDockerHubTags
+)
+
 export const exportApp = createAction(
   `${APP}/export`,
   marketplaceAppService.export

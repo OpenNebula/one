@@ -48,17 +48,17 @@ const VmsTable = (props) => {
 
   const { status, data, fetchRequest, loading, reloading, error, STATUS } =
     useFetch(getVms)
-  const { INIT, PENDING } = STATUS
+  const { INIT, PENDING, FETCHED } = STATUS
 
   useEffect(() => {
     const requests = {
-      INIT: () =>
+      [INIT]: () =>
         fetchRequest({
           start: INITIAL_ELEMENT,
           end: -INTERVAL_ON_FIRST_RENDER,
           state: -1, // Any state, except DONE
         }),
-      FETCHED: () => {
+      [FETCHED]: () => {
         const canFetchMore =
           !error && data?.vms?.length === INTERVAL_ON_FIRST_RENDER
 

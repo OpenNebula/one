@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import ClustersTable from 'client/components/Tables/Clusters'
 import DatastoresTable from 'client/components/Tables/Datastores'
+import DockerHubTagsTable from 'client/components/Tables/DockerHubTags'
 import EnhancedTable, {
   EnhancedTableProps,
 } from 'client/components/Tables/Enhanced'
@@ -40,6 +41,7 @@ export {
   VirtualizedTable,
   ClustersTable,
   DatastoresTable,
+  DockerHubTagsTable,
   GroupsTable,
   HostsTable,
   ImagesTable,

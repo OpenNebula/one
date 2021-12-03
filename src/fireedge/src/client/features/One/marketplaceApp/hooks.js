@@ -36,6 +36,8 @@ export const useMarketplaceAppApi = () => {
     getMarketplaceApp: (id) =>
       unwrapDispatch(actions.getMarketplaceApp({ id })),
     getMarketplaceApps: () => unwrapDispatch(actions.getMarketplaceApps()),
+    getDockerHubTags: (options) =>
+      unwrapDispatch(actions.getDockerHubTags(options)),
     exportApp: (id, data) => unwrapDispatch(actions.exportApp({ id, ...data })),
     create: (id, template) => unwrapDispatch(actions.create({ id, template })),
     importVm: (id, data) =>

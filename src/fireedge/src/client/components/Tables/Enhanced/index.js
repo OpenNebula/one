@@ -45,6 +45,7 @@ const EnhancedTable = ({
   canFetchMore,
   columns,
   globalActions,
+  globalFilter,
   data,
   fetchMore,
   getRowId,
@@ -86,6 +87,7 @@ const EnhancedTable = ({
       columns,
       data,
       defaultColumn,
+      globalFilter,
       sortTypes,
       getRowId,
       // When table has update, disable all of the auto resetting
@@ -158,14 +160,12 @@ const EnhancedTable = ({
 
         {/* PAGINATION */}
         <div className={styles.pagination}>
-          {page?.length > 0 && (
-            <Pagination
-              handleChangePage={handleChangePage}
-              useTableProps={useTableProps}
-              count={rows.length}
-              showPageCount={showPageCount}
-            />
-          )}
+          <Pagination
+            handleChangePage={handleChangePage}
+            useTableProps={useTableProps}
+            count={rows.length}
+            showPageCount={showPageCount}
+          />
         </div>
       </div>
 
@@ -234,6 +234,7 @@ export const EnhancedTableProps = {
   globalActions: PropTypes.arrayOf(ActionPropTypes),
   columns: PropTypes.array,
   data: PropTypes.array,
+  globalFilter: PropTypes.func,
   fetchMore: PropTypes.func,
   getRowId: PropTypes.func,
   initialState: PropTypes.object,
