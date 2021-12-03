@@ -61,7 +61,7 @@ const FormWithSchema = ({
 
   const getFields = useMemo(
     () => (typeof fields === 'function' ? fields() : fields),
-    []
+    [fields?.length]
   )
 
   if (!getFields || getFields?.length === 0) return null

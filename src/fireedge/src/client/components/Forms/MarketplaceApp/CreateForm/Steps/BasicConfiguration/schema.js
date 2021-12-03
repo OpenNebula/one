@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, object, ObjectSchema } from 'yup'
+import { string, boolean, ObjectSchema } from 'yup'
 import { makeStyles } from '@mui/styles'
 
 import { useSystem, useDatastore } from 'client/features/One'
@@ -25,13 +25,14 @@ import {
 import {
   Field,
   arrayToOptions,
-  getValidationFromFields,
+  getObjectSchemaFromFields,
   sentenceCase,
+  encodeBase64,
 } from 'client/utils'
 import { isMarketExportSupport } from 'client/models/Datastore'
 import { T, INPUT_TYPES, STATES, RESOURCE_NAMES } from 'client/constants'
 
-const TYPES = {
+export const TYPES = {
   IMAGE: RESOURCE_NAMES.IMAGE.toUpperCase(),
   VM: RESOURCE_NAMES.VM.toUpperCase(),
   VM_TEMPLATE: RESOURCE_NAMES.VM_TEMPLATE.toUpperCase(),
@@ -66,23 +67,59 @@ const NAME = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { md: 12, lg: 6 },
+}
+
+/** @type {Field} Description field */
+const DESCRIPTION = {
+  name: 'image.DESCRIPTION',
+  label: T.Description,
+  type: INPUT_TYPES.TEXT,
+  dependOf: TYPE.name,
+  htmlType: (type) => type !== TYPES.IMAGE && INPUT_TYPES.HIDDEN,
+  validation: string()
+    .trim()
+    .default(() => undefined),
 }
 
 /** @type {Field} Import image/templates field */
 const IMPORT = {
-  name: 'image',
-  label: T.DontAssociateApp,
+  name: 'associated',
+  label: T.ImportAssociateApp,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
-  grid: { md: 12, lg: 6 },
+  dependOf: TYPE.name,
+  htmlType: (type) => type === TYPES.IMAGE && INPUT_TYPES.HIDDEN,
+  validation: boolean().default(() => true),
+}
+
+/** @type {Field} App template field */
+const APP_TEMPLATE = {
+  name: 'image.APPTEMPLATE64',
+  label: T.AppTemplate,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .afterSubmit((value) => encodeBase64(value)),
+  fieldProps: { multiline: true, placeholder: 'ATTRIBUTE = "VALUE"' },
+}
+
+/** @type {Field} VM template field */
+const VM_TEMPLATE = {
+  name: 'image.VMTEMPLATE64',
+  label: T.VMTemplate,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .afterSubmit((value) => encodeBase64(value)),
+  fieldProps: { multiline: true, placeholder: 'ATTRIBUTE = "VALUE"' },
 }
 
 /** @type {Field} Resource table field */
 const RES_TABLE = {
   name: 'id',
   type: INPUT_TYPES.TABLE,
-  dependOf: 'type',
+  dependOf: TYPE.name,
   label: (type) =>
     `Select the ${sentenceCase(type) ?? 'resource'} to create the App`,
   Table: (type) =>
@@ -120,7 +157,10 @@ const RES_TABLE = {
 }
 
 /** @type {Field[]} - List of fields */
-export const FIELDS = [TYPE, NAME, IMPORT, RES_TABLE]
+export const FIELDS = [TYPE, NAME, DESCRIPTION, IMPORT, RES_TABLE]
+
+/** @type {Field[]} - List of fields for template section */
+export const TEMPLATE_FIELDS = [APP_TEMPLATE, VM_TEMPLATE]
 
 /** @type {ObjectSchema} - Schema form */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const SCHEMA = getObjectSchemaFromFields([...FIELDS, ...TEMPLATE_FIELDS])

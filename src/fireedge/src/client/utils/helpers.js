@@ -68,7 +68,22 @@ export function sanitize(text, ...values) {
  */
 export const decodeBase64 = (string, defaultValue = {}) => {
   try {
-    return decodeURIComponent(escape(atob(string)))
+    return atob(string)
+  } catch (e) {
+    return defaultValue
+  }
+}
+
+/**
+ * Encode an string to base 64.
+ *
+ * @param {string} string - Value to encode
+ * @param {any} defaultValue - Default value if it fails
+ * @returns {string} Encoded value from string to base 64
+ */
+export const encodeBase64 = (string, defaultValue = '') => {
+  try {
+    return btoa(string)
   } catch (e) {
     return defaultValue
   }

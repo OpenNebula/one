@@ -14,17 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { DateTime } from 'luxon'
-import { j2xParser as Parser } from 'fast-xml-parser'
+import { j2xParser as Parser, J2xOptions } from 'fast-xml-parser'
 
 import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
 
 /**
  * @param {object} json - JSON
- * @param {boolean} [addRoot] - Add ROOT element as parent
+ * @param {J2xOptions} [options] - Options to parser
+ * @param {boolean} [options.addRoot] - Add ROOT element as parent
  * @returns {string} Xml in string format
  */
-export const jsonToXml = (json, addRoot = true) => {
-  const parser = new Parser()
+export const jsonToXml = (json, { addRoot = true, ...options } = {}) => {
+  const parser = new Parser(options)
 
   return parser.parse(addRoot ? { ROOT: json } : json)
 }
