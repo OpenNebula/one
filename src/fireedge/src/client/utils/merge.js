@@ -44,11 +44,10 @@ export const emptyTarget = (val) => (Array.isArray(val) ? [] : {})
  * @param {MergeOptions} options - Merge options
  * @returns {*} Returns the value as clone if required
  */
-export const cloneIfNecessary = (value, options) => {
-  return options?.clone === true && isMergeableObject(value)
+export const cloneIfNecessary = (value, options) =>
+  options?.clone === true && isMergeableObject(value)
     ? deepmerge(emptyTarget(value), value, options)
     : value
-}
 
 /**
  * @param {Array} target - Target

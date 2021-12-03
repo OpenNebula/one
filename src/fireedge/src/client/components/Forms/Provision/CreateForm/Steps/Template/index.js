@@ -78,7 +78,7 @@ const Template = () => ({
       () => templateSelected?.provision_type ?? provisionTypes[0]
     )
 
-    const [templatesByProvisionSelected, providerTypes, description] =
+    const [templatesByProvisionSelected, providerTypes, providerDescription] =
       useMemo(() => {
         const templates = Object.values(
           provisionTemplates[provisionSelected]?.provisions
@@ -209,8 +209,11 @@ const Template = () => ({
 
         {/* -- DESCRIPTION -- */}
         {useMemo(
-          () => description && <RenderDescription description={description} />,
-          [description]
+          () =>
+            providerDescription && (
+              <RenderDescription description={providerDescription} />
+            ),
+          [providerDescription]
         )}
 
         <Divider style={{ margin: '1rem 0' }} />

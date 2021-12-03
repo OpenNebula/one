@@ -47,7 +47,8 @@ export const useVmTemplateApi = () => {
       unwrapDispatch(actions.changePermissions({ id, ...data })),
     changeOwnership: (id, ownership) =>
       unwrapDispatch(actions.changeOwnership({ id, ownership })),
-    rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
+    rename: (id, newName) =>
+      unwrapDispatch(actions.rename({ id, name: newName })),
     lock: (id, data) => unwrapDispatch(actions.lock({ id, ...data })),
     unlock: (id) => unwrapDispatch(actions.unlock({ id })),
   }

@@ -15,13 +15,11 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-const VmLogTab = (data) => {
-  return (
-    <div>
-      <p>WIP - LOG</p>
-    </div>
-  )
-}
+const VmLogTab = (data) => (
+  <div>
+    <p>WIP - LOG</p>
+  </div>
+)
 
 VmLogTab.displayName = 'VmLogTab'
 

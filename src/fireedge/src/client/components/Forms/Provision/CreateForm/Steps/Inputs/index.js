@@ -71,12 +71,11 @@ const Inputs = () => ({
 
         // MERGE INPUTS provision template + PROVISION_BODY.inputs (provider fetch)
         inputs = templateInputs.map((templateInput) => {
-          const providerInput =
-            PROVISION_BODY.inputs?.find(
-              (providerInput) => providerInput.name === templateInput.name
-            ) ?? {}
+          const providerInput = PROVISION_BODY.inputs?.find(
+            (input) => input.name === templateInput.name
+          )
 
-          return deepmerge(templateInput, providerInput)
+          return deepmerge(templateInput, providerInput ?? {})
         })
 
         setFields(FORM_FIELDS(inputs))

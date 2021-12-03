@@ -72,7 +72,7 @@ const Attribute = memo(
     const handleActiveEditForm = async () => {
       const response = (await handleGetOptionList?.()) ?? []
       const isFormatValid = response?.every?.(
-        ({ text, value } = {}) => !!text && !!value
+        ({ text, value: optionValue } = {}) => !!text && !!optionValue
       )
 
       if (!handleGetOptionList || isFormatValid) {

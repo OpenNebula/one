@@ -22,9 +22,8 @@ import MarketplacesTable, {
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps([BasicConfiguration, MarketplacesTable], {
-  transformInitialValue: (initialValues, schema) => {
-    return schema.cast({ [BASIC_ID]: initialValues }, { stripUnknown: true })
-  },
+  transformInitialValue: (initialValues, schema) =>
+    schema.cast({ [BASIC_ID]: initialValues }, { stripUnknown: true }),
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration, [MARKET_ID]: [market] = [] } = formData
 

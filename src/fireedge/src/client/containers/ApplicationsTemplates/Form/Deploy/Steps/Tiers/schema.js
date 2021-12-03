@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
-export const ID = {
+export const ID_FIELD = {
   name: 'id',
   label: 'ID',
   type: INPUT_TYPES.TEXT,
@@ -167,7 +167,7 @@ export const STEP_FORM_SCHEMA = ({ tiers, vmTemplates }) => {
     .array(
       yup.lazy((value) =>
         yup.object({
-          ...getValidationFromFields([ID]),
+          ...getValidationFromFields([ID_FIELD]),
           user_inputs_values: schemasUI[value?.id],
         })
       )

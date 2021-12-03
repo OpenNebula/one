@@ -114,9 +114,9 @@ const ResponseForm = ({
                             />
                           ))
                         }
-                        renderInput={(params) => (
+                        renderInput={(inputProps) => (
                           <TextField
-                            {...params}
+                            {...inputProps}
                             fullWidth
                             label={paramName}
                             color="secondary"

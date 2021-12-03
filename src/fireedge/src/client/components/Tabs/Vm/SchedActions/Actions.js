@@ -196,7 +196,7 @@ const CharterAction = memo(() => {
                   }
 
                   const [period, parsedTime] = Object.entries(allPeriods).find(
-                    ([_, time]) => time >= 1
+                    ([_, value]) => value >= 1
                   )
 
                   return (

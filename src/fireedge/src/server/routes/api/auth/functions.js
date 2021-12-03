@@ -93,7 +93,7 @@ const getIV = () => iv
 const getUser = () => user
 
 /**
- * Get user password openebula.
+ * Get user password opennebula.
  *
  * @returns {string} get password user opennebula
  */

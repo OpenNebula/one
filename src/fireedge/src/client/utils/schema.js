@@ -356,17 +356,17 @@ export const mapUserInputs = (userInputs = {}) =>
 /**
  * Converts a list of values to usable options.
  *
- * @param {any[]} array - List of option values
+ * @param {any[]} list - List of option values
  * @param {object} [options] - Options to conversion
  * @param {boolean|string} [options.addEmpty] - If `true`, add an empty option
  * @param {function(any):any} [options.getText] - Function to get the text option
  * @param {function(any):any} [options.getValue] - Function to get the value option
  * @returns {SelectOption} Options
  */
-export const arrayToOptions = (array = [], options = {}) => {
+export const arrayToOptions = (list = [], options = {}) => {
   const { addEmpty = true, getText = (o) => o, getValue = (o) => o } = options
 
-  const values = array.map((item) => ({
+  const values = list.map((item) => ({
     text: getText(item),
     value: getValue(item),
   }))
@@ -440,8 +440,8 @@ export const createForm =
     const schemaCallback = typeof schema === 'function' ? schema(props) : schema
     const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
 
-    const defaultTransformInitialValue = (values, schema) =>
-      schema.cast(values, { stripUnknown: true })
+    const defaultTransformInitialValue = (values) =>
+      schemaCallback.cast(values, { stripUnknown: true })
 
     const { transformInitialValue = defaultTransformInitialValue } = extraParams
 

@@ -147,8 +147,8 @@ const SelectCard = memo(
               {/* CARD ACTIONS */}
               {actions?.length > 0 && (
                 <CardActions {...cardActionsProps}>
-                  {actions?.map((action) => (
-                    <Action key={action?.cy} {...action} />
+                  {actions?.map((actionProps) => (
+                    <Action key={actionProps?.cy} {...actionProps} />
                   ))}
                 </CardActions>
               )}

@@ -52,7 +52,8 @@ export const useVmApi = () => {
     unresched: (id) => unwrapDispatch(actions.unresched({ id })),
     updateUserTemplate: (id, template, replace) =>
       unwrapDispatch(actions.updateUserTemplate({ id, template, replace })),
-    rename: (id, name) => unwrapDispatch(actions.rename({ id, name })),
+    rename: (id, newName) =>
+      unwrapDispatch(actions.rename({ id, name: newName })),
     resize: (id, data) => unwrapDispatch(actions.resize({ id, ...data })),
     changePermissions: (id, permissions) =>
       unwrapDispatch(actions.changePermissions({ id, permissions })),

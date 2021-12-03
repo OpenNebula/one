@@ -28,22 +28,20 @@ import { T } from 'client/constants'
 
 export const TAB_ID = 'NUMA'
 
-const Numa = ({ hypervisor }) => {
-  return (
-    <>
-      <FormWithSchema
-        cy={`${EXTRA_ID}.vcpu`}
-        fields={[VCPU_FIELD]}
-        id={GENERAL_ID}
-      />
-      <FormWithSchema
-        cy={`${EXTRA_ID}.numa`}
-        fields={NUMA_FIELDS(hypervisor)}
-        id={EXTRA_ID}
-      />
-    </>
-  )
-}
+const Numa = ({ hypervisor }) => (
+  <>
+    <FormWithSchema
+      cy={`${EXTRA_ID}.vcpu`}
+      fields={[VCPU_FIELD]}
+      id={GENERAL_ID}
+    />
+    <FormWithSchema
+      cy={`${EXTRA_ID}.numa`}
+      fields={NUMA_FIELDS(hypervisor)}
+      id={EXTRA_ID}
+    />
+  </>
+)
 
 Numa.propTypes = {
   data: PropTypes.any,

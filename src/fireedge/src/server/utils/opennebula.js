@@ -512,8 +512,10 @@ const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
   const rtn = []
   if (stringConsole) {
     const lines = stringConsole.split(regexLine)
+
     lines.forEach((line) => {
       let pass = true
+
       if (Array.isArray(excludeRegexs)) {
         excludeRegexs.forEach((rex) => {
           if (rex.test(line)) {
@@ -521,12 +523,14 @@ const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
           }
         })
       }
-      line = line
+
+      const cleanLine = line
         .replace(regexRemoveBlanks, ' ')
         .replace(regexANSIColor, '')
         .trim()
-      if (line && pass) {
-        rtn.push(line)
+
+      if (cleanLine && pass) {
+        rtn.push(cleanLine)
       }
     })
   }
@@ -554,13 +558,11 @@ const consoleParseToJSON = (arrayConsole = [], regexHeader = '') => {
       if (row && i > 0) {
         const explodeRow = CSVtoArray(row)
         rtn.push(
-          explodeRow.map((value, index) => {
-            return {
-              [header[index]]: stringWrappedBrakets.test(value)
-                ? CSVtoArray(value.replace(brakets, ''))
-                : value,
-            }
-          })
+          explodeRow.map((value, index) => ({
+            [header[index]]: stringWrappedBrakets.test(value)
+              ? CSVtoArray(value.replace(brakets, ''))
+              : value,
+          }))
         )
       }
     })

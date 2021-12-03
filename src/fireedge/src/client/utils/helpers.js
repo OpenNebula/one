@@ -194,9 +194,7 @@ export const getObjectSchemaFromFields = (fields) =>
       return getSchemaByPath(path, sumSchemas(nextPath, nextIdx))
     }
 
-    schema = schema.concat(sumSchemas())
-
-    return schema
+    return schema.concat(sumSchemas())
   }, object())
 
 /**
@@ -265,7 +263,7 @@ export const get = (obj, path, defaultValue = undefined) => {
  * Set a value of property in object by his path.
  *
  * @param {object} obj - Object
- * @param {string} path - Path of property
+ * @param {string|string[]} path - Path of property
  * @param {*} value - New value of property
  * @returns {object} Object with the new property
  */
@@ -273,20 +271,23 @@ export const set = (obj, path, value) => {
   if (Object(obj) !== obj) return obj // When obj is not an object
 
   // If not yet an array, get the keys from the string-path
-  if (!Array.isArray(path)) path = path.toString().match(/[^.[\]]+/g) || []
+  const arrayPath = !Array.isArray(path)
+    ? path.toString().match(/[^.[\]]+/g) || []
+    : path
 
-  const result = path.slice(0, -1).reduce((res, key, idx) => {
+  const result = arrayPath.slice(0, -1).reduce((res, key, idx) => {
     if (Object(res[key]) === res[key]) return res[key]
 
     // If the next key is array-index,
     // then assign a new array object or new object
-    res[key] = Math.abs(path[idx + 1]) >> 0 === +path[idx + 1] ? [] : {}
+    res[key] =
+      Math.abs(arrayPath[idx + 1]) >> 0 === +arrayPath[idx + 1] ? [] : {}
 
     return res[key]
   }, obj)
 
   // Assign the value to the last key
-  result[path.at(-1)] = value
+  result[arrayPath.at(-1)] = value
 
   return result
 }
@@ -345,12 +346,12 @@ export const cleanEmptyObject = (obj) => {
     })
 
   return entries?.length > 0
-    ? entries.reduce((cleanedObject, [key, value]) => {
-        // `value == null` checks against undefined and null
-        return value == null
-          ? cleanedObject
-          : { ...cleanedObject, [key]: value }
-      }, {})
+    ? entries.reduce(
+        (cleanedObject, [key, value]) =>
+          // `value == null` checks against undefined and null
+          value == null ? cleanedObject : { ...cleanedObject, [key]: value },
+        {}
+      )
     : undefined
 }
 

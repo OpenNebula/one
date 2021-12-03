@@ -43,7 +43,7 @@ const Steps = createSteps(
         { stripUnknown: true }
       ),
     }),
-    transformBeforeSubmit: (formData) => {
+    transformBeforeSubmit: (formData, vmTemplate) => {
       const {
         [TEMPLATE_ID]: [templateSelected] = [],
         [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
@@ -59,7 +59,7 @@ const Steps = createSteps(
         ...data,
       }))
 
-      return [templateSelected, templates]
+      return [templateSelected ?? vmTemplate, templates]
     },
   }
 )

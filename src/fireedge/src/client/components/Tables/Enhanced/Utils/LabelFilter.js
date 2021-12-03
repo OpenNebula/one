@@ -65,15 +65,15 @@ const LabelFilter = ({ title, column }) => {
   useEffect(() => () => setFilter([]), [])
 
   const labels = useMemo(() => {
-    const labels = new Set()
+    const uniqueLabels = new Set()
 
     preFilteredRows?.forEach((row) => {
       const labelsFromTemplate = row.values[id]
 
-      labelsFromTemplate.forEach(labels.add, labels)
+      labelsFromTemplate.forEach(uniqueLabels.add, uniqueLabels)
     })
 
-    return [...labels.values()]
+    return [...uniqueLabels.values()]
   }, [id, preFilteredRows])
 
   const tree = useMemo(() => buildTree(labels), [labels])
@@ -87,8 +87,8 @@ const LabelFilter = ({ title, column }) => {
 
   const isFiltered = useMemo(() => filterValue?.length > 0, [filterValue])
 
-  const renderTree = ({ id, name, children }) => (
-    <TreeItem key={id} nodeId={id} label={name}>
+  const renderTree = ({ id: treeId, name, children }) => (
+    <TreeItem key={treeId} nodeId={treeId} label={name}>
       {Array.isArray(children)
         ? children.map((node) => renderTree(node))
         : null}

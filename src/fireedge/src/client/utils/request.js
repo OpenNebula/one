@@ -52,8 +52,8 @@ export const requestConfig = (data, command) => {
 
   /* Spread 'from' values in current params */
   const mappedParams = Object.entries(params)?.reduce(
-    (params, [paraName, { from }]) => ({
-      ...params,
+    (result, [paraName, { from }]) => ({
+      ...result,
       [paraName]: { from, value: data[paraName] },
     }),
     {}

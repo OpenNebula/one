@@ -78,8 +78,8 @@ const GlobalFilter = ({ useTableProps, className }) => {
 
   const handleChange = useCallback(
     // Set undefined to remove the filter entirely
-    debounce((value) => {
-      setGlobalFilter(value || undefined)
+    debounce((newFilter) => {
+      setGlobalFilter(newFilter || undefined)
     }, 200)
   )
 

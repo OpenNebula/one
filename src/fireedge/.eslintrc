@@ -19,10 +19,24 @@
   },
   "plugins": ["jsdoc", "react", "header", "prettier"],
   "rules": {
-    "prettier/prettier": ["error", {
-      "singleQuote": true,
-      "semi": false,
-      "trailingComma": "es5",
+    "default-case": "off",
+    "prefer-const": ["error", {
+      "destructuring": "all"
+    }],
+    "arrow-body-style": ["error", "as-needed"],
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ],
+    "no-return-assign": ["error", "except-parens"],
+    "no-param-reassign": ["error", {
+      "props": false
+    }],
+    "no-shadow": ["error", {
+      "hoist": "all",
+      "allow": ["resolve", "reject", "done", "next", "err", "error", "children"]
     }],
     "import/no-extraneous-dependencies": ["error", {
       "devDependencies": ["*.js"]
@@ -34,7 +48,15 @@
     }],
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "default-case": 0,
+    "react/display-name": "warn",
+    "react/no-array-index-key": "off",
+    "react/require-default-props": "off",
+    "react/forbid-prop-types": "off",
+    "prettier/prettier": ["error", {
+      "singleQuote": true,
+      "semi": false,
+      "trailingComma": "es5"
+    }],
     "jsdoc/require-jsdoc": ["error", {
       "publicOnly": true,
       "require": {

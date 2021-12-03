@@ -92,19 +92,17 @@ const parseTiers = (roles, networking) =>
       )
 
       const scheduled = scheduledPolicies.map(
-        ({ id, recurrence, start_time: time, ...rest }) => {
-          return {
-            ...JSON.parse(JSON.stringify(rest)),
-            ...(recurrence && {
-              time_format: 'recurrence',
-              time_expression: recurrence,
-            }),
-            ...(time && {
-              time_format: 'start_time',
-              time_expression: time,
-            }),
-          }
-        }
+        ({ id, recurrence, start_time: time, ...rest }) => ({
+          ...JSON.parse(JSON.stringify(rest)),
+          ...(recurrence && {
+            time_format: 'recurrence',
+            time_expression: recurrence,
+          }),
+          ...(time && {
+            time_format: 'start_time',
+            time_expression: time,
+          }),
+        })
       )
 
       return [

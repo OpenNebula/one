@@ -75,8 +75,8 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
         <List component="div" disablePadding>
           {routes
             ?.filter(
-              ({ sidebar = false, label }) =>
-                sidebar && typeof label === 'string'
+              ({ sidebar = false, ...route }) =>
+                sidebar && typeof route.label === 'string'
             )
             ?.map((subItem, index) => (
               <SidebarLink key={`subitem-${index}`} isSubItem {...subItem} />

@@ -105,13 +105,14 @@ const { name, actions, reducer } = createSlice({
               type.includes('/detail'))),
         (state, { payload, type }) => {
           // TYPE and DATA can be force by payload
-          const name = getNameListFromType(payload?.type ?? type)
+          const listName = getNameListFromType(payload?.type ?? type)
+
           const newList = updateResourceList(
-            state[name],
+            state[listName],
             payload?.data ?? payload
           )
 
-          return { ...state, [name]: newList }
+          return { ...state, [listName]: newList }
         }
       )
       .addMatcher(

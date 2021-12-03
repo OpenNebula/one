@@ -46,9 +46,8 @@ export const provisionService = {
    *
    * @returns {Promise} TODO
    */
-  createProvisionTemplate: () => {
-    return Promise.resolve().then((res) => res?.data?.DOCUMENT ?? {})
-  },
+  createProvisionTemplate: () =>
+    Promise.resolve().then((res) => res?.data?.DOCUMENT ?? {}),
 
   // --------------------------------------------
   // PROVISION requests

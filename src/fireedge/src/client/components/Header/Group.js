@@ -70,9 +70,8 @@ const ButtonGroup = memo(
 const Group = () => {
   const { user, groups } = useAuth()
 
-  const sortGroupAsMainFirst = (a, b) => {
-    return a.ID === user?.GUID ? -1 : b.ID === user?.GUID ? 1 : 0
-  }
+  const sortGroupAsMainFirst = (a, b) =>
+    a.ID === user?.GUID ? -1 : b.ID === user?.GUID ? 1 : 0
 
   const sortMainGroupFirst = useMemo(
     () =>

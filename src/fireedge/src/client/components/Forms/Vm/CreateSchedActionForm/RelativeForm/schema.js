@@ -69,38 +69,34 @@ export const FIELDS = (vm) => [...COMMON_FIELDS(vm), ...RELATIVE_FIELDS]
 export const SCHEMA = yup
   .object(getValidationFromFields(RELATIVE_FIELDS))
   .concat(COMMON_SCHEMA)
-  .transform((value) => {
-    const {
-      [PERIOD_FIELD.name]: PERIOD,
-      [TIME_FIELD.name]: TIME,
-      ...rest
-    } = value
+  .transform(
+    ({ [PERIOD_FIELD.name]: PERIOD, [TIME_FIELD.name]: TIME, ...rest }) => {
+      if (String(TIME).includes('+')) {
+        const allPeriods = {
+          [PERIOD_TYPES.YEARS]: TIME / 365 / 24 / 3600,
+          [PERIOD_TYPES.MONTHS]: TIME / 30 / 24 / 3600,
+          [PERIOD_TYPES.WEEKS]: TIME / 7 / 24 / 3600,
+          [PERIOD_TYPES.DAYS]: TIME / 24 / 3600,
+          [PERIOD_TYPES.HOURS]: TIME / 3600,
+          [PERIOD_TYPES.MINUTES]: TIME / 60,
+        }
 
-    if (String(TIME).includes('+')) {
-      const allPeriods = {
-        [PERIOD_TYPES.YEARS]: TIME / 365 / 24 / 3600,
-        [PERIOD_TYPES.MONTHS]: TIME / 30 / 24 / 3600,
-        [PERIOD_TYPES.WEEKS]: TIME / 7 / 24 / 3600,
-        [PERIOD_TYPES.DAYS]: TIME / 24 / 3600,
-        [PERIOD_TYPES.HOURS]: TIME / 3600,
-        [PERIOD_TYPES.MINUTES]: TIME / 60,
+        const [period, time] = Object.entries(allPeriods).find(
+          ([_, value]) => value >= 1
+        )
+
+        return { ...rest, [PERIOD_FIELD.name]: period, [TIME_FIELD.name]: time }
       }
 
-      const [period, time] = Object.entries(allPeriods).find(
-        ([_, time]) => time >= 1
-      )
+      const timeInMilliseconds = {
+        [PERIOD_TYPES.YEARS]: TIME * 365 * 24 * 3600,
+        [PERIOD_TYPES.MONTHS]: TIME * 30 * 24 * 3600,
+        [PERIOD_TYPES.WEEKS]: TIME * 7 * 24 * 3600,
+        [PERIOD_TYPES.DAYS]: TIME * 24 * 3600,
+        [PERIOD_TYPES.HOURS]: TIME * 3600,
+        [PERIOD_TYPES.MINUTES]: TIME * 60,
+      }[PERIOD]
 
-      return { ...rest, [PERIOD_FIELD.name]: period, [TIME_FIELD.name]: time }
+      return { ...rest, [TIME_FIELD.name]: timeInMilliseconds }
     }
-
-    const timeInMilliseconds = {
-      [PERIOD_TYPES.YEARS]: TIME * 365 * 24 * 3600,
-      [PERIOD_TYPES.MONTHS]: TIME * 30 * 24 * 3600,
-      [PERIOD_TYPES.WEEKS]: TIME * 7 * 24 * 3600,
-      [PERIOD_TYPES.DAYS]: TIME * 24 * 3600,
-      [PERIOD_TYPES.HOURS]: TIME * 3600,
-      [PERIOD_TYPES.MINUTES]: TIME * 60,
-    }[PERIOD]
-
-    return { ...rest, [TIME_FIELD.name]: timeInMilliseconds }
-  })
+  )
