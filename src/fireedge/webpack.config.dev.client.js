@@ -21,7 +21,10 @@ const getDevConfiguration = () => {
     const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
     const TimeFixPlugin = require('time-fix-plugin')
 
-    const { defaultWebpackMode, defaultAppName } = require('./src/server/utils/constants/defaults')
+    const {
+      defaultWebpackMode,
+      defaultAppName,
+    } = require('./src/server/utils/constants/defaults')
 
     const appName = defaultAppName ? `/${defaultAppName}` : ''
 
@@ -30,12 +33,12 @@ const getDevConfiguration = () => {
       mode: defaultWebpackMode,
       entry: [
         'webpack-hot-middleware/client',
-        path.resolve(__dirname, 'src/client/dev/index.js')
+        path.resolve(__dirname, 'src/client/dev/index.js'),
       ],
       output: {
         filename: 'bundle.dev.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: `${appName}/client`
+        publicPath: `${appName}/client`,
       },
       module: {
         rules: [
@@ -47,43 +50,46 @@ const getDevConfiguration = () => {
                 loader: 'babel-loader',
                 options: {
                   babelrc: true,
-                  plugins: ['react-refresh/babel']
-                }
-              }
-            ]
+                  plugins: ['react-refresh/babel'],
+                },
+              },
+            ],
           },
           {
             test: /\.css$/i,
-            use: ['style-loader', 'css-loader']
-          }
-        ]
+            use: ['style-loader', 'css-loader'],
+          },
+        ],
       },
       resolve: {
         extensions: ['.js'],
         alias: {
-          process: 'process/browser'
-        }
+          process: 'process/browser',
+        },
       },
       plugins: [
         new TimeFixPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        ReactRefreshPlugin && new ReactRefreshPlugin({
-          overlay: {
-            sockIntegration: 'whm'
-          }
-        }),
+        ReactRefreshPlugin &&
+          new ReactRefreshPlugin({
+            overlay: {
+              sockIntegration: 'whm',
+            },
+          }),
         new webpack.DefinePlugin({
           'process.env': {
-            NODE_ENV: JSON.stringify(defaultWebpackMode)
-          }
+            NODE_ENV: JSON.stringify(defaultWebpackMode),
+          },
         }),
         new webpack.ProvidePlugin({
-          process: 'process/browser'
-        })
+          process: 'process/browser',
+        }),
       ],
-      devtool: 'inline-source-map'
+      devtool: 'inline-source-map',
     }
-  } catch (e) { console.log('Error in webpack dev configuration: ', e) }
+  } catch (e) {
+    console.log('Error in webpack dev configuration: ', e)
+  }
 }
 
 module.exports = getDevConfiguration()

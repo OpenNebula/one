@@ -50,7 +50,11 @@ const ProvisionTemplateCard = memo(
         mediaProps={{
           component: 'div',
           children: (
-            <Image src={imageUrl} withSources={image && !isExternalImage} />
+            <Image
+              alt="provision-logo"
+              src={imageUrl}
+              withSources={image && !isExternalImage}
+            />
           ),
         }}
         subheader={description}

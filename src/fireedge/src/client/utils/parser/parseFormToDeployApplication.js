@@ -31,7 +31,13 @@ import { mapUserInputs, deepmerge } from 'client/utils'
  */
 export const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map((data) => {
-    const { template, parents, networks, user_inputs_values = {}, tier } = data
+    const {
+      template,
+      parents,
+      networks,
+      user_inputs_values: userInputs = {},
+      tier,
+    } = data
 
     const networksValue = networks
       ?.reduce((res, id, idx) => {
@@ -54,7 +60,7 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
       parents: parentsValue,
       vm_template: template?.id ?? template?.app,
       vm_template_contents: networksValue,
-      user_inputs_values: mapUserInputs(user_inputs_values),
+      user_inputs_values: mapUserInputs(userInputs),
     }
   })
 

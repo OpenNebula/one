@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable react/prop-types */
 import { object, array, number } from 'yup'
 
 import { StatusCircle, StatusChip } from 'client/components/Status'
@@ -22,6 +22,7 @@ import { Translate } from 'client/components/HOC'
 import { getState } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
 import { T, INPUT_TYPES } from 'client/constants'
+import { Field } from 'client/utils'
 
 export const PARENT = 'DISK'
 
@@ -74,6 +75,10 @@ const SIZE_FIELD = ({
   }
 }
 
+/**
+ * @param {object} [vmTemplate] - VM Template
+ * @returns {Field[]} Section fields
+ */
 export const FIELDS = (vmTemplate) => {
   const disks = [vmTemplate?.TEMPLATE?.DISK ?? []].flat()
 

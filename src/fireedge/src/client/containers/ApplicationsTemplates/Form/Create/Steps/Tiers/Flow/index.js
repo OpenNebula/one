@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useMemo, JSXElementConstructor } from 'react'
+import { memo, useEffect, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import makeStyles from '@mui/styles/makeStyles'
@@ -60,7 +60,7 @@ const useStyles = makeStyles(() => ({
  * @param {Function} props.handleCreate - Create a new Node
  * @param {Function} props.handleEdit - Edit a current Node
  * @param {Function} props.handleSetData - Set new list of nodes
- * @returns {JSXElementConstructor} ReactFlow component
+ * @returns {ReactElement} ReactFlow component
  */
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
   const { watch } = useFormContext()
@@ -111,6 +111,8 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
     </ReactFlow>
   )
 })
+
+Flow.displayName = 'FlowGraph'
 
 Flow.propTypes = {
   dataFields: PropTypes.arrayOf(PropTypes.string),

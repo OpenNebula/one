@@ -46,7 +46,11 @@ const Row = ({ original, value, ...props }) => {
   return (
     <div {...props} data-cy={`template-${ID}`}>
       <div className={classes.figure}>
-        <Image src={logoSource} imgProps={{ className: classes.image }} />
+        <Image
+          alt="logo"
+          src={logoSource}
+          imgProps={{ className: classes.image }}
+        />
       </div>
       <div className={classes.main}>
         <div className={classes.title}>

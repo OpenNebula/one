@@ -19,12 +19,14 @@ const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const TerserPlugin = require('terser-webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
-const { defaultProductionWebpackMode } = require('./src/server/utils/constants/defaults')
+const {
+  defaultProductionWebpackMode,
+} = require('./src/server/utils/constants/defaults')
 
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
-  include: path.resolve(__dirname, 'src')
+  include: path.resolve(__dirname, 'src'),
 }
 
 const css = {
@@ -33,18 +35,18 @@ const css = {
     {
       loader: 'css-loader',
       options: {
-        esModule: false
-      }
-    }
-  ]
+        esModule: false,
+      },
+    },
+  ],
 }
 
 const worker = {
   test: /\.worker\.js$/,
   loader: 'worker-loader',
   options: {
-    filename: '[name].js'
-  }
+    filename: '[name].js',
+  },
 }
 
 module.exports = {
@@ -52,33 +54,31 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'server'),
   target: 'node',
   node: {
-    __dirname: false
+    __dirname: false,
   },
   externals: [nodeExternals()],
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js'
+    filename: 'index.js',
   },
   stats: {
-    warnings: false
+    warnings: false,
   },
   plugins: [
     new TimeFixPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(defaultProductionWebpackMode)
-      }
+        NODE_ENV: JSON.stringify(defaultProductionWebpackMode),
+      },
     }),
     new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1
-    })
+      maxChunks: 1,
+    }),
   ],
   optimization: {
-    minimizer: [
-      new TerserPlugin({ extractComments: false })
-    ]
+    minimizer: [new TerserPlugin({ extractComments: false })],
   },
   module: {
-    rules: [js, worker, css]
-  }
+    rules: [js, worker, css],
+  },
 }

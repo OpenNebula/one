@@ -67,6 +67,7 @@ const Image = memo(
     if (error.fail) {
       return (
         <img
+          alt=""
           {...imageProps}
           src={imageInError}
           draggable={false}
@@ -85,10 +86,10 @@ const Image = memo(
               type={`image/${format}`}
             />
           ))}
-        <img {...imageProps} src={src} onError={onImageFail} />
+        <img alt="" {...imageProps} src={src} onError={onImageFail} />
       </picture>
     ) : (
-      <img {...imageProps} src={src} onError={onImageFail} />
+      <img alt="" {...imageProps} src={src} onError={onImageFail} />
     )
   },
   (prev, next) => prev.src === next.src

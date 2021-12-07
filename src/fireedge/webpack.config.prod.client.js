@@ -20,19 +20,20 @@ const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
-const { defaultApps, defaultFileStats, defaultAppName } = require('./src/server/utils/constants/defaults')
+const {
+  defaultApps,
+  defaultFileStats,
+  defaultAppName,
+} = require('./src/server/utils/constants/defaults')
 
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
-  include: path.resolve(__dirname, 'src')
+  include: path.resolve(__dirname, 'src'),
 }
 const css = {
   test: /\.css$/i,
-  use: [
-    'style-loader',
-    'css-loader'
-  ]
+  use: ['style-loader', 'css-loader'],
 }
 
 /**
@@ -46,24 +47,27 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
     new TimeFixPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+        NODE_ENV: JSON.stringify('production'),
+      },
     }),
     new webpack.ProvidePlugin({
-      process: 'process/browser'
+      process: 'process/browser',
     }),
-    new LoadablePlugin({ filename: name + defaultFileStats })
+    new LoadablePlugin({ filename: name + defaultFileStats }),
   ]
   if (assets) {
-    plugins.push(new CopyPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, 'src', 'client', 'assets'),
-          to: path.resolve(__dirname, 'dist', 'client', 'assets')
-        }
-      ]
-    }))
+    plugins.push(
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, 'src', 'client', 'assets'),
+            to: path.resolve(__dirname, 'dist', 'client', 'assets'),
+          },
+        ],
+      })
+    )
   }
+
   return {
     mode: 'production',
     entry: path.resolve(__dirname, 'src', 'client', `${name}.js`),
@@ -71,31 +75,30 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
     output: {
       path: path.resolve(__dirname, 'dist', 'client'),
       filename: `bundle.${name}.js`,
-      publicPath: `/${defaultAppName}/client/`
+      publicPath: `/${defaultAppName}/client/`,
     },
     stats: {
-      warnings: false
+      warnings: false,
     },
     resolve: {
       alias: {
-        process: 'process/browser'
-      }
+        process: 'process/browser',
+      },
     },
     plugins,
     optimization: {
-      minimizer: [
-        new TerserPlugin({ extractComments: false })
-      ]
+      minimizer: [new TerserPlugin({ extractComments: false })],
     },
     module: {
-      rules: [js, css]
-    }
+      rules: [js, css],
+    },
   }
 }
 
 /**
  * @returns {webpack.Configuration[]} - list of configuration
  */
-module.exports = () => Object.entries(defaultApps).map(([key, values]) =>
-  bundle({ ...values, name: key })
-)
+module.exports = () =>
+  Object.entries(defaultApps).map(([key, values]) =>
+    bundle({ ...values, name: key })
+  )
