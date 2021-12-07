@@ -339,8 +339,8 @@ const genJWT = (token, informationUser) => {
     informationUser.ID &&
     informationUser.NAME
   ) {
-    const { ID: id, TEMPLATE: userTemplate, NAME: user } = informationUser
-    const dataJWT = { id, user, token: token.token }
+    const { ID: id, TEMPLATE: userTemplate, NAME: username } = informationUser
+    const dataJWT = { id, user: username, token: token.token }
     const expire = token.time || expireTime.toSeconds()
     const jwt = createJWT(dataJWT, nowUnix, expire)
     if (jwt) {
@@ -450,12 +450,12 @@ const setZones = () => {
  */
 const createTokenServerAdmin = (serverAdmin = '', username = '') => {
   let rtn
-  const key = getKey()
-  const iv = getIV()
+  const keyGet = getKey()
+  const ivGet = getIV()
   if (serverAdmin && username && key && iv) {
     const expire = parseInt(expireTime.toSeconds(), 10)
     rtn = {
-      token: encrypt(`${serverAdmin}:${username}:${expire}`, key, iv),
+      token: encrypt(`${serverAdmin}:${username}:${expire}`, keyGet, ivGet),
       time: expire,
     }
   }
@@ -470,13 +470,12 @@ const createTokenServerAdmin = (serverAdmin = '', username = '') => {
  * @param {object} userData - opennebula user data
  */
 const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
-  const relativeTime = getRelativeTime()
   let serverAdminName = ''
   let serverAdminPassword = ''
   let userName = ''
 
   if (
-    relativeTime &&
+    getRelativeTime() &&
     serverAdminData &&
     serverAdminData.USER &&
     (serverAdminName = serverAdminData.USER.NAME) &&
@@ -565,8 +564,8 @@ const getServerAdminAndWrapUser = (userData = {}) => {
             updaterResponse,
             err,
             value,
-            (serverAdminData = {}) =>
-              wrapUserWithServerAdmin(serverAdminData, userData),
+            (serverAdmin = {}) =>
+              wrapUserWithServerAdmin(serverAdmin, userData),
             next
           )
         },

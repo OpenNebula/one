@@ -205,7 +205,7 @@ const getMarketApp = (
 ) => {
   oneConnection(
     ActionsMarketApp.MARKETAPP_INFO,
-    [parseInt(id)],
+    [parseInt(id, 10)],
     (err = undefined, marketApp = {}) => {
       if (err || !(marketApp && marketApp.MARKETPLACEAPP)) {
         error()
@@ -233,7 +233,7 @@ const getMarket = (
 ) => {
   oneConnection(
     ActionsMarket.MARKET_INFO,
-    [parseInt(id)],
+    [parseInt(id, 10)],
     (err = undefined, market = {}) => {
       if (err || !(market && market.MARKETPLACE)) {
         error()

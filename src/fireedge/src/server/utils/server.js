@@ -423,17 +423,17 @@ const middlewareValidateAuthWebsocket = (
  * Encrypt.
  *
  * @param {string} data - data to encrypt
- * @param {string} key - key to encrypt data
+ * @param {string} encryptKey - key to encrypt data
  * @param {string} iv - initialization vector to encrypt data
  * @returns {string} data encrypt
  */
-const encrypt = (data = '', key = '', iv = '') => {
+const encrypt = (data = '', encryptKey = '', iv = '') => {
   let rtn
-  if (data && key) {
+  if (data && encryptKey && iv) {
     try {
       const cipher = iv
-        ? createCipheriv(defaultTypeCrypto, key, iv)
-        : createCipher(defaultTypeCrypto, key)
+        ? createCipheriv(defaultTypeCrypto, encryptKey, iv)
+        : createCipher(defaultTypeCrypto, encryptKey)
       let encryptData = cipher.update(data, 'ascii', 'base64')
       encryptData += cipher.final('base64')
       rtn = encryptData
@@ -455,17 +455,17 @@ const encrypt = (data = '', key = '', iv = '') => {
  * Decrypt.
  *
  * @param {string} data - data to decrypt
- * @param {string} key - key to decrypt data
+ * @param {string} decryptKey - key to decrypt data
  * @param {string} iv - initialization vector to decrypt data
  * @returns {string} data decrypt
  */
-const decrypt = (data = '', key = '', iv = '') => {
+const decrypt = (data = '', decryptKey = '', iv = '') => {
   let rtn
-  if (data && key) {
+  if (data && decryptKey && iv) {
     try {
       const cipher = iv
-        ? createDecipheriv(defaultTypeCrypto, key, iv)
-        : createDecipher(defaultTypeCrypto, key)
+        ? createDecipheriv(defaultTypeCrypto, decryptKey, iv)
+        : createDecipher(defaultTypeCrypto, decryptKey)
       let decryptData = cipher.update(data, 'base64', 'ascii')
       decryptData += cipher.final('ascii')
       rtn = decryptData
@@ -623,9 +623,9 @@ const getSunstoneAuth = () => {
             const password = createHash(hash)
               .update(replaceEscapeSequence(serverAdminData[1]))
               .digest(digest)
-            const key = password.substring(0, 32)
-            const iv = key.substring(0, 16)
-            rtn = { username, key, iv }
+            const genKey = password.substring(0, 32)
+            const iv = genKey.substring(0, 16)
+            rtn = { username, key: genKey, iv }
           }
         }
       },
@@ -751,7 +751,8 @@ const getRequestFiles = (params = {}) => {
   ) {
     const arrayParams = Object.keys(params)
     const fileParams = arrayParams.filter(
-      (key = '') => key && params[key] && params[key].from === 'files'
+      (keyFiles = '') =>
+        keyFiles && params[keyFiles] && params[keyFiles].from === 'files'
     )
 
     return fileParams
@@ -906,9 +907,9 @@ const getDirectories = (dir = '', errorCallback = () => undefined) => {
  */
 const parsePostData = (postData = {}) => {
   const rtn = {}
-  Object.entries(postData).forEach(([key, value]) => {
+  Object.entries(postData).forEach(([postKey, value]) => {
     try {
-      rtn[key] = JSON.parse(value, (k, val) => {
+      rtn[postKey] = JSON.parse(value, (k, val) => {
         try {
           return JSON.parse(val)
         } catch (error) {
@@ -916,7 +917,7 @@ const parsePostData = (postData = {}) => {
         }
       })
     } catch (error) {
-      rtn[key] = value
+      rtn[postKey] = value
     }
   })
 

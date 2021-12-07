@@ -97,11 +97,11 @@ const getViews = (
     connect(
       ActionsUser.USER_INFO,
       [-1, false],
-      (err = {}, userData = {}) => {
-        if (userData && userData.USER && userData.USER.GID) {
+      (err = {}, dataUser = {}) => {
+        if (dataUser && dataUser.USER && dataUser.USER.GID) {
           getInfoGroup(
             connect,
-            userData.USER.GID,
+            dataUser.USER.GID,
             (err = {}, vmgroupData = {}) => {
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
                 existsFile(

@@ -37,6 +37,8 @@ const { GET, POST, DELETE } = httpMethod
  *
  * @param {Function} next - express stepper
  * @param {object} res - response http
+ * @param {object} res.locals - response http vars locals
+ * @param {object} res.locals.httpCode - response http vars locals http code
  * @param {string} data - data response http
  */
 const success = (next = defaultEmptyFunction, res = {}, data = '') => {
@@ -57,6 +59,8 @@ const success = (next = defaultEmptyFunction, res = {}, data = '') => {
  *
  * @param {Function} next - express stepper
  * @param {object} res - response http
+ * @param {object} res.locals - response http vars locals
+ * @param {object} res.locals.httpCode - response http vars locals http code
  * @param {string} data - data response http
  */
 const error = (next = defaultEmptyFunction, res = {}, data = '') => {
@@ -81,7 +85,10 @@ const error = (next = defaultEmptyFunction, res = {}, data = '') => {
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {string} params.id - service ID
  * @param {object} userData - user data
+ * @param {string} userData.user - user username
+ * @param {string} userData.password - user password
  */
 const service = (
   res = {},
@@ -92,9 +99,10 @@ const service = (
   const { user, password } = userData
   if (user && password) {
     const config = { method: GET, path: '/service', user, password }
-    if (params && params.id) {
+    const { id } = params
+    if (Number.isInteger(parseInt(id, 10))) {
       config.path = '/service/{0}'
-      config.request = params.id
+      config.request = id
       oneFlowConnection(
         config,
         (data) => success(next, res, data),
@@ -116,7 +124,10 @@ const service = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service id
  * @param {object} userData - user data
+ * @param {string} userData.user - user username
+ * @param {string} userData.password - user password
  */
 const serviceDelete = (
   res = {},
@@ -125,7 +136,8 @@ const serviceDelete = (
   userData = {}
 ) => {
   const { user, password } = userData
-  if (params && params.id && user && password) {
+  const { id } = params
+  if (Number.isInteger(parseInt(id, 10)) && user && password) {
     const config = {
       method: DELETE,
       path: '/service/{0}',
@@ -154,7 +166,11 @@ const serviceDelete = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service ID
+ * @param {string} params.action - service action
  * @param {object} userData - user data
+ * @param {string} userData.user - user username
+ * @param {string} userData.password - user password
  */
 const serviceAddAction = (
   res = {},
@@ -163,9 +179,10 @@ const serviceAddAction = (
   userData = {}
 ) => {
   const { user, password } = userData
-  if (params && params.id && params.action && user && password) {
+  const { id, action: serviceAction } = params
+  if (Number.isInteger(parseInt(id, 10)) && serviceAction && user && password) {
     const v = new Validator()
-    const postAction = parsePostData(params.action)
+    const postAction = parsePostData(serviceAction)
     const valSchema = v.validate(postAction, action)
     if (valSchema.valid) {
       // validate if "action" is required
@@ -206,7 +223,11 @@ const serviceAddAction = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service ID
+ * @param {string} params.action - service action
  * @param {object} userData - user data
+ * @param {string} userData.user - user username
+ * @param {string} userData.password - user password
  */
 const serviceAddScale = (
   res = {},
@@ -215,9 +236,10 @@ const serviceAddScale = (
   userData = {}
 ) => {
   const { user, password } = userData
-  if (params && params.id && params.action && user && password) {
+  const { id, action: serviceAction } = params
+  if (Number.isInteger(parseInt(id, 10)) && serviceAction && user && password) {
     const v = new Validator()
-    const postAction = parsePostData(params.action)
+    const postAction = parsePostData(serviceAction)
     const valSchema = v.validate(postAction, action)
     if (valSchema.valid) {
       // validate if "action" is required
@@ -258,7 +280,12 @@ const serviceAddScale = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service ID
+ * @param {string} params.action - service action
+ * @param {string} params.role - service role
  * @param {object} userData - user data
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const serviceAddRoleAction = (
   res = {},
@@ -267,9 +294,16 @@ const serviceAddRoleAction = (
   userData = {}
 ) => {
   const { user, password } = userData
-  if (params && params.role && params.id && params.action && user && password) {
+  const { role, id, action: serviceAction } = params
+  if (
+    role &&
+    Number.isInteger(parseInt(id, 10)) &&
+    serviceAction &&
+    user &&
+    password
+  ) {
     const v = new Validator()
-    const postAction = parsePostData(params.action)
+    const postAction = parsePostData(serviceAction)
     const valSchema = v.validate(postAction, action)
     if (valSchema.valid) {
       // validate if "action" is required
@@ -278,7 +312,7 @@ const serviceAddRoleAction = (
         path: '/service/{0}/role/{1}',
         user,
         password,
-        request: [params.role, params.id],
+        request: [role, id],
         post: postAction,
       }
       oneFlowConnection(
@@ -310,14 +344,14 @@ const serviceAddRoleAction = (
  * @param {string} user - username
  * @param {string} password - password
  * @param {string} serviceID - service ID
- * @param {Function} success - callback when have service info data
+ * @param {Function} succss - callback when have service info data
  * @param {Function} error - callback when no have service info data
  */
 const getNodesService = (
   user = '',
   password = '',
   serviceID = 0,
-  success = defaultEmptyFunction,
+  succss = defaultEmptyFunction,
   error = defaultEmptyFunction
 ) => {
   if (user && password && serviceID) {
@@ -353,7 +387,7 @@ const getNodesService = (
           })
         }
         vms.forEach((vm = {}, index) => {
-          success(vm, vms.length, index + 1)
+          succss(vm, vms.length, index + 1)
         })
       },
       error
@@ -376,7 +410,9 @@ const parseSchedActionsToString = (schedAction = '') => {
     const parsedSchedAction = JSON.parse(schedAction)
     if (Array.isArray(parsedSchedAction)) {
       rtn = parsedSchedAction
-        .map((action) => generateNewResourceTemplate({}, action, [], wrapper))
+        .map((actionSched) =>
+          generateNewResourceTemplate({}, actionSched, [], wrapper)
+        )
         .join(' ')
     } else if (typeof parsedSchedAction === 'object') {
       rtn = generateNewResourceTemplate({}, parsedSchedAction, [], wrapper)
@@ -396,7 +432,11 @@ const parseSchedActionsToString = (schedAction = '') => {
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {string} params.sched_action - sched action
+ * @param {number} params.id - sched action
  * @param {object} userData - user data
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  * @param {Function} oneConnection - xmlrpc connection
  */
 const serviceAddSchedAction = (
@@ -407,8 +447,9 @@ const serviceAddSchedAction = (
   oneConnection = defaultEmptyFunction
 ) => {
   const { user, password } = userData
-  if (params && params.id && params.sched_action && user && password) {
-    const schedTemplate = parseSchedActionsToString(params.sched_action)
+  const { sched_action: schedAction, id } = params
+  if (Number.isInteger(parseInt(id, 10)) && schedAction && user && password) {
+    const schedTemplate = parseSchedActionsToString(schedAction)
     const nodesUpdated = []
     getNodesService(
       user,
@@ -448,7 +489,12 @@ const serviceAddSchedAction = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service id
+ * @param {number} params.id_sched - sched id
+ * @param {string} params.sched_action - sched action
  * @param {object} userData - user data
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  * @param {Function} oneConnection - xmlrpc connection
  */
 const serviceUpdateSchedAction = (
@@ -459,25 +505,25 @@ const serviceUpdateSchedAction = (
   oneConnection = defaultEmptyFunction
 ) => {
   const { user, password } = userData
+  const { id, id_sched: idSched, sched_action: schedAction } = params
   if (
-    params &&
-    params.id &&
-    params.id_sched &&
-    params.sched_action &&
+    Number.isInteger(parseInt(id, 10)) &&
+    Number.isInteger(parseInt(idSched, 10)) &&
+    schedAction &&
     user &&
     password
   ) {
-    const schedTemplate = parseSchedActionsToString(params.sched_action)
+    const schedTemplate = parseSchedActionsToString(schedAction)
     const nodesUpdated = []
     getNodesService(
       user,
       password,
-      params.id,
+      id,
       (node = {}, nodesLength, index) => {
         const oneConnect = oneConnection(user, password)
         oneConnect(
           ActionVM.VM_SCHED_UPDATE,
-          [node.deploy_id, parseInt(params.id_sched, 10), schedTemplate],
+          [node.deploy_id, parseInt(idSched, 10), schedTemplate],
           (err, value) => {
             if (!err && !isNaN(value)) {
               nodesUpdated.push(node.deploy_id)
@@ -507,7 +553,11 @@ const serviceUpdateSchedAction = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params
+ * @param {number} params.id - service ID
+ * @param {number} params.id_sched - id sched action
  * @param {object} userData - user data
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  * @param {Function} oneConnection - xmlrpc connection
  */
 const serviceDeleteSchedAction = (
@@ -518,17 +568,23 @@ const serviceDeleteSchedAction = (
   oneConnection = defaultEmptyFunction
 ) => {
   const { user, password } = userData
-  if (params && params.id && params.id_sched && user && password) {
+  const { id, id_sched: idSched } = params
+  if (
+    Number.isInteger(parseInt(id, 10)) &&
+    Number.isInteger(parseInt(idSched, 10)) &&
+    user &&
+    password
+  ) {
     const nodesUpdated = []
     getNodesService(
       user,
       password,
-      params.id,
+      id,
       (node = {}, nodesLength, index) => {
         const oneConnect = oneConnection(user, password)
         oneConnect(
           ActionVM.VM_SCHED_DELETE,
-          [node.deploy_id, parseInt(params.id_sched, 10)],
+          [node.deploy_id, parseInt(idSched, 10)],
           (err, value) => {
             if (!err && !isNaN(value)) {
               nodesUpdated.push(node.deploy_id)

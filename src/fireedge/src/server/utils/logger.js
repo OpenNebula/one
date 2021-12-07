@@ -83,9 +83,9 @@ const getLogger = () => logger
  * @returns {object} - morgan middleware
  */
 const getLoggerMiddleware = () => {
-  const logger = getLogger()
-  if (logger && logger.stream) {
-    return morgan('combined', { stream: logger.stream })
+  const log = getLogger()
+  if (log && log.stream) {
+    return morgan('combined', { stream: log.stream })
   }
 }
 
@@ -93,13 +93,13 @@ const getLoggerMiddleware = () => {
  * Write in logger.
  *
  * @param {string} message - message for logger file
- * @param {string } format - message format
+ * @param {string } formatLog - message format
  */
-const writeInLogger = (message = '', format = '%s') => {
-  const logger = getLogger()
-  if (logger) {
+const writeInLogger = (message = '', formatLog = '%s') => {
+  const log = getLogger()
+  if (log) {
     const parseMessage = Array.isArray(message) ? message : [message]
-    logger.info(sprintf(format, ...parseMessage))
+    log.info(sprintf(formatLog, ...parseMessage))
   }
 }
 
