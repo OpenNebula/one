@@ -85,6 +85,7 @@ const getUserInfoAuthenticated = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {string} [params.token] - params of http request
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
@@ -97,25 +98,25 @@ const setup = (
 ) => {
   const { token } = params
   const oneConnect = oneConnection()
-  getUserInfoAuthenticated(oneConnect, next, (userData) => {
+  getUserInfoAuthenticated(oneConnect, next, (user) => {
     if (
-      userData &&
-      userData.USER &&
-      userData.USER.ID &&
-      userData.USER.TEMPLATE &&
-      userData.USER.TEMPLATE.SUNSTONE &&
-      userData.USER.TEMPLATE.SUNSTONE[default2FAOpennebulaTmpVar] &&
+      user &&
+      user.USER &&
+      user.USER.ID &&
+      user.USER.TEMPLATE &&
+      user.USER.TEMPLATE.SUNSTONE &&
+      user.USER.TEMPLATE.SUNSTONE[default2FAOpennebulaTmpVar] &&
       token
     ) {
-      const sunstone = userData.USER.TEMPLATE.SUNSTONE
+      const sunstone = user.USER.TEMPLATE.SUNSTONE
       const secret = sunstone[default2FAOpennebulaTmpVar]
       if (check2Fa(secret, token)) {
         oneConnect(
           Actions.USER_UPDATE,
           [
-            parseInt(userData.USER.ID, 10),
+            parseInt(user.USER.ID, 10),
             generateNewResourceTemplate(
-              userData.USER.TEMPLATE.SUNSTONE || {},
+              user.USER.TEMPLATE.SUNSTONE || {},
               { [default2FAOpennebulaVar]: secret },
               [default2FAOpennebulaTmpVar]
             ),
@@ -174,19 +175,14 @@ const qr = (
         next()
       } else {
         const oneConnect = oneConnection()
-        getUserInfoAuthenticated(oneConnect, next, (userData) => {
-          if (
-            userData &&
-            userData.USER &&
-            userData.USER.ID &&
-            userData.USER.TEMPLATE
-          ) {
+        getUserInfoAuthenticated(oneConnect, next, (user) => {
+          if (user && user.USER && user.USER.ID && user.USER.TEMPLATE) {
             oneConnect(
               Actions.USER_UPDATE,
               [
-                parseInt(userData.USER.ID, 10),
+                parseInt(user.USER.ID, 10),
                 generateNewResourceTemplate(
-                  userData.USER.TEMPLATE.SUNSTONE || {},
+                  user.USER.TEMPLATE.SUNSTONE || {},
                   { [default2FAOpennebulaTmpVar]: base32 },
                   [default2FAOpennebulaVar]
                 ),
@@ -239,23 +235,22 @@ const del = (
   oneConnection = defaultEmptyFunction
 ) => {
   const oneConnect = oneConnection()
-  getUserInfoAuthenticated(oneConnect, next, (userData) => {
+  getUserInfoAuthenticated(oneConnect, next, (user) => {
     if (
-      userData &&
-      userData.USER &&
-      userData.USER.ID &&
-      userData.USER.TEMPLATE &&
-      userData.USER.TEMPLATE.SUNSTONE
+      user &&
+      user.USER &&
+      user.USER.ID &&
+      user.USER.TEMPLATE &&
+      user.USER.TEMPLATE.SUNSTONE
     ) {
       oneConnect(
         Actions.USER_UPDATE,
         [
-          parseInt(userData.USER.ID, 10),
-          generateNewResourceTemplate(
-            userData.USER.TEMPLATE.SUNSTONE || {},
-            {},
-            [default2FAOpennebulaTmpVar, default2FAOpennebulaVar]
-          ),
+          parseInt(user.USER.ID, 10),
+          generateNewResourceTemplate(user.USER.TEMPLATE.SUNSTONE || {}, {}, [
+            default2FAOpennebulaTmpVar,
+            default2FAOpennebulaVar,
+          ]),
           1,
         ],
         (err, value) => {

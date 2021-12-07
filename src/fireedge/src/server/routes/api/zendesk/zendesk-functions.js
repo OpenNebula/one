@@ -105,7 +105,11 @@ const httpBadRequest = httpResponse(badRequest, '', '')
  * @param {object} response - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {string} params.user - zendesk user
+ * @param {string} params.pass - zendesk.pass
  * @param {object} userData - user of http request
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const login = (
   response = {},
@@ -115,19 +119,12 @@ const login = (
 ) => {
   const sunstoneConfig = getSunstoneConfig()
   const remoteUri = sunstoneConfig.support_url || ''
-
-  if (
-    remoteUri &&
-    params &&
-    params.user &&
-    params.pass &&
-    userData &&
-    userData.user &&
-    userData.password
-  ) {
+  const { user, password } = userData
+  const { user: zendeskUser, pass } = params
+  if (remoteUri && zendeskUser && pass && user && password) {
     const zendeskData = {
-      username: params.user,
-      password: params.pass,
+      username: zendeskUser,
+      password: pass,
       remoteUri,
       debug: env.NODE_ENV === defaultWebpackMode,
     }
@@ -168,6 +165,8 @@ const login = (
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const list = (
   response = {},
@@ -175,8 +174,9 @@ const list = (
   params = {},
   userData = {}
 ) => {
-  if (userData && userData.user && userData.password) {
-    const session = getSession(userData.user, userData.password)
+  const { user, password } = userData
+  if (user && password) {
+    const session = getSession(user, password)
     if (session.zendesk && session.zendesk.id) {
       /** LIST ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
@@ -232,7 +232,10 @@ const list = (
  * @param {object} response - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {number} params.id - comment id
  * @param {object} userData - user of http request
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const comments = (
   response = {},
@@ -240,8 +243,10 @@ const comments = (
   params = {},
   userData = {}
 ) => {
-  if (params.id && userData && userData.user && userData.password) {
-    const session = getSession(userData.user, userData.password)
+  const { id } = params
+  const { user, password } = userData
+  if (Number.isInteger(parseInt(id, 10)) && user && password) {
+    const session = getSession(user, password)
     if (session.zendesk) {
       /** GET COMMENTS ON TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
@@ -275,7 +280,13 @@ const comments = (
  * @param {object} response - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {string} params.subject - subject
+ * @param {string} params.body - body
+ * @param {string} params.version - version
+ * @param {string} params.severity - severity
  * @param {object} userData - user of http request
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const create = (
   response = {},
@@ -283,18 +294,18 @@ const create = (
   params = {},
   userData = {}
 ) => {
+  const { subject, body, version, severity } = params
+  const { user, password } = userData
   if (
-    params &&
-    params.subject &&
-    params.body &&
-    params.version &&
-    params.severity &&
-    defaultSeverities.includes(params.severity) &&
-    userData &&
-    userData.user &&
-    userData.password
+    subject &&
+    body &&
+    version &&
+    severity &&
+    defaultSeverities.includes(severity) &&
+    user &&
+    password
   ) {
-    const session = getSession(userData.user, userData.password)
+    const session = getSession(user, password)
     if (session.zendesk && session.zendesk.id) {
       /** CREATE TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
@@ -327,7 +338,14 @@ const create = (
  * @param {object} response - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
+ * @param {string} params.id - ticket id
+ * @param {string} params.body - ticket body
+ * @param {object[]} params.attachments - files
+ * @param {string} params.attachments.originalname - original name
+ * @param {string} params.attachments.path - path file
  * @param {object} userData - user of http request
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
  */
 const update = (
   response = {},
@@ -335,21 +353,17 @@ const update = (
   params = {},
   userData = {}
 ) => {
-  if (
-    params.id &&
-    params.body &&
-    userData &&
-    userData.user &&
-    userData.password
-  ) {
+  const { id, body, attachments } = params
+  const { user, password } = userData
+  if (Number.isInteger(parseInt(id, 10)) && body && user && password) {
     const session = getSession(userData.user, userData.password)
     if (session.zendesk && session.zendesk.id) {
       const zendeskClient = zendesk.createClient(session.zendesk)
 
-      const sendRequest = (params = {}) => {
+      const sendRequest = (requestParams = {}) => {
         /** UPDATE TICKET ZENDESK */
-        const ticket = formatComment(params)
-        zendeskClient.requests.update(params.id, ticket, (err, req, result) => {
+        const ticket = formatComment(requestParams)
+        zendeskClient.requests.update(id, ticket, (err, req, result) => {
           let method = ok
           let data = ''
 
@@ -365,14 +379,13 @@ const update = (
       }
 
       /** UPLOAD FILES */
-      let attachments
+      let uploadedAttachments
       if (
-        params &&
-        params.attachments &&
+        attachments &&
         zendeskClient.attachments &&
         typeof zendeskClient.attachments.upload === 'function'
       ) {
-        params.attachments.forEach((att = {}) => {
+        attachments.forEach((att = {}) => {
           if (att && att.originalname && att.path) {
             zendeskClient.attachments.upload(
               att.path,
@@ -382,18 +395,17 @@ const update = (
               (err, req, result) => {
                 const token =
                   (result && result.upload && result.upload.token) || ''
-                if (attachments) {
-                  attachments.push(token)
+                if (uploadedAttachments) {
+                  uploadedAttachments.push(token)
                 } else {
-                  attachments = [token]
+                  uploadedAttachments = [token]
                 }
-                if (!err && token) {
-                  if (
-                    attachments &&
-                    attachments.length === params.attachments.length
-                  ) {
-                    sendRequest({ ...params, attachments })
-                  }
+                if (
+                  !err &&
+                  token &&
+                  uploadedAttachments.length === attachments.length
+                ) {
+                  sendRequest({ ...params, attachments: uploadedAttachments })
                 }
               }
             )

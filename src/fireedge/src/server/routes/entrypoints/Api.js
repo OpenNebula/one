@@ -102,12 +102,12 @@ router.all(
       /**
        * Instance of connection to opennebula.
        *
-       * @param {string} user - opennebula user
-       * @param {string} password - opennebula pass
+       * @param {string} userONE - opennebula user
+       * @param {string} passwordONE - opennebula pass
        * @returns {Function} opennebula executer calls to XMLRPC
        */
-      const connectOpennebula = (user, password) =>
-        opennebulaConnect(user, password, rpc)
+      const connectOpennebula = (userONE, passwordONE) =>
+        opennebulaConnect(userONE, passwordONE, rpc)
 
       const { resource } = req.params
 
