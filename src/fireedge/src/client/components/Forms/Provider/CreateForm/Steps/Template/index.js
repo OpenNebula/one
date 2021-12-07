@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import {
@@ -32,7 +31,7 @@ import { useAuth } from 'client/features/Auth'
 import { useProvisionTemplate } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
-import { sanitize, deepmerge } from 'client/utils'
+import { Step, sanitize, deepmerge } from 'client/utils'
 import { isValidProviderTemplate } from 'client/models/ProviderTemplate'
 import { T } from 'client/constants'
 
@@ -40,6 +39,12 @@ import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/St
 
 import { STEP_ID as CONFIGURATION_ID } from 'client/components/Forms/Provider/CreateForm/Steps/BasicConfiguration'
 import { STEP_ID as CONNECTION_ID } from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
+
+export const STEP_ID = 'template'
+
+// ----------------------------------------------------------
+// Markdown Description
+// ----------------------------------------------------------
 
 const renderer = new Marked.Renderer()
 
@@ -50,7 +55,19 @@ renderer.link = (href, title, text) => `
   </a>
 `
 
-export const STEP_ID = 'template'
+const Description = ({ description = '' }) => {
+  const html = Marked(sanitize`${description}`, { renderer })
+
+  return <div dangerouslySetInnerHTML={{ __html: html }} />
+}
+
+Description.propTypes = {
+  description: PropTypes.string,
+}
+
+// ----------------------------------------------------------
+// Step content : Select Provider Template
+// ----------------------------------------------------------
 
 const Content = ({ data, setFormData }) => {
   const provisionTemplates = useProvisionTemplate()
@@ -138,12 +155,6 @@ const Content = ({ data, setFormData }) => {
       : handleSelect(deepmerge(template, extraPlainInfo))
   }
 
-  const RenderDescription = ({ description = '' }) => {
-    const html = Marked(sanitize`${description}`, { renderer })
-
-    return <div dangerouslySetInnerHTML={{ __html: html }} />
-  }
-
   return (
     <>
       {/* -- SELECTORS -- */}
@@ -196,7 +207,7 @@ const Content = ({ data, setFormData }) => {
       {useMemo(
         () =>
           providerDescription && (
-            <RenderDescription description={providerDescription} />
+            <Description description={providerDescription} />
           ),
         [providerDescription]
       )}
@@ -229,6 +240,11 @@ const Content = ({ data, setFormData }) => {
   )
 }
 
+/**
+ * Step to select the Provider Template.
+ *
+ * @returns {Step} Provider Template step
+ */
 const Template = () => ({
   id: STEP_ID,
   label: T.ProviderTemplate,

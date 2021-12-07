@@ -14,24 +14,29 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
+import PropTypes from 'prop-types'
 import { useMediaQuery, Card, Skeleton } from '@mui/material'
 
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 import { rowStyles } from 'client/components/Tables/styles'
 
+const SkeletonCategory = ({ numberOfItems = 1 }) => (
+  <>
+    <Skeleton width={'30%'} height={40} />
+    {[...new Array(numberOfItems)].map((_, idx) => (
+      <Skeleton key={idx} width={'80%'} height={40} />
+    ))}
+  </>
+)
+
+SkeletonCategory.propTypes = {
+  numberOfItems: PropTypes.number,
+}
+
 const SkeletonTable = memo(() => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
   const classes = EnhancedTableStyles()
   const rowClasses = rowStyles()
-
-  const SkeletonCategory = ({ numberOfItems = 1 }) => (
-    <>
-      <Skeleton width={'30%'} height={40} />
-      {[...new Array(numberOfItems)].map((_, idx) => (
-        <Skeleton key={idx} width={'80%'} height={40} />
-      ))}
-    </>
-  )
 
   const SkeletonRow = () => (
     <Card style={{ padding: '1em' }}>

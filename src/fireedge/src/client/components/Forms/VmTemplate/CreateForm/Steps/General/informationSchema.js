@@ -90,6 +90,7 @@ export const LOGO = {
   // eslint-disable-next-line react/display-name
   renderValue: (value) => (
     <Image
+      alt="logo"
       imgProps={{
         height: 25,
         width: 25,

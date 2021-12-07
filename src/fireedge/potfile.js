@@ -37,7 +37,7 @@ const optsFunc = {
   removeEnd: /(\))/g,
   regexTextCaptureIndex: 0,
   definitions,
-  split: '.'
+  split: '.',
 }
 
 // React component <Translate word="word"/>
@@ -47,7 +47,7 @@ const optsComponent = {
   removeEnd: /('|"|}|'}|"}) \/>/g,
   regexTextCaptureIndex: 0,
   definitions,
-  split: '.'
+  split: '.',
 }
 
 createReadStream(clientCode, optsFunc)
