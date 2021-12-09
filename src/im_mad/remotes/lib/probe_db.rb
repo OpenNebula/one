@@ -80,14 +80,12 @@ class VirtualMachineDB
         @host_id = host_id
         @conf = VirtualMachineDB.load_conf(hyperv, @host_id, opts)
 
-        @mtime = 0
-        @mtime = File.mtime(@conf[:db_path]) if File.exist?(@conf[:db_path])
-
         @db = SQLite3::Database.new(@conf[:db_path])
 
         bootstrap
 
         @dataset = 'states'
+        @settings = 'settings'
     end
 
     # Deletes obsolete VM entries
@@ -101,8 +99,7 @@ class VirtualMachineDB
     # as VMs that have been reported as missing more than missing_times
     def to_status
         time = Time.now.to_i
-        last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
-        last ||= @mtime.to_i
+        last = @db.execute("SELECT value from #{@settings} where key = 'LAST_SYNC'").flatten[0].to_i
 
         sync_state = last == 0 || time > (last + @conf[:sync].to_i)
 
@@ -148,7 +145,7 @@ class VirtualMachineDB
                 )
 
                 status_str << vm_to_status(vm)
-                
+
                 next
             end
 
@@ -189,7 +186,7 @@ class VirtualMachineDB
                 @db.execute("DELETE FROM #{@dataset} WHERE uuid = \"#{uuid}\"")
             else
                 status_str << vm_db_to_status(vm_db) if sync_state
-                
+
                 @db.execute(
                     "UPDATE #{@dataset} SET " \
                     "timestamp = #{time}, " \
@@ -209,6 +206,11 @@ class VirtualMachineDB
         sql = 'CREATE TABLE IF NOT EXISTS states(uuid VARCHAR(128) PRIMARY KEY,'
         sql << ' id INTEGER, name VARCHAR(128), deploy_id VARCHAR(128), timestamp INTEGER,'
         sql << ' missing INTEGER, state VARCHAR(128), hyperv VARCHAR(128))'
+
+        @db.execute(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS settings(key VARCHAR(128) PRIMARY KEY,'
+        sql << ' value VARCHAR(128))'
 
         @db.execute(sql)
     end
