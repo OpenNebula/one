@@ -42,7 +42,7 @@ const Row = ({ original, value, ...props }) => {
     VirtualNetworkModel.getLeasesInfo(original)
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`network-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography component="span">{NAME}</Typography>

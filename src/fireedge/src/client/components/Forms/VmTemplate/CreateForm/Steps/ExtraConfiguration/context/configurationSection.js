@@ -51,13 +51,13 @@ const ConfigurationSection = () => {
         sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
       >
         <FormWithSchema
-          cy={`${EXTRA_ID}.context-configuration-others`}
+          cy={`${EXTRA_ID}-context-configuration-others`}
           fields={OTHER_FIELDS}
           id={EXTRA_ID}
         />
         <div>
           <FormWithSchema
-            cy={`${EXTRA_ID}.context-ssh-public-key`}
+            cy={`${EXTRA_ID}-context-ssh-public-key`}
             fields={[SSH_PUBLIC_KEY]}
             id={EXTRA_ID}
           />
@@ -71,7 +71,7 @@ const ConfigurationSection = () => {
           </Stack>
         </div>
         <FormWithSchema
-          cy={`${EXTRA_ID}.context-script`}
+          cy={`${EXTRA_ID}-context-script`}
           fields={SCRIPT_FIELDS}
           id={EXTRA_ID}
           rootProps={{ sx: { width: '100%', gridColumn: '1 / -1' } }}

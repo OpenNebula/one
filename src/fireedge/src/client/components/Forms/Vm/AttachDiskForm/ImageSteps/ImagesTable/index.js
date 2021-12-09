@@ -44,6 +44,7 @@ const Content = ({ data, setFormData }) => {
       onlyGlobalSelectedRows
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
+      searchProps={{ 'data-cy': 'search-images' }}
     />
   )
 }

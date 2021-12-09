@@ -60,6 +60,7 @@ const EnhancedTable = ({
   singleSelect = false,
   classes = {},
   rootProps = {},
+  searchProps = {},
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -183,6 +184,7 @@ const EnhancedTable = ({
           <Filters
             onlyGlobalSearch={onlyGlobalSearch}
             useTableProps={useTableProps}
+            searchProps={searchProps}
           />
         )}
 
@@ -243,6 +245,9 @@ export const EnhancedTableProps = {
     body: PropTypes.string,
   }),
   rootProps: PropTypes.shape({
+    'data-cy': PropTypes.string,
+  }),
+  searchProps: PropTypes.shape({
     'data-cy': PropTypes.string,
   }),
   isLoading: PropTypes.bool,

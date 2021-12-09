@@ -63,10 +63,11 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
  *
  * @param {object} props - Props
  * @param {string} props.className - Class to wrapper root
+ * @param {object} props.searchProps - Props for search input
  * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX
  */
-const GlobalFilter = ({ useTableProps, className }) => {
+const GlobalFilter = ({ useTableProps, className, searchProps }) => {
   const classes = useStyles()
 
   const { setGlobalFilter, state } = useTableProps
@@ -100,7 +101,7 @@ const GlobalFilter = ({ useTableProps, className }) => {
           root: classes.inputRoot,
           input: classes.inputInput,
         }}
-        inputProps={{ 'aria-label': 'search' }}
+        inputProps={{ 'aria-label': 'search', ...(searchProps ?? {}) }}
       />
     </div>
   )
@@ -109,6 +110,7 @@ const GlobalFilter = ({ useTableProps, className }) => {
 GlobalFilter.propTypes = {
   className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired,
+  searchProps: PropTypes.object,
 }
 
 export default GlobalFilter

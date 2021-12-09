@@ -80,16 +80,16 @@ const Storage = ({ hypervisor }) => {
         }}
         options={[
           {
-            cy: 'attach-image-disk',
+            cy: 'attach-image',
             name: T.Image,
-            dialogProps: { title: T.AttachImage },
+            dialogProps: { title: T.AttachImage, dataCy: 'modal-attach-image' },
             form: () => ImageSteps({ hypervisor }),
             onSubmit: (image) => append(mapNameFunction(image, disks.length)),
           },
           {
-            cy: 'attach-volatile-disk',
+            cy: 'attach-volatile',
             name: T.Volatile,
-            dialogProps: { title: T.AttachVolatile },
+            dialogProps: { title: T.AttachVolatile, dataCy: 'modal-attach-volatile' },
             form: () => VolatileSteps({ hypervisor }),
             onSubmit: (image) => append(mapNameFunction(image, disks.length)),
           },
@@ -117,7 +117,7 @@ const Storage = ({ hypervisor }) => {
         ))}
       </Stack>
       <FormWithSchema
-        cy={`${EXTRA_ID}.storage-options`}
+        cy={`${EXTRA_ID}-storage-options`}
         fields={FIELDS}
         legend={T.StorageOptions}
         id={EXTRA_ID}

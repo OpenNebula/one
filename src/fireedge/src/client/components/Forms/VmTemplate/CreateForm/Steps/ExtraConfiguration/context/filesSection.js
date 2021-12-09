@@ -31,7 +31,7 @@ export const SECTION_ID = 'CONTEXT'
  */
 const FilesSection = ({ hypervisor }) => (
   <FormWithSchema
-    cy={`${EXTRA_ID}.context-files`}
+    cy={`${EXTRA_ID}-context-files`}
     legend={T.Files}
     fields={() => FILES_FIELDS(hypervisor)}
     id={EXTRA_ID}

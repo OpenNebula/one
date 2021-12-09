@@ -50,10 +50,11 @@ const useToolbarStyles = makeStyles({
 /**
  * @param {object} props - Props
  * @param {boolean} props.onlyGlobalSearch - Show only the global search
+ * @param {object} props.searchProps - Props for search input
  * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Returns table toolbar
  */
-const Filters = ({ onlyGlobalSearch, useTableProps }) => {
+const Filters = ({ onlyGlobalSearch, useTableProps, searchProps }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
@@ -77,6 +78,7 @@ const Filters = ({ onlyGlobalSearch, useTableProps }) => {
       <GlobalFilter
         className={classes.rootNoFilters}
         useTableProps={useTableProps}
+        searchProps={searchProps}
       />
     )
   }
@@ -104,6 +106,7 @@ const Filters = ({ onlyGlobalSearch, useTableProps }) => {
 Filters.propTypes = {
   onlyGlobalSearch: PropTypes.bool,
   useTableProps: PropTypes.object,
+  searchProps: PropTypes.object,
 }
 
 Filters.defaultProps = {

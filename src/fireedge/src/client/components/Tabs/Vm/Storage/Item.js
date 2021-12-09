@@ -98,7 +98,11 @@ const StorageItem = ({ disk, actions = [] }) => {
           </Typography>
           <span className={classes.labels}>
             {labels.map(({ label, dataCy }) => (
-              <StatusChip key={label} text={label} dataCy={dataCy} />
+              <StatusChip
+                key={label}
+                text={label}
+                {...(dataCy && { dataCy: dataCy })}
+              />
             ))}
           </span>
         </div>

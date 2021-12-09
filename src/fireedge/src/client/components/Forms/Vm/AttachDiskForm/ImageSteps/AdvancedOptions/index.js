@@ -26,11 +26,7 @@ import { T } from 'client/constants'
 export const STEP_ID = 'advanced'
 
 const Content = ({ hypervisor }) => (
-  <FormWithSchema
-    cy="attach-disk-advanced"
-    id={STEP_ID}
-    fields={FIELDS(hypervisor)}
-  />
+  <FormWithSchema cy="attach-disk" id={STEP_ID} fields={FIELDS(hypervisor)} />
 )
 
 const AdvancedOptions = ({ hypervisor } = {}) => ({

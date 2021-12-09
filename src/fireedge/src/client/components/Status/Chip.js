@@ -100,7 +100,7 @@ const StatusChip = memo(
           component="span"
           className={classes.text}
           onClick={callAll(onClick, clipboard && handleCopy)}
-          data-cy={dataCy}
+          {...(dataCy && { 'data-cy': dataCy })}
           {...props}
         >
           {text}
