@@ -73,14 +73,14 @@ const Tabs = ({
         }}
         {...tabsProps}
       >
-        {tabs.map(({ value, name, label, error, icon: Icon }, idx) => (
+        {tabs.map(({ id, value, name, label, error, icon: Icon }, idx) => (
           <MTab
             key={`tab-${name}`}
             id={`tab-${name}`}
             icon={error ? <WarningIcon /> : Icon && <Icon />}
             value={value ?? idx}
             label={label ?? name}
-            data-cy={`tab-${name}`}
+            data-cy={`tab-${id}`}
           />
         ))}
       </MTabs>

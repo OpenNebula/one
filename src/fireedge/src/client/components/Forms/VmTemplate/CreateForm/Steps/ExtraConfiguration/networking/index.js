@@ -80,7 +80,7 @@ const Networking = () => {
         }}
         options={[
           {
-            dialogProps: { title: T.AttachNic },
+            dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
             form: () => AttachNicForm({ nics }),
             onSubmit: (nic) => append(mapNameFunction(nic, nics.length)),
           },
@@ -109,7 +109,7 @@ const Networking = () => {
         ))}
       </Stack>
       <FormWithSchema
-        cy={`${EXTRA_ID}.network-options`}
+        cy={`${EXTRA_ID}-network-options`}
         fields={FIELDS}
         legend={T.NetworkDefaults}
         legendTooltip={T.NetworkDefaultsConcept}

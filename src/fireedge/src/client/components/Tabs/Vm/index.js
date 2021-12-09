@@ -80,6 +80,7 @@ const VmTabs = memo(({ id }) => {
           return (
             TabContent && {
               name: camelName,
+              id: tabName,
               renderContent: (props) => TabContent({ ...props, tabProps }),
             }
           )

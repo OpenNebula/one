@@ -60,7 +60,7 @@ const Booting = ({ hypervisor, ...props }) => {
         <FormWithSchema
           key={id}
           id={EXTRA_ID}
-          cy={`${EXTRA_ID}.${id}`}
+          cy={`${EXTRA_ID}-${id}`}
           {...section}
         />
       ))}

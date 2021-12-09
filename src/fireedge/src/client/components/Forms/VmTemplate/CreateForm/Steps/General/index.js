@@ -49,7 +49,7 @@ const Content = ({ isUpdate }) => {
   return (
     <div className={classes.root}>
       <FormWithSchema
-        cy={`${STEP_ID}.hypervisor`}
+        cy={`${STEP_ID}-hypervisor`}
         fields={[HYPERVISOR_FIELD]}
         legend={T.Hypervisor}
         id={STEP_ID}
@@ -59,7 +59,7 @@ const Content = ({ isUpdate }) => {
           key={id}
           id={STEP_ID}
           className={classes[id]}
-          cy={`${STEP_ID}.${id}`}
+          cy={`${STEP_ID}-${id}`}
           {...section}
         />
       ))}

@@ -110,7 +110,7 @@ const FormWithSchema = ({
             return { ...field, [key]: finalValue }
           }, {})
 
-          const dataCy = `${cy}-${name}`
+          const dataCy = `${cy}-${name}`.replaceAll('.', '-')
           const inputName = addIdToName(name)
 
           const isHidden = htmlType === INPUT_TYPES.HIDDEN

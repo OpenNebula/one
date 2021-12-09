@@ -58,7 +58,10 @@ const ScheduleAction = () => {
           {
             cy: 'add-sched-action-punctual',
             name: 'Punctual action',
-            dialogProps: { title: T.ScheduledAction },
+            dialogProps: {
+              title: T.ScheduledAction,
+              dataCy: 'modal-sched-actions',
+            },
             form: () => PunctualForm(),
             onSubmit: (action) =>
               append(mapNameFunction(action, scheduleActions.length)),
@@ -66,7 +69,10 @@ const ScheduleAction = () => {
           {
             cy: 'add-sched-action-relative',
             name: 'Relative action',
-            dialogProps: { title: T.ScheduledAction },
+            dialogProps: {
+              title: T.ScheduledAction,
+              dataCy: 'modal-sched-actions',
+            },
             form: () => RelativeForm(),
             onSubmit: (action) =>
               append(mapNameFunction(action, scheduleActions.length)),

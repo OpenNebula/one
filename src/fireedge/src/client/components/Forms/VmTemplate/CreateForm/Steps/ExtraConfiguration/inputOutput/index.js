@@ -42,7 +42,7 @@ const InputOutput = ({ hypervisor }) => {
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
       <FormWithSchema
-        cy={`${EXTRA_ID}.io-graphics`}
+        cy={`${EXTRA_ID}-io-graphics`}
         fields={GRAPHICS_FIELDS(hypervisor)}
         legend={T.Graphics}
         id={EXTRA_ID}

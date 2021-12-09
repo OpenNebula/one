@@ -44,6 +44,7 @@ import { T } from 'client/constants'
  * @property {object} [cancelButtonProps] - Cancel button properties
  * @property {boolean} [fixedWidth] - Fix minimum with to dialog
  * @property {boolean} [fixedHeight] - Fix minimum height to dialog
+ * @property {object} [dataCy] - identifier for cypress tests
  * @property {JSXElementConstructor} [children] - Fix minimum height
  */
 
@@ -65,6 +66,7 @@ const DialogConfirmation = memo(
     fixedWidth,
     fixedHeight,
     children,
+    dataCy,
   }) => {
     const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
@@ -85,6 +87,7 @@ const DialogConfirmation = memo(
         TransitionProps={{
           onEntering: handleEntering,
         }}
+        {...(dataCy && { 'data-cy': dataCy })}
       >
         <DialogTitle
           sx={{
@@ -149,6 +152,7 @@ export const DialogPropTypes = {
   acceptButtonProps: PropTypes.object,
   handleCancel: PropTypes.func,
   cancelButtonProps: PropTypes.object,
+  dataCy: PropTypes.string,
   handleEntering: PropTypes.func,
   fixedWidth: PropTypes.bool,
   fixedHeight: PropTypes.bool,

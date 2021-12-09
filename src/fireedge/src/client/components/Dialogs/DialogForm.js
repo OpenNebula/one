@@ -49,7 +49,6 @@ const DialogForm = ({
   children,
 }) => {
   const classes = useStyles()
-
   const { className, ...contentProps } = dialogProps.contentProps ?? {}
 
   dialogProps.contentProps = {

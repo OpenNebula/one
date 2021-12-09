@@ -52,13 +52,15 @@ const Row = ({ original, value, ...props }) => {
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`image-${ID}`}>
       <div>
         <StatusCircle color={stateColor} tooltip={stateName} />
       </div>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
+          <Typography component="span" data-cy="name">
+            {NAME}
+          </Typography>
           {LOCK && <Lock />}
           <span className={classes.labels}>
             {labels.map((label) => (

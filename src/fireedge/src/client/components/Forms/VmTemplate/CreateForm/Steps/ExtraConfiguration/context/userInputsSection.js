@@ -157,7 +157,7 @@ const UserInputsSection = () => {
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
-            cy={`${EXTRA_ID}.context-user-input`}
+            cy={`${EXTRA_ID}-context-user-input`}
             fields={USER_INPUT_FIELDS}
             rootProps={{ sx: { m: 0 } }}
           />
