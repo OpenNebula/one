@@ -33,6 +33,8 @@ define(function (require) {
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
   var TemplateTableRowHTML = require("hbs!./schedule_action/table-row");
+  var TemplateCharterTableHTML = require("hbs!./schedule_action/charter-table");
+  var TemplateCharterTableRowHTML = require("hbs!./schedule_action/charter-table-row");
 
   /*
     GLOBAL VARIABLES
@@ -764,7 +766,7 @@ define(function (require) {
     return rtn;
   }
 
-  function _fromJSONtoActionsTable(actions_array, canEdit=true, canDelete=true) {
+  function _fromJSONtoActionsTable(actions_array, canEdit=true, canDelete=true, template={}) {
     currentSchedID = 0;
     var str = "";
 
@@ -783,7 +785,7 @@ define(function (require) {
     }
 
     $.each(actions_array, function (_, schedule_action) {
-      str += _fromJSONtoActionRow(schedule_action, canEdit, canDelete);
+      str += _fromJSONtoActionRow(schedule_action, canEdit, canDelete, parseInt(template.STIME,10));
     });
 
     return str;
@@ -834,7 +836,7 @@ define(function (require) {
    * @param {bool ean} canDelete - Is delete allowed?
    * @returns {string} - Row HTML for the given schedule action.
    */
-  function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true) {
+  function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true, stime=0) {
     var sched_obj = {};
     var time_str = Humanize.prettyTime(schedule_action.TIME);
 
@@ -893,7 +895,10 @@ define(function (require) {
     currentSchedID++;
 
     var time = String(schedule_action.TIME);
-    sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
+    var ending_time = parseInt(time,10) + dateToEpoch(new Date(stime * 1000));
+    var remaining_time = ending_time - dateToEpoch(new Date());
+    sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? "In " + Humanize.prettyDuration(remaining_time) : time_str);
+    sched_obj.time_date = time && time.match(/^\+(.*)/gi) ? Humanize.prettyTime(ending_time) : time_str;
     sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
     sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
 
@@ -1186,7 +1191,7 @@ define(function (require) {
       template.USER_TEMPLATE.SERVICE_ID
     );
 
-    return _fromJSONtoActionsTable(sched_actions, canEditOrDelete, canEditOrDelete);
+    return _fromJSONtoActionsTable(sched_actions, canEditOrDelete, canEditOrDelete, template);
   }
 
   /*
@@ -1242,7 +1247,6 @@ define(function (require) {
   };
 
   function _leasesToScheduleActions(confLeases, now){
-    var last = 0; 
     var newSchedActions =[];
     var confLeasesKeys = Object.keys(confLeases);
     confLeasesKeys.forEach(function(schedAction){
@@ -1251,14 +1255,11 @@ define(function (require) {
         var startTime = Math.round(now) + schedActionTime;
         var newAction = {
           SCHED_ACTION : {
-            TIME: "+"+ (startTime+last).toString(),
+            TIME: "+"+ startTime.toString(),
             ACTION: schedAction
           }
         };
-
         newSchedActions.push(newAction);
-        
-        last = schedActionTime;
       }
     });
     return newSchedActions;
@@ -1282,7 +1283,14 @@ define(function (require) {
    */
    function displayAlertCreateLeases(resource, that, confLeases){
     var template = that.element;
-    var now = template && template.STIME? dateToEpoch(new Date()) - parseInt(template.STIME,10) : 0;
+    var now = 0;
+    var stime = 0
+    var confLeasesCopy = JSON.parse(JSON.stringify(confLeases));
+    if (template && template.STIME){
+      stime = parseInt(template.STIME,10);
+      date = new Date();
+      now = dateToEpoch(date) - stime;
+    }
     if (resource === "inst" ||
       resource === "inst_flow" ||
       resource === "service_create" ||
@@ -1290,26 +1298,34 @@ define(function (require) {
     ){
       validateAndInitVariables(resource);
       addSchedActionTable(
-        _leasesToScheduleActions(confLeases, now),
+        _leasesToScheduleActions(confLeasesCopy, now),
         resource
       );
     }
     else{
       Sunstone.getDialog(CONFIRM_DIALOG_LEASES).setParams({
         header: Locale.tr("Scheduled actions to add"),
-        body : renderLeasesForModal(now, confLeases),
+        body : renderLeasesForModal(now, confLeases, stime),
         submit : function(params) {
+          $(".charter_action").each(function(){
+            var actionName = $(this).find(".action_name").text();
+            var actionDate = $(this).find(".action_date").val();
+            var actionHour = $(this).find(".action_hour").val();
+            var date = new Date(actionDate + "T" + actionHour);
+            var epochDate = dateToEpoch(date);
+            confLeasesCopy[actionName].time = "+" + (epochDate - stime);
+          });
           switch (resource) {
             case 'vms':
               addLeasesToVM(
-                _leasesToScheduleActions(confLeases, now),
+                _leasesToScheduleActions(confLeasesCopy, now),
                 template.ID
               );
               break;
             case 'flow':
               var roles = Array.isArray(that.data)? that.data : [that.data];
               addLeasesToService(
-                _leasesToScheduleActions(confLeases, now),
+                _leasesToScheduleActions(confLeasesCopy, now),
                 roles
               );
               break;
@@ -1329,34 +1345,46 @@ define(function (require) {
    * 
    * @param {number} now - Now time.
    * @param {Object} confLeases - Object with the configured leases.
+   * @param {number} stime - Template start time.
    * @returns - HTML content for the modal.
    */
-   function renderLeasesForModal(now, confLeases) {
-    var rtn = "";
+   function renderLeasesForModal(now, confLeases, stime) {
+    var body = "";
     var last = 0;
     var confLeasesKeys = Object.keys(confLeases);
 
     if(confLeasesKeys && Array.isArray(confLeasesKeys)){
-      rtn = $("<table/>");
       confLeasesKeys.forEach(function(actionName){
         if(confLeases[actionName] && confLeases[actionName].time){
           var schedActionTime = parseInt(confLeases[actionName].time,10);
           var startTime = Math.round(now) + schedActionTime;
-          var time =  "+"+(last === 0? startTime.toString() : startTime+last);
-          rtn = rtn.append(
-            $("<tr/>").append(
-              $("<td/>").text(actionName).add(
-                $("<td/>").text(_time(time))
-              )
-            )
-          );
+          var time = startTime + last;
+          // Pretty time return an string with the following format:
+          // HH:MM:SS DD/MM/YYYY
+          var datetime = Humanize.prettyTime(time + stime);
+          // This variable have [Hours, Minutes, Seconds]
+          var hour = (datetime.split(" ")[0]).split(":");
+          // This variable have [Day, Month, Year]
+          var date = (datetime.split(" ")[1]).split("/");
+          
+          var dateValue = date[2] + "-" + date[1] + "-" + date[0];
+          var hourValue = hour[0] + ":" + hour[1];
+
+          body += TemplateCharterTableRowHTML({
+            'actionName': actionName,
+            'dateValue': dateValue,
+            'hourValue': hourValue
+          });
+          
           last = schedActionTime;
         }
       });
-      rtn = rtn.prop("outerHTML");
     }
 
-    return rtn;
+    return TemplateCharterTableHTML({
+      'res': resource,
+      'body': body
+    });
   }
 
   /**
