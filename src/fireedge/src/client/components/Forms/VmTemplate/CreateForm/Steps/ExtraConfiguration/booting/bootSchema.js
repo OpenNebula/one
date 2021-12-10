@@ -163,7 +163,7 @@ export const FIRMWARE = {
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
   notOnHypervisors: [firecracker, lxc],
-  type: ([_, custom]) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
+  type: ([_, custom] = []) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
   validation: string()
     .trim()
     .notRequired()
