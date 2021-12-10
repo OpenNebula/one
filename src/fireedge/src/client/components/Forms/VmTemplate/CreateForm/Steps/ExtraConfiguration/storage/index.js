@@ -89,7 +89,10 @@ const Storage = ({ hypervisor }) => {
           {
             cy: 'attach-volatile',
             name: T.Volatile,
-            dialogProps: { title: T.AttachVolatile, dataCy: 'modal-attach-volatile' },
+            dialogProps: {
+              title: T.AttachVolatile,
+              dataCy: 'modal-attach-volatile',
+            },
             form: () => VolatileSteps({ hypervisor }),
             onSubmit: (image) => append(mapNameFunction(image, disks.length)),
           },

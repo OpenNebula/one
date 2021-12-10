@@ -62,7 +62,7 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
         <ListItemText
           data-cy={label.toLocaleLowerCase()}
           primary={label}
-          {...expanded && {className: "open"}}
+          {...(expanded && { className: 'open' })}
           primaryTypographyProps={{ variant: 'body1' }}
         />
         {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
