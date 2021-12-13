@@ -347,7 +347,6 @@ AllCops:
     - src/oca/ruby/opennebula/template.rb
     - src/oca/ruby/opennebula/group.rb
     - src/oca/ruby/opennebula/virtual_network.rb
-    - src/oca/ruby/opennebula/virtual_machine_ext.rb
     - src/oca/ruby/opennebula/security_group_pool.rb
     - src/oca/ruby/opennebula/pool_element.rb
     - src/oca/ruby/opennebula/document_pool.rb
