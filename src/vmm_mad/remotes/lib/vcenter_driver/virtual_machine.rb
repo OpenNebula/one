@@ -2067,7 +2067,7 @@ end
             end
 
             card_spec = {
-                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
+                :key => 0,
                 :deviceInfo => {
                     :label => 'net' + card_num.to_s,
                     :summary => pg_name
@@ -2077,6 +2077,9 @@ end
                 :macAddress  => mac,
                 :unitNumber  => unumber
             }
+            if @vi_client.vim.serviceContent.about.apiVersion.to_f >= 7.0
+                card_spec[:key] = Time.now.utc.strftime('%m%d%M%S%L').to_i
+            end
 
             if (limit || rsrv) && (limit > 0)
                 ra_spec = {}
@@ -2213,7 +2216,7 @@ end
             end
 
             card_spec = {
-                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
+                :key => 0,
                 :deviceInfo => {
                     :label => 'net' + card_num.to_s,
                     :summary => pg_name
@@ -2221,6 +2224,9 @@ end
                 :backing     => backing,
                 :addressType => 'generated'
             }
+            if @vi_client.vim.serviceContent.about.apiVersion.to_f >= 7.0
+                card_spec[:key] = Time.now.utc.strftime('%m%d%M%S%L').to_i
+            end
 
             if (limit || rsrv) && (limit > 0)
                 ra_spec = {}
