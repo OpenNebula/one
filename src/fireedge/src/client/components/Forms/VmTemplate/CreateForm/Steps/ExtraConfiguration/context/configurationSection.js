@@ -62,7 +62,11 @@ const ConfigurationSection = () => {
             id={EXTRA_ID}
           />
           <Stack direction="row" gap="1em">
-            <Button onClick={handleAddUserKey} variant="contained">
+            <Button
+              onClick={handleAddUserKey}
+              variant="contained"
+              data-cy={`${EXTRA_ID}-add-context-ssh-public-key`}
+            >
               {T.AddUserSshPublicKey}
             </Button>
             <Button onClick={handleClearKey} variant="outlined">

@@ -167,6 +167,7 @@ const UserInputsSection = () => {
             color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
+            data-cy={`${EXTRA_ID}-add-context-user-input`}
           >
             <Translate word={T.Add} />
           </Button>
