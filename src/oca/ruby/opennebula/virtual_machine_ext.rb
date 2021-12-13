@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'opennebula/template_ext'
-require 'vcenter_driver'
 
 # Module to decorate VirtualMachine class with additional helpers not directly
 # exposed through the OpenNebula XMLRPC API. The extensions include
@@ -101,6 +100,11 @@ module OpenNebula::VirtualMachineExt
                 use_linked_clones = self['USER_TEMPLATE/VCENTER_LINKED_CLONES']
 
                 if use_linked_clones && use_linked_clones.downcase == 'yes'
+                    # Delay the require until it is strictly needed
+                    # This way we can avoid the vcenter driver dependency
+                    # in no vCenter deployments
+                    require 'vcenter_driver'
+
                     deploy_id = self['DEPLOY_ID']
                     vm_id = self['ID']
                     host_id = self['HISTORY_RECORDS/HISTORY[last()]/HID']
