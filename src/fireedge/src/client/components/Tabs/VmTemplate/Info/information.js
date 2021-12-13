@@ -25,20 +25,23 @@ const InformationPanel = ({ template = {}, handleRename, actions }) => {
   const { ID, NAME, REGTIME, LOCK } = template
 
   const info = [
-    { name: T.ID, value: ID },
+    { name: T.ID, value: ID, dataCy: 'id' },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME),
       handleEdit: handleRename,
+      dataCy: 'name',
     },
     {
       name: T.StartTime,
       value: Helper.timeToString(REGTIME),
+      dataCy: 'starttime',
     },
     {
       name: T.Locked,
       value: Helper.levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
     },
   ]
 

@@ -78,6 +78,7 @@ const InputsSection = ({ fields }) => {
             color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
+            data-cy={`${EXTRA_ID}-add-io-inputs`}
           >
             <Translate word={T.Add} />
           </Button>
