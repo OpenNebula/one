@@ -146,7 +146,13 @@ begin
 rescue StandardError => e
     message = "Error clone virtual disk #{src_path} in "\
               "datastore #{target_ds_name_vc}. "\
-              "Reason: #{e.message}."
+              "Reason: #{e.message}." \
+              "on attempt \##{retries}."
+
+    if (retries += 1) > CONFIG[:retries]
+        message << "\nPlease check vCenter logs directly\n"
+    end
+
     OpenNebula.log_error(message)
     if VCenterDriver::CONFIG[:debug_information]
         STDERR.puts "#{message} #{e.backtrace}"
