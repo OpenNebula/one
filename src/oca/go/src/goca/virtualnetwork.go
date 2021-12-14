@@ -160,7 +160,11 @@ func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 // * tpl: Template
 func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
-	return response.BodyInt(), err
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
 }
 
 // FreeAR frees a reserved address range from a virtual network.
