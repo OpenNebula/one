@@ -628,6 +628,10 @@ int LibVirtDriver::deployment_description_kvm(
     std::string sd_bus;
     std::string disk_bus;
 
+    bool pm_defaults = true;
+    std::string pm_suspend_to_disk = "yes";
+    std::string pm_suspend_to_mem  = "yes";
+
     string  vm_xml;
 
     Nebula& nd = Nebula::instance();
@@ -795,18 +799,17 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     bool boot_secure = false;
+
     string firmware;
- 
+  
     get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
-
-    bool is_uefi = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS");
-
-    if ( is_uefi )
+  
+    if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
     {
         string firmware_secure = "no";
-
-        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE",
-                    boot_secure) && boot_secure)
+      
+        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE", boot_secure) && 
+             boot_secure)
         {
             firmware_secure = "yes";
         }
@@ -818,6 +821,12 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<nvram>"
              << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
              << "</nvram>\n";
+
+        // Suspend to mem and disk disabled to avoid boot problems with UEFI
+        // firmware
+        pm_defaults = false;
+        pm_suspend_to_disk = "no";
+        pm_suspend_to_mem  = "no";
     }
 
     file << "\t</os>" << endl;
@@ -825,13 +834,13 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // POWER MANAGEMENT SECTION
     // ------------------------------------------------------------------------
-    if ( is_uefi && arch != "aarch64" )
+    if (!pm_defaults)
     {
-        // Suspend to mem and disk disabled to avoid boot problems with UEFI
-        // firmware in x86 arch
         file << "\t<pm>\n"
-             << "\t\t<suspend-to-disk enabled=\"no\"/>\n"
-             << "\t\t<suspend-to-mem enabled=\"no\"/>\n"
+             << "\t\t<suspend-to-disk enabled=\"" << pm_suspend_to_disk
+             << "\"/>\n"
+             << "\t\t<suspend-to-mem enabled=\"" << pm_suspend_to_mem
+             << "\"/>\n"
              << "\t</pm>\n";
     }
 
@@ -1843,7 +1852,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi && (arch != "aarch64" || is_uefi ))
+        if ( acpi )
         {
             file << "\t\t<acpi/>" << endl;
         }
