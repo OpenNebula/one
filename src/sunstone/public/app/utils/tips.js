@@ -14,8 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-//  require('foundation.tooltip');
+define(function(require) { 
   //Replaces all class"tip" divs with an information icon that
   //displays the tip information on mouseover.
   var _setup = function(context, position) {
@@ -31,21 +30,16 @@ define(function(require) {
       obj.removeClass('tip');
       var tip = obj.html();
 
-      var tip_classes = ['has-tip']
-      if (position) {
-        tip_classes.push(position)
-      }
-      //replace the text with an icon and spans
-      //obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fas fa-question-circle"></i></span>');
-      obj.html('<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(tip) + '"><i class="fas fa-question-circle"></i></span>');
+      obj.html(_html(tip));
     });
-
-    Foundation.reflow(context, 'tooltip');
   }
 
-  var _html = function(str) {
-    //return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fas fa-question-circle"></i></span>'
-    return '<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(str) + '"><i class="fas fa-question-circle"></i></span>';
+  var _html = function(tip) {
+    var html =  '<div class="opennebula-tooltip">' +
+                  '<i class="fas fa-question-circle"></i>' + 
+                  '<span class="opennebula-tooltiptext">' + $.trim(tip) + '</span>' +
+                '</div>';
+    return html;
   }
 
   return {
