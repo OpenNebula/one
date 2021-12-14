@@ -96,7 +96,6 @@ const ToggleController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
     prevProps.values.length === nextProps.values.length &&
     prevProps.label === nextProps.label &&
     prevProps.tooltip === nextProps.tooltip

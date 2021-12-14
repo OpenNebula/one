@@ -69,7 +69,7 @@ export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
 /**
  * Returns the epoch milliseconds of the date.
  *
- * @param {number|string} date - Date
+ * @param {number|string} date - JS Date
  * @returns {number} - Total milliseconds.
  */
 export const dateToMilliseconds = (date) =>
@@ -78,7 +78,7 @@ export const dateToMilliseconds = (date) =>
 /**
  * Returns the epoch milliseconds of the date.
  *
- * @param {number|string} date - Date
+ * @param {number|string} date - Date on ISO format
  * @returns {number} - Total milliseconds.
  */
 export const isoDateToMilliseconds = (date) =>

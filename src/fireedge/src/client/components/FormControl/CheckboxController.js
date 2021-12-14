@@ -77,8 +77,7 @@ const CheckboxController = memo(
         )}
       </FormControl>
     )
-  },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  }
 )
 
 CheckboxController.propTypes = {

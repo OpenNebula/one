@@ -157,6 +157,7 @@ module.exports = {
   Yearly: 'Yearly',
   EachHours: 'Each %s hours',
   AfterTimes: 'After %s times',
+  Today: 'Today',
 
   /* dashboard */
   InTotal: 'In Total',

@@ -14,12 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
-import { oneOfType, string, node } from 'prop-types'
+import PropTypes from 'prop-types'
 
 import { Stack, Typography, styled } from '@mui/material'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 const ErrorTypo = styled(Typography)(({ theme }) => ({
   ...theme.typography.body1,
@@ -27,23 +27,38 @@ const ErrorTypo = styled(Typography)(({ theme }) => ({
   overflowWrap: 'anywhere',
 }))
 
-const ErrorHelper = memo(({ label, ...rest }) => (
-  <Stack
-    component="span"
-    color="error.dark"
-    direction="row"
-    alignItems="center"
-    {...rest}
-  >
-    <WarningIcon />
-    <ErrorTypo component="span" data-cy="error-text">
-      {labelCanBeTranslated(label) ? Tr(label) : label}
-    </ErrorTypo>
-  </Stack>
-))
+const ErrorHelper = memo(({ label, ...rest }) => {
+  const translateProps = label?.word ? { ...label } : { word: label }
+
+  return (
+    <Stack
+      component="span"
+      color="error.dark"
+      direction="row"
+      alignItems="center"
+      {...rest}
+    >
+      <WarningIcon />
+      <ErrorTypo component="span" data-cy="error-text">
+        <Translate {...translateProps} />
+      </ErrorTypo>
+    </Stack>
+  )
+})
 
 ErrorHelper.propTypes = {
-  label: oneOfType([string, node]),
+  label: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.shape({
+      word: PropTypes.string,
+      values: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+        PropTypes.array,
+      ]),
+    }),
+  ]),
 }
 
 ErrorHelper.displayName = 'ErrorHelper'

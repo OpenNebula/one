@@ -359,16 +359,16 @@ export const mapUserInputs = (userInputs = {}) =>
  * @param {any[]} list - List of option values
  * @param {object} [options] - Options to conversion
  * @param {boolean|string} [options.addEmpty] - If `true`, add an empty option
- * @param {function(any):any} [options.getText] - Function to get the text option
- * @param {function(any):any} [options.getValue] - Function to get the value option
+ * @param {function(any, number):any} [options.getText] - Function to get the text option
+ * @param {function(any, number):any} [options.getValue] - Function to get the value option
  * @returns {SelectOption} Options
  */
 export const arrayToOptions = (list = [], options = {}) => {
   const { addEmpty = true, getText = (o) => o, getValue = (o) => o } = options
 
-  const values = list.map((item) => ({
-    text: getText(item),
-    value: getValue(item),
+  const values = list.map((item, idx) => ({
+    text: getText(item, idx),
+    value: getValue(item, idx),
   }))
 
   if (addEmpty) {

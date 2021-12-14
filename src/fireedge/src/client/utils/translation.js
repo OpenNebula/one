@@ -98,16 +98,31 @@ const buildTranslationLocale = () => {
       default: () => T['validation.mixed.default'],
       required: () => T['validation.mixed.required'],
       defined: () => T['validation.mixed.defined'],
-      oneOf: ({ values }) => [T['validation.mixed.oneOf'], values],
-      notOneOf: ({ values }) => [T['validation.mixed.notOneOf'], values],
+      oneOf: ({ values }) => ({ word: T['validation.mixed.oneOf'], values }),
+      notOneOf: ({ values }) => ({
+        word: T['validation.mixed.notOneOf'],
+        values,
+      }),
       notType: ({ type }) =>
         T[`validation.mixed.notType.${type}`] ?? T['validation.mixed.notType'],
     },
     string: {
-      length: ({ length }) => [T['validation.string.length'], length],
-      min: ({ min }) => [T['validation.string.min'], min],
-      max: ({ max }) => [T['validation.string.max'], max],
-      matches: ({ matches }) => [T['validation.string.matches'], matches],
+      length: ({ length }) => ({
+        word: T['validation.string.length'],
+        values: length,
+      }),
+      min: ({ min }) => ({
+        word: T['validation.string.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.string.max'],
+        values: max,
+      }),
+      matches: ({ matches }) => ({
+        word: T['validation.string.matches'],
+        values: matches,
+      }),
       email: () => T['validation.string.email'],
       url: () => T['validation.string.url'],
       uuid: () => T['validation.string.uuid'],
@@ -116,31 +131,61 @@ const buildTranslationLocale = () => {
       uppercase: () => T['validation.string.uppercase'],
     },
     number: {
-      min: ({ min }) => [T['validation.number.min'], min],
-      max: ({ max }) => [T['validation.number.max'], max],
-      lessThan: ({ less }) => [T['validation.number.lessThan'], less],
-      moreThan: ({ more }) => [T['validation.number.moreThan'], more],
+      min: ({ min }) => ({
+        word: T['validation.number.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.number.max'],
+        values: max,
+      }),
+      lessThan: ({ less }) => ({
+        word: T['validation.number.lessThan'],
+        values: less,
+      }),
+      moreThan: ({ more }) => ({
+        word: T['validation.number.moreThan'],
+        values: more,
+      }),
       positive: () => T['validation.number.positive'],
       negative: () => T['validation.number.negative'],
       integer: () => T['validation.number.integer'],
     },
     boolean: {
-      isValue: ({ value }) => [T['validation.boolean.isValue'], value],
+      isValue: ({ value }) => ({
+        word: T['validation.boolean.isValue'],
+        values: [value],
+      }),
     },
     date: {
-      min: ({ min }) => [T['validation.date.min'], min],
-      max: ({ max }) => [T['validation.date.max'], max],
+      min: ({ min }) => ({
+        word: T['validation.date.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.date.max'],
+        values: max,
+      }),
     },
     object: {
-      noUnknown: ({ nounknown }) => [
-        T['validation.object.noUnknown'],
-        nounknown,
-      ],
+      noUnknown: ({ nounknown }) => ({
+        word: T['validation.object.noUnknown'],
+        values: nounknown,
+      }),
     },
     array: {
-      min: ({ min }) => [T['validation.array.min'], min],
-      max: ({ max }) => [T['validation.array.max'], max],
-      length: ({ length }) => [T['validation.array.length'], length],
+      min: ({ min }) => ({
+        word: T['validation.array.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.array.max'],
+        values: max,
+      }),
+      length: ({ length }) => ({
+        word: T['validation.array.length'],
+        values: length,
+      }),
     },
   })
 }
