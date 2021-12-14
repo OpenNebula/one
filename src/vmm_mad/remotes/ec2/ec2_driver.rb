@@ -33,11 +33,25 @@ EC2_DRIVER_CONF    = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 EC2_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/ec2.d/ec2-cache.db"
 
+# %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
 end
+# %%RUBYGEMS_SETUP_END%%
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
