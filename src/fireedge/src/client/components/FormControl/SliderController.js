@@ -89,8 +89,7 @@ const SliderController = memo(
         )}
       </>
     )
-  },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  }
 )
 
 SliderController.propTypes = {

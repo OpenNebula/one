@@ -27,7 +27,9 @@ const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
 
 const labelCanBeTranslated = (val) =>
-  typeof val === 'string' || (Array.isArray(val) && val.length === 2)
+  typeof val === 'string' ||
+  (Array.isArray(val) && val.length === 2) ||
+  (typeof val === 'object' && val?.word)
 
 const GenerateScript = (
   language = DEFAULT_LANGUAGE,
@@ -131,12 +133,7 @@ TranslateProvider.propTypes = {
 
 Translate.propTypes = {
   word: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-  values: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.bool,
-    PropTypes.array,
-  ]),
+  values: PropTypes.any,
 }
 
 export {

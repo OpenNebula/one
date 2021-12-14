@@ -51,8 +51,7 @@ const PasswordController = memo(
       />
     )
   },
-  (prevProps, nextProps) =>
-    prevProps.error === nextProps.error && prevProps.type === nextProps.type
+  (prevProps, nextProps) => prevProps.type === nextProps.type
 )
 
 PasswordController.propTypes = {

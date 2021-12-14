@@ -86,7 +86,6 @@ const TableController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
     prevProps.label === nextProps.label &&
     prevProps.Table === nextProps.Table &&
     prevProps.tooltip === nextProps.tooltip

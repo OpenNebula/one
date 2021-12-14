@@ -24,6 +24,9 @@ import {
   useMediaQuery,
 } from '@mui/material'
 import StylesProvider from '@mui/styles/StylesProvider'
+import AdapterLuxon from '@mui/lab/AdapterLuxon'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+
 import { createTheme, generateClassName } from 'client/theme'
 import { useAuth } from 'client/features/Auth'
 import { SCHEMES } from 'client/constants'
@@ -55,14 +58,16 @@ const MuiProvider = ({ theme: appTheme, children }) => {
   }, [scheme, prefersDarkMode])
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={muitheme}>
-        <CssBaseline enableColorScheme />
-        <StylesProvider generateClassName={generateClassName}>
-          {children}
-        </StylesProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <LocalizationProvider dateAdapter={AdapterLuxon}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muitheme}>
+          <CssBaseline enableColorScheme />
+          <StylesProvider generateClassName={generateClassName}>
+            {children}
+          </StylesProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </LocalizationProvider>
   )
 }
 

@@ -79,7 +79,6 @@ const TextController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
     prevProps.type === nextProps.type &&
     prevProps.label === nextProps.label &&
     prevProps.tooltip === nextProps.tooltip &&

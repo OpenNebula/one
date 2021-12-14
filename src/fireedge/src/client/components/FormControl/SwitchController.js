@@ -77,8 +77,7 @@ const SwitchController = memo(
         )}
       </FormControl>
     )
-  },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  }
 )
 
 SwitchController.propTypes = {

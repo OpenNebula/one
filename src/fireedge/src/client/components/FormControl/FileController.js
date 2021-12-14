@@ -144,9 +144,7 @@ const FileController = memo(
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
-    prevProps.type === nextProps.type &&
-    prevProps.label === nextProps.label
+    prevProps.type === nextProps.type && prevProps.label === nextProps.label
 )
 
 FileController.propTypes = {

@@ -103,8 +103,7 @@ const AutocompleteController = memo(
       />
     )
   },
-  (prevProps, nextProps) =>
-    prevProps.error === nextProps.error && prevProps.values === nextProps.values
+  (prevProps, nextProps) => prevProps.values === nextProps.values
 )
 
 AutocompleteController.propTypes = {
