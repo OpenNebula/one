@@ -881,7 +881,7 @@ module VCenterDriver
             @one_class = OpenNebula::Datastore
         end
 
-        def get_list(_args = {})
+        def get_list(args = {})
             dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
             # one pool creation
@@ -908,7 +908,8 @@ module VCenterDriver
                  .get_unimported_datastores(
                      dpool,
                      @vi_client.vc_name,
-                     hpool
+                     hpool,
+                     args
                  )
             @list = rs
         end

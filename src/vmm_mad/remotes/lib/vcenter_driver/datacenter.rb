@@ -159,10 +159,27 @@ module VCenterDriver
             host_objects
         end
 
-        def get_unimported_datastores(dpool, vcenter_instance_name, hpool)
+        # rubocop:disable Style/GlobalVars
+        def get_unimported_datastores(dpool, vcenter_instance_name, hpool, args)
             import_id = 0
             ds_objects = {}
             vcenter_uuid = vcenter_instance_uuid
+
+            # Selected host in OpenNebula
+            if $conf.nil?
+                one_client = OpenNebula::Client.new
+            else
+                one_client = OpenNebula::Client.new(
+                    nil,
+                    $conf[:one_xmlrpc]
+                )
+            end
+            one_host = OpenNebula::Host.new_with_id(args[:host], one_client)
+
+            rc = one_host.info
+            raise rc.message if OpenNebula.is_error? rc
+
+            cluster_id = one_host['CLUSTER_ID'].to_i
 
             # Get datacenters
             fetch! if @items.empty?
@@ -363,8 +380,15 @@ module VCenterDriver
                 end
             end
 
+            ds_objects.keys.each do |key|
+                unless ds_objects[key][:cluster].include? cluster_id
+                    ds_objects.delete key
+                end
+            end
+
             { vcenter_instance_name => ds_objects }
         end
+        # rubocop:enable Style/GlobalVars
 
         def get_unimported_templates(vi_client, tpool)
             template_objects = {}

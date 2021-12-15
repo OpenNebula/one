@@ -151,8 +151,11 @@ get '/vcenter/datastores' do
     begin
         client = one_client
         new_vcenter_importer("datastores", client)
-
-        [200, $importer.retrieve_resources.to_json]
+        opts = {
+          :host => params["host"]
+        }
+        resources_list = $importer.retrieve_resources(opts).to_json
+        [200, resources_list]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
