@@ -17,8 +17,7 @@ import {
   getSecurityGroupsFromResource,
   prettySecurityGroup,
 } from 'client/models/SecurityGroup'
-import { timeToString } from 'client/models/Helper'
-import { Tr } from 'client/components/HOC'
+import { isRelative } from 'client/models/Scheduler'
 
 import {
   STATES,
@@ -28,7 +27,6 @@ import {
   NIC_ALIAS_IP_ATTRS,
   HISTORY_ACTIONS,
   HYPERVISORS,
-  T,
   StateInfo,
 } from 'client/constants'
 
@@ -245,37 +243,22 @@ export const getSnapshotList = (vm) => {
  * @returns {Array} List of schedule actions from resource
  */
 export const getScheduleActions = (vm) => {
-  const { TEMPLATE = {} } = vm ?? {}
+  const { STIME: vmStartTime, TEMPLATE = {} } = vm ?? {}
+  const now = Math.round(Date.now() / 1000)
 
-  return [TEMPLATE.SCHED_ACTION].filter(Boolean).flat()
-}
+  return [TEMPLATE.SCHED_ACTION]
+    .filter(Boolean)
+    .flat()
+    .map((action) => {
+      const { TIME, WARNING } = action
+      const isRelativeTime = isRelative(TIME)
+      const isRelativeWarning = isRelative(WARNING)
 
-/**
- * Converts the periodicity of the action to string value.
- *
- * @param {object} scheduleAction - Schedule action
- * @returns {{repeat: string|string[], end: string}} - Periodicity of the action.
- */
-export const periodicityToString = (scheduleAction) => {
-  const { REPEAT, DAYS = '', END_TYPE, END_VALUE = '' } = scheduleAction ?? {}
+      const ensuredTime = isRelativeTime ? +TIME + +vmStartTime : +TIME
+      const ensuredWarn = isRelativeWarning && now > ensuredTime + +WARNING
 
-  const daysOfWeek = [T.Sun, T.Mon, T.Tue, T.Wed, T.Thu, T.Fri, T.Sat]
-  const days = DAYS?.split(',')?.map((day) => Tr(daysOfWeek[day])) ?? []
-
-  const repeat = {
-    0: `${Tr(T.Weekly)} ${days.join(',')}`,
-    1: `${Tr(T.Monthly)} ${DAYS}`,
-    2: `${Tr(T.Yearly)} ${DAYS}`,
-    3: Tr([T.EachHours, DAYS]),
-  }[+REPEAT]
-
-  const end = {
-    0: Tr(T.None),
-    1: Tr([T.AfterTimes, END_VALUE]),
-    2: `${Tr(T.On)} ${timeToString(END_VALUE)}`,
-  }[+END_TYPE]
-
-  return { repeat, end }
+      return { ...action, TIME: ensuredTime, WARNING: ensuredWarn }
+    })
 }
 
 /**

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { AnySchema } from 'yup'
 
 import clsx from 'clsx'
 import makeStyles from '@mui/styles/makeStyles'
@@ -41,6 +42,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+/**
+ * Creates dialog with a form inside.
+ *
+ * @param {object} props - Props
+ * @param {object} props.values - Default values
+ * @param {function():AnySchema} props.resolver - Resolver schema
+ * @param {function():Promise} props.handleSubmit - Submit function
+ * @param {object} props.dialogProps - Dialog props
+ * @param {ReactElement|ReactElement[]} props.children - Children element
+ * @returns {ReactElement} Dialog with form
+ */
 const DialogForm = ({
   values,
   resolver,
@@ -63,9 +75,18 @@ const DialogForm = ({
     resolver: yupResolver(resolver()),
   })
 
+  const callbackSubmit = useCallback((formData) => {
+    const schemaData = resolver().cast(formData, {
+      context: formData,
+      isSubmit: true,
+    })
+
+    return handleSubmit(schemaData)
+  })
+
   return (
     <DialogConfirmation
-      handleAccept={handleSubmit && methods.handleSubmit(handleSubmit)}
+      handleAccept={handleSubmit && methods.handleSubmit(callbackSubmit)}
       acceptButtonProps={{
         isSubmitting: methods.formState.isSubmitting,
       }}

@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
-import { Calendar as ActionIcon, Edit, Trash } from 'iconoir-react'
+import { Calendar as ActionIcon } from 'iconoir-react'
 import { useFieldArray } from 'react-hook-form'
 
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { PunctualForm, RelativeForm } from 'client/components/Forms/Vm'
-import { Translate } from 'client/components/HOC'
+import { ScheduleActionCard } from 'client/components/Cards'
+import { CreateSchedButton, CharterButton } from 'client/components/Buttons'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -43,42 +39,36 @@ const ScheduleAction = () => {
     append,
   } = useFieldArray({
     name: `${EXTRA_ID}.${TAB_ID}`,
+    keyName: 'ID',
   })
+
+  const handleCreateAction = (action) => {
+    append(mapNameFunction(action, scheduleActions.length))
+  }
+
+  const handleCreateCharter = (actions) => {
+    const mappedActions = actions?.map((action, idx) =>
+      mapNameFunction(action, scheduleActions.length + idx)
+    )
+
+    append(mappedActions)
+  }
+
+  const handleUpdateAction = (action, index) => {
+    update(index, mapNameFunction(action, index))
+  }
+
+  const handleRemoveAction = (index) => {
+    remove(index)
+  }
 
   return (
     <>
-      <ButtonToTriggerForm
-        buttonProps={{
-          color: 'secondary',
-          'data-cy': 'add-sched-action',
-          label: T.AddAction,
-          variant: 'outlined',
-        }}
-        options={[
-          {
-            cy: 'add-sched-action-punctual',
-            name: 'Punctual action',
-            dialogProps: {
-              title: T.ScheduledAction,
-              dataCy: 'modal-sched-actions',
-            },
-            form: () => PunctualForm(),
-            onSubmit: (action) =>
-              append(mapNameFunction(action, scheduleActions.length)),
-          },
-          {
-            cy: 'add-sched-action-relative',
-            name: 'Relative action',
-            dialogProps: {
-              title: T.ScheduledAction,
-              dataCy: 'modal-sched-actions',
-            },
-            form: () => RelativeForm(),
-            onSubmit: (action) =>
-              append(mapNameFunction(action, scheduleActions.length)),
-          },
-        ]}
-      />
+      <Stack flexDirection="row" gap="1em">
+        <CreateSchedButton relative onSubmit={handleCreateAction} />
+        <CharterButton relative onSubmit={handleCreateCharter} />
+      </Stack>
+
       <Stack
         pb="1em"
         display="grid"
@@ -86,61 +76,22 @@ const ScheduleAction = () => {
         gap="1em"
         mt="1em"
       >
-        {scheduleActions?.map((item, index) => {
-          const { id, NAME, ACTION, TIME } = item
-          const isRelative = String(TIME).includes('+')
+        {scheduleActions?.map((schedule, index) => {
+          const { ID, NAME } = schedule
 
           return (
-            <SelectCard
-              key={id ?? NAME}
-              title={`${NAME} - ${ACTION}`}
-              action={
-                <>
-                  <Action
-                    data-cy={`remove-${NAME}`}
-                    handleClick={() => remove(index)}
-                    icon={<Trash />}
-                  />
-                  <ButtonToTriggerForm
-                    buttonProps={{
-                      'data-cy': `edit-${NAME}`,
-                      icon: <Edit />,
-                      tooltip: <Translate word={T.Edit} />,
-                    }}
-                    options={[
-                      {
-                        dialogProps: {
-                          title: (
-                            <>
-                              <Translate word={T.Edit} />
-                              {`: ${NAME}`}
-                            </>
-                          ),
-                        },
-                        form: () =>
-                          isRelative
-                            ? RelativeForm(undefined, item)
-                            : PunctualForm(undefined, item),
-                        onSubmit: (updatedAction) =>
-                          update(index, mapNameFunction(updatedAction, index)),
-                      },
-                    ]}
-                  />
-                </>
-              }
+            <ScheduleActionCard
+              key={ID ?? NAME}
+              relative
+              schedule={{ ...schedule, ID: index }}
+              handleUpdate={(newAction) => handleUpdateAction(newAction, index)}
+              handleRemove={() => handleRemoveAction(index)}
             />
           )
         })}
       </Stack>
     </>
   )
-}
-
-ScheduleAction.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
 }
 
 /** @type {TabType} */
