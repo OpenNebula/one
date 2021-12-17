@@ -443,16 +443,28 @@ export const createForm =
     const defaultTransformInitialValue = (values) =>
       schemaCallback.cast(values, { stripUnknown: true })
 
-    const { transformInitialValue = defaultTransformInitialValue } = extraParams
+    const {
+      transformBeforeSubmit,
+      transformInitialValue = defaultTransformInitialValue,
+      ...restOfParams
+    } = extraParams
 
     const defaultValues = initialValues
       ? transformInitialValue(initialValues, schemaCallback)
       : schemaCallback.default()
 
+    const ensuredExtraParams = {}
+    for (const [name, param] of Object.entries(restOfParams)) {
+      const isFunction = typeof param === 'function'
+
+      ensuredExtraParams[name] = isFunction ? param(props) : param
+    }
+
     return {
       resolver: () => schemaCallback,
       fields: () => fieldsCallback,
       defaultValues,
-      ...extraParams,
+      transformBeforeSubmit,
+      ...ensuredExtraParams,
     }
   }

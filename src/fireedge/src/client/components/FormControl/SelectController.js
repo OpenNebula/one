@@ -35,17 +35,13 @@ const SelectController = memo(
     tooltip,
     fieldProps = {},
   }) => {
-    const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
+    const firstValue = values?.[0]?.value ?? ''
+    const defaultValue = multiple ? [firstValue] : firstValue
 
     const {
-      field: {
-        ref,
-        value: optionSelected = defaultValue,
-        onChange,
-        ...inputProps
-      },
+      field: { ref, value: optionSelected, onChange, ...inputProps },
       fieldState: { error },
-    } = useController({ name, control })
+    } = useController({ name, control, defaultValue })
 
     const needShrink = useMemo(
       () =>

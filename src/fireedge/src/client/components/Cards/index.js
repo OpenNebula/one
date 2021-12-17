@@ -24,6 +24,7 @@ import NetworkCard from 'client/components/Cards/NetworkCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
 import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
+import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
 import SelectCard from 'client/components/Cards/SelectCard'
 import TierCard from 'client/components/Cards/TierCard'
 import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
@@ -41,6 +42,7 @@ export {
   PolicyCard,
   ProvisionCard,
   ProvisionTemplateCard,
+  ScheduleActionCard,
   SelectCard,
   TierCard,
   VirtualMachineCard,

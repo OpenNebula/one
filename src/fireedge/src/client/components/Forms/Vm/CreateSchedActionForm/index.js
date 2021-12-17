@@ -13,7 +13,57 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PunctualForm from 'client/components/Forms/Vm/CreateSchedActionForm/PunctualForm'
-import RelativeForm from 'client/components/Forms/Vm/CreateSchedActionForm/RelativeForm'
+import {
+  timeToSecondsByPeriodicity,
+  transformStringToArgsObject,
+} from 'client/models/Scheduler'
+import { createForm } from 'client/utils'
 
-export { PunctualForm, RelativeForm }
+import {
+  SCHED_SCHEMA,
+  SCHED_FIELDS,
+  RELATIVE_SCHED_SCHEMA,
+  RELATIVE_SCHED_FIELDS,
+} from 'client/components/Forms/Vm/CreateSchedActionForm/schema'
+
+const commonTransformInitialValue = (scheduledAction, schema) => {
+  const dataToCast = {
+    ...scheduledAction,
+    // get action arguments from ARGS
+    ARGS: transformStringToArgsObject(scheduledAction),
+  }
+
+  return schema.cast(dataToCast, { context: scheduledAction })
+}
+
+const commonTransformBeforeSubmit = (formData) => {
+  const { WEEKLY, MONTHLY, YEARLY, HOURLY, PERIODIC, ARGS, ...filteredData } =
+    formData
+
+  // transform action arguments to string
+  const argValues = Object.values(ARGS ?? {})?.filter(Boolean)
+  argValues.length && (filteredData.ARGS = argValues.join(','))
+
+  return filteredData
+}
+
+const CreateSchedActionForm = createForm(SCHED_SCHEMA, SCHED_FIELDS, {
+  transformInitialValue: commonTransformInitialValue,
+  transformBeforeSubmit: commonTransformBeforeSubmit,
+})
+
+const RelativeForm = createForm(RELATIVE_SCHED_SCHEMA, RELATIVE_SCHED_FIELDS, {
+  transformInitialValue: commonTransformInitialValue,
+  transformBeforeSubmit: (formData) => {
+    const { PERIOD, TIME, ...restData } = commonTransformBeforeSubmit(formData)
+
+    return {
+      ...restData,
+      TIME: `+${timeToSecondsByPeriodicity(PERIOD, TIME)}`,
+    }
+  },
+})
+
+export { RelativeForm }
+
+export default CreateSchedActionForm

@@ -98,7 +98,7 @@ TextController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  fieldProps: PropTypes.object,
+  fieldProps: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
 }
 
 TextController.displayName = 'TextController'

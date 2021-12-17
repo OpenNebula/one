@@ -49,6 +49,25 @@ export const stringToBoolean = (str) =>
   String(str).toLowerCase() === 'yes' || +str === 1
 
 /**
+ * Returns `true` if the given value is an instance of Date.
+ *
+ * @param {*} value - The value to check
+ * @returns {boolean} true if the given value is a date
+ * @example
+ * const result = isDate(new Date()) //=> true
+ * @example
+ * const result = isDate(new Date(NaN)) //=> true
+ * @example
+ * const result = isDate('2014-02-31') //=> false
+ * @example
+ * const result = isDate({}) //=> false
+ */
+export const isDate = (value) =>
+  value instanceof Date ||
+  (typeof value === 'object' &&
+    Object.prototype.toString.call(value) === '[object Date]')
+
+/**
  * Converts the time values into "mm/dd/yyyy, hh:mm:ss" format.
  *
  * @param {number|string} time - Time to convert.
@@ -73,7 +92,7 @@ export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
  * @returns {number} - Total milliseconds.
  */
 export const dateToMilliseconds = (date) =>
-  DateTime.fromJSDate(date).toMillis() / 1000
+  Math.trunc(DateTime.fromJSDate(date).toMillis() / 1000)
 
 /**
  * Returns the epoch milliseconds of the date.
@@ -82,7 +101,7 @@ export const dateToMilliseconds = (date) =>
  * @returns {number} - Total milliseconds.
  */
 export const isoDateToMilliseconds = (date) =>
-  DateTime.fromISO(date).toMillis() / 1000
+  Math.trunc(DateTime.fromISO(date).toMillis() / 1000)
 
 /**
  * Get the diff from two times and it converts them
