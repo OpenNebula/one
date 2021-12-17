@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { DateTime } from 'luxon'
 
 import { Translate } from 'client/components/HOC'
@@ -62,34 +63,13 @@ const Timer = memo(
     prev.initial === next.initial && prev.translateWord === next.translateWord
 )
 
-/* const Timer = memo(({ initial, luxon, translateWord, interval = 1000 }) => {
-  const ensuredInitial = useMemo(() => {
-    const isLuxon = luxon || initial?.isValid
-    const val = isLuxon ? initial : timeFromMilliseconds(+initial)
-  
-    return val.toRelative()  
-  }, [])
-
-  const [timer, setTimer] = useState(() => ensuredInitial)
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      const newTimer = DateTime.local().toRelative()
-
-      newTimer !== timer && setTimer(newTimer)
-    }, interval)
-
-    return () => {
-      clearInterval(tick)
-    }
-  }, [])
-
-  /*   if (translateWord) {
-    return <Translate word={translateWord} values={[timer]} />
-  }
-
-  return <>{timer}</>
-}) */
+Timer.propTypes = {
+  initial: PropTypes.any,
+  luxon: PropTypes.bool,
+  translateWord: PropTypes.string,
+  interval: PropTypes.number,
+  finishAt: PropTypes.number,
+}
 
 Timer.displayName = 'Timer'
 
