@@ -949,7 +949,11 @@ module VCenterDriver
                 clusters = opts['selected_clusters'].each.map(&:to_i)
             end
 
-            res = { :id => [], :name => selected[:simple_name] }
+            name = VCenterDriver::VcImporter.sanitize(
+                selected[:simple_name]
+            )
+
+            res = { :id => [], :name => name }
             @info[:rollback] = []
             pair.each do |ds|
                 create(ds[:one]) do |one_object, id|
@@ -1012,7 +1016,9 @@ module VCenterDriver
             message = 'Error creating the OpenNebula resource'
             info = selected[:one]
             dsid = selected[:dsid].to_i
-            name = selected[:name]
+            name = VCenterDriver::VcImporter.sanitize(
+                selected[:name]
+            )
 
             rc = resource.allocate(info, dsid, false)
             VCenterDriver::VIHelper.check_error(rc, message)

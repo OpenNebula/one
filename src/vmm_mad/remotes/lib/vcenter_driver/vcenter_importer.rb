@@ -263,7 +263,10 @@ module VCenterDriver
 
                 cluster_list = {}
                 cpool.each do |c|
-                    cluster_list[c['ID']] = c['NAME'] if c['ID'].to_i != 0
+                    name = VCenterDriver::VcImporter.sanitize(
+                        c['NAME']
+                    )
+                    cluster_list[c['ID']] = name if c['ID'].to_i != 0
                 end
 
                 # Get OpenNebula's host pool
@@ -312,10 +315,13 @@ module VCenterDriver
 
                                 cluster_list_str = "\n"
                                 cluster_list.each do |key, value|
+                                    name = VCenterDriver::VcImporter.sanitize(
+                                        value
+                                    )
                                     cluster_list_str << "      - \e[94mID: " \
                                                      << key \
                                                      << "\e[39m - NAME: " \
-                                                     << value << "\n"
+                                                     << name << "\n"
                                 end
 
                                 STDOUT.print "\n    #{cluster_list_str}"
@@ -330,15 +336,19 @@ module VCenterDriver
                             end
                         end
 
+                        cluster_name = VCenterDriver::VcImporter.sanitize(
+                            cluster[:cluster_name]
+                        )
+
                         # Check if the OpenNebula Cluster exists, and reuse it
                         one_cluster_id ||= cluster_list
-                                           .key(cluster[:cluster_name])
+                                           .key(cluster_name)
 
                         if !one_cluster_id
                             one_cluster = VCenterDriver::VIHelper
                                           .new_one_item(OpenNebula::Cluster)
                             rc = one_cluster
-                                 .allocate((cluster[:cluster_name]).to_s)
+                                 .allocate(cluster_name.to_s)
                             if ::OpenNebula.is_error?(rc)
                                 # rubocop:disable Layout/LineLength
                                 STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
@@ -355,7 +365,7 @@ module VCenterDriver
                                            rpool,
                                            one_cluster_id)
                         # rubocop:disable Layout/LineLength
-                        STDOUT.puts "\n    OpenNebula host \e[92m#{cluster[:cluster_name]}\e[39m with"\
+                        STDOUT.puts "\n    OpenNebula host \e[92m#{cluster_name}\e[39m with"\
                                     " ID \e[94m#{one_host.id}\e[39m successfully created."
                         STDOUT.puts
                         # rubocop:enable Layout/LineLength
