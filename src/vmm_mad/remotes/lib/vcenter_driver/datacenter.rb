@@ -131,7 +131,10 @@ module VCenterDriver
 
                     # Setting host import name and
                     # replace spaces and weird characters
-                    cluster_name = (ccr['name']).to_s.tr(' ', '_')
+                    cluster_name = ccr['name'].to_s.tr(' ', '_')
+                    cluster_name = VCenterDriver::VcImporter.sanitize(
+                        cluster_name
+                    )
                     cluster_name =
                         VCenterDriver::VIHelper
                         .one_name(
@@ -202,7 +205,10 @@ module VCenterDriver
                             'summary.freeSpace'
                         )
 
-                    ds_name     = name.to_s
+                    ds_name = VCenterDriver::VcImporter.sanitize(
+                        name.to_s
+                    )
+
                     ds_total_mb = ((capacity.to_i / 1024) / 1024)
                     ds_free_mb  = ((free_space.to_i / 1024) / 1024)
                     ds_ref      = ds['_ref']
