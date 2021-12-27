@@ -128,7 +128,7 @@ module HEMHook
             end
         end
 
-        parguments
+        parguments.strip
     end
 
     def remote_host(event)
