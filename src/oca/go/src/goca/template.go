@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -71,13 +72,17 @@ func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
 // Info returns a template pool. A connection to OpenNebula is
 // performed.
 func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
+	return tc.InfoContext(context.Background(), args...)
+}
+
+func (tc *TemplatesController) InfoContext(ctx context.Context, args ...int) (*template.Pool, error) {
 
 	fArgs, err := handleArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := tc.c.Client.Call("one.templatepool.info", fArgs...)
+	response, err := tc.c.Client.CallContext(ctx, "one.templatepool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +98,11 @@ func (tc *TemplatesController) Info(args ...int) (*template.Pool, error) {
 
 // Info connects to OpenNebula and fetches the information of the Template
 func (tc *TemplateController) Info(extended, decrypt bool) (*template.Template, error) {
-	response, err := tc.c.Client.Call("one.template.info", tc.ID, extended, decrypt)
+	return tc.InfoContext(context.Background(), extended, decrypt)
+}
+
+func (tc *TemplateController) InfoContext(ctx context.Context, extended, decrypt bool) (*template.Template, error) {
+	response, err := tc.c.Client.CallContext(ctx, "one.template.info", tc.ID, extended, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +117,11 @@ func (tc *TemplateController) Info(extended, decrypt bool) (*template.Template, 
 
 // Create allocates a new template. It returns the new template ID.
 func (tc *TemplatesController) Create(template string) (int, error) {
-	response, err := tc.c.Client.Call("one.template.allocate", template)
+	return tc.CreateContext(context.Background(), template)
+}
+
+func (tc *TemplatesController) CreateContext(ctx context.Context, template string) (int, error) {
+	response, err := tc.c.Client.CallContext(ctx, "one.template.allocate", template)
 	if err != nil {
 		return -1, err
 	}
@@ -121,40 +134,64 @@ func (tc *TemplatesController) Create(template string) (int, error) {
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (tc *TemplateController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := tc.c.Client.Call("one.template.update", tc.ID, tpl, uType)
+	return tc.UpdateContext(context.Background(), tpl, uType)
+}
+
+func (tc *TemplateController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.update", tc.ID, tpl, uType)
 	return err
 }
 
 // Chown changes the owner/group of a template. If uid or gid is -1 it will not
 // change
 func (tc *TemplateController) Chown(uid, gid int) error {
-	_, err := tc.c.Client.Call("one.template.chown", tc.ID, uid, gid)
+	return tc.ChownContext(context.Background(), uid, gid)
+}
+
+func (tc *TemplateController) ChownContext(ctx context.Context, uid, gid int) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.chown", tc.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a template. If any perm is -1 it will not
 // change
 func (tc *TemplateController) Chmod(perm shared.Permissions) error {
+	return tc.ChmodContext(context.Background(), perm)
+}
+
+func (tc *TemplateController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{tc.ID}, perm.ToArgs()...)
-	_, err := tc.c.Client.Call("one.template.chmod", args...)
+	_, err := tc.c.Client.CallContext(ctx, "one.template.chmod", args...)
 	return err
 }
 
 // Rename changes the name of template
 func (tc *TemplateController) Rename(newName string) error {
-	_, err := tc.c.Client.Call("one.template.rename", tc.ID, newName)
+	return tc.RenameContext(context.Background(), newName)
+}
+
+func (tc *TemplateController) RenameContext(ctx context.Context, newName string) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.rename", tc.ID, newName)
 	return err
 }
 
 // Delete will remove the template from OpenNebula.
 func (tc *TemplateController) Delete() error {
-	_, err := tc.c.Client.Call("one.template.delete", tc.ID)
+	return tc.DeleteContext(context.Background())
+}
+
+func (tc *TemplateController) DeleteContext(ctx context.Context) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.delete", tc.ID)
 	return err
 }
 
 // Instantiate will instantiate the template
 func (tc *TemplateController) Instantiate(name string, pending bool, extra string, clone bool) (int, error) {
-	response, err := tc.c.Client.Call("one.template.instantiate", tc.ID, name, pending, extra, clone)
+	return tc.InstantiateContext(context.Background(), name, pending, extra, clone)
+}
+
+func (tc *TemplateController) InstantiateContext(ctx context.Context, name string, pending bool, extra string, clone bool) (int, error) {
+	response, err := tc.c.Client.CallContext(ctx, "one.template.instantiate", tc.ID, name, pending, extra, clone)
 
 	if err != nil {
 		return -1, err
@@ -166,18 +203,30 @@ func (tc *TemplateController) Instantiate(name string, pending bool, extra strin
 // Clone an existing template. If recursive is true it will clone the template
 // plus any image defined in DISK. The new IMAGE_ID is set into each DISK.
 func (tc *TemplateController) Clone(name string, recursive bool) error {
-	_, err := tc.c.Client.Call("one.template.clone", tc.ID, name, recursive)
+	return tc.CloneContext(context.Background(), name, recursive)
+}
+
+func (tc *TemplateController) CloneContext(ctx context.Context, name string, recursive bool) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.clone", tc.ID, name, recursive)
 	return err
 }
 
 // Lock locks the template following block level. See levels in locks.go.
 func (tc *TemplateController) Lock(level shared.LockLevel) error {
-	_, err := tc.c.Client.Call("one.template.lock", tc.ID, level)
+	return tc.LockContext(context.Background(), level)
+}
+
+func (tc *TemplateController) LockContext(ctx context.Context, level shared.LockLevel) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.lock", tc.ID, level)
 	return err
 }
 
 // Unlock unlocks the template.
 func (tc *TemplateController) Unlock() error {
-	_, err := tc.c.Client.Call("one.template.unlock", tc.ID)
+	return tc.UnlockContext(context.Background())
+}
+
+func (tc *TemplateController) UnlockContext(ctx context.Context) error {
+	_, err := tc.c.Client.CallContext(ctx, "one.template.unlock", tc.ID)
 	return err
 }

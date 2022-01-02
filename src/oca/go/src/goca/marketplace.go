@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -72,13 +73,17 @@ func (c *MarketPlacesController) ByName(name string) (int, error) {
 // Info returns a marketplace pool. A connection to OpenNebula is
 // performed.
 func (mc *MarketPlacesController) Info(args ...int) (*marketplace.Pool, error) {
+	return mc.InfoContext(context.Background(), args...)
+}
+
+func (mc *MarketPlacesController) InfoContext(ctx context.Context, args ...int) (*marketplace.Pool, error) {
 
 	fArgs, err := handleArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := mc.c.Client.Call("one.marketpool.info", fArgs...)
+	response, err := mc.c.Client.CallContext(ctx, "one.marketpool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +99,11 @@ func (mc *MarketPlacesController) Info(args ...int) (*marketplace.Pool, error) {
 
 // Info retrieves information for the marketplace.
 func (mc *MarketPlaceController) Info(decrypt bool) (*marketplace.MarketPlace, error) {
-	response, err := mc.c.Client.Call("one.market.info", mc.ID, decrypt)
+	return mc.InfoContext(context.Background(), decrypt)
+}
+
+func (mc *MarketPlaceController) InfoContext(ctx context.Context, decrypt bool) (*marketplace.MarketPlace, error) {
+	response, err := mc.c.Client.CallContext(ctx, "one.market.info", mc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +118,11 @@ func (mc *MarketPlaceController) Info(decrypt bool) (*marketplace.MarketPlace, e
 // Create allocates a new marketplace. It returns the new marketplace ID.
 // * tpl: template of the marketplace
 func (mc *MarketPlacesController) Create(tpl string) (int, error) {
-	response, err := mc.c.Client.Call("one.market.allocate", tpl)
+	return mc.CreateContext(context.Background(), tpl)
+}
+
+func (mc *MarketPlacesController) CreateContext(ctx context.Context, tpl string) (int, error) {
+	response, err := mc.c.Client.CallContext(ctx, "one.market.allocate", tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -119,7 +132,11 @@ func (mc *MarketPlacesController) Create(tpl string) (int, error) {
 
 // Delete deletes the given marketplace from the pool.
 func (mc *MarketPlaceController) Delete() error {
-	_, err := mc.c.Client.Call("one.market.delete", mc.ID)
+	return mc.DeleteContext(context.Background())
+}
+
+func (mc *MarketPlaceController) DeleteContext(ctx context.Context) error {
+	_, err := mc.c.Client.CallContext(ctx, "one.market.delete", mc.ID)
 	return err
 }
 
@@ -128,15 +145,23 @@ func (mc *MarketPlaceController) Delete() error {
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (mc *MarketPlaceController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := mc.c.Client.Call("one.market.update", mc.ID, tpl, uType)
+	return mc.UpdateContext(context.Background(), tpl, uType)
+}
+
+func (mc *MarketPlaceController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := mc.c.Client.CallContext(ctx, "one.market.update", mc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a marketplace
 func (mc *MarketPlaceController) Chmod(perm shared.Permissions) error {
+	return mc.ChmodContext(context.Background(), perm)
+}
+
+func (mc *MarketPlaceController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{mc.ID}, perm.ToArgs()...)
 
-	_, err := mc.c.Client.Call("one.market.chmod", args...)
+	_, err := mc.c.Client.CallContext(ctx, "one.market.chmod", args...)
 	return err
 }
 
@@ -144,13 +169,21 @@ func (mc *MarketPlaceController) Chmod(perm shared.Permissions) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (mc *MarketPlaceController) Chown(userID, groupID int) error {
-	_, err := mc.c.Client.Call("one.market.chown", mc.ID, userID, groupID)
+	return mc.ChownContext(context.Background(), userID, groupID)
+}
+
+func (mc *MarketPlaceController) ChownContext(ctx context.Context, userID, groupID int) error {
+	_, err := mc.c.Client.CallContext(ctx, "one.market.chown", mc.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a marketplace.
 // * newName: The new name.
 func (mc *MarketPlaceController) Rename(newName string) error {
-	_, err := mc.c.Client.Call("one.market.rename", mc.ID, newName)
+	return mc.RenameContext(context.Background(), newName)
+}
+
+func (mc *MarketPlaceController) RenameContext(ctx context.Context, newName string) error {
+	_, err := mc.c.Client.CallContext(ctx, "one.market.rename", mc.ID, newName)
 	return err
 }

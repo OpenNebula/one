@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -74,14 +75,17 @@ func (dc *DocumentsController) ByName(name string, args ...int) (int, error) {
 // Info returns a document pool. A connection to OpenNebula is
 // performed.
 func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
+	return dc.InfoContext(context.Background(), args...)
+}
 
+func (dc *DocumentsController) InfoContext(ctx context.Context, args ...int) (*document.Pool, error) {
 	fArgs, err := handleArgs(args)
 	if err != nil {
 		return nil, err
 	}
 	fArgs = append(fArgs, dc.dType)
 
-	response, err := dc.c.Client.Call("one.documentpool.info", fArgs...)
+	response, err := dc.c.Client.CallContext(ctx, "one.documentpool.info", fArgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +101,11 @@ func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
 
 // Info retrieves information for the document.
 func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
-	response, err := dc.c.Client.Call("one.document.info", dc.ID, decrypt)
+	return dc.InfoContext(context.Background(), decrypt)
+}
+
+func (dc *DocumentController) InfoContext(ctx context.Context, decrypt bool) (*document.Document, error) {
+	response, err := dc.c.Client.CallContext(ctx, "one.document.info", dc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +120,11 @@ func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
 
 // Create allocates a new document. It returns the new document ID.
 func (dc *DocumentsController) Create(tpl string) (int, error) {
-	response, err := dc.c.Client.Call("one.document.allocate", tpl)
+	return dc.CreateContext(context.Background(), tpl)
+}
+
+func (dc *DocumentsController) CreateContext(ctx context.Context, tpl string) (int, error) {
+	response, err := dc.c.Client.CallContext(ctx, "one.document.allocate", tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -123,13 +135,21 @@ func (dc *DocumentsController) Create(tpl string) (int, error) {
 // Clone clones an existing document.
 // * newName: Name for the new document.
 func (dc *DocumentController) Clone(newName string) error {
-	_, err := dc.c.Client.Call("one.document.clone", dc.ID, newName)
+	return dc.CloneContext(context.Background(), newName)
+}
+
+func (dc *DocumentController) CloneContext(ctx context.Context, newName string) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.clone", dc.ID, newName)
 	return err
 }
 
 // Delete deletes the given document from the pool.
 func (dc *DocumentController) Delete() error {
-	_, err := dc.c.Client.Call("one.document.delete", dc.ID)
+	return dc.DeleteContext(context.Background())
+}
+
+func (dc *DocumentController) DeleteContext(ctx context.Context) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.delete", dc.ID)
 	return err
 }
 
@@ -138,14 +158,22 @@ func (dc *DocumentController) Delete() error {
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := dc.c.Client.Call("one.document.update", dc.ID, tpl, uType)
+	return dc.UpdateContext(context.Background(), tpl, uType)
+}
+
+func (dc *DocumentController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.update", dc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a document.
 func (dc *DocumentController) Chmod(perm shared.Permissions) error {
+	return dc.ChmodContext(context.Background(), perm)
+}
+
+func (dc *DocumentController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
-	_, err := dc.c.Client.Call("one.document.chmod", args...)
+	_, err := dc.c.Client.CallContext(ctx, "one.document.chmod", args...)
 	return err
 }
 
@@ -153,25 +181,41 @@ func (dc *DocumentController) Chmod(perm shared.Permissions) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (dc *DocumentController) Chown(userID, groupID int) error {
-	_, err := dc.c.Client.Call("one.document.chown", dc.ID, userID, groupID)
+	return dc.ChownContext(context.Background(), userID, groupID)
+}
+
+func (dc *DocumentController) ChownContext(ctx context.Context, userID, groupID int) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.chown", dc.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a document.
 // * newName: The new name.
 func (dc *DocumentController) Rename(newName string) error {
-	_, err := dc.c.Client.Call("one.document.rename", dc.ID, newName)
+	return dc.RenameContext(context.Background(), newName)
+}
+
+func (dc *DocumentController) RenameContext(ctx context.Context, newName string) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.rename", dc.ID, newName)
 	return err
 }
 
 // Lock locks the document following lock level. See levels in locks.go.
 func (dc *DocumentController) Lock(level shared.LockLevel) error {
-	_, err := dc.c.Client.Call("one.document.lock", dc.ID, level)
+	return dc.LockContext(context.Background(), level)
+}
+
+func (dc *DocumentController) LockContext(ctx context.Context, level shared.LockLevel) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.lock", dc.ID, level)
 	return err
 }
 
 // Unlock unlocks the document.
 func (dc *DocumentController) Unlock() error {
-	_, err := dc.c.Client.Call("one.document.unlock", dc.ID)
+	return dc.UnlockContext(context.Background())
+}
+
+func (dc *DocumentController) UnlockContext(ctx context.Context) error {
+	_, err := dc.c.Client.CallContext(ctx, "one.document.unlock", dc.ID)
 	return err
 }

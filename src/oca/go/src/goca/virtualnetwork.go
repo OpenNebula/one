@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -70,6 +71,10 @@ func (c *VirtualNetworksController) ByName(name string, args ...int) (int, error
 
 // Info returns a virtualnetwork pool.
 func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
+	return vc.InfoContext(context.Background(), args...)
+}
+
+func (vc *VirtualNetworksController) InfoContext(ctx context.Context, args ...int) (*vn.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -89,7 +94,7 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := vc.c.Client.Call("one.vnpool.info", who, start, end)
+	response, err := vc.c.Client.CallContext(ctx, "one.vnpool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +110,11 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 
 // Info retrieves information for the virtual network.
 func (vc *VirtualNetworkController) Info(decrypt bool) (*vn.VirtualNetwork, error) {
-	response, err := vc.c.Client.Call("one.vn.info", vc.ID, decrypt)
+	return vc.InfoContext(context.Background(), decrypt)
+}
+
+func (vc *VirtualNetworkController) InfoContext(ctx context.Context, decrypt bool) (*vn.VirtualNetwork, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vn.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +130,11 @@ func (vc *VirtualNetworkController) Info(decrypt bool) (*vn.VirtualNetwork, erro
 // * tpl: template of the virtualnetwork
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
 func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (int, error) {
-	response, err := vc.c.Client.Call("one.vn.allocate", tpl, clusterID)
+	return vc.CreateContext(context.Background(), tpl, clusterID)
+}
+
+func (vc *VirtualNetworksController) CreateContext(ctx context.Context, tpl string, clusterID int) (int, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vn.allocate", tpl, clusterID)
 	if err != nil {
 		return -1, err
 	}
@@ -131,35 +144,55 @@ func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (int, err
 
 // Delete deletes the given virtual network from the pool.
 func (vc *VirtualNetworkController) Delete() error {
-	_, err := vc.c.Client.Call("one.vn.delete", vc.ID)
+	return vc.DeleteContext(context.Background())
+}
+
+func (vc *VirtualNetworkController) DeleteContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.delete", vc.ID)
 	return err
 }
 
 // AddAR adds address ranges to a virtual network.
 // * tpl: template of the address ranges to add. Syntax can be the usual attribute=value or XML
 func (vc *VirtualNetworkController) AddAR(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.add_ar", vc.ID, tpl)
+	return vc.AddARContext(context.Background(), tpl)
+}
+
+func (vc *VirtualNetworkController) AddARContext(ctx context.Context, tpl string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.add_ar", vc.ID, tpl)
 	return err
 }
 
 // RmAR removes an address range from a virtual network.
 // * arID: ID of the address range to remove.
 func (vc *VirtualNetworkController) RmAR(arID int) error {
-	_, err := vc.c.Client.Call("one.vn.rm_ar", vc.ID, arID)
+	return vc.RmARContext(context.Background(), arID)
+}
+
+func (vc *VirtualNetworkController) RmARContext(ctx context.Context, arID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.rm_ar", vc.ID, arID)
 	return err
 }
 
 // UpdateAR updates the attributes of an address range.
 // * tpl: template of the address ranges to update. Syntax can be the usual attribute=value or XML
 func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.update_ar", vc.ID, tpl)
+	return vc.UpdateARContext(context.Background(), tpl)
+}
+
+func (vc *VirtualNetworkController) UpdateARContext(ctx context.Context, tpl string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.update_ar", vc.ID, tpl)
 	return err
 }
 
 // Reserve reserve network addresses. It returns the Reserved Virtual Network ID
 // * tpl: Template
 func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
-	response, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
+	return vc.ReserveContext(context.Background(), tpl)
+}
+
+func (vc *VirtualNetworkController) ReserveContext(ctx context.Context, tpl string) (int, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vn.reserve", vc.ID, tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -170,21 +203,33 @@ func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
 // FreeAR frees a reserved address range from a virtual network.
 // * arID: ID of the address range to free.
 func (vc *VirtualNetworkController) FreeAR(arID int) error {
-	_, err := vc.c.Client.Call("one.vn.free_ar", vc.ID, arID)
+	return vc.FreeARContext(context.Background(), arID)
+}
+
+func (vc *VirtualNetworkController) FreeARContext(ctx context.Context, arID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.free_ar", vc.ID, arID)
 	return err
 }
 
 // Hold holds a virtual network Lease as used.
 // * tpl: template of the lease to hold
 func (vc *VirtualNetworkController) Hold(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.hold", vc.ID, tpl)
+	return vc.HoldContext(context.Background(), tpl)
+}
+
+func (vc *VirtualNetworkController) HoldContext(ctx context.Context, tpl string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.hold", vc.ID, tpl)
 	return err
 }
 
 // Release releases a virtual network Lease on hold.
 // * tpl: template of the lease to release
 func (vc *VirtualNetworkController) Release(tpl string) error {
-	_, err := vc.c.Client.Call("one.vn.release", vc.ID, tpl)
+	return vc.ReleaseContext(context.Background(), tpl)
+}
+
+func (vc *VirtualNetworkController) ReleaseContext(ctx context.Context, tpl string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.release", vc.ID, tpl)
 	return err
 }
 
@@ -193,14 +238,22 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.Call("one.vn.update", vc.ID, tpl, uType)
+	return vc.UpdateContext(context.Background(), tpl, uType)
+}
+
+func (vc *VirtualNetworkController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.update", vc.ID, tpl, uType)
 	return err
 }
 
 // Chmod changes the permission bits of a virtual network.
 func (vc *VirtualNetworkController) Chmod(perm shared.Permissions) error {
+	return vc.ChmodContext(context.Background(), perm)
+}
+
+func (vc *VirtualNetworkController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
-	_, err := vc.c.Client.Call("one.vn.chmod", args...)
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.chmod", args...)
 	return err
 }
 
@@ -208,26 +261,42 @@ func (vc *VirtualNetworkController) Chmod(perm shared.Permissions) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (vc *VirtualNetworkController) Chown(userID, groupID int) error {
-	_, err := vc.c.Client.Call("one.vn.chown", vc.ID, userID, groupID)
+	return vc.ChownContext(context.Background(), userID, groupID)
+}
+
+func (vc *VirtualNetworkController) ChownContext(ctx context.Context, userID, groupID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.chown", vc.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a virtual network.
 // * newName: The new name.
 func (vc *VirtualNetworkController) Rename(newName string) error {
-	_, err := vc.c.Client.Call("one.vn.rename", vc.ID, newName)
+	return vc.RenameContext(context.Background(), newName)
+}
+
+func (vc *VirtualNetworkController) RenameContext(ctx context.Context, newName string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.rename", vc.ID, newName)
 	return err
 }
 
 // Lock locks the vn following lock level. See levels in locks.go.
 func (vc *VirtualNetworkController) Lock(level shared.LockLevel) error {
-	_, err := vc.c.Client.Call("one.vn.lock", vc.ID, level)
+	return vc.LockContext(context.Background(), level)
+}
+
+func (vc *VirtualNetworkController) LockContext(ctx context.Context, level shared.LockLevel) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.lock", vc.ID, level)
 	return err
 }
 
 // Unlock unlocks the vn.
 func (vc *VirtualNetworkController) Unlock() error {
-	_, err := vc.c.Client.Call("one.vn.unlock", vc.ID)
+	return vc.UnlockContext(context.Background())
+}
+
+func (vc *VirtualNetworkController) UnlockContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.unlock", vc.ID)
 	return err
 }
 
