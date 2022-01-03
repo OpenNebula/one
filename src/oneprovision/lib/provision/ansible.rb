@@ -66,7 +66,11 @@ module OneProvision
 
             # Checks ansible installed version
             def check_ansible_version
-                version = Gem::Version.new(`ansible --version`.split[1])
+                # Get just first line with Ansible version
+                version = `ansible --version`.split("\n")[0]
+
+                version = version.match(/\d+[.]\d+[.]\d+/)
+                version = Gem::Version.new(version)
 
                 if (version < ANSIBLE_VERSION[0]) ||
                    (version >= ANSIBLE_VERSION[1])
