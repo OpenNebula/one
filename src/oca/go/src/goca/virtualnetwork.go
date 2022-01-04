@@ -44,9 +44,13 @@ func (c *Controller) VirtualNetwork(id int) *VirtualNetworkController {
 
 // ByName returns a VirtualNetwork ID from name
 func (c *VirtualNetworksController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *VirtualNetworksController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	virtualNetworkPool, err := c.Info(args...)
+	virtualNetworkPool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

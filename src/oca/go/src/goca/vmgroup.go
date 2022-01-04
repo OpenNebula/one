@@ -43,9 +43,13 @@ func (c *Controller) VMGroup(id int) *VMGroupController {
 
 // ByName returns a VMGroup ID from name
 func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *VMGroupsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	vmGroupPool, err := c.Info(args...)
+	vmGroupPool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

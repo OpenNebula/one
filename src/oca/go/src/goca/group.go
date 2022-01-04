@@ -43,9 +43,13 @@ func (c *Controller) Group(id int) *GroupController {
 
 // ByName returns a Group ID from name
 func (c *GroupsController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *GroupsController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	groupPool, err := c.Info()
+	groupPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

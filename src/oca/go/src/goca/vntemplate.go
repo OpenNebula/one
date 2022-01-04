@@ -46,9 +46,13 @@ func (c *Controller) VNTemplate(id int) *VNTemplateController {
 
 // ByName returns a VNTemplate id from name
 func (c *VNTemplatesController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *VNTemplatesController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	vnTemplatePool, err := c.Info()
+	vnTemplatePool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

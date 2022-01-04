@@ -43,9 +43,13 @@ func (c *Controller) Cluster(id int) *ClusterController {
 
 // ByName returns a Cluster ID from name
 func (c *ClustersController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *ClustersController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	clusterPool, err := c.Info(false)
+	clusterPool, err := c.InfoContext(ctx, false)
 	if err != nil {
 		return -1, err
 	}

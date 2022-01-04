@@ -44,9 +44,13 @@ func (c *Controller) Template(id int) *TemplateController {
 
 // ByName returns a Template by Name
 func (c *TemplatesController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *TemplatesController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	templatePool, err := c.Info(args...)
+	templatePool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

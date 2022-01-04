@@ -44,9 +44,13 @@ func (c *Controller) Datastore(id int) *DatastoreController {
 
 // ByName returns a Datastore ID from name
 func (c *Controller) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *Controller) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	datastorePool, err := (&DatastoresController{c}).Info()
+	datastorePool, err := (&DatastoresController{c}).InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

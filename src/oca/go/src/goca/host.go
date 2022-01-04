@@ -43,9 +43,13 @@ func (c *Controller) Host(id int) *HostController {
 
 // ByName finds a Host ID from name
 func (c *HostsController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *HostsController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	hostPool, err := c.Info()
+	hostPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

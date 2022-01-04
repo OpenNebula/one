@@ -52,9 +52,13 @@ func (ic *ImageController) Snapshot(id int) *ImageSnapshotController {
 
 // ByName returns an Image ID from name
 func (c *ImagesController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *ImagesController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	imagePool, err := c.Info(args...)
+	imagePool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

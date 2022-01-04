@@ -44,9 +44,13 @@ func (c *Controller) VirtualRouter(id int) *VirtualRouterController {
 
 // VirtualRouterByName returns a VirtualRouter By name
 func (c *Controller) VirtualRouterByName(name string, args ...int) (int, error) {
-	var id int
+	return c.VirtualRouterByNameContext(context.Background(), name, args...)
+}
 
-	vrouterPool, err := (&VirtualRoutersController{c}).Info(args...)
+func (c *Controller) VirtualRouterByNameContext(ctx context.Context, name string, args ...int) (int, error) {
+
+	vrouterPool, err := (&VirtualRoutersController{c}).InfoContext(ctx, args...)
+	var id int
 	if err != nil {
 		return -1, err
 	}

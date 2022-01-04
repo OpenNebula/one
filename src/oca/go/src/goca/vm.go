@@ -58,9 +58,13 @@ func (vc *VMController) DiskContext(ctx context.Context, id int) *VMDiskControll
 
 // ByName returns VM ID from name
 func (c *VMsController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *VMsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	vmPool, err := c.Info(args...)
+	vmPool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

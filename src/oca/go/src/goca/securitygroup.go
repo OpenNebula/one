@@ -44,9 +44,13 @@ func (c *Controller) SecurityGroup(id int) *SecurityGroupController {
 
 // ByName returns a SecurityGroup by Name
 func (c *SecurityGroupsController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *SecurityGroupsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	secgroupPool, err := c.Info(args...)
+	secgroupPool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

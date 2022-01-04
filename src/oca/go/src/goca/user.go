@@ -54,9 +54,13 @@ func (c *Controller) UserByName(name string) *UserByNameController {
 
 // ByName returns a User by Name
 func (c *UsersController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *UsersController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	userPool, err := c.Info()
+	userPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

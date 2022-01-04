@@ -44,9 +44,13 @@ func (c *Controller) Hook(id int) *HookController {
 
 // ByName finds a Hook ID from name
 func (c *HooksController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *HooksController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	hookPool, err := c.Info()
+	hookPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

@@ -47,9 +47,13 @@ func (c *Controller) Document(id int) *DocumentController {
 
 // ByName returns a Document ID from name
 func (dc *DocumentsController) ByName(name string, args ...int) (int, error) {
+	return dc.ByNameContext(context.Background(), name, args...)
+}
+
+func (dc *DocumentsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	documentPool, err := dc.Info(args...)
+	documentPool, err := dc.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

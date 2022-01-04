@@ -43,9 +43,13 @@ func (c *Controller) VDC(id int) *VDCController {
 
 // ByName returns a Vdc ID from name
 func (c *VDCsController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *VDCsController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	vdcPool, err := c.Info()
+	vdcPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}

@@ -44,9 +44,13 @@ func (c *Controller) MarketPlaceApp(id int) *MarketPlaceAppController {
 
 // ByName returns a MarketPlace ID from name
 func (c *MarketPlaceAppsController) ByName(name string, args ...int) (int, error) {
+	return c.ByNameContext(context.Background(), name, args...)
+}
+
+func (c *MarketPlaceAppsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
-	marketAppPool, err := c.Info(args...)
+	marketAppPool, err := c.InfoContext(ctx, args...)
 	if err != nil {
 		return -1, err
 	}

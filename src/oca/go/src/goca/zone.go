@@ -43,9 +43,13 @@ func (c *Controller) Zone(id int) *ZoneController {
 
 // ByName returns a zone id from name
 func (c *ZonesController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+func (c *ZonesController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	zonePool, err := c.Info()
+	zonePool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}
