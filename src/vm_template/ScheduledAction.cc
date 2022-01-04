@@ -295,15 +295,12 @@ static int days_in_period(SchedAction::Repeat& r, int month, int year)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool SchedAction::is_due(time_t stime)
+time_t SchedAction::get_time(time_t stime)
 {
-    time_t action_time, done_time, origin = 0;
-    int repeat;
+    time_t action_time, origin = 0;
 
     std::istringstream iss;
 
-    bool has_done   = vector_value("DONE", done_time) == 0;
-    bool has_repeat = vector_value("REPEAT", repeat) == 0;
     std::string action_time_s = vector_value("TIME");
 
     if ( action_time_s[0] == '+' )
@@ -318,13 +315,30 @@ bool SchedAction::is_due(time_t stime)
 
     if (iss.fail() || !iss.eof())
     {
-        return false;
+        return -1;
     }
 
     action_time += origin;
 
-    return ((!has_done || done_time < action_time || has_repeat)
-                && action_time < time(0));
+    return action_time;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool SchedAction::is_due(time_t stime)
+{
+    time_t action_time, done_time, origin = 0;
+    int repeat;
+
+    bool has_done   = vector_value("DONE", done_time) == 0;
+    bool has_repeat = vector_value("REPEAT", repeat) == 0;
+
+    action_time = get_time(stime);
+
+    return (action_time != -1)
+           && ((!has_done || done_time < action_time || has_repeat)
+           && action_time < time(0));
 }
 
 /* -------------------------------------------------------------------------- */
