@@ -47,7 +47,7 @@ GEM
     configparser (0.1.7)
     curb (0.9.11)
     daemons (1.4.1)
-    dalli (3.0.2)
+    dalli (2.7.10)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     eventmachine (1.2.7)
