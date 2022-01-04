@@ -386,7 +386,7 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisk::system_ds_size() const
+long long VirtualMachineDisk::system_ds_size(bool include_snapshots) const
 {
 	long long disk_sz, snapshot_sz = 0;
 
@@ -396,7 +396,8 @@ long long VirtualMachineDisk::system_ds_size() const
 	}
 
 	//Volatile disks don't have snapshots
-	if (vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0)
+	if (include_snapshots &&
+        vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0)
 	{
 		disk_sz += snapshot_sz;
 	}
@@ -629,25 +630,25 @@ const char * VirtualMachineDisks::DISK_ID_NAME = "DISK_ID";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachineDisks::system_ds_size()
+long long VirtualMachineDisks::system_ds_size(bool include_snapshots)
 {
     long long size = 0;
 
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
-		size += (*disk)->system_ds_size();
+		size += (*disk)->system_ds_size(include_snapshots);
     }
 
     return size;
 }
 
-long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl)
+long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl,
+                                              bool include_snapshots)
 {
     VirtualMachineDisks disks(ds_tmpl, false);
 
-    return disks.system_ds_size();
+    return disks.system_ds_size(include_snapshots);
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1053,7 +1054,7 @@ void VirtualMachineDisks::clear_cloning_image_id(int iid,
         {
             (*disk)->clear_cloning();
             (*disk)->replace("SOURCE", source);
-		
+
             if ( !format.empty() )
 	    {
 		(*disk)->replace("DRIVER", format);

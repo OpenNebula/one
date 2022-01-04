@@ -167,6 +167,19 @@
                 </xs:complexType>
               </xs:element>
               <xs:element name="SECURITY_GROUP_RULE" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ACTION" type="xs:string"  minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ACTIVE" type="xs:string"  minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="HYPERVISOR_ID" type="xs:string"/>
+                    <xs:element name="NAME" type="xs:string"/>
+                    <xs:element name="SNAPSHOT_ID" type="xs:string"/>
+                    <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
+                    <xs:element name="TIME" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="SPICE_OPTIONS" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SUBMIT_ON_HOLD" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="TEMPLATE_ID" type="xs:string"  minOccurs="0" maxOccurs="1"/>

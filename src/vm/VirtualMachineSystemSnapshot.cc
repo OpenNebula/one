@@ -25,7 +25,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 //
-int VirtualMachine::new_snapshot(string& name, int& snap_id)
+VectorAttribute* VirtualMachine::new_snapshot(string& name, int& snap_id)
 {
     int num_snaps;
     int id;
@@ -65,9 +65,19 @@ int VirtualMachine::new_snapshot(string& name, int& snap_id)
     snap->replace("ACTIVE", "YES");
     snap->replace("ACTION", "CREATE");
 
+    // Compute snapshot max system DS size (memory size + disks size)
+    int system_disk_size = disks.system_ds_size(false);
+
+    int mem_size = 0;
+    obj_template->get("MEMORY", mem_size);
+
+    system_disk_size += mem_size;
+
+    snap->replace("SYSTEM_DISK_SIZE", system_disk_size);
+
     obj_template->set(snap);
 
-    return 0;
+    return snap;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -173,6 +183,26 @@ string VirtualMachine::get_snapshot_action() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+VectorAttribute* VirtualMachine::get_active_snapshot() const
+{
+    vector<VectorAttribute *> snaps;
+
+    obj_template->get("SNAPSHOT", snaps);
+
+    for ( auto snap : snaps )
+    {
+        if ( snap->vector_value("ACTIVE") == "YES" )
+        {
+            return snap;
+        }
+    }
+
+    return nullptr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::clear_active_snapshot()
 {
     vector<VectorAttribute *> snaps;
@@ -221,3 +251,20 @@ void VirtualMachine::delete_snapshots()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+long long VirtualMachine::get_snapshots_system_size(Template *tmpl)
+{
+    long long total_size = 0, size = 0;
+    vector<VectorAttribute *> snaps;
+
+    tmpl->get("SNAPSHOT", snaps);
+
+    for ( auto snap : snaps )
+    {
+        if ( snap->vector_value("SYSTEM_DISK_SIZE", size) == 0 )
+        {
+            total_size += size;
+        }
+    }
+
+    return total_size;
+}

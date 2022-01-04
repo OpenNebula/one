@@ -320,9 +320,10 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
+     *  @param include_snapshots count also disk snapshot size
      *  @return the space required by this disk in the system datastore
      */
-    long long system_ds_size() const;
+    long long system_ds_size(bool include_snapshots) const;
 
     /**
      *  @return the space required by this disk in the image datastore
@@ -465,11 +466,12 @@ public:
     /**
      *  Computes the storage needed in the system datastore. The static version
      *  uses the disk definitions in the template (first argument)
+     *    @param include_snapshots count also disk snapshot size
      *    @return the total disk SIZE that the VM instance needs in the system DS
      */
-    long long system_ds_size();
+    long long system_ds_size(bool include_snapshots);
 
-    static long long system_ds_size(Template * ds_tmpl);
+    static long long system_ds_size(Template * ds_tmpl, bool include_snapshots);
 
     /**
      *  Completes the information of the disks (IMAGE_ID, SIZE...)

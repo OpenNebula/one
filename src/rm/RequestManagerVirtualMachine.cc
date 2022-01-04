@@ -2261,11 +2261,15 @@ void VirtualMachineSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
+    PoolObjectAuth   vm_perms;
+
     int     rc;
     int     snap_id;
 
     int     id   = xmlrpc_c::value_int(paramList.getInt(1));
     string  name = xmlrpc_c::value_string(paramList.getString(2));
+
+    VectorAttribute* snap = nullptr;
 
     // -------------------------------------------------------------------------
     // Authorize the operation
@@ -2287,9 +2291,30 @@ void VirtualMachineSnapshotCreate::request_execute(
 
             return;
         }
+
+        // get quota deltas
+        snap = vm->new_snapshot(name, snap_id);
+        snap = snap->clone();
+
+        vm->get_permissions(vm_perms);
     }
     else
     {
+        return;
+    }
+
+    Template quota_tmpl;
+
+    quota_tmpl.set(snap);
+    quota_tmpl.add("MEMORY", 0);
+    quota_tmpl.add("CPU", 0);
+    quota_tmpl.add("VMS", 0);
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg) )
+    {
+        failure_response(AUTHORIZATION, att_quota);
         return;
     }
 
@@ -2297,6 +2322,7 @@ void VirtualMachineSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
+        quota_rollback(&quota_tmpl, Quotas::VM, att);
         failure_response(ACTION, att);
     }
     else

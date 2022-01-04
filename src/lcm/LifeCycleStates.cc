@@ -1385,24 +1385,45 @@ void LifeCycleManager::trigger_snapshot_create_success(int vid)
 void LifeCycleManager::trigger_snapshot_create_failure(int vid)
 {
     trigger([this, vid] {
-        auto vm = vmpool->get(vid);
+        int vm_uid, vm_gid;
+        VectorAttribute* snap = nullptr;
 
-        if ( vm == nullptr )
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+            {
+                vm_uid = vm->get_uid();
+                vm_gid = vm->get_gid();
+
+                snap = vm->get_active_snapshot();
+
+                if (snap)
+                {
+                    snap = snap->clone();
+                }
+
+                vm->delete_active_snapshot();
+
+                vm->set_state(VirtualMachine::RUNNING);
+
+                vmpool->update(vm.get());
+            }
+            else
+            {
+                vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+            }
+        }
+        else
         {
             return;
         }
 
-        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+        if (snap)
         {
-            vm->delete_active_snapshot();
+            Template quota_tmpl;
+            quota_tmpl.set(snap);
 
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vmpool->update(vm.get());
-        }
-        else
-        {
-            vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }
@@ -1451,24 +1472,45 @@ void LifeCycleManager::trigger_snapshot_revert_failure(int vid)
 void LifeCycleManager::trigger_snapshot_delete_success(int vid)
 {
     trigger([this, vid] {
-        auto vm = vmpool->get(vid);
+        int vm_uid, vm_gid;
+        VectorAttribute* snap = nullptr;
 
-        if ( vm == nullptr )
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+            {
+                vm_uid = vm->get_uid();
+                vm_gid = vm->get_gid();
+
+                snap = vm->get_active_snapshot();
+
+                if (snap)
+                {
+                    snap = snap->clone();
+                }
+
+                vm->delete_active_snapshot();
+
+                vm->set_state(VirtualMachine::RUNNING);
+
+                vmpool->update(vm.get());
+            }
+            else
+            {
+                vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+            }
+        }
+        else
         {
             return;
         }
 
-        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+        if (snap)
         {
-            vm->delete_active_snapshot();
+            Template quota_tmpl;
+            quota_tmpl.set(snap);
 
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vmpool->update(vm.get());
-        }
-        else
-        {
-            vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }

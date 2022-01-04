@@ -1586,9 +1586,9 @@ public:
      * will be placed in this param
      * @param snap_id Id of the new snapshot
      *
-     * @return 0 on success
+     * @return Created VectorAttribute with the snapshot data
      */
-    int new_snapshot(std::string& name, int& snap_id);
+    VectorAttribute* new_snapshot(std::string& name, int& snap_id);
 
     /**
      * Sets the given Snapshot as ACTIVE=YES
@@ -1605,6 +1605,8 @@ public:
      *  @return the on-going ACTION associated to the ACTIVE snapshot
      */
     std::string get_snapshot_action() const;
+
+    VectorAttribute* get_active_snapshot() const;
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
@@ -1630,6 +1632,11 @@ public:
      * Deletes all SNAPSHOT attributes
      */
     void delete_snapshots();
+
+    /**
+     * Returns size acquired on system DS by VM snapshots
+     */
+    static long long get_snapshots_system_size(Template *tmpl);
 
     // ------------------------------------------------------------------------
     // Cloning state related functions
