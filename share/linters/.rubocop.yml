@@ -759,6 +759,12 @@ Style/MixinUsage:
 Style/SelectByRegexp:
   Enabled: false
 
+Style/FileWrite:
+  Enabled: false
+
+Style/FileRead:
+  Enabled: false
+
 ######
 # LINT
 ######
