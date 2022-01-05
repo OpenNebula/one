@@ -1248,20 +1248,22 @@ define(function (require) {
 
   function _leasesToScheduleActions(confLeases, now){
     var newSchedActions =[];
-    var confLeasesKeys = Object.keys(confLeases);
-    confLeasesKeys.forEach(function(schedAction){
-      if(confLeases[schedAction].time){
-        var schedActionTime = parseInt(confLeases[schedAction].time,10);
-        var startTime = Math.round(now) + schedActionTime;
-        var newAction = {
-          SCHED_ACTION : {
-            TIME: "+"+ startTime.toString(),
-            ACTION: schedAction
-          }
-        };
-        newSchedActions.push(newAction);
-      }
-    });
+    if(confLeases){
+      var confLeasesKeys = Object.keys(confLeases);
+      confLeasesKeys.forEach(function(schedAction){
+        if(confLeases[schedAction].time){
+          var schedActionTime = parseInt(confLeases[schedAction].time,10);
+          var startTime = Math.round(now) + schedActionTime;
+          var newAction = {
+            SCHED_ACTION : {
+              TIME: "+"+ startTime.toString(),
+              ACTION: schedAction
+            }
+          };
+          newSchedActions.push(newAction);
+        }
+      });
+    }
     return newSchedActions;
   }
 
@@ -1351,35 +1353,38 @@ define(function (require) {
    function renderLeasesForModal(now, confLeases, stime) {
     var body = "";
     var last = 0;
-    var confLeasesKeys = Object.keys(confLeases);
+    if(confLeases){
+      var confLeasesKeys = Object.keys(confLeases);
 
-    if(confLeasesKeys && Array.isArray(confLeasesKeys)){
-      confLeasesKeys.forEach(function(actionName){
-        if(confLeases[actionName] && confLeases[actionName].time){
-          var schedActionTime = parseInt(confLeases[actionName].time,10);
-          var startTime = Math.round(now) + schedActionTime;
-          var time = startTime + last;
-          // Pretty time return an string with the following format:
-          // HH:MM:SS DD/MM/YYYY
-          var datetime = Humanize.prettyTime(time + stime);
-          // This variable have [Hours, Minutes, Seconds]
-          var hour = (datetime.split(" ")[0]).split(":");
-          // This variable have [Day, Month, Year]
-          var date = (datetime.split(" ")[1]).split("/");
+      if(confLeasesKeys && Array.isArray(confLeasesKeys)){
+        confLeasesKeys.forEach(function(actionName){
+          if(confLeases[actionName] && confLeases[actionName].time){
+            var schedActionTime = parseInt(confLeases[actionName].time,10);
+            var startTime = Math.round(now) + schedActionTime;
+            var time = startTime + last;
+            // Pretty time return an string with the following format:
+            // HH:MM:SS DD/MM/YYYY
+            var datetime = Humanize.prettyTime(time + stime);
+            // This variable have [Hours, Minutes, Seconds]
+            var hour = (datetime.split(" ")[0]).split(":");
+            // This variable have [Day, Month, Year]
+            var date = (datetime.split(" ")[1]).split("/");
 
-          var dateValue = date[2] + "-" + date[1] + "-" + date[0];
-          var hourValue = hour[0] + ":" + hour[1];
+            var dateValue = date[2] + "-" + date[1] + "-" + date[0];
+            var hourValue = hour[0] + ":" + hour[1];
 
-          body += TemplateCharterTableRowHTML({
-            "actionName": actionName,
-            "dateValue": dateValue,
-            "hourValue": hourValue
-          });
+            body += TemplateCharterTableRowHTML({
+              "actionName": actionName,
+              "dateValue": dateValue,
+              "hourValue": hourValue
+            });
 
-          last = schedActionTime;
-        }
-      });
+            last = schedActionTime;
+          }
+        });
+      }
     }
+    
 
     return TemplateCharterTableHTML({
       "res": resource,
