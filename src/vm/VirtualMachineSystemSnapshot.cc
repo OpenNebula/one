@@ -65,8 +65,13 @@ VectorAttribute* VirtualMachine::new_snapshot(string& name, int& snap_id)
     snap->replace("ACTIVE", "YES");
     snap->replace("ACTION", "CREATE");
 
-    // Compute snapshot max system DS size (memory size + disks size)
-    int system_disk_size = disks.system_ds_size(false);
+    // Compute snapshot max system DS size (memory size + disks size*factor)
+    float disk_factor = 0;
+
+    Nebula::instance().get_configuration_attribute("VM_SNAPSHOT_FACTOR",
+                                                   disk_factor);
+
+    int system_disk_size = disks.system_ds_size(false) * disk_factor;
 
     int mem_size = 0;
     obj_template->get("MEMORY", mem_size);

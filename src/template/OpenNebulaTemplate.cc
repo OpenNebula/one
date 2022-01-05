@@ -550,6 +550,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
     set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
+    set_conf_single("VM_SNAPSHOT_FACTOR", "0");
 /*
 #*******************************************************************************
 # Auth Manager Configuration
