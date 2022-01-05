@@ -136,14 +136,16 @@ define(function(require) {
             this.element.TEMPLATE.SCHED_ACTION :
             [this.element.TEMPLATE.SCHED_ACTION];
           var lastErrorAndId = getLastSchedErrorAndId(arraySchedActions);
-          errorMessageHTML += TemplateInfoError(
-            {
-              error_msg: lastErrorAndId.error,
-              error_title: Locale.tr("Scheduled Action Error") + " (ID: #" + lastErrorAndId.id + ")",
-              canDismiss: false,
-              dismisId: ""
-            }
-          );
+          if(lastErrorAndId.error){
+            errorMessageHTML += TemplateInfoError(
+              {
+                error_msg: lastErrorAndId.error,
+                error_title: Locale.tr("Scheduled Action Error") + " (ID: #" + lastErrorAndId.id + ")",
+                canDismiss: false,
+                dismisId: ""
+              }
+            );
+          }
     }
 
     return TemplateInfo({
@@ -172,15 +174,16 @@ define(function(require) {
     var lastErrorAndId = {
       error: "",
       id: 0
-    }
+    };
     var lastEnd = 0;
     $.each(sched_array, function(_, sched_action){
       if (sched_action.MESSAGE &&
         sched_action.END_VALUE &&
-        parseInt(sched_action.END_VALUE) > lastEnd){
+        parseInt(sched_action.END_VALUE, 10) > lastEnd
+      ){
         lastErrorAndId.error = sched_action.MESSAGE;
-        lastErrorAndId.id = parseInt(sched_action.ID);
-        lastEnd = parseInt(sched_action.END_VALUE);
+        lastErrorAndId.id = parseInt(sched_action.ID, 10);
+        lastEnd = parseInt(sched_action.END_VALUE, 10);
       }
     });
     return lastErrorAndId;
