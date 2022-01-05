@@ -24,7 +24,7 @@ TARGET_DEVICE=$2
 
 if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]]
 then
-    DISK="$(virsh --connect $LIBVIRT_URI domblklist $DOMAIN | awk "/^ *$TARGET_DEVICE/ {print \$2; exit}")"
+    DISK="$(virsh --connect $LIBVIRT_URI domblklist $DOMAIN | awk "/^\s*$TARGET_DEVICE/ {print \$2; exit}")"
     if [[ "$DISK" = "-" ]]; then
         log_debug "CDROM already ejected"
         exit 0
