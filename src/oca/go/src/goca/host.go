@@ -113,12 +113,19 @@ func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, erro
 // Monitoring Returns the Hosts monitoring records
 // num: Retrieve monitor records in the last num seconds.
 // 0 just the last record, -1 all records
-func (hc *HostsController) Monitoring(num int) (string, error) {
+func (hc *HostsController) Monitoring(num int) (*host.PoolMonitoring, error) {
 	monitorData, err := hc.c.Client.Call("one.hostpool.monitoring", num)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return monitorData.Body(), nil
+
+	hostsMon := &host.PoolMonitoring{}
+	err = xml.Unmarshal([]byte(monitorData.Body()), &hostsMon)
+	if err != nil {
+		return nil, err
+	}
+
+	return hostsMon, nil
 }
 
 // Delete deletes the given host from the pool
@@ -151,10 +158,17 @@ func (hc *HostController) Rename(newName string) error {
 }
 
 // Monitoring returns the host monitoring records.
-func (hc *HostController) Monitoring() (string, error) {
+func (hc *HostController) Monitoring() (*host.Monitoring, error) {
 	monitorData, err := hc.c.Client.Call("one.host.monitoring", hc.ID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return monitorData.Body(), nil
+
+	hostMon := &host.Monitoring{}
+	err = xml.Unmarshal([]byte(monitorData.Body()), &hostMon)
+	if err != nil {
+		return nil, err
+	}
+
+	return hostMon, nil
 }
