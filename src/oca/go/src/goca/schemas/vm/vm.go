@@ -30,6 +30,12 @@ type Pool struct {
 	VMs     []VM     `xml:"VM"`
 }
 
+// PoolMonitoring contains the monitoring records of the VMs
+type PoolMonitoring struct {
+	XMLName xml.Name       `xml:"MONITORING_DATA"`
+	VMs     []dyn.Template `xml:"MONITORING"`
+}
+
 // VM represents an OpenNebula Virtual Machine
 type VM struct {
 	XMLName         xml.Name            `xml:"VM"`
@@ -49,7 +55,7 @@ type VM struct {
 	STime           int                 `xml:"STIME,omitempty"`
 	ETime           int                 `xml:"ETIME,omitempty"`
 	DeployID        string              `xml:"DEPLOY_ID,omitempty"`
-	MonitoringInfos Monitoring          `xml:"MONITORING,omitempty"`
+	MonitoringInfos dyn.Template        `xml:"MONITORING,omitempty"`
 	Template        Template            `xml:"TEMPLATE,omitempty"`
 	UserTemplate    UserTemplate        `xml:"USER_TEMPLATE,omitempty"`
 	HistoryRecords  []HistoryRecord     `xml:"HISTORY_RECORDS>HISTORY,omitempty"`
@@ -59,9 +65,10 @@ type VM struct {
 	LockInfos *shared.Lock `xml:"LOCK"`
 }
 
-// Monitoring is a dynamic VM part containing metrics
+// Monitoring contains the monitoring records of a VM
 type Monitoring struct {
-	dyn.Template
+	XMLName xml.Name       `xml:"MONITORING_DATA"`
+	Records []dyn.Template `xml:"MONITORING"`
 }
 
 // History records
