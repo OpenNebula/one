@@ -102,7 +102,9 @@ VM_DIR="${XPATH_ELEMENTS[j++]}"
 # use "force-share" param for qemu >= 2.10
 [ "$(get_qemu_img_version)" -ge 2010000 ] && QEMU_IMG_PARAM="-U"
 
-# migration can't be done with domain snapshots, drop them first
+# migration can't be done with domain snapshots, drop them first but save current snapshot for redefine
+SNAP_CUR=$(virsh --connect $LIBVIRT_URI snapshot-current --name $DEPLOY_ID 2>/dev/null)
+
 SNAPS=$(monitor_and_log \
    "virsh --connect $LIBVIRT_URI snapshot-list $DEPLOY_ID --name 2>/dev/null" \
    "Failed to get snapshots for $DEPLOY_ID")
@@ -243,6 +245,22 @@ if [ $RC -ne 0 ]; then
 
     error_message "Could not migrate $DEPLOY_ID to $DEST_HOST"
     exit $RC
+fi
+
+# redefine potential snapshots after live migration
+if [ "$SHARED" = "YES" ] && [ -n "$SNAP_CUR" ]; then
+    UUID=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system dominfo $DEPLOY_ID | awk '/UUID:/ {print $2}')
+    DISK_PATH=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
+    DISK_DIR=$(dirname $DISK_PATH)
+
+    for SNAPSHOT_MD_XML in $(ls ${DISK_DIR}/snap-*.xml 2>/dev/null); do
+        # replace uuid in the snapshot metadata xml
+        sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML
+
+        # redefine the snapshot using the xml metadata file
+        virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system snapshot-create $DEPLOY_ID $SNAPSHOT_MD_XML --redefine > /dev/null || true
+    done
+    virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system snapshot-current $DEPLOY_ID $SNAP_CUR
 fi
 
 # Synchronize VM time on background on remote host
