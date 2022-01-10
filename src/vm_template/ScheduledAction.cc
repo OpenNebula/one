@@ -328,7 +328,7 @@ time_t SchedAction::get_time(time_t stime)
 
 bool SchedAction::is_due(time_t stime)
 {
-    time_t action_time, done_time, origin = 0;
+    time_t action_time, done_time;
     int repeat;
 
     bool has_done   = vector_value("DONE", done_time) == 0;
