@@ -116,11 +116,11 @@ module OpenNebula::VirtualMachineExt
                         vm_id
                     )
 
-                    return vm.save_as_linked_clones(
-                        name,
-                        deploy_id,
-                        vi_client
-                    )
+                    error, vm_template_ref = vm.save_as_linked_clones(name)
+
+                    raise error unless error.nil?
+
+                    return vm_template_ref
                 end
 
                 # --------------------------------------------------------------
