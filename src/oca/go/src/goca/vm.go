@@ -313,12 +313,6 @@ func (vc *VMController) Rename(newName string) error {
 	return err
 }
 
-// Delete will remove the VM from OpenNebula
-func (vc *VMController) Delete() error {
-	_, err := vc.c.Client.Call("one.vm.delete", vc.ID)
-	return err
-}
-
 // Deploy in the selected hostID and/or dsID. Enforce to return error in case of
 // overcommitment. Enforce is automatically enabled for non-oneadmin users.
 // Set dsID to -1 to let OpenNebula choose the datastore.
