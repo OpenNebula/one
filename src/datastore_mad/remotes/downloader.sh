@@ -295,7 +295,7 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error" >&2
@@ -326,10 +326,6 @@ while true; do
             ;;
         -c|--max-size)
             export MAX_SIZE="$2"
-            shift 2
-            ;;
-        --convert)
-            export CONVERT="$2"
             shift 2
             ;;
         --)
@@ -477,24 +473,7 @@ if [ -n "$HASH_TYPE" ]; then
     fi
 fi
 
-function convert_image
-{
-    original_type=$(qemu-img info $TO | grep "^file format:" | awk '{print $3}' || :)
-    if [ "$CONVERT" != "$original_type" ]; then
-        tmpimage=$TO".tmp"
-        qemu-img convert -f $original_type -O $CONVERT $TO $tmpimage
-        mv $tmpimage $TO
-    fi
-}
-
 # Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
-
-    if [ -n "$CONVERT" ] && [ -f "$TO" ]; then
-        convert_image
-    fi
-
-elif [ -n "$CONVERT" ]; then
-    convert_image
 fi
