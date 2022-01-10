@@ -96,6 +96,90 @@ module VCenterDriver
             @vi_client.vim.serviceContent.about.instanceUuid rescue nil
         end
 
+        def save_as_linked_clones(name)
+            error = nil
+
+            disks = @item.config.hardware.device.grep(
+                RbVmomi::VIM::VirtualMachine
+            )
+            disks.select {|x| x.backing.parent.nil? }.each do |disk|
+                spec = {
+                    :deviceChange => [
+                        {
+                            :operation => :remove,
+                            :device => disk
+                        },
+                        {
+                            :operation => :add,
+                            :fileOperation => :create,
+                            :device => disk.dup.tap do |x|
+                                x.backing = x.backing.dup
+                                x.backing.fileName =
+                                    "[#{disk.backing.datastore.name}]"
+                                x.backing.parent = disk.backing
+                            end
+                        }
+                    ]
+                }
+                @item.ReconfigVM_Task(
+                    :spec => spec
+                ).wait_for_completion
+            end
+
+            relocateSpec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+                :diskMoveType => :moveChildMostDiskBacking
+            )
+
+            spec = RbVmomi::VIM.VirtualMachineCloneSpec(
+                :location => relocateSpec,
+                :powerOn => false,
+                :template => true
+            )
+
+            new_template = @item.CloneVM_Task(
+                :folder => @item.parent,
+                :name => name,
+                :spec => spec
+            ).wait_for_completion
+
+            new_vm_template_ref = new_template._ref
+
+            one_client = OpenNebula::Client.new
+            importer = VCenterDriver::VmImporter.new(
+                one_client,
+                @vi_client
+            )
+
+            importer.retrieve_resources({})
+            importer.get_indexes(new_vm_template_ref)
+
+            importer.process_import(
+                new_vm_template_ref,
+                {
+                    new_vm_template_ref.to_s => {
+                        :type => 'default',
+                        :linked_clone => '1',
+                        :copy => '0',
+                        :name => '',
+                        :folder => ''
+                    }
+                }
+            )
+
+            begin
+                importer.output[:success][0][:id][0]
+            rescue StandardError => e
+                error = 'Creating linked clone VM Template' \
+                    " failed due to \"#{e.message}\".\n"
+
+                if VCenterDriver::CONFIG[:debug_information]
+                    error += " #{e.backtrace}\n"
+                end
+            end
+
+            [error, new_vm_template_ref]
+        end
+
         def create_template_copy(template_name)
             error = nil
             template_ref = nil
@@ -1835,10 +1919,8 @@ module VCenterDriver
                 # the template if something go wrong
                 if copy
                     error, template_copy_ref =
-                        selected[:template]
-                        .create_template_copy(
-                            opts[:name]
-                        )
+                        selected[:template].save_as_linked_clones(opts[:name])
+
                     unless template_copy_ref
                         raise 'There is a problem creating ' \
                               "your copy: #{error}"
@@ -1893,68 +1975,70 @@ module VCenterDriver
             working_template[:one] <<
                 "VCENTER_TEMPLATE_NAME=\"#{selected[:name]}\"\n"
 
-            create(working_template[:one]) do |one_object, id|
-                res[:id] << id
+            unless copy
+                create(working_template[:one]) do |one_object, id|
+                    res[:id] << id
 
-                type = { :object => 'template', :id => id }
-                error, template_disks, allocated_images =
-                    template
-                    .import_vcenter_disks(
-                        vc_uuid,
-                        dpool,
-                        ipool,
-                        type
+                    type = { :object => 'template', :id => id }
+                    error, template_disks, allocated_images =
+                        template
+                        .import_vcenter_disks(
+                            vc_uuid,
+                            dpool,
+                            ipool,
+                            type
+                        )
+
+                    if allocated_images
+                        # rollback stack
+                        allocated_images.reverse.each do |i|
+                            @rollback.unshift(Raction.new(i, :delete))
+                        end
+                    end
+                    raise error unless error.empty?
+
+                    working_template[:one] << template_disks
+
+                    if template_copy_ref
+                        template_moref = template_copy_ref
+                    else
+                        template_moref = selected[:vcenter_ref]
+                    end
+
+                    opts_nics = {
+                        :vi_client => @vi_client,
+                        :vc_uuid => vc_uuid,
+                        :npool => npool,
+                        :hpool => hpool,
+                        :vcenter => vcenter,
+                        :template_moref => template_moref,
+                        :vm_object => nil
+                    }
+
+                    error, template_nics, _ar_ids, allocated_nets =
+                        template
+                        .import_vcenter_nics(
+                            opts_nics,
+                            id,
+                            dc
+                        )
+
+                    if allocated_nets
+                        # rollback stack
+                        allocated_nets.reverse.each do |n|
+                            @rollback.unshift(Raction.new(n, :delete))
+                        end
+                    end
+                    raise error unless error.empty?
+
+                    working_template[:one] << template_nics
+                    working_template[:one] << rp_opts(
+                        opts[:type],
+                        opts[:resourcepool]
                     )
 
-                if allocated_images
-                    # rollback stack
-                    allocated_images.reverse.each do |i|
-                        @rollback.unshift(Raction.new(i, :delete))
-                    end
+                    one_object.update(working_template[:one])
                 end
-                raise error unless error.empty?
-
-                working_template[:one] << template_disks
-
-                if template_copy_ref
-                    template_moref = template_copy_ref
-                else
-                    template_moref = selected[:vcenter_ref]
-                end
-
-                opts_nics = {
-                    :vi_client => @vi_client,
-                    :vc_uuid => vc_uuid,
-                    :npool => npool,
-                    :hpool => hpool,
-                    :vcenter => vcenter,
-                    :template_moref => template_moref,
-                    :vm_object => nil
-                }
-
-                error, template_nics, _ar_ids, allocated_nets =
-                    template
-                    .import_vcenter_nics(
-                        opts_nics,
-                        id,
-                        dc
-                    )
-
-                if allocated_nets
-                    # rollback stack
-                    allocated_nets.reverse.each do |n|
-                        @rollback.unshift(Raction.new(n, :delete))
-                    end
-                end
-                raise error unless error.empty?
-
-                working_template[:one] << template_nics
-                working_template[:one] << rp_opts(
-                    opts[:type],
-                    opts[:resourcepool]
-                )
-
-                one_object.update(working_template[:one])
             end
 
             res
