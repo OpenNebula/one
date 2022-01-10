@@ -51,6 +51,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 require 'open3'
+require 'rexml/document'
 
 def file_location?(target_path, f)
     target_path == File.basename(f)
@@ -119,19 +120,27 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
     downsh_args << '--nodecomp ' if nodecomp && !nodecomp.empty?
     downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
-    unless VCenterDriver::FileHelper.from_s3?(img_path)
-        downsh_args << '--convert vmdk'
-    end
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
-    b64        = Base64.encode64(drv_action.to_xml).gsub!("\n", '')
+    b64        = Base64.encode64(drv_action.to_xml).gsub!("\n", '') # DRV_ACTION
 
     rc = system("DRV_ACTION=#{b64} #{downloader} #{img_path} #{temp_file}")
 
+    # Fail if download fails
     if there_is_not_system_error?(rc)
         STDERR.puts "Error downloading #{img_path}"
         FileUtils.rm_rf(temp_file)
         exit(-1)
+    end
+
+    # Convert from current format to VMDK
+    unless VCenterDriver::FileHelper.from_s3?(img_path)
+        file_type=system("qemu-img info #{temp_file} | grep -e '^file format' | tr -d ' ' | cut -d':' -f 2")
+        unless file_type == 'vmdk'
+          out_file = File.basename(temp_file,'.*')+".tmp"
+          conv_output=system("qemu-img convert -f #{file_type} -O vmdk #{temp_file} #{out_file}")
+          FileUtils.mv(out_file, temp_file)
+        end
     end
 
     img_path = temp_file
