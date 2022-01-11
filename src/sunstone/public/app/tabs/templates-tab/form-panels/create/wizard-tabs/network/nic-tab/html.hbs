@@ -241,6 +241,17 @@
         </label>
         <input type="text" wizard_field="SEARCH_DOMAIN" id="SEARCH_DOMAIN" name="SEARCH_DOMAIN"/>
       </div>
+      <div class="medium-6 columns">
+        <label for="eth_{{nicTabId}}_method">
+          {{tr "Method"}}
+        </label>
+        <select wizard_field="METHOD" name="eth_{{nicTabId}}_method" id="eth_{{nicTabId}}_method">
+          <option value="">none (Use default)</option> {{!-- This option is the same than static --}}
+          <option value="static">static (Based on context)</option>
+          <option value="dhcp">dhcp (DHCPv4)</option>
+          <option value="skip">skip (Do not configure IPv4)</option>
+        </select>
+      </div>
     </div>
   </fieldset>
   <fieldset class="no_auto">
@@ -257,6 +268,21 @@
           {{tr "Gateway"}}
         </label>
         <input type="text" wizard_field="GATEWAY6" id="GATEWAY6" name="GATEWAY6"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="medium-6 columns">
+        <label for="eth__{{nicTabId}}_ipv6_method">
+          {{tr "IPv6 Method"}}
+        </label>
+        <select wizard_field="IP6_METHOD" name="eth_{{nicTabId}}_ipv6_method" id="eth_{{nicTabId}}_ipv6_method">
+          <option value="">none (Use default)</option> {{!-- This option is the same than static --}}
+          <option value="static">static (Based on context)</option>
+          <option value="auto">auto (SLAAC)</option>
+          <option value="dhcp">dhcp (SLAAC and DHCPv6)</option>
+          <option value="disable">disable (Do not use IPv6)</option>
+          <option value="skip">skip (Do not configure IPv6)</option>
+        </select>
       </div>
     </div>
   </fieldset>
