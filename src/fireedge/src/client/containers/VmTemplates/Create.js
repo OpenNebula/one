@@ -35,14 +35,14 @@ function CreateVmTemplate() {
   const { enqueueSuccess } = useGeneralApi()
   const { update, allocate } = useVmTemplateApi()
 
-  const onSubmit = async (template) => {
+  const onSubmit = async (xmlTemplate) => {
     try {
-      if (templateId === undefined) {
-        await allocate(template)
+      if (!templateId) {
+        const newTemplateId = await allocate(xmlTemplate)
         history.push(PATH.TEMPLATE.VMS.LIST)
-        enqueueSuccess(`VM Template created - #${templateId}`)
+        enqueueSuccess(`VM Template created - #${newTemplateId}`)
       } else {
-        await update(templateId, template)
+        await update(templateId, xmlTemplate)
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(`VM Template updated - #${templateId} ${NAME}`)
       }
