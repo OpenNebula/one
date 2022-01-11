@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+console.log("paso")
+
 import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
