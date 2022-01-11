@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useState, useEffect } from 'react'
+import { ReactElement, memo, useState, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { DateTime } from 'luxon'
 
@@ -24,23 +24,25 @@ const Timer = memo(
   /**
    * @param {object} config - Config
    * @param {number|string|DateTime} config.initial - Initial time
-   * @param {boolean} [config.luxon] - If `true`, the time will be a parsed as luxon DateTime
    * @param {number} [config.translateWord] - Add translate component to wrap the time
    * @param {number} [config.interval] - Interval time to update the time
    * @param {number} [config.finishAt] - Clear the interval once time is up (in ms)
    * @returns {ReactElement} Relative DateTime
    */
-  ({ initial, luxon, translateWord, interval = 1000, finishAt }) => {
-    const [time, setTime] = useState('...')
+  ({ initial, translateWord, interval = 1000, finishAt }) => {
+    /** @type {DateTime} Luxon DateTime */
+    const initialValue = useMemo(() => {
+      const isLuxon = initial?.isValid
+
+      return isLuxon ? initial : timeFromMilliseconds(+initial)
+    }, [initial])
+
+    const [time, setTime] = useState(() => initialValue.toRelative())
 
     useEffect(() => {
-      const isLuxon = luxon || initial?.isValid
-      const initialValue = isLuxon ? initial : timeFromMilliseconds(+initial)
-
       const tick = setInterval(() => {
         const newTime = initialValue.toRelative()
 
-        console.log({ ms: initialValue.millisecond, finishAt })
         if (finishAt && initialValue.millisecond === finishAt) {
           clearInterval(tick)
         }
@@ -53,11 +55,11 @@ const Timer = memo(
       }
     }, [])
 
-    if (translateWord) {
-      return <Translate word={translateWord} values={[time]} />
-    }
-
-    return <>{time}</>
+    return translateWord ? (
+      <Translate word={translateWord} values={[time]} />
+    ) : (
+      <>{time}</>
+    )
   },
   (prev, next) =>
     prev.initial === next.initial && prev.translateWord === next.translateWord

@@ -26,6 +26,11 @@ const {
   getQueryData,
 } = require('server/utils/server')
 
+const DEFAULT_ERROR_CONFIG = {
+  color: 'red',
+  message: 'Error: %s',
+}
+
 /**
  * Route of websocket HOOKS.
  *
@@ -42,45 +47,34 @@ const main = (app = {}, type = '') => {
         const { zone: queryZone } = getQueryData(server)
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
+
         if (dataZone && dataZone.zeromq) {
           const zeromqSock = socketZeroMQ('sub')
+
           zeromqSock.connect(dataZone.zeromq)
           zeromqSock.subscribe(`EVENT ${resource.toUpperCase()} ${id}/`) // state
-          server.on('disconnect', function () {
-            zeromqSock.close()
-          })
+
+          server.on('disconnect', () => zeromqSock.close())
+
           zeromqSock.on('message', (...args) => {
-            const mssgs = []
-            Array.prototype.slice.call(args).forEach((arg) => {
-              mssgs.push(arg.toString())
-            })
-            if (mssgs[0] && mssgs[1]) {
-              xml2json(atob(mssgs[1]), (error, result) => {
-                if (error) {
-                  const configErrorParser = {
-                    color: 'red',
-                    error,
-                    message: 'Error parser: %s',
-                  }
-                  messageTerminal(configErrorParser)
-                } else {
-                  server.emit(type, {
-                    command: mssgs[0],
-                    data: result,
-                  })
-                }
+            const [command, encodedMessage] = Array.prototype.slice
+              .call(args)
+              .map((arg) => arg.toString())
+
+            if (command && encodedMessage) {
+              const xmlMessage = atob(encodedMessage)
+
+              xml2json(xmlMessage, (error, data) => {
+                error
+                  ? messageTerminal({ ...DEFAULT_ERROR_CONFIG, error })
+                  : server.emit(type, { command, data })
               })
             }
           })
         }
       })
   } catch (error) {
-    const configErrorHooks = {
-      color: 'red',
-      error,
-      message: '%s',
-    }
-    messageTerminal(configErrorHooks)
+    messageTerminal({ ...DEFAULT_ERROR_CONFIG, error })
   }
 }
 
