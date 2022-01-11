@@ -29,6 +29,12 @@ type Pool struct {
 	Hosts   []Host   `xml:"HOST"`
 }
 
+// PoolMonitoring contains the monitoring records of the hosts
+type PoolMonitoring struct {
+	XMLName xml.Name       `xml:"MONITORING_DATA"`
+	Records []dyn.Template `xml:"MONITORING"`
+}
+
 // Host represents an OpenNebula Host
 type Host struct {
 	XMLName         xml.Name          `xml:"HOST"`
@@ -41,12 +47,14 @@ type Host struct {
 	Cluster         string            `xml:"CLUSTER,omitempty"`
 	Share           Share             `xml:"HOST_SHARE,omitempty"`
 	VMs             shared.EntitiesID `xml:"VMS,omitempty"`
-	MonitoringInfos Monitoring        `xml:"MONITORING,omitempty"`
+	MonitoringInfos dyn.Template      `xml:"MONITORING,omitempty"`
 	Template        Template          `xml:"TEMPLATE,omitempty"`
 }
 
+// Monitoring contains the monitoring records of a host
 type Monitoring struct {
-	dyn.Template
+	XMLName xml.Name       `xml:"MONITORING_DATA"`
+	Records []dyn.Template `xml:"MONITORING"`
 }
 
 type Share struct {
