@@ -127,6 +127,7 @@ const Actions = () => {
         actions: [
           {
             accessor: VM_ACTIONS.REFRESH,
+            dataCy: `vm_${VM_ACTIONS.REFRESH}`,
             tooltip: T.Refresh,
             icon: RefreshDouble,
             action: async () => {
@@ -146,6 +147,7 @@ const Actions = () => {
           },
           {
             accessor: VM_ACTIONS.RESUME,
+            dataCy: `vm_${VM_ACTIONS.RESUME}`,
             disabled: isDisabled(VM_ACTIONS.RESUME),
             tooltip: T.Resume,
             selected: true,
@@ -158,6 +160,7 @@ const Actions = () => {
           },
           {
             accessor: VM_ACTIONS.CREATE_APP_DIALOG,
+            dataCy: `vm_${VM_ACTIONS.CREATE_APP_DIALOG}`,
             disabled: isDisabled(VM_ACTIONS.CREATE_APP_DIALOG),
             tooltip: T.CreateMarketApp,
             selected: { max: 1 },
@@ -171,6 +174,7 @@ const Actions = () => {
           },
           {
             accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
+            dataCy: `vm_${VM_ACTIONS.SAVE_AS_TEMPLATE}`,
             disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
             tooltip: T.SaveAsTemplate,
             selected: { max: 1 },
@@ -195,6 +199,7 @@ const Actions = () => {
             icon: SystemShut,
             selected: true,
             color: 'secondary',
+            dataCy: 'vm-manage',
             options: [
               {
                 accessor: VM_ACTIONS.SUSPEND,
@@ -204,6 +209,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Suspend,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.SUSPEND}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -219,6 +225,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Stop,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.STOP}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -234,6 +241,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Poweroff,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.POWEROFF}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -249,6 +257,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.PoweroffHard,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.POWEROFF_HARD}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -264,6 +273,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Reboot,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.REBOOT}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -279,6 +289,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.RebootHard,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.REBOOT_HARD}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -294,6 +305,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Undeploy,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNDEPLOY}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -309,6 +321,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.UndeployHard,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNDEPLOY_HARD}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -323,6 +336,7 @@ const Actions = () => {
             icon: TransitionRight,
             selected: true,
             color: 'secondary',
+            dataCy: 'vm-host',
             options: [
               {
                 accessor: VM_ACTIONS.DEPLOY,
@@ -332,6 +346,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Deploy,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.DEPLOY}`,
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -347,6 +362,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Migrate,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.MIGRATE}`,
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -362,6 +378,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Migrate,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.MIGRATE_LIVE}`,
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -377,6 +394,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Hold,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.HOLD}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -392,6 +410,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Release,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.RELEASE}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -407,6 +426,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Reschedule,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.RESCHED}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -422,6 +442,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.UnReschedule,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNRESCHED}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -436,6 +457,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Recover,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.RECOVER}`,
                 },
                 form: RecoverForm,
                 onSubmit: async (_, rows) => {
@@ -452,6 +474,7 @@ const Actions = () => {
             icon: Group,
             selected: true,
             color: 'secondary',
+            dataCy: 'vm-ownership',
             options: [
               {
                 accessor: VM_ACTIONS.CHANGE_OWNER,
@@ -460,6 +483,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.ChangeOwner,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.CHANGE_OWNER}`,
                 },
                 form: ChangeUserForm,
                 onSubmit: async (newOwnership, rows) => {
@@ -477,6 +501,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.ChangeGroup,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.CHANGE_GROUP}`,
                 },
                 form: ChangeGroupForm,
                 onSubmit: async (newOwnership, rows) => {
@@ -494,6 +519,7 @@ const Actions = () => {
             icon: Lock,
             selected: true,
             color: 'secondary',
+            dataCy: 'vm-lock',
             options: [
               {
                 accessor: VM_ACTIONS.LOCK,
@@ -503,6 +529,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Lock,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.LOCK}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -518,6 +545,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Unlock,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNLOCK}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -532,6 +560,7 @@ const Actions = () => {
             icon: Trash,
             color: 'error',
             selected: true,
+            dataCy: 'vm-terminate',
             options: [
               {
                 accessor: VM_ACTIONS.TERMINATE,
@@ -541,6 +570,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Terminate,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.TERMINATE}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -556,6 +586,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.TerminateHard,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.TERMINATE_HARD}`,
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)

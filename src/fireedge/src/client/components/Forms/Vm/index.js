@@ -40,14 +40,14 @@ const AsyncLoadForm = async (properties = {}, ...args) => {
  * @returns {CreateStepsCallback} Asynchronous loaded form
  */
 const ImageSteps = (...args) =>
-  AsyncLoadForm({ formPath: 'AttachDiskForm' }, ...args)
+  AsyncLoadForm({ formPath: 'AttachDiskForm/ImageSteps' }, ...args)
 
 /**
  * @param {...any} args - Arguments
  * @returns {CreateStepsCallback} Asynchronous loaded form
  */
 const VolatileSteps = (...args) =>
-  AsyncLoadForm({ formPath: 'AttachDiskForm' }, ...args)
+  AsyncLoadForm({ formPath: 'AttachDiskForm/VolatileSteps' }, ...args)
 
 /**
  * @param {...any} args - Arguments
