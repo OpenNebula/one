@@ -135,14 +135,30 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
 
     # Convert from current format to VMDK
     unless VCenterDriver::FileHelper.from_s3?(img_path)
-        file_type=`qemu-img info #{temp_file}`\
-          .split("\n")[1].split(":")[1].lstrip
+        file_type=''
+        begin
+            Open3.popen3("qemu-img info #{temp_file}") {|stdin, stdout, stderr, wait_thr|
+                if !stderr.nil?
+                    STDERR.puts "'qemu-img info' stderr: #{stderr}"
+                    raise StandardError
+                end
+                file_type=stdout.read.split("\n")[1].split(":")[1].lstrip
+                if file_type.nil? then raise StandardError end
+                wait_thr.join
+            }
+        rescue NoMethodError, StandardError
+            STDERR.puts "'qemu-img info' output appears to be invalid. Cannot determine file type."
+            STDERR.puts "Removing #{temp_file}..."
+            FileUtils.rm_rf(temp_file)
+            exit(-1)
+        end
         unless file_type == 'vmdk'
           out_file = File.basename(temp_file,'.*')+".tmp"
           convert=system("qemu-img convert \
             -f #{file_type} -O vmdk #{temp_file} #{out_file}")
           if there_is_not_system_error?(convert)
-              STDERR.puts "Error converting #{temp_file}"
+              STDERR.puts "Error converting #{temp_file}."
+              STDERR.puts "Removing #{temp_file} and #{out_file}."
               File.Utils.rm_rf(out_file)
               File.Utils.rm_rf(temp_file)
               exit(-1)
