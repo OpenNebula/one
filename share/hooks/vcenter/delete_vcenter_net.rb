@@ -105,51 +105,57 @@ begin
     end
 
     # Step 1. Extract vnet settings
-    host_id = template['TEMPLATE/VCENTER_ONE_HOST_ID']
-    raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
-
     network_id = template['ID']
     pg_name = template['BRIDGE']
     pg_type = template['TEMPLATE/VCENTER_PORTGROUP_TYPE']
     sw_name = template['TEMPLATE/VCENTER_SWITCH_NAME']
 
-    # Step 2. Get vnet, contact cluster and extract cluster's info
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    one_client = OpenNebula::Client.new
-    one_vnet = OpenNebula::VirtualNetwork.new_with_id(network_id, one_client)
-    one_host = OpenNebula::Host.new_with_id(host_id, one_client)
-    rc = one_host.info
-    raise rc.message if OpenNebula.is_error? rc
-
-    ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
-    cluster = VCenterDriver::ClusterComputeResource
-              .new_from_ref(ccr_ref, vi_client)
-    dc = cluster.datacenter
-
-    # NSX
-    ls_id = template['TEMPLATE/NSX_ID']
-    # NSX
+    one_vnet = nil
 
     # With DVS we have to work at datacenter level and then for each host
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
         begin
-            dc.lock
+            hosts_id = template['TEMPLATE/VCENTER_ONE_HOST_ID']
+            raise 'Missing VCENTER_ONE_HOST_ID' unless hosts_id
 
-            # Explore network folder in search of dpg and dvs
-            net_folder = dc.network_folder
-            net_folder.fetch!
+            # Step 2. Get vnet, contact cluster and extract cluster's info
+            hosts_id.split(',').each do |host_id|
+                host_id = host_id.to_i
+                vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+                one_client = OpenNebula::Client.new
+                one_vnet = OpenNebula::VirtualNetwork.new_with_id(
+                    network_id,
+                    one_client
+                )
+                one_host = OpenNebula::Host.new_with_id(host_id, one_client)
+                rc = one_host.info
+                raise rc.message if OpenNebula.is_error? rc
 
-            # Get distributed port group and dvs if they exists
-            dvs = dc.dvs_exists(sw_name, net_folder)
-            dpg = dc.dpg_exists(pg_name, net_folder)
-            dc.remove_dpg(dpg) if dpg
+                ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
+                cluster = VCenterDriver::ClusterComputeResource.new_from_ref(
+                    ccr_ref,
+                    vi_client
+                )
+                dc = cluster.datacenter
 
-            # Only remove switch if the port group being removed is
-            # the last and only port group in the switch
+                dc.lock
 
-            if dvs && dvs.item.summary.portgroupName.size == 1 &&
-                dvs.item.summary.portgroupName[0] == "#{sw_name}-uplink-pg"
-                dc.remove_dvs(dvs)
+                # Explore network folder in search of dpg and dvs
+                net_folder = dc.network_folder
+                net_folder.fetch!
+
+                # Get distributed port group and dvs if they exists
+                dvs = dc.dvs_exists(sw_name, net_folder)
+                dpg = dc.dpg_exists(pg_name, net_folder)
+                dc.remove_dpg(dpg) if dpg
+
+                # Only remove switch if the port group being removed is
+                # the last and only port group in the switch
+
+                if dvs && dvs.item.summary.portgroupName.size == 1 &&
+                    dvs.item.summary.portgroupName[0] == "#{sw_name}-uplink-pg"
+                    dc.remove_dvs(dvs)
+                end
             end
         rescue StandardError => e
             err_msg = e.message
@@ -157,60 +163,94 @@ begin
         ensure
             dc.unlock if dc
         end
-    end
+    else
+        host_id = template['TEMPLATE/VCENTER_ONE_HOST_ID']
+        raise 'Missing VCENTER_ONE_HOST_ID' unless host_id
 
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
-        cluster['host'].each do |host|
-            # Step 3. Loop through hosts in clusters
-            esx_host = VCenterDriver::ESXHost
-                       .new_from_ref(host._ref, vi_client)
+        # Step 2. Get vnet, contact cluster and extract cluster's info
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        one_client = OpenNebula::Client.new
+        one_vnet = OpenNebula::VirtualNetwork.new_with_id(
+            network_id,
+            one_client
+        )
+        one_host = OpenNebula::Host.new_with_id(host_id, one_client)
+        rc = one_host.info
+        raise rc.message if OpenNebula.is_error? rc
 
-            begin
-                esx_host.lock # Exclusive lock for ESX host operation
+        ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
+        cluster = VCenterDriver::ClusterComputeResource.new_from_ref(
+            ccr_ref,
+            vi_client
+        )
 
-                next unless esx_host.pg_exists(pg_name)
+        # NSX
+        ls_id = template['TEMPLATE/NSX_ID']
+        # NSX
 
-                swname = esx_host.remove_pg(pg_name)
-                next if !swname || sw_name != swname
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
+            cluster['host'].each do |host|
+                # Step 3. Loop through hosts in clusters
+                esx_host = VCenterDriver::ESXHost.new_from_ref(
+                    host._ref,
+                    vi_client
+                )
 
-                vswitch = esx_host.vss_exists(sw_name)
-                next unless vswitch
+                begin
+                    esx_host.lock # Exclusive lock for ESX host operation
 
-                # Only remove switch if the port group being removed is
-                # the last and only port group in the switch
-                if vswitch.portgroup.empty?
-                    esx_host.remove_vss(sw_name)
+                    next unless esx_host.pg_exists(pg_name)
+
+                    swname = esx_host.remove_pg(pg_name)
+                    next if !swname || sw_name != swname
+
+                    vswitch = esx_host.vss_exists(sw_name)
+                    next unless vswitch
+
+                    # Only remove switch if the port group being removed is
+                    # the last and only port group in the switch
+                    if vswitch.portgroup.empty?
+                        esx_host.remove_vss(sw_name)
+                    end
+                rescue StandardError => e
+                    err_msg = e.message
+                    raise DeletePortgroupError, err_msg
+                ensure
+                    esx_host.unlock if esx_host # Remove host lock
                 end
+            end
+        end
+
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
+            begin
+                nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+                logical_switch = NSXDriver::VirtualWire.new(
+                    nsx_client,
+                    ls_id,
+                    nil,
+                    nil
+                )
+                logical_switch.delete_logical_switch
             rescue StandardError => e
                 err_msg = e.message
                 raise DeletePortgroupError, err_msg
-            ensure
-                esx_host.unlock if esx_host # Remove host lock
             end
         end
-    end
 
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-        begin
-            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-            logical_switch = NSXDriver::VirtualWire
-                             .new(nsx_client, ls_id, nil, nil)
-            logical_switch.delete_logical_switch
-        rescue StandardError => e
-            err_msg = e.message
-            raise DeletePortgroupError, err_msg
-        end
-    end
-
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-        begin
-            nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
-            logical_switch = NSXDriver::OpaqueNetwork
-                             .new(nsx_client, ls_id, nil, nil)
-            logical_switch.delete_logical_switch
-        rescue StandardError => e
-            err_msg = e.message
-            raise DeletePortgroupError, err_msg
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
+            begin
+                nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
+                logical_switch = NSXDriver::OpaqueNetwork.new(
+                    nsx_client,
+                    ls_id,
+                    nil,
+                    nil
+                )
+                logical_switch.delete_logical_switch
+            rescue StandardError => e
+                err_msg = e.message
+                raise DeletePortgroupError, err_msg
+            end
         end
     end
 rescue DeleteNetworkError => e

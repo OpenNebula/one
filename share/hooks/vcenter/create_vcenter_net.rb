@@ -92,7 +92,7 @@ def wait_vlanid(vnet)
 end
 
 # Creates a distributed port group in a datacenter
-def create_dpg(one_vnet, dc, cluster, vi_client)
+def create_dpg(one_vnet, dc, clusters, vi_client)
     begin
         # Get parameters needed to create the network
         pnics   = one_vnet['TEMPLATE/PHYDEV']
@@ -131,25 +131,38 @@ def create_dpg(one_vnet, dc, cluster, vi_client)
             # Creates distributed port group
             new_dpg = dc.create_dpg(dvs, pg_name, vlan_id, nports)
             # Attach dpg to esxi hosts
-            cluster['host'].each do |host|
-                begin
-                    esx_host = VCenterDriver::ESXHost
-                               .new_from_ref(host._ref, vi_client)
-                    esx_host.lock
-                    if dvs
-                        pnics_available = nil
-                        if pnics && !pnics.empty?
-                            pnics_available = esx_host.available_pnics
+
+            clusters.each do |cluster|
+                cluster['host'].each do |host|
+                    begin
+                        esx_host = VCenterDriver::ESXHost.new_from_ref(
+                            host._ref,
+                            vi_client
+                        )
+                        esx_host.lock
+                        if dvs
+                            pnics_available = nil
+                            if pnics && !pnics.empty?
+                                pnics_available = esx_host.available_pnics
+                            end
+                            esx_host.assign_proxy_switch(
+                                dvs,
+                                sw_name,
+                                pnics,
+                                pnics_available
+                            )
                         end
-                        esx_host.assign_proxy_switch(dvs,
-                                                     sw_name,
-                                                     pnics,
-                                                     pnics_available)
+                    rescue StandardError => e
+                        message = 'Error adding distributed port group ' \
+                                  " #{pg_name} to host #{host._ref}." \
+                                  " Reason: \"#{e.message}\"."
+                        if VCenterDriver::CONFIG[:debug_information]
+                            message += "#{message} #{e.backtrace}"
+                        end
+                        raise message
+                    ensure
+                        esx_host.unlock if esx_host
                     end
-                rescue StandardError => e
-                    raise e
-                ensure
-                    esx_host.unlock if esx_host
                 end
             end
         else
@@ -357,96 +370,144 @@ begin
         raise CreateNetworkError, err_msg
     end
 
-    host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
-    unless host_id
-        err_msg = 'Missing VCENTER_ONE_HOST_ID'
-        raise CreateNetworkError, err_msg
-    end
-
-    # Step 2. Contact vCenter cluster and extract cluster's info
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
-    one_host  = OpenNebula::Host.new_with_id(host_id, one_client)
-
-    rc = one_host.info
-    if OpenNebula.is_error?(rc)
-        err_msg = rc.message
-        raise CreateNetworkError, err_msg
-    end
-
-    cluster_id = one_host['CLUSTER_ID']
-
-    vnet_ref = nil
-    ccr_ref  = one_host['TEMPLATE/VCENTER_CCR_REF']
-    cluster  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref,
-                                                                  vi_client)
-    dc       = cluster.datacenter
-
-    # Step 3. Create the port groups based on each type
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
-        begin
-            logical_switch = create_virtual_wire(one_vnet, host_id)
-            vnet_ref = logical_switch.ls_vcenter_ref
-            ls_vni   = logical_switch.ls_vni
-            ls_name = logical_switch.ls_name
-            net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
-            net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
-            net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
-            net_info << "NSX_VNI=\"#{ls_vni}\"\n"
-            net_info << "BRIDGE=\"#{ls_name}\"\n"
-            add_vnet_to_cluster(one_vnet, cluster_id)
-            net_info << "VCENTER_NET_STATE=\"READY\"\n"
-            update_net(one_vnet, net_info)
-        rescue StandardError => e
-            err_msg = e.message
-            raise CreateNetworkError, err_msg
-        end
-    end
-
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
-        begin
-            logical_switch = create_opaque_network(one_vnet, host_id)
-            vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
-            ls_vni = logical_switch.ls_vni
-            ls_name = logical_switch.ls_name
-            net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
-            net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
-            net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
-            net_info << "NSX_VNI=\"#{ls_vni}\"\n"
-            net_info << "BRIDGE=\"#{ls_name}\"\n"
-            add_vnet_to_cluster(one_vnet, cluster_id)
-            net_info << "VCENTER_NET_STATE=\"READY\"\n"
-            update_net(one_vnet, net_info)
-        rescue StandardError => e
-            err_msg = e.message
-            raise CreateNetworkError, err_msg
-        end
-    end
-
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_DPG
+        hosts_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
+        unless hosts_id
+            err_msg = 'Missing VCENTER_ONE_HOST_ID'
+            raise CreateNetworkError, err_msg
+        end
+
+        dc = nil
+        clusters = []
+        clusters_ids = []
+        vi_client = nil
+        vc_uuid = nil
+
+        # Step 2. Get vnet, contact cluster and extract cluster's info
+        hosts_id.split(',').each do |host_id|
+            host_id = host_id.to_i
+
+            vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+            vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+            one_host  = OpenNebula::Host.new_with_id(host_id, one_client)
+
+            rc = one_host.info
+            if OpenNebula.is_error?(rc)
+                err_msg = rc.message
+                raise CreateNetworkError, err_msg
+            end
+
+            cluster_id = one_host['CLUSTER_ID']
+
+            clusters_ids.push(cluster_id)
+
+            ccr_ref  = one_host['TEMPLATE/VCENTER_CCR_REF']
+            cluster  = VCenterDriver::ClusterComputeResource.new_from_ref(
+                ccr_ref,
+                vi_client
+            )
+            clusters.push(cluster)
+            dc = cluster.datacenter
+        end
+
         # With DVS we have to work at datacenter level and then for each host
-        vnet_ref = create_dpg(one_vnet, dc, cluster, vi_client)
+        vnet_ref = create_dpg(one_vnet, dc, clusters, vi_client)
         net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
         net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
-        add_vnet_to_cluster(one_vnet, cluster_id)
+        clusters_ids.each do |cluster_id|
+            add_vnet_to_cluster(one_vnet, cluster_id)
+        end
         net_info << "VCENTER_NET_STATE=\"READY\"\n"
         update_net(one_vnet, net_info)
+    else
+        host_id = one_vnet['TEMPLATE/VCENTER_ONE_HOST_ID']
+        unless host_id
+            err_msg = 'Missing VCENTER_ONE_HOST_ID'
+            raise CreateNetworkError, err_msg
+        end
+
+        # Step 2. Contact vCenter cluster and extract cluster's info
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+        one_host  = OpenNebula::Host.new_with_id(host_id, one_client)
+
+        rc = one_host.info
+        if OpenNebula.is_error?(rc)
+            err_msg = rc.message
+            raise CreateNetworkError, err_msg
+        end
+
+        cluster_id = one_host['CLUSTER_ID']
+
+        vnet_ref = nil
+        ccr_ref  = one_host['TEMPLATE/VCENTER_CCR_REF']
+        cluster  = VCenterDriver::ClusterComputeResource.new_from_ref(
+            ccr_ref,
+            vi_client
+        )
+        dc = cluster.datacenter
+
+        # Step 3. Create the port groups based on each type
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV
+            begin
+                logical_switch = create_virtual_wire(one_vnet, host_id)
+                vnet_ref = logical_switch.ls_vcenter_ref
+                ls_vni   = logical_switch.ls_vni
+                ls_name = logical_switch.ls_name
+                net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
+                net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+                net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
+                net_info << "NSX_VNI=\"#{ls_vni}\"\n"
+                net_info << "BRIDGE=\"#{ls_name}\"\n"
+                add_vnet_to_cluster(one_vnet, cluster_id)
+                net_info << "VCENTER_NET_STATE=\"READY\"\n"
+                update_net(one_vnet, net_info)
+            rescue StandardError => e
+                err_msg = e.message
+                raise CreateNetworkError, err_msg
+            end
+        end
+
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXT
+            begin
+                logical_switch = create_opaque_network(one_vnet, host_id)
+                vnet_ref = dc.nsx_network(logical_switch.ls_id, pg_type)
+                ls_vni = logical_switch.ls_vni
+                ls_name = logical_switch.ls_name
+                net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
+                net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+                net_info << "NSX_ID=\"#{logical_switch.ls_id}\"\n"
+                net_info << "NSX_VNI=\"#{ls_vni}\"\n"
+                net_info << "BRIDGE=\"#{ls_name}\"\n"
+                add_vnet_to_cluster(one_vnet, cluster_id)
+                net_info << "VCENTER_NET_STATE=\"READY\"\n"
+                update_net(one_vnet, net_info)
+            rescue StandardError => e
+                err_msg = e.message
+                raise CreateNetworkError, err_msg
+            end
+        end
+
+        if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
+            # With DVS we have to work at esxi host level
+            cluster['host'].each do |host|
+                esx_host = VCenterDriver::ESXHost.new_from_ref(
+                    host._ref,
+                    vi_client
+                )
+                esx_rollback << esx_host
+                vnet_ref = create_pg(one_vnet, esx_host)
+            end
+            net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
+            net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+            add_vnet_to_cluster(one_vnet, cluster_id)
+            net_info << "VCENTER_NET_STATE=\"READY\"\n"
+            update_net(one_vnet, net_info)
+        end
     end
 
-    if pg_type == VCenterDriver::Network::NETWORK_TYPE_PG
-        # With DVS we have to work at esxi host level
-        cluster['host'].each do |host|
-            esx_host = VCenterDriver::ESXHost.new_from_ref(host._ref, vi_client)
-            esx_rollback << esx_host
-            vnet_ref = create_pg(one_vnet, esx_host)
-        end
-        net_info << "VCENTER_NET_REF=\"#{vnet_ref}\"\n"
-        net_info << "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
-        add_vnet_to_cluster(one_vnet, cluster_id)
-        net_info << "VCENTER_NET_STATE=\"READY\"\n"
-        update_net(one_vnet, net_info)
-    end
     one_vnet.unlock
+
     exit(0)
 rescue AllocateNetworkError => e
     # Here there is no one_vnet allocated
