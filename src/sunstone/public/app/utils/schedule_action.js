@@ -838,77 +838,73 @@ define(function (require) {
    */
   function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true, stime=0) {
     var sched_obj = {};
-    var time_str = Humanize.prettyTime(schedule_action.TIME);
+    if(schedule_action){
+      var time_str = Humanize.prettyTime(schedule_action.TIME);
 
-    switch (schedule_action.REPEAT) {
-      case "0":
-        sched_obj.rep_str = Locale.tr("Weekly") +
-          " " +
-          Humanize.week_days(schedule_action.DAYS);
-        break;
-      case "1":
-        sched_obj.rep_str = Locale.tr("Monthly") +
-          " " +
-          schedule_action.DAYS;
-        break;
-      case "2":
-        sched_obj.rep_str = Locale.tr("Yearly") +
-          " " +
-          Humanize.week_days(schedule_action.DAYS);
-        break;
-      case "3":
-        sched_obj.rep_str = Locale.tr("Each") +
-          " " +
-          schedule_action.DAYS +
-          " " +
-          Locale.tr("hours");
-        break;
-      default:
-        break;
+      switch (schedule_action.REPEAT) {
+        case "0":
+          sched_obj.rep_str = Locale.tr("Weekly") +
+            " " +
+            Humanize.week_days(schedule_action.DAYS);
+          break;
+        case "1":
+          sched_obj.rep_str = Locale.tr("Monthly") +
+            " " +
+            schedule_action.DAYS;
+          break;
+        case "2":
+          sched_obj.rep_str = Locale.tr("Yearly") +
+            " " +
+            Humanize.week_days(schedule_action.DAYS);
+          break;
+        case "3":
+          sched_obj.rep_str = Locale.tr("Each") +
+            " " +
+            schedule_action.DAYS +
+            " " +
+            Locale.tr("hours");
+          break;
+        default:
+          break;
+      }
+
+      switch (schedule_action.END_TYPE) {
+        case "0":
+          sched_obj.end_str = Locale.tr("None");
+          break;
+        case "1":
+          sched_obj.end_str = Locale.tr("After") + 
+            " " +
+            schedule_action.END_VALUE +
+            " " +
+            Locale.tr("times");
+          break;
+        case "2":
+          sched_obj.end_str = Locale.tr("On") + 
+            " " +
+            Humanize.prettyTime(schedule_action.END_VALUE);
+          break;
+        default:
+          break;
+      }
+
+      if (schedule_action.ID){
+        sched_obj.id = schedule_action.ID;
+      } else{
+        sched_obj.id = currentSchedID.toString();
+      }
+      currentSchedID++;
+
+      var time = String(schedule_action.TIME);
+      sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
+      sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
+      sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
+      sched_obj.action = JSON.stringify(schedule_action);
+      sched_obj.name = schedule_action.ACTION;
+      sched_obj.canEdit = canEdit && sched_obj.id;
+      sched_obj.canDelete = canDelete && sched_obj.id;
+      sched_obj.canEditOrDelete = (canEdit || canDelete) && sched_obj.id;
     }
-
-    switch (schedule_action.END_TYPE) {
-      case "0":
-        sched_obj.end_str = Locale.tr("None");
-        break;
-      case "1":
-        sched_obj.end_str = Locale.tr("After") +
-          " " +
-          schedule_action.END_VALUE +
-          " " +
-          Locale.tr("times");
-        break;
-      case "2":
-        sched_obj.end_str = Locale.tr("On") +
-          " " +
-          Humanize.prettyTime(schedule_action.END_VALUE);
-        break;
-      default:
-        break;
-    }
-
-    if (schedule_action.ID){
-      sched_obj.id = schedule_action.ID;
-    } else{
-      sched_obj.id = currentSchedID.toString();
-    }
-    currentSchedID++;
-
-    var time = String(schedule_action.TIME);
-    var ending_time = parseInt(time,10) + dateToEpoch(new Date(stime * 1000));
-    var remaining_time = ending_time - dateToEpoch(new Date());
-    sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? "In " + Humanize.prettyDuration(remaining_time) : time_str);
-    sched_obj.time_date = time && time.match(/^\+(.*)/gi) ? Humanize.prettyTime(ending_time) : time_str;
-    sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
-    sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
-
-    sched_obj.action = JSON.stringify(schedule_action);
-    sched_obj.name = schedule_action.ACTION;
-
-    sched_obj.canEdit = canEdit && sched_obj.id;
-    sched_obj.canDelete = canDelete && sched_obj.id;
-    sched_obj.canEditOrDelete = (canEdit || canDelete) && sched_obj.id;
-
     return TemplateTableRowHTML(sched_obj);
   }
 
