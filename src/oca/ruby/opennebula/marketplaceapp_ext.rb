@@ -461,7 +461,7 @@ module OpenNebula::MarketPlaceAppExt
             def export_recursive(xpath, options)
                 # Get marketplace apps pool to find roles apps
                 pool = OpenNebula::MarketPlaceAppPool.new(@client)
-                rc   = pool.info
+                rc   = pool.info_all
 
                 return rc if OpenNebula.is_error?(rc)
 
