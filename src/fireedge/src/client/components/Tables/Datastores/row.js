@@ -38,7 +38,7 @@ const Row = ({ original, value, ...props }) => {
     DatastoreModel.getState(original)
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`datastore-${ID}`}>
       <div>
         <StatusCircle color={stateColor} tooltip={stateName} />
       </div>

@@ -95,7 +95,7 @@ const Filters = ({ onlyGlobalSearch, useTableProps, searchProps }) => {
           [classes.contentWithFilter]: !noFilters,
         })}
       >
-        <GlobalFilter useTableProps={useTableProps} />
+        <GlobalFilter useTableProps={useTableProps} searchProps={searchProps} />
 
         {!noFilters && <div className={classes.filters}>{filters}</div>}
       </CardContent>

@@ -26,7 +26,7 @@ const Row = ({ original, value, ...props }) => {
   const { ID, NAME, TOTAL_USERS } = value
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`group-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography component="span">{NAME}</Typography>
