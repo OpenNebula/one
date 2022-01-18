@@ -79,9 +79,10 @@ if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
     DST_DEV="/dev/${DST_VG_NAME}/${LV_NAME}"
 
     # skip deactivate for `onevm resume` (after stop or undeploy)
-    # 9(49) = PROLOG_RESUME(+FAILURE)
+    # 9(49)  = PROLOG_RESUME(+FAILURE)
     # 31(50) = PROLOG_UNDEPLOY(+FAILURE)
-    if ! [[ "$LCM_STATE" =~ ^(9|31|49|50)$ ]]; then
+    # 60(61) = PROLOG_MIGRATE_UNKNOWN(+FAILURE)
+    if ! [[ "$LCM_STATE" =~ ^(9|31|49|50|60|61)$ ]]; then
         # deactivate
         CMD=$(cat <<EOF
             set -ex -o pipefail
