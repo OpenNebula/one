@@ -51,7 +51,7 @@ const Row = ({ original, value, ...props }) => {
   const labels = [...new Set([IM_MAD, VM_MAD])]
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`host-${ID}`}>
       <div>
         <StatusCircle color={stateColor} tooltip={stateName} />
       </div>

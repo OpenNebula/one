@@ -56,21 +56,23 @@ const Row = ({ original, value, ...props }) => {
           <Typography noWrap component="span">
             {NAME}
           </Typography>
-          <span className={classes.labels}>{LOCK && <Lock />}</span>
+          <span className={classes.labels}>
+            {LOCK && <Lock data-cy="lock" />}
+          </span>
         </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
           <span title={`Owner: ${UNAME}`}>
             <User />
-            <span>{` ${UNAME}`}</span>
+            <span data-cy="uname">{` ${UNAME}`}</span>
           </span>
           <span title={`Group: ${GNAME}`}>
             <Group />
-            <span>{` ${GNAME}`}</span>
+            <span data-cy="gname">{` ${GNAME}`}</span>
           </span>
           <span title={`Hostname: ${HOSTNAME}`}>
             <HardDrive />
-            <span>{` ${HOSTNAME}`}</span>
+            <span data-cy="hostname">{` ${HOSTNAME}`}</span>
           </span>
         </div>
       </div>

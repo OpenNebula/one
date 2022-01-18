@@ -26,6 +26,7 @@ import MultipleTags from 'client/components/MultipleTags'
 function VirtualMachines() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = VmActions()
+  const dataCy = 'vms'
 
   return (
     <Stack height={1} py={2} overflow="auto" component={Container}>
@@ -33,7 +34,8 @@ function VirtualMachines() {
         <VmsTable
           onSelectedRowsChange={onSelectedRowsChange}
           globalActions={actions}
-          rootProps={{ 'data-cy': 'vms' }}
+          rootProps={{ 'data-cy': dataCy }}
+          searchProps={{ 'data-cy': `search-${dataCy}` }}
         />
 
         {selectedRows?.length > 0 && (
