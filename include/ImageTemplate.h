@@ -45,6 +45,11 @@ public:
         replace("SAVE_AS_HOT", "YES");
     }
 
+    void clear_saving()
+    {
+        erase("SAVE_AS_HOT");
+    }
+
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------

@@ -440,6 +440,11 @@ public:
         return static_cast<ImageTemplate*>(obj_template.get())->is_saving();
     }
 
+    void clear_saving()
+    {
+        static_cast<ImageTemplate*>(obj_template.get())->clear_saving();
+    }
+
     /**
      *  Set/Unset an image as persistent
      *    @param persistent true to make an image persistent

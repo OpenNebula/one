@@ -1753,6 +1753,8 @@ void LifeCycleManager::trigger_saveas_success(int vid)
 
         if ( auto image = ipool->get(image_id) )
         {
+            image->clear_saving();
+
             image->set_state_unlock();
 
             ipool->update(image.get());
@@ -1803,6 +1805,8 @@ void LifeCycleManager::trigger_saveas_failure(int vid)
 
         if ( auto image = ipool->get(image_id) )
         {
+            image->clear_saving();
+
             image->set_state(Image::ERROR);
 
             ipool->update(image.get());
