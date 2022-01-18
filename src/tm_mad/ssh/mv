@@ -26,6 +26,9 @@
 SRC=$1
 DST=$2
 
+VMID=$3
+DSID=$4
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
@@ -57,7 +60,11 @@ if [ "$(is_disk $DST_PATH)" -eq 1 ]; then
     exit 0
 fi
 
-if [ "$(lcm_state)" -eq 60 ]; then
+#Do not try to move any files in PROLOG_MIGRATE_UNKNOWN (60) or
+#PROLOG_MIGRATE_UNKNOWN_FAILURE (61)
+LCM_STATE=$(lcm_state "$VMID")
+
+if ! [[ "$LCM_STATE" =~ ^(60|61)$ ]]; then
     log "Not moving files from $SRC_HOST in FT mode"
     exit 0
 fi
