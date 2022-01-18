@@ -64,7 +64,7 @@ fi
 #PROLOG_MIGRATE_UNKNOWN_FAILURE (61)
 LCM_STATE=$(lcm_state "$VMID")
 
-if ! [[ "$LCM_STATE" =~ ^(60|61)$ ]]; then
+if [[ "$LCM_STATE" =~ ^(60|61)$ ]]; then
     log "Not moving files from $SRC_HOST in FT mode"
     exit 0
 fi
