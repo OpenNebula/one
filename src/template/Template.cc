@@ -268,7 +268,7 @@ int Template::replace(const string& name, const bool& value)
 
 int Template::erase(const string& name)
 {
-    int                                             j = 0;
+    int  j = 0;
 
     auto index = attributes.equal_range(name);
 
