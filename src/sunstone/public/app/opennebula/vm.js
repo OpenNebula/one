@@ -316,19 +316,12 @@ define(function(require) {
     "VROUTER_IP6_ULA"
   ];
 
-  var EXTERNAL_NETWORK_ATTRIBUTES = [
-    "GUEST_IP",
-    "GUEST_IP_ADDRESSES",
-    "AWS_IP_ADDRESS",
+  var EXTERNAL_NETWORK_ATTRS = EXTERNAL_IP_ATTRS.concat([
     "AWS_DNS_NAME",
-    "AWS_PUBLIC_IP_ADDRESS",
     "AWS_PUBLIC_DNS_NAME",
-    "AWS_PRIVATE_IP_ADDRESS",
     "AWS_PRIVATE_DNS_NAME",
-    "AWS_SECURITY_GROUPS",
-    "AZ_IPADDRESS",
-    "SL_PRIMARYIPADDRESS"
-  ];
+    "AWS_SECURITY_GROUPS"
+  ]);
 
   var MIGRATE_ACTION_STR = [
     "none",                // NONE_ACTION            = 0
@@ -765,27 +758,20 @@ define(function(require) {
   }
 
   function retrieveExternalIPs(element) {
-    var monitoring = element.MONITORING;
-    var ips = {};
-    var externalIP;
-
-    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = monitoring[IPAttr];
-      if (externalIP) {
-        ips[IPAttr] = externalIP;
-      }
-    });
-
-    return ips;
+    return retrieveExternalAttr(element, EXTERNAL_IP_ATTRS);
   }
 
   function retrieveExternalNetworkAttrs(element) {
+    return retrieveExternalAttr(element, EXTERNAL_NETWORK_ATTRS);
+  }
+
+  function retrieveExternalAttr(element, attr_array) {
     var ips = {};
     var externalAttr;
-
     var monitoring = element.MONITORING;
+
     if (monitoring) {
-      $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+      $.each(attr_array, function(_, attr) {
         externalAttr = monitoring[attr];
         if (externalAttr) {
           ips[attr] = externalAttr;
@@ -853,9 +839,10 @@ define(function(require) {
     
     var nics = getNICs(element);
 
-    var nicsFromMonitoring = getNicsFromMonitoring(element)
+    var nicsFromMonitoring = getNicsFromMonitoring(element);
+    var nicExternal = retrieveExternalIPs(element);
 
-    nics = nics.concat(nicsFromMonitoring)
+    nics = nics.concat(nicsFromMonitoring, nicExternal);
 
     // infoextended: alias will be group by nic
     if (Config.isExtendedVmInfo || options.forceGroup) {
