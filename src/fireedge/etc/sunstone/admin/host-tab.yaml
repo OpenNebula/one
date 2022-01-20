@@ -24,7 +24,8 @@ resource_name: "HOST"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  rename: true
+  refresh: true
+  create_dialog: true
   addtocluster: true
   enable: true
   disable: true
@@ -45,31 +46,33 @@ info-tabs:
     enabled: true
     information_panel:
       enabled: true
-    permissions_panel:
-      enabled: true
-    ownership_panel:
-      enabled: true
+      actions:
+        rename: true
     vcenter_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     nsx_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     monitoring_panel:
       enabled: true
       actions:
+        copy: false
         add: false
         edit: false
         delete: false
     attributes_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
@@ -86,3 +89,16 @@ info-tabs:
     enabled: true
   numa:
     enabled: true
+
+# Dialogs
+# ** Required means that it's necessary for the operation of the form
+
+dialogs:
+  create_dialog:
+    information: true # required
+    vcenter:
+      enabled: true
+      not_on:
+        - kvm
+        - lxc
+        - firecracker
