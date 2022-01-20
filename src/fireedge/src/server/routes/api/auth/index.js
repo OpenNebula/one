@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: authRoutes } = require('./auth')
-const { AUTH } = require('./string-routes')
+const { routes: authRoutes } = require('server/routes/api/auth/routes')
+const { AUTH } = require('server/routes/api/auth/string-routes')
 
 const functionRoutes = {
   private: [],

@@ -18,60 +18,40 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const {
-  serviceTemplate,
-  serviceTemplateDelete,
-  serviceTemplateCreate,
-  serviceTemplateUpdate,
-  serviceTemplateAction,
-} = require('./service_template-functions')
-const { GET, POST, DELETE, PUT } = httpMethod
+const { auth } = require('server/routes/api/auth/functions')
+const { POST } = httpMethod
 
 const routes = {
-  [GET]: {
-    list: {
-      action: serviceTemplate,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-      },
-    },
-  },
   [POST]: {
-    create: {
-      action: serviceTemplateCreate,
+    null: {
+      action: auth,
       params: {
-        template: { from: fromData.postBody, front: true },
-      },
-    },
-    action: {
-      action: serviceTemplateAction,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true },
-      },
-    },
-  },
-  [PUT]: {
-    update: {
-      action: serviceTemplateUpdate,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true },
-      },
-    },
-  },
-  [DELETE]: {
-    delete: {
-      action: serviceTemplateDelete,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
+        user: {
+          from: fromData.postBody,
+          name: 'user',
+        },
+        token: {
+          from: fromData.postBody,
+          name: 'token',
+        },
+        type: {
+          from: fromData.postBody,
+          name: 'type',
+        },
+        token2fa: {
+          from: fromData.postBody,
+          name: 'token2fa',
+        },
+        remember: {
+          from: fromData.postBody,
+          name: 'remember',
+        },
       },
     },
   },
 }
 
-const serviceTemplateApi = {
+const authApi = {
   routes,
 }
-
-module.exports = serviceTemplateApi
+module.exports = authApi

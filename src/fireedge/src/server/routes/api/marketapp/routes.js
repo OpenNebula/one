@@ -18,7 +18,11 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { exportApp, importMarket, getDockerTags } = require('./functions')
+const {
+  exportApp,
+  importMarket,
+  getDockerTags,
+} = require('server/routes/api/marketapp/functions')
 const { POST, GET } = httpMethod
 
 const routes = {

@@ -39,7 +39,7 @@ const {
   createYMLContent,
   getEndpoint,
   getSpecificConfig,
-} = require('./functions')
+} = require('server/routes/api/oneprovision/utils')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 

@@ -14,13 +14,37 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const privateRoutes = []
+const { setApiRoutes } = require('server/utils/server')
+const {
+  routes: provisionRoutes,
+} = require('server/routes/api/oneprovision/provision')
+const {
+  routes: provisionTemplateRoutes,
+} = require('server/routes/api/oneprovision/template')
+const {
+  routes: providerRoutes,
+} = require('server/routes/api/oneprovision/provider')
 
-const publicRoutes = []
+const {
+  PROVIDER,
+  PROVISION,
+  PROVISION_TEMPLATE,
+} = require('server/routes/api/oneprovision/string-routes')
+
+/**
+ * Add routes.
+ *
+ * @returns {Array} routes
+ */
+const generatePrivateRoutes = () => [
+  ...setApiRoutes(provisionRoutes, PROVISION),
+  ...setApiRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE),
+  ...setApiRoutes(providerRoutes, PROVIDER),
+]
 
 const functionRoutes = {
-  private: privateRoutes,
-  public: publicRoutes,
+  private: generatePrivateRoutes(),
+  public: [],
 }
 
 module.exports = functionRoutes

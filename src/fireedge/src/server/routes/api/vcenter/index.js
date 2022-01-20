@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: vcenterRoutes } = require('./vcenter')
-const { VCENTER } = require('./string-routes')
+const { routes: vcenterRoutes } = require('server/routes/api/vcenter/routes')
+const { VCENTER } = require('server/routes/api/vcenter/string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(vcenterRoutes, VCENTER),

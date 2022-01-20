@@ -27,15 +27,15 @@ const {
   serviceAddSchedAction,
   serviceUpdateSchedAction,
   serviceDeleteSchedAction,
-} = require('./service-functions')
+} = require('server/routes/api/oneflow/service/functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
 const routes = {
   [GET]: {
-    list: {
+    null: {
       action: service,
       params: {
-        id: { from: fromData.resource, name: 'id' },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
@@ -54,11 +54,11 @@ const routes = {
         action: { from: fromData.postBody },
       },
     },
-    'role-action': {
+    role_action: {
       action: serviceAddRoleAction,
       params: {
-        role: { from: fromData.resource, name: 'id' },
-        id: { from: fromData.resource, name: 'id2' },
+        id: { from: fromData.resource, name: 'id' },
+        role: { from: fromData.resource, name: 'id2' },
         action: { from: fromData.postBody },
       },
     },
@@ -81,15 +81,15 @@ const routes = {
     },
   },
   [DELETE]: {
-    delete: {
+    null: {
       action: serviceDelete,
-      params: { id: { from: fromData.resource, name: 'id', front: true } },
+      params: { id: { from: fromData.resource, name: 'method' } },
     },
     sched_action: {
       action: serviceDeleteSchedAction,
       params: {
-        id: { from: fromData.resource, name: 'id' },
-        id_sched: { from: fromData.resource, name: 'id2' },
+        id: { from: fromData.resource, name: 'method' },
+        id_sched: { from: fromData.resource, name: 'id' },
       },
     },
   },

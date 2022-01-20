@@ -18,25 +18,86 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { saveAsTemplate } = require('./functions')
-const { POST } = httpMethod
+const {
+  login,
+  list,
+  comments,
+  create,
+  update,
+} = require('server/routes/api/zendesk/functions')
+const { POST, GET, PUT } = httpMethod
 
 const routes = {
   [POST]: {
-    save: {
-      action: saveAsTemplate,
+    login: {
+      action: login,
+      params: {
+        user: {
+          from: fromData.postBody,
+          name: 'user',
+        },
+        pass: {
+          from: fromData.postBody,
+          name: 'pass',
+        },
+      },
+    },
+    null: {
+      action: create,
+      params: {
+        subject: {
+          from: fromData.postBody,
+          name: 'subject',
+        },
+        body: {
+          from: fromData.postBody,
+          name: 'body',
+        },
+        version: {
+          from: fromData.postBody,
+          name: 'version',
+        },
+        severity: {
+          from: fromData.postBody,
+          name: 'severity',
+        },
+      },
+    },
+  },
+  [PUT]: {
+    null: {
+      action: update,
+      params: {
+        id: {
+          from: fromData.resource,
+          name: 'method',
+        },
+        body: {
+          from: fromData.postBody,
+          name: 'body',
+        },
+        solved: {
+          from: fromData.postBody,
+          name: 'solved',
+        },
+        attachments: {
+          from: 'files',
+          name: 'attachments',
+        },
+      },
+    },
+  },
+  [GET]: {
+    null: {
+      action: list,
+      params: {},
+    },
+    comments: {
+      action: comments,
       params: {
         id: {
           from: fromData.resource,
           name: 'id',
-        },
-        name: {
-          from: fromData.postBody,
-          name: 'name',
-        },
-        persistent: {
-          from: fromData.postBody,
-          name: 'persistent',
         },
       },
     },

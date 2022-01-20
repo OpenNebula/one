@@ -15,8 +15,11 @@
  * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { role, service, action } = require('./schemas')
-const { oneFlowConection } = require('./functions')
+const { role, service, action } = require('server/routes/api/oneflow/schemas')
+const {
+  oneFlowConection,
+  returnSchemaError,
+} = require('server/routes/api/oneflow/utils')
 const {
   httpMethod,
   defaultEmptyFunction,
@@ -27,7 +30,6 @@ const {
   internalServerError,
   methodNotAllowed,
 } = require('server/utils/constants/http-codes')
-const { returnSchemaError } = require('./functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
 /**

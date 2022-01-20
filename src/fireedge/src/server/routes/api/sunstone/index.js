@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: sunstoneRoutes } = require('./sunstone')
+const { routes: sunstoneRoutes } = require('./routes')
 
 const { SUNSTONE } = require('./string-routes')
 

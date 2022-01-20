@@ -18,92 +18,64 @@ const {
   from: fromData,
   httpMethod,
 } = require('server/utils/constants/defaults')
-const { show, list, upload, update, deleteFile } = require('./functions')
+const {
+  getListProviders,
+  getConnectionProviders,
+  createProviders,
+  updateProviders,
+  deleteProvider,
+  getProviderConfig,
+} = require('server/routes/api/oneprovision/provider/functions')
+
 const { GET, POST, PUT, DELETE } = httpMethod
 
-const publicRoutes = {
+const routes = {
   [GET]: {
     null: {
-      action: show,
+      action: getListProviders,
       params: {
-        file: {
-          from: fromData.query,
-          name: 'file',
-        },
-        token: {
-          from: fromData.query,
-          name: 'token',
-        },
-        app: {
-          from: fromData.query,
-          name: 'app',
-        },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
-  },
-}
-
-const privateRoutes = {
-  [GET]: {
-    null: {
-      action: list,
+    connection: {
+      action: getConnectionProviders,
       params: {
-        app: {
-          from: fromData.query,
-          name: 'app',
-        },
+        id: { from: fromData.resource, name: 'id' },
       },
+    },
+    config: {
+      action: getProviderConfig,
+      params: {},
     },
   },
   [POST]: {
     null: {
-      action: upload,
+      action: createProviders,
       params: {
-        app: {
-          from: fromData.query,
-          name: 'app',
-        },
-        files: {
-          from: 'files',
-          name: 'files',
-        },
-        root: {
-          from: fromData.query,
-          name: 'public',
-        },
+        resource: { from: fromData.postBody },
       },
     },
   },
   [PUT]: {
     null: {
-      action: update,
+      action: updateProviders,
       params: {
-        name: {
-          from: fromData.query,
-          name: 'name',
-        },
-        files: {
-          from: 'files',
-          name: 'files',
-        },
+        resource: { from: fromData.postBody },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
   [DELETE]: {
     null: {
-      action: deleteFile,
+      action: deleteProvider,
       params: {
-        file: {
-          from: fromData.query,
-          name: 'file',
-        },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
 }
 
-const fileApi = {
-  publicRoutes,
-  privateRoutes,
+const providerApi = {
+  routes,
 }
-module.exports = fileApi
+module.exports = providerApi

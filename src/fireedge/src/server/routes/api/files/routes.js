@@ -15,43 +15,101 @@
  * ------------------------------------------------------------------------- */
 
 const {
-  httpMethod,
   from: fromData,
+  httpMethod,
 } = require('server/utils/constants/defaults')
-const { auth } = require('./auth-functions')
-const { POST } = httpMethod
+const {
+  show,
+  list,
+  upload,
+  update,
+  deleteFile,
+} = require('server/routes/api/files/functions')
+const { GET, POST, PUT, DELETE } = httpMethod
 
-const routes = {
-  [POST]: {
+const publicRoutes = {
+  [GET]: {
     null: {
-      action: auth,
+      action: show,
       params: {
-        user: {
-          from: fromData.postBody,
-          name: 'user',
+        file: {
+          from: fromData.query,
+          name: 'file',
         },
         token: {
-          from: fromData.postBody,
+          from: fromData.query,
           name: 'token',
         },
-        type: {
-          from: fromData.postBody,
-          name: 'type',
-        },
-        token2fa: {
-          from: fromData.postBody,
-          name: 'token2fa',
-        },
-        remember: {
-          from: fromData.postBody,
-          name: 'remember',
+        app: {
+          from: fromData.query,
+          name: 'app',
         },
       },
     },
   },
 }
 
-const authApi = {
-  routes,
+const privateRoutes = {
+  [GET]: {
+    null: {
+      action: list,
+      params: {
+        app: {
+          from: fromData.query,
+          name: 'app',
+        },
+      },
+    },
+  },
+  [POST]: {
+    null: {
+      action: upload,
+      params: {
+        app: {
+          from: fromData.query,
+          name: 'app',
+        },
+        files: {
+          from: 'files',
+          name: 'files',
+        },
+        root: {
+          from: fromData.query,
+          name: 'public',
+        },
+      },
+    },
+  },
+  [PUT]: {
+    null: {
+      action: update,
+      params: {
+        name: {
+          from: fromData.query,
+          name: 'name',
+        },
+        files: {
+          from: 'files',
+          name: 'files',
+        },
+      },
+    },
+  },
+  [DELETE]: {
+    null: {
+      action: deleteFile,
+      params: {
+        file: {
+          from: fromData.query,
+          name: 'file',
+        },
+      },
+    },
+  },
 }
-module.exports = authApi
+
+const fileApi = {
+  publicRoutes,
+  privateRoutes,
+}
+module.exports = fileApi

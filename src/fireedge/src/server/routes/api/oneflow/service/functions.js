@@ -15,8 +15,11 @@
  * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { action } = require('./schemas')
-const { oneFlowConnection } = require('./functions')
+const { action } = require('server/routes/api/oneflow/schemas')
+const {
+  oneFlowConnection,
+  returnSchemaError,
+} = require('server/routes/api/oneflow/utils')
 const {
   httpMethod,
   defaultEmptyFunction,
@@ -27,7 +30,6 @@ const {
   internalServerError,
   methodNotAllowed,
 } = require('server/utils/constants/http-codes')
-const { returnSchemaError } = require('./functions')
 const { generateNewResourceTemplate } = require('server/utils/opennebula')
 const { Actions: ActionVM } = require('server/utils/constants/commands/vm')
 const { GET, POST, DELETE } = httpMethod
@@ -312,7 +314,7 @@ const serviceAddRoleAction = (
         path: '/service/{0}/role/{1}',
         user,
         password,
-        request: [role, id],
+        request: [id, role],
         post: postAction,
       }
       oneFlowConnection(
