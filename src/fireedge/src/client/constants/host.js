@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as STATES from 'client/constants/states'
+import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
 
 /**
@@ -80,3 +81,15 @@ export const HOST_STATES = [
     color: COLOR.error.dark,
   },
 ]
+
+/** @enum {string} Host actions */
+export const HOST_ACTIONS = {
+  REFRESH: ACTIONS.REFRESH,
+  CREATE_DIALOG: 'create_dialog',
+  RENAME: ACTIONS.RENAME,
+  ADD_TO_CLUSTER: 'addtocluster',
+  ENABLE: 'enable',
+  DISABLE: 'disable',
+  OFFLINE: 'offline',
+  DELETE: 'delete',
+}

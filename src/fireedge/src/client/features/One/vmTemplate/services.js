@@ -134,7 +134,7 @@ export const vmTemplateService = {
    *
    * @param {object} params - Request params
    * @param {number|string} params.id - Template id
-   * @param {boolean} params.template - The new template contents
+   * @param {string} params.template - The new template contents
    * @param {0|1} params.replace
    * - Update type:
    * ``0``: Replace the whole template.

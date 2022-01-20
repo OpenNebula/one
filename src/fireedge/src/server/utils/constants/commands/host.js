@@ -52,11 +52,11 @@ module.exports = {
           from: postBody,
           default: '',
         },
-        information: {
+        imMad: {
           from: postBody,
           default: '',
         },
-        manager: {
+        vmmMad: {
           from: postBody,
           default: '',
         },
@@ -154,7 +154,12 @@ module.exports = {
     [HOST_POOL_MONITORING]: {
       // inspected
       httpMethod: GET,
-      params: {},
+      params: {
+        seconds: {
+          from: query,
+          default: -1,
+        },
+      },
     },
   },
 }
