@@ -27,3 +27,19 @@ export const getHosts = createAction(
   hostService.getHosts,
   (response) => ({ [RESOURCES.host]: response })
 )
+
+export const allocate = createAction(`${HOST}/allocate`, hostService.allocate)
+export const remove = createAction(`${HOST}/delete`, hostService.delete)
+export const enable = createAction(`${HOST}/enable`, hostService.enable)
+export const disable = createAction(`${HOST}/disable`, hostService.disable)
+export const offline = createAction(`${HOST}/offline`, hostService.offline)
+export const update = createAction(`${HOST}/update`, hostService.update)
+export const rename = createAction(`${HOST}/rename`, hostService.rename)
+export const monitoring = createAction(
+  `${HOST}/monitoring`,
+  hostService.monitoring
+)
+export const monitoringPool = createAction(
+  `${HOST}/monitoring-pool`, // ends with "-pool" to differentiate with resource pool
+  hostService.monitoringPool
+)

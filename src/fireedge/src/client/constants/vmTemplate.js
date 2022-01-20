@@ -16,7 +16,7 @@
 import * as ACTIONS from 'client/constants/actions'
 
 export const VM_TEMPLATE_ACTIONS = {
-  REFRESH: 'refresh',
+  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   IMPORT_DIALOG: 'import_dialog',
   UPDATE_DIALOG: 'update_dialog',

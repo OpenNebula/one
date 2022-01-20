@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 // INFORMATION
+export const REFRESH = 'refresh'
 export const RENAME = 'rename'
 
 // ATTRIBUTES

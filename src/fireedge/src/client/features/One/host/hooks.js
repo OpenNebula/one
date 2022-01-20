@@ -35,5 +35,17 @@ export const useHostApi = () => {
   return {
     getHost: (id) => unwrapDispatch(actions.getHost({ id })),
     getHosts: (options) => unwrapDispatch(actions.getHosts(options)),
+    allocate: (data) => unwrapDispatch(actions.allocate(data)),
+    remove: (id) => unwrapDispatch(actions.remove({ id })),
+    enable: (id) => unwrapDispatch(actions.enable({ id })),
+    disable: (id) => unwrapDispatch(actions.disable({ id })),
+    offline: (id) => unwrapDispatch(actions.offline({ id })),
+    update: (id, template, replace) =>
+      unwrapDispatch(actions.update({ id, template, replace })),
+    rename: (id, newName) =>
+      unwrapDispatch(actions.rename({ id, name: newName })),
+    getMonitoring: (id) => unwrapDispatch(actions.monitoring({ id })),
+    getMonitoringPool: (seconds) =>
+      unwrapDispatch(actions.monitoringPool({ seconds })),
   }
 }

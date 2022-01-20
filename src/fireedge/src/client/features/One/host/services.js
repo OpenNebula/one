@@ -55,4 +55,199 @@ export const hostService = {
 
     return [res?.data?.HOST_POOL?.HOST ?? []].flat()
   },
+  /**
+   * Allocates a new host in OpenNebula.
+   *
+   * @param {object} params - Request params
+   * @param {string} params.hostname - Hostname of the machine we want to add
+   * @param {string} params.imMad
+   * - The name of the information manager (im_mad_name),
+   * this values are taken from the oned.conf with the tag name IM_MAD (name)
+   * @param {string} params.vmmMad
+   * - The name of the virtual machine manager mad name (vmm_mad_name),
+   * this values are taken from the oned.conf with the tag name VM_MAD (name)
+   * @param {string|number} [params.cluster] - The cluster ID
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  allocate: async (params) => {
+    const name = Actions.HOST_ALLOCATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Deletes the given host from the pool.
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Host id
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  delete: async (params) => {
+    const name = Actions.HOST_DELETE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Sets the status of the host to enabled.
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Host id
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  enable: async (params) => {
+    const name = Actions.HOST_STATUS
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ ...params, status: 0 }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Sets the status of the host to disabled.
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Host id
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  disable: async (params) => {
+    const name = Actions.HOST_STATUS
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ ...params, status: 1 }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Sets the status of the host to offline.
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Host id
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  offline: async (params) => {
+    const name = Actions.HOST_STATUS
+    const command = { name, ...Commands[name] }
+    const config = requestConfig({ ...params, status: 2 }, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Replaces the host’s template contents..
+   *
+   * @param {object} params - Request params
+   * @param {number|string} params.id - Host id
+   * @param {string} params.template - The new template contents
+   * @param {0|1} params.replace
+   * - Update type:
+   * ``0``: Replace the whole template.
+   * ``1``: Merge new template with the existing one.
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  update: async (params) => {
+    const name = Actions.HOST_UPDATE
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data
+  },
+
+  /**
+   * Renames a host.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Host id
+   * @param {string} params.name - New name
+   * @returns {number} Host id
+   * @throws Fails when response isn't code 200
+   */
+  rename: async (params) => {
+    const name = Actions.HOST_RENAME
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Returns the host monitoring records.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} params.id - Host id
+   * @returns {string} The monitoring information string / The error string
+   * @throws Fails when response isn't code 200
+   */
+  monitoring: async (params) => {
+    const name = Actions.HOST_MONITORING
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
+
+  /**
+   * Returns all the host monitoring records.
+   *
+   * @param {object} params - Request parameters
+   * @param {string|number} [params.seconds]
+   * - Retrieve monitor records in the last num seconds.
+   * ``0``: Only the last record.
+   * ``-1``: All records.
+   * @returns {string} The monitoring information string / The error string
+   * @throws Fails when response isn't code 200
+   */
+  monitoringPool: async (params) => {
+    const name = Actions.HOST_POOL_MONITORING
+    const command = { name, ...Commands[name] }
+    const config = requestConfig(params, command)
+
+    const res = await RestClient.request(config)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res?.data
+  },
 }
