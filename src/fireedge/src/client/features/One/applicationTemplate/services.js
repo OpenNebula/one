@@ -30,7 +30,7 @@ export const applicationTemplateService = {
    */
   getApplicationTemplate: ({ id }) => {
     const res = RestClient.request({
-      url: `/api/${SERVICE_TEMPLATE}/list/${id}`,
+      url: `/api/${SERVICE_TEMPLATE}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -44,7 +44,7 @@ export const applicationTemplateService = {
    */
   getApplicationsTemplates: async () => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE_TEMPLATE}/list`,
+      url: `/api/${SERVICE_TEMPLATE}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -64,7 +64,7 @@ export const applicationTemplateService = {
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${SERVICE_TEMPLATE}/create`,
+      url: `/api/${SERVICE_TEMPLATE}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -85,7 +85,7 @@ export const applicationTemplateService = {
     const res = RestClient.request({
       data,
       method: PUT,
-      url: `/api/${SERVICE_TEMPLATE}/update/${id}`,
+      url: `/api/${SERVICE_TEMPLATE}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res

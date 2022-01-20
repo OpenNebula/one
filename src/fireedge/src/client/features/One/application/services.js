@@ -28,7 +28,7 @@ export const applicationService = {
    */
   getApplication: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE}/list/${id}`,
+      url: `/api/${SERVICE}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -44,7 +44,7 @@ export const applicationService = {
    */
   getApplications: async () => {
     const res = await RestClient.request({
-      url: `/api/${SERVICE}/list`,
+      url: `/api/${SERVICE}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res

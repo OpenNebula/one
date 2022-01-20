@@ -14,35 +14,37 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { readdirSync } = require('fs-extra')
+const { resolve } = require('path')
 const { messageTerminal } = require('server/utils/general')
 const { getRouteForOpennebulaCommand } = require('server/utils/opennebula')
-const {
-  defaultFilesRoutes,
-  defaultConfigErrorMessage,
-} = require('server/utils/constants/defaults')
+const { defaultConfigErrorMessage } = require('server/utils/constants/defaults')
 
 const filesDataPrivate = []
 const filesDataPublic = []
 
-defaultFilesRoutes.forEach((file) => {
-  try {
-    // eslint-disable-next-line global-require
-    const fileInfo = require(`./${file}`)
+readdirSync(resolve(__dirname), { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory())
+  .forEach((file) => {
+    try {
+      const { name } = file
+      // eslint-disable-next-line global-require
+      const fileInfo = require(`./${name}`)
 
-    if (fileInfo.private && fileInfo.private.length) {
-      filesDataPrivate.push(...fileInfo.private)
+      if (fileInfo.private && fileInfo.private.length) {
+        filesDataPrivate.push(...fileInfo.private)
+      }
+      if (fileInfo.public && fileInfo.public.length) {
+        filesDataPublic.push(...fileInfo.public)
+      }
+    } catch (error) {
+      if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
+        const config = defaultConfigErrorMessage
+        config.error = error.message
+        messageTerminal(config)
+      }
     }
-    if (fileInfo.public && fileInfo.public.length) {
-      filesDataPublic.push(...fileInfo.public)
-    }
-  } catch (error) {
-    if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
-      const config = defaultConfigErrorMessage
-      config.error = error.message
-      messageTerminal(config)
-    }
-  }
-})
+  })
 
 const opennebulaActions = getRouteForOpennebulaCommand()
 const routes = {

@@ -188,16 +188,16 @@ const addFunctionAsRoute = (
   if (req && req.serverDataSource && res && next && routes) {
     const serverDataSource = req.serverDataSource
     const resources = Object.keys(serverDataSource[fromData.resource])
-    const route =
+    let route =
       routes[
         `${serverDataSource[fromData.resource][resources[index]]}`.toLowerCase()
       ]
-    if (
-      fromData &&
-      fromData.resource &&
-      serverDataSource[fromData.resource] &&
-      route
-    ) {
+
+    if (!route && index === 0 && routes.null) {
+      route = routes.null
+    }
+
+    if (route) {
       if (Object.keys(route).length > 0 && route.constructor === Object) {
         if (
           route.action &&

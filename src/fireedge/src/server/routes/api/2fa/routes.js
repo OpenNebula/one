@@ -14,66 +14,40 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { from: fromData } = require('server/utils/constants/defaults')
 const {
-  getListProviders,
-  getConnectionProviders,
-  createProviders,
-  updateProviders,
-  deleteProvider,
-  getProviderConfig,
-} = require('./provider-functions')
-const { httpMethod } = require('server/utils/constants/defaults')
-
-const { GET, POST, PUT, DELETE } = httpMethod
+  httpMethod,
+  from: fromData,
+} = require('server/utils/constants/defaults')
+const { setup, qr, del } = require('server/routes/api/2fa/functions')
+const { POST, DELETE, GET } = httpMethod
 
 const routes = {
+  [POST]: {
+    null: {
+      action: setup,
+      params: {
+        token: {
+          from: fromData.postBody,
+          name: 'token',
+        },
+      },
+    },
+  },
   [GET]: {
-    list: {
-      action: getListProviders,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-      },
-    },
-    connection: {
-      action: getConnectionProviders,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-      },
-    },
-    config: {
-      action: getProviderConfig,
+    null: {
+      action: qr,
       params: {},
     },
   },
-  [POST]: {
-    create: {
-      action: createProviders,
-      params: {
-        resource: { from: fromData.postBody, front: true },
-      },
-    },
-  },
-  [PUT]: {
-    update: {
-      action: updateProviders,
-      params: {
-        resource: { from: fromData.postBody, front: true },
-        id: { from: fromData.resource, name: 'id', front: true },
-      },
-    },
-  },
   [DELETE]: {
-    delete: {
-      action: deleteProvider,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-      },
+    null: {
+      action: del,
+      params: {},
     },
   },
 }
 
-const providerApi = {
+const authApi = {
   routes,
 }
-module.exports = providerApi
+module.exports = authApi

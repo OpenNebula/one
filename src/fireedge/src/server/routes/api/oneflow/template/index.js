@@ -18,87 +18,60 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { login, list, comments, create, update } = require('./zendesk-functions')
-const { POST, GET, PUT } = httpMethod
+const {
+  serviceTemplate,
+  serviceTemplateDelete,
+  serviceTemplateCreate,
+  serviceTemplateUpdate,
+  serviceTemplateAction,
+} = require('server/routes/api/oneflow/template/functions')
+const { GET, POST, DELETE, PUT } = httpMethod
 
 const routes = {
-  [POST]: {
-    login: {
-      action: login,
+  [GET]: {
+    null: {
+      action: serviceTemplate,
       params: {
-        user: {
-          from: fromData.postBody,
-          name: 'user',
-        },
-        pass: {
-          from: fromData.postBody,
-          name: 'pass',
-        },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
-    create: {
-      action: create,
+  },
+  [POST]: {
+    null: {
+      action: serviceTemplateCreate,
       params: {
-        subject: {
-          from: fromData.postBody,
-          name: 'subject',
-        },
-        body: {
-          from: fromData.postBody,
-          name: 'body',
-        },
-        version: {
-          from: fromData.postBody,
-          name: 'version',
-        },
-        severity: {
-          from: fromData.postBody,
-          name: 'severity',
-        },
+        template: { from: fromData.postBody },
+      },
+    },
+    action: {
+      action: serviceTemplateAction,
+      params: {
+        id: { from: fromData.resource, name: 'id' },
+        template: { from: fromData.postBody },
       },
     },
   },
   [PUT]: {
-    update: {
-      action: update,
+    null: {
+      action: serviceTemplateUpdate,
       params: {
-        id: {
-          from: fromData.resource,
-          name: 'id',
-        },
-        body: {
-          from: fromData.postBody,
-          name: 'body',
-        },
-        solved: {
-          from: fromData.postBody,
-          name: 'solved',
-        },
-        attachments: {
-          from: 'files',
-          name: 'attachments',
-        },
+        id: { from: fromData.resource, name: 'method' },
+        template: { from: fromData.postBody },
       },
     },
   },
-  [GET]: {
-    list: {
-      action: list,
-      params: {},
-    },
-    comments: {
-      action: comments,
+  [DELETE]: {
+    null: {
+      action: serviceTemplateDelete,
       params: {
-        id: {
-          from: fromData.resource,
-          name: 'id',
-        },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
 }
 
-const authApi = {
+const serviceTemplateApi = {
   routes,
 }
-module.exports = authApi
+
+module.exports = serviceTemplateApi

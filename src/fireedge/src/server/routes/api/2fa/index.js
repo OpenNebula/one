@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: tfaRoutes } = require('./tfa')
-const { TFA } = require('./string-routes')
+const { routes: tfaRoutes } = require('server/routes/api/2fa/routes')
+const { TFA } = require('server/routes/api/2fa/string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(tfaRoutes, TFA),

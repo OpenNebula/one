@@ -21,48 +21,48 @@ const {
   instantiateProvisionTemplate,
   updateProvisionTemplate,
   deleteProvisionTemplate,
-} = require('./provision_template-functions')
+} = require('server/routes/api/oneprovision/template/functions')
 const { httpMethod } = require('server/utils/constants/defaults')
 
 const { GET, POST, PUT, DELETE } = httpMethod
 
 const routes = {
   [GET]: {
-    list: {
+    null: {
       action: getListProvisionTemplates,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
   [POST]: {
-    create: {
+    null: {
       action: createProvisionTemplate,
       params: {
-        resource: { from: fromData.postBody, front: true },
+        resource: { from: fromData.postBody },
       },
     },
     instantiate: {
       action: instantiateProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
+        id: { from: fromData.resource, name: 'id' },
       },
     },
   },
   [PUT]: {
-    update: {
+    null: {
       action: updateProvisionTemplate,
       params: {
-        resource: { from: fromData.postBody, front: true },
-        id: { from: fromData.resource, name: 'id', front: true },
+        resource: { from: fromData.postBody },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },
   [DELETE]: {
-    delete: {
+    null: {
       action: deleteProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
+        id: { from: fromData.resource, name: 'method' },
       },
     },
   },

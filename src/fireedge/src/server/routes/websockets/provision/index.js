@@ -16,7 +16,7 @@
 
 const { middlewareValidateAuthWebsocket } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
-const { subscriber } = require('server/routes/api/provision/functions')
+const { subscriber } = require('server/routes/api/oneprovision/utils')
 
 /**
  * Object http error.

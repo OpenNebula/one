@@ -58,8 +58,8 @@ const {
   getEndpoint,
   addOptionalCreateCommand,
   getSpecificConfig,
-} = require('./functions')
-const { provision } = require('./schemas')
+} = require('server/routes/api/oneprovision/utils')
+const { provision } = require('server/routes/api/oneprovision/schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 

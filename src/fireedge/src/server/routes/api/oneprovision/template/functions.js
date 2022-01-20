@@ -32,8 +32,8 @@ const {
   createTemporalFile,
   getEndpoint,
   getSpecificConfig,
-} = require('./functions')
-const { provider } = require('./schemas')
+} = require('server/routes/api/oneprovision/utils')
+const { provider } = require('server/routes/api/oneprovision/schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 

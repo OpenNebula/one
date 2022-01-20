@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: zendeskRoutes } = require('./zendesk')
-const { ZENDESK } = require('./string-routes')
+const { routes: zendeskRoutes } = require('server/routes/api/zendesk/routes')
+const { ZENDESK } = require('server/routes/api/zendesk/string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(zendeskRoutes, ZENDESK),

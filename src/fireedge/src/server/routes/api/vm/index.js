@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: vmRoutes } = require('./vm')
-const { VM } = require('./string-routes')
+const { routes: vmRoutes } = require('server/routes/api/vm/routes')
+const { VM } = require('server/routes/api/vm/string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(vmRoutes, VM),

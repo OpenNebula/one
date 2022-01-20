@@ -29,7 +29,7 @@ const {
   consoleParseToString,
   consoleParseToJSON,
 } = require('server/utils/opennebula')
-const { resources } = require('./command-flags')
+const { resources } = require('server/routes/api/vcenter/command-flags')
 
 const { getSunstoneConfig } = require('server/utils/yml')
 

@@ -24,7 +24,7 @@ const {
   listAll,
   cleartags,
   hosts,
-} = require('./functions')
+} = require('server/routes/api/vcenter/functions')
 const { POST, GET } = httpMethod
 
 const routes = {
@@ -82,12 +82,12 @@ const routes = {
     },
   },
   [GET]: {
-    list: {
+    null: {
       action: list,
       params: {
         vobject: {
           from: fromData.resource,
-          name: 'id',
+          name: 'method',
         },
         host: {
           from: fromData.query,

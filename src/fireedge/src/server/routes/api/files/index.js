@@ -18,8 +18,8 @@ const { setApiRoutes } = require('server/utils/server')
 const {
   privateRoutes: filePrivateRoutes,
   publicRoutes: filePublicRoutes,
-} = require('./files')
-const { FILES } = require('./string-routes')
+} = require('server/routes/api/files/routes')
+const { FILES } = require('server/routes/api/files/string-routes')
 
 const functionRoutes = {
   private: setApiRoutes(filePrivateRoutes, FILES),

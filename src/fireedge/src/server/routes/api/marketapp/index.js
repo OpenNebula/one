@@ -15,7 +15,9 @@
  * ------------------------------------------------------------------------- */
 
 const { setApiRoutes } = require('server/utils/server')
-const { routes: marketappRoutes } = require('./marketapp')
+const {
+  routes: marketappRoutes,
+} = require('server/routes/api/marketapp/routes')
 const { MARKETAPP } = require('./string-routes')
 
 const functionRoutes = {

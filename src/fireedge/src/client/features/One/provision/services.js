@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PROVISION } from 'server/routes/api/provision/string-routes'
+import { PROVISION } from 'server/routes/api/oneprovision/string-routes'
 import { httpCodes, defaults } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
 
@@ -63,7 +63,7 @@ export const provisionService = {
    */
   getProvision: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/list/${id}`,
+      url: `/api/${PROVISION}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -79,7 +79,7 @@ export const provisionService = {
    */
   getProvisions: async () => {
     const res = await RestClient.request({
-      url: `/api/${PROVISION}/list`,
+      url: `/api/${PROVISION}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -99,7 +99,7 @@ export const provisionService = {
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${PROVISION}/create`,
+      url: `/api/${PROVISION}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
@@ -146,7 +146,7 @@ export const provisionService = {
   deleteProvision: async ({ id, ...data }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVISION}/delete/${id}`,
+      url: `/api/${PROVISION}/${id}`,
       data,
     })
 

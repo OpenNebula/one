@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PROVIDER } from 'server/routes/api/provision/string-routes'
+import { PROVIDER } from 'server/routes/api/oneprovision/string-routes'
 import { httpCodes, defaults } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
 
@@ -30,7 +30,7 @@ export const providerService = {
    */
   getProvider: async ({ id }) => {
     const res = await RestClient.request({
-      url: `/api/${PROVIDER}/list/${id}`,
+      url: `/api/${PROVIDER}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -46,7 +46,7 @@ export const providerService = {
    */
   getProviders: async () => {
     const res = await RestClient.request({
-      url: `/api/${PROVIDER}/list`,
+      url: `/api/${PROVIDER}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -86,7 +86,7 @@ export const providerService = {
     const res = await RestClient.request({
       data,
       method: POST,
-      url: `/api/${PROVIDER}/create`,
+      url: `/api/${PROVIDER}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -107,7 +107,7 @@ export const providerService = {
     const res = await RestClient.request({
       data,
       method: PUT,
-      url: `/api/${PROVIDER}/update/${id}`,
+      url: `/api/${PROVIDER}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -126,7 +126,7 @@ export const providerService = {
   deleteProvider: async ({ id }) => {
     const res = await RestClient.request({
       method: DELETE,
-      url: `/api/${PROVIDER}/delete/${id}`,
+      url: `/api/${PROVIDER}/${id}`,
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
