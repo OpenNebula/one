@@ -1120,12 +1120,20 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
             VirtualMachineTemplate quota_tmpl;
             string error;
 
+            time_t the_time = time(0);
+
+            // Prevent Monitor and VMM driver race condition.
+            // Ignore state updates for 30s after state changes
+            if ( the_time - vm->get_running_etime() < 30 )
+            {
+                vm->log("VMM", Log::INFO, "Ignoring VM state update");
+                return;
+            }
+
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
             vm->log("VMM",Log::INFO,"VM found again by the drivers");
-
-            time_t the_time = time(0);
 
             vm->set_state(VirtualMachine::ACTIVE);
 
