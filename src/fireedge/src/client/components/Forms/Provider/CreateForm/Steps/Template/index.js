@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useEffect, useMemo } from 'react'
+import { memo, useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import {
   Divider,
@@ -24,7 +24,7 @@ import {
 } from '@mui/material'
 import {} from '@mui/material/Link'
 import { NavArrowRight } from 'iconoir-react'
-import Marked from 'marked'
+import { marked } from 'marked'
 
 import { useListForm } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
@@ -46,24 +46,30 @@ export const STEP_ID = 'template'
 // Markdown Description
 // ----------------------------------------------------------
 
-const renderer = new Marked.Renderer()
+marked.use({
+  renderer: {
+    link(href, title, text) {
+      return `
+        <a class='description__link'
+          target='_blank' rel='nofollow' title='${title ?? ''}' href='${href}'>
+          ${text}
+        </a>
+      `
+    },
+  },
+})
 
-renderer.link = (href, title, text) => `
-  <a class='description__link'
-    target='_blank' rel='nofollow' title='${title ?? ''}' href='${href}'>
-    ${text}
-  </a>
-`
+const Description = memo(
+  ({ description = '' }) => {
+    const html = marked.parse(sanitize`${description}`)
 
-const Description = ({ description = '' }) => {
-  const html = Marked(sanitize`${description}`, { renderer })
+    return <div dangerouslySetInnerHTML={{ __html: html }} />
+  },
+  (prev, next) => prev.description === next.description
+)
 
-  return <div dangerouslySetInnerHTML={{ __html: html }} />
-}
-
-Description.propTypes = {
-  description: PropTypes.string,
-}
+Description.displayName = 'ProviderTypeDescription'
+Description.propTypes = { description: PropTypes.string }
 
 // ----------------------------------------------------------
 // Step content : Select Provider Template
@@ -204,13 +210,7 @@ const Content = ({ data, setFormData }) => {
       </Breadcrumbs>
 
       {/* -- DESCRIPTION -- */}
-      {useMemo(
-        () =>
-          providerDescription && (
-            <Description description={providerDescription} />
-          ),
-        [providerDescription]
-      )}
+      {providerDescription && <Description description={providerDescription} />}
 
       <Divider style={{ margin: '1rem 0' }} />
 
