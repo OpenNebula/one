@@ -77,8 +77,9 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
+# Remove potential " and ' chars to avoid bash syntax errors on ssh command below.
+FILE_TYPE=`file --brief ${SRC_PATH} | tr -d \"\'`
 FILE_SIZE=`fs_size "${SRC_PATH}" YES`
-FILE_TYPE=`file --brief ${SRC_PATH}`
 
 if [ $? -ne 0 ]; then
     FILE_SIZE=0
@@ -143,7 +144,7 @@ CLONE_CMD=$(cat <<EOF
         seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
     fi
 
-    if [[ "$FILE_TYPE" =~ "LUKS encrypted file" ]]; then
+    if [[ '$FILE_TYPE' =~ "LUKS encrypted file" ]]; then
         cat "$SRC_PATH" > "$DEV"
     else
         $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
