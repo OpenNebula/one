@@ -54,7 +54,9 @@ module OpenNebula
             :unlock         => "vm.unlock",
             :schedadd       => "vm.schedadd",
             :scheddelete    => "vm.scheddelete",
-            :schedupdate    => "vm.schedupdate"
+            :schedupdate    => "vm.schedupdate",
+            :attachsg       => "vm.attachsg",
+            :detachsg       => "vm.detachsg"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -458,6 +460,25 @@ module OpenNebula
         #   otherwise
         def nic_detach(nic_id)
             return call(VM_METHODS[:detachnic], @pe_id, nic_id)
+        end
+
+        # Attaches a Security Groupt to a running VM
+        #
+        # @param nic_id [Integer] Id of the NIC, where to attach SG
+        # @param sg_id [Integer] Id of the SG to be attached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sg_attach(nic_id, sg_id)
+            return call(VM_METHODS[:attachsg], @pe_id, nic_id, sg_id)
+        end
+
+        # Detaches a Security Group from a running VM
+        #
+        # @param sg_id [Integer] Id of the SG to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sg_detach(nic_id, sg_id)
+            return call(VM_METHODS[:detachsg], @pe_id, nic_id, sg_id)
         end
 
         # Sets the re-scheduling flag for the VM

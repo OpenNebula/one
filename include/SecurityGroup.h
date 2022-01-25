@@ -139,9 +139,24 @@ public:
         return outdated.pop(id);
     }
 
+    bool is_outdated(int id)
+    {
+        return outdated.contains(id);
+    }
+
+    int add_outdated(int id)
+    {
+        return outdated.add(id);
+    }
+
     int add_updating(int id)
     {
         return updating.add(id);
+    }
+
+    bool is_updating(int id)
+    {
+        return updating.contains(id);
     }
 
     int del_updating(int id)

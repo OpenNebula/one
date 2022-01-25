@@ -909,6 +909,36 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    sg_attach_desc = <<-EOT.unindent
+        Attaches a Security Group to a VM.
+
+        States: All, except BOOT, MIGRATE and HOTPLUG_NIC
+    EOT
+
+    command :"sg-attach", sg_attach_desc, :vmid, :nicid, :sgid do
+        nic_id = args[1].to_i
+        sg_id = args[2].to_i
+
+        helper.perform_action(args[0], options, 'Attach SG') do |vm|
+            vm.sg_attach(nic_id, sg_id)
+        end
+    end
+
+    sg_detach_desc = <<-EOT.unindent
+        Detaches a Security Group from a VM.
+
+        States: All, except BOOT, MIGRATE and HOTPLUG_NIC
+    EOT
+
+    command :"sg-detach", sg_detach_desc, :vmid, :nicid, :sgid do
+        nic_id = args[1].to_i
+        sg_id = args[2].to_i
+
+        helper.perform_action(args[0], options, 'Detach SG') do |vm|
+            vm.sg_detach(nic_id, sg_id)
+        end
+    end
+
     chgrp_desc = <<-EOT.unindent
         Changes the VM group
     EOT

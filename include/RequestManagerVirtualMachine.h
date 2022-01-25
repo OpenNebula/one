@@ -589,4 +589,40 @@ private:
     ImagePool* ipool;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttachSG : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttachSG():
+        RequestManagerVirtualMachine("one.vm.attachsg",
+                           "Attaches a SG to the virtual machine NIC",
+                           "A:siii")
+    {
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDetachSG : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetachSG():
+        RequestManagerVirtualMachine("one.vm.detachsg",
+                           "Detaches a SG form virtual machine NIC",
+                           "A:siii")
+    {
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
 #endif

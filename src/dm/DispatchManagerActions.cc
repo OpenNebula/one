@@ -28,6 +28,7 @@
 #include "HostPool.h"
 #include "VirtualMachinePool.h"
 #include "VirtualRouterPool.h"
+#include "SecurityGroupPool.h"
 
 using namespace std;
 
@@ -2256,3 +2257,274 @@ int DispatchManager::live_updateconf(std::unique_ptr<VirtualMachine> vm,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DispatchManager::attach_sg(int vid, int nicid, int sgid,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    bool is_update = false;
+
+    // -------------------------------------------------------------------------
+    // Check action consistency:
+    // - Object exists VM, NIC and SG
+    // - State is compatible with operation
+    // -------------------------------------------------------------------------
+    if ( sgpool->exist(sgid) < 0 )
+    {
+        oss << "Could not attach SG " << sgid << " to VM, SG does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    if ( auto vm = vmpool->get(vid) )
+    {
+        VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+        switch (lstate)
+        {
+            //Cannnot update VM, SG rules being updated/created
+            case VirtualMachine::BOOT:
+            case VirtualMachine::BOOT_MIGRATE:
+            case VirtualMachine::BOOT_SUSPENDED:
+            case VirtualMachine::BOOT_STOPPED:
+            case VirtualMachine::BOOT_UNDEPLOY:
+            case VirtualMachine::BOOT_POWEROFF:
+            case VirtualMachine::BOOT_UNKNOWN:
+            case VirtualMachine::BOOT_FAILURE:
+            case VirtualMachine::BOOT_MIGRATE_FAILURE:
+            case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+            case VirtualMachine::BOOT_STOPPED_FAILURE:
+            case VirtualMachine::MIGRATE:
+            case VirtualMachine::HOTPLUG_NIC:
+            case VirtualMachine::HOTPLUG_NIC_POWEROFF:
+            case VirtualMachine::UNKNOWN:
+                oss << "VM " << vid << " is in wrong state " << vm->state_str();
+                error_str = oss.str();
+
+                return -1;
+
+            //Update SG rules at host
+            case VirtualMachine::RUNNING:
+            case VirtualMachine::HOTPLUG:
+            case VirtualMachine::HOTPLUG_SNAPSHOT:
+            case VirtualMachine::HOTPLUG_SAVEAS:
+            case VirtualMachine::HOTPLUG_RESIZE:
+            case VirtualMachine::DISK_SNAPSHOT:
+            case VirtualMachine::DISK_SNAPSHOT_DELETE:
+            case VirtualMachine::DISK_RESIZE:
+                is_update = true;
+                break;
+
+            default:
+                break;
+        }
+
+        auto nic = vm->get_nic(nicid);
+
+        if ( nic == nullptr )
+        {
+            oss << "VM " << vid << " doesn't have NIC id " << nicid;
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        set<int> sgs;
+        nic->get_security_groups(sgs);
+
+        if (sgs.find(sgid) != sgs.end())
+        {
+            oss << "VM " << vid << " SG " << sgid << " already in NIC " << nicid;
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        // ----------------------------------------------------------------------
+        // Update VM data
+        // - NIC to include new SG
+        // - Template to include new SG rules (note can be there already)
+        // ----------------------------------------------------------------------
+        vector<VectorAttribute *> sg_rules;
+
+        sgpool->get_security_group_rules(-1, sgid, sg_rules);
+
+        nic->add_security_group(sgid);
+
+        vm->remove_security_group(sgid); //duplicates
+
+        vm->add_template_attribute(sg_rules);
+
+        vmpool->update(vm.get());
+
+        if ( is_update )
+        {
+            vmm->updatesg(vm.get(), sgid);
+        }
+    }
+    else
+    {
+        oss << "Could not attach SG to VM " << vid << ", VM does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    if (auto sg = sgpool->get(sgid))
+    {
+        sg->del_vm(vid);
+
+        if ( is_update )
+        {
+            sg->add_updating(vid);
+        }
+        else
+        {
+            sg->add_vm(vid);
+        }
+
+        sgpool->update(sg.get());
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::detach_sg(int vid, int nicid, int sgid,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    bool is_update = false;
+
+    vector<VectorAttribute *> sg_rules;
+
+    // -------------------------------------------------------------------------
+    // Check action consistency:
+    // - Object exists VM, NIC and SG
+    // - State is compatible with operation
+    // -------------------------------------------------------------------------
+    if ( auto vm = vmpool->get(vid) )
+    {
+        VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+        switch (lstate)
+        {
+            //Cannnot update VM, SG rules being updated/created
+            case VirtualMachine::BOOT:
+            case VirtualMachine::BOOT_MIGRATE:
+            case VirtualMachine::BOOT_SUSPENDED:
+            case VirtualMachine::BOOT_STOPPED:
+            case VirtualMachine::BOOT_UNDEPLOY:
+            case VirtualMachine::BOOT_POWEROFF:
+            case VirtualMachine::BOOT_UNKNOWN:
+            case VirtualMachine::BOOT_FAILURE:
+            case VirtualMachine::BOOT_MIGRATE_FAILURE:
+            case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+            case VirtualMachine::BOOT_STOPPED_FAILURE:
+            case VirtualMachine::MIGRATE:
+            case VirtualMachine::HOTPLUG_NIC:
+            case VirtualMachine::HOTPLUG_NIC_POWEROFF:
+            case VirtualMachine::UNKNOWN:
+                oss << "VM " << vid << " is in wrong state " << vm->state_str();
+                error_str = oss.str();
+
+                return -1;
+
+            //Update SG rules at host
+            case VirtualMachine::RUNNING:
+            case VirtualMachine::HOTPLUG:
+            case VirtualMachine::HOTPLUG_SNAPSHOT:
+            case VirtualMachine::HOTPLUG_SAVEAS:
+            case VirtualMachine::HOTPLUG_RESIZE:
+            case VirtualMachine::DISK_SNAPSHOT:
+            case VirtualMachine::DISK_SNAPSHOT_DELETE:
+            case VirtualMachine::DISK_RESIZE:
+                is_update = true;
+                break;
+
+            default:
+                break;
+        }
+
+        auto nic = vm->get_nic(nicid);
+
+        if ( nic == nullptr )
+        {
+            oss << "VM " << vid << " doesn't have NIC id " << nicid;
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        set<int> sgs;
+        nic->get_security_groups(sgs);
+
+        if (sgs.find(sgid) == sgs.end())
+        {
+            oss << "VM " << vid << " NIC " << nicid << " doesn't contain SG " << sgid;
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        // ----------------------------------------------------------------------
+        // Update VM data
+        // - NIC to remove SG
+        // - Template with remaining SG rules (could be empty)
+        // ----------------------------------------------------------------------
+        nic->remove_security_group(sgid);
+
+        vm->remove_security_group(sgid);
+
+        sgs.clear();
+        vm->get_security_groups(sgs);
+
+        if (sgs.find(sgid) != sgs.end())
+        {
+            sgpool->get_security_group_rules(-1, sgid, sg_rules);
+
+            vm->add_template_attribute(sg_rules);
+        }
+
+        vmpool->update(vm.get());
+
+        if ( is_update )
+        {
+            vmm->updatesg(vm.get(), sgid);
+        }
+    }
+    else
+    {
+        oss << "Could not attach SG to VM " << vid << ", VM does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    if (auto sg = sgpool->get(sgid))
+    {
+        sg->del_vm(vid);
+
+        if (!sg_rules.empty())
+        {
+            // The SG is in other NIC, keep the VM in the SG list
+            if ( is_update )
+            {
+                sg->add_updating(vid);
+            }
+            else
+            {
+                sg->add_vm(vid);
+            }
+        }
+
+        sgpool->update(sg.get());
+    }
+
+    return 0;
+}

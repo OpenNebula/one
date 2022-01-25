@@ -70,6 +70,38 @@ int VirtualMachineNic::release_network_leases(int vmid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineNic::add_security_group(int sg)
+{
+    set<int> sgs;
+    get_security_groups(sgs);
+
+    auto rc = sgs.insert(sg);
+
+    if (rc.second)
+    {
+        replace("SECURITY_GROUPS", one_util::join(sgs.begin(), sgs.end(), ','));
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineNic::remove_security_group(int sg)
+{
+    set<int> sgs;
+    get_security_groups(sgs);
+
+    auto rc = sgs.erase(sg);
+
+    if (rc)
+    {
+        replace("SECURITY_GROUPS", one_util::join(sgs.begin(), sgs.end(), ','));
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineNic::get_uid(int _uid, string& error)
 {
     string uid_s;

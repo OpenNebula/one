@@ -23,6 +23,7 @@
 #include "DatastorePool.h"
 #include "HostPool.h"
 #include "ImagePool.h"
+#include "SecurityGroupPool.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
 
@@ -3574,4 +3575,151 @@ void VirtualMachineDiskResize::request_execute(
     }
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttachSG::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
+
+    unique_ptr<VirtualMachineNic> nic_tmpl;
+
+    PoolObjectAuth vm_perms;
+
+    // Get VM attributes to authorize operation
+    if (auto vm = get_vm_ro(vm_id, att))
+    {
+        // Check if we can add the SG
+        auto nic = vm->get_nic(nic_id);
+
+        if (!nic)
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " doesn't have NIC id " << nic_id;
+            att.resp_msg = oss.str();
+
+            failure_response(Request::INTERNAL, att);
+            return;
+        }
+
+        // Copy VM attributes
+        nic_tmpl.reset(new VirtualMachineNic(nic->vector_attribute(), nic_id));
+        nic_tmpl->add_security_group(sg_id);
+
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        return;
+    }
+
+    // Authorize the operation
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    nic_tmpl->authorize(att.uid, &ar, true);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(Request::AUTHORIZATION, att);
+        return;
+    }
+
+    int rc = dm->attach_sg(vm_id, nic_id, sg_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDetachSG::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    auto& nd    = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
+
+    PoolObjectAuth   vm_perms;
+
+    if (auto vm = get_vm_ro(vm_id, att))
+    {
+        auto nic = vm->get_nic(nic_id);
+
+        if (!nic)
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " doesn't have NIC id " << nic_id;
+            att.resp_msg = oss.str();
+
+            failure_response(Request::INTERNAL, att);
+            return;
+        }
+
+        set<int> sgs;
+        nic->get_security_groups(sgs);
+
+        if (sgs.find(sg_id) == sgs.end())
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " NIC " << nic_id
+                << " doesn't contain SG " << sg_id;
+            att.resp_msg = oss.str();
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        return;
+    }
+
+    // Authorize the operation
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(Request::AUTHORIZATION, att);
+        return;
+    }
+
+    auto rc = dm->detach_sg(vm_id, nic_id, sg_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
 }

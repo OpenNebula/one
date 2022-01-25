@@ -50,6 +50,7 @@ void DispatchManager::init_managers()
     clpool      = nd.get_clpool();
     vrouterpool = nd.get_vrouterpool();
     upool       = nd.get_upool();
+    sgpool      = nd.get_secgrouppool();
 }
 
 /* -------------------------------------------------------------------------- */

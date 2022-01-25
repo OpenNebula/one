@@ -343,6 +343,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_sched_add(new RequestManagerSchedAdd());
     xmlrpc_c::methodPtr vm_sched_delete(new RequestManagerSchedDelete());
     xmlrpc_c::methodPtr vm_sched_update(new RequestManagerSchedUpdate());
+    xmlrpc_c::methodPtr vm_attachsg(new VirtualMachineAttachSG());
+    xmlrpc_c::methodPtr vm_detachsg(new VirtualMachineDetachSG());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -577,6 +579,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.schedadd", vm_sched_add);
     RequestManagerRegistry.addMethod("one.vm.scheddelete", vm_sched_delete);
     RequestManagerRegistry.addMethod("one.vm.schedupdate", vm_sched_update);
+    RequestManagerRegistry.addMethod("one.vm.attachsg", vm_attachsg);
+    RequestManagerRegistry.addMethod("one.vm.detachsg", vm_detachsg);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);

@@ -64,6 +64,18 @@ public:
     }
 
     /**
+     * Add security group
+     *    @param sgid ID of the group
+     */
+    void add_security_group(int sgid);
+
+    /**
+     * Remove security group
+     *    @param sgid ID of the group
+     */
+    void remove_security_group(int sgid);
+
+    /**
      *  Get the effective uid to get the VirtualNetwork.
      */
     int get_uid(int _uid, std::string& error);
