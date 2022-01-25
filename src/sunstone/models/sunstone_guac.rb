@@ -31,6 +31,7 @@ else
     VAR_LOCATION ||= ONE_LOCATION + '/var/'
 end
 
+ONE_KEY = VAR_LOCATION + '/.one/one_key'
 FIREEDGE_KEY = VAR_LOCATION + '/.one/fireedge_key'
 
 # Class for Guacamole connection configuration
@@ -194,7 +195,8 @@ class SunstoneGuac < SunstoneRemoteConnections
         end
 
         if vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            hash['password'] = vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+            password = vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+            hash['password'] = decrypt_by_one_key(password)
         end
 
         if vm_resource['TEMPLATE/CONTEXT/SSH_PUBLIC_KEY']
@@ -242,6 +244,30 @@ class SunstoneGuac < SunstoneRemoteConnections
         }
 
         Base64.strict_encode64(token.to_json).encode('utf-8').strip
+    end
+
+    def decrypt_by_one_key(password)
+        # rubocop:disable Style/GlobalVars
+        system = OpenNebula::System.new($cloud_auth.client)
+        # rubocop:enable Style/GlobalVars
+        config = system.get_configuration
+        need_decrypt = config['VM_ENCRYPTED_ATTR'].include? 'CONTEXT/PASSWORD'
+
+        return password unless need_decrypt
+
+        key = File.read(ONE_KEY)
+        key = key.strip.delete("\n")
+
+        cipher = OpenSSL::Cipher.new('aes-256-cbc')
+        cipher.decrypt
+
+        # truncate token to 32-bytes for Ruby >= 2.4
+        cipher.key = key[0..31]
+
+        rc =  cipher.update(Base64.decode64(password))
+        rc << cipher.final
+    rescue StandardError
+        password
     end
 
 end
