@@ -1266,8 +1266,9 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
+    var isvCenterVM = isVCenterVM(element);
 
-    return (actionEnabled && history && (vncSupported || spiceSupported))
+    return (actionEnabled && history && (vncSupported || spiceSupported) && !isvCenterVM)
       ? {
         hostname: history.HOSTNAME,
         type: element.TEMPLATE.GRAPHICS.TYPE.toLowerCase(),
