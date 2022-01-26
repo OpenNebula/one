@@ -15,19 +15,24 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the V. NETWORK TEMPLATE tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "NETWORK-TEMPLATE"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
   refresh: true
   create_dialog: true
+  instantiate_dialog: true
   update_dialog: true
   delete: true
+  chown: true
+  chgrp: true
+  lock: true
+  unlock: true
 
 # Filters - List of criteria to filter the resources
 
@@ -43,11 +48,17 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    overcommitment:
+    permissions_panel:
       enabled: true
       actions:
-        update_cpu: true
-        update_memory: true
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+    qos_panel:
+      enabled: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +67,24 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
+  address:
     enabled: true
-  vnet:
+    actions:
+      add_ar: true
+      update_ar: true
+      delete_ar: true
+
+  lease:
     enabled: true
-  datastore:
+    actions:
+      hold_lease: true
+      release_lease: true
+
+  sec-group:
+    enabled: true
+
+  cluster:
+    enabled: true
+
+  template:
     enabled: true

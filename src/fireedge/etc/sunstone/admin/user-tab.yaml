@@ -15,39 +15,38 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the USER tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "USER"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
   refresh: true
   create_dialog: true
-  update_dialog: true
+  chgrp: true
   delete: true
+  enable: true
+  disable: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  state: true
 
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
       enabled: true
       actions:
         rename: true
-    overcommitment:
-      enabled: true
-      actions:
-        update_cpu: true
-        update_memory: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +55,33 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
+  group:
     enabled: true
-  vnet:
+    actions:
+      chgrp: true
+
+  quota:
     enabled: true
-  datastore:
+    actions:
+      quotas_dialog: true
+
+  accounting:
     enabled: true
+    actions:
+      get_accounting: true
+
+  showback:
+    enabled: true
+    actions:
+      get_showback: true
+
+  authentication:
+    enabled: true
+    actions:
+      change_authentication: true
+      update_password: true
+      login_token: true
+      two_factor_auth: true
+      public_ssh_key: true
+      private_ssh_key: true
+      private_ssh_key_passphrase: true

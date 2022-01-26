@@ -15,19 +15,29 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the IMAGE tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "IMAGE"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
   refresh: true
   create_dialog: true
-  update_dialog: true
+  clone_dialog: true
+  import_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
+  chown: true
+  chgrp: true
+  enable: true
+  disable: true
+  persistent: true
+  nonpersistent: true
   delete: true
+  lock: true
+  unlock: true
 
 # Filters - List of criteria to filter the resources
 
@@ -43,11 +53,15 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    overcommitment:
+    permissions_panel:
       enabled: true
       actions:
-        update_cpu: true
-        update_memory: true
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +70,12 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
+  vm:
     enabled: true
-  vnet:
+
+  snapshot:
     enabled: true
-  datastore:
-    enabled: true
+    actions:
+      snapshot_flatten: true
+      snapshot_revert: true
+      snapshot_delete: true

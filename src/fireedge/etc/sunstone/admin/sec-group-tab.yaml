@@ -15,11 +15,11 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the SECURITY GROUP tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "SECURITY-GROUP"
 
 # Actions - Which buttons are visible to operate over the resources
 
@@ -27,6 +27,10 @@ actions:
   refresh: true
   create_dialog: true
   update_dialog: true
+  clone: true
+  commit: true
+  chown: true
+  chgrp: true
   delete: true
 
 # Filters - List of criteria to filter the resources
@@ -43,11 +47,8 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    overcommitment:
+    rules:
       enabled: true
-      actions:
-        update_cpu: true
-        update_memory: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +57,5 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
-    enabled: true
-  vnet:
-    enabled: true
-  datastore:
+  vm:
     enabled: true

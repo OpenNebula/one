@@ -28,10 +28,8 @@ actions:
   create_dialog: true
   export: true
   download: true
-  rename: true
   chown: true
   chgrp: true
-  chmod: true
   enable: true
   disable: true
   delete: true
@@ -43,7 +41,6 @@ filters:
   state: true
   type: true
   marketplace: true
-
 
 # Info Tabs - Which info tabs are used to show extended information
 

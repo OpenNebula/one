@@ -15,18 +15,17 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the USER tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "USER"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
   refresh: true
   create_dialog: true
-  update_dialog: true
   delete: true
 
 # Filters - List of criteria to filter the resources
@@ -37,17 +36,15 @@ filters:
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
       enabled: true
       actions:
         rename: true
-    overcommitment:
+    server_pool_panel:
       enabled: true
-      actions:
-        update_cpu: true
-        update_memory: true
     attributes_panel:
       enabled: true
       actions:
@@ -55,10 +52,3 @@ info-tabs:
         add: true
         edit: true
         delete: true
-
-  host:
-    enabled: true
-  vnet:
-    enabled: true
-  datastore:
-    enabled: true

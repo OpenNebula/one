@@ -15,11 +15,11 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the GROUP tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "GROUP"
 
 # Actions - Which buttons are visible to operate over the resources
 
@@ -34,6 +34,7 @@ actions:
 filters:
   label: true
 
+
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
@@ -43,11 +44,6 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    overcommitment:
-      enabled: true
-      actions:
-        update_cpu: true
-        update_memory: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +52,22 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
+  user:
     enabled: true
-  vnet:
+    actions:
+      edit_admins: true
+
+  quota:
     enabled: true
-  datastore:
+    actions:
+      quotas_dialog: true
+
+  accounting:
     enabled: true
+    actions:
+      get_accounting: true
+
+  showback:
+    enabled: true
+    actions:
+      get_showback: true

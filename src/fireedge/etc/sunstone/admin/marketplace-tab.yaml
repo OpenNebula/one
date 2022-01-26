@@ -15,11 +15,11 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the CLUSTER tab
+# This file describes the information and actions available in the MARKETPLACE tab
 
 # Resource
 
-resource_name: "CLUSTER"
+resource_name: "MARKETPLACE"
 
 # Actions - Which buttons are visible to operate over the resources
 
@@ -27,7 +27,11 @@ actions:
   refresh: true
   create_dialog: true
   update_dialog: true
+  chown: true
+  chgrp: true
   delete: true
+  lock: true
+  unlock: true
 
 # Filters - List of criteria to filter the resources
 
@@ -43,11 +47,15 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    overcommitment:
+    permissions_panel:
       enabled: true
       actions:
-        update_cpu: true
-        update_memory: true
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
     attributes_panel:
       enabled: true
       actions:
@@ -56,9 +64,5 @@ info-tabs:
         edit: true
         delete: true
 
-  host:
-    enabled: true
-  vnet:
-    enabled: true
-  datastore:
+  app:
     enabled: true
