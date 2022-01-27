@@ -253,6 +253,19 @@ module OneProvision
             FileUtils.rm_r(tempdir) if tempdir && File.exist?(tempdir)
         end
 
+        # Provisions and configures new hosts
+        #
+        # @param provision [OpenNebula::Provision] Provision information
+        def add_hosts(provision)
+            @conf  = Zlib::Inflate.inflate(Base64.decode64(@conf))
+            @state = Zlib::Inflate.inflate(Base64.decode64(@state))
+
+            # Generate hosts Terraform configuration
+            host_info(provision)
+
+            deploy(provision)
+        end
+
         # Get polling information from a host
         #
         # @param id [String] Host ID
@@ -313,30 +326,34 @@ module OneProvision
 
         # Destroys a cluster
         #
-        # @param id [String] Host ID
-        def destroy_cluster(id)
-            destroy_resource(self.class::TYPES[:cluster], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Host ID
+        def destroy_cluster(provision, id)
+            destroy_resource(self.class::TYPES[:cluster], provision, id)
         end
 
         # Destroys a host
         #
-        # @param id [String] Host ID
-        def destroy_host(id)
-            destroy_resource(self.class::TYPES[:host], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Host ID
+        def destroy_host(provision, id)
+            destroy_resource(self.class::TYPES[:host], provision, id)
         end
 
         # Destroys a datastore
         #
-        # @param id [String] Datastore ID
-        def destroy_datastore(id)
-            destroy_resource(self.class::TYPES[:datastore], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Datastore ID
+        def destroy_datastore(provision, id)
+            destroy_resource(self.class::TYPES[:datastore], provision, id)
         end
 
         # Destriys a network
         #
-        # @param id [String] Network ID
-        def destroy_network(id)
-            destroy_resource(self.class::TYPES[:network], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Network ID
+        def destroy_network(provision, id)
+            destroy_resource(self.class::TYPES[:network], provision, id)
         end
 
         private
@@ -394,6 +411,8 @@ module OneProvision
                 p   = obj['TEMPLATE']['PROVISION']
 
                 next if !p || p.empty?
+
+                next if p['DEPLOY_ID'] # Already configured host
 
                 p = p.merge(@provider.connection)
 
@@ -513,10 +532,11 @@ module OneProvision
 
         # Destroys an specific resource
         #
-        # @param type [String] Resource type
-        # @param id   [String] Resource ID
-        def destroy_resource(type, id)
-            destroy("-target=#{type}.device_#{id}")
+        # @param type      [String]                Resource type
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String]                Resource ID
+        def destroy_resource(type, provision, id)
+            destroy(provision, "-target=#{type}.device_#{id}")
         end
 
     end

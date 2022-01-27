@@ -3,12 +3,14 @@
 - name: Check supported platform
   assert:
     that: |
-      (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04') or
-      (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04') or
-      (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7') or
-      (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '8') or
-      (ansible_distribution == 'RedHat' and ansible_distribution_major_version == '7') or
-      (ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8')
+      ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
     msg: "Unsupported target OS"
+
+- name: Disable ufw
+  service:
+    name: ufw
+    masked: yes
+    state: stopped
+  ignore_errors: yes
 
 - include: clean_netconfigs.yml

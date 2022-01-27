@@ -152,7 +152,7 @@ module OneProvision
         end
 
         # Deletes the ONE object
-        def delete(_ = nil)
+        def delete(_ = nil, _ = nil, _ = nil)
             @one.info
             @one.delete
         end

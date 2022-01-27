@@ -99,6 +99,32 @@ module OneProvision
             STATE_STR[state]
         end
 
+        # Checks if the provision can be configured
+        #
+        # @param force [Boolean] Avoid this comprobation
+        def can_configure?(force)
+            if force
+                case state
+                when STATE['PENDING'],
+                         STATE['DEPLOYING'],
+                         STATE['DELETING']
+                    return OpenNebula::Error.new(
+                        "Can't configure provision in #{state_str}"
+                    )
+                else
+                    0
+                end
+            else
+                unless state == STATE['ERROR']
+                    return OpenNebula::Error.new(
+                        "Can't configure provision in #{state_str}"
+                    )
+                end
+            end
+
+            0
+        end
+
         # Changes provision state
         #
         # @param state [Integer] New state
@@ -130,6 +156,13 @@ module OneProvision
             return unless infrastructure_objects
 
             infrastructure_objects['datastores']
+        end
+
+        # Returns provision networks
+        def networks
+            return unless infrastructure_objects
+
+            infrastructure_objects['networks']
         end
 
         # Returns provision resources objects
@@ -174,6 +207,11 @@ module OneProvision
             @body['tf']          = {} unless @body['tf']
             @body['tf']['state'] = state
             @body['tf']['conf']  = conf
+        end
+
+        # Returns address range template to recreate it
+        def ar_template
+            @body['ar_template']
         end
 
         # Get OpenNebula information for specific objects
@@ -349,7 +387,7 @@ module OneProvision
 
                 self['ID']
             rescue OneProvisionCleanupException
-                delete(cleanup, timeout)
+                delete(cleanup, timeout, true)
 
                 -1
             end
@@ -360,41 +398,168 @@ module OneProvision
         # @param force [Boolean] Force the configuration although provision
         #   is already configured
         def configure(force = false)
-            unless [STATE['RUNNING'], STATE['ERROR']].include?(state)
+            rc = can_configure?(force)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            configure_resources
+        end
+
+        # Provisions and configures new hosts
+        #
+        # @param amount [Intenger] Amount of hosts to add to the provision
+        def add_hosts(amount)
+            if !state || state != STATE['RUNNING']
                 return OpenNebula::Error.new(
-                    "Can't configure provision in #{STATE_STR[state]}"
+                    "Can't add hosts to provision in #{STATE_STR[state]}"
                 )
             end
 
-            if state == STATE['RUNNING'] && !force
-                return OpenNebula::Error.new('Provision already configured')
+            self.state = STATE['DEPLOYING']
+
+            update
+
+            OneProvisionLogger.info('Adding more hosts')
+
+            # ask user to be patient, mandatory for now
+            STDERR.puts 'WARNING: This operation can ' \
+                        'take tens of minutes. Please be patient.'
+
+            # Get current host template to replicate it
+            cid  = cluster['id']
+            host = hosts[0]
+            host = OpenNebula::Host.new_with_id(host['id'], @client)
+            rc   = host.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            host = host.to_hash['HOST']['TEMPLATE']
+
+            # Delete host specific information
+            host.delete('ERROR')
+            host['PROVISION'].delete('DEPLOY_ID')
+            host['PROVISION'].delete('HOSTNAME')
+
+            # Downcase to use create_deployment_file
+            host = host.transform_keys(&:downcase)
+            host.keys.each do |key|
+                next unless host[key].is_a? Hash
+
+                host[key] = host[key].transform_keys(&:downcase)
             end
 
+            host['connection'] = {}
+
+            %w[private_key public_key remote_port remote_user].each do |attr|
+                host['connection'][attr] = host['provision_connection'][attr]
+            end
+
+            # idx used to generate hostname
+            idx = hosts.size
+
+            # Allocate hosts in OpenNebula and add them to the provision
+            amount.times do
+                host['provision']['index']    = idx
+                host['provision']['hostname'] = ''
+                host['provision']['hostname'] = "edge-host#{idx}"
+
+                h         = Resource.object('hosts', @provider, host)
+                dfile     = h.create_deployment_file
+                one_host  = h.create(dfile.to_xml,
+                                     cid,
+                                     host['ansible_playbook'])
+
+                obj = { 'id'   => Integer(one_host['ID']),
+                        'name' => one_host['NAME'] }
+
+                infrastructure_objects['hosts'] << obj
+
+                one_host.offline
+
+                update
+
+                idx += 1
+            end
+
+            OneProvisionLogger.info('Deploying')
+
+            ips, ids, state, conf = Driver.tf_action(self, 'add_hosts', tf)
+
+            OneProvisionLogger.info('Monitoring hosts')
+
+            update_hosts(ips, ids)
+
+            add_tf(state, conf) if state && conf
+
+            update
+
             configure_resources
+        end
+
+        # Adds more IPs to the existing virtual network
+        #
+        # @param amount [Integer] Number of IPs to add
+        def add_ips(amount)
+            if !state || state != STATE['RUNNING']
+                return OpenNebula::Error.new(
+                    "Can't add IPs to provision in #{STATE_STR[state]}"
+                )
+            end
+
+            if !networks || networks.empty?
+                return OpenNebula::Error.new('Provision has no networks')
+            end
+
+            v_id = networks[0]['id']
+            vnet = OpenNebula::VirtualNetwork.new_with_id(v_id, @client)
+            rc   = vnet.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            unless vnet['VN_MAD'] == 'elastic'
+                return OpenNebula::Error.new(
+                    "Can't add IPs to network, wrong VN_MAD '#{vnet['VN_MAD']}'"
+                )
+            end
+
+            OneProvisionLogger.info("Adding more IPs to network #{v_id}")
+
+            amount.times do
+                rc = vnet.add_ar(ar_template)
+
+                return rc if OpenNebula.is_error?(rc)
+            end
+
+            0
         end
 
         # Deletes provision objects
         #
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
-        def delete(cleanup, timeout)
+        # @param force   [Boolean] Force provision deletion
+        def delete(cleanup, timeout, force = false)
             exist = true
 
-            if running_vms? && !cleanup
-                Utils.fail('Provision with running VMs can\'t be deleted')
-            end
+            unless force
+                if running_vms? && !cleanup
+                    Utils.fail('Provision with running VMs can\'t be deleted')
+                end
 
-            if images? && !cleanup
-                Utils.fail('Provision with images can\'t be deleted')
+                if images? && !cleanup
+                    Utils.fail('Provision with images can\'t be deleted')
+                end
+
+                self.state = STATE['DELETING']
+
+                update
+
+                delete_vms(timeout) if cleanup
+
+                delete_images(timeout) if cleanup
             end
 
             self.state = STATE['DELETING']
-
-            update
-
-            delete_vms(timeout) if cleanup
-
-            delete_images(timeout) if cleanup
 
             OneProvisionLogger.info("Deleting provision #{self['ID']}")
 
@@ -409,7 +574,7 @@ module OneProvision
                         host = Host.new(provider)
 
                         host.info(id)
-                        host.delete
+                        host.delete(force, self)
                     end
                 end
             end
@@ -418,10 +583,14 @@ module OneProvision
             OneProvisionLogger.info('Deleting provision objects')
 
             # Marketapps are turned into images and VM templates
-            delete_objects(RESOURCES - ['marketplaceapps'], resource_objects)
+            delete_objects(RESOURCES - ['marketplaceapps'],
+                           resource_objects,
+                           force)
 
             # Hosts are previously deleted
-            delete_objects(FULL_CLUSTER - ['hosts'], infrastructure_objects)
+            delete_objects(FULL_CLUSTER - ['hosts'],
+                           infrastructure_objects,
+                           force)
 
             rc = super()
 
@@ -459,7 +628,9 @@ module OneProvision
 
                 return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-                rc = o.delete(FULL_CLUSTER.include?(object) ? tf : nil)
+                rc = o.delete(false,
+                              self,
+                              FULL_CLUSTER.include?(object) ? tf : nil)
 
                 return [-1, rc.message] if OpenNebula.is_error?(rc)
 
@@ -591,6 +762,15 @@ module OneProvision
 
                         obj.template_chown(x)
                         obj.template_chmod(x)
+
+                        next unless r == 'networks'
+
+                        next unless x['ar']
+
+                        @body['ar_template'] = {}
+                        @body['ar_template'] = Utils.template_like_str(
+                            'ar' => x['ar'][0]
+                        )
                     end
 
                     update
@@ -733,6 +913,13 @@ module OneProvision
             hosts.each do |h|
                 host = Resource.object('hosts', provider)
                 host.info(h['id'])
+
+                # Avoid existing hosts
+                if host.one['//TEMPLATE/PROVISION/DEPLOY_ID']
+                    ips.shift
+                    ids.shift
+                    next
+                end
 
                 name = ips.shift
                 id   = ids.shift if ids
@@ -921,9 +1108,10 @@ module OneProvision
 
         # Deletes provision objects
         #
-        # @param resources [Array] Resources names
-        # @param objects   [Array] Objects information to delete
-        def delete_objects(resources, objects)
+        # @param resources [Array]   Resources names
+        # @param objects   [Array]   Objects information to delete
+        # @param force     [Boolean] Force object deletion
+        def delete_objects(resources, objects, force)
             return unless objects
 
             resources.each do |resource|
@@ -938,7 +1126,11 @@ module OneProvision
                         o = Resource.object(resource)
                         o.info(obj['id'])
 
-                        Utils.exception(o.delete)
+                        if force
+                            o.delete(force, self)
+                        else
+                            Utils.exception(o.delete(force, self))
+                        end
                     end
 
                     true

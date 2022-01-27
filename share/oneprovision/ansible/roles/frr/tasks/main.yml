@@ -8,8 +8,86 @@
     rr_servers : "{{ rr_servers|default([]) + [ hostvars[item]['ansible_' + frr_iface].ipv4.address ] }}"
   with_items: "{{ groups['all'][:frr_rr_num] }}"
 
-- include: centos.yml
-  when: ansible_os_family == "RedHat"
+- name: Add frr GPG key
+  ansible.builtin.apt_key:
+    url: https://deb.frrouting.org/frr/keys.asc
+    state: present
 
-# - include: debian.yml
-#   when: ansible_os_family == "Debian"
+- name: Add frr repository
+  ansible.builtin.apt_repository:
+    repo: deb https://deb.frrouting.org/frr focal frr-stable
+    state: present
+
+- name: Install FRR
+  package:
+    name: frr
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+
+- name: Install FRR Python Tools
+  package:
+    name: frr-pythontools
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+
+- name: Install ipcalc
+  package:
+    name: ipcalc
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+  when: frr_ipcalc == true
+
+- name: Get network address
+  shell: ipcalc -bn "{{ ansible_default_ipv4.network }}/{{ frr_net_mask }}" | grep Network | cut -d ':' -f2 | sed 's/ //g'
+  register: frr_net
+  when: frr_ipcalc == true
+
+- name: Configure BGP (RR)
+  template:
+    src: bgpd_rr.conf.j2
+    dest: /etc/frr/bgpd.conf
+  when: vars['ansible_' + frr_iface].ipv4.address in rr_servers
+
+- name: Configure BGP
+  template:
+    src: bgpd.conf.j2
+    dest: /etc/frr/bgpd.conf
+  when: not vars['ansible_' + frr_iface].ipv4.address in rr_servers
+
+- name: Configure Zebra
+  template:
+    src: zebra.conf.j2
+    dest: /etc/frr/zebra.conf
+  when: frr_zebra == true
+
+- name: Configure Staticd
+  template:
+    src: staticd.conf.j2
+    dest: /etc/frr/staticd.conf
+  when: frr_zebra == true
+
+- name: Remove frr.conf
+  file:
+    path: /etc/frr/frr.conf
+    state: absent
+
+- name: Enable BGP daemon
+  replace:
+    path: /etc/frr/daemons
+    regexp: '^bgpd=no'
+    replace: 'bgpd=yes'
+
+- name: Start FRR service
+  service:
+    name: frr
+    state: restarted
+    enabled: yes

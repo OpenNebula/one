@@ -44,7 +44,7 @@ module OneProvision
         def create_deployment_file
             ssh_key = Utils.try_read_file(
                 @p_template['connection']['public_key']
-            )
+            ) if @p_template['connection']
             config = Base64.strict_encode64(
                 @p_template['configuration'].to_yaml
             )
@@ -167,12 +167,14 @@ module OneProvision
 
         # Deletes the HOST
         #
+        # @param force [Boolean] Force host deletion
+        # @param provision [OpenNebula::Provision] Provision information
         # @param tf [Hash] Terraform :conf and :state
         #
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def delete(tf = nil)
+        def delete(force, provision, tf = nil)
             check
 
             id = @one.id
@@ -182,7 +184,11 @@ module OneProvision
                 OneProvisionLogger.debug("Offlining OpenNebula host: #{id}")
 
                 @@mutex.synchronize do
-                    Utils.exception(@one.offline)
+                    if force
+                        @one.offline
+                    else
+                        Utils.exception(@one.offline)
+                    end
                 end
             end
 
@@ -190,14 +196,18 @@ module OneProvision
                 Terraform.p_load
 
                 terraform   = Terraform.singleton(@provider, tf)
-                state, conf = terraform.destroy_host(id)
+                state, conf = terraform.destroy_host(provision, id)
             end
 
             # delete ONE host
             OneProvisionLogger.debug("Deleting OpenNebula host: #{id}")
 
             @@mutex.synchronize do
-                Utils.exception(@one.delete)
+                if force
+                    @one.delete
+                else
+                    Utils.exception(@one.delete)
+                end
             end
 
             if state && conf

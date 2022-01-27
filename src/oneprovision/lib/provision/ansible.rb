@@ -107,7 +107,7 @@ module OneProvision
                         cmd << " -e @#{ansible_dir}/group_vars.yml"
                         cmd << " #{ANSIBLE_LOCATION}/#{i}.yml"
 
-                        o, _e, s = Driver.run(cmd)
+                        o, _e, s = Driver.run(cmd, true)
 
                         if s && s.success? && i == @inventories.last
                             # enable configured ONE host back

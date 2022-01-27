@@ -1,17 +1,8 @@
 ---
 
-- name: Install Python 2 (Debian/Ubuntu)
-  raw: >
-    if [ -e /etc/debian_version ]; then
-        python2 --version >/dev/null 2>&1 || \
-        (   apt-get --version >/dev/null 2>&1 && \
-            sudo -n apt-get update && \
-            sudo -n apt-get install -y python-minimal
-        )
-    fi
-
-- name: Install libselinux-python3 (Centos8 8)
-  raw: >
-    if grep -q 'release 8' /etc/redhat-release; then
-        dnf -y install python3-libselinux python3-libsemanage
-    fi
+- name: Install Python 2 (Ubuntus)
+  raw: if [ -e /etc/debian_version ] && ! python --version >/dev/null 2>&1 && lsb_release -s -i | grep -i Ubuntu && lsb_release -s -r | grep -v '^2'; then sudo -n apt-get update; sudo -n apt-get install -y python-minimal; fi
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10

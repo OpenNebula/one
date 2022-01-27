@@ -6,3 +6,27 @@ provider: 'digitalocean'
 connection:
   token: 'DigitalOcean token'
   region: 'sgp1'
+
+inputs:
+  - name: 'digitalocean_image'
+    type: list
+    description: "Droplet host operating system"
+    options:
+      - 'ubuntu-20-04-x64'
+
+  - name: 'digitalocean_size'
+    type: list
+    description: "Size of droplet. Basic droplets start with s-, memory optimize with m- and CPU optimize are c-"
+    options:
+      - 's-1vcpu-1gb'
+      - 's-1vcpu-2gb'
+      - 's-1vcpu-3gb'
+      - 's-2vcpu-2gb'
+      - 's-2vcpu-4gb'
+      - 's-4vcpu-8gb'
+      - 's-8vcpu-16gb'
+      - 'm-2vcpu-16gb'
+      - 'm-8vcpu-64gb'
+      - 'c-2'
+      - 'c-4'
+      - 'c-8'
