@@ -14,17 +14,17 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="provision_dashboard" class="section_content"></div>
-{{!provision_user_info}}
-
-{{> tabs/provision-tab/vms/html/create}}
-<div class="provision_vms_list_section section_content" hidden></div>
-
-{{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
-
-{{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/html/create}}
-<div class="provision_flows_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
+<div id="provision_create_flow_role_{{index}}" class="left medium-6 columns provision_create_flow_role">
+    <h5>
+        <i class="fas fa-cube fa-lg"></i>
+        {{name}}
+    </h5>
+    <div class="row">
+        <div class="provision_cardinality_selector large-12 columns">
+        </div>
+    </div>
+    <div class="row">
+        <div class="provision_custom_attributes_selector large-12 columns">
+        </div>
+    </div>
+</div>

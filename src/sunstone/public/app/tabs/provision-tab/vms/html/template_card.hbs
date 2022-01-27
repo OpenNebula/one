@@ -14,17 +14,34 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="provision_dashboard" class="section_content"></div>
-{{!provision_user_info}}
-
-{{> tabs/provision-tab/vms/html/create}}
-<div class="provision_vms_list_section section_content" hidden></div>
-
-{{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
-
-{{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/html/create}}
-<div class="provision_flows_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
+{{#if instantiate}}
+    {{#if tableID}}
+    <div id="{{tableID}}_ul" class="row large-up-4 medium-up-3 small-up-1"></div>
+    {{else}}
+    <div class="text-center">
+        <span class="fa-stack fa-5x">
+            <i class="fas fa-cloud fa-stack-2x"/>
+            <i class="fas fa-info-circle fa-stack-1x fa-inverse"/>
+        </span>
+        <br>
+        <br>
+        <span>{{tr "There are no templates available"}}</span>
+    </div>
+    {{/if}}
+{{else}}
+    <div class="column">
+        <ul class="provision-pricing-table only-one hoverable menu vertical text-center" opennebula_id="{{id}}">
+            <li class="provision-title" title="{{name}}">
+                <a href="">{{name}}</a>
+            </li>
+            <li class="provision-bullet-item">{{{logo}}}</li>
+            <li class="provision-bullet-item">{{description}}</li>
+            <li class="provision-bullet-item-last text-left">
+                <span>
+                    <i class="fas fa-fw fa-lg fa-user"/> 
+                    {{owner}}
+                </span>
+            </li>
+        </ul>
+    </div>
+{{/if}}
