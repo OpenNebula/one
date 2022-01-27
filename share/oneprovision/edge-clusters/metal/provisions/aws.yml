@@ -23,9 +23,9 @@
 name: 'aws-cluster'
 
 extends:
-    - common.d/defaults.yml
     - common.d/resources.yml
     - common.d/hosts.yml
+    - aws.d/defaults.yml
     - aws.d/datastores.yml
     - aws.d/fireedge.yml
     - aws.d/inputs.yml
@@ -48,7 +48,7 @@ defaults:
     instancetype: "${input.aws_instance_type}"
     cloud_init: true
   connection:
-    remote_user: 'centos'
+    remote_user: 'ubuntu'
 
 #-------------------------------------------------------------------------------
 # cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts

@@ -1,2 +1,2 @@
 hostname {{ ansible_nodename }}
-ip route {{ frr_net.stdout }}/{{ frr_net_mask }} {{ ansible_default_ipv4.gateway }}
+ip route {{ frr_net.stdout }} {{ ansible_default_ipv4.gateway }}

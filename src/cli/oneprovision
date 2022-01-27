@@ -139,7 +139,7 @@ CommandParser::CmdParser.new(ARGV) do
         if OpenNebula.is_error?(rc)
             STDERR.puts rc.message
             exit(-1)
-        elsif rc.to_i < 0
+        elsif rc[0].to_i < 0
             rc
         else
             puts CLIHelper.green('Provision successfully created')
@@ -209,14 +209,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         OneProvision::Utils.print_cmd('configure', options)
 
-        rc = helper.configure(args[0], options.key?(:force))
-
-        if OpenNebula.is_error?(rc)
-            STDERR.puts rc.message
-            exit(-1)
-        else
-            0
-        end
+        helper.configure(args[0], options.key?(:force))
     end
 
     ###
@@ -228,7 +221,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :delete,
             provision_delete_desc,
             :provisionid,
-            :options => [OneProvisionHelper::MODES,
+            :options => [OneProvisionHelper::FORCE,
+                         OneProvisionHelper::MODES,
                          OneProvisionHelper::THREADS,
                          OneProvisionHelper::CLEANUP,
                          OneProvisionHelper::CLEANUP_TIMEOUT] +
@@ -243,19 +237,29 @@ CommandParser::CmdParser.new(ARGV) do
             timeout = options[:cleanup_timeout]
         end
 
-        rc = helper.delete(args[0], (options.key? :cleanup), timeout)
-
-        if OpenNebula.is_error?(rc)
-            STDERR.puts rc.message
-            exit(-1)
-        else
-            0
-        end
+        helper.delete(args[0],
+                      (options.key? :cleanup),
+                      timeout,
+                      (options.key? :force))
     end
 
     ########################################################################
     # Host Commands
     ########################################################################
+
+    host_add_desc = <<-EOT.unindent
+        Provisions and configures a new host
+    EOT
+
+    command [:host, :add],
+            host_add_desc,
+            :provisionid,
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::AMOUNT] do
+        helper.add_hosts(args[0], options)
+    end
+
+    ###
 
     host_delete_desc = <<-EOT.unindent
         Unprovisions and deletes the given Host
@@ -267,12 +271,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
+        helper.resources_operation(args, operation, options, 'HOSTS')
     end
 
     ###
@@ -287,12 +286,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES] do
         operation = { :operation => 'configure', :message => 'enabled' }
 
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
+        helper.resources_operation(args, operation, options, 'HOSTS')
     end
 
     ###
@@ -307,12 +301,7 @@ CommandParser::CmdParser.new(ARGV) do
             [:command, nil] do
         operation = { :operation => 'ssh', :message => 'enabled' }
 
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
+        helper.resources_operation(args, operation, options, 'HOSTS')
     end
 
     ###
@@ -344,6 +333,17 @@ CommandParser::CmdParser.new(ARGV) do
     # Resources Commands
     ########################################################################
 
+    ip_add_desc = <<-EOT.unindent
+        Adds more IPs to the provision
+    EOT
+
+    command [:ip, :add],
+            ip_add_desc,
+            :provisionid,
+            :options => OneProvisionHelper::AMOUNT do
+        helper.add_ips(args[0], options[:amount])
+    end
+
     (OneProvision::Provision::RESOURCES +
      OneProvision::Provision::FULL_CLUSTER -
         %w[hosts marketplaceapps flowtemplates]).each do |resource|
@@ -373,19 +373,10 @@ CommandParser::CmdParser.new(ARGV) do
                 [:range, :id_list],
                 :options => [OneProvisionHelper::MODES,
                              OneProvisionHelper::FORCE] do
-            rc = helper.resources_operation(args,
-                                            { :operation => 'delete' },
-                                            options,
-                                            resource.upcase)
-
-            if rc.is_a?(Array) && rc[0] == 0
-                0
-            elsif rc.is_a?(Array)
-                STDERR.puts rc[1]
-                exit(-1)
-            else
-                0
-            end
+            helper.resources_operation(args,
+                                       { :operation => 'delete' },
+                                       options,
+                                       resource.upcase)
         end
     end
 end

@@ -13,7 +13,7 @@ inputs:
    - name: 'google_image'
      type: 'list'
      options:
-       - 'centos-8-v20210316'
+       - 'ubuntu-2004-focal-v20220118'
    - name: 'google_machine_type'
      type: 'list'
      options:

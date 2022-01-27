@@ -18,7 +18,7 @@
 inputs:
   - name: 'number_hosts'
     type: text
-    description: "Number of virtual servers to create"
+    description: 'Number of virtual servers to create'
     default: '1'
 
   - name: 'number_public_ips'
@@ -33,20 +33,19 @@ inputs:
 
   - name: 'vultr_plan'
     type: text
-    description: "Vultr plan (device type)"
+    description: 'Vultr plan (device type)'
     default: 'vc2-1c-1gb'
 
   - name: 'vultr_os'
     type: text
-    description: "Vultr host operating system"
-    default: '362'
+    description: 'Vultr host operating system'
+    default: '387'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
+    default: 'lxc'
     options:
         - 'qemu'
         - 'lxc'
-    default: 'lxc'
-
 ...

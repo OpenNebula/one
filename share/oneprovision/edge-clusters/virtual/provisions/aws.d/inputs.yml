@@ -33,19 +33,23 @@ inputs:
 
   - name: 'aws_ami_image'
     type: text
-    description: "AWS ami image used for host deployments"
-    default: ''
+    description: 'AWS ami image used for host deployments'
+    default: 'ami-04505e74c0741db8d'
 
   - name: 'aws_instance_type'
     type: text
-    description: "AWS instance type, use virtual instances"
-    default: ''
+    description: 'AWS instance type, use virtual instances'
+    default: 't2.micro'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
     default: 'lxc'
     options:
         - 'qemu'
         - 'lxc'
+
+  - name: 'private_phydev'
+    type: text
+    description: 'Physical device to be used for private networking.'
 ...

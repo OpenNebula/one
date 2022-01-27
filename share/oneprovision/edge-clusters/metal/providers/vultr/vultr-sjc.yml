@@ -11,8 +11,8 @@ inputs:
    - name: 'vultr_os'
      type: 'list'
      options:
-       - '362'
+       - '387'
    - name: 'vultr_plan'
      type: 'list'
      options:
-       - 'vbm-8c-132gb'
+       - 'vbm-4c-32gb'

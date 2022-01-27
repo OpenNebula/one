@@ -33,21 +33,24 @@ inputs:
 
   - name: 'aws_ami_image'
     type: text
-    description: "AWS ami image used for host deployments"
-    default: ''
+    description: 'AWS ami image used for host deployments'
+    default: 'ami-04505e74c0741db8d'
 
   - name: 'aws_instance_type'
     type: text
-    description: "AWS instance type, use bare-metal instances"
-    default: ''
+    description: 'AWS instance type, use bare-metal instances'
+    default: 'c5.metal'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
+    default: 'kvm'
     options:
         - 'kvm'
         - 'firecracker'
         - 'lxc'
-    default: 'kvm'
 
+  - name: 'private_phydev'
+    type: text
+    description: 'Physical device to be used for private networking.'
 ...

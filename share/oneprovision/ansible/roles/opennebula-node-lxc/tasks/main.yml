@@ -1,13 +1,19 @@
 ---
 
-- include: centos.yml
-  when: ansible_os_family == "RedHat"
+# Workaround for non-unified cgroups v2 not supported by Firecracker yet
+# https://github.com/firecracker-microvm/firecracker/issues/841 ?
+- name: Reconfigure cgroups
+  include_role:
+    name: cgroups1
+  when: |
+    (ansible_distribution == 'Fedora') or
+    (ansible_distribution == 'Debian' and ansible_distribution_version is version_compare('11', '>='))
 
-- include: debian.yml
-  when: ansible_os_family == "Debian"
-
-- include: security.yml
-
-- name: "create datastore for ONE_LOCATION"
-  file: path={{ one_location }}/var/datastores owner=oneadmin group=oneadmin state=directory
-  when: one_location is defined
+- name: Install OpenNebula node LXC package
+  package:
+    name: opennebula-node-lxc
+    state: latest
+  register: result
+  until: result is success
+  retries: 3
+  delay: 10

@@ -18,7 +18,7 @@
 inputs:
   - name: 'number_hosts'
     type: text
-    description: "Number of metal servers to create"
+    description: 'Number of metal servers to create'
     default: '1'
 
   - name: 'number_public_ips'
@@ -33,21 +33,20 @@ inputs:
 
   - name: 'vultr_plan'
     type: text
-    description: "Vultr plan (device type)"
-    default: 'vbm-8c-132gb'
+    description: 'Vultr plan (device type)'
+    default: 'vbm-4c-32gb'
 
   - name: 'vultr_os'
     type: text
-    description: "Vultr host operating system"
-    default: '362'
+    description: 'Vultr host operating system'
+    default: '387'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
+    default: 'kvm'
     options:
         - 'kvm'
         - 'firecracker'
         - 'lxc'
-    default: 'kvm'
-
 ...

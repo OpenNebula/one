@@ -23,17 +23,17 @@ inputs:
 
   - name: 'google_image'
     type: text
-    description: "Google image used for host deployments"
-    default: ''
+    description: 'Google image used for host deployments'
+    default: 'ubuntu-2004-focal-v20220118'
 
   - name: 'google_machine_type'
     type: text
-    description: "Google instance type, use virtual instances"
-    default: ''
+    description: 'Google instance type, use virtual instances'
+    default: 'e2-standard-2'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
     default: 'lxc'
     options:
         - 'qemu'

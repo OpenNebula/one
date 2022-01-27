@@ -222,6 +222,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         :description => 'Dump the configuration file result.'
     }
 
+    AMOUNT = {
+        :name  => 'amount',
+        :large => '--amount amount',
+        :description => 'Amount of hosts to add to the provision',
+        :format => Integer
+    }
+
     ########################################################################
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
@@ -403,9 +410,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         if provider
             provider = OneProvision::Provider.by_name(@client, provider)
 
-            return provider if OpenNebula.is_error?(provider)
+            return [-1, provider.message] if OpenNebula.is_error?(provider)
 
-            return OpenNebula::Error.new('Provider not found') unless provider
+            return [-1, 'Provider not found'] unless provider
         end
 
         provision.deploy(config, cleanup, timeout, skip, provider)
@@ -417,12 +424,15 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @param force [Boolean] True to configure hosts anyway
     def configure(id, force)
         provision = OneProvision::Provision.new_with_id(id, @client)
+        rc        = provision.info
 
-        rc = provision.info
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-        return rc if OpenNebula.is_error?(rc)
+        rc = provision.configure(force)
 
-        provision.configure(force)
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        0
     end
 
     # Deletes an existing provision
@@ -430,55 +440,102 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @param id      [Intenger] Provision ID
     # @param cleanup [Boolean]  True to delete VMs and images
     # @param timeout [Intenger] Timeout in seconds to wait in delete
-    def delete(id, cleanup, timeout)
+    # @param force   [Boolean]  Force provision deletion
+    def delete(id, cleanup, timeout, force)
         provision = OneProvision::Provision.new_with_id(id, @client)
+        rc        = provision.info
 
-        rc = provision.info
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-        return rc if OpenNebula.is_error?(rc)
-
-        provision.synchronize(3) do
-            provision.delete(cleanup, timeout)
+        rc = provision.synchronize(3) do
+            provision.delete(cleanup, timeout, force)
         end
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        0
     end
 
     #######################################################################
     # Helper host functions
     #######################################################################
 
+    # Adds a new hosts to the provision and configures them
+    #
+    # @param id      [Integer] Provision ID
+    # @param options [Hash]    User CLI options
+    def add_hosts(id, options)
+        parse_options(options)
+
+        options.key?(:amount) ? amount = options[:amount] : amount = 1
+
+        provision = OneProvision::Provision.new_with_id(id, @client)
+        rc        = provision.info
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        rc = provision.add_hosts(amount)
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        0
+    end
+
     # Executes an operation in a host
     #
     # @param host      [OpenNebula::Host]
-    # @param operation [String]  Operation to perform
-    # @param args      [Array]   Operation arguments
+    # @param operation [String] Operation to perform
+    # @param args      [Array]  Operation arguments
     def host_operation(host, operation, args)
         p_id = host['TEMPLATE/PROVISION/ID']
 
         return OpenNebula::Error.new('No provision ID found') unless p_id
 
         provision = OneProvision::Provision.new_with_id(p_id, @client)
+        rc        = provision.info
 
-        rc = provision.info
-
-        return rc if OpenNebula.is_error?(rc)
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
 
         id   = host['ID']
         host = OneProvision::Host.new(provision.provider['NAME'])
         host.info(id)
 
+        rc = nil
+
         case operation[:operation]
         when 'delete'
-            provision.update_objects('hosts', :remove, host.one['ID'])
+            rc = provision.update_objects('hosts', :remove, host.one['ID'])
         when 'configure'
-            host.configure
+            rc = host.configure
         when 'ssh'
-            host.ssh(args)
+            rc = host.ssh(args)
         end
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        0
     end
 
     #######################################################################
     # Helper resource functions
     #######################################################################
+
+    # Add more IPs to provision network
+    #
+    # @param id     [Integer] Provision ID
+    # @param amount [Integer] Number of IPs to add
+    def add_ips(id, amount)
+        provision = OneProvision::Provision.new_with_id(id, @client)
+        rc        = provision.info
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        rc = provision.add_ips(amount.nil? ? 1 : amount)
+
+        return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+        0
+    end
 
     # Executes an operation in a resource
     #
@@ -522,12 +579,15 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 end
 
                 provision = OneProvision::Provision.new_with_id(p_id, @client)
-
-                rc = provision.info
+                rc        = provision.info
 
                 return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-                provision.update_objects(type.downcase, :remove, obj['ID'])
+                rc = provision.update_objects(type.downcase, :remove, obj['ID'])
+
+                return [-1, rc.message] if OpenNebula.is_error?(rc)
+
+                0
             end
         end
     end
@@ -546,9 +606,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             end
 
             pool = factory_pool(options)
-            rc   = pool.info
+            rc   = pool.info_all
 
-            return rc if OpenNebula.is_error?(rc)
+            return [-1, rc.message] if OpenNebula.is_error?(rc)
 
             pool = pool.map do |e|
                 e.info(true)
@@ -578,10 +638,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         helper = helper(type)
 
-        if OpenNebula.is_error?(helper)
-            STDERR.puts helper.message
-            exit(-1)
-        end
+        return [-1, helper.message] if OpenNebula.is_error?(helper)
 
         helper.list_pool(options, top)
 

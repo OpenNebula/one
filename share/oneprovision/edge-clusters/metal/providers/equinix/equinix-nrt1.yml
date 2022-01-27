@@ -12,7 +12,7 @@ inputs:
    - name: 'equinix_os'
      type: 'list'
      options:
-       - 'centos_8'
+       - 'ubuntu_20_04'
    - name: 'equinix_plan'
      type: 'list'
      options:

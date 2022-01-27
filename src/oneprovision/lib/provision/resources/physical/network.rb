@@ -57,12 +57,13 @@ module OneProvision
 
         # Destroy network in provider
         #
+        # @param provision [OpenNebula::Provision] Provision information
         # @param tf [Hash] Terraform configuration
-        def destroy(tf)
+        def destroy(provision, tf)
             Terraform.p_load
 
             terraform = Terraform.singleton(@provider, tf)
-            terraform.destroy_network(@one.id)
+            terraform.destroy_network(provision, @one.id)
         end
 
         private

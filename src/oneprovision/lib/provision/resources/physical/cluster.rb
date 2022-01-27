@@ -67,17 +67,19 @@ module OneProvision
 
         # Deletes the cluster
         #
+        # @param force     [Boolean] Force cluster deletion
+        # @param provision [OpenNebula::Provision] Provision information
         # @param tf [Hash] Terraform :conf and :state
         #
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def delete(tf = nil)
+        def delete(force, provision, tf = nil)
             if tf && !tf.empty?
                 Terraform.p_load
 
                 terraform   = Terraform.singleton(@provider, tf)
-                state, conf = terraform.destroy_cluster(@one.id)
+                state, conf = terraform.destroy_cluster(provision, @one.id)
             end
 
             # Remove non-provision elements added to the cluster
@@ -85,7 +87,11 @@ module OneProvision
             @one.vnet_ids.each {|i| @one.delvnet(i) }
             @one.host_ids.each {|i| @one.delhost(i) }
 
-            Utils.exception(@one.delete)
+            if force
+                @one.delete
+            else
+                Utils.exception(@one.delete)
+            end
 
             if state && conf
                 [state, conf]

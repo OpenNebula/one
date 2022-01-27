@@ -15,27 +15,17 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-networks:
-  - name: "${provision}-public"
-    vn_mad: 'elastic'
-    bridge: 'br0'
-    netrole: 'public'
-    dns: "${input.dns}"
-    provision:
-      count: "${input.number_public_ips}"
-    ar:
-      - provison_id: "${provision_id}"
-        size: '1'
-        vultr_ip_type: 'v4'
-        ipam_mad: 'vultr'
+#-------------------------------------------------------------------------------
+# defaults: Common configuration attributes for provision objects
+#--------------------------------------------------------------------------------
 
-vntemplates:
-  - name: "${provision}-private"
-    vn_mad: 'vxlan'
-    phydev: 'enp6s0'
-    automatic_vlan_id: 'yes'
-    netrole: 'private'
-    vxlan_mode: 'evpn'
-    vxlan_tep: 'dev'
-    ip_link_conf: 'nolearning='
-    cluster_ids: "${cluster.0.id}"
+defaults:
+  configuration:
+    # Select the hypervisor package to install
+    oneprovision_hypervisor: "${input.one_hypervisor}"
+
+    # required for copying recovery VM snaphosts to the replica host
+    opennebula_ssh_deploy_private_key: true
+
+    # Select the physical device for private network (VXLAN)
+    oneprovision_private_phydev: "${input.private_phydev}"
