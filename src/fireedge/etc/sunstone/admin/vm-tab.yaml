@@ -130,6 +130,7 @@ info-tabs:
           - firecracker
       detach_disk: true
       snapshot_disk_create: true
+      snapshot_disk_rename: true
       snapshot_disk_revert: true
       snapshot_disk_delete: true
       resize_disk: true
