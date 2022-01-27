@@ -14,17 +14,19 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="provision_dashboard" class="section_content"></div>
-{{!provision_user_info}}
-
-{{> tabs/provision-tab/vms/html/create}}
-<div class="provision_vms_list_section section_content" hidden></div>
-
-{{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
-
-{{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/html/create}}
-<div class="provision_flows_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
+<fieldset>
+    <legend>{{tr "Cardinality"}}
+        <span class="provision_create_service_cost_div" hidden>
+            <span class="cost_value"></span>
+            <small> {{tr "COST"}} / {{tr "HOUR"}} </small>
+        </span>
+    </legend>
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="cardinality_slider_div"></div>
+            <div class="cardinality_no_slider_div">
+                <label>{{tr "The cardinality for this role cannot be changed"}}</label>
+            </div>
+        </div>
+    </div>
+</fieldset>

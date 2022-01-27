@@ -14,17 +14,14 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="provision_dashboard" class="section_content"></div>
-{{!provision_user_info}}
-
-{{> tabs/provision-tab/vms/html/create}}
-<div class="provision_vms_list_section section_content" hidden></div>
-
-{{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
-
-{{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/html/create}}
-<div class="provision_flows_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
+<div class="column">
+    <ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="{{id}}">
+        <li class="provision-title" title="{{name}}">
+            <a href="">{{name}}</a>
+        </li>
+        {{{roles_list}}}
+        <li class="provision-bullet-item">
+            {{description}}
+        </li>
+    </ul>
+</div>

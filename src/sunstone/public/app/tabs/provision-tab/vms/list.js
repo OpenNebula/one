@@ -27,14 +27,13 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
   var VMsTableUtils = require("../../vms-tab/utils/datatable-common");
-  var RemoteActions = require("utils/remote-actions");
 
-  var TemplateConfirmPoweroff = require("hbs!./confirm_poweroff");
-  var TemplateConfirmReboot = require("hbs!./confirm_reboot");
-  var TemplateConfirmSaveAsTemplate = require("hbs!./confirm_save_as_template");
-  var TemplateConfirmTerminate = require("hbs!./confirm_terminate");
-  var TemplateConfirmUndeploy = require("hbs!./confirm_undeploy");
-  var TemplateVmsList = require("hbs!./list");
+  var TemplateConfirmPoweroff = require("hbs!./html/confirm_poweroff");
+  var TemplateConfirmReboot = require("hbs!./html/confirm_reboot");
+  var TemplateConfirmSaveAsTemplate = require("hbs!./html/confirm_save_as_template");
+  var TemplateConfirmTerminate = require("hbs!./html/confirm_terminate");
+  var TemplateConfirmUndeploy = require("hbs!./html/confirm_undeploy");
+  var TemplateVmsList = require("hbs!./html/list");
 
   var TAB_ID = require("../tabId");
   var _accordionId = 0;

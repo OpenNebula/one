@@ -88,7 +88,7 @@ define(function(require) {
       }
     },
     'groupquotas': {
-      'html': require('hbs!./provision-tab/dashboard/group-quotas'),
+      'html': require('hbs!./provision-tab/dashboard/html/group-quotas'),
       'onShow': function() {
         OpenNebula.Group.show({
           data : {
@@ -134,7 +134,7 @@ define(function(require) {
       }
     },
     'quotas': {
-      'html': require('hbs!./provision-tab/dashboard/quotas'),
+      'html': require('hbs!./provision-tab/dashboard/html/quotas'),
       'onShow': function() {
         OpenNebula.User.show({
           data : {

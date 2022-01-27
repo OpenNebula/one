@@ -25,7 +25,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
 
-  var TemplateFlowsList = require("hbs!./list");
+  var TemplateFlowsList = require("hbs!./html/list");
 
   var _accordionId = 0;
 

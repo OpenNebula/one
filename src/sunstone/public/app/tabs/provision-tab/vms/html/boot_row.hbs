@@ -14,17 +14,27 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="provision_dashboard" class="section_content"></div>
-{{!provision_user_info}}
-
-{{> tabs/provision-tab/vms/html/create}}
-<div class="provision_vms_list_section section_content" hidden></div>
-
-{{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
-
-{{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/html/create}}
-<div class="provision_flows_list_section section_content" hidden></div>
-{{/isProvisionTabEnabled}}
+{{#if empty}}
+<tr>
+    <td>{{tr "Disks and NICs will appear here"}}</td>
+</tr>
+{{else}}
+<tr value="{{value}}">
+    <td><input type="checkbox"/></td>
+    <td>{{value}}</td>
+    <td>
+        <label>
+            <i class="fas fa-fw fa-lg {{label_class}}"></i>
+            {{label}}
+        </label>
+    </td>
+    <td>
+        <button class="boot-order-instantiate-provision-up button radius tiny secondary">
+            <i class="fas fa-lg fa-arrow-up" aria-hidden="true"/>
+        </button>
+        <button class="boot-order-instantiate-provision-down button radius tiny secondary">
+            <i class="fas fa-lg fa-arrow-down" aria-hidden="true"/>
+        </button>
+    </td>
+</tr>
+{{/if}}
