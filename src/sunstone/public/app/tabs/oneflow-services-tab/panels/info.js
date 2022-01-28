@@ -101,7 +101,7 @@ define(function(require) {
     var that = this;
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var prettyStartTime = Humanize.prettyTime(this.element.TEMPLATE.BODY["start_time"]);
+    var prettyStartTime = this.element.TEMPLATE.BODY["start_time"] ? Humanize.prettyTime(this.element.TEMPLATE.BODY["start_time"]) : "-";
 
     var errorMessageHTML = "";
     var async = false;

@@ -67,7 +67,7 @@ define(function(require) {
 
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var prettyRegTime = Humanize.prettyTime(this.element.TEMPLATE.BODY['registration_time']);
+    var prettyRegTime = this.element.TEMPLATE.BODY['registration_time'] ? Humanize.prettyTime(this.element.TEMPLATE.BODY['registration_time']) : "-";
     var customAttrs = [];
 
     if ( ! $.isEmptyObject( this.element.TEMPLATE.BODY['custom_attrs'] ) ) {
