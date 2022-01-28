@@ -108,6 +108,7 @@ define(function(require) {
     }
 
     var color_html = Status.state_lock_to_color("SERVICE_TEMPLATE",false, element_json[XML_ROOT]["LOCK"]);
+    var registration_time = element.TEMPLATE.BODY['registration_time'] ? Humanize.prettyTime(element.TEMPLATE.BODY['registration_time']) : "-";
 
     return [
       '<input class="check_item" type="checkbox" style="vertical-align: inherit;" id="'+this.resource.toLowerCase() + '_' + element.ID + '" name="selected_items" value="' + element.ID + '"/>'+color_html,
@@ -115,7 +116,7 @@ define(function(require) {
       element.UNAME,
       element.GNAME,
       element.NAME,
-      Humanize.prettyTime(element.TEMPLATE.BODY['registration_time']),
+      registration_time,
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
