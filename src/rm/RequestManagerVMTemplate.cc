@@ -284,7 +284,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     {
         quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        for ( auto& ds : ds_quotas )
+        for ( auto& ds : applied )
         {
             quota_rollback(ds.get(), Quotas::DATASTORE, att);
         }
