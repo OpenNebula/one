@@ -10,10 +10,12 @@ connection:
 inputs:
    - name: 'vultr_os'
      type: 'list'
+     default: '387'
      options:
-       - '362'
+       - '387'
    - name: 'vultr_plan'
      type: 'list'
+     default: 'vc2-1c-1gb'
      options:
        - 'vc2-1c-1gb'
        - 'vc2-1c-2gb'
