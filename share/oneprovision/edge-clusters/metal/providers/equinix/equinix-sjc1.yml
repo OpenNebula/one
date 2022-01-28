@@ -11,10 +11,12 @@ connection:
 inputs:
    - name: 'equinix_os'
      type: 'list'
+     default: 'ubuntu_20_04'
      options:
        - 'ubuntu_20_04'
    - name: 'equinix_plan'
      type: 'list'
+     default: 't1.small'
      options:
        - 't1.small'
        - 'c1.small'

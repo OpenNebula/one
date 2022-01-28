@@ -11,10 +11,12 @@ connection:
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
+     default: 'ami-04505e74c0741db8d'
      options:
        - 'ami-04505e74c0741db8d'
    - name: 'aws_instance_type'
      type: 'list'
+     default: 'c5.metal'
      options:
        - 'c5.metal'
        - 'i3.metal'

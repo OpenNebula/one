@@ -10,9 +10,11 @@ connection:
 inputs:
    - name: 'vultr_os'
      type: 'list'
+     default: '387'
      options:
        - '387'
    - name: 'vultr_plan'
      type: 'list'
+     default: 'vbm-4c-32gb'
      options:
        - 'vbm-4c-32gb'

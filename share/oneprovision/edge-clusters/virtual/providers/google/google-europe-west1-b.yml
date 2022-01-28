@@ -12,10 +12,12 @@ connection:
 inputs:
    - name: 'google_image'
      type: 'list'
+     default: 'ubuntu-2004-focal-v20220118'
      options:
        - 'ubuntu-2004-focal-v20220118'
    - name: 'google_machine_type'
      type: 'list'
+     default: 'e2-standard-2'
      options:
        - 'e2-standard-2'
        - 'e2-standard-4'
