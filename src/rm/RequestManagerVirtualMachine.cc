@@ -3612,7 +3612,7 @@ void VirtualMachineAttachSG::request_execute(
         }
 
         // Copy VM attributes
-        nic_tmpl.reset(new VirtualMachineNic(nic->vector_attribute(), nic_id));
+        nic_tmpl.reset(new VirtualMachineNic(nic->vector_attribute()->clone(), nic_id));
         nic_tmpl->add_security_group(sg_id);
 
         vm->get_permissions(vm_perms);
