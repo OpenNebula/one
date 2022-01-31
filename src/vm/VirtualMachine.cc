@@ -2962,7 +2962,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             obj_template->remove(context_new);
             obj_template->set(context_bck);
 
-            context_bck->merge(context_new, false);
+            context_bck->merge(context_new, true);
 
             delete context_new;
         }
