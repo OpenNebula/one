@@ -20,6 +20,7 @@ package goca
 
 import (
 	"testing"
+	"strconv"
 
 	ds "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
 	dskeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore/keys"
@@ -35,6 +36,8 @@ type VMSuite struct {
 	templateID int
 	vmID       int
 	hostID     int
+	vnID       int
+	sgID       int
 }
 
 var _ = Suite(&VMSuite{})
@@ -61,6 +64,17 @@ func (s *VMSuite) SetUpSuite(c *C) {
 
 	testCtrl.Datastore(0).Update(tmpl.String(), 1)
 
+	vnTpl := "NAME = vn_go_test_sg\n" +
+			 "BRIDGE = vbr0\n" +
+			 "VN_MAD = dummy\n" +
+			 "NETWORK_ADDRESS = 192.168.0.0\n"+
+			 "AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = 254 ]\n"
+	s.vnID, _ = testCtrl.VirtualNetworks().Create(vnTpl, -1)
+
+	sgTpl := "NAME = sg_go_nic_attach\n" +
+			 "DESCRIPTION  = \"test security group\"\n" +
+			 "ATT1 = \"VAL1\"\n"
+	s.sgID, _ = testCtrl.SecurityGroups().Create(sgTpl)
 }
 
 func (s *VMSuite) SetUpTest(c *C) {
@@ -79,9 +93,17 @@ func (s *VMSuite) TearDownTest(c *C) {
 }
 
 func (s *VMSuite) TearDownSuite(c *C) {
-	testCtrl.Template(s.templateID).Delete()
+	err := testCtrl.Template(s.templateID).Delete()
+	c.Assert(err, IsNil)
 
-	testCtrl.Host(s.hostID).Delete()
+	err = testCtrl.Host(s.hostID).Delete()
+	c.Assert(err, IsNil)
+
+	err = testCtrl.VirtualNetwork(s.vnID).Delete()
+	c.Assert(err, IsNil)
+
+	err = testCtrl.SecurityGroup(s.sgID).Delete()
+	c.Assert(err, IsNil)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,4 +269,32 @@ func (s *VMSuite) TestVMResize(c *C) {
 
 	c.Assert(cpu, Equals, 2.5)
 	c.Assert(mem, Equals, 512)
+}
+
+func (s *VMSuite) TestVMNicSgAttachDetach(c *C) {
+	// Deploy VM
+	vmC := testCtrl.VM(s.vmID)
+	err := vmC.Deploy(s.hostID, false, -1)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Attach NIC
+	err = vmC.AttachNIC("NIC = [ NETWORK_ID = " + strconv.Itoa(s.vnID) + " ]")
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Attach SG
+	err = vmC.AttachSG(0, s.sgID)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Detach SG
+	err = vmC.DetachSG(0, s.sgID)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Detach NIC
+	err = vmC.DetachNIC(0)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
 }

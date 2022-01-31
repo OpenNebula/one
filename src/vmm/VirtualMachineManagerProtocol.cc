@@ -782,18 +782,21 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
 
     if (auto sg = sgpool->get(sgid))
     {
-        sg->del_updating(id);
-
-        if (msg->status() == "SUCCESS")
+        if (sg->is_updating(id))
         {
-            sg->add_vm(id);
-        }
-        else
-        {
-            sg->add_error(id);
-        }
+            sg->del_updating(id);
 
-        sgpool->update(sg.get());
+            if (msg->status() == "SUCCESS")
+            {
+                sg->add_vm(id);
+            }
+            else
+            {
+                sg->add_error(id);
+            }
+
+            sgpool->update(sg.get());
+        }
     }
 
     if (auto vm = vmpool->get(id))

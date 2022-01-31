@@ -59,6 +59,8 @@ public class VirtualMachine extends PoolElement{
     private static final String SCHEDUPDATE         = METHOD_PREFIX + "schedupdate";
     private static final String LOCK                = METHOD_PREFIX + "lock";
     private static final String UNLOCK              = METHOD_PREFIX + "unlock";
+    private static final String ATTACHSG            = METHOD_PREFIX + "attachsg";
+    private static final String DETACHSG            = METHOD_PREFIX + "detachsg";
 
     private static final String[] VM_STATES =
     {
@@ -723,6 +725,36 @@ public class VirtualMachine extends PoolElement{
         return client.call(UNLOCK, id);
     }
 
+    /**
+     * Attaches a SG to a VM NIC
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine id (vid) of the target instance.
+     * @param nicid The NIC id, where to attach the Security Group
+     * @param sgid The Security Group id to attach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse sgAttach(Client client, int id,
+            int nicid, int sgid)
+    {
+        return client.call(ATTACHSG, id, nicid, sgid);
+    }
+
+    /**
+     * Detaches a SG from a VM NIC
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicid The NIC id from which the Security Group should be detached
+     * @param sgid The Security Group id to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse sgDetach(Client client, int id,
+            int nicid, int sgid)
+    {
+        return client.call(DETACHSG, id, nicid, sgid);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -1253,6 +1285,30 @@ public class VirtualMachine extends PoolElement{
     public OneResponse unlock()
     {
         return unlock(client, id);
+    }
+
+    /**
+     * Attaches a NIC to a running VM
+     *
+     * @param nicid The NIC id, where to attach the Security Group
+     * @param sgid The Security Group id to attach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse sgAttach(int nicid, int sgid)
+    {
+        return sgAttach(client, id, nicid, sgid);
+    }
+
+    /**
+     * Detaches a NIC from a running VM
+     *
+     * @param nicid The NIC id from which the Security Group should be detached
+     * @param sgid The Security Group /id to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse sgDetach(int nicid, int sgid)
+    {
+        return sgDetach(client, id, nicid, sgid);
     }
 
     // =================================

@@ -582,3 +582,15 @@ func (vc *VMController) DeleteSchedAction(actionId int) error {
 	_, err := vc.c.Client.Call("one.vm.scheddelete", vc.ID, actionId)
 	return err
 }
+
+// AttachSG attaches new Security Group to Virtual Machine NIC
+func (vc *VMController) AttachSG(nicID int, sgID int) error {
+	_, err := vc.c.Client.Call("one.vm.attachsg", vc.ID, nicID, sgID)
+	return err
+}
+
+// DetachSG detaches a Security Group from Virtual Machine NIC
+func (vc *VMController) DetachSG(nicID int, sgID int) error {
+	_, err := vc.c.Client.Call("one.vm.detachsg", vc.ID, nicID, sgID)
+	return err
+}
