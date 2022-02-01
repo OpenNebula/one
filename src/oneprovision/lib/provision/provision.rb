@@ -407,8 +407,10 @@ module OneProvision
 
         # Provisions and configures new hosts
         #
-        # @param amount [Intenger] Amount of hosts to add to the provision
-        def add_hosts(amount)
+        # @param amount    [Intenger] Amount of hosts to add to the provision
+        # @param hostnames [Array]    Array of hostnames to add. Works only in
+        #                               on premise provisions
+        def add_hosts(amount, hostnames)
             if !state || state != STATE['RUNNING']
                 return OpenNebula::Error.new(
                     "Can't add hosts to provision in #{STATE_STR[state]}"
@@ -457,11 +459,22 @@ module OneProvision
             # idx used to generate hostname
             idx = hosts.size
 
+            # If the user set hostnames, iterate over them to create the
+            # hosts. This is thought for on premise provision, where the hosts
+            # are already created in on premise infrastructure
+            if hostnames
+                iterate = hostnames
+            else
+                iterate = amount.times.map.with_index(idx) do |_, i|
+                    "edge-host#{i}"
+                end
+            end
+
             # Allocate hosts in OpenNebula and add them to the provision
-            amount.times do
-                host['provision']['index']    = idx
+            iterate.each.with_index(idx) do |item, i|
+                host['provision']['index']    = i
                 host['provision']['hostname'] = ''
-                host['provision']['hostname'] = "edge-host#{idx}"
+                host['provision']['hostname'] = item
 
                 h         = Resource.object('hosts', @provider, host)
                 dfile     = h.create_deployment_file
@@ -477,8 +490,6 @@ module OneProvision
                 one_host.offline
 
                 update
-
-                idx += 1
             end
 
             OneProvisionLogger.info('Deploying')

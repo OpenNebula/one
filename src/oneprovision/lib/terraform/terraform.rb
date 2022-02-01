@@ -116,7 +116,11 @@ module OneProvision
                 raise OneProvisionLoopException, "Unknown provider: #{p_name}"
             end
 
-            @@providers[p_name].new(provider, tf[:state], tf[:conf])
+            if tf
+                @@providers[p_name].new(provider, tf[:state], tf[:conf])
+            else
+                @@providers[p_name].new(provider)
+            end
         end
 
         # Check connection attributes of a provider template

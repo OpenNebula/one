@@ -31,6 +31,7 @@ module OneProvision
             @hosts = provision.info_objects('hosts')
         end
 
+        # Deploys a new host
         def deploy(_)
             OneProvisionLogger.info('(Deploy skipped)')
 
@@ -47,6 +48,13 @@ module OneProvision
         #
         # @param [String] Host public IP
         def poll(_) end
+
+        # Provisions and configures new hosts
+        #
+        # @param provision [OpenNebula::Provision] Provision information
+        def add_hosts(_)
+            deploy(nil)
+        end
 
         # Destroy infra via Terraform
         #
