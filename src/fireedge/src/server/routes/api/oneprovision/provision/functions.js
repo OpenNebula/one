@@ -612,13 +612,14 @@ const deleteProvision = (
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
   const { user, password } = userData
-  const { id, cleanup } = params
+  const { id, cleanup, force } = params
   const rtn = httpInternalError
   if (Number.isInteger(parseInt(id, 10)) && user && password) {
     const command = 'delete'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const cleanUpTag = cleanup ? ['--cleanup'] : []
+    const forceTag = force ? ['--force'] : []
     const paramsCommand = [
       command,
       id,
@@ -626,6 +627,7 @@ const deleteProvision = (
       '--debug',
       '--json',
       ...cleanUpTag,
+      ...forceTag,
       ...authCommand,
       ...endpoint,
     ]
@@ -1321,6 +1323,116 @@ const getLogProvisions = (
   next()
 }
 
+/**
+ * Execute Command sync and return http response.
+ *
+ * @param {any[]} params - params for command.
+ * @returns {object} httpResponse
+ */
+const addResourceSync = (params) => {
+  if (params && Array.isArray(params)) {
+    const executedCommand = executeCommand(
+      defaultCommandProvision,
+      params,
+      getSpecificConfig('oneprovision_prepend_command')
+    )
+    try {
+      const response = executedCommand.success ? ok : internalServerError
+
+      return httpResponse(
+        response,
+        executedCommand.data ? JSON.parse(executedCommand.data) : params.id
+      )
+    } catch (error) {
+      return httpResponse(internalServerError, '', executedCommand.data)
+    }
+  }
+}
+
+/**
+ * Add Host to provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {string} params.resource - resource
+ * @param {object} userData - user of http request
+ */
+const hostAdd = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  let rtn = httpInternalError
+  const { id, amount } = params
+  const { user, password } = userData
+  if (
+    Number.isInteger(parseInt(id, 10)) &&
+    Number.isInteger(parseInt(amount, 10)) &&
+    user &&
+    password
+  ) {
+    const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
+
+    rtn =
+      addResourceSync([
+        'host',
+        'add',
+        id,
+        'amount',
+        amount,
+        ...authCommand,
+        ...endpoint,
+      ]) || httpInternalError
+  }
+  res.locals.httpCode = rtn
+  next()
+}
+
+/**
+ * Add Ips to provision.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {string} params.resource - resource
+ * @param {object} userData - user of http request
+ */
+const ipAdd = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  let rtn = httpInternalError
+  const { id, amount } = params
+  const { user, password } = userData
+  if (
+    Number.isInteger(parseInt(id, 10)) &&
+    Number.isInteger(parseInt(amount, 10)) &&
+    user &&
+    password
+  ) {
+    const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
+
+    rtn =
+      addResourceSync([
+        'ip',
+        'add',
+        id,
+        'amount',
+        amount,
+        ...authCommand,
+        ...endpoint,
+      ]) || httpInternalError
+  }
+  res.locals.httpCode = rtn
+  next()
+}
+
 const provisionFunctionsApi = {
   getProvisionDefaults,
   getLogProvisions,
@@ -1334,5 +1446,7 @@ const provisionFunctionsApi = {
   configureProvision,
   configureHost,
   validate,
+  hostAdd,
+  ipAdd,
 }
 module.exports = provisionFunctionsApi
