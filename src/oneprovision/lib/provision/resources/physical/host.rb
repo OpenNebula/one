@@ -47,7 +47,7 @@ module OneProvision
             ) if @p_template['connection']
             config = Base64.strict_encode64(
                 @p_template['configuration'].to_yaml
-            )
+            ) if @p_template['configuration']
 
             reject = %w[im_mad vm_mad provision connection configuration count]
 

@@ -229,6 +229,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         :format => Integer
     }
 
+    HOSTNAMES = {
+        :name  => 'hostnames',
+        :large => '--hostnames h1,h2',
+        :description => 'Hostnames when adding new host to onpremise provision',
+        :format => Array
+    }
+
     ########################################################################
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
@@ -474,7 +481,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-        rc = provision.add_hosts(amount)
+        rc = provision.add_hosts(amount, options[:hostnames])
 
         return [-1, rc.message] if OpenNebula.is_error?(rc)
 
