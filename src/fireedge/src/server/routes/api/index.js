@@ -33,6 +33,7 @@ const routes = [
   'zendesk',
   'oneprovision',
   'sunstone',
+  'system',
 ]
 
 const serverRoutes = []
