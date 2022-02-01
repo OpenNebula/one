@@ -47,6 +47,9 @@ class Vultr
     # API instances URL
     INSTANCE_URL = "#{BASE_URL}/instances"
 
+    # API bare-metal instances
+    BAREMETAL_URL = "#{BASE_URL}/bare-metals"
+
     # API networks URL
     NETWORK_URL = "#{BASE_URL}/reserved-ips"
 
@@ -61,8 +64,31 @@ class Vultr
     end
 
     ############################################################################
+    # Baremetal Methods
+    ############################################################################
+    def list_metals
+        get(BAREMETAL_URL)
+    end
+
+    # Delete baremetal
+    #
+    # @param id [String] Baremetal ID
+    #
+    # @return [Nil, Error] nil if no error, error othwerise
+    def delete_metal(id)
+        delete("#{BAREMETAL_URL}/#{id}")
+    end
+
+    ############################################################################
     # Instances Methods
     ############################################################################
+
+    # List instances
+    #
+    # @return [Hash, Error] hash with instances, error otherwise
+    def list_instances
+        get(INSTANCE_URL)
+    end
 
     # Get instances information
     #
@@ -75,6 +101,15 @@ class Vultr
         return rc if VultrError.error?(rc)
 
         JSON.parse(rc)['instance']
+    end
+
+    # Delete instance
+    #
+    # @param id [String] Instances ID
+    #
+    # @return [Nil, Error] nil if no error, error othwerise
+    def delete_instance(id)
+        delete("#{INSTANCE_URL}/#{id}")
     end
 
     # Attach Reserved IP to an Instance
@@ -106,6 +141,13 @@ class Vultr
     ############################################################################
     # Network methods
     ############################################################################
+
+    # List IPs
+    #
+    # @return [Hash, Error] hash with IPs, error otherwise
+    def list_ips
+        get(NETWORK_URL)
+    end
 
     # Create a new Reserved IP in a region
     #
