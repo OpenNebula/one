@@ -341,8 +341,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VN template with differents levels for lock any actions with this VN template,
-        show and monitoring never will be locked.
+        Locks a VN Template to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -369,7 +369,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VN template for unlock any actions with this VN template.
+        Unlocks a VN Template.
         Valid states are: All.
     EOT
 

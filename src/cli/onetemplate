@@ -406,8 +406,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM,
-        show and monitoring never will be locked.
+        Locks a Template to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -434,7 +434,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a Template.
         Valid states are: All.
     EOT
 

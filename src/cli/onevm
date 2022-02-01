@@ -1338,9 +1338,12 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM, show and
-        monitoring never will be locked.
+        Locks a VM to prevent certain actions defined by different levels.
+        The show and monitoring action will never be locked.
         Valid states are: All.
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
     EOT
 
     command :lock, lock_desc, [:range, :vmid_list],
@@ -1362,7 +1365,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a Virtual Machine.
         Valid states are: All.
     EOT
 
