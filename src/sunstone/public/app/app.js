@@ -61,8 +61,9 @@ define(function(require) {
       Menu.insertProvision();
     }else{
       Menu.insert();
-      Sunstone.setupNavigoRoutes();
     }
+
+    Sunstone.setupNavigoRoutes();
 
     _setupAccordion();
     _setupCloseDropdownsOnClick();

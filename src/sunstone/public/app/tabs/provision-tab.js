@@ -50,7 +50,6 @@ define(function(require) {
         call: OpenNebula.Template.instantiate,
         callback: function(){
           ProvisionVms.clearVMCreate();
-          $(".provision_vms_list_button").click();
         },
         error: Notifier.onError
       },
@@ -59,7 +58,6 @@ define(function(require) {
         call: OpenNebula.Template.instantiate_persistent,
         callback: function(){
           ProvisionVms.clearVMCreate();
-          $(".provision_vms_list_button").click();
         },
         error: Notifier.onError
       }

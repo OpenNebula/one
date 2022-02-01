@@ -22,7 +22,6 @@ define(function(require) {
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
   var TemplateUtils = require("utils/template-utils");
 
   /*
@@ -81,11 +80,11 @@ define(function(require) {
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
   FormPanel.prototype.htmlWizard = _htmlWizard;
-  FormPanel.prototype.htmlAdvanced = _htmlAdvanced;
+  FormPanel.prototype.htmlAdvanced = config.user_config.default_view === 'cloud' ? undefined : _htmlAdvanced;
   FormPanel.prototype.setup = _setup;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.submitWizard = _submitWizard;
-  FormPanel.prototype.submitAdvanced = _submitAdvanced;
+  FormPanel.prototype.submitAdvanced = config.user_config.default_view === 'cloud' ? undefined : _submitAdvanced;
   FormPanel.prototype.fill = _fill;
 
   return FormPanel;
