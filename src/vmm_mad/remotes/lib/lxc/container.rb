@@ -52,12 +52,6 @@ class Container
 
     # Creates container in Linux
     def create(options = {})
-        options[:config] = "#{@one.location}/deployment.file"
-
-        File.open(options[:config], 'w+') do |file|
-            file.write(@one.to_lxc)
-        end
-
         # Map storage
         error   = false
         mounted = []
@@ -76,6 +70,10 @@ class Container
             mounted.each {|d| d.umount }
             return false
         end
+
+        # write container config file
+        options[:config] = "#{@one.location}/deployment.file"
+        File.write(options[:config], @one.to_lxc)
 
         @client.create(@one.vm_name, options)
     end

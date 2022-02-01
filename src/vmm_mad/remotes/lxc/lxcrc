@@ -40,7 +40,22 @@
 # Path to the LXC default configuration file. This file will be included in
 # the configuration of every LXC container (lxc.include)
 :default_lxc_config: /usr/share/lxc/config/common.conf
+
+################################################################################
+# Container storage interface mount options
+################################################################################
 #
-# Comma separated list of mount options used when shifting the uid/gid with
-# bindfs. See <bindfs -o> command help
-:bindfs_mountopts: suid
+# Options to customize the mounting process of the container disks
+#   :bindfs: arguments passed to bindfs -o <opts>
+#   :dev_<fs>: Mount options for disk devices (in the host). Options are set per
+#     fs type (e.g. dev_xfs, dev_ext3...)
+#   :disk: Mount options for data DISK (lxc.mount.entry).
+#   :rootfs: Mount options for root fs (lxc.rootfs.options)
+#   :mountpoint: Default Path to mount data disk in the container. This can be
+#      set per DISK using the TARGET attribute.
+:mountopts:
+    :bindfs: 'suid'
+    :dev_xfs: 'nouuid'
+    :disk: 'rbind,create=dir,optional'
+    :rootfs: ''
+    :mountpoint: 'media/one-disk.$id'

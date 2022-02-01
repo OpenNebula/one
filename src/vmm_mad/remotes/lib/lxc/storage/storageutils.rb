@@ -37,7 +37,7 @@ module Storage
         :e2fsck     => "#{PRE}e2fsck",
         :resize2fs  => "#{PRE}resize2fs",
         :xfs_growfs => "#{PRE}xfs_growfs",
-        :bind       => "#{PRE} bindfs" # TODO, allow customize offset
+        :bind       => "#{PRE} bindfs"
     }
 
     private_constant :COMMANDS
@@ -55,23 +55,27 @@ module Storage
                 device_fs = device_fs(device)
             end
 
+            opts_fs = options[:mountopts]["dev_#{device_fs}".to_sym]
+            opts_fs ||= ''
+
             # resize and mount operations according to the used filesystem
             case device_fs
             when /^ext([2-4])$/
                 resize_ext(device)
 
-                return false unless mount(device, mountpoint)
+                return false unless mount(device, mountpoint, opts_fs)
             when 'xfs'
-                return false unless mount(device, mountpoint, 'nouuid')
+                return false unless mount(device, mountpoint, opts_fs)
 
                 resize_xfs(mountpoint)
             else
-                return false unless mount(device, mountpoint)
+                return false unless mount(device, mountpoint, opts_fs)
             end
 
             # Bind @mountpoint into to the public accesible folder (@bindpoint)
             return true if bind(mountpoint, bindpoint, options)
-        rescue StandardError
+        rescue StandardError => e
+            OpenNebula.log_error e
         end
 
         umount(bindpoint)
@@ -166,7 +170,7 @@ module Storage
 
             cmd_opts = "--uid-offset=#{offset} "\
             "--gid-offset=#{offset} "\
-            "-o #{options[:bindfs_mountopts]}"
+            "-o #{options[:mountopts][:bindfs]}"
 
             # Bindfs
             cmd = "#{COMMANDS[:bind]} #{cmd_opts} #{src} #{target}"
