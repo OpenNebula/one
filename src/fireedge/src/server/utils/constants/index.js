@@ -16,12 +16,10 @@
 
 const defaults = require('./defaults')
 const httpCodes = require('./http-codes')
-const params = require('./params')
 const opennebulaCommands = require('./commands')
 
 module.exports = {
   defaults,
   httpCodes,
-  params,
   opennebulaCommands,
 }

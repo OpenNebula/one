@@ -15,34 +15,37 @@
  * ------------------------------------------------------------------------- */
 
 const {
-  httpMethod,
   from: fromData,
+  httpMethod,
 } = require('server/utils/constants/defaults')
-const VCENTER = require('server/routes/api/vcenter/basepath')
+const { PROVIDER } = require('server/routes/api/oneprovision/basepath')
 
-const basepath = `/${VCENTER}`
-const { POST, GET } = httpMethod
-const { resource, postBody, query } = fromData
+const { GET, POST, PUT, DELETE } = httpMethod
+const basepath = `/${PROVIDER}`
+const { resource, postBody } = fromData
 
-const VCENTER_CLEARTAGS = 'vcenter.cleartags'
-const VCENTER_HOSTS = 'vcenter.hosts'
-const VCENTER_IMPORT = 'vcenter.import'
-const VCENTER_LISTALL = 'vcenter.listall'
-const VCENTER_LIST = 'vcenter.list'
+const PROVIDER_CONNECTION = 'provider.connection'
+const PROVIDER_CONFIG = 'provider.config'
+const PROVIDER_LIST = 'provider.list'
+const PROVIDER_CREATE = 'provider.create'
+const PROVIDER_UPDATE = 'provider.update'
+const PROVIDER_DELETE = 'provider.delete'
+
 const Actions = {
-  VCENTER_CLEARTAGS,
-  VCENTER_HOSTS,
-  VCENTER_IMPORT,
-  VCENTER_LISTALL,
-  VCENTER_LIST,
+  PROVIDER_CONNECTION,
+  PROVIDER_CONFIG,
+  PROVIDER_LIST,
+  PROVIDER_CREATE,
+  PROVIDER_UPDATE,
+  PROVIDER_DELETE,
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [VCENTER_CLEARTAGS]: {
-      path: `${basepath}/cleartags/:id`,
-      httpMethod: POST,
+    [PROVIDER_CONNECTION]: {
+      path: `${basepath}/connection/:id`,
+      httpMethod: GET,
       auth: true,
       params: {
         id: {
@@ -50,77 +53,50 @@ module.exports = {
         },
       },
     },
-    [VCENTER_HOSTS]: {
-      path: `${basepath}/hosts`,
-      httpMethod: POST,
+    [PROVIDER_CONFIG]: {
+      path: `${basepath}/config`,
+      httpMethod: GET,
       auth: true,
-      params: {
-        vcenter: {
-          from: postBody,
-          name: 'vcenter',
-        },
-        user: {
-          from: postBody,
-          name: 'user',
-        },
-        pass: {
-          from: postBody,
-          name: 'pass',
-        },
-      },
     },
-    [VCENTER_IMPORT]: {
-      path: `${basepath}/:vobject`,
-      httpMethod: POST,
+    [PROVIDER_LIST]: {
+      path: `${basepath}/:id?`,
+      httpMethod: GET,
       auth: true,
       params: {
-        vobject: {
-          from: resource,
-        },
-        host: {
-          from: postBody,
-        },
-        datastore: {
-          from: postBody,
-        },
         id: {
-          from: postBody,
-        },
-        answers: {
-          from: postBody,
+          from: resource,
         },
       },
     },
-    [VCENTER_LISTALL]: {
-      path: `${basepath}/listall/:vobject`,
-      httpMethod: GET,
+    [PROVIDER_CREATE]: {
+      path: `${basepath}`,
+      httpMethod: POST,
       auth: true,
       params: {
-        vobject: {
-          from: resource,
-        },
-        host: {
-          from: query,
-        },
-        datastore: {
-          from: query,
+        resource: {
+          from: postBody,
+          all: true,
         },
       },
     },
-    [VCENTER_LIST]: {
-      path: `${basepath}/:vobject`,
-      httpMethod: GET,
+    [PROVIDER_UPDATE]: {
+      path: `${basepath}/:id`,
+      httpMethod: PUT,
       auth: true,
       params: {
-        vobject: {
-          from: resource,
+        resource: {
+          from: postBody,
+          all: true,
         },
-        host: {
-          from: query,
-        },
-        datastore: {
-          from: query,
-        },
+        id: { from: resource },
+      },
+    },
+    [PROVIDER_DELETE]: {
+      path: `${basepath}/:id`,
+      httpMethod: DELETE,
+      auth: true,
+      params: {
+        id: { from: resource },
       },
     },
   },

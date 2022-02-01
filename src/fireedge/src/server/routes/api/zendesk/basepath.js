@@ -14,10 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const TFA = 'tfa'
-
-const Actions = {
-  TFA,
-}
-
-module.exports = Actions
+module.exports = 'zendesk'

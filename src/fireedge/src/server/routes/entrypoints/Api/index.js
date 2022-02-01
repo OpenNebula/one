@@ -14,10 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const MARKETAPP = 'marketapp'
+const express = require('express')
+const { httpCodes } = require('server/utils/constants')
+const xmlrpcRoutes = require('server/routes/entrypoints/Api/xmlrpc')
+const functionsRoutes = require('server/routes/entrypoints/Api/functions')
 
-const Actions = {
-  MARKETAPP,
+const { notFound, internalServerError } = httpCodes
+const router = express.Router()
+
+express()
+
+const jsonResponser = (req, res) => {
+  const { httpCode } = res.locals
+  if (httpCode) {
+    const { id, file } = httpCode
+    if (file) {
+      res.sendFile(file)
+
+      return
+    } else {
+      res.status(id).json(httpCode)
+
+      return
+    }
+  }
+  res.status(internalServerError.id).json(internalServerError)
 }
 
-module.exports = Actions
+functionsRoutes({
+  expressRouter: router,
+  jsonResponser,
+})
+
+xmlrpcRoutes({
+  expressRouter: router,
+  jsonResponser,
+})
+
+/** NOT FOUND */
+router.use((req, res) => {
+  res.status(notFound.id).json(notFound)
+})
+
+module.exports = router

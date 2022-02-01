@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const upcast = require('upcast')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
@@ -22,17 +21,20 @@ const parser = require('fast-xml-parser')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const { global } = require('window-or-global')
-const httpCodes = require('./constants/http-codes')
-const commandsParams = require('./constants/commands')
+const {
+  httpCodes,
+  opennebulaCommands,
+  defaults,
+} = require('server/utils/constants')
 const {
   from,
   defaultEmptyFunction,
   defaultConfigParseXML,
   defaultNamespace,
   defaultMessageProblemOpennebula,
-} = require('./constants/defaults')
+} = defaults
 
-const { getFireedgeConfig } = require('./yml')
+const { getFireedgeConfig } = require('server/utils/yml')
 
 // regex for separate the commands .info
 const regexInfoAction = /^(\w+).info$/
@@ -255,8 +257,8 @@ const responseOpennebula = (res, err, value, response, next) => {
  */
 const getMethodForOpennebulaCommand = () => {
   const rtn = []
-  if (commandsParams) {
-    const commands = Object.keys(commandsParams)
+  if (opennebulaCommands) {
+    const commands = Object.keys(opennebulaCommands)
     commands.forEach((command) => {
       if (command && command.length) {
         const commandString = command.split('.')
@@ -271,44 +273,17 @@ const getMethodForOpennebulaCommand = () => {
 }
 
 /**
- * Get a command to XMLRPC.
- *
- * @param {string} resource - resource
- * @param {string} method - method
- * @param {string} defaultMethod - default method
- * @returns {string} command to XMLRPC
- */
-const commandXMLRPC = (resource = '', method = '', defaultMethod = '') => {
-  let command = ''
-  const allowedActions = getMethodForOpennebulaCommand()
-  if (resource && resource.length) {
-    command = `${resource}`
-  }
-  const commandWithDefault = defaultMethod
-    ? `${command}.${defaultMethod}`
-    : command
-
-  if (method) {
-    command = allowedActions.includes(method)
-      ? `${command}.${method}`
-      : commandWithDefault
-  }
-
-  return command
-}
-
-/**
  * Get allowed query parameters.
  *
  * @returns {Array} query parameters
  */
 const getAllowedQueryParams = () => {
   const rtn = []
-  const allowedQuerys = Object.keys(commandsParams)
+  const allowedQuerys = Object.keys(opennebulaCommands)
   if (from && from.query) {
     const { query } = from
     allowedQuerys.forEach((allowedQuery) => {
-      const command = commandsParams[allowedQuery]
+      const command = opennebulaCommands[allowedQuery]
       if (command && command.params) {
         const internalParams = Object.keys(command.params)
         internalParams.forEach((internalParam) => {
@@ -335,8 +310,8 @@ const getAllowedQueryParams = () => {
  */
 const getRouteForOpennebulaCommand = () => {
   const rtn = []
-  if (commandsParams) {
-    const commands = Object.keys(commandsParams)
+  if (opennebulaCommands) {
+    const commands = Object.keys(opennebulaCommands)
     commands.forEach((command) => {
       if (command && command.length) {
         let commandString = command.split('.')
@@ -386,61 +361,18 @@ const checkPositionInDataSource = (dataSource) => {
  *
  * @param {string} command - openenbula command
  * @param {string} method - method of opennebula command
- * @param {boolean} commandParams - commands
- * @returns {object} command opennebula
+ * @returns {object|false} command opennebula
  */
-const checkOpennebulaCommand = (
-  command = '',
-  method = '',
-  commandParams = true
-) => {
-  let rtn = false
-  if (command && method && commandsParams && from) {
-    if (
-      commandsParams &&
-      commandsParams[command] &&
-      commandsParams[command].params &&
-      commandsParams[command].httpMethod &&
-      commandsParams[command].httpMethod === method
-    ) {
-      rtn = commandParams
-        ? (dataSource) => {
-            let rtnParams = false
-            if (dataSource && checkPositionInDataSource(dataSource)) {
-              const { params: paramsForCommand } = commandsParams[command]
-              const internalParams = []
-              Object.keys(paramsForCommand).forEach((param) => {
-                const parameter = paramsForCommand[param]
-                if (
-                  'default' in parameter &&
-                  'from' in parameter &&
-                  parameter.from in dataSource &&
-                  param in dataSource[parameter.from] &&
-                  dataSource[parameter.from][param]
-                ) {
-                  internalParams.push(
-                    upcast.to(
-                      dataSource[parameter.from][param],
-                      upcast.type(parameter.default)
-                    )
-                  )
-                } else {
-                  internalParams.push(parameter.default)
-                }
-              })
-              if (internalParams) {
-                rtnParams = internalParams
-              }
-            }
-
-            return rtnParams
-          }
-        : commandsParams[command]
-    }
-  }
-
-  return rtn
-}
+const checkOpennebulaCommand = (command = '', method = '') =>
+  command &&
+  method &&
+  opennebulaCommands &&
+  opennebulaCommands[command] &&
+  opennebulaCommands[command].params &&
+  opennebulaCommands[command].httpMethod &&
+  opennebulaCommands[command].httpMethod === method
+    ? opennebulaCommands[command]
+    : false
 
 /**
  * Get default params of opennebula command.
@@ -626,11 +558,9 @@ module.exports = {
   opennebulaConnect,
   responseOpennebula,
   getMethodForOpennebulaCommand,
-  commandXMLRPC,
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkPositionInDataSource,
-  checkOpennebulaCommand,
   getDefaultParamsOfOpennebulaCommand,
   generateNewResourceTemplate,
   fillResourceforHookConnection,

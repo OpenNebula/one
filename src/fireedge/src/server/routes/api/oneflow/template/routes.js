@@ -18,42 +18,84 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const TFA = require('server/routes/api/2fa/basepath')
+const { SERVICE_TEMPLATE } = require('server/routes/api/oneflow/basepath')
 
-const { POST, DELETE, GET } = httpMethod
-const basepath = `/${TFA}`
-const TFA_SETUP = 'tfa.setup'
-const TFA_QR = 'tfa.qr'
-const TFA_DELETE = 'tfa.delete'
+const { GET, POST, DELETE, PUT } = httpMethod
+const basepath = `/${SERVICE_TEMPLATE}`
+const { resource, postBody } = fromData
+
+const SERVICETEMPLATE_SHOW = 'servicetemplate.show'
+const SERVICETEMPLATE_ACTION = 'servicetemplate.action'
+const SERVICETEMPLATE_CREATE = 'servicetemplate.create'
+const SERVICETEMPLATE_UPDATE = 'servicetemplate.update'
+const SERVICETEMPLATE_DELETE = 'servicetemplate.delete'
 
 const Actions = {
-  TFA_SETUP,
-  TFA_QR,
-  TFA_DELETE,
+  SERVICETEMPLATE_SHOW,
+  SERVICETEMPLATE_ACTION,
+  SERVICETEMPLATE_CREATE,
+  SERVICETEMPLATE_UPDATE,
+  SERVICETEMPLATE_DELETE,
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [TFA_SETUP]: {
-      path: `${basepath}/`,
-      httpMethod: POST,
+    [SERVICETEMPLATE_SHOW]: {
+      path: `${basepath}/:id`,
+      httpMethod: GET,
       auth: true,
       params: {
-        token: {
-          from: fromData.postBody,
+        id: {
+          from: resource,
         },
       },
     },
-    [TFA_QR]: {
-      path: `${basepath}/`,
-      httpMethod: GET,
+    [SERVICETEMPLATE_ACTION]: {
+      path: `${basepath}/action/:id`,
+      httpMethod: POST,
       auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        template: {
+          from: postBody,
+        },
+      },
     },
-    [TFA_DELETE]: {
-      path: `${basepath}/`,
+    [SERVICETEMPLATE_CREATE]: {
+      path: `${basepath}`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        template: {
+          from: postBody,
+        },
+      },
+    },
+    [SERVICETEMPLATE_UPDATE]: {
+      path: `${basepath}/:id`,
+      httpMethod: PUT,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        template: {
+          from: postBody,
+        },
+      },
+    },
+    [SERVICETEMPLATE_DELETE]: {
+      path: `${basepath}/:id`,
       httpMethod: DELETE,
       auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+      },
     },
   },
 }

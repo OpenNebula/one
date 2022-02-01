@@ -14,13 +14,42 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { setApiRoutes } = require('server/utils/server')
-const { routes: vcenterRoutes } = require('server/routes/api/vcenter/routes')
-const { VCENTER } = require('server/routes/api/vcenter/string-routes')
+const { Actions, Commands } = require('server/routes/api/vcenter/routes')
+const {
+  importVcenter,
+  list,
+  listAll,
+  cleartags,
+  hosts,
+} = require('server/routes/api/vcenter/functions')
 
-const functionRoutes = {
-  private: setApiRoutes(vcenterRoutes, VCENTER),
-  public: [],
-}
+const {
+  VCENTER_CLEARTAGS,
+  VCENTER_HOSTS,
+  VCENTER_IMPORT,
+  VCENTER_LISTALL,
+  VCENTER_LIST,
+} = Actions
 
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[VCENTER_CLEARTAGS],
+    action: cleartags,
+  },
+  {
+    ...Commands[VCENTER_HOSTS],
+    action: hosts,
+  },
+  {
+    ...Commands[VCENTER_IMPORT],
+    actions: importVcenter,
+  },
+  {
+    ...Commands[VCENTER_LISTALL],
+    actions: listAll,
+  },
+  {
+    ...Commands[VCENTER_LIST],
+    actions: list,
+  },
+]

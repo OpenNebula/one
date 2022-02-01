@@ -32,7 +32,8 @@ import {
 import { websockets } from './routes/websockets'
 import { guacamole } from './routes/websockets/guacamole'
 import { vmrc } from './routes/websockets/vmrc'
-import { getFireedgeConfig, messageTerminal } from './utils'
+import { getFireedgeConfig } from './utils/yml'
+import { messageTerminal } from './utils/general'
 import {
   defaultAppName,
   defaultApps,

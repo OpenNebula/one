@@ -16,7 +16,7 @@
 
 const { parse } = require('yaml')
 const { getSunstoneConfig } = require('server/utils/yml')
-const { defaultEmptyFunction } = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { existsFile, httpResponse, getFiles } = require('server/utils/server')
 const { sensitiveDataRemoverConfig } = require('server/utils/opennebula')
 const { Actions: ActionsUser } = require('server/utils/constants/commands/user')
@@ -24,14 +24,9 @@ const {
   Actions: ActionsGroup,
 } = require('server/utils/constants/commands/group')
 
-const {
-  ok,
-  internalServerError,
-  notFound,
-} = require('server/utils/constants/http-codes')
-
+const { defaultEmptyFunction } = defaults
+const { ok, internalServerError, notFound } = httpCodes
 const sensitiveData = ['support_url', 'support_token']
-
 const httpInternalError = httpResponse(internalServerError, '', '')
 
 /**

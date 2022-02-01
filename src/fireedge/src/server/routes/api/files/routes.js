@@ -18,98 +18,93 @@ const {
   from: fromData,
   httpMethod,
 } = require('server/utils/constants/defaults')
-const {
-  show,
-  list,
-  upload,
-  update,
-  deleteFile,
-} = require('server/routes/api/files/functions')
-const { GET, POST, PUT, DELETE } = httpMethod
+const FILES = require('server/routes/api/files/basepath')
 
-const publicRoutes = {
-  [GET]: {
-    null: {
-      action: show,
+const { GET, POST, PUT, DELETE } = httpMethod
+const basepath = `/${FILES}`
+const { query } = fromData
+
+const FILE_SHOW = 'file.show'
+const FILE_LIST = 'file.list'
+const FILE_UPLOAD = 'file.upload'
+const FILE_UPDATE = 'file.update'
+const FILE_DELETE = 'file.delete'
+
+const Actions = {
+  FILE_SHOW,
+  FILE_LIST,
+  FILE_UPLOAD,
+  FILE_UPDATE,
+  FILE_DELETE,
+}
+
+module.exports = {
+  Actions,
+  Commands: {
+    [FILE_SHOW]: {
+      path: `${basepath}/show`,
+      httpMethod: GET,
+      auth: false,
       params: {
         file: {
-          from: fromData.query,
-          name: 'file',
+          from: query,
         },
         token: {
-          from: fromData.query,
-          name: 'token',
+          from: query,
         },
         app: {
-          from: fromData.query,
-          name: 'app',
+          from: query,
         },
       },
     },
-  },
-}
-
-const privateRoutes = {
-  [GET]: {
-    null: {
-      action: list,
+    [FILE_LIST]: {
+      path: `${basepath}`,
+      httpMethod: GET,
+      auth: true,
       params: {
         app: {
-          from: fromData.query,
-          name: 'app',
+          from: query,
         },
       },
     },
-  },
-  [POST]: {
-    null: {
-      action: upload,
+    [FILE_UPLOAD]: {
+      path: `${basepath}`,
+      httpMethod: POST,
+      auth: true,
       params: {
         app: {
-          from: fromData.query,
-          name: 'app',
+          from: query,
         },
         files: {
           from: 'files',
-          name: 'files',
         },
-        root: {
-          from: fromData.query,
-          name: 'public',
+        public: {
+          from: query,
         },
       },
     },
-  },
-  [PUT]: {
-    null: {
-      action: update,
+    [FILE_UPDATE]: {
+      path: `${basepath}`,
+      httpMethod: PUT,
+      auth: true,
       params: {
         name: {
-          from: fromData.query,
-          name: 'name',
+          from: query,
         },
         files: {
           from: 'files',
-          name: 'files',
         },
       },
     },
-  },
-  [DELETE]: {
-    null: {
-      action: deleteFile,
+    [FILE_DELETE]: {
+      path: `${basepath}`,
+      httpMethod: DELETE,
+      auth: true,
       params: {
         file: {
-          from: fromData.query,
-          name: 'file',
+          from: query,
         },
       },
     },
   },
 }
-
-const fileApi = {
-  publicRoutes,
-  privateRoutes,
-}
-module.exports = fileApi

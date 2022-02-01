@@ -17,21 +17,25 @@
 const { env } = require('process')
 const zendesk = require('node-zendesk')
 const { getSunstoneConfig } = require('server/utils/yml')
-const {
-  defaultEmptyFunction,
-  defaultSeverities,
-  defaultWebpackMode,
-} = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse } = require('server/utils/server')
 const { getSession } = require('server/routes/api/zendesk/utils')
 
-const {
-  ok,
-  internalServerError,
-  badRequest,
-  unauthorized,
-} = require('server/utils/constants/http-codes')
+const { defaultEmptyFunction, defaultSeverities, defaultWebpackMode } = defaults
+const { ok, internalServerError, badRequest, unauthorized } = httpCodes
 
+const httpBadRequest = httpResponse(badRequest, '', '')
+
+/**
+ * Format create ticket.
+ *
+ * @param {object} configFormatCreate - config format
+ * @param {string} configFormatCreate.subject - subject
+ * @param {string} configFormatCreate.body - body
+ * @param {string} configFormatCreate.version - one version
+ * @param {string} configFormatCreate.severity - ticket severity
+ * @returns {object|undefined} format message create ticket
+ */
 const formatCreate = ({
   subject = '',
   body = '',
@@ -59,6 +63,15 @@ const formatCreate = ({
   return rtn
 }
 
+/**
+ * Format comment.
+ *
+ * @param {object} configFormatComment - config format
+ * @param {string} configFormatComment.body - body
+ * @param {string} configFormatComment.solved - solved
+ * @param {string[]} configFormatComment.attachments - attachments
+ * @returns {object|undefined} format comment
+ */
 const formatComment = ({ body = '', solved = '', attachments = [] }) => {
   let rtn
   if (body) {
@@ -81,6 +94,13 @@ const formatComment = ({ body = '', solved = '', attachments = [] }) => {
   return rtn
 }
 
+/**
+ * Parse Buffer error.
+ *
+ * @param {object} err - buffer error
+ * @param {string} err.error - buffer error
+ * @returns {string} string error
+ */
 const parseBufferError = (err) => {
   let rtn = ''
   let errorJson = {}
@@ -96,8 +116,6 @@ const parseBufferError = (err) => {
 
   return rtn
 }
-
-const httpBadRequest = httpResponse(badRequest, '', '')
 
 /**
  * Login on Zendesk.

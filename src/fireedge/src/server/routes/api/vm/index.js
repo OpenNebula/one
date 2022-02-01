@@ -14,13 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { setApiRoutes } = require('server/utils/server')
-const { routes: vmRoutes } = require('server/routes/api/vm/routes')
-const { VM } = require('server/routes/api/vm/string-routes')
+const { Actions, Commands } = require('server/routes/api/vm/routes')
+const { saveAsTemplate } = require('server/routes/api/vm/functions')
 
-const functionRoutes = {
-  private: setApiRoutes(vmRoutes, VM),
-  public: [],
-}
+const { VM_SAVEASTEMPLATE } = Actions
 
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[VM_SAVEASTEMPLATE],
+    action: saveAsTemplate,
+  },
+]

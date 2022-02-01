@@ -18,10 +18,8 @@ const PROVIDER = 'provider'
 const PROVISION = 'provision'
 const PROVISION_TEMPLATE = 'provision-template'
 
-const Actions = {
+module.exports = {
   PROVIDER,
   PROVISION,
   PROVISION_TEMPLATE,
 }
-
-module.exports = Actions

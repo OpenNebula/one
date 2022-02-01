@@ -14,12 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const SERVICE = 'service'
-const SERVICE_TEMPLATE = 'service_template'
-
-const Actions = {
-  SERVICE,
-  SERVICE_TEMPLATE,
-}
-
-module.exports = Actions
+module.exports = 'vcenter'

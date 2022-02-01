@@ -18,32 +18,35 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const { saveAsTemplate } = require('server/routes/api/vm/functions')
-const { POST } = httpMethod
+const VM = require('server/routes/api/vm/basepath')
 
-const routes = {
-  [POST]: {
-    save: {
-      action: saveAsTemplate,
+const basepath = `/${VM}`
+const { POST } = httpMethod
+const { resource, postBody } = fromData
+
+const VM_SAVEASTEMPLATE = 'vm.saveastemplate'
+const Actions = {
+  VM_SAVEASTEMPLATE,
+}
+
+module.exports = {
+  Actions,
+  Commands: {
+    [VM_SAVEASTEMPLATE]: {
+      path: `${basepath}/save/:id`,
+      httpMethod: POST,
+      auth: true,
       params: {
         id: {
-          from: fromData.resource,
-          name: 'id',
+          from: resource,
         },
         name: {
-          from: fromData.postBody,
-          name: 'name',
+          from: postBody,
         },
         persistent: {
-          from: fromData.postBody,
-          name: 'persistent',
+          from: postBody,
         },
       },
     },
   },
 }
-
-const authApi = {
-  routes,
-}
-module.exports = authApi

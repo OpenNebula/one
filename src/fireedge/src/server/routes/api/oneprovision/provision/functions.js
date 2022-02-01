@@ -23,12 +23,7 @@ const { basename, dirname } = require('path')
 const { sprintf } = require('sprintf-js')
 
 const { Actions } = require('server/utils/constants/commands/document')
-const {
-  ok,
-  notFound,
-  accepted,
-  internalServerError,
-} = require('server/utils/constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const {
   httpResponse,
   parsePostData,
@@ -41,12 +36,6 @@ const {
   removeFile,
 } = require('server/utils/server')
 const { checkEmptyObject } = require('server/utils/general')
-const {
-  defaultFolderTmpProvision,
-  defaultCommandProvision,
-  defaultEmptyFunction,
-  defaultErrorTemplate,
-} = require('server/utils/constants/defaults')
 const {
   createTemporalFile,
   createFolderWithFiles,
@@ -61,6 +50,13 @@ const {
 } = require('server/routes/api/oneprovision/utils')
 const { provision } = require('server/routes/api/oneprovision/schemas')
 
+const {
+  defaultFolderTmpProvision,
+  defaultCommandProvision,
+  defaultEmptyFunction,
+  defaultErrorTemplate,
+} = defaults
+const { ok, notFound, accepted, internalServerError } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
 
 const logFile = {
