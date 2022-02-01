@@ -108,6 +108,7 @@ tabs:
             VM.rdp: true
             VM.save_rdp: true
             VM.save_virt_viewer: true
+            VM.updateconf: true
         dashboard:
             # Connected user's quotas
             quotas: true
