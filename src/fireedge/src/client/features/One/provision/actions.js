@@ -72,3 +72,8 @@ export const configureHost = createAction(
   'provision/host/configure',
   provisionService.configureHost
 )
+export const addHost = createAction(
+  'provision/host/add',
+  provisionService.addHost
+)
+export const addIp = createAction('provision/ip/add', provisionService.addIp)

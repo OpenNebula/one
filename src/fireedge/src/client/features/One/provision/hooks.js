@@ -55,5 +55,7 @@ export const useProvisionApi = () => {
     deleteVNetwork: (id) => unwrapDispatch(actions.deleteVNetwork({ id })),
     deleteHost: (id) => unwrapDispatch(actions.deleteHost({ id })),
     configureHost: (id) => unwrapDispatch(actions.configureHost({ id })),
+    addHost: (id, amount) => unwrapDispatch(actions.addHost({ id, amount })),
+    addIp: (id, amount) => unwrapDispatch(actions.addIp({ id, amount })),
   }
 }

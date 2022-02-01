@@ -228,6 +228,12 @@ module.exports = {
   ProviderTemplate: 'Provider template',
   ProvisionTemplate: 'Provision template',
   ConfigureInputs: 'Configure inputs',
+  AddIP: 'Add IP',
+  AddHost: 'Add Host',
+  Cleanup: 'Cleanup',
+  CleanupConcept: 'Delete all vms and images first, then delete the resources',
+  Force: 'Force',
+  ForceConcept: 'Force configure to execute',
 
   /* sections */
   Dashboard: 'Dashboard',
