@@ -13,24 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { Trash as DeleteIcon, Settings as ConfigureIcon } from 'iconoir-react'
+import {
+  Trash as DeleteIcon,
+  Settings as ConfigureIcon,
+  AddCircledOutline,
+} from 'iconoir-react'
+import { Stack, TextField } from '@mui/material'
 
-import { useFetchAll } from 'client/hooks'
+import { useFetch, useFetchAll } from 'client/hooks'
 import { useHostApi, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
+import { SubmitButton } from 'client/components/FormControl'
 import { ListCards } from 'client/components/List'
 import { HostCard } from 'client/components/Cards'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const Hosts = memo(
   ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
+    const [amount, setAmount] = useState(() => 1)
     const { hosts = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
     const { enqueueSuccess, enqueueInfo } = useGeneralApi()
-    const { configureHost, deleteHost } = useProvisionApi()
+    const { configureHost, deleteHost, addHost } = useProvisionApi()
     const { getHost } = useHostApi()
+
+    const { fetchRequest, loading: loadingAddHost } = useFetch(
+      async (payload) => {
+        await addHost(data?.ID, payload)
+        await refetchProvision()
+        enqueueSuccess(`Host added ${amount}x`)
+      }
+    )
 
     const { data: list, fetchRequestAll, loading } = useFetchAll()
     const fetchHosts = () =>
@@ -45,35 +62,59 @@ const Hosts = memo(
     }, [reloading])
 
     return (
-      <ListCards
-        list={list}
-        isLoading={!list && loading}
-        CardComponent={HostCard}
-        cardsProps={({ value: { ID } }) =>
-          !disableAllActions && {
-            actions: [
-              {
-                handleClick: () =>
-                  configureHost(ID)
-                    .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
-                    .then(refetchProvision),
-                icon: <ConfigureIcon />,
-                cy: `provision-host-configure-${ID}`,
-              },
-              {
-                handleClick: () =>
-                  deleteHost(ID)
-                    .then(refetchProvision)
-                    .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
-                icon: <DeleteIcon color="error" />,
-                cy: `provision-host-delete-${ID}`,
-              },
-            ],
+      <>
+        <Stack direction="row" mb="0.5em">
+          <TextField
+            type="number"
+            inputProps={{ 'data-cy': 'amount' }}
+            onChange={(event) => {
+              const newAmount = event.target.value
+              ;+newAmount > 0 && setAmount(newAmount)
+            }}
+            value={amount}
+          />
+          <Stack alignSelf="center">
+            <SubmitButton
+              data-cy="add-host"
+              color="secondary"
+              sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
+              endicon={<AddCircledOutline />}
+              label={<Translate word={T.AddHost} />}
+              isSubmitting={loadingAddHost}
+              onClick={() => fetchRequest(amount)}
+            />
+          </Stack>
+        </Stack>
+        <ListCards
+          list={list}
+          isLoading={!list && loading}
+          CardComponent={HostCard}
+          cardsProps={({ value: { ID } }) =>
+            !disableAllActions && {
+              actions: [
+                {
+                  handleClick: () =>
+                    configureHost(ID)
+                      .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
+                      .then(refetchProvision),
+                  icon: <ConfigureIcon />,
+                  cy: `provision-host-configure-${ID}`,
+                },
+                {
+                  handleClick: () =>
+                    deleteHost(ID)
+                      .then(refetchProvision)
+                      .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
+                  icon: <DeleteIcon color="error" />,
+                  cy: `provision-host-delete-${ID}`,
+                },
+              ],
+            }
           }
-        }
-        displayEmpty
-        breakpoints={{ xs: 12, md: 6 }}
-      />
+          displayEmpty
+          breakpoints={{ xs: 12, md: 6 }}
+        />
+      </>
     )
   },
   (prev, next) =>

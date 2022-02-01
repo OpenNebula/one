@@ -287,7 +287,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_HOST_RESOURCE]: {
-      path: `${basepath}/host/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -300,7 +300,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_IMAGE_RESOURCE]: {
-      path: `${basepath}/image/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -313,7 +313,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_NETWORK_RESOURCE]: {
-      path: `${basepath}/network/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -326,7 +326,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_VNTEMPLATE_RESOURCE]: {
-      path: `${basepath}/vntemplate/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -339,7 +339,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_TEMPLATE_RESOURCE]: {
-      path: `${basepath}/template/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -352,7 +352,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_CLUSTER_RESOURCE]: {
-      path: `${basepath}/cluster/:resource/:id`,
+      path: `${basepath}/:resource/:id`,
       httpMethod: DELETE,
       auth: true,
       params: {

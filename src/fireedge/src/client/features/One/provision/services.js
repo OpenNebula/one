@@ -137,7 +137,8 @@ export const provisionService = {
    *
    * @param {object} params - Request parameters
    * @param {object} params.id - Provider id
-   * @param {object} params.cleanup
+   * @param {boolean} params.force - Force configure to execute
+   * @param {boolean} params.cleanup
    * - If `true`, force to terminate VMs running
    * on provisioned Hosts and delete all images in the datastores
    * @returns {object} Object of document deleted
@@ -252,6 +253,54 @@ export const provisionService = {
     const res = await RestClient.request({
       method: PUT,
       url: `/api/${PROVISION}/host/${id}`,
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Provisions and configures a new host or amount of hosts.
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Provision id
+   * @param {object} params.amount - Amount of hosts to add to the provision
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  addHost: async ({ id, amount }) => {
+    const res = await RestClient.request({
+      method: PUT,
+      url: `/api/${PROVISION}/host/${id}`,
+      data: { amount },
+    })
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  },
+
+  /**
+   * Adds more IPs to the provision..
+   *
+   * @param {object} params - Request parameters
+   * @param {object} params.id - Provision id
+   * @param {object} params.amount - Amount of ips to add to the provision
+   * @returns {object} Object of document updated
+   * @throws Fails when response isn't code 200
+   */
+  addIp: async ({ id, amount }) => {
+    const res = await RestClient.request({
+      method: PUT,
+      url: `/api/${PROVISION}/ip/${id}`,
+      data: { amount },
     })
 
     if (!res?.id || res?.id !== httpCodes.ok.id) {
