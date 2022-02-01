@@ -24,7 +24,6 @@ resource_name: "VM-TEMPLATE"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   import_dialog: true
   update_dialog: true

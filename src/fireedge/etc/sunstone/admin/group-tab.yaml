@@ -24,7 +24,6 @@ resource_name: "GROUP"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   update_dialog: true
   delete: true

@@ -24,7 +24,6 @@ resource_name: "VIRTUAL-NETWORK"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   instantiate_dialog: true
   import_dialog: true

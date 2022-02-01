@@ -24,7 +24,6 @@ resource_name: "IMAGE"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   clone_dialog: true
   import_dialog: true

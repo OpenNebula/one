@@ -24,7 +24,6 @@ resource_name: "VM"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: true
