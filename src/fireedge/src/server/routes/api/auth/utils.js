@@ -52,8 +52,6 @@ const namespace = appConfig.namespace || defaultNamespace
 const { GET } = httpMethod
 
 let user = ''
-let key = ''
-let iv = ''
 let pass = ''
 let type = ''
 let tfatoken = ''
@@ -68,20 +66,6 @@ let expireTime = ''
 let relativeTime = ''
 let limitToken = defaultSessionExpiration
 let limitExpirationReuseToken = defaultSessionLimitExpiration
-
-/**
- * Get key opennebula.
- *
- * @returns {string} get key
- */
-const getKey = () => key
-
-/**
- * Get initialization vector.
- *
- * @returns {string} get initialization vector
- */
-const getIV = () => iv
 
 /**
  * Get user opennebula.
@@ -103,30 +87,6 @@ const getPass = () => pass
  * @returns {string} date
  */
 const getRelativeTime = () => relativeTime
-
-/**
- * Opennebula encode-decode key.
- *
- * @param {string} newKey - new key
- * @returns {string} get key
- */
-const setKey = (newKey) => {
-  key = newKey
-
-  return key
-}
-
-/**
- * Initialization vector (encrypt).
- *
- * @param {string} newIV - //16 characters
- * @returns {string} get IV
- */
-const setIV = (newIV) => {
-  iv = newIV
-
-  return iv
-}
 
 /**
  * Username opennebula.
@@ -442,23 +402,23 @@ const setZones = () => {
 /**
  * Create token server admin.
  *
- * @param {string} serverAdmin - serveradmin name
- * @param {string} username - user name
- * @returns {string} data encrypted serveradmin
+ * @param {object} config - config create  token serveradmin
+ * @param {string} config.serverAdmin - serverAdmin username
+ * @param {string} config.username - user name
+ * @param {string} config.key - serverAdmin key
+ * @param {string} config.iv - serverAdmin iv
+ * @returns {object|undefined} data encrypted serveradmin
  */
-const createTokenServerAdmin = (serverAdmin = '', username = '') => {
-  let rtn
-  const keyGet = getKey()
-  const ivGet = getIV()
+const createTokenServerAdmin = ({ serverAdmin, username, key, iv }) => {
   if (serverAdmin && username && key && iv) {
+    !(expireTime && typeof expireTime.toSeconds === 'function') && setDates()
     const expire = parseInt(expireTime.toSeconds(), 10)
-    rtn = {
-      token: encrypt(`${serverAdmin}:${username}:${expire}`, keyGet, ivGet),
+
+    return {
+      token: encrypt(`${serverAdmin}:${username}:${expire}`, key, iv),
       time: expire,
     }
   }
-
-  return rtn
 }
 
 /**
@@ -483,13 +443,6 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
     userData.ID &&
     userData.TEMPLATE
   ) {
-    /*********************************************************
-     * equals what is placed in:
-     * src/authm_mad/remotes/server_cipher/server_cipher_auth.rb:44
-     *********************************************************/
-    setKey(serverAdminPassword.substring(0, 32))
-    setIV(serverAdminPassword.substring(0, 16))
-
     const JWTusername = `${serverAdminName}:${userName}`
 
     let tokenWithServerAdmin
@@ -499,7 +452,16 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
       tokenWithServerAdmin = validToken
     } else {
       setGlobalNewToken = true
-      tokenWithServerAdmin = createTokenServerAdmin(serverAdminName, userName)
+      tokenWithServerAdmin = createTokenServerAdmin({
+        serverAdmin: serverAdminName,
+        username: userName,
+        /*********************************************************
+         * equals what is placed in:
+         * src/authm_mad/remotes/server_cipher/server_cipher_auth.rb:44
+         *********************************************************/
+        key: serverAdminPassword.substring(0, 32),
+        iv: serverAdminPassword.substring(0, 16),
+      })
     }
 
     if (tokenWithServerAdmin) {
@@ -543,12 +505,12 @@ const getServerAdminAndWrapUser = (userData = {}) => {
     serverAdminData.key &&
     serverAdminData.iv
   ) {
-    setKey(serverAdminData.key)
-    setIV(serverAdminData.iv)
-    const tokenWithServerAdmin = createTokenServerAdmin(
-      serverAdminData.username,
-      serverAdminData.username
-    )
+    const tokenWithServerAdmin = createTokenServerAdmin({
+      serverAdmin: serverAdminData.username,
+      username: serverAdminData.username,
+      key: serverAdminData.key,
+      iv: serverAdminData.iv,
+    })
     if (tokenWithServerAdmin.token) {
       const oneConnect = connectOpennebula(
         `${serverAdminData.username}:${serverAdminData.username}`,
@@ -617,6 +579,7 @@ const functionRoutes = {
   setNodeConnect,
   connectOpennebula,
   getCreatedTokenOpennebula,
+  createTokenServerAdmin,
 }
 
 module.exports = functionRoutes
