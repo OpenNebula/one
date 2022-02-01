@@ -16,31 +16,18 @@
 
 const { sprintf } = require('sprintf-js')
 const { request: axios } = require('axios')
-
-const {
-  defaultEmptyFunction,
-  defaultCommandMarketApp,
-  dockerUrl,
-} = require('server/utils/constants/defaults')
-
-const {
-  ok,
-  internalServerError,
-  badRequest,
-  notFound,
-} = require('server/utils/constants/http-codes')
-
+const { defaults, httpCodes } = require('server/utils/constants')
 const {
   Actions: ActionsMarketApp,
 } = require('server/utils/constants/commands/marketapp')
-
 const {
   Actions: ActionsMarket,
 } = require('server/utils/constants/commands/market')
-
 const { httpResponse, executeCommand } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
 
+const { defaultEmptyFunction, defaultCommandMarketApp, dockerUrl } = defaults
+const { ok, internalServerError, badRequest, notFound } = httpCodes
 const httpBadRequest = httpResponse(badRequest, '', '')
 const httpNotFoundRequest = httpResponse(notFound, '', '')
 

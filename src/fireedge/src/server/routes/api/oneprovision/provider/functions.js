@@ -16,16 +16,7 @@
 
 const { parse } = require('yaml')
 const { basename } = require('path')
-const {
-  defaultFolderTmpProvision,
-  defaultCommandProvider,
-  defaultHideCredentials,
-  defaultHideCredentialReplacer,
-  defaultEmptyFunction,
-  defaultProvidersConfigPath,
-} = require('server/utils/constants/defaults')
-
-const { ok, internalServerError } = require('server/utils/constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const {
   httpResponse,
   parsePostData,
@@ -41,6 +32,15 @@ const {
   getSpecificConfig,
 } = require('server/routes/api/oneprovision/utils')
 
+const {
+  defaultFolderTmpProvision,
+  defaultCommandProvider,
+  defaultHideCredentials,
+  defaultHideCredentialReplacer,
+  defaultEmptyFunction,
+  defaultProvidersConfigPath,
+} = defaults
+const { ok, internalServerError } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
 
 /**

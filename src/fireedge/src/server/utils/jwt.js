@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const jwt = require('jwt-simple')
-const { messageTerminal } = require('./general')
 const speakeasy = require('speakeasy')
+const { messageTerminal } = require('server/utils/general')
 
 /**
  * Create a JWT.

@@ -16,7 +16,6 @@
 
 const { env } = require('process')
 const { Map } = require('immutable')
-const multer = require('multer')
 const { global } = require('window-or-global')
 const { resolve } = require('path')
 const {
@@ -36,14 +35,14 @@ const {
   statSync,
   removeSync,
 } = require('fs-extra')
-const { internalServerError } = require('./constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
 const { spawnSync, spawn } = require('child_process')
 const {
+  httpMethod,
   defaultApps,
-  from: fromData,
   defaultAppName,
   defaultConfigFile,
   defaultLogFilename,
@@ -66,205 +65,11 @@ const {
   defaultProvisionPath,
   defaultProvisionConfig,
   defaultEmptyFunction,
-} = require('./constants/defaults')
-
-const upload = multer({ dest: '/tmp' })
+} = defaults
+const { internalServerError } = httpCodes
 
 let cert = ''
 let key = ''
-
-/**
- * Set functions as routes.
- *
- * @param {string} method - http methof
- * @param {string} endpoint - http endpoint
- * @param {string} action - opennebula action
- * @returns {object} object function
- */
-const setFunctionRoute = (method, endpoint, action) => ({
-  httpMethod: method,
-  endpoint,
-  action,
-})
-
-/**
- * Set functions to API routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @returns {Array} parsed routes
- */
-const setApiRoutes = (routes = {}, path = '') => {
-  const rtn = []
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      rtn.push(
-        setFunctionRoute(
-          route,
-          path,
-          (req, res, next, connection, userId, user) => {
-            addFunctionAsRoute(req, res, next, routes[route], user, connection)
-          }
-        )
-      )
-    })
-  }
-
-  return rtn
-}
-
-/**
- * Execute actions Function routes
- *
- * @param {Function} action - action.
- * @param {object} res - response http.
- * @param {Function} next - stepper.
- * @param {object} routeParams - params for actions.
- * @param {object} serverDataSource - server params.
- * @param {user} user - user.
- * @param {Function} oneConnection - ONE connection xmlrpc.
- */
-
-const executeAction = (
-  action = defaultEmptyFunction,
-  res = {},
-  next = defaultEmptyFunction,
-  routeParams = {},
-  serverDataSource = {},
-  user = {},
-  oneConnection = defaultEmptyFunction
-) => {
-  action(
-    res,
-    next,
-    getRequestParameters(routeParams, serverDataSource),
-    user,
-    oneConnection
-  )
-}
-
-/**
- * Parse files for actions.
- *
- * @param {Array} files - files
- * @returns {Array} files
- */
-const parseFiles = (files = []) => {
-  let rtn
-  if (files && Array.isArray(files)) {
-    rtn = {}
-    files.forEach((file) => {
-      if (file.fieldname) {
-        rtn[file.fieldname]
-          ? rtn[file.fieldname].push(file)
-          : (rtn[file.fieldname] = [file])
-      }
-    })
-  }
-
-  return rtn
-}
-
-/**
- * Add function as express route.
- *
- * @param {object} req - http request
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} routes - new routes
- * @param {object} user - user Data
- * @param {Function} oneConnection - function one XMLRPC
- * @param {string} index - resource index
- */
-const addFunctionAsRoute = (
-  req = {},
-  res = {},
-  next = defaultEmptyFunction,
-  routes = {},
-  user = {},
-  oneConnection = defaultEmptyFunction,
-  index = 0
-) => {
-  if (req && req.serverDataSource && res && next && routes) {
-    const serverDataSource = req.serverDataSource
-    const resources = Object.keys(serverDataSource[fromData.resource])
-    let route =
-      routes[
-        `${serverDataSource[fromData.resource][resources[index]]}`.toLowerCase()
-      ]
-
-    if (!route && index === 0 && routes.null) {
-      route = routes.null
-    }
-
-    if (route) {
-      if (Object.keys(route).length > 0 && route.constructor === Object) {
-        if (
-          route.action &&
-          route.params &&
-          typeof route.action === 'function'
-        ) {
-          const uploadFiles = getRequestFiles(route.params)
-          if (uploadFiles && uploadFiles.length) {
-            const files = upload.array(uploadFiles)
-            files(req, res, (err) => {
-              if (err) {
-                const errorData = (err && err.message) || ''
-                writeInLogger(errorData)
-                messageTerminal({
-                  color: 'red',
-                  message: 'Error: %s',
-                  error: errorData,
-                })
-              }
-              const dataSources = {
-                [fromData.resource]: serverDataSource[fromData.resource],
-                [fromData.query]: req.query,
-                [fromData.postBody]: req.body,
-              }
-              dataSources.files = parseFiles(req && req.files)
-              executeAction(
-                route.action,
-                res,
-                next,
-                route.params,
-                dataSources,
-                user,
-                oneConnection
-              )
-            })
-          } else {
-            executeAction(
-              route.action,
-              res,
-              next,
-              route.params,
-              serverDataSource,
-              user,
-              oneConnection
-            )
-          }
-        } else {
-          addFunctionAsRoute(
-            req,
-            res,
-            next,
-            route,
-            user,
-            oneConnection,
-            index + 1
-          )
-        }
-      } else {
-        next()
-      }
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
-}
 
 /**
  * Validate if server app have certs.
@@ -296,6 +101,17 @@ const getCert = () => cert
  * @returns {string} key ssl path
  */
 const getKey = () => key
+
+/**
+ * Validate the route http method.
+ *
+ * @param {string} resourceHttpMethod - http method
+ * @returns {string|false} validate the http method of function route
+ */
+const validateHttpMethod = (resourceHttpMethod = '') =>
+  resourceHttpMethod && Object.keys(httpMethod).includes(resourceHttpMethod)
+    ? resourceHttpMethod.toLocaleLowerCase()
+    : false
 
 /**
  * Response http.
@@ -658,10 +474,8 @@ const getDataZone = (zone = '0', configuredZones) => {
     (global && global.zones) || configuredZones || defaultOpennebulaZones
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
-    if (zone !== null) {
-      rtn = zones.find(
-        (zn) => zn && zn.id !== undefined && String(zn.id) === zone
-      )
+    if (Number.isInteger(parseInt(zone, 10))) {
+      rtn = zones.find((zn) => zn && zn.id && String(zn.id) === zone)
     }
   }
 
@@ -775,7 +589,7 @@ const getRequestParameters = (params = {}, req = {}) => {
   ) {
     Object.entries(params).forEach(([param, value]) => {
       if (param && value && value.from && req[value.from]) {
-        rtn[param] = value.name ? req[value.from][value.name] : req[value.from]
+        rtn[param] = value.all ? req[value.from] : req[value.from][param]
       }
     })
   }
@@ -1072,9 +886,6 @@ const executeCommandAsync = (
 }
 
 module.exports = {
-  setFunctionRoute,
-  setApiRoutes,
-  addFunctionAsRoute,
   encrypt,
   decrypt,
   getDataZone,
@@ -1103,4 +914,5 @@ module.exports = {
   executeCommandAsync,
   checkValidApp,
   removeFile,
+  validateHttpMethod,
 }

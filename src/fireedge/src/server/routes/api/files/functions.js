@@ -18,14 +18,10 @@ const { global } = require('window-or-global')
 const { jwtDecode } = require('server/utils/jwt')
 const { existsSync, mkdirsSync, moveSync } = require('fs-extra')
 
-const { defaultEmptyFunction } = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 
-const {
-  ok,
-  internalServerError,
-  badRequest,
-} = require('server/utils/constants/http-codes')
 const { Actions: ActionUser } = require('server/utils/constants/commands/user')
+
 const {
   httpResponse,
   checkValidApp,
@@ -33,6 +29,10 @@ const {
   existsFile,
   removeFile,
 } = require('server/utils/server')
+
+const { defaultEmptyFunction } = defaults
+
+const { ok, internalServerError, badRequest } = httpCodes
 
 const httpBadRequest = httpResponse(badRequest, '', '')
 const groupAdministrator = ['0']
@@ -154,7 +154,7 @@ const upload = (
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
-  const { app, files, root } = params
+  const { app, files, public: publicFile } = params
   const { id, user, password } = userData
   if (
     global.paths.CPI &&
@@ -170,7 +170,8 @@ const upload = (
       oneConnect,
       id,
       (admin = false) => {
-        const pathUserData = root && admin ? `${app}` : `${app}${sep}${id}`
+        const pathUserData =
+          publicFile && admin ? `${app}` : `${app}${sep}${id}`
         const pathUser = `${global.paths.CPI}${sep}${pathUserData}`
         if (!existsSync(pathUser)) {
           mkdirsSync(pathUser)

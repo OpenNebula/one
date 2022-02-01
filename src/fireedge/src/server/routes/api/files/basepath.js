@@ -14,10 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const VM = 'vm'
-
-const Actions = {
-  VM,
-}
-
-module.exports = Actions
+module.exports = 'files'

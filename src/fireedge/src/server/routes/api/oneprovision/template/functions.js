@@ -15,12 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const {
-  defaultFolderTmpProvision,
-  defaultCommandProvisionTemplate,
-} = require('server/utils/constants/defaults')
-
-const { ok, internalServerError } = require('server/utils/constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const {
   httpResponse,
   parsePostData,
@@ -35,6 +30,8 @@ const {
 } = require('server/routes/api/oneprovision/utils')
 const { provider } = require('server/routes/api/oneprovision/schemas')
 
+const { defaultFolderTmpProvision, defaultCommandProvisionTemplate } = defaults
+const { ok, internalServerError } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
 
 /**

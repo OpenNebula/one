@@ -14,34 +14,45 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { from: fromData } = require('server/utils/constants/defaults')
+const { httpMethod } = require('server/utils/constants/defaults')
 const {
-  httpMethod,
-  from: fromData,
-} = require('server/utils/constants/defaults')
-const VCENTER = require('server/routes/api/vcenter/basepath')
+  PROVISION_TEMPLATE,
+} = require('server/routes/api/oneprovision/basepath')
 
-const basepath = `/${VCENTER}`
-const { POST, GET } = httpMethod
-const { resource, postBody, query } = fromData
+const basepath = `/${PROVISION_TEMPLATE}`
+const { GET, POST, PUT, DELETE } = httpMethod
+const { resource, postBody } = fromData
 
-const VCENTER_CLEARTAGS = 'vcenter.cleartags'
-const VCENTER_HOSTS = 'vcenter.hosts'
-const VCENTER_IMPORT = 'vcenter.import'
-const VCENTER_LISTALL = 'vcenter.listall'
-const VCENTER_LIST = 'vcenter.list'
+const PROVISIONTEMPLATE_SHOW = 'provisiontemplate.show'
+const PROVISIONTEMPLATE_INSTANTIATE = 'provisiontemplate.instantiate'
+const PROVISIONTEMPLATE_CREATE = 'provisiontemplate.create'
+const PROVISIONTEMPLATE_UPDATE = 'provisiontemplate.update'
+const PROVISIONTEMPLATE_DELETE = 'provisiontemplate.delete'
+
 const Actions = {
-  VCENTER_CLEARTAGS,
-  VCENTER_HOSTS,
-  VCENTER_IMPORT,
-  VCENTER_LISTALL,
-  VCENTER_LIST,
+  PROVISIONTEMPLATE_SHOW,
+  PROVISIONTEMPLATE_INSTANTIATE,
+  PROVISIONTEMPLATE_CREATE,
+  PROVISIONTEMPLATE_UPDATE,
+  PROVISIONTEMPLATE_DELETE,
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [VCENTER_CLEARTAGS]: {
-      path: `${basepath}/cleartags/:id`,
+    [PROVISIONTEMPLATE_SHOW]: {
+      path: `${basepath}/:id`,
+      httpMethod: GET,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+      },
+    },
+    [PROVISIONTEMPLATE_INSTANTIATE]: {
+      path: `${basepath}/instantiate/:id`,
       httpMethod: POST,
       auth: true,
       params: {
@@ -50,76 +61,38 @@ module.exports = {
         },
       },
     },
-    [VCENTER_HOSTS]: {
-      path: `${basepath}/hosts`,
+    [PROVISIONTEMPLATE_CREATE]: {
+      path: `${basepath}`,
       httpMethod: POST,
       auth: true,
       params: {
-        vcenter: {
+        resource: {
           from: postBody,
-          name: 'vcenter',
-        },
-        user: {
-          from: postBody,
-          name: 'user',
-        },
-        pass: {
-          from: postBody,
-          name: 'pass',
+          all: true,
         },
       },
     },
-    [VCENTER_IMPORT]: {
-      path: `${basepath}/:vobject`,
-      httpMethod: POST,
+    [PROVISIONTEMPLATE_UPDATE]: {
+      path: `${basepath}/:id`,
+      httpMethod: PUT,
       auth: true,
       params: {
-        vobject: {
-          from: resource,
-        },
-        host: {
+        resource: {
           from: postBody,
-        },
-        datastore: {
-          from: postBody,
+          all: true,
         },
         id: {
-          from: postBody,
-        },
-        answers: {
-          from: postBody,
+          from: resource,
         },
       },
     },
-    [VCENTER_LISTALL]: {
-      path: `${basepath}/listall/:vobject`,
-      httpMethod: GET,
+    [PROVISIONTEMPLATE_DELETE]: {
+      path: `${basepath}/:id`,
+      httpMethod: DELETE,
       auth: true,
       params: {
-        vobject: {
+        id: {
           from: resource,
-        },
-        host: {
-          from: query,
-        },
-        datastore: {
-          from: query,
-        },
-      },
-    },
-    [VCENTER_LIST]: {
-      path: `${basepath}/:vobject`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        vobject: {
-          from: resource,
-        },
-        host: {
-          from: query,
-        },
-        datastore: {
-          from: query,
         },
       },
     },

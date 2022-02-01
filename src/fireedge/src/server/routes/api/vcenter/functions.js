@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-const {
-  defaultEmptyFunction,
-  defaultCommandVcenter,
-} = require('server/utils/constants/defaults')
-
-const {
-  ok,
-  internalServerError,
-  badRequest,
-} = require('server/utils/constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse, executeCommand } = require('server/utils/server')
 const {
   consoleParseToString,
   consoleParseToJSON,
 } = require('server/utils/opennebula')
 const { resources } = require('server/routes/api/vcenter/command-flags')
-
 const { getSunstoneConfig } = require('server/utils/yml')
 
+const { defaultEmptyFunction, defaultCommandVcenter } = defaults
+const { ok, internalServerError, badRequest } = httpCodes
 const httpBadRequest = httpResponse(badRequest, '', '')
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.vcenter_prepend_command || ''

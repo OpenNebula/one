@@ -29,23 +29,19 @@ const {
   updaterResponse,
 } = require('server/routes/api/auth/utils')
 
-const {
-  internalServerError,
-  unauthorized,
-} = require('server/utils/constants/http-codes')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { Actions } = require('server/utils/constants/commands/user')
-const {
-  httpMethod,
-  defaultEmptyFunction,
-} = require('server/utils/constants/defaults')
-
-const { GET } = httpMethod
-
 const {
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
 
 const { writeInLogger } = require('server/utils/logger')
+
+const { internalServerError, unauthorized } = httpCodes
+
+const { httpMethod, defaultEmptyFunction } = defaults
+
+const { GET } = httpMethod
 
 /**
  * Login user.

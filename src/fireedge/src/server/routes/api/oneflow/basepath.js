@@ -14,10 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const VCENTER = 'vcenter'
+const SERVICE = 'service'
+const SERVICE_TEMPLATE = 'service_template'
 
-const Actions = {
-  VCENTER,
+module.exports = {
+  SERVICE,
+  SERVICE_TEMPLATE,
 }
-
-module.exports = Actions

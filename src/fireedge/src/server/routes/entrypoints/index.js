@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const entrypoint404 = require('./404')
-const entrypointApi = require('./Api')
-const entrypointApp = require('./App')
+const entrypoint404 = require('server/routes/entrypoints/404')
+const entrypointApi = require('server/routes/entrypoints/Api')
+const entrypointApp = require('server/routes/entrypoints/App')
 
 module.exports = {
   entrypoint404,

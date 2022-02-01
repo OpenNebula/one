@@ -14,10 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const AUTH = 'auth'
-
-const Actions = {
-  AUTH,
-}
-
-module.exports = Actions
+module.exports = 'auth'

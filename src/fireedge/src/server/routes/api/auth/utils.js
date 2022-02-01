@@ -20,22 +20,8 @@ const { parse } = require('url')
 const { global, Array } = require('window-or-global')
 const { Actions: ActionUsers } = require('server/utils/constants/commands/user')
 const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
-const {
-  httpMethod,
-  defaultSessionExpiration,
-  default2FAOpennebulaVar,
-  defaultNamespace,
-  defaultEmptyFunction,
-  defaultSessionLimitExpiration,
-  defaultRememberSessionExpiration,
-} = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { getFireedgeConfig } = require('server/utils/yml')
-const {
-  ok,
-  unauthorized,
-  accepted,
-  internalServerError,
-} = require('server/utils/constants/http-codes')
 const { createJWT, check2Fa } = require('server/utils/jwt')
 const {
   httpResponse,
@@ -46,6 +32,18 @@ const {
   responseOpennebula,
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
+
+const {
+  httpMethod,
+  defaultSessionExpiration,
+  default2FAOpennebulaVar,
+  defaultNamespace,
+  defaultEmptyFunction,
+  defaultSessionLimitExpiration,
+  defaultRememberSessionExpiration,
+} = defaults
+
+const { ok, unauthorized, accepted, internalServerError } = httpCodes
 
 const appConfig = getFireedgeConfig()
 

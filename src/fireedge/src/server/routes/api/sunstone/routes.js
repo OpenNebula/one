@@ -15,24 +15,31 @@
  * ------------------------------------------------------------------------- */
 
 const { httpMethod } = require('server/utils/constants/defaults')
-const { getConfig, getViews } = require('server/routes/api/sunstone/functions')
-const { GET } = httpMethod
+const SUNSTONE = require('server/routes/api/sunstone/basepath')
 
-const routes = {
-  [GET]: {
-    views: {
-      action: getViews,
-      params: {},
+const { GET } = httpMethod
+const basepath = `/${SUNSTONE}`
+
+const SUNSTONE_VIEWS = 'sunstone.views'
+const SUNSTONE_CONFIG = 'sunstone.config'
+
+const Actions = {
+  SUNSTONE_VIEWS,
+  SUNSTONE_CONFIG,
+}
+
+module.exports = {
+  Actions,
+  Commands: {
+    [SUNSTONE_VIEWS]: {
+      path: `${basepath}/views`,
+      httpMethod: GET,
+      auth: true,
     },
-    config: {
-      action: getConfig,
-      params: {},
+    [SUNSTONE_CONFIG]: {
+      path: `${basepath}/config`,
+      httpMethod: GET,
+      auth: true,
     },
   },
 }
-
-const sunstoneApi = {
-  routes,
-}
-
-module.exports = sunstoneApi

@@ -16,14 +16,7 @@
 
 const speakeasy = require('speakeasy')
 const qrcode = require('qrcode')
-
-const {
-  httpMethod,
-  default2FAIssuer,
-  defaultEmptyFunction,
-  default2FAOpennebulaVar,
-  default2FAOpennebulaTmpVar,
-} = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse } = require('server/utils/server')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { check2Fa } = require('server/utils/jwt')
@@ -36,15 +29,16 @@ const {
 
 // user config
 const appConfig = getFireedgeConfig()
-const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
-
-const { GET } = httpMethod
-
 const {
-  ok,
-  unauthorized,
-  internalServerError,
-} = require('server/utils/constants/http-codes')
+  httpMethod,
+  default2FAIssuer,
+  defaultEmptyFunction,
+  default2FAOpennebulaVar,
+  default2FAOpennebulaTmpVar,
+} = defaults
+const { ok, unauthorized, internalServerError } = httpCodes
+const { GET } = httpMethod
+const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 
 /**
  * Get information for opennebula authenticated user.

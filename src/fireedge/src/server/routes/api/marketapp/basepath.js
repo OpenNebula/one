@@ -14,10 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const SUNSTONE = 'sunstone'
-
-const Actions = {
-  SUNSTONE,
-}
-
-module.exports = Actions
+module.exports = 'marketapp'

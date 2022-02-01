@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PROVIDER } from 'server/routes/api/oneprovision/string-routes'
+import { PROVIDER } from 'server/routes/api/oneprovision/basepath'
 import { httpCodes, defaults } from 'server/utils/constants'
 import { RestClient } from 'client/utils'
 

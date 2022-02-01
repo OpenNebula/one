@@ -19,7 +19,8 @@ const { global } = require('window-or-global')
 const { transports, format, createLogger } = require('winston')
 const { sprintf } = require('sprintf-js')
 const morgan = require('morgan')
-const { defaultWebpackMode } = require('./constants/defaults')
+const { defaults } = require('server/utils/constants')
+const { defaultWebpackMode } = defaults
 
 let logger = null
 

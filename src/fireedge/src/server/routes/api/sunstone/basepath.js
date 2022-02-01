@@ -14,10 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const ZENDESK = 'zendesk'
-
-const Actions = {
-  ZENDESK,
-}
-
-module.exports = Actions
+module.exports = 'sunstone'

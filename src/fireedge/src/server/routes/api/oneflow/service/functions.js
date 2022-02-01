@@ -20,18 +20,13 @@ const {
   oneFlowConnection,
   returnSchemaError,
 } = require('server/routes/api/oneflow/utils')
-const {
-  httpMethod,
-  defaultEmptyFunction,
-} = require('server/utils/constants/defaults')
+const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse, parsePostData } = require('server/utils/server')
-const {
-  ok,
-  internalServerError,
-  methodNotAllowed,
-} = require('server/utils/constants/http-codes')
 const { generateNewResourceTemplate } = require('server/utils/opennebula')
 const { Actions: ActionVM } = require('server/utils/constants/commands/vm')
+
+const { httpMethod, defaultEmptyFunction } = defaults
+const { ok, internalServerError, methodNotAllowed } = httpCodes
 const { GET, POST, DELETE } = httpMethod
 
 /**
