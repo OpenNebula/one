@@ -26,6 +26,8 @@ const {
   deleteProvision,
   hostCommand,
   hostCommandSSH,
+  hostAdd,
+  ipAdd,
   createProvision,
   configureProvision,
   configureHost,
@@ -86,6 +88,8 @@ const {
   PROVISION_DELETE_PROVISION,
   PROVISION_UPDATE_CONFIGURE,
   PROVISION_UPDATE_HOST,
+  PROVISION_ADD_HOST,
+  PROVISION_ADD_IP,
 } = ActionsProvision
 
 const {
@@ -214,6 +218,14 @@ module.exports = [
   {
     ...CommandsProvision[PROVISION_UPDATE_HOST],
     action: configureHost,
+  },
+  {
+    ...CommandsProvision[PROVISION_ADD_HOST],
+    action: hostAdd,
+  },
+  {
+    ...CommandsProvision[PROVISION_ADD_IP],
+    action: ipAdd,
   },
   // Template
 

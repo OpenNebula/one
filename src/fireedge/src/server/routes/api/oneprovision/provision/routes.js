@@ -51,6 +51,8 @@ const PROVISION_DELETE_CLUSTER_RESOURCE = 'provision.deleteclusterresource'
 const PROVISION_DELETE_PROVISION = 'provision.deleteprovision'
 const PROVISION_UPDATE_CONFIGURE = 'provision.updateconfigure'
 const PROVISION_UPDATE_HOST = 'provision.updatehost'
+const PROVISION_ADD_HOST = 'provison.addhost'
+const PROVISION_ADD_IP = 'provision.addip'
 
 const Actions = {
   PROVISION_CLUSTER_RESOURCE,
@@ -80,6 +82,8 @@ const Actions = {
   PROVISION_DELETE_PROVISION,
   PROVISION_UPDATE_CONFIGURE,
   PROVISION_UPDATE_HOST,
+  PROVISION_ADD_HOST,
+  PROVISION_ADD_IP,
 }
 
 module.exports = {
@@ -371,6 +375,9 @@ module.exports = {
         cleanup: {
           from: postBody,
         },
+        force: {
+          from: postBody,
+        },
       },
     },
     [PROVISION_UPDATE_CONFIGURE]: {
@@ -390,6 +397,32 @@ module.exports = {
       params: {
         id: {
           from: resource,
+        },
+      },
+    },
+    [PROVISION_ADD_HOST]: {
+      path: `${basepath}/host/:id`,
+      httpMethod: PUT,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        amount: {
+          from: postBody,
+        },
+      },
+    },
+    [PROVISION_ADD_IP]: {
+      path: `${basepath}/ip/:id`,
+      httpMethod: PUT,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        amount: {
+          from: postBody,
         },
       },
     },
