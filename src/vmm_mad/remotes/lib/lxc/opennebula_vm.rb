@@ -50,7 +50,7 @@ class LXCConfiguration < Hash
             :disk   => 'rbind,create=dir,optional',
             :dev_xfs => 'nouuid',
             :rootfs => '',
-            :mountpoint => 'media/one-disk.$id',
+            :mountpoint => 'media/one-disk.$id'
         }
     }
 
@@ -319,14 +319,14 @@ class Disk
     def to_lxc
         case @kind
         when :context
-            {'lxc.mount.entry' =>
+            { 'lxc.mount.entry' =>
                 "#{@bindpoint} context none ro,rbind,create=dir,optional 0 0" }
 
         when :rootfs
             ropt = @lxcrc_mopts[:rootfs]
 
             root = { 'lxc.rootfs.path' => @bindpoint }
-            root['lxc.rootfs.options'] = ropt if !(ropt.nil? || ropt.empty?)
+            root['lxc.rootfs.options'] = ropt unless ropt.nil? || ropt.empty?
 
             root
 
@@ -342,9 +342,9 @@ class Disk
             path  = @xml['TARGET']
 
             point = @lxcrc_mopts[:mountpoint].sub('$id', @id.to_s)
-            point = path[1..-1] if !(path.empty? || path[0] != '/')
+            point = path[1..-1] unless path.empty? || path[0] != '/'
 
-            {'lxc.mount.entry' =>
+            { 'lxc.mount.entry' =>
                 "#{@bindpoint} #{point} none #{opt_str} 0 0" }
         else
             raise 'invalid disk type'
