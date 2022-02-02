@@ -90,14 +90,14 @@ define(function(require) {
     });
     $("#role_section",context).hide();
     $(".role_table_section", context).prop("required", false);
-    if(template_json.VMTEMPLATE.TEMPLATE.VMGROUP){
+    if(template_json.VMTEMPLATE.TEMPLATE.VMGROUP && template_json.VMTEMPLATE.TEMPLATE.VMGROUP.VMGROUP_ID){
       this.vmGroupTable.selectResourceTableSelect({ids:template_json.VMTEMPLATE.TEMPLATE.VMGROUP.VMGROUP_ID});
       _generate_provision_role_table(context, template_json.VMTEMPLATE.TEMPLATE.VMGROUP.VMGROUP_ID, template_json.VMTEMPLATE.TEMPLATE.VMGROUP.ROLE);
     }
   }
 
   function _fill(context, templateJSON, vmGroupTable){
-    if(templateJSON.VMGROUP){
+    if(templateJSON.VMGROUP && templateJSON.VMGROUP.VMGROUP_ID){
       var element = templateJSON.VMGROUP;
       vmGroupTable.selectResourceTableSelect({ids:element.VMGROUP_ID});
       _generate_provision_role_table(context,element.VMGROUP_ID, element.ROLE);
