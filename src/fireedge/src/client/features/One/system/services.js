@@ -51,6 +51,6 @@ export const systemService = {
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
 
-    return res?.data?.OPENNEBULA_CONFIGURATION
+    return res?.data
   },
 }
