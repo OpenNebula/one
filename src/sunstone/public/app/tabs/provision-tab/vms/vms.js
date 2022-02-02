@@ -626,8 +626,8 @@ define(function(require) {
                     ids : ds
                   };
                   this.datastoresTable.selectResourceTableSelect(selectedResources);
-                  $(".provision_ds_selector", create_vm_context).data("dsTable", this.datastoresTable);
                 }
+                $(".provision_ds_selector", create_vm_context).data("dsTable", this.datastoresTable);
               } else {
                 $(".provision_ds_selector", create_vm_context).html("");
                 $(".provision_ds", create_vm_context).hide();
