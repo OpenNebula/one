@@ -20,7 +20,7 @@ const {
 } = require('server/utils/constants/defaults')
 const ZENDESK = require('server/routes/api/zendesk/basepath')
 
-const { POST, GET, UPDATE } = httpMethod
+const { POST, GET, PUT } = httpMethod
 const basepath = `/${ZENDESK}`
 const { resource, postBody } = fromData
 
@@ -75,7 +75,7 @@ module.exports = {
     },
     [ZENDESK_UPDATE]: {
       path: `${basepath}/:id`,
-      httpMethod: UPDATE,
+      httpMethod: PUT,
       auth: true,
       params: {
         id: {
