@@ -27,6 +27,15 @@ const { defaultEmptyFunction, httpMethod } = defaults
 const { ok, internalServerError, badRequest } = httpCodes
 const { GET } = httpMethod
 
+const ALLOWED_KEYS_ONED_CONF = [
+  'DEFAULT_COST',
+  'DS_MAD_CONF',
+  'MARKET_MAD_CONF',
+  'VM_MAD',
+  'IM_MAD',
+  'AUTH_MAD',
+]
+
 /**
  * Get system config.
  *
@@ -79,7 +88,16 @@ const getConfig = (
 
         return
       }
-      res.locals.httpCode = httpResponse(ok, value)
+
+      const filterData = {}
+      Object.entries(value.OPENNEBULA_CONFIGURATION).forEach(
+        ([keyOned, valueOned]) => {
+          if (ALLOWED_KEYS_ONED_CONF.includes(keyOned)) {
+            filterData[keyOned] = valueOned
+          }
+        }
+      )
+      res.locals.httpCode = httpResponse(ok, filterData)
       next()
     }
   )
