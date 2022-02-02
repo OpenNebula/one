@@ -35,14 +35,14 @@ module.exports = [
   },
   {
     ...Commands[MARKETAPP_VMIMPORT],
-    actions: importMarket,
+    action: importMarket,
   },
   {
     ...Commands[MARKETAPP_TEMPLATEIMPORT],
-    actions: importMarket,
+    action: importMarket,
   },
   {
     ...Commands[MARKETAPP_DOCKERTAGS],
-    actions: getDockerTags,
+    action: getDockerTags,
   },
 ]

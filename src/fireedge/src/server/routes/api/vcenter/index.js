@@ -42,14 +42,14 @@ module.exports = [
   },
   {
     ...Commands[VCENTER_IMPORT],
-    actions: importVcenter,
+    action: importVcenter,
   },
   {
     ...Commands[VCENTER_LISTALL],
-    actions: listAll,
+    action: listAll,
   },
   {
     ...Commands[VCENTER_LIST],
-    actions: list,
+    action: list,
   },
 ]
