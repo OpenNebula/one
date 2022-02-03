@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2018, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
-# 
+#
 # Translators:
 # Abel Coronado <abelcoronado1993@gmail.com>, 2017
 # adriagm <adria@fsfe.org>, 2015
@@ -14,7 +14,6 @@
 # Diego Marciano <thedragonsreborn@hotmail.com>, 2019
 # Daniel Molina <dmolina@opennebula.org>, 2012
 # elpollosc@hotmail.com Gutiérrez <elpollosc@hotmail.com>, 2021
-# Felix Perez <felix.perez@e.ineco.com>, 2018
 # Paco Bernabé Pellicer <fjbp1@hotmail.com>, 2012
 # Flavio Xavier Zavala <flavio@frba.utn.edu.ar>, 2020
 # Fundacion La Pegunta <flp.veyon@lapegunta.org>, 2020
