@@ -22,12 +22,12 @@ inputs:
     default: '1'
 
   - name: 'digitalocean_image'
-    type: list
+    type: text
     description: 'Droplet host operating system'
     default: 'ubuntu-20-04-x64'
 
   - name: 'digitalocean_size'
-    type: list
+    type: text
     description: 'Size of droplet. Basic droplets start with s-, memory optimize with m- and CPU optimize are c-'
     default: 's-1vcpu-1gb'
 
