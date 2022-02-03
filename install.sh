@@ -465,6 +465,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
           $VAR_LOCATION/remotes/vnm/elastic \
+          $VAR_LOCATION/remotes/vnm/elastic/pre.d \
+          $VAR_LOCATION/remotes/vnm/elastic/clean.d \
           $VAR_LOCATION/remotes/vnm/nodeport\
           $VAR_LOCATION/remotes/vnm/hooks/pre \
           $VAR_LOCATION/remotes/vnm/hooks/post \
