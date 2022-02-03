@@ -11,7 +11,6 @@
 # Diego Hernan Marciano <diego.h.marciano@hotmail.com>, 2014
 # Diego Marciano <thedragonsreborn@hotmail.com>, 2019
 # Daniel Molina <dmolina@opennebula.org>, 2012
-# Felix Perez <felix.perez@e.ineco.com>, 2018
 # Paco Bernabé Pellicer <fjbp1@hotmail.com>, 2012
 # Fundacion La Pegunta <flp.veyon@lapegunta.org>, 2020
 # hsanjuan <hsanjuan@opennebula.org>, 2012
