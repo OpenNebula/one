@@ -2986,6 +2986,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         return -1;
     }
 
+    encrypt();
+
     return 0;
 }
 
