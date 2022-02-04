@@ -190,15 +190,18 @@ define(function(require) {
     });
   }
 
-  function diffValues(finder, inElement){
+  function diffValues(newValues, oldValues){
     var diff = [];
-    if(finder && inElement){
-      var Template = Array.isArray(inElement)? inElement: [inElement];
-      var Finder = Array.isArray(finder)? finder: [finder];
-      var x = Template.map(function(internalTemplate){return JSON.stringify(internalTemplate);});
-      Finder.forEach(function(fnd) {
-        if($.inArray(JSON.stringify(fnd),x) === -1){
-          diff.push(fnd);
+    if(oldValues && newValues){
+      oldValues = Array.isArray(oldValues)? oldValues: [oldValues];
+      newValues = Array.isArray(newValues)? newValues: [newValues];
+      var oldValuesString = oldValues.map(function(internalValue){
+        return JSON.stringify(internalValue);
+      });
+
+      newValues.forEach(function (newValue){
+        if($.inArray(JSON.stringify(newValue),oldValuesString) === -1){
+          diff.push(newValue);
         }
       });
     }
