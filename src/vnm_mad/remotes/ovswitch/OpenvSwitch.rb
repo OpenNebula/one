@@ -375,6 +375,12 @@ private
         nil
     end
 
+    def get_vlan_limit
+        cmd = "#{ovs_vsctl_cmd} get Open_vSwitch . other_config:vlan-limit"
+
+        run cmd
+    end
+
     # Create a VLAN device.
     # NEEDS to be implemented by the subclass.
     def create_vlan_dev
@@ -477,5 +483,21 @@ private
 
     def validate_vlan_id
         OpenNebula.log_error("VLAN ID validation not supported with Open vSwitch, skipped.")
+    end
+
+    def set_vlan_limit(limit="1")
+        if get_vlan_limit != limit
+            cmd = "#{ovs_vsctl_cmd} set Open_vSwitch . other_config:vlan-limit=%s" % limit
+
+            run cmd
+
+            revalidate_ovs
+
+    end
+
+    def revalidate_ovs
+        cmd = "#{command(:ovs_appctl)} revalidator/purge"
+
+        run cmd
     end
 end

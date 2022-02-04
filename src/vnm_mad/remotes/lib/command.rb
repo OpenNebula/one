@@ -32,6 +32,7 @@ module VNMMAD
             :virsh    => 'virsh -c qemu:///system',
             :ovs_vsctl=> 'sudo -n ovs-vsctl',
             :ovs_ofctl=> 'sudo -n ovs-ofctl',
+            :ovs_appctl=> 'sudo -n ovs-appctl',
             :lsmod    => 'lsmod',
             :ipset    => 'sudo -n ipset'
         }
