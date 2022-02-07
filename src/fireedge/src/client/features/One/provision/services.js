@@ -275,7 +275,7 @@ export const provisionService = {
   addHost: async ({ id, amount }) => {
     const res = await RestClient.request({
       method: PUT,
-      url: `/api/${PROVISION}/host/${id}`,
+      url: `/api/${PROVISION}/addhost/${id}`,
       data: { amount },
     })
 
