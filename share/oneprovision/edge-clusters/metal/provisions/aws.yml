@@ -23,6 +23,7 @@
 name: 'aws-cluster'
 
 extends:
+    - common.d/defaults.yml
     - common.d/resources.yml
     - common.d/hosts.yml
     - aws.d/defaults.yml
