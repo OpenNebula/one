@@ -1364,30 +1364,78 @@ const hostAdd = (
   params = {},
   userData = {}
 ) => {
-  let rtn = httpInternalError
-  const { id, amount } = params
   const { user, password } = userData
+  const { id, amount } = params
   if (
     Number.isInteger(parseInt(id, 10)) &&
     Number.isInteger(parseInt(amount, 10)) &&
     user &&
     password
   ) {
-    const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
+    const authCommand = ['--user', user, '--password', password]
+    const paramsCommand = [
+      'host',
+      'add',
+      id,
+      '--amount',
+      amount,
+      ...authCommand,
+      ...endpoint,
+    ]
 
-    rtn =
-      addResourceSync([
-        'host',
-        'add',
+    // get Log file
+    const dataLog = logData(id, true)
+
+    // create stream for write into file
+    const stream =
+      dataLog &&
+      dataLog.fullPath &&
+      createWriteStream(dataLog.fullPath, { flags: 'a' })
+
+    /**
+     * This function is performed for each command line response.
+     *
+     * @param {string} lastLine - last line command
+     * @param {string} uuid - uuid command
+     */
+    const emit = (lastLine, uuid) => {
+      const renderLine = {
         id,
-        '--amount',
-        amount,
-        ...authCommand,
-        ...endpoint,
-      ]) || httpInternalError
+        data: lastLine,
+        command: 'add host',
+        commandId: uuid,
+      }
+      stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
+    }
+
+    /**
+     * This function is only executed if the command is completed.
+     *
+     * @param {boolean} success - check if command complete without error
+     * @param {string} lastLine - last line command
+     */
+    const close = (success, lastLine) => {
+      stream && stream.end && stream.end()
+    }
+
+    // execute Async Command
+    const executedCommand = executeWithEmit(
+      paramsCommand,
+      { close, out: emit, err: emit },
+      { id, command: 'add host' }
+    )
+
+    // response Http
+    res.locals.httpCode = httpResponse(
+      executedCommand ? accepted : internalServerError,
+      id
+    )
+    next()
+
+    return
   }
-  res.locals.httpCode = rtn
+  res.locals.httpCode = httpInternalError
   next()
 }
 
