@@ -45,7 +45,7 @@ const Hosts = memo(
       async (payload) => {
         await addHost(data?.ID, payload)
         await refetchProvision()
-        enqueueSuccess(`Host added ${amount}x`)
+        enqueueSuccess(`Adding hosts ${amount}x`)
       }
     )
 
