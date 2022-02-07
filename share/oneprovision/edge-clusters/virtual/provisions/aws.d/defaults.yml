@@ -21,11 +21,5 @@
 
 defaults:
   configuration:
-    # Select the hypervisor package to install
-    oneprovision_hypervisor: "${input.one_hypervisor}"
-
-    # required for copying recovery VM snaphosts to the replica host
-    opennebula_ssh_deploy_private_key: true
-
     # Select the physical device for private network (VXLAN)
     oneprovision_private_phydev: "${input.private_phydev}"
