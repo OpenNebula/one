@@ -401,7 +401,7 @@ module.exports = {
       },
     },
     [PROVISION_ADD_HOST]: {
-      path: `${basepath}/host/:id`,
+      path: `${basepath}/addhost/:id`,
       httpMethod: PUT,
       auth: true,
       params: {
