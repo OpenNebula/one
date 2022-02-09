@@ -15,7 +15,9 @@
 # ---------------------------------------------------------------------------- #
 
 require 'rubygems'
-require 'opennebula'
+require 'opennebula/xml_utils'
+require 'opennebula/client'
+require 'opennebula/group_pool'
 require 'net/ldap'
 require 'yaml'
 
