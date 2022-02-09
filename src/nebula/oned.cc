@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ static void print_license()
     oss << "\n";
 #endif
 
-    oss << "Copyright 2002-2021, OpenNebula Project, OpenNebula Systems \n\n";
+    oss << "Copyright 2002-2022, OpenNebula Project, OpenNebula Systems \n\n";
 
 #ifdef ENTERPRISE
     oss << "Licensed under the OpenNebula Software License (the \"License\"); "
