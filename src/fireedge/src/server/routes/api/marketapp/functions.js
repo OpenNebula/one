@@ -109,23 +109,22 @@ const exportApp = (
 }
 
 /**
- * Import the marketplace VM or VM TEPLATE to the OpenNebula cloud.
+ * Import the marketplace VM or VM TEMPLATE to the OpenNebula cloud.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {number} [params.vmId] - vm id
- * @param {number} [params.templateId] - template id
+ * @param {string} [params.id] - Resource id
+ * @param {string} [params.resource] - Resource name
  * @param {number} [params.marketId] - market id
  * @param {string} [params.associated=''] - associated resource
  * @param {number} [params.vmname] - vm name
  */
 const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
   let rtn = httpBadRequest
-  const { vmId, templateId, marketId, associated, vmname } = params
-  const resource = vmId ? 'vm' : 'vm-template'
-  const id = vmId || templateId
-  if (id) {
+  const { resource, id, marketId, associated, vmname } = params
+
+  if (id && ['vm', 'vm-template'].includes(params.resource)) {
     let message = ''
     const paramsCommand = [resource, 'import', `${id}`]
 

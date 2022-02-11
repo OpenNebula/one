@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { string } from 'yup'
 
-import { useVmGroup } from 'client/features/One'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
 import { INPUT_TYPES } from 'client/constants'
 
 export const VM_GROUP_FIELD = {
@@ -24,7 +24,7 @@ export const VM_GROUP_FIELD = {
   label: 'Associate VM to a VM Group',
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const vmGroups = useVmGroup()
+    const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
     return vmGroups
       ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: String(ID) }))
@@ -49,7 +49,7 @@ export const ROLE_FIELD = {
   htmlType: (vmGroup) =>
     vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
   values: (vmGroupSelected) => {
-    const vmGroups = useVmGroup()
+    const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
     const roles = vmGroups
       ?.filter(({ ID }) => ID === vmGroupSelected)

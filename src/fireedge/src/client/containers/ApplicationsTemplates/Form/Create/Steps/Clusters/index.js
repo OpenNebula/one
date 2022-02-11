@@ -14,10 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 
-import { useListForm, useFetch } from 'client/hooks'
-import { useCluster, useClusterApi } from 'client/features/One'
+import { useListForm } from 'client/hooks'
+import { useGetClustersQuery } from 'client/features/OneApi/cluster'
 import { ListCards } from 'client/components/List'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
@@ -31,24 +31,17 @@ const Clusters = () => ({
   label: T.WhereWillItRun,
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const clusters = useCluster()
-    const { getClusters } = useClusterApi()
-
-    const { fetchRequest, loading } = useFetch(getClusters)
+    const { data: clusters = [], isLoading } = useGetClustersQuery()
 
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
       setList: setFormData,
     })
 
-    useEffect(() => {
-      fetchRequest()
-    }, [])
-
     return (
       <ListCards
         list={clusters}
-        isLoading={clusters.length === 0 && loading}
+        isLoading={isLoading}
         EmptyComponent={<EmptyCard title={'Your clusters list is empty'} />}
         CardComponent={ClusterCard}
         cardsProps={({ value: { ID } }) => {

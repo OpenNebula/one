@@ -21,15 +21,15 @@ import {
   INPUT_TYPES,
   VM_ACTIONS_IN_CHARTER,
   VM_ACTIONS_WITH_SCHEDULE,
+  END_TYPE_VALUES,
+  REPEAT_VALUES,
+  ARGS_TYPES,
+  PERIOD_TYPES,
 } from 'client/constants'
 import { Field, sentenceCase, arrayToOptions } from 'client/utils'
 import {
   isRelative,
-  END_TYPE_VALUES,
-  REPEAT_VALUES,
-  ARGS_TYPES,
   getRequiredArgsByAction,
-  PERIOD_TYPES,
   getPeriodicityByTimeInSeconds,
 } from 'client/models/Scheduler'
 import {

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
-
-import SnapshotList from 'client/components/Tabs/Vm/Snapshot/List'
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { CreateSnapshotForm } from 'client/components/Forms/Vm'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import {
+  CreateAction,
+  RevertAction,
+  DeleteAction,
+} from 'client/components/Tabs/Vm/Snapshot/Actions'
+import SnapshotCard from 'client/components/Cards/SnapshotCard'
 
 import {
   getSnapshotList,
@@ -30,12 +31,21 @@ import {
   isAvailableAction,
 } from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
-import { T, VM_ACTIONS } from 'client/constants'
+import { VM_ACTIONS } from 'client/constants'
 
-const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
-  const { createSnapshot } = useVmApi()
+const { SNAPSHOT_CREATE, SNAPSHOT_REVERT, SNAPSHOT_DELETE } = VM_ACTIONS
 
-  const { data: vm = {} } = useContext(TabContext)
+/**
+ * Renders the list of snapshots from a VM.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Snapshots tab
+ */
+const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: vm = {} } = useGetVmQuery(id)
 
   const [snapshots, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
@@ -47,37 +57,31 @@ const VmSnapshotTab = ({ tabProps: { actions } = {} }) => {
     return [getSnapshotList(vm), actionsByState]
   }, [vm])
 
-  const handleSnapshotCreate = async (formData = {}) => {
-    await createSnapshot(vm.ID, formData)
-  }
-
   return (
     <>
-      {actionsAvailable?.includes?.(VM_ACTIONS.SNAPSHOT_CREATE) && (
-        <ButtonToTriggerForm
-          buttonProps={{
-            color: 'secondary',
-            'data-cy': 'snapshot-create',
-            label: T.TakeSnapshot,
-            variant: 'outlined',
-          }}
-          options={[
-            {
-              dialogProps: { title: T.TakeSnapshot },
-              form: () => CreateSnapshotForm(),
-              onSubmit: handleSnapshotCreate,
-            },
-          ]}
-        />
+      {actionsAvailable?.includes(SNAPSHOT_CREATE) && (
+        <CreateAction vmId={id} />
       )}
 
-      <SnapshotList actions={actionsAvailable} snapshots={snapshots} />
+      <Stack direction="column" gap="1em" py="0.8em">
+        {snapshots.map((snapshot) => (
+          <SnapshotCard
+            key={snapshot.SNAPSHOT_ID}
+            extraActionProps={{ vmId: id }}
+            actions={[
+              actionsAvailable?.includes(SNAPSHOT_REVERT) && RevertAction,
+              actionsAvailable?.includes(SNAPSHOT_DELETE) && DeleteAction,
+            ].filter(Boolean)}
+          />
+        ))}
+      </Stack>
     </>
   )
 }
 
 VmSnapshotTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmSnapshotTab.displayName = 'VmSnapshotTab'

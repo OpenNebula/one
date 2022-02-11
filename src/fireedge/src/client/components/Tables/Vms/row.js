@@ -13,85 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
+import vmApi from 'client/features/OneApi/vm'
+import { VirtualMachineCard } from 'client/components/Cards'
 
-import { User, Group, Lock, HardDrive } from 'iconoir-react'
-import { Stack, Typography } from '@mui/material'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = vmApi.endpoints.getVms.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((vm) => +vm.ID === +original.ID),
+    })
 
-import { StatusCircle } from 'client/components/Status'
-import MultipleTags from 'client/components/MultipleTags'
-import { rowStyles } from 'client/components/Tables/styles'
-
-import * as VirtualMachineModel from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const {
-    ID,
-    NAME,
-    UNAME,
-    GNAME,
-    IPS,
-    STIME,
-    ETIME,
-    HOSTNAME = '--',
-    LOCK,
-  } = value
-
-  const time = Helper.timeFromMilliseconds(+ETIME || +STIME)
-  const timeAgo = `${+ETIME ? 'done' : 'started'} ${time.toRelative()}`
-
-  const { color: stateColor, name: stateName } =
-    VirtualMachineModel.getState(original)
-
-  return (
-    <div {...props} data-cy={`vm-${ID}`}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock data-cy="lock" />}
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span data-cy="uname">{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span data-cy="gname">{` ${GNAME}`}</span>
-          </span>
-          <span title={`Hostname: ${HOSTNAME}`}>
-            <HardDrive />
-            <span data-cy="hostname">{` ${HOSTNAME}`}</span>
-          </span>
-        </div>
-      </div>
-      {!!IPS?.length && (
-        <div className={classes.secondary}>
-          <Stack flexWrap="wrap" justifyContent="end" alignItems="center">
-            <MultipleTags tags={IPS.split(',')} />
-          </Stack>
-        </div>
-      )}
-    </div>
-  )
-}
+    return <VirtualMachineCard vm={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
+  className: PropTypes.string,
   handleClick: PropTypes.func,
 }
+
+Row.displayName = 'VirtualMachineRow'
 
 export default Row

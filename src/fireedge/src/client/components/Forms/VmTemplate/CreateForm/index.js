@@ -20,16 +20,13 @@ import PropTypes from 'prop-types'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import {
-  useUserApi,
-  useVmGroupApi,
-  useVmTemplateApi,
-  useHostApi,
-  useImageApi,
-  useDatastoreApi,
-} from 'client/features/One'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { useLazyGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 
-import { useFetch } from 'client/hooks'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/CreateForm/Steps'
 
@@ -55,24 +52,15 @@ const CreateForm = ({ template, onSubmit }) => {
 }
 
 const PreFetchingForm = ({ templateId, onSubmit }) => {
-  const { getUsers } = useUserApi()
-  const { getVmGroups } = useVmGroupApi()
-  const { getHosts } = useHostApi()
-  const { getImages } = useImageApi()
-  const { getDatastores } = useDatastoreApi()
-  const { getVmTemplate } = useVmTemplateApi()
-
-  const { fetchRequest, data } = useFetch(() =>
-    getVmTemplate(templateId, { extended: true })
-  )
+  useGetVMGroupsQuery()
+  useGetHostsQuery()
+  useGetImagesQuery()
+  useGetUsersQuery()
+  useGetDatastoresQuery()
+  const [getTemplate, { data }] = useLazyGetTemplateQuery()
 
   useEffect(() => {
-    templateId && fetchRequest()
-    getHosts()
-    getImages()
-    getDatastores()
-    getUsers()
-    getVmGroups()
+    templateId && getTemplate({ id: templateId, extended: true })
   }, [])
 
   return templateId && !data ? (

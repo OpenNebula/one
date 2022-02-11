@@ -22,7 +22,7 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useUserApi } from 'client/features/One'
+import { useUpdateUserMutation } from 'client/features/OneApi/user'
 import { useGeneralApi } from 'client/features/General'
 import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -34,7 +34,7 @@ import * as Helper from 'client/models/Helper'
 const Settings = () => {
   const { user, settings } = useAuth()
   const { getAuthUser } = useAuthApi()
-  const { updateUser } = useUserApi()
+  const [updateUser] = useUpdateUserMutation()
   const { enqueueError } = useGeneralApi()
 
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
@@ -46,7 +46,8 @@ const Settings = () => {
   const onSubmit = async (dataForm) => {
     try {
       const template = Helper.jsonToXml({ FIREEDGE: dataForm })
-      await updateUser(user.ID, { template }).then(getAuthUser)
+      await updateUser({ id: user.ID, template })
+      getAuthUser()
     } catch {
       enqueueError(T.SomethingWrong)
     }

@@ -17,12 +17,11 @@
 const {
   from: fromData,
   httpMethod,
-} = require('server/utils/constants/defaults')
-const { PROVIDER } = require('server/routes/api/oneprovision/basepath')
+} = require('../../../../utils/constants/defaults')
 
 const { GET, POST, PUT, DELETE } = httpMethod
-const basepath = `/${PROVIDER}`
 const { resource, postBody } = fromData
+const basepath = '/provider'
 
 const PROVIDER_CONNECTION = 'provider.connection'
 const PROVIDER_CONFIG = 'provider.config'
@@ -73,9 +72,8 @@ module.exports = {
       httpMethod: POST,
       auth: true,
       params: {
-        resource: {
+        data: {
           from: postBody,
-          all: true,
         },
       },
     },
@@ -84,9 +82,8 @@ module.exports = {
       httpMethod: PUT,
       auth: true,
       params: {
-        resource: {
+        data: {
           from: postBody,
-          all: true,
         },
         id: { from: resource },
       },

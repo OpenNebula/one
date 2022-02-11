@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, JSXElementConstructor } from 'react'
+// eslint-disable-next-line no-unused-vars
+import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+// eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
+import QueryButton from 'client/components/Buttons/QueryButton'
 import { Action } from 'client/components/Cards/SelectCard'
 import { ButtonToTriggerForm } from 'client/components/Forms'
 import { Tr } from 'client/components/HOC'
@@ -29,7 +32,7 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @typedef {object} Option
  * @property {string} name - Label of option
  * @property {DialogProps} [dialogProps] - Dialog properties
- * @property {JSXElementConstructor} [icon] - Icon
+ * @property {ReactElement} [icon] - Icon
  * @property {boolean} [isConfirmDialog] - If `true`, the form will be a dialog with confirmation buttons
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, option will be disabled
  * @property {function(object, Row[])} onSubmit - Function to handle after finish the form
@@ -48,18 +51,12 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @property {function(Row[])} [action] - Singular action without form
  * @property {boolean|{min: number, max: number}} [selected] - Condition for selected rows
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, action will be disabled
+ * @property {function(Row[]):object} [useQuery] - Function to get rtk query result
  */
 
-/**
- * Render global action.
- *
- * @param {object} props - Props
- * @param {GlobalAction[]} props.item - Item action
- * @param {Row[]} props.selectedRows - Selected rows
- * @returns {JSXElementConstructor} Component JSX
- */
 const ActionItem = memo(
   ({ item, selectedRows }) => {
+    /** @type {GlobalAction} */
     const {
       accessor,
       dataCy,
@@ -71,6 +68,7 @@ const ActionItem = memo(
       options,
       action,
       disabled,
+      useQuery,
     } = item
 
     const buttonProps = {
@@ -87,6 +85,8 @@ const ActionItem = memo(
 
     return action ? (
       <Action {...buttonProps} handleClick={() => action?.(selectedRows)} />
+    ) : useQuery ? (
+      <QueryButton {...buttonProps} useQuery={() => useQuery?.(selectedRows)} />
     ) : (
       <ButtonToTriggerForm
         buttonProps={buttonProps}
@@ -141,48 +141,11 @@ const ActionItem = memo(
   }
 )
 
-export const ActionPropTypes = PropTypes.shape({
-  accessor: PropTypes.string,
-  dataCy: PropTypes.string,
-  variant: PropTypes.string,
-  color: PropTypes.string,
-  size: PropTypes.string,
-  label: PropTypes.string,
-  tooltip: PropTypes.string,
-  icon: PropTypes.any,
-  disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  selected: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.shape({
-      min: PropTypes.number,
-      max: PropTypes.number,
-    }),
-  ]),
-  action: PropTypes.func,
-  isConfirmDialog: PropTypes.bool,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      accessor: PropTypes.string,
-      name: PropTypes.string,
-      icon: PropTypes.any,
-      disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-      form: PropTypes.func,
-      onSubmit: PropTypes.func,
-      dialogProps: PropTypes.shape({
-        ...DialogPropTypes,
-        description: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-        subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-        title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-      }),
-    })
-  ),
-})
-
 ActionItem.propTypes = {
-  item: ActionPropTypes,
+  item: PropTypes.object,
   selectedRows: PropTypes.array,
 }
 
 ActionItem.displayName = 'ActionItem'
 
-export default ActionItem
+export { ActionItem as Action }

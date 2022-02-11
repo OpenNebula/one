@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
 import { Accordion, AccordionDetails } from '@mui/material'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 
-const TemplateTab = () => {
-  const { data: template = {} } = useContext(TabContext)
+/**
+ * Renders template tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Template id
+ * @returns {ReactElement} Template tab
+ */
+const TemplateTab = ({ id }) => {
+  const { data: template = {} } = useGetTemplateQuery({ id })
   const { TEMPLATE } = template
 
   return (
@@ -34,6 +41,11 @@ const TemplateTab = () => {
       </AccordionDetails>
     </Accordion>
   )
+}
+
+TemplateTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 TemplateTab.displayName = 'TemplateTab'

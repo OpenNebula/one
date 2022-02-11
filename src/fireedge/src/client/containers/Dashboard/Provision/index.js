@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, JSXElementConstructor } from 'react'
-import { Container, Box, Grid } from '@mui/material'
+import { memo, ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { Container, Box, Grid, CircularProgress } from '@mui/material'
+import {
+  Server as ClusterIcon,
+  HardDrive as HostIcon,
+  Folder as DatastoreIcon,
+  NetworkAlt as NetworkIcon,
+} from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetchAll } from 'client/hooks'
-import { useProvisionApi, useProviderApi } from 'client/features/One'
-import * as Widgets from 'client/components/Widgets'
+import { useGetResourceQuery } from 'client/features/OneApi/provision'
+
+import {
+  TotalProviders,
+  TotalProvisionsByState,
+} from 'client/components/Widgets'
+import NumberEasing from 'client/components/NumberEasing'
+import WavesCard from 'client/components/Cards/WavesCard'
 import { stringToBoolean } from 'client/models/Helper'
+import { T } from 'client/constants'
 
-/** @returns {JSXElementConstructor} Provision dashboard container */
+/** @returns {ReactElement} Provision dashboard container */
 function ProvisionDashboard() {
-  const { status, fetchRequestAll, STATUS } = useFetchAll()
-  const { INIT, PENDING } = STATUS
-
-  const { getProvisions } = useProvisionApi()
-  const { getProviders } = useProviderApi()
-
   const { settings: { disableanimations } = {} } = useAuth()
-
-  useEffect(() => {
-    fetchRequestAll([getProviders(), getProvisions()])
-  }, [])
 
   return (
     <Container
@@ -49,25 +52,71 @@ function ProvisionDashboard() {
     >
       <Box py={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Widgets.TotalProvisionInfrastructures
-              isLoading={[INIT, PENDING].includes(status)}
+          <Grid item container spacing={3} xs={12}>
+            <ResourceWidget
+              resource="cluster"
+              bgColor="#fa7892"
+              text={T.Clusters}
+              icon={ClusterIcon}
+            />
+            <ResourceWidget
+              resource="host"
+              bgColor="#b25aff"
+              text={T.Hosts}
+              icon={HostIcon}
+            />
+            <ResourceWidget
+              resource="datastore"
+              bgColor="#1fbbc6"
+              text={T.Datastores}
+              icon={DatastoreIcon}
+            />
+            <ResourceWidget
+              resource="network"
+              bgColor="#f09d42"
+              text={T.Networks}
+              icon={NetworkIcon}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Widgets.TotalProviders
-              isLoading={[INIT, PENDING].includes(status)}
-            />
+            <TotalProviders />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Widgets.TotalProvisionsByState
-              isLoading={[INIT, PENDING].includes(status)}
-            />
+            <TotalProvisionsByState />
           </Grid>
         </Grid>
       </Box>
     </Container>
   )
+}
+
+const ResourceWidget = memo(({ resource, ...props }) => {
+  const { data, isLoading } = useGetResourceQuery({ resource })
+  const total = `${data?.length ?? 0}`
+
+  return (
+    <Grid item xs={12} sm={6} md={3} data-cy={`widget-total-${resource}`}>
+      <WavesCard
+        value={
+          isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <NumberEasing value={total} />
+          )
+        }
+        {...props}
+      />
+    </Grid>
+  )
+})
+
+ResourceWidget.displayName = 'ResourceWidget'
+
+ResourceWidget.propTypes = {
+  resource: PropTypes.string,
+  text: PropTypes.string,
+  bgColor: PropTypes.string,
+  icon: PropTypes.any,
 }
 
 export default ProvisionDashboard

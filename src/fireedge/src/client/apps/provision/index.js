@@ -21,7 +21,6 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import { Store } from 'redux'
 
-import SocketProvider from 'client/providers/socketProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
@@ -42,25 +41,23 @@ buildTranslationLocale()
  */
 const Provision = ({ store = {}, location = '', context = {} }) => (
   <ReduxProvider store={store}>
-    <SocketProvider>
-      <TranslateProvider>
-        <MuiProvider theme={theme}>
-          <NotistackProvider>
-            {location && context ? (
-              // server build
-              <StaticRouter location={location} context={context}>
-                <App />
-              </StaticRouter>
-            ) : (
-              // browser build
-              <BrowserRouter basename={`${APP_URL}/${ProvisionAppName}`}>
-                <App />
-              </BrowserRouter>
-            )}
-          </NotistackProvider>
-        </MuiProvider>
-      </TranslateProvider>
-    </SocketProvider>
+    <TranslateProvider>
+      <MuiProvider theme={theme}>
+        <NotistackProvider>
+          {location && context ? (
+            // server build
+            <StaticRouter location={location} context={context}>
+              <App />
+            </StaticRouter>
+          ) : (
+            // browser build
+            <BrowserRouter basename={`${APP_URL}/${ProvisionAppName}`}>
+              <App />
+            </BrowserRouter>
+          )}
+        </NotistackProvider>
+      </MuiProvider>
+    </TranslateProvider>
   </ReduxProvider>
 )
 

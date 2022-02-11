@@ -24,7 +24,7 @@ const USER = {
   name: 'user',
   label: 'Select the new owner',
   type: INPUT_TYPES.TABLE,
-  Table: UsersTable,
+  Table: () => UsersTable,
   validation: string()
     .trim()
     .required('You must select an user')

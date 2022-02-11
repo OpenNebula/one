@@ -109,8 +109,7 @@ const HeaderPopover = memo(
               <Fade {...TransitionProps} timeout={300}>
                 <Paper
                   variant="outlined"
-                  style={mobileStyles}
-                  sx={{ p: headerTitle ? 2 : 0 }}
+                  sx={{ p: headerTitle ? 2 : 0, ...mobileStyles }}
                 >
                   {(headerTitle || isMobile) && (
                     <Box

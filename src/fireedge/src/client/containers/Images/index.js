@@ -18,7 +18,7 @@ import { useState } from 'react'
 import { Container, Stack, Chip } from '@mui/material'
 
 import { ImagesTable } from 'client/components/Tables'
-import Detail from 'client/components/Tables/Images/detail'
+import ImageTabs from 'client/components/Tabs/Image'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 
@@ -33,7 +33,7 @@ function Images() {
         {selectedRows?.length > 0 && (
           <Stack overflow="auto">
             {selectedRows?.length === 1 ? (
-              <Detail id={selectedRows[0]?.values.ID} />
+              <ImageTabs id={selectedRows[0]?.values.ID} />
             ) : (
               <Stack
                 direction="row"

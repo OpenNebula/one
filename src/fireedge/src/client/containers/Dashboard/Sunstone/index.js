@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, JSXElementConstructor } from 'react'
-import { Container, Box, Grid } from '@mui/material'
+import { memo, ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { Container, Box, CircularProgress, Grid } from '@mui/material'
+import {
+  User as UserIcon,
+  Group as GroupIcon,
+  Archive as ImageIcon,
+  NetworkAlt as NetworkIcon,
+} from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetchAll } from 'client/hooks'
-import {
-  useUserApi,
-  useImageApi,
-  useVNetworkApi,
-  useDatastoreApi,
-} from 'client/features/One'
-import * as Widgets from 'client/components/Widgets'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+import NumberEasing from 'client/components/NumberEasing'
+import WavesCard from 'client/components/Cards/WavesCard'
 import { stringToBoolean } from 'client/models/Helper'
+import { T } from 'client/constants'
 
-/** @returns {JSXElementConstructor} Sunstone dashboard container */
+/** @returns {ReactElement} Sunstone dashboard container */
 function SunstoneDashboard() {
-  const { status, fetchRequestAll, STATUS } = useFetchAll()
-  const { INIT, PENDING } = STATUS
-
-  const { getUsers } = useUserApi()
-  const { getImages } = useImageApi()
-  const { getVNetworks } = useVNetworkApi()
-  const { getDatastores } = useDatastoreApi()
-
   const { settings: { disableanimations } = {} } = useAuth()
-
-  useEffect(() => {
-    fetchRequestAll([getUsers(), getImages(), getVNetworks(), getDatastores()])
-  }, [])
 
   return (
     <Container
@@ -55,16 +49,68 @@ function SunstoneDashboard() {
       })}
     >
       <Box py={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Widgets.TotalSunstoneResources
-              isLoading={[INIT, PENDING].includes(status)}
-            />
-          </Grid>
+        <Grid
+          container
+          data-cy="dashboard-widget-total-sunstone-resources"
+          spacing={3}
+        >
+          <ResourceWidget
+            query={useGetUsersQuery}
+            bgColor="#fa7892"
+            text={T.Users}
+            icon={UserIcon}
+          />
+          <ResourceWidget
+            query={useGetGroupsQuery}
+            bgColor="#b25aff"
+            text={T.Groups}
+            icon={GroupIcon}
+          />
+          <ResourceWidget
+            query={useGetImagesQuery}
+            bgColor="#1fbbc6"
+            text={T.Images}
+            icon={ImageIcon}
+          />
+          <ResourceWidget
+            query={useGetVNetworksQuery}
+            bgColor="#f09d42"
+            text={T.VirtualNetworks}
+            icon={NetworkIcon}
+          />
         </Grid>
       </Box>
     </Container>
   )
+}
+
+const ResourceWidget = memo(({ query, ...props }) => {
+  const { data, isLoading } = query()
+  const total = `${data?.length ?? 0}`
+
+  return (
+    <Grid item xs={12} sm={6} md={3}>
+      <WavesCard
+        value={
+          isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <NumberEasing value={total} />
+          )
+        }
+        {...props}
+      />
+    </Grid>
+  )
+})
+
+ResourceWidget.displayName = 'ResourceWidget'
+
+ResourceWidget.propTypes = {
+  query: PropTypes.func,
+  text: PropTypes.string,
+  bgColor: PropTypes.string,
+  icon: PropTypes.any,
 }
 
 export default SunstoneDashboard

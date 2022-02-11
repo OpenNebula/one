@@ -20,7 +20,6 @@ import { useTheme, Typography, Paper, Stack } from '@mui/material'
 
 import Timer from 'client/components/Timer'
 import { StatusChip } from 'client/components/Status'
-import { UpdateSchedButton, DeleteSchedButton } from 'client/components/Buttons'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import {
@@ -32,92 +31,77 @@ import { timeFromMilliseconds } from 'client/models/Helper'
 import { sentenceCase } from 'client/utils'
 import { T } from 'client/constants'
 
-const ScheduleActionCard = memo(
-  ({ vm, schedule, handleRemove, handleUpdate }) => {
-    const classes = rowStyles()
-    const { palette } = useTheme()
+const ScheduleActionCard = memo(({ schedule, actions }) => {
+  const classes = rowStyles()
+  const { palette } = useTheme()
 
-    const { ID, ACTION, TIME, MESSAGE, DONE, WARNING } = schedule
+  const { ID, ACTION, TIME, MESSAGE, DONE, WARNING } = schedule
 
-    const titleAction = `#${ID} ${sentenceCase(ACTION)}`
-    const timeIsRelative = isRelative(TIME)
+  const titleAction = `#${ID} ${sentenceCase(ACTION)}`
+  const timeIsRelative = isRelative(TIME)
 
-    const time = timeIsRelative ? getPeriodicityByTimeInSeconds(TIME) : TIME
-    const formatTime =
-      !timeIsRelative && timeFromMilliseconds(+TIME).toFormat('ff')
-    const formatDoneTime = DONE && timeFromMilliseconds(+DONE).toFormat('ff')
+  const time = timeIsRelative ? getPeriodicityByTimeInSeconds(TIME) : TIME
+  const formatTime =
+    !timeIsRelative && timeFromMilliseconds(+TIME).toFormat('ff')
+  const formatDoneTime = DONE && timeFromMilliseconds(+DONE).toFormat('ff')
 
-    const { repeat, end } = getRepeatInformation(schedule)
+  const { repeat, end } = getRepeatInformation(schedule)
 
-    const noMore = !repeat && DONE
-    // const timeIsPast = new Date(+TIME * 1000) < new Date()
+  const noMore = !repeat && DONE
 
-    return (
-      <Paper variant="outlined" className={classes.root}>
-        <div className={classes.main}>
-          <div className={classes.title}>
-            <Typography component="span">{titleAction}</Typography>
-            {MESSAGE && (
-              <span className={classes.labels}>
-                <StatusChip text={MESSAGE} />
-              </span>
-            )}
-          </div>
-          <Stack
-            mt={0.5}
-            spacing={2}
-            alignItems="center"
-            flexWrap="wrap"
-            direction="row"
-          >
-            {repeat && <Typography variant="caption">{repeat}</Typography>}
-            {end && <Typography variant="caption">{end}</Typography>}
-            {DONE && (
-              <Typography variant="caption" title={formatDoneTime}>
-                <Timer initial={DONE} translateWord={T.DoneAgo} />
-              </Typography>
-            )}
-            {!noMore && (
-              <>
-                <Typography variant="caption">
-                  {timeIsRelative ? (
-                    <span>{Object.values(time).join(' ')}</span>
-                  ) : (
-                    <span title={formatTime}>
-                      <Timer initial={TIME} translateWord={T.FirstTime} />
-                    </span>
-                  )}
-                </Typography>
-                {WARNING && <WarningIcon color={palette.warning.main} />}
-              </>
-            )}
-          </Stack>
+  return (
+    <Paper variant="outlined" className={classes.root}>
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <Typography component="span">{titleAction}</Typography>
+          {MESSAGE && (
+            <span className={classes.labels}>
+              <StatusChip text={MESSAGE} />
+            </span>
+          )}
         </div>
-        {(handleUpdate || handleRemove) && (
-          <div className={classes.actions}>
-            {!noMore && handleUpdate && (
-              <UpdateSchedButton
-                vm={vm}
-                relative={timeIsRelative}
-                schedule={schedule}
-                onSubmit={handleUpdate}
-              />
-            )}
-            {handleRemove && (
-              <DeleteSchedButton onSubmit={handleRemove} schedule={schedule} />
-            )}
-          </div>
-        )}
-      </Paper>
-    )
-  }
-)
+        <Stack
+          mt={0.5}
+          spacing={2}
+          alignItems="center"
+          flexWrap="wrap"
+          direction="row"
+        >
+          {repeat && <Typography variant="caption">{repeat}</Typography>}
+          {end && <Typography variant="caption">{end}</Typography>}
+          {DONE && (
+            <Typography variant="caption" title={formatDoneTime}>
+              <Timer initial={DONE} translateWord={T.DoneAgo} />
+            </Typography>
+          )}
+          {!noMore && (
+            <>
+              <Typography variant="caption">
+                {timeIsRelative ? (
+                  <span>{Object.values(time).join(' ')}</span>
+                ) : (
+                  <span title={formatTime}>
+                    <Timer initial={TIME} translateWord={T.FirstTime} />
+                  </span>
+                )}
+              </Typography>
+              {WARNING && <WarningIcon color={palette.warning.main} />}
+            </>
+          )}
+        </Stack>
+      </div>
+      {actions && (
+        <div className={classes.actions}>
+          {typeof actions === 'function' ? actions({ noMore }) : actions}
+        </div>
+      )}
+    </Paper>
+  )
+})
 
 ScheduleActionCard.propTypes = {
-  vm: PropTypes.object,
   schedule: PropTypes.object.isRequired,
-  handleRemove: PropTypes.func,
-  handleUpdate: PropTypes.func,
+  actions: PropTypes.any,
 }
 
 ScheduleActionCard.displayName = 'ScheduleActionCard'

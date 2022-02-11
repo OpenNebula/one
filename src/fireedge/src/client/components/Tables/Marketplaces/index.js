@@ -13,58 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useMarketplace, useMarketplaceApi } from 'client/features/One'
+import { useGetMarketplacesQuery } from 'client/features/OneApi/marketplace'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'marketplaces'
+
+/**
+ * @param {object} props - Props
+ * @param {function():Array} [props.filter] - Function to filter the data
+ * @returns {ReactElement} Marketplaces table
+ */
 const MarketplacesTable = ({ filter, ...props }) => {
-  const { view, getResourceView, filterPool } = useAuth()
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetMarketplacesQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('MARKETPLACE')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.MARKETPLACE)?.filters,
         columns: MarketplaceColumns,
       }),
     [view]
   )
 
-  const marketplaces = useMarketplace()
-  const { getMarketplaces } = useMarketplaceApi()
-
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getMarketplaces)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (marketplaces?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
-
   return (
     <EnhancedTable
       columns={columns}
-      data={
-        typeof filter === 'function'
-          ? marketplaces?.filter(filter)
-          : marketplaces
-      }
-      isLoading={loading || reloading}
+      data={typeof filter === 'function' ? data?.filter(filter) : data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={MarketplaceRow}
-      {...props}
+      {...rest}
     />
   )
 }
@@ -73,7 +67,6 @@ MarketplacesTable.propTypes = {
   filter: PropTypes.func,
   ...EnhancedTable.propTypes,
 }
-
 MarketplacesTable.displayName = 'MarketplacesTable'
 
 export default MarketplacesTable

@@ -19,25 +19,32 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/Auth/actions'
-import * as provisionActions from 'client/features/Auth/provision'
-import * as sunstoneActions from 'client/features/Auth/sunstone'
 import { name as authSlice } from 'client/features/Auth/slice'
-import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
+import apiGroup from 'client/features/OneApi/group'
+import apiSystem from 'client/features/OneApi/system'
 import { RESOURCE_NAMES } from 'client/constants'
 
 export const useAuth = () => {
   const auth = useSelector((state) => state[authSlice], shallowEqual)
-  const groups = useSelector(
-    (state) => state[oneSlice][RESOURCES.group],
-    shallowEqual
+  const { user, jwt, view, isLoginInProgress } = auth
+
+  const { data: views } = apiSystem.endpoints.getSunstoneViews.useQuery(
+    undefined,
+    { skip: !jwt }
   )
 
-  const { user, jwt, view, views, isLoginInProgress } = auth
-
-  const userGroups = [user?.GROUPS?.ID]
-    .flat()
-    .map((id) => groups.find(({ ID }) => ID === id))
-    .filter(Boolean)
+  const { data: userGroups } = apiGroup.endpoints.getGroups.useQuery(
+    undefined,
+    {
+      skip: !jwt,
+      selectFromResult: ({ data: groups = [] }) => ({
+        data: [user?.GROUPS?.ID]
+          .flat()
+          .map((id) => groups.find(({ ID }) => ID === id))
+          .filter(Boolean),
+      }),
+    }
+  )
 
   const isLogged = !!jwt && !!userGroups?.length && !isLoginInProgress
 
@@ -49,17 +56,26 @@ export const useAuth = () => {
    * resource_name: string,
    * actions: object[],
    * filters: object[],
-   * info-tabs: object[],
+   * info-tabs: object,
    * dialogs: object[]
    * }} Returns view of resource
    */
   const getResourceView = useCallback(
     (resourceName) =>
-      views?.[view]?.find(({ resource_name: name }) => name === resourceName),
+      views?.[view]?.find(
+        ({ resource_name: name }) =>
+          String(name).toLowerCase() === String(resourceName).toLowerCase()
+      ),
     [view]
   )
 
-  return { ...auth, groups: userGroups, isLogged, getResourceView }
+  return {
+    ...auth,
+    groups: userGroups,
+    isLogged,
+    getResourceView,
+    views,
+  }
 }
 
 export const useAuthApi = () => {
@@ -73,15 +89,9 @@ export const useAuthApi = () => {
   return {
     login: (user) => unwrapDispatch(actions.login(user)),
     getAuthUser: () => dispatch(actions.getUser()),
-    changeGroup: (data) => unwrapDispatch(actions.changeGroup(data)),
+    changeGroup: (group) => unwrapDispatch(actions.changeGroup(group)),
     logout: () => dispatch(actions.logout()),
 
-    getProviderConfig: () =>
-      unwrapDispatch(provisionActions.getProviderConfig()),
-
-    getSunstoneViews: () => unwrapDispatch(sunstoneActions.getSunstoneViews()),
-    getSunstoneConfig: () =>
-      unwrapDispatch(sunstoneActions.getSunstoneConfig()),
-    changeView: (data) => dispatch(sunstoneActions.changeView(data)),
+    changeView: (view) => dispatch(actions.changeView(view)),
   }
 }

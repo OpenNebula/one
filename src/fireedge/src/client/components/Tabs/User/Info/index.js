@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useUserApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetUserQuery,
+  useUpdateUserMutation,
+} from 'client/features/OneApi/user'
 import { AttributePanel } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/User/Info/information'
 
@@ -30,27 +32,30 @@ import { cloneObject, set } from 'client/utils'
 const HIDDEN_ATTRIBUTES_REG =
   /^(SSH_PUBLIC_KEY|SSH_PRIVATE_KEY|SSH_PASSPHRASE|SUNSTONE|FIREEDGE)$/
 
-const UserInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - User id
+ * @returns {ReactElement} Information tab
+ */
+const UserInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { updateUser } = useUserApi()
-  const { handleRefetch, data: user = {} } = useContext(TabContext)
-  const { ID, TEMPLATE } = user
+  const [updateUser] = useUpdateUserMutation()
+  const { data: user = {} } = useGetUserQuery(id)
+  const { TEMPLATE } = user
 
   const handleAttributeInXml = async (path, newValue) => {
     const newTemplate = cloneObject(TEMPLATE)
-
     set(newTemplate, path, newValue)
 
     const xml = Helper.jsonToXml(newTemplate)
-
-    // 0: Replace the whole template
-    const response = await updateUser(ID, xml, 0)
-
-    String(response) === String(ID) && (await handleRefetch?.())
+    await updateUser({ id, template: xml, replace: 0 })
   }
 
   const getActions = (actions) => Helper.getActionsAvailable(actions)
@@ -66,18 +71,16 @@ const UserInfoTab = ({ tabProps = {} }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
         <Information
-          actions={getActions(informationPanel?.actions)}
           user={user}
+          actions={getActions(informationPanel?.actions)}
         />
       )}
       {attributesPanel?.enabled && attributes && (
@@ -88,12 +91,13 @@ const UserInfoTab = ({ tabProps = {} }) => {
           title={Tr(T.Attributes)}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 UserInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 UserInfoTab.displayName = 'UserInfoTab'

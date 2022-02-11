@@ -14,22 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
-  const templates = useVmTemplate()
-  const { getTemplates } = useVmTemplateApi()
-
-  useEffect(() => {
-    getTemplates()
-  }, [])
+  const { data: templates = [] } = useGetTemplatesQuery()
 
   return (
     <Search

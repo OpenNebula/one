@@ -13,43 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useFetch } from 'client/hooks'
-import { useVRouter, useVRouterApi } from 'client/features/One'
+import { useAuth } from 'client/features/Auth'
+import { useGetVRoutersQuery } from 'client/features/OneApi/vrouter'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VRouterColumns from 'client/components/Tables/VRouters/columns'
 import VRouterRow from 'client/components/Tables/VRouters/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const VRoutersTable = () => {
-  const columns = useMemo(() => VRouterColumns, [])
+const DEFAULT_DATA_CY = 'vrouters'
 
-  const vRouters = useVRouter()
-  const { getVRouters } = useVRouterApi()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual Routers table
+ */
+const VRoutersTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getVRouters)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetVRoutersQuery()
 
-  useEffect(() => {
-    fetchRequest()
-  }, [])
-
-  if (vRouters?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.V_ROUTER)?.filters,
+        columns: VRouterColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vRouters}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VRouterRow}
+      {...rest}
     />
   )
 }
+
+VRoutersTable.propTypes = { ...EnhancedTable.propTypes }
+VRoutersTable.displayName = 'VRoutersTable'
 
 export default VRoutersTable

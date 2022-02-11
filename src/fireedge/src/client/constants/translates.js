@@ -58,7 +58,7 @@ module.exports = {
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
-  DeleteScheduledAction: 'Delete scheduled action: %s',
+  DeleteScheduleAction: 'Delete schedule action: %s',
   DeleteSomething: 'Delete: %s',
   Deploy: 'Deploy',
   Detach: 'Detach',
@@ -102,6 +102,7 @@ module.exports = {
   Select: 'Select',
   SelectDatastore: 'Select a Datastore to store the resource',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
+  SelectYourActiveGroup: 'Select your active group',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
   SelectMarketplace: 'Select Marketplace',
@@ -128,7 +129,7 @@ module.exports = {
   UnReschedule: 'Un-Reschedule',
   Unshare: 'Unshare',
   Update: 'Update',
-  UpdateScheduledAction: 'Update scheduled action: %s',
+  UpdateScheduleAction: 'Update schedule action: %s',
 
   /* questions */
   Yes: 'Yes',
@@ -137,7 +138,7 @@ module.exports = {
 
   /* Scheduling */
   Action: 'Action',
-  ScheduledAction: 'Scheduled action',
+  ScheduleAction: 'Schedule action',
   Charter: 'Charter',
   PunctualAction: 'Punctual action',
   RelativeAction: 'Relative action',
@@ -228,6 +229,7 @@ module.exports = {
   ProviderTemplate: 'Provider template',
   ProvisionTemplate: 'Provision template',
   ConfigureInputs: 'Configure inputs',
+  Log: 'Log',
   AddIP: 'Add IP',
   AddHost: 'Add Host',
   Cleanup: 'Cleanup',
@@ -631,6 +633,15 @@ module.exports = {
     'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
   ExportAssociateApp: 'Export associated VM templates/images',
   ImportAssociateApp: 'Import associated VM templates/images',
+
+  /* Image schema */
+  Limit: 'Limit',
+  BasePath: 'Base path',
+
+  /* Image schema */
+  FileSystemType: 'Filesystem type',
+  Persistent: 'Persistent',
+  RunningVMs: 'Running VMs',
 
   /* User inputs */
   UserInputs: 'User Inputs',

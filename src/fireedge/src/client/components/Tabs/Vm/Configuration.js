@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const VmConfigurationTab = () => {
-  const { data: vm = {} } = useContext(TabContext)
+/**
+ * Renders configuration tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Virtual machine id
+ * @returns {ReactElement} Configuration tab
+ */
+const VmConfigurationTab = ({ id }) => {
+  const { data: vm = {} } = useGetVmQuery(id)
   const { TEMPLATE, USER_TEMPLATE } = vm
 
   return (
@@ -54,6 +61,11 @@ const VmConfigurationTab = () => {
       </Accordion>
     </div>
   )
+}
+
+VmConfigurationTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmConfigurationTab.displayName = 'VmConfigurationTab'

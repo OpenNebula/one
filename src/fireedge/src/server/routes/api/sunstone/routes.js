@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-const { httpMethod } = require('server/utils/constants/defaults')
-const SUNSTONE = require('server/routes/api/sunstone/basepath')
+const { httpMethod } = require('../../../utils/constants/defaults')
 
 const { GET } = httpMethod
-const basepath = `/${SUNSTONE}`
+
+const basepath = '/sunstone'
 
 const SUNSTONE_VIEWS = 'sunstone.views'
 const SUNSTONE_CONFIG = 'sunstone.config'

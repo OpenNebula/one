@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect, useState, useCallback } from 'react'
+import { useMemo, useEffect, useState, useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import { useFetch } from 'client/hooks'
-import { useMarketplaceAppApi } from 'client/features/One'
+import { useLazyGetDockerHubTagsQuery } from 'client/features/OneApi/marketplaceApp'
 
 import EnhancedTable from 'client/components/Tables/Enhanced'
 import DockerHubTagsRow from 'client/components/Tables/DockerHubTags/row'
+import { MarketplaceApp } from 'client/constants'
+
+const DEFAULT_DATA_CY = 'docker-tags'
 
 const getNextPageFromUrl = (url) => {
   try {
@@ -33,49 +34,49 @@ const getNextPageFromUrl = (url) => {
   }
 }
 
+/**
+ * @param {object} props - Props
+ * @param {MarketplaceApp} props.app - Marketplace App
+ * @returns {ReactElement} Datastores table
+ */
 const DockerHubTagsTable = ({ app, ...props } = {}) => {
-  const { getDockerHubTags } = useMarketplaceAppApi()
+  const appId = app?.ID
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
   const [tags, setTags] = useState(() => [])
-
-  const {
-    data: { next, results = [] } = {},
-    fetchRequest,
-    loading,
-    status,
-    STATUS: { INIT, FETCHED },
-  } = useFetch(getDockerHubTags)
+  const [fetchRequest, { data: { next } = {}, isSuccess, isFetching }] =
+    useLazyGetDockerHubTagsQuery()
 
   useEffect(() => {
-    const appId = app?.ID
-    const requests = app?.ID && {
-      [INIT]: () => fetchRequest({ id: appId }),
-      [FETCHED]: () => {
-        if (!next) return
+    ;(async () => {
+      if (!appId || (isSuccess && !next)) return
 
-        const page = getNextPageFromUrl(next)
-        fetchRequest({ id: appId, page })
-      },
-    }
-
-    requests[status]?.()
-  }, [app?.ID, status])
-
-  useEffect(() => {
-    status === FETCHED && setTags((prev) => prev.concat(results))
-  }, [status])
+      const page = next ? getNextPageFromUrl(next) : undefined
+      const { results = [] } = await fetchRequest({ id: appId, page }).unwrap()
+      setTags((prev) => prev.concat(results))
+    })()
+  }, [appId, next])
 
   const memoData = useMemo(() => tags, [tags?.length])
-
   const memoColumns = useMemo(() => [{ accessor: 'name' }], [])
+
+  if (!appId) {
+    return <>{'App ID is required'}</>
+  }
 
   return (
     <EnhancedTable
       columns={memoColumns}
       data={memoData}
-      isLoading={loading}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={fetchRequest}
+      isLoading={isFetching}
       getRowId={useCallback((row) => String(row.name), [])}
       RowComponent={DockerHubTagsRow}
-      {...props}
+      {...rest}
     />
   )
 }

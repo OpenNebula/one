@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { useForm, FormProvider } from 'react-hook-form'
@@ -23,7 +24,8 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/Provision/CreateForm/Steps'
 
 const CreateForm = ({ onSubmit }) => {
-  const { steps, defaultValues, resolver, transformBeforeSubmit } = Steps()
+  const stepsForm = useMemo(() => Steps(), [])
+  const { steps, defaultValues, resolver, transformBeforeSubmit } = stepsForm
 
   const methods = useForm({
     mode: 'onSubmit',

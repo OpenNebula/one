@@ -20,13 +20,16 @@ import clsx from 'clsx'
 import { List, ListItem, Typography, Grid, Paper, Divider } from '@mui/material'
 import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
+import { useGetProvisionQuery } from 'client/features/OneApi/provision'
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'
 import { StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { T, PROVISIONS_STATES } from 'client/constants'
 
-const Info = memo(({ data = {} }) => {
+const Info = memo(({ id }) => {
   const classes = useStyles()
+
+  const { data = {} } = useGetProvisionQuery(id)
   const { ID, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
   const {
     state,
@@ -140,14 +143,7 @@ const Info = memo(({ data = {} }) => {
   )
 })
 
-Info.propTypes = {
-  data: PropTypes.object.isRequired,
-}
-
-Info.defaultProps = {
-  data: undefined,
-}
-
+Info.propTypes = { id: PropTypes.string.isRequired }
 Info.displayName = 'Info'
 
 export default Info

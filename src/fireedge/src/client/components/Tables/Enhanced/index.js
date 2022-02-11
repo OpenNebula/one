@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { InfoEmpty } from 'iconoir-react'
-import { Box, LinearProgress } from '@mui/material'
+import { Box } from '@mui/material'
 import {
   useGlobalFilter,
   useFilters,
@@ -35,14 +35,12 @@ import {
 import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
 import Filters from 'client/components/Tables/Enhanced/filters'
-import { ActionPropTypes } from 'client/components/Tables/Enhanced/Utils'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const EnhancedTable = ({
-  canFetchMore,
   columns,
   globalActions,
   globalFilter,
@@ -50,9 +48,12 @@ const EnhancedTable = ({
   fetchMore,
   getRowId,
   initialState,
+  refetch,
   isLoading,
   onlyGlobalSearch,
   onlyGlobalSelectedRows,
+  disableRowSelect,
+  disableGlobalSort,
   onSelectedRowsChange,
   pageSize = 10,
   RowComponent,
@@ -64,7 +65,7 @@ const EnhancedTable = ({
 }) => {
   const styles = EnhancedTableStyles()
 
-  const isFetching = isLoading && data === undefined
+  const isUninitialized = isLoading && data === undefined
 
   const defaultColumn = useMemo(
     () => ({
@@ -140,7 +141,7 @@ const EnhancedTable = ({
     const canNextPage =
       pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
 
-    newPage > pageIndex && canFetchMore && !canNextPage && fetchMore?.()
+    newPage > pageIndex && !canNextPage && fetchMore?.()
   }
 
   return (
@@ -151,13 +152,15 @@ const EnhancedTable = ({
     >
       <div className={styles.toolbar}>
         {/* TOOLBAR */}
-        {!isFetching && (
-          <Toolbar
-            globalActions={globalActions}
-            onlyGlobalSelectedRows={onlyGlobalSelectedRows}
-            useTableProps={useTableProps}
-          />
-        )}
+        <Toolbar
+          refetch={refetch}
+          isLoading={isLoading}
+          globalActions={globalActions}
+          disableRowSelect={disableRowSelect}
+          disableGlobalSort={disableGlobalSort}
+          onlyGlobalSelectedRows={onlyGlobalSelectedRows}
+          useTableProps={useTableProps}
+        />
 
         {/* PAGINATION */}
         <div className={styles.pagination}>
@@ -170,17 +173,9 @@ const EnhancedTable = ({
         </div>
       </div>
 
-      {isLoading && (
-        <LinearProgress
-          size="1em"
-          color="secondary"
-          className={styles.loading}
-        />
-      )}
-
       <div className={styles.table}>
         {/* FILTERS */}
-        {!isFetching && (
+        {!isUninitialized && (
           <Filters
             onlyGlobalSearch={onlyGlobalSearch}
             useTableProps={useTableProps}
@@ -190,7 +185,7 @@ const EnhancedTable = ({
 
         <div className={clsx(styles.body, classes.body)}>
           {/* NO DATA MESSAGE */}
-          {!isFetching && page?.length === 0 && (
+          {!isUninitialized && page?.length === 0 && (
             <span className={styles.noDataMessage}>
               <InfoEmpty />
               <Translate word={T.NoDataAvailable} />
@@ -219,8 +214,10 @@ const EnhancedTable = ({
                 value={values}
                 className={isSelected ? 'selected' : ''}
                 onClick={() => {
-                  singleSelect && toggleAllRowsSelected(false)
-                  toggleRowSelected(!isSelected)
+                  if (!disableRowSelect) {
+                    singleSelect && toggleAllRowsSelected?.(false)
+                    toggleRowSelected?.(!isSelected)
+                  }
                 }}
               />
             )
@@ -231,9 +228,9 @@ const EnhancedTable = ({
   )
 }
 
-export const EnhancedTableProps = {
+EnhancedTable.propTypes = {
   canFetchMore: PropTypes.bool,
-  globalActions: PropTypes.arrayOf(ActionPropTypes),
+  globalActions: PropTypes.array,
   columns: PropTypes.array,
   data: PropTypes.array,
   globalFilter: PropTypes.func,
@@ -250,20 +247,19 @@ export const EnhancedTableProps = {
   searchProps: PropTypes.shape({
     'data-cy': PropTypes.string,
   }),
+  refetch: PropTypes.func,
   isLoading: PropTypes.bool,
+  disableGlobalSort: PropTypes.bool,
+  disableRowSelect: PropTypes.bool,
   onlyGlobalSearch: PropTypes.bool,
   onlyGlobalSelectedRows: PropTypes.bool,
   onSelectedRowsChange: PropTypes.func,
   pageSize: PropTypes.number,
-  RowComponent: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-    PropTypes.func,
-  ]),
+  RowComponent: PropTypes.any,
   showPageCount: PropTypes.bool,
   singleSelect: PropTypes.bool,
 }
 
-EnhancedTable.propTypes = EnhancedTableProps
+export * from 'client/components/Tables/Enhanced/Utils'
 
 export default EnhancedTable

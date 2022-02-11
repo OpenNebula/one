@@ -36,12 +36,12 @@ export const STEP_ID = 'template'
 const SCREENS = [
   {
     id: 'id',
-    button: <TemplateIcon style={{ fontSize: 100 }} />,
+    button: <TemplateIcon />,
     content: ListTemplates,
   },
   {
     id: 'app',
-    button: <MarketplaceIcon style={{ fontSize: 100 }} />,
+    button: <MarketplaceIcon />,
     content: ListMarketApps,
   },
   {

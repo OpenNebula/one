@@ -79,9 +79,8 @@ const GlobalFilter = ({ useTableProps, className, searchProps }) => {
 
   const handleChange = useCallback(
     // Set undefined to remove the filter entirely
-    debounce((newFilter) => {
-      setGlobalFilter(newFilter || undefined)
-    }, 200)
+    debounce((newFilter) => setGlobalFilter(newFilter || undefined), 200),
+    [setGlobalFilter]
   )
 
   return (

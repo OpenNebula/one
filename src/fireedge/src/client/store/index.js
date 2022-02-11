@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  configureStore,
-  getDefaultMiddleware,
-  EnhancedStore,
-} from '@reduxjs/toolkit'
-import thunkMiddleware from 'redux-thunk'
+import { configureStore, EnhancedStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query/react'
 
-import rootReducer from 'client/store/reducers'
 import { isDevelopment } from 'client/utils'
+
+import * as Auth from 'client/features/Auth/slice'
+import * as General from 'client/features/General/slice'
+import { oneApi } from 'client/features/OneApi'
 
 /**
  * @param {object} props - Props
  * @param {object} props.initState - Initial state
- * @param {*} props.services - Services
  * @returns {{ store: EnhancedStore }} Configured Redux Store
  */
-export const createStore = ({ initState = {}, services }) => {
-  const middleware = getDefaultMiddleware({
-    immutableCheck: true,
-    serializableCheck: false,
-    thunk: false,
-  })
-
-  middleware.push(thunkMiddleware.withExtraArgument({ services }))
-
+export const createStore = ({ initState = {} }) => {
   const store = configureStore({
-    reducer: rootReducer,
+    reducer: {
+      [Auth.name]: Auth.reducer,
+      [General.name]: General.reducer,
+      [oneApi.reducerPath]: oneApi.reducer,
+    },
     devTools: isDevelopment(),
-    middleware,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        immutableCheck: true,
+      }).concat(oneApi.middleware),
     preloadedState: initState,
   })
+
+  setupListeners(store.dispatch)
 
   return { store }
 }

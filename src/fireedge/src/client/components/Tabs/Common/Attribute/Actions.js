@@ -83,7 +83,7 @@ const Copy = memo(
             <Translate word={T.CopiedToClipboard} />
           </>
         }
-        tooltipProps={{ open: isCopied }}
+        tooltipprops={{ open: isCopied }}
         handleClick={async () => await copy(value)}
         icon={CopyIcon}
         {...props}

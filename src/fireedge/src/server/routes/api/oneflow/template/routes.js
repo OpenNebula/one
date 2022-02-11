@@ -17,31 +17,30 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
-const { SERVICE_TEMPLATE } = require('server/routes/api/oneflow/basepath')
+} = require('../../../../utils/constants/defaults')
 
 const { GET, POST, DELETE, PUT } = httpMethod
-const basepath = `/${SERVICE_TEMPLATE}`
 const { resource, postBody } = fromData
+const basepath = '/service_template'
 
-const SERVICETEMPLATE_SHOW = 'servicetemplate.show'
-const SERVICETEMPLATE_ACTION = 'servicetemplate.action'
-const SERVICETEMPLATE_CREATE = 'servicetemplate.create'
-const SERVICETEMPLATE_UPDATE = 'servicetemplate.update'
-const SERVICETEMPLATE_DELETE = 'servicetemplate.delete'
+const SERVICE_TEMPLATE_SHOW = 'servicetemplate.show'
+const SERVICE_TEMPLATE_ACTION = 'servicetemplate.action'
+const SERVICE_TEMPLATE_CREATE = 'servicetemplate.create'
+const SERVICE_TEMPLATE_UPDATE = 'servicetemplate.update'
+const SERVICE_TEMPLATE_DELETE = 'servicetemplate.delete'
 
 const Actions = {
-  SERVICETEMPLATE_SHOW,
-  SERVICETEMPLATE_ACTION,
-  SERVICETEMPLATE_CREATE,
-  SERVICETEMPLATE_UPDATE,
-  SERVICETEMPLATE_DELETE,
+  SERVICE_TEMPLATE_SHOW,
+  SERVICE_TEMPLATE_ACTION,
+  SERVICE_TEMPLATE_CREATE,
+  SERVICE_TEMPLATE_UPDATE,
+  SERVICE_TEMPLATE_DELETE,
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [SERVICETEMPLATE_SHOW]: {
+    [SERVICE_TEMPLATE_SHOW]: {
       path: `${basepath}/:id`,
       httpMethod: GET,
       auth: true,
@@ -51,7 +50,7 @@ module.exports = {
         },
       },
     },
-    [SERVICETEMPLATE_ACTION]: {
+    [SERVICE_TEMPLATE_ACTION]: {
       path: `${basepath}/action/:id`,
       httpMethod: POST,
       auth: true,
@@ -64,7 +63,7 @@ module.exports = {
         },
       },
     },
-    [SERVICETEMPLATE_CREATE]: {
+    [SERVICE_TEMPLATE_CREATE]: {
       path: `${basepath}`,
       httpMethod: POST,
       auth: true,
@@ -74,7 +73,7 @@ module.exports = {
         },
       },
     },
-    [SERVICETEMPLATE_UPDATE]: {
+    [SERVICE_TEMPLATE_UPDATE]: {
       path: `${basepath}/:id`,
       httpMethod: PUT,
       auth: true,
@@ -87,7 +86,7 @@ module.exports = {
         },
       },
     },
-    [SERVICETEMPLATE_DELETE]: {
+    [SERVICE_TEMPLATE_DELETE]: {
       path: `${basepath}/:id`,
       httpMethod: DELETE,
       auth: true,

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean } from 'yup'
 
-import { useHost } from 'client/features/One'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getKvmMachines, getKvmCpuModels } from 'client/models/Host'
 import { Field, arrayToOptions } from 'client/utils'
 import {
@@ -64,7 +64,7 @@ export const MACHINE_TYPES = {
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const hosts = useHost()
+    const { data: hosts = [] } = useGetHostsQuery()
     const kvmMachines = getKvmMachines(hosts)
 
     return arrayToOptions(kvmMachines)
@@ -82,7 +82,7 @@ export const CPU_MODEL = {
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const hosts = useHost()
+    const { data: hosts = [] } = useGetHostsQuery()
     const kvmCpuModels = getKvmCpuModels(hosts)
 
     return arrayToOptions(kvmCpuModels)

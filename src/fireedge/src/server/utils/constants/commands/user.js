@@ -29,6 +29,7 @@ const USER_QUOTA = 'user.quota'
 const USER_CHGRP = 'user.chgrp'
 const USER_ADDGROUP = 'user.addgroup'
 const USER_DELGROUP = 'user.delgroup'
+const USER_ENABLE = 'user.enable'
 const USER_INFO = 'user.info'
 const USER_POOL_INFO = 'userpool.info'
 const USER_QUOTA_INFO = 'userquota.info'
@@ -211,6 +212,20 @@ module.exports = {
         group: {
           from: query,
           default: 0,
+        },
+      },
+    },
+    [USER_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        enable: {
+          from: postBody,
+          default: true,
         },
       },
     },

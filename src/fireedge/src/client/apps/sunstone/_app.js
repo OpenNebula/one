@@ -26,7 +26,7 @@ import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useSystem, useSystemApi } from 'client/features/One'
+import systemApi from 'client/features/OneApi/system'
 
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
@@ -42,26 +42,23 @@ export const APP_NAME = _APPS.sunstone.name
  * @returns {JSXElementConstructor} App rendered.
  */
 const SunstoneApp = () => {
-  const { isLogged, jwt, firstRender, view, views, config } = useAuth()
-  const { getAuthUser, logout, getSunstoneViews, getSunstoneConfig } =
-    useAuthApi()
+  const { isLogged, jwt, firstRender, view } = useAuth()
+  const { getAuthUser, logout } = useAuthApi()
 
   const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
-  const { config: oneConfig } = useSystem()
-  const { getOneConfig } = useSystemApi()
+
+  const queryProps = [undefined, { skip: !jwt }]
+  systemApi.endpoints.getOneConfig.useQuery(...queryProps)
+  systemApi.endpoints.getSunstoneConfig.useQuery(...queryProps)
+  const views = systemApi.endpoints.getSunstoneViews.useQuery(...queryProps)
 
   useEffect(() => {
     ;(async () => {
       appTitle !== APP_NAME && changeAppTitle(APP_NAME)
 
       try {
-        if (jwt) {
-          getAuthUser()
-          !view && (await getSunstoneViews())
-          !config && (await getSunstoneConfig())
-          !oneConfig && getOneConfig()
-        }
+        jwt && getAuthUser()
       } catch {
         logout()
       }
@@ -71,7 +68,7 @@ const SunstoneApp = () => {
   const endpoints = useMemo(
     () => [
       ...ENDPOINTS,
-      ...(view ? getEndpointsByView(views?.[view], ONE_ENDPOINTS) : []),
+      ...(view ? getEndpointsByView(views?.data?.[view], ONE_ENDPOINTS) : []),
       ...(isDevelopment() ? DEV_ENDPOINTS : []),
     ],
     [view]

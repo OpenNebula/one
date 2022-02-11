@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/valid-types */
 import { isDate, timeToString } from 'client/models/Helper'
 import { Tr } from 'client/components/HOC'
-import { T, VM_ACTIONS } from 'client/constants'
+import {
+  T,
+  VM_ACTIONS,
+  ARGS_TYPES,
+  PERIOD_TYPES,
+  ScheduleAction,
+  CharterOptions,
+} from 'client/constants'
 
 const {
   SNAPSHOT_DISK_CREATE,
@@ -25,70 +33,6 @@ const {
   SNAPSHOT_REVERT,
   SNAPSHOT_DELETE,
 } = VM_ACTIONS
-
-/**
- * @typedef ScheduledAction
- * @property {string} ACTION - Action to execute
- * @property {string} ID - Id
- * @property {string} TIME - Time
- * @property {string} [WARNING] - Warning time
- * @property {string} [ARGS] - Arguments separated by comma
- * @property {string} [DAYS] - Days that the users wants execute the action.
- * List separated by comma. Depend of REPEAT:
- * - weekly: 0 (Sunday) to 6 (Saturday)
- * - monthly: 1 to 31
- * - yearly: 1 to 365
- * - hourly: each ‘x’ hours
- * @property {'0'|'1'|'2'} [END_TYPE] - Way to end the repetition. Can be:
- * - never: 0
- * - repetition: 1
- * - date: 2
- * @property {string} [END_VALUE] - End value
- * @property {'0'|'1'|'2'|'3'} [REPEAT] - Type of repetition. Can be:
- * - weekly: '0',
- * - monthly: '1',
- * - yearly: '2',
- * - hourly: '3',
- */
-
-/**
- * @typedef CharterOptions
- * @property {boolean} [edit] - If `true`, the charter can be edited in form
- * @property {number|string} execute_after_days - Days to execute the action
- * @property {number|string} warn_before_days - Alert a time before the action (in days)
- */
-
-/** @enum {string} Values to end an action */
-export const END_TYPE_VALUES = {
-  NEVER: '0',
-  REPETITION: '1',
-  DATE: '2',
-}
-
-/** @enum {string} Values to repeat an action */
-export const REPEAT_VALUES = {
-  WEEKLY: '0',
-  MONTHLY: '1',
-  YEARLY: '2',
-  HOURLY: '3',
-}
-
-/** @enum {string} Argument attributes */
-export const ARGS_TYPES = {
-  DISK_ID: 'DISK_ID',
-  NAME: 'NAME',
-  SNAPSHOT_ID: 'SNAPSHOT_ID',
-}
-
-/** @enum {string} Period type */
-export const PERIOD_TYPES = {
-  YEARS: 'years',
-  MONTHS: 'months',
-  WEEKS: 'weeks',
-  DAYS: 'days',
-  HOURS: 'hours',
-  MINUTES: 'minutes',
-}
 
 /**
  * Checks if time is relative.
@@ -160,7 +104,7 @@ export const timeToSecondsByPeriodicity = (period, time) =>
 /**
  * Returns information about the repetition of an action: periodicity and the end.
  *
- * @param {ScheduledAction} action - Schedule action
+ * @param {ScheduleAction} action - Schedule action
  * @returns {{repeat: string|string[], end: string}} - Periodicity of the action.
  */
 export const getRepeatInformation = (action) => {
@@ -209,7 +153,7 @@ export const getRequiredArgsByAction = (action) => {
 /**
  * Transforms the arguments from the scheduled action to object.
  *
- * @param {scheduledAction} [scheduledAction] - Schedule action
+ * @param {ScheduleAction} [scheduleAction] - Schedule action
  * @returns {object} Arguments in object format
  */
 export const transformStringToArgsObject = ({ ACTION, ARGS = {} } = {}) => {
@@ -253,7 +197,7 @@ const getTimeAndPeriodTypeFromCharter = (options, prefix) => {
  *
  * @param {[string, CharterOptions][]} charters - Charters from configuration yaml
  * @param {boolean} relative - If `true`, returns times in relative format
- * @returns {ScheduledAction[]} - Scheduled action
+ * @returns {ScheduleAction[]} - Scheduled action
  */
 export const transformChartersToSchedActions = (charters, relative = false) => {
   const now = Math.round(Date.now() / 1000)

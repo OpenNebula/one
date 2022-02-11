@@ -13,121 +13,178 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, useEffect } from 'react'
+import { memo, ReactElement, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 import { useHistory, generatePath } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
+import { Container, Box, Backdrop, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
-import { PATH } from 'client/apps/provision/routes'
-import { useProvider, useProviderApi } from 'client/features/One'
+import {
+  useGetProviderConfigQuery,
+  useGetProvidersQuery,
+  useDeleteProviderMutation,
+  useGetProviderQuery,
+} from 'client/features/OneApi/provider'
 import { useGeneralApi } from 'client/features/General'
-import { useFetch, useSearch } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
+import { useSearch, useDialog } from 'client/hooks'
 
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
-import { DialogRequest } from 'client/components/Dialogs'
+import { DialogConfirmation } from 'client/components/Dialogs'
+import { Translate } from 'client/components/HOC'
 import Information from 'client/containers/Providers/Sections/info'
+import { PATH } from 'client/apps/provision/routes'
 import { T } from 'client/constants'
 
+/**
+ * Renders a list of available providers.
+ *
+ * @returns {ReactElement} List of providers
+ */
 function Providers() {
   const history = useHistory()
-  const [showDialog, setShowDialog] = useState(false)
+  const { display, show, hide, values: dialogProps } = useDialog()
 
-  const { providerConfig } = useAuth()
-  const providers = useProvider()
-  const { getProviders, getProvider, deleteProvider } = useProviderApi()
   const { enqueueSuccess } = useGeneralApi()
+  const { data: providerConfig } = useGetProviderConfigQuery()
+  const [deleteProvider, { isLoading: isDeleting }] =
+    useDeleteProviderMutation()
 
-  const { error, fetchRequest, loading, reloading } = useFetch(getProviders)
+  const {
+    refetch,
+    data: providers = [],
+    isFetching,
+    error,
+  } = useGetProvidersQuery()
 
   const { result, handleChange } = useSearch({
     list: providers,
     listOptions: { shouldSort: true, keys: ['ID', 'NAME'] },
   })
 
-  useEffect(() => {
-    fetchRequest()
-  }, [])
-
-  const handleCancel = () => setShowDialog(false)
+  const handleDelete = async (id) => {
+    try {
+      hide()
+      await deleteProvider({ id })
+      enqueueSuccess(`Provider deleted - ID: ${id}`)
+    } catch {}
+  }
 
   return (
-    <Container disableGutters>
-      <ListHeader
-        title={T.Providers}
-        reloadButtonProps={{
-          'data-cy': 'refresh-provider-list',
-          onClick: () => fetchRequest(undefined, { reload: true }),
-          isSubmitting: Boolean(loading || reloading),
-        }}
-        addButtonProps={{
-          'data-cy': 'create-provider',
-          onClick: () => history.push(PATH.PROVIDERS.CREATE),
-        }}
-        searchProps={{ handleChange }}
-      />
-      <Box p={3}>
-        {error ? (
-          <AlertError>{T.CannotConnectOneProvision}</AlertError>
-        ) : (
-          <ListCards
-            list={result ?? providers}
-            isLoading={providers.length === 0 && loading}
-            gridProps={{ 'data-cy': 'providers' }}
-            CardComponent={ProvisionCard}
-            cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
-              image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
-              isProvider: true,
-              handleClick: () =>
-                setShowDialog({
-                  id: ID,
-                  title: `#${ID} ${NAME}`,
-                }),
-              actions: [
-                {
-                  handleClick: () =>
-                    history.push(generatePath(PATH.PROVIDERS.EDIT, { id: ID })),
-                  icon: <EditIcon />,
-                  cy: 'provider-edit',
-                },
-                {
-                  handleClick: () =>
-                    setShowDialog({
-                      id: ID,
-                      title: `DELETE | #${ID} ${NAME}`,
-                      handleAccept: () => {
-                        setShowDialog(false)
-
-                        return deleteProvider(ID)
-                          .then(() =>
-                            enqueueSuccess(`Provider deleted - ID: ${ID}`)
-                          )
-                          .then(() => fetchRequest(undefined, { reload: true }))
-                      },
-                    }),
-                  icon: <DeleteIcon />,
-                  color: 'error',
-                  cy: 'provider-delete',
-                },
-              ],
-            })}
-          />
-        )}
-      </Box>
-      {showDialog !== false && (
-        <DialogRequest
-          request={() => getProvider(showDialog.id)}
-          dialogProps={{ fixedWidth: true, handleCancel, ...showDialog }}
-        >
-          {(fetchProps) => <Information {...fetchProps} />}
-        </DialogRequest>
+    <>
+      <Container disableGutters>
+        <ListHeader
+          title={T.Providers}
+          reloadButtonProps={{
+            'data-cy': 'refresh-provider-list',
+            onClick: () => refetch(),
+            isSubmitting: isFetching,
+          }}
+          addButtonProps={{
+            'data-cy': 'create-provider',
+            onClick: () => history.push(PATH.PROVIDERS.CREATE),
+          }}
+          searchProps={{ handleChange }}
+        />
+        <Box p={3}>
+          {error ? (
+            <AlertError>{T.CannotConnectOneProvision}</AlertError>
+          ) : (
+            <ListCards
+              list={result ?? providers}
+              gridProps={{ 'data-cy': 'providers' }}
+              CardComponent={ProvisionCard}
+              cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
+                image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
+                isProvider: true,
+                handleClick: () => show({ id: ID, title: `#${ID} ${NAME}` }),
+                actions: [
+                  {
+                    handleClick: () =>
+                      history.push(
+                        generatePath(PATH.PROVIDERS.EDIT, { id: ID })
+                      ),
+                    icon: <EditIcon />,
+                    cy: 'provider-edit',
+                  },
+                  {
+                    handleClick: () =>
+                      show({
+                        id: ID,
+                        title: (
+                          <Translate
+                            word={T.DeleteSomething}
+                            values={`#${ID} ${NAME}`}
+                          />
+                        ),
+                        handleAccept: () => handleDelete(ID),
+                      }),
+                    icon: <DeleteIcon />,
+                    isSubmitting: isDeleting,
+                    color: 'error',
+                    cy: 'provider-delete',
+                  },
+                ],
+              })}
+            />
+          )}
+        </Box>
+      </Container>
+      {display && dialogProps?.id && (
+        <DialogProvider
+          hide={hide}
+          id={dialogProps.id}
+          dialogProps={dialogProps}
+        />
       )}
-    </Container>
+    </>
   )
 }
+
+const DialogProvider = memo(
+  ({ id, hide, dialogProps }) => {
+    const {
+      currentData: providerDetail,
+      isLoading: providerIsLoading,
+      error: providerError,
+    } = useGetProviderQuery(id)
+
+    useEffect(() => {
+      providerError && hide()
+    }, [providerError])
+
+    return providerDetail?.ID !== id || providerIsLoading ? (
+      <Backdrop
+        open
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          color: (theme) => theme.palette.common.white,
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    ) : (
+      <DialogConfirmation
+        fixedWidth
+        fixedHeight
+        handleCancel={hide}
+        {...dialogProps}
+      >
+        <Information id={providerDetail.ID} />
+      </DialogConfirmation>
+    )
+  },
+  (prev, next) => prev.id === next.id
+)
+
+DialogProvider.propTypes = {
+  id: PropTypes.string,
+  hide: PropTypes.func,
+  dialogProps: PropTypes.object,
+}
+
+DialogProvider.displayName = 'DialogProvider'
 
 export default Providers

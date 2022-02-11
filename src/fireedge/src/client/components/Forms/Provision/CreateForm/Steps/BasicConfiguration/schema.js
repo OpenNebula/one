@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
-import { INPUT_TYPES } from 'client/constants'
+import { string, object } from 'yup'
+import { T, INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
 const NAME = {
   name: 'name',
-  label: 'Name',
+  label: T.Name,
   type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
-    .min(1, 'Name field is required')
-    .trim()
-    .required('Name field is required')
-    .default(''),
+  validation: string().min(1).trim().required().default(''),
 }
 
 const DESCRIPTION = {
   name: 'description',
-  label: 'Description',
+  label: T.Description,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: yup.string().trim().default(''),
+  validation: string().trim().default(''),
 }
 
 export const FORM_FIELDS = [NAME, DESCRIPTION]
 
-export const STEP_FORM_SCHEMA = yup.object(getValidationFromFields(FORM_FIELDS))
+export const STEP_FORM_SCHEMA = object(getValidationFromFields(FORM_FIELDS))

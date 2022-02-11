@@ -14,13 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { MARKETPLACE_STATES, StateInfo } from 'client/constants'
+import { MARKETPLACE_STATES, StateInfo, Marketplace } from 'client/constants'
 
 /**
  * Returns the marketplace state.
  *
- * @param {object} marketplace - Marketplace
- * @param {number|string} marketplace.STATE - Marketplace state numeric code
+ * @param {Marketplace} marketplace - Marketplace
  * @returns {StateInfo} Marketplace state information
  */
 export const getState = ({ STATE } = {}) => MARKETPLACE_STATES[+STATE]
@@ -28,9 +27,7 @@ export const getState = ({ STATE } = {}) => MARKETPLACE_STATES[+STATE]
 /**
  * Returns the marketplace capacity information.
  *
- * @param {object} marketplace - Marketplace
- * @param {number|string} marketplace.TOTAL_MB - Total capacity MB available
- * @param {number|string} marketplace.USED_MB - Capacity used MB
+ * @param {Marketplace} marketplace - Marketplace
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
@@ -44,8 +41,5 @@ export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
     percentOfUsed
   )}%)`
 
-  return {
-    percentOfUsed,
-    percentLabel,
-  }
+  return { percentOfUsed, percentLabel }
 }

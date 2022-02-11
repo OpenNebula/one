@@ -16,11 +16,8 @@
 
 const { from: fromData } = require('server/utils/constants/defaults')
 const { httpMethod } = require('server/utils/constants/defaults')
-const {
-  PROVISION_TEMPLATE,
-} = require('server/routes/api/oneprovision/basepath')
 
-const basepath = `/${PROVISION_TEMPLATE}`
+const basepath = '/provision-template'
 const { GET, POST, PUT, DELETE } = httpMethod
 const { resource, postBody } = fromData
 

@@ -21,13 +21,8 @@ import {
   logout,
   changeFilter,
   changeGroup,
-} from 'client/features/Auth/actions'
-import { getProviderConfig } from 'client/features/Auth/provision'
-import {
-  getSunstoneViews,
-  getSunstoneConfig,
   changeView,
-} from 'client/features/Auth/sunstone'
+} from 'client/features/Auth/actions'
 import {
   JWT_NAME,
   FILTER_POOL,
@@ -70,11 +65,6 @@ const { name, actions, reducer } = createSlice({
             login.fulfilled.type,
             getUser.fulfilled.type,
             changeGroup.fulfilled.type,
-            // provision
-            getProviderConfig.fulfilled.type,
-            // sunstone
-            getSunstoneViews.fulfilled.type,
-            getSunstoneConfig.fulfilled.type,
             changeView.type,
           ].includes(type),
         (state, { payload }) => ({ ...state, ...payload })

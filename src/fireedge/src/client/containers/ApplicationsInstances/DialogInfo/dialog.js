@@ -39,7 +39,7 @@ const CustomDialog = ({ title, handleClose, children }) => {
       maxWidth="xl"
       scroll="paper"
       PaperProps={{
-        style: {
+        sx: {
           height: isMobile ? '100%' : '90%',
           width: isMobile ? '100%' : '90%',
         },
@@ -48,7 +48,7 @@ const CustomDialog = ({ title, handleClose, children }) => {
       <DialogTitle>{title}</DialogTitle>
       <DialogContent
         dividers
-        style={{
+        sx={{
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',

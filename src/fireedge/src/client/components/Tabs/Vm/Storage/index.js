@@ -13,29 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
-
-import StorageList from 'client/components/Tabs/Vm/Storage/List'
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import {
+  AttachAction,
+  SaveAsAction,
+  ResizeAction,
+  DetachAction,
+  SnapshotCreateAction,
+  SnapshotRevertAction,
+  SnapshotRenameAction,
+  SnapshotDeleteAction,
+} from 'client/components/Tabs/Vm/Storage/Actions'
+import DiskCard from 'client/components/Cards/DiskCard'
 
 import {
   getDisks,
   getHypervisor,
   isAvailableAction,
 } from 'client/models/VirtualMachine'
-import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
-import { T, VM_ACTIONS } from 'client/constants'
+import { getActionsAvailable } from 'client/models/Helper'
+import { VM_ACTIONS } from 'client/constants'
 
-const VmStorageTab = ({ tabProps: { actions } = {} }) => {
-  const { attachDisk } = useVmApi()
+const {
+  ATTACH_DISK,
+  DETACH_DISK,
+  DISK_SAVEAS,
+  RESIZE_DISK,
+  SNAPSHOT_DISK_CREATE,
+  SNAPSHOT_DISK_RENAME,
+  SNAPSHOT_DISK_REVERT,
+  SNAPSHOT_DISK_DELETE,
+} = VM_ACTIONS
 
-  const { data: vm = {} } = useContext(TabContext)
+/**
+ * Renders the list of disks from a VM.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Storage tab
+ */
+const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: vm = {} } = useGetVmQuery(id)
 
   const [disks, hypervisor, actionsAvailable] = useMemo(() => {
     const hyperV = getHypervisor(vm)
@@ -47,48 +71,49 @@ const VmStorageTab = ({ tabProps: { actions } = {} }) => {
     return [getDisks(vm), hyperV, actionsByState]
   }, [vm])
 
-  const handleAttachDisk = async (formData) => {
-    const template = jsonToXml({ DISK: formData })
-
-    await attachDisk(vm.ID, template)
-  }
+  const filterByAvailable = (action, button) =>
+    actionsAvailable.includes(action) && button
 
   return (
     <>
-      {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_DISK) && (
-        <ButtonToTriggerForm
-          buttonProps={{
-            color: 'secondary',
-            'data-cy': 'attach-disk',
-            label: T.AttachDisk,
-            variant: 'outlined',
-          }}
-          options={[
-            {
-              cy: 'attach-image',
-              name: T.Image,
-              dialogProps: { title: T.AttachImage },
-              form: () => ImageSteps({ hypervisor }),
-              onSubmit: handleAttachDisk,
-            },
-            {
-              cy: 'attach-volatile',
-              name: T.Volatile,
-              dialogProps: { title: T.AttachVolatile },
-              form: () => VolatileSteps({ hypervisor }),
-              onSubmit: handleAttachDisk,
-            },
-          ]}
-        />
+      {actionsAvailable?.includes?.(ATTACH_DISK) && (
+        <AttachAction vmId={id} hypervisor={hypervisor} />
       )}
 
-      <StorageList actions={actionsAvailable} disks={disks} />
+      <Stack direction="column" gap="1em" py="0.8em">
+        {disks.map((disk) => {
+          const isImage = disk.IMAGE_ID !== undefined
+
+          return (
+            <DiskCard
+              key={disk.DISK_ID}
+              vmId={id}
+              disk={disk}
+              extraActionProps={{ vmId: id }}
+              extraSnapshotActionProps={{ disk, vmId: id }}
+              actions={[
+                isImage && filterByAvailable(DISK_SAVEAS, SaveAsAction),
+                filterByAvailable(SNAPSHOT_DISK_CREATE, SnapshotCreateAction),
+                filterByAvailable(RESIZE_DISK, ResizeAction),
+                filterByAvailable(DETACH_DISK, DetachAction),
+              ].filter(Boolean)}
+              snapshotActions={[
+                isImage && filterByAvailable(DISK_SAVEAS, SaveAsAction),
+                filterByAvailable(SNAPSHOT_DISK_RENAME, SnapshotRenameAction),
+                filterByAvailable(SNAPSHOT_DISK_REVERT, SnapshotRevertAction),
+                filterByAvailable(SNAPSHOT_DISK_DELETE, SnapshotDeleteAction),
+              ].filter(Boolean)}
+            />
+          )
+        })}
+      </Stack>
     </>
   )
 }
 
 VmStorageTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmStorageTab.displayName = 'VmStorageTab'

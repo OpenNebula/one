@@ -14,23 +14,52 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-
-import { Container, Box } from '@mui/material'
+import { useState } from 'react'
+import { Container, Stack, Chip } from '@mui/material'
 
 import { VNetworkTemplatesTable } from 'client/components/Tables'
+import VNetworkTemplateTabs from 'client/components/Tabs/VNetworkTemplate'
+import SplitPane from 'client/components/SplitPane'
+import MultipleTags from 'client/components/MultipleTags'
 
 function VNetworkTemplates() {
+  const [selectedRows, onSelectedRowsChange] = useState(() => [])
+
   return (
-    <Box
-      height={1}
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
-      <VNetworkTemplatesTable />
-    </Box>
+    <Stack height={1} py={2} overflow="auto" component={Container}>
+      <SplitPane>
+        <VNetworkTemplatesTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <Stack overflow="auto" data-cy={'detail'}>
+            {selectedRows?.length === 1 ? (
+              <VNetworkTemplateTabs id={selectedRows[0]?.values.ID} />
+            ) : (
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                alignItems="center"
+              >
+                <MultipleTags
+                  limitTags={10}
+                  tags={selectedRows?.map(
+                    ({ original, id, toggleRowSelected }) => (
+                      <Chip
+                        key={id}
+                        variant="text"
+                        label={original?.NAME ?? id}
+                        onDelete={() => toggleRowSelected(false)}
+                      />
+                    )
+                  )}
+                />
+              </Stack>
+            )}
+          </Stack>
+        )}
+      </SplitPane>
+    </Stack>
   )
 }
 

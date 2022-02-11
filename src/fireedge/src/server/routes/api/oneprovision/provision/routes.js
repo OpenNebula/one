@@ -17,71 +17,40 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
-const { PROVISION } = require('server/routes/api/oneprovision/basepath')
+} = require('../../../../utils/constants/defaults')
 
 const { GET, POST, DELETE, PUT } = httpMethod
-const basepath = `/${PROVISION}`
 const { resource, postBody } = fromData
+const basepath = '/provision'
 
-const PROVISION_CLUSTER_RESOURCE = 'provision.clusterresource'
-const PROVISION_DATASTORE_RESOURCE = 'provision.datastoreresource'
-const PROVISION_HOST_RESOURCE = 'provision.hostresource'
-const PROVISION_IMAGE_RESOURCE = 'provision.imageresource'
-const PROVISION_NETWORK_RESOURCE = 'provision.networkresource'
-const PROVISION_TEMPLATE_RESOURCE = 'provision.templateresource'
-const PROVISION_VNTEMPLATE_RESOURCE = 'provision.vntemplateresource'
 const PROVISION_LOGS = 'provision.logs'
-const PROVISION_DEFAULTS = 'provision.defauls'
+const PROVISION_DEFAULTS = 'provision.defaults'
 const PROVISION_LIST = 'provision.list'
 const PROVISION_VALIDATE = 'provision.validate'
-const PROVISION_HOST_POWEROFF = 'provision.hostpoweroff'
-const PROVISION_HOST_REBOOT = 'provision.hostreboot'
-const PROVISION_HOST_RESUME = 'provision.hostresume'
 const PROVISION_CREATE = 'provision.create'
-const PROVISION_HOST_SSH = 'provision.hostssh'
-const PROVISION_DATASTORE = 'provision.datastore'
-const PROVISION_FLOWTEMPLATE = 'provision.flowtemplate'
-const PROVISION_DELETE_HOST_RESOURCE = 'provision.deletehostresource'
-const PROVISION_DELETE_IMAGE_RESOURCE = 'provision.deleteimageresource'
-const PROVISION_DELETE_NETWORK_RESOURCE = 'provision.deletenetworkresource'
-const PROVISION_DELETE_VNTEMPLATE_RESOURCE = 'provision.deletevntemplate'
-const PROVISION_DELETE_TEMPLATE_RESOURCE = 'provision.deletetemplateresource'
-const PROVISION_DELETE_CLUSTER_RESOURCE = 'provision.deleteclusterresource'
-const PROVISION_DELETE_PROVISION = 'provision.deleteprovision'
-const PROVISION_UPDATE_CONFIGURE = 'provision.updateconfigure'
-const PROVISION_UPDATE_HOST = 'provision.updatehost'
-const PROVISION_ADD_HOST = 'provison.addhost'
-const PROVISION_ADD_IP = 'provision.addip'
+const PROVISION_DELETE = 'provision.delete'
+const PROVISION_CONFIGURE = 'provision.configure'
+// cluster, datastore, host, image, network, template, vntemplate, flowtemplate
+const PROVISION_GET_RESOURCE = 'provision.get_resource'
+const PROVISION_DELETE_RESOURCE = 'provision.delete_resource'
+// actions: poweroff, reboot, resume, update, configure, ssh
+const PROVISION_HOST_ACTION = 'provision.host_action'
+const PROVISION_HOST_CONFIGURE = 'provision.host_configure'
+const PROVISION_ADD_HOST = 'provison.add_host'
+const PROVISION_ADD_IP = 'provision.add_ip'
 
 const Actions = {
-  PROVISION_CLUSTER_RESOURCE,
-  PROVISION_DATASTORE_RESOURCE,
-  PROVISION_HOST_RESOURCE,
-  PROVISION_IMAGE_RESOURCE,
-  PROVISION_NETWORK_RESOURCE,
-  PROVISION_TEMPLATE_RESOURCE,
-  PROVISION_VNTEMPLATE_RESOURCE,
   PROVISION_LOGS,
   PROVISION_DEFAULTS,
   PROVISION_LIST,
   PROVISION_VALIDATE,
-  PROVISION_HOST_POWEROFF,
-  PROVISION_HOST_REBOOT,
-  PROVISION_HOST_RESUME,
   PROVISION_CREATE,
-  PROVISION_HOST_SSH,
-  PROVISION_DATASTORE,
-  PROVISION_FLOWTEMPLATE,
-  PROVISION_DELETE_HOST_RESOURCE,
-  PROVISION_DELETE_IMAGE_RESOURCE,
-  PROVISION_DELETE_NETWORK_RESOURCE,
-  PROVISION_DELETE_VNTEMPLATE_RESOURCE,
-  PROVISION_DELETE_TEMPLATE_RESOURCE,
-  PROVISION_DELETE_CLUSTER_RESOURCE,
-  PROVISION_DELETE_PROVISION,
-  PROVISION_UPDATE_CONFIGURE,
-  PROVISION_UPDATE_HOST,
+  PROVISION_DELETE,
+  PROVISION_CONFIGURE,
+  PROVISION_GET_RESOURCE,
+  PROVISION_DELETE_RESOURCE,
+  PROVISION_HOST_ACTION,
+  PROVISION_HOST_CONFIGURE,
   PROVISION_ADD_HOST,
   PROVISION_ADD_IP,
 }
@@ -89,76 +58,6 @@ const Actions = {
 module.exports = {
   Actions,
   Commands: {
-    [PROVISION_CLUSTER_RESOURCE]: {
-      path: `${basepath}/cluster/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DATASTORE_RESOURCE]: {
-      path: `${basepath}/datastore/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_HOST_RESOURCE]: {
-      path: `${basepath}/host/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_IMAGE_RESOURCE]: {
-      path: `${basepath}/image/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_NETWORK_RESOURCE]: {
-      path: `${basepath}/network/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_TEMPLATE_RESOURCE]: {
-      path: `${basepath}/template/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_VNTEMPLATE_RESOURCE]: {
-      path: `${basepath}/vntemplate/:resource`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-      },
-    },
     [PROVISION_LOGS]: {
       path: `${basepath}/log/:id`,
       httpMethod: GET,
@@ -194,177 +93,17 @@ module.exports = {
         },
       },
     },
-    [PROVISION_HOST_POWEROFF]: {
-      path: `${basepath}/host/poweroff/:action/:id`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        action: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_HOST_REBOOT]: {
-      path: `${basepath}/host/reboot/:action/:id`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        action: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_HOST_RESUME]: {
-      path: `${basepath}/host/resume/:action/:id`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        action: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
     [PROVISION_CREATE]: {
       path: `${basepath}`,
       httpMethod: POST,
       auth: true,
       params: {
-        resource: {
-          from: postBody,
-          all: true,
-        },
-      },
-    },
-    [PROVISION_HOST_SSH]: {
-      path: `${basepath}/host/ssh/:action/:id/:command`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        action: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-        command: {
+        data: {
           from: postBody,
         },
       },
     },
-    [PROVISION_DATASTORE]: {
-      path: `${basepath}/datastore/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_FLOWTEMPLATE]: {
-      path: `${basepath}/flowtemplate/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_HOST_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_IMAGE_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_NETWORK_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_VNTEMPLATE_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_TEMPLATE_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_CLUSTER_RESOURCE]: {
-      path: `${basepath}/:resource/:id`,
-      httpMethod: DELETE,
-      auth: true,
-      params: {
-        resource: {
-          from: resource,
-        },
-        id: {
-          from: resource,
-        },
-      },
-    },
-    [PROVISION_DELETE_PROVISION]: {
+    [PROVISION_DELETE]: {
       path: `${basepath}/:id`,
       httpMethod: DELETE,
       auth: true,
@@ -380,7 +119,7 @@ module.exports = {
         },
       },
     },
-    [PROVISION_UPDATE_CONFIGURE]: {
+    [PROVISION_CONFIGURE]: {
       path: `${basepath}/configure/:id`,
       httpMethod: PUT,
       auth: true,
@@ -390,7 +129,43 @@ module.exports = {
         },
       },
     },
-    [PROVISION_UPDATE_HOST]: {
+    [PROVISION_GET_RESOURCE]: {
+      path: `${basepath}/resource/:resource`,
+      httpMethod: GET,
+      auth: true,
+      params: {
+        resource: {
+          from: resource,
+        },
+      },
+    },
+    [PROVISION_DELETE_RESOURCE]: {
+      path: `${basepath}/resource/:resource/:id`,
+      httpMethod: DELETE,
+      auth: true,
+      params: {
+        resource: {
+          from: resource,
+        },
+        id: {
+          from: resource,
+        },
+      },
+    },
+    [PROVISION_HOST_ACTION]: {
+      path: `${basepath}/host/:action/:id`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        action: {
+          from: resource,
+        },
+        id: {
+          from: resource,
+        },
+      },
+    },
+    [PROVISION_HOST_CONFIGURE]: {
       path: `${basepath}/host/:id`,
       httpMethod: PUT,
       auth: true,

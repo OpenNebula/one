@@ -21,9 +21,11 @@ import { Redirect } from 'react-router'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useFetchAll } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
-import { useProviderApi } from 'client/features/One'
+import {
+  useGetProviderConfigQuery,
+  useLazyGetProviderConnectionQuery,
+  useLazyGetProviderQuery,
+} from 'client/features/OneApi/provider'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/Provider/CreateForm/Steps'
 import { PATH } from 'client/apps/provision/routes'
@@ -55,29 +57,28 @@ const CreateForm = ({ provider, providerConfig, connection, onSubmit }) => {
 }
 
 const PreFetchingForm = ({ providerId, onSubmit }) => {
-  const { providerConfig } = useAuth()
-  const { getProvider, getProviderConnection } = useProviderApi()
-  const { data, fetchRequestAll, error } = useFetchAll()
-  const [provider, connection] = data ?? []
+  const { data: config, error: errorConfig } = useGetProviderConfigQuery()
+
+  const [getConnection, { data: connection, error: errorConnection }] =
+    useLazyGetProviderConnectionQuery()
+  const [getProvider, { data: provider, error: errorProvider }] =
+    useLazyGetProviderQuery()
 
   useEffect(() => {
-    providerId &&
-      fetchRequestAll([
-        getProvider(providerId),
-        getProviderConnection(providerId),
-      ])
+    providerId && getProvider(providerId)
+    providerId && getConnection(providerId)
   }, [])
 
-  if (error) {
+  if (errorConfig || errorConnection || errorProvider) {
     return <Redirect to={PATH.PROVIDERS.LIST} />
   }
 
-  return providerId && !data ? (
+  return providerId && (!config || !connection || !provider) ? (
     <SkeletonStepsForm />
   ) : (
     <CreateForm
       provider={provider}
-      providerConfig={providerConfig}
+      providerConfig={config}
       connection={connection}
       onSubmit={onSubmit}
     />

@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { string, object, ObjectSchema } from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields, prettyBytes } from 'client/utils'
+import { Field, getValidationFromFields, prettyBytes } from 'client/utils'
 
 const MAX_SIZE_JSON = 102_400
 const JSON_FORMAT = 'application/json'
 const CREDENTIAL_INPUT = 'credentials'
 
+/**
+ * @param {object} config - Form configuration
+ * @param {object} config.connection - Provider connection
+ * @param {boolean} config.fileCredentials - Provider needs file with credentials
+ * @returns {Field[]} - List of fields
+ */
 export const FORM_FIELDS = ({ connection, fileCredentials }) =>
   Object.entries(connection)?.map(([name, label]) => {
     const isInputFile =
       fileCredentials && String(name).toLowerCase() === CREDENTIAL_INPUT
 
-    let validation = yup.string().trim().required().default(undefined)
+    let validation = string().trim().required().default(undefined)
 
     if (isInputFile) {
       validation = validation.isBase64()
@@ -62,5 +67,9 @@ export const FORM_FIELDS = ({ connection, fileCredentials }) =>
     }
   })
 
-export const STEP_FORM_SCHEMA = (props) =>
-  yup.object(getValidationFromFields(FORM_FIELDS(props)))
+/**
+ * @param {object} config - Form configuration
+ * @returns {ObjectSchema} - Schema
+ */
+export const STEP_FORM_SCHEMA = (config) =>
+  object(getValidationFromFields(FORM_FIELDS(config)))

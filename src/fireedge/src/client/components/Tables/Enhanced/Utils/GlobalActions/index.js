@@ -16,7 +16,7 @@
 import { JSXElementConstructor, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Stack, Checkbox } from '@mui/material'
+import { Checkbox } from '@mui/material'
 import {
   UseTableInstanceProps,
   UseRowSelectState,
@@ -24,8 +24,8 @@ import {
   UseRowSelectInstanceProps,
 } from 'react-table'
 
-import Action, {
-  ActionPropTypes,
+import {
+  Action,
   GlobalAction,
 } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
 import { Tr } from 'client/components/HOC'
@@ -37,9 +37,14 @@ import { T } from 'client/constants'
  * @param {object} props - Props
  * @param {GlobalAction[]} props.globalActions - Possible bulk actions
  * @param {UseTableInstanceProps} props.useTableProps - Table props
+ * @param {boolean} props.disableRowSelect - Rows can't select
  * @returns {JSXElementConstructor} Component JSX with all actions
  */
-const GlobalActions = ({ globalActions = [], useTableProps }) => {
+const GlobalActions = ({
+  disableRowSelect = false,
+  globalActions = [],
+  useTableProps,
+}) => {
   /** @type {UseRowSelectInstanceProps} */
   const { getToggleAllPageRowsSelectedProps, getToggleAllRowsSelectedProps } =
     useTableProps
@@ -69,18 +74,20 @@ const GlobalActions = ({ globalActions = [], useTableProps }) => {
   )
 
   return (
-    <Stack direction="row" flexWrap="wrap" alignItems="center" gap={1.5}>
-      <Checkbox
-        {...getToggleAllPageRowsSelectedProps()}
-        title={Tr(T.ToggleAllCurrentPageRowsSelected)}
-        indeterminate={getToggleAllRowsSelectedProps().indeterminate}
-        color="secondary"
-      />
-
+    <>
+      {!disableRowSelect && (
+        <Checkbox
+          {...getToggleAllPageRowsSelectedProps()}
+          title={Tr(T.ToggleAllCurrentPageRowsSelected)}
+          indeterminate={getToggleAllRowsSelectedProps().indeterminate}
+          color="secondary"
+        />
+      )}
       {actionsNoSelected?.map((item) => (
         <Action key={item.accessor} item={item} />
       ))}
-      {numberOfRowSelected > 0 &&
+      {!disableRowSelect &&
+        numberOfRowSelected > 0 &&
         actionsSelected?.map((item, idx) => {
           const { min = 1, max = Number.MAX_SAFE_INTEGER } =
             item?.selected ?? {}
@@ -92,15 +99,14 @@ const GlobalActions = ({ globalActions = [], useTableProps }) => {
 
           return <Action key={key} item={item} selectedRows={selectedRows} />
         })}
-    </Stack>
+    </>
   )
 }
 
 GlobalActions.propTypes = {
-  globalActions: PropTypes.arrayOf(ActionPropTypes),
+  globalActions: PropTypes.array,
   useTableProps: PropTypes.object,
+  disableRowSelect: PropTypes.bool,
 }
-
-export { Action, ActionPropTypes }
 
 export default GlobalActions

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean } from 'yup'
 
-import { useImage } from 'client/features/One'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { getType } from 'client/models/Image'
 import { Field, clearNames } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
@@ -47,7 +47,7 @@ export const RAMDISK_DS = {
   dependOf: RAMDISK_PATH_ENABLED.name,
   htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
   values: () => {
-    const images = useImage()
+    const { data: images = [] } = useGetImagesQuery()
 
     return images
       ?.filter((image) => getType(image) === IMAGE_TYPES_STR.RAMDISK)

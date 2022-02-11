@@ -16,9 +16,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 import { httpCodes } from 'server/utils/constants'
-import { messageTerminal } from 'server/utils/general'
-
-import { findStorageData, isDevelopment } from 'client/utils'
+import { findStorageData } from 'client/utils'
 import { T, JWT_NAME, APP_URL } from 'client/constants'
 
 const http = axios.create({ baseURL: APP_URL })
@@ -47,16 +45,6 @@ http.interceptors.response.use(
       return typeof response === 'string' ? response.data.json() : response.data
     }
 
-    if (response.status === httpCodes.unauthorized.id) {
-      const configErrorParser = {
-        color: 'red',
-        error: response?.data?.message ?? response?.statusText,
-        message: 'Error request: %s',
-      }
-
-      isDevelopment() && messageTerminal(configErrorParser)
-    }
-
     return Promise.reject(response)
   },
   (error) => error
@@ -69,3 +57,5 @@ export const RestClient = {
    */
   request: (options) => http.request(options),
 }
+
+export default http

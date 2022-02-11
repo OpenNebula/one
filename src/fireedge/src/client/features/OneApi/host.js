@@ -1,0 +1,275 @@
+/* ------------------------------------------------------------------------- *
+ * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain   *
+ * a copy of the License at                                                  *
+ *                                                                           *
+ * http://www.apache.org/licenses/LICENSE-2.0                                *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing, software       *
+ * distributed under the License is distributed on an "AS IS" BASIS,         *
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ * See the License for the specific language governing permissions and       *
+ * limitations under the License.                                            *
+ * ------------------------------------------------------------------------- */
+import { Actions, Commands } from 'server/utils/constants/commands/host'
+import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import { UpdateFromSocket } from 'client/features/OneApi/socket'
+import { Host } from 'client/constants'
+
+const { HOST } = ONE_RESOURCES
+
+const hostApi = oneApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getHosts: builder.query({
+      /**
+       * Retrieves information for all the hosts in the pool.
+       *
+       * @returns {Host[]} Get list of hosts
+       * @throws Fails when response isn't code 200
+       */
+      query: () => {
+        const name = Actions.HOST_POOL_INFO
+        const command = { name, ...Commands[name] }
+
+        return { command }
+      },
+      transformResponse: (data) => [data?.HOST_POOL?.HOST ?? []].flat(),
+      providesTags: [HOST],
+    }),
+    getHost: builder.query({
+      /**
+       * Retrieves information for the host.
+       *
+       * @param {string} id - Host id
+       * @returns {Host} Get host identified by id
+       * @throws Fails when response isn't code 200
+       */
+      query: (id) => {
+        const name = Actions.HOST_INFO
+        const command = { name, ...Commands[name] }
+
+        return { params: { id }, command }
+      },
+      transformResponse: (data) => data?.HOST ?? {},
+      providesTags: (_, __, id) => [{ type: HOST, id }],
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        try {
+          const { data: queryVm } = await queryFulfilled
+
+          dispatch(
+            hostApi.util.updateQueryData('getHosts', undefined, (draft) => {
+              const index = draft.findIndex(({ ID }) => +ID === +id)
+              index !== -1 && (draft[index] = queryVm)
+            })
+          )
+        } catch {}
+      },
+      onCacheEntryAdded: UpdateFromSocket({
+        updateQueryData: (updateFn) =>
+          hostApi.util.updateQueryData('getHosts', undefined, updateFn),
+        resource: HOST.toLowerCase(),
+      }),
+    }),
+    allocateHost: builder.mutation({
+      /**
+       * Allocates a new host in OpenNebula.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.hostname - Hostname of the machine we want to add
+       * @param {string} params.imMad
+       * - The name of the information manager (im_mad_name),
+       * this values are taken from the oned.conf with the tag name IM_MAD (name)
+       * @param {string} params.vmmMad
+       * - The name of the virtual machine manager mad name (vmm_mad_name),
+       * this values are taken from the oned.conf with the tag name VM_MAD (name)
+       * @param {string|number} [params.cluster] - The cluster ID
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_ALLOCATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: [HOST],
+    }),
+    updateHost: builder.mutation({
+      /**
+       * Replaces the host’s template contents.
+       *
+       * @param {object} params - Request params
+       * @param {number|string} params.id - Host id
+       * @param {string} params.template - The new template contents
+       * @param {0|1} params.replace
+       * - Update type:
+       * ``0``: Replace the whole template.
+       * ``1``: Merge new template with the existing one.
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_UPDATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: HOST, id }],
+    }),
+    removeHost: builder.mutation({
+      /**
+       * Deletes the given host from the pool.
+       *
+       * @param {object} params - Request params
+       * @param {number|string} params.id - Host id
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_DELETE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: [HOST],
+    }),
+    enableHost: builder.mutation({
+      /**
+       * Sets the status of the host to enabled.
+       *
+       * @param {number|string} id - Host id
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (id) => {
+        const name = Actions.HOST_STATUS
+        const command = { name, ...Commands[name] }
+
+        return { params: { id, status: 0 }, command }
+      },
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+    }),
+    disableHost: builder.mutation({
+      /**
+       * Sets the status of the host to disabled.
+       *
+       * @param {number|string} id - Host id
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (id) => {
+        const name = Actions.HOST_STATUS
+        const command = { name, ...Commands[name] }
+
+        return { params: { id, status: 1 }, command }
+      },
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+    }),
+    offlineHost: builder.mutation({
+      /**
+       * Sets the status of the host to offline.
+       *
+       * @param {number|string} id - Host id
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (id) => {
+        const name = Actions.HOST_STATUS
+        const command = { name, ...Commands[name] }
+
+        return { params: { id, status: 2 }, command }
+      },
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+    }),
+    renameHost: builder.mutation({
+      /**
+       * Renames a host.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Host id
+       * @param {string} params.name - New name
+       * @returns {number} Host id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_RENAME
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: HOST, id }],
+      async onQueryStarted({ id, name }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+
+          dispatch(
+            hostApi.util.updateQueryData('getHosts', undefined, (draft) => {
+              const host = draft.find(({ ID }) => +ID === +id)
+              host && (host.NAME = name)
+            })
+          )
+        } catch {}
+      },
+    }),
+    getHostMonitoring: builder.query({
+      /**
+       * Returns the host monitoring records.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Host id
+       * @returns {string} The monitoring information string / The error string
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_MONITORING
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+    getHostMonitoringPool: builder.query({
+      /**
+       * Returns all the host monitoring records.
+       *
+       * @param {object} params - Request parameters
+       * @param {number|'0'|'-1'} [params.seconds]
+       * - Retrieve monitor records in the last num seconds.
+       * `0`: Only the last record.
+       * `-1`: All records.
+       * @returns {string} The monitoring information string / The error string
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.HOST_POOL_MONITORING
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+  }),
+})
+
+export const {
+  // Queries
+  useGetHostQuery,
+  useLazyGetHostQuery,
+  useGetHostsQuery,
+  useLazyGetHostsQuery,
+  useGetHostMonitoringQuery,
+  useLazyGetHostMonitoringQuery,
+  useGetHostMonitoringPoolQuery,
+  useLazyGetHostMonitoringPoolQuery,
+
+  // Mutations
+  useAllocateHostMutation,
+  useUpdateHostMutation,
+  useRemoveHostMutation,
+  useEnableHostMutation,
+  useDisableHostMutation,
+  useOfflineHostMutation,
+  useRenameHostMutation,
+} = hostApi
+
+export default hostApi

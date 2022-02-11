@@ -13,40 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
-import { useVmTemplateApi } from 'client/features/One'
+import { useInstantiateTemplateMutation } from 'client/features/OneApi/vmTemplate'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { isDevelopment } from 'client/utils'
 
+/**
+ * Displays the instantiation form for a VM Template.
+ *
+ * @returns {ReactElement} Instantiation form
+ */
 function InstantiateVmTemplate() {
   const history = useHistory()
   const { state: { ID: templateId } = {} } = useLocation()
 
   const { enqueueInfo } = useGeneralApi()
-  const { instantiate } = useVmTemplateApi()
+  const [instantiate] = useInstantiateTemplateMutation()
 
   const onSubmit = async ([templateSelected, templates]) => {
     try {
       const { ID, NAME } = templateSelected
+      const templatesWithId = templates.map((t) => ({ id: ID, ...t }))
 
-      await Promise.all(templates.map((template) => instantiate(ID, template)))
+      await Promise.all(templatesWithId.map(instantiate))
 
-      history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
-      enqueueInfo(
-        `VM Template instantiated x${templates.length} - #${ID} ${NAME}`
-      )
-    } catch (err) {
-      isDevelopment() && console.error(err)
-    }
+      templateId
+        ? history.push(PATH.TEMPLATE.VMS.LIST)
+        : history.push(PATH.INSTANCE.VMS.LIST)
+
+      const total = templates.length
+      enqueueInfo(`VM Template instantiated x${total} - #${ID} ${NAME}`)
+    } catch {}
   }
 
   return (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <InstantiateForm templateId={templateId} onSubmit={onSubmit} />
     </Container>
   )

@@ -13,62 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useHost, useHostApi } from 'client/features/One'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
 
-import {
-  SkeletonTable,
-  EnhancedTable,
-  EnhancedTableProps,
-} from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'hosts'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Hosts table
+ */
 const HostsTable = (props) => {
-  const { view, getResourceView, filterPool } = useAuth()
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetHostsQuery,
+    ...rest
+  } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('HOST')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.HOST)?.filters,
         columns: HostColumns,
       }),
     [view]
   )
 
-  const hosts = useHost()
-  const { getHosts } = useHostApi()
-
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getHosts)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (hosts?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
-
   return (
     <EnhancedTable
       columns={columns}
-      data={hosts}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={HostRow}
-      {...props}
+      {...rest}
     />
   )
 }
 
-HostsTable.propTypes = EnhancedTableProps
+HostsTable.propTypes = { ...EnhancedTable.propTypes }
 HostsTable.displayName = 'HostsTable'
 
 export default HostsTable

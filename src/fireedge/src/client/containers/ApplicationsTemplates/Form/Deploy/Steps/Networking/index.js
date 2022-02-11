@@ -14,11 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useCallback } from 'react'
-
+import { useCallback } from 'react'
 import { Divider, Paper, Typography } from '@mui/material'
 
-import { useVNetworkApi, useVNetworkTemplateApi } from 'client/features/One'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
@@ -31,32 +29,28 @@ const Networks = () => ({
   label: T.ConfigureNetworking,
   resolver: STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(({ data }) => {
-    const { getVNetworks } = useVNetworkApi()
-    const { getVNetworkTemplates } = useVNetworkTemplateApi()
-
-    useEffect(() => {
-      getVNetworks()
-      getVNetworkTemplates()
-    }, [])
-
-    return data?.map(({ id, name, description }, index) => (
-      <Paper
-        key={`net-${id}`}
-        variant="outlined"
-        style={{ marginTop: 10, marginBottom: 10, padding: 10 }}
-      >
-        <Typography variant="body1">{name}</Typography>
-        {description && <Typography variant="body2">{description}</Typography>}
-        <Divider style={{ marginBottom: 8 }} />
-        <FormWithSchema
-          cy="deploy-network"
-          fields={FORM_FIELDS}
-          id={`${STEP_ID}[${index}]`}
-        />
-      </Paper>
-    ))
-  }, []),
+  content: useCallback(
+    ({ data }) =>
+      data?.map(({ id, name, description }, index) => (
+        <Paper
+          key={`net-${id}`}
+          variant="outlined"
+          sx={{ mt: 10, mb: 10, p: 10 }}
+        >
+          <Typography variant="body1">{name}</Typography>
+          {description && (
+            <Typography variant="body2">{description}</Typography>
+          )}
+          <Divider sx={{ mb: 8 }} />
+          <FormWithSchema
+            cy="deploy-network"
+            fields={FORM_FIELDS}
+            id={`${STEP_ID}[${index}]`}
+          />
+        </Paper>
+      )),
+    []
+  ),
 })
 
 export default Networks

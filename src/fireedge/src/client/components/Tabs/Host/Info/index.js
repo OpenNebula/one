@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useHostApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetHostQuery,
+  useUpdateHostMutation,
+} from 'client/features/OneApi/host'
 import { AttributePanel } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Host/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import * as Helper from 'client/models/Helper'
+import {
+  getActionsAvailable,
+  filterAttributes,
+  jsonToXml,
+} from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 const NSX_ATTRIBUTES_REG = /^NSX_/
@@ -32,7 +38,15 @@ const VCENTER_ATTRIBUTES_REG = /^VCENTER_(?!(RESOURCE_POOL)$)/
 const HIDDEN_ATTRIBUTES_REG =
   /^(HOST|VM|WILDS|ZOMBIES|RESERVED_CPU|RESERVED_MEM|EC2_ACCESS|EC2_SECRET|CAPACITY|REGION_NAME)$/
 
-const HostInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Host id
+ * @returns {ReactElement} Information tab
+ */
+const HostInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     vcenter_panel: vcenterPanel,
@@ -40,35 +54,28 @@ const HostInfoTab = ({ tabProps = {} }) => {
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { rename, updateUserTemplate } = useHostApi()
-  const { handleRefetch, data: host = {} } = useContext(TabContext)
-  const { ID, TEMPLATE } = host
-
-  const handleRename = async (newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
+  const [updateUserTemplate] = useUpdateHostMutation()
+  const { data: host = {} } = useGetHostQuery(id)
+  const { TEMPLATE } = host
 
   const handleAttributeInXml = async (path, newValue) => {
     const newTemplate = cloneObject(TEMPLATE)
-
     set(newTemplate, path, newValue)
 
-    const xml = Helper.jsonToXml(newTemplate)
-
-    // 0: Replace the whole template
-    const response = await updateUserTemplate(ID, xml, 0)
-
-    String(response) === String(ID) && (await handleRefetch?.())
+    const xml = jsonToXml(newTemplate)
+    await updateUserTemplate({ id, template: xml, replace: 0 })
   }
 
-  const getActions = (actions) => Helper.getActionsAvailable(actions)
+  const getActions = useCallback(
+    (actions) => getActionsAvailable(actions),
+    [getActionsAvailable]
+  )
 
   const {
     attributes,
     nsx: nsxAttributes,
     vcenter: vcenterAttributes,
-  } = Helper.filterAttributes(TEMPLATE, {
+  } = filterAttributes(TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
       nsx: NSX_ATTRIBUTES_REG,
@@ -83,18 +90,15 @@ const HostInfoTab = ({ tabProps = {} }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
           host={host}
         />
       )}
@@ -122,12 +126,13 @@ const HostInfoTab = ({ tabProps = {} }) => {
           title={`NSX ${Tr(T.Information)}`}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 HostInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 HostInfoTab.displayName = 'HostInfoTab'

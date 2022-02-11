@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
-import { useAuth } from 'client/features/Auth'
+import { useGetProviderConfigQuery } from 'client/features/OneApi/provider'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 
@@ -39,7 +39,7 @@ let fileCredentials = false
 
 const Content = ({ isUpdate }) => {
   const [fields, setFields] = useState([])
-  const { providerConfig } = useAuth()
+  const { data: providerConfig } = useGetProviderConfigQuery()
   const { watch } = useFormContext()
 
   useEffect(() => {

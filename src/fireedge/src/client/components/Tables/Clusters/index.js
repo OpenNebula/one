@@ -13,46 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useCluster, useClusterApi } from 'client/features/One'
+import { useGetClustersQuery } from 'client/features/OneApi/cluster'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'clusters'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Clusters table
+ */
 const ClustersTable = (props) => {
-  const columns = useMemo(() => ClusterColumns, [])
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const clusters = useCluster()
-  const { getClusters } = useClusterApi()
-  const { filterPool } = useAuth()
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetClustersQuery()
 
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getClusters)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (clusters?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.CLUSTER)?.filters,
+        columns: ClusterColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={clusters}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={ClusterRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+ClustersTable.propTypes = { ...EnhancedTable.propTypes }
+ClustersTable.displayName = 'ClustersTable'
 
 export default ClustersTable

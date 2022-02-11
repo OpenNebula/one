@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useMarketplaceAppApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetMarketplaceAppQuery,
+  useChangeAppOwnershipMutation,
+  useChangeAppPermissionsMutation,
+  useUpdateAppMutation,
+} from 'client/features/OneApi/marketplaceApp'
 import {
   Permissions,
   Ownership,
@@ -27,17 +31,25 @@ import {
 import Information from 'client/components/Tabs/MarketplaceApp/Info/information'
 
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 import {
   getActionsAvailable,
   filterAttributes,
   jsonToXml,
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
-import { T } from 'client/constants'
 
 const HIDDEN_ATTRIBUTES_REG = /^(VMTEMPLATE64|APPTEMPLATE64)$/
 
-const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Marketplace App id
+ * @returns {ReactElement} Information tab
+ */
+const MarketplaceAppInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -45,58 +57,48 @@ const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { rename, changeOwnership, changePermissions, updateTemplate } =
-    useMarketplaceAppApi()
-  const { handleRefetch, data: marketplaceApp = {} } = useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = marketplaceApp
+  const [changeOwnership] = useChangeAppOwnershipMutation()
+  const [changePermissions] = useChangeAppPermissionsMutation()
+  const [updateTemplate] = useUpdateAppMutation()
+  const { data: app = {} } = useGetMarketplaceAppQuery(id)
+  const { UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = app
 
   const handleChangeOwnership = async (newOwnership) => {
-    const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && (await handleRefetch?.())
+    await changeOwnership({ id, ...newOwnership })
   }
 
   const handleChangePermission = async (newPermission) => {
-    const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleRename = async (_, newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
+    await changePermissions({ id, ...newPermission })
   }
 
   const handleAttributeInXml = async (path, newValue) => {
     const newTemplate = cloneObject(TEMPLATE)
-
     set(newTemplate, path, newValue)
 
     const xml = jsonToXml(newTemplate)
-
-    // 0: Replace the whole template
-    const response = await updateTemplate(ID, xml, 0)
-    String(response) === String(ID) && (await handleRefetch?.())
+    await updateTemplate({ id, template: xml, replace: 0 })
   }
 
-  const getActions = (actions) => getActionsAvailable(actions)
+  const getActions = useCallback(
+    (actions) => getActionsAvailable(actions),
+    [getActionsAvailable]
+  )
 
   const { attributes } = filterAttributes(TEMPLATE, {
     hidden: HIDDEN_ATTRIBUTES_REG,
   })
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
         <Information
+          app={app}
           actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
-          marketplaceApp={marketplaceApp}
         />
       )}
       {permissionsPanel?.enabled && (
@@ -134,12 +136,13 @@ const MarketplaceAppInfoTab = ({ tabProps = {} }) => {
           handleDelete={handleAttributeInXml}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 MarketplaceAppInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 MarketplaceAppInfoTab.displayName = 'MarketplaceAppInfoTab'

@@ -13,57 +13,59 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmTemplateApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetTemplateQuery,
+  useChangeTemplatePermissionsMutation,
+  useChangeTemplateOwnershipMutation,
+} from 'client/features/OneApi/vmTemplate'
 import { Permissions, Ownership } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/VmTemplate/Info/information'
 import * as Helper from 'client/models/Helper'
 
-const VmTemplateInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Template id
+ * @returns {ReactElement} Information tab
+ */
+const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
   } = tabProps
 
-  const { rename, changeOwnership, changePermissions } = useVmTemplateApi()
-  const { handleRefetch, data: template = {} } = useContext(TabContext)
+  const [changeOwnership] = useChangeTemplatePermissionsMutation()
+  const [changePermissions] = useChangeTemplateOwnershipMutation()
+  const { data: template = {} } = useGetTemplateQuery({ id })
   const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = template
 
   const handleChangeOwnership = async (newOwnership) => {
-    const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && (await handleRefetch?.())
+    await changeOwnership({ id: ID, ...newOwnership })
   }
 
   const handleChangePermission = async (newPermission) => {
-    const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleRename = async (_, newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
+    await changePermissions({ id: ID, ...newPermission })
   }
 
   const getActions = (actions) => Helper.getActionsAvailable(actions)
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
         <Information
           actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
           template={template}
         />
       )}
@@ -92,12 +94,13 @@ const VmTemplateInfoTab = ({ tabProps = {} }) => {
           handleEdit={handleChangeOwnership}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 VmTemplateInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmTemplateInfoTab.displayName = 'VmTemplateInfoTab'

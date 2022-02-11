@@ -25,6 +25,7 @@ const MARKET_UPDATE = 'market.update'
 const MARKET_CHMOD = 'market.chmod'
 const MARKET_CHOWN = 'market.chown'
 const MARKET_RENAME = 'market.rename'
+const MARKET_ENABLE = 'market.enable'
 const MARKET_INFO = 'market.info'
 const MARKET_POOL_INFO = 'marketpool.info'
 
@@ -35,6 +36,7 @@ const Actions = {
   MARKET_CHMOD,
   MARKET_CHOWN,
   MARKET_RENAME,
+  MARKET_ENABLE,
   MARKET_INFO,
   MARKET_POOL_INFO,
 }
@@ -155,6 +157,20 @@ module.exports = {
         name: {
           from: postBody,
           default: '',
+        },
+      },
+    },
+    [MARKET_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        enable: {
+          from: postBody,
+          default: true,
         },
       },
     },

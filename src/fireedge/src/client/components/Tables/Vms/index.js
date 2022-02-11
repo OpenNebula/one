@@ -13,85 +13,74 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useVm, useVmApi } from 'client/features/One'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
 
-import {
-  SkeletonTable,
-  EnhancedTable,
-  EnhancedTableProps,
-} from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const INITIAL_ELEMENT = 0
-const INTERVAL_ON_FIRST_RENDER = 2_000
+// const INITIAL_ELEMENT = 0
+// const INTERVAL_ON_FIRST_RENDER = 2_000
 
+// const INITIAL_ARGS = {
+// start: INITIAL_ELEMENT,
+// end: -INTERVAL_ON_FIRST_RENDER,
+// state: -1,
+// }
+
+const DEFAULT_DATA_CY = 'vms'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual Machines table
+ */
 const VmsTable = (props) => {
-  const vms = useVm()
-  const { getVms } = useVmApi()
-  const { view, getResourceView, filterPool } = useAuth()
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  // const [args, setArgs] = useState(() => INITIAL_ARGS)
+  const { data = [], isFetching, refetch } = useGetVmsQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('VM')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.VM)?.filters,
         columns: VmColumns,
       }),
     [view]
   )
 
-  const { status, data, fetchRequest, loading, reloading, error, STATUS } =
-    useFetch(getVms)
-  const { INIT, PENDING, FETCHED } = STATUS
+  /* useEffect(() => {
+    const lastVmId = data[INTERVAL_ON_FIRST_RENDER - 1]?.ID
+    const end = isSuccess ? lastVmId : -INTERVAL_ON_FIRST_RENDER
 
-  useEffect(() => {
-    const requests = {
-      [INIT]: () =>
-        fetchRequest({
-          start: INITIAL_ELEMENT,
-          end: -INTERVAL_ON_FIRST_RENDER,
-          state: -1, // Any state, except DONE
-        }),
-      [FETCHED]: () => {
-        const canFetchMore =
-          !error && data?.vms?.length === INTERVAL_ON_FIRST_RENDER
-
-        // fetch the rest of VMs, from 0 to last VM ID fetched
-        canFetchMore &&
-          fetchRequest({
-            start: INITIAL_ELEMENT,
-            end: data?.vms[INTERVAL_ON_FIRST_RENDER - 1]?.ID,
-            state: -1, // Any state, except DONE
-          })
-      },
+    if (isSuccess && data?.length === INTERVAL_ON_FIRST_RENDER) {
+      setArgs({ start: INITIAL_ELEMENT, end, state: -1 })
     }
-
-    requests[status]?.()
-  }, [filterPool, status, data])
-
-  if (vms?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  }, [isSuccess]) */
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vms}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VmRow}
-      {...props}
+      {...rest}
     />
   )
 }
 
-VmsTable.propTypes = EnhancedTableProps
+VmsTable.propTypes = { ...EnhancedTable.propTypes }
 VmsTable.displayName = 'VmsTable'
 
 export default VmsTable

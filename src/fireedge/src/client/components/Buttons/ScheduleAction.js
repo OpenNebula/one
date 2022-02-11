@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { Trash, Edit, ClockOutline } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
   CreateCharterForm,
@@ -28,9 +28,13 @@ import {
 } from 'client/components/Forms/Vm'
 
 import { Tr, Translate } from 'client/components/HOC'
-import { ScheduledAction } from 'client/models/Scheduler'
 import { sentenceCase } from 'client/utils'
-import { T, VM_ACTIONS, VM_ACTIONS_IN_CHARTER } from 'client/constants'
+import {
+  T,
+  VM_ACTIONS,
+  VM_ACTIONS_IN_CHARTER,
+  ScheduleAction,
+} from 'client/constants'
 
 /**
  * Returns a button to trigger form to create a scheduled action.
@@ -53,7 +57,7 @@ const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
       {
         name: T.PunctualAction,
         dialogProps: {
-          title: T.ScheduledAction,
+          title: T.ScheduleAction,
           dataCy: 'modal-sched-actions',
         },
         form: () =>
@@ -71,7 +75,7 @@ const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
  *
  * @param {object} props - Props
  * @param {object} props.vm - Vm resource
- * @param {ScheduledAction} props.schedule - Schedule action
+ * @param {ScheduleAction} props.schedule - Schedule action
  * @param {boolean} [props.relative] - Applies to the form relative format
  * @param {function():Promise} props.onSubmit - Submit function
  * @returns {ReactElement} Button
@@ -91,10 +95,7 @@ const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
         {
           dialogProps: {
             title: (
-              <Translate
-                word={T.UpdateScheduledAction}
-                values={[titleAction]}
-              />
+              <Translate word={T.UpdateScheduleAction} values={[titleAction]} />
             ),
             dataCy: 'modal-sched-actions',
           },
@@ -113,7 +114,7 @@ const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
  * Returns a button to trigger modal to delete a scheduled action.
  *
  * @param {object} props - Props
- * @param {ScheduledAction} props.schedule - Schedule action
+ * @param {ScheduleAction} props.schedule - Schedule action
  * @param {function():Promise} props.onSubmit - Submit function
  * @returns {ReactElement} Button
  */
@@ -156,7 +157,7 @@ const DeleteSchedButton = memo(({ onSubmit, schedule }) => {
  * @returns {ReactElement} Button
  */
 const CharterButton = memo(({ relative, onSubmit }) => {
-  const { config } = useAuth()
+  const { data: config } = useGetSunstoneConfigQuery()
 
   const leases = useMemo(
     () =>
@@ -164,7 +165,7 @@ const CharterButton = memo(({ relative, onSubmit }) => {
       Object.entries(config?.leases ?? {}).filter(([action]) =>
         VM_ACTIONS_IN_CHARTER.includes(action)
       ),
-    [config.leases]
+    [config?.leases]
   )
 
   return (
@@ -178,7 +179,7 @@ const CharterButton = memo(({ relative, onSubmit }) => {
       options={[
         {
           dialogProps: {
-            title: T.ScheduledAction,
+            title: T.ScheduleAction,
             dataCy: 'modal-sched-actions',
           },
           form: () =>

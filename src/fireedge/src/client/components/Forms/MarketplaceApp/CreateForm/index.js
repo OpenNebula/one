@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useMemo, JSXElementConstructor } from 'react'
+import { useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useDatastoreApi } from 'client/features/One'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/MarketplaceApp/CreateForm/Steps'
 
@@ -32,7 +31,6 @@ import Steps from 'client/components/Forms/MarketplaceApp/CreateForm/Steps'
  * @returns {JSXElementConstructor} Form component
  */
 const CreateForm = ({ initialValues, onSubmit }) => {
-  const { getDatastores } = useDatastoreApi()
   const stepsForm = useMemo(() => Steps(initialValues, initialValues), [])
   const { steps, defaultValues, resolver, transformBeforeSubmit } = stepsForm
 
@@ -41,10 +39,6 @@ const CreateForm = ({ initialValues, onSubmit }) => {
     defaultValues,
     resolver: yupResolver(resolver?.()),
   })
-
-  useEffect(() => {
-    getDatastores()
-  }, [])
 
   return (
     <FormProvider {...methods}>

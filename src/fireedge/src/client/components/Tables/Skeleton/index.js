@@ -39,7 +39,7 @@ const SkeletonTable = memo(() => {
   const rowClasses = rowStyles()
 
   const SkeletonRow = () => (
-    <Card style={{ padding: '1em' }}>
+    <Card sx={{ p: '1em' }}>
       <div className={rowClasses.main}>
         <div className={rowClasses.title}>
           <Skeleton width={'40%'} height={30} />
@@ -67,18 +67,10 @@ const SkeletonTable = memo(() => {
       </div>
       <div className={classes.table}>
         {isMobile ? (
-          <Skeleton
-            variant="rectangular"
-            height={40}
-            style={{ marginBottom: '1em' }}
-          />
+          <Skeleton variant="rectangular" height={40} sx={{ mb: '1em' }} />
         ) : (
-          <Card variant="outlined" style={{ padding: '1em' }}>
-            <Skeleton
-              variant="rectangular"
-              height={40}
-              style={{ marginBottom: '1em' }}
-            />
+          <Card variant="outlined" sx={{ p: '1em' }}>
+            <Skeleton variant="rectangular" height={40} sx={{ mb: '1em' }} />
             <div>
               <SkeletonCategory />
               <SkeletonCategory numberOfItems={3} />

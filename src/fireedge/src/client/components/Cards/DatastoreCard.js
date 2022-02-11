@@ -13,106 +13,90 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { Folder as DatastoreIcon } from 'iconoir-react'
+import { User, Group, Lock, Cloud, Server } from 'iconoir-react'
 
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import {
-  StatusBadge,
+  StatusCircle,
   StatusChip,
   LinearProgressWithLabel,
 } from 'client/components/Status'
 
-import * as DatastoreModel from 'client/models/Datastore'
-
-const useStyles = makeStyles({
-  title: {
-    display: 'flex',
-    gap: '0.5rem',
-  },
-  content: {
-    padding: '2em',
-    display: 'flex',
-    flexFlow: 'column',
-    gap: '1em',
-  },
-})
+import { getState, getType, getCapacityInfo } from 'client/models/Datastore'
+import { rowStyles } from 'client/components/Tables/styles'
+import { Datastore } from 'client/constants'
 
 const DatastoreCard = memo(
-  ({ value, isSelected, handleClick, actions }) => {
-    const classes = useStyles()
+  /**
+   * @param {object} props - Props
+   * @param {Datastore} props.datastore - Datastore resource
+   * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} props.actions - Actions
+   * @returns {ReactElement} - Card
+   */
+  ({ datastore, rootProps, actions }) => {
+    const classes = rowStyles()
 
-    const { ID, NAME } = value
+    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = datastore
 
-    const type = DatastoreModel.getType(value)
-    const state = DatastoreModel.getState(value)
-
-    const { percentOfUsed, percentLabel } =
-      DatastoreModel.getCapacityInfo(value)
+    const type = getType(datastore)
+    const { color: stateColor, name: stateName } = getState(datastore)
+    const { percentOfUsed, percentLabel } = getCapacityInfo(datastore)
+    const totalClusters = [CLUSTERS?.ID ?? []].flat().join(',')
 
     return (
-      <SelectCard
-        action={actions?.map((action) => (
-          <Action key={action?.cy} {...action} />
-        ))}
-        icon={
-          <StatusBadge stateColor={state.color}>
-            <DatastoreIcon />
-          </StatusBadge>
-        }
-        title={
-          <span className={classes.title}>
-            <Typography title={NAME} noWrap component="span">
-              {NAME}
-            </Typography>
-            <StatusChip text={type} />
-          </span>
-        }
-        subheader={`#${ID}`}
-        isSelected={isSelected}
-        handleClick={handleClick}
-      >
-        <div className={classes.content}>
+      <div {...rootProps} data-cy={`datastore-${ID}`}>
+        <div>
+          <StatusCircle color={stateColor} tooltip={stateName} />
+        </div>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography component="span">{NAME}</Typography>
+            <span className={classes.labels}>
+              {LOCK && <Lock />}
+              <StatusChip text={type} />
+            </span>
+          </div>
+          <div className={classes.caption}>
+            <span>{`#${ID}`}</span>
+            <span title={`Owner: ${UNAME}`}>
+              <User />
+              <span>{` ${UNAME}`}</span>
+            </span>
+            <span title={`Group: ${GNAME}`}>
+              <Group />
+              <span>{` ${GNAME}`}</span>
+            </span>
+            {PROVISION_ID && (
+              <span title={`Provision ID: #${PROVISION_ID}`}>
+                <Cloud />
+                <span>{` ${PROVISION_ID}`}</span>
+              </span>
+            )}
+            <span title={`Cluster IDs: ${totalClusters}`}>
+              <Server />
+              <span>{` ${totalClusters}`}</span>
+            </span>
+          </div>
+        </div>
+        <div className={classes.secondary}>
           <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
         </div>
-      </SelectCard>
+        {actions && <div className={classes.actions}>{actions}</div>}
+      </div>
     )
-  },
-  (prev, next) =>
-    prev.isSelected === next.isSelected &&
-    prev.value?.STATE === next.value?.STATE
+  }
 )
 
 DatastoreCard.propTypes = {
-  value: PropTypes.shape({
-    ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired,
-    TYPE: PropTypes.string,
-    STATE: PropTypes.string,
-    TOTAL_MB: PropTypes.string,
-    FREE_MB: PropTypes.string,
-    USED_MB: PropTypes.string,
+  datastore: PropTypes.object,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
   }),
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.node.isRequired,
-      cy: PropTypes.string,
-    })
-  ),
-}
-
-DatastoreCard.defaultProps = {
-  value: {},
-  isSelected: false,
-  handleClick: undefined,
-  actions: undefined,
+  actions: PropTypes.any,
 }
 
 DatastoreCard.displayName = 'DatastoreCard'

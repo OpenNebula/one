@@ -13,53 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useClusterApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetClusterQuery,
+  useUpdateClusterMutation,
+} from 'client/features/OneApi/cluster'
 import { AttributePanel } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Cluster/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import * as Helper from 'client/models/Helper'
+import {
+  jsonToXml,
+  getActionsAvailable,
+  filterAttributes,
+} from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 const HIDDEN_ATTRIBUTES_REG = /^(HOST|RESERVED_CPU|RESERVED_MEM)$/
 
-const ClusterInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Cluster id
+ * @returns {ReactElement} Information tab
+ */
+const ClusterInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { rename, update } = useClusterApi()
-  const { handleRefetch, data: cluster = {} } = useContext(TabContext)
-  const { ID, TEMPLATE } = cluster
-
-  const handleRename = async (newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
+  const [update] = useUpdateClusterMutation()
+  const { data: cluster } = useGetClusterQuery({ id })
+  const { TEMPLATE } = cluster
 
   const handleAttributeInXml = async (path, newValue) => {
     const newTemplate = cloneObject(TEMPLATE)
-
     set(newTemplate, path, newValue)
 
-    const xml = Helper.jsonToXml(newTemplate)
-
-    // 0: Replace the whole template
-    const response = await update(ID, xml, 0)
-
-    String(response) === String(ID) && (await handleRefetch?.())
+    const xml = jsonToXml(newTemplate)
+    await update({ id, template: xml, replace: 0 })
   }
 
-  const getActions = (actions) => Helper.getActionsAvailable(actions)
+  const getActions = useCallback(
+    (actions) => getActionsAvailable(actions),
+    [getActionsAvailable]
+  )
 
-  const { attributes } = Helper.filterAttributes(TEMPLATE, {
+  const { attributes } = filterAttributes(TEMPLATE, {
     hidden: HIDDEN_ATTRIBUTES_REG,
   })
 
@@ -70,19 +77,16 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
         <Information
-          actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
           cluster={cluster}
+          actions={getActions(informationPanel?.actions)}
         />
       )}
       {attributesPanel?.enabled && (
@@ -93,12 +97,13 @@ const ClusterInfoTab = ({ tabProps = {} }) => {
           title={Tr(T.Attributes)}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 ClusterInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 ClusterInfoTab.displayName = 'ClusterInfoTab'

@@ -13,86 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
+import hostApi from 'client/features/OneApi/host'
+import { HostCard } from 'client/components/Cards'
 
-import { Server, ModernTv } from 'iconoir-react'
-import { Typography } from '@mui/material'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = hostApi.endpoints.getHosts.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((host) => +host.ID === +original.ID),
+    })
 
-import {
-  StatusCircle,
-  LinearProgressWithLabel,
-  StatusChip,
-} from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-import { Tr } from 'client/components/HOC'
-
-import * as HostModel from 'client/models/Host'
-import { T } from 'client/constants'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const {
-    ID,
-    NAME,
-    IM_MAD,
-    VM_MAD,
-    RUNNING_VMS,
-    TOTAL_VMS,
-    CLUSTER,
-    TEMPLATE,
-  } = value
-
-  const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
-    HostModel.getAllocatedInfo(value)
-
-  const { color: stateColor, name: stateName } = HostModel.getState(original)
-
-  const labels = [...new Set([IM_MAD, VM_MAD])]
-
-  return (
-    <div {...props} data-cy={`host-${ID}`}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography noWrap component="span">
-            {TEMPLATE?.NAME ?? NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {labels.map((label) => (
-              <StatusChip key={label} text={label} />
-            ))}
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Cluster: ${CLUSTER}`}>
-            <Server />
-            <span>{` ${CLUSTER}`}</span>
-          </span>
-          <span title={`Running VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
-            <ModernTv />
-            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
-          </span>
-        </div>
-      </div>
-      <div className={classes.secondary}>
-        <LinearProgressWithLabel
-          value={percentCpuUsed}
-          label={percentCpuLabel}
-          title={`${Tr(T.AllocatedCpu)}`}
-        />
-        <LinearProgressWithLabel
-          value={percentMemUsed}
-          label={percentMemLabel}
-          title={`${Tr(T.AllocatedMemory)}`}
-        />
-      </div>
-    </div>
-  )
-}
+    return <HostCard host={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
@@ -100,5 +36,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
 }
+
+Row.displayName = 'HostRow'
 
 export default Row

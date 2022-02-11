@@ -17,32 +17,27 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router-dom'
 
-import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 const Ownership = memo(
   ({ actions, groupId, groupName, handleEdit, userId, userName }) => {
-    const { getUsers } = useUserApi()
-    const { getGroups } = useGroupApi()
+    const { data: users = [] } = useGetUsersQuery()
+    const { data: groups = [] } = useGetGroupsQuery()
 
-    const getUserOptions = async () => {
-      const response = await getUsers()
-
-      return response?.[RESOURCES.user]
+    const getUserOptions = () =>
+      users
         ?.filter?.(({ ID } = {}) => ID !== SERVERADMIN_ID)
         ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID }))
-    }
 
-    const getGroupOptions = async () => {
-      const response = await getGroups()
-
-      return response?.[RESOURCES.group]?.map?.(({ ID, NAME } = {}) => ({
+    const getGroupOptions = () =>
+      groups?.map?.(({ ID, NAME } = {}) => ({
         text: NAME,
         value: ID,
       }))
-    }
 
     const ownership = [
       {

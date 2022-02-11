@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, string, array, ObjectSchema } from 'yup'
 
-import { useDatastore } from 'client/features/One'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import { getDeployMode } from 'client/models/Datastore'
 import { T, INPUT_TYPES } from 'client/constants'
 import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
@@ -28,8 +28,8 @@ const TM_MAD_SYSTEM = {
   tooltip: T.DeployModeConcept,
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const datastores = useDatastore()
-    const modes = datastores?.map(getDeployMode)?.flat()
+    const { data: datastores = [] } = useGetDatastoresQuery()
+    const modes = datastores.map(getDeployMode)?.flat()
 
     return arrayToOptions([...new Set(modes)], { addEmpty: 'Default' })
   },

@@ -27,7 +27,7 @@ import {
 import { Cancel } from 'iconoir-react'
 import { UseFiltersInstanceProps } from 'react-table'
 
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 /**
@@ -96,10 +96,9 @@ const CategoryFilter = ({
         <ListSubheader
           disableSticky
           disableGutters
-          title={Tr(title)}
-          style={{ display: 'flex', alignItems: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center' }}
         >
-          {Tr(title)}
+          <Translate word={title} />
           {isFiltered && (
             <Tooltip title={<Translate word={T.Clear} />}>
               <IconButton disableRipple size="small" onClick={handleClear}>

@@ -13,24 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
+import { useRenameClusterMutation } from 'client/features/OneApi/cluster'
 import { List } from 'client/components/Tabs/Common'
+import { T, Cluster, CLUSTER_ACTIONS } from 'client/constants'
 
-import { T, CLUSTER_ACTIONS } from 'client/constants'
-
-const InformationPanel = ({ cluster = {}, handleRename, actions }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {Cluster} props.cluster - Cluster resource
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ cluster = {}, actions }) => {
+  const [renameCluster] = useRenameClusterMutation()
   const { ID, NAME, TEMPLATE } = cluster
   const { RESERVED_MEM, RESERVED_CPU } = TEMPLATE
 
+  const handleRename = async (_, newName) => {
+    await renameCluster({ id: ID, name: newName })
+  }
+
   const info = [
-    { name: T.ID, value: ID },
+    { name: T.ID, value: ID, dataCy: 'id' },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(CLUSTER_ACTIONS.RENAME),
       handleEdit: handleRename,
+      dataCy: 'name',
     },
   ]
 
@@ -41,18 +55,21 @@ const InformationPanel = ({ cluster = {}, handleRename, actions }) => {
 
   return (
     <>
-      <List title={T.Information} list={info} />
+      <List
+        title={T.Information}
+        list={info}
+        containerProps={{ style: { gridRow: 'span 3' } }}
+      />
       <List title={T.Overcommitment} list={overcommitment} />
     </>
   )
 }
 
-InformationPanel.displayName = 'InformationPanel'
-
 InformationPanel.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.string),
-  handleRename: PropTypes.func,
   cluster: PropTypes.object,
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
+
+InformationPanel.displayName = 'InformationPanel'
 
 export default InformationPanel

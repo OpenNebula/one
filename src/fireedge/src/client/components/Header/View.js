@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, memo, JSXElementConstructor } from 'react'
+import { useMemo, memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@mui/material'
@@ -70,7 +70,7 @@ ButtonView.displayName = 'ButtonView'
  *
  * These views are defined in yaml config.
  *
- * @returns {JSXElementConstructor} Returns interface views list
+ * @returns {ReactElement} Returns interface views list
  */
 const View = () => {
   const { view: currentView, views = {} } = useAuth()

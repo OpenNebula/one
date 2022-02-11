@@ -64,7 +64,7 @@ const ResponseForm = ({
         color="textPrimary"
         component="h2"
         variant="h2"
-        style={{ padding: '16px 0' }}
+        sx={{ p: '16px 0' }}
       >
         {name || 'Request'}
       </Typography>

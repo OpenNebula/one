@@ -22,17 +22,15 @@ import {
 } from 'react'
 import PropTypes from 'prop-types'
 
-import { sprintf } from 'sprintf-js'
 import { BaseSchema } from 'yup'
 import { useFormContext } from 'react-hook-form'
-import { DevTool } from '@hookform/devtools'
 import { useMediaQuery } from '@mui/material'
 
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
-import { groupBy, Step, isDevelopment } from 'client/utils'
+import { groupBy, Step } from 'client/utils'
 import { T } from 'client/constants'
 
 const FIRST_STEP = 0
@@ -50,7 +48,6 @@ const FIRST_STEP = 0
 const FormStepper = ({ steps = [], schema, onSubmit }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
   const {
-    control,
     watch,
     reset,
     formState: { errors },
@@ -82,28 +79,17 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
     return { id, data: stepData, ...step }
   }
 
-  const setErrors = ({ inner = [], ...rest } = {}) => {
+  const setErrors = ({ inner = [], message = { word: 'Error' } } = {}) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
 
-    totalErrors > 0
-      ? setError(stepId, {
-          type: 'manual',
-          message: [T.ErrorsOcurred, totalErrors],
-        })
-      : setError(stepId, rest)
+    const translationError =
+      totalErrors > 0 ? [T.ErrorsOcurred, totalErrors] : Object.values(message)
 
-    inner?.forEach(({ path, type, errors: message }) => {
-      if (isDevelopment()) {
-        // the package @hookform/devtools requires message as string
-        const [key, ...values] = [message].flat()
-        setError(`${stepId}.${path}`, {
-          type,
-          message: sprintf(key, ...values),
-        })
-      } else {
-        setError(`${stepId}.${path}`, { type, message })
-      }
+    setError(stepId, { type: 'manual', message: translationError })
+
+    inner?.forEach(({ path, type, errors: innerMessage }) => {
+      setError(`${stepId}.${path}`, { type, message: innerMessage })
     })
   }
 
@@ -202,8 +188,6 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
       )}
       {/* FORM CONTENT */}
       {Content && <Content data={formData[stepId]} setFormData={setFormData} />}
-
-      {isDevelopment() && <DevTool control={control} placement="top-left" />}
     </>
   )
 }

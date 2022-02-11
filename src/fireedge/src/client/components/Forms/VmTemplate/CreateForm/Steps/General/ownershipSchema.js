@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { useGroup, useUser } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { T, INPUT_TYPES } from 'client/constants'
 import { Field } from 'client/utils'
 
@@ -25,7 +26,7 @@ export const UID_FIELD = {
   label: T.InstantiateAsUser,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const users = useUser()
+    const { data: users = [] } = useGetUsersQuery()
 
     return users
       .map(({ ID: value, NAME: text }) => ({ text, value }))
@@ -41,7 +42,7 @@ export const GID_FIELD = {
   label: T.InstantiateAsGroup,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const groups = useGroup()
+    const { data: groups = [] } = useGetGroupsQuery()
 
     return groups
       .map(({ ID: value, NAME: text }) => ({ text, value }))
