@@ -712,7 +712,7 @@ module VCenterDriver
 
                 # Only take care of VMs, not templates
                 if !hashed_properties['config.template']
-                    vms[r.obj._ref + "_" + vc_uuid] = hashed_properties
+                    vms[r.obj._ref + '_' + vc_uuid] = hashed_properties
                     vm_objects << r.obj
                 end
             end
