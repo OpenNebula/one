@@ -76,76 +76,75 @@ const ResponseForm = ({
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
       >
-        {memoParams?.map(([paramName, { default: defaultValue }]) => {
-          const { message: errorMessage } = formState.errors[paramName] ?? {}
-
-          return (
-            <Grid item xs={12} key={`param-${paramName}`}>
-              <Controller
-                render={({ value, onChange, ...controllerProps }) =>
-                  ({
-                    boolean: (
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            color="primary"
-                            onChange={(e) => onChange(e.target.checked)}
-                          />
-                        }
-                        label={paramName}
-                        labelPlacement="end"
-                      />
-                    ),
-                    object: (
-                      <Autocomplete
-                        fullWidth
-                        multiple
-                        color="secondary"
-                        freeSolo
-                        options={[]}
-                        onChange={(_, newValue) => onChange(newValue ?? '')}
-                        renderTags={(tags, getTagProps) =>
-                          tags.map((tag, index) => (
-                            <Chip
-                              key={`${index}-${tag}`}
-                              variant="outlined"
-                              label={tag}
-                              {...getTagProps({ index })}
-                            />
-                          ))
-                        }
-                        renderInput={(inputProps) => (
-                          <TextField
-                            {...inputProps}
-                            fullWidth
-                            label={paramName}
-                            color="secondary"
-                            error={Boolean(errorMessage)}
-                            helperText={errorMessage}
-                          />
-                        )}
-                      />
-                    ),
-                  }[typeof defaultValue] ?? (
-                    <TextField
-                      error={Boolean(errorMessage)}
-                      helperText={errorMessage}
-                      fullWidth
-                      value={value ?? ''}
+        {memoParams?.map(([paramName, { default: defaultValue }]) => (
+          <Grid item xs={12} key={`param-${paramName}`}>
+            <Controller
+              render={({
+                field: { value = '', onChange, ...controllerProps },
+                fieldState: { error },
+              }) =>
+                ({
+                  boolean: (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          onChange={(e) => onChange(e.target.checked)}
+                        />
+                      }
                       label={paramName}
-                      color="secondary"
-                      onChange={onChange}
-                      {...controllerProps}
+                      labelPlacement="end"
                     />
-                  ))
-                }
-                control={control}
-                name={`${paramName}`}
-                defaultValue={defaultValue}
-              />
-            </Grid>
-          )
-        })}
+                  ),
+                  object: (
+                    <Autocomplete
+                      fullWidth
+                      multiple
+                      color="secondary"
+                      freeSolo
+                      options={[]}
+                      onChange={(_, newValue) => onChange(newValue ?? '')}
+                      renderTags={(tags, getTagProps) =>
+                        tags.map((tag, index) => (
+                          <Chip
+                            key={`${index}-${tag}`}
+                            variant="outlined"
+                            label={tag}
+                            {...getTagProps({ index })}
+                          />
+                        ))
+                      }
+                      renderInput={(inputProps) => (
+                        <TextField
+                          {...inputProps}
+                          fullWidth
+                          label={paramName}
+                          color="secondary"
+                          error={Boolean(error?.message)}
+                          helperText={error?.message}
+                        />
+                      )}
+                    />
+                  ),
+                }[typeof defaultValue] ?? (
+                  <TextField
+                    error={Boolean(error?.message)}
+                    helperText={error?.message}
+                    fullWidth
+                    value={value ?? ''}
+                    label={paramName}
+                    color="secondary"
+                    onChange={onChange}
+                    {...controllerProps}
+                  />
+                ))
+              }
+              control={control}
+              name={`${paramName}`}
+              defaultValue={defaultValue}
+            />
+          </Grid>
+        ))}
         <Grid item xs={12}>
           <SubmitButton
             color="secondary"
