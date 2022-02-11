@@ -103,6 +103,7 @@ end
 
         def initialize(vi_client, ref, one_id)
             if ref
+                ref = VCenterDriver::VIHelper.get_deploy_id(ref)
                 @item = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref)
                 check_item(@item, RbVmomi::VIM::VirtualMachine)
             end
