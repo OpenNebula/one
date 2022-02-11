@@ -133,7 +133,7 @@ begin
         vm.poweron(set_running)
     end
 
-    puts vm['_ref'] + "_" + vc_uuid
+    puts vm['_ref'] + '_' + vc_uuid
 rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"" \
