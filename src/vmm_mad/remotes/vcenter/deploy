@@ -75,6 +75,7 @@ deploy[:boot] = drv_action['TEMPLATE/OS/BOOT'] \
 begin
     retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty? &&
@@ -132,7 +133,7 @@ begin
         vm.poweron(set_running)
     end
 
-    puts vm['_ref']
+    puts vm['_ref'] + "_" + vc_uuid
 rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"" \
