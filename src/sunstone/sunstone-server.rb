@@ -224,7 +224,7 @@ when 'memcache-dalli'
     use Rack::Session::Dalli,
       :memcache_server => memcache_server,
       :namespace => $conf[:memcache_namespace],
-      :cache => Dalli::Client.new
+      :cache => Dalli::Client.new(memcache_server, {:namespace => $conf[:memcache_namespace]})
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
