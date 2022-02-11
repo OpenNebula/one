@@ -14,23 +14,52 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-
-import { Container, Box } from '@mui/material'
+import { useState } from 'react'
+import { Container, Stack, Chip } from '@mui/material'
 
 import { GroupsTable } from 'client/components/Tables'
+import GroupTabs from 'client/components/Tabs/Group'
+import SplitPane from 'client/components/SplitPane'
+import MultipleTags from 'client/components/MultipleTags'
 
 function Groups() {
+  const [selectedRows, onSelectedRowsChange] = useState(() => [])
+
   return (
-    <Box
-      height={1}
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
-      <GroupsTable />
-    </Box>
+    <Stack height={1} py={2} overflow="auto" component={Container}>
+      <SplitPane>
+        <GroupsTable onSelectedRowsChange={onSelectedRowsChange} />
+
+        {selectedRows?.length > 0 && (
+          <Stack overflow="auto" data-cy={'detail'}>
+            {selectedRows?.length === 1 ? (
+              <GroupTabs id={selectedRows[0]?.values.ID} />
+            ) : (
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                alignItems="center"
+              >
+                <MultipleTags
+                  limitTags={10}
+                  tags={selectedRows?.map(
+                    ({ original, id, toggleRowSelected }) => (
+                      <Chip
+                        key={id}
+                        variant="text"
+                        label={original?.NAME ?? id}
+                        onDelete={() => toggleRowSelected(false)}
+                      />
+                    )
+                  )}
+                />
+              </Stack>
+            )}
+          </Stack>
+        )}
+      </SplitPane>
+    </Stack>
   )
 }
 

@@ -13,76 +13,34 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
+import vmTemplateApi from 'client/features/OneApi/vmTemplate'
+import { VmTemplateCard } from 'client/components/Cards'
 
-import { User, Group, Lock } from 'iconoir-react'
-import { Typography } from '@mui/material'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = vmTemplateApi.endpoints.getTemplates.useQueryState(
+      undefined,
+      {
+        selectFromResult: ({ data = [] }) =>
+          data.find((template) => +template.ID === +original.ID),
+      }
+    )
 
-import { StatusChip } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-import Image from 'client/components/Image'
-
-import * as Helper from 'client/models/Helper'
-import { isExternalURL } from 'client/utils'
-import { LOGO_IMAGES_URL } from 'client/constants'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, REGTIME, LOCK, VROUTER, LOGO = '' } = value
-
-  const [logoSource] = useMemo(() => {
-    const external = isExternalURL(LOGO)
-    const cleanLogoAttribute = String(LOGO).split('/').at(-1)
-    const src = external ? LOGO : `${LOGO_IMAGES_URL}/${cleanLogoAttribute}`
-
-    return [src, external]
-  }, [LOGO])
-
-  const time = Helper.timeFromMilliseconds(+REGTIME)
-  const timeAgo = `registered ${time.toRelative()}`
-
-  return (
-    <div {...props} data-cy={`template-${ID}`}>
-      <div className={classes.figure}>
-        <Image
-          alt="logo"
-          src={logoSource}
-          imgProps={{ className: classes.image }}
-        />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-            {VROUTER && <StatusChip text={VROUTER} />}
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span title={time.toFormat('ff')} className="full-width">
-            {`#${ID} ${timeAgo}`}
-          </span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
+    return <VmTemplateCard template={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
+  className: PropTypes.string,
   handleClick: PropTypes.func,
 }
+
+Row.displayName = 'VmTemplateRow'
 
 export default Row

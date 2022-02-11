@@ -14,14 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 import { LinearProgress } from '@mui/material'
 
-import { useFetch } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
-import { useProviderApi } from 'client/features/One'
+import { useLazyGetProviderQuery } from 'client/features/OneApi/provider'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 import { T } from 'client/constants'
@@ -43,12 +42,11 @@ const Inputs = () => ({
   label: T.ConfigureInputs,
   resolver: () => STEP_FORM_SCHEMA(inputs),
   optionsValidate: { abortEarly: false },
-  content: useCallback(() => {
+  content: () => {
     const [fields, setFields] = useState(undefined)
-    const { changeLoading } = useGeneralApi()
-    const { getProvider } = useProviderApi()
-    const { data: fetchData, fetchRequest } = useFetch(getProvider)
     const { watch, reset } = useFormContext()
+    const { changeLoading } = useGeneralApi()
+    const [getProvider, { data: fetchData }] = useLazyGetProviderQuery()
 
     useEffect(() => {
       const { [PROVIDER_ID]: providerSelected = [], [STEP_ID]: currentInputs } =
@@ -56,7 +54,7 @@ const Inputs = () => ({
 
       if (!currentInputs) {
         changeLoading(true) // disable finish button until provider is fetched
-        fetchRequest(providerSelected[0]?.ID)
+        getProvider(providerSelected[0]?.ID)
       } else {
         setFields(FORM_FIELDS(inputs))
       }
@@ -92,7 +90,7 @@ const Inputs = () => ({
     ) : (
       <FormWithSchema cy="form-provision" fields={fields} id={STEP_ID} />
     )
-  }, []),
+  },
 })
 
 export default Inputs

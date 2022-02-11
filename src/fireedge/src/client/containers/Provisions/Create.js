@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState, memo } from 'react'
+import { useState, memo } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
@@ -26,14 +26,14 @@ import {
 } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-import { useFetch, useSocket } from 'client/hooks'
+import { useSocket } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
-import { useProviderApi, useProvisionApi } from 'client/features/One'
+import { useCreateProvisionMutation } from 'client/features/OneApi/provision'
+import { useGetProvidersQuery } from 'client/features/OneApi/provider'
 import DebugLog from 'client/components/DebugLog'
 import { CreateForm } from 'client/components/Forms/Provision'
 import { PATH } from 'client/apps/provision/routes'
 import { Translate } from 'client/components/HOC'
-import { isDevelopment } from 'client/utils'
 import { T } from 'client/constants'
 
 const useStyles = makeStyles({
@@ -55,24 +55,17 @@ function ProvisionCreateForm() {
 
   const { getProvisionSocket: socket } = useSocket()
   const { enqueueInfo } = useGeneralApi()
-  const { createProvision } = useProvisionApi()
-  const { getProviders } = useProviderApi()
-  const { data, fetchRequest, loading, error } = useFetch(getProviders)
+  const [createProvision] = useCreateProvisionMutation()
+  const { data, isLoading, error } = useGetProvidersQuery()
 
   const onSubmit = async (formData) => {
     try {
-      const response = await createProvision(formData)
+      const response = await createProvision({ data: formData }).unwrap()
       enqueueInfo('Creating provision')
 
       response && setUuid(response)
-    } catch (err) {
-      isDevelopment() && console.error(err)
-    }
+    } catch {}
   }
-
-  useEffect(() => {
-    fetchRequest()
-  }, [])
 
   if (uuid) {
     return <DebugLog {...{ uuid, socket, title: <Title /> }} />
@@ -82,7 +75,7 @@ function ProvisionCreateForm() {
     return <Redirect to={PATH.PROVISIONS.LIST} />
   }
 
-  return !data || loading ? (
+  return !data || isLoading ? (
     <LinearProgress color="secondary" />
   ) : (
     <Container className={classes.container} disableGutters>

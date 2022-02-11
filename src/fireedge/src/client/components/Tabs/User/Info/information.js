@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { List } from 'client/components/Tabs/Common'
 
-import * as Helper from 'client/models/Helper'
-import { T } from 'client/constants'
+import { stringToBoolean, booleanToString } from 'client/models/Helper'
+import { T, User } from 'client/constants'
 
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {User} props.user - User
+ * @returns {ReactElement} Information tab
+ */
 const InformationPanel = ({ user = {} }) => {
   const { ID, NAME, ENABLED } = user
-  const isEnabled = Helper.stringToBoolean(ENABLED)
+  const isEnabled = stringToBoolean(ENABLED)
 
   const info = [
     { name: T.ID, value: ID },
     { name: T.Name, value: NAME },
-    {
-      name: T.State,
-      value: Helper.booleanToString(isEnabled),
-    },
+    { name: T.State, value: booleanToString(isEnabled) },
   ]
 
   return <List title={T.Information} list={info} />
@@ -40,6 +44,7 @@ const InformationPanel = ({ user = {} }) => {
 InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
   user: PropTypes.object,
 }
 

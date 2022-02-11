@@ -13,71 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
+import api from 'client/features/OneApi/datastore'
+import { DatastoreCard } from 'client/components/Cards'
 
-import { User, Group, Lock, Cloud, Server } from 'iconoir-react'
-import { Typography } from '@mui/material'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = api.endpoints.getDatastores.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((datastore) => +datastore.ID === +original.ID),
+    })
 
-import {
-  StatusCircle,
-  LinearProgressWithLabel,
-  StatusChip,
-} from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-
-import * as DatastoreModel from 'client/models/Datastore'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, TYPE, CLUSTERS, LOCK, PROVISION_ID } = value
-
-  const { percentOfUsed, percentLabel } = DatastoreModel.getCapacityInfo(value)
-
-  const { color: stateColor, name: stateName } =
-    DatastoreModel.getState(original)
-
-  return (
-    <div {...props} data-cy={`datastore-${ID}`}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-            <StatusChip text={TYPE} />
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-          {PROVISION_ID && (
-            <span title={`Provision ID: #${PROVISION_ID}`}>
-              <Cloud />
-              <span>{` ${PROVISION_ID}`}</span>
-            </span>
-          )}
-          <span title={`Cluster IDs: ${CLUSTERS.join(',')}`}>
-            <Server />
-            <span>{` ${CLUSTERS.join(',')}`}</span>
-          </span>
-        </div>
-      </div>
-      <div className={classes.secondary}>
-        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
-      </div>
-    </div>
-  )
-}
+    return <DatastoreCard datastore={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
@@ -85,5 +36,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
 }
+
+Row.displayName = 'DatastoreRow'
 
 export default Row

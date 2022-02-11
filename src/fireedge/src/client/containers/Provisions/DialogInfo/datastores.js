@@ -13,60 +13,74 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash as DeleteIcon } from 'iconoir-react'
 
-import { useFetchAll } from 'client/hooks'
-import { useDatastoreApi, useProvisionApi } from 'client/features/One'
+import {
+  useGetProvisionQuery,
+  useGetResourceQuery,
+  useRemoveResourceMutation,
+} from 'client/features/OneApi/provision'
 import { useGeneralApi } from 'client/features/General'
-import { ListCards } from 'client/components/List'
+
+import { DatastoresTable } from 'client/components/Tables'
 import { DatastoreCard } from 'client/components/Cards'
+import { SubmitButton } from 'client/components/FormControl'
 
 const Datastores = memo(
-  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const { datastores = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
-
+  ({ id }) => {
     const { enqueueSuccess } = useGeneralApi()
-    const { deleteDatastore } = useProvisionApi()
-    const { getDatastore } = useDatastoreApi()
 
-    const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchDatastores = () =>
-      fetchRequestAll(datastores?.map(({ id }) => getDatastore(id)))
+    const [removeResource, { isLoading: loadingRemove }] =
+      useRemoveResourceMutation()
+    const { data } = useGetProvisionQuery(id)
 
-    useEffect(() => {
-      !hidden && !list && fetchDatastores()
-    }, [hidden])
-
-    useEffect(() => {
-      !reloading && !loading && fetchDatastores()
-    }, [reloading])
+    const provisionDatastores =
+      data?.TEMPLATE?.BODY?.provision?.infrastructure?.datastores?.map(
+        (datastore) => +datastore.id
+      ) ?? []
 
     return (
-      <ListCards
-        list={list}
-        isLoading={!list && loading}
-        CardComponent={DatastoreCard}
-        cardsProps={({ value: { ID } }) =>
-          !disableAllActions && {
-            actions: [
-              {
-                handleClick: () =>
-                  deleteDatastore(ID)
-                    .then(refetchProvision)
-                    .then(() =>
-                      enqueueSuccess(`Datastore deleted - ID: ${ID}`)
-                    ),
-                icon: <DeleteIcon color="error" />,
-                cy: `provision-datastore-delete-${ID}`,
-              },
-            ],
-          }
+      <DatastoresTable
+        onlyGlobalSearch
+        disableRowSelect
+        disableGlobalSort
+        useQuery={() =>
+          useGetResourceQuery(
+            { resource: 'datastore' },
+            {
+              selectFromResult: ({ data: result = [], ...rest }) => ({
+                data: result?.filter((datastore) =>
+                  provisionDatastores.includes(+datastore.ID)
+                ),
+                ...rest,
+              }),
+            }
+          )
         }
-        displayEmpty
-        breakpoints={{ xs: 12, md: 6 }}
+        RowComponent={({ original: datastore, handleClick: _, ...props }) => (
+          <DatastoreCard
+            datastore={datastore}
+            rootProps={props}
+            actions={
+              <SubmitButton
+                data-cy={`provision-datastore-delete-${datastore.ID}`}
+                icon={<DeleteIcon />}
+                isSubmitting={loadingRemove}
+                onClick={async () => {
+                  removeResource({
+                    provision: id,
+                    id: datastore.ID,
+                    resource: 'datastore',
+                  })
+                  enqueueSuccess(`Datastore deleted - ID: ${datastore.ID}`)
+                }}
+              />
+            }
+          />
+        )}
       />
     )
   },
@@ -74,22 +88,7 @@ const Datastores = memo(
     prev.hidden === next.hidden && prev.reloading === next.reloading
 )
 
-Datastores.propTypes = {
-  data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool,
-  refetchProvision: PropTypes.func,
-  reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool,
-}
-
-Datastores.defaultProps = {
-  data: {},
-  hidden: false,
-  refetchProvision: () => undefined,
-  reloading: false,
-  disableAllActions: false,
-}
-
+Datastores.propTypes = { id: PropTypes.string.isRequired }
 Datastores.displayName = 'Datastores'
 
 export default Datastores

@@ -15,12 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { string, object, ObjectSchema } from 'yup'
 
-import { ARGS_TYPES, getRequiredArgsByAction } from 'client/models/Scheduler'
+import { getRequiredArgsByAction } from 'client/models/Scheduler'
 import { Field, getObjectSchemaFromFields } from 'client/utils'
 import {
   PUNCTUAL_FIELDS,
   RELATIVE_FIELDS,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
+import { ARGS_TYPES } from 'client/constants'
 
 const { ACTION_FIELD } = PUNCTUAL_FIELDS
 

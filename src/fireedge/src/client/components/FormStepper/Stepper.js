@@ -112,7 +112,7 @@ const CustomStepper = ({
               StepIconComponent={StepIconStyled}
               error={Boolean(errors[id]?.message)}
             >
-              {labelCanBeTranslated(label) ? <Translate word={label} /> : label}
+              {labelCanBeTranslated(label) ? Tr(label) : label}
             </StepLabel>
           </StepButton>
         </Step>

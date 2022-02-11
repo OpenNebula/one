@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useEffect, useMemo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
@@ -44,8 +43,6 @@ const GlobalSort = ({ useTableProps }) => {
   /** @type {UseSortByState} */
   const { sortBy } = state
 
-  useEffect(() => () => setSortBy([]), [])
-
   const headersNotSorted = useMemo(
     () =>
       headers.filter(
@@ -66,7 +63,9 @@ const GlobalSort = ({ useTableProps }) => {
     setSortBy(sortBy.map((sort) => (sort.id === id ? { ...sort, desc } : sort)))
   }
 
-  return (
+  useEffect(() => () => setSortBy([]), [])
+
+  return !headersNotSorted.length && !sortBy.length ? null : (
     <Stack direction="row" gap="0.5em" flexWrap="wrap">
       {useMemo(
         () => (

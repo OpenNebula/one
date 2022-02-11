@@ -139,7 +139,7 @@ const Policies = () => ({
           <Fab
             color="primary"
             onClick={handleCreate}
-            style={{ position: 'absolute', zIndex: 1, bottom: 12, right: 28 }}
+            sx={{ position: 'absolute', zIndex: 1, bottom: 12, right: 28 }}
           >
             <PlusIcon />
           </Fab>

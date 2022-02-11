@@ -20,12 +20,9 @@ import PropTypes from 'prop-types'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useFetch } from 'client/hooks'
-import {
-  useUserApi,
-  useVmGroupApi,
-  useVmTemplateApi,
-} from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { useLazyGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 import FormStepper, { SkeletonStepsForm } from 'client/components/FormStepper'
 import Steps from 'client/components/Forms/VmTemplate/InstantiateForm/Steps'
 
@@ -53,17 +50,12 @@ const InstantiateForm = ({ template, onSubmit }) => {
 }
 
 const PreFetchingForm = ({ templateId, onSubmit }) => {
-  const { getUsers } = useUserApi()
-  const { getVmGroups } = useVmGroupApi()
-  const { getVmTemplate } = useVmTemplateApi()
-  const { fetchRequest, data } = useFetch(() =>
-    getVmTemplate(templateId, { extended: true })
-  )
+  useGetUsersQuery()
+  useGetGroupsQuery()
+  const [getTemplate, { data }] = useLazyGetTemplateQuery()
 
   useEffect(() => {
-    templateId && fetchRequest()
-    getUsers()
-    getVmGroups()
+    templateId && getTemplate({ id: templateId, extended: true })
   }, [])
 
   return templateId && !data ? (

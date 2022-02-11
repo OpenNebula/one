@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 
 import { styled, Link, Typography } from '@mui/material'
 
-import { useFetch } from 'client/hooks'
-import { useSystem, useSystemApi } from 'client/features/One'
+import { useGetOneVersionQuery } from 'client/features/OneApi/system'
 import { StatusChip } from 'client/components/Status'
 import { BY } from 'client/constants'
 
@@ -44,13 +43,7 @@ const HeartIcon = styled('span')(({ theme }) => ({
 }))
 
 const Footer = memo(() => {
-  const { version } = useSystem()
-  const { getOneVersion } = useSystemApi()
-  const { fetchRequest } = useFetch(getOneVersion)
-
-  useEffect(() => {
-    !version && fetchRequest()
-  }, [])
+  const { data: version } = useGetOneVersionQuery()
 
   return (
     <FooterBox>

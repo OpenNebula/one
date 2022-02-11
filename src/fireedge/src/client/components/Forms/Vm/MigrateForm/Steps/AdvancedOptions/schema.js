@@ -35,7 +35,7 @@ const DATASTORE = {
   name: 'datastore',
   label: 'Select the new datastore',
   type: INPUT_TYPES.TABLE,
-  Table: DatastoresTable,
+  Table: () => DatastoresTable,
   validation: string()
     .trim()
     .notRequired()

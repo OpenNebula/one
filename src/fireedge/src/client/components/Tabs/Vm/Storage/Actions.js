@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo, useContext } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -26,24 +25,72 @@ import {
   Expand,
 } from 'iconoir-react'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useAttachDiskMutation,
+  useDetachDiskMutation,
+  useSaveAsDiskMutation,
+  useResizeDiskMutation,
+  useCreateDiskSnapshotMutation,
+  useRenameDiskSnapshotMutation,
+  useRevertDiskSnapshotMutation,
+  useDeleteDiskSnapshotMutation,
+} from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
+  ImageSteps,
+  VolatileSteps,
   SaveAsDiskForm,
   CreateDiskSnapshotForm,
   ResizeDiskForm,
 } from 'client/components/Forms/Vm'
 
+import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const DetachAction = memo(({ disk, name: imageName }) => {
-  const { DISK_ID } = disk
-  const { detachDisk } = useVmApi()
-  const { data: vm } = useContext(TabContext)
+const AttachAction = memo(({ vmId, hypervisor }) => {
+  const [attachDisk] = useAttachDiskMutation()
 
-  const handleDetach = async () => await detachDisk(vm.ID, DISK_ID)
+  const handleAttachDisk = async (formData) => {
+    const template = jsonToXml({ DISK: formData })
+    await attachDisk({ id: vmId, template })
+  }
+
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        color: 'secondary',
+        'data-cy': 'attach-disk',
+        label: T.AttachDisk,
+        variant: 'outlined',
+      }}
+      options={[
+        {
+          cy: 'attach-image',
+          name: T.Image,
+          dialogProps: { title: T.AttachImage },
+          form: () => ImageSteps({ hypervisor }),
+          onSubmit: handleAttachDisk,
+        },
+        {
+          cy: 'attach-volatile',
+          name: T.Volatile,
+          dialogProps: { title: T.AttachVolatile },
+          form: () => VolatileSteps({ hypervisor }),
+          onSubmit: handleAttachDisk,
+        },
+      ]}
+    />
+  )
+})
+
+const DetachAction = memo(({ vmId, disk, name: imageName }) => {
+  const [detachDisk] = useDetachDiskMutation()
+  const { DISK_ID } = disk
+
+  const handleDetach = async () => {
+    await detachDisk({ id: vmId, disk: DISK_ID })
+  }
 
   return (
     <ButtonToTriggerForm
@@ -71,18 +118,18 @@ const DetachAction = memo(({ disk, name: imageName }) => {
   )
 })
 
-const SaveAsAction = memo(({ disk, snapshot, name: imageName }) => {
+const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName }) => {
+  const [saveAsDisk] = useSaveAsDiskMutation()
   const { DISK_ID: diskId } = disk
   const { ID: snapshotId, NAME: snapshotName } = snapshot ?? {}
 
-  const { saveAsDisk } = useVmApi()
-  const { handleRefetch, data: vm } = useContext(TabContext)
-
   const handleSaveAs = async ({ NAME } = {}) => {
-    const data = { disk: diskId, name: NAME, snapshot: snapshotId }
-    const response = await saveAsDisk(vm.ID, data)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
+    await saveAsDisk({
+      id: vmId,
+      disk: diskId,
+      name: NAME,
+      snapshot: snapshotId,
+    })
   }
 
   return (
@@ -116,14 +163,12 @@ const SaveAsAction = memo(({ disk, snapshot, name: imageName }) => {
   )
 })
 
-const ResizeAction = memo(({ disk, name: imageName }) => {
+const ResizeAction = memo(({ vmId, disk, name: imageName }) => {
+  const [resizeDisk] = useResizeDiskMutation()
   const { DISK_ID } = disk
-  const { resizeDisk } = useVmApi()
-  const { data: vm } = useContext(TabContext)
 
   const handleResize = async ({ SIZE } = {}) => {
-    const data = { disk: DISK_ID, size: SIZE }
-    await resizeDisk(vm.ID, data)
+    await resizeDisk({ id: vmId, disk: DISK_ID, size: SIZE })
   }
 
   return (
@@ -151,14 +196,12 @@ const ResizeAction = memo(({ disk, name: imageName }) => {
   )
 })
 
-const SnapshotCreateAction = memo(({ disk, name: imageName }) => {
+const SnapshotCreateAction = memo(({ vmId, disk, name: imageName }) => {
+  const [createDiskSnapshot] = useCreateDiskSnapshotMutation()
   const { DISK_ID } = disk
-  const { createDiskSnapshot } = useVmApi()
-  const { data: vm } = useContext(TabContext)
 
   const handleSnapshotCreate = async ({ NAME } = {}) => {
-    const data = { disk: DISK_ID, name: NAME }
-    await createDiskSnapshot(vm.ID, data)
+    await createDiskSnapshot({ id: vmId, disk: DISK_ID, name: NAME })
   }
 
   return (
@@ -186,17 +229,18 @@ const SnapshotCreateAction = memo(({ disk, name: imageName }) => {
   )
 })
 
-const SnapshotRenameAction = memo(({ disk, snapshot }) => {
+const SnapshotRenameAction = memo(({ vmId, disk, snapshot }) => {
+  const [renameDiskSnapshot] = useRenameDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = '' } = snapshot
-  const { renameDiskSnapshot } = useVmApi()
-  const { handleRefetch, data: vm } = useContext(TabContext)
 
   const handleRename = async ({ NAME: newName } = {}) => {
-    const data = { disk: DISK_ID, snapshot: ID, name: newName }
-    const response = await renameDiskSnapshot(vm.ID, data)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
+    await renameDiskSnapshot({
+      id: vmId,
+      disk: DISK_ID,
+      snapshot: ID,
+      name: newName,
+    })
   }
 
   return (
@@ -222,15 +266,13 @@ const SnapshotRenameAction = memo(({ disk, snapshot }) => {
   )
 })
 
-const SnapshotRevertAction = memo(({ disk, snapshot }) => {
+const SnapshotRevertAction = memo(({ vmId, disk, snapshot }) => {
+  const [revertDiskSnapshot] = useRevertDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = T.Snapshot } = snapshot
-  const { revertDiskSnapshot } = useVmApi()
-  const { data: vm } = useContext(TabContext)
 
   const handleRevert = async () => {
-    const data = { disk: DISK_ID, snapshot: ID }
-    await revertDiskSnapshot(vm.ID, data)
+    await revertDiskSnapshot({ id: vmId, disk: DISK_ID, snapshot: ID })
   }
 
   return (
@@ -256,15 +298,13 @@ const SnapshotRevertAction = memo(({ disk, snapshot }) => {
   )
 })
 
-const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
+const SnapshotDeleteAction = memo(({ vmId, disk, snapshot }) => {
+  const [deleteDiskSnapshot] = useDeleteDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = T.Snapshot } = snapshot
-  const { deleteDiskSnapshot } = useVmApi()
-  const { data: vm } = useContext(TabContext)
 
   const handleDelete = async () => {
-    const data = { disk: DISK_ID, snapshot: ID }
-    await deleteDiskSnapshot(vm.ID, data)
+    await deleteDiskSnapshot({ id: vmId, disk: DISK_ID, snapshot: ID })
   }
 
   return (
@@ -291,11 +331,15 @@ const SnapshotDeleteAction = memo(({ disk, snapshot }) => {
 })
 
 const ActionPropTypes = {
+  vmId: PropTypes.string.isRequired,
+  hypervisor: PropTypes.string,
   disk: PropTypes.object,
   snapshot: PropTypes.object,
   name: PropTypes.string,
 }
 
+AttachAction.propTypes = ActionPropTypes
+AttachAction.displayName = 'AttachActionButton'
 DetachAction.propTypes = ActionPropTypes
 DetachAction.displayName = 'DetachActionButton'
 SaveAsAction.propTypes = ActionPropTypes
@@ -312,6 +356,7 @@ SnapshotDeleteAction.propTypes = ActionPropTypes
 SnapshotDeleteAction.displayName = 'SnapshotDeleteActionButton'
 
 export {
+  AttachAction,
   DetachAction,
   SaveAsAction,
   ResizeAction,

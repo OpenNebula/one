@@ -54,7 +54,6 @@
     "@babel/preset-react": "7.16.0",
     "@emotion/react": "11.6.0",
     "@emotion/styled": "11.6.0",
-    "@hookform/devtools": "4.0.1",
     "@hookform/resolvers": "2.8.2",
     "@loadable/babel-plugin": "5.13.2",
     "@loadable/component": "5.15.0",

@@ -17,6 +17,7 @@ import { DateTime } from 'luxon'
 import { j2xParser as Parser, J2xOptions } from 'fast-xml-parser'
 
 import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
+import { camelCase } from 'client/utils'
 
 /**
  * @param {object} json - JSON
@@ -214,6 +215,35 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
       return !!enabled && !notOn?.includes?.(hypervisor)
     })
     .map(([actionName, _]) => actionName)
+
+/**
+ * Returns the resource info tabs.
+ *
+ * @param {object} infoTabs - Info tabs from view yaml
+ * @param {Function} getTabComponent - Function to get tab component
+ * @param {string} id - Resource id
+ * @returns {{
+ * id: string,
+ * name: string,
+ * renderContent: Function
+ * }[]} - List of available info tabs for the resource
+ */
+export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
+  Object.entries(infoTabs)
+    ?.filter(([_, { enabled } = {}]) => !!enabled)
+    ?.map(([tabName, tabProps]) => {
+      const camelName = camelCase(tabName)
+      const TabContent = getTabComponent?.(camelName)
+
+      return (
+        TabContent && {
+          name: camelName,
+          id: tabName,
+          renderContent: () => <TabContent tabProps={tabProps} id={id} />,
+        }
+      )
+    })
+    ?.filter(Boolean)
 
 /**
  *

@@ -13,120 +13,113 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useState } from 'react'
+import { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash as DeleteIcon, AddCircledOutline } from 'iconoir-react'
 import { Stack, TextField } from '@mui/material'
 
-import { useFetch, useFetchAll } from 'client/hooks'
-import { useVNetworkApi, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import { SubmitButton } from 'client/components/FormControl'
-import { ListCards } from 'client/components/List'
+import {
+  useGetProvisionQuery,
+  useAddIpToProvisionMutation,
+  useRemoveResourceMutation,
+  useGetResourceQuery,
+} from 'client/features/OneApi/provision'
+
+import { VNetworksTable } from 'client/components/Tables'
 import { NetworkCard } from 'client/components/Cards'
+import { SubmitButton } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Networks = memo(
-  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const [amount, setAmount] = useState(() => 1)
-    const { networks = [] } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Networks = memo(({ id }) => {
+  const [amount, setAmount] = useState(() => 1)
+  const { enqueueSuccess } = useGeneralApi()
 
-    const { enqueueSuccess } = useGeneralApi()
-    const { deleteVNetwork, addIp } = useProvisionApi()
-    const { getVNetwork } = useVNetworkApi()
+  const [addIp, { isLoading: loadingAddIp }] = useAddIpToProvisionMutation()
+  const [removeResource, { isLoading: loadingRemove }] =
+    useRemoveResourceMutation()
+  const { data = {} } = useGetProvisionQuery(id)
 
-    const { fetchRequest, loading: loadingAddIp } = useFetch(
-      async (payload) => {
-        await addIp(data?.ID, payload)
-        await refetchProvision()
-        enqueueSuccess(`IP added ${amount}x`)
-      }
-    )
+  const provisionNetworks =
+    data?.TEMPLATE?.BODY?.provision?.infrastructure?.networks?.map(
+      (network) => +network.id
+    ) ?? []
 
-    const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchVNetworks = () =>
-      fetchRequestAll(networks?.map(({ id }) => getVNetwork(id)))
-
-    useEffect(() => {
-      !hidden && !list && fetchVNetworks()
-    }, [hidden])
-
-    useEffect(() => {
-      !reloading && !loading && fetchVNetworks()
-    }, [reloading])
-
-    return (
-      <>
-        <Stack direction="row" mb="0.5em">
-          <TextField
-            type="number"
-            inputProps={{ 'data-cy': 'amount' }}
-            onChange={(event) => {
-              const newAmount = event.target.value
-              ;+newAmount > 0 && setAmount(newAmount)
-            }}
-            value={amount}
-          />
-          <Stack alignSelf="center">
-            <SubmitButton
-              data-cy="add-ip"
-              color="secondary"
-              endicon={<AddCircledOutline />}
-              label={<Translate word={T.AddIP} />}
-              sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
-              isSubmitting={loadingAddIp}
-              onClick={() => fetchRequest(amount)}
-            />
-          </Stack>
-        </Stack>
-        <ListCards
-          list={list}
-          isLoading={!list && loading}
-          CardComponent={NetworkCard}
-          cardsProps={({ value: { ID } }) =>
-            !disableAllActions && {
-              actions: [
-                {
-                  handleClick: () =>
-                    deleteVNetwork(ID)
-                      .then(refetchProvision)
-                      .then(() =>
-                        enqueueSuccess(`VNetwork deleted - ID: ${ID}`)
-                      ),
-                  icon: <DeleteIcon color="error" />,
-                  cy: `provision-vnet-delete-${ID}`,
-                },
-              ],
-            }
-          }
-          displayEmpty
-          breakpoints={{ xs: 12, md: 6 }}
+  return (
+    <>
+      <Stack direction="row" mb="0.5em">
+        <TextField
+          type="number"
+          inputProps={{ 'data-cy': 'amount' }}
+          onChange={(event) => {
+            const newAmount = event.target.value
+            ;+newAmount > 0 && setAmount(newAmount)
+          }}
+          value={amount}
         />
-      </>
-    )
-  },
-  (prev, next) =>
-    prev.hidden === next.hidden && prev.reloading === next.reloading
-)
+        <Stack alignSelf="center">
+          <SubmitButton
+            data-cy="add-ip"
+            color="secondary"
+            endicon={<AddCircledOutline />}
+            label={<Translate word={T.AddIP} />}
+            sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
+            isSubmitting={loadingAddIp}
+            onClick={async () => {
+              await addIp({ id, amount })
+              enqueueSuccess(`IP added ${amount}x`)
+            }}
+          />
+        </Stack>
+      </Stack>
+      <VNetworksTable
+        onlyGlobalSearch
+        disableRowSelect
+        disableGlobalSort
+        useQuery={() =>
+          useGetResourceQuery(
+            { resource: 'network' },
+            {
+              selectFromResult: ({ data: result = [], ...rest }) => ({
+                data: result?.filter((vnet) =>
+                  provisionNetworks.includes(+vnet.ID)
+                ),
+                ...rest,
+              }),
+            }
+          )
+        }
+        RowComponent={({ original: vnet, handleClick: _, ...props }) => (
+          <NetworkCard
+            network={vnet}
+            rootProps={props}
+            actions={
+              <>
+                <SubmitButton
+                  data-cy={`provision-vnet-delete-${vnet.ID}`}
+                  icon={<DeleteIcon />}
+                  isSubmitting={loadingRemove}
+                  onClick={async () => {
+                    removeResource({
+                      provision: id,
+                      id: vnet.ID,
+                      resource: 'network',
+                    })
+                    enqueueSuccess(`Network deleted - ID: ${vnet.ID}`)
+                  }}
+                />
+              </>
+            }
+          />
+        )}
+      />
+    </>
+  )
+})
 
-Networks.propTypes = {
-  data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool,
-  refetchProvision: PropTypes.func,
-  reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool,
-}
-
-Networks.defaultProps = {
-  data: {},
-  hidden: false,
-  refetchProvision: () => undefined,
-  reloading: false,
-  disableAllActions: false,
-}
-
+Networks.propTypes = { id: PropTypes.string.isRequired }
 Networks.displayName = 'Networks'
 
 export default Networks

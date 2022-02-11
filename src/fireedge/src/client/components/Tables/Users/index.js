@@ -13,55 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useUser, useUserApi } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'users'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Users table
+ */
 const UsersTable = (props) => {
-  const { view, getResourceView, filterPool } = useAuth()
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetUsersQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('USER')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.USER)?.filters,
         columns: UserColumns,
       }),
     [view]
   )
 
-  const users = useUser()
-  const { getUsers } = useUserApi()
-
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getUsers)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (users?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
-
   return (
     <EnhancedTable
       columns={columns}
-      data={users}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={UserRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+UsersTable.propTypes = { ...EnhancedTable.propTypes }
+UsersTable.displayName = 'UsersTable'
 
 export default UsersTable

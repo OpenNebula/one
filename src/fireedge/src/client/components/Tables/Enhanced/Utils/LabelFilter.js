@@ -22,7 +22,7 @@ import { List, ListSubheader, IconButton } from '@mui/material'
 import { TreeView, TreeItem } from '@mui/lab'
 import { UseFiltersInstanceProps } from 'react-table'
 
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 const buildTree = (data = [], separator = '/') => {
   const mapper = {}
@@ -101,10 +101,9 @@ const LabelFilter = ({ title, column }) => {
         <ListSubheader
           disableSticky
           disableGutters
-          title={Tr(title)}
-          style={{ display: 'flex', alignItems: 'center' }}
+          sx={{ display: 'flex', alignItems: 'center' }}
         >
-          {Tr(title)}
+          <Translate word={title} />
           {isFiltered && (
             <IconButton
               disableRipple

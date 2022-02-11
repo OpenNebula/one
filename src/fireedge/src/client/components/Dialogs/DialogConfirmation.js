@@ -122,7 +122,11 @@ const DialogConfirmation = memo(
           )}
         </DialogTitle>
         {children && (
-          <DialogContent dividers {...contentProps}>
+          <DialogContent
+            dividers
+            sx={{ display: 'flex', flexDirection: 'column' }}
+            {...contentProps}
+          >
             {children}
           </DialogContent>
         )}

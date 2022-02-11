@@ -24,7 +24,7 @@ const GROUP = {
   name: 'group',
   label: 'Select the new group',
   type: INPUT_TYPES.TABLE,
-  Table: GroupsTable,
+  Table: () => GroupsTable,
   validation: string()
     .trim()
     .required('You must select a group')

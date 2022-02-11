@@ -21,12 +21,7 @@ const {
   getDockerTags,
 } = require('server/routes/api/marketapp/functions')
 
-const {
-  MARKETAPP_EXPORT,
-  MARKETAPP_VMIMPORT,
-  MARKETAPP_TEMPLATEIMPORT,
-  MARKETAPP_DOCKERTAGS,
-} = Actions
+const { MARKETAPP_EXPORT, MARKETAPP_IMPORT, MARKETAPP_DOCKERTAGS } = Actions
 
 module.exports = [
   {
@@ -34,11 +29,7 @@ module.exports = [
     action: exportApp,
   },
   {
-    ...Commands[MARKETAPP_VMIMPORT],
-    action: importMarket,
-  },
-  {
-    ...Commands[MARKETAPP_TEMPLATEIMPORT],
+    ...Commands[MARKETAPP_IMPORT],
     action: importMarket,
   },
   {

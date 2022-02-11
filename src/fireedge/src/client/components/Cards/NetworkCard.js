@@ -13,73 +13,82 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { Typography } from '@mui/material'
+import { User, Group, Lock, Server, Cloud } from 'iconoir-react'
 
-import { NetworkAlt as NetworkIcon } from 'iconoir-react'
-
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { LinearProgressWithLabel } from 'client/components/Status'
+import { getLeasesInfo, getTotalLeases } from 'client/models/VirtualNetwork'
+import { rowStyles } from 'client/components/Tables/styles'
 
 const NetworkCard = memo(
-  ({ value, isSelected, handleClick, actions }) => {
-    const { ID, NAME, USED_LEASES = '', AR_POOL } = value
+  /**
+   * @param {object} props - Props
+   * @param {object} props.network - Network resource
+   * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} props.actions - Actions
+   * @returns {ReactElement} - Card
+   */
+  ({ network, rootProps, actions }) => {
+    const classes = rowStyles()
 
-    const addresses = [AR_POOL?.AR ?? []].flat()
-    const totalLeases = addresses.reduce((res, ar) => +ar.SIZE + res, 0)
+    const { ID, NAME, UNAME, GNAME, LOCK, CLUSTERS, USED_LEASES, TEMPLATE } =
+      network
 
-    const percentOfUsed = (+USED_LEASES * 100) / +totalLeases || 0
-    const percentLabel = `${USED_LEASES} / ${totalLeases} (${Math.round(
-      percentOfUsed
-    )}%)`
+    const totalLeases = getTotalLeases(network)
+    const { percentOfUsed, percentLabel } = getLeasesInfo(network)
+    const totalClusters = [CLUSTERS?.ID ?? []].flat().length || 0
+    const provisionId = TEMPLATE?.PROVISION?.ID
 
     return (
-      <SelectCard
-        action={actions?.map((action) => (
-          <Action key={action?.cy} {...action} />
-        ))}
-        icon={<NetworkIcon />}
-        title={NAME}
-        subheader={`#${ID}`}
-        isSelected={isSelected}
-        handleClick={handleClick}
-      >
-        <div style={{ padding: '2em' }}>
-          <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+      <div {...rootProps} data-cy={`network-${ID}`}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography component="span">{NAME}</Typography>
+            <span className={classes.labels}>{LOCK && <Lock />}</span>
+          </div>
+          <div className={classes.caption}>
+            <span>{`#${ID}`}</span>
+            <span title={`Owner: ${UNAME}`}>
+              <User />
+              <span>{` ${UNAME}`}</span>
+            </span>
+            <span title={`Group: ${GNAME}`}>
+              <Group />
+              <span>{` ${GNAME}`}</span>
+            </span>
+            <span title={`Total Clusters: ${totalClusters}`}>
+              <Server />
+              <span>{` ${totalClusters}`}</span>
+            </span>
+            {provisionId && (
+              <span title={`Provision ID: #${provisionId}`}>
+                <Cloud />
+                <span>{` ${provisionId}`}</span>
+              </span>
+            )}
+          </div>
         </div>
-      </SelectCard>
+        <div className={classes.secondary}>
+          <LinearProgressWithLabel
+            title={`Used / Total Leases: ${USED_LEASES} / ${totalLeases}`}
+            value={percentOfUsed}
+            label={percentLabel}
+          />
+        </div>
+        {actions && <div className={classes.actions}>{actions}</div>}
+      </div>
     )
-  },
-  (prev, next) => prev.isSelected === next.isSelected
+  }
 )
 
 NetworkCard.propTypes = {
-  value: PropTypes.shape({
-    ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired,
-    TYPE: PropTypes.string,
-    STATE: PropTypes.string,
-    USED_LEASES: PropTypes.string,
-    AR_POOL: PropTypes.shape({
-      AR: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-    }),
+  network: PropTypes.object,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
   }),
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.node.isRequired,
-      cy: PropTypes.string,
-    })
-  ),
-}
-
-NetworkCard.defaultProps = {
-  value: {},
-  isSelected: false,
-  handleClick: undefined,
-  actions: undefined,
+  actions: PropTypes.any,
 }
 
 NetworkCard.displayName = 'NetworkCard'

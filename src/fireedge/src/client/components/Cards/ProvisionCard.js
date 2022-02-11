@@ -110,7 +110,7 @@ ProvisionCard.propTypes = {
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
   image: PropTypes.string,
-  deleteAction: PropTypes.func,
+  deleteAction: PropTypes.object,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,

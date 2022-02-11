@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, string, array, ObjectSchema } from 'yup'
 
-import { useHost } from 'client/features/One'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getPciDevices } from 'client/models/Host'
 import {
   Field,
@@ -46,7 +46,7 @@ const NAME_FIELD = {
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const hosts = useHost()
+    const { data: hosts = [] } = useGetHostsQuery()
     const pciDevices = hosts.map(getPciDevices).flat()
 
     return arrayToOptions(pciDevices, {

@@ -90,7 +90,7 @@ const CircleChart = memo(
         <Typography
           variant="h4"
           component="div"
-          style={{ cursor: 'pointer' }}
+          sx={{ cursor: 'pointer' }}
           {...labelProps}
         >
           <NumberEasing value={label} />

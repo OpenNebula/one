@@ -17,26 +17,30 @@
 import { useParams, useHistory } from 'react-router'
 import { Container } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
-import { useProviderApi } from 'client/features/One'
+import {
+  useGetProviderConfigQuery,
+  useCreateProviderMutation,
+  useUpdateProviderMutation,
+} from 'client/features/OneApi/provider'
+
 import { CreateForm } from 'client/components/Forms/Provider'
 import { isValidProviderTemplate } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
-import { isDevelopment } from 'client/utils'
 
 function ProviderCreateForm() {
   const history = useHistory()
   const { id } = useParams()
-
-  const { providerConfig } = useAuth()
   const { enqueueSuccess, enqueueError } = useGeneralApi()
-  const { createProvider, updateProvider } = useProviderApi()
+
+  const { data: providerConfig } = useGetProviderConfigQuery()
+  const [createProvider] = useCreateProviderMutation()
+  const [updateProvider] = useUpdateProviderMutation()
 
   const onSubmit = async (formData) => {
     try {
       if (id !== undefined) {
-        await updateProvider(id, formData)
+        await updateProvider({ id, data: formData })
         enqueueSuccess(`Provider updated - ID: ${id}`)
       } else {
         if (!isValidProviderTemplate(formData, providerConfig)) {
@@ -46,18 +50,16 @@ function ProviderCreateForm() {
           history.push(PATH.PROVIDERS.LIST)
         }
 
-        const responseId = await createProvider(formData)
+        const responseId = await createProvider({ data: formData }).unwrap()
         enqueueSuccess(`Provider created - ID: ${responseId}`)
       }
 
       history.push(PATH.PROVIDERS.LIST)
-    } catch (err) {
-      isDevelopment() && console.error(err)
-    }
+    } catch {}
   }
 
   return (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <CreateForm providerId={id} onSubmit={onSubmit} />
     </Container>
   )

@@ -16,7 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { string } from 'yup'
 
-import { useGroup, useUser } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { INPUT_TYPES } from 'client/constants'
 
 export const UID_FIELD = {
@@ -24,7 +25,7 @@ export const UID_FIELD = {
   label: 'Instantiate as different User',
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const users = useUser()
+    const { data: users = [] } = useGetUsersQuery()
 
     return users
       .map(({ ID: value, NAME: text }) => ({ text, value }))
@@ -39,7 +40,7 @@ export const GID_FIELD = {
   label: 'Instantiate as different Group',
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const groups = useGroup()
+    const { data: groups = [] } = useGetGroupsQuery()
 
     return groups
       .map(({ ID: value, NAME: text }) => ({ text, value }))

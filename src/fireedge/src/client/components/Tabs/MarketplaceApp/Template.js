@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
+import PropTypes from 'prop-types'
 import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetMarketplaceAppQuery } from 'client/features/OneApi/marketplaceApp'
 import { decodeBase64 } from 'client/utils'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const AppTemplateTab = () => {
-  const { data: marketplaceApp = {} } = useContext(TabContext)
-  const {
-    TEMPLATE: { APPTEMPLATE64, VMTEMPLATE64 },
-  } = marketplaceApp
+/**
+ * Renders App template tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Marketplace App id
+ * @returns {ReactElement} App Template tab
+ */
+const AppTemplateTab = ({ id }) => {
+  const { data: marketplaceApp = {} } = useGetMarketplaceAppQuery(id)
+  const { APPTEMPLATE64, VMTEMPLATE64 } = marketplaceApp?.TEMPLATE
 
   const appTemplate = useMemo(
     () => decodeBase64(APPTEMPLATE64),
     [APPTEMPLATE64]
   )
+
   const vmTemplate = useMemo(() => decodeBase64(VMTEMPLATE64), [VMTEMPLATE64])
 
   return (
@@ -67,6 +73,11 @@ const AppTemplateTab = () => {
       </Accordion>
     </>
   )
+}
+
+AppTemplateTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 AppTemplateTab.displayName = 'AppTemplateTab'

@@ -28,6 +28,7 @@ const debugLogStyles = makeStyles((theme) => ({
     display: 'flex',
     flexFlow: 'column',
     height: '100%',
+    overflow: 'auto',
   },
   containerScroll: {
     width: '100%',

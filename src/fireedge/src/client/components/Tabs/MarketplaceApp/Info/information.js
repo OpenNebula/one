@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router'
 
+import { useRenameAppMutation } from 'client/features/OneApi/marketplaceApp'
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getType, getState } from 'client/models/MarketplaceApp'
 import { timeToString, levelLockToString } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
-import { T, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+import { T, MARKETPLACE_APP_ACTIONS, MarketplaceApp } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-const InformationPanel = ({ marketplaceApp = {}, handleRename, actions }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {MarketplaceApp} props.app - Marketplace App resource
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ app = {}, actions }) => {
+  const [rename] = useRenameAppMutation()
+
   const {
     ID,
     NAME,
@@ -37,17 +48,23 @@ const InformationPanel = ({ marketplaceApp = {}, handleRename, actions }) => {
     SIZE,
     FORMAT,
     VERSION,
-  } = marketplaceApp
-  const typeName = getType(marketplaceApp)
-  const { name: stateName, color: stateColor } = getState(marketplaceApp)
+  } = app
+
+  const typeName = getType(app)
+  const { name: stateName, color: stateColor } = getState(app)
+
+  const handleRename = async (_, newName) => {
+    await rename({ id: ID, name: newName })
+  }
 
   const info = [
-    { name: T.ID, value: ID },
+    { name: T.ID, value: ID, dataCy: 'id' },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(MARKETPLACE_APP_ACTIONS.RENAME),
       handleEdit: handleRename,
+      dataCy: 'name',
     },
     {
       name: T.Marketplace,
@@ -80,12 +97,11 @@ const InformationPanel = ({ marketplaceApp = {}, handleRename, actions }) => {
   )
 }
 
-InformationPanel.displayName = 'InformationPanel'
-
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  handleRename: PropTypes.func,
-  marketplaceApp: PropTypes.object,
+  app: PropTypes.object,
 }
+
+InformationPanel.displayName = 'InformationPanel'
 
 export default InformationPanel

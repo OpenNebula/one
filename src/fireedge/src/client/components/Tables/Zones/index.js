@@ -13,43 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useFetch } from 'client/hooks'
-import { useZone, useZoneApi } from 'client/features/One'
+import { useAuth } from 'client/features/Auth'
+import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import ZoneColumns from 'client/components/Tables/Zones/columns'
 import ZoneRow from 'client/components/Tables/Zones/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const ZonesTable = () => {
-  const columns = useMemo(() => ZoneColumns, [])
+const DEFAULT_DATA_CY = 'zones'
 
-  const zones = useZone()
-  const { getZones } = useZoneApi()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Zones table
+ */
+const ZonesTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getZones)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetZonesQuery()
 
-  useEffect(() => {
-    fetchRequest()
-  }, [])
-
-  if (zones?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.ZONE)?.filters,
+        columns: ZoneColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={zones}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={ZoneRow}
+      {...rest}
     />
   )
 }
+
+ZonesTable.propTypes = { ...EnhancedTable.propTypes }
+ZonesTable.displayName = 'ZonesTable'
 
 export default ZonesTable

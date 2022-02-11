@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { VirtualNetwork } from 'client/constants'
+
 /**
  * Returns the total number of leases in the virtual network.
  *
- * @param {object} virtualNetwork - Virtual network
- * @param {object} virtualNetwork.AR_POOL - Address range pool
+ * @param {VirtualNetwork} virtualNetwork - Virtual network
  * @returns {number} Total leases
  */
 export const getTotalLeases = ({ AR_POOL } = {}) => {
@@ -29,12 +30,8 @@ export const getTotalLeases = ({ AR_POOL } = {}) => {
 /**
  * Returns the virtual network leases information.
  *
- * @param {object} virtualNetwork - Virtual network
- * @param {object} virtualNetwork.USED_LEASES - Used network leases
- * @returns {{
- * percentOfUsed: number,
- * percentLabel: string
- * }} Leases information
+ * @param {VirtualNetwork} virtualNetwork - Virtual network
+ * @returns {{ percentOfUsed: number, percentLabel: string }} Leases information
  */
 export const getLeasesInfo = ({ USED_LEASES, ...virtualNetwork } = {}) => {
   const totalLeases = getTotalLeases(virtualNetwork)

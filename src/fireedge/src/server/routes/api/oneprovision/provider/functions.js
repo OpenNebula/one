@@ -270,11 +270,12 @@ const createProviders = (
 ) => {
   const { user, password } = userData
   const rtn = httpInternalError
-  if (params && params.resource && user && password) {
+  if (params && params.data && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const resource = parsePostData(params.resource)
+    const resource = parsePostData(params.data)
     const content = createYMLContent(resource)
+
     if (content) {
       const file = createTemporalFile(
         `${global.paths.CPI}/${defaultFolderTmpProvision}`,
@@ -331,10 +332,10 @@ const updateProviders = (
 ) => {
   const { user, password } = userData
   const rtn = httpInternalError
-  if (params && params.resource && params.id && user && password) {
+  if (params && params.data && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
-    const resource = parsePostData(params.resource)
+    const resource = parsePostData(params.data)
     const file = createTemporalFile(
       `${global.paths.CPI}/${defaultFolderTmpProvision}`,
       'json',

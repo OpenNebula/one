@@ -23,7 +23,7 @@ import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useHost } from 'client/features/One'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { FormWithSchema, Legend } from 'client/components/Forms'
 import { Translate } from 'client/components/HOC'
 import { getPciDevices } from 'client/models/Host'
@@ -40,7 +40,7 @@ export const SECTION_ID = 'PCI'
  * @returns {JSXElementConstructor} - Inputs section
  */
 const PciDevicesSection = ({ fields }) => {
-  const hosts = useHost()
+  const { data: hosts = [] } = useGetHostsQuery()
   const pciDevicesAvailable = useMemo(
     () => hosts.map(getPciDevices).flat(),
     [hosts.length]

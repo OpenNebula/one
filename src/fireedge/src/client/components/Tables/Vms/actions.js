@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import {
-  RefreshDouble,
   AddSquare,
   PlayOutline,
   SaveFloppyDisk,
@@ -32,7 +30,17 @@ import {
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
-import { useDatastore, useVmApi } from 'client/features/One'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import {
+  useLockVmMutation,
+  useUnlockVmMutation,
+  useSaveAsTemplateMutation,
+  useDeployMutation,
+  useActionVmMutation,
+  useMigrateMutation,
+  useChangeVmOwnershipMutation,
+  useRecoverMutation,
+} from 'client/features/OneApi/vm'
 import { Translate } from 'client/components/HOC'
 
 import {
@@ -42,8 +50,11 @@ import {
   MigrateForm,
   SaveAsTemplateForm,
 } from 'client/components/Forms/Vm'
+import {
+  createActions,
+  GlobalAction,
+} from 'client/components/Tables/Enhanced/Utils'
 
-import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
 import { T, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
@@ -52,7 +63,7 @@ const isDisabled = (action) => (rows) =>
   isAvailableAction(action)(rows, ({ values }) => values?.STATE)
 
 const ListVmNames = ({ rows = [] }) => {
-  const datastores = useDatastore()
+  const { data: datastores = [] } = useGetDatastoresQuery()
 
   return rows?.map?.(({ id, original }) => {
     const { ID, NAME } = original
@@ -88,52 +99,30 @@ const MessageToConfirmAction = (rows) => (
   </>
 )
 
+/**
+ * Generates the actions to operate resources on VM table.
+ *
+ * @returns {GlobalAction} - Actions
+ */
 const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useAuth()
   const { enqueueSuccess } = useGeneralApi()
-  const {
-    getVm,
-    getVms,
-    saveAsTemplate,
-    terminate,
-    terminateHard,
-    undeploy,
-    undeployHard,
-    poweroff,
-    poweroffHard,
-    reboot,
-    rebootHard,
-    hold,
-    release,
-    stop,
-    suspend,
-    resume,
-    resched,
-    unresched,
-    recover,
-    changeOwnership,
-    deploy,
-    migrate,
-    migrateLive,
-    lock,
-    unlock,
-  } = useVmApi()
+
+  const [saveAsTemplate] = useSaveAsTemplateMutation()
+  const [actionVm] = useActionVmMutation()
+  const [recover] = useRecoverMutation()
+  const [changeOwnership] = useChangeVmOwnershipMutation()
+  const [deploy] = useDeployMutation()
+  const [migrate] = useMigrateMutation()
+  const [lock] = useLockVmMutation()
+  const [unlock] = useUnlockVmMutation()
 
   const vmActions = useMemo(
     () =>
       createActions({
-        filters: getResourceView('VM')?.actions,
+        filters: getResourceView(RESOURCE_NAMES.VM)?.actions,
         actions: [
-          {
-            accessor: VM_ACTIONS.REFRESH,
-            dataCy: `vm_${VM_ACTIONS.REFRESH}`,
-            tooltip: T.Refresh,
-            icon: RefreshDouble,
-            action: async () => {
-              await getVms({ state: -1 })
-            },
-          },
           {
             accessor: VM_ACTIONS.CREATE_DIALOG,
             dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
@@ -154,8 +143,9 @@ const Actions = () => {
             icon: PlayOutline,
             action: async (rows) => {
               const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => resume(id)))
-              ids?.length > 1 && (await Promise.all(ids.map((id) => getVm(id))))
+              await Promise.all(
+                ids.map((id) => actionVm({ id, action: 'resume' }))
+              )
             },
           },
           {
@@ -187,8 +177,8 @@ const Actions = () => {
                 },
                 form: SaveAsTemplateForm,
                 onSubmit: async (formData, rows) => {
-                  const vmId = rows?.[0]?.original?.ID
-                  const response = await saveAsTemplate(vmId, formData)
+                  const data = { id: rows?.[0]?.original?.ID, ...formData }
+                  const response = await saveAsTemplate(data)
                   enqueueSuccess(response)
                 },
               },
@@ -213,8 +203,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => suspend(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'suspend' }))
+                  )
                 },
               },
               {
@@ -229,8 +220,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => stop(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'stop' }))
+                  )
                 },
               },
               {
@@ -245,8 +237,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => poweroff(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'poweroff' }))
+                  )
                 },
               },
               {
@@ -261,8 +254,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => poweroffHard(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'poweroff-hard' }))
+                  )
                 },
               },
               {
@@ -277,8 +271,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => reboot(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'reboot' }))
+                  )
                 },
               },
               {
@@ -293,8 +288,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => rebootHard(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'reboot-hard' }))
+                  )
                 },
               },
               {
@@ -309,8 +305,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => undeploy(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'undeploy' }))
+                  )
                 },
               },
               {
@@ -325,8 +322,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => undeployHard(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'undeploy-hard' }))
+                  )
                 },
               },
             ],
@@ -350,8 +348,9 @@ const Actions = () => {
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => deploy(id, formData)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => deploy({ id, ...formData }))
+                  )
                 },
               },
               {
@@ -366,8 +365,9 @@ const Actions = () => {
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => migrate(id, formData)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => migrate({ id, ...formData }))
+                  )
                 },
               },
               {
@@ -382,8 +382,9 @@ const Actions = () => {
                 },
                 onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => migrateLive(id, formData)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => migrate({ id, ...formData, live: true }))
+                  )
                 },
               },
               {
@@ -398,8 +399,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => hold(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'hold' }))
+                  )
                 },
               },
               {
@@ -414,8 +416,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => release(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'release' }))
+                  )
                 },
               },
               {
@@ -430,8 +433,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => resched(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'resched' }))
+                  )
                 },
               },
               {
@@ -446,8 +450,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => unresched(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'unresched' }))
+                  )
                 },
               },
               {
@@ -460,11 +465,11 @@ const Actions = () => {
                   dataCy: `modal-${VM_ACTIONS.RECOVER}`,
                 },
                 form: RecoverForm,
-                onSubmit: async (_, rows) => {
+                onSubmit: async (formData, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => recover(id)))
-                  ids?.length > 1 &&
-                    (await Promise.all(ids.map((id) => getVm(id))))
+                  await Promise.all(
+                    ids.map((id) => recover({ id, ...formData }))
+                  )
                 },
               },
             ],
@@ -489,9 +494,8 @@ const Actions = () => {
                 onSubmit: async (newOwnership, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
-                    ids.map((id) => changeOwnership(id, newOwnership))
+                    ids.map((id) => changeOwnership({ id, ...newOwnership }))
                   )
-                  await Promise.all(ids.map((id) => getVm(id)))
                 },
               },
               {
@@ -507,9 +511,8 @@ const Actions = () => {
                 onSubmit: async (newOwnership, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
-                    ids.map((id) => changeOwnership(id, newOwnership))
+                    ids.map((id) => changeOwnership({ id, ...newOwnership }))
                   )
-                  await Promise.all(ids.map((id) => getVm(id)))
                 },
               },
             ],
@@ -533,8 +536,7 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => lock(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(ids.map((id) => lock({ id })))
                 },
               },
               {
@@ -550,7 +552,6 @@ const Actions = () => {
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => unlock(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
                 },
               },
             ],
@@ -574,8 +575,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => terminate(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'terminate' }))
+                  )
                 },
               },
               {
@@ -590,8 +592,9 @@ const Actions = () => {
                 },
                 onSubmit: async (_, rows) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => terminateHard(id)))
-                  await Promise.all(ids.map((id) => getVm(id)))
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'terminate-hard' }))
+                  )
                 },
               },
             ],

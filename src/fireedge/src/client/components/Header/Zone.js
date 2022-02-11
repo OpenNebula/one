@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 
 import { MenuList, MenuItem, LinearProgress } from '@mui/material'
 import { Language as ZoneIcon } from 'iconoir-react'
 
-import { useFetch } from 'client/hooks'
-import { useZone, useZoneApi } from 'client/features/One'
+import { useGetZonesQuery } from 'client/features/OneApi/zone'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -27,12 +26,10 @@ import { T } from 'client/constants'
 /**
  * Menu to select the OpenNebula Zone.
  *
- * @returns {JSXElementConstructor} Returns Zone list
+ * @returns {ReactElement} Returns Zone list
  */
 const Zone = () => {
-  const zones = useZone()
-  const { getZones } = useZoneApi()
-  const { fetchRequest, loading } = useFetch(getZones)
+  const { data: zones = [], isLoading } = useGetZonesQuery()
 
   return (
     <HeaderPopover
@@ -42,30 +39,24 @@ const Zone = () => {
       buttonProps={{ 'data-cy': 'header-zone-button' }}
       headerTitle={<Translate word={T.Zones} />}
     >
-      {({ handleClose }) => {
-        useEffect(() => {
-          fetchRequest()
-        }, [])
-
-        return (
-          <>
-            {loading && <LinearProgress color="secondary" />}
-            <MenuList>
-              {zones?.length ? (
-                zones?.map(({ ID, NAME }) => (
-                  <MenuItem key={`zone-${ID}`} onClick={handleClose}>
-                    {NAME}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>
-                  <Translate word={T.NotFound} />
+      {({ handleClose }) => (
+        <>
+          {isLoading && <LinearProgress color="secondary" />}
+          <MenuList>
+            {zones?.length ? (
+              zones?.map(({ ID, NAME }) => (
+                <MenuItem key={`zone-${ID}`} onClick={handleClose}>
+                  {NAME}
                 </MenuItem>
-              )}
-            </MenuList>
-          </>
-        )
-      }}
+              ))
+            ) : (
+              <MenuItem disabled>
+                <Translate word={T.NotFound} />
+              </MenuItem>
+            )}
+          </MenuList>
+        </>
+      )}
     </HeaderPopover>
   )
 }

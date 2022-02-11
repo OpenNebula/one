@@ -17,12 +17,11 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
-const { SERVICE } = require('server/routes/api/oneflow/basepath')
+} = require('../../../../utils/constants/defaults')
 
-const basepath = `/${SERVICE}`
 const { GET, POST, DELETE, PUT } = httpMethod
 const { resource, postBody } = fromData
+const basepath = '/service'
 
 const SERVICE_SHOW = 'service.show'
 const SERVICE_ADD_ACTION = 'service.addaction'

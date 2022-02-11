@@ -83,7 +83,7 @@ export const TOKEN = {
 
 export const GROUP = {
   name: 'group',
-  label: T.SelectGroup,
+  label: T.SelectYourActiveGroup,
   type: INPUT_TYPES.SELECT,
   values: () => {
     const { user, groups } = useAuth()

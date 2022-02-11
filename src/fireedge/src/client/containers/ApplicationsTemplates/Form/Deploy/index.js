@@ -14,15 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useMemo, useState } from 'react'
+/* import { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { CircularProgress, Backdrop } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetchAll } from 'client/hooks'
-import { useApplicationTemplateApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
+import {  } from 'client/features/OneApi/serviceTemplate'
 
 import { DialogForm } from 'client/components/Dialogs'
 import FormStepper from 'client/components/FormStepper'
@@ -37,10 +37,12 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.appBar,
     color: theme.palette.common.white,
   },
-}))
+})) */
 
-const DeployForm = ({ applicationTemplate, handleCancel }) => {
-  const classes = useStyles()
+const DeployForm = () => (
+  // const DeployForm = ({ applicationTemplate, handleCancel }) => (
+
+  /* const classes = useStyles()
   const [vmTemplates, setVmTemplates] = useState([])
 
   const { enqueueInfo } = useGeneralApi()
@@ -110,10 +112,12 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
     >
       <FormStepper steps={steps} schema={resolvers} onSubmit={handleSubmit} />
     </DialogForm>
-  )
-}
+  ) */
 
-DeployForm.propTypes = {
+  <>{'Deploy service template form WIP'}</>
+)
+
+/* DeployForm.propTypes = {
   applicationTemplate: PropTypes.object.isRequired,
   handleCancel: PropTypes.func,
 }
@@ -121,6 +125,6 @@ DeployForm.propTypes = {
 DeployForm.defaultProps = {
   applicationTemplate: undefined,
   handleCancel: undefined,
-}
+} */
 
 export default DeployForm

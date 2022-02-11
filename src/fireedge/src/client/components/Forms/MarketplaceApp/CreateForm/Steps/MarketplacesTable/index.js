@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
-import { useSystem } from 'client/features/One'
+import { useGetOneConfigQuery } from 'client/features/OneApi/system'
 import { MarketplacesTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps/MarketplacesTable/schema'
 import { Step } from 'client/utils'
@@ -27,7 +27,7 @@ export const STEP_ID = 'marketplace'
 const Content = ({ data }) => {
   const { NAME } = data?.[0] ?? {}
   const { setValue } = useFormContext()
-  const { config: oneConfig } = useSystem()
+  const { data: oneConfig = {} } = useGetOneConfigQuery()
 
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}

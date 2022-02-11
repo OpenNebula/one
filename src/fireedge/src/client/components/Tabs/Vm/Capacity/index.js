@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetVmQuery, useResizeMutation } from 'client/features/OneApi/vm'
 import InformationPanel from 'client/components/Tabs/Vm/Capacity/information'
 
 import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
 import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
 
-const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
-  const { resize } = useVmApi()
-
-  const { handleRefetch, data: vm = {} } = useContext(TabContext)
-  const { ID } = vm
+/**
+ * Renders capacity tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Capacity tab
+ */
+const VmCapacityTab = ({ tabProps: { actions } = {}, id }) => {
+  const [resizeCapacity] = useResizeMutation()
+  const { data: vm = {} } = useGetVmQuery(id)
 
   const actionsAvailable = useMemo(() => {
     const hypervisor = getHypervisor(vm)
@@ -44,8 +49,7 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
     const { enforce, ...restOfData } = formData
     const template = jsonToXml(restOfData)
 
-    const response = await resize(ID, { enforce, template })
-    String(response) === String(ID) && (await handleRefetch?.())
+    await resizeCapacity({ id: vm.ID, enforce, template })
   }
 
   return (
@@ -59,6 +63,7 @@ const VmCapacityTab = ({ tabProps: { actions } = {} }) => {
 
 VmCapacityTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmCapacityTab.displayName = 'VmCapacityTab'

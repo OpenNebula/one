@@ -18,66 +18,97 @@ import PropTypes from 'prop-types'
 
 import { Stack, useMediaQuery } from '@mui/material'
 import { UseTableInstanceProps, UseRowSelectState } from 'react-table'
+import { RefreshDouble } from 'iconoir-react'
 
 import {
   GlobalActions,
   GlobalAction,
-  ActionPropTypes,
   GlobalSelectedRows,
   GlobalSort,
 } from 'client/components/Tables/Enhanced/Utils'
+import { SubmitButton } from 'client/components/FormControl'
+import { T } from 'client/constants'
 
 /**
  * @param {object} props - Props
  * @param {GlobalAction[]} props.globalActions - Global actions
- * @param {object} props.onlyGlobalSelectedRows - Show only the selected rows
+ * @param {boolean} props.onlyGlobalSelectedRows - Show only the selected rows
+ * @param {boolean} props.disableRowSelect - Rows can't select
+ * @param {boolean} props.disableGlobalSort - Hide the sort filters
  * @param {UseTableInstanceProps} props.useTableProps - Table props
+ * @param {function():Promise} props.refetch - Function to refetch data
+ * @param {boolean} props.isLoading - The data is fetching
  * @returns {JSXElementConstructor} Returns table toolbar
  */
-const Toolbar = ({ globalActions, onlyGlobalSelectedRows, useTableProps }) => {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
+const Toolbar = ({
+  globalActions,
+  onlyGlobalSelectedRows,
+  disableGlobalSort = false,
+  disableRowSelect = false,
+  useTableProps,
+  refetch,
+  isLoading,
+}) => {
   const isSmallDevice = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
   /** @type {UseRowSelectState} */
   const { selectedRowIds } = useTableProps?.state ?? {}
 
-  if (onlyGlobalSelectedRows) {
-    return <GlobalSelectedRows useTableProps={useTableProps} />
-  }
+  const enableGlobalSort = !isSmallDevice && !disableGlobalSort
+  const enableGlobalSelect =
+    !onlyGlobalSelectedRows && !!Object.keys(selectedRowIds).length
 
-  return isMobile ? null : (
+  return (
     <>
-      <Stack alignItems="start" gap="1em">
-        <GlobalActions
-          globalActions={globalActions}
-          useTableProps={useTableProps}
-        />
-      </Stack>
-      <Stack
-        className="summary"
-        direction="row"
-        flexWrap="wrap"
-        alignItems="center"
-        gap={'1em'}
-        width={1}
-      >
-        {!isSmallDevice && (
-          <div>
-            <GlobalSort useTableProps={useTableProps} />
-          </div>
+      <Stack direction="row" flexWrap="wrap" alignItems="center" gap="1em">
+        {refetch && (
+          <SubmitButton
+            data-cy="refresh"
+            icon={<RefreshDouble />}
+            title={T.Tooltip}
+            isSubmitting={isLoading}
+            onClick={refetch}
+          />
         )}
-        {!!Object.keys(selectedRowIds).length && (
-          <GlobalSelectedRows withAlert useTableProps={useTableProps} />
+        {onlyGlobalSelectedRows && !disableRowSelect ? (
+          <GlobalSelectedRows useTableProps={useTableProps} />
+        ) : (
+          <GlobalActions
+            refetch={refetch}
+            isLoading={isLoading}
+            disableRowSelect={disableRowSelect}
+            globalActions={globalActions}
+            useTableProps={useTableProps}
+          />
         )}
       </Stack>
+      {(enableGlobalSort || enableGlobalSelect) && (
+        <Stack
+          className="summary"
+          direction="row"
+          flexWrap="wrap"
+          alignItems="center"
+          gap={'1em'}
+          width={1}
+        >
+          {enableGlobalSort && <GlobalSort useTableProps={useTableProps} />}
+          {enableGlobalSelect && (
+            <GlobalSelectedRows withAlert useTableProps={useTableProps} />
+          )}
+        </Stack>
+      )}
     </>
   )
 }
 
 Toolbar.propTypes = {
-  globalActions: PropTypes.arrayOf(ActionPropTypes),
+  globalActions: PropTypes.array,
   onlyGlobalSelectedRows: PropTypes.bool,
+  disableRowSelect: PropTypes.bool,
+  disableGlobalSort: PropTypes.bool,
   useTableProps: PropTypes.object,
+  refetch: PropTypes.func,
+  isLoading: PropTypes.bool,
 }
 
 export default Toolbar

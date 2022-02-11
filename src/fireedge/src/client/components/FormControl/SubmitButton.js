@@ -63,7 +63,7 @@ const ButtonComponent = forwardRef(
     )
 )
 
-const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
+const TooltipComponent = ({ tooltip, tooltipprops, children }) => (
   <ConditionalWrap
     condition={tooltip && tooltip !== ''}
     wrap={(wrapperChildren) => (
@@ -71,7 +71,7 @@ const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
         arrow
         placement="bottom"
         title={<Typography variant="subtitle2">{tooltip}</Typography>}
-        {...tooltipProps}
+        {...tooltipprops}
       >
         <span>{wrapperChildren}</span>
       </Tooltip>
@@ -118,7 +118,7 @@ export const SubmitButtonPropTypes = {
   endicon: PropTypes.node,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  tooltipProps: PropTypes.object,
+  tooltipprops: PropTypes.object,
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   className: PropTypes.string,

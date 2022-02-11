@@ -16,12 +16,12 @@
 const { combineReducers } = require('redux')
 const Auth = require('client/features/Auth/slice')
 const General = require('client/features/General/slice')
-const One = require('client/features/One/slice')
+const { oneApi } = require('client/features/OneApi')
 
 const rootReducer = combineReducers({
   general: General.reducer,
   auth: Auth.reducer,
-  one: One.reducer,
+  [oneApi.reducerPath]: oneApi.reducer,
 })
 
 module.exports = rootReducer

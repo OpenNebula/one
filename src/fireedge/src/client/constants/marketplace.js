@@ -13,8 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import * as ACTIONS from 'client/constants/actions'
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
+// eslint-disable-next-line no-unused-vars
+import { Permissions } from 'client/constants/common'
+
+/**
+ * @typedef Marketplace
+ * @property {string} ID - Id
+ * @property {string} NAME - Name
+ * @property {string} UID - User id
+ * @property {string} UNAME - User name
+ * @property {string} GID - Group id
+ * @property {string} GNAME - Group name
+ * @property {0|1} STATE - Possible STATE values are 0 (ENABLE) and 1 (DISABLE)
+ * @property {Permissions} PERMISSIONS - Permissions
+ * @property {string} MARKET_MAD - Market manager
+ * @property {string} ZONE_ID - Zone id
+ * @property {string} TOTAL_MB - Total capacity
+ * @property {string} FREE_MB - Free capacity
+ * @property {string} USED_MB - Used capacity
+ * @property {{ ID: string|string[] }} MARKETPLACEAPPS - Marketplace apps
+ * @property {object} TEMPLATE - Template information
+ * @property {string} [TEMPLATE.RESTRICTED_DIRS] - Restricted directory
+ * @property {string} [TEMPLATE.SAFE_DIRS] - Safe directory
+ * @property {string} [TEMPLATE.SHARED] - `YES` if it's shared
+ * @property {string} [TEMPLATE.TYPE] - Type
+ * @property {string} [TEMPLATE.TM_MAD] - TM manager
+ */
 
 /** @type {STATES.StateInfo[]} Marketplace states */
 export const MARKETPLACE_STATES = [
@@ -73,3 +100,15 @@ export const MARKETPLACE_APP_STATES = [
     color: COLOR.debug.light,
   },
 ]
+
+/** @enum {string} Datastore actions */
+export const MARKETPLACE_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  DELETE: 'delete',
+
+  // INFORMATION
+  RENAME: ACTIONS.RENAME,
+  CHANGE_MODE: ACTIONS.CHANGE_MODE,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+}

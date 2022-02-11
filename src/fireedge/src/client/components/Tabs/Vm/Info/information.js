@@ -13,48 +13,48 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router-dom'
 
-import { useCluster, useClusterApi } from 'client/features/One'
+import { useGetClusterQuery } from 'client/features/OneApi/cluster'
+import { useRenameVmMutation } from 'client/features/OneApi/vm'
+
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 import MultipleTags from 'client/components/MultipleTags'
 
 import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
-import { T, VM_ACTIONS } from 'client/constants'
+import { T, VM, VM_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-const InformationPanel = ({ vm = {}, handleRename, actions }) => {
-  const clusters = useCluster()
-  const { getCluster } = useClusterApi()
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {VM} props.vm - Virtual machine
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ vm = {}, actions }) => {
+  const [renameVm] = useRenameVmMutation()
 
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
   const { name: stateName, color: stateColor } = getState(vm)
+  const ips = getIps(vm)
   const {
     HID: hostId,
     HOSTNAME: hostname = '--',
     CID: clusterId,
   } = getLastHistory(vm)
-  const ips = getIps(vm)
 
-  const [clusterName, setClusterName] = useState(() =>
-    clusterId === '-1'
-      ? 'default'
-      : clusters.find((c) => c.ID === clusterId)?.NAME
-  )
+  const { data: cluster } = useGetClusterQuery({ id: clusterId })
+  const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
 
-  useEffect(() => {
-    const loadCluster = async () => {
-      const cluster = await getCluster(clusterId)
-      cluster?.NAME && setClusterName(cluster.NAME)
-    }
-
-    !clusterName && loadCluster()
-  }, [])
+  const handleRename = async (_, newName) => {
+    await renameVm({ id: ID, name: newName })
+  }
 
   const info = [
     {
@@ -72,7 +72,7 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
     {
       name: T.State,
       value: (
-        <StatusChip dataCy={'state'} text={stateName} stateColor={stateColor} />
+        <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
       ),
     },
     {
@@ -110,7 +110,7 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
     },
     clusterId && {
       name: T.Cluster,
-      value: clusterName ? `#${clusterId} ${clusterName}` : `#${clusterId} --`,
+      value: `#${clusterId} ${clusterName}`,
       link:
         !Number.isNaN(+clusterId) &&
         generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: clusterId }),
@@ -132,12 +132,11 @@ const InformationPanel = ({ vm = {}, handleRename, actions }) => {
   )
 }
 
-InformationPanel.displayName = 'InformationPanel'
-
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  handleRename: PropTypes.func,
   vm: PropTypes.object,
 }
+
+InformationPanel.displayName = 'InformationPanel'
 
 export default InformationPanel

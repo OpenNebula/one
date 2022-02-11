@@ -18,7 +18,12 @@ import { Calendar as ActionIcon } from 'iconoir-react'
 import { useFieldArray } from 'react-hook-form'
 
 import { ScheduleActionCard } from 'client/components/Cards'
-import { CreateSchedButton, CharterButton } from 'client/components/Buttons'
+import {
+  CreateSchedButton,
+  CharterButton,
+  UpdateSchedButton,
+  DeleteSchedButton,
+} from 'client/components/Buttons/ScheduleAction'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -54,11 +59,11 @@ const ScheduleAction = () => {
     append(mappedActions)
   }
 
-  const handleUpdateAction = (action, index) => {
+  const handleUpdate = (action, index) => {
     update(index, mapNameFunction(action, index))
   }
 
-  const handleRemoveAction = (index) => {
+  const handleRemove = (index) => {
     remove(index)
   }
 
@@ -78,14 +83,26 @@ const ScheduleAction = () => {
       >
         {scheduleActions?.map((schedule, index) => {
           const { ID, NAME } = schedule
+          const fakeValues = { ...schedule, ID: index }
 
           return (
             <ScheduleActionCard
               key={ID ?? NAME}
-              relative
-              schedule={{ ...schedule, ID: index }}
-              handleUpdate={(newAction) => handleUpdateAction(newAction, index)}
-              handleRemove={() => handleRemoveAction(index)}
+              schedule={fakeValues}
+              actions={
+                <>
+                  <UpdateSchedButton
+                    relative
+                    vm={{}}
+                    schedule={fakeValues}
+                    onSubmit={(newAction) => handleUpdate(newAction, index)}
+                  />
+                  <DeleteSchedButton
+                    schedule={fakeValues}
+                    onSubmit={() => handleRemove(index)}
+                  />
+                </>
+              }
             />
           )
         })}
@@ -97,7 +114,7 @@ const ScheduleAction = () => {
 /** @type {TabType} */
 const TAB = {
   id: 'sched_action',
-  name: T.ScheduledAction,
+  name: T.ScheduleAction,
   icon: ActionIcon,
   Content: ScheduleAction,
   getError: (error) => !!error?.[TAB_ID],

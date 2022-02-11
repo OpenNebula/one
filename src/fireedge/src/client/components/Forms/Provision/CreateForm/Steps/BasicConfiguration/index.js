@@ -14,8 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
@@ -31,11 +29,8 @@ const BasicConfiguration = () => ({
   label: T.ProvisionOverview,
   resolver: () => STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => (
-      <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />
-    ),
-    []
+  content: () => (
+    <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />
   ),
 })
 

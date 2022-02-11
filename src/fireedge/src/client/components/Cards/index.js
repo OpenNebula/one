@@ -18,16 +18,22 @@ import ApplicationNetworkCard from 'client/components/Cards/ApplicationNetworkCa
 import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplateCard'
 import ClusterCard from 'client/components/Cards/ClusterCard'
 import DatastoreCard from 'client/components/Cards/DatastoreCard'
+import DiskCard from 'client/components/Cards/DiskCard'
+import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import EmptyCard from 'client/components/Cards/EmptyCard'
 import HostCard from 'client/components/Cards/HostCard'
 import NetworkCard from 'client/components/Cards/NetworkCard'
+import NicCard from 'client/components/Cards/NicCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
 import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
+import SecurityGroupCard from 'client/components/Cards/SecurityGroupCard'
+import SnapshotCard from 'client/components/Cards/SnapshotCard'
 import SelectCard from 'client/components/Cards/SelectCard'
 import TierCard from 'client/components/Cards/TierCard'
 import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
+import VmTemplateCard from 'client/components/Cards/VmTemplateCard'
 import WavesCard from 'client/components/Cards/WavesCard'
 
 export {
@@ -36,15 +42,21 @@ export {
   ApplicationTemplateCard,
   ClusterCard,
   DatastoreCard,
+  DiskCard,
+  DiskSnapshotCard,
   EmptyCard,
   HostCard,
   NetworkCard,
+  NicCard,
   PolicyCard,
   ProvisionCard,
   ProvisionTemplateCard,
   ScheduleActionCard,
+  SecurityGroupCard,
+  SnapshotCard,
   SelectCard,
   TierCard,
   VirtualMachineCard,
+  VmTemplateCard,
   WavesCard,
 }

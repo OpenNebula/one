@@ -13,55 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useDatastore, useDatastoreApi } from 'client/features/One'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'datastores'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Datastores table
+ */
 const DatastoresTable = (props) => {
-  const { view, getResourceView, filterPool } = useAuth()
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetDatastoresQuery,
+    ...rest
+  } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('DATASTORE')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.DATASTORE)?.filters,
         columns: DatastoreColumns,
       }),
     [view]
   )
 
-  const datastores = useDatastore()
-  const { getDatastores } = useDatastoreApi()
-
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getDatastores)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (datastores?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
-
   return (
     <EnhancedTable
       columns={columns}
-      data={datastores}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={DatastoreRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+DatastoresTable.propTypes = { ...EnhancedTable.propTypes }
+DatastoresTable.displayName = 'DatastoresTable'
 
 export default DatastoresTable

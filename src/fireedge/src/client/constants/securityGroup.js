@@ -16,6 +16,21 @@
 import { T } from 'client/constants'
 
 /**
+ * @typedef {object} SecurityGroupRule
+ * @property {number|string} SECURITY_GROUP_ID - ID
+ * @property {string} SECURITY_GROUP_NAME - Name
+ * @property {string} PROTOCOL - Protocol
+ * @property {string} RULE_TYPE - Rule type
+ * @property {number|string} ICMP_TYPE - ICMP type
+ * @property {number|string} [ICMPv6_TYPE] - ICMP v6 type
+ * @property {number|string} [RANGE] - Range
+ * @property {number|string} [NETWORK_ID] - Network id
+ * @property {number|string} [SIZE] - Network size
+ * @property {string} [IP] - Network IP
+ * @property {string} [MAC] - Network MAC
+ */
+
+/**
  * ICMP Codes for each ICMP type as in:
  * http://www.iana.org/assignments/icmp-parameters/
  *

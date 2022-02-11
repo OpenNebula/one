@@ -13,62 +13,86 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement, memo } from 'react'
 import PropTypes from 'prop-types'
-import { ViewGrid as VmIcon } from 'iconoir-react'
 
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { StatusBadge } from 'client/components/Status'
-import { getState } from 'client/models/VirtualMachine'
+import { User, Group, Lock, HardDrive } from 'iconoir-react'
+import { Stack, Typography } from '@mui/material'
+
+import Timer from 'client/components/Timer'
+import MultipleTags from 'client/components/MultipleTags'
+import { StatusCircle } from 'client/components/Status'
+import { rowStyles } from 'client/components/Tables/styles'
+import { getState, getLastHistory } from 'client/models/VirtualMachine'
+import { timeFromMilliseconds } from 'client/models/Helper'
+import { VM } from 'client/constants'
 
 const VirtualMachineCard = memo(
-  ({ value, isSelected, handleClick, actions }) => {
-    const { ID, NAME } = value
-    const { color, name } = getState(value) ?? {}
+  /**
+   * @param {object} props - Props
+   * @param {VM} props.vm - Virtual machine resource
+   * @param {object} props.rootProps - Props to root component
+   * @returns {ReactElement} - Card
+   */
+  ({ vm, rootProps }) => {
+    const classes = rowStyles()
+    const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, LOCK } = vm
+
+    const HOSTNAME = getLastHistory(vm)?.HOSTNAME ?? '--'
+    const time = timeFromMilliseconds(+ETIME || +STIME)
+
+    const { color: stateColor, name: stateName } = getState(vm)
 
     return (
-      <SelectCard
-        action={actions?.map((action) => (
-          <Action key={action?.cy} {...action} />
-        ))}
-        skeletonHeight={75}
-        dataCy={`vm-${ID}`}
-        handleClick={handleClick}
-        icon={
-          <StatusBadge title={name} stateColor={color}>
-            <VmIcon />
-          </StatusBadge>
-        }
-        isSelected={isSelected}
-        subheader={`#${ID}`}
-        title={NAME}
-      />
+      <div {...rootProps} data-cy={`vm-${ID}`}>
+        <div>
+          <StatusCircle color={stateColor} tooltip={stateName} />
+        </div>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography noWrap component="span">
+              {NAME}
+            </Typography>
+            <span className={classes.labels}>
+              {LOCK && <Lock data-cy="lock" />}
+            </span>
+          </div>
+          <div className={classes.caption}>
+            <span title={time.toFormat('ff')}>
+              {`#${ID} ${+ETIME ? 'done' : 'started'} `}
+              <Timer initial={time} />
+            </span>
+            <span title={`Owner: ${UNAME}`}>
+              <User />
+              <span data-cy="uname">{` ${UNAME}`}</span>
+            </span>
+            <span title={`Group: ${GNAME}`}>
+              <Group />
+              <span data-cy="gname">{` ${GNAME}`}</span>
+            </span>
+            <span title={`Hostname: ${HOSTNAME}`}>
+              <HardDrive />
+              <span data-cy="hostname">{` ${HOSTNAME}`}</span>
+            </span>
+          </div>
+        </div>
+        {!!IPS?.length && (
+          <div className={classes.secondary}>
+            <Stack flexWrap="wrap" justifyContent="end" alignItems="center">
+              <MultipleTags tags={IPS.split(',')} />
+            </Stack>
+          </div>
+        )}
+      </div>
     )
-  },
-  (prev, next) =>
-    prev.isSelected === next.isSelected &&
-    prev.value.STATE === next.value.STATE &&
-    prev.value?.LCM_STATE === next.value?.LCM_STATE
+  }
 )
 
 VirtualMachineCard.propTypes = {
-  handleClick: PropTypes.func,
-  isSelected: PropTypes.bool,
-  value: PropTypes.object,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.object.isRequired,
-      cy: PropTypes.string,
-    })
-  ),
-}
-
-VirtualMachineCard.defaultProps = {
-  handleClick: undefined,
-  isSelected: false,
-  value: {},
-  actions: undefined,
+  vm: PropTypes.object,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
+  }),
 }
 
 VirtualMachineCard.displayName = 'VirtualMachineCard'

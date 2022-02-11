@@ -24,25 +24,25 @@ import {
   EyeEmpty as EyeIcon,
 } from 'iconoir-react'
 
-import { useFetch } from 'client/hooks'
-import { useProviderApi } from 'client/features/One'
+import {
+  useLazyGetProviderConnectionQuery,
+  useGetProviderQuery,
+} from 'client/features/OneApi/provider'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import useStyles from 'client/containers/Providers/Sections/styles'
 
-const Info = memo(({ fetchProps }) => {
+const Info = memo(({ id }) => {
   const classes = useStyles()
-  const { getProviderConnection } = useProviderApi()
+  const [
+    getConnection,
+    { data: decryptConnection, isLoading: noConnectionYet },
+  ] = useLazyGetProviderConnectionQuery()
+  const { data: provider } = useGetProviderQuery(id)
 
-  const {
-    data: showConnection,
-    fetchRequest,
-    loading,
-  } = useFetch(getProviderConnection)
-
-  const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = fetchProps?.data
+  const { NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = provider
   const {
     connection,
     description,
@@ -66,7 +66,7 @@ const Info = memo(({ fetchProps }) => {
             <Divider />
             <ListItem>
               <Typography>{'ID'}</Typography>
-              <Typography>{ID}</Typography>
+              <Typography>{id}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
@@ -93,13 +93,13 @@ const Info = memo(({ fetchProps }) => {
             <List className={clsx(classes.list, 'w-50')}>
               <ListItem className={classes.title}>
                 <Typography>{Tr(T.Credentials)}</Typography>
-                {!showConnection && (
+                {!decryptConnection && (
                   <span className={classes.alignToRight}>
                     <SubmitButton
                       data-cy="provider-connection"
                       icon={<EyeIcon />}
-                      onClick={() => fetchRequest(ID)}
-                      isSubmitting={loading}
+                      onClick={async () => await getConnection(id)}
+                      isSubmitting={noConnectionYet}
                     />
                   </span>
                 )}
@@ -111,7 +111,7 @@ const Info = memo(({ fetchProps }) => {
                     <ListItem key={key}>
                       <Typography>{key}</Typography>
                       <Typography data-cy={`provider-${key}`}>
-                        {showConnection?.[key] ?? value}
+                        {decryptConnection?.[key] ?? value}
                       </Typography>
                     </ListItem>
                   )
@@ -171,18 +171,7 @@ const Info = memo(({ fetchProps }) => {
   )
 })
 
-Info.propTypes = {
-  fetchProps: PropTypes.shape({
-    data: PropTypes.object.isRequired,
-  }).isRequired,
-}
-
-Info.defaultProps = {
-  fetchProps: {
-    data: {},
-  },
-}
-
+Info.propTypes = { id: PropTypes.string.isRequired }
 Info.displayName = 'Info'
 
 export default Info

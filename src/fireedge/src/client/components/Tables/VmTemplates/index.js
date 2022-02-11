@@ -13,62 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 
-import {
-  SkeletonTable,
-  EnhancedTable,
-  EnhancedTableProps,
-} from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
+const DEFAULT_DATA_CY = 'vm-templates'
+
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} VM Templates table
+ */
 const VmTemplatesTable = (props) => {
-  const { view, getResourceView, filterPool } = useAuth()
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetTemplatesQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView('VM-TEMPLATE')?.filters,
+        filters: getResourceView(RESOURCE_NAMES.VM_TEMPLATE)?.filters,
         columns: VmTemplateColumns,
       }),
     [view]
   )
 
-  const vmTemplates = useVmTemplate()
-  const { getVmTemplates } = useVmTemplateApi()
-
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getVmTemplates)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => {
-    fetchRequest()
-  }, [filterPool])
-
-  if (vmTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
-
   return (
     <EnhancedTable
       columns={columns}
-      data={vmTemplates}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VmTemplateRow}
-      {...props}
+      {...rest}
     />
   )
 }
 
-VmTemplatesTable.propTypes = EnhancedTableProps
+VmTemplatesTable.propTypes = { ...EnhancedTable.propTypes }
 VmTemplatesTable.displayName = 'VmTemplatesTable'
 
 export default VmTemplatesTable

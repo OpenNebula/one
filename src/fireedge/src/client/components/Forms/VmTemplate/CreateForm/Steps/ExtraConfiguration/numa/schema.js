@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, number } from 'yup'
 
-import { useHost } from 'client/features/One'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getHugepageSizes } from 'client/models/Host'
 import {
   T,
@@ -144,7 +144,7 @@ const HUGEPAGES = {
   notOnHypervisors: [vcenter, firecracker],
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const hosts = useHost()
+    const { data: hosts = [] } = useGetHostsQuery()
     const sizes = hosts
       .reduce((res, host) => res.concat(getHugepageSizes(host)), [])
       .flat()

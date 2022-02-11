@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
+import {
+  useGetVmQuery,
+  useAddScheduledActionMutation,
+  useUpdateScheduledActionMutation,
+  useDeleteScheduledActionMutation,
+} from 'client/features/OneApi/vm'
 import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
 import {
   CreateSchedButton,
   CharterButton,
+  UpdateSchedButton,
+  DeleteSchedButton,
 } from 'client/components/Buttons/ScheduleAction'
 
 import {
@@ -42,19 +48,20 @@ const {
 } = VM_ACTIONS
 
 /**
- * Renders the list of schedule action from a VM.
+ * Renders the list of schedule actions from a VM.
  *
  * @param {object} props - Props
  * @param {object|boolean} props.tabProps - Tab properties
  * @param {object} [props.tabProps.actions] - Actions from user view yaml
- * @returns {ReactElement} List of schedule actions
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Schedule actions tab
  */
-const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
-  const { config } = useAuth()
-  const { handleRefetch, data: vm } = useContext(TabContext)
-
-  const { addScheduledAction, updateScheduledAction, deleteScheduledAction } =
-    useVmApi()
+const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: config } = useGetSunstoneConfigQuery()
+  const [addScheduledAction] = useAddScheduledActionMutation()
+  const [updateScheduledAction] = useUpdateScheduledActionMutation()
+  const [deleteScheduledAction] = useDeleteScheduledActionMutation()
+  const { data: vm = {} } = useGetVmQuery(id)
 
   const [scheduling, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
@@ -66,7 +73,7 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
     return [getScheduleActions(vm), actionsByState]
   }, [vm])
 
-  const iCreateEnabled = actionsAvailable?.includes?.(SCHED_ACTION_CREATE)
+  const isCreateEnabled = actionsAvailable?.includes?.(SCHED_ACTION_CREATE)
   const isUpdateEnabled = actionsAvailable?.includes?.(SCHED_ACTION_UPDATE)
   const isDeleteEnabled = actionsAvailable?.includes?.(SCHED_ACTION_DELETE)
   const isCharterEnabled =
@@ -79,41 +86,30 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
    * @returns {Promise} - Add schedule action and refetch VM data
    */
   const handleCreateSchedAction = async (formData) => {
-    const data = { template: jsonToXml({ SCHED_ACTION: formData }) }
-    const response = await addScheduledAction(vm.ID, data)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
+    const template = jsonToXml({ SCHED_ACTION: formData })
+    await addScheduledAction({ id, template })
   }
 
   /**
    * Update schedule action to VM.
    *
    * @param {object} formData - Updated schedule action
-   * @param {string|number} id - Schedule action id
+   * @param {string|number} schedId - Schedule action id
    * @returns {Promise} - Update schedule action and refetch VM data
    */
-  const handleUpdate = async (formData, id) => {
-    const data = {
-      id_sched: id,
-      template: jsonToXml({ SCHED_ACTION: formData }),
-    }
-
-    const response = await updateScheduledAction(vm.ID, data)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
+  const handleUpdate = async (formData, schedId) => {
+    const template = jsonToXml({ SCHED_ACTION: formData })
+    await updateScheduledAction({ id, schedId, template })
   }
 
   /**
    * Delete schedule action to VM.
    *
-   * @param {string|number} id - Schedule action id
+   * @param {string|number} schedId - Schedule action id
    * @returns {Promise} - Delete schedule action and refetch VM data
    */
-  const handleRemove = async (id) => {
-    const data = { id_sched: id }
-    const response = await deleteScheduledAction(vm.ID, data)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
+  const handleRemove = async (schedId) => {
+    await deleteScheduledAction({ id, schedId })
   }
 
   /**
@@ -123,42 +119,45 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
    * @returns {Promise} - Add schedule actions and refetch VM data
    */
   const handleCreateCharter = async (formData) => {
-    const responses = await Promise.all(
-      formData.map((schedAction) => {
-        const data = { template: jsonToXml({ SCHED_ACTION: schedAction }) }
-
-        return addScheduledAction(vm.ID, data)
-      })
-    )
-
-    responses.some((response) => String(response) === String(vm?.ID)) &&
-      (await handleRefetch?.(vm.ID))
+    await Promise.all(formData.map(addScheduledAction))
   }
 
   return (
     <>
-      {(iCreateEnabled || isCharterEnabled) && (
+      {(isCreateEnabled || isCharterEnabled) && (
         <Stack flexDirection="row" gap="1em">
-          {iCreateEnabled && (
+          {isCreateEnabled && (
             <CreateSchedButton vm={vm} onSubmit={handleCreateSchedAction} />
           )}
           {isCharterEnabled && <CharterButton onSubmit={handleCreateCharter} />}
         </Stack>
       )}
 
-      <Stack display="grid" gap="1em" py="0.8em">
+      <Stack direction="column" gap="1em" py="0.8em">
         {scheduling.map((schedule) => {
           const { ID, NAME } = schedule
 
           return (
             <ScheduleActionCard
               key={ID ?? NAME}
-              vm={vm}
               schedule={schedule}
-              {...(isUpdateEnabled && {
-                handleUpdate: (newAction) => handleUpdate(newAction, ID),
-              })}
-              {...(isDeleteEnabled && { handleRemove: () => handleRemove(ID) })}
+              actions={({ noMore }) => (
+                <>
+                  {isUpdateEnabled && !noMore && (
+                    <UpdateSchedButton
+                      vm={vm}
+                      schedule={schedule}
+                      onSubmit={(newAction) => handleUpdate(newAction, ID)}
+                    />
+                  )}
+                  {isDeleteEnabled && (
+                    <DeleteSchedButton
+                      onSubmit={() => handleRemove(ID)}
+                      schedule={schedule}
+                    />
+                  )}
+                </>
+              )}
             />
           )
         })}
@@ -168,11 +167,8 @@ const VmSchedulingTab = ({ tabProps: { actions } = {} }) => {
 }
 
 VmSchedulingTab.propTypes = {
-  tabProps: PropTypes.shape({
-    actions: PropTypes.object,
-  }),
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
-
-VmSchedulingTab.displayName = 'VmSchedulingTab'
 
 export default VmSchedulingTab

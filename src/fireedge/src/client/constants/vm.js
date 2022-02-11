@@ -16,6 +16,205 @@
 import * as STATES from 'client/constants/states'
 import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
+// eslint-disable-next-line no-unused-vars
+import { Permissions, LockInfo } from 'client/constants/common'
+// eslint-disable-next-line no-unused-vars
+import { ScheduleAction } from 'client/constants/scheduler'
+
+/**
+ * @typedef {object} Disk
+ * @property {string} [VCENTER_DS_REF] -
+ * @property {string} [VCENTER_INSTANCE_ID] -
+ */
+
+/**
+ * @typedef {object} Nic
+ * @property {string} [VCENTER_INSTANCE_ID] -
+ * @property {string} [VCENTER_NET_REF] -
+ * @property {string} [VCENTER_PORTGROUP_TYPE] -
+ */
+
+/**
+ * @typedef {object} NicAlias
+ * @property {string} ALIAS_ID -
+ * @property {string} PARENT -
+ * @property {string} PARENT_ID -
+ * @property {string} [VCENTER_INSTANCE_ID] -
+ * @property {string} [VCENTER_NET_REF] -
+ * @property {string} [VCENTER_PORTGROUP_TYPE] -
+ */
+
+/**
+ * @typedef {object} DiskSize
+ * @property {string|number} ID -
+ * @property {string|number} SIZE -
+ */
+
+/**
+ * @typedef {object} Graphics
+ * @property {string|number} LISTEN -
+ * @property {string} RANDOM_PASSW -
+ * @property {string} TYPE -
+ */
+
+/**
+ * @typedef {object} HistoryRecord
+ * @property {string|number} OID -
+ * @property {string|number} SEQ -
+ * @property {string} HOSTNAME -
+ * @property {string|number} HID -
+ * @property {string|number} CID -
+ * @property {string|number} STIME -
+ * @property {string|number} ETIME -
+ * @property {string} VM_MAD -
+ * @property {string} TM_MAD -
+ * @property {string|number} DS_ID -
+ * @property {string|number} PSTIME -
+ * @property {string|number} PETIME -
+ * @property {string|number} RSTIME -
+ * @property {string|number} RETIME -
+ * @property {string|number} ESTIME -
+ * @property {string|number} EETIME -
+ * @property {VM_ACTIONS} ACTION -
+ * @property {string|number} UID -
+ * @property {string|number} GID -
+ * @property {string|number} REQUEST_ID -
+ */
+
+/**
+ * @typedef {object} HistoryShortRecord
+ * @property {string|number} OID -
+ * @property {string|number} SEQ -
+ * @property {string} HOSTNAME -
+ * @property {string|number} HID -
+ * @property {string|number} CID -
+ * @property {string|number} DS_ID -
+ * @property {VM_ACTIONS} ACTION -
+ */
+
+/**
+ * @typedef {object} DiskSnapshots
+ * @property {string|number} ALLOW_ORPHANS -
+ * @property {string|number} CURRENT_BASE -
+ * @property {string|number} DISK_ID -
+ * @property {string|number} NEXT_SNAPSHOT -
+ * @property {DiskSnapshot|DiskSnapshot[]} [SNAPSHOT] -
+ */
+
+/**
+ * @typedef {object} DiskSnapshot
+ * @property {string|number} ID -
+ * @property {string|number} DATE -
+ * @property {string|number} PARENT -
+ * @property {string|number} SIZE -
+ * @property {string} [NAME] -
+ * @property {string} [ACTIVE] -
+ * @property {string} [CHILDREN] -
+ */
+
+/**
+ * @typedef {object} Snapshot
+ * @property {string} SNAPSHOT_ID -
+ * @property {string} NAME -
+ * @property {string} TIME -
+ * @property {string} HYPERVISOR_ID -
+ * @property {string} SYSTEM_DISK_SIZE -
+ * @property {string} [ACTIVE] -
+ * @property {string} [ACTION] -
+ */
+
+/**
+ * @typedef {object} VM
+ * @property {string|number} ID - Id
+ * @property {string} NAME - Name
+ * @property {string|number} UID - User id
+ * @property {string|number} GID - Group id
+ * @property {string} UNAME - User name
+ * @property {string} GNAME - Group name
+ * @property {Permissions} PERMISSIONS - Permissions
+ * @property {string|number} LAST_POLL - Last poll
+ * @property {string|number} STATE - Current state
+ * @property {string|number} LCM_STATE - Current LCM state
+ * @property {string|number} PREV_STATE - Previous state
+ * @property {string|number} PREV_LCM_STATE - Previous LCM state
+ * @property {string|number} STIME - Start time
+ * @property {string|number} ETIME - End time
+ * @property {string|number} DEPLOY_ID - Deploy id
+ * @property {LockInfo} [LOCK] - Lock information
+ * @property {object} MONITORING - Monitoring information
+ * @property {number} [MONITORING.CPU] - Percentage of 1 CPU consumed (two fully consumed cpu is 2.0)
+ * @property {number} [MONITORING.DISKRDBYTES] - Amount of bytes read from disk
+ * @property {number} [MONITORING.DISKRDIOPS] - Number of IO read operations
+ * @property {number} [MONITORING.DISKWRBYTES] - Amount of bytes written to disk
+ * @property {number} [MONITORING.DISKWRIOPS] - Number of IO write operations
+ * @property {DiskSize|DiskSize[]} [MONITORING.DISK_SIZE] - Disk size details
+ * @property {number} [MONITORING.ID] - ID of the VM
+ * @property {number} [MONITORING.MEMORY] - Consumption in kilobytes
+ * @property {number} [MONITORING.NETRX] - Received bytes from the network
+ * @property {number} [MONITORING.NETTX] - Sent bytes to the network
+ * @property {number} [MONITORING.TIMESTAMP] - Exact time when monitoring info were retrieved
+ * @property {string} [MONITORING.VCENTER_ESX_HOST] - vCenter information
+ * @property {string} [MONITORING.VCENTER_GUEST_STATE] - vCenter information
+ * @property {string} [MONITORING.VCENTER_RP_NAME] - vCenter information
+ * @property {string} [MONITORING.VCENTER_VMWARETOOLS_RUNNING_STATUS] - vCenter information
+ * @property {string} [MONITORING.VCENTER_VMWARETOOLS_VERSION] - vCenter information
+ * @property {string} [MONITORING.VCENTER_VMWARETOOLS_VERSION_STATUS] - vCenter information
+ * @property {string} [MONITORING.VCENTER_VM_NAME] - vCenter information
+ * @property {object} TEMPLATE - Template information
+ * @property {string} [TEMPLATE.AUTOMATIC_DS_REQUIREMENTS] -
+ * @property {string} [TEMPLATE.AUTOMATIC_NIC_REQUIREMENTS] -
+ * @property {string} [TEMPLATE.AUTOMATIC_REQUIREMENTS] -
+ * @property {string} [TEMPLATE.CLONING_TEMPLATE_ID] -
+ * @property {string} [TEMPLATE.CONTEXT] -
+ * @property {string} [TEMPLATE.CPU] -
+ * @property {string} [TEMPLATE.CPU_COST] -
+ * @property {Disk|Disk[]} [TEMPLATE.DISK] -
+ * @property {string} [TEMPLATE.DISK_COST] -
+ * @property {string} [TEMPLATE.EMULATOR] -
+ * @property {any} [TEMPLATE.FEATURES] -
+ * @property {any} [TEMPLATE.HYPERV_OPTIONS] -
+ * @property {Graphics} [TEMPLATE.GRAPHICS] -
+ * @property {string} [TEMPLATE.IMPORTED] -
+ * @property {any} [TEMPLATE.INPUT] -
+ * @property {string} [TEMPLATE.MEMORY] -
+ * @property {string} [TEMPLATE.MEMORY_COST] -
+ * @property {string} [TEMPLATE.MEMORY_MAX] -
+ * @property {string} [TEMPLATE.MEMORY_SLOTS] -
+ * @property {Nic|Nic[]} [TEMPLATE.NIC] -
+ * @property {NicAlias|NicAlias[]} [TEMPLATE.NIC_ALIAS] -
+ * @property {any} [TEMPLATE.NIC_DEFAULT] -
+ * @property {any} [TEMPLATE.NUMA_NODE] -
+ * @property {any} [TEMPLATE.OS] -
+ * @property {any} [TEMPLATE.PCI] -
+ * @property {any} [TEMPLATE.RAW] -
+ * @property {ScheduleAction|ScheduleAction[]} [TEMPLATE.SCHED_ACTION] -
+ * @property {Snapshot|Snapshot[]} [TEMPLATE.SNAPSHOT] -
+ * @property {any} [TEMPLATE.SECURITY_GROUP_RULE] -
+ * @property {any} [TEMPLATE.SPICE_OPTIONS] -
+ * @property {string} [TEMPLATE.SUBMIT_ON_HOLD] -
+ * @property {string} [TEMPLATE.TEMPLATE_ID] -
+ * @property {string} TEMPLATE.TM_MAD_SYSTEM -
+ * @property {any} [TEMPLATE.TOPOLOGY] -
+ * @property {string} [TEMPLATE.VCPU] -
+ * @property {string} [TEMPLATE.VCPU_MAX] -
+ * @property {object|object[]} [TEMPLATE.VMGROUP] -
+ * @property {string} TEMPLATE.VMID -
+ * @property {string} [TEMPLATE.VROUTER_ID] -
+ * @property {string} [TEMPLATE.VROUTER_KEEPALIVED_ID] -
+ * @property {string} [TEMPLATE.VROUTER_KEEPALIVED_PASSWORD] -
+ * @property {object} USER_TEMPLATE -
+ * @property {string} [USER_TEMPLATE.ERROR] -
+ * @property {string} [USER_TEMPLATE.HYPERVISOR] -
+ * @property {string} [USER_TEMPLATE.LOGO] -
+ * @property {string} [USER_TEMPLATE.INFO] -
+ * @property {string} [USER_TEMPLATE.SCHED_REQUIREMENTS] -
+ * @property {string} [USER_TEMPLATE.VCENTER_CCR_REF] -
+ * @property {string} [USER_TEMPLATE.VCENTER_DS_REF] -
+ * @property {string} [USER_TEMPLATE.VCENTER_INSTANCE_ID] -
+ * @property {object} HISTORY_RECORDS - History
+ * @property {HistoryRecord|HistoryRecord[]} [HISTORY_RECORDS.HISTORY] - History Records
+ * @property {DiskSnapshots|DiskSnapshots[]} [SNAPSHOTS] -
+ */
 
 /** @type {STATES.StateInfo[]} Virtual machine states */
 export const VM_STATES = [

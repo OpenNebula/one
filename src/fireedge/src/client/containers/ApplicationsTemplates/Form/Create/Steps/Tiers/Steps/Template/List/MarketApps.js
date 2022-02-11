@@ -14,22 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useMarketplaceApp, useMarketplaceAppApi } from 'client/features/One'
+import { useGetMarketplaceAppsQuery } from 'client/features/OneApi/marketplaceApp'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
-  const apps = useMarketplaceApp()
-  const { getMarketplaceApps } = useMarketplaceAppApi()
-
-  useEffect(() => {
-    getMarketplaceApps()
-  }, [])
+  const { data: apps = [] } = useGetMarketplaceAppsQuery()
 
   return (
     <Search

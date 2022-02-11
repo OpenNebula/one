@@ -28,14 +28,21 @@ import {
   HISTORY_ACTIONS,
   HYPERVISORS,
   StateInfo,
+  VM,
+  Disk,
+  Nic,
+  NicAlias,
+  ScheduleAction,
+  HistoryRecord,
+  Snapshot,
 } from 'client/constants'
 
 /**
  * This function removes, from the given list,
  * the Virtual machines in state DONE.
  *
- * @param {Array} vms - List of virtual machines
- * @returns {Array} Clean list of vms with done state
+ * @param {VM[]} vms - List of virtual machines
+ * @returns {VM[]} Clean list of vms with done state
  */
 export const filterDoneVms = (vms = []) =>
   vms.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE)
@@ -47,15 +54,15 @@ export const filterDoneVms = (vms = []) =>
 export const getHistoryAction = (action) => HISTORY_ACTIONS[+action]
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {object} History records from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {HistoryRecord[]} History records from resource
  */
 export const getHistoryRecords = (vm) =>
   [vm?.HISTORY_RECORDS?.HISTORY ?? []].flat()
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {object} Last history record from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {HistoryRecord} Last history record from resource
  */
 export const getLastHistory = (vm) => {
   const records = getHistoryRecords(vm)
@@ -64,7 +71,7 @@ export const getLastHistory = (vm) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
+ * @param {VM} vm - Virtual machine
  * @returns {string} Resource type: VR, FLOW or VM
  */
 export const getType = (vm) =>
@@ -75,20 +82,20 @@ export const getType = (vm) =>
     : 'VM'
 
 /**
- * @param {object} vm - Virtual machine
+ * @param {VM} vm - Virtual machine
  * @returns {string} Resource hypervisor
  */
 export const getHypervisor = (vm) =>
   String(getLastHistory(vm)?.VM_MAD).toLowerCase()
 
 /**
- * @param {object} vm - Virtual machine
+ * @param {VM} vm - Virtual machine
  * @returns {boolean} If the hypervisor is vCenter
  */
 export const isVCenter = (vm) => getHypervisor(vm) === HYPERVISORS.vcenter
 
 /**
- * @param {object} vm - Virtual machine
+ * @param {VM} vm - Virtual machine
  * @returns {StateInfo} State information from resource
  */
 export const getState = (vm) => {
@@ -99,8 +106,8 @@ export const getState = (vm) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {Array} List of disks from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {Disk[]} List of disks from resource
  */
 export const getDisks = (vm) => {
   const { TEMPLATE = {}, MONITORING = {}, SNAPSHOTS = {} } = vm ?? {}
@@ -152,13 +159,13 @@ export const getDisks = (vm) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
+ * @param {VM} vm - Virtual machine
  * @param {object} [options] - Options
  * @param {boolean} [options.groupAlias]
  * - Create ALIAS attribute with result to mapping NIC_ALIAS and ALIAS_IDS
  * @param {boolean} [options.securityGroupsFromTemplate]
  * - Create SECURITY_GROUPS attribute with rules from TEMPLATE.SECURITY_GROUP_RULE
- * @returns {object[]} List of nics from resource
+ * @returns {Nic[]} List of nics from resource
  */
 export const getNics = (vm, options = {}) => {
   const { groupAlias = false, securityGroupsFromTemplate = false } = options
@@ -204,8 +211,8 @@ export const getNics = (vm, options = {}) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {Array} List of ips from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {string[]} List of ips from resource
  */
 export const getIps = (vm) => {
   const getIpsFromNic = (nic) =>
@@ -215,8 +222,8 @@ export const getIps = (vm) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {{ nics: Array, alias: Array }} Lists of nics and alias from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {{ nics: Nic[], alias: NicAlias[] }} Lists of nics and alias from resource
  */
 export const splitNicAlias = (vm) =>
   getNics(vm).reduce(
@@ -229,8 +236,8 @@ export const splitNicAlias = (vm) =>
   )
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {Array} List of snapshots from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {Snapshot[]} List of snapshots from resource
  */
 export const getSnapshotList = (vm) => {
   const { TEMPLATE = {} } = vm ?? {}
@@ -239,8 +246,8 @@ export const getSnapshotList = (vm) => {
 }
 
 /**
- * @param {object} vm - Virtual machine
- * @returns {Array} List of schedule actions from resource
+ * @param {VM} vm - Virtual machine
+ * @returns {ScheduleAction[]} List of schedule actions from resource
  */
 export const getScheduleActions = (vm) => {
   const { STIME: vmStartTime, TEMPLATE = {} } = vm ?? {}

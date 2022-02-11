@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { useListForm } from 'client/hooks'
-import { useVmTemplateApi } from 'client/features/One'
+import { useLazyGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 import { VmTemplatesTable } from 'client/components/Tables'
 
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable/schema'
@@ -39,7 +39,7 @@ const useStyles = makeStyles({
 const Content = ({ data, setFormData }) => {
   const classes = useStyles()
   const selectedTemplate = data?.[0]
-  const { getVmTemplate } = useVmTemplateApi()
+  const [getVmTemplate] = useLazyGetTemplateQuery()
 
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
@@ -48,12 +48,12 @@ const Content = ({ data, setFormData }) => {
 
   const handleSelectedRows = async (rows) => {
     const { original: templateSelected } = rows?.[0] ?? {}
-    const { ID } = templateSelected ?? {}
+    const { ID: id } = templateSelected ?? {}
 
-    if (!ID) return handleClear()
+    if (!id) return handleClear()
 
-    const extendedTemplate = ID
-      ? await getVmTemplate(ID, { extended: true })
+    const extendedTemplate = id
+      ? await getVmTemplate({ id, extended: true }).unwrap()
       : {}
 
     setFormData((prev) => ({

@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useCallback } from 'react'
+import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useGetVmQuery,
+  useChangeVmOwnershipMutation,
+  useChangeVmPermissionsMutation,
+  useUpdateUserTemplateMutation,
+} from 'client/features/OneApi/vm'
 import {
   Permissions,
   Ownership,
@@ -42,7 +46,15 @@ const HIDDEN_ATTRIBUTES_REG = /^(USER_INPUTS|BACKUP|HOT_RESIZE)$|SCHED_|ERROR/
 const HIDDEN_MONITORING_REG =
   /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
-const VmInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Virtual machine id
+ * @returns {ReactElement} Information tab
+ */
+const VmInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -53,44 +65,12 @@ const VmInfoTab = ({ tabProps = {} }) => {
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { changeOwnership, changePermissions, rename, updateUserTemplate } =
-    useVmApi()
-  const { handleRefetch, data: vm = {} } = useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } =
-    vm
+  const [changeVmOwnership] = useChangeVmOwnershipMutation()
+  const [changeVmPermissions] = useChangeVmPermissionsMutation()
+  const [updateUserTemplate] = useUpdateUserTemplateMutation()
+  const { data: vm = {} } = useGetVmQuery(id)
 
-  const handleChangeOwnership = async (newOwnership) => {
-    const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleChangePermission = async (newPermission) => {
-    const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleRename = async (_, newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleAttributeInXml = async (path, newValue) => {
-    const newTemplate = cloneObject(USER_TEMPLATE)
-
-    set(newTemplate, path, newValue)
-
-    const xml = jsonToXml(newTemplate)
-
-    // 0: Replace the whole user template
-    const response = await updateUserTemplate(ID, xml, 0)
-
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const getActions = useCallback(
-    (actions) => getActionsAvailable(actions, getHypervisor(vm)),
-    [vm]
-  )
+  const { UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
 
   const {
     attributes,
@@ -108,6 +88,27 @@ const VmInfoTab = ({ tabProps = {} }) => {
     hidden: HIDDEN_MONITORING_REG,
   })
 
+  const handleChangeOwnership = async (newOwnership) => {
+    await changeVmOwnership({ id, ...newOwnership })
+  }
+
+  const handleChangePermission = async (newPermission) => {
+    await changeVmPermissions({ id, ...newPermission })
+  }
+
+  const handleAttributeInXml = async (path, newValue) => {
+    const newTemplate = cloneObject(USER_TEMPLATE)
+    set(newTemplate, path, newValue)
+
+    const xml = jsonToXml(newTemplate)
+    await updateUserTemplate({ id, template: xml, replace: 0 })
+  }
+
+  const getActions = useCallback(
+    (actions) => getActionsAvailable(actions, getHypervisor(vm)),
+    [vm]
+  )
+
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
@@ -115,24 +116,19 @@ const VmInfoTab = ({ tabProps = {} }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gap: '1em',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-        padding: '0.8em',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
     >
       {informationPanel?.enabled && (
-        <Information
-          actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
-          vm={vm}
-        />
+        <Information actions={getActions(informationPanel?.actions)} vm={vm} />
       )}
       {permissionsPanel?.enabled && (
         <Permissions
           actions={getActions(permissionsPanel?.actions)}
+          handleEdit={handleChangePermission}
           ownerUse={PERMISSIONS.OWNER_U}
           ownerManage={PERMISSIONS.OWNER_M}
           ownerAdmin={PERMISSIONS.OWNER_A}
@@ -142,17 +138,16 @@ const VmInfoTab = ({ tabProps = {} }) => {
           otherUse={PERMISSIONS.OTHER_U}
           otherManage={PERMISSIONS.OTHER_M}
           otherAdmin={PERMISSIONS.OTHER_A}
-          handleEdit={handleChangePermission}
         />
       )}
       {ownershipPanel?.enabled && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
+          handleEdit={handleChangeOwnership}
           userId={UID}
           userName={UNAME}
           groupId={GID}
           groupName={GNAME}
-          handleEdit={handleChangeOwnership}
         />
       )}
       {attributesPanel?.enabled && attributes && (
@@ -186,12 +181,13 @@ const VmInfoTab = ({ tabProps = {} }) => {
           title={Tr(T.Monitoring)}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 VmInfoTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmInfoTab.displayName = 'VmInfoTab'

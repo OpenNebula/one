@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
-
-import NetworkList from 'client/components/Tabs/Vm/Network/List'
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { AttachNicForm } from 'client/components/Forms/Vm'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import NicCard from 'client/components/Cards/NicCard'
+import {
+  AttachAction,
+  DetachAction,
+} from 'client/components/Tabs/Vm/Network/Actions'
 
 import {
   getNics,
   getHypervisor,
   isAvailableAction,
 } from 'client/models/VirtualMachine'
-import { jsonToXml, getActionsAvailable } from 'client/models/Helper'
-import { T, VM_ACTIONS } from 'client/constants'
+import { getActionsAvailable } from 'client/models/Helper'
+import { VM_ACTIONS } from 'client/constants'
 
-const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
-  const { attachNic } = useVmApi()
+const { ATTACH_NIC, DETACH_NIC } = VM_ACTIONS
 
-  const { handleRefetch, data: vm } = useContext(TabContext)
+/**
+ * Renders the list of networks from a VM.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Networks tab
+ */
+const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: vm } = useGetVmQuery(id)
 
   const [nics, actionsAvailable] = useMemo(() => {
     const groupedNics = getNics(vm, {
@@ -51,43 +60,36 @@ const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
     return [groupedNics, actionsByState]
   }, [vm])
 
-  const handleAttachNic = async (formData) => {
-    const isAlias = !!formData?.PARENT?.length
-    const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
-
-    const template = jsonToXml(data)
-    const response = await attachNic(vm.ID, template)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
-  }
-
   return (
     <>
-      {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_NIC) && (
-        <ButtonToTriggerForm
-          buttonProps={{
-            color: 'secondary',
-            'data-cy': 'attach-nic',
-            label: T.AttachNic,
-            variant: 'outlined',
-          }}
-          options={[
-            {
-              dialogProps: { title: T.AttachNic },
-              form: () => AttachNicForm({ nics }),
-              onSubmit: handleAttachNic,
-            },
-          ]}
-        />
+      {actionsAvailable?.includes?.(ATTACH_NIC) && (
+        <AttachAction vmId={id} currentNics={nics} />
       )}
 
-      <NetworkList actions={actionsAvailable} nics={nics} />
+      <Stack direction="column" gap="1em" py="0.8em">
+        {nics.map((nic) => {
+          const { IP, MAC, ADDRESS } = nic
+          const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
+
+          return (
+            <NicCard
+              key={key}
+              nic={nic}
+              extraActionProps={{ vmId: id }}
+              actions={[
+                actionsAvailable.includes(DETACH_NIC) && DetachAction,
+              ].filter(Boolean)}
+            />
+          )
+        })}
+      </Stack>
     </>
   )
 }
 
 VmNetworkTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'

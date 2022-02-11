@@ -612,7 +612,7 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        id_sched: {
+        schedId: {
           from: postBody,
           default: 0,
         },
@@ -629,7 +629,7 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        id_sched: {
+        schedId: {
           from: postBody,
           default: 0,
         },
@@ -653,7 +653,7 @@ module.exports = {
         },
         state: {
           from: query,
-          default: -2,
+          default: -1,
         },
         filterByKey: {
           from: query,
@@ -679,7 +679,7 @@ module.exports = {
         },
         state: {
           from: query,
-          default: -2,
+          default: -1,
         },
         filterBykey: {
           from: query,
@@ -694,6 +694,10 @@ module.exports = {
         filter: {
           from: query,
           default: -2,
+        },
+        seconds: {
+          from: query,
+          default: -1,
         },
       },
     },

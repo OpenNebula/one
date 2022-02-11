@@ -26,8 +26,11 @@ import { NavArrowRight } from 'iconoir-react'
 import { marked } from 'marked'
 
 import { useListForm } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
-import { useProvider, useProvisionTemplate } from 'client/features/One'
+import {
+  useGetProvidersQuery,
+  useGetProviderConfigQuery,
+} from 'client/features/OneApi/provider'
+import { useGetProvisionTemplatesQuery } from 'client/features/OneApi/provision'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
 import { Step, sanitize } from 'client/utils'
@@ -75,9 +78,9 @@ Description.propTypes = { description: PropTypes.string }
 // ----------------------------------------------------------
 
 const Content = ({ data, setFormData }) => {
-  const providers = useProvider()
-  const provisionTemplates = useProvisionTemplate()
-  const { providerConfig } = useAuth()
+  const { data: provisionTemplates } = useGetProvisionTemplatesQuery()
+  const { data: providers } = useGetProvidersQuery()
+  const { data: providerConfig } = useGetProviderConfigQuery()
   const templateSelected = data?.[0]
 
   const provisionTypes = useMemo(
@@ -177,7 +180,7 @@ const Content = ({ data, setFormData }) => {
             inputProps={{ 'data-cy': 'select-provision-type' }}
             labelId="select-provision-type-label"
             native
-            style={{ marginTop: '1em', minWidth: '8em' }}
+            sx={{ marginTop: '1em', minWidth: '8em' }}
             onChange={handleChangeProvision}
             value={provisionSelected}
             variant="outlined"
@@ -198,7 +201,7 @@ const Content = ({ data, setFormData }) => {
             inputProps={{ 'data-cy': 'select-provider-type' }}
             labelId="select-provider-type-label"
             native
-            style={{ marginTop: '1em', minWidth: '8em' }}
+            sx={{ marginTop: '1em', minWidth: '8em' }}
             onChange={handleChangeProvider}
             value={providerSelected}
             variant="outlined"
@@ -221,7 +224,7 @@ const Content = ({ data, setFormData }) => {
         [providerDescription]
       )}
 
-      <Divider style={{ margin: '1rem 0' }} />
+      <Divider sx={{ margin: '1rem 0' }} />
 
       {/* -- LIST -- */}
       <ListCards

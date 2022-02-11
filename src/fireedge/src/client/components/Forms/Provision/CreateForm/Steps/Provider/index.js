@@ -14,12 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
-import { useProvider } from 'client/features/One'
+import {
+  useGetProvidersQuery,
+  useGetProviderConfigQuery,
+} from 'client/features/OneApi/provider'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
 import { T } from 'client/constants'
@@ -34,9 +36,9 @@ const Provider = () => ({
   id: STEP_ID,
   label: T.Provider,
   resolver: () => STEP_FORM_SCHEMA,
-  content: useCallback(({ data, setFormData }) => {
-    const providers = useProvider()
-    const { providerConfig } = useAuth()
+  content: ({ data, setFormData }) => {
+    const { data: providers } = useGetProvidersQuery()
+    const { data: providerConfig } = useGetProviderConfigQuery()
 
     const provisionTemplateSelected = useWatch({ name: TEMPLATE_ID })?.[0] ?? {}
 
@@ -87,7 +89,7 @@ const Provider = () => ({
         }}
       />
     )
-  }, []),
+  },
 })
 
 export default Provider

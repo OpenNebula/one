@@ -16,7 +16,8 @@
 import { string, boolean, ObjectSchema } from 'yup'
 import { makeStyles } from '@mui/styles'
 
-import { useSystem, useDatastore } from 'client/features/One'
+import { useGetOneConfigQuery } from 'client/features/OneApi/system'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
   ImagesTable,
   VmsTable,
@@ -134,8 +135,8 @@ const RES_TABLE = {
     .default(() => undefined),
   grid: { md: 12 },
   fieldProps: (type) => {
-    const { config: oneConfig } = useSystem()
-    const datastores = useDatastore()
+    const { data: oneConfig = {} } = useGetOneConfigQuery()
+    const { data: datastores = [] } = useGetDatastoresQuery()
     const classes = useTableStyles()
 
     return {

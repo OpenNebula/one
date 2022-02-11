@@ -13,36 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router'
 
+import { useRenameHostMutation } from 'client/features/OneApi/host'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import { StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getState, getDatastores, getAllocatedInfo } from 'client/models/Host'
 import { getCapacityInfo } from 'client/models/Datastore'
-import { T, VM_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, Host } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-const InformationPanel = ({ host = {}, handleRename, actions }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {Host} props.host - Host resource
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ host = {}, actions }) => {
+  const [renameHost] = useRenameHostMutation()
+  const { data: datastores = [] } = useGetDatastoresQuery()
+
   const { ID, NAME, IM_MAD, VM_MAD, CLUSTER_ID, CLUSTER } = host
   const { name: stateName, color: stateColor } = getState(host)
-  const datastores = getDatastores(host)
   const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
     getAllocatedInfo(host)
 
+  const handleRename = async (_, newName) => {
+    await renameHost({ id: ID, name: newName })
+  }
+
   const info = [
-    { name: T.ID, value: ID },
+    { name: T.ID, value: ID, dataCy: 'id' },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
       handleEdit: handleRename,
+      dataCy: 'name',
     },
     {
       name: T.State,
-      value: <StatusChip text={stateName} stateColor={stateColor} />,
+      value: (
+        <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+      ),
     },
     {
       name: T.Cluster,
@@ -50,9 +69,10 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
       link:
         !Number.isNaN(+CLUSTER_ID) &&
         generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: CLUSTER_ID }),
+      dataCy: 'clusterid',
     },
-    { name: T.IM_MAD, value: IM_MAD },
-    { name: T.VM_MAD, value: VM_MAD },
+    { name: T.IM_MAD, value: IM_MAD, dataCy: 'immad' },
+    { name: T.VM_MAD, value: VM_MAD, dataCy: 'vmmad' },
   ]
 
   const capacity = [
@@ -76,11 +96,13 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
     },
   ]
 
-  const datastore = datastores.map((ds) => {
-    const { percentOfUsed, percentLabel } = getCapacityInfo(ds)
+  const infoFromDatastores = getDatastores(host).map((dsHost) => {
+    const { percentOfUsed, percentLabel } = getCapacityInfo(dsHost)
+    const dsName = datastores.find((ds) => +ds.ID === +dsHost.ID)?.NAME ?? '--'
 
     return {
-      name: `#${ds?.ID}`, // TODO: add datastore name
+      name: `#${dsHost.ID} ${dsName}`,
+      dataCy: `ds-id-${dsHost.ID}`,
       value: (
         <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
       ),
@@ -95,7 +117,7 @@ const InformationPanel = ({ host = {}, handleRename, actions }) => {
         containerProps={{ style: { gridRow: 'span 2' } }}
       />
       <List title={T.Capacity} list={capacity} />
-      <List title={T.Datastores} list={datastore} />
+      <List title={T.Datastores} list={infoFromDatastores} />
     </>
   )
 }

@@ -13,16 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { List } from 'client/components/Tabs/Common'
+import { useRenameTemplateMutation } from 'client/features/OneApi/vmTemplate'
 
-import * as Helper from 'client/models/Helper'
-import { T, VM_TEMPLATE_ACTIONS } from 'client/constants'
+import { timeToString, levelLockToString } from 'client/models/Helper'
+import { T, VM_TEMPLATE_ACTIONS, VmTemplate } from 'client/constants'
 
-const InformationPanel = ({ template = {}, handleRename, actions }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {VmTemplate} props.template - Template
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ template = {}, actions }) => {
+  const [renameTemplate] = useRenameTemplateMutation()
+
   const { ID, NAME, REGTIME, LOCK } = template
+
+  const handleRename = async (_, newName) => {
+    await renameTemplate({ id: ID, name: newName })
+  }
 
   const info = [
     { name: T.ID, value: ID, dataCy: 'id' },
@@ -35,24 +50,29 @@ const InformationPanel = ({ template = {}, handleRename, actions }) => {
     },
     {
       name: T.StartTime,
-      value: Helper.timeToString(REGTIME),
+      value: timeToString(REGTIME),
       dataCy: 'starttime',
     },
     {
       name: T.Locked,
-      value: Helper.levelLockToString(LOCK?.LOCKED),
+      value: levelLockToString(LOCK?.LOCKED),
       dataCy: 'locked',
     },
   ]
 
-  return <List title={T.Information} list={info} />
+  return (
+    <List
+      title={T.Information}
+      list={info}
+      containerProps={{ style: { gridRow: 'span 3' } }}
+    />
+  )
 }
 
 InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  handleRename: PropTypes.func,
   template: PropTypes.object,
 }
 

@@ -36,7 +36,9 @@ const Content = ({ name, renderContent: RenderContent, hidden }) => (
       sx={{
         p: (theme) => theme.spacing(2, 1),
         height: '100%',
-        display: hidden ? 'none' : 'block',
+        display: hidden ? 'none' : 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
       }}
     >
       {typeof RenderContent === 'function' ? <RenderContent /> : RenderContent}

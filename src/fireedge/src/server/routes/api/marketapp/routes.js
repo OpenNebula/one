@@ -17,21 +17,20 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
-const MARKETAPP = require('server/routes/api/marketapp/basepath')
+} = require('../../../utils/constants/defaults')
 
 const { POST, GET } = httpMethod
-const basepath = `/${MARKETAPP}`
 const { query, resource, postBody } = fromData
+
+const basepath = '/marketapp'
+
 const MARKETAPP_EXPORT = 'marketapp.export'
-const MARKETAPP_VMIMPORT = 'marketapp.vmimport'
-const MARKETAPP_TEMPLATEIMPORT = 'marketapp.templateimport'
+const MARKETAPP_IMPORT = 'marketapp.import'
 const MARKETAPP_DOCKERTAGS = 'marketapp.dockertags'
 
 const Actions = {
   MARKETAPP_EXPORT,
-  MARKETAPP_VMIMPORT,
-  MARKETAPP_TEMPLATEIMPORT,
+  MARKETAPP_IMPORT,
   MARKETAPP_DOCKERTAGS,
 }
 
@@ -69,31 +68,15 @@ module.exports = {
         },
       },
     },
-    [MARKETAPP_VMIMPORT]: {
-      path: `${basepath}/vmimport/:vmId`,
+    [MARKETAPP_IMPORT]: {
+      path: `${basepath}/import/:resource/:id`,
       httpMethod: POST,
       auth: true,
       params: {
-        vmId: {
+        id: {
           from: resource,
         },
-        associated: {
-          from: postBody,
-        },
-        marketId: {
-          from: postBody,
-        },
-        vmname: {
-          from: postBody,
-        },
-      },
-    },
-    [MARKETAPP_TEMPLATEIMPORT]: {
-      path: `${basepath}/templateimport/:templateId`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        templateId: {
+        resource: {
           from: resource,
         },
         associated: {

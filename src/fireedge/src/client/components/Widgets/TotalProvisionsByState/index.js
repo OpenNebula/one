@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { Skeleton, Paper, Typography } from '@mui/material'
+import { Paper, Typography, CircularProgress } from '@mui/material'
 
-import { useProvision } from 'client/features/One'
+import { useGetProvisionsQuery } from 'client/features/OneApi/provision'
 import { SingleBar } from 'client/components/Charts'
 import NumberEasing from 'client/components/NumberEasing'
 import { groupBy } from 'client/utils'
@@ -26,9 +25,14 @@ import { T, PROVISIONS_STATES } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProvisionsByState/styles'
 
-const TotalProvisionsByState = ({ isLoading }) => {
+/**
+ * Renders a widget to display the provisions grouped by state.
+ *
+ * @returns {ReactElement} Total provisions by state
+ */
+const TotalProvisionsByState = () => {
   const classes = useStyles()
-  const provisions = useProvision()
+  const { data: provisions = [], isLoading } = useGetProvisionsQuery()
   const totalProvisions = provisions?.length
 
   const chartData = useMemo(() => {
@@ -39,39 +43,30 @@ const TotalProvisionsByState = ({ isLoading }) => {
     )
   }, [totalProvisions])
 
-  const title = useMemo(
-    () => (
+  return (
+    <Paper
+      data-cy="dashboard-widget-provisions-by-states"
+      className={classes.root}
+    >
       <div className={classes.title}>
         <Typography className={classes.titlePrimary}>
-          <NumberEasing value={`${totalProvisions}`} />
+          {isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <NumberEasing value={`${totalProvisions}`} />
+          )}
           <span>{T.Provisions}</span>
         </Typography>
         <Typography className={classes.titleSecondary}>{T.InTotal}</Typography>
       </div>
-    ),
-    [classes, totalProvisions]
-  )
-
-  return useMemo(
-    () =>
-      !totalProvisions && isLoading ? (
-        <Skeleton variant="rectangular" sx={{ height: { xs: 210, sm: 350 } }} />
-      ) : (
-        <Paper
-          data-cy="dashboard-widget-provisions-by-states"
-          className={classes.root}
-        >
-          {title}
-          <div className={classes.content}>
-            <SingleBar
-              legend={PROVISIONS_STATES}
-              data={chartData}
-              total={totalProvisions}
-            />
-          </div>
-        </Paper>
-      ),
-    [classes, chartData, totalProvisions, isLoading]
+      <div className={classes.content}>
+        <SingleBar
+          legend={PROVISIONS_STATES}
+          data={chartData}
+          total={totalProvisions}
+        />
+      </div>
+    </Paper>
   )
 }
 

@@ -14,21 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
-
+import { useState } from 'react'
 import { useHistory, generatePath } from 'react-router-dom'
 import { Container, Box } from '@mui/material'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
-import { useFetch } from 'client/hooks'
-import {
-  useApplicationTemplate,
-  useApplicationTemplateApi,
-} from 'client/features/One'
-
+import { useGetServiceTemplatesQuery } from 'client/features/OneApi/serviceTemplate'
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
-import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
+import { ListHeader, ListCards } from 'client/components/List'
 import { ApplicationTemplateCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
@@ -36,16 +30,12 @@ function ApplicationsTemplates() {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
-  const applicationsTemplates = useApplicationTemplate()
-  const { getApplicationsTemplates } = useApplicationTemplateApi()
-
-  const { error, fetchRequest, loading, reloading } = useFetch(
-    getApplicationsTemplates
-  )
-
-  useEffect(() => {
-    fetchRequest()
-  }, [])
+  const {
+    data: applicationsTemplates = [],
+    refetch,
+    error,
+    isLoading,
+  } = useGetServiceTemplatesQuery()
 
   return (
     <Container disableGutters>
@@ -54,8 +44,8 @@ function ApplicationsTemplates() {
         hasReloadButton
         reloadButtonProps={{
           'data-cy': 'refresh-application-template-list',
-          onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
-          isSubmitting: Boolean(loading || reloading),
+          onClick: () => refetch(),
+          isSubmitting: isLoading,
         }}
         addButtonProps={{
           'data-cy': 'create-application-template',
@@ -68,7 +58,6 @@ function ApplicationsTemplates() {
         ) : (
           <ListCards
             list={applicationsTemplates}
-            isLoading={applicationsTemplates?.length === 0 && loading}
             gridProps={{ 'data-cy': 'applications-templates' }}
             CardComponent={ApplicationTemplateCard}
             cardsProps={({ value }) => ({

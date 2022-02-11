@@ -13,46 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
 
-import { useFetch } from 'client/hooks'
-import {
-  useVNetworkTemplate,
-  useVNetworkTemplateApi,
-} from 'client/features/One'
+import { useMemo, ReactElement } from 'react'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { useAuth } from 'client/features/Auth'
+import { useGetVNTemplatesQuery } from 'client/features/OneApi/networkTemplate'
+
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VNetworkTemplateColumns from 'client/components/Tables/VNetworkTemplates/columns'
 import VNetworkTemplateRow from 'client/components/Tables/VNetworkTemplates/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const VNetworkTemplatesTable = () => {
-  const columns = useMemo(() => VNetworkTemplateColumns, [])
+const DEFAULT_DATA_CY = 'vnet-templates'
 
-  const vNetworkTemplates = useVNetworkTemplate()
-  const { getVNetworkTemplates } = useVNetworkTemplateApi()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual Network Templates table
+ */
+const VNetworkTemplatesTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } =
-    useFetch(getVNetworkTemplates)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useAuth()
+  const { data = [], isFetching, refetch } = useGetVNTemplatesQuery()
 
-  useEffect(() => {
-    fetchRequest()
-  }, [])
-
-  if (vNetworkTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.VN_TEMPLATE)?.filters,
+        columns: VNetworkTemplateColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vNetworkTemplates}
-      isLoading={loading || reloading}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VNetworkTemplateRow}
+      {...rest}
     />
   )
 }
+
+VNetworkTemplatesTable.propTypes = { ...EnhancedTable.propTypes }
+VNetworkTemplatesTable.displayName = 'VNetworkTemplatesTable'
 
 export default VNetworkTemplatesTable

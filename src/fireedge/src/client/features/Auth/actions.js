@@ -18,10 +18,7 @@ import { createAction, createAsyncThunk } from '@reduxjs/toolkit'
 
 import { authService } from 'client/features/Auth/services'
 import { dismissSnackbar } from 'client/features/General/actions'
-
-import { RESOURCES } from 'client/features/One'
-import { getGroups } from 'client/features/One/group/actions'
-import { userService } from 'client/features/One/user/services'
+import apiUser from 'client/features/OneApi/user'
 
 import { httpCodes } from 'server/utils/constants'
 import { removeStoreData, storage } from 'client/utils'
@@ -58,16 +55,11 @@ export const getUser = createAsyncThunk(
   'auth/user',
   async (_, { dispatch, getState }) => {
     try {
-      const { auth = {}, one: { [RESOURCES.group]: groups } = {} } = getState()
+      const { auth = {} } = getState()
 
       const user = await authService.getUser()
       const isOneAdmin = user?.ID === ONEADMIN_ID
       const userSettings = user?.TEMPLATE?.FIREEDGE ?? {}
-      const userGroupIds = [user?.GROUPS?.ID].flat()
-
-      if (!groups.some((group) => userGroupIds.includes(group?.ID))) {
-        await dispatch(getGroups())
-      }
 
       // Merge user settings with the existing one
       const settings = {
@@ -83,6 +75,7 @@ export const getUser = createAsyncThunk(
 
       return { user, settings, isOneAdmin }
     } catch (error) {
+      console.log({ error })
       dispatch(logout(T.SessionExpired))
     }
   },
@@ -116,7 +109,7 @@ export const changeGroup = createAsyncThunk(
         const { user } = getState().auth
 
         const data = { id: user?.ID, group }
-        await userService.changeGroup(data)
+        dispatch(apiUser.endpoints.changeGroup.initiate(data)).reset()
 
         dispatch(changeFilter(FILTER_POOL.PRIMARY_GROUP_RESOURCES))
 
@@ -136,3 +129,7 @@ export const changeGroup = createAsyncThunk(
     }
   }
 )
+
+export const changeView = createAction('auth/change-view', (view) => ({
+  payload: { view },
+}))

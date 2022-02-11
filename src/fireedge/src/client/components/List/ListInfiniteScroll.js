@@ -64,7 +64,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
         <LinearProgress
           ref={loaderRef}
           color="secondary"
-          style={{ width: '100%', marginTop: 10 }}
+          sx={{ width: '100%', marginTop: 10 }}
         />
       )}
     </div>

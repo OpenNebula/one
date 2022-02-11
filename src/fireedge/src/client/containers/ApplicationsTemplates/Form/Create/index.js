@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
+/* import { useEffect } from 'react'
 import { Redirect, useHistory, useParams } from 'react-router-dom'
 
 import { LinearProgress, Container } from '@mui/material'
@@ -25,12 +25,11 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
-import { useFetch } from 'client/hooks'
-import { useApplicationTemplateApi } from 'client/features/One'
-import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
+import { useGetServiceTemplateQuery } from 'client/features/OneApi/serviceTemplate'
+import { parseApplicationToForm, parseFormToApplication } from 'client/utils' */
 
 function ApplicationsTemplatesCreateForm() {
-  const history = useHistory()
+  /* const history = useHistory()
   const { id } = useParams()
   const { steps, defaultValues, resolvers } = Steps()
 
@@ -83,13 +82,14 @@ function ApplicationsTemplatesCreateForm() {
   ) : (
     <Container
       disableGutters
-      style={{ display: 'flex', flexFlow: 'column', height: '100%' }}
+      sx={{ display: 'flex', flexFlow: 'column', height: '100%' }}
     >
       <FormProvider {...methods}>
         <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
       </FormProvider>
     </Container>
-  )
+  ) */
+  return <>{'Create service template form WIP'}</>
 }
 
 export default ApplicationsTemplatesCreateForm

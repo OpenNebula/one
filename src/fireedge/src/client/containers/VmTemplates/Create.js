@@ -13,46 +13,47 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
-import { useVmTemplateApi } from 'client/features/One'
+import {
+  useUpdateTemplateMutation,
+  useAllocateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
 import { CreateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { isDevelopment } from 'client/utils'
 
 /**
  * Displays the creation or modification form to a VM Template.
  *
- * @returns {JSXElementConstructor} VM Template form
+ * @returns {ReactElement} VM Template form
  */
 function CreateVmTemplate() {
   const history = useHistory()
   const { state: { ID: templateId, NAME } = {} } = useLocation()
 
   const { enqueueSuccess } = useGeneralApi()
-  const { update, allocate } = useVmTemplateApi()
+  const [update] = useUpdateTemplateMutation()
+  const [allocate] = useAllocateTemplateMutation()
 
   const onSubmit = async (xmlTemplate) => {
     try {
       if (!templateId) {
-        const newTemplateId = await allocate(xmlTemplate)
+        const newTemplateId = await allocate({ template: xmlTemplate }).unwrap()
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(`VM Template created - #${newTemplateId}`)
       } else {
-        await update(templateId, xmlTemplate)
+        await update({ id: templateId, template: xmlTemplate })
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(`VM Template updated - #${templateId} ${NAME}`)
       }
-    } catch (err) {
-      isDevelopment() && console.error(err)
-    }
+    } catch {}
   }
 
   return (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <CreateForm templateId={templateId} onSubmit={onSubmit} />
     </Container>
   )

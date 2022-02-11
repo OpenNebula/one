@@ -52,11 +52,11 @@ const {
 } = ActionsService
 
 const {
-  SERVICETEMPLATE_SHOW,
-  SERVICETEMPLATE_ACTION,
-  SERVICETEMPLATE_CREATE,
-  SERVICETEMPLATE_UPDATE,
-  SERVICETEMPLATE_DELETE,
+  SERVICE_TEMPLATE_SHOW,
+  SERVICE_TEMPLATE_ACTION,
+  SERVICE_TEMPLATE_CREATE,
+  SERVICE_TEMPLATE_UPDATE,
+  SERVICE_TEMPLATE_DELETE,
 } = ActionsTemplate
 
 const services = [
@@ -96,23 +96,23 @@ const services = [
 
 const template = [
   {
-    ...CommandsTemplate[SERVICETEMPLATE_SHOW],
+    ...CommandsTemplate[SERVICE_TEMPLATE_SHOW],
     action: serviceTemplate,
   },
   {
-    ...CommandsTemplate[SERVICETEMPLATE_ACTION],
+    ...CommandsTemplate[SERVICE_TEMPLATE_ACTION],
     action: serviceTemplateAction,
   },
   {
-    ...CommandsTemplate[SERVICETEMPLATE_CREATE],
+    ...CommandsTemplate[SERVICE_TEMPLATE_CREATE],
     action: serviceTemplateCreate,
   },
   {
-    ...CommandsTemplate[SERVICETEMPLATE_UPDATE],
+    ...CommandsTemplate[SERVICE_TEMPLATE_UPDATE],
     action: serviceTemplateUpdate,
   },
   {
-    ...CommandsTemplate[SERVICETEMPLATE_DELETE],
+    ...CommandsTemplate[SERVICE_TEMPLATE_DELETE],
     action: serviceTemplateDelete,
   },
 ]

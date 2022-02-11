@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
-import HistoryList from 'client/components/Tabs/Vm/History/List'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import HistoryRecord from 'client/components/Tabs/Vm/History/HistoryRecord'
 
 import {
   getHypervisor,
@@ -27,8 +26,17 @@ import {
 } from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
 
-const VmHistoryTab = ({ tabProps: { actions } = {} }) => {
-  const { data: vm } = useContext(TabContext)
+/**
+ * Renders the list of history records from a VM.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} History tab
+ */
+const VmHistoryTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: vm = {} } = useGetVmQuery(id)
 
   const [records, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
@@ -40,11 +48,18 @@ const VmHistoryTab = ({ tabProps: { actions } = {} }) => {
     return [getHistoryRecords(vm), actionsByState]
   }, [vm])
 
-  return <HistoryList actions={actionsAvailable} records={records} />
+  return (
+    <div style={{ display: 'grid', gap: '1em', paddingBlock: '0.8em' }}>
+      {records.map((history, idx) => (
+        <HistoryRecord key={idx} history={history} actions={actionsAvailable} />
+      ))}
+    </div>
+  )
 }
 
 VmHistoryTab.propTypes = {
   tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmHistoryTab.displayName = 'VmHistoryTab'

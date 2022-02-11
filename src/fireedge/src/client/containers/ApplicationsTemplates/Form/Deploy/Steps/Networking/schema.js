@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import * as yup from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { useVNetwork, useVNetworkTemplate } from 'client/features/One'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+import { useGetVNTemplatesQuery } from 'client/features/OneApi/networkTemplate'
 import { getValidationFromFields } from 'client/utils'
 
 const SELECT = {
@@ -50,8 +51,8 @@ const ID_VNET = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: TYPE.name,
   values: (dependValue) => {
-    const vNetworks = useVNetwork()
-    const vNetworksTemplates = useVNetworkTemplate()
+    const { data: vNetworks = [] } = useGetVNetworksQuery()
+    const { data: vNetworksTemplates = [] } = useGetVNTemplatesQuery()
 
     const type = TYPES_NETWORKS.find(({ value }) => value === dependValue)
 

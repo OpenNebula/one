@@ -14,7 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as STATES from 'client/constants/states'
+import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
+// eslint-disable-next-line no-unused-vars
+import { Permissions, LockInfo } from 'client/constants/common'
+// eslint-disable-next-line no-unused-vars
+import { DiskSnapshots } from 'client/constants/vm'
+
+/**
+ * @typedef Image
+ * @property {string} ID - Id
+ * @property {string} NAME - Name
+ * @property {string} UID - User id
+ * @property {string} UNAME - User name
+ * @property {string} GID - Group id
+ * @property {string} GNAME - Group name
+ * @property {string} STATE - State
+ * @property {string} PREV_STATE - Previous state
+ * @property {Permissions} PERMISSIONS - Permissions
+ * @property {LockInfo} [LOCK] - Lock information
+ * @property {IMAGE_TYPES_STR} TYPE - Type
+ * @property {DISK_TYPES_STR} DISK_TYPE - Disk type
+ * @property {string} PERSISTENT - Persistent
+ * @property {string} REGTIME - Registration time
+ * @property {string} SOURCE - Source
+ * @property {string} PATH - Path
+ * @property {string} FORMAT - Format
+ * @property {string} FS - Filesystem
+ * @property {string} SIZE - Size
+ * @property {string} RUNNING_VMS - Running VMs
+ * @property {string} CLONING_OPS - Cloning OPs
+ * @property {string} CLONING_ID - Cloning id
+ * @property {string} TARGET_SNAPSHOT - Target snapshot
+ * @property {string} DATASTORE_ID - Datastore id
+ * @property {string} DATASTORE - Datastore
+ * @property {{ ID: string|string[] }} VMS - VMs
+ * @property {{ ID: string|string[] }} CLONES - Clones
+ * @property {{ ID: string|string[] }} APP_CLONES - App clones
+ * @property {object} TEMPLATE - Template
+ * @property {DiskSnapshots} SNAPSHOTS - Snapshots information
+ */
 
 /** @enum {string} Image type */
 export const IMAGE_TYPES_STR = {
@@ -121,3 +160,17 @@ export const IMAGE_STATES = [
     color: COLOR.error.light,
   },
 ]
+
+/** @enum {string} Image actions */
+export const IMAGE_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  DELETE: 'delete',
+
+  // INFORMATION
+  RENAME: ACTIONS.RENAME,
+  CHANGE_MODE: ACTIONS.CHANGE_MODE,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+  CHANGE_TYPE: 'chtype',
+  CHANGE_PERS: 'persistent',
+}

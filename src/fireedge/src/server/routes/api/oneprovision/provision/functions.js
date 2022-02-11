@@ -791,67 +791,6 @@ const hostCommand = (
 }
 
 /**
- * SSH command of host into provision.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {string} params.action - provision action
- * @param {number} params.id - provision id
- * @param {string} params.command - provision command
- * @param {object} userData - user of http request
- * @param {string} userData.user - username
- * @param {string} userData.password - user password
- */
-const hostCommandSSH = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  const { user, password } = userData
-  const { action, id, command } = params
-  let rtn = httpInternalError
-  if (
-    action &&
-    Number.isInteger(parseInt(id, 10)) &&
-    command &&
-    user &&
-    password
-  ) {
-    const endpoint = getEndpoint()
-    const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = [
-      'host',
-      `${action}`.toLowerCase(),
-      `${id}`.toLowerCase(),
-      `${command}`.toLowerCase(),
-      ...authCommand,
-      ...endpoint,
-    ]
-    const executedCommand = executeCommand(
-      defaultCommandProvision,
-      paramsCommand,
-      getSpecificConfig('oneprovision_prepend_command')
-    )
-    try {
-      const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(
-        response,
-        executedCommand.data ? JSON.parse(executedCommand.data) : params.id
-      )
-      next()
-
-      return
-    } catch (error) {
-      rtn = httpResponse(internalServerError, '', executedCommand.data)
-    }
-  }
-  res.locals.httpCode = rtn
-  next()
-}
-
-/**
  * Create a provision.
  *
  * @param {object} res - http response
@@ -876,11 +815,12 @@ const createProvision = (
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
   const { user, password, id } = userData
-  const { resource } = params
+  const { data } = params
   const rtn = httpInternalError
-  if (resource && user && password) {
+  if (data && user && password) {
     const optionalCommand = addOptionalCreateCommand()
-    const content = createYMLContent(parsePostData(params.resource))
+    const content = createYMLContent(parsePostData(data))
+
     if (content) {
       const command = 'create'
       const authCommand = ['--user', user, '--password', password]
@@ -1053,7 +993,7 @@ const createProvision = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {number} params.id - proivision id
+ * @param {number} params.id - provision id
  * @param {object} userData - user of http request
  * @param {string} userData.user - username
  * @param {string} userData.password - user password
@@ -1489,7 +1429,6 @@ const provisionFunctionsApi = {
   deleteResource,
   deleteProvision,
   hostCommand,
-  hostCommandSSH,
   createProvision,
   configureProvision,
   configureHost,

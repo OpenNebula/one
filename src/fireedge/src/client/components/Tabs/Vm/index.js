@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo, useEffect, useState } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@mui/material'
 
-import { useFetch, useSocket } from 'client/hooks'
 import { useAuth } from 'client/features/Auth'
-import { useVmApi } from 'client/features/One'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import { getAvailableInfoTabs } from 'client/models/Helper'
+import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
-import { camelCase } from 'client/utils'
-
-import TabProvider from 'client/components/Tabs/TabProvider'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
 import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
-import Log from 'client/components/Tabs/Vm/Log'
 import Network from 'client/components/Tabs/Vm/Network'
 import History from 'client/components/Tabs/Vm/History'
 import SchedActions from 'client/components/Tabs/Vm/SchedActions'
@@ -41,7 +37,6 @@ const getTabComponent = (tabName) =>
     capacity: Capacity,
     configuration: Configuration,
     info: Info,
-    log: Log,
     network: Network,
     history: History,
     schedActions: SchedActions,
@@ -50,60 +45,24 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const VmTabs = memo(({ id }) => {
-  const { getHooksSocket } = useSocket()
-  const { getVm } = useVmApi()
-
-  const { data, fetchRequest, loading, error } = useFetch(
-    getVm,
-    getHooksSocket({ resource: 'vm', id })
-  )
-
-  const handleRefetch = () => fetchRequest(id, { reload: true })
-
-  const [tabsAvailable, setTabs] = useState(() => [])
   const { view, getResourceView } = useAuth()
+  const { isLoading } = useGetVmQuery(id)
 
-  useEffect(() => {
-    fetchRequest(id)
-  }, [id])
+  const tabsAvailable = useMemo(() => {
+    const resource = RESOURCE_NAMES.VM
+    const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-  useEffect(() => {
-    const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
-
-    setTabs(() =>
-      Object.entries(infoTabs)
-        ?.filter(([_, { enabled } = {}]) => !!enabled)
-        ?.map(([tabName, tabProps]) => {
-          const camelName = camelCase(tabName)
-          const TabContent = getTabComponent(camelName)
-
-          return (
-            TabContent && {
-              name: camelName,
-              id: tabName,
-              renderContent: (props) => TabContent({ ...props, tabProps }),
-            }
-          )
-        })
-        ?.filter(Boolean)
-    )
+    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
 
-  if ((!data && !error) || loading) {
-    return <LinearProgress color="secondary" style={{ width: '100%' }} />
-  }
-
-  return (
-    <TabProvider initialState={{ data, handleRefetch }}>
-      <Tabs tabs={tabsAvailable} />
-    </TabProvider>
+  return isLoading ? (
+    <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  ) : (
+    <Tabs tabs={tabsAvailable} />
   )
 })
 
-VmTabs.propTypes = {
-  id: PropTypes.string.isRequired,
-}
-
+VmTabs.propTypes = { id: PropTypes.string.isRequired }
 VmTabs.displayName = 'VmTabs'
 
 export default VmTabs
