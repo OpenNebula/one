@@ -84,6 +84,7 @@ define(function(require) {
       require("./vms-tab/dialogs/disk-saveas"),
       require("./vms-tab/dialogs/disk-snapshot-rename"),
       require("./vms-tab/dialogs/attach-nic"),
+      require("./vms-tab/dialogs/attach-sg"),
       require("./vms-tab/dialogs/revert"),
       require("./vms-tab/dialogs/snapshot"),
       require("./users-tab/dialogs/login-token")

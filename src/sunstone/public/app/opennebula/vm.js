@@ -831,6 +831,14 @@ define(function(require) {
     "sched_action_delete" : function(params) {
       var action_obj = { "sched_id" : params.data.extra_param };
       OpenNebulaAction.simple_action(params, RESOURCE, "sched_action_delete", action_obj);
+    },
+    "attachsg" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "sg_attach", action_obj);
+    },
+    "detachsg" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "sg_detach", action_obj);
     }
   };
 

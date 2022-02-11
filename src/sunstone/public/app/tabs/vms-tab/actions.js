@@ -119,6 +119,8 @@ define(function(require) {
     "VM.sched_action_add" : _commonActions.singleAction('sched_action_add'),
     "VM.sched_action_delete" : _commonActions.singleAction('sched_action_delete'),
     "VM.sched_action_update" : _commonActions.singleAction('sched_action_update'),
+    "VM.attachsg" : _commonActions.singleAction('attachsg'),
+    "VM.detachsg" : _commonActions.singleAction('detachsg'),
 
     "VM.create_dialog" : {
       type: "custom",

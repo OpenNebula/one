@@ -42,7 +42,7 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.nicTab = new NicTab(DIALOG_ID + "NickTab");
+    this.nicTab = new NicTab(DIALOG_ID + "NicTab");
 
     BaseDialog.call(this);
   };

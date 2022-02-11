@@ -434,6 +434,8 @@ tabs:
             VM.rdp: true
             VM.save_rdp: true
             VM.save_virt_viewer: true
+            VM.attachsg: true
+            VM.detachsg: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true

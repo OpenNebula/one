@@ -130,6 +130,10 @@ module OpenNebulaJSON
                 sched_action_update(action_hash['params'])
             when 'sched_action_delete'
                 sched_action_delete(action_hash['params'])
+            when 'sg_attach'
+                sg_attach(action_hash['params'])
+            when 'sg_detach'
+                sg_detach(action_hash['params'])
             else
                 error_msg = "#{action_hash['perform']} action not " \
                             ' available for this resource'
@@ -287,6 +291,14 @@ module OpenNebulaJSON
 
         def sched_action_delete(params = {})
             super(params['sched_id'])
+        end
+
+        def sg_attach(params = {})
+            super(params['nic_id'], params['sg_id'])
+        end
+
+        def sg_detach(params = {})
+            super(params['nic_id'], params['sg_id'])
         end
 
     end

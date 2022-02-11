@@ -30,6 +30,14 @@ define(function(require) {
   var SecGroupsCommon = require("tabs/secgroups-tab/utils/common");
   var StateActions = require("../utils/state-actions");
   var Sunstone = require("sunstone");
+  var Tips = require('utils/tips');
+
+  /*
+    TEMPLATES
+  */
+  var TemplateSGDatatable = require("hbs!./network/network_sg_datatable");
+  var TemplateSGRow = require("hbs!./network/network_sg_row");
+  var TemplateSG = require("hbs!./network/network_sg");
 
   /*
     CONSTANTS
@@ -38,6 +46,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var PANEL_ID = require("./network/panelId");
   var ATTACH_NIC_DIALOG_ID = require("../dialogs/attach-nic/dialogId");
+  var ATTACH_SG_DIALOG_ID = require("../dialogs/attach-sg/dialogId");
   var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
   var XML_ROOT = "VM";
 
@@ -326,6 +335,19 @@ define(function(require) {
                   )
                 : "";
             }
+
+            if(Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
+              var icon = $("<i/>",{class:"fas fa-shield-alt"});
+              var anchorAttributes = {class: "attachsg", style: "padding-left: 1em"};
+              var tip = "<span class=\"tip\">" + Locale.tr("Attach security group") + "</span>"
+              var anchor = $("<a/>",anchorAttributes).append(icon);
+              actions +=  (validateAction(that,"VM.attachsg"))
+                ? (isFirecracker(that)
+                  ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
+                  : anchor.get(0).outerHTML
+                  )
+                : "";
+            }
           }
         }
 
@@ -434,78 +456,96 @@ define(function(require) {
         $(this).children("span").removeClass("fa-chevron-up");
       } else {
         if(row.data().NIC_ALIAS.length > 0) {
-            var html = "";
+          var html = "";
 
-            $.each(row.data().NIC_ALIAS, function() {
-                var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
-                              "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>";
+          $.each(row.data().NIC_ALIAS, function() {
+              var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
+                            "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>";
 
-                if (this.IP !== undefined) {
-                  new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
-                }
+              if (this.IP !== undefined) {
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
+              }
 
-                if (
-                  this.EXTERNAL_IP !== undefined &&
-                  !['yes', 'no'].includes(String(this.EXTERNAL_IP).toLowerCase())
-                ) {
-                  new_div += "&nbsp;&nbsp;&nbsp;" + this.EXTERNAL_IP;
-                }
+              if (
+                this.EXTERNAL_IP !== undefined &&
+                !['yes', 'no'].includes(String(this.EXTERNAL_IP).toLowerCase())
+              ) {
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.EXTERNAL_IP;
+              }
 
-                if (this.IP6 !== undefined) {
-                  new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
-                }
+              if (this.IP6 !== undefined) {
+                new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
+              }
 
-                new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
+              new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
 
-                if (this.IP6_ULA !== undefined) {
-                  new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
-                }
+              if (this.IP6_ULA !== undefined) {
+                new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
+              }
 
-                if (this.IP6_GLOBAL !== undefined) {
-                  new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
-                }
+              if (this.IP6_GLOBAL !== undefined) {
+                new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
+              }
 
-                new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
+              new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
 
-                html += new_div;
+              html += new_div;
 
-                if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                  context.off("click", ".detachnic");
-                  context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
-                }
-            });
-          } else {
-              html = "";
-          }
+              if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+                context.off("click", ".detachnic");
+                context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
+              }
 
-        html += "<div style=\"padding-left: 30px;\">\
-              <table class=\"dataTable\">\
-                <thead>\
-                  <tr>\
-                    <th colspan=\"2\">" + Locale.tr("Security Group") + "</th>\
-                    <th>" + Locale.tr("Protocol") + "</th>\
-                    <th>" + Locale.tr("Type") + "</th>\
-                    <th>" + Locale.tr("Range") + "</th>\
-                    <th>" + Locale.tr("Network") + "</th>\
-                    <th>" + Locale.tr("ICMP Type") + "</th>\
-                  </tr>\
-                <thead>\
-                <tbody>"            ;
+              if (Config.isTabActionEnabled("vms-tab", "VM.attachsg")) {
+                context.off("click", ".attachsg");
+                context.on("click", ".attachsg", {element_id: that.element.ID}, attach_sg);
+              }
+          });
+        } else {
+            html = "";
+        }
 
-        $.each(row.data().SECURITY_GROUP_RULES, function(index, elem) {
-          var rule_st = SecGroupsCommon.sgRuleToSt(this);
+        var securityGroupHTML = "";
 
-          var new_tr = "<tr>\
-                  <td>" + this.SECURITY_GROUP_ID + "</td>\
-                  <td>" + Navigation.link(this.SECURITY_GROUP_NAME, "secgroups-tab", this.SECURITY_GROUP_ID) + "</td>\
-                  <td>" + rule_st.PROTOCOL + "</td>\
-                  <td>" + rule_st.RULE_TYPE + "</td>\
-                  <td>" + rule_st.RANGE + "</td>\
-                  <td>" + rule_st.NETWORK + "</td>\
-                  <td>" + rule_st.ICMP_TYPE + "</td>\
-                </tr>";
+        var sg_rules_array = row.data().SECURITY_GROUP_RULES;
 
-          html += new_tr;
+        // Group array by security group id
+        var security_groups = sg_rules_array.reduce(
+          function(rules, current_rule) {
+            (rules[current_rule["SECURITY_GROUP_ID"]] = rules[current_rule["SECURITY_GROUP_ID"]] || []).push(current_rule);
+            return rules;
+          },
+          {}
+        );
+        
+        for (var sg_id in security_groups){
+          var sg_rules = "";
+          
+          $.each(security_groups[sg_id], function(_, _) {
+            var rule_st = SecGroupsCommon.sgRuleToSt(this);
+
+            var values = {
+              'rule_protocol': rule_st.PROTOCOL,
+              'rule_type': rule_st.RULE_TYPE,
+              'rule_range': rule_st.RANGE,
+              'rule_network': rule_st.NETWORK,
+              'rule_icmp_type': rule_st.ICMP_TYPE
+            }
+
+            sg_rules += TemplateSGRow(values);
+
+          });
+
+          securityGroupHTML += TemplateSGDatatable({
+            'sg_id': sg_id,
+            'sg_name': Navigation.link(security_groups[sg_id][0].SECURITY_GROUP_NAME, 'secgroups-tab', sg_id),
+            'secGroupHTML': sg_rules
+          });
+        };
+
+        html += TemplateSG({
+          'nic_id': $(this).parent().attr('nic_id'),
+          'securityGroupHTML': securityGroupHTML
         });
 
         row.child(html).show();
@@ -551,6 +591,42 @@ define(function(require) {
         return false;
       });
     }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
+      context.off("click", ".attachsg");
+      context.on("click", ".attachsg", function() {
+        var nic_id = $(this).parents("tr").attr("nic_id");
+        var dialog = Sunstone.getDialog(ATTACH_SG_DIALOG_ID);
+        dialog.reset();
+        dialog.setElement(that.element, nic_id);
+        dialog.show();
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.detachsg")){
+      context.off("click", ".detachsg");
+      context.on("click", ".detachsg", function() {
+        var nic_id = $(this).parents("div").attr("nic_id");
+        var sg_id = $(this).attr("sg_id");
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          headerTabId: TAB_ID,
+          body : Locale.tr("This will detach the security group immediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction("VM.detachsg", that.element.ID, {'nic_id': parseInt(nic_id), 'sg_id': parseInt(sg_id)});
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
+        return false;
+      });
+    }
   }
 
   function detach_alias(event) {
@@ -570,6 +646,21 @@ define(function(require) {
         return false;
       }
     });
+
+    Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+    Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
+    return false;
+  }
+
+  function attach_sg(event) {
+    var nic_id = $(this).parent().attr("nic_id");
+    if(!nic_id){
+      var nic_id = $(this).parents("tr").attr("nic_id");
+    }
+    var element_id = event.data.element_id;
+
+    Sunstone.runAction("VM.attachsg", element_id, nic_id);
 
     Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
     Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
