@@ -70,8 +70,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # Apply VLAN
             if !@nic[:vlan_id].nil?
-                tag_vlan
-                tag_trunk_vlans
+                if @nic[:qinq]
+                    tag_qinq
+                else
+                    tag_vlan
+                    tag_trunk_vlans
+                end
             end
 
             # Delete any existing flows on port
@@ -159,6 +163,10 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
             end
 
+            if @nic[:qinq].nil?
+                set_vlan_limit("1")
+            end
+
             delete_bridge
         end
 
@@ -193,6 +201,15 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
             run cmd
         end
+    end
+
+    def tag_qinq
+        set_vlan_limit("2")
+        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} vlan_mode=dot1q-tunnel "
+        cmd << "tag=#{vlan} "
+        cmd << "cvlans=@nic[:cvlans]"
+
+        run cmd
     end
 
 
@@ -376,9 +393,8 @@ private
     end
 
     def get_vlan_limit
-        cmd = "#{ovs_vsctl_cmd} get Open_vSwitch . other_config:vlan-limit"
-
-        run cmd
+        vlan_limit =`#{command(:ovs_vsctl)} get Open_vSwitch . other_config:vlan-limit`
+        vlan_limit
     end
 
     # Create a VLAN device.
