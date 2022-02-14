@@ -78,6 +78,4 @@ const main = (app = {}, type = '') => {
   }
 }
 
-module.exports = {
-  main,
-}
+module.exports = main

@@ -441,31 +441,29 @@ const generateNewResourceTemplate = (
  * @returns {string} new console string
  */
 const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
-  const rtn = []
-  if (stringConsole) {
-    const lines = stringConsole.split(regexLine)
-
-    lines.forEach((line) => {
-      let pass = true
-
-      if (Array.isArray(excludeRegexs)) {
-        excludeRegexs.forEach((rex) => {
-          if (rex.test(line)) {
-            pass = false
-          }
-        })
-      }
-
-      const cleanLine = line
-        .replace(regexRemoveBlanks, ' ')
-        .replace(regexANSIColor, '')
-        .trim()
-
-      if (cleanLine && pass) {
-        rtn.push(cleanLine)
-      }
-    })
+  if (!stringConsole) {
+    return
   }
+
+  const rtn = []
+  stringConsole.split(regexLine).forEach((line) => {
+    let pass = true
+    if (Array.isArray(excludeRegexs)) {
+      excludeRegexs.forEach((rex) => {
+        if (rex.test(line)) {
+          pass = false
+        }
+      })
+    }
+    const cleanLine = line
+      .replace(regexRemoveBlanks, ' ')
+      .replace(regexANSIColor, '')
+      .trim()
+
+    if (cleanLine && pass) {
+      rtn.push(cleanLine)
+    }
+  })
 
   return rtn
 }
@@ -475,32 +473,35 @@ const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
  *
  * @param {Array} arrayConsole - result of consoleParseToString function
  * @param {string} regexHeader - regex for find header
- * @returns {string} new console string
+ * @returns {any[]} console string JSON parsed
  */
 const consoleParseToJSON = (arrayConsole = [], regexHeader = '') => {
-  let rtn = []
+  const rtn = []
   if (
-    regexHeader &&
-    Array.isArray(arrayConsole) &&
-    arrayConsole[0] &&
-    regexHeader.test(arrayConsole[0])
+    !(
+      regexHeader &&
+      Array.isArray(arrayConsole) &&
+      arrayConsole[0] &&
+      regexHeader.test(arrayConsole[0])
+    )
   ) {
-    const header = arrayConsole[0].split(',')
-    arrayConsole.forEach((row = '', i = 0) => {
-      if (row && i > 0) {
-        const explodeRow = CSVtoArray(row)
-        rtn.push(
-          explodeRow.map((value, index) => ({
-            [header[index]]: stringWrappedBrakets.test(value)
-              ? CSVtoArray(value.replace(brakets, ''))
-              : value,
-          }))
-        )
-      }
-    })
-  } else {
-    rtn = arrayConsole
+    return rtn
   }
+  const header = arrayConsole[0].split(',')
+  arrayConsole.forEach((row = '', i = 0) => {
+    if (row && i > 0) {
+      const explodeRow = CSVtoArray(row)
+      if (Array.isArray(explodeRow)) {
+        const newLine = {}
+        explodeRow.forEach((value, index) => {
+          newLine[header[index]] = stringWrappedBrakets.test(value)
+            ? CSVtoArray(value.replace(brakets, ''))
+            : value
+        })
+        rtn.push(newLine)
+      }
+    }
+  })
 
   return rtn
 }

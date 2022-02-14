@@ -16,36 +16,54 @@
 
 const { Actions, Commands } = require('server/routes/api/vcenter/routes')
 const {
-  importVcenter,
+  importVobject,
   list,
   listAll,
   cleartags,
-  hosts,
+  importHost,
 } = require('server/routes/api/vcenter/functions')
+const { resources } = require('server/routes/api/vcenter/command-flags')
+
+const { TEMPLATES, DATASTORES, NETWORKS, IMAGES } = resources
 
 const {
-  VCENTER_CLEARTAGS,
-  VCENTER_HOSTS,
-  VCENTER_IMPORT,
-  VCENTER_LISTALL,
+  VCENTER_CLEAR_TAGS,
+  VCENTER_IMPORT_HOSTS,
+  VCENTER_IMPORT_DATASTORES,
+  VCENTER_IMPORT_TEMPLATES,
+  VCENTER_IMPORT_NETWORKS,
+  VCENTER_IMPORT_IMAGES,
+  VCENTER_LIST_ALL,
   VCENTER_LIST,
 } = Actions
 
 module.exports = [
   {
-    ...Commands[VCENTER_CLEARTAGS],
+    ...Commands[VCENTER_CLEAR_TAGS],
     action: cleartags,
   },
   {
-    ...Commands[VCENTER_HOSTS],
-    action: hosts,
+    ...Commands[VCENTER_IMPORT_HOSTS],
+    action: importHost,
   },
   {
-    ...Commands[VCENTER_IMPORT],
-    action: importVcenter,
+    ...Commands[VCENTER_IMPORT_DATASTORES],
+    action: (...args) => importVobject(...args, DATASTORES),
   },
   {
-    ...Commands[VCENTER_LISTALL],
+    ...Commands[VCENTER_IMPORT_NETWORKS],
+    action: (...args) => importVobject(...args, NETWORKS),
+  },
+  {
+    ...Commands[VCENTER_IMPORT_IMAGES],
+    action: (...args) => importVobject(...args, IMAGES),
+  },
+  {
+    ...Commands[VCENTER_IMPORT_TEMPLATES],
+    action: (...args) => importVobject(...args, TEMPLATES),
+  },
+  {
+    ...Commands[VCENTER_LIST_ALL],
     action: listAll,
   },
   {

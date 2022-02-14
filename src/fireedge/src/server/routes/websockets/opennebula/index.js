@@ -51,10 +51,10 @@ const websockets = (appServer = {}) => {
             }).listen(appServer)
             try {
               // eslint-disable-next-line global-require
-              const fileInfo = require(`./${filename}`)
-              if (fileInfo.main && typeof fileInfo.main === 'function') {
+              const file = require(`./${filename}`)
+              if (typeof file === 'function') {
                 sockets.push(io)
-                fileInfo.main(io, filename)
+                file(io, filename)
               }
             } catch (error) {
               if (error instanceof Error) {
@@ -72,6 +72,4 @@ const websockets = (appServer = {}) => {
   return sockets
 }
 
-module.exports = {
-  websockets,
-}
+module.exports = websockets

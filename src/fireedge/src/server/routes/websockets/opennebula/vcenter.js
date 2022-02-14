@@ -14,4 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-module.exports = 'vcenter'
+const {
+  middlewareValidateAuthWebsocket,
+  subscriber,
+} = require('server/utils/server')
+const { messageTerminal } = require('server/utils/general')
+const { defaults } = require('server/utils/constants')
+
+const { defaultCommandVcenter } = defaults
+
+/**
+ * Object http error.
+ *
+ * @param {object} error - error message
+ * @returns {object} param of terminalMessage function
+ */
+const configErrorProvision = (error = '') => ({
+  color: 'red',
+  error,
+  message: '%s',
+})
+
+/**
+ * Route of websocket Provisions.
+ *
+ * @param {object} app - express app
+ * @param {string} type - type WS
+ */
+const main = (app = {}, type = '') => {
+  try {
+    app.use(middlewareValidateAuthWebsocket).on('connection', (server = {}) => {
+      server.on('disconnect', () => {
+        messageTerminal(configErrorProvision('disconnect'))
+      })
+      subscriber(defaultCommandVcenter, (data) => {
+        app.emit(type, data)
+      })
+    })
+  } catch (error) {
+    messageTerminal(configErrorProvision(error))
+  }
+}
+
+module.exports = main

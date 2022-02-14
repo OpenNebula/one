@@ -14,83 +14,93 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { defaults, httpCodes } = require('server/utils/constants')
-const { httpResponse, executeCommand } = require('server/utils/server')
+const {
+  httpResponse,
+  executeCommand,
+  executeCommandAsync,
+  publish,
+} = require('server/utils/server')
 const {
   consoleParseToString,
   consoleParseToJSON,
 } = require('server/utils/opennebula')
-const { resources } = require('server/routes/api/vcenter/command-flags')
+const {
+  resourceFromData,
+  resources,
+  params: commandParams,
+} = require('server/routes/api/vcenter/command-flags')
 const { getSunstoneConfig } = require('server/utils/yml')
 
-const { defaultEmptyFunction, defaultCommandVcenter } = defaults
-const { ok, internalServerError, badRequest } = httpCodes
-const httpBadRequest = httpResponse(badRequest, '', '')
+const {
+  defaultEmptyFunction,
+  defaultCommandVcenter,
+  defaultRegexpStartJSON,
+  defaultRegexpEndJSON,
+  defaultRegexpSplitLine,
+} = defaults
+
+const { ok, internalServerError, badRequest, accepted } = httpCodes
+const { LIST, IMPORT } = resourceFromData
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.vcenter_prepend_command || ''
 const regexExclude = [
-  /^Connecting to.*/gi,
-  /^Exploring vCenter.*/gi,
+  /^Connecting to.*/i,
+  /^Exploring vCenter.*/i,
   // eslint-disable-next-line no-control-regex
-  /^\u001b\[.*?m\u001b\[.*?m# vCenter.*/gi,
+  /^\u001b\[.*?m\u001b\[.*?m# vCenter.*/i,
 ]
+const regexHeader = /^IMID,.*/i
+
 const validObjects = Object.values(resources)
 
 /**
- * Import the the desired vCenter object.
+ * Show a list with unimported vCenter objects excluding all filters.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
  */
-const importVcenter = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  let rtn = httpBadRequest
-  // check params
-  if (
-    params &&
-    params.vobject &&
-    validObjects.includes(params.vobject) &&
-    params.host
-  ) {
-    const vobject = `${params.vobject}`.toLowerCase()
+const list = (res = {}, next = defaultEmptyFunction, params = {}) => {
+  const { vobject, host, datastore } = params
 
-    let paramsCommand = [params.answers ? 'import' : 'import_defaults']
+  const vobjectLowercase = vobject && `${vobject}`.toLowerCase()
+  if (!(vobjectLowercase && host && validObjects.includes(vobjectLowercase))) {
+    res.locals.httpCode = badRequest
+    next()
 
-    if (params.id) {
-      paramsCommand.push(`${params.id}`)
-    }
-
-    let vobjectAndHost = ['-o', `${vobject}`, '-h', `${params.host}`]
-
-    if (vobject === resources.IMAGES && params.datastore) {
-      const datastoreParameter = ['-d', params.datastore]
-      vobjectAndHost = [...vobjectAndHost, ...datastoreParameter]
-    }
-
-    // flags by questions import command
-    /* if (params.answers && questions[vobject]) {
-      const answers = params.answers.split(',')
-    } */
-
-    paramsCommand = [...paramsCommand, ...vobjectAndHost]
-    const executedCommand = executeCommand(
-      defaultCommandVcenter,
-      paramsCommand,
-      prependCommand
-    )
-    const response = executedCommand.success ? ok : internalServerError
-    let message = ''
-    if (executedCommand.data) {
-      message = consoleParseToString(executedCommand.data, regexExclude)
-    }
-    rtn = httpResponse(response, message)
+    return
   }
-  res.locals.httpCode = rtn
+
+  let paramsCommand = [
+    'list',
+    '-o',
+    `${vobjectLowercase}`,
+    '-h',
+    `${host}`,
+    '--csv',
+  ]
+
+  if (vobjectLowercase === resources.IMAGES && datastore) {
+    const newParameters = ['-d', datastore]
+    paramsCommand = [...paramsCommand, ...newParameters]
+  }
+
+  const executedCommand = executeCommand(
+    defaultCommandVcenter,
+    paramsCommand,
+    prependCommand
+  )
+
+  const response = executedCommand.success ? ok : internalServerError
+  let message = ''
+  if (executedCommand.data) {
+    message = consoleParseToJSON(
+      consoleParseToString(executedCommand.data, regexExclude),
+      regexHeader
+    )
+  }
+
+  res.locals.httpCode = httpResponse(response, message)
   next()
 }
 
@@ -100,105 +110,46 @@ const importVcenter = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
  */
-const list = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  let rtn = httpBadRequest
-  if (
-    params &&
-    params.vobject &&
-    validObjects.includes(params.vobject) &&
-    params.host
-  ) {
-    const vobject = `${params.vobject}`.toLowerCase()
-    let paramsCommand = [
-      'list',
-      '-o',
-      `${vobject}`,
-      '-h',
-      `${params.host}`,
-      '--csv',
-    ]
-    if (vobject === resources.IMAGES && params.datastore) {
-      const newParameters = ['-d', params.datastore]
-      paramsCommand = [...paramsCommand, ...newParameters]
-    }
-    const executedCommand = executeCommand(
-      defaultCommandVcenter,
-      paramsCommand,
-      prependCommand
-    )
+const listAll = (res = {}, next = defaultEmptyFunction, params = {}) => {
+  const { vobject, host, datastore } = params
 
-    const response = executedCommand.success ? ok : internalServerError
-    let message = ''
-    if (executedCommand.data) {
-      message = consoleParseToJSON(
-        consoleParseToString(executedCommand.data, regexExclude),
-        /^IMID,.*/gi
-      )
-    }
-    rtn = httpResponse(response, message)
+  const vobjectLowercase = vobject && `${vobject}`.toLowerCase()
+  if (!(vobjectLowercase && host && validObjects.includes(vobjectLowercase))) {
+    res.locals.httpCode = badRequest
+    next()
+
+    return
   }
-  res.locals.httpCode = rtn
-  next()
-}
 
-/**
- * Show a list with unimported vCenter objects excluding all filters.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {object} userData - user of http request
- */
-const listAll = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  let rtn = httpBadRequest
-  if (
-    params &&
-    params.vobject &&
-    validObjects.includes(params.vobject) &&
-    params.host
-  ) {
-    const vobject = `${params.vobject}`.toLowerCase()
-    let paramsCommand = [
-      'list_all',
-      '-o',
-      `${vobject}`,
-      '-h',
-      `${params.host}`,
-      '--csv',
-    ]
-    if (vobject === resources.IMAGES && params.datastore) {
-      const newParameters = ['-d', params.datastore]
-      paramsCommand = [...paramsCommand, ...newParameters]
-    }
-    const executedCommand = executeCommand(
-      defaultCommandVcenter,
-      paramsCommand,
-      prependCommand
-    )
+  let paramsCommand = [
+    'list_all',
+    '-o',
+    `${vobjectLowercase}`,
+    '-h',
+    `${host}`,
+    '--csv',
+  ]
 
-    const response = executedCommand.success ? ok : internalServerError
-    let message = ''
-    if (executedCommand.data) {
-      message = consoleParseToJSON(
-        consoleParseToString(executedCommand.data, regexExclude),
-        /^IMID,.*/gi
-      )
-    }
-    rtn = httpResponse(response, message)
+  if (vobjectLowercase === resources.IMAGES && datastore) {
+    const newParameters = ['-d', datastore]
+    paramsCommand = [...paramsCommand, ...newParameters]
   }
-  res.locals.httpCode = rtn
+  const executedCommand = executeCommand(
+    defaultCommandVcenter,
+    paramsCommand,
+    prependCommand
+  )
+
+  const response = executedCommand.success ? ok : internalServerError
+  let message = ''
+  if (executedCommand.data) {
+    message = consoleParseToJSON(
+      consoleParseToString(executedCommand.data, regexExclude),
+      regexHeader
+    )
+  }
+  res.locals.httpCode = httpResponse(response, message)
   next()
 }
 
@@ -208,31 +159,28 @@ const listAll = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
  */
-const cleartags = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  let rtn = httpBadRequest
-  // check params
-  if (params && params.id) {
-    const paramsCommand = ['cleartags', `${params.id}`]
-    const executedCommand = executeCommand(
-      defaultCommandVcenter,
-      paramsCommand,
-      prependCommand
-    )
-    const response = executedCommand.success ? ok : internalServerError
-    let message = ''
-    if (executedCommand.data) {
-      message = consoleParseToString(executedCommand.data, regexExclude)
-    }
-    rtn = httpResponse(response, message)
+const cleartags = (res = {}, next = defaultEmptyFunction, params = {}) => {
+  const { id } = params
+  if (!Number.isInteger(parseInt(id))) {
+    res.locals.httpCode = badRequest
+    next()
+
+    return
   }
-  res.locals.httpCode = rtn
+
+  const paramsCommand = ['cleartags', id]
+  const executedCommand = executeCommand(
+    defaultCommandVcenter,
+    paramsCommand,
+    prependCommand
+  )
+  const response = executedCommand.success ? ok : internalServerError
+  let message = ''
+  if (executedCommand.data) {
+    message = consoleParseToString(executedCommand.data, regexExclude)
+  }
+  res.locals.httpCode = httpResponse(response, message)
   next()
 }
 
@@ -242,48 +190,196 @@ const cleartags = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
  */
-const hosts = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {}
-) => {
-  let rtn = httpBadRequest
-  // check params
-  if (params && params.vcenter && params.user && params.pass) {
-    const paramsCommand = [
-      'hosts',
-      '--vcenter',
-      `${params.vcenter}`.toLowerCase(),
-      '--vuser',
-      `${params.user}`,
-      '--vpass',
-      `${params.pass}`,
-      '--use-defaults',
-    ]
-    const executedCommand = executeCommand(
-      defaultCommandVcenter,
-      paramsCommand,
-      prependCommand
-    )
-    const response = executedCommand.success ? ok : internalServerError
-    let message = ''
-    if (executedCommand.data) {
-      message = consoleParseToString(executedCommand.data, regexExclude)
-    }
-    rtn = httpResponse(response, message)
+const importHost = (res = {}, next = defaultEmptyFunction, params = {}) => {
+  /**
+   * PENDING IMPORT 1 HOST
+   */
+  const { vcenter, user, pass } = params
+
+  if (!(vcenter && user && pass)) {
+    res.locals.httpCode = badRequest
+    next()
+
+    return
   }
-  res.locals.httpCode = rtn
+
+  const vcenterLowercase = vcenter && `${vcenter}`.toLowerCase()
+
+  const paramsCommand = [
+    'hosts',
+    '--vcenter',
+    vcenterLowercase,
+    '--vuser',
+    `${user}`,
+    '--vpass',
+    `${pass}`,
+    '--use-defaults',
+  ]
+
+  const executedCommand = executeCommand(
+    defaultCommandVcenter,
+    paramsCommand,
+    prependCommand
+  )
+
+  const response = executedCommand.success ? ok : internalServerError
+  let message = ''
+  if (executedCommand.data) {
+    message = consoleParseToString(executedCommand.data, regexExclude)
+  }
+  res.locals.httpCode = httpResponse(response, message)
   next()
 }
 
+/**
+ * Import the desired vCenter object.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user Data
+ * @param {Function} oneConnection - xmlrpc function
+ * @param {'template'|'images'|'datastores'|'networks'} type - type resource
+ */
+const importVobject = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction,
+  type
+) => {
+  const httpReturn = (httpCode) => {
+    res.locals.httpCode = httpCode
+    next()
+  }
+
+  !(type && validObjects.includes(type)) && httpReturn(badRequest)
+
+  const paramsForCommand = commandParams[type]
+
+  let flagsImport = []
+  paramsForCommand
+    .filter((flag) => flag.for && flag.for.includes(IMPORT))
+    .forEach(({ param, flag }) => {
+      if (params[param]) {
+        flagsImport = [...flagsImport, flag, params[param]]
+      }
+    })
+
+  const publisher = (line = '') => {
+    publish(defaultCommandVcenter, {
+      resource: type,
+      data: line,
+    })
+  }
+
+  let pendingMessages = ''
+  const emit = (message) => {
+    if (message && typeof message.toString === 'function') {
+      message
+        .toString()
+        .split(defaultRegexpSplitLine)
+        .forEach((line) => {
+          if (line) {
+            if (
+              (defaultRegexpStartJSON.test(line) &&
+                defaultRegexpEndJSON.test(line)) ||
+              (!defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line) &&
+                pendingMessages.length === 0)
+            ) {
+              publisher(line)
+            } else if (
+              (defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line)) ||
+              (!defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line) &&
+                pendingMessages.length > 0)
+            ) {
+              pendingMessages += line
+            } else {
+              publisher(pendingMessages + line)
+              pendingMessages = ''
+            }
+          }
+        })
+    }
+  }
+
+  const executeImport = (ref) => {
+    executeCommandAsync(
+      defaultCommandVcenter,
+      ['import_defaults', ref, '-o', type, ...flagsImport],
+      prependCommand,
+      {
+        err: (message) => emit(message),
+        out: (message) => emit(message),
+        close: defaultEmptyFunction,
+      }
+    )
+  }
+
+  const { id } = params
+  if (id) {
+    id.split(',').forEach((ref) => {
+      executeImport(ref)
+    })
+    httpReturn(accepted)
+
+    return
+  }
+
+  let flagsList = []
+  paramsForCommand
+    .filter((flag) => flag.for && flag.for.includes(LIST))
+    .forEach(({ param, flag }) => {
+      if (params[param]) {
+        flagsList = [...flagsList, flag, params[param]]
+      }
+    })
+
+  const iterateListAll = (message) => {
+    if (message && typeof message.toString === 'function') {
+      const messageString = message.toString()
+      const listData = consoleParseToJSON(
+        consoleParseToString(messageString, regexExclude),
+        regexHeader
+      )
+
+      if (listData.length) {
+        listData.forEach(({ REF }) => {
+          if (!REF) {
+            return
+          }
+          executeImport(REF)
+        })
+      } else {
+        publisher(messageString)
+      }
+    }
+  }
+
+  executeCommandAsync(
+    defaultCommandVcenter,
+    ['list_all', '-o', type, '--csv', ...flagsList],
+    prependCommand,
+    {
+      err: iterateListAll,
+      out: iterateListAll,
+      close: defaultEmptyFunction,
+    }
+  )
+
+  httpReturn(accepted)
+}
+
 const functionRoutes = {
-  importVcenter,
   list,
   listAll,
   cleartags,
-  hosts,
+  importHost,
+  importVobject,
 }
 module.exports = functionRoutes

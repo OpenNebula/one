@@ -52,6 +52,9 @@ const defaults = {
   defaultSessionExpiration: 180,
   defaultSessionLimitExpiration: 30,
   defaultRememberSessionExpiration: 43200,
+  defaultRegexpStartJSON: /^{/,
+  defaultRegexpEndJSON: /}$/,
+  defaultRegexpSplitLine: /\r|\n/,
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
@@ -62,8 +65,12 @@ const defaults = {
       path: `${baseUrl}${baseUrlWebsockets}hooks`,
       methods: ['GET', 'POST'],
     },
-    provision: {
+    [appNameProvision]: {
       path: `${baseUrl}${baseUrlWebsockets}${appNameProvision}`,
+      methods: ['GET', 'POST'],
+    },
+    vcenter: {
+      path: `${baseUrl}${baseUrlWebsockets}vcenter`,
       methods: ['GET', 'POST'],
     },
   },
@@ -102,8 +109,8 @@ const defaults = {
     parseAttributeValue: true,
     trimValues: true,
   },
-  defaultCommandProvision: 'oneprovision',
-  defaultCommandProvisionTemplate: 'oneprovision-template',
+  defaultCommandProvision: `one${appNameProvision}`,
+  defaultCommandProvisionTemplate: `one${appNameProvision}-template`,
   defaultCommandProvider: 'oneprovider',
   defaultCommandVcenter: 'onevcenter',
   defaultCommandVM: 'onevm',

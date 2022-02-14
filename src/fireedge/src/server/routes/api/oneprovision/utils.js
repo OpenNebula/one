@@ -18,7 +18,6 @@ const { v4 } = require('uuid')
 const { dirname, basename } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
-const events = require('events')
 const { Document, scalarOptions, stringify } = require('yaml')
 const {
   writeFileSync,
@@ -32,39 +31,6 @@ const {
 const { getFireedgeConfig, getProvisionConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { defaultError } = require('server/utils/server')
-
-const eventsEmitter = new events.EventEmitter()
-
-/**
- * Create a event emiter.
- *
- * @param {string} eventName - name event
- * @param {object} message - object message
- */
-const publish = (eventName = '', message = {}) => {
-  if (eventName && message) {
-    eventsEmitter.emit(eventName, message)
-  }
-}
-
-/**
- * Subscriber to event emitter.
- *
- * @param {string} eventName - event name
- * @param {Function} callback - function executed when event is emited
- */
-const subscriber = (eventName = '', callback = () => undefined) => {
-  if (
-    eventName &&
-    callback &&
-    typeof callback === 'function' &&
-    eventsEmitter.listenerCount(eventName) < 1
-  ) {
-    eventsEmitter.on(eventName, (message) => {
-      callback(message)
-    })
-  }
-}
 
 /**
  * Create folder with files.
@@ -322,9 +288,7 @@ const functionRoutes = {
   renameFolder,
   moveToFolder,
   findRecursiveFolder,
-  publish,
   addOptionalCreateCommand,
-  subscriber,
   getSpecificConfig,
 }
 

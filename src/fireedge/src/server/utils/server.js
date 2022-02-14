@@ -35,11 +35,14 @@ const {
   statSync,
   removeSync,
 } = require('fs-extra')
+const { spawnSync, spawn } = require('child_process')
+const events = require('events')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
-const { spawnSync, spawn } = require('child_process')
+
+const eventsEmitter = new events.EventEmitter()
 const {
   httpMethod,
   defaultApps,
@@ -162,18 +165,15 @@ const getQueryData = (server = {}) => {
  * Validate Authentication for websocket.
  *
  * @param {object} server - express app
- * @returns {boolean} if token is valid
+ * @returns {undefined|boolean} if token is valid
  */
 const validateAuthWebsocket = (server = {}) => {
-  let rtn
   const { token } = getQueryData(server)
   if (token) {
-    rtn = validateAuth({
+    return validateAuth({
       headers: { authorization: token },
     })
   }
-
-  return rtn
 }
 
 /**
@@ -387,7 +387,14 @@ const genFireedgeKey = () => {
           createFile(
             global.paths.FIREEDGE_KEY_PATH,
             uuidv4.replace(/-/g, ''),
-            () => undefined,
+            () => {
+              writeInLogger(`file ${global.paths.FIREEDGE_KEY_PATH} created`)
+              messageTerminal({
+                color: 'green',
+                message: 'File %s created',
+                error: global.paths.FIREEDGE_KEY_PATH,
+              })
+            },
             (err) => {
               const errorData = (err && err.message) || ''
               writeInLogger(errorData)
@@ -885,6 +892,37 @@ const executeCommandAsync = (
   }
 }
 
+/**
+ * Create a event emiter.
+ *
+ * @param {string} eventName - name event
+ * @param {object} message - object message
+ */
+const publish = (eventName = '', message = {}) => {
+  if (eventName && message) {
+    eventsEmitter.emit(eventName, message)
+  }
+}
+
+/**
+ * Subscriber to event emitter.
+ *
+ * @param {string} eventName - event name
+ * @param {Function} callback - function executed when event is emited
+ */
+const subscriber = (eventName = '', callback = () => undefined) => {
+  if (
+    eventName &&
+    callback &&
+    typeof callback === 'function' &&
+    eventsEmitter.listenerCount(eventName) < 1
+  ) {
+    eventsEmitter.on(eventName, (message) => {
+      callback(message)
+    })
+  }
+}
+
 module.exports = {
   encrypt,
   decrypt,
@@ -915,4 +953,6 @@ module.exports = {
   checkValidApp,
   removeFile,
   validateHttpMethod,
+  publish,
+  subscriber,
 }
