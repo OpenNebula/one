@@ -18,29 +18,34 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const VCENTER = require('server/routes/api/vcenter/basepath')
 
-const basepath = `/${VCENTER}`
+const basepath = '/vcenter'
 const { POST, GET } = httpMethod
 const { resource, postBody, query } = fromData
 
-const VCENTER_CLEARTAGS = 'vcenter.cleartags'
-const VCENTER_HOSTS = 'vcenter.hosts'
-const VCENTER_IMPORT = 'vcenter.import'
-const VCENTER_LISTALL = 'vcenter.listall'
+const VCENTER_CLEAR_TAGS = 'vcenter.cleartags'
+const VCENTER_IMPORT_HOSTS = 'vcenter.importhosts'
+const VCENTER_IMPORT_DATASTORES = 'vcenter.importdatastores'
+const VCENTER_IMPORT_TEMPLATES = 'vcenter.importtemplates'
+const VCENTER_IMPORT_NETWORKS = 'vcenter.importnetworks'
+const VCENTER_IMPORT_IMAGES = 'vcenter.importimages'
+const VCENTER_LIST_ALL = 'vcenter.listall'
 const VCENTER_LIST = 'vcenter.list'
 const Actions = {
-  VCENTER_CLEARTAGS,
-  VCENTER_HOSTS,
-  VCENTER_IMPORT,
-  VCENTER_LISTALL,
+  VCENTER_CLEAR_TAGS,
+  VCENTER_IMPORT_HOSTS,
+  VCENTER_IMPORT_TEMPLATES,
+  VCENTER_IMPORT_DATASTORES,
+  VCENTER_IMPORT_NETWORKS,
+  VCENTER_IMPORT_IMAGES,
+  VCENTER_LIST_ALL,
   VCENTER_LIST,
 }
 
 module.exports = {
   Actions,
   Commands: {
-    [VCENTER_CLEARTAGS]: {
+    [VCENTER_CLEAR_TAGS]: {
       path: `${basepath}/cleartags/:id`,
       httpMethod: POST,
       auth: true,
@@ -50,31 +55,79 @@ module.exports = {
         },
       },
     },
-    [VCENTER_HOSTS]: {
-      path: `${basepath}/hosts`,
+    [VCENTER_IMPORT_HOSTS]: {
+      path: `${basepath}/hosts/:id?`,
       httpMethod: POST,
       auth: true,
       params: {
+        id: {
+          from: resource,
+        },
         vcenter: {
           from: postBody,
-          name: 'vcenter',
         },
         user: {
           from: postBody,
-          name: 'user',
         },
         pass: {
           from: postBody,
-          name: 'pass',
         },
       },
     },
-    [VCENTER_IMPORT]: {
-      path: `${basepath}/:vobject`,
+    [VCENTER_IMPORT_DATASTORES]: {
+      path: `${basepath}/datastores/:id?`,
       httpMethod: POST,
       auth: true,
       params: {
-        vobject: {
+        id: {
+          from: resource,
+        },
+        host: {
+          from: postBody,
+        },
+      },
+    },
+    [VCENTER_IMPORT_TEMPLATES]: {
+      path: `${basepath}/templates/:id?`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        datastore: {
+          from: postBody,
+        },
+        host: {
+          from: postBody,
+        },
+        folder: {
+          from: postBody,
+        },
+        linked_clone: {
+          from: postBody,
+        },
+      },
+    },
+    [VCENTER_IMPORT_NETWORKS]: {
+      path: `${basepath}/networks/:id?`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        host: {
+          from: postBody,
+        },
+      },
+    },
+    [VCENTER_IMPORT_IMAGES]: {
+      path: `${basepath}/images/:id?`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        id: {
           from: resource,
         },
         host: {
@@ -83,16 +136,10 @@ module.exports = {
         datastore: {
           from: postBody,
         },
-        id: {
-          from: postBody,
-        },
-        answers: {
-          from: postBody,
-        },
       },
     },
-    [VCENTER_LISTALL]: {
-      path: `${basepath}/listall/:vobject`,
+    [VCENTER_LIST_ALL]: {
+      path: `${basepath}/listall/:vobject/:host`,
       httpMethod: GET,
       auth: true,
       params: {
@@ -100,7 +147,7 @@ module.exports = {
           from: resource,
         },
         host: {
-          from: query,
+          from: resource,
         },
         datastore: {
           from: query,
@@ -108,7 +155,7 @@ module.exports = {
       },
     },
     [VCENTER_LIST]: {
-      path: `${basepath}/:vobject`,
+      path: `${basepath}/:vobject/:host`,
       httpMethod: GET,
       auth: true,
       params: {
@@ -116,7 +163,7 @@ module.exports = {
           from: resource,
         },
         host: {
-          from: query,
+          from: resource,
         },
         datastore: {
           from: query,

@@ -24,6 +24,7 @@ const { sprintf } = require('sprintf-js')
 
 const { Actions } = require('server/utils/constants/commands/document')
 const { defaults, httpCodes } = require('server/utils/constants')
+const { publish } = require('server/utils/server')
 const {
   httpResponse,
   parsePostData,
@@ -43,7 +44,6 @@ const {
   renameFolder,
   moveToFolder,
   findRecursiveFolder,
-  publish,
   getEndpoint,
   addOptionalCreateCommand,
   getSpecificConfig,
@@ -55,6 +55,9 @@ const {
   defaultCommandProvision,
   defaultEmptyFunction,
   defaultErrorTemplate,
+  defaultRegexpStartJSON,
+  defaultRegexpEndJSON,
+  defaultRegexpSplitLine,
 } = defaults
 const { ok, notFound, accepted, internalServerError } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -68,9 +71,6 @@ const provisionFile = {
   ext: 'yaml',
 }
 const regexp = /^ID: \d+/
-const regexpStartJSON = /^{/
-const regexpEndJSON = /}$/
-const regexpSplitLine = /\r|\n/
 const relName = 'provision-mapping'
 const ext = 'yml'
 const appendError = '.ERROR'
@@ -143,21 +143,23 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
 
       message
         .toString()
-        .split(regexpSplitLine)
+        .split(defaultRegexpSplitLine)
         .forEach((line) => {
           if (line) {
             if (
-              (regexpStartJSON.test(line) && regexpEndJSON.test(line)) ||
-              (!regexpStartJSON.test(line) &&
-                !regexpEndJSON.test(line) &&
+              (defaultRegexpStartJSON.test(line) &&
+                defaultRegexpEndJSON.test(line)) ||
+              (!defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line) &&
                 pendingMessages.length === 0)
             ) {
               lastLine = line
               publisher(lastLine)
             } else if (
-              (regexpStartJSON.test(line) && !regexpEndJSON.test(line)) ||
-              (!regexpStartJSON.test(line) &&
-                !regexpEndJSON.test(line) &&
+              (defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line)) ||
+              (!defaultRegexpStartJSON.test(line) &&
+                !defaultRegexpEndJSON.test(line) &&
                 pendingMessages.length > 0)
             ) {
               pendingMessages += line
@@ -225,7 +227,7 @@ const logData = (id, fullPath = false) => {
         existsFile(
           stringPath,
           (filedata) => {
-            rtn = { uuid, log: filedata.split(regexpSplitLine) }
+            rtn = { uuid, log: filedata.split(defaultRegexpSplitLine) }
             if (fullPath) {
               rtn.fullPath = stringPath
             }

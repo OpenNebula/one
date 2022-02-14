@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { resolve } = require('path')
-const { env } = require('process')
-const Worker = require('tiny-worker')
 const upcast = require('upcast')
 const {
   defaults,
@@ -30,15 +27,15 @@ const {
 } = require('server/routes/entrypoints/Api/middlawares')
 const { fillResourceforHookConnection } = require('server/utils/opennebula')
 const { httpResponse, validateHttpMethod } = require('server/utils/server')
+const { useWorker, parseReturnWorker } = require('server/utils/worker')
 const { writeInLogger } = require('server/utils/logger')
 
 const {
-  defaultWebpackMode,
   defaultEmptyFunction,
   defaultMessageInvalidZone,
   from: fromData,
 } = defaults
-const { internalServerError, ok, notFound } = httpCodes
+const { internalServerError } = httpCodes
 const { resource: fromResource, query, postBody } = fromData
 
 /**
@@ -63,14 +60,7 @@ const executeWorker = ({
   res,
 }) => {
   if (user && password && rpc && command && paramsCommand) {
-    let workerPath = [__dirname]
-    if (env && env.NODE_ENV === defaultWebpackMode) {
-      workerPath = ['src', 'server', 'utils']
-    } else {
-      require('server/utils/index.worker')
-    }
-    const worker = new Worker(resolve(...workerPath, 'index.worker.js'))
-
+    const worker = useWorker()
     worker.onmessage = function (result) {
       worker.terminate()
       const err = result && result.data && result.data.err
@@ -78,34 +68,21 @@ const executeWorker = ({
       writeInLogger([command, JSON.stringify(value)], 'worker: %s : %s')
       if (!err) {
         fillResourceforHookConnection(user, command, paramsCommand)
-        switch (typeof value) {
-          case 'string':
-            try {
-              res.locals.httpCode = httpResponse(ok, JSON.parse(value))
-            } catch (error) {
-              res.locals.httpCode = httpResponse(notFound, value)
-            }
-            break
-          case 'object':
-            res.locals.httpCode = httpResponse(ok, value)
-            break
-          case 'number':
-            res.locals.httpCode = httpResponse(ok, value)
-            break
-          default:
-            break
-        }
+        res.locals.httpCode = parseReturnWorker(value)
       }
       next()
     }
 
     worker.postMessage({
-      globalState: (global && global.paths) || {},
-      user,
-      password,
-      rpc,
-      command,
-      paramsCommand,
+      type: 'xmlrpc',
+      config: {
+        globalState: (global && global.paths) || {},
+        user,
+        password,
+        rpc,
+        command,
+        paramsCommand,
+      },
     })
   }
 }

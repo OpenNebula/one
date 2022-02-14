@@ -29,9 +29,9 @@ import {
   entrypointApi,
   entrypointApp,
 } from './routes/entrypoints'
-import { websockets } from './routes/websockets'
-import { guacamole } from './routes/websockets/guacamole'
-import { vmrc } from './routes/websockets/vmrc'
+import opennebulaWebsockets from './routes/websockets/opennebula'
+import guacamole from './routes/websockets/guacamole'
+import vmrc from './routes/websockets/vmrc'
 import { getFireedgeConfig } from './utils/yml'
 import { messageTerminal } from './utils/general'
 import {
@@ -143,7 +143,7 @@ const appServer = validateServerIsSecure()
     )
   : unsecureServer(app)
 
-const sockets = websockets(appServer) || []
+const websockets = opennebulaWebsockets(appServer) || []
 
 let config = {
   color: 'red',
@@ -167,7 +167,7 @@ guacamole(appServer)
  * Handle sigterm and sigint.
  */
 const handleBreak = () => {
-  sockets.forEach((socket) => {
+  websockets.forEach((socket) => {
     if (socket && socket.close && typeof socket.close === 'function') {
       socket.close()
     }

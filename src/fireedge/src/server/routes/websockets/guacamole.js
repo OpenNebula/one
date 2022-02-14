@@ -104,7 +104,4 @@ const guacamole = (appServer) => {
   }
 }
 
-module.exports = {
-  endpointGuacamole,
-  guacamole,
-}
+module.exports = guacamole

@@ -86,6 +86,4 @@ const vmrc = (appServer) => {
   }
 }
 
-module.exports = {
-  vmrc,
-}
+module.exports = vmrc

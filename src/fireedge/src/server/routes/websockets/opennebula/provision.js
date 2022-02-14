@@ -14,9 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { middlewareValidateAuthWebsocket } = require('server/utils/server')
+const {
+  middlewareValidateAuthWebsocket,
+  subscriber,
+} = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
-const { subscriber } = require('server/routes/api/oneprovision/utils')
+const { defaults } = require('server/utils/constants')
+
+const { defaultCommandProvision } = defaults
 
 /**
  * Object http error.
@@ -42,7 +47,7 @@ const main = (app = {}, type = '') => {
       server.on('disconnect', () => {
         messageTerminal(configErrorProvision('disconnect'))
       })
-      subscriber('oneprovision', (data) => {
+      subscriber(defaultCommandProvision, (data) => {
         app.emit(type, data)
       })
     })
@@ -51,6 +56,4 @@ const main = (app = {}, type = '') => {
   }
 }
 
-module.exports = {
-  main,
-}
+module.exports = main

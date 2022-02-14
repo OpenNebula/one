@@ -226,7 +226,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list_all,
             list_desc,
-            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
+            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS,
+                         CLIHelper::CSV_OPT] do
         begin
             args = helper.parse_opts(options)
             args[:filter] = false

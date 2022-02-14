@@ -19,6 +19,14 @@ const TEMPLATES = 'templates'
 const NETWORKS = 'networks'
 const IMAGES = 'images'
 
+const LIST = 'list'
+const IMPORT = 'import'
+
+const resourceFromData = {
+  LIST,
+  IMPORT,
+}
+
 const resources = {
   DATASTORES,
   TEMPLATES,
@@ -26,45 +34,55 @@ const resources = {
   IMAGES,
 }
 
-const questions = {
-  [DATASTORES]: [],
+const params = {
+  [DATASTORES]: [
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+  ],
   [TEMPLATES]: [
     {
-      question: 'Type',
-      flag: '--type',
+      param: 'datastore',
+      flag: '--datastore',
+      for: [LIST, IMPORT],
     },
     {
-      question: 'Folder',
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+    {
+      param: 'folder',
       flag: '--folder',
+      for: [IMPORT],
     },
     {
-      question: 'Linked Clone',
-      flag: '--linked-clone',
+      param: 'linked_clone',
+      flag: '--linked_clone',
+      for: [IMPORT],
     },
   ],
   [NETWORKS]: [
     {
-      question: 'Size',
-      flag: '--size',
-    },
-    {
-      question: 'Type',
-      flag: '--type',
-    },
-    {
-      question: 'MAC',
-      flag: '--mac',
-    },
-    {
-      question: 'Cluster(s) to import',
-      flag: '--cluster-imports',
-    },
-    {
-      question: 'Unimported Cluster(s)',
-      flag: '--cluster-unimported',
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
     },
   ],
-  [IMAGES]: [],
+  [IMAGES]: [
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+    {
+      param: 'datastore',
+      flag: '--datastore',
+      for: [LIST, IMPORT],
+    },
+  ],
 }
 
-module.exports = { resources, questions }
+module.exports = { resourceFromData, resources, params }
