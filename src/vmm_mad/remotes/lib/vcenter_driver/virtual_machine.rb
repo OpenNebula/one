@@ -2382,8 +2382,7 @@ end
         # @param option  [symbol]  if :all is provided the
         # method will try to sync
         # all the disks (detached and not existing ones)
-        # otherwishe it will only sync
-        # the disks that are not existing
+        # otherwise it will only sync the disks that are not existing
         #
         # @param execute [boolean] indicates if the reconfigure operation
         # is going to
