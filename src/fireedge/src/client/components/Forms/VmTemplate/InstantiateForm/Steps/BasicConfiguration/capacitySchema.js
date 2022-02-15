@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { number } from 'yup'
 
+import { Field } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
+const commonValidation = number()
+  .positive()
+  .default(() => undefined)
+
+/** @type {Field} Memory field */
 const MEMORY = (hypervisor) => {
-  let validation = number()
-    .integer('Memory should be integer number')
-    .positive('Memory should be positive number')
-    .typeError('Memory must be a number')
-    .required('Memory field is required')
-    .default(() => undefined)
+  let validation = commonValidation.required()
 
   if (hypervisor === HYPERVISORS.vcenter) {
     validation = validation.isDivisibleBy(4)
@@ -33,7 +33,7 @@ const MEMORY = (hypervisor) => {
   return {
     name: 'MEMORY',
     label: T.Memory,
-    tooltip: 'Amount of RAM required for the VM.',
+    tooltip: T.MemoryConcept,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
     validation,
@@ -41,34 +41,25 @@ const MEMORY = (hypervisor) => {
   }
 }
 
+/** @type {Field} Physical CPU field */
 const PHYSICAL_CPU = {
   name: 'CPU',
   label: T.PhysicalCpu,
-  tooltip: `
-    Percentage of CPU divided by 100 required for
-    the Virtual Machine. Half a processor is written 0.5.`,
+  tooltip: T.PhysicalCpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: number()
-    .positive('CPU should be positive number')
-    .typeError('CPU must be a number')
-    .required('CPU field is required')
-    .default(() => undefined),
+  validation: commonValidation.required(),
   grid: { md: 12 },
 }
 
+/** @type {Field} Virtual CPU field */
 const VIRTUAL_CPU = {
   name: 'VCPU',
   label: T.VirtualCpu,
-  tooltip: `
-    Number of virtual cpus. This value is optional, the default
-    hypervisor behavior is used, usually one virtual CPU`,
+  tooltip: T.VirtualCpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: number()
-    .positive('Virtual CPU should be positive number')
-    .notRequired()
-    .default(() => undefined),
+  validation: commonValidation.notRequired(),
   grid: { md: 12 },
 }
 

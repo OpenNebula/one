@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
-import { Trash } from 'iconoir-react'
+import { Edit, Trash } from 'iconoir-react'
 
 import {
   useAttachNicMutation,
@@ -28,43 +28,60 @@ import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const AttachAction = memo(({ vmId, currentNics }) => {
-  const [attachNic] = useAttachNicMutation()
+const AttachAction = memo(
+  ({ vmId, hypervisor, nic, currentNics, onSubmit, sx }) => {
+    const [attachNic] = useAttachNicMutation()
 
-  const handleAttachNic = async (formData) => {
-    const isAlias = !!formData?.PARENT?.length
-    const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
+    const handleAttachNic = async (formData) => {
+      if (onSubmit && typeof onSubmit === 'function') {
+        return await onSubmit(formData)
+      }
 
-    const template = jsonToXml(data)
-    await attachNic({ id: vmId, template })
+      const isAlias = !!formData?.PARENT?.length
+      const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
+
+      const template = jsonToXml(data)
+      await attachNic({ id: vmId, template })
+    }
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={
+          nic
+            ? {
+                'data-cy': `edit-${nic.NIC_ID}`,
+                icon: <Edit />,
+                tooltip: Tr(T.Edit),
+                sx,
+              }
+            : {
+                color: 'secondary',
+                'data-cy': 'add-nic',
+                label: T.AttachNic,
+                variant: 'outlined',
+                sx,
+              }
+        }
+        options={[
+          {
+            dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
+            form: () => AttachNicForm({ hypervisor, nics: currentNics }, nic),
+            onSubmit: handleAttachNic,
+          },
+        ]}
+      />
+    )
   }
+)
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        color: 'secondary',
-        'data-cy': 'attach-nic',
-        label: T.AttachNic,
-        variant: 'outlined',
-      }}
-      options={[
-        {
-          dialogProps: { title: T.AttachNic },
-          form: () => AttachNicForm({ nics: currentNics }),
-          onSubmit: handleAttachNic,
-        },
-      ]}
-    />
-  )
-})
-
-const DetachAction = memo(({ vmId, nic }) => {
+const DetachAction = memo(({ vmId, nic, onSubmit, sx }) => {
   const [detachNic] = useDetachNicMutation()
   const { NIC_ID, PARENT } = nic
   const isAlias = !!PARENT?.length
 
   const handleDetach = async () => {
-    await detachNic({ id: vmId, nic: NIC_ID })
+    const handleDetachNic = onSubmit ?? detachNic
+    await handleDetachNic({ id: vmId, nic: NIC_ID })
   }
 
   return (
@@ -73,6 +90,7 @@ const DetachAction = memo(({ vmId, nic }) => {
         'data-cy': `detach-nic-${NIC_ID}`,
         icon: <Trash />,
         tooltip: Tr(T.Detach),
+        sx,
       }}
       options={[
         {
@@ -81,7 +99,7 @@ const DetachAction = memo(({ vmId, nic }) => {
             title: (
               <Translate
                 word={T.DetachSomething}
-                values={`${isAlias ? T.Alias : T.NIC} #${nic}`}
+                values={`${isAlias ? T.Alias : T.NIC} #${NIC_ID}`}
               />
             ),
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
@@ -94,9 +112,12 @@ const DetachAction = memo(({ vmId, nic }) => {
 })
 
 const ActionPropTypes = {
-  vmId: PropTypes.string.isRequired,
-  currentNics: PropTypes.object,
+  vmId: PropTypes.string,
+  hypervisor: PropTypes.string,
+  currentNics: PropTypes.array,
   nic: PropTypes.object,
+  onSubmit: PropTypes.func,
+  sx: PropTypes.object,
 }
 
 AttachAction.propTypes = ActionPropTypes

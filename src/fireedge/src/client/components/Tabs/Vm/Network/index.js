@@ -46,24 +46,24 @@ const { ATTACH_NIC, DETACH_NIC } = VM_ACTIONS
 const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
   const { data: vm } = useGetVmQuery(id)
 
-  const [nics, actionsAvailable] = useMemo(() => {
+  const [nics, hypervisor, actionsAvailable] = useMemo(() => {
     const groupedNics = getNics(vm, {
       groupAlias: true,
       securityGroupsFromTemplate: true,
     })
-    const hypervisor = getHypervisor(vm)
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const hyperV = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hyperV)
     const actionsByState = actionsByHypervisor.filter(
       (action) => !isAvailableAction(action)(vm)
     )
 
-    return [groupedNics, actionsByState]
+    return [groupedNics, hyperV, actionsByState]
   }, [vm])
 
   return (
-    <>
+    <div>
       {actionsAvailable?.includes?.(ATTACH_NIC) && (
-        <AttachAction vmId={id} currentNics={nics} />
+        <AttachAction vmId={id} currentNics={nics} hypervisor={hypervisor} />
       )}
 
       <Stack direction="column" gap="1em" py="0.8em">
@@ -75,15 +75,16 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
             <NicCard
               key={key}
               nic={nic}
-              extraActionProps={{ vmId: id }}
-              actions={[
-                actionsAvailable.includes(DETACH_NIC) && DetachAction,
-              ].filter(Boolean)}
+              actions={
+                actionsAvailable.includes(DETACH_NIC) && (
+                  <DetachAction nic={nic} vmId={id} />
+                )
+              }
             />
           )
         })}
       </Stack>
-    </>
+    </div>
   )
 }
 

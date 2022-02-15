@@ -36,7 +36,7 @@ const Content = () => {
   const { view, getResourceView } = useAuth()
   const { watch } = useFormContext()
 
-  const groups = useMemo(() => {
+  const sections = useMemo(() => {
     const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
     const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
@@ -46,7 +46,7 @@ const Content = () => {
 
   return (
     <div className={classes.root}>
-      {groups.map(({ id, legend, fields }) => (
+      {sections.map(({ id, legend, fields }) => (
         <FormWithSchema
           key={id}
           className={classes[id]}

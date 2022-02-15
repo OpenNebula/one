@@ -49,6 +49,9 @@ const SCHEMA = object({
   NIC: array()
     .ensure()
     .transform((nics) => nics.map(mapNameByIndex('NIC'))),
+  NIC_ALIAS: array()
+    .ensure()
+    .transform((nics) => nics.map(mapNameByIndex('NIC_ALIAS'))),
 }).concat(getObjectSchemaFromFields(FIELDS))
 
 export { FIELDS, SCHEMA }

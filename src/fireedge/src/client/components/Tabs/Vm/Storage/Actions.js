@@ -48,48 +48,86 @@ import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const AttachAction = memo(({ vmId, hypervisor }) => {
+const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
   const [attachDisk] = useAttachDiskMutation()
 
   const handleAttachDisk = async (formData) => {
+    if (onSubmit && typeof onSubmit === 'function') {
+      return await onSubmit(formData)
+    }
+
     const template = jsonToXml({ DISK: formData })
     await attachDisk({ id: vmId, template })
   }
 
   return (
     <ButtonToTriggerForm
-      buttonProps={{
-        color: 'secondary',
-        'data-cy': 'attach-disk',
-        label: T.AttachDisk,
-        variant: 'outlined',
-      }}
-      options={[
-        {
-          cy: 'attach-image',
-          name: T.Image,
-          dialogProps: { title: T.AttachImage },
-          form: () => ImageSteps({ hypervisor }),
-          onSubmit: handleAttachDisk,
-        },
-        {
-          cy: 'attach-volatile',
-          name: T.Volatile,
-          dialogProps: { title: T.AttachVolatile },
-          form: () => VolatileSteps({ hypervisor }),
-          onSubmit: handleAttachDisk,
-        },
-      ]}
+      buttonProps={
+        disk
+          ? {
+              'data-cy': `edit-${disk.DISK_ID}`,
+              icon: <Edit />,
+              tooltip: Tr(T.Edit),
+              sx,
+            }
+          : {
+              color: 'secondary',
+              'data-cy': 'add-disk',
+              label: T.AttachDisk,
+              variant: 'outlined',
+              sx,
+            }
+      }
+      options={
+        disk
+          ? [
+              {
+                dialogProps: {
+                  title: (
+                    <Translate word={T.EditSomething} values={[disk?.NAME]} />
+                  ),
+                },
+                form: () =>
+                  !disk?.IMAGE && !disk?.IMAGE_ID // is volatile
+                    ? VolatileSteps({ hypervisor }, disk)
+                    : ImageSteps({ hypervisor }, disk),
+                onSubmit: handleAttachDisk,
+              },
+            ]
+          : [
+              {
+                cy: 'attach-image',
+                name: T.Image,
+                dialogProps: {
+                  title: T.AttachImage,
+                  dataCy: 'modal-attach-image',
+                },
+                form: () => ImageSteps({ hypervisor }, disk),
+                onSubmit: handleAttachDisk,
+              },
+              {
+                cy: 'attach-volatile',
+                name: T.Volatile,
+                dialogProps: {
+                  title: T.AttachVolatile,
+                  dataCy: 'modal-attach-volatile',
+                },
+                form: () => VolatileSteps({ hypervisor }, disk),
+                onSubmit: handleAttachDisk,
+              },
+            ]
+      }
     />
   )
 })
 
-const DetachAction = memo(({ vmId, disk, name: imageName }) => {
+const DetachAction = memo(({ vmId, disk, name: imageName, onSubmit, sx }) => {
   const [detachDisk] = useDetachDiskMutation()
   const { DISK_ID } = disk
 
   const handleDetach = async () => {
-    await detachDisk({ id: vmId, disk: DISK_ID })
+    const handleDetachDisk = onSubmit ?? detachDisk
+    await handleDetachDisk({ id: vmId, disk: DISK_ID })
   }
 
   return (
@@ -98,6 +136,7 @@ const DetachAction = memo(({ vmId, disk, name: imageName }) => {
         'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
         icon: <Trash />,
         tooltip: Tr(T.Detach),
+        sx,
       }}
       options={[
         {
@@ -118,7 +157,7 @@ const DetachAction = memo(({ vmId, disk, name: imageName }) => {
   )
 })
 
-const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName }) => {
+const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName, sx }) => {
   const [saveAsDisk] = useSaveAsDiskMutation()
   const { DISK_ID: diskId } = disk
   const { ID: snapshotId, NAME: snapshotName } = snapshot ?? {}
@@ -138,6 +177,7 @@ const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName }) => {
         'data-cy': `${VM_ACTIONS.DISK_SAVEAS}-${diskId}`,
         icon: <SaveActionFloppy />,
         tooltip: Tr(T.SaveAs),
+        sx,
       }}
       options={[
         {
@@ -163,7 +203,7 @@ const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName }) => {
   )
 })
 
-const ResizeAction = memo(({ vmId, disk, name: imageName }) => {
+const ResizeAction = memo(({ vmId, disk, name: imageName, sx }) => {
   const [resizeDisk] = useResizeDiskMutation()
   const { DISK_ID } = disk
 
@@ -177,6 +217,7 @@ const ResizeAction = memo(({ vmId, disk, name: imageName }) => {
         'data-cy': `${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`,
         icon: <Expand />,
         tooltip: Tr(T.Resize),
+        sx,
       }}
       options={[
         {
@@ -196,7 +237,7 @@ const ResizeAction = memo(({ vmId, disk, name: imageName }) => {
   )
 })
 
-const SnapshotCreateAction = memo(({ vmId, disk, name: imageName }) => {
+const SnapshotCreateAction = memo(({ vmId, disk, name: imageName, sx }) => {
   const [createDiskSnapshot] = useCreateDiskSnapshotMutation()
   const { DISK_ID } = disk
 
@@ -210,6 +251,7 @@ const SnapshotCreateAction = memo(({ vmId, disk, name: imageName }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_CREATE}-${DISK_ID}`,
         icon: <Camera />,
         tooltip: Tr(T.TakeSnapshot),
+        sx,
       }}
       options={[
         {
@@ -229,7 +271,7 @@ const SnapshotCreateAction = memo(({ vmId, disk, name: imageName }) => {
   )
 })
 
-const SnapshotRenameAction = memo(({ vmId, disk, snapshot }) => {
+const SnapshotRenameAction = memo(({ vmId, disk, snapshot, sx }) => {
   const [renameDiskSnapshot] = useRenameDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = '' } = snapshot
@@ -249,6 +291,7 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_RENAME}-${DISK_ID}-${ID}`,
         icon: <Edit />,
         tooltip: Tr(T.Edit),
+        sx,
       }}
       options={[
         {
@@ -266,7 +309,7 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot }) => {
   )
 })
 
-const SnapshotRevertAction = memo(({ vmId, disk, snapshot }) => {
+const SnapshotRevertAction = memo(({ vmId, disk, snapshot, sx }) => {
   const [revertDiskSnapshot] = useRevertDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = T.Snapshot } = snapshot
@@ -281,6 +324,7 @@ const SnapshotRevertAction = memo(({ vmId, disk, snapshot }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_REVERT}-${DISK_ID}-${ID}`,
         icon: <UndoAction />,
         tooltip: Tr(T.Revert),
+        sx,
       }}
       options={[
         {
@@ -298,7 +342,7 @@ const SnapshotRevertAction = memo(({ vmId, disk, snapshot }) => {
   )
 })
 
-const SnapshotDeleteAction = memo(({ vmId, disk, snapshot }) => {
+const SnapshotDeleteAction = memo(({ vmId, disk, snapshot, sx }) => {
   const [deleteDiskSnapshot] = useDeleteDiskSnapshotMutation()
   const { DISK_ID } = disk
   const { ID, NAME = T.Snapshot } = snapshot
@@ -313,6 +357,7 @@ const SnapshotDeleteAction = memo(({ vmId, disk, snapshot }) => {
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DISK_DELETE}-${DISK_ID}-${ID}`,
         icon: <Trash />,
         tooltip: Tr(T.Delete),
+        sx,
       }}
       options={[
         {
@@ -331,11 +376,13 @@ const SnapshotDeleteAction = memo(({ vmId, disk, snapshot }) => {
 })
 
 const ActionPropTypes = {
-  vmId: PropTypes.string.isRequired,
+  vmId: PropTypes.string,
   hypervisor: PropTypes.string,
   disk: PropTypes.object,
   snapshot: PropTypes.object,
   name: PropTypes.string,
+  onSubmit: PropTypes.func,
+  sx: PropTypes.object,
 }
 
 AttachAction.propTypes = ActionPropTypes

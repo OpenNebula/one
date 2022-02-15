@@ -108,6 +108,21 @@ export const AR_TYPES = {
   IP4_6_STATIC: 'IP4_6_STATIC',
 }
 
+/** @enum {string} Virtual Network Drivers */
+export const VN_DRIVERS = {
+  dummy: 'dummy',
+  dot1Q: '802.1Q',
+  ebtables: 'ebtables',
+  fw: 'fw',
+  ovswitch: 'ovswitch',
+  vxlan: 'vxlan',
+  vcenter: 'vcenter',
+  ovswitch_vxlan: 'ovswitch_vxlan',
+  bridge: 'bridge',
+  elastic: 'elastic',
+  nodeport: 'nodeport',
+}
+
 /** @enum {string} Virtual network actions */
 export const VN_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',

@@ -73,8 +73,10 @@ const oneApi = createApi({
 
       return { data: response.data ?? {} }
     } catch (axiosError) {
-      const { message, data, status, statusText } = axiosError
-      const error = message ?? data?.message ?? statusText
+      const { message, data = {}, status, statusText } = axiosError
+      const { message: messageFromServer, data: errorFromOned } = data
+
+      const error = message ?? errorFromOned ?? messageFromServer ?? statusText
 
       status === httpCodes.unauthorized.id
         ? dispatch(logout(T.SessionExpired))

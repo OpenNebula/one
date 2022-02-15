@@ -16,7 +16,8 @@
 import DOMPurify from 'dompurify'
 import { object, reach, ObjectSchema, BaseSchema } from 'yup'
 import { isMergeableObject } from 'client/utils/merge'
-import { HYPERVISORS } from 'client/constants'
+import { Field } from 'client/utils/schema'
+import { HYPERVISORS, VN_DRIVERS } from 'client/constants'
 
 /**
  * Simulate a delay in a function.
@@ -198,9 +199,9 @@ export const getObjectSchemaFromFields = (fields) =>
   }, object())
 
 /**
- * @param {Array} fields - Fields
+ * @param {Field[]} fields - Fields
  * @param {HYPERVISORS} hypervisor - Hypervisor
- * @returns {Array} Filtered fields
+ * @returns {Field[]} Filtered fields
  */
 export const filterFieldsByHypervisor = (
   fields,
@@ -210,6 +211,18 @@ export const filterFieldsByHypervisor = (
     .map((field) => (typeof field === 'function' ? field(hypervisor) : field))
     .filter(
       ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
+    )
+
+/**
+ * @param {Field[]} fields - Fields
+ * @param {VN_DRIVERS} driver - Driver
+ * @returns {Field[]} Filtered fields
+ */
+export const filterFieldsByDriver = (fields, driver = false) =>
+  fields
+    .map((field) => (typeof field === 'function' ? field(driver) : field))
+    .filter(
+      ({ notOnDrivers } = {}) => !driver || !notOnDrivers?.includes?.(driver)
     )
 
 /**

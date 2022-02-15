@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
@@ -21,14 +21,24 @@ import {
   SCHEMA,
   FIELDS,
 } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration/schema'
-import { T } from 'client/constants'
+import { Step } from 'client/utils'
+import { T, HYPERVISORS } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = ({ hypervisor }) => (
-  <FormWithSchema cy="attach-disk" fields={FIELDS(hypervisor)} id={STEP_ID} />
-)
+const Content = ({ hypervisor }) => {
+  const memoFields = useMemo(() => FIELDS(hypervisor), [])
 
+  return <FormWithSchema cy="attach-disk" fields={memoFields} id={STEP_ID} />
+}
+
+/**
+ * Renders configuration to volatile disk.
+ *
+ * @param {object} props - Props
+ * @param {HYPERVISORS} props.hypervisor - Hypervisor
+ * @returns {Step} Basic configuration step
+ */
 const BasicConfiguration = ({ hypervisor } = {}) => ({
   id: STEP_ID,
   label: T.Configuration,
