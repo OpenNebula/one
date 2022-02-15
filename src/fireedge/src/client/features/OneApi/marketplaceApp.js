@@ -19,10 +19,15 @@ import {
   Commands as ExtraCommands,
 } from 'server/routes/api/marketapp/routes'
 
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { FilterFlag, Permission, MarketplaceApp } from 'client/constants'
 
 const { APP } = ONE_RESOURCES
+const { APP_POOL } = ONE_RESOURCES_POOL
 
 const marketAppApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -46,7 +51,13 @@ const marketAppApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.MARKETPLACEAPP_POOL?.MARKETPLACEAPP ?? []].flat(),
-      providesTags: [APP],
+      providesTags: (apps) =>
+        apps
+          ? [
+              ...apps.map(({ ID }) => ({ type: APP_POOL, id: `${ID}` })),
+              APP_POOL,
+            ]
+          : [APP_POOL],
     }),
     getMarketplaceApp: builder.query({
       /**
@@ -98,7 +109,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [APP],
+      invalidatesTags: [APP_POOL],
     }),
     updateApp: builder.mutation({
       /**
@@ -120,7 +131,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: (_, __, { id }) => [{ type: APP, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
     }),
     removeApp: builder.mutation({
       /**
@@ -136,7 +147,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      providesTags: [APP],
+      invalidatesTags: (_, __, id) => [{ type: APP_POOL, id }, APP_POOL],
     }),
     enableApp: builder.mutation({
       /**
@@ -152,7 +163,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: true }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP_POOL],
     }),
     disableApp: builder.mutation({
       /**
@@ -168,7 +179,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP_POOL],
     }),
     changeAppPermissions: builder.mutation({
       /**
@@ -215,7 +226,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
     }),
     renameApp: builder.mutation({
       /**
@@ -233,7 +244,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
     }),
     lockApp: builder.mutation({
       /**
@@ -255,7 +266,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
     }),
     unlockApp: builder.mutation({
       /**
@@ -271,7 +282,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP],
+      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP_POOL],
     }),
     importApp: builder.mutation({
       /**
@@ -292,7 +303,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [APP],
+      invalidatesTags: [APP_POOL],
     }),
     exportApp: builder.mutation({
       /**
@@ -316,7 +327,7 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [APP],
+      invalidatesTags: [APP_POOL],
     }),
   }),
 })

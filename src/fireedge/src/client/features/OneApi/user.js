@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/user'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { User } from 'client/constants'
 
 const { USER } = ONE_RESOURCES
+const { USER_POOL } = ONE_RESOURCES_POOL
 
 const userApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +40,13 @@ const userApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.USER_POOL?.USER ?? []].flat(),
-      providesTags: [USER],
+      providesTags: (users) =>
+        users
+          ? [
+              ...users.map(({ ID }) => ({ type: USER_POOL, id: `${ID}` })),
+              USER_POOL,
+            ]
+          : [USER_POOL],
     }),
     getUser: builder.query({
       /**
@@ -75,7 +86,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [USER],
+      invalidatesTags: [USER_POOL],
     }),
     updateUser: builder.mutation({
       /**
@@ -114,7 +125,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER],
+      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
     }),
     changePassword: builder.mutation({
       /**
@@ -200,7 +211,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER],
+      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
     }),
     removeFromGroup: builder.mutation({
       /**
@@ -218,7 +229,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER],
+      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
     }),
     enableUser: builder.mutation({
       /**
@@ -234,7 +245,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: USER, id }, USER],
+      invalidatesTags: (_, __, id) => [{ type: USER, id }, USER_POOL],
     }),
     disableUser: builder.mutation({
       /**
@@ -250,7 +261,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: USER, id }, USER],
+      invalidatesTags: (_, __, id) => [{ type: USER, id }, USER_POOL],
     }),
     getUserQuota: builder.query({
       /**

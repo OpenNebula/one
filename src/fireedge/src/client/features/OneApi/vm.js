@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vm'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import http from 'client/utils/rest'
 import {
@@ -25,6 +29,7 @@ import {
 } from 'client/constants'
 
 const { VM } = ONE_RESOURCES
+const { VM_POOL } = ONE_RESOURCES_POOL
 
 const vmApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -41,15 +46,15 @@ const vmApi = oneApi.injectEndpoints({
        * @param {number} [params.state] - VM state to filter by
        * - `-2`: Any state, including DONE
        * - `-1`: Any state, except DONE
-       * - `0`: INIT
-       * - `1`: PENDING
-       * - `2`: HOLD
-       * - `3`: ACTIVE
-       * - `4`: STOPPED
-       * - `5`: SUSPENDED
-       * - `6`: DONE
-       * - `8`: POWEROFF
-       * - `9`: UNDEPLOYED
+       * - `0`:  INIT
+       * - `1`:  PENDING
+       * - `2`:  HOLD
+       * - `3`:  ACTIVE
+       * - `4`:  STOPPED
+       * - `5`:  SUSPENDED
+       * - `6`:  DONE
+       * - `8`:  POWEROFF
+       * - `9`:  UNDEPLOYED
        * - `10`: CLONING
        * - `11`: CLONING_FAILURE
        * @param {string} [params.filterByKey] - Filter in KEY=VALUE format
@@ -65,7 +70,10 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => [data?.VM_POOL?.VM ?? []].flat(),
-      providesTags: [VM],
+      providesTags: (vms) =>
+        vms
+          ? [vms.map(({ ID }) => ({ type: VM_POOL, id: `${ID}` })), VM_POOL]
+          : [VM_POOL],
     }),
     getVm: builder.query({
       /**
@@ -209,7 +217,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VM],
+      invalidatesTags: [VM_POOL],
     }),
     saveAsTemplate: builder.mutation({
       /**
@@ -258,7 +266,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VM],
+      invalidatesTags: [VM_POOL],
     }),
     actionVm: builder.mutation({
       /**

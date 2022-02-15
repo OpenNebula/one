@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vrouter'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { FilterFlag } from 'client/constants'
 
 const { VROUTER } = ONE_RESOURCES
+const { VROUTER_POOL } = ONE_RESOURCES_POOL
 
 const virtualRouterApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -39,7 +44,13 @@ const virtualRouterApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => [data?.VROUTER_POOL?.VROUTER ?? []].flat(),
-      providesTags: [VROUTER],
+      providesTags: (vRouters) =>
+        vRouters
+          ? [
+              ...vRouters.map(({ ID }) => ({ type: VROUTER_POOL, ID })),
+              VROUTER_POOL,
+            ]
+          : [VROUTER_POOL],
     }),
     getVRouter: builder.query({
       /**

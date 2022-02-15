@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/datastore'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { Permission, Datastore } from 'client/constants'
 
 const { DATASTORE } = ONE_RESOURCES
+const { DATASTORE_POOL } = ONE_RESOURCES_POOL
 
 const datastoreApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,7 +41,16 @@ const datastoreApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.DATASTORE_POOL?.DATASTORE ?? []].flat(),
-      providesTags: [DATASTORE],
+      providesTags: (datastores) =>
+        datastores
+          ? [
+              ...datastores.map(({ ID }) => ({
+                type: DATASTORE_POOL,
+                id: `${ID}`,
+              })),
+              DATASTORE_POOL,
+            ]
+          : [DATASTORE_POOL],
     }),
     getDatastore: builder.query({
       /**
@@ -73,7 +87,7 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [DATASTORE],
+      invalidatesTags: [DATASTORE_POOL],
     }),
     removeDatastore: builder.mutation({
       /**
@@ -89,7 +103,7 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: [DATASTORE],
+      invalidatesTags: [DATASTORE_POOL],
     }),
     updateDatastore: builder.mutation({
       /**
@@ -158,7 +172,10 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }, DATASTORE],
+      invalidatesTags: (_, __, { id }) => [
+        { type: DATASTORE, id },
+        DATASTORE_POOL,
+      ],
     }),
     renameDatastore: builder.mutation({
       /**
@@ -176,7 +193,10 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }, DATASTORE],
+      invalidatesTags: (_, __, { id }) => [
+        { type: DATASTORE, id },
+        DATASTORE_POOL,
+      ],
     }),
     enableDatastore: builder.mutation({
       /**
@@ -192,7 +212,7 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: true }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: DATASTORE, id }, DATASTORE],
+      invalidatesTags: (_, __, id) => [{ type: DATASTORE, id }, DATASTORE_POOL],
     }),
     disableDatastore: builder.mutation({
       /**
@@ -208,7 +228,7 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: DATASTORE, id }, DATASTORE],
+      invalidatesTags: (_, __, id) => [{ type: DATASTORE, id }, DATASTORE_POOL],
     }),
   }),
 })

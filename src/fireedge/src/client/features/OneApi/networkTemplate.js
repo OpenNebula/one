@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vntemplate'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { FilterFlag, Permission, VNetworkTemplate } from 'client/constants'
 
-const { VNET, VNTEMPLATE } = ONE_RESOURCES
+const { VNTEMPLATE } = ONE_RESOURCES
+const { VNET_POOL, VNTEMPLATE_POOL } = ONE_RESOURCES_POOL
 
 const vNetworkTemplateApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,7 +45,16 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.VNTEMPLATE_POOL?.VNTEMPLATE ?? []].flat(),
-      providesTags: [VNTEMPLATE],
+      providesTags: (vNetTemplates) =>
+        vNetTemplates
+          ? [
+              ...vNetTemplates.map(({ ID }) => ({
+                type: VNTEMPLATE_POOL,
+                id: `${ID}`,
+              })),
+              VNTEMPLATE_POOL,
+            ]
+          : [VNTEMPLATE_POOL],
     }),
     getVNTemplate: builder.query({
       /**
@@ -76,7 +90,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNTEMPLATE],
+      invalidatesTags: [VNTEMPLATE_POOL],
     }),
     cloneVNTemplate: builder.mutation({
       /**
@@ -94,7 +108,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNTEMPLATE],
+      invalidatesTags: [VNTEMPLATE_POOL],
     }),
     removeVNTemplate: builder.mutation({
       /**
@@ -111,7 +125,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNTEMPLATE],
+      invalidatesTags: [VNTEMPLATE_POOL],
     }),
     instantiateVNTemplate: builder.mutation({
       /**
@@ -132,7 +146,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNET],
+      invalidatesTags: [VNET_POOL],
     }),
     updateVNTemplate: builder.mutation({
       /**
@@ -203,7 +217,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VNTEMPLATE, id },
-        VNTEMPLATE,
+        VNTEMPLATE_POOL,
       ],
     }),
     renameVNTemplate: builder.mutation({
@@ -224,7 +238,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VNTEMPLATE, id },
-        VNTEMPLATE,
+        VNTEMPLATE_POOL,
       ],
     }),
     lockVNTemplate: builder.mutation({
@@ -249,7 +263,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [
         { type: VNTEMPLATE, id },
-        VNTEMPLATE,
+        VNTEMPLATE_POOL,
       ],
     }),
     unlockVNTemplate: builder.mutation({
@@ -266,7 +280,10 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: VNTEMPLATE, id }, VNTEMPLATE],
+      invalidatesTags: (_, __, id) => [
+        { type: VNTEMPLATE, id },
+        VNTEMPLATE_POOL,
+      ],
     }),
   }),
 })

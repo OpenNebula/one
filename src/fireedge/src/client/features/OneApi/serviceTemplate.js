@@ -14,10 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/routes/api/oneflow/template/routes'
-import { oneApi, DOCUMENT } from 'client/features/OneApi'
+import { oneApi, DOCUMENT, DOCUMENT_POOL } from 'client/features/OneApi'
 import { ServiceTemplate } from 'client/constants'
 
-const { SERVICE, SERVICE_TEMPLATE } = DOCUMENT
+const { SERVICE_TEMPLATE } = DOCUMENT
+const { SERVICE_POOL, SERVICE_TEMPLATE_POOL } = DOCUMENT_POOL
 
 const serviceTemplateApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +36,16 @@ const serviceTemplateApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat(),
-      providesTags: [SERVICE_TEMPLATE],
+      providesTags: (serviceTemplates) =>
+        serviceTemplates
+          ? [
+              serviceTemplates.map(({ ID }) => ({
+                type: SERVICE_TEMPLATE_POOL,
+                id: `${ID}`,
+              })),
+              SERVICE_TEMPLATE_POOL,
+            ]
+          : [SERVICE_TEMPLATE_POOL],
     }),
     getServiceTemplate: builder.query({
       /**
@@ -86,7 +96,7 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE_TEMPLATE],
+      providesTags: [SERVICE_TEMPLATE_POOL],
     }),
     updateServiceTemplate: builder.mutation({
       /**
@@ -121,7 +131,7 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE_TEMPLATE],
+      providesTags: [SERVICE_TEMPLATE_POOL],
     }),
     instantiateServiceTemplate: builder.mutation({
       /**
@@ -149,7 +159,7 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE],
+      providesTags: [SERVICE_POOL],
     }),
   }),
 })

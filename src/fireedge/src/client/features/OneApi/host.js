@@ -14,11 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/host'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import { Host } from 'client/constants'
 
 const { HOST } = ONE_RESOURCES
+const { HOST_POOL } = ONE_RESOURCES_POOL
 
 const hostApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,7 +41,13 @@ const hostApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.HOST_POOL?.HOST ?? []].flat(),
-      providesTags: [HOST],
+      providesTags: (hosts) =>
+        hosts
+          ? [
+              ...hosts.map(({ ID }) => ({ type: HOST_POOL, id: `${ID}` })),
+              HOST_POOL,
+            ]
+          : [HOST_POOL],
     }),
     getHost: builder.query({
       /**
@@ -94,7 +105,7 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [HOST],
+      invalidatesTags: [HOST_POOL],
     }),
     updateHost: builder.mutation({
       /**
@@ -133,7 +144,7 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [HOST],
+      invalidatesTags: [HOST_POOL],
     }),
     enableHost: builder.mutation({
       /**
@@ -149,7 +160,7 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params: { id, status: 0 }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST_POOL],
     }),
     disableHost: builder.mutation({
       /**
@@ -165,7 +176,7 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params: { id, status: 1 }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST_POOL],
     }),
     offlineHost: builder.mutation({
       /**
@@ -181,7 +192,7 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params: { id, status: 2 }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST],
+      invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST_POOL],
     }),
     renameHost: builder.mutation({
       /**

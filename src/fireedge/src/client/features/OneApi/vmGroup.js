@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vmgroup'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { FilterFlag } from 'client/constants'
 
 const { VMGROUP } = ONE_RESOURCES
+const { VMGROUP_POOL } = ONE_RESOURCES_POOL
 
 const vmGroupApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -39,10 +44,13 @@ const vmGroupApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => [data?.VM_GROUP_POOL?.VM_GROUP ?? []].flat(),
-      providesTags: (result) =>
-        result
-          ? [...result.map(({ ID }) => ({ type: VMGROUP, ID })), VMGROUP]
-          : [VMGROUP],
+      providesTags: (vmGroups) =>
+        vmGroups
+          ? [
+              ...vmGroups.map(({ ID }) => ({ type: VMGROUP_POOL, ID })),
+              VMGROUP_POOL,
+            ]
+          : [VMGROUP_POOL],
     }),
     getVMGroup: builder.query({
       /**

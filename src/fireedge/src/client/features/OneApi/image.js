@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/image'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import {
   FilterFlag,
@@ -24,6 +28,7 @@ import {
 } from 'client/constants'
 
 const { IMAGE } = ONE_RESOURCES
+const { IMAGE_POOL } = ONE_RESOURCES_POOL
 
 const imageApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -45,7 +50,13 @@ const imageApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => [data?.IMAGE_POOL?.IMAGE ?? []].flat(),
-      providesTags: [IMAGE],
+      providesTags: (images) =>
+        images
+          ? [
+              ...images.map(({ ID }) => ({ type: IMAGE_POOL, id: `${ID}` })),
+              IMAGE_POOL,
+            ]
+          : [IMAGE_POOL],
     }),
     getImage: builder.query({
       /**
@@ -89,7 +100,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [IMAGE],
+      invalidatesTags: [IMAGE_POOL],
     }),
     cloneImage: builder.mutation({
       /**
@@ -108,7 +119,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [IMAGE],
+      invalidatesTags: [IMAGE_POOL],
     }),
     removeImage: builder.mutation({
       /**
@@ -125,7 +136,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [IMAGE],
+      invalidatesTags: [IMAGE_POOL],
     }),
     enableImage: builder.mutation({
       /**
@@ -141,7 +152,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: true }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     disableImage: builder.mutation({
       /**
@@ -157,7 +168,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     persistentImage: builder.mutation({
       /**
@@ -175,7 +186,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     changeImageType: builder.mutation({
       /**
@@ -193,7 +204,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     updateImage: builder.mutation({
       /**
@@ -258,7 +269,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     renameImage: builder.mutation({
       /**
@@ -276,7 +287,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     deleteImageSnapshot: builder.mutation({
       /**
@@ -352,7 +363,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     unlockImage: builder.mutation({
       /**
@@ -369,7 +380,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE],
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
   }),
 })

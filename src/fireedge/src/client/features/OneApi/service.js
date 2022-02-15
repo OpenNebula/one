@@ -14,10 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/routes/api/oneflow/service/routes'
-import { oneApi, DOCUMENT } from 'client/features/OneApi'
+import { oneApi, DOCUMENT, DOCUMENT_POOL } from 'client/features/OneApi'
 import { Service } from 'client/constants'
 
 const { SERVICE } = DOCUMENT
+const { SERVICE_POOL } = DOCUMENT_POOL
 
 const serviceApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +36,13 @@ const serviceApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat(),
-      providesTags: [SERVICE],
+      providesTags: (services) =>
+        services
+          ? [
+              services.map(({ ID }) => ({ type: SERVICE_POOL, id: `${ID}` })),
+              SERVICE_POOL,
+            ]
+          : [SERVICE_POOL],
     }),
     getService: builder.query({
       /**

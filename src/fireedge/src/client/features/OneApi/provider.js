@@ -17,9 +17,16 @@ import {
   Actions,
   Commands,
 } from 'server/routes/api/oneprovision/provider/routes'
-import { oneApi, DOCUMENT } from 'client/features/OneApi'
+import {
+  oneApi,
+  DOCUMENT,
+  DOCUMENT_POOL,
+  PROVISION_CONFIG,
+} from 'client/features/OneApi'
 
-const { PROVIDER, PROVIDER_CONFIG } = DOCUMENT
+const { PROVIDER } = DOCUMENT
+const { PROVIDER_POOL } = DOCUMENT_POOL
+const { PROVIDER_CONFIG } = PROVISION_CONFIG
 
 const providerApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -52,7 +59,16 @@ const providerApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat(),
-      providesTags: [PROVIDER],
+      providesTags: (providers) =>
+        providers
+          ? [
+              ...providers.map(({ ID }) => ({
+                type: PROVIDER_POOL,
+                id: `${ID}`,
+              })),
+              PROVIDER_POOL,
+            ]
+          : [PROVIDER_POOL],
     }),
     getProvider: builder.query({
       /**
@@ -118,7 +134,7 @@ const providerApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [PROVIDER],
+      invalidatesTags: [PROVIDER_POOL],
     }),
     updateProvider: builder.mutation({
       /**
@@ -136,7 +152,10 @@ const providerApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: PROVIDER, id }, PROVIDER],
+      invalidatesTags: (_, __, { id }) => [
+        { type: PROVIDER, id },
+        PROVIDER_POOL,
+      ],
     }),
     deleteProvider: builder.mutation({
       /**
@@ -153,7 +172,7 @@ const providerApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [PROVIDER],
+      invalidatesTags: [PROVIDER_POOL],
     }),
   }),
 })

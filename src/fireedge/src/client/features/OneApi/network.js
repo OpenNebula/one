@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vn'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import {
   LockLevel,
   FilterFlag,
@@ -23,6 +27,7 @@ import {
 } from 'client/constants'
 
 const { VNET } = ONE_RESOURCES
+const { VNET_POOL } = ONE_RESOURCES_POOL
 
 const vNetworkApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -44,7 +49,13 @@ const vNetworkApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => [data?.VNET_POOL?.VNET ?? []].flat(),
-      providesTags: [VNET],
+      providesTags: (networks) =>
+        networks
+          ? [
+              ...networks.map(({ ID }) => ({ type: VNET_POOL, id: `${ID}` })),
+              VNET_POOL,
+            ]
+          : [VNET_POOL],
     }),
     getVNetwork: builder.query({
       /**
@@ -81,7 +92,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNET],
+      invalidatesTags: [VNET_POOL],
     }),
     removeVNet: builder.mutation({
       /**
@@ -97,7 +108,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: [VNET],
+      invalidatesTags: [VNET_POOL],
     }),
     addRangeToVNet: builder.mutation({
       /**
@@ -115,7 +126,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     removeRangeFromVNet: builder.mutation({
       /**
@@ -133,7 +144,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     updateVNetRange: builder.mutation({
       /**
@@ -151,7 +162,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     reserveAddress: builder.mutation({
       /**
@@ -195,7 +206,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     holdLease: builder.mutation({
       /**
@@ -300,7 +311,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     renameVNet: builder.mutation({
       /**
@@ -318,7 +329,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     lockVNet: builder.mutation({
       /**
@@ -337,7 +348,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
     unlockVNet: builder.mutation({
       /**
@@ -353,7 +364,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
   }),
 })
