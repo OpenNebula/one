@@ -211,7 +211,8 @@ end
 
 case $conf[:sessions]
 when 'memory', nil
-    use Rack::Session::Pool, :key => 'sunstone'
+    use Rack::Session::Pool, :key => 'sunstone',
+                            :expire_after => $conf['session_expire_time']
 when 'memcache'
     memcache_server=$conf[:memcache_host]+':'<<
         $conf[:memcache_port].to_s
