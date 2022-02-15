@@ -26,19 +26,21 @@ import {
 } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
+import { StatusChip } from 'client/components/Status'
 import MultipleTags from 'client/components/MultipleTags'
 import SecurityGroupCard from 'client/components/Cards/SecurityGroupCard'
 
 import { Translate } from 'client/components/HOC'
+import { stringToBoolean } from 'client/models/Helper'
 import { T, Nic, NicAlias } from 'client/constants'
 
 const NicCard = memo(
   ({
     nic = {},
     actions = [],
-    extraActionProps = {},
     aliasActions = [],
-    extraAliasActionProps = {},
+    showParents = false,
+    clipboardOnTags = true,
   }) => {
     const classes = rowStyles()
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
@@ -50,6 +52,8 @@ const NicCard = memo(
       IP,
       MAC,
       PCI_ID,
+      RDP,
+      SSH,
       PARENT,
       ADDRESS,
       ALIAS,
@@ -60,6 +64,16 @@ const NicCard = memo(
     const isPciDevice = PCI_ID !== undefined
 
     const dataCy = isAlias ? 'alias' : 'nic'
+
+    const noClipboardTags = [
+      { text: stringToBoolean(RDP) && 'RDP', dataCy: `${dataCy}-rdp` },
+      { text: stringToBoolean(SSH) && 'SSH', dataCy: `${dataCy}-ssh` },
+      showParents && {
+        text: isAlias ? `PARENT: ${PARENT}` : false,
+        dataCy: `${dataCy}-parent`,
+      },
+    ].filter(({ text } = {}) => Boolean(text))
+
     const tags = [
       { text: IP, dataCy: `${dataCy}-ip` },
       { text: MAC, dataCy: `${dataCy}-mac` },
@@ -73,32 +87,34 @@ const NicCard = memo(
         data-cy={`${dataCy}-${NIC_ID}`}
         sx={{
           flexWrap: 'wrap',
-          ...(isAlias && { boxShadow: 'none !important' }),
+          boxShadow: 'none !important',
         }}
       >
-        <Box className={classes.main} {...(!isAlias && { pl: '1em' })}>
+        <Box
+          className={classes.main}
+          {...(!isAlias && !showParents && { pl: '1em' })}
+        >
           <div className={classes.title}>
             <Typography component="span" data-cy={`${dataCy}-name`}>
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
             <span className={classes.labels}>
+              {noClipboardTags.map((tag) => (
+                <StatusChip
+                  key={`${dataCy}-${NIC_ID}-${tag.dataCy}`}
+                  text={tag.text}
+                  dataCy={tag.dataCy}
+                />
+              ))}
               <MultipleTags
-                clipboard
+                clipboard={clipboardOnTags}
                 limitTags={isMobile ? 1 : 3}
                 tags={tags}
               />
             </span>
           </div>
         </Box>
-        {!isMobile &&
-          !isPciDevice &&
-          actions.map((Action, idx) => (
-            <Action
-              key={`${Action.displayName ?? idx}-${NIC_ID}`}
-              {...extraActionProps}
-              nic={nic}
-            />
-          ))}
+        {!isPciDevice && <div className={classes.actions}>{actions}</div>}
         {!!ALIAS?.length && (
           <Box flexBasis="100%">
             {ALIAS?.map((alias) => (
@@ -106,7 +122,7 @@ const NicCard = memo(
                 key={alias.NIC_ID}
                 nic={alias}
                 actions={aliasActions}
-                extraActionProps={extraAliasActionProps}
+                showParents={showParents}
               />
             ))}
           </Box>
@@ -148,13 +164,11 @@ const NicCard = memo(
 
 NicCard.propTypes = {
   nic: PropTypes.object,
-  actions: PropTypes.array,
-  extraActionProps: PropTypes.object,
-  aliasActions: PropTypes.array,
-  extraAliasActionProps: PropTypes.object,
+  actions: PropTypes.node,
+  aliasActions: PropTypes.node,
+  showParents: PropTypes.bool,
+  clipboardOnTags: PropTypes.bool,
 }
-
-NicCard.displayName = 'NicCard'
 
 NicCard.displayName = 'NicCard'
 

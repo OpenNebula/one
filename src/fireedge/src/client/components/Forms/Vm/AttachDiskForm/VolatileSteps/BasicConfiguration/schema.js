@@ -13,26 +13,34 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { number, string, object, ObjectSchema } from 'yup'
 
-import { INPUT_TYPES, HYPERVISORS } from 'client/constants'
-import { getValidationFromFields } from 'client/utils'
+import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
+import {
+  Field,
+  getValidationFromFields,
+  filterFieldsByHypervisor,
+  arrayToOptions,
+} from 'client/utils'
+import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter } = HYPERVISORS
 
+/** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
-  label: 'Size',
+  label: T.Size,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: yup
-    .number()
-    .typeError('Size value must be a number')
-    .required('Size field is required')
-    .default(undefined),
+  validation: number()
+    .required()
+    .default(() => undefined),
 }
 
+/**
+ * @param {HYPERVISORS} hypervisor - hypervisor
+ * @returns {Field} Disk type field
+ */
 const TYPE = (hypervisor) => ({
   name: 'TYPE',
   label: 'Disk type',
@@ -44,61 +52,60 @@ const TYPE = (hypervisor) => ({
           { text: 'FS', value: 'fs' },
           { text: 'Swap', value: 'swap' },
         ],
-  validation: yup.string().trim().notRequired().default('fs'),
+  validation: string().trim().notRequired().default('fs'),
 })
 
-const FORMAT = (hypervisor) => {
-  const typeFieldName = TYPE(hypervisor).name
+/**
+ * @param {HYPERVISORS} hypervisor - hypervisor
+ * @returns {Field} Format field
+ */
+const FORMAT = (hypervisor) => ({
+  name: 'FORMAT',
+  label: T.Format,
+  type: INPUT_TYPES.SELECT,
+  dependOf: 'TYPE',
+  htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
+  values:
+    hypervisor === vcenter
+      ? [{ text: 'Raw', value: 'raw' }]
+      : [
+          { text: 'Raw', value: 'raw' },
+          { text: 'qcow2', value: 'qcow2' },
+        ],
+  validation: string()
+    .trim()
+    .when('TYPE', (type, schema) =>
+      type === 'swap' ? schema.notRequired() : schema.required()
+    )
+    .default('raw'),
+})
 
-  return {
-    name: 'FORMAT',
-    label: 'Format',
-    type: INPUT_TYPES.SELECT,
-    dependOf: typeFieldName,
-    htmlType: (type) => (type === 'swap' ? INPUT_TYPES.HIDDEN : undefined),
-    values:
-      hypervisor === vcenter
-        ? [{ text: 'Raw', value: 'raw' }]
-        : [
-            { text: 'Raw', value: 'raw' },
-            { text: 'qcow2', value: 'qcow2' },
-          ],
-    validation: yup
-      .string()
-      .trim()
-      .when(typeFieldName, (type, schema) =>
-        type === 'swap'
-          ? schema.notRequired()
-          : schema.required('Format field is required')
-      )
-      .default('raw'),
-  }
-}
-
-const FILESYSTEM = (hypervisor) => ({
+/** @type {Field} Filesystem field */
+const FILESYSTEM = {
   name: 'FS',
-  label: 'Filesystem',
+  label: T.FileSystemType,
   notOnHypervisors: [vcenter],
   type: INPUT_TYPES.SELECT,
-  dependOf: TYPE(hypervisor).name,
-  htmlType: (type) => (type === 'swap' ? INPUT_TYPES.HIDDEN : undefined),
-  values: [
-    // TODO: sunstone-config => support_fs ???
-    { text: '', value: '' },
-    { text: 'ext4', value: 'ext4' },
-    { text: 'ext3', value: 'ext3' },
-    { text: 'ext2', value: 'ext2' },
-    { text: 'xfs', value: 'xfs' },
-  ],
-  validation: yup.string().trim().notRequired().default(undefined),
-})
+  dependOf: 'TYPE',
+  htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
+  values: () => {
+    const { data: config } = useGetSunstoneConfigQuery()
 
+    return arrayToOptions(config?.supported_fs)
+  },
+  validation: string().trim().notRequired().default(undefined),
+}
+
+/**
+ * @param {HYPERVISORS} hypervisor - hypervisor
+ * @returns {Field[]} List of fields
+ */
 export const FIELDS = (hypervisor) =>
-  [SIZE, TYPE, FORMAT, FILESYSTEM]
-    .map((field) => (typeof field === 'function' ? field(hypervisor) : field))
-    .filter(
-      ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
-    )
+  filterFieldsByHypervisor([SIZE, TYPE, FORMAT, FILESYSTEM], hypervisor)
 
+/**
+ * @param {HYPERVISORS} hypervisor - hypervisor
+ * @returns {ObjectSchema} Schema
+ */
 export const SCHEMA = (hypervisor) =>
-  yup.object(getValidationFromFields(FIELDS(hypervisor)))
+  object(getValidationFromFields(FIELDS(hypervisor)))

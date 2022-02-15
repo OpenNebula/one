@@ -38,7 +38,7 @@ const FixedLeases = ({ leases }) => {
 
   return (
     <>
-      <Stack spacing={2}>
+      <Stack spacing={1}>
         {transformChartersToSchedActions(fixedLeases, true)?.map((action) => {
           const { ACTION, TIME, PERIOD, WARNING, WARNING_PERIOD } = action
 

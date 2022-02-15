@@ -58,7 +58,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
   }, [vm])
 
   return (
-    <>
+    <div>
       {actionsAvailable?.includes(SNAPSHOT_CREATE) && (
         <CreateAction vmId={id} />
       )}
@@ -75,7 +75,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
           />
         ))}
       </Stack>
-    </>
+    </div>
   )
 }
 

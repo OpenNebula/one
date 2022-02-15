@@ -18,9 +18,12 @@ import { Stack } from '@mui/material'
 import { ServerConnection as NetworkIcon } from 'iconoir-react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
 
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { AttachNicForm } from 'client/components/Forms/Vm'
 import { FormWithSchema } from 'client/components/Forms'
+import NicCard from 'client/components/Cards/NicCard'
+import {
+  AttachAction,
+  DetachAction,
+} from 'client/components/Tabs/Vm/Network/Actions'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -33,58 +36,78 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
 import { T } from 'client/constants'
-import NicItem from './NicItem'
 
-export const TAB_ID = 'NIC'
+export const TAB_ID = ['NIC', 'NIC_ALIAS']
 
-const mapNameFunction = mapNameByIndex('NIC')
+const mapNicNameFunction = mapNameByIndex('NIC')
+const mapAliasNameFunction = mapNameByIndex('NIC_ALIAS')
 
-const Networking = () => {
+const Networking = ({ hypervisor }) => {
   const { setValue, getValues } = useFormContext()
+
   const {
-    fields: nics,
-    replace,
-    update,
-    append,
+    fields: nics = [],
+    replace: replaceNic,
+    update: updateNic,
+    append: appendNic,
   } = useFieldArray({
-    name: `${EXTRA_ID}.${TAB_ID}`,
+    name: `${EXTRA_ID}.${TAB_ID[0]}`,
   })
 
-  const removeAndReorder = (nicName) => {
-    const updatedNics = nics
+  const {
+    fields: alias = [],
+    replace: replaceAlias,
+    update: updateAlias,
+    append: appendAlias,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID[1]}`,
+  })
+
+  const removeAndReorder = (nic) => {
+    const nicName = nic?.NAME
+    const isAlias = !!nic?.PARENT?.length
+    const list = isAlias ? alias : nics
+
+    const updatedList = list
       .filter(({ NAME }) => NAME !== nicName)
-      .map(mapNameFunction)
+      .map(isAlias ? mapAliasNameFunction : mapNicNameFunction)
+
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
     const updatedBootOrder = reorderBootAfterRemove(
       nicName,
-      nics,
+      list,
       currentBootOrder
     )
 
-    replace(updatedNics)
+    isAlias ? replaceAlias(updatedList) : replaceNic(updatedList)
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
   }
 
-  const handleUpdate = (updatedNic, index) => {
-    update(index, mapNameFunction(updatedNic, index))
+  const handleUpdate = ({ NAME: _, ...updatedNic }, id) => {
+    const isAlias = !!updatedNic?.PARENT?.length
+    const index = isAlias
+      ? alias.findIndex((nic) => nic.id === id)
+      : nics.findIndex((nic) => nic.id === id)
+
+    isAlias
+      ? updateAlias(index, mapAliasNameFunction(updatedNic, index))
+      : updateNic(index, mapNicNameFunction(updatedNic, index))
+  }
+
+  const handleAppend = (newNic) => {
+    const isAlias = !!newNic?.PARENT?.length
+
+    isAlias
+      ? appendAlias(mapAliasNameFunction(newNic, alias.length))
+      : appendNic(mapNicNameFunction(newNic, nics.length))
   }
 
   return (
-    <>
-      <ButtonToTriggerForm
-        buttonProps={{
-          color: 'secondary',
-          'data-cy': 'add-nic',
-          label: T.AttachNic,
-          variant: 'outlined',
-        }}
-        options={[
-          {
-            dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
-            form: () => AttachNicForm({ nics }),
-            onSubmit: (nic) => append(mapNameFunction(nic, nics.length)),
-          },
-        ]}
+    <div>
+      <AttachAction
+        currentNics={nics}
+        hypervisor={hypervisor}
+        onSubmit={handleAppend}
       />
       <Stack
         pb="1em"
@@ -94,19 +117,49 @@ const Networking = () => {
         sx={{
           gridTemplateColumns: {
             sm: '1fr',
-            md: 'repeat(auto-fit, minmax(300px, 0.5fr))',
+            md: 'repeat(auto-fit, minmax(400px, 0.5fr))',
           },
         }}
       >
-        {nics?.map(({ id, ...item }, index) => (
-          <NicItem
-            key={id ?? item?.NAME}
-            item={item}
-            nics={nics}
-            handleRemove={() => removeAndReorder(item?.NAME)}
-            handleUpdate={(updatedNic) => handleUpdate(updatedNic, index)}
-          />
-        ))}
+        {[...nics, ...alias]?.map(({ id, ...item }, index) => {
+          const hasAlias = alias?.some((nic) => nic.PARENT === item.NAME)
+          item.NIC_ID = index
+
+          return (
+            <NicCard
+              key={id ?? item?.NAME}
+              nic={item}
+              showParents
+              clipboardOnTags={false}
+              actions={
+                <>
+                  {!hasAlias && (
+                    <DetachAction
+                      nic={item}
+                      onSubmit={() => removeAndReorder(item)}
+                    />
+                  )}
+                  <AttachAction
+                    nic={item}
+                    hypervisor={hypervisor}
+                    currentNics={nics}
+                    onSubmit={(updatedNic) => {
+                      const wasAlias = !!item?.PARENT?.length
+                      const isAlias = !!updatedNic?.PARENT?.length
+
+                      if (wasAlias === isAlias) {
+                        return handleUpdate(updatedNic, id)
+                      }
+
+                      removeAndReorder(item)
+                      handleAppend(updatedNic)
+                    }}
+                  />
+                </>
+              }
+            />
+          )
+        })}
       </Stack>
       <FormWithSchema
         cy={`${EXTRA_ID}-network-options`}
@@ -115,7 +168,7 @@ const Networking = () => {
         legendTooltip={T.NetworkDefaultsConcept}
         id={EXTRA_ID}
       />
-    </>
+    </div>
   )
 }
 
@@ -132,7 +185,7 @@ const TAB = {
   name: T.Network,
   icon: NetworkIcon,
   Content: Networking,
-  getError: (error) => !!error?.[TAB_ID],
+  getError: (error) => TAB_ID.some((id) => error?.[id]),
 }
 
 export default TAB

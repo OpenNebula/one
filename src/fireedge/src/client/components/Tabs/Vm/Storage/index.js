@@ -18,6 +18,7 @@ import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
+import DiskCard from 'client/components/Cards/DiskCard'
 import {
   AttachAction,
   SaveAsAction,
@@ -28,13 +29,13 @@ import {
   SnapshotRenameAction,
   SnapshotDeleteAction,
 } from 'client/components/Tabs/Vm/Storage/Actions'
-import DiskCard from 'client/components/Cards/DiskCard'
 
 import {
   getDisks,
   getHypervisor,
   isAvailableAction,
 } from 'client/models/VirtualMachine'
+import { getDiskName } from 'client/models/Image'
 import { getActionsAvailable } from 'client/models/Helper'
 import { VM_ACTIONS } from 'client/constants'
 
@@ -71,11 +72,8 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
     return [getDisks(vm), hyperV, actionsByState]
   }, [vm])
 
-  const filterByAvailable = (action, button) =>
-    actionsAvailable.includes(action) && button
-
   return (
-    <>
+    <div>
       {actionsAvailable?.includes?.(ATTACH_DISK) && (
         <AttachAction vmId={id} hypervisor={hypervisor} />
       )}
@@ -83,31 +81,60 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
       <Stack direction="column" gap="1em" py="0.8em">
         {disks.map((disk) => {
           const isImage = disk.IMAGE_ID !== undefined
+          const imageName = getDiskName(disk)
+          const diskActionProps = { vmId: id, disk, name: imageName }
 
           return (
             <DiskCard
               key={disk.DISK_ID}
               vmId={id}
               disk={disk}
-              extraActionProps={{ vmId: id }}
-              extraSnapshotActionProps={{ disk, vmId: id }}
-              actions={[
-                isImage && filterByAvailable(DISK_SAVEAS, SaveAsAction),
-                filterByAvailable(SNAPSHOT_DISK_CREATE, SnapshotCreateAction),
-                filterByAvailable(RESIZE_DISK, ResizeAction),
-                filterByAvailable(DETACH_DISK, DetachAction),
-              ].filter(Boolean)}
-              snapshotActions={[
-                isImage && filterByAvailable(DISK_SAVEAS, SaveAsAction),
-                filterByAvailable(SNAPSHOT_DISK_RENAME, SnapshotRenameAction),
-                filterByAvailable(SNAPSHOT_DISK_REVERT, SnapshotRevertAction),
-                filterByAvailable(SNAPSHOT_DISK_DELETE, SnapshotDeleteAction),
-              ].filter(Boolean)}
+              actions={
+                <>
+                  {isImage && actionsAvailable.includes(DISK_SAVEAS) && (
+                    <SaveAsAction {...diskActionProps} />
+                  )}
+                  {actionsAvailable.includes(SNAPSHOT_DISK_CREATE) && (
+                    <SnapshotCreateAction {...diskActionProps} />
+                  )}
+                  {actionsAvailable.includes(RESIZE_DISK) && (
+                    <ResizeAction {...diskActionProps} />
+                  )}
+                  {actionsAvailable.includes(DETACH_DISK) && (
+                    <DetachAction {...diskActionProps} />
+                  )}
+                </>
+              }
+              snapshotActions={({ snapshot }) => (
+                <>
+                  {isImage && actionsAvailable.includes(DISK_SAVEAS) && (
+                    <SaveAsAction {...diskActionProps} snapshot={snapshot} />
+                  )}
+                  {actionsAvailable.includes(SNAPSHOT_DISK_RENAME) && (
+                    <SnapshotRenameAction
+                      {...diskActionProps}
+                      snapshot={snapshot}
+                    />
+                  )}
+                  {actionsAvailable.includes(SNAPSHOT_DISK_REVERT) && (
+                    <SnapshotRevertAction
+                      {...diskActionProps}
+                      snapshot={snapshot}
+                    />
+                  )}
+                  {actionsAvailable.includes(SNAPSHOT_DISK_DELETE) && (
+                    <SnapshotDeleteAction
+                      {...diskActionProps}
+                      snapshot={snapshot}
+                    />
+                  )}
+                </>
+              )}
             />
           )
         })}
       </Stack>
-    </>
+    </div>
   )
 }
 

@@ -32,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
     height: '60vh',
     maxWidth: '100%',
     maxHeight: '100%',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
     [theme.breakpoints.only('xs')]: {
       width: '100vw',
       height: '100vh',

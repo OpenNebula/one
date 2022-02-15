@@ -69,7 +69,7 @@ const BootItemDraggable = styled('div')(({ theme, disabled }) => ({
  * @returns {string} Updated boot order after remove
  */
 export const reorderBootAfterRemove = (id, list, currentBootOrder) => {
-  const type = String(id).toLowerCase().replace(/\d+/g, '') // nic | disk
+  const type = String(id).toLowerCase().replace(/\d+/g, '') // nic | nic_alias | disk
 
   const getIndexFromId = (bootId) => `${bootId}`.toLowerCase().replace(type, '')
 
@@ -129,9 +129,13 @@ const BootOrder = () => {
     []
   )
 
-  const nics = useMemo(
-    () =>
-      getValues(`${EXTRA_ID}.${NIC_ID}`)?.map((nic, idx) => ({
+  const nics = useMemo(() => {
+    const nicId = `${EXTRA_ID}.${NIC_ID[0]}`
+    const nicAliasId = `${EXTRA_ID}.${NIC_ID[1]}`
+    const nicValues = getValues([nicId, nicAliasId]).flat()
+
+    return (
+      nicValues?.map((nic, idx) => ({
         ID: `nic${idx}`,
         NAME: (
           <>
@@ -139,9 +143,9 @@ const BootOrder = () => {
             {[nic?.NAME, nic.NETWORK].filter(Boolean).join(': ')}
           </>
         ),
-      })) ?? [],
-    []
-  )
+      })) ?? []
+    )
+  }, [])
 
   const enabledItems = [...disks, ...nics]
     .filter((item) => bootOrder.includes(item.ID))
@@ -230,5 +234,4 @@ const BootOrder = () => {
 }
 
 BootOrder.displayName = 'BootOrder'
-
 export default BootOrder

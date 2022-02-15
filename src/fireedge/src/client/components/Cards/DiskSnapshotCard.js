@@ -26,62 +26,52 @@ import * as Helper from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { T, DiskSnapshot } from 'client/constants'
 
-const DiskSnapshotCard = memo(
-  ({ snapshot = {}, actions = [], extraActionProps = {} }) => {
-    const classes = rowStyles()
+const DiskSnapshotCard = memo(({ snapshot = {}, actions = [] }) => {
+  const classes = rowStyles()
 
-    /** @type {DiskSnapshot} */
-    const {
-      ID,
-      NAME,
-      ACTIVE,
-      DATE,
-      SIZE: SNAPSHOT_SIZE,
-      MONITOR_SIZE: SNAPSHOT_MONITOR_SIZE,
-    } = snapshot
+  /** @type {DiskSnapshot} */
+  const {
+    ID,
+    NAME,
+    ACTIVE,
+    DATE,
+    SIZE: SNAPSHOT_SIZE,
+    MONITOR_SIZE: SNAPSHOT_MONITOR_SIZE,
+  } = snapshot
 
-    const isActive = Helper.stringToBoolean(ACTIVE)
-    const time = Helper.timeFromMilliseconds(+DATE)
-    const timeAgo = `created ${time.toRelative()}`
+  const isActive = Helper.stringToBoolean(ACTIVE)
+  const time = Helper.timeFromMilliseconds(+DATE)
+  const timeAgo = `created ${time.toRelative()}`
 
-    const size = +SNAPSHOT_SIZE ? prettyBytes(+SNAPSHOT_SIZE, 'MB') : '-'
-    const monitorSize = +SNAPSHOT_MONITOR_SIZE
-      ? prettyBytes(+SNAPSHOT_MONITOR_SIZE, 'MB')
-      : '-'
+  const size = +SNAPSHOT_SIZE ? prettyBytes(+SNAPSHOT_SIZE, 'MB') : '-'
+  const monitorSize = +SNAPSHOT_MONITOR_SIZE
+    ? prettyBytes(+SNAPSHOT_MONITOR_SIZE, 'MB')
+    : '-'
 
-    return (
-      <Paper variant="outlined" className={classes.root}>
-        <div className={classes.main}>
-          <div className={classes.title}>
-            <Typography component="span">{NAME}</Typography>
-            <span className={classes.labels}>
-              {isActive && <StatusChip text={<Translate word={T.Active} />} />}
-              <StatusChip text={<Translate word={T.Snapshot} />} />
-            </span>
-          </div>
-          <div className={classes.caption}>
-            <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
-            <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
-              <ModernTv />
-              <span>{` ${monitorSize}/${size}`}</span>
-            </span>
-          </div>
+  return (
+    <Paper variant="outlined" className={classes.root}>
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <Typography component="span">{NAME}</Typography>
+          <span className={classes.labels}>
+            {isActive && <StatusChip text={<Translate word={T.Active} />} />}
+            <StatusChip text={<Translate word={T.Snapshot} />} />
+          </span>
         </div>
-        {!!actions.length && (
-          <div className={classes.actions}>
-            {actions.map((Action, idx) => (
-              <Action
-                key={`${Action.displayName ?? idx}-${ID}`}
-                {...extraActionProps}
-                snapshot={snapshot}
-              />
-            ))}
-          </div>
-        )}
-      </Paper>
-    )
-  }
-)
+        <div className={classes.caption}>
+          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
+          <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
+            <ModernTv />
+            <span>{` ${monitorSize}/${size}`}</span>
+          </span>
+        </div>
+      </div>
+      {typeof actions === 'function' && (
+        <div className={classes.actions}>{actions({ snapshot })}</div>
+      )}
+    </Paper>
+  )
+})
 
 DiskSnapshotCard.propTypes = {
   snapshot: PropTypes.object.isRequired,

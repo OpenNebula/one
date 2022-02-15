@@ -350,6 +350,13 @@ export default (appTheme, mode = SCHEMES.DARK) => {
           },
         },
       },
+      MuiFormLabel: {
+        styleOverrides: {
+          root: {
+            padding: '0 2em 0 0',
+          },
+        },
+      },
       MuiTextField: {
         defaultProps: {
           variant: 'outlined',

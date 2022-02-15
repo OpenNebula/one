@@ -347,11 +347,11 @@ module.exports = {
   Secondary: 'Secondary',
 
   /* instances schema */
-  IP: 'IP',
   DeployID: 'Deploy ID',
   vCenterDeployment: 'vCenter Deployment',
   Deployment: 'Deployment',
   Monitoring: 'Monitoring',
+  EdgeCluster: 'Edge Cluster',
 
   /* flow schema */
   Strategy: 'Strategy',
@@ -391,6 +391,10 @@ module.exports = {
   SshConnection: 'SSH connection',
   External: 'External',
   ExternalConcept: 'The NIC will be attached as an external alias of the VM',
+  OverrideNetworkValuesIPv4: 'Override Network Values IPv4',
+  OverrideNetworkValuesIPv6: 'Override Network Values IPv6',
+  OverrideNetworkInboundTrafficQos: 'Override Network Inbound Traffic QoS',
+  OverrideNetworkOutboundTrafficQos: 'Override Network Outbound Traffic QoS',
 
   /* VM Template schema */
   /* VM Template schema - general */
@@ -572,7 +576,7 @@ module.exports = {
   Keymap: 'Keymap',
   GenerateRandomPassword: 'Generate random password',
   Command: 'Command',
-  Bus: 'Bus',
+  Bus: 'BUS',
   /* VM Template schema - NUMA */
   PinPolicy: 'Pin Policy',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
@@ -589,6 +593,45 @@ module.exports = {
   VirtualCpuSelectedConcept: `
     Number of virtual CPUs. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
+
+  /* Virtual Network schema - network */
+  IP: 'IP',
+  IPv4Concept: 'First IP in the range in dot notation',
+  IPv6Concept: 'First IP6 (full 128 bits) in the range',
+  MAC: 'MAC',
+  MACConcept: `
+    First MAC, if not provided it will be generated
+    using the IP and the MAC_PREFIX in oned.conf`,
+  NetworkAddress: 'Network address',
+  NetworkMask: 'Network mask',
+  Gateway: 'Gateway',
+  GatewayConcept: 'Default gateway for the network',
+  Gateway6Concept: 'IPv6 router for this network',
+  SearchDomainForDNSResolution: 'Search domains for DNS resolution',
+  NetworkMethod: 'Network method',
+  NetworkMethod4Concept: 'Sets IPv4 guest conf. method for NIC in this network',
+  NetworkMethod6Concept: 'Sets IPv6 guest conf. method for NIC in this network',
+  DNS: 'DNS',
+  DNSConcept: 'DNS servers, a space separated list of servers',
+  AverageBandwidth: 'Average bandwidth (KBytes/s)',
+  PeakBandwidth: 'Peak bandwidth (KBytes/s)',
+  PeakBurst: 'Peak burst (KBytes)',
+  InboundAverageBandwidthConcept:
+    'Average bitrate for the interface in kilobytes/second for inbound traffic',
+  InboundPeakBandwidthConcept:
+    'Maximum bitrate for the interface in kilobytes/second for inbound traffic',
+  OutboundAverageBandwidthConcept:
+    'Average bitrate for the interface in kilobytes/second for outbound traffic',
+  OutboundPeakBandwidthConcept:
+    'Maximum bitrate for the interface in kilobytes/second for outbound traffic',
+  PeakBurstConcept: 'Data that can be transmitted at peak speed in kilobytes',
+  Hardware: 'Hardware',
+  HardwareModelToEmulate: 'Hardware model to emulate',
+  TransmissionQueue: 'Transmission queue',
+  OnlySupportedForVirtioDriver: 'Only supported for virtio driver',
+  GuestOptions: 'Guest options',
+  GuestMTU: 'GuestMTU',
+  GuestMTUConcept: 'Sets the MTU for the NICs in this network',
 
   /* security group schema */
   TCP: 'TCP',
@@ -629,19 +672,53 @@ module.exports = {
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',
-  ExportTemplateNameConcept:
-    'The following template will be created in OpenNebula and the previous images will be referenced in the disks',
+  ExportTemplateNameConcept: `
+    The following template will be created in OpenNebula
+    and the previous images will be referenced in the disks`,
   ExportAssociateApp: 'Export associated VM templates/images',
   ImportAssociateApp: 'Import associated VM templates/images',
 
   /* Image schema */
+  /* Image - general */
   Limit: 'Limit',
   BasePath: 'Base path',
-
-  /* Image schema */
   FileSystemType: 'Filesystem type',
   Persistent: 'Persistent',
   RunningVMs: 'Running VMs',
+  /* Disk - general */
+  DiskType: 'Disk type',
+  SizeOnInstantiate: 'Size on instantiate',
+  SizeOnInstantiateConcept: `
+    The size of the disk will be modified to match
+    this size when the template is instantiated`,
+  TargetDevice: 'Target device',
+  TargetDeviceConcept: `
+    Device to map image disk.
+    If set, it will overwrite the default device mapping`,
+  ReadOnly: 'Read-only',
+  BusAdapterController: 'Bus adapter controller',
+  DiskProvisioningType: 'Disk provisioning type',
+  Cache: 'Cache',
+  IoPolicy: 'IO Policy',
+  Discard: 'Discard',
+  IopsSize: 'Size of IOPS per second',
+  ThrottlingBytes: 'Throttling (Bytes/s)',
+  ThrottlingIOPS: 'Throttling (IOPS)',
+  TotalValue: 'Total value',
+  TotalMaximum: 'Total maximum',
+  TotalMaximumLength: 'Total maximum length',
+  ReadValue: 'Read value',
+  ReadMaximum: 'Read maximum',
+  ReadMaximumLength: 'Read maximum length',
+  WriteValue: 'Write value',
+  WriteMaximum: 'Write maximum',
+  WriteMaximumLength: 'Write maximum length',
+  SnapshotFrequency: 'Snapshot Frequency in seconds',
+  IoThreadId: 'IOTHREAD id',
+  IoThreadIdConcept: `
+    Iothread id used by this disk. Default is round robin.
+    Can be used only if IOTHREADS > 0. If this input is disabled
+    please first configure IOTHREADS value on OS & CPU -> Features`,
 
   /* User inputs */
   UserInputs: 'User Inputs',

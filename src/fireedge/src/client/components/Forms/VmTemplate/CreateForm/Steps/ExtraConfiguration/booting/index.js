@@ -47,7 +47,8 @@ const Booting = ({ hypervisor, ...props }) => {
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
       {(!!props.data?.[STORAGE_ID]?.length ||
-        !!props.data?.[NIC_ID]?.length) && (
+        !!props.data?.[NIC_ID[0]]?.length ||
+        !!props.data?.[NIC_ID[1]]?.length) && (
         <FormControl
           component="fieldset"
           sx={{ width: '100%', gridColumn: '1 / -1' }}

@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/valid-types */
 
 // eslint-disable-next-line no-unused-vars
-import { JSXElementConstructor, SetStateAction } from 'react'
+import { ReactElement, SetStateAction } from 'react'
 import {
   // eslint-disable-next-line no-unused-vars
   GridProps,
@@ -34,6 +34,10 @@ import { Row } from 'react-table'
 import {
   UserInputObject,
   T,
+  // eslint-disable-next-line no-unused-vars
+  HYPERVISORS,
+  // eslint-disable-next-line no-unused-vars
+  VN_DRIVERS,
   INPUT_TYPES,
   USER_INPUT_TYPES,
 } from 'client/constants'
@@ -70,7 +74,7 @@ import {
 
 /**
  * @typedef {object} SelectOption - Option of select field
- * @property {string|JSXElementConstructor} text - Text to display on select list
+ * @property {string|ReactElement} text - Text to display on select list
  * @property {any} value - Value to option
  */
 
@@ -104,12 +108,16 @@ import {
  * - Default: { xs: 12, md: 6 }
  * @property {BaseSchema|DependOfCallback} [validation]
  * - Schema to validate the field value
+ * @property {HYPERVISORS[]|DependOfCallback} [notOnHypervisors]
+ * - Filters the field when the hypervisor is not include on list
+ * @property {VN_DRIVERS[]|DependOfCallback} [notOnDrivers]
+ * - Filters the field when the driver is not include on list
  * @property {TextFieldProps|CheckboxProps|InputBaseComponentProps} [fieldProps]
  * - Extra properties to material-ui field
  * @property {function(string|number):any} [renderValue]
  * - Render the current selected value inside selector input
  * - **Only for select inputs.**
- * @property {JSXElementConstructor} [Table]
+ * @property {ReactElement} [Table]
  * - Table component. One of table defined in: `client/components/Tables`
  * - **Only for table inputs.**
  * @property {boolean|DependOfCallback} [singleSelect]
@@ -148,7 +156,7 @@ import {
  * @property {string} id - Id
  * @property {string} label - Label
  * @property {BaseSchema|function(object):BaseSchema} resolver - Schema
- * @property {function(object, SetStateAction):JSXElementConstructor} content - Content
+ * @property {function(object, SetStateAction):ReactElement} content - Content
  * @property {ValidateOptions|undefined} optionsValidate - Validate options
  */
 

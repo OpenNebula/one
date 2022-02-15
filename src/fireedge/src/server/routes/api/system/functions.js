@@ -32,6 +32,7 @@ const ALLOWED_KEYS_ONED_CONF = [
   'DS_MAD_CONF',
   'MARKET_MAD_CONF',
   'VM_MAD',
+  'VN_MAD_CONF',
   'IM_MAD',
   'AUTH_MAD',
 ]

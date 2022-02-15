@@ -18,9 +18,12 @@ import { Stack } from '@mui/material'
 import { Db as DatastoreIcon } from 'iconoir-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { ImageSteps, VolatileSteps } from 'client/components/Forms/Vm'
 import { FormWithSchema } from 'client/components/Forms'
+import DiskCard from 'client/components/Cards/DiskCard'
+import {
+  AttachAction,
+  DetachAction,
+} from 'client/components/Tabs/Vm/Storage/Actions'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -32,8 +35,8 @@ import {
   reorderBootAfterRemove,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
+import { getDiskName } from 'client/models/Image'
 import { T } from 'client/constants'
-import DiskItem from './DiskItem'
 
 export const TAB_ID = 'DISK'
 
@@ -70,33 +73,10 @@ const Storage = ({ hypervisor }) => {
   }
 
   return (
-    <>
-      <ButtonToTriggerForm
-        buttonProps={{
-          color: 'secondary',
-          'data-cy': 'add-disk',
-          label: T.AttachDisk,
-          variant: 'outlined',
-        }}
-        options={[
-          {
-            cy: 'attach-image',
-            name: T.Image,
-            dialogProps: { title: T.AttachImage, dataCy: 'modal-attach-image' },
-            form: () => ImageSteps({ hypervisor }),
-            onSubmit: (image) => append(mapNameFunction(image, disks.length)),
-          },
-          {
-            cy: 'attach-volatile',
-            name: T.Volatile,
-            dialogProps: {
-              title: T.AttachVolatile,
-              dataCy: 'modal-attach-volatile',
-            },
-            form: () => VolatileSteps({ hypervisor }),
-            onSubmit: (image) => append(mapNameFunction(image, disks.length)),
-          },
-        ]}
+    <div>
+      <AttachAction
+        hypervisor={hypervisor}
+        onSubmit={(image) => append(mapNameFunction(image, disks.length))}
       />
       <Stack
         pb="1em"
@@ -110,14 +90,30 @@ const Storage = ({ hypervisor }) => {
           },
         }}
       >
-        {disks?.map(({ id, ...item }, index) => (
-          <DiskItem
-            key={id ?? item?.NAME}
-            item={item}
-            handleRemove={() => removeAndReorder(item?.NAME)}
-            handleUpdate={(updatedDisk) => handleUpdate(updatedDisk, index)}
-          />
-        ))}
+        {disks?.map(({ id, ...item }, index) => {
+          item.DISK_ID ??= index
+
+          return (
+            <DiskCard
+              key={id ?? item?.NAME}
+              disk={item}
+              actions={
+                <>
+                  <DetachAction
+                    disk={item}
+                    name={getDiskName(item)}
+                    onSubmit={() => removeAndReorder(item?.NAME)}
+                  />
+                  <AttachAction
+                    disk={item}
+                    hypervisor={hypervisor}
+                    onSubmit={(updatedDisk) => handleUpdate(updatedDisk, index)}
+                  />
+                </>
+              }
+            />
+          )
+        })}
       </Stack>
       <FormWithSchema
         cy={`${EXTRA_ID}-storage-options`}
@@ -125,7 +121,7 @@ const Storage = ({ hypervisor }) => {
         legend={T.StorageOptions}
         id={EXTRA_ID}
       />
-    </>
+    </div>
   )
 }
 

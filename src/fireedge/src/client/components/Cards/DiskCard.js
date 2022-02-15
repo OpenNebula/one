@@ -22,144 +22,116 @@ import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
+import { getDiskName, getDiskType } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { Disk } from 'client/constants'
 
-const DiskCard = memo(
-  ({
-    disk = {},
-    actions = [],
-    extraActionProps = {},
-    snapshotActions = [],
-    extraSnapshotActionProps = {},
-  }) => {
-    const classes = rowStyles()
+const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
+  const classes = rowStyles()
 
-    /** @type {Disk} */
-    const {
-      DISK_ID,
-      DATASTORE,
-      TARGET,
-      IMAGE,
-      TYPE,
-      FORMAT,
-      SIZE,
-      MONITOR_SIZE,
-      READONLY,
-      PERSISTENT,
-      SAVE,
-      CLONE,
-      IS_CONTEXT,
-      SNAPSHOTS,
-    } = disk
+  /** @type {Disk} */
+  const {
+    DISK_ID,
+    DATASTORE,
+    TARGET,
+    TYPE,
+    SIZE,
+    MONITOR_SIZE,
+    READONLY,
+    PERSISTENT,
+    SAVE,
+    CLONE,
+    IS_CONTEXT,
+    SNAPSHOTS,
+  } = disk
 
-    const size = +SIZE ? prettyBytes(+SIZE, 'MB') : '-'
-    const monitorSize = +MONITOR_SIZE ? prettyBytes(+MONITOR_SIZE, 'MB') : '-'
+  const size = +SIZE ? prettyBytes(+SIZE, 'MB') : '-'
+  const monitorSize = +MONITOR_SIZE ? prettyBytes(+MONITOR_SIZE, 'MB') : '-'
 
-    const type = String(TYPE).toLowerCase()
+  const labels = useMemo(
+    () =>
+      [
+        { label: getDiskType(disk), dataCy: 'type' },
+        {
+          label: stringToBoolean(PERSISTENT) && 'PERSISTENT',
+          dataCy: 'persistent',
+        },
+        {
+          label: stringToBoolean(READONLY) && 'READONLY',
+          dataCy: 'readonly',
+        },
+        {
+          label: stringToBoolean(SAVE) && 'SAVE',
+          dataCy: 'save',
+        },
+        {
+          label: stringToBoolean(CLONE) && 'CLONE',
+          dataCy: 'clone',
+        },
+      ].filter(({ label } = {}) => Boolean(label)),
+    [TYPE, PERSISTENT, READONLY, SAVE, CLONE]
+  )
 
-    const image =
-      IMAGE ??
-      {
-        fs: `${FORMAT} - ${size}`,
-        swap: size,
-      }[type]
-
-    const labels = useMemo(
-      () =>
-        [
-          { label: TYPE, dataCy: 'type' },
-          {
-            label: stringToBoolean(PERSISTENT) && 'PERSISTENT',
-            dataCy: 'persistent',
-          },
-          {
-            label: stringToBoolean(READONLY) && 'READONLY',
-            dataCy: 'readonly',
-          },
-          {
-            label: stringToBoolean(SAVE) && 'SAVE',
-            dataCy: 'save',
-          },
-          {
-            label: stringToBoolean(CLONE) && 'CLONE',
-            dataCy: 'clone',
-          },
-        ].filter(({ label } = {}) => Boolean(label)),
-      [TYPE, PERSISTENT, READONLY, SAVE, CLONE]
-    )
-
-    return (
-      <Paper
-        variant="outlined"
-        className={classes.root}
-        sx={{ flexWrap: 'wrap' }}
-        data-cy={`disk-${DISK_ID}`}
-      >
-        <div className={classes.main}>
-          <div className={classes.title}>
-            <Typography component="span" data-cy="name">
-              {image}
-            </Typography>
-            <span className={classes.labels}>
-              {labels.map(({ label, dataCy }) => (
-                <StatusChip
-                  key={label}
-                  text={label}
-                  {...(dataCy && { dataCy: dataCy })}
-                />
-              ))}
-            </span>
-          </div>
-          <div className={classes.caption}>
-            <span>{`#${DISK_ID}`}</span>
-            {TARGET && (
-              <span title={`Target: ${TARGET}`}>
-                <DatabaseSettings />
-                <span data-cy="target">{` ${TARGET}`}</span>
-              </span>
-            )}
-            {DATASTORE && (
-              <span title={`Datastore Name: ${DATASTORE}`}>
-                <Folder />
-                <span data-cy="datastore">{` ${DATASTORE}`}</span>
-              </span>
-            )}
-            <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
-              <ModernTv />
-              <span data-cy="monitorsize">{` ${monitorSize}/${size}`}</span>
-            </span>
-          </div>
+  return (
+    <Paper
+      variant="outlined"
+      className={classes.root}
+      sx={{ flexWrap: 'wrap' }}
+      data-cy={`disk-${DISK_ID}`}
+    >
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <Typography component="span" data-cy="name">
+            {getDiskName(disk)}
+          </Typography>
+          <span className={classes.labels}>
+            {labels.map(({ label, dataCy }) => (
+              <StatusChip
+                key={label}
+                text={label}
+                {...(dataCy && { dataCy: dataCy })}
+              />
+            ))}
+          </span>
         </div>
-        {!IS_CONTEXT && !!actions.length && (
-          <div className={classes.actions}>
-            {actions.map((Action, idx) => (
-              <Action
-                key={`${Action.displayName ?? idx}-${DISK_ID}`}
-                {...extraActionProps}
-                name={image}
-                disk={disk}
-              />
-            ))}
-          </div>
-        )}
-        {!!SNAPSHOTS?.length && (
-          <Box flexBasis="100%">
-            {SNAPSHOTS?.map((snapshot) => (
-              <DiskSnapshotCard
-                key={`${DISK_ID}-${snapshot.ID}`}
-                snapshot={snapshot}
-                actions={snapshotActions}
-                extraActionProps={extraSnapshotActionProps}
-              />
-            ))}
-          </Box>
-        )}
-      </Paper>
-    )
-  }
-)
+        <div className={classes.caption}>
+          <span>{`#${DISK_ID}`}</span>
+          {TARGET && (
+            <span title={`Target: ${TARGET}`}>
+              <DatabaseSettings />
+              <span data-cy="target">{` ${TARGET}`}</span>
+            </span>
+          )}
+          {DATASTORE && (
+            <span title={`Datastore Name: ${DATASTORE}`}>
+              <Folder />
+              <span data-cy="datastore">{` ${DATASTORE}`}</span>
+            </span>
+          )}
+          <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
+            <ModernTv />
+            <span data-cy="monitorsize">{` ${monitorSize}/${size}`}</span>
+          </span>
+        </div>
+      </div>
+      {!IS_CONTEXT && !!actions && (
+        <div className={classes.actions}>{actions}</div>
+      )}
+      {!!SNAPSHOTS?.length && (
+        <Box flexBasis="100%">
+          {SNAPSHOTS?.map((snapshot) => (
+            <DiskSnapshotCard
+              key={`${DISK_ID}-${snapshot.ID}`}
+              snapshot={snapshot}
+              actions={snapshotActions}
+            />
+          ))}
+        </Box>
+      )}
+    </Paper>
+  )
+})
 
 DiskCard.propTypes = {
   disk: PropTypes.object.isRequired,
