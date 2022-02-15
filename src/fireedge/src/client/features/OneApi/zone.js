@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/zone'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { Zone } from 'client/constants'
 
 const { ZONE } = ONE_RESOURCES
+const { ZONE_POOL } = ONE_RESOURCES_POOL
 
 const zoneApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +40,10 @@ const zoneApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.ZONE_POOL?.ZONE ?? []].flat(),
-      providesTags: [ZONE],
+      providesTags: (zones) =>
+        zones
+          ? [...zones.map(({ ID }) => ({ type: ZONE_POOL, ID })), ZONE_POOL]
+          : [ZONE_POOL],
     }),
     getZone: builder.query({
       /**
@@ -99,7 +107,7 @@ const zoneApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: [ZONE],
+      invalidatesTags: [ZONE_POOL],
     }),
     updateZone: builder.mutation({
       /**
@@ -121,7 +129,7 @@ const zoneApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE],
+      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE_POOL],
     }),
     renameZone: builder.mutation({
       /**
@@ -139,7 +147,7 @@ const zoneApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE],
+      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE_POOL],
     }),
   }),
 })

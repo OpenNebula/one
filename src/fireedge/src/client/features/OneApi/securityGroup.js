@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/secgroup'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { FilterFlag } from 'client/constants'
 
 const { SECURITYGROUP } = ONE_RESOURCES
+const { SECURITYGROUP_POOL } = ONE_RESOURCES_POOL
 
 const securityGroupApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,7 +45,16 @@ const securityGroupApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.SECURITY_GROUP_POOL?.SECURITY_GROUP ?? []].flat(),
-      providesTags: [SECURITYGROUP],
+      providesTags: (secGroups) =>
+        secGroups
+          ? [
+              ...secGroups.map(({ ID }) => ({
+                type: SECURITYGROUP_POOL,
+                id: `${ID}`,
+              })),
+              SECURITYGROUP_POOL,
+            ]
+          : [SECURITYGROUP_POOL],
     }),
     getSecGroup: builder.query({
       /**

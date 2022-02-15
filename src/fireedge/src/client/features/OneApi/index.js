@@ -45,23 +45,37 @@ const ONE_RESOURCES = {
   ZONE: 'Zone',
 }
 
+const ONE_RESOURCES_POOL = Object.entries(ONE_RESOURCES).reduce(
+  (pools, [key, value]) => ({ ...pools, [`${key}_POOL`]: `${value}_POOL` }),
+  {}
+)
+
 const DOCUMENT = {
   SERVICE: 'applicationService',
   SERVICE_TEMPLATE: 'applicationServiceTemplate',
   PROVISION: 'provision',
-  PROVISION_TEMPLATE: 'provisionTemplate',
   PROVIDER: 'provider',
+}
+
+const DOCUMENT_POOL = Object.entries(DOCUMENT).reduce(
+  (pools, [key, value]) => ({ ...pools, [`${key}_POOL`]: `${value}_POOL` }),
+  {}
+)
+
+const PROVISION_CONFIG = {
+  PROVISION_DEFAULTS: 'provisionDefaults',
   PROVIDER_CONFIG: 'providerConfig',
-  PROVISION_RESOURCES: {
-    CLUSTER: 'provisionCluster',
-    DATASTORE: 'provisionDatastore',
-    HOST: 'provisionHost',
-    TEMPLATE: 'provisionVmTemplate',
-    IMAGE: 'provisionImage',
-    NETWORK: 'provisionVNetwork',
-    VNTEMPLATE: 'provisionNetworkTemplate',
-    FLOWTEMPLATE: 'provisionFlowTemplate',
-  },
+}
+
+const PROVISION_RESOURCES = {
+  CLUSTER: 'provisionCluster',
+  DATASTORE: 'provisionDatastore',
+  HOST: 'provisionHost',
+  TEMPLATE: 'provisionVmTemplate',
+  IMAGE: 'provisionImage',
+  NETWORK: 'provisionVNetwork',
+  VNTEMPLATE: 'provisionNetworkTemplate',
+  FLOWTEMPLATE: 'provisionFlowTemplate',
 }
 
 const oneApi = createApi({
@@ -99,15 +113,21 @@ const oneApi = createApi({
   refetchOnMountOrArgChange: 30,
   tagTypes: [
     ...Object.values(ONE_RESOURCES),
-    DOCUMENT.SERVICE,
-    DOCUMENT.SERVICE_TEMPLATE,
-    DOCUMENT.PROVISION,
-    DOCUMENT.PROVISION_TEMPLATE,
-    DOCUMENT.PROVIDER,
-    DOCUMENT.PROVIDER_CONFIG,
-    ...Object.values(DOCUMENT.PROVISION_RESOURCES),
+    ...Object.values(ONE_RESOURCES_POOL),
+    ...Object.values(DOCUMENT),
+    ...Object.values(DOCUMENT_POOL),
+    ...Object.values(PROVISION_CONFIG),
+    ...Object.values(PROVISION_RESOURCES),
   ],
   endpoints: () => ({}),
 })
 
-export { oneApi, ONE_RESOURCES, DOCUMENT }
+export {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+  DOCUMENT,
+  DOCUMENT_POOL,
+  PROVISION_CONFIG,
+  PROVISION_RESOURCES,
+}

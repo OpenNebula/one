@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/cluster'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { Cluster } from 'client/constants'
 
 const { CLUSTER } = ONE_RESOURCES
+const { CLUSTER_POOL } = ONE_RESOURCES_POOL
 
 const clusterApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +40,16 @@ const clusterApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.CLUSTER_POOL?.CLUSTER ?? []].flat(),
-      providesTags: [CLUSTER],
+      providesTags: (clusters) =>
+        clusters
+          ? [
+              ...clusters.map(({ ID }) => ({
+                type: CLUSTER_POOL,
+                id: `${ID}`,
+              })),
+              CLUSTER_POOL,
+            ]
+          : [CLUSTER_POOL],
     }),
     getCluster: builder.query({
       /**
@@ -87,7 +101,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [CLUSTER],
+      invalidatesTags: [CLUSTER_POOL],
     }),
     removeCluster: builder.mutation({
       /**
@@ -103,7 +117,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      invalidatesTags: [CLUSTER],
+      invalidatesTags: [CLUSTER_POOL],
     }),
     updateCluster: builder.mutation({
       /**
@@ -143,7 +157,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     removeHostFromCluster: builder.mutation({
       /**
@@ -161,7 +175,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     addDatastoreToCluster: builder.mutation({
       /**
@@ -179,7 +193,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     removeDatastoreFromCluster: builder.mutation({
       /**
@@ -197,7 +211,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     addNetworkToCluster: builder.mutation({
       /**
@@ -215,7 +229,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     removeNetworkFromCluster: builder.mutation({
       /**
@@ -233,7 +247,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
     renameCluster: builder.mutation({
       /**
@@ -251,7 +265,7 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER],
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
     }),
   }),
 })

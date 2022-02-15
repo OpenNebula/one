@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/market'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { Permission, Marketplace } from 'client/constants'
 
 const { MARKETPLACE } = ONE_RESOURCES
+const { MARKETPLACE_POOL } = ONE_RESOURCES_POOL
 
 const marketplaceApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,7 +41,16 @@ const marketplaceApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.MARKETPLACE_POOL?.MARKETPLACE ?? []].flat(),
-      providesTags: [MARKETPLACE],
+      providesTags: (marketplaces) =>
+        marketplaces
+          ? [
+              ...marketplaces.map(({ ID }) => ({
+                type: MARKETPLACE_POOL,
+                id: `${ID}`,
+              })),
+              MARKETPLACE_POOL,
+            ]
+          : [MARKETPLACE_POOL],
     }),
     getMarketplace: builder.query({
       /**
@@ -72,7 +86,7 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [MARKETPLACE],
+      invalidatesTags: [MARKETPLACE_POOL],
     }),
     removeMarketplace: builder.mutation({
       /**
@@ -89,7 +103,7 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [MARKETPLACE],
+      invalidatesTags: [MARKETPLACE_POOL],
     }),
     updateMarketplace: builder.mutation({
       /**
@@ -160,7 +174,7 @@ const marketplaceApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [
         { type: MARKETPLACE, id },
-        MARKETPLACE,
+        MARKETPLACE_POOL,
       ],
     }),
     renameMarketplace: builder.mutation({
@@ -181,7 +195,7 @@ const marketplaceApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [
         { type: MARKETPLACE, id },
-        MARKETPLACE,
+        MARKETPLACE_POOL,
       ],
     }),
     enableMarketplace: builder.mutation({
@@ -199,7 +213,10 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: true }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: MARKETPLACE, id }, MARKETPLACE],
+      invalidatesTags: (_, __, id) => [
+        { type: MARKETPLACE, id },
+        MARKETPLACE_POOL,
+      ],
     }),
     disableMarketplace: builder.mutation({
       /**
@@ -216,7 +233,10 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: MARKETPLACE, id }, MARKETPLACE],
+      invalidatesTags: (_, __, id) => [
+        { type: MARKETPLACE, id },
+        MARKETPLACE_POOL,
+      ],
     }),
   }),
 })

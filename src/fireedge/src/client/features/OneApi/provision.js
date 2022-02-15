@@ -17,9 +17,17 @@ import {
   Actions,
   Commands,
 } from 'server/routes/api/oneprovision/provision/routes'
-import { oneApi, DOCUMENT } from 'client/features/OneApi'
+import {
+  oneApi,
+  DOCUMENT,
+  DOCUMENT_POOL,
+  PROVISION_CONFIG,
+  PROVISION_RESOURCES,
+} from 'client/features/OneApi'
 
-const { PROVISION, PROVISION_TEMPLATE, PROVISION_RESOURCES } = DOCUMENT
+const { PROVISION } = DOCUMENT
+const { PROVISION_POOL } = DOCUMENT_POOL
+const { PROVISION_DEFAULTS } = PROVISION_CONFIG
 
 const provisionApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -37,7 +45,16 @@ const provisionApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat(),
-      providesTags: [PROVISION],
+      providesTags: (provisions) =>
+        provisions
+          ? [
+              ...provisions.map(({ ID }) => ({
+                type: PROVISION_POOL,
+                id: `${ID}`,
+              })),
+              PROVISION_POOL,
+            ]
+          : [PROVISION_POOL],
     }),
     getProvision: builder.query({
       /**
@@ -85,7 +102,7 @@ const provisionApi = oneApi.injectEndpoints({
 
         return { command }
       },
-      providesTags: [PROVISION_TEMPLATE],
+      providesTags: [PROVISION_DEFAULTS],
     }),
     getProvisionLog: builder.query({
       /**
@@ -148,7 +165,7 @@ const provisionApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [PROVISION],
+      invalidatesTags: [PROVISION_POOL],
     }),
     configureProvision: builder.mutation({
       /**
@@ -165,7 +182,10 @@ const provisionApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: PROVISION, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: PROVISION, id },
+        PROVISION_POOL,
+      ],
     }),
     deleteProvision: builder.mutation({
       /**
@@ -184,7 +204,7 @@ const provisionApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [PROVISION],
+      invalidatesTags: [PROVISION_POOL],
     }),
     removeResource: builder.mutation({
       /**

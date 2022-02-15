@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/template'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { LockLevel, FilterFlag, Permission, VmTemplate } from 'client/constants'
 
-const { TEMPLATE, VM } = ONE_RESOURCES
+const { TEMPLATE } = ONE_RESOURCES
+const { TEMPLATE_POOL, VM_POOL } = ONE_RESOURCES_POOL
 
 const vmTemplateApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,7 +45,13 @@ const vmTemplateApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.VMTEMPLATE_POOL?.VMTEMPLATE ?? []].flat(),
-      providesTags: [TEMPLATE],
+      providesTags: (vmTemplates) =>
+        vmTemplates
+          ? [
+              ...vmTemplates.map(({ ID }) => ({ type: TEMPLATE_POOL, ID })),
+              TEMPLATE_POOL,
+            ]
+          : [TEMPLATE_POOL],
     }),
     getTemplate: builder.query({
       /**
@@ -93,7 +104,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [TEMPLATE],
+      invalidatesTags: [TEMPLATE_POOL],
     }),
     cloneTemplate: builder.mutation({
       /**
@@ -114,7 +125,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [TEMPLATE],
+      invalidatesTags: [TEMPLATE_POOL],
     }),
     removeTemplate: builder.mutation({
       /**
@@ -132,7 +143,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [TEMPLATE],
+      invalidatesTags: [TEMPLATE_POOL],
     }),
     instantiateTemplate: builder.mutation({
       /**
@@ -153,7 +164,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VM],
+      invalidatesTags: [VM_POOL],
     }),
     updateTemplate: builder.mutation({
       /**

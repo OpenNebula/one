@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/group'
-import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
+import {
+  oneApi,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from 'client/features/OneApi'
 import { Group } from 'client/constants'
 
 const { GROUP } = ONE_RESOURCES
+const { GROUP_POOL } = ONE_RESOURCES_POOL
 
 const groupApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -35,7 +40,13 @@ const groupApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => [data?.GROUP_POOL?.GROUP ?? []].flat(),
-      providesTags: [GROUP],
+      providesTags: (groups) =>
+        groups
+          ? [
+              ...groups.map(({ ID }) => ({ type: GROUP_POOL, id: `${ID}` })),
+              GROUP_POOL,
+            ]
+          : [GROUP_POOL],
     }),
     getGroup: builder.query({
       /**
@@ -69,7 +80,7 @@ const groupApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [GROUP],
+      invalidatesTags: [GROUP_POOL],
     }),
     updateGroup: builder.mutation({
       /**
@@ -108,7 +119,7 @@ const groupApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [GROUP],
+      invalidatesTags: [GROUP_POOL],
     }),
     addAdminToGroup: builder.mutation({
       /**
