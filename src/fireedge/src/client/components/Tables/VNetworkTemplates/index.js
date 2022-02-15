@@ -50,7 +50,7 @@ const VNetworkTemplatesTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={data}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

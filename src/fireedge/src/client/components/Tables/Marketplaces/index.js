@@ -32,12 +32,17 @@ const DEFAULT_DATA_CY = 'marketplaces'
  * @returns {ReactElement} Marketplaces table
  */
 const MarketplacesTable = ({ filter, ...props }) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetMarketplacesQuery,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useAuth()
-  const { data = [], isFetching, refetch } = useGetMarketplacesQuery()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>
@@ -51,7 +56,7 @@ const MarketplacesTable = ({ filter, ...props }) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={typeof filter === 'function' ? data?.filter(filter) : data}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

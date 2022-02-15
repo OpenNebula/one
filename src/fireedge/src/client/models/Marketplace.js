@@ -43,3 +43,27 @@ export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
 
   return { percentOfUsed, percentLabel }
 }
+
+/**
+ * Returns `true` if the marketplace can be perform
+ * one of these actions: monitor, create, delete.
+ *
+ * @param {Marketplace} marketplace - Marketplace
+ * @param {object} onedConf - One daemon configuration
+ * @param {'monitor'|'create'|'delete'} action - Marketplace action
+ * @returns {boolean} If the oned.conf includes the action
+ */
+export const onedConfIncludesAction = (
+  marketplace = {},
+  onedConf = {},
+  action = 'monitor'
+) => {
+  const isInZone = onedConf.FEDERATION?.ZONE_ID === marketplace.ZONE_ID
+  const includesAction = onedConf.MARKET_MAD_CONF?.some(
+    ({ APP_ACTIONS, NAME }) =>
+      APP_ACTIONS?.includes(action) &&
+      `${NAME}`.toLowerCase() === `${marketplace.MARKET_MAD}`.toLowerCase()
+  )
+
+  return isInZone && includesAction
+}

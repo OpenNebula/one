@@ -65,14 +65,12 @@ const EnhancedTable = ({
 }) => {
   const styles = EnhancedTableStyles()
 
-  const isUninitialized = isLoading && data === undefined
-
-  const defaultColumn = useMemo(
-    () => ({
-      disableFilters: true,
-    }),
-    []
+  const isUninitialized = useMemo(
+    () => isLoading && data === undefined,
+    [isLoading, data]
   )
+
+  const defaultColumn = useMemo(() => ({ disableFilters: true }), [])
 
   const sortTypes = useMemo(
     () => ({

@@ -59,17 +59,14 @@ const DockerHubTagsTable = ({ app, ...props } = {}) => {
     })()
   }, [appId, next])
 
-  const memoData = useMemo(() => tags, [tags?.length])
-  const memoColumns = useMemo(() => [{ accessor: 'name' }], [])
-
   if (!appId) {
     return <>{'App ID is required'}</>
   }
 
   return (
     <EnhancedTable
-      columns={memoColumns}
-      data={memoData}
+      columns={useMemo(() => [{ accessor: 'name' }], [])}
+      data={useMemo(() => tags, [tags])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={fetchRequest}

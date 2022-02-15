@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { useState, useEffect, useMemo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
@@ -23,14 +23,14 @@ import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
 import { RESOURCE_NAMES } from 'client/constants'
 
-// const INITIAL_ELEMENT = 0
-// const INTERVAL_ON_FIRST_RENDER = 2_000
+const INITIAL_ELEMENT = 0
+const INTERVAL_ON_FIRST_RENDER = 2_000
 
-// const INITIAL_ARGS = {
-// start: INITIAL_ELEMENT,
-// end: -INTERVAL_ON_FIRST_RENDER,
-// state: -1,
-// }
+const INITIAL_ARGS = {
+  start: INITIAL_ELEMENT,
+  end: -INTERVAL_ON_FIRST_RENDER,
+  state: -1,
+}
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -44,8 +44,11 @@ const VmsTable = (props) => {
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useAuth()
-  // const [args, setArgs] = useState(() => INITIAL_ARGS)
-  const { data = [], isFetching, refetch } = useGetVmsQuery()
+  const [totalData, setTotalData] = useState(() => [])
+  const [args, setArgs] = useState(() => INITIAL_ARGS)
+  const { data, isSuccess, isFetching } = useGetVmsQuery(args, {
+    refetchOnMountOrArgChange: true,
+  })
 
   const columns = useMemo(
     () =>
@@ -56,22 +59,33 @@ const VmsTable = (props) => {
     [view]
   )
 
-  /* useEffect(() => {
-    const lastVmId = data[INTERVAL_ON_FIRST_RENDER - 1]?.ID
-    const end = isSuccess ? lastVmId : -INTERVAL_ON_FIRST_RENDER
-
-    if (isSuccess && data?.length === INTERVAL_ON_FIRST_RENDER) {
-      setArgs({ start: INITIAL_ELEMENT, end, state: -1 })
+  useEffect(() => {
+    if (!isFetching && isSuccess && data?.length >= +INTERVAL_ON_FIRST_RENDER) {
+      setArgs((prev) => ({
+        ...prev,
+        start: prev.start + INTERVAL_ON_FIRST_RENDER,
+      }))
     }
-  }, [isSuccess]) */
+  }, [isFetching])
+
+  useEffect(() => {
+    data &&
+      setTotalData((prev) => {
+        const notDuplicatedData = data.filter(
+          ({ ID }) => !prev.find((vm) => vm.ID === ID)
+        )
+
+        return prev.concat(notDuplicatedData).sort((a, b) => b.ID - a.ID)
+      })
+  }, [data])
 
   return (
     <EnhancedTable
       columns={columns}
-      data={data}
+      data={useMemo(() => totalData, [totalData])}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={refetch}
+      refetch={() => setArgs(INITIAL_ARGS)}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VmRow}
@@ -80,7 +94,6 @@ const VmsTable = (props) => {
   )
 }
 
-VmsTable.propTypes = { ...EnhancedTable.propTypes }
 VmsTable.displayName = 'VmsTable'
 
 export default VmsTable
