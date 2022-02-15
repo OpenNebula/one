@@ -2867,10 +2867,19 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/cluster-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/group-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/image-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/marketplace-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/sec-group-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vm-template-tab.yaml"
+                                src/fireedge/etc/sunstone/admin/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vnet-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vnet-template-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/zone-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vm-template-tab.yaml"
