@@ -259,6 +259,8 @@ define(function(require) {
 
     $("#MEMORY_HOT_ADD_ENABLED", context).on("change", function(){
       if (this.value == "NO"){
+        $("#MEMORY_MAX", context).val("");
+        $("#MEMORY_MAX_GB", context).val("");
         $("#memory_max_group", context).hide();
       }
       else{
@@ -268,6 +270,7 @@ define(function(require) {
 
     $("#CPU_HOT_ADD_ENABLED", context).on("change", function(){
       if (this.value == "NO"){
+        $("#VCPU_MAX", context).val("");
         $("#vcpu_max_group", context).hide();
       }
       else{
