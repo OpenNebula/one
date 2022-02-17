@@ -214,6 +214,16 @@ class ServiceWD
 
                 next unless nodes_ids
 
+                if nodes_ids.empty?
+                    # If there are no VM, the role should be running
+                    @lcm.trigger_action(:running_wd_cb,
+                                        service.id,
+                                        client,
+                                        service.id,
+                                        name,
+                                        [])
+                end
+
                 nodes_ids.each do |node|
                     check_role_state(client, service.id, name, node)
                 end
