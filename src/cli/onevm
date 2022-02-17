@@ -1398,16 +1398,22 @@ CommandParser::CmdParser.new(ARGV) do
         acc_t = 0
         acc_w = 0
 
-        charters.each do |action, time|
-            sched = "+#{time[:time].to_i + acc_t}"
+        helper.perform_action(args[0], {}, 'Charter added') do |vm|
+            vm.info
 
-            helper.schedule_actions([args[0]].flatten,
-                                    { :schedule => sched },
-                                    action.to_s,
-                                    time[:warning][:time] + acc_w)
+            diff_stime = Time.now.to_i - vm['/VM/STIME'].to_i
 
-            acc_t += time[:time].to_i
-            acc_w += time[:warning][:time].to_i
+            charters.each do |action, time|
+                sched = "+#{time[:time].to_i + acc_t + diff_stime}"
+
+                helper.schedule_actions([args[0]].flatten,
+                                        { :schedule => sched },
+                                        action.to_s,
+                                        time[:warning][:time] + acc_w)
+
+                acc_t += time[:time].to_i
+                acc_w += time[:warning][:time].to_i
+            end
         end
 
         0
