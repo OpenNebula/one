@@ -960,7 +960,11 @@ class ServiceLCM
     end
 
     def running_wd_cb(client, service_id, role_name, _node)
+        undeploy = false
+
         rc = @srv_pool.get(service_id, client) do |service|
+            role = service.roles[role_name]
+
             if service.roles[role_name].state != Role::STATE['RUNNING']
                 service.roles[role_name].set_state(Role::STATE['RUNNING'])
             end
@@ -970,10 +974,19 @@ class ServiceLCM
                 service.set_state(Service::STATE['RUNNING'])
             end
 
+            # If the role has 0 nodes, delete role
+            undeploy = service.check_role(role)
+
             service.update
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
+
+        return unless undeploy
+
+        Log.info LOG_COMP, "Automatically deleting service #{service_id}"
+
+        undeploy_action(client, service_id)
     end
 
     ############################################################################
