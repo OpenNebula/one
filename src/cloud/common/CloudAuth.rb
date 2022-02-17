@@ -56,7 +56,26 @@ class CloudAuth
 
         @lock   = Mutex.new
 
-        @token_expiration_time = Time.now.to_i + EXPIRE_DELTA
+        # Read configuration attributes
+        if conf[:expire_delta]
+            @expire_delta = conf[:expire_delta]
+        else
+            @expire_delta = EXPIRE_DELTA
+        end
+
+        if conf[:expire_margin]
+            @expire_margin = conf[:expire_margin]
+        else
+            @expire_margin = EXPIRE_MARGIN
+        end
+
+        # If user set wrong parameters, use defaults to avoid auth issues
+        if @expire_delta < @expire_margin
+            @expire_delta  = EXPIRE_DELTA
+            @expire_margin = EXPIRE_MARGI
+        end
+
+        @token_expiration_time = Time.now.to_i + @expire_delta
         @upool_expiration_time = 0
 
         @conf[:use_user_pool_cache] = true
@@ -96,8 +115,8 @@ class CloudAuth
         expiration_time = @lock.synchronize {
             time_now = Time.now.to_i
 
-            if time_now > @token_expiration_time - EXPIRE_MARGIN
-                @token_expiration_time = time_now + EXPIRE_DELTA
+            if time_now > @token_expiration_time - @expire_margin
+                @token_expiration_time = time_now + @expire_delta
             end
 
             @token_expiration_time
