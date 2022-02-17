@@ -25,9 +25,10 @@ begin
 
     NAME = File.join(__dir__, "../../../../etc/im/#{ETC_NAME}/pci.conf")
     CONF = {
-        :filter => '0:0',
-        :short_address => [],
-        :device_name => []
+        :filter         => '0:0',
+        :short_address  => [],
+        :device_name    => [],
+        :nvidia_vendors => ['10de']
     }.merge(YAML.load_file(NAME))
 rescue StandardError
     STDERR.puts "Invalid configuration #{NAME}"
@@ -110,13 +111,18 @@ devices.each do |dev|
         next if matched != true
     end
 
+    # The main device cannot be used, skip it
+    if CONF[:nvidia_vendors].include?(dev[:vendor]) &&
+       `ls /sys/class/mdev_bus | grep #{dev[:short_address]}`.empty?
+        next
+    end
+
     puts 'PCI = ['
     values = [
         pval('TYPE', dev[:type]),
         pval('VENDOR', dev[:vendor]),
         pval('VENDOR_NAME', dev[:vendor_name]),
         pval('DEVICE', dev[:device]),
-        pval('DEVICE_NAME', dev[:device_name]),
         pval('CLASS', dev[:class]),
         pval('CLASS_NAME', dev[:class_name]),
         pval('ADDRESS', dev[:address]),
@@ -127,6 +133,23 @@ devices.each do |dev|
         pval('FUNCTION', dev[:function]),
         pval('NUMA_NODE', dev[:numa_node])
     ]
+
+    # NVIDIA device
+    #
+    # The uuid is based on the address to get always the same
+    if CONF[:nvidia_vendors].include?(dev[:vendor])
+        values << pval(
+            'UUID',
+            `uuidgen --name '#{dev[:address]}' --namespace '@x500' --sha1`.strip
+        )
+
+        # When having vGPU the name is always Device, so we merge it with vendor
+        # name, in this way Sunstone shows a better name
+        values << pval('DEVICE_NAME',
+                       "#{dev[:vendor_name]} #{dev[:device_name]}")
+    else
+        values << pval('DEVICE_NAME', dev[:device_name])
+    end
 
     puts values.join(",\n")
     puts ']'

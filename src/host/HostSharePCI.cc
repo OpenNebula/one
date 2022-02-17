@@ -130,7 +130,7 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
 {
     unsigned int vendor_id, device_id, class_id;
-    string address;
+    string address, uuid;
     int vendor_rc, device_rc, class_rc, addr_rc;
 
     for (auto device : devs)
@@ -170,6 +170,13 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
                 if (dev->attrs->vector_value("NUMA_NODE", node)==0 && node !=-1)
                 {
                     device->replace("NUMA_NODE", node);
+                }
+
+                uuid = dev->attrs->vector_value("UUID");
+
+                if ( !uuid.empty() )
+                {
+                    device->replace("UUID", uuid);
                 }
 
                 break;

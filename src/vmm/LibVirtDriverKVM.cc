@@ -602,6 +602,8 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_slot   = "";
     string vm_func   = "";
 
+    string uuid = "";
+
     bool pae                = false;
     bool acpi               = false;
     bool apic               = false;
@@ -796,7 +798,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     bool boot_secure = false;
     string firmware;
- 
+
     get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
 
     bool is_uefi = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS");
@@ -1788,6 +1790,8 @@ int LibVirtDriver::deployment_description_kvm(
         vm_slot    = pci[i]->vector_value("VM_SLOT");
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
 
+        uuid = pci[i]->vector_value("UUID");
+
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
             vm->log("VMM", Log::WARNING,
@@ -1796,26 +1800,38 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
-
-        file << "\t\t\t<source>\n";
-        file << "\t\t\t\t<address "
-                 << " domain="   << one_util::escape_xml_attr("0x" + domain)
-                 << " bus="      << one_util::escape_xml_attr("0x" + bus)
-                 << " slot="     << one_util::escape_xml_attr("0x" + slot)
-                 << " function=" << one_util::escape_xml_attr("0x" + func)
-             << "/>\n";
-        file << "\t\t\t</source>\n";
-
-        if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
-                !vm_func.empty() )
+        if ( !uuid.empty() )
         {
-            file << "\t\t\t\t<address type='pci'"
-                     << " domain="   << one_util::escape_xml_attr(vm_domain)
-                     << " bus="      << one_util::escape_xml_attr(vm_bus)
-                     << " slot="     << one_util::escape_xml_attr(vm_slot)
-                     << " function=" << one_util::escape_xml_attr(vm_func)
-                 << "/>\n";
+            file << "\t\t<hostdev mode='subsystem' type='mdev' model='vfio-pci'>\n";
+            file << "\t\t\t<source>\n";
+            file << "\t\t\t\t<address "
+                    << " uuid="   << one_util::escape_xml_attr(uuid)
+                << "/>\n";
+            file << "\t\t\t</source>\n";
+        }
+        else
+        {
+            file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
+
+            file << "\t\t\t<source>\n";
+            file << "\t\t\t\t<address "
+                    << " domain="   << one_util::escape_xml_attr("0x" + domain)
+                    << " bus="      << one_util::escape_xml_attr("0x" + bus)
+                    << " slot="     << one_util::escape_xml_attr("0x" + slot)
+                    << " function=" << one_util::escape_xml_attr("0x" + func)
+                << "/>\n";
+            file << "\t\t\t</source>\n";
+
+            if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
+                    !vm_func.empty() )
+            {
+                file << "\t\t\t\t<address type='pci'"
+                        << " domain="   << one_util::escape_xml_attr(vm_domain)
+                        << " bus="      << one_util::escape_xml_attr(vm_bus)
+                        << " slot="     << one_util::escape_xml_attr(vm_slot)
+                        << " function=" << one_util::escape_xml_attr(vm_func)
+                    << "/>\n";
+            }
         }
 
         file << "\t\t</hostdev>" << endl;

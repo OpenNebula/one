@@ -1043,7 +1043,8 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
                 src/mad/sh/create_container_image.sh \
-                src/mad/sh/create_docker_image.sh"
+                src/mad/sh/create_docker_image.sh \
+                src/vmm_mad/remotes/kvm/vgpu"
 
 MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 

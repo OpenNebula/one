@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# ------------------------------------------------------------------------------
+# HELPERS
+# ------------------------------------------------------------------------------
+
+# Get PCI devices UUID
+function get_uuids() {
+    uuids="$(xmllint --format --xpath '/VM/TEMPLATE/PCI/UUID/text()' "$1" 2>/dev/null)"
+    echo "$uuids" | sed -e 's/<!\[CDATA\[//g; s/\]\]>//g'
+}
+
+# Get value from XML and remove CDATA part
+function get_xpath_val() {
+    echo "$1" | xmllint --format --xpath "$2/text()" - | sed -e 's/<!\[CDATA\[//g; s/\]\]>//g'
+}
+
+# Get mdev path used to (de)activate mediated device
+function get_mdev_path() {
+    pci="$(xmllint --format --xpath "/VM/TEMPLATE/PCI[UUID='$1']" "$2" 2>/dev/null)"
+
+    # Get specific information about the PCI
+    domain=$(get_xpath_val "$pci" "/PCI/DOMAIN")
+    bus=$(get_xpath_val "$pci" "/PCI/BUS")
+    slot=$(get_xpath_val "$pci" "/PCI/SLOT")
+    func=$(get_xpath_val "$pci" "/PCI/FUNCTION")
+
+    # Generate mdev path
+    mdev="/sys/class/mdev_bus/$domain:$bus:$slot.$func"
+
+    if [[ ! -d $mdev ]]
+    then
+        error_message "Directory '$mdev' does not exist"
+        exit 1
+    fi
+
+    # TODO: give the user the ability to choose this
+    device="$(ls "$mdev/mdev_supported_types" | head -n1)"
+
+    echo "$mdev/mdev_supported_types/$device/"
+}
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+ACTION=${1,,}
+
+# create -> vm.xml path
+# delete -> vm.xml path
+# datastore -> vm deploy ID
+VM="$2"
+
+# Variables from driver
+DRIVER_PATH="$3"
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+source "$DRIVER_PATH/../../etc/vmm/kvm/kvmrc"
+source "$DRIVER_PATH/../../scripts_common.sh"
+
+case "$ACTION" in
+    "create")
+        uuids="$(get_uuids "$VM")"
+
+        if [ -n "$uuids" ]; then
+            for uuid in $uuids; do
+                mdev="$(get_mdev_path "$uuid" "$VM")"
+
+                if ! echo "$uuid" > "$mdev/create"; then
+                    error_message "Error creating mediated device"
+                    exit 1
+                fi
+            done
+        fi
+    ;;
+    "delete")
+        uuids="$(get_uuids "$VM")"
+
+        if [ -n "$uuids" ]; then
+            for uuid in $uuids; do
+                mdev="$(get_mdev_path "$uuid" "$VM")"
+
+                if ! echo "1" > "$mdev/devices/$uuid/remove"; then
+                    error_message "Error removing mediated device"
+                    # Not exit with error, just log the error
+                    # exit -1
+                fi
+            done
+        fi
+    ;;
+    "datastore")
+        METADATA_XML="$(virsh --connect "$LIBVIRT_URI" metadata "$VM" "$LIBVIRT_MD_URI" "$LIBVIRT_MD_KEY")"
+
+        unset i XPATH_ELEMENTS
+
+        while IFS= read -r -d '' element; do
+            XPATH_ELEMENTS[i++]="$element"
+        done < <(echo "$METADATA_XML" | $XPATH /vm/system_datastore/)
+
+        unset i
+
+        DATASTORE_PATH="${XPATH_ELEMENTS[i++]}"
+
+        if [ -z "$DATASTORE_PATH" ]; then
+            error_message "Datastore path not found"
+            exit 1
+        fi
+
+        echo "$DATASTORE_PATH"
+    ;;
+    *)
+        error_message "Unsupported action '$ACTION'"
+        exit 1
+esac
