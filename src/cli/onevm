@@ -239,6 +239,10 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'SSH options to use'
     }
 
+    OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
+        %w[as_gid as_uid].include?(v[:name])
+    end
+
     ########################################################################
     # Global Options
     ########################################################################
