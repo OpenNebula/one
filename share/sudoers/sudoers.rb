@@ -73,7 +73,7 @@ class Sudoers
                 lxc-console e2fsck resize2fs xfs_growfs rbd-nbd
             ],
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
-            :VGPU => %w[/usr/lib/one/sh/vgpu]
+            :VGPU => %w[sudo /usr/lib/one/sh/vgpu]
         }
     end
 
