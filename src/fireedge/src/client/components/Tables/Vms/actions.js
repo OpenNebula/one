@@ -28,7 +28,7 @@ import {
   Cart,
 } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
@@ -106,7 +106,7 @@ const MessageToConfirmAction = (rows) => (
  */
 const Actions = () => {
   const history = useHistory()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { enqueueSuccess } = useGeneralApi()
 
   const [saveAsTemplate] = useSaveAsTemplateMutation()

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement, useMemo } from 'react'
 import { Container, Paper, Box, Typography, Divider } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -21,7 +21,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth } from 'client/features/Auth'
+import { useLazyGetAuthUserQuery } from 'client/features/AuthApi'
 import { useUpdateUserMutation } from 'client/features/OneApi/user'
 import { useGeneralApi } from 'client/features/General'
 import { Translate, Tr } from 'client/components/HOC'
@@ -30,24 +31,28 @@ import { T } from 'client/constants'
 import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
 import * as Helper from 'client/models/Helper'
 
-/** @returns {JSXElementConstructor} Settings container */
+/** @returns {ReactElement} Settings container */
 const Settings = () => {
   const { user, settings } = useAuth()
-  const { getAuthUser } = useAuthApi()
+  const [getAuthUser] = useLazyGetAuthUserQuery()
   const [updateUser] = useUpdateUserMutation()
   const { enqueueError } = useGeneralApi()
 
-  const { handleSubmit, setError, reset, formState, ...methods } = useForm({
+  const { handleSubmit, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
-    defaultValues: FORM_SCHEMA.cast(settings),
+    defaultValues: useMemo(() => FORM_SCHEMA.cast(settings), [settings]),
     resolver: yupResolver(FORM_SCHEMA),
   })
 
-  const onSubmit = async (dataForm) => {
+  const onSubmit = async (formData) => {
     try {
-      const template = Helper.jsonToXml({ FIREEDGE: dataForm })
+      const data = FORM_SCHEMA.cast(formData, { isSubmit: true })
+      const template = Helper.jsonToXml({ FIREEDGE: data })
       await updateUser({ id: user.ID, template })
-      getAuthUser()
+      await getAuthUser()
+
+      // Reset either the entire form state or part of the form state
+      reset(formData)
     } catch {
       enqueueError(T.SomethingWrong)
     }

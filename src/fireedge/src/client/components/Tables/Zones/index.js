@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -34,7 +34,7 @@ const ZonesTable = (props) => {
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useGetZonesQuery()
 
   const columns = useMemo(

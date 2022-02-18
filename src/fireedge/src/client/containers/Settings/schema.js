@@ -24,7 +24,7 @@ import {
 import { getValidationFromFields } from 'client/utils'
 
 const SCHEME = {
-  name: 'scheme',
+  name: 'SCHEME',
   label: T.Schema,
   type: INPUT_TYPES.SELECT,
   values: [
@@ -40,7 +40,7 @@ const SCHEME = {
 }
 
 const LANGUAGES = {
-  name: 'lang',
+  name: 'LANG',
   label: T.Language,
   type: INPUT_TYPES.SELECT,
   values: () =>
@@ -53,7 +53,7 @@ const LANGUAGES = {
 }
 
 const DISABLE_ANIMATIONS = {
-  name: 'disableanimations',
+  name: 'DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean()

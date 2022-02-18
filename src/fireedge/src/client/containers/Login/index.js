@@ -24,7 +24,10 @@ import {
 } from '@mui/material'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
+import {
+  useLoginMutation,
+  useChangeAuthGroupMutation,
+} from 'client/features/AuthApi'
 
 import Form from 'client/containers/Login/Form'
 import * as FORMS from 'client/containers/Login/schema'
@@ -41,14 +44,14 @@ function Login() {
   const classes = loginStyles()
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
-  const {
-    error,
-    isLoading: authLoading,
-    isLoginInProgress: needGroupToContinue,
-  } = useAuth()
+  const { error: otherError, isLoginInProgress: needGroupToContinue } =
+    useAuth()
+  const { logout } = useAuthApi()
 
-  const { login, getAuthUser, changeGroup, logout } = useAuthApi()
-  const { fetchRequest: fetchLogin, loading: loginIsLoading } = useFetch(login)
+  const [changeAuthGroup, changeAuthGroupState] = useChangeAuthGroupMutation()
+  const [login, loginState] = useLoginMutation()
+  const isLoading = loginState.isLoading || changeAuthGroupState.isLoading
+  const errorMessage = loginState.error?.data?.message ?? otherError
 
   const [dataUserForm, setDataUserForm] = useState(undefined)
   const [step, setStep] = useState(() =>
@@ -56,27 +59,26 @@ function Login() {
   )
 
   const handleSubmitUser = async (dataForm) => {
-    const response = await fetchLogin({ ...dataUserForm, ...dataForm })
-    const { jwt, user, isLoginInProgress } = response || {}
+    try {
+      const response = await login({ ...dataUserForm, ...dataForm }).unwrap()
+      const { jwt, user, isLoginInProgress } = response || {}
 
-    if (jwt && isLoginInProgress) {
-      getAuthUser()
-      setStep(STEPS.GROUP_FORM)
-    } else if (!jwt && user?.ID) {
-      setStep(STEPS.FA2_FORM)
-      setDataUserForm(dataForm)
-    }
+      if (jwt && isLoginInProgress) {
+        setStep(STEPS.GROUP_FORM)
+      } else if (!jwt && user?.ID) {
+        setStep(STEPS.FA2_FORM)
+        setDataUserForm(dataForm)
+      }
+    } catch {}
   }
 
-  const handleSubmitGroup = (dataForm) => changeGroup(dataForm)
+  const handleSubmitGroup = (dataForm) => changeAuthGroup(dataForm)
 
   const handleBack = () => {
     logout()
     setDataUserForm(undefined)
     setStep(STEPS.USER_FORM)
   }
-
-  const isLoading = loginIsLoading || authLoading
 
   return (
     <Container
@@ -111,7 +113,7 @@ function Login() {
               onSubmit={handleSubmitUser}
               resolver={FORMS.FORM_USER_SCHEMA}
               fields={FORMS.FORM_USER_FIELDS}
-              error={error}
+              error={errorMessage}
               isLoading={isLoading}
             />
           )}
@@ -125,7 +127,7 @@ function Login() {
               onSubmit={handleSubmitUser}
               resolver={FORMS.FORM_2FA_SCHEMA}
               fields={FORMS.FORM_2FA_FIELDS}
-              error={error}
+              error={errorMessage}
               isLoading={isLoading}
             />
           )}
@@ -139,7 +141,7 @@ function Login() {
               onSubmit={handleSubmitGroup}
               resolver={FORMS.FORM_GROUP_SCHEMA}
               fields={FORMS.FORM_GROUP_FIELDS}
-              error={error}
+              error={errorMessage}
               isLoading={isLoading}
             />
           )}

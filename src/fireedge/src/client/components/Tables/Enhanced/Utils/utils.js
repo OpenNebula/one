@@ -20,8 +20,8 @@ import { GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActi
 /**
  * Add filters defined in view yaml to columns.
  *
- * @param {object} config -
- * @param {object[]} config.filters - List of criteria to filter the columns.
+ * @param {object} config - Config
+ * @param {object} config.filters - List of criteria to filter the columns.
  * @param {Column[]} config.columns - Columns
  * @returns {object} Column with filters
  */
@@ -64,7 +64,7 @@ export const createCategoryFilter = (title) => ({
  * Add filters defined in view yaml to bulk actions.
  *
  * @param {object} params - Config parameters
- * @param {object[]} params.filters - Which buttons are visible to operate over the resources
+ * @param {object} params.filters - Which buttons are visible to operate over the resources
  * @param {GlobalAction[]} params.actions - Actions
  * @returns {object} Action with filters
  */
@@ -82,7 +82,7 @@ export const createActions = ({ filters = {}, actions = [] }) => {
       if (accessor) return action
 
       const groupActions = options?.filter(
-        (option) => filters[String(option.accessor?.toLowerCase())] === true
+        (option) => filters[`${option.accessor?.toLowerCase()}`] === true
       )
 
       return groupActions?.length > 0

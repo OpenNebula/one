@@ -18,7 +18,7 @@ import {
   Actions as SunstoneActions,
   Commands as SunstoneCommands,
 } from 'server/routes/api/sunstone/routes'
-import { changeView } from 'client/features/Auth/actions'
+import { actions } from 'client/features/Auth/slice'
 import { oneApi, ONE_RESOURCES } from 'client/features/OneApi'
 
 const { SYSTEM } = ONE_RESOURCES
@@ -86,10 +86,12 @@ const systemApi = oneApi.injectEndpoints({
 
         return { command }
       },
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, getState, queryFulfilled }) {
         try {
           const { data: views = {} } = await queryFulfilled
-          dispatch(changeView(Object.keys(views)[0]))
+
+          const currentView = getState().auth?.view
+          !currentView && dispatch(actions.changeView(Object.keys(views)[0]))
         } catch {}
       },
       providesTags: [{ type: SYSTEM, id: 'sunstone-views' }],

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 
-import { logout } from 'client/features/Auth/actions'
+import { actions as authActions } from 'client/features/Auth/slice'
 import * as actions from 'client/features/General/actions'
 import { generateKey } from 'client/utils'
 import { APPS_IN_BETA } from 'client/constants'
@@ -36,6 +36,13 @@ const { name, reducer } = createSlice({
   initialState: initial,
   extraReducers: (builder) => {
     builder
+      /* LOGOUT ACTION */
+      .addCase(authActions.logout, (state) => ({
+        ...initial,
+        appTitle: state.appTitle,
+        isBeta: state.isBeta,
+      }))
+
       /* UI ACTIONS */
       .addCase(actions.fixMenu, (state, { payload }) => ({
         ...state,
@@ -92,10 +99,6 @@ const { name, reducer } = createSlice({
       })
 
       /*  REQUESTS API MATCHES */
-      .addMatcher(
-        ({ type }) => type === logout.type,
-        () => initial
-      )
       .addMatcher(
         ({ type }) => type.endsWith('/pending') && !type.includes('auth'),
         (state) => ({ ...state, isLoading: true })

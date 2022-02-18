@@ -13,82 +13,65 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createSlice } from '@reduxjs/toolkit'
+import { createAction, createSlice } from '@reduxjs/toolkit'
 
-import {
-  login,
-  getUser,
-  logout,
-  changeFilter,
-  changeGroup,
-  changeView,
-} from 'client/features/Auth/actions'
+import { removeStoreData } from 'client/utils'
 import {
   JWT_NAME,
   FILTER_POOL,
   DEFAULT_SCHEME,
   DEFAULT_LANGUAGE,
 } from 'client/constants'
-import { isBackend } from 'client/utils'
+
+export const logout = createAction('logout')
 
 const initial = () => ({
-  jwt: !isBackend()
-    ? window.localStorage.getItem(JWT_NAME) ??
-      window.sessionStorage.getItem(JWT_NAME) ??
-      null
-    : null,
+  jwt: null,
   user: null,
-  error: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
   settings: {
-    scheme: DEFAULT_SCHEME,
-    lang: DEFAULT_LANGUAGE,
-    disableanimations: 'NO',
+    SCHEME: DEFAULT_SCHEME,
+    LANG: DEFAULT_LANGUAGE,
+    DISABLE_ANIMATIONS: 'NO',
   },
   isLoginInProgress: false,
-  isLoading: false,
 })
 
-const { name, actions, reducer } = createSlice({
+const slice = createSlice({
   name: 'auth',
   initialState: { ...initial(), firstRender: true },
+  reducers: {
+    changeAuthUser: (state, { payload }) => ({
+      ...state,
+      ...payload,
+    }),
+    changeJwt: (state, { payload }) => {
+      state.jwt = payload
+    },
+    changeSettings: (state, { payload }) => {
+      state.settings = { ...state.settings, payload }
+    },
+    changeFilterPool: (state, { payload: filterPool }) => {
+      state.filterPool = filterPool
+      state.isLoginInProgress = false
+    },
+    changeView: (state, { payload }) => {
+      state.view = payload
+    },
+    stopFirstRender: (state) => {
+      state.firstRender = false
+    },
+  },
   extraReducers: (builder) => {
-    builder
-      .addMatcher(
-        ({ type }) => type === logout.type,
-        (_, { error }) => ({ ...initial(), error })
-      )
-      .addMatcher(
-        ({ type }) =>
-          [
-            changeFilter.type,
-            login.fulfilled.type,
-            getUser.fulfilled.type,
-            changeGroup.fulfilled.type,
-            changeView.type,
-          ].includes(type),
-        (state, { payload }) => ({ ...state, ...payload })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/pending'),
-        (state) => ({ ...state, isLoading: true, error: null })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/fulfilled'),
-        (state) => ({ ...state, isLoading: false, firstRender: false })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/rejected'),
-        (state, { payload }) => ({
-          ...state,
-          ...payload,
-          isLoginInProgress: false,
-          isLoading: false,
-          firstRender: false,
-          jwt: null,
-        })
-      )
+    builder.addCase(logout, (_, { payload }) => {
+      removeStoreData([JWT_NAME])
+
+      return { ...initial(), error: payload }
+    })
   },
 })
 
-export { name, actions, reducer }
+export const { name, reducer } = slice
+
+const actions = { ...slice.actions, logout }
+export { actions }

@@ -17,9 +17,9 @@
 import { useMemo } from 'react'
 import { string, number, boolean } from 'yup'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { getActionsAvailable } from 'client/models/Helper'
-import { INPUT_TYPES, VM_ACTIONS } from 'client/constants'
+import { RESOURCE_NAMES, INPUT_TYPES, VM_ACTIONS } from 'client/constants'
 
 const NAME = {
   name: 'name',
@@ -51,10 +51,11 @@ const HOLD = {
   label: 'Start VM on hold state',
   type: INPUT_TYPES.SWITCH,
   htmlType: () => {
-    const { view, getResourceView } = useAuth()
+    const { view, getResourceView } = useViews()
 
     return useMemo(() => {
-      const actions = getResourceView('VM')?.actions
+      const resource = RESOURCE_NAMES.VM
+      const actions = getResourceView(resource)?.actions
       const actionsAvailable = getActionsAvailable(actions)
 
       return (

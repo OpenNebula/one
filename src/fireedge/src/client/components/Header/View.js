@@ -22,7 +22,7 @@ import {
   VerifiedBadge as SelectIcon,
 } from 'iconoir-react'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuthApi, useViews } from 'client/features/Auth'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
@@ -31,7 +31,7 @@ import { T } from 'client/constants'
 const ButtonView = memo(
   ({ view, handleClick }) => {
     const { changeView } = useAuthApi()
-    const { view: currentView } = useAuth()
+    const { view: currentView } = useViews()
     const isCurrentView = currentView === view
 
     return (
@@ -73,7 +73,7 @@ ButtonView.displayName = 'ButtonView'
  * @returns {ReactElement} Returns interface views list
  */
 const View = () => {
-  const { view: currentView, views = {} } = useAuth()
+  const { view: currentView, views = {} } = useViews()
   const viewNames = useMemo(() => Object.keys(views), [currentView])
 
   return (

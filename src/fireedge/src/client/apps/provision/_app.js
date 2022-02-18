@@ -20,14 +20,14 @@ import { ENDPOINTS, PATH } from 'client/apps/provision/routes'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth } from 'client/features/Auth'
 import provisionApi from 'client/features/OneApi/provision'
 import providerApi from 'client/features/OneApi/provider'
 import { useSocket } from 'client/hooks'
 
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
-import LoadingScreen from 'client/components/LoadingScreen'
+import { AuthLayout } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { _APPS } from 'client/constants'
 
@@ -42,27 +42,14 @@ const MESSAGE_PROVISION_SUCCESS_CREATED = 'Provision successfully created'
  */
 const ProvisionApp = () => {
   const { getProvisionSocket } = useSocket()
-  const { isLogged, jwt, firstRender } = useAuth()
-  const { getAuthUser, logout } = useAuthApi()
+  const { isLogged, jwt } = useAuth()
 
-  const { appTitle, zone } = useGeneral()
-  const { changeAppTitle, enqueueSuccess } = useGeneralApi()
-
-  const queryProps = [undefined, { skip: !jwt }]
-  provisionApi.endpoints.getProvisionTemplates.useQuery(...queryProps)
-  providerApi.endpoints.getProviderConfig.useQuery(...queryProps)
+  const { zone } = useGeneral()
+  const { enqueueSuccess, changeAppTitle } = useGeneralApi()
 
   useEffect(() => {
-    ;(async () => {
-      appTitle !== APP_NAME && changeAppTitle(APP_NAME)
-
-      try {
-        jwt && getAuthUser()
-      } catch {
-        logout()
-      }
-    })()
-  }, [jwt])
+    changeAppTitle(APP_NAME)
+  }, [])
 
   useEffect(() => {
     if (!jwt || !zone) return
@@ -86,12 +73,13 @@ const ProvisionApp = () => {
     []
   )
 
-  if (jwt && firstRender) {
-    return <LoadingScreen />
-  }
-
   return (
-    <>
+    <AuthLayout
+      subscriptions={[
+        provisionApi.endpoints.getProvisionTemplates,
+        providerApi.endpoints.getProviderConfig,
+      ]}
+    >
       {isLogged && (
         <>
           <Sidebar endpoints={endpoints} />
@@ -99,7 +87,7 @@ const ProvisionApp = () => {
         </>
       )}
       <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />
-    </>
+    </AuthLayout>
   )
 }
 

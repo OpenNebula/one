@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 
 import SunstoneApp from 'client/apps/sunstone'
 import ProvisionApp from 'client/apps/provision'
@@ -26,7 +26,7 @@ import { _APPS, APPS } from 'client/constants'
  * Render App by url: http://<host:port>/fireedge/<APP>.
  *
  * @param {object} props - Props from server
- * @returns {JSXElementConstructor} Returns App
+ * @returns {ReactElement} Returns App
  */
 const DevelopmentApp = (props) => {
   let appName = ''

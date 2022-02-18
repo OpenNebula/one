@@ -17,7 +17,7 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
@@ -45,7 +45,7 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const VmTabs = memo(({ id }) => {
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { isLoading } = useGetVmQuery(id)
 
   const tabsAvailable = useMemo(() => {

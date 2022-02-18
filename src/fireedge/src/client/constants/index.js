@@ -27,7 +27,6 @@ export const BY = {
   url: 'https://opennebula.io/',
 }
 
-export const TIME_HIDE_LOGO = 1500
 export const _APPS = defaultApps
 export const APPS = Object.keys(defaultApps)
 export const APPS_IN_BETA = [_APPS.sunstone.name]

@@ -16,10 +16,11 @@
 import { useMemo, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button } from '@mui/material'
+import { Button, Stack, CircularProgress } from '@mui/material'
 import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth } from 'client/features/Auth'
+import { useChangeAuthGroupMutation } from 'client/features/AuthApi'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Tr, Translate } from 'client/components/HOC'
@@ -28,10 +29,8 @@ import { T, FILTER_POOL } from 'client/constants'
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
 const ButtonGroup = memo(
-  ({ group, handleClick }) => {
-    const { changeGroup } = useAuthApi()
+  ({ group, handleClick, disabled }) => {
     const { user, filterPool } = useAuth()
-
     const { ID, NAME } = group
 
     const isSelected =
@@ -41,12 +40,10 @@ const ButtonGroup = memo(
     return (
       <Button
         fullWidth
+        disabled={disabled}
         color="debug"
         variant="outlined"
-        onClick={() => {
-          ID && changeGroup({ id: user.ID, group: ID })
-          handleClick()
-        }}
+        onClick={handleClick}
         sx={{
           color: (theme) => theme.palette.text.primary,
           justifyContent: 'start',
@@ -58,7 +55,8 @@ const ButtonGroup = memo(
       </Button>
     )
   },
-  (prev, next) => prev.group.ID === next.group.ID
+  (prev, next) =>
+    prev.group.ID === next.group.ID && prev.disabled === next.disabled
 )
 
 /**
@@ -68,6 +66,7 @@ const ButtonGroup = memo(
  * @returns {JSXElementConstructor} Returns group list
  */
 const Group = () => {
+  const [changeGroup, { isLoading }] = useChangeAuthGroupMutation()
   const { user, groups } = useAuth()
 
   const sortGroupAsMainFirst = (a, b) =>
@@ -86,7 +85,12 @@ const Group = () => {
       icon={<GroupIcon />}
       tooltip={<Translate word={T.SwitchGroup} />}
       buttonProps={{ 'data-cy': 'header-group-button' }}
-      headerTitle={<Translate word={T.SwitchGroup} />}
+      headerTitle={
+        <Stack direction="row" alignItems="center" gap="1em" component="span">
+          <Translate word={T.SwitchGroup} />
+          {isLoading && <CircularProgress size={20} />}
+        </Stack>
+      }
     >
       {({ handleClose }) => (
         <Search
@@ -101,7 +105,11 @@ const Group = () => {
             <ButtonGroup
               key={`switcher-group-${group?.ID}`}
               group={group}
-              handleClick={handleClose}
+              disabled={isLoading}
+              handleClick={async () => {
+                group?.ID && (await changeGroup({ group: group.ID }))
+                handleClose()
+              }}
             />
           )}
         />
@@ -111,11 +119,9 @@ const Group = () => {
 }
 
 ButtonGroup.propTypes = {
-  group: PropTypes.shape({
-    ID: PropTypes.string,
-    NAME: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  }).isRequired,
+  group: PropTypes.object,
   handleClick: PropTypes.func,
+  disabled: PropTypes.bool,
 }
 
 ButtonGroup.displayName = 'ButtonGroup'

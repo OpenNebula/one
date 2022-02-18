@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -39,7 +39,7 @@ const HostsTable = (props) => {
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+export { default as AuthLayout } from 'client/components/HOC/AuthLayout'
 export { default as ConditionalWrap } from 'client/components/HOC/ConditionalWrap'
 export { default as InternalLayout } from 'client/components/HOC/InternalLayout'
 export * from 'client/components/HOC/Translate'

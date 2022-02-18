@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 import { SystemShut as OsIcon } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { Translate } from 'client/components/HOC'
 
 import Tabs from 'client/components/Tabs'
@@ -33,7 +33,7 @@ import BootOrder from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extra
 import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
@@ -58,12 +58,13 @@ const Content = ({ data, setFormData }) => {
     formState: { errors },
     control,
   } = useFormContext()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
 
   const hypervisor = useMemo(() => watch(`${TEMPLATE_ID}.0.HYPERVISOR`), [])
 
   const sectionsAvailable = useMemo(() => {
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
 
     return getSectionsAvailable(dialog, hypervisor)
   }, [view])

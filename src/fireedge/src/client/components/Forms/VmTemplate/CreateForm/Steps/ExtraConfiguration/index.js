@@ -15,12 +15,12 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 // eslint-disable-next-line no-unused-vars
-import { useMemo, JSXElementConstructor } from 'react'
+import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 // eslint-disable-next-line no-unused-vars
 import { useFormContext, FieldErrors } from 'react-hook-form'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { Translate } from 'client/components/HOC'
 
 import Tabs from 'client/components/Tabs'
@@ -36,13 +36,13 @@ import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfi
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES } from 'client/constants'
 
 /**
  * @typedef {object} TabType
  * @property {string} id - Id will be to use in view yaml to hide/display the tab
  * @property {string} name - Label of tab
- * @property {JSXElementConstructor} Content - Content tab
+ * @property {ReactElement} Content - Content tab
  * @property {object} [icon] - Icon of tab
  * @property {function(FieldErrors):boolean} [getError] - Returns `true` if the tab contains an error in form
  */
@@ -67,12 +67,13 @@ const Content = ({ data, setFormData }) => {
     formState: { errors },
     control,
   } = useFormContext()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
 
   const hypervisor = useMemo(() => watch(`${GENERAL_ID}.HYPERVISOR`), [])
 
   const sectionsAvailable = useMemo(() => {
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.create_dialog
 
     return getSectionsAvailable(dialog, hypervisor)
   }, [view])

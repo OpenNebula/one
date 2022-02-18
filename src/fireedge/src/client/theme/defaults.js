@@ -71,7 +71,7 @@ const buttonSvgStyle = {
  */
 export default (appTheme, mode = SCHEMES.DARK) => {
   const { primary, secondary } = appTheme.palette
-  const isDarkMode = mode === SCHEMES.DARK
+  const isDarkMode = `${mode}`.toLowerCase() === SCHEMES.DARK
 
   return {
     palette: {
@@ -237,6 +237,16 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       MuiCssBaseline: {
         styleOverrides: {
           '@font-face': UbuntuFont,
+          '.loading_screen': {
+            width: '100%',
+            height: '100vh',
+            backgroundColor: 'background.default',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'fixed',
+            zIndex: 10000,
+          },
           '.description__link': {
             margin: 0,
             color: isDarkMode ? secondary.main : secondary.dark,

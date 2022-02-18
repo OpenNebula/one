@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Redirect, Route } from 'react-router-dom'
@@ -23,14 +23,13 @@ import { useAuth } from 'client/features/Auth'
  * Public route.
  *
  * @param {object} props - Route props
- * @param {JSXElementConstructor} props.redirectWhenAuth
+ * @param {ReactElement} props.redirectWhenAuth
  * - Route to redirect in case of user is authenticated
  * @returns {Redirect|Route}
  * - If current user is authenticated, then redirect to private route
  */
 const NoAuthRoute = ({ redirectWhenAuth, ...props }) => {
-  const { isLogged, isLoginInProgress, isLoading } = useAuth()
-  const isAuthenticated = isLogged && !isLoginInProgress && !isLoading
+  const { isLogged: isAuthenticated } = useAuth()
 
   return isAuthenticated ? (
     <Redirect to={redirectWhenAuth} />

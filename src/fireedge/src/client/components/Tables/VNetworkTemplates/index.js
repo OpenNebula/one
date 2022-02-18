@@ -16,7 +16,7 @@
 
 import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetVNTemplatesQuery } from 'client/features/OneApi/networkTemplate'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -35,7 +35,7 @@ const VNetworkTemplatesTable = (props) => {
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useGetVNTemplatesQuery()
 
   const columns = useMemo(

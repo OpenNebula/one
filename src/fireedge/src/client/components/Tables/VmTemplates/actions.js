@@ -26,7 +26,7 @@ import {
   Cart,
 } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import {
   useLockTemplateMutation,
   useUnlockTemplateMutation,
@@ -66,7 +66,7 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const history = useHistory()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const [lock] = useLockTemplateMutation()
   const [unlock] = useUnlockTemplateMutation()
   const [clone] = useCloneTemplateMutation()
@@ -281,7 +281,7 @@ const Actions = () => {
   const marketplaceAppActions = useMemo(
     () =>
       createActions({
-        filters: getResourceView('MARKETPLACE-APP')?.actions,
+        filters: getResourceView(RESOURCE_NAMES.APP)?.actions,
         actions: [
           {
             accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,

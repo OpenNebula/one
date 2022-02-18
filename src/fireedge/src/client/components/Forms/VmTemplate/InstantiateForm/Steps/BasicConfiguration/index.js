@@ -17,7 +17,7 @@
 import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 
@@ -27,18 +27,19 @@ import {
   FIELDS,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
 const Content = () => {
   const classes = useStyles()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { watch } = useFormContext()
 
   const sections = useMemo(() => {
     const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
     return FIELDS(hypervisor).filter(({ id }) => sectionsAvailable.includes(id))
