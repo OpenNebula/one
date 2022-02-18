@@ -62,6 +62,8 @@ module OneDBFsck
 
             error = check_vn_mad(doc, oid, error)
 
+            error = fix_permissions('VNET', row[:oid], doc)
+
             @fixes_network[oid] = doc.root.to_s if error
         end
     end

@@ -100,6 +100,18 @@ EOT
     FEDERATED_TABLES = ["group_pool", "user_pool", "acl", "zone_pool",
         "vdc_pool", "marketplace_pool", "marketplaceapp_pool", "db_versioning"].freeze
 
+    PERMISSIONS = {
+        'OWNER_U' => '1',
+        'OWNER_M' => '1',
+        'OWNER_A' => '0',
+        'GROUP_U' => '1',
+        'GROUP_M' => '0',
+        'GROUP_A' => '0',
+        'OTHER_U' => '0',
+        'OTHER_M' => '0',
+        'OTHER_A' => '0'
+    }
+
     def tables
         TABLES
     end
@@ -117,6 +129,25 @@ EOT
         # old versions of nokogiri
         return add_element(elem, name).add_child(
                         Nokogiri::XML::CDATA.new(elem.document(), text))
+    end
+
+    # Check & fix objects perrmissions
+    def fix_permissions(object, id, doc)
+        cperm = doc.xpath("/#{object}/PERMISSIONS")
+        return false if !(cperm.nil? || cperm.empty?)
+
+        log_error("#{object} #{id} missing permissions")
+
+        p_new_elem = doc.create_element('PERMISSIONS')
+        doc.root.add_child(p_new_elem)
+
+        PERMISSIONS.each do |key, value|
+            p_new_elem.add_child(
+                doc.create_element(key)
+            ).content = value
+        end
+
+        true
     end
 
     ########################################################################

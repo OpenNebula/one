@@ -39,6 +39,8 @@ module OneDBFsck
                 counters[:image][origin_id][:app_clones].add(row[:oid])
             end
 
+            error = fix_permissions('MARKETPLACEAPP', row[:oid], doc)
+
             ####################################################################
             #####################################################################
 
@@ -61,6 +63,10 @@ module OneDBFsck
                         end
 
                         apps_fix[row[:oid]] = doc.root.to_s
+                    elsif error
+                        @db[:marketplaceapp_pool].where(
+                            :oid => row[:oid]
+                        ).update(:body => doc.root.to_s)
                     end
 
                     # DATA: Add app to marketplace list. Used in marketplace check
