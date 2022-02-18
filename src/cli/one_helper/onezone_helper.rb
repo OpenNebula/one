@@ -577,7 +577,23 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
             puts "Endpoint changed to \"#{zone['TEMPLATE/ENDPOINT']}\" in " <<
                 "#{ENV['HOME']}/.one/one_endpoint"
         end
-        return 0
+
+        return unless zone['TEMPLATE/ONEFLOW_ENDPOINT']
+
+        # Set ONEFLOW_ENDPOINT
+        if temporary_zone
+            puts "Type: export ONEFLOW_URL=#{zone['TEMPLATE/ONEFLOW_ENDPOINT']}"
+        else
+            File.open(ENV['HOME'] + '/.one/oneflow_endpoint', 'w') do |f|
+                f.puts zone['TEMPLATE/ONEFLOW_ENDPOINT']
+            end
+
+            puts 'OneFlow Endpoint changed to ' \
+                 "\"#{zone['TEMPLATE/ONEFLOW_ENDPOINT']}\" in " <<
+                 "#{ENV['HOME']}/.one/oneflow_endpoint"
+        end
+
+        0
     end
 
     private
