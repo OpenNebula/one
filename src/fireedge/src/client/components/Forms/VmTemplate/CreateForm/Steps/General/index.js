@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
 
@@ -28,17 +28,18 @@ import {
   SECTIONS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES } from 'client/constants'
 
 export const STEP_ID = 'general'
 
 const Content = ({ isUpdate }) => {
   const classes = useStyles()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
 
   const sections = useMemo(() => {
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
     return SECTIONS(hypervisor, isUpdate).filter(

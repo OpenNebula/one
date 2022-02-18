@@ -18,7 +18,7 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AddSquare, CloudDownload } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
 import { Translate } from 'client/components/HOC'
 import { useExportAppMutation } from 'client/features/OneApi/marketplaceApp'
@@ -48,7 +48,7 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
 const Actions = () => {
   const history = useHistory()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { enqueueSuccess } = useGeneralApi()
   const [exportApp] = useExportAppMutation()
 

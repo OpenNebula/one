@@ -56,7 +56,7 @@ const RemoveScript = () => {
 
 const TranslateProvider = ({ children = [] }) => {
   const [hash, setHash] = useState({})
-  const { settings: { lang } = {} } = useAuth()
+  const { settings: { LANG: lang } = {} } = useAuth()
 
   useEffect(() => {
     GenerateScript(lang, setHash)
@@ -71,14 +71,8 @@ const TranslateProvider = ({ children = [] }) => {
     GenerateScript(language, setHash)
   }
 
-  const value = {
-    lang,
-    hash,
-    changeLang,
-  }
-
   return (
-    <TranslateContext.Provider value={value}>
+    <TranslateContext.Provider value={{ lang, hash, changeLang }}>
       {children}
     </TranslateContext.Provider>
   )

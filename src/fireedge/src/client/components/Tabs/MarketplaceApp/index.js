@@ -17,7 +17,7 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetMarketplaceAppQuery } from 'client/features/OneApi/marketplaceApp'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
@@ -33,7 +33,7 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const MarketplaceAppTabs = memo(({ id }) => {
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { isLoading } = useGetMarketplaceAppQuery(id)
 
   const tabsAvailable = useMemo(() => {

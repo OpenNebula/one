@@ -37,12 +37,12 @@ import { T } from 'client/constants'
 
 /** @returns {ReactElement} Provision dashboard container */
 function ProvisionDashboard() {
-  const { settings: { disableanimations } = {} } = useAuth()
+  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
 
   return (
     <Container
       disableGutters
-      {...(stringToBoolean(disableanimations) && {
+      {...(stringToBoolean(DISABLE_ANIMATIONS) && {
         sx: {
           '& *, & *::before, & *::after': {
             animation: 'none !important',

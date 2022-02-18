@@ -34,12 +34,12 @@ import { SCHEMES } from 'client/constants'
 const { DARK, LIGHT, SYSTEM } = SCHEMES
 
 const MuiProvider = ({ theme: appTheme, children }) => {
-  const { settings: { scheme } = {} } = useAuth()
+  const { settings: { SCHEME } = {} } = useAuth()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
   const changeScheme = () => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
-    const newScheme = scheme === SYSTEM ? prefersScheme : scheme
+    const newScheme = SCHEME === SYSTEM ? prefersScheme : SCHEME
 
     return createTheme(appTheme, newScheme)
   }
@@ -55,7 +55,7 @@ const MuiProvider = ({ theme: appTheme, children }) => {
 
   useEffect(() => {
     setTheme(changeScheme)
-  }, [scheme, prefersDarkMode])
+  }, [SCHEME, prefersDarkMode])
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useMemo, JSXElementConstructor } from 'react'
+import { useEffect, useMemo, ReactElement } from 'react'
 
 import Router from 'client/router'
 import {
@@ -24,13 +24,12 @@ import {
 import { ENDPOINTS as ONE_ENDPOINTS } from 'client/apps/sunstone/routesOne'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
-import { useGeneral, useGeneralApi } from 'client/features/General'
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import systemApi from 'client/features/OneApi/system'
-
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
-import LoadingScreen from 'client/components/LoadingScreen'
+import { AuthLayout } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { _APPS } from 'client/constants'
 
@@ -39,47 +38,38 @@ export const APP_NAME = _APPS.sunstone.name
 /**
  * Sunstone App component.
  *
- * @returns {JSXElementConstructor} App rendered.
+ * @returns {ReactElement} App rendered.
  */
 const SunstoneApp = () => {
-  const { isLogged, jwt, firstRender, view } = useAuth()
-  const { getAuthUser, logout } = useAuthApi()
-
-  const { appTitle } = useGeneral()
   const { changeAppTitle } = useGeneralApi()
-
-  const queryProps = [undefined, { skip: !jwt }]
-  systemApi.endpoints.getOneConfig.useQuery(...queryProps)
-  systemApi.endpoints.getSunstoneConfig.useQuery(...queryProps)
-  const views = systemApi.endpoints.getSunstoneViews.useQuery(...queryProps)
+  const { isLogged } = useAuth()
+  const { views, view } = useViews()
 
   useEffect(() => {
-    ;(async () => {
-      appTitle !== APP_NAME && changeAppTitle(APP_NAME)
+    changeAppTitle(APP_NAME)
+  }, [])
 
-      try {
-        jwt && getAuthUser()
-      } catch {
-        logout()
-      }
-    })()
-  }, [jwt])
-
-  const endpoints = useMemo(
-    () => [
+  const endpoints = useMemo(() => {
+    const fixedEndpoints = [
       ...ENDPOINTS,
-      ...(view ? getEndpointsByView(views?.data?.[view], ONE_ENDPOINTS) : []),
       ...(isDevelopment() ? DEV_ENDPOINTS : []),
-    ],
-    [view]
-  )
+    ]
 
-  if (jwt && firstRender) {
-    return <LoadingScreen />
-  }
+    if (!view) return fixedEndpoints
+
+    const viewEndpoints = getEndpointsByView(views?.[view], ONE_ENDPOINTS)
+
+    return fixedEndpoints.concat(viewEndpoints)
+  }, [view])
 
   return (
-    <>
+    <AuthLayout
+      subscriptions={[
+        systemApi.endpoints.getOneConfig,
+        systemApi.endpoints.getSunstoneConfig,
+        systemApi.endpoints.getSunstoneViews,
+      ]}
+    >
       {isLogged && (
         <>
           <Sidebar endpoints={endpoints} />
@@ -87,7 +77,7 @@ const SunstoneApp = () => {
         </>
       )}
       <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />
-    </>
+    </AuthLayout>
   )
 }
 

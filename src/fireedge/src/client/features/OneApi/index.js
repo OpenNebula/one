@@ -16,10 +16,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import { enqueueSnackbar } from 'client/features/General/actions'
-import { logout } from 'client/features/Auth/actions'
 import { httpCodes } from 'server/utils/constants'
 import { requestConfig, generateKey } from 'client/utils'
-import { T } from 'client/constants'
 import http from 'client/utils/rest'
 
 const ONE_RESOURCES = {
@@ -92,15 +90,14 @@ const oneApi = createApi({
 
       const error = message ?? errorFromOned ?? messageFromServer ?? statusText
 
-      status === httpCodes.unauthorized.id
-        ? dispatch(logout(T.SessionExpired))
-        : dispatch(
-            enqueueSnackbar({
-              key: generateKey(),
-              message: error,
-              options: { variant: 'error' },
-            })
-          )
+      status !== httpCodes.unauthorized.id &&
+        dispatch(
+          enqueueSnackbar({
+            key: generateKey(),
+            message: error,
+            options: { variant: 'error' },
+          })
+        )
 
       return {
         error: {

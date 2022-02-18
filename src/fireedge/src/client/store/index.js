@@ -20,7 +20,9 @@ import { isDevelopment } from 'client/utils'
 
 import * as Auth from 'client/features/Auth/slice'
 import * as General from 'client/features/General/slice'
+import { authApi } from 'client/features/AuthApi'
 import { oneApi } from 'client/features/OneApi'
+import { unauthenticatedMiddleware } from 'client/features/middleware'
 
 /**
  * @param {object} props - Props
@@ -32,13 +34,18 @@ export const createStore = ({ initState = {} }) => {
     reducer: {
       [Auth.name]: Auth.reducer,
       [General.name]: General.reducer,
+      [authApi.reducerPath]: authApi.reducer,
       [oneApi.reducerPath]: oneApi.reducer,
     },
     devTools: isDevelopment(),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         immutableCheck: true,
-      }).concat(oneApi.middleware),
+      }).concat([
+        unauthenticatedMiddleware,
+        authApi.middleware,
+        oneApi.middleware,
+      ]),
     preloadedState: initState,
   })
 

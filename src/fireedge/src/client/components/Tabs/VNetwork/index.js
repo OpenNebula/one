@@ -17,7 +17,7 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { LinearProgress } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetVNetworkQuery } from 'client/features/OneApi/network'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
@@ -31,7 +31,7 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const VNetworkTabs = memo(({ id }) => {
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { isLoading } = useGetVNetworkQuery({ id })
 
   const tabsAvailable = useMemo(() => {

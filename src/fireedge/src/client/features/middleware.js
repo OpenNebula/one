@@ -13,42 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { httpCodes } from 'server/utils/constants'
-import { RestClient } from 'client/utils'
+import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
+import { actions } from 'client/features/Auth/slice'
+import { T } from 'client/constants'
 
-export const authService = {
-  /**
-   * @param {object} data - User credentials
-   * @param {string} data.user - Username
-   * @param {string} data.token - Password
-   * @param {boolean} [data.remember] - Remember session
-   * @param {string} [data.token2fa] - Token for Two factor authentication
-   * @returns {object} Response data from request
-   * @throws Fails when response isn't code 200
-   */
-  login: async (data) => {
-    const res = await RestClient.request({
-      url: '/api/auth',
-      data,
-      method: 'POST',
-    })
-
-    if (!res?.id || res?.id !== httpCodes.ok.id) {
-      if (res?.id === httpCodes.accepted.id) return res
-      throw res
+/**
+ * @param {{ dispatch: Dispatch }} params - Redux parameters
+ * @returns {Middleware} - Unauthenticated middleware
+ */
+export const unauthenticatedMiddleware =
+  ({ dispatch }) =>
+  (next) =>
+  (action) => {
+    if (isRejectedWithValue(action) && action.payload.status === 401) {
+      dispatch(actions.logout(T.SessionExpired))
     }
 
-    return res?.data
-  },
-  /**
-   * @returns {object} Information about user authenticated
-   * @throws Fails when response isn't code 200
-   */
-  getUser: async () => {
-    const res = await RestClient.request({ url: '/api/user/info' })
-
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-    return res?.data?.USER ?? {}
-  },
-}
+    return next(action)
+  }

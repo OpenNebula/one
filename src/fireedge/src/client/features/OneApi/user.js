@@ -192,6 +192,12 @@ const userApi = oneApi.injectEndpoints({
               user && (user.GID = group)
             })
           )
+
+          dispatch(
+            userApi.util.updateQueryData('getUser', id, (draftUser) => {
+              draftUser.GID = group
+            })
+          )
         } catch {}
       },
     }),

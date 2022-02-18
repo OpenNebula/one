@@ -14,29 +14,38 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
 
-import * as actions from 'client/features/Auth/actions'
-import { name as authSlice } from 'client/features/Auth/slice'
-import apiGroup from 'client/features/OneApi/group'
-import apiSystem from 'client/features/OneApi/system'
-import { RESOURCE_NAMES } from 'client/constants'
+import { name as generalSlice } from 'client/features/General/slice'
+import { name as authSlice, actions } from 'client/features/Auth/slice'
+import groupApi from 'client/features/OneApi/group'
+import systemApi from 'client/features/OneApi/system'
+import { _APPS, RESOURCE_NAMES, ONEADMIN_ID } from 'client/constants'
+import { ResourceView } from 'client/apps/sunstone/routes'
+
+const APPS_WITH_VIEWS = [_APPS.sunstone.name].map((app) => app.toLowerCase())
+
+const appNeedViews = () => {
+  const { appTitle } = useSelector((state) => state[generalSlice], shallowEqual)
+
+  return useMemo(() => APPS_WITH_VIEWS.includes(appTitle), [appTitle])
+}
+
+// --------------------------------------------------------------
+// Authenticate Hooks
+// --------------------------------------------------------------
 
 export const useAuth = () => {
   const auth = useSelector((state) => state[authSlice], shallowEqual)
-  const { user, jwt, view, isLoginInProgress } = auth
+  const { jwt, user, view, settings, isLoginInProgress } = auth
 
-  const { data: views } = apiSystem.endpoints.getSunstoneViews.useQuery(
-    undefined,
-    { skip: !jwt }
-  )
+  const waitViewToLogin = appNeedViews() ? !!view : true
 
-  const { data: userGroups } = apiGroup.endpoints.getGroups.useQuery(
+  const { data: authGroups } = groupApi.endpoints.getGroups.useQueryState(
     undefined,
     {
-      skip: !jwt,
+      skip: !jwt || !user?.GROUPS?.ID,
       selectFromResult: ({ data: groups = [] }) => ({
         data: [user?.GROUPS?.ID]
           .flat()
@@ -46,52 +55,62 @@ export const useAuth = () => {
     }
   )
 
-  const isLogged = !!jwt && !!userGroups?.length && !isLoginInProgress
-
-  /**
-   * Looking for resource view of user authenticated.
-   *
-   * @param {RESOURCE_NAMES} resourceName - Name of resource
-   * @returns {{
-   * resource_name: string,
-   * actions: object[],
-   * filters: object[],
-   * info-tabs: object,
-   * dialogs: object[]
-   * }} Returns view of resource
-   */
-  const getResourceView = useCallback(
-    (resourceName) =>
-      views?.[view]?.find(
-        ({ resource_name: name }) =>
-          String(name).toLowerCase() === String(resourceName).toLowerCase()
-      ),
-    [view]
+  return useMemo(
+    () => ({
+      ...auth,
+      user,
+      isOneAdmin: user?.ID === ONEADMIN_ID,
+      groups: authGroups,
+      // Merge user settings with the existing one
+      settings: { ...settings, ...(user?.TEMPLATE?.FIREEDGE ?? {}) },
+      isLogged:
+        !!jwt &&
+        !!user &&
+        !!authGroups?.length &&
+        !isLoginInProgress &&
+        waitViewToLogin,
+    }),
+    [user, jwt, isLoginInProgress, authGroups, auth, waitViewToLogin]
   )
-
-  return {
-    ...auth,
-    groups: userGroups,
-    isLogged,
-    getResourceView,
-    views,
-  }
 }
 
 export const useAuthApi = () => {
   const dispatch = useDispatch()
 
-  const unwrapDispatch = useCallback(
-    (action) => dispatch(action).then(unwrapResult),
-    [dispatch]
+  return {
+    stopFirstRender: () => dispatch(actions.stopFirstRender()),
+    logout: () => dispatch(actions.logout()),
+    changeView: (view) => dispatch(actions.changeView(view)),
+    changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
+  }
+}
+
+// --------------------------------------------------------------
+// View Hooks
+// --------------------------------------------------------------
+
+export const useViews = () => {
+  const { jwt, view } = useSelector((state) => state[authSlice], shallowEqual)
+
+  const { data: views } = systemApi.endpoints.getSunstoneViews.useQueryState(
+    undefined,
+    { skip: !jwt }
   )
 
-  return {
-    login: (user) => unwrapDispatch(actions.login(user)),
-    getAuthUser: () => dispatch(actions.getUser()),
-    changeGroup: (group) => unwrapDispatch(actions.changeGroup(group)),
-    logout: () => dispatch(actions.logout()),
+  /**
+   * Looking for resource view of user authenticated.
+   *
+   * @param {RESOURCE_NAMES} resourceName - Name of resource
+   * @returns {ResourceView} Returns view of resource
+   */
+  const getResourceView = useCallback(
+    (resourceName) =>
+      views?.[view]?.find(
+        ({ resource_name: name }) =>
+          `${name}`.toLowerCase() === `${resourceName}`.toLowerCase()
+      ),
+    [view]
+  )
 
-    changeView: (view) => dispatch(actions.changeView(view)),
-  }
+  return useMemo(() => ({ getResourceView, views, view }), [views, view])
 }

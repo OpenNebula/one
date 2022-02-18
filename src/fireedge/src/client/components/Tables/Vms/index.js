@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useState, useEffect, useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -43,7 +43,7 @@ const VmsTable = (props) => {
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const [totalData, setTotalData] = useState(() => [])
   const [args, setArgs] = useState(() => INITIAL_ARGS)
   const { data, isSuccess, isFetching } = useGetVmsQuery(args, {

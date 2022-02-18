@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 
 import { MenuItem, MenuList, Link } from '@mui/material'
 import { ProfileCircled as UserIcon } from 'iconoir-react'
@@ -28,7 +28,7 @@ import { T, APPS, APP_URL } from 'client/constants'
 /**
  * Menu with actions about App: signOut, etc.
  *
- * @returns {JSXElementConstructor} Returns user actions list
+ * @returns {ReactElement} Returns user actions list
  */
 const User = () => {
   const { user } = useAuth()
