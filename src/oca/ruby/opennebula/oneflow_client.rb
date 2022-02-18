@@ -319,10 +319,21 @@ module Service
 
     class Client
         def initialize(opts={})
+            endpoint  = '/.one/oneflow_endpoint'
             @username = opts[:username] || ENV['ONEFLOW_USER']
             @password = opts[:password] || ENV['ONEFLOW_PASSWORD']
 
-            url = opts[:url] || ENV['ONEFLOW_URL'] || 'http://localhost:2474'
+            if opts[:url]
+                url = opts[:url]
+            elsif ENV['ONEFLOW_URL']
+                url = ENV['ONEFLOW_URL']
+            elsif ENV['HOME'] && File.exists?(ENV['HOME'] + endpoint)
+                url = File.read(ENV['HOME'] + endpoint).strip
+            elsif File.exists?('/var/lib/one/.one/oneflow_endpoint')
+                url = File.read('/var/lib/one/.one/oneflow_endpoint').strip
+            else
+                url = 'http://localhost:2474'
+            end
 
             if @username.nil? && @password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
