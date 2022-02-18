@@ -2307,6 +2307,11 @@ end
             detach_disk_array = []
             extra_config      = []
             keys = disk_keys.invert
+
+            if keys.nil? || keys.empty?
+                raise 'Unable to find disk mapping information on vmx file.'
+            end
+
             ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
             disks_each(:detached?) do |d|
                 key = d.key.to_s
