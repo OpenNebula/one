@@ -578,7 +578,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 "#{ENV['HOME']}/.one/one_endpoint"
         end
 
-        return unless zone['TEMPLATE/ONEFLOW_ENDPOINT']
+        return 0 unless zone['TEMPLATE/ONEFLOW_ENDPOINT']
 
         # Set ONEFLOW_ENDPOINT
         if temporary_zone
