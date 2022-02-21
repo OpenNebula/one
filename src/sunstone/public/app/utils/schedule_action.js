@@ -311,7 +311,7 @@ define(function (require) {
                     <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"4\"><label for=\"thu\">" + Locale.tr("Th") + "</label>\
                     <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"5\"><label for=\"fri\">" + Locale.tr("Fr") + "</label>\
                     <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"6\"><label for=\"sat\">" + Locale.tr("Sa") + "</label>\
-                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"7\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
+                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"0\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
                 </div>";
           break;
         case "month":
