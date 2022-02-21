@@ -201,6 +201,8 @@ class Cluster
 
     # Retrieve all known VM states from vCenter
     def vcenter_vms_state
+        vc_uuid = @vic.vim.serviceContent.about.instanceUuid
+
         view = @vic.vim
                    .serviceContent
                    .viewManager
@@ -244,7 +246,7 @@ class Cluster
         result.each do |r|
             next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
 
-            vms_hash[r.obj._ref] = r.to_hash
+            vms_hash[r.obj._ref + '_' + vc_uuid] = r.to_hash
         end
 
         view.DestroyView
