@@ -46,7 +46,9 @@ const getTabComponent = (tabName) =>
 
 const VmTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading } = useGetVmQuery(id)
+  const { isLoading } = useGetVmQuery(id, {
+    refetchOnMountOrArgChange: 10,
+  })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM

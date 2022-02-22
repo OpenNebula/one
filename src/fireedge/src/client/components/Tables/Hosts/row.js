@@ -20,12 +20,11 @@ import { HostCard } from 'client/components/Cards'
 
 const Row = memo(
   ({ original, ...props }) => {
-    const state = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((host) => +host.ID === +original.ID),
+    const detail = hostApi.endpoints.getHost.useQueryState(original.ID, {
+      selectFromResult: ({ data }) => data,
     })
 
-    return <HostCard host={state ?? original} rootProps={props} />
+    return <HostCard host={detail ?? original} rootProps={props} />
   },
   (prev, next) => prev.className === next.className
 )

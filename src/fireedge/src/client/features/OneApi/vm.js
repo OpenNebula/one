@@ -72,7 +72,7 @@ const vmApi = oneApi.injectEndpoints({
       transformResponse: (data) => [data?.VM_POOL?.VM ?? []].flat(),
       providesTags: (vms) =>
         vms
-          ? [vms.map(({ ID }) => ({ type: VM_POOL, id: `${ID}` })), VM_POOL]
+          ? [...vms.map(({ ID }) => ({ type: VM_POOL, id: `${ID}` })), VM_POOL]
           : [VM_POOL],
     }),
     getVm: builder.query({

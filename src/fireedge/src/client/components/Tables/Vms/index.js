@@ -39,14 +39,24 @@ const DEFAULT_DATA_CY = 'vms'
  * @returns {ReactElement} Virtual Machines table
  */
 const VmsTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    initialState = {},
+    ...rest
+  } = props ?? {}
+
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+  initialState.filters = useMemo(
+    () => initialState.filters ?? [],
+    [initialState.filters]
+  )
 
   const { view, getResourceView } = useViews()
   const [totalData, setTotalData] = useState(() => [])
   const [args, setArgs] = useState(() => INITIAL_ARGS)
-  const { data, isSuccess, isFetching } = useGetVmsQuery(args, {
+  const { data, isSuccess, refetch, isFetching } = useGetVmsQuery(args, {
     refetchOnMountOrArgChange: true,
   })
 
@@ -69,7 +79,8 @@ const VmsTable = (props) => {
   }, [isFetching])
 
   useEffect(() => {
-    data &&
+    isSuccess &&
+      data &&
       setTotalData((prev) => {
         const notDuplicatedData = data.filter(
           ({ ID }) => !prev.find((vm) => vm.ID === ID)
@@ -77,18 +88,26 @@ const VmsTable = (props) => {
 
         return prev.concat(notDuplicatedData).sort((a, b) => b.ID - a.ID)
       })
-  }, [data])
+  }, [isSuccess])
 
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => totalData, [totalData])}
+      data={useMemo(
+        () => totalData?.filter(({ STATE }) => STATE !== '6'),
+        [totalData]
+      )}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={() => setArgs(INITIAL_ARGS)}
+      refetch={() => {
+        totalData?.length >= +INTERVAL_ON_FIRST_RENDER
+          ? setArgs(INITIAL_ARGS)
+          : refetch()
+      }}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VmRow}
+      initialState={initialState}
       {...rest}
     />
   )
