@@ -802,7 +802,8 @@ module VCenterDriver
                     found_vm =
                         host_vms
                         .select do |vm|
-                            vm['DEPLOY_ID'].eql? vm_ref
+                            vm['DEPLOY_ID'] == vm_ref ||
+                            vm['DEPLOY_ID'] == VIHelper.get_deploy_id(vm_ref)
                         end.first
                     id = found_vm['ID'] if found_vm
 
