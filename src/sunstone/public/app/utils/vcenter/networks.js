@@ -126,9 +126,9 @@ define(function(require) {
                 "bAutoWidth": false,
                 "bSortClasses" : false,
                 "bDeferRender": false,
-                "ordering": false,
                 "aoColumnDefs": [
-                {"sWidth": "35px", "aTargets": [0]},
+                  {"bSortable": false, "aTargets": [0, 2]},
+                  {"sWidth": "35px", "aTargets": [0]},
                 ],
               },
               "customTrListener": function(tableObj, tr){ return false; }

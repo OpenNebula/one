@@ -19,6 +19,11 @@
     <input type="checkbox" class="check_item" style="margin-top: 5px"/>
   </td>
   <td>
+    <span class="hidden">
+      {{data.name}}
+      - <i>{{data.type}}</i>
+      {{#if data.vlan}} - {{tr "VLAN"}}: <i><span>{{data.vlan}}</span></i>{{/if}}
+    </span>
     <div class="accordion_advanced vcenter_row">
       <div class="row">
         <div class="large-12 columns">

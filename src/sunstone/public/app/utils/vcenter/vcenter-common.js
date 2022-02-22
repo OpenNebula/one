@@ -62,6 +62,11 @@ define(function(require) {
         $(".accordion_advanced_toggle", opts.context).click();
       }
     });
+
+    $(".vcenter-table-search", opts.context).on("input", function() {
+      opts.table.dataTable().fnFilter($(this).val());
+      return false;
+    });
   }
 
   function _recountCheckboxes(opts) {
