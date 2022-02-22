@@ -95,7 +95,6 @@ const EnhancedTable = ({
       autoResetExpanded: false,
       autoResetFilters: false,
       autoResetGroupBy: false,
-      autoResetPage: false,
       autoResetRowState: false,
       autoResetSelectedRow: false,
       autoResetSelectedRows: false,
