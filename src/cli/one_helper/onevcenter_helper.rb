@@ -27,9 +27,10 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     module VOBJECT
 
         DATASTORE = 1
-        TEMPLATE = 2
-        NETWORK = 3
-        IMAGE = 4
+        TEMPLATE  = 2
+        NETWORK   = 3
+        IMAGE     = 4
+        HOST      = 5
 
     end
 
@@ -84,6 +85,12 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             :struct  => %w[IMAGE_LIST IMAGE],
             :columns => { :IMID => 5, :REF => 35, :PATH => 60 },
             :cli     => [:host, :datastore],
+            :dialogue => ->(arg) {}
+        },
+        VOBJECT::HOST => {
+            :struct  => %w[HOST_LIST HOST],
+            :columns => { :DATACENTER => 10, :NAME => 30, :REF => 35 },
+            :cli     => [],
             :dialogue => ->(arg) {}
         }
     }
@@ -143,6 +150,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             @vobject = VOBJECT::NETWORK
         when 'images'
             @vobject = VOBJECT::IMAGE
+        when 'hosts'
+            @vobject = VOBJECT::HOST
         else
             puts "unknown #{type} type option"
             puts '  -o options:'
@@ -150,6 +159,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             puts '      templates'
             puts '      networks'
             puts '      images'
+            puts '      hosts'
 
             exit 0
         end
@@ -186,6 +196,28 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         }
     end
 
+    # General method to list vCenter objects
+    #
+    # @param options [Hash] User CLI options
+    # @param args    [Hash] Search arguments
+    def list(options, args)
+        if !options[:host]
+            # This case is to list available hosts, instead other object
+            list_hosts(options)
+        else
+            vi_client = VCenterDriver::VIClient.new_from_host(
+                options[:host]
+            )
+            importer = VCenterDriver::VcImporter.new_child(
+                @client,
+                vi_client,
+                options[:object]
+            )
+
+            list_object(options, importer.retrieve_resources(args))
+        end
+    end
+
     # This method will print a list for a vcenter_resource.
     #
     def list_object(options, list)
@@ -196,6 +228,31 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         show_header(vcenter_host)
 
         table.show(list, options)
+    end
+
+    # List unimported hosts
+    #
+    # @param options [Hash] User CLI options
+    def list_hosts(options)
+        con_ops   = connection_options('hosts', options)
+        vi_client = VCenterDriver::VIClient.new(con_ops)
+        dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
+        hpool     = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool,
+                                                     false)
+
+        VCenterDriver::VIHelper.set_client(nil, @client)
+
+        list  = []
+        hosts = dc_folder.get_unimported_hosts(hpool, vi_client.vim.host)
+
+        hosts.each do |key, value|
+            value.each do |v|
+                v[:datacenter] = key
+                list << v
+            end
+        end
+
+        format_list.show(hosts, options)
     end
 
     # handles :cli section of TABLE
@@ -252,12 +309,18 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     def format_list
         config = TABLE[@vobject][:columns]
         CLIHelper::ShowTable.new do
+            column :DATACENTER,
+                   'Object datacenter',
+                   :size => config[:DATACENTER] || 15 do |d|
+                d[:datacenter]
+            end
+
             column :IMID, 'identifier for ...', :size=>config[:IMID] || 4 do |d|
                 d[:import_id]
             end
 
             column :REF, 'ref', :left, :adjust, :size=>config[:REF] || 15 do |d|
-                d[:ref]
+                d[:ref] || d[:cluster_ref]
             end
 
             column :NAME, 'Name', :left, :expand,

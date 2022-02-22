@@ -66,17 +66,56 @@ CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    ############################################################################
+    # Authentication Options
+    ############################################################################
+
+    VCENTER = {
+        :name  => 'vcenter',
+        :large => '--vcenter vCenter',
+        :description => 'The vCenter hostname',
+        :format => String
+    }
+
+    USER = {
+        :name  => 'vuser',
+        :large => '--vuser username',
+        :description => 'The username to interact with vCenter',
+        :format => String
+    }
+
+    PASS = {
+        :name  => 'vpass',
+        :large => '--vpass password',
+        :description => 'The password for the user',
+        :format => String
+    }
+
+    PORT = {
+        :name  => 'port',
+        :short => '-p port',
+        :large => '--port port',
+        :format => String,
+        :description => 'vCenter API port, defaults to 443 (SSL) or 80'
+    }
+
+    AUTH_OPTS = [VCENTER, USER, PASS, PORT]
+
+    ############################################################################
+    # List & Import
+    ############################################################################
+
     OBJECT = {
-        :name => 'object',
+        :name  => 'object',
         :short => '-o object',
         :large => '--object object ',
         :format => String,
         :description => 'vCenter object: [datastores, templates,'\
-                        'networks, datastores, images]'
+                        'networks, datastores, images, hosts]'
     }
 
     HOST = {
-        :name => 'host',
+        :name  => 'host',
         :short => '-h host_id',
         :large => '--host host_id',
         :format => String,
@@ -84,7 +123,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     DATASTORE = {
-        :name => 'datastore',
+        :name  => 'datastore',
         :short => '-d datastore_id',
         :large => '--datastore datastore_id',
         :format => String,
@@ -92,82 +131,62 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     CONFIG = {
-        :name => 'configuration',
+        :name  => 'configuration',
         :large => '--config file',
         :format => String,
         :description => 'Configuration file for custom options'
     }
 
     LINKED_CLONE = {
-        :name => 'linked_clone',
+        :name  => 'linked_clone',
         :large => '--linked_clone linked_clone',
         :format => String,
         :description => 'Import template as linked clone, 0/1'
     }
 
     COPY = {
-        :name => 'copy',
+        :name  => 'copy',
         :large => '--copy copy',
         :format => String,
         :description => 'Import template as copy, 0/1'
     }
 
     NAME = {
-        :name => 'name',
+        :name  => 'name',
         :large => '--name name',
         :format => String,
         :description => 'Import template copy with name'
     }
 
     FOLDER = {
-        :name => 'folder',
+        :name  => 'folder',
         :large => '--folder folder',
         :format => String,
         :description => 'Import template in folder'
     }
 
-    VCENTER = {
-        :name => 'vcenter',
-        :large => '--vcenter vCenter',
-        :description => 'The vCenter hostname',
-        :format => String
-    }
-
-    USER = {
-        :name => 'vuser',
-        :large => '--vuser username',
-        :description => 'The username to interact with vCenter',
-        :format => String
-    }
-
-    PASS = {
-        :name => 'vpass',
-        :large => '--vpass password',
-        :description => 'The password for the user',
-        :format => String
-    }
-
-    PORT = {
-        :name => 'port',
-        :short => '-p port',
-        :large => '--port port',
-        :format => String,
-        :description => 'vCenter API port, defaults to 443 (SSL) or 80'
-    }
-
     USE_DEFAULTS = {
-        :name => 'defaults',
+        :name  => 'defaults',
         :large => '--use-defaults',
         :description => 'Use defaults for answers to questions',
         :format => String
     }
 
     ALL = {
-        :name => 'all',
+        :name  => 'all',
         :large => '--all',
         :description => 'Import all list',
         :format => String
     }
+
+    CLUSTER_REF = {
+        :name  => 'cluster_ref',
+        :large => '--cluster-ref cluster_ref',
+        :format => String,
+        :description => 'Cluster ref to import'
+    }
+
+    LIST_OPTS = [OBJECT, HOST, DATASTORE, CLIHelper::CSV_OPT] + AUTH_OPTS
 
     ############################################################################
     # Global Options
@@ -189,29 +208,26 @@ CommandParser::CmdParser.new(ARGV) do
            - listing available images:
 
              onevcenter list -o datastores -h <host_id> -d <ds-img_id>
+
+           - listing available clusters:
+
+             onevcenter list -o hosts --vcenter <IP> --vuser <U> --vpass <P>
     EOT
 
-    command :list,
-            list_desc,
-            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS,
-                         CLIHelper::CSV_OPT] do
+    command :list, list_desc, :options => LIST_OPTS do
         begin
             args = helper.parse_opts(options)
+
             args[:filter] = true
-            args[:short] = true
-            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter
-                       .new_child(helper.client, vi_client, options[:object])
+            args[:short]  = true
 
-            list = importer.retrieve_resources(args)
-
-            helper.list_object(options, list)
+            helper.list(options, args)
         rescue StandardError => e
             STDERR.puts e.message
             exit 1
         end
 
-        exit 0
+        0
     end
 
     list_desc = <<-EOT.unindent
@@ -221,30 +237,22 @@ CommandParser::CmdParser.new(ARGV) do
           - listing networks including uplinks:
 
             onevcenter list_all -o networks -h <host_id>
-
     EOT
 
-    command :list_all,
-            list_desc,
-            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS,
-                         CLIHelper::CSV_OPT] do
+    command :list_all, list_desc, :options => LIST_OPTS do
         begin
             args = helper.parse_opts(options)
+
             args[:filter] = false
-            args[:short] = true
-            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter
-                       .new_child(helper.client, vi_client, options[:object])
+            args[:short]  = true
 
-            list = importer.retrieve_resources(args)
-
-            helper.list_object(options, list)
+            helper.list(options, args)
         rescue StandardError => e
             STDERR.puts e.message
             exit 1
         end
 
-        exit 0
+        0
     end
 
     import_desc = <<-EOT.unindent
@@ -265,21 +273,22 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :import,
-            import_desc, [:oid, nil],
+            import_desc,
+            [:oid, nil],
             :options => [OBJECT, HOST, DATASTORE] do
         begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client,
-                                                           vi_client,
-                                                           options[:object])
+            importer  = VCenterDriver::VcImporter.new_child(helper.client,
+                                                            vi_client,
+                                                            options[:object])
 
             importer.retrieve_resources(helper.parse_opts(options))
             indexes = importer.get_indexes(args.first)
 
             if indexes.nil?
                 raise "Could not get any unimported #{options[:object]}"\
-                    " resources info in host: #{options[:host]} with"\
-                    " this input: #{args.first}"
+                      " resources info in host: #{options[:host]} with"\
+                      " this input: #{args.first}"
             end
 
             importer.process_import(indexes, options) do |object_info|
@@ -292,21 +301,25 @@ CommandParser::CmdParser.new(ARGV) do
             exit 1
         end
 
-        exit 0
+        0
     end
 
     command :import_defaults,
             import_desc,
             [:oid, nil],
-            :options => [
-                OBJECT, HOST, DATASTORE, CONFIG,
-                FOLDER, LINKED_CLONE, COPY, NAME
-            ] do
+            :options => [OBJECT,
+                         HOST,
+                         DATASTORE,
+                         CONFIG,
+                         FOLDER,
+                         LINKED_CLONE,
+                         COPY,
+                         NAME] do
         begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client,
-                                                           vi_client,
-                                                           options[:object])
+            importer  = VCenterDriver::VcImporter.new_child(helper.client,
+                                                            vi_client,
+                                                            options[:object])
 
             if options[:object] == 'networks' && !args.first.nil?
                 indexes = args.first
@@ -316,34 +329,35 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             if options[:object] == 'templates' &&
-              indexes &&
-              indexes.split(',').length == 1
+               indexes &&
+               indexes.split(',').length == 1
                 opts = {
-                    :type => 'default',
+                    :type         => 'default',
                     :linked_clone => '0',
-                    :copy => '0',
-                    :name => '',
-                    :folder => ''
+                    :copy         => '0',
+                    :name         => '',
+                    :folder       => ''
                 }
+
                 if options[:linked_clone]
                     opts[:linked_clone] = options[:linked_clone]
                 end
-                opts[:copy] = options[:copy] if options[:copy]
-                opts[:name] = options[:name] if options[:name]
+
+                opts[:copy]   = options[:copy] if options[:copy]
+                opts[:name]   = options[:name] if options[:name]
                 opts[:folder] = options[:folder] if options[:folder]
 
                 options[indexes] = opts
             end
 
             importer.process_import(indexes, options)
-
             importer.stdout
         rescue StandardError => e
             STDERR.puts e.message
             exit 1
         end
 
-        exit 0
+        0
     end
 
     ############################################################################
@@ -355,11 +369,12 @@ CommandParser::CmdParser.new(ARGV) do
         Example:
            - Get available clusters:
 
-             onevcenter hosts --vcenter <vcenter> --vuser <vcenter_user> --vpass <password>
+             onevcenter hosts --vcenter <vcenter> --vuser <user> --vpass <pass>
     EOT
+
     command :hosts,
             host_desc,
-            :options => [VCENTER, USER, PASS, USE_DEFAULTS, PORT] do
+            :options => [CLUSTER_REF, USE_DEFAULTS] + AUTH_OPTS do
         con_ops = helper.connection_options('Hosts', options)
 
         begin
@@ -368,7 +383,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit 1
         end
 
-        exit 0
+        0
     end
 
     ############################################################################
@@ -383,8 +398,9 @@ CommandParser::CmdParser.new(ARGV) do
 
            onevcenter cleargs 15
     EOT
+
     command :cleartags, cleartags_desc, :vmid do
-        vmid = args[0]
+        vmid       = args[0]
         remove_str = "\n        onevm recover --delete-db #{vmid}" \
                      "\n\nAfter a monitoring cycle, the VM will appear "\
                      'as a Wild VM for reimport.'
@@ -401,8 +417,8 @@ CommandParser::CmdParser.new(ARGV) do
                 puts remove_str
                 exit 0
             end
-            puts '.'
 
+            puts '.'
             puts 'The following keys will be removed:'
             keys.each {|key| puts "\t- #{key}" }
 
@@ -411,8 +427,10 @@ CommandParser::CmdParser.new(ARGV) do
             STDERR.puts "Couldn't clear VM tags. Reason: #{e.message}"
             exit 1
         end
+
         puts "\nKeys removed from VM. Is safe to remove it"
         puts remove_str
-        exit 0
+
+        0
     end
 end

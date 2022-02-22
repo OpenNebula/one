@@ -279,6 +279,15 @@ module VCenterDriver
                 rs = dc_folder.get_unimported_hosts(hpool,
                                                     vcenter_instance_name)
 
+                # Select just cluster with this reference
+                if options[:cluster_ref]
+                    rs.each do |_, clusters|
+                        clusters.select! do |c|
+                            c[:cluster_ref] == options[:cluster_ref]
+                        end
+                    end
+                end
+
                 STDOUT.print "done!\n\n"
 
                 rs.each do |dc, clusters|
