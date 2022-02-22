@@ -42,6 +42,7 @@ PKG_DEB="curl dbus openssh-server"
 PKG_RPM="openssh-server"
 PKG_CENTOS6="epel-release $PKG_RPM"
 PKG_FEDORA="network-scripts $PKG_RPM"
+PKG_ORACLE8="oracle-release-el8 $PKG_RPM"
 
 #Default DNS server to download the packages
 DNS_SERVER="8.8.8.8"
@@ -202,7 +203,7 @@ rm /dev/random /dev/urandom
 EOC
 )
     ;;
-*centos/7*)
+*centos/7*|*oracle/7*)
     terminal="/bin/bash"
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
@@ -220,7 +221,7 @@ rm /dev/random /dev/urandom
 EOC
 )
     ;;
-*centos/8*)
+*centos/8*|*almalinux/8*|*rockylinux/8*)
     terminal="/bin/bash"
     commands=$(cat <<EOC
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
@@ -229,6 +230,25 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
 yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*oracle/8*)
+    terminal="/bin/bash"
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_ORACLE8 -y >> /var/log/chroot.log 2>&1
+dnf makecache >> /var/log/chroot.log 2>&1
 
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
@@ -256,7 +276,7 @@ rm /dev/random /dev/urandom
 EOC
 )
     ;;
-*fedora/29*|*fedora/30*)
+*fedora/29*|*fedora/3*)
     terminal="/bin/bash"
     commands=$(cat <<EOC
 rm /etc/resolv.conf
