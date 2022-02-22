@@ -1,8 +1,0 @@
----
-
-- name: Install Python 2 (Ubuntus)
-  raw: if [ -e /etc/debian_version ] && ! python --version >/dev/null 2>&1 && lsb_release -s -i | grep -i Ubuntu && lsb_release -s -r | grep -v '^2'; then sudo -n apt-get update; sudo -n apt-get install -y python-minimal; fi
-  register: result
-  until: result is succeeded
-  retries: 3
-  delay: 10
