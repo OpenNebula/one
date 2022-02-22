@@ -56,8 +56,11 @@ class Container
         error   = false
         mounted = []
 
+        lxcrc = @one.lxcrc
+        lxcrc.merge!(:id_map => 0) if @one.privileged?
+
         @one.disks.each do |disk|
-            if disk.mount(@one.lxcrc)
+            if disk.mount(lxcrc)
                 mounted << disk
             else
                 error = true

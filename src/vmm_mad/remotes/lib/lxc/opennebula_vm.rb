@@ -133,7 +133,7 @@ class LXCVM < OpenNebulaVM
         # User mapping
         # rubocop:disable Layout/LineLength
 
-        if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('NO').zero?
+        if privileged?
             @lxcrc[:id_map] = 0
 
             lxc['lxc.include'] << "#{@lxcrc[:profiles_location]}/profile_privileged"
@@ -180,6 +180,10 @@ class LXCVM < OpenNebulaVM
         end
 
         adisks
+    end
+
+    def privileged?
+        @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('NO').zero?
     end
 
     private
@@ -323,10 +327,13 @@ class Disk
                 "#{@bindpoint} context none ro,rbind,create=dir,optional 0 0" }
 
         when :rootfs
-            ropt = @lxcrc_mopts[:rootfs]
+            ropt = []
+
+            ropt << 'ro' if @read_only
+            ropt << @lxcrc_mopts[:rootfs]
 
             root = { 'lxc.rootfs.path' => @bindpoint }
-            root['lxc.rootfs.options'] = ropt unless ropt.nil? || ropt.empty?
+            root['lxc.rootfs.options'] = opt_sanitize(ropt) unless ropt.empty?
 
             root
 
@@ -336,16 +343,13 @@ class Disk
             opts << 'ro' if @read_only
             opts << @lxcrc_mopts[:disk]
 
-            opts.delete_if {|o| o.nil? || o.empty? }
-            opt_str = opts.join(',')
-
             path  = @xml['TARGET']
 
             point = @lxcrc_mopts[:mountpoint].sub('$id', @id.to_s)
             point = path[1..-1] unless path.empty? || path[0] != '/'
 
             { 'lxc.mount.entry' =>
-                "#{@bindpoint} #{point} none #{opt_str} 0 0" }
+                "#{@bindpoint} #{point} none #{opt_sanitize(opts)} 0 0" }
         else
             raise 'invalid disk type'
         end
@@ -395,6 +399,14 @@ class Disk
 
         @mountpoint = "#{datastore}/#{@vm_id}/mapper/disk.#{@id}"
         @bindpoint = "#{LXCVM::CONTAINER_FS_PATH}/#{@vm_id}/disk.#{@id}"
+    end
+
+    # Returns a , separated list of options. Removes empty or nil elements
+    def opt_sanitize(opts)
+        return unless opts.class == Array
+
+        opts.delete_if {|o| o.nil? || o.empty? }
+        opts.join(',')
     end
 
     # Returns the associated linux device for the mountpoint
