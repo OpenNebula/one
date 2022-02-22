@@ -480,7 +480,7 @@ module OneProvision
                 match = match.split('.')
 
                 ################################################################
-                # Special evaluation for keys provision, provison_id and idx
+                # Special evaluation for keys provision, provision_id and idx
                 ################################################################
 
                 if match.size == 1 && !Resource::S_EVAL_KEYS.include?(match[0])

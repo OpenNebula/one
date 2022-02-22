@@ -24,7 +24,7 @@ networks:
     provision:
       count: "${input.number_public_ips}"
     ar:
-      - provison_id: "${provision_id}"
+      - provision_id: "${provision_id}"
         size: '1'
         ipam_mad: 'aws'
 
