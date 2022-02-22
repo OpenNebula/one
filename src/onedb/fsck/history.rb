@@ -39,6 +39,7 @@ module OneDBFsck
     # Check that etime is not 0 in DONE vms
     def check_history_opened
         history_fix = @fixes_history = []
+        @showback_delete = Set[]
 
         # DATA: go through all bad history records (etime=0) and ask
         # DATA: new time values to fix them
@@ -76,13 +77,13 @@ module OneDBFsck
             row[:etime] = etime
 
             history_fix.push(row)
+            @showback_delete.add(row[:vid])
         end
     end
 
     # Check that RETIME is 0 and ETIME is not 0
     def check_history_retime
         history_fix = @fixes_history
-        @showback_delete = []
 
         # DATA: go through all history records with ETIME != 0
         # DATA: check if RETIME != 0
@@ -107,20 +108,7 @@ module OneDBFsck
                 row[:body] = history_doc.root.to_s
 
                 history_fix.push(row)
-            end
-        end
-
-        # DATA: Find all showback rows with hours == 0
-        @db.fetch('SELECT * ' \
-                  'FROM vm_showback') do |row|
-            showback_doc = nokogiri_doc(row[:body])
-            hours = showback_doc.root.at_xpath('HOURS').text.to_f
-
-            if hours == 0.0
-                log_error("Showback for VM #{row[:vmid]} year # #{row[:year]} "\
-                    "month # #{row[:month]} is 0 hours, deleting")
-
-                @showback_delete.push(row)
+                @showback_delete.add(row[:vid])
             end
         end
     end
@@ -136,12 +124,15 @@ module OneDBFsck
             end
         end
 
-        # DATA: FIX: Remove showback values with 0 hours
+        # DATA: FIX: Remove possibly corrupte showback values
+        unless @showback_delete.empty?
+            log_error('Removing possibly corrupted records from VM showback '\
+                "please run 'oneshowback calculate` to recalculate the showback")
+        end
+
         @db.transaction do
-            @showback_delete.each do |row|
-                @db[:vm_showback].where(:vmid => row[:vmid],
-                                        :year => row[:year],
-                                        :month => row[:month]).delete
+            @showback_delete.each do |vid|
+                @db[:vm_showback].where(:vmid => vid).delete
             end
         end
     end
