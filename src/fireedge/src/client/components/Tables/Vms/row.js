@@ -20,12 +20,11 @@ import { VirtualMachineCard } from 'client/components/Cards'
 
 const Row = memo(
   ({ original, ...props }) => {
-    const state = vmApi.endpoints.getVms.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((vm) => +vm.ID === +original.ID),
+    const detail = vmApi.endpoints.getVm.useQueryState(original.ID, {
+      selectFromResult: ({ data }) => data,
     })
 
-    return <VirtualMachineCard vm={state ?? original} rootProps={props} />
+    return <VirtualMachineCard vm={detail ?? original} rootProps={props} />
   },
   (prev, next) => prev.className === next.className
 )

@@ -99,7 +99,7 @@ const UpdateFromSocket =
         dispatch(
           updateQueryData((draft) => {
             const index = draft.findIndex(({ ID }) => +ID === +id)
-            index !== -1 && (draft[index] = value)
+            index !== -1 ? (draft[index] = value) : draft.push(value)
           })
         )
 
