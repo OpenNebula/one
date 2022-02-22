@@ -1,10 +1,4 @@
 ---
-
-- hosts: all
-  gather_facts: false
-  roles:
-    - python
-
 - hosts: nodes
   roles:
     - ddc
