@@ -746,7 +746,7 @@ const deleteProvision = (
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
  * @param {number} params.id - host provision ID
- * @param {string} params.action - provison accion host
+ * @param {string} params.action - provision accion host
  * @param {object} userData - user of http request
  * @param {string} userData.user - username
  * @param {string} userData.password - user password

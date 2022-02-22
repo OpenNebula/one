@@ -24,7 +24,7 @@ networks:
     provision:
       count: "${input.number_public_ips}"
     ar:
-      - provison_id: "${provision_id}"
+      - provision_id: "${provision_id}"
         size: '1'
         vultr_ip_type: 'v4'
         ipam_mad: 'vultr'

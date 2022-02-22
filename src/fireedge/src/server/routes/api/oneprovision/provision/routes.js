@@ -36,7 +36,7 @@ const PROVISION_DELETE_RESOURCE = 'provision.delete_resource'
 // actions: poweroff, reboot, resume, update, configure, ssh
 const PROVISION_HOST_ACTION = 'provision.host_action'
 const PROVISION_HOST_CONFIGURE = 'provision.host_configure'
-const PROVISION_ADD_HOST = 'provison.add_host'
+const PROVISION_ADD_HOST = 'provision.add_host'
 const PROVISION_ADD_IP = 'provision.add_ip'
 
 const Actions = {
