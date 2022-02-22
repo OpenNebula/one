@@ -2438,7 +2438,7 @@ end
             if snapshots? || one_snapshots?
                 error_msg =  'Existing sytem snapshots, cannot change disks. '
                 error_msg << 'Please remove all snapshots and try again.'
-                raise error_message
+                raise error_msg
             end
 
             spec_hash     = {}
