@@ -127,7 +127,8 @@ module OneDBFsck
         # DATA: FIX: Remove possibly corrupte showback values
         unless @showback_delete.empty?
             log_error('Removing possibly corrupted records from VM showback '\
-                "please run 'oneshowback calculate` to recalculate the showback")
+                "please run 'oneshowback calculate` to recalculate "\
+                'the showback')
         end
 
         @db.transaction do
