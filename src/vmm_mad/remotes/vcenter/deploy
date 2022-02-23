@@ -85,8 +85,10 @@ begin
 
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
+        deploy[:new] = false
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
+        deploy[:new] = true
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
@@ -127,6 +129,7 @@ begin
             :spec => spec
         ).wait_for_completion
 
+        vm.reference_all_disks
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
         set_running = !deploy_id_valid?(deploy_id)

@@ -1714,8 +1714,13 @@ end
         def sync(deploy = {})
             extraconfig   = []
             device_change = []
+            sync_opt = nil
 
-            disks = sync_disks(:all, false)
+            # Disk are only synced with :all option when VM is first created
+            # NOTE: Detach actions are implemented through TM (not sync)
+            sync_opt = :all if deploy[:new] == true
+
+            disks = sync_disks(sync_opt, false)
             resize_unmanaged_disks
 
             if deploy[:boot] && !deploy[:boot].empty?
@@ -2307,10 +2312,6 @@ end
             detach_disk_array = []
             extra_config      = []
             keys = disk_keys.invert
-
-            if keys.nil? || keys.empty?
-                raise 'Unable to find disk mapping information on vmx file.'
-            end
 
             ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
             disks_each(:detached?) do |d|
@@ -3435,6 +3436,7 @@ end
                 config[:esx_migration_list] = 'Selected_by_DRS'
             end
 
+            vc_vm.reference_all_disks
             vc_vm.migrate(config)
 
             vm.replace({ 'VCENTER_CCR_REF' => ccr_ref })
