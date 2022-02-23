@@ -1247,6 +1247,11 @@ define(function(require) {
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
+  function isKVMVM(element = {}){
+    return Boolean(element.USER_TEMPLATE &&
+      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "kvm");
+  }
+
   function isVMRCSupported(element = {}) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.startvmrc");
     var vmrcSupported = graphicSupported(element, "vnc");
@@ -1266,9 +1271,9 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
-    var isvCenterVM = isVCenterVM(element);
+    var isKVM = isKVMVM(element);
 
-    return (actionEnabled && history && (vncSupported || spiceSupported) && !isvCenterVM)
+    return (actionEnabled && history && (vncSupported || spiceSupported) && isKVM)
       ? {
         hostname: history.HOSTNAME,
         type: element.TEMPLATE.GRAPHICS.TYPE.toLowerCase(),
