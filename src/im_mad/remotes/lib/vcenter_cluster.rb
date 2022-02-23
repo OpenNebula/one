@@ -259,7 +259,13 @@ class Cluster
         vms = {}
         vms_hash.each do |vm_ref, info|
             one_id = -1
-            ids    = vmpool.retrieve_xmlelements("/VM_POOL/VM[DEPLOY_ID = '#{vm_ref}']")
+
+            # Add OR to retrieve VMs that are using old deploy ID
+            ids    = vmpool.retrieve_xmlelements(
+                "/VM_POOL/VM[(DEPLOY_ID = '#{vm_ref}')" \
+                ' or ' \
+                "(DEPLOY_ID = '#{vm_ref.split('_')[0]}')]"
+            )
 
             ids.select do |vm|
                 hid = vm['HISTORY_RECORDS/HISTORY/HID']
