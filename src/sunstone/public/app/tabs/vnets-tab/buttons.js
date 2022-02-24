@@ -34,7 +34,8 @@ define(function(require) {
       type: "create_dialog",
       layout: "create_flatten",
       text:  Locale.tr("Import"),
-      custom_classes: "only-sunstone-list"
+      custom_classes: "only-sunstone-list" + ((config.id_own_federation !== config.zone_id) ? " hide" : ""),
+      alwaysActive: true
     },
     "Network.instantiate_dialog" : {
       type: "create_dialog",
