@@ -74,7 +74,6 @@ define(function(require) {
         var mapJSON = function (element){
           var id = element.VM.ID;
           var value = element.VM;
-          delete value.ID;
           vms[id] = value;
         }
 
