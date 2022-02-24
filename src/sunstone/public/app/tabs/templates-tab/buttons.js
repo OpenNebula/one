@@ -33,7 +33,7 @@ define(function(require) {
       type: "create_dialog",
       text:  Locale.tr("Import"),
       layout: "create_flatten",
-      custom_classes: "only-sunstone-list",
+      custom_classes: "only-sunstone-list" + ((config.id_own_federation !== config.zone_id) ? " hide" : ""),
       alwaysActive: true
     },
     "Template.upload_marketplace_dialog" : {
