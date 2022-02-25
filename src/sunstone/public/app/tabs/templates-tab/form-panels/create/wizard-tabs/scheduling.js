@@ -96,6 +96,9 @@ define(function(require) {
     Foundation.reflow(context, 'tabs');
 
     context.on("change", "input[name='req_select']", function() {
+      that.datastoresTable.updateFn();
+      that.datastoresTable.deselectHiddenResources();
+
       if ($("input[name='req_select']:checked").val() == "host_select") {
         $("div.host_select",    context).show();
         $("div.cluster_select", context).hide();
@@ -113,24 +116,49 @@ define(function(require) {
       WizardFields.fillInput($("#SCHED_DS_RANK", context), this.value);
     });
 
-    var selectOptions = {
-      'selectOptions': {
-        'select_callback': function(aData, options) {
+    var generateCallbacks = function (updateDatastores) {
+      return {
+        select_callback: function() {
+          if (updateDatastores) {
+            that.datastoresTable.updateFn();
+            that.datastoresTable.deselectHiddenResources();
+          }
+
           that.generateRequirements(context)
         },
-        'unselect_callback': function(aData, options) {
+        unselect_callback: function() {
+          if (updateDatastores) {
+            that.datastoresTable.updateFn();
+          }
+
           that.generateRequirements(context)
         }
       }
     }
 
-    that.hostsTable.initialize(selectOptions);
-    that.hostsTable.refreshResourceTableSelect();
-    that.clustersTable.initialize(selectOptions);
-    that.clustersTable.refreshResourceTableSelect();
-    that.datastoresTable.initialize(selectOptions);
+    that.clustersTable.initialize({ selectOptions: generateCallbacks(true) });
+    that.hostsTable.initialize({ selectOptions: generateCallbacks(true) });
+    that.datastoresTable.initialize({
+      selectOptions: Object.assign(generateCallbacks(), {
+        filter_fn: function(ds) {
+          if (!that.hostsTable || !that.clustersTable) return true;
+
+          return $("input[name='req_select']:checked").val() === "host_select"
+            ? that.hostsTable.isOpenNebulaResourceInHost(ds)
+            : that.clustersTable.isOpenNebulaResourceInCluster(ds)
+        }
+      })
+    });
     that.datastoresTable.filter("system", 10);
+    that.hostsTable.refreshResourceTableSelect();
+    that.clustersTable.refreshResourceTableSelect();
     that.datastoresTable.refreshResourceTableSelect();
+
+    $("#" + this.wizardTabId).data({
+      hostsTable: that.hostsTable,
+      clustersTable: that.clustersTable,
+      datastoresTable: that.datastoresTable,
+    });
   }
 
   function _retrieve(context) {

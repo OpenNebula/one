@@ -37,6 +37,7 @@ define(function(require) {
     CONSTANTS
    */
 
+  var SCHED_TAB_ID = require('./scheduling/wizardTabId');
   var WIZARD_TAB_ID = require('./network/wizardTabId');
   var LINKS_CONTAINER_ID = 'template_create_network_tabs';
   var CONTENTS_CONTAINER_ID = 'template_create_network_tabs_content';
@@ -104,8 +105,6 @@ define(function(require) {
       that.addNicTab(context);
       return false;
     });
-
-    that.addNicTab(context);
 
     if(that.listener != undefined){
       $(context).on("change", "input", function(){
@@ -195,19 +194,19 @@ define(function(require) {
       });
     }
 
-    $.each(nics, function(nicId, nicJSON) {
-      if (nicId > 0) {
+    nics.length === 0
+      ? that.addNicTab(context)
+      : $.each(nics, function(nicId, nicJSON) {
         that.addNicTab(context);
-      }
 
-      var nicTab = that.nicTabObjects[that.numberOfNics];
-      var nicContext = $('#' + nicTab.nicTabId, context);
-      nicTab.fill(nicContext, nicJSON);
+        var nicTab = that.nicTabObjects[that.numberOfNics];
+        var nicContext = $('#' + nicTab.nicTabId, context);
+        nicTab.fill(nicContext, nicJSON);
 
-      if (nicJSON.PARENT) {
-        nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
-      }
-    });
+        if (nicJSON.PARENT) {
+          nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
+        }
+      });
 
     that.renameTabLinks(context);
     that.enableRDP(context);
@@ -279,7 +278,8 @@ define(function(require) {
 
     $("a", a).trigger("click");
 
-    nicTab.setup(content);
+    nicTab.setup(content, $("div[id^='" + SCHED_TAB_ID + "']").data());
+
     content.attr("nicId", that.numberOfNics);
 
     that.renameTabLinks(context);

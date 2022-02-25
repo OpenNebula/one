@@ -342,6 +342,11 @@ define(function(require) {
 
     var selectOptions = {
       "selectOptions": {
+        filter_fn: function(vnet) {
+          if (!options.hostsTable) return true;
+
+          return options.hostsTable.isOpenNebulaResourceInHost(vnet)
+        },
         "select_callback": function(aData, options) {
             var req_string=[];
             var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
@@ -575,8 +580,29 @@ define(function(require) {
 
     provision_nic_accordion_dd_id += 1;
 
-    vnetsTable.initialize();
+    vnetsTable.initialize({
+      selectOptions: {
+        filter_fn: function(vnet) {
+          if (!options.hostsTable) return true;
+
+          return options.hostsTable.isOpenNebulaResourceInHost(vnet)
+        },
+      }
+    });
     vnetsTable.refreshResourceTableSelect();
+
+    if (options.hostsTable) {
+      // Filters the vnet tables by cluster
+      options.hostsTable.dataTable.children('tbody').on('click', 'tr', function() {
+        vnetsTable.updateFn();
+        vnetsTableAuto.updateFn();
+
+        if ($("td.markrowchecked", this).length > 0) {
+          vnetsTable.deselectHiddenResources();
+          vnetsTableAuto.deselectHiddenResources();
+        }
+      })
+    }
 
     if (options.securityGroups == true){
       sgTable.initialize();
