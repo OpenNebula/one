@@ -237,6 +237,8 @@ define(function(require) {
 
     var color_html = Status.state_lock_to_color("VM", value_state, element_json[RESOURCE.toUpperCase()]["LOCK"]);
 
+    var vm_name = element.USER_TEMPLATE.ERROR || element.USER_TEMPLATE.SCHED_MESSAGE ?  "<span class='warning-message'><i class='fas fa-exclamation-triangle'></i></span> " + element.NAME : element.NAME;
+
     return [
       "<input class=\"check_item\" "+
         "style=\"vertical-align: inherit;\""+
@@ -246,7 +248,7 @@ define(function(require) {
         "value=\"" + element.ID + "\" "+
         "state=\""+element.STATE+"\" lcm_state=\""+element.LCM_STATE+"\"/>"+color_html,
       element.ID,
-      element.NAME,
+      vm_name,
       element.UNAME,
       element.GNAME,
       state,
