@@ -88,6 +88,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.isOpenNebulaResourceInCluster = _isOpenNebulaResourceInCluster;
 
   return Table;
 
@@ -130,4 +131,25 @@ define(function(require) {
     $(".total_clusters").text(this.totalClusters);
   }
 
+  /**
+   * Checks that a OpenNebula resource is in the selected clusters.
+   * 
+   * @param {object} resource - OpenNebula resource: Datastore, VM, etc
+   * @param {function(object):string|string[]} [fnGetResourceCluster]
+   * - Function to get Clusters ids from resource
+   * @returns `true` if selected Clusters contain the resource
+   */
+  function _isOpenNebulaResourceInCluster(resource, fnGetResourceCluster) {
+    var clusters = typeof fnGetResourceCluster === 'function'
+      ? fnGetResourceCluster(resource)
+      : resource.CLUSTERS.ID
+
+    var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+    var selectedClusterIds = this.retrieveResourceTableSelect();
+
+    return selectedClusterIds.length === 0 ||
+      ensuredClusters.some(function (cluster) {
+        return selectedClusterIds.includes(cluster)
+      });
+  }
 });

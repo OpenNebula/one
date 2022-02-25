@@ -505,27 +505,50 @@ define(function(require) {
           $(".provision_uid_selector" + template_json.VMTEMPLATE.ID, context).data("usersTable", that.usersTable);
           $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
 
-          var selectOptions = {
-            "selectOptions": {
-              "select_callback": function(aData, options) {
+
+          that.hostsTable.initialize({
+            selectOptions: {
+              select_callback: function(aData, options) {                
+                that.datastoresTable.updateFn();
+                that.datastoresTable.deselectHiddenResources();
+
                 var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
                 var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
                 generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
               },
-              "unselect_callback": function(aData, options) {
+              unselect_callback: function(aData, options) {
+                that.datastoresTable.updateFn();
+
                 var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
                 var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
                 generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
                }
             }
-          };
-          that.hostsTable.initialize(selectOptions);
-          that.hostsTable.refreshResourceTableSelect();
-          that.datastoresTable.initialize(selectOptions);
-          that.datastoresTable.filter("system", 10);
-          that.datastoresTable.refreshResourceTableSelect();
+          });
+          that.datastoresTable.initialize({
+            selectOptions: {
+              filter_fn: function(ds) {
+                if (!that.hostsTable.dataTable) return true;
 
-          //select_options
+                return that.hostsTable.isOpenNebulaResourceInHost(ds)
+              },
+              select_callback: function(aData, options) {
+                var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
+                var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
+                generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
+              },
+              unselect_callback: function(aData, options) {
+                var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
+                var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
+                generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
+               }
+            }
+          });
+          that.datastoresTable.filter("system", 10);
+          that.hostsTable.refreshResourceTableSelect();
+          that.datastoresTable.refreshResourceTableSelect();
+          
+
           that.usersTable.initialize();
           that.usersTable.refreshResourceTableSelect();
           that.groupTable.initialize();
@@ -593,7 +616,8 @@ define(function(require) {
             { "forceIPv4": true,
               "securityGroups": Config.isFeatureEnabled("secgroups"),
               "name": " ",
-              "fieldset": false
+              "fieldset": false,
+              "hostsTable": that.hostsTable
             });
 
           VMGroupSection.insert(template_json,

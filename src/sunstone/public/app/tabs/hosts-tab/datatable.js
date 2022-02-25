@@ -119,6 +119,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.isOpenNebulaResourceInHost = _isOpenNebulaResourceInHost;
 
   return Table;
 
@@ -287,5 +288,33 @@ define(function(require) {
         "<span id=\"" + html_tag + "_str\" class=\"right\">" + quota.str + "</span>" +
       "</div>" +
     "</div>";
+  }
+
+  /**
+   * Checks that a OpenNebula resource is in the selected hosts.
+   * 
+   * @param {object} resource - OpenNebula resource: Datastore, VM, etc
+   * @param {function(object):string|string[]} [fnGetResourceCluster]
+   * - Function to get Clusters ids from resource
+   * @returns `true` if selected Hosts and the resource are in same cluster
+   */
+  function _isOpenNebulaResourceInHost(resource, fnGetResourceCluster) {
+    var clusters = typeof fnGetResourceCluster === 'function'
+      ? fnGetResourceCluster(resource)
+      : resource.CLUSTERS.ID
+
+    var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+    var selectedHostIds = this.retrieveResourceTableSelect();
+    var allHosts = this.dataTable.fnGetData();
+    var id_index = this.selectOptions.id_index;
+
+    var selectedClusters = !Array.isArray(allHosts) ? [] : allHosts
+      .filter(function(host) { return selectedHostIds.includes(host[id_index]) })
+      .map(function(host) { return host[3] }); // cluster column => 3
+
+    return selectedClusters.length === 0 ||
+      ensuredClusters.some(function (cluster) {
+        return selectedClusters.includes(cluster)
+      });
   }
 });
