@@ -68,10 +68,20 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 exit 1
             end
 
+            if !@nic[:mtu].nil?
+              cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
+                    "mtu_request=#{@nic[:mtu]}"
+              run cmd
+            end
+
             # Apply VLAN
             if !@nic[:vlan_id].nil?
-                tag_vlan
-                tag_trunk_vlans
+                if !@nic[:cvlans].nil?
+                    tag_qinq
+                else
+                    tag_vlan
+                    tag_trunk_vlans
+                end
             end
 
             # Delete any existing flows on port
@@ -167,19 +177,16 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         0
     end
 
-    def vlan
-        @nic[:vlan_id]
-    end
-
     def tag_vlan
         cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
-        cmd << "tag=#{vlan}"
+        cmd << "tag=#{@nic[:vlan_id]}"
 
         run cmd
     end
 
     def tag_trunk_vlans
         range = @nic[:vlan_tagged_id]
+
         if range? range
             ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
@@ -195,6 +202,25 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
     end
 
+    def tag_qinq
+        range = @nic[:cvlans]
+
+        set_vlan_limit(2)
+
+        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
+        cmd << "vlan_mode=dot1q-tunnel tag=#{@nic[:vlan_id]} "
+        cmd << "cvlans=#{expand_range(range)}"
+
+        run cmd
+
+        qinq_type = @nic[:qinq_type]
+        qinq_type ||= "802.1q"
+
+        cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
+        cmd << "other_config:qinq-ethtype=#{qinq_type}"
+
+        run cmd
+    end
 
     # Following IP-spoofing rules may be created:
     # (if ARP Cache Poisoning) in_port=<PORT>,table=20,arp,arp_spa=<IP>,priority=50000,actions=NORMAL
@@ -476,6 +502,26 @@ private
     end
 
     def validate_vlan_id
-        OpenNebula.log_error("VLAN ID validation not supported with Open vSwitch, skipped.")
+        OpenNebula.log_error("VLAN ID validation not supported for OpenvSwitch, skipped.")
+    end
+
+    def set_vlan_limit(limit)
+        vl  =`#{command(:ovs_vsctl)} get Open_vSwitch . other_config:vlan-limit`
+
+        vl_limit = 0
+
+        begin
+            vl_limit = Integer(vl.tr("\"\n",''))
+        rescue ArgumentError
+        end
+
+        return if vl_limit == limit
+
+        cmd = "#{command(:ovs_vsctl)} set Open_vSwitch . "\
+            "other_config:vlan-limit=#{limit}"
+        run cmd
+
+        cmd = "#{command(:ovs_appctl)} revalidator/purge"
+        run cmd
     end
 end
