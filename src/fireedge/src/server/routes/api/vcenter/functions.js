@@ -239,7 +239,6 @@ const importHost = (res = {}, next = defaultEmptyFunction, params = {}) => {
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
  * @param {object} userData - user Data
- * @param {Function} oneConnection - xmlrpc function
  * @param {'template'|'images'|'datastores'|'networks'} type - type resource
  */
 const importVobject = (
@@ -247,7 +246,6 @@ const importVobject = (
   next = defaultEmptyFunction,
   params = {},
   userData = {},
-  oneConnection = defaultEmptyFunction,
   type
 ) => {
   const httpReturn = (httpCode) => {

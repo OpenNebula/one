@@ -454,10 +454,10 @@ const serviceAddSchedAction = (
       params.id,
       (node = {}, nodesLength, index) => {
         const oneConnect = oneConnection(user, password)
-        oneConnect(
-          ActionVM.VM_SCHED_ADD,
-          [node.deploy_id, schedTemplate],
-          (err, value) => {
+        oneConnect({
+          action: ActionVM.VM_SCHED_ADD,
+          parameters: [node.deploy_id, schedTemplate],
+          callback: (err, value) => {
             if (!err && !isNaN(value)) {
               nodesUpdated.push(node.deploy_id)
             }
@@ -465,8 +465,8 @@ const serviceAddSchedAction = (
               success(next, res, nodesUpdated)
             }
           },
-          false
-        )
+          fillHookResource: false,
+        })
       },
       (data = '') => error(next, res, data)
     )
@@ -518,10 +518,10 @@ const serviceUpdateSchedAction = (
       id,
       (node = {}, nodesLength, index) => {
         const oneConnect = oneConnection(user, password)
-        oneConnect(
-          ActionVM.VM_SCHED_UPDATE,
-          [node.deploy_id, parseInt(idSched, 10), schedTemplate],
-          (err, value) => {
+        oneConnect({
+          action: ActionVM.VM_SCHED_UPDATE,
+          parameters: [node.deploy_id, parseInt(idSched, 10), schedTemplate],
+          callback: (err, value) => {
             if (!err && !isNaN(value)) {
               nodesUpdated.push(node.deploy_id)
             }
@@ -529,8 +529,8 @@ const serviceUpdateSchedAction = (
               success(next, res, nodesUpdated)
             }
           },
-          false
-        )
+          fillHookResource: false,
+        })
       },
       (data = '') => error(next, res, data)
     )
@@ -579,10 +579,10 @@ const serviceDeleteSchedAction = (
       id,
       (node = {}, nodesLength, index) => {
         const oneConnect = oneConnection(user, password)
-        oneConnect(
-          ActionVM.VM_SCHED_DELETE,
-          [node.deploy_id, parseInt(idSched, 10)],
-          (err, value) => {
+        oneConnect({
+          action: ActionVM.VM_SCHED_DELETE,
+          parameters: [node.deploy_id, parseInt(idSched, 10)],
+          callback: (err, value) => {
             if (!err && !isNaN(value)) {
               nodesUpdated.push(node.deploy_id)
             }
@@ -590,8 +590,8 @@ const serviceDeleteSchedAction = (
               success(next, res, nodesUpdated)
             }
           },
-          false
-        )
+          fillHookResource: false,
+        })
       },
       (data = '') => error(next, res, data)
     )

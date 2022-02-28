@@ -16,12 +16,15 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AddSquare, CloudDownload } from 'iconoir-react'
+import { AddSquare, CloudDownload, DownloadCircledOutline } from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
 import { Translate } from 'client/components/HOC'
-import { useExportAppMutation } from 'client/features/OneApi/marketplaceApp'
+import {
+  useExportAppMutation,
+  useDownloadAppMutation,
+} from 'client/features/OneApi/marketplaceApp'
 
 import { ExportForm } from 'client/components/Forms/MarketplaceApp'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
@@ -51,6 +54,7 @@ const Actions = () => {
   const { view, getResourceView } = useViews()
   const { enqueueSuccess } = useGeneralApi()
   const [exportApp] = useExportAppMutation()
+  const [downloadApp] = useDownloadAppMutation()
 
   const marketplaceAppActions = useMemo(
     () =>
@@ -85,6 +89,18 @@ const Actions = () => {
                 },
               },
             ],
+          },
+          {
+            accessor: MARKETPLACE_APP_ACTIONS.DOWNLOAD,
+            tooltip: T.DownloadApp,
+            selected: { min: 1 },
+            icon: DownloadCircledOutline,
+            action: async (apps) => {
+              const urls = await Promise.all(
+                apps.map(({ id }) => downloadApp(id).unwrap())
+              )
+              urls.forEach((url) => window.open(url, '_blank'))
+            },
           },
         ],
       }),

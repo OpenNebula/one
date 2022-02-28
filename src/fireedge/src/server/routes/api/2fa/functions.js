@@ -43,19 +43,19 @@ const twoFactorAuthIssuer = appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 /**
  * Get information for opennebula authenticated user.
  *
- * @param {Function} connect - xmlrpc function
+ * @param {Function} oneConnect - xmlrpc function
  * @param {Function} next - express stepper
  * @param {Function} callback - run if have user information
  */
 const getUserInfoAuthenticated = (
-  connect = defaultEmptyFunction,
+  oneConnect = defaultEmptyFunction,
   next = defaultEmptyFunction,
   callback = defaultEmptyFunction
 ) => {
-  connect(
-    Actions.USER_INFO,
-    getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
-    (err, value) => {
+  oneConnect({
+    action: Actions.USER_INFO,
+    parameters: getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
+    callback: (err, value) => {
       responseOpennebula(
         () => undefined,
         err,
@@ -69,8 +69,8 @@ const getUserInfoAuthenticated = (
         },
         next
       )
-    }
-  )
+    },
+  })
 }
 
 /**
@@ -105,9 +105,9 @@ const setup = (
       const sunstone = user.USER.TEMPLATE.SUNSTONE
       const secret = sunstone[default2FAOpennebulaTmpVar]
       if (check2Fa(secret, token)) {
-        oneConnect(
-          Actions.USER_UPDATE,
-          [
+        oneConnect({
+          action: Actions.USER_UPDATE,
+          parameters: [
             parseInt(user.USER.ID, 10),
             generateNewResourceTemplate(
               user.USER.TEMPLATE.SUNSTONE || {},
@@ -116,7 +116,7 @@ const setup = (
             ),
             1,
           ],
-          (error, value) => {
+          callback: (error, value) => {
             responseOpennebula(
               () => undefined,
               error,
@@ -129,8 +129,8 @@ const setup = (
               },
               next
             )
-          }
-        )
+          },
+        })
       } else {
         res.locals.httpCode = httpResponse(unauthorized)
         next()
@@ -171,9 +171,9 @@ const qr = (
         const oneConnect = oneConnection()
         getUserInfoAuthenticated(oneConnect, next, (user) => {
           if (user && user.USER && user.USER.ID && user.USER.TEMPLATE) {
-            oneConnect(
-              Actions.USER_UPDATE,
-              [
+            oneConnect({
+              action: Actions.USER_UPDATE,
+              parameters: [
                 parseInt(user.USER.ID, 10),
                 generateNewResourceTemplate(
                   user.USER.TEMPLATE.SUNSTONE || {},
@@ -182,7 +182,7 @@ const qr = (
                 ),
                 1,
               ],
-              (error, value) => {
+              callback: (error, value) => {
                 responseOpennebula(
                   () => undefined,
                   error,
@@ -199,8 +199,8 @@ const qr = (
                   },
                   next
                 )
-              }
-            )
+              },
+            })
           } else {
             next()
           }
@@ -237,9 +237,9 @@ const del = (
       user.USER.TEMPLATE &&
       user.USER.TEMPLATE.SUNSTONE
     ) {
-      oneConnect(
-        Actions.USER_UPDATE,
-        [
+      oneConnect({
+        action: Actions.USER_UPDATE,
+        parameters: [
           parseInt(user.USER.ID, 10),
           generateNewResourceTemplate(user.USER.TEMPLATE.SUNSTONE || {}, {}, [
             default2FAOpennebulaTmpVar,
@@ -247,7 +247,7 @@ const del = (
           ]),
           1,
         ],
-        (err, value) => {
+        callback: (err, value) => {
           responseOpennebula(
             () => undefined,
             err,
@@ -260,8 +260,8 @@ const del = (
             },
             next
           )
-        }
-      )
+        },
+      })
     }
   })
 }

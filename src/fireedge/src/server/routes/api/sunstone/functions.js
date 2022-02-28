@@ -32,21 +32,21 @@ const httpInternalError = httpResponse(internalServerError, '', '')
 /**
  * Get information of opennebula group.
  *
- * @param {Function} connect - xmlrpc function
+ * @param {Function} oneConnect - xmlrpc function
  * @param {string} idGroup - id of group
  * @param {Function} callback - run function when have group information
  */
 const getInfoGroup = (
-  connect = defaultEmptyFunction,
+  oneConnect = defaultEmptyFunction,
   idGroup,
   callback = defaultEmptyFunction
 ) => {
-  connect(
-    ActionsGroup.GROUP_INFO,
-    [parseInt(idGroup, 10), false],
+  oneConnect({
+    action: ActionsGroup.GROUP_INFO,
+    parameters: [parseInt(idGroup, 10), false],
     callback,
-    false
-  )
+    fillHookResource: false,
+  })
 }
 
 /**
@@ -88,14 +88,14 @@ const getViews = (
     global.paths.SUNSTONE_VIEWS &&
     global.paths.SUNSTONE_PATH
   ) {
-    const connect = oneConnection(user, password)
-    connect(
-      ActionsUser.USER_INFO,
-      [-1, false],
-      (err = {}, dataUser = {}) => {
+    const oneConnect = oneConnection(user, password)
+    oneConnect({
+      action: ActionsUser.USER_INFO,
+      parameters: [-1, false],
+      callback: (err = {}, dataUser = {}) => {
         if (dataUser && dataUser.USER && dataUser.USER.GID) {
           getInfoGroup(
-            connect,
+            oneConnect,
             dataUser.USER.GID,
             (err = {}, vmgroupData = {}) => {
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
@@ -143,8 +143,8 @@ const getViews = (
           responseHttp(res, next, httpInternalError)
         }
       },
-      false
-    )
+      fillHookResource: false,
+    })
   } else {
     responseHttp(res, next, httpInternalError)
   }

@@ -24,6 +24,7 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import { requestConfig } from 'client/utils'
 import { FilterFlag, Permission, MarketplaceApp } from 'client/constants'
 
 const { APP } = ONE_RESOURCES
@@ -305,6 +306,31 @@ const marketAppApi = oneApi.injectEndpoints({
       },
       invalidatesTags: [APP_POOL],
     }),
+    downloadApp: builder.mutation({
+      /**
+       * Download a MarketPlaceApp.
+       *
+       * @param {string} id - Marketplace app id
+       * @param {object} configBaseQueryApi - ConfigBaseQueryApi
+       * @param {function():object} configBaseQueryApi.getState - Get current state
+       * @returns {object} Marketplace URL download
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: (id, { getState }) => {
+        try {
+          const state = getState()
+          const token = state.auth.jwt
+          const name = ExtraActions.MARKETAPP_DOWNLOAD
+
+          const command = { name, ...ExtraCommands[name] }
+          const { url, params } = requestConfig({ id, token }, command)
+
+          return { data: `/fireedge${url}?token=${params.token}` }
+        } catch (error) {
+          return { error }
+        }
+      },
+    }),
     exportApp: builder.mutation({
       /**
        * Exports the marketplace app to the OpenNebula cloud.
@@ -354,6 +380,7 @@ export const {
   useUnlockAppMutation,
   useImportAppMutation,
   useExportAppMutation,
+  useDownloadAppMutation,
 } = marketAppApi
 
 export default marketAppApi

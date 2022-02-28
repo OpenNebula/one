@@ -15,9 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const { httpMethod } = require('server/utils/constants/defaults')
-const SYSTEM = require('server/routes/api/system/basepath')
 
-const basepath = `/${SYSTEM}`
+const basepath = '/system'
 const { GET } = httpMethod
 
 const SYSTEM_CONFIG = 'system.config'

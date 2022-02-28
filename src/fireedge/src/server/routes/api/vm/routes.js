@@ -18,9 +18,8 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const VM = require('server/routes/api/vm/basepath')
 
-const basepath = `/${VM}`
+const basepath = '/vm'
 const { POST } = httpMethod
 const { resource, postBody } = fromData
 

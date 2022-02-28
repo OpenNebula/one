@@ -18,10 +18,9 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const ZENDESK = require('server/routes/api/zendesk/basepath')
 
 const { POST, GET, PUT } = httpMethod
-const basepath = `/${ZENDESK}`
+const basepath = '/zendesk'
 const { resource, postBody } = fromData
 
 const ZENDESK_LOGIN = 'zendesk.login'

@@ -17,7 +17,7 @@
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
-const parser = require('fast-xml-parser')
+const { parse: xmlParse } = require('fast-xml-parser')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const { global } = require('window-or-global')
@@ -63,7 +63,7 @@ const stringWrappedBrakets = /^\[.*\]$/g
 const brakets = /(^\[)|(\]$)/g
 
 /**
- * Parse xml to JSON.
+ * Parse XML to JSON.
  *
  * @param {string} xml - xml data in  string
  * @param {Function} callback - callback data
@@ -71,7 +71,7 @@ const brakets = /(^\[)|(\]$)/g
 const xml2json = (xml = '', callback = defaultEmptyFunction) => {
   let rtn = []
   try {
-    const jsonObj = parser.parse(xml, defaultConfigParseXML)
+    const jsonObj = xmlParse(xml, defaultConfigParseXML)
     rtn = [null, jsonObj]
   } catch (error) {
     rtn = [error]
@@ -135,12 +135,13 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
       xmlClient = rpc.createClient(zoneURL)
     }
     if (xmlClient && xmlClient.methodCall) {
-      rtn = (
+      rtn = ({
         action = '',
         parameters = [],
-        callback = () => undefined,
-        fillHookResource = true
-      ) => {
+        callback = defaultEmptyFunction,
+        fillHookResource = true,
+        parseXML = true,
+      }) => {
         if (action && parameters && Array.isArray(parameters) && callback) {
           // user config
           const appConfig = getFireedgeConfig()
@@ -150,40 +151,41 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
             `${namespace}.${action}`,
             xmlParameters,
             (err, value) => {
-              if (err && err.body) {
-                xml2json(err.body, (error, result) => {
-                  if (error) {
-                    callback(error, undefined) // error parse xml
+              const success = (data) => {
+                fillHookResource &&
+                  fillResourceforHookConnection(username, action, parameters)
+                callback(undefined, data)
+              }
 
-                    return
-                  }
-                  if (
-                    result &&
-                    result.methodResponse &&
-                    result.methodResponse.fault &&
-                    result.methodResponse.fault.value &&
-                    result.methodResponse.fault.value.struct &&
-                    result.methodResponse.fault.value.struct.member &&
-                    Array.isArray(
-                      result.methodResponse.fault.value.struct.member
-                    )
-                  ) {
-                    const errorData =
-                      result.methodResponse.fault.value.struct.member.find(
-                        (element) => element.value && element.value.string
-                      )
-                    if (errorData) {
-                      // success
-                      fillHookResource &&
-                        fillResourceforHookConnection(
-                          username,
-                          action,
-                          parameters
+              if (err && err.body) {
+                parseXML
+                  ? xml2json(err.body, (error, result) => {
+                      if (error) {
+                        callback(error, undefined) // error parse xml
+
+                        return
+                      }
+                      if (
+                        result &&
+                        result.methodResponse &&
+                        result.methodResponse.fault &&
+                        result.methodResponse.fault.value &&
+                        result.methodResponse.fault.value.struct &&
+                        result.methodResponse.fault.value.struct.member &&
+                        Array.isArray(
+                          result.methodResponse.fault.value.struct.member
                         )
-                      callback(undefined, errorData.value.string)
-                    }
-                  }
-                })
+                      ) {
+                        const errorData =
+                          result.methodResponse.fault.value.struct.member.find(
+                            (element) => element.value && element.value.string
+                          )
+                        if (errorData) {
+                          success(errorData.value.string)
+                        }
+                      }
+                    })
+                  : success(err.body)
 
                 return
               } else if (value && value[0] && value[1]) {
@@ -194,26 +196,20 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                   messageCall = value
                 }
                 if (typeof messageCall === 'string' && messageCall.length > 0) {
-                  xml2json(messageCall, (error, result) => {
-                    if (error) {
-                      callback(error, undefined) // error parse xml
+                  parseXML
+                    ? xml2json(messageCall, (error, result) => {
+                        if (error) {
+                          callback(error, undefined) // error parse xml
 
-                      return
-                    }
-                    // success
-                    fillHookResource &&
-                      fillResourceforHookConnection(
-                        username,
-                        action,
-                        parameters
-                      )
-                    callback(
-                      undefined,
-                      error === null && !String(result)
-                        ? JSON.stringify(messageCall)
-                        : result
-                    )
-                  })
+                          return
+                        }
+                        success(
+                          error === null && !String(result)
+                            ? JSON.stringify(messageCall)
+                            : result
+                        )
+                      })
+                    : success(messageCall)
 
                   return
                 }
