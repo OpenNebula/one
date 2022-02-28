@@ -357,10 +357,13 @@ const getCreatedTokenOpennebula = (username = '') => {
 const setZones = () => {
   if (global && !global.zones) {
     const oneConnect = connectOpennebula()
-    oneConnect(
-      ActionZones.ZONEPOOL_INFO,
-      getDefaultParamsOfOpennebulaCommand(ActionZones.ZONEPOOL_INFO, GET),
-      (err, value) => {
+    oneConnect({
+      action: ActionZones.ZONEPOOL_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(
+        ActionZones.ZONEPOOL_INFO,
+        GET
+      ),
+      callback: (err, value) => {
         // res, err, value, response, next
         responseOpennebula(
           () => undefined,
@@ -394,8 +397,8 @@ const setZones = () => {
           next
         )
       },
-      false
-    )
+      fillHookResource: false,
+    })
   }
 }
 
@@ -516,10 +519,13 @@ const getServerAdminAndWrapUser = (userData = {}) => {
         `${serverAdminData.username}:${serverAdminData.username}`,
         tokenWithServerAdmin.token
       )
-      oneConnect(
-        ActionUsers.USER_INFO,
-        getDefaultParamsOfOpennebulaCommand(ActionUsers.USER_INFO, GET),
-        (err, value) => {
+      oneConnect({
+        action: ActionUsers.USER_INFO,
+        parameters: getDefaultParamsOfOpennebulaCommand(
+          ActionUsers.USER_INFO,
+          GET
+        ),
+        callback: (err, value) => {
           responseOpennebula(
             updaterResponse,
             err,
@@ -529,8 +535,8 @@ const getServerAdminAndWrapUser = (userData = {}) => {
             next
           )
         },
-        false
-      )
+        fillHookResource: false,
+      })
     }
   }
 }

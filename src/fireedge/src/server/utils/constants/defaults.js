@@ -48,6 +48,7 @@ const defaults = {
    * @returns {undefined} undefined data
    */
   defaultEmptyFunction: () => undefined,
+  defaultTmpPath: '/tmp',
   defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
   defaultSessionExpiration: 180,
   defaultSessionLimitExpiration: 30,
@@ -91,6 +92,7 @@ const defaults = {
     query: 'QUERY',
     postBody: 'POST_BODY',
   },
+  defaultDownloader: 'remotes/datastore/downloader.sh',
   defaultOpennebulaZones: [
     {
       id: '0',

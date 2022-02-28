@@ -710,12 +710,16 @@ const deleteProvision = (
         )
         findFolder && removeFile(findFolder)
       } else {
-        const connect = oneConnection(user, password)
-        connect(
-          Actions.DOCUMENT_UPDATE,
-          [parseInt(params.id, 10), sprintf(defaultErrorTemplate, lastLine), 1],
-          defaultEmptyFunction
-        )
+        const oneConnect = oneConnection(user, password)
+        oneConnect({
+          action: Actions.DOCUMENT_UPDATE,
+          parameters: [
+            parseInt(params.id, 10),
+            sprintf(defaultErrorTemplate, lastLine),
+            1,
+          ],
+          callback: defaultEmptyFunction,
+        })
       }
     }
 
@@ -803,14 +807,12 @@ const hostCommand = (
  * @param {string} userData.user - username
  * @param {string} userData.password - user password
  * @param {number} userData.id - user id
- * @param {Function} oneConnection - function of xmlrpc
  */
 const createProvision = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
+  userData = {}
 ) => {
   const basePath = `${global.paths.CPI}/provision`
   const relFile = `${basePath}/${relName}`

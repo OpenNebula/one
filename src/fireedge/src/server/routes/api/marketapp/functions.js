@@ -14,9 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const btoa = require('btoa')
+const { exec } = require('child_process')
 const { sprintf } = require('sprintf-js')
 const { request: axios } = require('axios')
+const { messageTerminal } = require('server/utils/general')
 const { defaults, httpCodes } = require('server/utils/constants')
+const { validateAuth } = require('server/utils/jwt')
 const {
   Actions: ActionsMarketApp,
 } = require('server/utils/constants/commands/marketapp')
@@ -25,9 +29,11 @@ const {
 } = require('server/utils/constants/commands/market')
 const { httpResponse, executeCommand } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
+const { writeInLogger } = require('server/utils/logger')
 
 const { defaultEmptyFunction, defaultCommandMarketApp, dockerUrl } = defaults
-const { ok, internalServerError, badRequest, notFound } = httpCodes
+const { ok, internalServerError, badRequest, notFound, unauthorized } =
+  httpCodes
 const httpBadRequest = httpResponse(badRequest, '', '')
 const httpNotFoundRequest = httpResponse(notFound, '', '')
 
@@ -109,7 +115,83 @@ const exportApp = (
 }
 
 /**
- * Import the marketplace VM or VM TEMPLATE to the OpenNebula cloud.
+ * Exports the marketplace app to the OpenNebula cloud.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {number} params.id - app id
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ */
+const downloadApp = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const { id, token } = params
+  if (!(Number.isInteger(parseInt(id, 10)) && token)) {
+    responseHttp(res, next, httpNotFoundRequest)
+
+    return
+  }
+
+  const userDataFromJWT =
+    validateAuth({
+      headers: { authorization: token },
+    }) || {}
+  const { aud, jti } = userDataFromJWT
+
+  if (!(aud && jti)) {
+    responseHttp(res, next, httpResponse(unauthorized, '', ''))
+
+    return
+  }
+
+  const oneConnect = oneConnection(aud, jti)
+  const callbackNotfound = () => responseHttp(res, next, httpNotFoundRequest)
+  const market = ({ MARKETPLACE_ID, SOURCE }) => {
+    Number.isInteger(parseInt(MARKETPLACE_ID, 10)) &&
+      getMarket({
+        oneConnect,
+        id: MARKETPLACE_ID,
+        success: (MARKET) => {
+          const drvMessage = `<DS_DRIVER_ACTION_DATA>${MARKET}</DS_DRIVER_ACTION_DATA>`
+          const drvMessageBase64 = btoa(drvMessage)
+          const downloadCmd = `DRV_ACTION=${drvMessageBase64}; ${global.paths.DOWNLOADER} ${SOURCE} -`
+          const filename = `one-marketplaceapp-${id}`
+          res.setHeader('Content-Type', 'application/octet-stream')
+          res.setHeader('Cache-Control', 'no-transform')
+          res.setHeader(
+            'Content-Disposition',
+            `attachment; filename=${filename}`
+          )
+          const execChild = exec(
+            downloadCmd,
+            { maxBuffer: 1024 ** 3 },
+            (error) => {
+              error &&
+                writeInLogger(error) &&
+                messageTerminal({
+                  color: 'red',
+                  message: 'error download marketapp: %s',
+                  error,
+                })
+            }
+          )
+          execChild.stdout.pipe(res)
+        },
+        error: callbackNotfound,
+        parseXML: false,
+      })
+  }
+  getMarketApp({ oneConnect, id, success: market, error: callbackNotfound })
+}
+
+/**
+ * Import the marketplace VM or VM TEPLATE to the OpenNebula cloud.
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
@@ -178,58 +260,65 @@ const getTagsDocker = (
 /**
  * Get market APP information.
  *
- * @param {Function} oneConnection - ONE connection
- * @param {number} id - ID market app
- * @param {Function} success - callback when have data
- * @param {Function} error - error callback
+ * @param {object} config - config
+ * @param {Function} config.oneConnect - ONE connection
+ * @param {number} config.id - ID market app
+ * @param {Function} config.success - callback when have data
+ * @param {Function} config.error - error callback
+ * @returns {undefined} one connect
  */
-const getMarketApp = (
-  oneConnection = defaultEmptyFunction,
+const getMarketApp = ({
+  oneConnect = defaultEmptyFunction,
   id,
   success = defaultEmptyFunction,
-  error = defaultEmptyFunction
-) => {
-  oneConnection(
-    ActionsMarketApp.MARKETAPP_INFO,
-    [parseInt(id, 10)],
-    (err = undefined, marketApp = {}) => {
+  error = defaultEmptyFunction,
+}) =>
+  oneConnect({
+    action: ActionsMarketApp.MARKETAPP_INFO,
+    parameters: [parseInt(id, 10)],
+    callback: (err = undefined, marketApp = {}) => {
       if (err || !(marketApp && marketApp.MARKETPLACEAPP)) {
         error()
 
         return
       }
       success(marketApp && marketApp.MARKETPLACEAPP)
-    }
-  )
-}
+    },
+  })
 
 /**
  * Get market information.
  *
- * @param {Function} oneConnection - ONE connection
- * @param {number} id - ID market
- * @param {Function} success - callback when have data
- * @param {Function} error - error callback
+ * @param {object} config - config
+ * @param {Function} config.oneConnect - ONE connection
+ * @param {number} config.id - ID market
+ * @param {Function} config.success - callback when have data
+ * @param {Function} config.error - error callback
+ * @param {boolean} config.parseXML - parse XML data
+ * @returns {undefined} one connect
  */
-const getMarket = (
-  oneConnection = defaultEmptyFunction,
+const getMarket = ({
+  oneConnect = defaultEmptyFunction,
   id,
   success = defaultEmptyFunction,
-  error = defaultEmptyFunction
-) => {
-  oneConnection(
-    ActionsMarket.MARKET_INFO,
-    [parseInt(id, 10)],
-    (err = undefined, market = {}) => {
-      if (err || !(market && market.MARKETPLACE)) {
+  error = defaultEmptyFunction,
+  parseXML = true,
+}) =>
+  oneConnect({
+    action: ActionsMarket.MARKET_INFO,
+    parameters: [parseInt(id, 10)],
+    callback: (err = undefined, market = {}) => {
+      if (err || (parseXML && !(market && market.MARKETPLACE))) {
         error()
 
         return
       }
-      success(market && market.MARKETPLACE)
-    }
-  )
-}
+
+      success(parseXML ? market && market.MARKETPLACE : market)
+    },
+    fillHookResource: false,
+    parseXML,
+  })
 
 /**
  * Get Docker Hub Tags.
@@ -254,16 +343,16 @@ const getDockerTags = (
   const { id, page } = params
   const { user, password } = userData
   if (id && user && password) {
-    const connect = oneConnection(user, password)
+    const oneConnect = oneConnection(user, password)
 
     const callbackNotfound = () => responseHttp(res, next, httpNotFoundRequest)
     const callbackBadRequest = () => responseHttp(res, next, httpBadRequest)
     const market = ({ MARKETPLACE_ID, NAME: MARKETAPP_NAME }) => {
-      Number.isInteger(parseInt(MARKETPLACE_ID)) &&
-        getMarket(
-          connect,
-          MARKETPLACE_ID,
-          ({ MARKET_MAD }) => {
+      Number.isInteger(parseInt(MARKETPLACE_ID, 10)) &&
+        getMarket({
+          oneConnect,
+          id: MARKETPLACE_ID,
+          success: ({ MARKET_MAD }) => {
             if (MARKET_MAD !== 'dockerhub') {
               return callbackBadRequest()
             }
@@ -278,10 +367,10 @@ const getDockerTags = (
               callbackNotfound
             )
           },
-          callbackNotfound
-        )
+          error: callbackNotfound,
+        })
     }
-    getMarketApp(connect, id, market, callbackNotfound)
+    getMarketApp({ oneConnect, id, success: market, error: callbackNotfound })
   } else {
     responseHttp(res, next, httpNotFoundRequest)
   }
@@ -289,6 +378,7 @@ const getDockerTags = (
 
 const functionRoutes = {
   exportApp,
+  downloadApp,
   importMarket,
   getDockerTags,
 }

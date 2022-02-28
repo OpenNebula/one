@@ -18,10 +18,9 @@ const {
   httpMethod,
   from: fromData,
 } = require('server/utils/constants/defaults')
-const TFA = require('server/routes/api/2fa/basepath')
 
 const { POST, DELETE, GET } = httpMethod
-const basepath = `/${TFA}`
+const basepath = '/tfa'
 const TFA_SETUP = 'tfa.setup'
 const TFA_QR = 'tfa.qr'
 const TFA_DELETE = 'tfa.delete'

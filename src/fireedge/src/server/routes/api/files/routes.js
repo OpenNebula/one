@@ -18,10 +18,9 @@ const {
   from: fromData,
   httpMethod,
 } = require('server/utils/constants/defaults')
-const FILES = require('server/routes/api/files/basepath')
 
 const { GET, POST, PUT, DELETE } = httpMethod
-const basepath = `/${FILES}`
+const basepath = '/files'
 const { query } = fromData
 
 const FILE_SHOW = 'file.show'

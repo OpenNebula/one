@@ -19,11 +19,9 @@ const {
   from: fromData,
 } = require('server/utils/constants/defaults')
 
-const AUTH = require('server/routes/api/auth/basepath')
-
 const { POST } = httpMethod
 const { postBody } = fromData
-const basepath = `/${AUTH}`
+const basepath = '/auth'
 const AUTHENTICATION = 'authentication'
 
 const Actions = {

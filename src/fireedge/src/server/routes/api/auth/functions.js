@@ -111,20 +111,19 @@ const auth = (
       next()
     }
 
-    oneConnect(
-      Actions.USER_INFO,
-      getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
-      (err, value) => {
+    oneConnect({
+      action: Actions.USER_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(Actions.USER_INFO, GET),
+      callback: (err, value) => {
         loginUser(err, value, success, error)
       },
-      false
-    )
+      fillHookResource: false,
+    })
   } else {
     next()
   }
 }
 
-const authApi = {
+module.exports = {
   auth,
 }
-module.exports = authApi

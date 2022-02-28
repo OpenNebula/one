@@ -53,4 +53,5 @@ export const MARKETPLACE_APP_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   RENAME: ACTIONS.RENAME,
   EXPORT: 'export',
+  DOWNLOAD: 'download',
 }

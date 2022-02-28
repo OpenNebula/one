@@ -17,11 +17,17 @@
 const { Actions, Commands } = require('server/routes/api/marketapp/routes')
 const {
   exportApp,
+  downloadApp,
   importMarket,
   getDockerTags,
 } = require('server/routes/api/marketapp/functions')
 
-const { MARKETAPP_EXPORT, MARKETAPP_IMPORT, MARKETAPP_DOCKERTAGS } = Actions
+const {
+  MARKETAPP_EXPORT,
+  MARKETAPP_DOWNLOAD,
+  MARKETAPP_VMIMPORT,
+  MARKETAPP_DOCKERTAGS,
+} = Actions
 
 module.exports = [
   {
@@ -29,7 +35,11 @@ module.exports = [
     action: exportApp,
   },
   {
-    ...Commands[MARKETAPP_IMPORT],
+    ...Commands[MARKETAPP_DOWNLOAD],
+    action: downloadApp,
+  },
+  {
+    ...Commands[MARKETAPP_VMIMPORT],
     action: importMarket,
   },
   {

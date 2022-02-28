@@ -57,10 +57,10 @@ const checkUserAdmin = (
     typeof success === 'function' &&
     typeof error === 'function'
   ) {
-    oneConnection(
-      ActionUser.USER_INFO,
-      [parseInt(id, 10)],
-      (err, value) => {
+    oneConnection({
+      action: ActionUser.USER_INFO,
+      parameters: [parseInt(id, 10)],
+      callback: (err, value) => {
         if (
           !err &&
           value &&
@@ -83,8 +83,8 @@ const checkUserAdmin = (
           error(err)
         }
       },
-      false
-    )
+      fillHookResource: false,
+    })
   } else {
     error()
   }
@@ -255,14 +255,12 @@ const getDefaultFilesforApps = (
  * @param {Function} next - express stepper
  * @param {string} params - data response http
  * @param {object} userData - user of http request
- * @param {Function} oneConnection - one connection XMLRPC
  */
 const list = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
+  userData = {}
 ) => {
   const { user, password, id } = userData
   const { app } = params

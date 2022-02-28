@@ -17,10 +17,13 @@
 const multer = require('multer')
 const { messageTerminal } = require('server/utils/general')
 const { getRequestParameters, getRequestFiles } = require('server/utils/server')
-const { defaultConfigErrorMessage } = require('server/utils/constants/defaults')
+const {
+  defaultConfigErrorMessage,
+  defaultTmpPath,
+} = require('server/utils/constants/defaults')
 const { writeInLogger } = require('server/utils/logger')
 
-const upload = multer({ dest: '/tmp' })
+const upload = multer({ dest: defaultTmpPath })
 
 const routes = [
   '2fa',

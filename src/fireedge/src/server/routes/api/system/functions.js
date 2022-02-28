@@ -76,14 +76,17 @@ const getConfig = (
     return
   }
 
-  const connect = oneConnection(
+  const oneConnect = oneConnection(
     `${username}:${username}`,
     tokenWithServerAdmin.token
   )
-  connect(
-    ActionSystem.SYSTEM_CONFIG,
-    getDefaultParamsOfOpennebulaCommand(ActionSystem.SYSTEM_CONFIG, GET),
-    (err, value) => {
+  oneConnect({
+    action: ActionSystem.SYSTEM_CONFIG,
+    parameters: getDefaultParamsOfOpennebulaCommand(
+      ActionSystem.SYSTEM_CONFIG,
+      GET
+    ),
+    callback: (err, value) => {
       if (err) {
         res.locals.httpCode = httpResponse(internalServerError, '', '')
 
@@ -100,8 +103,8 @@ const getConfig = (
       )
       res.locals.httpCode = httpResponse(ok, filterData)
       next()
-    }
-  )
+    },
+  })
 }
 
 module.exports = {

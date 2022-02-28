@@ -67,6 +67,7 @@ const {
   defaultSunstoneConfig,
   defaultProvisionPath,
   defaultProvisionConfig,
+  defaultDownloader,
   defaultEmptyFunction,
 } = defaults
 const { internalServerError } = httpCodes
@@ -521,6 +522,9 @@ const genPathResources = () => {
     }
     if (!global.paths.FIREEDGE_LOG) {
       global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
+    }
+    if (!global.paths.DOWNLOADER) {
+      global.paths.DOWNLOADER = `${VAR_LOCATION}/${defaultDownloader}`
     }
     if (!global.paths.SUNSTONE_AUTH_PATH) {
       global.paths.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`

@@ -15,22 +15,23 @@
  * ------------------------------------------------------------------------- */
 
 const {
-  httpMethod,
   from: fromData,
+  httpMethod,
 } = require('../../../utils/constants/defaults')
 
 const { POST, GET } = httpMethod
 const { query, resource, postBody } = fromData
 
 const basepath = '/marketapp'
-
 const MARKETAPP_EXPORT = 'marketapp.export'
-const MARKETAPP_IMPORT = 'marketapp.import'
+const MARKETAPP_DOWNLOAD = 'marketapp.download'
+const MARKETAPP_VMIMPORT = 'marketapp.vmimport'
 const MARKETAPP_DOCKERTAGS = 'marketapp.dockertags'
 
 const Actions = {
   MARKETAPP_EXPORT,
-  MARKETAPP_IMPORT,
+  MARKETAPP_DOWNLOAD,
+  MARKETAPP_VMIMPORT,
   MARKETAPP_DOCKERTAGS,
 }
 
@@ -68,8 +69,21 @@ module.exports = {
         },
       },
     },
-    [MARKETAPP_IMPORT]: {
-      path: `${basepath}/import/:resource/:id`,
+    [MARKETAPP_DOWNLOAD]: {
+      path: `${basepath}/download/:id`,
+      httpMethod: GET,
+      auth: false,
+      params: {
+        id: {
+          from: resource,
+        },
+        token: {
+          from: query,
+        },
+      },
+    },
+    [MARKETAPP_VMIMPORT]: {
+      path: `${basepath}/vmimport/:vmId`,
       httpMethod: POST,
       auth: true,
       params: {

@@ -670,6 +670,7 @@ module.exports = {
     automatically added when the App is exported`,
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
+  DownloadApp: 'Download App',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',
   ExportTemplateNameConcept: `

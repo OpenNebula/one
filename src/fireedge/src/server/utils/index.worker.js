@@ -50,10 +50,14 @@ onmessage = function (ev = {}) {
     if (globalState && user && password && rpc && command) {
       pass = false
       global.paths = globalState
-      const connect = opennebulaConnect(user, password, rpc)
-      connect(command, paramsCommand, (err, value) => {
-        pass = true
-        returnDataWorker({ err, value })
+      const oneConnect = opennebulaConnect(user, password, rpc)
+      oneConnect({
+        action: command,
+        parameters: paramsCommand,
+        callback: (err, value) => {
+          pass = true
+          returnDataWorker({ err, value })
+        },
       })
     }
   }
