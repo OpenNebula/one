@@ -46,9 +46,20 @@ define(function(require) {
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require("./tabId");
-  var LABELS_COLUMN = 10;
-  var SEARCH_COLUMN = 11;
   var TEMPLATE_ATTR = "TEMPLATE";
+  var COLUMNS = {
+    ID: 1,
+    NAME: 2,
+    CLUSTER: 3,
+    RVMS: 4,
+    ALLOCATED_CPU: 5,
+    ALLOCATED_MEM: 6,
+    STATUS: 7,
+    IM_MAD: 8,
+    VM_MAD: 9,
+    LABELS: 10,
+    SEARCH: 10,
+  }
 
   /*
     CONSTRUCTOR
@@ -60,7 +71,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
-    this.labelsColumn = LABELS_COLUMN;
+    this.labelsColumn = COLUMNS.LABELS;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -109,7 +120,7 @@ define(function(require) {
     this.allocatedMemory = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
-    this.searchColumn = SEARCH_COLUMN;
+    this.searchColumn = COLUMNS.SEARCH;
 
     TabDataTable.call(this);
   };
@@ -119,7 +130,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
-  Table.prototype.isOpenNebulaResourceInHost = _isOpenNebulaResourceInHost;
+  Table.prototype.columnsIndex = COLUMNS;
 
   return Table;
 
@@ -288,33 +299,5 @@ define(function(require) {
         "<span id=\"" + html_tag + "_str\" class=\"right\">" + quota.str + "</span>" +
       "</div>" +
     "</div>";
-  }
-
-  /**
-   * Checks that a OpenNebula resource is in the selected hosts.
-   * 
-   * @param {object} resource - OpenNebula resource: Datastore, VM, etc
-   * @param {function(object):string|string[]} [fnGetResourceCluster]
-   * - Function to get Clusters ids from resource
-   * @returns `true` if selected Hosts and the resource are in same cluster
-   */
-  function _isOpenNebulaResourceInHost(resource, fnGetResourceCluster) {
-    var clusters = typeof fnGetResourceCluster === 'function'
-      ? fnGetResourceCluster(resource)
-      : resource.CLUSTERS.ID
-
-    var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
-    var selectedHostIds = this.retrieveResourceTableSelect();
-    var allHosts = this.dataTable.fnGetData();
-    var id_index = this.selectOptions.id_index;
-
-    var selectedClusters = !Array.isArray(allHosts) ? [] : allHosts
-      .filter(function(host) { return selectedHostIds.includes(host[id_index]) })
-      .map(function(host) { return host[3] }); // cluster column => 3
-
-    return selectedClusters.length === 0 ||
-      ensuredClusters.some(function (cluster) {
-        return selectedClusters.includes(cluster)
-      });
   }
 });

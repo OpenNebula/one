@@ -39,23 +39,38 @@ define(function(require) {
     CONSTANTS
    */
 
+  var general = require("./create/wizard-tabs/general")
+  var storage = require("./create/wizard-tabs/storage")
+  var network = require("./create/wizard-tabs/network")
+  var os = require("./create/wizard-tabs/os")
+  var io = require("./create/wizard-tabs/io")
+  var actions = require("./create/wizard-tabs/actions")
+  var context = require("./create/wizard-tabs/context")
+  var scheduling = require("./create/wizard-tabs/scheduling")
+  var hybrid = require("./create/wizard-tabs/hybrid")
+  var vmgroup = require("./create/wizard-tabs/vmgroup")
+  var other = require("./create/wizard-tabs/other")
+  var numa = require("./create/wizard-tabs/numa")
+
   var WIZARD_TABS = [
-    require("./create/wizard-tabs/general"),
-    require("./create/wizard-tabs/storage"),
-    require("./create/wizard-tabs/network"),
-    require("./create/wizard-tabs/os"),
-    require("./create/wizard-tabs/io"),
-    require("./create/wizard-tabs/actions"),
-    require("./create/wizard-tabs/context"),
-    require("./create/wizard-tabs/scheduling"),
-    require("./create/wizard-tabs/hybrid"),
-    require("./create/wizard-tabs/vmgroup"),
-    require("./create/wizard-tabs/other"),
-    require("./create/wizard-tabs/numa")
+    general,
+    storage,
+    network,
+    os,
+    io,
+    actions,
+    context,
+    scheduling,
+    hybrid,
+    vmgroup,
+    other,
+    numa
   ];
 
   var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");
   var VROUTER_TEMPLATES_TAB_ID = require("tabs/vrouter-templates-tab/tabId");
+
+  var in_progress = false
 
   /*
     CONSTRUCTOR
@@ -145,9 +160,17 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup($("#" + wizardTab.wizardTabId, context));
-    });
+    $.each(
+      [].concat(this.wizardTabs).sort(function(a, b) {
+        var setupOrderA = a.setupOrder === undefined ? -1 : a.setupOrder
+        var setupOrderB = b.setupOrder === undefined ? -1 : b.setupOrder
+
+        return setupOrderB - setupOrderA
+      }),
+      function(index, wizardTab) {
+        wizardTab.setup($("#" + wizardTab.wizardTabId, context));
+      }
+    );
 
     Foundation.reflow(context, "tabs");
     Tips.setup(context);
@@ -402,7 +425,16 @@ define(function(require) {
     this.notify();
   }
 
-  var in_progress = false;
+  function insertAt(array, index, element) {
+    array.splice(index, 0, element);
+  }
+
+  function insertAt2(array, index, element) {
+    return array
+      .slice(0, index)
+      .concat(element)
+      .concat(array.slice(index));
+  }
 
   function _notify() {
     var that = this;

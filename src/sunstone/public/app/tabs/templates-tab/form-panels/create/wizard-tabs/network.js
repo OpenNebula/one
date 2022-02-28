@@ -106,6 +106,8 @@ define(function(require) {
       return false;
     });
 
+    that.addNicTab(context);
+
     if(that.listener != undefined){
       $(context).on("change", "input", function(){
         that.listener.notify();
@@ -194,19 +196,17 @@ define(function(require) {
       });
     }
 
-    nics.length === 0
-      ? that.addNicTab(context)
-      : $.each(nics, function(nicId, nicJSON) {
-        that.addNicTab(context);
+    $.each(nics, function(nicId, nicJSON) {
+      nicId > 0 && that.addNicTab(context);
 
-        var nicTab = that.nicTabObjects[that.numberOfNics];
-        var nicContext = $('#' + nicTab.nicTabId, context);
-        nicTab.fill(nicContext, nicJSON);
+      var nicTab = that.nicTabObjects[that.numberOfNics];
+      var nicContext = $('#' + nicTab.nicTabId, context);
+      nicTab.fill(nicContext, nicJSON);
 
-        if (nicJSON.PARENT) {
-          nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
-        }
-      });
+      if (nicJSON.PARENT) {
+        nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
+      }
+    });
 
     that.renameTabLinks(context);
     that.enableRDP(context);

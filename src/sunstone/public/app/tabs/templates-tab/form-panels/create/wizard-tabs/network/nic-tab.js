@@ -121,23 +121,37 @@ define(function(require) {
       $(".only_create", context).hide();
     }
 
+    var isInHostOrClusterTable = function(vnet){
+      if (!options.hostsTable || !options.clustersTable) return true;
+
+      var clusters = vnet.CLUSTERS.ID;
+      var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+
+      var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+      var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+      var clustersIds = options.clustersTable.getColumnDataInSelectedRows()
+
+      return (
+        (hostClustersIds.length === 0 && clustersIds.length === 0) ||
+        hostClustersIds
+          .concat(clustersIds)
+          .some(function(id) { return ensuredClusters.includes(id) })
+      )
+    }
+
     that.vnetsTable.initialize({
       'selectOptions': {
         filter_fn: function(vnet) {
-          if (!options.hostsTable || !options.clustersTable) return true;
+          const filterResource = isInHostOrClusterTable(vnet)
 
-          var inHostOrCluster = $("input[name='req_select']:checked").val() === "host_select"
-            ? options.hostsTable.isOpenNebulaResourceInHost(vnet)
-            : options.clustersTable.isOpenNebulaResourceInCluster(vnet)
-
-          if (!inHostOrCluster && $('#NETWORK', context).val() === vnet.NAME) {
+          if (!filterResource && $('#NETWORK', context).val() === vnet.NAME) {
             that.secgroupsTable.selectResourceTableSelect({ ids: [] });
             $.each(['NETWORK_ID', 'NETWORK', 'NETWORK_UNAME', 'NETWORK_UID'], function() {
               $('#' + this, context).val('');
             })
           }
 
-          return inHostOrCluster
+          return filterResource
         },
         select_callback: function(aData, options) {
           // If the net is selected by Id, avoid overwriting it with name+uname
@@ -177,11 +191,7 @@ define(function(require) {
     that.vnetsTableAuto.initialize({
       selectOptions: {
         filter_fn: function(vnet) {
-          if (!options.hostsTable || !options.clustersTable) return true;
-
-          return $("input[name='req_select']:checked").val() === "host_select"
-            ? options.hostsTable.isOpenNebulaResourceInHost(vnet)
-            : options.clustersTable.isOpenNebulaResourceInCluster(vnet)
+          return isInHostOrClusterTable(vnet)
         },
         select_callback: function(aData, options) {
           that.generateRequirements(context)
