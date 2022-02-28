@@ -79,9 +79,11 @@ if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
     DST_DEV="/dev/${DST_VG_NAME}/${LV_NAME}"
 
     # skip deactivate for `onevm resume` (after stop or undeploy)
+    # or if VM is unknown
     # 9(49) = PROLOG_RESUME(+FAILURE)
     # 31(50) = PROLOG_UNDEPLOY(+FAILURE)
-    if ! [[ "$LCM_STATE" =~ ^(9|31|49|50)$ ]]; then
+    # 16 = UNKNOWN
+    if ! [[ "$LCM_STATE" =~ ^(9|16|31|49|50)$ ]]; then
         # deactivate
         CMD=$(cat <<EOF
             set -ex -o pipefail
@@ -162,6 +164,11 @@ fi
 # Return if the target path is the same as the source path. No need to move
 # anything. This is *not* a system ds migration.
 if [ "$SRC_PATH" == "$DST_PATH" ]; then
+    exit 0
+fi
+
+# Return if VM is unknown, assume SRC host failure
+if [[ "$LCM_STATE" = "16" ]]; then
     exit 0
 fi
 
