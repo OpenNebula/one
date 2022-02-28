@@ -111,6 +111,33 @@ module OneDBFsck
                 @showback_delete.add(row[:vid])
             end
         end
+
+        # Query to select history elements that have:
+        #   - etime = 0
+        #   - is last seq
+        #   - VM is RUNNING
+        # If RETIME != 0, change it to 0
+        @db.fetch('SELECT * ' \
+                  'FROM history ' \
+                  'WHERE (etime = 0 AND vid IN ' \
+                  '(SELECT oid FROM vm_pool WHERE state=3) AND ' \
+                  'seq = (SELECT MAX(seq) FROM history AS subhistory ' \
+                  'WHERE history.vid=subhistory.vid))') do |row|
+            history_doc = nokogiri_doc(row[:body])
+            retime = history_doc.root.at_xpath('RETIME')
+
+            if retime.text.to_i != 0
+                log_error("History for VM #{row[:vid]} seq # #{row[:seq]} "\
+                    "has RETIME = #{retime.text}, but it's still running")
+
+                retime.content = '0'
+
+                row[:body] = history_doc.root.to_s
+
+                history_fix.push(row)
+                @showback_delete.add(row[:vid])
+            end
+        end
     end
 
     # Fix the broken history records
