@@ -32,8 +32,15 @@ define(function(require) {
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 6;
   var TEMPLATE_ATTR = 'TEMPLATE';
+  var COLUMNS = {
+    ID: 1,
+    NAME: 2,
+    HOSTS: 3,
+    VNETS: 4,
+    DATASTORES: 5,
+    LABELS: 6
+  }
 
   /*
     CONSTRUCTOR
@@ -45,7 +52,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
-    this.labelsColumn = LABELS_COLUMN;
+    this.labelsColumn = COLUMNS.LABELS;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -88,7 +95,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
-  Table.prototype.isOpenNebulaResourceInCluster = _isOpenNebulaResourceInCluster;
+  Table.prototype.columnsIndex = COLUMNS;
 
   return Table;
 
@@ -129,27 +136,5 @@ define(function(require) {
 
   function _postUpdateView() {
     $(".total_clusters").text(this.totalClusters);
-  }
-
-  /**
-   * Checks that a OpenNebula resource is in the selected clusters.
-   * 
-   * @param {object} resource - OpenNebula resource: Datastore, VM, etc
-   * @param {function(object):string|string[]} [fnGetResourceCluster]
-   * - Function to get Clusters ids from resource
-   * @returns `true` if selected Clusters contain the resource
-   */
-  function _isOpenNebulaResourceInCluster(resource, fnGetResourceCluster) {
-    var clusters = typeof fnGetResourceCluster === 'function'
-      ? fnGetResourceCluster(resource)
-      : resource.CLUSTERS.ID
-
-    var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
-    var selectedClusterIds = this.retrieveResourceTableSelect();
-
-    return selectedClusterIds.length === 0 ||
-      ensuredClusters.some(function (cluster) {
-        return selectedClusterIds.includes(cluster)
-      });
   }
 });

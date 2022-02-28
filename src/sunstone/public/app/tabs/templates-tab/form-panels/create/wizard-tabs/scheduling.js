@@ -69,6 +69,7 @@ define(function(require) {
   WizardTab.prototype.constructor = WizardTab;
   WizardTab.prototype.html = _html;
   WizardTab.prototype.setup = _setup;
+  WizardTab.prototype.setupOrder = 1;
   WizardTab.prototype.onShow = _onShow;
   WizardTab.prototype.retrieve = _retrieve;
   WizardTab.prototype.fill = _fill;
@@ -143,9 +144,19 @@ define(function(require) {
         filter_fn: function(ds) {
           if (!that.hostsTable || !that.clustersTable) return true;
 
-          return $("input[name='req_select']:checked").val() === "host_select"
-            ? that.hostsTable.isOpenNebulaResourceInHost(ds)
-            : that.clustersTable.isOpenNebulaResourceInCluster(ds)
+          var clusters = ds.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+
+          var hostClusterIndex = that.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = that.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+          var clustersIds = that.clustersTable.getColumnDataInSelectedRows()
+
+          return (
+            (hostClustersIds.length === 0 && clustersIds.length === 0) ||
+            hostClustersIds
+              .concat(clustersIds)
+              .some(function(id) { return ensuredClusters.includes(id) })
+          )
         }
       })
     });
@@ -184,18 +195,11 @@ define(function(require) {
           clusters.push(match[1])
       }
 
-      var selectedResources = {
-          ids : hosts
-        }
+      this.hostsTable.selectResourceTableSelect({ ids: hosts });
+      this.clustersTable.selectResourceTableSelect({ ids: clusters });
 
-      this.hostsTable.selectResourceTableSelect(selectedResources);
-
-
-      var selectedResources = {
-          ids : clusters
-        }
-
-      this.clustersTable.selectResourceTableSelect(selectedResources);
+      this.datastoresTable.updateFn();
+      this.datastoresTable.deselectHiddenResources();
     }
 
     var dsReqJSON = templateJSON['SCHED_DS_REQUIREMENTS'];

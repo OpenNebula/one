@@ -345,7 +345,15 @@ define(function(require) {
         filter_fn: function(vnet) {
           if (!options.hostsTable) return true;
 
-          return options.hostsTable.isOpenNebulaResourceInHost(vnet)
+          var clusters = vnet.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+          var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+
+          return hostClustersIds.length === 0 ||
+            hostClustersIds.some(function(id) {
+              return ensuredClusters.includes(id)
+            })
         },
         "select_callback": function(aData, options) {
             var req_string=[];
@@ -585,7 +593,15 @@ define(function(require) {
         filter_fn: function(vnet) {
           if (!options.hostsTable) return true;
 
-          return options.hostsTable.isOpenNebulaResourceInHost(vnet)
+          var clusters = vnet.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+          var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+
+          return hostClustersIds.length === 0 ||
+            hostClustersIds.some(function(id) {
+              return ensuredClusters.includes(id)
+            })
         },
       }
     });

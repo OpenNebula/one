@@ -530,7 +530,15 @@ define(function(require) {
               filter_fn: function(ds) {
                 if (!that.hostsTable.dataTable) return true;
 
-                return that.hostsTable.isOpenNebulaResourceInHost(ds)
+                var clusters = ds.CLUSTERS.ID;
+                var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+                var hostClusterIndex = that.hostsTable.columnsIndex.CLUSTER
+                var hostClustersIds = that.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+
+                return hostClustersIds.length === 0 ||
+                  hostClustersIds.some(function(id) {
+                    return ensuredClusters.includes(id)
+                  })
               },
               select_callback: function(aData, options) {
                 var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");

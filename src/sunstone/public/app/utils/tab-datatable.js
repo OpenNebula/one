@@ -170,6 +170,7 @@ define(function(require) {
     "clearLabelsFilter": _clearLabelsFilter,
     "getLabelsFilter": _getLabelsFilter,
     "deselectHiddenResources": _deselectHiddenResources,
+    "getColumnDataInSelectedRows": _getColumnDataInSelectedRows,
   };
 
   return TabDatatable;
@@ -1275,5 +1276,23 @@ define(function(require) {
     this.selectResourceTableSelect({ ids });
 
     return ids
+  }
+
+  /**
+   * Returns the selected data from a column by index.
+   * 
+   * @param {number} columnIndex - Column index
+   * @returns {any[]} List of column data
+   */
+  function _getColumnDataInSelectedRows(columnIndex) {
+    var selectedRowIds = this.retrieveResourceTableSelect();
+    var allRows = this.dataTable.fnGetData();
+    var id_index = this.selectOptions.id_index;
+
+    var columnData = !Array.isArray(allRows) ? [] : allRows
+      .filter(function(row) { return selectedRowIds.includes(row[id_index]) })
+      .map(function(row) { return row[(columnIndex || id_index)] });
+
+    return columnData;
   }
 });
