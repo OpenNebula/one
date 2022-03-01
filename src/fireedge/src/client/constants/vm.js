@@ -179,7 +179,6 @@ import { ScheduleAction } from 'client/constants/scheduler'
  * @property {string} [TEMPLATE.MEMORY] -
  * @property {string} [TEMPLATE.MEMORY_COST] -
  * @property {string} [TEMPLATE.MEMORY_MAX] -
- * @property {string} [TEMPLATE.MEMORY_SLOTS] -
  * @property {Nic|Nic[]} [TEMPLATE.NIC] -
  * @property {NicAlias|NicAlias[]} [TEMPLATE.NIC_ALIAS] -
  * @property {any} [TEMPLATE.NIC_DEFAULT] -

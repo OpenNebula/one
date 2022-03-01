@@ -53,33 +53,8 @@ if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
         sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
     fi
 
-    # Extract node id from virsh dumpxml
-    XML_INFO=$(virsh --connect ${LIBVIRT_URI} dumpxml ${DOMAIN})
-    IFS= read -r -d '' NODE_ID < <(echo "$XML_INFO" | $XPATH --subtree /domain/cpu/numa/cell/@id)
-
-    MEM_DIFF=$(expr $MEM - $MEM_OLD)
-
-    case $MEM_DIFF in
-    -*)
-      ACTION="detach-device"
-      MEM_DIFF=${MEM_DIFF#-}
-      ;;
-    *)
-      ACTION="attach-device"
-      ;;
-    esac
-
-    # Create tmp file with memory device specification
-    TMPFILE=$(mktemp /tmp/resize.XXXXXX)
-    echo -e "<memory model='dimm'>\n\t<target>\n\
-            <size unit='MiB'>$MEM_DIFF</size>\n\
-            <node>$NODE_ID</node>\n\t</target>\n</memory>" >$TMPFILE
-
     # Add memory to VM
-    exec_and_log "virsh --connect ${LIBVIRT_URI} ${ACTION} ${DOMAIN} ${TMPFILE} --live"
-
-    # Cleanup
-    rm $TMPFILE
+    exec_and_log "virsh --connect ${LIBVIRT_URI} setmem ${DOMAIN} $((${MEM}*1024))"
 
     # Compact memory
     if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then

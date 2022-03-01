@@ -718,24 +718,21 @@ int LibVirtDriver::deployment_description_kvm(
     // Memory must be expressed in Kb
     if (vm->get_template_attribute("MEMORY",memory))
     {
-        file << "\t<memory>" << memory * 1024 << "</memory>" << endl;
+        bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
+        has_memory_max = has_memory_max && memory < memory_max;
+
+        if (!has_memory_max)
+        {
+            memory_max = memory;
+        }
+
+        file << "\t<memory>" << memory_max * 1024 << "</memory>" << endl;
+        file << "\t<currentMemory>" << memory * 1024 << "</currentMemory>" << endl;
     }
     else
     {
         vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
         return -1;
-    }
-
-    bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
-    has_memory_max = has_memory_max && memory < memory_max;
-
-    if (!topology && has_memory_max)
-    {
-        int slots = 0;
-        get_attribute(vm, host, cluster, "MEMORY_SLOTS", slots);
-
-        file << "\t<maxMemory slots='" << slots
-             << "'>" << memory_max * 1024 << "</maxMemory>" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -851,7 +848,7 @@ int LibVirtDriver::deployment_description_kvm(
         cpu_mode = "custom";
     }
 
-    if ( !cpu_model.empty() || topology != 0 || has_memory_max )
+    if ( !cpu_model.empty() || topology != 0 )
     {
         file << "\t<cpu";
 
@@ -868,19 +865,6 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << ">\n";
-        }
-
-        if (nodes.empty() && has_memory_max)
-        {
-            int cpus = to_i(vcpu) - 1;
-            if (cpus < 0)
-            {
-                cpus = 0;
-            }
-
-            file << "\t\t<numa>\n\t\t\t<cell id='0' cpus='0-" << cpus
-                << "' memory=" << one_util::escape_xml_attr(memory * 1024)
-                << " unit='KiB'/>\n\t\t</numa>" << endl;
         }
 
         vtopol(file, topology, nodes, numa_tune, mbacking);
