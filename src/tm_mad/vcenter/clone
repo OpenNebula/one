@@ -104,7 +104,8 @@ target_path_escaped = VCenterDriver::FileHelper
 target_path = VCenterDriver::FileHelper.unescape_path(target_path_escaped)
 
 begin
-    retries ||= 0
+    op_retry = true
+
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     disk_xpath ="TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]"
     one_disk = one_vm.retrieve_xmlelements(disk_xpath) rescue nil
@@ -112,6 +113,18 @@ begin
     one_disk = one_disk.first if one_disk
 
     raise 'Cannot find disk element in vm template' unless one_disk
+
+    vm = VCenterDriver::VirtualMachine.new(vi_client, nil, vm_id)
+
+    if vm.snapshots? || vm.one_snapshots?
+        # If there are snapshots we shouldn't retry
+        op_retry = false
+
+        raise 'Existing sytem snapshots, cannot change disks. ' \
+              'Please remove all snapshots and try again.'
+    end
+
+    retries ||= 0
 
     disk = VCenterDriver::VirtualMachine::Disk.one_disk(disk_id, one_disk)
     new_size = disk.new_size
@@ -121,7 +134,6 @@ begin
 
     if !(!disk.managed? || (is_storage_drs && disk.volatile?))
         if is_storage_drs
-            vm = VCenterDriver::VirtualMachine.new(vi_client, nil, vm_id)
             # Get a single DS using StoragePod recommendation
             # We overwrite the reference in target_ds_ref from the StoragePod
             # to the single recommended DS
@@ -146,14 +158,20 @@ begin
 rescue StandardError => e
     message = "Error clone virtual disk #{src_path} in "\
               "datastore #{target_ds_name_vc}. "\
-              "Reason: #{e.message}."
+              "Reason: #{e.message}." \
+              "on attempt \##{retries}."
+
+    if op_retry && (retries += 1) > CONFIG[:retries]
+        message << "\nPlease check vCenter logs directly\n"
+    end
+
     OpenNebula.log_error(message)
     if VCenterDriver::CONFIG[:debug_information]
         STDERR.puts "#{message} #{e.backtrace}"
     end
 
-    sleep 60
-    retry if retries < CONFIG[:retries]
+    sleep 60 if op_retry
+    retry if op_retry && retries < CONFIG[:retries]
 
     exit(-1)
 ensure
