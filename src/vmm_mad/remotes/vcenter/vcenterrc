@@ -46,3 +46,11 @@
 
 # Set to true if you need OpenNebula avoid change imported MAC
 :keep_mac_on_imported: false
+
+# Set to true to have Wild VM disks importent as persistent images,
+# otherwise they will be imported as non persistent
+:wild_vm_persistent_images: true
+
+# Set to true to have Wild VM disks importent as persistent images,
+# otherwise they will be imported as non persistent
+:vm_template_persistent_images: false

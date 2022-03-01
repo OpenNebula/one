@@ -408,13 +408,25 @@ module VCenterDriver
                         break
                     end
 
+                    # Read configuration for imported images, taking
+                    # into account if we are importing a VM Tempalte
+                    # or a Wild VM
+                    image_persistency = nil
+                    if vm?
+                        image_persistency = :wild_vm_persistent_images
+                    else
+                        image_persistency = :vm_template_persistent_images
+                    end
+
+                    image_persistency = VCenterDriver::CONFIG[image_persistency]
+
                     params = {
                         :disk => disk,
                         :ipool => ipool,
                         :_type => type,
                         :ds_id => datastore_found['ID'],
                         :opts => {
-                            :persistent => vm? ? 'YES':'NO'
+                            :persistent => image_persistency ? 'YES':'NO'
                         },
                         :images => images
                     }
