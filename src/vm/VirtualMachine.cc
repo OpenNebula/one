@@ -832,17 +832,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     user_obj_template->erase("MEMORY");
     obj_template->add("MEMORY", memory);
 
-    // Check optional MEMORY_MAX and MEMORY_SLOTS attribute
+    // Check optional MEMORY_MAX attribute
     if ( user_obj_template->get("MEMORY_MAX", ivalue) && ivalue > 0 )
     {
         user_obj_template->erase("MEMORY_MAX");
         obj_template->add("MEMORY_MAX", ivalue);
-    }
-
-    if ( user_obj_template->get("MEMORY_SLOTS", ivalue) && ivalue > 0 )
-    {
-        user_obj_template->erase("MEMORY_SLOTS");
-        obj_template->add("MEMORY_SLOTS", ivalue);
     }
 
     if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )

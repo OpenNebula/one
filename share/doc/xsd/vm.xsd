@@ -121,7 +121,6 @@
               <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MEMORY_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MEMORY_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="MEMORY_SLOTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
