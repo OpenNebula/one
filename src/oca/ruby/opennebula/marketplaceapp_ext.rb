@@ -185,28 +185,16 @@ module OpenNebula::MarketPlaceAppExt
                 #---------------------------------------------------------------
                 # Created an associated VMTemplate if needed
                 #---------------------------------------------------------------
-                if is_vcenter
-                    ret = create_vcenter_template(ds)
+                if is_vcenter &&
+                    (!options[:template] || options[:template] == -1)
+                    tmpl = create_vcenter_template(ds, options, image)
 
-                    tmpl = <<-EOT
-                    NAME   = "#{options[:vmtemplate_name] || options[:name]}"
-                    DISK   = [ IMAGE_ID = "#{image.id}" ]
-                    CPU    = "1"
-                    VCPU   = "1"
-                    MEMORY = "128"
-                    HYPERVISOR = "vcenter"
-                    EOT
-
-                    ret.each do |key, value|
-                        tmpl << "#{key}=\"#{value}\"\n"
+                    if OpenNebula.is_error?(tmpl)
+                        rc_info[:vmtemplate] = [tmpl]
+                    else
+                        rc_info[:vmtemplate] = [tmpl.id]
                     end
 
-                    vmtpl = Template.new(Template.build_xml, @client)
-
-                    rc = vmtpl.allocate(tmpl)
-                    rc = vmtpl.id unless OpenNebula.is_error?(rc)
-
-                    rc_info[:vmtemplate] = [rc]
                     return rc_info
                 end
 
@@ -314,8 +302,10 @@ module OpenNebula::MarketPlaceAppExt
             # Create a VM template in vCenter in order to use it when
             # deploying an app from the marketplace
             #
-            # @param ds [OpenNebula::Datastore] Datastore information
-            def create_vcenter_template(ds)
+            # @param ds      [OpenNebula::Datastore] Datastore information
+            # @param options [Hash]                  Export options
+            # @param image   [OpenNebula::Image]     Image information
+            def create_vcenter_template(ds, options, image = nil)
                 ret  = {}
                 keys = %w[VCENTER_TEMPLATE_REF
                           VCENTER_CCR_REF
@@ -325,99 +315,110 @@ module OpenNebula::MarketPlaceAppExt
                     keys.each do |key|
                         ret[key] = ds["//#{key}"]
                     end
+                else
+                    require 'vcenter_driver'
 
-                    return ret
-                end
+                    # Get vi client for current datastore
+                    vi_client = VCenterDriver::VIClient.new_from_datastore(
+                        ds.id
+                    )
 
-                require 'vcenter_driver'
+                    # Get datastore object
+                    ds_ref    = ds['//VCENTER_DS_REF']
+                    datastore = VCenterDriver::Datastore.new_from_ref(
+                        ds_ref,
+                        vi_client
+                    )
 
-                # Get vi client for current datastore
-                vi_client = VCenterDriver::VIClient.new_from_datastore(ds.id)
+                    # Get resource pool
+                    host_ref          = datastore['host'].first.key.parent._ref
+                    vi_client.ccr_ref = host_ref
 
-                # Get datastore object
-                ds_ref    = ds['//VCENTER_DS_REF']
-                datastore = VCenterDriver::Datastore.new_from_ref(
-                    ds_ref,
-                    vi_client
-                )
+                    host = VCenterDriver::ClusterComputeResource.new_from_ref(
+                        host_ref,
+                        vi_client
+                    )
 
-                # Get resource pool
-                host_ref          = datastore['host'].first.key.parent._ref
-                vi_client.ccr_ref = host_ref
+                    rp = host.resource_pools.first
 
-                host = VCenterDriver::ClusterComputeResource.new_from_ref(
-                    host_ref,
-                    vi_client
-                )
+                    # Get vCentrer instance ID
+                    uuid = vi_client.vim.serviceContent.about.instanceUuid
 
-                rp = host.resource_pools.first
-
-                # Get vCentrer instance ID
-                uuid = vi_client.vim.serviceContent.about.instanceUuid
-
-                # Create VM folder it not exists
-                dc        = datastore.obtain_dc.item
-                vm_folder = dc.find_folder('one_default_template')
-
-                if vm_folder.nil?
-                    dc.vmFolder.CreateFolder(:name => 'one_default_template')
+                    # Create VM folder it not exists
+                    dc        = datastore.obtain_dc.item
                     vm_folder = dc.find_folder('one_default_template')
+
+                    if vm_folder.nil?
+                        dc.vmFolder.CreateFolder(
+                            :name => 'one_default_template'
+                        )
+                        vm_folder = dc.find_folder('one_default_template')
+                    end
+
+                    # Define default VM config
+                    vm_cfg = { :name     => "one_app_template-#{ds.id}",
+                            :guestId  => 'otherGuest',
+                            :numCPUs  => 1,
+                            :memoryMB => 128,
+                            :files    => {
+                                :vmPathName => "[#{datastore.item.name}]"
+                            } }
+
+                    # Create the VM
+                    vm = vm_folder.CreateVM_Task(
+                        :config => vm_cfg,
+                        :pool   => rp
+                    ).wait_for_completion
+
+                    # Create the VM template
+                    vm.MarkAsTemplate
+
+                    ret['VCENTER_TEMPLATE_REF'] = vm._ref
+                    ret['VCENTER_CCR_REF']      = host_ref
+                    ret['VCENTER_INSTANCE_ID']  = uuid
+
+                    ret.each do |key, value|
+                        ds.update("#{key}=\"#{value}\"", true)
+                    end
                 end
 
-                # Define default VM config
-                vm_cfg = { :name     => "one_app_template-#{ds.id}",
-                           :guestId  => 'otherGuest',
-                           :numCPUs  => 1,
-                           :memoryMB => 128,
-                           :files    => {
-                               :vmPathName => "[#{datastore.item.name}]"
-                           } }
+                tmpl = <<-EOT
+                NAME   = "#{options[:vmtemplate_name] || options[:name]}"
+                CPU    = "1"
+                VCPU   = "1"
+                MEMORY = "128"
+                HYPERVISOR = "vcenter"
+                EOT
 
-                # Create the VM
-                vm = vm_folder.CreateVM_Task(
-                    :config => vm_cfg,
-                    :pool   => rp
-                ).wait_for_completion
-
-                # Create the VM template
-                vm.MarkAsTemplate
-
-                ret['VCENTER_TEMPLATE_REF'] = vm._ref
-                ret['VCENTER_CCR_REF']      = host_ref
-                ret['VCENTER_INSTANCE_ID']  = uuid
+                tmpl << "DISK = [ IMAGE_ID = \"#{image.id}\" ]" if image
 
                 ret.each do |key, value|
-                    ds.update("#{key}=\"#{value}\"", true)
+                    tmpl << "#{key}=\"#{value}\"\n"
                 end
 
-                ret
+                vmtpl = Template.new(Template.build_xml, @client)
+
+                rc = vmtpl.allocate(tmpl)
+
+                if OpenNebula.is_error?(rc)
+                    rc
+                else
+                    Template.new_with_id(vmtpl.id, @client)
+                end
             end
 
-            def update_options_with_template(options, _validate = false)
-                vcenterrc_path =
-                    "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
+            def update_options_with_template(options)
+                path = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
 
-                if File.file?(vcenterrc_path)
-                    config_vcenter = YAML.load_file(vcenterrc_path)
+                return options unless File.file?(path)
 
-                    if config_vcenter.key?(:default_template)
-                        options[:template] =
-                            config_vcenter[:default_template]
+                config = YAML.load_file(path)
 
-                        options
-                    else
-                        raise "Couldn't find default_template " \
-                              'configuration in vcenterrc conf ' \
-                              'file. Please use the --template ' \
-                              'file to define a VM Template ID if ' \
-                              'needed or add default_template to' \
-                              ' vcenterrc conf file'
-                    end
-                else
-                    raise "Couldn't find vcenterrc conf file. " \
-                          ' Please use the --template file to define' \
-                          ' a VM Template ID if needed.'
-                end
+                return options unless config.key?(:default_template)
+
+                options[:template] = config[:default_template]
+
+                options
             end
 
             # Creates a VM template based on the APPTEMPLATE64 attribute
@@ -441,19 +442,19 @@ module OpenNebula::MarketPlaceAppExt
                         options = update_options_with_template(options)
                     end
 
-                    template_id = options[:template]
+                    if !options[:template] || options[:template] == -1
+                        vmtpl = create_vcenter_template(ds, options)
+                    else
+                        template_id = options[:template]
+                        template    = Template.new_with_id(template_id, @client)
 
-                    if template_id < 0
-                        return
+                        vmtpl_id = template.clone(
+                            options[:vmtemplate_name] || options[:name]
+                        )
+
+                        vmtpl = Template.new_with_id(vmtpl_id, @client)
                     end
 
-                    template = Template.new_with_id(template_id, @client)
-
-                    vmtpl_id = template.clone(
-                        options[:vmtemplate_name] || options[:name]
-                    )
-
-                    vmtpl = Template.new_with_id(vmtpl_id, @client)
                     rc = vmtpl.info
                 else
                     # ----------------------------------------------------------
