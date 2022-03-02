@@ -411,6 +411,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
     vvalue.insert(make_pair("SYSTEM","file"));
     vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+    vvalue.insert(make_pair("USE_VMS_LOCATION","NO"));
 
     vattribute = new VectorAttribute("LOG",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));

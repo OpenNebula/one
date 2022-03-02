@@ -273,28 +273,35 @@ class SunstoneServer < CloudServer
     end
 
     ############################################################################
-    # Unused
+    #
     ############################################################################
     def get_vm_log(id)
         resource = retrieve_resource("vm", id)
+
         if OpenNebula.is_error?(resource)
-            return [404, nil]
-        else
-            if !ONE_LOCATION
-                vm_log_file = LOG_LOCATION + "/#{id}.log"
-            else
-                vm_log_file = LOG_LOCATION + "/vms/#{id}/vm.log"
-            end
-
-            begin
-                log = File.read(vm_log_file)
-            rescue Exception => e
-                msg = "Log for VM #{id} not available"
-                return [200, {:vm_log => msg}.to_json]
-            end
-
-            return [200, {:vm_log => log}.to_json]
+          return [404, nil]
         end
+
+        use_vms_location = begin
+            $conf[:locals][:oned_conf]["LOG"]["USE_VMS_LOCATION"]
+        rescue
+            "NO"
+        end
+
+        if !ONE_LOCATION && use_vms_location != "YES"
+            vm_log_file = LOG_LOCATION + "/#{id}.log"
+        else
+            vm_log_file = VMS_LOCATION + "/#{id}/vm.log"
+        end
+
+        begin
+            log = File.read(vm_log_file)
+        rescue Exception => e
+            msg = "Log for VM #{id} not available"
+            return [200, {:vm_log => msg}.to_json]
+        end
+
+        return [200, {:vm_log => log}.to_json]
     end
 
     ########################################################################

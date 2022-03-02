@@ -37,6 +37,8 @@ else
     SUNSTONE_LOCATION ||= ONE_LOCATION + '/lib/sunstone'
 end
 
+VMS_LOCATION = VAR_LOCATION + "/vms"
+
 SUNSTONE_AUTH             = VAR_LOCATION + '/.one/sunstone_auth'
 SUNSTONE_LOG              = LOG_LOCATION + '/sunstone.log'
 CONFIGURATION_FILE        = ETC_LOCATION + '/sunstone-server.conf'
@@ -107,7 +109,8 @@ ONED_CONF_OPTS = {
         'MARKET_MAD_CONF',
         'VM_MAD',
         'IM_MAD',
-        'AUTH_MAD'
+        'AUTH_MAD',
+        'LOG'
     ],
     # Generate an array if there is only 1 element
     'ARRAY_KEYS' => [
