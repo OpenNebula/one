@@ -309,7 +309,7 @@ CommandParser::CmdParser.new(ARGV) do
                 puts key.to_s.upcase
                 value.each do |id|
                     if OpenNebula.is_error?(id)
-                        puts id.to_str
+                        STDERR.puts id.to_str
                         exit(-1)
                     else
                         puts "    ID: #{id}"
