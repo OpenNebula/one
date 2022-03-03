@@ -1113,7 +1113,7 @@ module OneProvision
                 sleep 1
             end
 
-            raise OneProvisionLoopExeception, 'Timeout expired for deleting' /
+            raise OneProvisionLoopException, 'Timeout expired for deleting' /
                                               " image #{image['ID']}"
         end
 
