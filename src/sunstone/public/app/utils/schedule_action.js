@@ -18,20 +18,22 @@ define(function (require) {
   /*
     IMPORTS
   */
+  var Actions = require("opennebula/action");
   var Config = require("sunstone-config");
   var Humanize = require("utils/humanize");
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
+  var OpenNebulaVM = require("opennebula/vm");
+  var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
   var Tips = require("utils/tips");
-  var Sunstone = require("sunstone");
-  var OpenNebulaVM = require("opennebula/vm");
 
   /*
     TEMPLATES
   */
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
+  var TemplatePerformHTML = require("hbs!./schedule_action/perform-action");
   var TemplateTableRowHTML = require("hbs!./schedule_action/table-row");
   var TemplateCharterTableHTML = require("hbs!./schedule_action/charter-table");
   var TemplateCharterTableRowHTML = require("hbs!./schedule_action/charter-table-row");
@@ -127,6 +129,96 @@ define(function (require) {
       body: body,
       isVM: isVM,
       canAdd: canAdd
+    });
+  }
+
+  function _htmlPerformAction(resource, optionsRoles){
+    var optionsActions = defaultActions.map(function(ac){
+      return "<option value='"+ac+"'>"+ac+"</option>";
+    }).join("");
+
+    return TemplatePerformHTML({
+      res: resource,
+      actions: optionsActions,
+      roles: optionsRoles
+    });
+  }
+  
+  function _setupPerformAction(resource, service_id){
+    $("select#select_new_action").off("change").on("change",function(){
+      var snap_name = $("#snapname");
+      var snap_id = $("#snapid");
+      var disk_id = $("#diskid");
+      switch ($(this).val()) {
+        case "snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+        break;
+        case "snapshot-revert":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide").val("");
+        break;
+        case "snapshot-delete":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide").val("");
+        break;
+        case "disk-snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide").val("");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-revert":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-delete":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        default:
+          snap_name.addClass("hide").val("");
+          snap_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+        break;
+      }
+    });
+
+    $("#perform_"+resource+"_action_json").off("click").on("click", function(){
+      var new_action = $("select#select_new_action").val();
+      var role = $("select#role_name").val();
+      var snap_name = $("#snapname").val();
+      var snap_id = $("#snapid").val();
+      var disk_id = $("#diskid").val();
+      if(new_action){
+        var actionJSON = {};
+        actionJSON.error = function(e){
+          Notifier.notifyError((e && e.error && e.error.message) || Locale.tr("Error"));
+        };
+        actionJSON.success = function(e){
+          Notifier.notifyMessage(Locale.tr("Bulk Action Created"));
+        };
+        actionJSON.data = {};
+        actionJSON.data.id = service_id;
+        actionJSON.data.action = {perform: new_action};
+        actionJSON.data.action.params = {};
+        if(defaultActions.includes(new_action)){
+          var rawData = [disk_id,snap_id,snap_name];
+          var args = rawData.filter(function (e) {return e;}).join();
+          if(args){
+            actionJSON.data.action.params.args = args;
+          }
+        }
+        if(role!=="" && role!==undefined){
+          actionJSON.data.roleName = role;
+        }
+        Actions.addFlowAction(actionJSON,resource);
+      }
+      return false;
     });
   }
 
@@ -1424,5 +1516,7 @@ define(function (require) {
     "updateServiceHTMLTable": _updateServiceHTMLTable,
     "getScheduleActionTableContent": _getScheduleActionTableContent,
     "sendSchedActionToServiceRoles": sendSchedActionToServiceRoles,
+    "htmlPerformAction": _htmlPerformAction,
+    "setupPerformAction": _setupPerformAction
   };
 });
