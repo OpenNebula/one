@@ -41,6 +41,7 @@
       {{#if disabled}}disabled="true"{{/if}}/>
     <input type="number" class="visor"
       data-min="{{min}}" data-max="{{max_value}}"
-      value="{{initial}}" required/>
+      value="{{initial}}" required
+      {{#if readonly}} readonly {{/if}} />
   </div>
 </div>
