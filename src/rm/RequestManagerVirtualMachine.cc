@@ -1519,7 +1519,7 @@ void VirtualMachineDiskSaveas::request_execute(
         ds_check     = ds->get_avail_mb(avail);
         ds_disk_type = ds->get_disk_type();
         ds_mad       = ds->get_ds_mad();
-        ds_mad       = ds->get_tm_mad();
+        tm_mad       = ds->get_tm_mad();
     }
     else
     {
