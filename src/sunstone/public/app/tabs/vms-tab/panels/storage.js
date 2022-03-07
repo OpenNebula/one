@@ -359,14 +359,16 @@ define(function(require) {
         var sizeStr = "";
         if (disksSize[disk.DISK_ID]) {
           sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
-        } else {
-          sizeStr += '-';
+          sizeStr += '/';
+          if (disk.SIZE) {
+            sizeStr += Humanize.sizeFromMB(disk.SIZE);
+          } else {
+            sizeStr += '-';
+          }
+        } else if (disk.SIZE){
+          sizeStr += disk.SIZE;
         }
-
-        sizeStr += '/';
-        if (disk.SIZE) {
-          sizeStr += Humanize.sizeFromMB(disk.SIZE);
-        } else {
+        else {
           sizeStr += '-';
         }
 
