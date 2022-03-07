@@ -140,7 +140,7 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
             Open3.popen3("qemu-img info #{temp_file}") do
               |_stdin, stdout, stderr, wait_thr|
                 if wait_thr.value != 0
-                    STDERR.puts "'qemu-img info' stderr: #{stderr}"
+                    STDERR.puts "'qemu-img info' stderr: #{stderr.value}"
                     raise StandardError
                 end
                 file_type=stdout.read.split("\n")[1].split(':')[1].lstrip
