@@ -366,7 +366,7 @@ define(function(require) {
             sizeStr += '-';
           }
         } else if (disk.SIZE){
-          sizeStr += disk.SIZE;
+          sizeStr += Humanize.sizeFromMB(disk.SIZE);
         }
         else {
           sizeStr += '-';
