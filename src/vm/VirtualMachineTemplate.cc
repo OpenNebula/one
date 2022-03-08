@@ -90,6 +90,7 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
 {
     ostringstream oss;
     string labels;
+    string msg, schd_msg;
 
     string schd_rank, schd_ds_rank;
     string schd_req, schd_ds_req;
@@ -109,10 +110,22 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
         /* ------------------------------------------------------------------ */
         /* Attributes required by Sunstone                                    */
         /*  - LABELS                                                          */
+        /*  - ERROR                                                         */
+        /*  - SCHED_MESSAGE                                                   */
         /* ------------------------------------------------------------------ */
-        if (get("LABELS", labels))
+        if (get("LABELS", labels) && !labels.empty())
         {
             oss << "<LABELS>" << one_util::escape_xml(labels) << "</LABELS>";
+        }
+
+        if (get("ERROR", msg) && !msg.empty())
+        {
+            oss << "<ERROR>" << one_util::escape_xml(msg) << "</ERROR>";
+        }
+
+        if (get("SCHED_MESSAGE", schd_msg) && !schd_msg.empty())
+        {
+            oss << "<SCHED_MESSAGE>" << one_util::escape_xml(schd_msg) << "</SCHED_MESSAGE>";
         }
 
         /* ------------------------------------------------------------------ */
