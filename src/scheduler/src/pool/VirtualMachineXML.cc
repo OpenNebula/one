@@ -608,6 +608,8 @@ void VirtualMachineXML::log(const string &st)
 
     string sched_message = oss.str();
 
+    sched_message = one_util::gsub(sched_message, "\"",  "\\\"");
+
     user_template->replace("SCHED_MESSAGE", sched_message);
 
     oss.str("");
