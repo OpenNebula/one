@@ -22,7 +22,9 @@ define(function(require) {
     OpenNebulaDS = require("./datastore"),
     Locale = require("utils/locale"),
     Config = require("sunstone-config"),
-    Navigation = require("utils/navigation");
+    Navigation = require("utils/navigation"),
+    OpenNebulaHost = require('opennebula/host');
+
 
   var RESOURCE = "VM";
   var VM_MONITORING_CACHE_NAME = "VM.MONITORING";
@@ -1247,9 +1249,22 @@ define(function(require) {
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
-  function isKVMVM(element = {}){
-    return Boolean(element.USER_TEMPLATE &&
-      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "kvm");
+  function isKVMVM(hostID){
+    var isKVM = false;
+    OpenNebulaHost.show({
+      data : {
+        id: hostID
+      },
+      timeout: true,
+      success: function (_, hostTemplate) {
+        isKVM = String(hostTemplate.HOST.VM_MAD).toLowerCase() === 'kvm';
+      },
+      error: function(request, response) {
+        isKVM = false;
+      }},
+      false
+    );
+    return isKVM;
   }
 
   function isVMRCSupported(element = {}) {
@@ -1271,7 +1286,7 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
-    var isKVM = isKVMVM(element);
+    var isKVM = history.HID ? isKVMVM(history.HID) : false;
 
     return (actionEnabled && history && (vncSupported || spiceSupported) && isKVM)
       ? {
