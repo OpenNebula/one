@@ -297,7 +297,7 @@ define(function(require) {
       });
     },
 
-    "show": function(params, resource, subresource, path) {
+    "show": function(params, resource, subresource, path, async = true) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
@@ -314,6 +314,7 @@ define(function(require) {
         type: "GET",
         dataType: "json",
         data: data,
+        async: async,
         success: function(response) {
           return callback ? callback(request, response) : null;
         },

@@ -94,8 +94,8 @@ define(function(require) {
     "list_in_zone" : function(params) {
       OpenNebulaAction.list_in_zone(params, RESOURCE);
     },
-    "show": function(params) {
-      OpenNebulaAction.show(params, RESOURCE);
+    "show": function(params, async = true) {
+      OpenNebulaAction.show(params, RESOURCE, null, null, async);
     },
     "update": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param};
