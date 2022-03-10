@@ -24,6 +24,28 @@ class OpenNebulaVM
 
     CGROUP_DEFAULT_SHARES = 1024
 
+    CGROUP_NAMES ={
+        'cgroup' => {
+            :cpu        => 'shares',
+            :cores      => 'cpus',
+            :nodes      => 'mems',
+            :memory_max => 'limit_in_bytes',
+            :memory_low => 'soft_limit_in_bytes',
+            :swap       => 'memsw.limit_in_bytes',
+            :oom        => 'oom_control'
+        },
+        'cgroup2' => {
+            :cpu        => 'weight',
+            :cores      => 'cpus',
+            :nodes      => 'mems',
+            :memory_max => 'max',
+            :memory_low => 'low',
+            :swap       => 'swap.max',
+            :oom        => 'oom.group'
+
+        }
+    }
+
     #---------------------------------------------------------------------------
     # Class Constructor
     #---------------------------------------------------------------------------
@@ -60,6 +82,13 @@ class OpenNebulaVM
         !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
     end
 
+    # Returns cgroup version
+    def cgroup_ver
+        return 2 unless `mount | grep 'type cgroup2'`.empty?
+
+        1
+    end
+
     def wild?
         @vm_name && !@vm_name.include?('one-')
     end
@@ -79,6 +108,18 @@ class OpenNebulaVM
 
     def get_disks
         @xml.elements('//TEMPLATE/DISK')
+    end
+
+    def get_numa_nodes
+        @xml.elements('//TEMPLATE/NUMA_NODE')
+    end
+
+    def swap_limitable?
+        if File.exist?('/sys/fs/cgroup/memory/memory.memsw.limit_in_bytes')
+            return true
+        end
+
+        OpenNebula.log_warning('swap limiting via cgroups not supported')
     end
 
     def location
@@ -149,7 +190,11 @@ class OpenNebulaVM
         shares_val
     end
 
-    # Return the value for memmory.limit_in_bytes cgroup based on the value of
+    def get_memory
+        @xml['//TEMPLATE/MEMORY']
+    end
+
+    # Return the value for memory.limit_in_bytes cgroup based on the value of
     # MEMORY.
     #
     # memory.limit_in_bytes
@@ -158,10 +203,15 @@ class OpenNebulaVM
     # is possible to use suffixes to represent larger units - k or K for
     # kilobytes, m or M for megabytes, and g or G for gigabytes.
     # (https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory)
-    def memmory_limit_in_bytes
-        default_units = 'M' # MEMORY units are in MB
+    def limits_memory
+        "#{get_memory}M"
+    end
 
-        "#{@xml['//TEMPLATE/MEMORY']}#{default_units}"
+    def limits_memory_swap(hypervisor_attr)
+        memory = get_memory.to_i
+        swap = @xml["/VM/USER_TEMPLATE/#{hypervisor_attr}"].to_i
+
+        "#{swap + memory}M"
     end
 
     private

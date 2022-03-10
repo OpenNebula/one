@@ -24,4 +24,11 @@ module Command
 
     LOCK_FILE = '/tmp/onelxc-lock'
 
+    def self.container_cmd(name, cmd)
+        return true if execute_rc_log(cmd)
+
+        STDERR.puts "Check container logs at /var/log/lxc/#{name}"
+        false
+    end
+
 end

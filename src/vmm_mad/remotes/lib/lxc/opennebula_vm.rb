@@ -123,11 +123,47 @@ class LXCVM < OpenNebulaVM
             lxc["lxc.net.#{i}.veth.pair"] = "one-#{@vm_id}-#{nic['NIC_ID']}"
         end
 
-        # Add cgroup limitations
         # rubocop:disable Layout/LineLength
-        lxc['lxc.cgroup.cpu.shares']            = cpu_shares
-        lxc['lxc.cgroup.memory.limit_in_bytes'] = memmory_limit_in_bytes
-        lxc['lxc.cgroup.memory.oom_control']    = 1 # Avoid OOM to kill the process when limit is reached
+
+        # Add cgroup limitations
+
+        # rubocop:disable Style/ConditionalAssignment
+        cg_set = if cgroup_ver == 2
+                     CGROUP_NAMES.keys[1]
+                 else
+                     CGROUP_NAMES.keys[0]
+                 end
+        # rubocop:enable Style/ConditionalAssignment
+
+        pre= "lxc.#{cg_set}."
+
+        lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares
+
+        numa_nodes = get_numa_nodes
+
+        if !numa_nodes.empty?
+            nodes = []
+            cores = []
+
+            numa_nodes.each do |node|
+                nodes << node['MEMORY_NODE_ID']
+                cores << node['CPUS']
+            end
+
+            lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:cores]}"] = cores.join(',')
+            lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:nodes]}"] = nodes.join(',')
+        end
+
+        memory = limits_memory
+
+        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_max]}"] = memory
+        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_low]}"] = (memory.chomp.to_f*0.9).ceil
+
+        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:swap]}"] = limits_memory_swap('LXC_SWAP') if swap_limitable?
+
+        # Avoid OOM to kill the process when limit is reached
+        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:oom]}"] = 1
+
         # rubocop:enable Layout/LineLength
 
         # User mapping
