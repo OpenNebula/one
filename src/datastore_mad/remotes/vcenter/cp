@@ -136,37 +136,85 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     # Convert from current format to VMDK
     unless VCenterDriver::FileHelper.from_s3?(img_path)
         file_type=''
+        file_types={}
         begin
-            Open3.popen3("qemu-img info #{temp_file}") do
-              |_stdin, stdout, stderr, wait_thr|
-                if wait_thr.value != 0
-                    STDERR.puts "'qemu-img info' stderr: #{stderr.value}"
-                    raise StandardError
+            if File.directory?(temp_file)
+                img_files=Dir.glob("#{temp_file}/*")
+                if img_files.empty?
+                    raise StandardError.new("No files in img_path folder")
                 end
-                file_type=stdout.read.split("\n")[1].split(':')[1].lstrip
-                if file_type.nil? then raise StandardError end
-
-                wait_thr.join
+                img_files.each do |f|
+                    Open3.popen3("qemu-img info #{f}") do
+                      |_sdtin, stdout, stderr, wait_thr|
+                        unless wait_thr.value.success?
+                            raise StandardError.new("'qemu-img info' failed, stderr: #{stderr.read}")
+                        end
+                        tmp_file_type=stdout.read.split("\n")[1].split(':')[1].lstrip
+                        if tmp_file_type.nil? 
+                            raise StandardError.new("'qemu-img info' output unexpected format") 
+                        end
+                        file_types[f] = tmp_file_type
+                        wait_thr.join
+                    end
+                end
+                if file_types.values.include? 'vmdk'
+                    file_types={}
+                    file_type='vmdk'
+                    STDERR.puts "image(s) should already be in vmdk format"
+                    raise StandardError.new("0")
+                end
+            else
+                Open3.popen3("qemu-img info #{temp_file}") do
+                  |_stdin, stdout, stderr, wait_thr|
+                    unless wait_thr.value.success?
+                        raise StandardError.new("'qemu-img info' failed, stderr: #{stderr.read}")
+                    end
+                    file_type=stdout.read.split("\n")[1].split(':')[1].lstrip
+                    if file_type.nil?
+                        raise StandardError.new("'qemu-img info' output unexpected format")
+                    end
+                    wait_thr.join
+                end
             end
-        rescue StandardError
-            STDERR.puts "'qemu-img info' output appears to be invalid.' \
-              ' Cannot determine file type."
-            STDERR.puts "Removing #{temp_file}..."
-            FileUtils.rm_rf(temp_file)
-            exit(-1)
-        end
-        unless file_type == 'vmdk'
-            out_file = File.basename(temp_file, '.*')+'.tmp'
-            convert=system("qemu-img convert -f #{file_type}"\
-              " -O vmdk #{temp_file} #{out_file}")
-            if there_is_not_system_error?(convert)
-                STDERR.puts "Error converting #{temp_file}."
-                STDERR.puts "Removing #{temp_file} and #{out_file}."
-                File.Utils.rm_rf(out_file)
-                File.Utils.rm_rf(temp_file)
+        rescue StandardError => e
+            unless e.message == "0"
+                STDERR.puts "Failed to determine image type, error: #{e}"
+                STDERR.puts "Removing #{temp_file}..."
+                FileUtils.rm_rf(temp_file)
                 exit(-1)
             end
-            FileUtils.mv(out_file, temp_file)
+        end
+        # If we have file_types, that means we're converting a directory
+        begin
+            if !file_types.empty?
+                out_dir="#{temp_file}.tmp"
+                Dir.mkdir(out_dir)
+                file_types.each do |path,type|
+                    next if type == 'vmdk'
+                    out_file="#{out_dir}/#{File.basename(path, '.*')}.vmdk"
+                    convert=system("qemu-img convert -f #{type}"\
+                      " -O vmdk #{path} #{out_file}")
+                    if there_is_not_system_error?(convert)
+                        raise StandardError
+                    end
+                end
+                FileUtils.rm_rf(temp_file)
+                FileUtils.mv(out_dir, temp_file)
+            elsif file_type != 'vmdk'
+                out_file = File.basename(temp_file, '.*')+'.tmp'
+                convert=system("qemu-img convert -f #{file_type}"\
+                  " -O vmdk #{temp_file} #{out_file}")
+                if there_is_not_system_error?(convert)
+                    raise StandardError
+                end
+                FileUtils.mv(out_file, temp_file)
+            end
+        rescue StandardError
+            STDERR.puts "Error converting #{temp_file}."
+            STDERR.puts "Removing #{temp_file} and #{out_file}."
+            FileUtils.rm_rf(out_file)
+            FileUtils.rm_rf(temp_file)
+            exit(-1)
         end
     end
 
