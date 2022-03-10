@@ -24,16 +24,21 @@ class LXCClient
 
     # LXC CLI Commands
     COMMANDS = {
-        :attach     => 'sudo lxc-attach',
-        :config     => 'sudo lxc-config',
-        :console    => 'sudo lxc-console',
-        :create     => 'sudo lxc-create',
-        :destroy    => 'sudo lxc-destroy',
-        :info       => 'sudo lxc-info',
-        :ls         => 'sudo lxc-ls',
-        :start      => 'sudo lxc-start',
-        :stop       => 'sudo lxc-stop'
+        :attach     => 'lxc-attach',
+        :config     => 'lxc-config',
+        :console    => 'lxc-console',
+        :create     => 'lxc-create',
+        :destroy    => 'lxc-destroy',
+        :info       => 'lxc-info',
+        :ls         => 'lxc-ls',
+        :start      => 'lxc-start',
+        :stop       => 'lxc-stop'
     }
+
+    COMMANDS.each_value do |value|
+        value.prepend 'sudo '
+        value << ' --logpriority ERROR'
+    end
 
     # Returns LXC version
     def version
@@ -47,24 +52,24 @@ class LXCClient
 
     def start(name, options = {})
         cmd = append_options("#{COMMANDS[:start]} -n '#{name}'", options)
-        Command.execute_rc_log(cmd)
+        Command.container_cmd(name, cmd)
     end
 
     def stop(name, options = {})
         cmd = append_options("#{COMMANDS[:stop]} -n '#{name}'", options)
-        Command.execute_rc_log(cmd)
+        Command.container_cmd(name, cmd)
     end
 
     def create(name, options = {})
         options[:template] ||= 'none' # Template is mandatory
 
         cmd = append_options("#{COMMANDS[:create]} -n '#{name}'", options)
-        Command.execute_rc_log(cmd)
+        Command.container_cmd(name, cmd)
     end
 
     def destroy(name, options = {})
         cmd = append_options("#{COMMANDS[:destroy]} -n '#{name}'", options)
-        Command.execute_rc_log(cmd)
+        Command.container_cmd(name, cmd)
     end
 
     #-----------------------------------------------------------------------

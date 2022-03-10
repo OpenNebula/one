@@ -28,6 +28,11 @@ module OpenNebula
         log_function("INFO", message)
     end
 
+    # Logs an info message
+    def self.log_warning(message)
+        log_function('WARNING', message)
+    end
+
     # Logs an error message
     def self.log_error(message)
         log_function("ERROR", message)
