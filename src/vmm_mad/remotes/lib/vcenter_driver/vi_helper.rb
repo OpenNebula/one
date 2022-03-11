@@ -261,7 +261,7 @@ module VCenterDriver
             # Let's try to find the VM object only by its name
             # Let's build the VM name
             vm_prefix = host['TEMPLATE/VM_PREFIX']
-            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil?
             vm_prefix.gsub!('$i', one_vm['ID'])
             vm_name = vm_prefix + one_vm['NAME']
 
