@@ -73,13 +73,15 @@ module VCenterDriver
             template << template_disks
 
             opts = {
-                :vi_client => @vi_client,
-                :vc_uuid => vc_uuid,
-                :npool => npool,
-                :hpool => hpool,
-                :vcenter => vc_name,
+                :vi_client      => @vi_client,
+                :vc_uuid        => vc_uuid,
+                :npool          => npool,
+                :hpool          => hpool,
+                :vcenter        => vc_name,
                 :template_moref => vm_ref,
-                :vm_object => vc_vm
+                :vm_object      => vc_vm,
+                :ipv4           => selected[:ipv4],
+                :ipv6           => selected[:ipv6]
             }
 
             # Create images or get nics information for template

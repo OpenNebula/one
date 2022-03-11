@@ -109,6 +109,20 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    IPV4 = {
+        :name  => 'ipv4',
+        :large => '--ipv4 ip1,ip2',
+        :description => 'Comma separated IPV4 to set',
+        :format => Array
+    }
+
+    IPV6 = {
+        :name  => 'ipv6',
+        :large => '--ipv6 ip1,ip2',
+        :description => 'Comma separated IPV6 to set',
+        :format => Array
+    }
+
     CREAT_OPTIONS = [IM, VMM, OneClusterHelper::CLUSTER, TYPE]
     SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, SSH]
 
@@ -344,12 +358,16 @@ CommandParser::CmdParser.new(ARGV) do
         Import VM to OpenNebula
     EOT
 
-    command :importvm, importvm_desc, :hostid, :name do
+    command :importvm,
+            importvm_desc,
+            :hostid,
+            :name,
+            :options => [IPV4, IPV6] do
         helper.perform_action(args[0], options, 'imported') do |o|
             rc = o.info
             next rc if OpenNebula.is_error?(rc)
 
-            o.import_wild(args[1])
+            o.import_wild(args[1], options[:ipv4], options[:ipv6])
         end
     end
 
