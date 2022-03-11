@@ -1294,7 +1294,8 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
-    var isKVM = history.HID ? isKVMVM(history.HID) : false;
+    var hostId = history && history.HID 
+    var isKVM = hostId ? isKVMVM(hostId) : false;
 
     return (actionEnabled && history && (vncSupported || spiceSupported) && isKVM)
       ? {
