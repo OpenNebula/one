@@ -471,7 +471,7 @@ end
         # @return String vcenter name
         def vc_name
             vm_prefix = host['TEMPLATE/VM_PREFIX']
-            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil?
 
             if !one_item['USER_TEMPLATE/VM_PREFIX'].nil?
                 vm_prefix = one_item['USER_TEMPLATE/VM_PREFIX']
