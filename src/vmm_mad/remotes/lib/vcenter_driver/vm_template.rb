@@ -635,6 +635,23 @@ module VCenterDriver
 
             network.info
 
+            if nic[:ipv4] || nic[:ipv6]
+                ar_array = network.to_hash['VNET']['AR_POOL']['AR']
+                ar_array = [ar_array] if ar_array.is_a?(Hash)
+
+                ipv4, _ipv6, _arid = find_ip_in_ar(
+                    IPAddr.new(nic[:ipv4]),
+                    ar_array
+                ) if ar_array && nic[:ipv4]
+
+                _ipv4, ipv6, _arid = find_ip_in_ar(
+                    IPAddr.new(nic[:ipv6]),
+                    ar_array
+                ) if ar_array && nic[:ipv6]
+
+                return [ipv4, ipv6]
+            end
+
             # Iterate over Retrieve vCenter VM NICs
             unless vm_object.item.guest.net.empty?
                 vm_object.item.guest.net.each do |net|
@@ -767,9 +784,10 @@ module VCenterDriver
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
             nic_tmp << "NAME =\"VC_NIC#{nic_index}\",\n"
+            nic_tmp << "IP = \"#{nic[:ipv4]}\",\n" if nic[:ipv4]
 
             if vm?
-                if nic[:mac]
+                if nic[:mac] && !nic[:ipv4]
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
                 if nic[:ipv4_additionals]
@@ -825,6 +843,7 @@ module VCenterDriver
                     ar_tmp = create_ar(nic)
                     network_found.add_ar(ar_tmp)
                 end
+
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object,
                                                  nic, true)
                 network_found.info
@@ -836,8 +855,10 @@ module VCenterDriver
                 if nic[:mac] && ipv4.empty? && ipv6.empty?
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
+
                 nic_tmp << "IP=\"#{ipv4}\"," unless ipv4.empty?
                 nic_tmp << "IP6=\"#{ipv6}\"," unless ipv6.empty?
+
                 if nic[:ipv4_additionals]
                     nic_tmp <<
                         'VCENTER_ADDITIONALS_IP4'\
@@ -1065,7 +1086,13 @@ module VCenterDriver
             ar_tmp << "]\n"
 
             if vm?
-                ar_tmp << create_ar(nic, true)
+                ar_tmp << create_ar(nic, false, nic[:ipv4]) if nic[:ipv4]
+
+                if nic[:ipv6]
+                    ar_tmp << create_ar(nic, false, nil, nic[:ipv6])
+                end
+
+                ar_tmp << create_ar(nic, true) if !nic[:ipv4] && !nic[:ipv6]
             end
 
             one_vnet[:one] << ar_tmp
@@ -1120,6 +1147,23 @@ module VCenterDriver
                 nic_index = 0
 
                 vc_nics.each do |nic|
+                    [:ipv4, :ipv6].each do |type|
+                        if nic[type]
+                            opts[type].shift if opts[type]
+                            next
+                        end
+
+                        begin
+                            ip = opts[type].shift if opts[type]
+
+                            # Check if it is a valid IP
+                            IPAddr.new(ip)
+
+                            nic[type] = ip
+                        rescue StandardError
+                        end
+                    end
+
                     # Check if the network already exists
                     network_found =
                         VCenterDriver::VIHelper
