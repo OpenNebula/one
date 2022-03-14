@@ -61,7 +61,8 @@ module CLIHelper
                         ' ' * 31 << 'column=value pairs.' <<
                         ' ' * 31 << "Valid operators #{FILTER_OPS.join(',')}" <<
                         ' ' * 31 << 'e.g. NAME=test (match name with test)' <<
-                        ' ' * 31 << 'NAME~test (match test, te, tes..)'
+                        ' ' * 31 << 'NAME~test (match every NAME containing' <<
+                        ' ' * 31 << 'the substring \'test\')'
     }
 
     OPERATOR = {
