@@ -14,17 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const {
+  defaultWebpackMode,
+  defaultApps,
+  defaultAppName,
+} = require('./src/server/utils/constants/defaults')
+
 const getDevConfiguration = () => {
   try {
     const path = require('path')
     const webpack = require('webpack')
     const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
     const TimeFixPlugin = require('time-fix-plugin')
-
-    const {
-      defaultWebpackMode,
-      defaultAppName,
-    } = require('./src/server/utils/constants/defaults')
 
     const appName = defaultAppName ? `/${defaultAppName}` : ''
 
@@ -33,7 +34,9 @@ const getDevConfiguration = () => {
       mode: defaultWebpackMode,
       entry: [
         'webpack-hot-middleware/client',
-        path.resolve(__dirname, 'src/client/dev/index.js'),
+        ...Object.keys(defaultApps).map((app) =>
+          path.resolve(__dirname, `src/client/${app}.js`)
+        ),
       ],
       output: {
         filename: 'bundle.dev.js',

@@ -17,10 +17,11 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
+} = require('../../../utils/constants/defaults')
 
 const { POST } = httpMethod
 const { postBody } = fromData
+
 const basepath = '/auth'
 const AUTHENTICATION = 'authentication'
 

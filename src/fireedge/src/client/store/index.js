@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { configureStore, EnhancedStore } from '@reduxjs/toolkit'
+import { configureStore, Middleware, EnhancedStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react'
 
 import { isDevelopment } from 'client/utils'
@@ -27,9 +27,10 @@ import { unauthenticatedMiddleware } from 'client/features/middleware'
 /**
  * @param {object} props - Props
  * @param {object} props.initState - Initial state
+ * @param {Middleware[]} props.extraMiddleware - Extra middleware to apply on store
  * @returns {{ store: EnhancedStore }} Configured Redux Store
  */
-export const createStore = ({ initState = {} }) => {
+export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
   const store = configureStore({
     reducer: {
       [Auth.name]: Auth.reducer,
@@ -42,6 +43,7 @@ export const createStore = ({ initState = {} }) => {
       getDefaultMiddleware({
         immutableCheck: true,
       }).concat([
+        ...extraMiddleware,
         unauthenticatedMiddleware,
         authApi.middleware,
         oneApi.middleware,

@@ -197,6 +197,8 @@ module.exports = {
 
   /* errors */
   SessionExpired: 'Sorry, your session has expired',
+  OnlyForOneadminGroup:
+    'Only members of the oneadmin group can access OneProvision functionality',
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',

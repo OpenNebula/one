@@ -39,7 +39,7 @@ import { sentenceCase } from 'client/utils'
 const Header = () => {
   const { isOneAdmin } = useAuth()
   const { fixMenu } = useGeneralApi()
-  const { appTitle, title, isBeta } = useGeneral()
+  const { appTitle, title, isBeta, withGroupSwitcher } = useGeneral()
   const appAsSentence = useMemo(() => sentenceCase(appTitle), [appTitle])
 
   return (
@@ -104,7 +104,7 @@ const Header = () => {
         >
           <User />
           <View />
-          {!isOneAdmin && <Group />}
+          {!isOneAdmin && withGroupSwitcher && <Group />}
           <Zone />
         </Stack>
       </Toolbar>

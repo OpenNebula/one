@@ -18,13 +18,14 @@ import { createSlice } from '@reduxjs/toolkit'
 import { actions as authActions } from 'client/features/Auth/slice'
 import * as actions from 'client/features/General/actions'
 import { generateKey } from 'client/utils'
-import { APPS_IN_BETA } from 'client/constants'
+import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 
 const initial = {
   zone: 0,
   title: null,
   appTitle: null,
   isBeta: false,
+  withGroupSwitcher: false,
   isLoading: false,
   isFixMenu: false,
 
@@ -56,10 +57,12 @@ const { name, reducer } = createSlice({
         ...state,
         title: payload,
       }))
-      .addCase(actions.changeAppTitle, (state, { payload }) => {
-        const isBeta = APPS_IN_BETA?.includes(String(payload).toLowerCase())
+      .addCase(actions.changeAppTitle, (state, { payload: appTitle }) => {
+        const lowerAppTitle = String(appTitle).toLowerCase()
+        const isBeta = APPS_IN_BETA?.includes(lowerAppTitle)
+        const withGroupSwitcher = APPS_WITH_SWITCHER?.includes(lowerAppTitle)
 
-        return { ...state, appTitle: payload, isBeta }
+        return { ...state, appTitle, isBeta, withGroupSwitcher }
       })
       .addCase(actions.changeZone, (state, { payload }) => ({
         ...state,
