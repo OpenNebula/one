@@ -30,6 +30,7 @@ export const BY = {
 export const _APPS = defaultApps
 export const APPS = Object.keys(defaultApps)
 export const APPS_IN_BETA = [_APPS.sunstone.name]
+export const APPS_WITH_SWITCHER = [_APPS.sunstone.name]
 export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
 export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
@@ -52,6 +53,7 @@ export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
 export const ONEADMIN_ID = '0'
 export const SERVERADMIN_ID = '1'
+export const ONEADMIN_GROUP_ID = '0'
 
 export const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',

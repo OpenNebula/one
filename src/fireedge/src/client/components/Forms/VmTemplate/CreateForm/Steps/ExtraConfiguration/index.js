@@ -87,7 +87,6 @@ const Content = ({ data, setFormData }) => {
           ...section,
           name,
           label: <Translate word={name} />,
-          // eslint-disable-next-line react/display-name
           renderContent: () => (
             <TabContent {...{ data, setFormData, hypervisor, control }} />
           ),

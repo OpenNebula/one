@@ -17,8 +17,12 @@ import { hydrate, render } from 'react-dom'
 
 import { createStore } from 'client/store'
 import App from 'client/apps/provision'
+import { onlyForOneadminMiddleware } from 'client/features/middleware'
 
-const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
+const { store } = createStore({
+  initState: window.__PRELOADED_STATE__,
+  extraMiddleware: [onlyForOneadminMiddleware],
+})
 
 const rootHTML = document.getElementById('root')?.innerHTML
 const renderMethod = rootHTML !== '' ? hydrate : render

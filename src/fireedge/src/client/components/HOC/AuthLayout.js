@@ -51,6 +51,7 @@ const AuthLayout = ({ subscriptions = [], children }) => {
     return () => {
       endpoints.forEach((endpoint) => {
         endpoint.unsubscribe()
+        endpoint.abort()
       })
     }
   }, [dispatch, jwt])

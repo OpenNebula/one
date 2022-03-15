@@ -13,39 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
+import { Actions, Commands } from 'server/routes/api/auth/routes'
 import { dismissSnackbar } from 'client/features/General/actions'
 import { actions } from 'client/features/Auth/slice'
 import userApi from 'client/features/OneApi/user'
 
-import { storage } from 'client/utils'
-import { APP_URL, JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
+import http from 'client/utils/rest'
+import { requestConfig, storage } from 'client/utils'
+import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
 const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${APP_URL}/api/`,
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.jwt
+  baseQuery: async ({ params, command, needState }, { getState, signal }) => {
+    try {
+      const config = requestConfig(params, command)
+      const response = await http.request({ ...config, signal })
+      const state = needState ? getState() : {}
 
-      // If we have a token set in state,
-      // let's assume that we should be passing it.
-      token && headers.set('authorization', `Bearer ${token}`)
+      return { data: response.data ?? {}, meta: { state } }
+    } catch (axiosError) {
+      const { message, data = {}, status, statusText } = axiosError
+      const { message: messageFromServer, data: errorFromOned } = data
 
-      return headers
-    },
-  }),
+      const error = message ?? errorFromOned ?? messageFromServer ?? statusText
+
+      return { error: { status: status, data: error } }
+    }
+  },
   endpoints: (builder) => ({
     getAuthUser: builder.query({
       /**
        * @returns {object} Information about authenticated user
        * @throws Fails when response isn't code 200
        */
-      query: () => ({ url: 'user/info' }),
-      transformResponse: (response) => response?.data?.USER,
+      query: () => ({ command: { path: '/user/info' } }),
+      transformResponse: (response) => response?.USER,
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data: user } = await queryFulfilled
@@ -55,23 +61,31 @@ const authApi = createApi({
     }),
     login: builder.mutation({
       /**
-       * @param {object} data - User credentials
-       * @param {string} data.user - Username
-       * @param {string} data.token - Password
-       * @param {boolean} [data.remember] - Remember session
-       * @param {string} [data.token2fa] - Token for Two factor authentication
+       * Login in the interface.
+       *
+       * @param {object} params - User credentials
+       * @param {string} params.user - Username
+       * @param {string} params.token - Password
+       * @param {boolean} [params.remember] - Remember session
+       * @param {string} [params.token2fa] - Token for Two factor authentication
        * @returns {object} Response data from request
        * @throws Fails when response isn't code 200
        */
-      query: (data) => ({ url: 'auth', method: 'POST', body: data }),
-      transformResponse: (response) => {
-        const { id, token } = response?.data
+      query: (params) => {
+        const name = Actions.AUTHENTICATION
+        const command = { name, ...Commands[name] }
+
+        return { params, command, needState: true }
+      },
+      transformResponse: (response, meta) => {
+        const { id, token } = response
+        const { withGroupSwitcher } = meta?.state?.general ?? {}
         const isOneAdmin = id === ONEADMIN_ID
 
         return {
           jwt: token,
           user: { ID: id },
-          isLoginInProgress: !!token && !isOneAdmin,
+          isLoginInProgress: withGroupSwitcher && !!token && !isOneAdmin,
         }
       },
       async onQueryStarted({ remember }, { queryFulfilled, dispatch }) {

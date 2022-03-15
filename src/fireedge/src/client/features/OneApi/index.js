@@ -99,12 +99,7 @@ const oneApi = createApi({
           })
         )
 
-      return {
-        error: {
-          status: status,
-          data: message ?? data?.data ?? statusText,
-        },
-      }
+      return { error: { status: status, data: error } }
     }
   },
   refetchOnMountOrArgChange: 30,

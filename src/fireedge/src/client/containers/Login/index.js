@@ -44,9 +44,9 @@ function Login() {
   const classes = loginStyles()
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
+  const { logout } = useAuthApi()
   const { error: otherError, isLoginInProgress: needGroupToContinue } =
     useAuth()
-  const { logout } = useAuthApi()
 
   const [changeAuthGroup, changeAuthGroupState] = useChangeAuthGroupMutation()
   const [login, loginState] = useLoginMutation()
