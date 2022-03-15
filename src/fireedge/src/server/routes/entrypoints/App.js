@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { Router } = require('express')
-const { env } = require('process')
 const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
 const { createStore, compose, applyMiddleware } = require('redux')
@@ -24,7 +23,6 @@ const rootReducer = require('client/store/reducers')
 const { getFireedgeConfig } = require('server/utils/yml')
 const {
   availableLanguages,
-  defaultWebpackMode,
   defaultApps,
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
@@ -33,58 +31,49 @@ const { upperCaseFirst } = require('client/utils')
 // settings
 const appConfig = getFireedgeConfig()
 const langs = appConfig.langs || availableLanguages
-const scriptLanguages = []
+
 const languages = Object.keys(langs)
-languages.map((language) =>
-  scriptLanguages.push({
-    key: language,
-    value: `${langs[language]}`,
-  })
-)
+const scriptLanguages = languages.map((language) => ({
+  key: language,
+  value: `${langs[language]}`,
+}))
 
 const router = Router()
 
 router.get('*', (req, res) => {
-  const defaultTitle = 'FireEdge'
-  const context = {}
-  let store = ''
-  let component = ''
-  let css = ''
-  let storeRender = ''
-
-  const isProduction =
-    !env?.NODE_ENV || (env?.NODE_ENV && env?.NODE_ENV !== defaultWebpackMode)
-
   const apps = Object.keys(defaultApps)
   const appName = req.url
     .split(/\//gi)
     .filter((sub) => sub?.length > 0)
     .find((resource) => apps.includes(resource))
 
-  if (isProduction) {
-    const App = require(`../../../client/apps/${appName}/index.js`).default
-    const sheets = new ServerStyleSheets()
-    const composeEnhancer =
-      (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
+  const sheets = new ServerStyleSheets()
+  const composeEnhancer =
+    (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
-    // SSR redux store
-    store = createStore(rootReducer, composeEnhancer(applyMiddleware(thunk)))
-    storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
-      store.getState()
-    ).replace(/</g, '\\u003c')}</script>`
+  // SSR redux store
+  const store = createStore(
+    rootReducer,
+    composeEnhancer(applyMiddleware(thunk))
+  )
 
-    component = renderToString(
-      sheets.collect(<App location={req.url} context={context} store={store} />)
-    )
+  const storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
+    store.getState()
+  ).replace(/</g, '\\u003c')}</script>`
 
-    css = `<style id="jss-server-side">${sheets.toString()}</style>`
-  }
+  const App = require(`../../../client/apps/${appName}/index.js`).default
+
+  const rootComponent = renderToString(
+    sheets.collect(<App location={req.url} store={store} />)
+  )
+
+  const css = `<style id="jss-server-side">${sheets.toString()}</style>`
 
   const html = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <title>${upperCaseFirst(appName ?? defaultTitle)} by OpenNebula</title>
+      <title>${upperCaseFirst(appName ?? 'FireEdge')} by OpenNebula</title>
       <link rel="icon" type="image/png" href="${STATIC_FILES_URL}/favicon/${appName}/favicon.ico">
       <link rel="apple-touch-icon" sizes="180x180" href="${STATIC_FILES_URL}/favicon/${appName}/apple-touch-icon.png">
       <link rel="icon" type="image/png" sizes="32x32" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-32x32.png">
@@ -95,14 +84,10 @@ router.get('*', (req, res) => {
       ${css}
     </head>
     <body>
-      <div id="root">${component}</div>
+      <div id="root">${rootComponent}</div>
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
-      ${
-        isProduction
-          ? `<script src='${APP_URL}/client/bundle.${appName}.js'></script>`
-          : `<script src='${APP_URL}/client/bundle.dev.js'></script>`
-      }
+      <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>
   `
