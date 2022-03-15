@@ -11,9 +11,9 @@ connection:
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
-     default: 'ami-04505e74c0741db8d'
+     default: 'ami-01896de1f162f0ab7'
      options:
-       - 'ami-04505e74c0741db8d'
+       - 'ami-01896de1f162f0ab7'
    - name: 'aws_instance_type'
      type: 'list'
      default: 't2.micro'

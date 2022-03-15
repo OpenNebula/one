@@ -11,9 +11,9 @@ connection:
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
-     default: 'ami-0015a39e4b7c0966f'
+     default: 'ami-01d912b5940be07a5'
      options:
-       - 'ami-0015a39e4b7c0966f'
+       - 'ami-01d912b5940be07a5'
    - name: 'aws_instance_type'
      type: 'list'
      default: 'c5.metal'

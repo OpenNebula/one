@@ -34,7 +34,6 @@ inputs:
   - name: 'aws_ami_image'
     type: text
     description: 'AWS ami image used for host deployments'
-    default: 'ami-04505e74c0741db8d'
 
   - name: 'aws_instance_type'
     type: text
