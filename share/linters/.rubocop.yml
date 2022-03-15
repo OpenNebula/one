@@ -21,7 +21,6 @@
 
 AllCops:
   Exclude:
-    - src/datastore_mad/remotes/vcenter/cp
     - src/sunstone/public/node_modules/**/*
     - src/tm_mad
     - share/onegate/onegate
