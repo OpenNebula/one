@@ -36,17 +36,16 @@ buildTranslationLocale()
  * @param {object} props - Props
  * @param {Store} props.store - Redux store
  * @param {string|object} props.location - The URL the server received
- * @param {object} props.context - Context object contains the results of the render
  * @returns {JSXElementConstructor} Provision App
  */
-const Provision = ({ store = {}, location = '', context = {} }) => (
+const Provision = ({ store = {}, location = '' }) => (
   <ReduxProvider store={store}>
     <TranslateProvider>
       <MuiProvider theme={theme}>
         <NotistackProvider>
-          {location && context ? (
+          {location ? (
             // server build
-            <StaticRouter location={location} context={context}>
+            <StaticRouter location={location}>
               <App />
             </StaticRouter>
           ) : (

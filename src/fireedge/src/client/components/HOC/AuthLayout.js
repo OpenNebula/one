@@ -44,7 +44,9 @@ const AuthLayout = ({ subscriptions = [], children }) => {
       authApi.endpoints.getAuthUser.initiate(undefined, { forceRefetch: true })
     )
 
-    return authSubscription.unsubscribe
+    return () => {
+      authSubscription.unsubscribe()
+    }
   }, [dispatch, jwt])
 
   useEffect(() => {
@@ -58,6 +60,7 @@ const AuthLayout = ({ subscriptions = [], children }) => {
     return () => {
       endpoints.forEach((endpoint) => {
         endpoint.unsubscribe()
+        endpoint.abort()
       })
     }
   }, [dispatch, jwt, user?.NAME])

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+const path = require('path')
+const webpack = require('webpack')
 
 const {
   defaultWebpackMode,
@@ -20,10 +22,16 @@ const {
   defaultAppName,
 } = require('./src/server/utils/constants/defaults')
 
+const APP_ENTRIES = Object.keys(defaultApps).reduce(
+  (entries, app) => ({
+    ...entries,
+    [app]: path.resolve(__dirname, `src/client/${app}.js`),
+  }),
+  {}
+)
+
 const getDevConfiguration = () => {
   try {
-    const path = require('path')
-    const webpack = require('webpack')
     const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
     const TimeFixPlugin = require('time-fix-plugin')
 
@@ -32,14 +40,9 @@ const getDevConfiguration = () => {
     /** @type {webpack.Configuration} */
     return {
       mode: defaultWebpackMode,
-      entry: [
-        'webpack-hot-middleware/client',
-        ...Object.keys(defaultApps).map((app) =>
-          path.resolve(__dirname, `src/client/${app}.js`)
-        ),
-      ],
+      entry: { ...APP_ENTRIES },
       output: {
-        filename: 'bundle.dev.js',
+        filename: 'bundle.[name].js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: `${appName}/client`,
       },
