@@ -35,26 +35,32 @@ import { JWT_NAME } from 'client/constants'
 const AuthLayout = ({ subscriptions = [], children }) => {
   const dispatch = useDispatch()
   const { changeJwt, stopFirstRender } = useAuthApi()
-  const { jwt, isLogged, isLoginInProgress, firstRender } = useAuth()
+  const { jwt, user, isLogged, isLoginInProgress, firstRender } = useAuth()
 
   useEffect(() => {
     if (!jwt) return
 
-    const endpoints = [
-      groupApi.endpoints.getGroups,
-      authApi.endpoints.getAuthUser,
-      ...subscriptions,
-    ].map((endpoint) =>
-      dispatch(endpoint.initiate(undefined, { forceRefetch: true }))
+    const authSubscription = dispatch(
+      authApi.endpoints.getAuthUser.initiate(undefined, { forceRefetch: true })
+    )
+
+    return authSubscription.unsubscribe
+  }, [dispatch, jwt])
+
+  useEffect(() => {
+    if (!jwt || !user?.NAME) return
+
+    const endpoints = [groupApi.endpoints.getGroups, ...subscriptions].map(
+      (endpoint) =>
+        dispatch(endpoint.initiate(undefined, { forceRefetch: true }))
     )
 
     return () => {
       endpoints.forEach((endpoint) => {
         endpoint.unsubscribe()
-        endpoint.abort()
       })
     }
-  }, [dispatch, jwt])
+  }, [dispatch, jwt, user?.NAME])
 
   useEffect(() => {
     if (!jwt) {
