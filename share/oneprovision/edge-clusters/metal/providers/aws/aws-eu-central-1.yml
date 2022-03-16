@@ -10,10 +10,9 @@ connection:
 
 inputs:
    - name: 'aws_ami_image'
-     type: 'list'
-     default: 'ami-0498a49a15494604f'
-     options:
-       - 'ami-0498a49a15494604f'
+     type: 'text'
+     default: 'default'
+     description: 'AWS AMI image (default = Ubuntu Focal)'
    - name: 'aws_instance_type'
      type: 'list'
      default: 'c5.metal'
