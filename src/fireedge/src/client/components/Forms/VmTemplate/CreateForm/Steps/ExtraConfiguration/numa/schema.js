@@ -72,7 +72,7 @@ const PIN_POLICY = (hypervisor) => {
         () =>
           isFirecracker
             ? NUMA_PIN_POLICIES[2] // SHARED
-            : undefined // NONE
+            : NUMA_PIN_POLICIES[0] // NONE
       ),
     fieldProps: { disabled: isVCenter || isFirecracker },
   }
@@ -109,7 +109,7 @@ const SOCKETS = (hypervisor) => ({
   validation: number()
     .notRequired()
     .integer()
-    .default(() => undefined),
+    .default(() => 1),
   fieldProps: {
     disabled: hypervisor === firecracker,
   },
