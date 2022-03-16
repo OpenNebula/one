@@ -48,7 +48,7 @@ const Row = ({ original, value, ...props }) => {
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`app-${ID}`}>
       <div>
         <StatusCircle color={stateColor} tooltip={stateName} />
       </div>

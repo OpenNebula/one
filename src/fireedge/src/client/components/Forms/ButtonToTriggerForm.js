@@ -32,6 +32,7 @@ import SubmitButton, {
 } from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
+import { isDevelopment } from 'client/utils'
 
 const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button'
@@ -59,6 +60,8 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
     try {
       const data = transformBeforeSubmit?.(formData) ?? formData
       await handleSubmit?.(data)
+    } catch (error) {
+      isDevelopment() && console.error(error)
     } finally {
       hide()
     }

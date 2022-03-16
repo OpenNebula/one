@@ -60,6 +60,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       [CUSTOM_ID]: customVariables = {},
       [EXTRA_ID]: {
         CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
+        TOPOLOGY: { ENABLE_NUMA, ...restOfTopology },
         ...extraTemplate
       } = {},
     } = formData ?? {}
@@ -72,6 +73,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
           ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
           : START_SCRIPT,
     }
+    const topology = ENABLE_NUMA ? { TOPOLOGY: restOfTopology } : {}
 
     // add user inputs to context
     Object.keys(extraTemplate?.USER_INPUTS ?? {}).forEach((name) => {
@@ -83,6 +85,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       ...customVariables,
       ...extraTemplate,
       ...general,
+      ...topology,
       CONTEXT: context,
     })
   },

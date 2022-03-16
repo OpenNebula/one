@@ -47,11 +47,20 @@ const Steps = createSteps(
       const {
         [TEMPLATE_ID]: [templateSelected] = [],
         [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
-        [EXTRA_ID]: extraTemplate = {},
+        [EXTRA_ID]: {
+          TOPOLOGY: { ENABLE_NUMA, ...restOfTopology },
+          ...extraTemplate
+        } = {},
       } = formData ?? {}
 
+      const topology = ENABLE_NUMA ? { TOPOLOGY: restOfTopology } : {}
+
       // merge with template disks to get TYPE attribute
-      const templateXML = jsonToXml({ ...extraTemplate, ...restOfConfig })
+      const templateXML = jsonToXml({
+        ...extraTemplate,
+        ...topology,
+        ...restOfConfig,
+      })
       const data = { instances, hold, persistent, template: templateXML }
 
       const templates = [...new Array(instances)].map((_, idx) => ({

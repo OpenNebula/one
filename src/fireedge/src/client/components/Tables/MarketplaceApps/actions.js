@@ -76,7 +76,10 @@ const Actions = () => {
             icon: CloudDownload,
             options: [
               {
-                dialogProps: { title: T.DownloadAppToOpenNebula },
+                dialogProps: {
+                  title: T.DownloadAppToOpenNebula,
+                  dataCy: 'modal-export',
+                },
                 form: (rows) => {
                   const app = rows?.map(({ original }) => original)[0]
 

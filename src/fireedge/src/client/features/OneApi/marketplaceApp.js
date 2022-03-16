@@ -347,7 +347,7 @@ const marketAppApi = oneApi.injectEndpoints({
        * @returns {number} Marketplace app id
        * @throws Fails when response isn't code 200
        */
-      query: async (params) => {
+      query: (params) => {
         const name = ExtraActions.MARKETAPP_EXPORT
         const command = { name, ...ExtraCommands[name] }
 
