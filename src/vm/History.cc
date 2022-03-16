@@ -404,6 +404,8 @@ string& History::to_xml_short(string& xml) const
           "<HID>"    << hid   << "</HID>"   <<
           "<CID>"    << cid   << "</CID>"   <<
           "<DS_ID>"  << ds_id << "</DS_ID>" <<
+          "<VM_MAD>" << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
+          "<TM_MAD>" << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
           "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
         "</HISTORY>";
 
