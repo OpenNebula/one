@@ -48,7 +48,10 @@ features:
     # True to hide the CPU setting in the VM creation dialog
     instantiate_hide_cpu: false
 
-    # False to not scale the CPU. Number to scale from VCPU
+    # False to not scale the CPU.
+    # An integer value would be used as a multiplier as follows:
+    #     CPU = instantiate_cpu_factor * VCPU
+    # Set it to 1 to tie CPU and vCPU.
     instantiate_cpu_factor: false
 
     # True to show the option to make an instance persistent
