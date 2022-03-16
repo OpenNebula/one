@@ -26,7 +26,7 @@ import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 import {
   Field,
   Section,
-  getValidationFromFields,
+  getObjectSchemaFromFields,
   filterFieldsByHypervisor,
 } from 'client/utils'
 
@@ -90,6 +90,6 @@ const FIELDS = (hypervisor) =>
  * @param {HYPERVISORS} hypervisor - Hypervisor
  * @returns {ObjectSchema} Advanced options schema
  */
-const SCHEMA = (hypervisor) => getValidationFromFields(FIELDS(hypervisor))
+const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
 
 export { SECTIONS, FIELDS, SCHEMA }

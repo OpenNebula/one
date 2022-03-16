@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, number } from 'yup'
+import { string, number, boolean, lazy } from 'yup'
 
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getHugepageSizes } from 'client/models/Host'
@@ -36,6 +36,17 @@ import {
 const { vcenter, firecracker } = HYPERVISORS
 
 const threadsValidation = number().nullable().notRequired().integer()
+
+const ENABLE_NUMA = {
+  name: 'TOPOLOGY.ENABLE_NUMA',
+  label: T.NumaTopology,
+  type: INPUT_TYPES.CHECKBOX,
+  tooltip: T.NumaTopologyConcept,
+  validation: lazy((_, { context }) =>
+    boolean().default(() => !!context?.extra?.TOPOLOGY)
+  ),
+  grid: { md: 12 },
+}
 
 /**
  * @param {HYPERVISORS} hypervisor - VM hypervisor
@@ -61,7 +72,7 @@ const PIN_POLICY = (hypervisor) => {
         () =>
           isFirecracker
             ? NUMA_PIN_POLICIES[2] // SHARED
-            : NUMA_PIN_POLICIES[0] // NONE
+            : undefined // NONE
       ),
     fieldProps: { disabled: isVCenter || isFirecracker },
   }
@@ -98,7 +109,7 @@ const SOCKETS = (hypervisor) => ({
   validation: number()
     .notRequired()
     .integer()
-    .default(() => 1),
+    .default(() => undefined),
   fieldProps: {
     disabled: hypervisor === firecracker,
   },
@@ -177,10 +188,16 @@ const MEMORY_ACCESS = {
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} List of NUMA fields
  */
-const FIELDS = (hypervisor) =>
+const NUMA_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
     [PIN_POLICY, CORES, SOCKETS, THREADS, HUGEPAGES, MEMORY_ACCESS],
     hypervisor
   )
 
-export { FIELDS }
+/**
+ * @param {string} [hypervisor] - VM hypervisor
+ * @returns {Field[]} List of NUMA fields
+ */
+const SCHEMA_FIELDS = (hypervisor) => [ENABLE_NUMA, ...NUMA_FIELDS(hypervisor)]
+
+export { NUMA_FIELDS, SCHEMA_FIELDS as FIELDS, ENABLE_NUMA }

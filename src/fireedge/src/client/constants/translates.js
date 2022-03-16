@@ -580,6 +580,9 @@ module.exports = {
   Command: 'Command',
   Bus: 'BUS',
   /* VM Template schema - NUMA */
+  NumaTopology: 'NUMA Topology',
+  NumaTopologyConcept:
+    'These settings will help you to fine tune the performance of VMs',
   PinPolicy: 'Pin Policy',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
   NumaSocketsConcept: 'Number of sockets or NUMA nodes',

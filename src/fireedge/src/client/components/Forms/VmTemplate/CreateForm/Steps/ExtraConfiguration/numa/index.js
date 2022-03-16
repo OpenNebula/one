@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { ElectronicsChip as NumaIcon } from 'iconoir-react'
+import { useWatch } from 'react-hook-form'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
@@ -23,25 +24,39 @@ import {
   TabType,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { VIRTUAL_CPU as VCPU_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
-import { FIELDS as NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+import {
+  NUMA_FIELDS,
+  ENABLE_NUMA,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { T } from 'client/constants'
 
 export const TAB_ID = 'NUMA'
 
-const Numa = ({ hypervisor }) => (
-  <>
-    <FormWithSchema
-      cy={`${EXTRA_ID}-vcpu`}
-      fields={[VCPU_FIELD]}
-      id={GENERAL_ID}
-    />
-    <FormWithSchema
-      cy={`${EXTRA_ID}-numa`}
-      fields={NUMA_FIELDS(hypervisor)}
-      id={EXTRA_ID}
-    />
-  </>
-)
+const Numa = ({ hypervisor }) => {
+  const enableNuma = useWatch({ name: `${EXTRA_ID}.${ENABLE_NUMA.name}` })
+
+  return (
+    <>
+      <FormWithSchema
+        cy={`${EXTRA_ID}-vcpu`}
+        fields={[VCPU_FIELD]}
+        id={GENERAL_ID}
+      />
+      <FormWithSchema
+        cy={`${EXTRA_ID}-numa-enable`}
+        fields={[ENABLE_NUMA]}
+        id={EXTRA_ID}
+      />
+      {enableNuma && (
+        <FormWithSchema
+          cy={`${EXTRA_ID}-numa`}
+          fields={NUMA_FIELDS(hypervisor)}
+          id={EXTRA_ID}
+        />
+      )}
+    </>
+  )
+}
 
 Numa.propTypes = {
   data: PropTypes.any,
