@@ -10,10 +10,9 @@ connection:
 
 inputs:
    - name: 'aws_ami_image'
-     type: 'list'
-     default: 'ami-0b0e59a09e7f4059f'
-     options:
-       - 'ami-0b0e59a09e7f4059f'
+     type: 'text'
+     default: 'default'
+     description: 'AWS AMI image (default = Ubuntu Focal)'
    - name: 'aws_instance_type'
      type: 'list'
      default: 't2.micro'
