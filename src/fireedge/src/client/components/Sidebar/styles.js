@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
+import { alpha } from '@mui/material'
 import { sidebar, toolbar } from 'client/theme/defaults'
 
 export default makeStyles((theme) => ({
@@ -43,6 +44,14 @@ export default makeStyles((theme) => ({
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
         }),
+        '& $parentSubItem': {
+          '&.Mui-selected': {
+            backgroundColor: alpha(theme.palette.secondary.main, 0.2),
+          },
+          '&.Mui-selected:hover': {
+            backgroundColor: alpha(theme.palette.secondary.main, 0.3),
+          },
+        },
         '& #logo__text': {
           visibility: 'visible',
         },
@@ -120,5 +129,6 @@ export default makeStyles((theme) => ({
       color: theme.palette.secondary.light,
     },
   },
+  parentSubItem: {},
   subItemWrapper: {},
 }))

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -34,26 +33,43 @@ import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
 
+/**
+ * Renders nested list options for sidebar.
+ *
+ * @param {object} props - Props
+ * @param {string} props.label - Label
+ * @param {object[]} props.routes - Nested list of routes
+ * @param {ReactElement} props.icon - Icon
+ * @returns {ReactElement} Sidebar option that includes other list of routes
+ */
 const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
   const classes = sidebarStyles()
   const { pathname } = useLocation()
   const { isFixMenu } = useGeneral()
   const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'))
-
   const [expanded, setExpanded] = useState(() => false)
+
+  const hasRouteSelected = useMemo(
+    () => routes.some(({ path }) => pathname === path),
+    [routes, pathname]
+  )
 
   const handleExpand = () => setExpanded(!expanded)
 
   useEffect(() => {
-    if (isFixMenu && !expanded) {
-      const hasRouteSelected = routes.some(({ path }) => pathname === path)
-      hasRouteSelected && setExpanded(true)
-    }
-  }, [isFixMenu])
+    // force expanded
+    isFixMenu && !expanded && hasRouteSelected && setExpanded(true)
+  }, [isFixMenu, expanded, hasRouteSelected])
+
+  console.log({ expanded, hasRouteSelected })
 
   return (
     <>
-      <ListItemButton onClick={handleExpand}>
+      <ListItemButton
+        className={classes.parentSubItem}
+        onClick={handleExpand}
+        selected={(!isFixMenu || !expanded) && hasRouteSelected}
+      >
         {Icon && (
           <ListItemIcon>
             <Icon />
