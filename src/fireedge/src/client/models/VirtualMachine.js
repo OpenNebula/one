@@ -84,10 +84,9 @@ export const getType = (vm) =>
 
 /**
  * @param {VM} vm - Virtual machine
- * @returns {string} Resource hypervisor
+ * @returns {string} VM hypervisor from latest history record
  */
-export const getHypervisor = (vm) =>
-  String(getLastHistory(vm)?.VM_MAD).toLowerCase()
+export const getHypervisor = (vm) => getLastHistory(vm)?.VM_MAD
 
 /**
  * @param {VM} vm - Virtual machine
