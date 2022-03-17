@@ -53,5 +53,5 @@ inputs:
   - name: 'private_phydev'
     type: text
     description: 'Physical device to be used for private networking.'
-    default: 'ens6'
+    default: 'ens785'
 ...
