@@ -88,6 +88,8 @@ import { ScheduleAction } from 'client/constants/scheduler'
  * @property {string} HOSTNAME -
  * @property {string|number} HID -
  * @property {string|number} CID -
+ * @property {string} VM_MAD -
+ * @property {string} TM_MAD -
  * @property {string|number} DS_ID -
  * @property {VM_ACTIONS} ACTION -
  */
