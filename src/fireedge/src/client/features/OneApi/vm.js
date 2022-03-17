@@ -15,10 +15,15 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vm'
 import {
+  Actions as ExtraActions,
+  Commands as ExtraCommands,
+} from 'server/routes/api/vm/routes'
+import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import http from 'client/utils/rest'
 import {
@@ -101,13 +106,42 @@ const vmApi = oneApi.injectEndpoints({
               index !== -1 && (draft[index] = queryVm)
             })
           )
-        } catch {}
+        } catch {
+          dispatch(
+            vmApi.util.updateQueryData('getVms', undefined, (draft) =>
+              draft.filter(({ ID }) => +ID !== +id)
+            )
+          )
+        }
       },
       onCacheEntryAdded: UpdateFromSocket({
         updateQueryData: (updateFn) =>
           vmApi.util.updateQueryData('getVms', undefined, updateFn),
         resource: VM.toLowerCase(),
       }),
+    }),
+    getGuacamoleSession: builder.query({
+      /**
+       * Returns a Guacamole session.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {'vnc'|'ssh'|'rdp'} params.type - Connection type
+       * @returns {string} The session token
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActions.GUACAMOLE
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
+      },
+      async onQueryStarted({ id, type }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: token } = await queryFulfilled
+          dispatch(guacamoleActions.addGuacamoleSession({ id, type, token }))
+        } catch {}
+      },
     }),
     getMonitoring: builder.query({
       /**
@@ -535,6 +569,34 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      async onQueryStarted(
+        { id, ...permissions },
+        { dispatch, queryFulfilled }
+      ) {
+        const patchResult = dispatch(
+          vmApi.util.updateQueryData('getVm', id, (draft) => {
+            Object.entries(permissions)
+              .filter(([_, value]) => value !== '-1')
+              .forEach(([name, value]) => {
+                const ensuredName = {
+                  ownerUse: 'OWNER_U',
+                  ownerManage: 'OWNER_M',
+                  ownerAdmin: 'OWNER_A',
+                  groupUse: 'GROUP_U',
+                  groupManage: 'GROUP_M',
+                  groupAdmin: 'GROUP_A',
+                  otherUse: 'OTHER_U',
+                  otherManage: 'OTHER_M',
+                  otherAdmin: 'OTHER_A',
+                }[name]
+
+                draft.PERMISSIONS[ensuredName] = value
+              })
+          })
+        )
+
+        queryFulfilled.catch(patchResult.undo)
+      },
     }),
     changeVmOwnership: builder.mutation({
       /**
@@ -844,6 +906,8 @@ export const {
   useLazyGetVmsQuery,
   useGetVmQuery,
   useLazyGetVmQuery,
+  useGetGuacamoleSessionQuery,
+  useLazyGetGuacamoleSessionQuery,
   useGetMonitoringQuery,
   useLazyGetMonitoringQuery,
   useGetMonitoringPoolQuery,

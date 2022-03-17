@@ -62,8 +62,8 @@ const Sunstone = ({ store = {}, location = '' }) => (
 
 Sunstone.propTypes = {
   location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({}),
+  context: PropTypes.object,
+  store: PropTypes.object,
 }
 
 Sunstone.displayName = 'SunstoneApp'

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetClusterQuery } from 'client/features/OneApi/cluster'
@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const ClusterTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading } = useGetClusterQuery({ id })
+  const { isLoading, isError, error } = useGetClusterQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.CLUSTER
@@ -40,6 +40,14 @@ const ClusterTabs = memo(({ id }) => {
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
+
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
+  }
 
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />

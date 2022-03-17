@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
-import { sidebar, toolbar, footer } from 'client/theme/defaults'
+import { toolbar, footer } from 'client/theme/defaults'
 
 export default makeStyles((theme) => ({
   root: {
@@ -27,14 +27,6 @@ export default makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.minified,
-    },
-  },
-  isDrawerFixed: {
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.fixed,
-    },
   },
   main: {
     height: '100vh',
@@ -49,7 +41,6 @@ export default makeStyles((theme) => ({
     },
   },
   scrollable: {
-    backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     height: '100%',

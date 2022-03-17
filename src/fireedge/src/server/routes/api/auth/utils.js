@@ -406,14 +406,19 @@ const setZones = () => {
  * Create token server admin.
  *
  * @param {object} config - config create  token serveradmin
- * @param {string} config.serverAdmin - serverAdmin username
  * @param {string} config.username - user name
  * @param {string} config.key - serverAdmin key
  * @param {string} config.iv - serverAdmin iv
+ * @param {string} config.serverAdmin - serverAdmin username
  * @returns {object|undefined} data encrypted serveradmin
  */
-const createTokenServerAdmin = ({ serverAdmin, username, key, iv }) => {
-  if (serverAdmin && username && key && iv) {
+const createTokenServerAdmin = ({
+  username,
+  key,
+  iv,
+  serverAdmin = username,
+}) => {
+  if (username && key && iv) {
     !(expireTime && typeof expireTime.toSeconds === 'function') && setDates()
     const expire = parseInt(expireTime.toSeconds(), 10)
 

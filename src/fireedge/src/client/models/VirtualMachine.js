@@ -18,6 +18,7 @@ import {
   prettySecurityGroup,
 } from 'client/models/SecurityGroup'
 import { isRelative } from 'client/models/Scheduler'
+import { stringToBoolean } from 'client/models/Helper'
 
 import {
   STATES,
@@ -286,3 +287,16 @@ export const isAvailableAction =
       (state) => !VM_ACTIONS_BY_STATE[action]?.includes(state)
     )
   }
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @param {'ssh'|'rdp'} type - Connection type
+ * @returns {boolean} - Returns connection type is available
+ */
+export const nicsIncludesTheConnectionType = (vm, type) => {
+  const ensuredConnection = String(type).toUpperCase()
+
+  if (!['SSH', 'RDP'].includes(ensuredConnection)) return false
+
+  return getNics(vm).some((nic) => stringToBoolean(nic[ensuredConnection]))
+}

@@ -13,42 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
-
-import { name as authName, logout } from 'client/features/Auth/slice'
-import { T, ONEADMIN_GROUP_ID } from 'client/constants'
+import { useCallback, useRef } from 'react'
 
 /**
- * @param {{ dispatch: Dispatch }} params - Redux parameters
- * @returns {Middleware} - Unauthenticated middleware
+ * Helps avoid a lot of potential memory leaks.
+ *
+ * @param {object} obj - Instance object
+ * @returns {function():object} - Returns the last object
  */
-export const unauthenticatedMiddleware =
-  ({ dispatch }) =>
-  (next) =>
-  (action) => {
-    if (isRejectedWithValue(action) && action.payload.status === 401) {
-      dispatch(logout(T.SessionExpired))
-    }
+export const useGetLatest = (obj) => {
+  const ref = useRef()
+  ref.current = obj
 
-    return next(action)
-  }
+  return useCallback(() => ref.current, [])
+}
 
 /**
- * @param {{ dispatch: Dispatch, getState: function():object }} params - Redux parameters
- * @returns {Middleware} - Middleware to logout when user isn't in oneadmin group
+ * Assign the plugin state to the previous state.
+ *
+ * @param {object} prevState - Previous state
+ * @param {function():object} plugin - Plugin
+ * @returns {object} Returns the new state
  */
-export const onlyForOneadminMiddleware =
-  ({ dispatch, getState }) =>
-  (next) =>
-  (action) => {
-    const groups = getState()?.[authName]?.user?.GROUPS?.ID
-
-    if (!logout.match(action) && !!groups?.length) {
-      const ensuredGroups = [groups].flat()
-
-      !ensuredGroups.includes(ONEADMIN_GROUP_ID) &&
-        dispatch(logout(T.OnlyForOneadminGroup))
-    }
-
-    return next(action)
-  }
+export const reducePlugin = (prevState, plugin) => ({
+  ...prevState,
+  ...plugin(prevState),
+})

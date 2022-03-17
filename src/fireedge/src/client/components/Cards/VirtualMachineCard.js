@@ -36,9 +36,10 @@ const VirtualMachineCard = memo(
    * @param {object} props - Props
    * @param {VM} props.vm - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} [props.actions] - Actions
    * @returns {ReactElement} - Card
    */
-  ({ vm, rootProps }) => {
+  ({ vm, rootProps, actions }) => {
     const classes = rowStyles()
     const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, LOCK } = vm
 
@@ -89,6 +90,7 @@ const VirtualMachineCard = memo(
             </Stack>
           </div>
         )}
+        {actions && <div className={classes.actions}>{actions}</div>}
       </div>
     )
   }
@@ -99,6 +101,7 @@ VirtualMachineCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  actions: PropTypes.any,
 }
 
 VirtualMachineCard.displayName = 'VirtualMachineCard'

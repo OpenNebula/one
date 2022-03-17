@@ -112,5 +112,19 @@ export const useViews = () => {
     [view]
   )
 
-  return useMemo(() => ({ getResourceView, views, view }), [views, view])
+  return useMemo(
+    () => ({
+      ...Object.values(RESOURCE_NAMES).reduce(
+        (listOfResourceViews, resourceName) => ({
+          ...listOfResourceViews,
+          [resourceName]: getResourceView(resourceName),
+        }),
+        {}
+      ),
+      getResourceView,
+      views,
+      view,
+    }),
+    [views, view]
+  )
 }

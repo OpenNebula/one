@@ -14,10 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useParams } from 'react-router-dom'
-import clsx from 'clsx'
 import { Box, Container } from '@mui/material'
 import { CSSTransition } from 'react-transition-group'
 
@@ -25,8 +24,9 @@ import { useGeneral, useGeneralApi } from 'client/features/General'
 import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
+import { sidebar } from 'client/theme/defaults'
 
-const InternalLayout = ({ title, children }) => {
+const InternalLayout = ({ title, customHeader, disabledSidebar, children }) => {
   const classes = internalStyles()
   const container = useRef()
   const { isFixMenu } = useGeneral()
@@ -40,9 +40,27 @@ const InternalLayout = ({ title, children }) => {
   return (
     <Box
       data-cy="main-layout"
-      className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}
+      className={classes.root}
+      sx={useMemo(
+        () =>
+          disabledSidebar
+            ? {}
+            : {
+                marginLeft: {
+                  lg: isFixMenu
+                    ? `${sidebar.fixed}px`
+                    : `${sidebar.minified}px`,
+                },
+              },
+        [isFixMenu, disabledSidebar]
+      )}
     >
-      <Header scrollContainer={container.current} />
+      {customHeader ?? (
+        <Header
+          disabledSidebar={disabledSidebar}
+          scrollContainer={container.current}
+        />
+      )}
       <Box component="main" className={classes.main}>
         <CSSTransition
           in
@@ -75,6 +93,8 @@ const InternalLayout = ({ title, children }) => {
 
 InternalLayout.propTypes = {
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  customHeader: PropTypes.node,
+  disabledSidebar: PropTypes.bool,
   children: PropTypes.any,
 }
 

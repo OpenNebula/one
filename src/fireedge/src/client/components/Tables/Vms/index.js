@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useEffect, useMemo, ReactElement } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
@@ -22,15 +22,6 @@ import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
 import { RESOURCE_NAMES } from 'client/constants'
-
-const INITIAL_ELEMENT = 0
-const INTERVAL_ON_FIRST_RENDER = 2_000
-
-const INITIAL_ARGS = {
-  start: INITIAL_ELEMENT,
-  end: -INTERVAL_ON_FIRST_RENDER,
-  state: -1,
-}
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -54,10 +45,11 @@ const VmsTable = (props) => {
   )
 
   const { view, getResourceView } = useViews()
-  const [totalData, setTotalData] = useState(() => [])
-  const [args, setArgs] = useState(() => INITIAL_ARGS)
-  const { data, isSuccess, refetch, isFetching } = useGetVmsQuery(args, {
-    refetchOnMountOrArgChange: true,
+  const { data, refetch, isFetching } = useGetVmsQuery(undefined, {
+    selectFromResult: (result) => ({
+      ...result,
+      data: result?.data?.filter(({ STATE }) => STATE !== '6') ?? [],
+    }),
   })
 
   const columns = useMemo(
@@ -69,41 +61,13 @@ const VmsTable = (props) => {
     [view]
   )
 
-  useEffect(() => {
-    if (!isFetching && isSuccess && data?.length >= +INTERVAL_ON_FIRST_RENDER) {
-      setArgs((prev) => ({
-        ...prev,
-        start: prev.start + INTERVAL_ON_FIRST_RENDER,
-      }))
-    }
-  }, [isFetching])
-
-  useEffect(() => {
-    isSuccess &&
-      data &&
-      setTotalData((prev) => {
-        const notDuplicatedData = data.filter(
-          ({ ID }) => !prev.find((vm) => vm.ID === ID)
-        )
-
-        return prev.concat(notDuplicatedData).sort((a, b) => b.ID - a.ID)
-      })
-  }, [isSuccess])
-
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(
-        () => totalData?.filter(({ STATE }) => STATE !== '6'),
-        [totalData]
-      )}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={() => {
-        totalData?.length >= +INTERVAL_ON_FIRST_RENDER
-          ? setArgs(INITIAL_ARGS)
-          : refetch()
-      }}
+      refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
       RowComponent={VmRow}

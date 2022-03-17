@@ -38,6 +38,7 @@ const HeaderPopover = memo(
     icon,
     buttonLabel,
     buttonProps,
+    onMouseHover,
     headerTitle,
     popperProps,
     children,
@@ -78,7 +79,9 @@ const HeaderPopover = memo(
           aria-haspopup
           aria-describedby={hasId}
           aria-expanded={open ? 'true' : 'false'}
-          onClick={handleClick}
+          {...(onMouseHover
+            ? { onMouseEnter: handleClick, onMouseLeave: handleClose }
+            : { onClick: handleClick })}
           size="small"
           endIcon={<CaretIcon />}
           startIcon={icon}
@@ -147,6 +150,7 @@ HeaderPopover.propTypes = {
   buttonProps: PropTypes.object,
   tooltip: PropTypes.any,
   headerTitle: PropTypes.any,
+  onMouseHover: PropTypes.bool,
   disablePadding: PropTypes.bool,
   popperProps: PropTypes.object,
   children: PropTypes.func,
@@ -160,6 +164,7 @@ HeaderPopover.defaultProps = {
   buttonProps: {},
   headerTitle: undefined,
   disablePadding: false,
+  onMouseHover: false,
   popperProps: {},
   children: () => undefined,
 }

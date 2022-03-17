@@ -15,13 +15,20 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/vm/routes')
-const { saveAsTemplate } = require('server/routes/api/vm/functions')
+const {
+  saveAsTemplate,
+  generateGuacamoleSession,
+} = require('server/routes/api/vm/functions')
 
-const { VM_SAVEASTEMPLATE } = Actions
+const { VM_SAVEASTEMPLATE, GUACAMOLE } = Actions
 
 module.exports = [
   {
     ...Commands[VM_SAVEASTEMPLATE],
     action: saveAsTemplate,
+  },
+  {
+    ...Commands[GUACAMOLE],
+    action: generateGuacamoleSession,
   },
 ]
