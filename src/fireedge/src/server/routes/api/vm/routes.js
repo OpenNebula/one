@@ -17,15 +17,18 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
+} = require('../../../utils/constants/defaults')
 
 const basepath = '/vm'
-const { POST } = httpMethod
+const { POST, GET } = httpMethod
 const { resource, postBody } = fromData
 
 const VM_SAVEASTEMPLATE = 'vm.saveastemplate'
+const GUACAMOLE = 'vm.guacamole'
+
 const Actions = {
   VM_SAVEASTEMPLATE,
+  GUACAMOLE,
 }
 
 module.exports = {
@@ -44,6 +47,19 @@ module.exports = {
         },
         persistent: {
           from: postBody,
+        },
+      },
+    },
+    [GUACAMOLE]: {
+      path: `${basepath}/:id/guacamole/:type`,
+      httpMethod: GET,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        type: {
+          from: resource,
         },
       },
     },

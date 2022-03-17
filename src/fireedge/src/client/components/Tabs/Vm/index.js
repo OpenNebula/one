@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetVmQuery } from 'client/features/OneApi/vm'
@@ -46,7 +46,7 @@ const getTabComponent = (tabName) =>
 
 const VmTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading } = useGetVmQuery(id, {
+  const { isLoading, isError, error } = useGetVmQuery(id, {
     refetchOnMountOrArgChange: 10,
   })
 
@@ -56,6 +56,14 @@ const VmTabs = memo(({ id }) => {
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
+
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
+  }
 
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />

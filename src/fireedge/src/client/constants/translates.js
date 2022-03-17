@@ -361,6 +361,19 @@ module.exports = {
   ReadyStatusGate: 'Ready status gate',
 
   /* VM schema */
+  /* VM schema - remote access */
+  Vnc: 'VNC',
+  Ssh: 'SSH',
+  Rdp: 'RDP',
+  SshConnection: 'SSH connection',
+  RdpConnection: 'RDP connection',
+  Vmrc: 'VMRC',
+  Sdl: 'SDL',
+  Spice: 'SPICE',
+  SendCtrlAltDel: 'Send Ctrl-Alt-Del',
+  Reconnect: 'Reconnect',
+  FullScreen: 'Full screen',
+  Screenshot: 'Screenshot',
   /* VM schema - info */
   UserTemplate: 'User Template',
   Template: 'Template',
@@ -389,8 +402,6 @@ module.exports = {
   NIC: 'NIC',
   Alias: 'Alias',
   AsAnAlias: 'Attach as an alias',
-  RdpConnection: 'RDP connection',
-  SshConnection: 'SSH connection',
   External: 'External',
   ExternalConcept: 'The NIC will be attached as an external alias of the VM',
   OverrideNetworkValuesIPv4: 'Override Network Values IPv4',
@@ -568,10 +579,6 @@ module.exports = {
   Class: 'Class',
   /* VM Template schema - Input/Output - graphics */
   Graphics: 'Graphics',
-  VMRC: 'VMRC',
-  VNC: 'VNC',
-  SDL: 'SDL',
-  SPICE: 'SPICE',
   ListenOnIp: 'Listen on IP',
   ServerPort: 'Server port',
   ServerPortConcept: 'Port for the VNC/SPICE server',

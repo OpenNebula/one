@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetImageQuery } from 'client/features/OneApi/image'
@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const ImageTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading } = useGetImageQuery({ id })
+  const { isLoading, isError, error } = useGetImageQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.IMAGE
@@ -40,6 +40,14 @@ const ImageTabs = memo(({ id }) => {
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
+
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
+  }
 
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />

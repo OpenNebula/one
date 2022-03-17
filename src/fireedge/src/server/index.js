@@ -129,7 +129,7 @@ frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
+app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/sunstone`))
 // 404 - public
 app.get('*', entrypoint404)
 

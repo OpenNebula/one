@@ -13,42 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
 
-import { name as authName, logout } from 'client/features/Auth/slice'
-import { T, ONEADMIN_GROUP_ID } from 'client/constants'
-
-/**
- * @param {{ dispatch: Dispatch }} params - Redux parameters
- * @returns {Middleware} - Unauthenticated middleware
- */
-export const unauthenticatedMiddleware =
-  ({ dispatch }) =>
-  (next) =>
-  (action) => {
-    if (isRejectedWithValue(action) && action.payload.status === 401) {
-      dispatch(logout(T.SessionExpired))
-    }
-
-    return next(action)
-  }
-
-/**
- * @param {{ dispatch: Dispatch, getState: function():object }} params - Redux parameters
- * @returns {Middleware} - Middleware to logout when user isn't in oneadmin group
- */
-export const onlyForOneadminMiddleware =
-  ({ dispatch, getState }) =>
-  (next) =>
-  (action) => {
-    const groups = getState()?.[authName]?.user?.GROUPS?.ID
-
-    if (!logout.match(action) && !!groups?.length) {
-      const ensuredGroups = [groups].flat()
-
-      !ensuredGroups.includes(ONEADMIN_GROUP_ID) &&
-        dispatch(logout(T.OnlyForOneadminGroup))
-    }
-
-    return next(action)
-  }
+export * from 'client/components/Consoles/Guacamole/plugins/clipboard'
+export * from 'client/components/Consoles/Guacamole/plugins/display'
+export * from 'client/components/Consoles/Guacamole/plugins/keyboard'
+export * from 'client/components/Consoles/Guacamole/plugins/mouse'

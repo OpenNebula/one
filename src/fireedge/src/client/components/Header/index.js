@@ -36,7 +36,7 @@ import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import { sentenceCase } from 'client/utils'
 
-const Header = () => {
+const Header = ({ disabledSidebar = false }) => {
   const { isOneAdmin } = useAuth()
   const { fixMenu } = useGeneralApi()
   const { appTitle, title, isBeta, withGroupSwitcher } = useGeneral()
@@ -45,15 +45,17 @@ const Header = () => {
   return (
     <AppBar data-cy="header" elevation={0} position="absolute">
       <Toolbar>
-        <IconButton
-          onClick={() => fixMenu(true)}
-          edge="start"
-          size="small"
-          variant="outlined"
-          sx={{ display: { lg: 'none' } }}
-        >
-          <MenuIcon />
-        </IconButton>
+        {!disabledSidebar && (
+          <IconButton
+            onClick={() => fixMenu(true)}
+            edge="start"
+            size="small"
+            variant="outlined"
+            sx={{ display: { lg: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
         <Box
           flexGrow={1}
           ml={2}
@@ -82,20 +84,22 @@ const Header = () => {
               </Typography>
             )}
           </Typography>
-          <Typography
-            variant="h6"
-            data-cy="header-description"
-            sx={{
-              display: { xs: 'none', xl: 'block' },
-              '&::before': {
-                content: '"|"',
-                margin: '0.5em',
-                color: 'primary.contrastText',
-              },
-            }}
-          >
-            {title}
-          </Typography>
+          {title && (
+            <Typography
+              variant="h6"
+              data-cy="header-description"
+              sx={{
+                display: { xs: 'none', xl: 'block' },
+                '&::before': {
+                  content: '"|"',
+                  margin: '0.5em',
+                  color: 'primary.contrastText',
+                },
+              }}
+            >
+              {title}
+            </Typography>
+          )}
         </Box>
         <Stack
           direction="row"
@@ -113,11 +117,8 @@ const Header = () => {
 }
 
 Header.propTypes = {
+  disabledSidebar: PropTypes.bool,
   scrollContainer: PropTypes.object,
-}
-
-Header.defaultProps = {
-  scrollContainer: null,
 }
 
 export default Header

@@ -13,18 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+
 import vmApi from 'client/features/OneApi/vm'
 import { VirtualMachineCard } from 'client/components/Cards'
+import { GuacamoleButton } from 'client/components/Buttons'
+import { VM_ACTIONS } from 'client/constants'
+
+const { VNC, RDP, SSH } = VM_ACTIONS
 
 const Row = memo(
   ({ original, ...props }) => {
-    const detail = vmApi.endpoints.getVm.useQueryState(original.ID, {
-      selectFromResult: ({ data }) => data,
+    const state = vmApi.endpoints.getVms.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((vm) => +vm.ID === +original.ID),
     })
 
-    return <VirtualMachineCard vm={detail ?? original} rootProps={props} />
+    const memoVm = useMemo(() => state ?? original, [state, original])
+
+    return (
+      <VirtualMachineCard
+        vm={memoVm}
+        rootProps={props}
+        actions={
+          <>
+            {[VNC, RDP, SSH].map((connectionType) => (
+              <GuacamoleButton
+                key={`${memoVm}-${connectionType}`}
+                connectionType={connectionType}
+                vm={memoVm}
+              />
+            ))}
+          </>
+        }
+      />
+    )
   },
   (prev, next) => prev.className === next.className
 )

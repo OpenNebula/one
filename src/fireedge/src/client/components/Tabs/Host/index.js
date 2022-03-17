@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
 import { useAuth } from 'client/features/Auth'
 import { useGetHostQuery } from 'client/features/OneApi/host'
@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const HostTabs = memo(({ id }) => {
   const { view, getResourceView } = useAuth()
-  const { isLoading } = useGetHostQuery(id)
+  const { isLoading, isError, error } = useGetHostQuery(id)
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.HOST
@@ -40,6 +40,14 @@ const HostTabs = memo(({ id }) => {
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
+
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
+  }
 
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />

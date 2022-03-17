@@ -27,10 +27,14 @@ const Dashboard = loadable(
 const Settings = loadable(() => import('client/containers/Settings'), {
   ssr: false,
 })
+const Guacamole = loadable(() => import('client/containers/Guacamole'), {
+  ssr: false,
+})
 
 export const PATH = {
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
+  GUACAMOLE: '/guacamole/:id/:type',
 }
 
 export const ENDPOINTS = [
@@ -49,6 +53,12 @@ export const ENDPOINTS = [
     icon: SettingsIcon,
     position: -1,
     Component: Settings,
+  },
+  {
+    label: 'Guacamole',
+    disabledSidebar: true,
+    path: PATH.GUACAMOLE,
+    Component: Guacamole,
   },
 ]
 

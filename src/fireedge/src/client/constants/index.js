@@ -27,7 +27,7 @@ export const BY = {
   url: 'https://opennebula.io/',
 }
 
-export const _APPS = defaultApps
+export const _APPS = { ...defaultApps }
 export const APPS = Object.keys(defaultApps)
 export const APPS_IN_BETA = [_APPS.sunstone.name]
 export const APPS_WITH_SWITCHER = [_APPS.sunstone.name]
@@ -90,6 +90,7 @@ export const SOCKETS = {
   DISCONNECT: 'disconnect',
   HOOKS: 'hooks',
   PROVISION: 'provision',
+  GUACAMOLE: 'guacamole',
 }
 
 /** @enum {string} Names of resource */
@@ -114,23 +115,24 @@ export const RESOURCE_NAMES = {
 export * as T from 'client/constants/translates'
 export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'
-export * from 'client/constants/common'
-export * from 'client/constants/quota'
-export * from 'client/constants/scheduler'
-export * from 'client/constants/userInput'
-export * from 'client/constants/flow'
-export * from 'client/constants/provision'
-export * from 'client/constants/user'
-export * from 'client/constants/group'
 export * from 'client/constants/cluster'
-export * from 'client/constants/vm'
-export * from 'client/constants/vmTemplate'
-export * from 'client/constants/network'
-export * from 'client/constants/networkTemplate'
+export * from 'client/constants/common'
+export * from 'client/constants/datastore'
+export * from 'client/constants/flow'
+export * from 'client/constants/group'
+export * from 'client/constants/guacamole'
 export * from 'client/constants/host'
 export * from 'client/constants/image'
 export * from 'client/constants/marketplace'
 export * from 'client/constants/marketplaceApp'
-export * from 'client/constants/datastore'
+export * from 'client/constants/network'
+export * from 'client/constants/networkTemplate'
+export * from 'client/constants/provision'
+export * from 'client/constants/quota'
+export * from 'client/constants/scheduler'
 export * from 'client/constants/securityGroup'
+export * from 'client/constants/user'
+export * from 'client/constants/userInput'
+export * from 'client/constants/vm'
+export * from 'client/constants/vmTemplate'
 export * from 'client/constants/zone'

@@ -15,3 +15,4 @@
  * ------------------------------------------------------------------------- */
 
 export * from 'client/components/Buttons/ScheduleAction'
+export * from 'client/components/Buttons/ConsoleAction'

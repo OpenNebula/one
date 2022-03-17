@@ -32,9 +32,9 @@ const TYPE = {
   dependOf: '$general.HYPERVISOR',
   values: (hypervisor = kvm) => {
     const types = {
-      [vcenter]: [T.VMRC],
-      [lxc]: [T.VNC],
-    }[hypervisor] ?? [T.VNC, T.SDL, T.SPICE]
+      [vcenter]: [T.Vmrc],
+      [lxc]: [T.Vnc],
+    }[hypervisor] ?? [T.Vnc, T.Sdl, T.Spice]
 
     return arrayToOptions(types)
   },

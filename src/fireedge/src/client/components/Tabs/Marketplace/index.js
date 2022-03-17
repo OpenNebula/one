@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetMarketplaceQuery } from 'client/features/OneApi/marketplace'
@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const MarketplaceTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading } = useGetMarketplaceQuery({ id })
+  const { isLoading, isError, error } = useGetMarketplaceQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.MARKETPLACE
@@ -40,6 +40,14 @@ const MarketplaceTabs = memo(({ id }) => {
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
+
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
+  }
 
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />

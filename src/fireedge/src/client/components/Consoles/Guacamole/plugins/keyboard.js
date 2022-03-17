@@ -13,42 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
+// eslint-disable-next-line no-unused-vars
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Keyboard } from 'guacamole-common-js'
 
-import { name as authName, logout } from 'client/features/Auth/slice'
-import { T, ONEADMIN_GROUP_ID } from 'client/constants'
-
-/**
- * @param {{ dispatch: Dispatch }} params - Redux parameters
- * @returns {Middleware} - Unauthenticated middleware
- */
-export const unauthenticatedMiddleware =
-  ({ dispatch }) =>
-  (next) =>
-  (action) => {
-    if (isRejectedWithValue(action) && action.payload.status === 401) {
-      dispatch(logout(T.SessionExpired))
-    }
-
-    return next(action)
-  }
+import { GuacamoleSession } from 'client/constants'
 
 /**
- * @param {{ dispatch: Dispatch, getState: function():object }} params - Redux parameters
- * @returns {Middleware} - Middleware to logout when user isn't in oneadmin group
+ * @typedef GuacamoleKeyboardPlugin
+ * @property {Keyboard} [keyboard] - Guacamole keyboard
  */
-export const onlyForOneadminMiddleware =
-  ({ dispatch, getState }) =>
-  (next) =>
-  (action) => {
-    const groups = getState()?.[authName]?.user?.GROUPS?.ID
 
-    if (!logout.match(action) && !!groups?.length) {
-      const ensuredGroups = [groups].flat()
+/**
+ * @param {GuacamoleSession} session - Guacamole session
+ * @returns {GuacamoleKeyboardPlugin} Guacamole keyboard plugin
+ */
+const GuacamoleKeyboard = (session) => {
+  const { client, isConnected } = session ?? {}
 
-      !ensuredGroups.includes(ONEADMIN_GROUP_ID) &&
-        dispatch(logout(T.OnlyForOneadminGroup))
+  const keyboardRef = useRef(null)
+
+  useEffect(() => {
+    if (!isConnected) return
+
+    keyboardRef.current = new Keyboard(document)
+
+    keyboardRef.current.onkeydown = (keySym) => client?.sendKeyEvent(1, keySym)
+    keyboardRef.current.onkeyup = (keySym) => client?.sendKeyEvent(0, keySym)
+
+    // Release all keys when window loses focus
+    window.addEventListener('blur', keyboardRef.current?.reset)
+
+    return () => {
+      window.removeEventListener('blur', keyboardRef.current?.reset)
     }
+  }, [isConnected])
 
-    return next(action)
-  }
+  return { keyboard: keyboardRef.current }
+}
+
+export { GuacamoleKeyboard }

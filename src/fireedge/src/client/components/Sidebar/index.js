@@ -16,6 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useLocation, matchPath } from 'react-router'
 
 import clsx from 'clsx'
 import {
@@ -41,6 +42,7 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
 
 const Sidebar = ({ endpoints }) => {
+  const { pathname } = useLocation()
   const classes = sidebarStyles()
   const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     noSsr: true,
@@ -65,6 +67,18 @@ const Sidebar = ({ endpoints }) => {
         ),
     [endpoints]
   )
+
+  const isDisabledSidebar = useMemo(() => {
+    const endpoint = endpoints.find(({ path }) =>
+      matchPath(pathname, { path, exact: true })
+    )
+
+    return endpoint?.disabledSidebar
+  }, [pathname])
+
+  if (isDisabledSidebar) {
+    return null
+  }
 
   return (
     <Drawer
