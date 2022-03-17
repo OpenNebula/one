@@ -81,7 +81,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Tips.setup(context);
-    var oneTera = Humanize.sizeToMB("1024GB")*1024;
+    var oneTera = Humanize.sizeToMB("1TB")*1024;
     var max = that.diskSize > oneTera? that.diskSize*1024 : oneTera;
     var attrs = {
       min: that.diskSize,
@@ -91,11 +91,15 @@ define(function(require) {
       max_value: "",
       type: "range",
       no_ticks: true
-  }
+    }
     //$( ".diskSlider", context).html(RangeSlider.html(attrs));
-    UserInputs.insertAttributeInputMB(attrs, $(".diskSlider", context))
+
+    // Functions for disks slider
+
+    UserInputs.insertAttributeInputMB(attrs, $(".diskSlider", context));
+
     $( ".uinput-slider-val",context).prop('type', 'text');
-    $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
+    $( ".uinput-slider-val",context).val(Humanize.size($(".uinput-slider",context).val()));
 
     $( ".uinput-slider", context).on("input", function(){
       $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
