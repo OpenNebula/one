@@ -194,7 +194,7 @@ define(function(require){
           if (disk.SIZE != undefined){
             // Range from original size to size + 500GB
             var min = parseInt(disk.SIZE);
-            var max = min + Humanize.sizeToMB("1024GB");
+            var max = min + Humanize.sizeToMB("1TB");
 
             attr = UserInputs.parse(
               "SIZE",

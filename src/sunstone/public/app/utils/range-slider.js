@@ -78,8 +78,33 @@ define(function(require) {
     $(document).off("input", "input.uinput-slider");
     $(document).on("input", "input.uinput-slider", function(){
       //change selector to MB
-      $(".mb_input_unit", $(this).closest('.mb_input_wrapper')).val("MB");
-      $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
+      var base = 1024;
+      var baseCal = 1;
+      var unit = "MB";
+      var valueInMB = 0;
+      // Fill in the input with your unit the first time
+      var value = $(this).val();
+      var valueInUnit = value;
+      var min = parseInt($(this).attr("min"),10);
+
+      if(value / (base*base) >= 1){
+        baseCal = base*base;
+        unit = "TB";
+      }else if(value / base >= 1){
+        baseCal = base;
+        unit = "GB";
+      }
+      if (value >= 0) {
+        valueInMB = value;
+        if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
+          valueInMB = min;
+        }
+        $("input, select", $(this).closest('.uinput-slider-container')).val(valueInMB);
+        $(".uinput-slider-val", $(this).closest('.uinput-slider-container')).trigger("change");
+        valueInUnit = valueInMB / baseCal;
+      }
+      $("input.visor", $(this).closest('.uinput-slider-container')).val(valueInUnit);
+      $(".mb_input_unit", $(this).closest('.mb_input_wrapper')).val(unit).trigger("change");
     });
   }
 });
