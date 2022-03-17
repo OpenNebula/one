@@ -21,9 +21,13 @@ import { Stack, Typography } from '@mui/material'
 
 import Timer from 'client/components/Timer'
 import MultipleTags from 'client/components/MultipleTags'
-import { StatusCircle } from 'client/components/Status'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
-import { getState, getLastHistory } from 'client/models/VirtualMachine'
+import {
+  getState,
+  getLastHistory,
+  getHypervisor,
+} from 'client/models/VirtualMachine'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { VM } from 'client/constants'
 
@@ -39,6 +43,7 @@ const VirtualMachineCard = memo(
     const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, LOCK } = vm
 
     const HOSTNAME = getLastHistory(vm)?.HOSTNAME ?? '--'
+    const hypervisor = getHypervisor(vm)
     const time = timeFromMilliseconds(+ETIME || +STIME)
 
     const { color: stateColor, name: stateName } = getState(vm)
@@ -54,6 +59,7 @@ const VirtualMachineCard = memo(
               {NAME}
             </Typography>
             <span className={classes.labels}>
+              {hypervisor && <StatusChip text={hypervisor} />}
               {LOCK && <Lock data-cy="lock" />}
             </span>
           </div>
