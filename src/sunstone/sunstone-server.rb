@@ -281,13 +281,9 @@ $vnc = SunstoneVNC.new($conf, logger)
 #init Guacamole proxy
 $guac = SunstoneGuac.new(logger)
 
-#init VMRC proxy
-$vmrc = SunstoneVMRC.new(logger)
-
 configure do
     set :run, false
     set :vnc, $vnc
-    set :vmrc, $vmrc
     set :erb, :trim => '-'
 end
 
@@ -1208,15 +1204,6 @@ post '/vm/:id/guac/:type' do
     end
 
     @SunstoneServer.startguac(vm_id, type_connection, $guac, user)
-end
-
-##############################################################################
-# Start VMRC Session for a target VM
-##############################################################################
-post '/vm/:id/startvmrc' do
-    vm_id = params[:id]
-    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-    @SunstoneServer.startvmrc(vm_id, $vmrc, serveradmin_client)
 end
 
 ##############################################################################

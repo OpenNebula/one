@@ -21,12 +21,14 @@ const {
   listAll,
   cleartags,
   importHost,
+  getToken,
 } = require('server/routes/api/vcenter/functions')
 const { resources } = require('server/routes/api/vcenter/command-flags')
 
 const { TEMPLATES, DATASTORES, NETWORKS, IMAGES } = resources
 
 const {
+  VCENTER_TOKEN,
   VCENTER_CLEAR_TAGS,
   VCENTER_IMPORT_HOSTS,
   VCENTER_IMPORT_DATASTORES,
@@ -38,6 +40,10 @@ const {
 } = Actions
 
 module.exports = [
+  {
+    ...Commands[VCENTER_TOKEN],
+    action: getToken,
+  },
   {
     ...Commands[VCENTER_CLEAR_TAGS],
     action: cleartags,

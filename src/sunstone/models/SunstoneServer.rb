@@ -21,7 +21,6 @@ include OpenNebulaJSON
 
 require 'sunstone_vnc'
 require 'sunstone_guac'
-require 'sunstone_vmrc'
 require 'sunstone_vm_helper'
 require 'OpenNebulaAddons'
 require 'OpenNebulaJSON/JSONUtils'
@@ -335,33 +334,6 @@ class SunstoneServer < CloudServer
 		end
 
         return guac.proxy(resource, type_connection, client)
-    end
-
-    ########################################################################
-    # VMRC
-    ########################################################################
-    def startvmrc(id, vmrc, _client=nil)
-        resource = retrieve_resource("vm", id)
-        if OpenNebula.is_error?(resource)
-            return [404, resource.to_json]
-        end
-        vm_pool = VirtualMachinePool.new(@client, -1)
-        user_pool = UserPool.new(@client)
-
-        rc = user_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
-
-        rc = vm_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
-
-        client = _client.nil? ? @client : _client
-        return vmrc.proxy(resource, client)
     end
 
     ########################################################################

@@ -13,32 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+const btoa = require('btoa')
+const https = require('https')
+// eslint-disable-next-line node/no-deprecated-api
+const { parse } = require('url')
+
+const { request: axios } = require('axios')
+
 const { defaults, httpCodes } = require('server/utils/constants')
 const {
   httpResponse,
   executeCommand,
   executeCommandAsync,
   publish,
+  getSunstoneAuth,
 } = require('server/utils/server')
 const {
   consoleParseToString,
   consoleParseToJSON,
 } = require('server/utils/opennebula')
+const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
+const { Actions: ActionHost } = require('server/utils/constants/commands/host')
+const { Actions: ActionVM } = require('server/utils/constants/commands/vm')
 const {
   resourceFromData,
   resources,
   params: commandParams,
 } = require('server/routes/api/vcenter/command-flags')
 const { getSunstoneConfig } = require('server/utils/yml')
-
 const {
+  httpMethod,
   defaultEmptyFunction,
   defaultCommandVcenter,
   defaultRegexpStartJSON,
   defaultRegexpEndJSON,
   defaultRegexpSplitLine,
 } = defaults
-
+const { POST } = httpMethod
 const { ok, internalServerError, badRequest, accepted } = httpCodes
 const { LIST, IMPORT } = resourceFromData
 const appConfig = getSunstoneConfig()
@@ -50,6 +61,7 @@ const regexExclude = [
   /^\u001b\[.*?m\u001b\[.*?m# vCenter.*/i,
 ]
 const regexHeader = /^IMID,.*/i
+const regexGetVcenterId = /-(?<id>.*)_/s
 
 const validObjects = Object.values(resources)
 
@@ -373,11 +385,194 @@ const importVobject = (
   httpReturn(accepted)
 }
 
+/**
+ * Axios request.
+ *
+ * @param {object} params - Axios params
+ * @param {Function} callback - Success Axios callback
+ * @param {Function} error - Error Axios callback
+ */
+const request = (
+  params = {},
+  callback = defaultEmptyFunction,
+  error = defaultEmptyFunction
+) => {
+  const defaultsProperties = {
+    method: POST,
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
+    validateStatus: (status) => status,
+  }
+  axios({
+    ...defaultsProperties,
+    ...params,
+  })
+    .then((response) => {
+      if (response && response.statusText) {
+        if (response.status >= 200 && response.status < 400) {
+          if (response.data) {
+            return response.data
+          }
+        }
+        throw Error(response.data)
+      } else if (response.data) {
+        throw Error(response.data)
+      }
+    })
+    .then((data) => {
+      callback(data)
+    })
+    .catch((e) => {
+      error(e)
+    })
+}
+
+/**
+ * Get system config.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {function(string, string): Function} oneConnection - One Connection
+ */
+const getToken = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const { username, key, iv } = getSunstoneAuth()
+  const { id } = params
+  const responser = (code = badRequest, data = '') => {
+    res.locals.httpCode = httpResponse(code, data, '')
+    next()
+  }
+
+  if (!(username && key && iv) || !Number.isInteger(parseInt(id, 10))) {
+    responser()
+
+    return
+  }
+
+  const tokenWithServerAdmin = createTokenServerAdmin({
+    serverAdmin: username,
+    username,
+    key,
+    iv,
+  })
+  if (!tokenWithServerAdmin.token) {
+    responser()
+
+    return
+  }
+
+  const connect = oneConnection(
+    `${username}:${username}`,
+    tokenWithServerAdmin.token
+  )
+
+  connect(ActionVM.VM_INFO, [parseInt(id, 10), true], (err, vminfo) => {
+    if (
+      !(
+        vminfo &&
+        vminfo.VM &&
+        vminfo.VM.DEPLOY_ID &&
+        vminfo.VM.HISTORY_RECORDS &&
+        vminfo.VM.HISTORY_RECORDS.HISTORY
+      ) ||
+      err
+    ) {
+      responser(internalServerError)
+    }
+
+    const history = vminfo.VM.HISTORY_RECORDS.HISTORY
+    const arrayHistory = Array.isArray(history) ? history : [history]
+
+    const hostID = parseInt(
+      arrayHistory.reduce(
+        (max, record) => (record.SEQ > max.SEQ ? record : max),
+        arrayHistory[0]
+      ).HID,
+      10
+    )
+
+    const vmid = vminfo.VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
+
+    connect(ActionHost.HOST_INFO, [hostID, true], (err, hostinfo) => {
+      if (
+        !(
+          hostinfo &&
+          hostinfo.HOST &&
+          hostinfo.HOST.TEMPLATE &&
+          hostinfo.HOST.TEMPLATE.VCENTER_HOST &&
+          hostinfo.HOST.TEMPLATE.VCENTER_USER &&
+          hostinfo.HOST.TEMPLATE.VCENTER_PASSWORD
+        ) ||
+        err
+      ) {
+        responser(internalServerError)
+
+        return
+      }
+
+      const { VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD } =
+        hostinfo.HOST.TEMPLATE
+
+      const responseInternalServer = () => {
+        responser(internalServerError)
+      }
+
+      const genToken = (data) => {
+        request(
+          {
+            url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmid}/console/tickets`,
+            headers: {
+              'Content-Type': 'application/json',
+              'vmware-api-session-id': data,
+            },
+            data: JSON.stringify({ type: 'WEBMKS' }),
+          },
+          (success) => {
+            const { ticket } = success
+            const { protocol, hostname, port, path } = parse(ticket)
+
+            const httpProtocol = protocol === 'wss:' ? 'https' : 'http'
+            const esxUrl = `${httpProtocol}://${hostname}:${port}`
+            const token = path.replace('/ticket/', '')
+            global.vcenterToken = { [token]: esxUrl }
+            responser(ok, {
+              ticket: token,
+            })
+          },
+          responseInternalServer
+        )
+      }
+
+      request(
+        {
+          url: `https://${VCENTER_HOST}/api/session`,
+          headers: {
+            Authorization: `Basic ${btoa(
+              `${VCENTER_USER}:${VCENTER_PASSWORD}`
+            )}`,
+          },
+        },
+        genToken,
+        responseInternalServer
+      )
+    })
+  })
+}
+
 const functionRoutes = {
   list,
   listAll,
   cleartags,
   importHost,
   importVobject,
+  getToken,
 }
 module.exports = functionRoutes
