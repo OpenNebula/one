@@ -37,7 +37,6 @@ class LXCClient
 
     COMMANDS.each_value do |value|
         value.prepend 'sudo '
-        value << ' --logpriority ERROR'
     end
 
     # Returns LXC version

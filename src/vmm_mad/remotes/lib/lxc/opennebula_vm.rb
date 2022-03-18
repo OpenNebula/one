@@ -157,7 +157,7 @@ class LXCVM < OpenNebulaVM
         memory = limits_memory
 
         lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_max]}"] = memory
-        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_low]}"] = (memory.chomp.to_f*0.9).ceil
+        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_low]}"] = "#{(memory.chomp.to_f*0.9).ceil}M"
 
         lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:swap]}"] = limits_memory_swap('LXC_SWAP') if swap_limitable?
 
@@ -183,6 +183,12 @@ class LXCVM < OpenNebulaVM
 
         # Add profiles
         lxc['lxc.include'] |= parse_profiles
+
+        # logging
+        # 0 = trace, 1 = debug, 2 = info, 3 = notice, 4 = warn,
+        # 5 = error, 6 = critical, 7 = alert, 8 = fatal
+        lxc['lxc.log.level'] = 5
+        lxc['lxc.log.file'] = "/var/log/lxc/one-#{@vm_id}.log"
 
         # Parse RAW section (lxc values should prevail over raw section values)
         lxc = parse_raw.merge(lxc)
