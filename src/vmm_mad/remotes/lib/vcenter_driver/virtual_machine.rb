@@ -3076,7 +3076,7 @@ end
             @item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
             devices.each do |device|
-                next unless first_ &&
+                next unless first_condition &&
                     device.key == scsi_key
 
                 controller = device.deviceInfo.label
