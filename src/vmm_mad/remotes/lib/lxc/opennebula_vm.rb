@@ -126,45 +126,48 @@ class LXCVM < OpenNebulaVM
         # rubocop:disable Layout/LineLength
 
         # Add cgroup limitations
+        cg_version = get_cgroup_version
 
-        # rubocop:disable Style/ConditionalAssignment
-        cg_set = if cgroup_ver == 2
-                     CGROUP_NAMES.keys[1]
-                 else
-                     CGROUP_NAMES.keys[0]
-                 end
-        # rubocop:enable Style/ConditionalAssignment
+        if cg_version != 0
+            # rubocop:disable Style/ConditionalAssignment
+            cg_set = if cg_version == 2
+                         CGROUP_NAMES.keys[1]
+                     else
+                         CGROUP_NAMES.keys[0]
+                     end
+            # rubocop:enable Style/ConditionalAssignment
 
-        pre= "lxc.#{cg_set}."
+            pre= "lxc.#{cg_set}."
 
-        lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares
+            lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares
 
-        numa_nodes = get_numa_nodes
+            numa_nodes = get_numa_nodes
 
-        if !numa_nodes.empty?
-            nodes = []
-            cores = []
+            if !numa_nodes.empty?
+                nodes = []
+                cores = []
 
-            numa_nodes.each do |node|
-                nodes << node['MEMORY_NODE_ID']
-                cores << node['CPUS']
+                numa_nodes.each do |node|
+                    nodes << node['MEMORY_NODE_ID']
+                    cores << node['CPUS']
+                end
+
+                lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:cores]}"] = cores.join(',')
+                lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:nodes]}"] = nodes.join(',')
             end
 
-            lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:cores]}"] = cores.join(',')
-            lxc["#{pre}cpuset.#{CGROUP_NAMES[cg_set][:nodes]}"] = nodes.join(',')
+            memory = limits_memory
+
+            lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_max]}"] = memory
+            lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_low]}"] = "#{(memory.chomp.to_f*0.9).ceil}M"
+
+            lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:swap]}"] = limits_memory_swap('LXC_SWAP') if swap_limitable?
+
+            # Avoid OOM to kill the process when limit is reached
+            lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:oom]}"] = 1
+
+            # rubocop:enable Layout/LineLength
         end
-
-        memory = limits_memory
-
-        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_max]}"] = memory
-        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:memory_low]}"] = "#{(memory.chomp.to_f*0.9).ceil}M"
-
-        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:swap]}"] = limits_memory_swap('LXC_SWAP') if swap_limitable?
-
-        # Avoid OOM to kill the process when limit is reached
-        lxc["#{pre}memory.#{CGROUP_NAMES[cg_set][:oom]}"] = 1
-
-        # rubocop:enable Layout/LineLength
 
         # User mapping
         # rubocop:disable Layout/LineLength

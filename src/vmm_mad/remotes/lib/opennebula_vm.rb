@@ -83,10 +83,11 @@ class OpenNebulaVM
     end
 
     # Returns cgroup version
-    def cgroup_ver
-        return 2 unless `mount | grep 'cgroup2 on '`.empty?
+    def get_cgroup_version
+        return 1 unless `mount | grep "type cgroup ("`.empty?
+        return 2 unless `mount | grep "type cgroup2 ("`.empty?
 
-        1
+        0
     end
 
     def wild?
