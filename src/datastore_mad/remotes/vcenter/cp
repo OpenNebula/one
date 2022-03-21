@@ -71,6 +71,7 @@ def find_image_type_in_directory(target_path)
         raise StandardError, 'No files in img_path folder'
     end
 
+    file_types = {}
     img_files.each do |f|
         Open3.popen3("qemu-img info #{f}") do |_sdtin, stdout, stderr, wait_thr|
             unless wait_thr.value.success?
