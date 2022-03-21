@@ -315,6 +315,12 @@ module OpenNebula
                 end
             else
                 IMMUTABLE_ATTRS.each do |attr|
+                    # Allows updating the template without
+                    # specifying the immutable attributes
+                    if template[attr].nil?
+                        template[attr] = @body[attr]
+                    end
+
                     next if template[attr] == @body[attr]
 
                     return [false, "service_template/#{attr}"]
