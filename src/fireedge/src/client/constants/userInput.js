@@ -32,15 +32,34 @@
  */
 
 /**
- * @typedef {object} UserInputObject
+ * @typedef UserInputObject
  * @property {boolean} mandatory - If `true`, the input will be required
  * @property {UserInputType} type - Input type
  * @property {string} name - Name of input
  * @property {string} [description] - Description of input
- * @property {number|string} [min] - Minimum value of range type input
- * @property {number|string} [max] - Maximum value of range type input
- * @property {string[]} [options] - Options available for the input
+ * @property {number|string} [min] - Minimum value.
+ * Valid for types: `range` or `range-float`
+ * @property {number|string} [max] - Maximum value.
+ * Valid for types: `range` or `range-float`
+ * @property {string|string[]} [options] - Available options.
+ * Valid for types: `list`, `list-multiple` or `array`
  * @property {number|string|string[]} [default] - Default value for the input
+ */
+
+/**
+ * User input used on provision templates for OneProvision.
+ *
+ * @typedef UserInputOneProvisionObject
+ * @property {string} name - Name of input
+ * @property {string} description - Description of input
+ * @property {UserInputType} type - Type of input
+ * @property {number|string} [min_value] - Minimum value.
+ * Valid for types: `range` or `range-float`
+ * @property {number|string} [max_value] - Maximum value
+ * Valid for types: `range` or `range-float`
+ * @property {string|string[]} [options] - Available options.
+ * Valid for types: `list`, `list-multiple` or `array`
+ * @property {number|string|string[]} default - Default value for the input
  */
 
 /** @enum {UserInputType} User input types */
