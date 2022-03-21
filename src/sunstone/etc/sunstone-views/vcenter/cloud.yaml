@@ -115,6 +115,7 @@ tabs:
             VM.updateconf: true
             VM.attachsg: true
             VM.detachsg: true
+            VM.instantiate_name: true
         dashboard:
             # Connected user's quotas
             quotas: true

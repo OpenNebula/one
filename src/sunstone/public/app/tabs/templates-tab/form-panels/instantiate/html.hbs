@@ -37,6 +37,7 @@
   </div>
   <div class="row nameContainer">
     <div class="medium-4 columns">
+      {{#isTabActionEnabled "vms-tab" "VM.instantiate_name"}}
       <label for="vm_name">
         {{tr "VM name"}}
         <span class="tip">
@@ -44,6 +45,7 @@
         </span>
       </label>
       <input type="text" name="vm_name" id="vm_name" />
+      {{/isTabActionEnabled}}
     </div>
     <div class="medium-4 columns">
       <label for="vm_n_times">
