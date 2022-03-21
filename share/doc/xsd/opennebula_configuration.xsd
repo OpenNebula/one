@@ -204,6 +204,7 @@
             <xs:all>
               <xs:element name="DEBUG_LEVEL" type="xs:integer"/>
               <xs:element name="SYSTEM" type="xs:string"/>
+              <xs:element name="USE_VMS_LOCATION" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:all>
           </xs:complexType>
         </xs:element>
