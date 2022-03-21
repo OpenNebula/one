@@ -1719,7 +1719,7 @@ int Scheduler::do_scheduled_actions()
 
         if (!first_action)
         {
-            return 0;
+            continue;
         }
 
         ostringstream oss;
