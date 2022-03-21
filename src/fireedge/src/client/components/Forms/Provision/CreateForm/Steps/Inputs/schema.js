@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { getValidationFromFields, schemaUserInput } from 'client/utils'
+import { object, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields, schemaUserInput } from 'client/utils'
+import { UserInputOneProvisionObject } from 'client/constants'
 
+/**
+ * @param {UserInputOneProvisionObject[]} inputs - Inputs
+ * @returns {Field[]} Inputs in Field format
+ */
 export const FORM_FIELDS = (inputs) =>
   inputs?.map(
     ({
@@ -44,5 +48,9 @@ export const FORM_FIELDS = (inputs) =>
     }
   )
 
+/**
+ * @param {UserInputOneProvisionObject[]} inputs - Inputs
+ * @returns {ObjectSchema} Inputs step schema
+ */
 export const STEP_FORM_SCHEMA = (inputs) =>
-  yup.object(getValidationFromFields(FORM_FIELDS(inputs)))
+  object(getValidationFromFields(FORM_FIELDS(inputs)))

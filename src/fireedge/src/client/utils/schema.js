@@ -233,15 +233,13 @@ const parseUserInputValue = (value) => {
 // ----------------------------------------------------------
 
 /**
- * Get input schema for the user input defined in OpenNebula resource.
+ * Get field properties to represent an user input defined by OpenNebula.
  *
  * @param {UserInputObject} userInput - User input from OpenNebula document
- * @param {number|string|string[]} [userInput.default] - Default value for the input
  * @returns {Field} Field properties
  */
 export const schemaUserInput = ({
   mandatory,
-  name,
   type,
   options,
   default: defaultValue,
@@ -413,23 +411,26 @@ export const createSteps =
     const stepCallbacks = typeof steps === 'function' ? steps(stepProps) : steps
     const performedSteps = stepCallbacks.map((step) => step(stepProps))
 
-    const schemas = {}
-    for (const { id, resolver } of performedSteps) {
-      const schema = typeof resolver === 'function' ? resolver() : resolver
+    // Generate the schema in the last instance
+    const generateSchema = () => {
+      const schemas = {}
+      for (const { id, resolver } of performedSteps) {
+        const schema = typeof resolver === 'function' ? resolver() : resolver
 
-      schemas[id] = schema
+        schemas[id] = schema
+      }
+
+      return object(schemas)
     }
 
-    const allResolver = object(schemas)
-
     const defaultValues = initialValues
-      ? transformInitialValue(initialValues, allResolver)
-      : allResolver.default()
+      ? transformInitialValue(initialValues, generateSchema())
+      : generateSchema().default()
 
     return {
       steps: performedSteps,
       defaultValues,
-      resolver: () => allResolver,
+      resolver: generateSchema,
       ...extraParams,
     }
   }
