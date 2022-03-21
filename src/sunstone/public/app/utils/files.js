@@ -17,6 +17,7 @@
 define(function(require) {
   var Config = require('sunstone-config');
   var UtilsConnection = require("utils/info-connection/utils");
+  var Notifier = require("utils/notifier");
 
   return {
     "downloadWFile": _downloadWFile,

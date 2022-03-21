@@ -1257,22 +1257,8 @@ define(function(require) {
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
-  function isKVMVM(hostID){
-    var isKVM = false;
-    OpenNebulaHost.show({
-      data : {
-        id: hostID
-      },
-      timeout: true,
-      success: function (_, hostTemplate) {
-        isKVM = String(hostTemplate.HOST.VM_MAD).toLowerCase() === 'kvm';
-      },
-      error: function(request, response) {
-        isKVM = false;
-      }},
-      false
-    );
-    return isKVM;
+  function isKvmVm(history = {}){
+    return Boolean(history.VM_MAD && String(history.VM_MAD).toLowerCase() === "kvm");
   }
 
   function isVMRCSupported(element = {}) {
@@ -1294,8 +1280,7 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
-    var hostId = history && history.HID 
-    var isKVM = hostId ? isKVMVM(hostId) : false;
+    var isKVM = isKvmVm(history);
 
     return (actionEnabled && history && (vncSupported || spiceSupported) && isKVM)
       ? {

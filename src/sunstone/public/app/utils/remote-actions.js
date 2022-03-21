@@ -99,6 +99,21 @@ define(function(require) {
     return $("<div>").append(button.append(icon)).html();
   }
 
+  function buttonWFile(id = "", wfile = {}) {
+    var icon = $("<i>", { class: "fas fa-file-code" });
+
+    var button = $("<button>", {
+      title: "w-file",
+      class: "w-file remote-vm",
+      "data-id": id,
+      "data-hostname": wfile.hostname,
+      "data-type": wfile.type,
+      "data-port": wfile.port
+    });
+
+    return $("<div>").append(button.append(icon)).html();
+  }
+
   function buttonSSH(id = "") {
     var icon = $("<i>", { class: "fas fa-terminal" });
 
@@ -196,6 +211,9 @@ define(function(require) {
     else if (OpenNebulaVM.isSPICESupported(vm)) {
       actions += buttonSpice(vm.ID);
     }
+
+    var wFile = OpenNebulaVM.isWFileSupported(vm);
+    actions +=  wFile ? buttonWFile(vm.ID, wFile) : "";
 
     var rdpIp = OpenNebulaVM.isConnectionSupported(vm, "rdp");
     actions += rdpIp ? dropdownRDP(vm.ID, rdpIp, vm) : "";
