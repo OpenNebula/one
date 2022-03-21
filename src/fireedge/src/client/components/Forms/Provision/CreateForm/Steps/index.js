@@ -42,10 +42,12 @@ const Steps = createSteps([Template, Provider, BasicConfiguration, Inputs], {
       })
     }
 
-    const resolvedInputs = provisionTemplateSelected?.inputs?.map((input) => ({
-      ...input,
-      value: `${inputs[input?.name]}`,
-    }))
+    const resolvedInputs = provisionTemplateSelected?.inputs?.map((input) => {
+      const value = inputs[input?.name]
+      const ensuredValue = Array.isArray(value) ? value.join(';') : value
+
+      return { ...input, value: ensuredValue }
+    })
 
     return {
       ...provisionTemplateSelected,
