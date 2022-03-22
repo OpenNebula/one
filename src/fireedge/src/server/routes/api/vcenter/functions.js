@@ -39,8 +39,14 @@ const {
   resourceFromData,
   resources,
   params: commandParams,
+  paramsImportNetwork,
 } = require('server/routes/api/vcenter/command-flags')
 const { getSunstoneConfig } = require('server/utils/yml')
+const { Actions: ActionsVn } = require('server/utils/constants/commands/vn')
+const {
+  Actions: ActionsCluster,
+} = require('server/utils/constants/commands/cluster')
+
 const {
   httpMethod,
   defaultEmptyFunction,
@@ -48,6 +54,7 @@ const {
   defaultRegexpStartJSON,
   defaultRegexpEndJSON,
   defaultRegexpSplitLine,
+  defaultRegexID,
 } = defaults
 const { POST } = httpMethod
 const { ok, internalServerError, badRequest, accepted } = httpCodes
@@ -64,6 +71,47 @@ const regexHeader = /^IMID,.*/i
 const regexGetVcenterId = /-(?<id>.*)_/s
 
 const validObjects = Object.values(resources)
+
+/**
+ * Get lines for websocket emit function.
+ *
+ * @param {object} config - config emit
+ * @param {string} config.message - message
+ * @param {Function} config.publisher - publisher
+ * @param {string} config.pending - message pending lines
+ * @param {Function} config.updatePending - updater pending message
+ */
+const splitLines = ({ message, publisher, pending, updatePending }) => {
+  if (message && typeof message.toString === 'function') {
+    message
+      .toString()
+      .split(defaultRegexpSplitLine)
+      .forEach((line) => {
+        if (line) {
+          if (
+            (defaultRegexpStartJSON.test(line) &&
+              defaultRegexpEndJSON.test(line)) ||
+            (!defaultRegexpStartJSON.test(line) &&
+              !defaultRegexpEndJSON.test(line) &&
+              pending.length === 0)
+          ) {
+            publisher(line)
+          } else if (
+            (defaultRegexpStartJSON.test(line) &&
+              !defaultRegexpEndJSON.test(line)) ||
+            (!defaultRegexpStartJSON.test(line) &&
+              !defaultRegexpEndJSON.test(line) &&
+              pending.length > 0)
+          ) {
+            updatePending(pending + line)
+          } else {
+            updatePending()
+            publisher(pending + line)
+          }
+        }
+      })
+  }
+}
 
 /**
  * Show a list with unimported vCenter objects excluding all filters.
@@ -204,24 +252,17 @@ const cleartags = (res = {}, next = defaultEmptyFunction, params = {}) => {
  * @param {object} params - params of http request
  */
 const importHost = (res = {}, next = defaultEmptyFunction, params = {}) => {
-  /**
-   * PENDING IMPORT 1 HOST
-   */
-  const { vcenter, user, pass } = params
-
-  if (!(vcenter && user && pass)) {
-    res.locals.httpCode = badRequest
+  const httpReturn = (httpCode) => {
+    res.locals.httpCode = httpCode
     next()
-
-    return
   }
+  const { vcenter, user, pass, id } = params
+  !(vcenter && user && pass) && httpReturn(badRequest)
 
-  const vcenterLowercase = vcenter && `${vcenter}`.toLowerCase()
-
-  const paramsCommand = [
+  let paramsCommand = [
     'hosts',
     '--vcenter',
-    vcenterLowercase,
+    `${vcenter}`.toLowerCase(),
     '--vuser',
     `${user}`,
     '--vpass',
@@ -229,19 +270,49 @@ const importHost = (res = {}, next = defaultEmptyFunction, params = {}) => {
     '--use-defaults',
   ]
 
-  const executedCommand = executeCommand(
-    defaultCommandVcenter,
-    paramsCommand,
-    prependCommand
-  )
-
-  const response = executedCommand.success ? ok : internalServerError
-  let message = ''
-  if (executedCommand.data) {
-    message = consoleParseToString(executedCommand.data, regexExclude)
+  let pending = ''
+  const updatePending = (newLine = '') => {
+    pending = newLine
   }
-  res.locals.httpCode = httpResponse(response, message)
-  next()
+
+  const publisher = (line = '', ref = '') =>
+    publish(defaultCommandVcenter, {
+      resource: 'hosts',
+      data: line,
+      ref,
+    })
+
+  const executeImportHost = (ref) => {
+    if (ref) {
+      const newParameters = ['--cluster-ref', ref]
+      paramsCommand = [...paramsCommand, ...newParameters]
+    }
+    const emit = (message) =>
+      splitLines({
+        message,
+        publisher: (line) => publisher(line, ref),
+        pending,
+        updatePending,
+      })
+    executeCommandAsync(defaultCommandVcenter, paramsCommand, prependCommand, {
+      err: emit,
+      out: emit,
+      close: defaultEmptyFunction,
+    })
+  }
+
+  if (id) {
+    id.split(',').forEach((ref) => {
+      executeImportHost(ref)
+    })
+    httpReturn(accepted)
+
+    return
+  }
+
+  executeImportHost()
+
+  httpReturn(accepted)
 }
 
 /**
@@ -251,6 +322,7 @@ const importHost = (res = {}, next = defaultEmptyFunction, params = {}) => {
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
  * @param {object} userData - user Data
+ * @param {Function} oneConnection - function of  xmlrpc
  * @param {'template'|'images'|'datastores'|'networks'} type - type resource
  */
 const importVobject = (
@@ -258,8 +330,11 @@ const importVobject = (
   next = defaultEmptyFunction,
   params = {},
   userData = {},
+  oneConnection = defaultEmptyFunction,
   type
 ) => {
+  const { id, selectedClusters } = params
+
   const httpReturn = (httpCode) => {
     res.locals.httpCode = httpCode
     next()
@@ -278,63 +353,106 @@ const importVobject = (
       }
     })
 
-  const publisher = (line = '') => {
-    publish(defaultCommandVcenter, {
+  const { user, password } = userData
+  const oneConnect = oneConnection(user, password)
+  const syncUpdate = (
+    action = '',
+    parameters = [],
+    callback = defaultEmptyFunction
+  ) =>
+    oneConnect({
+      action,
+      parameters,
+      callback: (err = undefined, data) => {
+        callback(data)
+      },
+      fillHookResource: false,
+      parseXml: false,
+    })
+
+  const publisher = (line = '', ref = '') => {
+    const response = {
       resource: type,
       data: line,
-    })
-  }
+      ref,
+    }
+    const matchLine = line.match(defaultRegexID)
+    if (type === resources.NETWORKS && matchLine) {
+      response.networkUpdated = null
+      response.clusterUpdated = null
+      const networkId = matchLine && matchLine.groups && matchLine.groups.id
+      const networkIdNumber = parseInt(networkId, 10)
+      let templateAR = ''
+      Object.entries(paramsImportNetwork).forEach(([key, value]) => {
+        if (params[key]) {
+          const comma = templateAR ? ', ' : ''
+          templateAR += `${comma}${value} = ${params[key]}`
+        }
+      })
+      if (templateAR && selectedClusters) {
+        templateAR = `AR = [AR_ID = 0, ${templateAR}]`
 
-  let pendingMessages = ''
-  const emit = (message) => {
-    if (message && typeof message.toString === 'function') {
-      message
-        .toString()
-        .split(defaultRegexpSplitLine)
-        .forEach((line) => {
-          if (line) {
-            if (
-              (defaultRegexpStartJSON.test(line) &&
-                defaultRegexpEndJSON.test(line)) ||
-              (!defaultRegexpStartJSON.test(line) &&
-                !defaultRegexpEndJSON.test(line) &&
-                pendingMessages.length === 0)
-            ) {
-              publisher(line)
-            } else if (
-              (defaultRegexpStartJSON.test(line) &&
-                !defaultRegexpEndJSON.test(line)) ||
-              (!defaultRegexpStartJSON.test(line) &&
-                !defaultRegexpEndJSON.test(line) &&
-                pendingMessages.length > 0)
-            ) {
-              pendingMessages += line
-            } else {
-              publisher(pendingMessages + line)
-              pendingMessages = ''
+        /** Update network */
+        syncUpdate(
+          ActionsVn.VN_AR_UPDATE,
+          [networkIdNumber, templateAR],
+          (network) => {
+            if (Number.isInteger(parseInt(network, 10))) {
+              response.networkUpdated = networkIdNumber
             }
+            selectedClusters.split(',').forEach((cluster) => {
+              /** Update cluster */
+              syncUpdate(
+                ActionsCluster.CLUSTER_ADDVNET,
+                [parseInt(cluster, 10), networkIdNumber],
+                (clusterID) => {
+                  if (Number.isInteger(parseInt(clusterID, 10))) {
+                    if (response.clusterUpdated) {
+                      response.clusterUpdated += `, ${clusterID}`
+                    } else {
+                      response.clusterUpdated = clusterID
+                    }
+                  }
+                  publish(defaultCommandVcenter, response)
+                }
+              )
+            })
           }
-        })
+        )
+      }
+    } else {
+      publish(defaultCommandVcenter, response)
     }
   }
 
-  const executeImport = (ref) => {
+  let pending = ''
+  const updatePending = (newLine = '') => {
+    pending = newLine
+  }
+
+  const executeImportVobject = (ref) => {
+    const emit = (message) =>
+      splitLines({
+        message,
+        publisher: (line) => publisher(line, ref),
+        pending,
+        updatePending,
+      })
     executeCommandAsync(
       defaultCommandVcenter,
       ['import_defaults', ref, '-o', type, ...flagsImport],
       prependCommand,
       {
-        err: (message) => emit(message),
-        out: (message) => emit(message),
+        err: emit,
+        out: emit,
         close: defaultEmptyFunction,
       }
     )
   }
 
-  const { id } = params
   if (id) {
     id.split(',').forEach((ref) => {
-      executeImport(ref)
+      executeImportVobject(ref)
     })
     httpReturn(accepted)
 
@@ -363,7 +481,7 @@ const importVobject = (
           if (!REF) {
             return
           }
-          executeImport(REF)
+          executeImportVobject(REF)
         })
       } else {
         publisher(messageString)

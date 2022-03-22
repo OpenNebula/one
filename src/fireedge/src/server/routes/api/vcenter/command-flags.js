@@ -85,4 +85,14 @@ const params = {
   ],
 }
 
-module.exports = { resourceFromData, resources, params }
+const paramsImportNetwork = {
+  size: 'SIZE',
+  type: 'TYPE',
+  mac: 'MAC',
+  ip: 'IP',
+  globalPrefix: 'GLOBAL_PREFIX',
+  ulaPrefix: 'ULA_PREFIX',
+  ip6Global: 'IP6_GLOBAL',
+}
+
+module.exports = { resourceFromData, resources, params, paramsImportNetwork }

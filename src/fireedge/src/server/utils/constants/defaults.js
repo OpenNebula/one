@@ -54,6 +54,7 @@ const defaults = {
   defaultSessionLimitExpiration: 30,
   defaultRememberSessionExpiration: 43200,
   defaultRegexpStartJSON: /^{/,
+  defaultRegexID: /^ID: (?<id>\d+)/,
   defaultRegexpEndJSON: /}$/,
   defaultRegexpSplitLine: /\r|\n/,
   defaultAppName: appName,

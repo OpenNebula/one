@@ -58,6 +58,7 @@ const {
   defaultRegexpStartJSON,
   defaultRegexpEndJSON,
   defaultRegexpSplitLine,
+  defaultRegexID,
 } = defaults
 const { ok, notFound, accepted, internalServerError } = httpCodes
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -70,7 +71,6 @@ const provisionFile = {
   name: 'provision',
   ext: 'yaml',
 }
-const regexp = /^ID: \d+/
 const relName = 'provision-mapping'
 const ext = 'yml'
 const appendError = '.ERROR'
@@ -888,7 +888,7 @@ const createProvision = (
              */
             const emit = (lastLine, uuid) => {
               if (lastLine && uuid) {
-                if (regexp.test(lastLine) && !checkSync(relFileLOCK)) {
+                if (defaultRegexID.test(lastLine) && !checkSync(relFileLOCK)) {
                   const fileData = parse(filedata) || {}
                   const parseID = lastLine.match('\\d+')
                   const idResource = parseID[0]
@@ -924,7 +924,7 @@ const createProvision = (
              */
             const close = (success, lastLine) => {
               stream.end()
-              if (success && regexp.test(lastLine)) {
+              if (success && defaultRegexID.test(lastLine)) {
                 const newPath = renameFolder(
                   config.path,
                   lastLine.match('\\d+'),

@@ -132,6 +132,30 @@ module.exports = {
         host: {
           from: postBody,
         },
+        size: {
+          from: postBody,
+        },
+        type: {
+          from: postBody,
+        },
+        mac: {
+          from: postBody,
+        },
+        ip: {
+          from: postBody,
+        },
+        selectedClusters: {
+          from: postBody,
+        },
+        globalPrefix: {
+          from: postBody,
+        },
+        ulaPrefix: {
+          from: postBody,
+        },
+        ip6Global: {
+          from: postBody,
+        },
       },
     },
     [VCENTER_IMPORT_IMAGES]: {

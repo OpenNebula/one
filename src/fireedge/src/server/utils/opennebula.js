@@ -17,7 +17,6 @@
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
-const { parse: xmlParse } = require('fast-xml-parser')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const { global } = require('window-or-global')
@@ -29,12 +28,12 @@ const {
 const {
   from,
   defaultEmptyFunction,
-  defaultConfigParseXML,
   defaultNamespace,
   defaultMessageProblemOpennebula,
 } = defaults
 
 const { getFireedgeConfig } = require('server/utils/yml')
+const { xml2json } = require('server/utils/general')
 
 // regex for separate the commands .info
 const regexInfoAction = /^(\w+).info$/
@@ -61,25 +60,6 @@ const lastValueRegexCsv = /,\s*$/g
 const stringWrappedBrakets = /^\[.*\]$/g
 // regex first and last brakets
 const brakets = /(^\[)|(\]$)/g
-
-/**
- * Parse XML to JSON.
- *
- * @param {string} xml - xml data in  string
- * @param {Function} callback - callback data
- */
-const xml2json = (xml = '', callback = defaultEmptyFunction) => {
-  let rtn = []
-  try {
-    const jsonObj = xmlParse(xml, defaultConfigParseXML)
-    rtn = [null, jsonObj]
-  } catch (error) {
-    rtn = [error]
-  }
-
-  // eslint-disable-next-line node/no-callback-literal
-  callback(...rtn)
-}
 
 /**
  * Authorizes if the user has access to the resource, for their connection to the HOOK.
@@ -561,7 +541,6 @@ module.exports = {
   getDefaultParamsOfOpennebulaCommand,
   generateNewResourceTemplate,
   fillResourceforHookConnection,
-  xml2json,
   consoleParseToString,
   consoleParseToJSON,
   sensitiveDataRemoverConfig,
