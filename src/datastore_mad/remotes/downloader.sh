@@ -318,7 +318,7 @@ function curl_retry_args {
     echo $RETRY_ARGS
 }
 
-TEMP=`getopt -o m:s:l:c:n:o -l md5:,sha1:,limit:,max-size:,nodecomp,noretry -- "$@"`
+TEMP=`getopt -o m:s:l:c:no -l md5:,sha1:,limit:,max-size:,nodecomp,noretry -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error" >&2
