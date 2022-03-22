@@ -80,8 +80,6 @@ class LinuxContainersMarket
 
         return 0, response.body if response.is_a? Net::HTTPSuccess
 
-        puts response.code.to_i
-        puts response.msg
         [response.code.to_i, response.msg]
     end
 
