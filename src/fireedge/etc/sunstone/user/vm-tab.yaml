@@ -52,12 +52,9 @@ actions:
   lock: true
   unlock: true
   vmrc: true
-  spice: true
   vnc: true
   ssh: true
   rdp: true
-  save_rdp: true
-  save_virt_viewer: true
 
 # Filters - List of criteria to filter the resources
 
