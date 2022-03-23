@@ -46,7 +46,7 @@ import { T, GuacamoleSession } from 'client/constants'
 const GuacamoleCtrlAltDelButton = memo(
   /**
    * @param {GuacamoleSession} session - Guacamole session
-   * @returns {ReactElement} Guacamole mouse plugin
+   * @returns {ReactElement} Button to perform Control+Alt+Delete action
    */
   (session) => {
     const { id, client } = session
@@ -82,7 +82,7 @@ const GuacamoleCtrlAltDelButton = memo(
 
 /**
  * @param {GuacamoleSession} session - Guacamole session
- * @returns {ReactElement} Guacamole mouse plugin
+ * @returns {ReactElement} Button to perform reconnect action
  */
 const GuacamoleReconnectButton = (session) => {
   const { id, isLoading, handleReconnect } = session
@@ -123,7 +123,7 @@ const GuacamoleReconnectButton = (session) => {
 const GuacamoleFullScreenButton = memo(
   /**
    * @param {GuacamoleSession} session - Guacamole session
-   * @returns {ReactElement} Guacamole mouse plugin
+   * @returns {ReactElement} Button to full screen
    */
   (session) => {
     const { id, viewport } = session
@@ -158,7 +158,7 @@ const GuacamoleFullScreenButton = memo(
 const GuacamoleScreenshotButton = memo(
   /**
    * @param {GuacamoleSession} session - Guacamole session
-   * @returns {ReactElement} Guacamole mouse plugin
+   * @returns {ReactElement} Button to make screenshot form current session
    */
   (session) => {
     const { id, client } = session

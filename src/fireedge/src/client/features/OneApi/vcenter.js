@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
+import { Actions, Commands } from 'server/routes/api/vcenter/routes'
+import { oneApi } from 'client/features/OneApi'
 
-import { List } from 'client/components/Tabs/Common'
-import { T, Group } from 'client/constants'
-
-/**
- * Renders mainly information tab.
- *
- * @param {object} props - Props
- * @param {Group} props.group - Group resource
- * @param {string[]} props.actions - Available actions to information tab
- * @returns {ReactElement} Information tab
- */
-const InformationPanel = ({ group = {}, actions: _ }) => {
-  const { ID, NAME } = group
-
-  const info = [
-    { name: T.ID, value: ID, dataCy: 'id' },
-    { name: T.Name, value: NAME, dataCy: 'name' },
-  ]
-
-  return (
-    <>
-      <List
-        title={T.Information}
-        list={info}
-        containerProps={{ sx: { gridRow: 'span 3' } }}
-      />
-    </>
-  )
+/** @type {string} Type of vCenter objects */
+export const VCENTER_OBJECT = {
+  DATASTORES: 'datastores',
+  HOSTS: 'hosts',
+  IMAGES: 'images',
+  NETWORKS: 'networks',
+  TEMPLATES: 'templates',
 }
 
-InformationPanel.propTypes = {
-  group: PropTypes.object,
-  actions: PropTypes.arrayOf(PropTypes.string),
-}
+const vcenterApi = oneApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getVMRCSession: builder.query({
+      /**
+       * Returns a VMware Remote Console session.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @returns {string} The session token
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VCENTER_TOKEN
+        const command = { name, ...Commands[name] }
 
-InformationPanel.displayName = 'InformationPanel'
+        return { params, command }
+      },
+    }),
+  }),
+})
 
-export default InformationPanel
+export const {
+  // Queries
+  useGetVMRCSessionQuery,
+  useLazyGetVMRCSessionQuery,
+} = vcenterApi
+
+export default vcenterApi

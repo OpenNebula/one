@@ -21,7 +21,8 @@ import { VirtualMachineCard } from 'client/components/Cards'
 import { GuacamoleButton } from 'client/components/Buttons'
 import { VM_ACTIONS } from 'client/constants'
 
-const { VNC, RDP, SSH } = VM_ACTIONS
+const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
+const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 const Row = memo(
   ({ original, ...props }) => {
@@ -38,7 +39,7 @@ const Row = memo(
         rootProps={props}
         actions={
           <>
-            {[VNC, RDP, SSH].map((connectionType) => (
+            {CONNECTION_TYPES.map((connectionType) => (
               <GuacamoleButton
                 key={`${memoVm}-${connectionType}`}
                 connectionType={connectionType}

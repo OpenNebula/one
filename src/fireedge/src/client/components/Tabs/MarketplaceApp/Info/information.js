@@ -92,7 +92,7 @@ const InformationPanel = ({ app = {}, actions }) => {
     <List
       title={T.Information}
       list={info}
-      containerProps={{ style: { gridRow: 'span 3' } }}
+      containerProps={{ sx: { gridRow: 'span 3' } }}
     />
   )
 }

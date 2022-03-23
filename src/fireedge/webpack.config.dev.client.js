@@ -15,17 +15,23 @@
  * ------------------------------------------------------------------------- */
 const path = require('path')
 const webpack = require('webpack')
-
 const {
   defaultWebpackMode,
   defaultApps,
   defaultAppName,
 } = require('./src/server/utils/constants/defaults')
 
+const HOT_MIDDLEWARE_SCRIPT =
+  'webpack-hot-middleware/client?path=/__webpack_hmr'
+
 const APP_ENTRIES = Object.keys(defaultApps).reduce(
   (entries, app) => ({
     ...entries,
-    [app]: path.resolve(__dirname, `src/client/${app}.js`),
+    [app]: [
+      path.resolve(__dirname, `src/client/${app}.js`),
+      // Include the hot middleware with each entrypoint
+      HOT_MIDDLEWARE_SCRIPT,
+    ],
   }),
   {}
 )

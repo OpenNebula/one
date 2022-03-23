@@ -41,7 +41,6 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
   item: {
-    height: '2.4em',
     gap: '1em',
     '& > *': {
       flex: '1 1 50%',
@@ -69,11 +68,13 @@ const AttributeList = ({
 
   const renderList = (attribute, parentPath = false) => {
     const { name, value } = attribute
-    const isParent = typeof value === 'object' && !isValidElement(value)
+    const isReactElement = isValidElement(value)
+    const isParent = typeof value === 'object' && !isReactElement
 
     return (
       <Fragment key={`${title}.${parentPath || name}`}>
         <ListItem
+          sx={isReactElement ? { minHeight: '2.4em' } : { height: '2.4em' }}
           className={clsx(classes.item, itemClassName)}
           {...restOfItemProps}
         >

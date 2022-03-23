@@ -17,10 +17,7 @@
 /* eslint-disable jsdoc/valid-types */
 import { useRef } from 'react'
 
-import {
-  useGetLatest,
-  reducePlugin,
-} from 'client/components/Consoles/Guacamole/utils'
+import { useGetLatest, reducePlugin } from 'client/components/Consoles/utils'
 import GuacamoleClient, {
   GuacamoleClientType,
 } from 'client/components/Consoles/Guacamole/client'

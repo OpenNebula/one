@@ -13,44 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-
-import { List } from 'client/components/Tabs/Common'
-import { T, Group } from 'client/constants'
+import { useCallback, useRef } from 'react'
 
 /**
- * Renders mainly information tab.
+ * Helps avoid a lot of potential memory leaks.
  *
- * @param {object} props - Props
- * @param {Group} props.group - Group resource
- * @param {string[]} props.actions - Available actions to information tab
- * @returns {ReactElement} Information tab
+ * @param {object} obj - Instance object
+ * @returns {function():object} - Returns the last object
  */
-const InformationPanel = ({ group = {}, actions: _ }) => {
-  const { ID, NAME } = group
+export const useGetLatest = (obj) => {
+  const ref = useRef()
+  ref.current = obj
 
-  const info = [
-    { name: T.ID, value: ID, dataCy: 'id' },
-    { name: T.Name, value: NAME, dataCy: 'name' },
-  ]
-
-  return (
-    <>
-      <List
-        title={T.Information}
-        list={info}
-        containerProps={{ sx: { gridRow: 'span 3' } }}
-      />
-    </>
-  )
+  return useCallback(() => ref.current, [])
 }
 
-InformationPanel.propTypes = {
-  group: PropTypes.object,
-  actions: PropTypes.arrayOf(PropTypes.string),
-}
-
-InformationPanel.displayName = 'InformationPanel'
-
-export default InformationPanel
+/**
+ * Assign the plugin state to the previous state.
+ *
+ * @param {object} prevState - Previous state
+ * @param {function():object} plugin - Plugin
+ * @returns {object} Returns the new state
+ */
+export const reducePlugin = (prevState, plugin = () => ({})) => ({
+  ...prevState,
+  ...plugin(prevState),
+})

@@ -17,12 +17,12 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
+} = require('../../../utils/constants/defaults')
 
-const basepath = '/vcenter'
 const { POST, GET } = httpMethod
 const { resource, postBody, query } = fromData
 
+const basepath = '/vcenter'
 const VCENTER_TOKEN = 'vcenter.token'
 const VCENTER_CLEAR_TAGS = 'vcenter.cleartags'
 const VCENTER_IMPORT_HOSTS = 'vcenter.importhosts'
@@ -32,6 +32,7 @@ const VCENTER_IMPORT_NETWORKS = 'vcenter.importnetworks'
 const VCENTER_IMPORT_IMAGES = 'vcenter.importimages'
 const VCENTER_LIST_ALL = 'vcenter.listall'
 const VCENTER_LIST = 'vcenter.list'
+
 const Actions = {
   VCENTER_TOKEN,
   VCENTER_CLEAR_TAGS,

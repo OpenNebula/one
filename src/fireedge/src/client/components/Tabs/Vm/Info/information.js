@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { generatePath } from 'react-router-dom'
+import { useHistory, generatePath } from 'react-router-dom'
+import { Card, CardActionArea, CardMedia } from '@mui/material'
 
 import { useGetClusterQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
+import { useGuacamole } from 'client/features/Guacamole'
 
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
@@ -28,6 +30,7 @@ import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T, VM, VM_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { PATH as DEFAULT_PATH } from 'client/apps/sunstone/routes'
 
 /**
  * Renders mainly information tab.
@@ -38,7 +41,17 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  * @returns {ReactElement} Information tab
  */
 const InformationPanel = ({ vm = {}, actions }) => {
+  const history = useHistory()
   const [renameVm] = useRenameVmMutation()
+  const sessions = useGuacamole(vm?.ID)
+
+  const [connectionType, { thumbnail: firstThumbnail } = {}] = useMemo(
+    () =>
+      Object.entries(sessions).find(
+        ([_, { thumbnail }]) => !!thumbnail?.canvas
+      ) ?? [],
+    [sessions]
+  )
 
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
   const { name: stateName, color: stateColor } = getState(vm)
@@ -121,13 +134,39 @@ const InformationPanel = ({ vm = {}, actions }) => {
       value: DEPLOY_ID,
       dataCy: 'deployid',
     },
+    firstThumbnail && {
+      name: T.LastConnection,
+      value: (
+        <Card sx={{ my: 1 }} data-cy={`${vm.ID}-${connectionType}-thumbnail`}>
+          <CardActionArea
+            disableTouchRipple={false}
+            onClick={() =>
+              history.push(
+                generatePath(DEFAULT_PATH.GUACAMOLE, {
+                  id: vm.ID,
+                  type: connectionType,
+                })
+              )
+            }
+          >
+            <CardMedia
+              component="img"
+              sx={{ bgcolor: 'text.primary', opacity: 0.8 }}
+              src={firstThumbnail?.canvas}
+              alt={`thumbnail-${vm.ID}-${connectionType}`}
+            />
+          </CardActionArea>
+        </Card>
+      ),
+      dataCy: 'last_connection',
+    },
   ].filter(Boolean)
 
   return (
     <List
       title={T.Information}
       list={info}
-      containerProps={{ style: { gridRow: 'span 3' } }}
+      containerProps={{ sx: { gridRow: 'span 3' } }}
     />
   )
 }

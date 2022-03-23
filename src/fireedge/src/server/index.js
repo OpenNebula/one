@@ -89,7 +89,6 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
     app.use(
       // eslint-disable-next-line import/no-extraneous-dependencies
       require('webpack-hot-middleware')(compiler, {
-        log: false,
         path: '/__webpack_hmr',
         heartbeat: 10 * 1000,
       })

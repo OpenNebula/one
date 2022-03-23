@@ -26,7 +26,10 @@ import { SubmitButton } from 'client/components/FormControl'
 
 import { useViews } from 'client/features/Auth'
 import { useLazyGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
+import { useLazyGetVMRCSessionQuery } from 'client/features/OneApi/vcenter'
 import {
+  isVCenter,
+  getHypervisor,
   nicsIncludesTheConnectionType,
   isAvailableAction,
 } from 'client/models/VirtualMachine'
@@ -34,75 +37,129 @@ import { Translate } from 'client/components/HOC'
 import { T, VM, RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routes'
 
-const GUACAMOLE_BUTTON = {
-  vnc: { tooltip: T.Vnc, icon: <VncIcon /> },
-  ssh: { tooltip: T.Ssh, icon: <SshIcon /> },
-  rdp: { tooltip: T.Rdp, icon: <RdpIcon /> },
+const GUACAMOLE_BUTTONS = {
+  [VM_ACTIONS.VNC]: { tooltip: T.Vnc, icon: <VncIcon /> },
+  [VM_ACTIONS.SSH]: { tooltip: T.Ssh, icon: <SshIcon /> },
+  [VM_ACTIONS.RDP]: { tooltip: T.Rdp, icon: <RdpIcon /> },
 }
 
-const GuacamoleButton = memo(
+const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
+  const { icon, tooltip } = GUACAMOLE_BUTTONS[connectionType]
+  const history = useHistory()
+  const [getSession, { isLoading }] = useLazyGetGuacamoleSessionQuery()
+
+  const goToConsole = useCallback(
+    async (evt) => {
+      try {
+        evt.stopPropagation()
+
+        const params = { id: vm?.ID, type: connectionType }
+        const session = await getSession(params)
+
+        typeof onClick === 'function'
+          ? onClick(session)
+          : history.push(generatePath(PATH.GUACAMOLE, params))
+      } catch {}
+    },
+    [vm?.ID, connectionType, history, onClick]
+  )
+
+  return (
+    <SubmitButton
+      data-cy={`${vm?.ID}-${connectionType}`}
+      icon={icon}
+      tooltip={<Translate word={tooltip} />}
+      isSubmitting={isLoading}
+      onClick={goToConsole}
+    />
+  )
+})
+
+const VMRCButton = memo(({ vm, onClick }) => {
+  const history = useHistory()
+  const [getSession, { isLoading }] = useLazyGetVMRCSessionQuery()
+
+  const goToConsole = useCallback(
+    async (evt) => {
+      try {
+        evt.stopPropagation()
+
+        const params = { id: vm?.ID }
+        const session = await getSession(params)
+
+        typeof onClick === 'function'
+          ? onClick(session)
+          : history.push(generatePath(PATH.WMKS, params))
+      } catch {}
+    },
+    [vm?.ID, history, onClick]
+  )
+
+  return (
+    <SubmitButton
+      data-cy={`${vm?.ID}-vmrc`}
+      icon={<VncIcon />}
+      tooltip={<Translate word={T.Vmrc} />}
+      isSubmitting={isLoading}
+      onClick={goToConsole}
+    />
+  )
+})
+
+const PreConsoleButton = memo(
   /**
-   * @param {object} options - Options
-   * @param {VM} options.vm - Virtual machine
-   * @param {'vnc'|'ssh'|'rdp'} options.connectionType - Connection type
-   * @param {Function} [options.onClick] - Handle click for button
-   * @returns {ReactElement} - Guacamole button
+   * @param {object} props - Props
+   * @param {VM} props.vm - Virtual machine
+   * @param {'vnc'|'ssh'|'rdp'|'vmrc'} props.connectionType - Connection type
+   * @param {Function} [props.onClick] - Handle click for button
+   * @returns {ReactElement} - Returns button if current user has permissions about the connection type
    */
-  ({ vm, connectionType, onClick }) => {
-    const history = useHistory()
+  (props) => {
+    const { vm, connectionType } = props
     const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
-    const [getSession, { isLoading }] = useLazyGetGuacamoleSessionQuery()
 
     const isDisabled = useMemo(() => {
       const noAction = vmView?.actions?.[connectionType] !== true
       const noAvailable = isAvailableAction(connectionType)(vm)
+      const notHypervisor = !getHypervisor(vm)
 
-      return noAction || noAvailable
+      return noAction || noAvailable || notHypervisor
     }, [view, vm])
 
-    const { tooltip, icon } = GUACAMOLE_BUTTON[connectionType]
-
-    const goToConsole =
-      onClick ??
-      useCallback(
-        async (evt) => {
-          try {
-            evt.stopPropagation()
-
-            const params = { id: vm?.ID, type: connectionType }
-            await getSession(params)
-            history.push(generatePath(PATH.GUACAMOLE, params))
-          } catch {}
-        },
-        [vm?.ID, connectionType, history]
-      )
+    const needNicConfig = useMemo(
+      () => ![VM_ACTIONS.VNC, VM_ACTIONS.VMRC].includes(connectionType),
+      [connectionType]
+    )
 
     if (
       isDisabled ||
-      (connectionType !== VM_ACTIONS.VNC &&
-        !nicsIncludesTheConnectionType(vm, connectionType))
+      (needNicConfig && !nicsIncludesTheConnectionType(vm, connectionType))
     ) {
       return null
     }
 
-    return (
-      <SubmitButton
-        data-cy={`${vm?.ID}-${connectionType}`}
-        icon={icon}
-        tooltip={<Translate word={tooltip} />}
-        isSubmitting={isLoading}
-        onClick={goToConsole}
-      />
-    )
+    if (isVCenter(vm)) {
+      return connectionType === VM_ACTIONS.VMRC ? (
+        <VMRCButton {...props} />
+      ) : null
+    }
+
+    return <GuacamoleButton {...props} />
   }
 )
 
-GuacamoleButton.propTypes = {
+const ButtonPropTypes = {
   vm: PropTypes.object,
   connectionType: PropTypes.string,
   onClick: PropTypes.func,
 }
 
-GuacamoleButton.displayName = 'GuacamoleButton'
+GuacamoleButton.propTypes = ButtonPropTypes
+VMRCButton.propTypes = ButtonPropTypes
+PreConsoleButton.propTypes = ButtonPropTypes
 
-export { GuacamoleButton }
+GuacamoleButton.displayName = 'GuacamoleButton'
+VMRCButton.displayName = 'VMRCButton'
+PreConsoleButton.displayName = 'PreConsoleButton'
+
+export { PreConsoleButton as GuacamoleButton }

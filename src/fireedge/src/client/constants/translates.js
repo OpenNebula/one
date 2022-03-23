@@ -374,6 +374,8 @@ module.exports = {
   Reconnect: 'Reconnect',
   FullScreen: 'Full screen',
   Screenshot: 'Screenshot',
+  LastConnection: 'Last connection',
+  VmIsNotOnVCenter: '%s is not located on vCenter Host',
   /* VM schema - info */
   UserTemplate: 'User Template',
   Template: 'Template',

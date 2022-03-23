@@ -18,7 +18,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 
 import { name as guacSlice, actions } from 'client/features/Guacamole/slice'
-import { GuacamoleSession } from 'client/constants'
+import { GuacamoleSession, VM_ACTIONS } from 'client/constants'
 
 const {
   addGuacamoleSession,
@@ -29,6 +29,32 @@ const {
   setMultiTouchSupport,
 } = actions
 
+const { VNC, SSH, RDP } = VM_ACTIONS
+
+/**
+ * Returns Guacamole session identified by VM id or session id.
+ *
+ * @param {object} sessions - All current sessions from redux store
+ * @param {string} vmId - Session id or VM id to filter
+ * @returns {{
+ * vnc: GuacamoleSession,
+ * ssh: GuacamoleSession,
+ * rdp: GuacamoleSession
+ * }} Guacamole sessions by connection types
+ */
+const getFirstSessionByVmId = (sessions, vmId) => {
+  const [id, connectionType] = vmId.includes('-') ? vmId.split('-') : [vmId]
+
+  if (connectionType) return sessions[`${id}-${connectionType}`] ?? {}
+
+  const filteredSessions = [VNC, SSH, RDP]
+    .map((type) => [sessions[`${id}-${type}`], type])
+    .filter(([session]) => Boolean(session))
+    .reduce((res, [session, type]) => ({ ...res, [type]: session }), {})
+
+  return filteredSessions ?? {}
+}
+
 // --------------------------------------------------------------
 // Guacamole Hooks
 // --------------------------------------------------------------
@@ -36,12 +62,13 @@ const {
 /**
  * Hook to get the state of Guacamole sessions.
  *
- * @param {string} [id] - Session id to subscribe
- * @returns {object|GuacamoleSession} Return Guacamole session by id or global state
+ * @param {string} [id] - Session id or VM id to subscribe
+ * @returns {object|GuacamoleSession} Guacamole session or sessions
  */
 export const useGuacamole = (id) => {
   const guac = useSelector(
-    (state) => (id ? state[guacSlice][id] : state[guacSlice]),
+    (state) =>
+      id ? getFirstSessionByVmId(state[guacSlice], id) : state[guacSlice],
     shallowEqual
   )
 

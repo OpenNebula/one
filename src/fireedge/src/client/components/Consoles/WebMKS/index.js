@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
+
+import { useGetLatest, reducePlugin } from 'client/components/Consoles/utils'
+import WebMKSClient from 'client/components/Consoles/WebMKS/client'
 
 /**
- * Helps avoid a lot of potential memory leaks.
+ * Creates Web MKS session.
  *
- * @param {object} obj - Instance object
- * @returns {function():object} - Returns the last object
+ * @param {object} options - Options
+ * @param {string} options.token - Session token to VMRC
+ * @returns {object} session
  */
-export const useGetLatest = (obj) => {
-  const ref = useRef()
-  ref.current = obj
+const useWebMKSSession = (options) => {
+  // Create the wmks instance
+  const instanceRef = useRef({})
+  const getInstance = useGetLatest(instanceRef.current)
 
-  return useCallback(() => ref.current, [])
+  // Assign the options to the instance
+  Object.assign(getInstance(), { ...options })
+
+  // Assign the session and plugins to the instance
+  Object.assign(
+    getInstance(),
+    [WebMKSClient].reduce(reducePlugin, getInstance())
+  )
+
+  return getInstance()
 }
 
-/**
- * Assign the plugin state to the previous state.
- *
- * @param {object} prevState - Previous state
- * @param {function():object} plugin - Plugin
- * @returns {object} Returns the new state
- */
-export const reducePlugin = (prevState, plugin) => ({
-  ...prevState,
-  ...plugin(prevState),
-})
+export * from 'client/components/Consoles/WebMKS/buttons'
+export { useWebMKSSession }

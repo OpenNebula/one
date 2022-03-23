@@ -100,6 +100,7 @@
     "node-zendesk": "2.1.0",
     "notistack": "2.0.3",
     "opennebula-guacamole": "1.0.0",
+    "opennebula-wmks": "2.1.4",
     "path": "0.12.7",
     "process": "0.11.10",
     "prop-types": "15.7.2",

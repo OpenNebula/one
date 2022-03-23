@@ -16,6 +16,7 @@
 import {
   ReportColumns as DashboardIcon,
   Settings as SettingsIcon,
+  Activity as WebMKSIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -31,10 +32,15 @@ const Guacamole = loadable(() => import('client/containers/Guacamole'), {
   ssr: false,
 })
 
+const WebMKS = loadable(() => import('client/containers/WebMKS'), {
+  ssr: false,
+})
+
 export const PATH = {
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
   GUACAMOLE: '/guacamole/:id/:type',
+  WMKS: '/wmks/:id',
 }
 
 export const ENDPOINTS = [
@@ -59,6 +65,13 @@ export const ENDPOINTS = [
     disabledSidebar: true,
     path: PATH.GUACAMOLE,
     Component: Guacamole,
+  },
+  {
+    label: 'WebMKS',
+    sidebar: true,
+    icon: WebMKSIcon,
+    path: PATH.WMKS,
+    Component: WebMKS,
   },
 ]
 

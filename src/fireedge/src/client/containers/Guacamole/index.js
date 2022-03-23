@@ -15,10 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo, useRef, useEffect } from 'react'
 import { useParams, useHistory } from 'react-router'
-import { Box, Stack, Typography, Divider, Skeleton } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 
-import { useGetVmQuery } from 'client/features/OneApi/vm'
 import {
+  HeaderVmInfo,
   useGuacamoleSession,
   GuacamoleDisplay,
   GuacamoleKeyboard,
@@ -29,28 +29,15 @@ import {
   GuacamoleFullScreenButton,
   GuacamoleScreenshotButton,
 } from 'client/components/Consoles'
-import { useViews } from 'client/features/Auth'
-import { StatusCircle } from 'client/components/Status'
-import MultipleTags from 'client/components/MultipleTags'
-import { getIps, getState } from 'client/models/VirtualMachine'
-import { timeFromMilliseconds } from 'client/models/Helper'
 import { PATH } from 'client/apps/sunstone/routes'
-import { RESOURCE_NAMES } from 'client/constants'
 
 /** @returns {ReactElement} Guacamole container */
 const Guacamole = () => {
   const { id, type = '' } = useParams()
   const { push: redirectTo } = useHistory()
-  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
 
   const containerRef = useRef(null)
   const headerRef = useRef(null)
-
-  const { data: vm, isLoading, isError } = useGetVmQuery(id)
-
-  const ips = getIps(vm)
-  const { color: stateColor, name: stateName } = getState(vm) ?? {}
-  const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
 
   const { token, clientState, displayElement, ...session } =
     useGuacamoleSession(
@@ -74,13 +61,9 @@ const Guacamole = () => {
     )
 
   useEffect(() => {
-    const noAction = vmView?.actions?.[type] !== true
-
     // token should be saved after click on console button from datatable
-    if (noAction || !token || isError) {
-      redirectTo(PATH.DASHBOARD)
-    }
-  }, [view, token])
+    !token && redirectTo(PATH.DASHBOARD)
+  }, [token])
 
   return (
     <Box
@@ -92,48 +75,7 @@ const Guacamole = () => {
       }}
     >
       <Stack ref={headerRef}>
-        <Stack direction="row" justifyContent="space-between" gap="1em" px={2}>
-          <Typography
-            flexGrow={1}
-            display="flex"
-            alignItems="center"
-            gap="0.5em"
-          >
-            {isLoading ? (
-              <>
-                <Skeleton variant="circular" width={12} height={12} />
-                <Skeleton variant="text" width="60%" />
-              </>
-            ) : (
-              <>
-                <StatusCircle color={stateColor} tooltip={stateName} />
-                {`# ${vm?.ID} - ${vm?.NAME}`}
-              </>
-            )}
-          </Typography>
-          <Stack
-            flexGrow={1}
-            direction="row"
-            justifyContent="flex-end"
-            divider={<Divider orientation="vertical" flexItem />}
-            gap="1em"
-          >
-            {isLoading ? (
-              <Skeleton variant="text" width="60%" />
-            ) : (
-              <Typography>{`Started on: ${time.toFormat('ff')}`}</Typography>
-            )}
-            {isLoading ? (
-              <Skeleton variant="text" width="40%" />
-            ) : (
-              !!ips?.length && (
-                <Typography>
-                  <MultipleTags tags={ips} />
-                </Typography>
-              )
-            )}
-          </Stack>
-        </Stack>
+        <HeaderVmInfo id={id} type={type} />
         <Stack direction="row" alignItems="center" gap="1em" my="1em">
           <GuacamoleCtrlAltDelButton {...session} />
           <GuacamoleReconnectButton {...session} />

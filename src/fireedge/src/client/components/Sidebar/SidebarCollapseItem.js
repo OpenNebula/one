@@ -61,8 +61,6 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
     isFixMenu && !expanded && hasRouteSelected && setExpanded(true)
   }, [isFixMenu, expanded, hasRouteSelected])
 
-  console.log({ expanded, hasRouteSelected })
-
   return (
     <>
       <ListItemButton

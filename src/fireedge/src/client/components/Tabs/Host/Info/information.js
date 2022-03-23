@@ -114,7 +114,7 @@ const InformationPanel = ({ host = {}, actions }) => {
       <List
         title={T.Information}
         list={info}
-        containerProps={{ style: { gridRow: 'span 2' } }}
+        containerProps={{ sx: { gridRow: 'span 2' } }}
       />
       <List title={T.Capacity} list={capacity} />
       <List title={T.Datastores} list={infoFromDatastores} />

@@ -17,7 +17,6 @@ const btoa = require('btoa')
 const https = require('https')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
-
 const { request: axios } = require('axios')
 
 const { defaults, httpCodes } = require('server/utils/constants')
@@ -57,7 +56,8 @@ const {
   defaultRegexID,
 } = defaults
 const { POST } = httpMethod
-const { ok, internalServerError, badRequest, accepted } = httpCodes
+const { ok, unauthorized, internalServerError, badRequest, accepted } =
+  httpCodes
 const { LIST, IMPORT } = resourceFromData
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.vcenter_prepend_command || ''
@@ -517,33 +517,13 @@ const request = (
 ) => {
   const defaultsProperties = {
     method: POST,
-    httpsAgent: new https.Agent({
-      rejectUnauthorized: false,
-    }),
-    validateStatus: (status) => status,
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+    validateStatus: (status) => status >= 200 && status < 400,
   }
-  axios({
-    ...defaultsProperties,
-    ...params,
-  })
-    .then((response) => {
-      if (response && response.statusText) {
-        if (response.status >= 200 && response.status < 400) {
-          if (response.data) {
-            return response.data
-          }
-        }
-        throw Error(response.data)
-      } else if (response.data) {
-        throw Error(response.data)
-      }
-    })
-    .then((data) => {
-      callback(data)
-    })
-    .catch((e) => {
-      error(e)
-    })
+
+  axios({ ...defaultsProperties, ...params })
+    .then(({ data } = {}) => callback(data))
+    .catch(error)
 }
 
 /**
@@ -553,135 +533,120 @@ const request = (
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
  * @param {object} userData - user of http request
- * @param {function(string, string): Function} oneConnection - One Connection
+ * @param {function(string, string): Function} xmlrpc - XML-RPC function
  */
 const getToken = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
-  oneConnection = defaultEmptyFunction
+  xmlrpc = defaultEmptyFunction
 ) => {
-  const { username, key, iv } = getSunstoneAuth()
-  const { id } = params
-  const responser = (code = badRequest, data = '') => {
+  const { id: vmId } = params
+
+  const responser = (data = '', code = badRequest) => {
     res.locals.httpCode = httpResponse(code, data, '')
     next()
   }
 
-  if (!(username && key && iv) || !Number.isInteger(parseInt(id, 10))) {
-    responser()
+  const serverAdmin = getSunstoneAuth() ?? {}
+  const { token: authToken } = createTokenServerAdmin(serverAdmin) ?? {}
 
-    return
-  }
+  !authToken && responser()
 
-  const tokenWithServerAdmin = createTokenServerAdmin({
-    serverAdmin: username,
-    username,
-    key,
-    iv,
-  })
-  if (!tokenWithServerAdmin.token) {
-    responser()
+  const { username } = serverAdmin
+  const oneClient = xmlrpc(`${username}:${username}`, authToken)
 
-    return
-  }
+  oneClient({
+    action: ActionVM.VM_INFO,
+    parameters: [parseInt(vmId, 10), true],
+    callback: (vmInfoErr, { VM } = {}) => {
+      if (vmInfoErr || !VM) {
+        responser(vmInfoErr, unauthorized)
+      }
 
-  const connect = oneConnection(
-    `${username}:${username}`,
-    tokenWithServerAdmin.token
-  )
+      if (!VM?.MONITORING?.VCENTER_ESX_HOST) {
+        responser(`
+          Could not determine the vCenter ESX host where
+          the VM is running. Wait till the VCENTER_ESX_HOST attribute is
+          retrieved once the host has been monitored`)
+      }
 
-  connect(ActionVM.VM_INFO, [parseInt(id, 10), true], (err, vminfo) => {
-    if (
-      !(
-        vminfo &&
-        vminfo.VM &&
-        vminfo.VM.DEPLOY_ID &&
-        vminfo.VM.HISTORY_RECORDS &&
-        vminfo.VM.HISTORY_RECORDS.HISTORY
-      ) ||
-      err
-    ) {
-      responser(internalServerError)
-    }
-
-    const history = vminfo.VM.HISTORY_RECORDS.HISTORY
-    const arrayHistory = Array.isArray(history) ? history : [history]
-
-    const hostID = parseInt(
-      arrayHistory.reduce(
-        (max, record) => (record.SEQ > max.SEQ ? record : max),
+      const history = VM?.HISTORY_RECORDS?.HISTORY
+      const arrayHistory = Array.isArray(history) ? history : [history]
+      const lastHistory = arrayHistory.reduce(
+        (max, { SEQ = -1 } = {}) => (SEQ > max ? SEQ : max),
         arrayHistory[0]
-      ).HID,
-      10
-    )
-
-    const vmid = vminfo.VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
-
-    connect(ActionHost.HOST_INFO, [hostID, true], (err, hostinfo) => {
-      if (
-        !(
-          hostinfo &&
-          hostinfo.HOST &&
-          hostinfo.HOST.TEMPLATE &&
-          hostinfo.HOST.TEMPLATE.VCENTER_HOST &&
-          hostinfo.HOST.TEMPLATE.VCENTER_USER &&
-          hostinfo.HOST.TEMPLATE.VCENTER_PASSWORD
-        ) ||
-        err
-      ) {
-        responser(internalServerError)
-
-        return
-      }
-
-      const { VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD } =
-        hostinfo.HOST.TEMPLATE
-
-      const responseInternalServer = () => {
-        responser(internalServerError)
-      }
-
-      const genToken = (data) => {
-        request(
-          {
-            url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmid}/console/tickets`,
-            headers: {
-              'Content-Type': 'application/json',
-              'vmware-api-session-id': data,
-            },
-            data: JSON.stringify({ type: 'WEBMKS' }),
-          },
-          (success) => {
-            const { ticket } = success
-            const { protocol, hostname, port, path } = parse(ticket)
-
-            const httpProtocol = protocol === 'wss:' ? 'https' : 'http'
-            const esxUrl = `${httpProtocol}://${hostname}:${port}`
-            const token = path.replace('/ticket/', '')
-            global.vcenterToken = { [token]: esxUrl }
-            responser(ok, {
-              ticket: token,
-            })
-          },
-          responseInternalServer
-        )
-      }
-
-      request(
-        {
-          url: `https://${VCENTER_HOST}/api/session`,
-          headers: {
-            Authorization: `Basic ${btoa(
-              `${VCENTER_USER}:${VCENTER_PASSWORD}`
-            )}`,
-          },
-        },
-        genToken,
-        responseInternalServer
       )
-    })
+
+      const hostId = parseInt(lastHistory?.HID, 10)
+      const hostHypervisor = lastHistory?.VM_MAD
+
+      if (String(hostHypervisor).toLowerCase() !== 'vcenter') {
+        responser('VMRC Connection is only for vCenter hypervisor')
+      }
+
+      if (!VM?.DEPLOY_ID || isNaN(hostId)) {
+        responser('VM is not deployed')
+      }
+
+      oneClient({
+        action: ActionHost.HOST_INFO,
+        parameters: [parseInt(hostId, 10), true],
+        callback: (hostInfoError, { HOST } = {}) => {
+          const { VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD } =
+            HOST?.TEMPLATE ?? {}
+
+          if (
+            hostInfoError ||
+            !VCENTER_HOST ||
+            !VCENTER_USER ||
+            !VCENTER_PASSWORD
+          ) {
+            responser(hostInfoError, unauthorized)
+          }
+
+          request(
+            {
+              url: `https://${VCENTER_HOST}/api/session`,
+              headers: {
+                Authorization: `Basic ${btoa(
+                  `${VCENTER_USER}:${VCENTER_PASSWORD}`
+                )}`,
+              },
+            },
+            (sessionId) => {
+              const vmIdFromDeployId =
+                VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
+
+              request(
+                {
+                  url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmIdFromDeployId}/console/tickets`,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'vmware-api-session-id': sessionId,
+                  },
+                  data: JSON.stringify({ type: 'WEBMKS' }),
+                },
+                (ticketData) => {
+                  const { ticket } = ticketData
+                  const { protocol, hostname, port, path } = parse(ticket)
+
+                  const httpProtocol = protocol === 'wss:' ? 'https' : 'http'
+                  const esxUrl = `${httpProtocol}://${hostname}:${port}`
+                  const token = path.replace('/ticket/', '')
+                  global.vcenterToken = { [token]: esxUrl }
+
+                  responser(token, ok)
+                },
+                (error) => responser(error, internalServerError)
+              )
+            },
+            (error) => responser(error, internalServerError)
+          )
+        },
+      })
+    },
   })
 }
 

@@ -43,7 +43,7 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
         )
       }}
       searchBoxProps={{
-        style: {
+        sx: {
           display: 'flex',
           padding: '1rem 0',
           gap: 10,
