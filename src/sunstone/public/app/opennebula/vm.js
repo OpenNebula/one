@@ -629,14 +629,14 @@ define(function(require) {
     "vmrc" : function(params) {
       var callback = params.success;
       var callback_error = params.error;
-      var vm_id = params.data.id;
+      var id = params.data.id;
       var resource = RESOURCE;
 
       var request = OpenNebulaHelper.request(resource, null, params.data);
       $.ajax({
-        url: Config.publicFireedgeEndpoint + "/fireedge/api/vcenter/token/" + vm_id,
-        type: "GET",
-        headers: {"Authorization": fireedge_token},
+        url: "vm/" + id + "/startvmrc",
+        type: "POST",
+        dataType: "json",
         success: function(response) {
           return callback ? callback(request, response) : null;
         },

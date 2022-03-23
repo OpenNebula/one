@@ -17,6 +17,7 @@
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const { readFileSync } = require('fs-extra')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const {
@@ -54,10 +55,14 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
       if (parseURL && parseURL.pathname) {
         const ticket = parseURL.pathname.split('/')[3]
         writeInLogger(ticket, 'path to vmrc token: %s')
-        if (global && global.vcenterToken && global.vcenterToken[ticket]) {
-          return global.vcenterToken[ticket]
-        } else {
-          writeInLogger(ticket, 'Non-existent token: %s')
+        try {
+          const esxi = readFileSync(
+            `${global.paths.VMRC_TOKENS || ''}/${ticket}`
+          ).toString()
+
+          return esxi
+        } catch (error) {
+          writeInLogger(ticket, 'Error to read vmrc token file: %s')
         }
       }
     }

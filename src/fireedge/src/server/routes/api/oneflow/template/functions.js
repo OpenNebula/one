@@ -17,7 +17,7 @@
 const { Validator } = require('jsonschema')
 const { role, service, action } = require('server/routes/api/oneflow/schemas')
 const {
-  oneFlowConnection,
+  oneFlowConection,
   returnSchemaError,
 } = require('server/routes/api/oneflow/utils')
 const { defaults, httpCodes } = require('server/utils/constants')
@@ -91,13 +91,13 @@ const serviceTemplate = (
     if (params && params.id) {
       config.path = '/service_template/{0}'
       config.request = params.id
-      oneFlowConnection(
+      oneFlowConection(
         config,
         (data) => success(next, res, data),
         (data) => error(next, res, data)
       )
     } else {
-      oneFlowConnection(
+      oneFlowConection(
         config,
         (data) => success(next, res, data),
         (data) => error(next, res, data)
@@ -130,7 +130,7 @@ const serviceTemplateDelete = (
       password,
       request: params.id,
     }
-    oneFlowConnection(
+    oneFlowConection(
       config,
       (data) => success(next, res, data),
       (data) => error(next, res, data)
@@ -173,7 +173,7 @@ const serviceTemplateCreate = (
         password,
         post: template,
       }
-      oneFlowConnection(
+      oneFlowConection(
         config,
         (data) => success(next, res, data),
         (data) => error(next, res, data)
@@ -224,7 +224,7 @@ const serviceTemplateUpdate = (
         request: params.id,
         post: template,
       }
-      oneFlowConnection(
+      oneFlowConection(
         config,
         (data) => success(next, res, data),
         (data) => error(next, res, data)
@@ -275,7 +275,7 @@ const serviceTemplateAction = (
         request: params.id,
         post: template,
       }
-      oneFlowConnection(
+      oneFlowConection(
         config,
         (data) => success(next, res, data),
         (data) => error(next, res, data)
