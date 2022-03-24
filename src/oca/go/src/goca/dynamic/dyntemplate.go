@@ -74,7 +74,7 @@ func (t *Template) String() string {
 
 // String prints a Pair in OpenNebula syntax
 func (p *Pair) String() string {
-	return fmt.Sprintf("%s=\"%s\"", p.XMLName.Local, p.Value)
+	return fmt.Sprintf("%s=%s", p.XMLName.Local, strconv.Quote(p.Value))
 }
 
 func (v *Vector) String() string {
