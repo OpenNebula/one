@@ -28,7 +28,7 @@ import StepConnector, {
 import { styled } from '@mui/styles'
 
 import { SubmitButton } from 'client/components/FormControl'
-import { Tr, Translate, labelCanBeTranslated } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T, SCHEMES } from 'client/constants'
 
 const StepperStyled = styled(Stepper)(({ theme }) => ({
@@ -101,9 +101,7 @@ const CustomStepper = ({
             optional={
               errors[id] && (
                 <Typography variant="caption" color="error">
-                  {labelCanBeTranslated(errors[id]?.message)
-                    ? Tr(errors[id]?.message)
-                    : errors[id]?.message}
+                  <Translate word={errors[id]?.message} />
                 </Typography>
               )
             }
@@ -112,7 +110,7 @@ const CustomStepper = ({
               StepIconComponent={StepIconStyled}
               error={Boolean(errors[id]?.message)}
             >
-              {labelCanBeTranslated(label) ? Tr(label) : label}
+              <Translate word={label} />
             </StepLabel>
           </StepButton>
         </Step>

@@ -217,6 +217,6 @@ export const USER_INPUTS_SCHEMA = object({
     .afterSubmit((_, { context }) => {
       const userInputs = context?.extra?.USER_INPUTS
 
-      return userInputs?.map(({ name }) => name).join(',')
+      return userInputs?.map(({ name }) => String(name).toUpperCase()).join(',')
     }),
 })

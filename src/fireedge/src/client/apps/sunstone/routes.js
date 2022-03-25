@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import loadable from '@loadable/component'
 import {
   ReportColumns as DashboardIcon,
   Settings as SettingsIcon,
   Activity as WebMKSIcon,
 } from 'iconoir-react'
-
-import loadable from '@loadable/component'
 
 const Dashboard = loadable(
   () => import('client/containers/Dashboard/Sunstone'),
@@ -97,25 +96,36 @@ export const getEndpointsByView = (views, endpoints = []) => {
    * @param {string} [route.path] - Pathname route
    * @returns {boolean | object} If user view yaml contains the route, return it
    */
-  const hasRoutePermission = (route) =>
-    views?.some(({ resource_name: name = '', actions: bulkActions = [] }) => {
-      // eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
-      const paths = route?.path
-        ?.toLowerCase?.()
-        ?.split?.('/')
-        ?.filter?.(Boolean)
+  const hasRoutePermission = (route) => {
+    // Eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
+    const splittedPath = String(route?.path)
+      ?.toLowerCase()
+      ?.split('/')
+      ?.filter(Boolean)
 
-      const [resource, dialogName] = paths
+    const [resource, ...restOfParams] = splittedPath ?? []
+    const hasParams = !!restOfParams.length
 
-      return dialogName && !dialogName.includes(':') // filter params. eg: '/vm/:id'
-        ? bulkActions[`${dialogName}_dialog`]
-        : resource === name.toLowerCase()
-    }) && route
+    const view = views?.find((v) => resource === v.resource_name?.toLowerCase())
+
+    // view file not exists or not match the `resource_name`
+    if (!view) return false
+
+    return (
+      // match exactly. Eg: /vm
+      !hasParams ||
+      // allow routes with params. Eg: /vm/:id
+      restOfParams.some((p) => p.includes(':')) ||
+      // first param is dialog name. Eg: /vm/create or /vm-template/instantiate
+      // allow action if exists on bulk actions list
+      view?.actions[`${restOfParams[0]}_dialog`]
+    )
+  }
 
   return endpoints
     .map(({ routes: subRoutes, ...restOfProps }) => {
       if (Array.isArray(subRoutes)) {
-        const routes = subRoutes.map(hasRoutePermission).filter(Boolean)
+        const routes = subRoutes.filter(hasRoutePermission)
 
         return !!routes.length && { ...restOfProps, routes }
       }

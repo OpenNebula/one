@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
@@ -30,10 +29,9 @@ import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extra
 import Scheduling from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
 import BootOrder from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
 
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
@@ -52,15 +50,12 @@ export const TABS = [
   },
 ]
 
-const Content = ({ data, setFormData }) => {
+const Content = ({ data, setFormData, hypervisor }) => {
   const {
-    watch,
     formState: { errors },
     control,
   } = useFormContext()
   const { view, getResourceView } = useViews()
-
-  const hypervisor = useMemo(() => watch(`${TEMPLATE_ID}.0.HYPERVISOR`), [])
 
   const sectionsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
@@ -78,7 +73,6 @@ const Content = ({ data, setFormData }) => {
           ...section,
           name,
           label: <Translate word={name} />,
-          // eslint-disable-next-line react/display-name
           renderContent: () => (
             <TabContent {...{ data, setFormData, hypervisor, control }} />
           ),
@@ -91,26 +85,28 @@ const Content = ({ data, setFormData }) => {
   return <Tabs tabs={tabs} />
 }
 
-const ExtraConfiguration = (initialValues) => {
-  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
+/**
+ * Optional configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} Optional configuration step
+ */
+const ExtraConfiguration = (vmTemplate) => {
+  const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.AdvancedOptions,
-    resolver: (formData) => {
-      const hypervisor =
-        formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
-
-      return SCHEMA(hypervisor)
-    },
+    resolver: SCHEMA,
     optionsValidate: { abortEarly: false },
-    content: Content,
+    content: (props) => Content({ ...props, hypervisor }),
   }
 }
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
 }
 
 export default ExtraConfiguration

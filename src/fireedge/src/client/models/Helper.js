@@ -352,13 +352,43 @@ export const getUserInputString = (userInput) => {
  * Get list of user inputs defined in OpenNebula template.
  *
  * @param {object} userInputs - List of user inputs in string format
+ * @param {string} [inputsOrder] - List separated by comma of input names
+ * @example
+ * const userInputs = {
+ *   "INPUT-1": "O|text|Description1| |text1",
+ *   "INPUT-2": "M|text|Description2| |text2"
+ * }
+ *
+ * const inputsOrder = "INPUT-2,INPUT-1"
+ *
+ * => userInputsToArray(userInputs, inputsOrder) => [{
+ *   name: 'INPUT-1',
+ *   mandatory: false,
+ *   type: 'text',
+ *   description: 'Description1',
+ *   default: 'text1',
+ * },
+ * {
+ *   name: 'INPUT-2',
+ *   mandatory: true,
+ *   type: 'text',
+ *   description: 'Description2',
+ *   default: 'text2',
+ * }]
  * @returns {UserInputObject[]} User input object
  */
-export const userInputsToArray = (userInputs = {}) =>
-  Object.entries(userInputs).map(([name, ui]) => ({
-    name,
-    ...getUserInputParams(ui),
-  }))
+export const userInputsToArray = (userInputs = {}, inputsOrder) => {
+  const orderedList = inputsOrder?.split(',') ?? []
+
+  return Object.entries(userInputs)
+    .map(([name, ui]) => ({ name, ...getUserInputParams(ui) }))
+    .sort((a, b) => {
+      const upperAName = a.name?.toUpperCase?.()
+      const upperBName = b.name?.toUpperCase?.()
+
+      return orderedList.indexOf(upperAName) - orderedList.indexOf(upperBName)
+    })
+}
 
 /**
  * Get list of user inputs in format valid to forms.

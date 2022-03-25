@@ -201,7 +201,6 @@ export const PATH = {
 const ENDPOINTS = [
   {
     label: 'Instances',
-    sidebar: true,
     icon: InstancesIcons,
     routes: [
       {
@@ -227,7 +226,6 @@ const ENDPOINTS = [
   },
   {
     label: 'Templates',
-    sidebar: true,
     icon: TemplatesIcon,
     routes: [
       {
@@ -251,7 +249,6 @@ const ENDPOINTS = [
   },
   {
     label: 'Storage',
-    sidebar: true,
     icon: StorageIcon,
     routes: [
       {
@@ -291,7 +288,6 @@ const ENDPOINTS = [
   },
   {
     label: 'Networks',
-    sidebar: true,
     icon: NetworksIcon,
     routes: [
       {
@@ -312,7 +308,6 @@ const ENDPOINTS = [
   },
   {
     label: 'Infrastructure',
-    sidebar: true,
     icon: InfrastructureIcon,
     routes: [
       {
@@ -350,7 +345,6 @@ const ENDPOINTS = [
   },
   {
     label: 'System',
-    sidebar: true,
     icon: SystemIcon,
     routes: [
       {

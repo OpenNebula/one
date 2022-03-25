@@ -16,16 +16,10 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  Typography,
-  TextField,
-  Slider,
-  FormHelperText,
-  Grid,
-} from '@mui/material'
+import { TextField, Slider, FormHelperText, Stack } from '@mui/material'
 import { useController } from 'react-hook-form'
 
-import { ErrorHelper } from 'client/components/FormControl'
+import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
@@ -35,6 +29,7 @@ const SliderController = memo(
     cy = `slider-${generateKey()}`,
     name = '',
     label = '',
+    tooltip,
     fieldProps = {},
   }) => {
     const {
@@ -47,41 +42,45 @@ const SliderController = memo(
 
     return (
       <>
-        <Typography id={sliderId} gutterBottom>
-          {labelCanBeTranslated(label) ? Tr(label) : label}
-        </Typography>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs>
-            <Slider
-              color="secondary"
-              value={typeof value === 'number' ? value : 0}
-              aria-labelledby={sliderId}
-              valueLabelDisplay="auto"
-              data-cy={sliderId}
-              onChange={(_, val) => onChange(val)}
-              {...fieldProps}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              {...inputProps}
-              fullWidth
-              value={value}
-              error={Boolean(error)}
-              type="number"
-              inputProps={{
-                'data-cy': inputId,
-                'aria-labelledby': sliderId,
-                ...fieldProps,
-              }}
-              onChange={(evt) =>
-                onChange(
-                  evt.target.value === '' ? '0' : Number(evt.target.value)
-                )
+        <Stack direction="row" mt="0.5rem" spacing={2} alignItems="center">
+          <Slider
+            color="secondary"
+            value={typeof value === 'number' ? value : 0}
+            aria-labelledby={sliderId}
+            valueLabelDisplay="auto"
+            data-cy={sliderId}
+            onChange={(_, val) => onChange(val)}
+            {...fieldProps}
+          />
+          <TextField
+            {...inputProps}
+            fullWidth
+            value={value}
+            type="number"
+            error={Boolean(error)}
+            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            InputProps={{
+              endAdornment: tooltip && <Tooltip title={tooltip} />,
+            }}
+            inputProps={{
+              'data-cy': inputId,
+              'aria-labelledby': sliderId,
+              ...fieldProps,
+            }}
+            onChange={(evt) =>
+              onChange(!evt.target.value ? '0' : Number(evt.target.value))
+            }
+            onBlur={() => {
+              const { min, max } = fieldProps ?? {}
+
+              if (min && value < min) {
+                onChange(min)
+              } else if (max && value > max) {
+                onChange(max)
               }
-            />
-          </Grid>
-        </Grid>
+            }}
+          />
+        </Stack>
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={error?.message} />
@@ -98,8 +97,6 @@ SliderController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
   tooltip: PropTypes.any,
-  multiple: PropTypes.bool,
-  values: PropTypes.arrayOf(PropTypes.object).isRequired,
   fieldProps: PropTypes.object,
 }
 

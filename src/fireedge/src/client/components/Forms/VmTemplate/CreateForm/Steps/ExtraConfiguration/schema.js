@@ -18,7 +18,7 @@ import { array, object, ObjectSchema } from 'yup'
 import { HYPERVISORS } from 'client/constants'
 import { getObjectSchemaFromFields } from 'client/utils'
 import { FIELDS as PLACEMENT_FIELDS } from './placement/schema'
-import { FIELDS as OS_FIELDS } from './booting/schema'
+import { FIELDS as OS_FIELDS, BOOT_ORDER_FIELD } from './booting/schema'
 import { FIELDS as NUMA_FIELDS } from './numa/schema'
 import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
@@ -31,7 +31,7 @@ import { SCHEMA as NETWORK_SCHEMA } from './networking/schema'
  * @param {string} prefixName - Prefix to add in name
  * @returns {object[]} Resource object
  */
-export const mapNameByIndex = (prefixName) => (resource, idx) => ({
+const mapNameByIndex = (prefixName) => (resource, idx) => ({
   ...resource,
   NAME:
     resource?.NAME?.startsWith(prefixName) || !resource?.NAME
@@ -39,7 +39,7 @@ export const mapNameByIndex = (prefixName) => (resource, idx) => ({
       : resource?.NAME,
 })
 
-export const SCHED_ACTION_SCHEMA = object({
+const SCHED_ACTION_SCHEMA = object({
   SCHED_ACTION: array()
     .ensure()
     .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION'))),
@@ -63,3 +63,16 @@ export const SCHEMA = (hypervisor) =>
         ...NUMA_FIELDS(hypervisor),
       ])
     )
+
+export {
+  mapNameByIndex,
+  SCHED_ACTION_SCHEMA,
+  STORAGE_SCHEMA,
+  NETWORK_SCHEMA,
+  IO_SCHEMA,
+  CONTEXT_SCHEMA,
+  PLACEMENT_FIELDS,
+  OS_FIELDS,
+  BOOT_ORDER_FIELD,
+  NUMA_FIELDS,
+}

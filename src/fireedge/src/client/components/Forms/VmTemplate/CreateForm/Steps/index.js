@@ -27,10 +27,10 @@ import { createSteps, isBase64 } from 'client/utils'
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   transformInitialValue: (vmTemplate, schema) => {
-    const inputsOrder = vmTemplate?.TEMPLATE?.INPUTS_ORDER?.split(',') ?? []
     const userInputs = userInputsToArray(
-      vmTemplate?.TEMPLATE?.USER_INPUTS
-    ).sort((a, b) => inputsOrder.indexOf(a.name) - inputsOrder.indexOf(b.name))
+      vmTemplate?.TEMPLATE?.USER_INPUTS,
+      vmTemplate?.TEMPLATE?.INPUTS_ORDER
+    )
 
     const knownTemplate = schema.cast(
       {

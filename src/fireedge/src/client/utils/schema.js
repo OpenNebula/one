@@ -41,6 +41,7 @@ import {
   INPUT_TYPES,
   USER_INPUT_TYPES,
 } from 'client/constants'
+import { stringToBoolean } from 'client/models/Helper'
 
 // ----------------------------------------------------------
 // Types
@@ -202,8 +203,7 @@ const SEMICOLON_CHAR = ';'
 const requiredSchema = (mandatory, schema) =>
   mandatory ? schema.required() : schema.notRequired().nullable()
 
-const getRange = (options) =>
-  options?.split('..').map((option) => parseFloat(option))
+const getRange = (options) => options?.split?.('..').map(parseFloat)
 
 const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
   options?.split(separator)
@@ -241,6 +241,8 @@ const parseUserInputValue = (value) => {
 export const schemaUserInput = ({
   mandatory,
   type,
+  min,
+  max,
   options,
   default: defaultValue,
 }) => {
@@ -250,35 +252,43 @@ export const schemaUserInput = ({
     case USER_INPUT_TYPES.password:
       return {
         type: INPUT_TYPES.TEXT,
-        htmlType: type === 'password' ? 'password' : 'text',
+        htmlType: type === USER_INPUT_TYPES.password ? 'password' : 'text',
         validation: string()
           .trim()
           .concat(requiredSchema(mandatory, string()))
           .default(defaultValue || undefined),
       }
     case USER_INPUT_TYPES.number:
-    case USER_INPUT_TYPES.numberFloat:
+    case USER_INPUT_TYPES.numberFloat: {
+      const ensuredValue = parseFloat(defaultValue)
+
       return {
         type: INPUT_TYPES.TEXT,
         htmlType: 'number',
         validation: number()
           .concat(requiredSchema(mandatory, number()))
           .transform((value) => (!isNaN(value) ? value : null))
-          .default(() => parseFloat(defaultValue) ?? undefined),
+          .default(isNaN(ensuredValue) ? undefined : ensuredValue),
       }
+    }
     case USER_INPUT_TYPES.range:
     case USER_INPUT_TYPES.rangeFloat: {
-      const [min, max] = getRange(options)
+      const [minimum, maximum] = getRange(options) ?? [min, max].map(parseFloat)
+      const ensuredValue = parseFloat(defaultValue)
 
       return {
         type: INPUT_TYPES.SLIDER,
         validation: number()
           .concat(requiredSchema(mandatory, number()))
-          .min(min)
-          .max(max)
+          .min(minimum)
+          .max(maximum)
           .transform((value) => (!isNaN(value) ? value : undefined))
-          .default(parseFloat(defaultValue) ?? undefined),
-        fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 },
+          .default(isNaN(ensuredValue) ? undefined : ensuredValue),
+        fieldProps: {
+          min: minimum,
+          max: maximum,
+          step: type === USER_INPUT_TYPES.rangeFloat ? 0.1 : 1,
+        },
       }
     }
     case USER_INPUT_TYPES.boolean:
@@ -286,7 +296,7 @@ export const schemaUserInput = ({
         type: INPUT_TYPES.CHECKBOX,
         validation: boolean()
           .concat(requiredSchema(mandatory, boolean()))
-          .default(defaultValue === 'YES' ?? false)
+          .default(() => stringToBoolean(defaultValue))
           .yesOrNo(),
       }
     case USER_INPUT_TYPES.list: {

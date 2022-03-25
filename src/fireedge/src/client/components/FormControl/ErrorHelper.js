@@ -28,7 +28,11 @@ const ErrorTypo = styled(Typography)(({ theme }) => ({
 }))
 
 const ErrorHelper = memo(({ label, ...rest }) => {
-  const translateProps = label?.word ? { ...label } : { word: label }
+  const ensuredLabel = Array.isArray(label) ? label[0] : label
+
+  const translateProps = ensuredLabel?.word
+    ? { ...ensuredLabel }
+    : { word: ensuredLabel }
 
   return (
     <Stack

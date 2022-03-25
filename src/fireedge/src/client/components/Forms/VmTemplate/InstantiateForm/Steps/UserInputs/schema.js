@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { array, object, string } from 'yup'
+import { ObjectSchema } from 'yup'
 
-const TEMPLATE_SCHEMA = object({
-  ID: string(),
-  NAME: string(),
-  TEMPLATE: object({
-    DISK: array().ensure(),
-    NIC: array().ensure(),
-    SCHED_ACTION: array().ensure(),
-    HYPERVISOR: string(),
-  }),
-})
+import { getObjectSchemaFromFields, schemaUserInput } from 'client/utils'
+import { Field, UserInputObject } from 'client/constants'
 
-export const SCHEMA = array(TEMPLATE_SCHEMA)
-  .min(1, 'Select VM Template')
-  .max(1, 'Max. one template selected')
-  .required('Template field is required')
-  .default(undefined)
+/**
+ * @param {UserInputObject[]} userInputs - User inputs
+ * @returns {Field[]} User inputs in Field format
+ */
+const FIELDS = (userInputs = []) =>
+  userInputs.map(({ name, description, ...restOfUserInput }) => ({
+    name,
+    label: name,
+    ...(description && { tooltip: description }),
+    ...schemaUserInput(restOfUserInput),
+  }))
+
+/**
+ * @param {UserInputObject[]} userInputs - User inputs
+ * @returns {ObjectSchema} User inputs schema
+ */
+const SCHEMA = (userInputs = []) =>
+  getObjectSchemaFromFields(FIELDS(userInputs))
+
+export { FIELDS, SCHEMA }

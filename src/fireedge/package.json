@@ -86,7 +86,7 @@
     "http": "0.0.1-security",
     "http-proxy-middleware": "1.0.5",
     "https": "1.0.0",
-    "iconoir-react": "2.1.0",
+    "iconoir-react": "4.7.1",
     "immutable": "4.0.0-rc.12",
     "intersection-observer": "0.11.0",
     "jsonschema": "1.2.7",

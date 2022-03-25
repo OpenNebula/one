@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import VmTemplatesTable, {
-  STEP_ID as TEMPLATE_ID,
-} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import BasicConfiguration, {
   STEP_ID as BASIC_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
+import UserInputs, {
+  STEP_ID as USER_INPUTS_ID,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
@@ -28,39 +28,36 @@ import { createSteps } from 'client/utils'
 const Steps = createSteps(
   (vmTemplate) =>
     [
-      !vmTemplate?.ID && VmTemplatesTable,
       BasicConfiguration,
+      vmTemplate?.TEMPLATE?.USER_INPUTS && UserInputs,
       ExtraConfiguration,
     ].filter(Boolean),
   {
-    transformInitialValue: (vmTemplate, schema) => ({
-      ...schema.cast(
+    transformInitialValue: (vmTemplate, schema) => {
+      const initialValue = schema.cast(
         {
-          [TEMPLATE_ID]: [vmTemplate],
           [BASIC_ID]: vmTemplate?.TEMPLATE,
           [EXTRA_ID]: vmTemplate?.TEMPLATE,
         },
         { stripUnknown: true }
-      ),
-    }),
+      )
+
+      return initialValue
+    },
     transformBeforeSubmit: (formData, vmTemplate) => {
       const {
-        [TEMPLATE_ID]: [templateSelected] = [],
         [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
-        [EXTRA_ID]: {
-          TOPOLOGY: { ENABLE_NUMA, ...restOfTopology },
-          ...extraTemplate
-        } = {},
+        [USER_INPUTS_ID]: userInputs,
+        [EXTRA_ID]: extraTemplate = {},
       } = formData ?? {}
-
-      const topology = ENABLE_NUMA ? { TOPOLOGY: restOfTopology } : {}
 
       // merge with template disks to get TYPE attribute
       const templateXML = jsonToXml({
+        ...userInputs,
         ...extraTemplate,
-        ...topology,
         ...restOfConfig,
       })
+
       const data = { instances, hold, persistent, template: templateXML }
 
       const templates = [...new Array(instances)].map((_, idx) => ({
@@ -68,7 +65,7 @@ const Steps = createSteps(
         ...data,
       }))
 
-      return [templateSelected ?? vmTemplate, templates]
+      return [vmTemplate, templates]
     },
   }
 )

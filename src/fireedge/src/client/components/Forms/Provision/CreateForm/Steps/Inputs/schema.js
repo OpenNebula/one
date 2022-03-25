@@ -31,21 +31,19 @@ export const FORM_FIELDS = (inputs) =>
       min_value: min,
       max_value: max,
       options,
-    }) => {
-      const optionsValue = options ?? `${min}..${max}`
-
-      return {
+    }) => ({
+      name,
+      label: `${description ?? name} *`,
+      ...schemaUserInput({
+        mandatory: true,
         name,
-        label: `${description ?? name} *`,
-        ...schemaUserInput({
-          mandatory: true,
-          name,
-          type,
-          options: optionsValue,
-          default: defaultValue,
-        }),
-      }
-    }
+        type,
+        min,
+        max,
+        options,
+        default: defaultValue,
+      }),
+    })
   )
 
 /**

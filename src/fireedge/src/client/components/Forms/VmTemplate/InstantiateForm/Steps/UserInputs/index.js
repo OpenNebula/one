@@ -13,43 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Accordion, AccordionDetails } from '@mui/material'
 
-import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
+import {
+  FIELDS,
+  SCHEMA,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs/schema'
+import { userInputsToArray } from 'client/models/Helper'
+import { T, VmTemplate } from 'client/constants'
+import { FormWithSchema } from 'client/components/Forms'
+
+export const STEP_ID = 'user_inputs'
+
+const Content = ({ userInputs }) => (
+  <FormWithSchema
+    cy="user-inputs"
+    id={STEP_ID}
+    fields={useMemo(() => FIELDS(userInputs), [])}
+  />
+)
+
+Content.propTypes = {
+  data: PropTypes.any,
+  userInputs: PropTypes.object,
+}
 
 /**
- * Renders template tab.
+ * User inputs step.
  *
- * @param {object} props - Props
- * @param {string} props.id - Template id
- * @returns {ReactElement} Template tab
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} User inputs step
  */
-const TemplateTab = ({ id }) => {
-  const { data: vmTemplate = {} } = useGetTemplateQuery({ id })
-
-  return (
-    <Accordion expanded TransitionProps={{ unmountOnExit: true }}>
-      <AccordionDetails>
-        <Box component="pre">
-          <Box
-            component="code"
-            sx={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}
-          >
-            {JSON.stringify(vmTemplate?.TEMPLATE ?? {}, null, 2)}
-          </Box>
-        </Box>
-      </AccordionDetails>
-    </Accordion>
+const UserInputsStep = (vmTemplate) => {
+  const userInputs = userInputsToArray(
+    vmTemplate?.TEMPLATE?.USER_INPUTS,
+    vmTemplate?.TEMPLATE?.INPUTS_ORDER
   )
+
+  console.log({ userInputs, order: vmTemplate?.TEMPLATE?.INPUTS_ORDER })
+
+  return {
+    id: STEP_ID,
+    label: T.UserInputs,
+    optionsValidate: { abortEarly: false },
+    resolver: () => SCHEMA(userInputs),
+    content: (props) => Content({ ...props, userInputs }),
+  }
 }
 
-TemplateTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-TemplateTab.displayName = 'TemplateTab'
-
-export default TemplateTab
+export default UserInputsStep

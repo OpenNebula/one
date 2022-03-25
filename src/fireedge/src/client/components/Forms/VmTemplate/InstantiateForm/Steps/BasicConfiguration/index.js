@@ -13,31 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
+import PropTypes from 'prop-types'
 
 import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
 import {
   SCHEMA,
   FIELDS,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = () => {
+const Content = ({ hypervisor }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
-  const { watch } = useFormContext()
 
   const sections = useMemo(() => {
-    const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
     const resource = RESOURCE_NAMES.VM_TEMPLATE
     const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
@@ -61,21 +57,26 @@ const Content = () => {
   )
 }
 
-const BasicConfiguration = (initialValues) => {
-  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
+/**
+ * Basic configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} Basic configuration step
+ */
+const BasicConfiguration = (vmTemplate) => {
+  const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,
     label: T.Configuration,
-    resolver: (formData) => {
-      const hypervisor =
-        formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR ?? initialHypervisor
-
-      return SCHEMA(hypervisor)
-    },
+    resolver: () => SCHEMA(hypervisor),
     optionsValidate: { abortEarly: false },
-    content: Content,
+    content: (props) => Content({ ...props, hypervisor }),
   }
+}
+
+Content.propTypes = {
+  hypervisor: PropTypes.string,
 }
 
 export default BasicConfiguration

@@ -64,7 +64,7 @@ const SECTIONS = (hypervisor) => [
 ]
 
 /** @type {Field} Boot order field */
-const BOOT_ORDER = {
+const BOOT_ORDER_FIELD = {
   name: 'OS.BOOT',
   validation: string()
     .trim()
@@ -77,7 +77,7 @@ const BOOT_ORDER = {
  * @returns {Field[]} All 'OS & CPU' fields
  */
 const FIELDS = (hypervisor) => [
-  BOOT_ORDER,
+  BOOT_ORDER_FIELD,
   ...SECTIONS(hypervisor)
     .map(({ fields }) => fields)
     .flat(),
@@ -89,4 +89,4 @@ const FIELDS = (hypervisor) => [
  */
 const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
 
-export { SECTIONS, FIELDS, SCHEMA }
+export { SECTIONS, FIELDS, BOOT_ORDER_FIELD, SCHEMA }

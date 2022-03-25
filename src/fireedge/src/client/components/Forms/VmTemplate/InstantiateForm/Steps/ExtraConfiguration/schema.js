@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { ObjectSchema } from 'yup'
+import { ObjectSchema, object } from 'yup'
 
 // get schemas from VmTemplate/CreateForm
-import { SCHEMA as CREATE_EXTRA_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { HYPERVISORS } from 'client/constants'
+import {
+  SCHED_ACTION_SCHEMA,
+  STORAGE_SCHEMA,
+  NETWORK_SCHEMA,
+  PLACEMENT_FIELDS,
+  BOOT_ORDER_FIELD,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
+import { getObjectSchemaFromFields } from 'client/utils'
+import { UserInputObject } from 'client/constants'
 
 /**
- * @param {HYPERVISORS} hypervisor - VM hypervisor
+ * @param {UserInputObject[]} userInputs - User inputs
  * @returns {ObjectSchema} Extra configuration schema
  */
-export const SCHEMA = (hypervisor) =>
-  CREATE_EXTRA_SCHEMA(hypervisor).noUnknown(false)
+export const SCHEMA = object()
+  .concat(SCHED_ACTION_SCHEMA)
+  .concat(NETWORK_SCHEMA)
+  .concat(STORAGE_SCHEMA)
+  .concat(getObjectSchemaFromFields([...PLACEMENT_FIELDS, BOOT_ORDER_FIELD]))

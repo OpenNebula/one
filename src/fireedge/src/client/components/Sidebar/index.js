@@ -56,7 +56,10 @@ const Sidebar = ({ endpoints }) => {
   const SidebarEndpoints = useMemo(
     () =>
       endpoints
-        ?.filter(({ sidebar = false }) => sidebar)
+        ?.filter(
+          ({ sidebar = false, routes = [] }) =>
+            sidebar || routes.some((subRoute) => subRoute?.sidebar)
+        )
         ?.sort(({ position: posA = 1 }, { position: posB = 1 }) => posB - posA)
         ?.map((endpoint, index) =>
           endpoint.routes ? (
