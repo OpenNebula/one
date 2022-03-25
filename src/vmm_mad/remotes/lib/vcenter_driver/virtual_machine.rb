@@ -3076,10 +3076,10 @@ end
             @item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
             devices.each do |device|
-                next unless first_condition &&
+                valid_device =
+                    device.class == RbVmomi::VIM::VirtualLsiLogicController &&
                     device.key == scsi_key
-
-                controller = device.deviceInfo.label
+                controller = device.deviceInfo.label if valid_device
             end
 
             controller
