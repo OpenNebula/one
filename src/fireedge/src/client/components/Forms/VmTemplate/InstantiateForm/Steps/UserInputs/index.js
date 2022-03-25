@@ -51,13 +51,11 @@ const UserInputsStep = (vmTemplate) => {
     vmTemplate?.TEMPLATE?.INPUTS_ORDER
   )
 
-  console.log({ userInputs, order: vmTemplate?.TEMPLATE?.INPUTS_ORDER })
-
   return {
     id: STEP_ID,
     label: T.UserInputs,
     optionsValidate: { abortEarly: false },
-    resolver: () => SCHEMA(userInputs),
+    resolver: SCHEMA(userInputs),
     content: (props) => Content({ ...props, userInputs }),
   }
 }
