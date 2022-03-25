@@ -54,7 +54,7 @@ const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
         evt.stopPropagation()
 
         const params = { id: vm?.ID, type: connectionType }
-        const session = await getSession(params)
+        const session = await getSession(params).unwrap()
 
         typeof onClick === 'function'
           ? onClick(session)
@@ -85,7 +85,7 @@ const VMRCButton = memo(({ vm, onClick }) => {
         evt.stopPropagation()
 
         const params = { id: vm?.ID }
-        const session = await getSession(params)
+        const session = await getSession(params).unwrap()
 
         typeof onClick === 'function'
           ? onClick(session)
