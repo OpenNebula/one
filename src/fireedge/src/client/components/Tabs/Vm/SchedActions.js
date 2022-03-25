@@ -119,7 +119,13 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
    * @returns {Promise} - Add schedule actions and refetch VM data
    */
   const handleCreateCharter = async (formData) => {
-    await Promise.all(formData.map(addScheduledAction))
+    await Promise.all(
+      formData.map((action) => {
+        const template = jsonToXml({ SCHED_ACTION: action })
+
+        return addScheduledAction({ id, template })
+      })
+    )
   }
 
   return (

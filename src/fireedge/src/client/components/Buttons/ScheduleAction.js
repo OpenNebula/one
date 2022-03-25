@@ -134,10 +134,7 @@ const DeleteSchedButton = memo(({ onSubmit, schedule }) => {
           isConfirmDialog: true,
           dialogProps: {
             title: (
-              <Translate
-                word={T.DeleteScheduledAction}
-                values={[titleAction]}
-              />
+              <Translate word={T.DeleteScheduleAction} values={[titleAction]} />
             ),
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
