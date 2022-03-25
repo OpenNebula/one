@@ -21,14 +21,12 @@ if [ -z "$ONE_LOCATION" ]; then
     FIREEDGE_SERVER=/usr/lib/one/fireedge/dist/index.js
     FIREEDGE_LOCK_FILE=/var/lock/one/.fireedge.lock
     FIREEDGE_LOG=/var/log/one/fireedge.log
-    FIREEDGE_LOG_ERROR=/var/log/one/fireedge.error
     GUACD_PID=/var/run/one/guacd.pid
 else
     FIREEDGE_PID=$ONE_LOCATION/var/fireedge.pid
     FIREEDGE_SERVER=$ONE_LOCATION/lib/fireedge/dist/index.js
     FIREEDGE_LOCK_FILE=$ONE_LOCATION/var/.fireedge.lock
     FIREEDGE_LOG=$ONE_LOCATION/var/fireedge.log
-    FIREEDGE_LOG_ERROR=$ONE_LOCATION/var/fireedge.error
     GUACD_PID=$ONE_LOCATION/var/guacd.pid
 fi
 
@@ -78,14 +76,14 @@ start()
   touch $FIREEDGE_LOCK_FILE
 
   # Start the fireedge-server daemon
-  node $FIREEDGE_SERVER >$FIREEDGE_LOG 2>$FIREEDGE_LOG_ERROR &
+  node $FIREEDGE_SERVER >$FIREEDGE_LOG &
 
   LASTRC=$?
   LASTPID=$!
 
   if [ $LASTRC -ne 0 ]; then
     echo "Error executing fireedge-server."
-    echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
+    echo "Check $FIREEDGE_LOG for more information"
     exit 1
   else
     echo $LASTPID > $FIREEDGE_PID
@@ -96,7 +94,7 @@ start()
 
   if [ $? -ne 0 ]; then
     echo "Error executing fireedge-server."
-    echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
+    echo "Check $FIREEDGE_LOG for more information"
     exit 1
   fi
 }
