@@ -16,8 +16,7 @@
 
 const atob = require('atob')
 const { socket: socketZeroMQ } = require('zeromq')
-const { messageTerminal } = require('server/utils/general')
-const { xml2json } = require('server/utils/opennebula')
+const { messageTerminal, xml2json } = require('server/utils/general')
 const {
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,
