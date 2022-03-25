@@ -17,7 +17,6 @@ import loadable from '@loadable/component'
 import {
   ReportColumns as DashboardIcon,
   Settings as SettingsIcon,
-  Activity as WebMKSIcon,
 } from 'iconoir-react'
 
 const Dashboard = loadable(
@@ -67,8 +66,7 @@ export const ENDPOINTS = [
   },
   {
     label: 'WebMKS',
-    sidebar: true,
-    icon: WebMKSIcon,
+    disabledSidebar: true,
     path: PATH.WMKS,
     Component: WebMKS,
   },
