@@ -561,7 +561,7 @@ module VCenterDriver
             rescue StandardError => e
                 message = "Could not find file. Reason: \"#{e.message}\"."
                 if VCenterDriver::CONFIG[:debug_information]
-                    message += ' ' + e.backtrace
+                    message += ' ' + e.backtrace.to_s
                 end
                 raise message
             end
