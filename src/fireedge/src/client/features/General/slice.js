@@ -40,8 +40,10 @@ const { name, reducer } = createSlice({
       /* LOGOUT ACTION */
       .addCase(authActions.logout, (state) => ({
         ...initial,
+        // persistent app state
         appTitle: state.appTitle,
         isBeta: state.isBeta,
+        withGroupSwitcher: state.withGroupSwitcher,
       }))
 
       /* UI ACTIONS */
