@@ -183,13 +183,16 @@ void AuthManager::trigger_authenticate(AuthRequest& ar)
         // Make the request to the driver
         // ---- --------------------------------------------------------------------
 
+        string session64;
+        ssl_util::base64_encode(ar.session, session64);
+
         ostringstream oss;
 
         oss << ar.uid << " "
             << ar.driver << " "
             << ar.username << " "
             << ar.password << " "
-            << ar.session << " " << endl;
+            << session64 << " " << endl;
 
         auth_msg_t msg(AuthManagerMessages::AUTHENTICATE, "", ar.id, oss.str());
 

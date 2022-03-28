@@ -135,6 +135,8 @@ class AuthDriver < OpenNebulaDriver
                 "Authentication driver '#{driver}' not available")
         end
 
+        secret = Base64.decode64(secret)
+
         #build path for the auth action
         #/var/lib/one/remotes/auth/<driver>/authenticate
         authN_path = File.join(@local_scripts_path, driver)
