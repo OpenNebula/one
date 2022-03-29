@@ -196,7 +196,7 @@ public:
      *    @param str string that hold the template representation
      *    @return a reference to the generated string
      */
-    std::string& to_str(std::string& str) const;
+    virtual std::string& to_str(std::string& str) const;
 
     /* ---------------------------------------------------------------------- */
     /* Functions to add, remove and change attributes from a Template         */

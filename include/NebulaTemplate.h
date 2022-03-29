@@ -28,9 +28,11 @@ class NebulaTemplate : public Template
 {
 public:
     NebulaTemplate(const std::string& etc_location, const char * _conf_name,
-            const char * root_name) : Template(false, '=', root_name)
+            const char * root_name)
+        : Template(false, '=', root_name)
+        , conf_file(etc_location + _conf_name)
+        , hidden_attributes{ { "DB", { "PASSWD" } } }
     {
-        conf_file = etc_location + _conf_name;
     }
 
     virtual ~NebulaTemplate() = default;
@@ -39,6 +41,8 @@ public:
      *  Parse and loads the configuration in the template
      */
     virtual int load_configuration();
+
+    std::string& to_str(std::string& str) const override;
 
 protected:
     /**
@@ -50,6 +54,13 @@ protected:
      *  Defaults for the configuration file
      */
     std::multimap<std::string, Attribute*> conf_default;
+
+    /**
+     *  Hidden attributes, which shouldn't be displayed to non-admin users
+     *  For Simple attributes use { "PORT". {} }
+     *  For Vector attributes use { "DB", { "USER", "PASSWD"} }
+     */
+    std::map<std::string, std::set<std::string>> hidden_attributes;
 
     /**
      *  Sets the defaults value for the template
