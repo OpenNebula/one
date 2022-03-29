@@ -138,13 +138,11 @@ const PreConsoleButton = memo(
       return null
     }
 
-    if (isVCenter(vm)) {
-      return connectionType === VM_ACTIONS.VMRC ? (
-        <VMRCButton {...props} />
-      ) : null
+    if (connectionType === VM_ACTIONS.VMRC) {
+      return isVCenter(vm) ? <VMRCButton {...props} /> : null
     }
 
-    return <GuacamoleButton {...props} />
+    return !isVCenter(vm) ? <GuacamoleButton {...props} /> : null
   }
 )
 
