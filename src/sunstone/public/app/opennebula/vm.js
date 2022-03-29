@@ -1257,8 +1257,8 @@ define(function(require) {
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
-  function isKvmVm(history = {}){
-    return Boolean(history.VM_MAD && String(history.VM_MAD).toLowerCase() === "kvm");
+  function isKvmVm(history){
+    return history && history.VM_MAD && String(history.VM_MAD).toLowerCase() === "kvm";
   }
 
   function isVMRCSupported(element = {}) {
