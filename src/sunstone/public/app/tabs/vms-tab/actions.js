@@ -302,7 +302,7 @@ define(function(require) {
           host: fireedge_endpoint.hostname,
           port: fireedge_endpoint.port,
           connnection_type: 'vmrc',
-          extra_path: '/fireedge/vmrc/' + response.data.ticket,
+          extra_path: '/fireedge/vmrc/' + response.data,
         });
         // Open in a new tab the VMRC connection
         window.open(link);
