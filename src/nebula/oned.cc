@@ -85,7 +85,7 @@ static void oned_init()
 {
     try
     {
-        Nebula& nd  = Nebula::instance();
+        Nebula nd;
         nd.bootstrap_db();
     }
     catch (exception &e)
