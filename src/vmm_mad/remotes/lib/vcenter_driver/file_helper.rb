@@ -98,7 +98,7 @@ module VCenterDriver
         end
 
         def self.get_type(file)
-            type = `file -b --mime-type #{file}`
+            type = `file -P bytes=256 -b --mime-type #{file}`
             if $?.exitstatus != 0 # rubocop:disable Style/SpecialGlobalVars
                 STDERR.puts "Can not read file #{file}"
                 exit(-1)

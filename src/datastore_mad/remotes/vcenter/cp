@@ -71,7 +71,7 @@ def find_image_type_in_directory(target_path)
         raise StandardError, 'No files in img_path folder'
     end
 
-    file_types = {}
+    file_types={}
     img_files.each do |f|
         Open3.popen3("qemu-img info #{f}") do |_sdtin, stdout, stderr, wait_thr|
             unless wait_thr.value.success?
@@ -79,7 +79,8 @@ def find_image_type_in_directory(target_path)
                       "'qemu-img info' failed, " \
                       "stderr: #{stderr.read}"
             end
-            tmp_file_type=stdout.read.split("\n")[1].split(':')[1].lstrip
+            output = stdout.read
+            tmp_file_type=output.split("\n")[1].split(':')[1].lstrip
             if tmp_file_type.nil?
                 raise StandardError,
                       "'qemu-img info' output unexpected format"
@@ -90,7 +91,7 @@ def find_image_type_in_directory(target_path)
     end
 
     if file_types.values.include? 'vmdk'
-        STDERR.puts 'image should already be in vmdk format'
+        # image should already be in vmdk format
         return target_path, 'vmdk'
     end
 
@@ -217,20 +218,72 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
         end
 
         begin
+            sparse_images = VCenterDriver::CONFIG[:sparse_images]
+            out_dir  = File.dirname(temp_file)+'.tmp'
+            out_file = File.basename(temp_file, '.*')+'.vmdk'
+            out_path = out_dir + '/' + out_file
+            Dir.mkdir(out_dir)
             if file_type != 'vmdk'
-                out_file = File.basename(temp_file, '.*')+'.tmp'
-                convert=system("qemu-img convert -f #{file_type}"\
-                  " -O vmdk #{temp_file} #{out_file}")
+                convert_cmd = 'qemu-img convert ' \
+                               "-f #{file_type} -O vmdk"
+                if sparse_images
+                    convert_cmd += ' -o subformat=monolithicSparse'
+                else
+                    convert_cmd += ' -o subformat=monolithicFlat'
+                end
+
+                convert_cmd += " #{temp_file} #{out_path}"
+                convert = system(convert_cmd)
                 if there_is_not_system_error?(convert)
+                    STDERR.puts 'qemu-img convert failed.'
                     raise StandardError
                 end
 
-                FileUtils.mv(out_file, temp_file)
+                FileUtils.rm_rf(temp_file)
+                FileUtils.mv(out_dir, temp_file)
+            elsif file_type == 'vmdk'
+                # If it is vmdk, make sure it matches configuration
+                if !temp_file_folder.nil?
+                    info = VCenterDriver::FileHelper
+                           .vcenter_file_info(temp_file_folder)
+                else
+                    info = VCenterDriver::FileHelper
+                           .vcenter_file_info(temp_file)
+                end
+
+                # If the type matches, neither will trigger
+                unless (info[:type] == :standalone && sparse_images) ||
+                       (info[:type] == :flat && !sparse_images)
+                    convert_cmd = 'qemu-img convert -f vmdk -O vmdk'
+                    convert=true
+                    if info[:type] == :standalone && !sparse_images
+                        convert_cmd += ' -o subformat=monolithicFlat '\
+                                       " #{temp_file} #{out_path}"
+                        convert = system(convert_cmd)
+                    elsif info[:type] == :flat && sparse_images
+                        convert_cmd += ' -o subformat=monolithicSparse '\
+                                       " #{temp_file} #{out_path}"
+                        convert = system(convert_cmd)
+                    end
+
+                    if there_is_not_system_error(convert)
+                        raise StandardError
+                    end
+
+                    # For the case the original vmdk was not in a folder
+                    if !temp_file_folder.nil?
+                        FileUtils.rm_rf(temp_file_folder)
+                        FileUtils.mv(out_dir, temp_file_folder)
+                    else
+                        FileUtils.rm_rf(tmp_file)
+                        FileUtils.mv(out_dir, temp_file)
+                    end
+                end
             end
         rescue StandardError
             STDERR.puts "Error converting #{temp_file}."
-            STDERR.puts "Removing #{temp_file} and #{out_file}."
-            FileUtils.rm_rf(out_file)
+            STDERR.puts "Removing #{temp_file} and #{out_dir}."
+            FileUtils.rm_rf(out_dir)
             FileUtils.rm_rf(temp_file)
             unless temp_file_folder.nil?
                 STDERR.puts "Removing #{temp_file_folder}."
@@ -241,7 +294,11 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
         end
     end
 
-    img_path = temp_file
+    if !temp_file_folder.nil?
+        img_path = temp_file_folder
+    else
+        img_path = temp_file
+    end
 end
 
 # Time to upload files to vCenter

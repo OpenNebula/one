@@ -54,3 +54,6 @@
 # Set to true to have Wild VM disks imported as persistent images,
 # otherwise they will be imported as non persistent
 :vm_template_persistent_images: false
+
+# Set to true to convert/leave images to sparse instead of flat
+:sparse_images: false
