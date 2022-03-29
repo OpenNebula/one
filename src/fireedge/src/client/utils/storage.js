@@ -60,3 +60,16 @@ export const findStorageData = (name = '') => {
     return root.sessionStorage.getItem(name)
   } else return false
 }
+
+/**
+ * Use external Token.
+ *
+ * @returns {string} Returns JWT from URL
+ */
+export const findExternalToken = () => {
+  try {
+    const searchParams = new URL(root?.location?.href)?.searchParams
+
+    return searchParams.get('externalToken')
+  } catch (error) {}
+}

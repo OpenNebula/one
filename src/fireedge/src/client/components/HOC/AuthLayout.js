@@ -22,7 +22,7 @@ import { authApi } from 'client/features/AuthApi'
 import { oneApi } from 'client/features/OneApi'
 import groupApi from 'client/features/OneApi/group'
 import FullscreenProgress from 'client/components/LoadingScreen'
-import { findStorageData } from 'client/utils'
+import { findStorageData, findExternalToken, storage } from 'client/utils'
 import { JWT_NAME } from 'client/constants'
 
 /**
@@ -70,8 +70,8 @@ const AuthLayout = ({ subscriptions = [], children }) => {
 
   useEffect(() => {
     if (!jwt) {
-      const token = findStorageData(JWT_NAME)
-      token && changeJwt(token)
+      const token = findStorageData(JWT_NAME) || findExternalToken()
+      token && changeJwt(token) && storage(JWT_NAME, token)
     }
 
     // first rendering on client
