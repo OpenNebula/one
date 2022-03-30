@@ -23,7 +23,7 @@ define(function(require) {
     Locale = require("utils/locale"),
     Config = require("sunstone-config"),
     Navigation = require("utils/navigation"),
-    OpenNebulaHost = require('opennebula/host');
+    OpenNebulaHost = require("opennebula/host");
 
 
   var RESOURCE = "VM";
@@ -634,11 +634,25 @@ define(function(require) {
 
       var request = OpenNebulaHelper.request(resource, null, params.data);
       $.ajax({
-        url: Config.publicFireedgeEndpoint + "/fireedge/api/vcenter/token/" + vm_id,
-        type: "GET",
-        headers: {"Authorization": fireedge_token},
-        success: function(response) {
-          return callback ? callback(request, response) : null;
+        url: "vm/" + vm_id + "/startvmrc",
+        type: "POST",
+        dataType: "JSON",
+        success: function(vminfo) {
+
+          $.ajax({
+            url: Config.publicFireedgeEndpoint + "/fireedge/api/vcenter/token/" + vm_id,
+            type: "GET",
+            headers: {"Authorization": fireedge_token},
+            success: function(token) {
+              token.info = vminfo.info;
+              return callback ? callback(request, token) : null;
+            },
+            error: function(response) {
+              return callback_error ?
+                  callback_error(request, OpenNebulaError(response)) : null;
+            }
+          });
+
         },
         error: function(response) {
           return callback_error ?
@@ -770,10 +784,10 @@ define(function(require) {
       }
     },
     "hostnameStr": function(element) {
-      return hostnameStr(element)
+      return hostnameStr(element);
     },
     "hostnameStrLink": function(element) {
-      return hostnameStr(element, true)
+      return hostnameStr(element, true);
     },
     "clusterStr": function(element) {
       var state = element.STATE;
@@ -867,17 +881,17 @@ define(function(require) {
     })[0];
 
     if (nic) {
-      var ip = '<b>' + hostnameStr(vm, navigationLink) + '</b>';
-      var externalPortRange = '<b>' + nic.EXTERNAL_PORT_RANGE + '</b>';
-      var internalPortRange = '<b>' + nic.INTERNAL_PORT_RANGE.split('/')[0].replace('-', ':') + '</b>'
+      var ip = "<b>" + hostnameStr(vm, navigationLink) + "</b>";
+      var externalPortRange = "<b>" + nic.EXTERNAL_PORT_RANGE + "</b>";
+      var internalPortRange = "<b>" + nic.INTERNAL_PORT_RANGE.split("/")[0].replace("-", ":") + "</b>";
 
-      return ip + ' ports ' + externalPortRange + ' forwarded to VM ports ' + internalPortRange;
+      return ip + " ports " + externalPortRange + " forwarded to VM ports " + internalPortRange;
     }
   }
 
   function _promiseGetVm(options = {}) {
     options = $.extend({
-      id: '',
+      id: "",
       async: true
     }, options);
 
@@ -1067,7 +1081,7 @@ define(function(require) {
     else if (ips.length === 1)
       return "<p style=\"white-space:nowrap;margin-bottom:0;\">"+ips[0]+"</p>";
 
-    var sshWithPortForwarding = getSshWithPortForwarding(element) || '';
+    var sshWithPortForwarding = getSshWithPortForwarding(element) || "";
     var firstIP = ipsHtml.split("<end_first_ip>")[0];
     ipsHtml = ipsHtml.split("<end_first_ip>")[1];
     ipsHtml =
@@ -1127,7 +1141,7 @@ define(function(require) {
           var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           nic_and_ip = nic.NIC_ID + ": " + ip;
           if (nic.EXTERNAL_IP)
-            nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>"
+            nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>";
           column.append(nic_and_ip + "<end_first_ip>");
           first=false;
         }
@@ -1163,9 +1177,9 @@ define(function(require) {
                 var alias_ip;
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP
+                    alias_ip = identation + "> " + alias.IP;
                 else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6
+                    alias_ip = identation + "> " + alias.IP6;
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                     alias_ip = alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
 
@@ -1224,9 +1238,9 @@ define(function(require) {
                 var alias_ip;
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP
+                    alias_ip = identation + "> " + alias.IP;
                 else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6
+                    alias_ip = identation + "> " + alias.IP6;
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                     alias_ip = alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
 
