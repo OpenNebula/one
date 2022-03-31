@@ -27,6 +27,8 @@ require 'scripts_common'
 # This class interacts with Firecracker
 class MicroVM
 
+    CGROUP_DEFAULT_SHARES = 1024
+
     # rubocop:disable Naming/AccessorMethodName
     # rubocop:disable Layout/LineLength
 
@@ -236,7 +238,7 @@ class MicroVM
         if @one.fcrc[:cgroup_cpu_shares] == true
             cpu_val = @one.cpu_shares
         else
-            cpu_val = OpenNebulaVM::CGROUP_DEFAULT_SHARES
+            cpu_val = CGROUP_DEFAULT_SHARES
         end
 
         params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\

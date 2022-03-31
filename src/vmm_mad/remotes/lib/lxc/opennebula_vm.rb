@@ -139,7 +139,7 @@ class LXCVM < OpenNebulaVM
 
             pre= "lxc.#{cg_set}."
 
-            lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares
+            lxc["#{pre}cpu.#{CGROUP_NAMES[cg_set][:cpu]}"] = cpu_shares(cg_version)
 
             numa_nodes = get_numa_nodes
 

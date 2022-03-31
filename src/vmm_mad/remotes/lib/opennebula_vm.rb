@@ -22,7 +22,19 @@ class OpenNebulaVM
 
     attr_reader :vm_id, :vm_name, :sysds_path
 
-    CGROUP_DEFAULT_SHARES = 1024
+    # share values default for cgroup versions
+    DEFAULT_SHARES = {
+        1 => {
+            :base => 1024,
+            :min  => 2,
+            :max  => 262144
+        },
+        2 => {
+            :base => 100,
+            :min  => 1,
+            :max  => 10000
+        }
+    }
 
     CGROUP_NAMES ={
         'cgroup' => {
@@ -178,15 +190,21 @@ class OpenNebulaVM
     # tasks in a cgroup where cpu.shares is set to 100. The value specified in
     # the cpu.shares file must be 2 or higher.
     # (https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu)
-    def cpu_shares
+    def cpu_shares(version = 1)
         cpu = get_cpu
 
-        return CGROUP_DEFAULT_SHARES if cpu.nil? || cpu == ''
+        b_shares = DEFAULT_SHARES[version][:base]
+        
+        min_shares = DEFAULT_SHARES[version][:max]
+        max_shares = DEFAULT_SHARES[version][:min]
 
-        shares_val = (cpu * CGROUP_DEFAULT_SHARES).round
+        return b_shares if cpu.nil? || cpu == ''
 
-        # The value specified in the cpu.shares file must be 2 or higher.
-        shares_val = 2 if shares_val < 2
+        shares_val = (cpu * b_shares).round
+
+        # Keep shares in range
+        shares_val = min_shares if shares_val < min_shares
+        shares_val = max_shares if shares_val > max_shares
 
         shares_val
     end
