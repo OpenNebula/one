@@ -194,7 +194,7 @@ class OpenNebulaVM
         cpu = get_cpu
 
         b_shares = DEFAULT_SHARES[version][:base]
-        
+
         min_shares = DEFAULT_SHARES[version][:max]
         max_shares = DEFAULT_SHARES[version][:min]
 
