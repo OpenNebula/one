@@ -87,7 +87,6 @@ export const LOGO = {
     { text: 'Windows xp', value: 'windowsxp.png' },
     { text: 'Windows 10', value: 'windows8.png' },
   ],
-  // eslint-disable-next-line react/display-name
   renderValue: (value) => (
     <Image
       alt="logo"

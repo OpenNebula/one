@@ -22,53 +22,25 @@ import BasicConfiguration, {
 import Connection, {
   STEP_ID as CONNECTION_ID,
 } from 'client/components/Forms/Provider/CreateForm/Steps/Connection'
-import {
-  getConnectionEditable,
-  getConnectionFixed,
-} from 'client/models/ProviderTemplate'
-import { createSteps, deepmerge } from 'client/utils'
+import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  (stepProps) => {
-    const { isUpdate } = stepProps
-
-    return [!isUpdate && Template, BasicConfiguration, Connection].filter(
-      Boolean
-    )
-  },
+  ({ isUpdate } = {}) =>
+    [!isUpdate && Template, BasicConfiguration, Connection].filter(Boolean),
   {
-    transformInitialValue: ({ provider, connection, providerConfig } = {}) => {
-      const { description, ...currentBodyTemplate } =
-        provider?.TEMPLATE?.PROVISION_BODY ?? {}
-
-      // overwrite decrypted connection
-      const fakeProviderTemplate = { ...currentBodyTemplate, connection }
-      const connectionEditable = getConnectionEditable(
-        fakeProviderTemplate,
-        providerConfig
-      )
-
-      return {
-        [TEMPLATE_ID]: [fakeProviderTemplate],
-        [CONNECTION_ID]: connectionEditable,
-        [BASIC_ID]: { description },
-      }
-    },
-    transformBeforeSubmit: (formData, providerConfig) => {
+    transformInitialValue: ({ template, connection } = {}) => ({
+      [TEMPLATE_ID]: [template],
+      [CONNECTION_ID]: connection,
+      [BASIC_ID]: { description: template.description },
+    }),
+    transformBeforeSubmit: (formData) => {
       const {
         [TEMPLATE_ID]: [templateSelected] = [],
         [CONNECTION_ID]: connection = {},
         [BASIC_ID]: configuration = {},
       } = formData ?? {}
 
-      const connectionFixed = getConnectionFixed(
-        templateSelected,
-        providerConfig
-      )
-      const allConnections = { ...connection, ...connectionFixed }
-      const editedData = { ...configuration, connection: allConnections }
-
-      return deepmerge(templateSelected, editedData)
+      return { template: templateSelected, connection, configuration }
     },
   }
 )

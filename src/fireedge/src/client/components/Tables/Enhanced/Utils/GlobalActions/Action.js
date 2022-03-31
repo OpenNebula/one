@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line no-unused-vars
-import { memo, ReactElement } from 'react'
+import { memo, ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
@@ -83,48 +83,40 @@ const ActionItem = memo(
       title: tooltip && Tr(tooltip),
     }
 
+    const addRowsToFn = useCallback(
+      (fn) => (typeof fn === 'function' ? fn(selectedRows) : fn),
+      [selectedRows]
+    )
+
+    const addRowsToEntries = useCallback(
+      (entries) =>
+        Object.entries(entries).reduce(
+          (res, [prop, value]) => ({ ...res, [prop]: addRowsToFn(value) }),
+          {}
+        ),
+      [addRowsToFn]
+    )
+
     return action ? (
-      <Action {...buttonProps} handleClick={() => action?.(selectedRows)} />
+      <Action {...buttonProps} handleClick={() => addRowsToFn(action)} />
     ) : useQuery ? (
-      <QueryButton {...buttonProps} useQuery={() => useQuery?.(selectedRows)} />
+      <QueryButton {...buttonProps} useQuery={() => addRowsToFn(useQuery)} />
     ) : (
       <ButtonToTriggerForm
         buttonProps={buttonProps}
         options={options?.map((option) => {
           const {
-            accessor: optionAccessor,
             form,
-            onSubmit,
-            dialogProps,
-            disabled: optionDisabled,
+            accessor: optionAccessor,
+            dialogProps = {},
+            ...restOfOption
           } = option ?? {}
-          const { description, subheader, title, children } = dialogProps ?? {}
 
           return {
-            ...option,
+            ...addRowsToEntries(restOfOption),
+            form: form ? () => addRowsToFn(form) : undefined,
             cy: optionAccessor && `action-${optionAccessor}`,
-            disabled:
-              typeof optionDisabled === 'function'
-                ? optionDisabled(selectedRows)
-                : optionDisabled,
-            dialogProps: {
-              ...dialogProps,
-              description:
-                typeof description === 'function'
-                  ? description(selectedRows)
-                  : description,
-              subheader:
-                typeof subheader === 'function'
-                  ? subheader(selectedRows)
-                  : subheader,
-              title: typeof title === 'function' ? title(selectedRows) : title,
-              children:
-                typeof children === 'function'
-                  ? children(selectedRows)
-                  : children,
-            },
-            form: form ? () => form(selectedRows) : undefined,
-            onSubmit: (data) => onSubmit(data, selectedRows),
+            dialogProps: addRowsToEntries(dialogProps),
           }
         })}
       />

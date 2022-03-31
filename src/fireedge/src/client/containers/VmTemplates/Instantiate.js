@@ -14,11 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useHistory, useLocation, Redirect } from 'react-router'
 import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
-import { useInstantiateTemplateMutation } from 'client/features/OneApi/vmTemplate'
+import {
+  useInstantiateTemplateMutation,
+  useGetTemplateQuery,
+} from 'client/features/OneApi/vmTemplate'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
@@ -34,6 +44,14 @@ function InstantiateVmTemplate() {
   const { enqueueInfo } = useGeneralApi()
   const [instantiate] = useInstantiateTemplateMutation()
 
+  useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
+
+  const { data, isError } = useGetTemplateQuery(
+    { id: templateId, extended: true },
+    { refetchOnMountOrArgChange: false }
+  )
+
   const onSubmit = async ([templateSelected, templates]) => {
     try {
       const { ID, NAME } = templateSelected
@@ -41,18 +59,31 @@ function InstantiateVmTemplate() {
 
       await Promise.all(templatesWithId.map(instantiate))
 
-      templateId
-        ? history.push(PATH.TEMPLATE.VMS.LIST)
-        : history.push(PATH.INSTANCE.VMS.LIST)
+      history.push(PATH.INSTANCE.VMS.LIST)
 
       const total = templates.length
       enqueueInfo(`VM Template instantiated x${total} - #${ID} ${NAME}`)
     } catch {}
   }
 
+  if (!templateId || isError) {
+    return <Redirect to={PATH.TEMPLATE.VMS.LIST} />
+  }
+
   return (
     <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <InstantiateForm templateId={templateId} onSubmit={onSubmit} />
+      {!data ? (
+        <SkeletonStepsForm />
+      ) : (
+        <InstantiateForm
+          initialValues={data}
+          stepProps={data}
+          onSubmit={onSubmit}
+          fallback={<SkeletonStepsForm />}
+        >
+          {(config) => <DefaultFormStepper {...config} />}
+        </InstantiateForm>
+      )}
     </Container>
   )
 }

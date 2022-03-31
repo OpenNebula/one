@@ -36,13 +36,15 @@ const Content = () => {
   return (
     <>
       <FormWithSchema cy={STEP_ID} fields={FIELDS} id={STEP_ID} />
-      <FormWithSchema
-        cy={`${STEP_ID}-template`}
-        fields={imageFields}
-        legend={T.TemplatesForTheApp}
-        legendTooltip={T.TemplatesForTheAppConcept}
-        id={STEP_ID}
-      />
+      {imageFields && (
+        <FormWithSchema
+          cy={`${STEP_ID}-template`}
+          fields={imageFields}
+          legend={T.TemplatesForTheApp}
+          legendTooltip={T.TemplatesForTheAppConcept}
+          id={STEP_ID}
+        />
+      )}
     </>
   )
 }

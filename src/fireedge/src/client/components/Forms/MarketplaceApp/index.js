@@ -13,7 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/MarketplaceApp/CreateForm'
-import ExportForm from 'client/components/Forms/MarketplaceApp/ExportForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'MarketplaceApp/CreateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ExportForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'MarketplaceApp/ExportForm' }, configProps)
 
 export { CreateForm, ExportForm }

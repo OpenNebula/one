@@ -13,50 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, memo } from 'react'
+import { useState, memo, ReactElement } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
-import {
-  Container,
-  LinearProgress,
-  IconButton,
-  Typography,
-} from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { Box, Container, IconButton, Typography } from '@mui/material'
 
 import { useSocket } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
 import { useCreateProvisionMutation } from 'client/features/OneApi/provision'
 import { useGetProvidersQuery } from 'client/features/OneApi/provider'
+
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
 import DebugLog from 'client/components/DebugLog'
 import { CreateForm } from 'client/components/Forms/Provision'
 import { PATH } from 'client/apps/provision/routes'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  title: {
-    marginBottom: '1em',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.8em',
-  },
-})
-
+/**
+ * Renders the creation form to a Provision.
+ *
+ * @returns {ReactElement} Create Provision form
+ */
 function ProvisionCreateForm() {
-  const classes = useStyles()
   const [uuid, setUuid] = useState(undefined)
 
   const { getProvisionSocket: socket } = useSocket()
   const { enqueueInfo } = useGeneralApi()
   const [createProvision] = useCreateProvisionMutation()
-  const { data, isLoading, error } = useGetProvidersQuery()
+  const { data: providers, isLoading, error } = useGetProvidersQuery()
 
   const onSubmit = async (formData) => {
     try {
@@ -75,29 +64,32 @@ function ProvisionCreateForm() {
     return <Redirect to={PATH.PROVISIONS.LIST} />
   }
 
-  return !data || isLoading ? (
-    <LinearProgress color="secondary" />
-  ) : (
-    <Container className={classes.container} disableGutters>
-      <CreateForm onSubmit={onSubmit} />
+  return (
+    <Container sx={{ display: 'flex', flexDirection: 'column' }} disableGutters>
+      {!providers || isLoading ? (
+        <SkeletonStepsForm />
+      ) : (
+        <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
+          {(config) => <DefaultFormStepper {...config} />}
+        </CreateForm>
+      )}
     </Container>
   )
 }
 
 const Title = memo(() => {
-  const classes = useStyles()
   const history = useHistory()
   const backToProvisionList = () => history.push(PATH.PROVISIONS.LIST)
 
   return (
-    <div className={classes.title}>
+    <Box mb="1em" display="inline-flex" alignItems="center" gap="0.8em">
       <IconButton size="medium" onClick={backToProvisionList}>
         <ArrowBackIcon />
       </IconButton>
       <Typography variant="body1" component="span">
         <Translate word={T.BackToList} values={T.Provisions} />
       </Typography>
-    </div>
+    </Box>
   )
 })
 

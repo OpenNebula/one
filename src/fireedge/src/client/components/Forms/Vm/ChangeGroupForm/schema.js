@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { string, object } from 'yup'
 
 import { GroupsTable } from 'client/components/Tables'
-import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const GROUP = {
   name: 'group',
-  label: 'Select the new group',
+  label: T.SelectTheNewGroup,
   type: INPUT_TYPES.TABLE,
   Table: () => GroupsTable,
   validation: string()
     .trim()
-    .required('You must select a group')
+    .required()
     .default(() => undefined),
   grid: { md: 12 },
 }

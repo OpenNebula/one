@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
@@ -22,6 +22,10 @@ import {
   useAllocateAppMutation,
   useImportAppMutation,
 } from 'client/features/OneApi/marketplaceApp'
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/MarketplaceApp'
 import { jsonToXml } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
@@ -34,25 +38,24 @@ import { RESOURCE_NAMES } from 'client/constants'
 function CreateMarketplaceApp() {
   const history = useHistory()
   const { state: [resourceName, { ID } = {}] = [] } = useLocation()
-  const initialValues = useMemo(() => ({ type: resourceName, id: ID }), [])
 
   const { enqueueSuccess } = useGeneralApi()
   const [create] = useAllocateAppMutation()
   const [importApp] = useImportAppMutation()
 
-  const onSubmit = async ({ type, ...formData }) => {
+  const handleTriggerSubmit = async ({ type, ...restOfData }) => {
     try {
       const createApp = {
         [RESOURCE_NAMES.IMAGE]: async () => {
-          const { id: imageId, marketId, name, image } = formData
+          const { id: imageId, marketId, name, image } = restOfData
           const xml = jsonToXml({ ORIGIN_ID: imageId, NAME: name, ...image })
 
           return await create({ id: marketId, template: xml })
         },
         [RESOURCE_NAMES.VM]: async () =>
-          await importApp({ resource: 'vm', ...formData }),
+          await importApp({ resource: 'vm', ...restOfData }),
         [RESOURCE_NAMES.VM_TEMPLATE]: async () =>
-          await importApp({ resource: 'vm-template', ...formData }),
+          await importApp({ resource: 'vm-template', ...restOfData }),
       }[String(type).toLowerCase()]
 
       const response = await createApp?.()?.unwrap?.()
@@ -63,7 +66,13 @@ function CreateMarketplaceApp() {
 
   return (
     <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <CreateForm initialValues={initialValues} onSubmit={onSubmit} />
+      <CreateForm
+        initialValues={{ type: resourceName, id: ID }}
+        onSubmit={handleTriggerSubmit}
+        fallback={<SkeletonStepsForm />}
+      >
+        {(config) => <DefaultFormStepper {...config} />}
+      </CreateForm>
     </Container>
   )
 }

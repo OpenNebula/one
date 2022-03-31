@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { string, number, boolean } from 'yup'
 
 import { useViews } from 'client/features/Auth'
 import { getActionsAvailable } from 'client/models/Helper'
-import { RESOURCE_NAMES, INPUT_TYPES, VM_ACTIONS } from 'client/constants'
+import { T, RESOURCE_NAMES, INPUT_TYPES, VM_ACTIONS } from 'client/constants'
 
 const NAME = {
   name: 'name',
-  label: 'VM name',
-  tooltip: `
-    Defaults to 'template name-<vmid>' when empty.
-    When creating several VMs, the wildcard %%idx will be
-    replaced with a number starting from 0`,
+  label: T.VmName,
+  tooltip: T.VmTemplateNameHelper,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -36,19 +32,19 @@ const NAME = {
 
 const INSTANCES = {
   name: 'instances',
-  label: 'Number of instances',
+  label: T.NumberOfInstances,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: number()
-    .min(1, 'Instances minimum is 1')
-    .integer('Instances should be an integer number')
-    .required('Instances field is required')
+    .min(1)
+    .integer()
+    .required()
     .default(() => 1),
 }
 
 const HOLD = {
   name: 'hold',
-  label: 'Start VM on hold state',
+  label: T.VmOnHoldState,
   type: INPUT_TYPES.SWITCH,
   htmlType: () => {
     const { view, getResourceView } = useViews()
@@ -63,21 +59,16 @@ const HOLD = {
       )
     }, [view])
   },
-  tooltip: `
-    Sets the new VM to hold state, instead of pending.
-    The scheduler will not deploy VMs in this state.
-    It can be released later, or deployed manually.`,
+  tooltip: T.VmOnHoldStateConcept,
   validation: boolean().default(() => false),
   grid: { md: 12 },
 }
 
 const PERSISTENT = {
   name: 'persistent',
-  label: 'Instantiate as persistent',
+  label: T.InstantiateAsPersistent,
   type: INPUT_TYPES.SWITCH,
-  tooltip: `
-    Creates a private persistent copy of the template
-    plus any image defined in DISK, and instantiates that copy.`,
+  tooltip: T.InstantiateAsPersistentConcept,
   validation: boolean().default(() => false),
   grid: { md: 12 },
 }

@@ -13,6 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/Provider/CreateForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Provider/CreateForm' }, configProps)
 
 export { CreateForm }

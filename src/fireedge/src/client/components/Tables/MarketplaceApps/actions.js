@@ -83,9 +83,9 @@ const Actions = () => {
                 form: (rows) => {
                   const app = rows?.map(({ original }) => original)[0]
 
-                  return ExportForm(app, app)
+                  return ExportForm({ initialValues: app, stepProps: app })
                 },
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const id = rows?.[0]?.original?.ID
                   const res = await exportApp({ id, ...formData }).unwrap()
                   enqueueSuccess(res)

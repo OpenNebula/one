@@ -58,6 +58,7 @@ module.exports = {
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
+  DeleteDb: 'Delete database',
   DeleteScheduleAction: 'Delete schedule action: %s',
   DeleteSomething: 'Delete: %s',
   Deploy: 'Deploy',
@@ -66,6 +67,7 @@ module.exports = {
   Done: 'Done',
   Edit: 'Edit',
   EditSomething: 'Edit: %s',
+  Failure: 'Failure',
   Finish: 'Finish',
   Hold: 'Hold',
   Import: 'Import',
@@ -82,6 +84,7 @@ module.exports = {
   Recover: 'Recover',
   RecoverSeveralVMs: 'Recover several VMs',
   RecoverSomething: 'Recover: %s',
+  Recreate: 'Recreate',
   Refresh: 'Refresh',
   Release: 'Release',
   Remove: 'Remove',
@@ -92,6 +95,7 @@ module.exports = {
   ResizeCapacity: 'Resize capacity',
   ResizeSomething: 'Resize: %s',
   Resume: 'Resume',
+  Retry: 'Retry',
   Revert: 'Revert',
   RevertSomething: 'Revert: %s',
   Save: 'Save',
@@ -102,13 +106,16 @@ module.exports = {
   Select: 'Select',
   SelectDatastore: 'Select a Datastore to store the resource',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
-  SelectYourActiveGroup: 'Select your active group',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
   SelectMarketplace: 'Select Marketplace',
   SelectNetwork: 'Select a network',
   SelectRequest: 'Select request',
+  SelectTheNewDatastore: 'Select the new datastore',
+  SelectTheNewGroup: 'Select the new group',
+  SelectTheNewOwner: 'Select the new owner',
   SelectVmTemplate: 'Select a VM Template',
+  SelectYourActiveGroup: 'Select your active group',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
@@ -116,6 +123,7 @@ module.exports = {
   SignOut: 'Sign Out',
   Stop: 'Stop',
   Submit: 'Submit',
+  Success: 'Success',
   Suspend: 'Suspend',
   Take: 'Take',
   TakeSnapshot: 'Take snapshot',
@@ -324,6 +332,7 @@ module.exports = {
   Name: 'Name',
   State: 'State',
   Size: 'Size',
+  SizeOnUnits: 'Size on %s',
   Description: 'Description',
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
@@ -334,6 +343,7 @@ module.exports = {
   Data: 'Data',
   Validate: 'Validate',
   Format: 'Format',
+  Prefix: 'Prefix',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -377,6 +387,7 @@ module.exports = {
   LastConnection: 'Last connection',
   VmIsNotOnVCenter: '%s is not located on vCenter Host',
   /* VM schema - info */
+  VmName: 'VM name',
   UserTemplate: 'User Template',
   Template: 'Template',
   WhereIsRunning:
@@ -400,6 +411,8 @@ module.exports = {
   Snapshot: 'Snapshot',
   SnapshotName: 'Snapshot name',
   DiskSnapshot: 'Disk snapshot',
+  NewImageName: 'New Image name',
+  NewImageNameConcept: 'Name for the new Image where the disk will be saved',
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',
@@ -410,6 +423,29 @@ module.exports = {
   OverrideNetworkValuesIPv6: 'Override Network Values IPv6',
   OverrideNetworkInboundTrafficQos: 'Override Network Inbound Traffic QoS',
   OverrideNetworkOutboundTrafficQos: 'Override Network Outbound Traffic QoS',
+  /* VM schema - snapshot */
+  VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
+  /* VM schema - actions */
+  EnforceCapacityChecks: 'Enforce capacity checks',
+  EnforceCapacityChecksConcept: `
+    If it is set to true, the host capacity will be checked.
+    This will only affect oneadmin requests, regular users
+    resize requests will always be enforced`,
+  RecoverDescription: `
+    Recovers a stuck VM that is waiting for a driver operation.
+    The recovery may be done by failing, succeeding or retrying the
+    current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
+    to decide if the operation was successful or not, or if it can be retried`,
+  Operation: 'Operation',
+  OperationConceptFailure: 'Recover a VM by failing the pending action',
+  OperationConceptSuccess: 'Recover a VM by succeeding the pending action',
+  OperationConceptRetry: 'Recover a VM by retrying the last failed action',
+  OperationConceptDelete: 'No recover action possible, delete the VM',
+  OperationConceptRecreate:
+    'No recover action possible, delete and recreate the VM',
+  OperationConceptDeleteDb: `
+    No recover action possible, delete the VM from the DB.
+    It does not trigger any action on the hypervisor`,
 
   /* VM Template schema */
   /* VM Template schema - general */
@@ -418,6 +454,20 @@ module.exports = {
   TemplateName: 'Template name',
   MakeNewImagePersistent: 'Make the new images persistent',
   CustomVariables: 'Custom Variables',
+  VmTemplateNameHelper: `
+    Defaults to 'template name-<vmid>' when empty.
+    When creating several VMs, the wildcard %%idx will be
+    replaced with a number starting from 0`,
+  NumberOfInstances: 'Number of instances',
+  VmOnHoldState: 'Start VM on hold state',
+  VmOnHoldStateConcept: `
+    Sets the new VM to hold state, instead of pending.
+    The scheduler will not deploy VMs in this state.
+    It can be released later, or deployed manually`,
+  InstantiateAsPersistent: 'Instantiate as persistent',
+  InstantiateAsPersistentConcept: `
+    Creates a private persistent copy of the template
+    plus any image defined in DISK, and instantiates that copy`,
   /* VM schema - ownership */
   InstantiateAsUser: 'Instantiate as different User',
   InstantiateAsGroup: 'Instantiate as different Group',
@@ -451,7 +501,7 @@ module.exports = {
   AllowUsersToModifyVirtualCpu:
     "Allow users to modify this template's default Virtual CPU on instantiate",
   EnableHotResize: 'Enable hot resize',
-  /* VM schema - VM Group */
+  /* VM Template schema - VM Group */
   AssociateToVMGroup: 'Associate VM to a VM Group',
   Role: 'Role',
   /* VM Template schema - vCenter */
@@ -607,6 +657,15 @@ module.exports = {
   VirtualCpuSelectedConcept: `
     Number of virtual CPUs. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
+  /* VM Template schema - actions */
+  CopyOf: 'Copy of ',
+  PrefixMultipleConcept:
+    'Several templates are selected, please choose prefix to name the new copies',
+  NewTemplateNameConcept: 'New Image name',
+  CloneWithImages: 'Clone with images',
+  CloneWithImagesConcept: `
+    You can also clone any Image referenced inside this Template.
+    They will be cloned to a new Image, and made persistent`,
 
   /* Virtual Network schema - network */
   IP: 'IP',
@@ -692,6 +751,10 @@ module.exports = {
     and the previous images will be referenced in the disks`,
   ExportAssociateApp: 'Export associated VM templates/images',
   ImportAssociateApp: 'Import associated VM templates/images',
+  SelectResourceToCreateTheApp: 'Select the resource to create the App',
+  SelectImageToCreateTheApp: 'Select the Image to create the App',
+  SelectVmToCreateTheApp: 'Select the VM to create the App',
+  SelectVmTemplateToCreateTheApp: 'Select the VM Template to create the App',
 
   /* Image schema */
   /* Image - general */

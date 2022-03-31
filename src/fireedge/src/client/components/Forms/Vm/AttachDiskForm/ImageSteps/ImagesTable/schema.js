@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+import { array, object } from 'yup'
 
-export const SCHEMA = yup
-  .array(yup.object())
-  .min(1, 'Select image')
-  .max(1, 'Max. one image selected')
-  .required('Image field is required')
+export const SCHEMA = array(object())
+  .min(1)
+  .max(1)
+  .required()
   .ensure()
   .default(() => [])

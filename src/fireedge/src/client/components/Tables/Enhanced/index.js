@@ -56,6 +56,7 @@ const EnhancedTable = ({
   disableGlobalSort,
   onSelectedRowsChange,
   pageSize = 10,
+  onRowClick,
   RowComponent,
   showPageCount,
   singleSelect = false,
@@ -211,6 +212,8 @@ const EnhancedTable = ({
                 value={values}
                 className={isSelected ? 'selected' : ''}
                 onClick={() => {
+                  typeof onRowClick === 'function' && onRowClick(original)
+
                   if (!disableRowSelect) {
                     singleSelect && toggleAllRowsSelected?.(false)
                     toggleRowSelected?.(!isSelected)
@@ -251,6 +254,7 @@ EnhancedTable.propTypes = {
   onlyGlobalSearch: PropTypes.bool,
   onlyGlobalSelectedRows: PropTypes.bool,
   onSelectedRowsChange: PropTypes.func,
+  onRowClick: PropTypes.func,
   pageSize: PropTypes.number,
   RowComponent: PropTypes.any,
   showPageCount: PropTypes.bool,

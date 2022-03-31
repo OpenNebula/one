@@ -13,8 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CloneForm from 'client/components/Forms/VmTemplate/CloneForm'
-import CreateForm from 'client/components/Forms/VmTemplate/CreateForm'
-import InstantiateForm from 'client/components/Forms/VmTemplate/InstantiateForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CloneForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/CloneForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/CreateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const InstantiateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/InstantiateForm' }, configProps)
 
 export { CloneForm, CreateForm, InstantiateForm }

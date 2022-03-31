@@ -13,37 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { string, object } from 'yup'
-import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const OPERATION = {
   name: 'operation',
-  label: 'Operation',
+  label: T.Operation,
   type: INPUT_TYPES.SELECT,
-  dependOf: 'operation',
+  dependOf: 'operation', // itself is a dependency
   tooltip: (operation) =>
     ({
-      0: 'Recover a VM by failing the pending action',
-      1: 'Recover a VM by succeeding the pending action',
-      2: 'Recover a VM by retrying the last failed action',
-      3: 'No recover action possible, delete the VM',
-      4: 'No recover action possible, delete and recreate the VM',
-      5: `No recover action possible, delete the VM from the DB.
-        It does not trigger any action on the hypervisor`,
+      0: T.OperationConceptFailure,
+      1: T.OperationConceptSuccess,
+      2: T.OperationConceptRetry,
+      3: T.OperationConceptDelete,
+      4: T.OperationConceptRecreate,
+      5: T.OperationConceptDeleteDb,
     }[operation]),
   values: [
-    { text: 'Failure', value: 0 },
-    { text: 'Success', value: 1 },
-    { text: 'Retry', value: 2 },
-    { text: 'Delete', value: 3 },
-    { text: 'Recreate', value: 4 },
-    { text: 'Delete database', value: 5 },
+    { text: T.Failure, value: 0 },
+    { text: T.Success, value: 1 },
+    { text: T.Retry, value: 2 },
+    { text: T.Delete, value: 3 },
+    { text: T.Recreate, value: 4 },
+    { text: T.DeleteDb, value: 5 },
   ],
   validation: string()
     .trim()
-    .required('Recover operation field is required')
+    .required()
     .default(() => 2),
 }
 

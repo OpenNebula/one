@@ -13,74 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { INPUT_TYPES } from 'client/constants'
+import { boolean, number, object } from 'yup'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const ENFORCE = {
   name: 'enforce',
-  label: 'Enforce capacity checks',
+  label: T.EnforceCapacityChecks,
   type: INPUT_TYPES.CHECKBOX,
-  tooltip: `
-    If it is set to true, the host capacity will be checked.
-    This will only affect oneadmin requests, regular users
-    resize requests will always be enforced`,
-  validation: yup
-    .boolean()
-    .transform((value) => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    })
-    .default(false),
+  tooltip: T.EnforceCapacityChecksConcept,
+  validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
 
 const MEMORY = {
   name: 'MEMORY',
-  label: 'Memory',
+  label: T.Memory,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: 'Amount of RAM required for the VM',
-  validation: yup
-    .number()
-    .typeError('Memory value must be a number')
-    .required('Memory field is required')
+  tooltip: T.MemoryConcept,
+  validation: number()
+    .required()
     .positive()
-    .default(undefined),
+    .default(() => undefined),
 }
 
 const PHYSICAL_CPU = {
   name: 'CPU',
-  label: 'Physical CPU',
+  label: T.PhysicalCpu,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: `
-    Percentage of CPU divided by 100 required for the
-    Virtual Machine. Half a processor is written 0.5.`,
-  validation: yup
-    .number()
-    .typeError('Physical CPU value must be a number')
-    .required('Physical CPU field is required')
+  tooltip: T.CpuConcept,
+  validation: number()
+    .required()
     .positive()
-    .default(undefined),
+    .default(() => undefined),
 }
 
 const VIRTUAL_CPU = {
   name: 'VCPU',
-  label: 'Virtual CPU',
+  label: T.VirtualCpu,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: `
-    Number of virtual cpus. This value is optional, the default
-    hypervisor behavior is used, usually one virtual CPU.`,
-  validation: yup
-    .number()
-    .typeError('Virtual CPU value must be a number')
-    .default(undefined),
+  tooltip: T.VirtualCpuConcept,
+  validation: number().default(() => undefined),
 }
 
 export const FIELDS = [ENFORCE, MEMORY, PHYSICAL_CPU, VIRTUAL_CPU]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS))

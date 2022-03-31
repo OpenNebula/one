@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { useEffect, ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Container } from '@mui/material'
 
@@ -21,7 +21,18 @@ import { useGeneralApi } from 'client/features/General'
 import {
   useUpdateTemplateMutation,
   useAllocateTemplateMutation,
+  useLazyGetTemplateQuery,
 } from 'client/features/OneApi/vmTemplate'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
@@ -38,6 +49,14 @@ function CreateVmTemplate() {
   const [update] = useUpdateTemplateMutation()
   const [allocate] = useAllocateTemplateMutation()
 
+  useGetVMGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetHostsQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetImagesQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetDatastoresQuery(undefined, { refetchOnMountOrArgChange: false })
+
+  const [getTemplate, { data }] = useLazyGetTemplateQuery()
+
   const onSubmit = async (xmlTemplate) => {
     try {
       if (!templateId) {
@@ -52,9 +71,24 @@ function CreateVmTemplate() {
     } catch {}
   }
 
+  useEffect(() => {
+    templateId && getTemplate({ id: templateId, extended: true })
+  }, [])
+
   return (
     <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <CreateForm templateId={templateId} onSubmit={onSubmit} />
+      {templateId && !data ? (
+        <SkeletonStepsForm />
+      ) : (
+        <CreateForm
+          initialValues={data}
+          stepProps={data}
+          onSubmit={onSubmit}
+          fallback={<SkeletonStepsForm />}
+        >
+          {(config) => <DefaultFormStepper {...config} />}
+        </CreateForm>
+      )}
     </Container>
   )
 }

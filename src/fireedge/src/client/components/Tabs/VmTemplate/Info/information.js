@@ -19,8 +19,14 @@ import PropTypes from 'prop-types'
 import { List } from 'client/components/Tabs/Common'
 import { useRenameTemplateMutation } from 'client/features/OneApi/vmTemplate'
 
+import Image from 'client/components/Image'
 import { timeToString, levelLockToString } from 'client/models/Helper'
-import { T, VM_TEMPLATE_ACTIONS, VmTemplate } from 'client/constants'
+import {
+  T,
+  VM_TEMPLATE_ACTIONS,
+  LOGO_IMAGES_URL,
+  VmTemplate,
+} from 'client/constants'
 
 /**
  * Renders mainly information tab.
@@ -33,7 +39,8 @@ import { T, VM_TEMPLATE_ACTIONS, VmTemplate } from 'client/constants'
 const InformationPanel = ({ template = {}, actions }) => {
   const [renameTemplate] = useRenameTemplateMutation()
 
-  const { ID, NAME, REGTIME, LOCK } = template
+  const { ID, NAME, REGTIME, LOCK, TEMPLATE = {} } = template
+  const { LOGO } = TEMPLATE
 
   const handleRename = async (_, newName) => {
     await renameTemplate({ id: ID, name: newName })
@@ -58,7 +65,12 @@ const InformationPanel = ({ template = {}, actions }) => {
       value: levelLockToString(LOCK?.LOCKED),
       dataCy: 'locked',
     },
-  ]
+    LOGO && {
+      name: T.Logo,
+      value: <Image alt="logo" src={`${LOGO_IMAGES_URL}/${LOGO}`} />,
+      dataCy: 'logo',
+    },
+  ].filter(Boolean)
 
   return (
     <List

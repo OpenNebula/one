@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+import { array, object } from 'yup'
 
-export const SCHEMA = yup
-  .array(yup.object())
-  .min(1, 'Select the new Host')
-  .max(1, 'Max. one host selected')
-  .required('Host field is required')
+export const SCHEMA = array(object())
+  .min(1)
+  .max(1)
+  .required()
   .ensure()
   .default(() => [])

@@ -17,15 +17,12 @@ import { boolean, string, object } from 'yup'
 
 import { DatastoresTable } from 'client/components/Tables'
 import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const ENFORCE = {
   name: 'enforce',
-  label: 'Enforce capacity checks',
-  tooltip: `
-    If it is set to true, the host capacity will be checked.
-    This will only affect oneadmin requests, regular users
-    resize requests will always be enforced.`,
+  label: T.EnforceCapacityChecks,
+  tooltip: T.EnforceCapacityChecksConcept,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
   grid: { md: 12 },
@@ -33,7 +30,7 @@ const ENFORCE = {
 
 const DATASTORE = {
   name: 'datastore',
-  label: 'Select the new datastore',
+  label: T.SelectTheNewDatastore,
   type: INPUT_TYPES.TABLE,
   Table: () => DatastoresTable,
   validation: string()

@@ -81,11 +81,7 @@ const Actions = () => {
             accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
             icon: AddSquare,
-            action: () => {
-              const path = PATH.TEMPLATE.VMS.CREATE
-
-              history.push(path)
-            },
+            action: () => history.push(PATH.TEMPLATE.VMS.CREATE),
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.IMPORT_DIALOG,
@@ -164,9 +160,9 @@ const Actions = () => {
                     name: `Copy of ${vmTemplates?.[0]?.NAME}`,
                   }
 
-                  return CloneForm(stepProps, initialValues)
+                  return CloneForm({ stepProps, initialValues })
                 },
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const { prefix, ...restOfData } = formData
 
                   const vmTemplates = rows?.map?.(
@@ -233,7 +229,7 @@ const Actions = () => {
                   title: T.Lock,
                   children: MessageToConfirmAction,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => lock({ id })))
                 },
@@ -246,7 +242,7 @@ const Actions = () => {
                   title: T.Unlock,
                   children: MessageToConfirmAction,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => unlock(id)))
                 },
@@ -266,7 +262,7 @@ const Actions = () => {
                   title: T.Delete,
                   children: MessageToConfirmAction,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => remove({ id })))
                 },

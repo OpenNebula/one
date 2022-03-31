@@ -17,8 +17,8 @@ import { string } from 'yup'
 
 import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field } from 'client/utils'
 
 /** @type {Field} User id field */
 export const UID_FIELD = {
@@ -28,11 +28,16 @@ export const UID_FIELD = {
   values: () => {
     const { data: users = [] } = useGetUsersQuery()
 
-    return users
-      .map(({ ID: value, NAME: text }) => ({ text, value }))
-      .sort((a, b) => a.value - b.value)
+    return arrayToOptions(users, {
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
-  validation: string().trim().notRequired().default(undefined),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
   grid: { md: 12 },
 }
 
@@ -44,11 +49,16 @@ export const GID_FIELD = {
   values: () => {
     const { data: groups = [] } = useGetGroupsQuery()
 
-    return groups
-      .map(({ ID: value, NAME: text }) => ({ text, value }))
-      .sort((a, b) => a.value - b.value)
+    return arrayToOptions(groups, {
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
-  validation: string().trim().notRequired().default(undefined),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
   grid: { md: 12 },
 }
 

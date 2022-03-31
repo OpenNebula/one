@@ -61,13 +61,7 @@ const FixedLeases = ({ leases }) => {
 }
 
 FixedLeases.propTypes = {
-  leases: PropTypes.arrayOf(
-    PropTypes.shape({
-      ACTION: PropTypes.string,
-      TIME: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      WARNING: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    })
-  ),
+  leases: PropTypes.array,
 }
 
 const CreateCharterForm = createForm(CHARTER_SCHEMA, CHARTER_FIELDS, {

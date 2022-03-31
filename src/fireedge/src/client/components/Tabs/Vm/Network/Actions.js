@@ -65,7 +65,11 @@ const AttachAction = memo(
         options={[
           {
             dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
-            form: () => AttachNicForm({ hypervisor, nics: currentNics }, nic),
+            form: () =>
+              AttachNicForm({
+                stepProps: { hypervisor, nics: currentNics },
+                initialValues: nic,
+              }),
             onSubmit: handleAttachNic,
           },
         ]}

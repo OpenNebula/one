@@ -18,9 +18,11 @@ import { BaseSchema } from 'yup'
 import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
 import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
 // import { FIELDS as DISK_FIELDS, SCHEMA as DISK_SCHEMA } from './diskSchema'
-import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
-import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
-import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
+
+// get schemas from VmTemplate/CreateForm
+import { FIELDS as OWNERSHIP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/ownershipSchema'
+import { VCENTER_FOLDER_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vcenterSchema'
+import { FIELDS as VM_GROUP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vmGroupSchema'
 
 import {
   filterFieldsByHypervisor,
@@ -57,7 +59,7 @@ const FIELDS = (hypervisor) => [
   {
     id: 'vcenter',
     legend: T.vCenterDeployment,
-    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+    fields: filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
   },
 ]
 

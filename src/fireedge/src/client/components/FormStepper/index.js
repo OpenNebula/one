@@ -13,27 +13,49 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  JSXElementConstructor,
-} from 'react'
+import { useState, useMemo, useCallback, useEffect, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { BaseSchema } from 'yup'
-import { useFormContext } from 'react-hook-form'
+import { useForm, FormProvider, useFormContext } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useMediaQuery } from '@mui/material'
 
 import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
-import { groupBy, Step } from 'client/utils'
+import { groupBy, Step, StepsForm } from 'client/utils'
 import { T } from 'client/constants'
 
 const FIRST_STEP = 0
+
+/**
+ * Default stepper form by configuration.
+ *
+ * @param {StepsForm} stepsForm - Steps form config
+ * @returns {ReactElement} Stepper form component
+ */
+const DefaultFormStepper = ({ onSubmit, steps, defaultValues, resolver }) => {
+  const methods = useForm({
+    mode: 'onSubmit',
+    defaultValues,
+    resolver: yupResolver(resolver()),
+  })
+
+  return (
+    <FormProvider {...methods}>
+      <FormStepper steps={steps} schema={resolver} onSubmit={onSubmit} />
+    </FormProvider>
+  )
+}
+
+DefaultFormStepper.propTypes = {
+  onSubmit: PropTypes.func,
+  steps: PropTypes.arrayOf(PropTypes.object),
+  defaultValues: PropTypes.object,
+  resolver: PropTypes.func,
+}
 
 /**
  * Represents a form with one or more steps.
@@ -43,7 +65,7 @@ const FIRST_STEP = 0
  * @param {Step[]} props.steps - Steps
  * @param {function():BaseSchema} props.schema - Function to get form schema
  * @param {Function} props.onSubmit - Submit function
- * @returns {JSXElementConstructor} Stepper form component
+ * @returns {ReactElement} Stepper form component
  */
 const FormStepper = ({ steps = [], schema, onSubmit }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
@@ -193,26 +215,11 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
 }
 
 FormStepper.propTypes = {
-  steps: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-      label: PropTypes.string.isRequired,
-      content: PropTypes.func.isRequired,
-      resolver: PropTypes.oneOfType([PropTypes.func, PropTypes.object])
-        .isRequired,
-      optionsValidate: PropTypes.shape({
-        strict: PropTypes.bool,
-        abortEarly: PropTypes.bool,
-        stripUnknown: PropTypes.bool,
-        recursive: PropTypes.bool,
-        context: PropTypes.object,
-      }),
-    })
-  ).isRequired,
-  schema: PropTypes.func.isRequired,
+  steps: PropTypes.array,
+  schema: PropTypes.func,
   onSubmit: PropTypes.func,
 }
 
-export { SkeletonStepsForm }
+export { DefaultFormStepper, SkeletonStepsForm }
 
 export default FormStepper

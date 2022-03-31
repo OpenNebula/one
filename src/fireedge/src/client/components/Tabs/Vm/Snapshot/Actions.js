@@ -46,7 +46,7 @@ const CreateAction = memo(({ vmId }) => {
       options={[
         {
           dialogProps: { title: T.TakeSnapshot },
-          form: () => CreateSnapshotForm(),
+          form: CreateSnapshotForm,
           onSubmit: handleCreate,
         },
       ]}

@@ -371,5 +371,6 @@ export const EDGE_CLUSTER_FIELDS = [
       .min(0)
       .notRequired()
       .default(() => undefined),
+    grid: { md: 12 },
   },
 ]

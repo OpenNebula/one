@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { INPUT_TYPES } from 'client/constants'
+import { string, object } from 'yup'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const NAME = {
   name: 'NAME',
-  label: 'New Image name',
+  label: T.NewImageName,
   type: INPUT_TYPES.TEXT,
-  tooltip: 'Name for the new Image where the disk will be saved.',
-  validation: yup
-    .string()
+  tooltip: T.NewImageNameConcept,
+  validation: string()
     .trim()
-    .required('Name field is required')
-    .default(''),
+    .required()
+    .default(() => undefined),
 }
 
 export const FIELDS = [NAME]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS))

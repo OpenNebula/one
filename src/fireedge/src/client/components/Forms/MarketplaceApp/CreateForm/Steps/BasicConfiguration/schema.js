@@ -122,7 +122,11 @@ const RES_TABLE = {
   type: INPUT_TYPES.TABLE,
   dependOf: TYPE.name,
   label: (type) =>
-    `Select the ${sentenceCase(type) ?? 'resource'} to create the App`,
+    ({
+      [TYPES.IMAGE]: T.SelectImageToCreateTheApp,
+      [TYPES.VM]: T.SelectVmToCreateTheApp,
+      [TYPES.VM_TEMPLATE]: T.SelectVmTemplateToCreateTheApp,
+    }[type] ?? T.SelectResourceToCreateTheApp),
   Table: (type) =>
     ({
       [TYPES.IMAGE]: ImagesTable,

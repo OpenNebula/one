@@ -62,8 +62,8 @@ const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
         },
         form: () =>
           relative
-            ? CreateRelativeSchedActionForm(vm)
-            : CreateSchedActionForm(vm),
+            ? CreateRelativeSchedActionForm({ stepProps: vm })
+            : CreateSchedActionForm({ stepProps: vm }),
         onSubmit,
       },
     ]}
@@ -83,6 +83,7 @@ const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
 const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
   const { ID, ACTION } = schedule
   const titleAction = `#${ID} ${sentenceCase(ACTION)}`
+  const formConfig = { stepProps: vm, initialValues: schedule }
 
   return (
     <ButtonToTriggerForm
@@ -101,8 +102,8 @@ const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
           },
           form: () =>
             relative
-              ? CreateRelativeSchedActionForm(vm, schedule)
-              : CreateSchedActionForm(vm, schedule),
+              ? CreateRelativeSchedActionForm(formConfig)
+              : CreateSchedActionForm(formConfig),
           onSubmit,
         },
       ]}
@@ -165,6 +166,8 @@ const CharterButton = memo(({ relative, onSubmit }) => {
     [config?.leases]
   )
 
+  const formConfig = { stepProps: leases, initialValues: leases }
+
   return (
     <ButtonToTriggerForm
       buttonProps={{
@@ -181,8 +184,8 @@ const CharterButton = memo(({ relative, onSubmit }) => {
           },
           form: () =>
             relative
-              ? CreateRelativeCharterForm(leases, leases)
-              : CreateCharterForm(leases, leases),
+              ? CreateRelativeCharterForm(formConfig)
+              : CreateCharterForm(formConfig),
           onSubmit,
         },
       ]}

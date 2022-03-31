@@ -198,6 +198,16 @@ import { stringToBoolean } from 'client/models/Helper'
 // Constants
 // ----------------------------------------------------------
 
+/** @enum {Function} Sorters */
+export const OPTION_SORTERS = {
+  default: (a, b) => `${a.value}`.localeCompare(`${b.value}`),
+  numeric: (a, b) =>
+    `${a.value}`.localeCompare(`${b.value}`, undefined, {
+      numeric: true,
+      ignorePunctuation: true,
+    }),
+}
+
 const SEMICOLON_CHAR = ';'
 
 const requiredSchema = (mandatory, schema) =>
@@ -377,15 +387,23 @@ export const mapUserInputs = (userInputs = {}) =>
  * @param {boolean|string} [options.addEmpty] - If `true`, add an empty option
  * @param {function(any, number):any} [options.getText] - Function to get the text option
  * @param {function(any, number):any} [options.getValue] - Function to get the value option
+ * @param {function(any, any):any} [options.sorter] - Function to sort the options
  * @returns {SelectOption} Options
  */
 export const arrayToOptions = (list = [], options = {}) => {
-  const { addEmpty = true, getText = (o) => o, getValue = (o) => o } = options
+  const {
+    addEmpty = true,
+    getText = (o) => `${o}`,
+    getValue = (o) => `${o}`,
+    sorter = OPTION_SORTERS.default,
+  } = options
 
-  const values = list.map((item, idx) => ({
-    text: getText(item, idx),
-    value: getValue(item, idx),
-  }))
+  const values = list
+    .map((item, idx) => ({
+      text: getText(item, idx),
+      value: getValue(item, idx),
+    }))
+    .sort(sorter)
 
   if (addEmpty) {
     typeof addEmpty === 'string'

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, number } from 'yup'
 
-import { Field, arrayToOptions } from 'client/utils'
+import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
@@ -111,7 +111,10 @@ export const VIRTIO_SCSI_QUEUES = {
   tooltip: T.VirtioQueuesConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(Array.from({ length: 16 }, (_, i) => i + 1)),
+  values: arrayToOptions(
+    Array.from({ length: 16 }, (_, i) => i + 1),
+    OPTION_SORTERS.numeric
+  ),
   validation: string()
     .trim()
     .notRequired()

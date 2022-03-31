@@ -50,6 +50,7 @@ import { T, VM_ACTIONS } from 'client/constants'
 
 const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
   const [attachDisk] = useAttachDiskMutation()
+  const formConfig = { stepProps: { hypervisor }, initialValues: disk }
 
   const handleAttachDisk = async (formData) => {
     if (onSubmit && typeof onSubmit === 'function') {
@@ -89,8 +90,8 @@ const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
                 },
                 form: () =>
                   !disk?.IMAGE && !disk?.IMAGE_ID // is volatile
-                    ? VolatileSteps({ hypervisor }, disk)
-                    : ImageSteps({ hypervisor }, disk),
+                    ? VolatileSteps(formConfig)
+                    : ImageSteps(formConfig),
                 onSubmit: handleAttachDisk,
               },
             ]
@@ -102,7 +103,7 @@ const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
                   title: T.AttachImage,
                   dataCy: 'modal-attach-image',
                 },
-                form: () => ImageSteps({ hypervisor }, disk),
+                form: () => ImageSteps(formConfig),
                 onSubmit: handleAttachDisk,
               },
               {
@@ -112,7 +113,7 @@ const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
                   title: T.AttachVolatile,
                   dataCy: 'modal-attach-volatile',
                 },
-                form: () => VolatileSteps({ hypervisor }, disk),
+                form: () => VolatileSteps(formConfig),
                 onSubmit: handleAttachDisk,
               },
             ]
@@ -195,7 +196,7 @@ const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName, sx }) => {
             ),
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
-          form: () => SaveAsDiskForm(),
+          form: SaveAsDiskForm,
           onSubmit: handleSaveAs,
         },
       ]}
@@ -229,7 +230,7 @@ const ResizeAction = memo(({ vmId, disk, name: imageName, sx }) => {
               />
             ),
           },
-          form: () => ResizeDiskForm(undefined, disk),
+          form: () => ResizeDiskForm({ initialValues: disk }),
           onSubmit: handleResize,
         },
       ]}
@@ -263,7 +264,7 @@ const SnapshotCreateAction = memo(({ vmId, disk, name: imageName, sx }) => {
               />
             ),
           },
-          form: () => CreateDiskSnapshotForm(),
+          form: CreateDiskSnapshotForm,
           onSubmit: handleSnapshotCreate,
         },
       ]}
@@ -301,7 +302,7 @@ const SnapshotRenameAction = memo(({ vmId, disk, snapshot, sx }) => {
             ),
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
-          form: () => CreateDiskSnapshotForm(undefined, snapshot),
+          form: () => CreateDiskSnapshotForm({ initialValues: snapshot }),
           onSubmit: handleRename,
         },
       ]}

@@ -32,28 +32,28 @@ const commonAttributes = {
 }
 
 /** @type {Field} vCenter template reference field */
-const VCENTER_TEMPLATE_FIELD = {
+export const VCENTER_TEMPLATE_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_TEMPLATE_REF',
   label: T.vCenterTemplateRef,
 }
 
 /** @type {Field} vCenter cluster reference field */
-const VCENTER_CCR_FIELD = {
+export const VCENTER_CCR_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_CCR_REF',
   label: T.vCenterClusterRef,
 }
 
 /** @type {Field} vCenter instance id field */
-const VCENTER_INSTANCE_ID = {
+export const VCENTER_INSTANCE_ID = {
   ...commonAttributes,
   name: 'VCENTER_INSTANCE_ID',
   label: T.vCenterInstanceId,
 }
 
 /** @type {Field} vCenter VM folder field */
-const VCENTER_FOLDER_FIELD = {
+export const VCENTER_FOLDER_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_VM_FOLDER',
   label: T.vCenterVmFolder,

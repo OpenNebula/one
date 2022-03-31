@@ -44,31 +44,13 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const { display, show, hide, values: Form } = useDialog()
   const {
     onSubmit: handleSubmit,
-    form: {
-      steps,
-      defaultValues,
-      resolver,
-      description,
-      fields,
-      transformBeforeSubmit,
-    } = {},
+    form: FormConfig,
     isConfirmDialog = false,
     dialogProps = {},
   } = Form ?? {}
 
-  const handleTriggerSubmit = async (formData) => {
-    try {
-      const data = transformBeforeSubmit?.(formData) ?? formData
-      await handleSubmit?.(data)
-    } catch (error) {
-      isDevelopment() && console.error(error)
-    } finally {
-      hide()
-    }
-  }
-
-  const openDialogForm = async (formParams) => {
-    const formConfig = await formParams?.form?.()
+  const openDialogForm = (formParams) => {
+    const formConfig = formParams?.form?.()
 
     show({ ...formParams, form: formConfig })
     handleClose()
@@ -76,6 +58,16 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
 
   const handleToggle = (evt) => setAnchorEl(evt.currentTarget)
   const handleClose = () => setAnchorEl(null)
+
+  const handleTriggerSubmit = async (formData) => {
+    try {
+      await handleSubmit?.(formData)
+    } catch (error) {
+      isDevelopment() && console.error(error)
+    } finally {
+      hide()
+    }
+  }
 
   return (
     <>
@@ -131,27 +123,38 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
             {...dialogProps}
           />
         ) : (
-          resolver && (
-            <DialogForm
-              resolver={resolver}
-              values={defaultValues}
-              handleSubmit={!steps ? handleTriggerSubmit : undefined}
-              dialogProps={{ handleCancel: hide, ...dialogProps }}
-            >
-              {steps ? (
-                <FormStepper
-                  steps={steps}
-                  schema={resolver}
-                  onSubmit={handleTriggerSubmit}
-                />
-              ) : (
-                <>
-                  {description}
-                  <FormWithSchema cy="form-dg" fields={fields} />
-                </>
-              )}
-            </DialogForm>
-          )
+          <FormConfig onSubmit={handleTriggerSubmit}>
+            {({
+              steps,
+              defaultValues,
+              resolver,
+              description,
+              fields,
+              onSubmit,
+            }) =>
+              resolver && (
+                <DialogForm
+                  resolver={resolver}
+                  values={defaultValues}
+                  handleSubmit={!steps ? onSubmit : undefined}
+                  dialogProps={{ handleCancel: hide, ...dialogProps }}
+                >
+                  {steps ? (
+                    <FormStepper
+                      steps={steps}
+                      schema={resolver}
+                      onSubmit={onSubmit}
+                    />
+                  ) : (
+                    <>
+                      {description}
+                      <FormWithSchema cy="form-dg" fields={fields} />
+                    </>
+                  )}
+                </DialogForm>
+              )
+            }
+          </FormConfig>
         ))}
     </>
   )

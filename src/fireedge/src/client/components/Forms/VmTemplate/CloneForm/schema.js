@@ -13,49 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { string, boolean, object } from 'yup'
-import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils'
+import { string, boolean, object, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const PREFIX = {
   name: 'prefix',
-  label: 'Prefix',
-  tooltip: `
-    Several templates are selected,
-    please choose prefix to name the new copies.`,
+  label: T.Prefix,
+  tooltip: T.PrefixMultipleConcept,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .required('Prefix field is required')
-    .default(() => 'Copy of '),
+    .required()
+    .default(() => T.CopyOf),
 }
 
 const NAME = {
   name: 'name',
-  label: 'Name',
-  tooltip: 'Name for the new template.',
+  label: T.Name,
+  tooltip: T.NewTemplateNameConcept,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .required('Name field is required')
-    .default(() => ''),
+    .required()
+    .default(() => undefined),
 }
 
 const IMAGES = {
   name: 'image',
-  label: 'Clone with images',
-  tooltip: `
-    You can also clone any Image referenced inside this Template.
-    They will be cloned to a new Image, and made persistent.`,
+  label: T.CloneWithImages,
+  tooltip: T.CloneWithImagesConcept,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
   grid: { md: 12 },
 }
 
+/**
+ * @param {object} [stepProps] - Step props
+ * @param {boolean} [stepProps.isMultiple]
+ * - If true, the prefix will be added to the name of the new template
+ * @returns {Field[]} Fields
+ */
 export const FIELDS = ({ isMultiple } = {}) => [
   isMultiple ? PREFIX : NAME,
   IMAGES,
 ]
 
-export const SCHEMA = (props) => object(getValidationFromFields(FIELDS(props)))
+/**
+ * @param {object} [stepProps] - Step props
+ * @returns {ObjectSchema} Schema
+ */
+export const SCHEMA = (stepProps) =>
+  object(getValidationFromFields(FIELDS(stepProps)))

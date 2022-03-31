@@ -29,7 +29,8 @@ const { vcenter } = HYPERVISORS
 /** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
-  label: T.Size,
+  label: [T.SizeOnUnits, 'MB'],
+  tooltip: T.SizeConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: number()
@@ -43,7 +44,7 @@ const SIZE = {
  */
 const TYPE = (hypervisor) => ({
   name: 'TYPE',
-  label: 'Disk type',
+  label: T.DiskType,
   type: INPUT_TYPES.SELECT,
   values:
     hypervisor === vcenter

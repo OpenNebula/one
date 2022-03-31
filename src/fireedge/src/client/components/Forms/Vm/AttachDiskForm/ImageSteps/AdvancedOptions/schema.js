@@ -61,11 +61,6 @@ const SECTIONS = (hypervisor) => [
     fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
   },
   {
-    id: 'edge-cluster',
-    legend: T.EdgeCluster,
-    fields: filterFieldsByHypervisor(EDGE_CLUSTER_FIELDS, hypervisor),
-  },
-  {
     id: 'throttling-bytes',
     legend: T.ThrottlingBytes,
     fields: filterFieldsByHypervisor(THROTTLING_BYTES_FIELDS, hypervisor),
@@ -74,6 +69,11 @@ const SECTIONS = (hypervisor) => [
     id: 'throttling-iops',
     legend: T.ThrottlingIOPS,
     fields: filterFieldsByHypervisor(THROTTLING_IOPS_FIELDS, hypervisor),
+  },
+  {
+    id: 'edge-cluster',
+    legend: T.EdgeCluster,
+    fields: filterFieldsByHypervisor(EDGE_CLUSTER_FIELDS, hypervisor),
   },
 ]
 

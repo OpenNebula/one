@@ -16,8 +16,8 @@
 import { string } from 'yup'
 
 import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field } from 'client/utils'
 
 /** @type {Field} VM Group field */
 export const VM_GROUP_FIELD = {
@@ -27,13 +27,11 @@ export const VM_GROUP_FIELD = {
   values: () => {
     const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
-    return vmGroups
-      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: String(ID) }))
-      ?.sort((a, b) => {
-        const compareOptions = { numeric: true, ignorePunctuation: true }
-
-        return a.value.localeCompare(b.value, undefined, compareOptions)
-      })
+    return arrayToOptions(vmGroups, {
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
   grid: { md: 12 },
   validation: string()
@@ -60,7 +58,7 @@ export const ROLE_FIELD = {
       )
       ?.flat()
 
-    return roles.map((role) => ({ text: role, value: role }))
+    return arrayToOptions(roles)
   },
   grid: { md: 12 },
   validation: string()

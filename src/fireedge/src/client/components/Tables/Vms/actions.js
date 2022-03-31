@@ -16,6 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
+import { makeStyles } from '@mui/styles'
 import {
   AddSquare,
   PlayOutline,
@@ -41,7 +42,6 @@ import {
   useChangeVmOwnershipMutation,
   useRecoverMutation,
 } from 'client/features/OneApi/vm'
-import { Translate } from 'client/components/HOC'
 
 import {
   RecoverForm,
@@ -54,10 +54,16 @@ import {
   createActions,
   GlobalAction,
 } from 'client/components/Tables/Enhanced/Utils'
+import VmTemplatesTable from 'client/components/Tables/VmTemplates'
 
+import { Translate } from 'client/components/HOC'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
 import { T, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
+
+const useTableStyles = makeStyles({
+  body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
+})
 
 const isDisabled = (action) => (rows) =>
   isAvailableAction(action)(rows, ({ values }) => values?.STATE)
@@ -128,11 +134,34 @@ const Actions = () => {
             dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
             icon: AddSquare,
-            action: () => {
-              const path = PATH.TEMPLATE.VMS.INSTANTIATE
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Instantiate,
+                  children: () => {
+                    const classes = useTableStyles()
 
-              history.push(path)
-            },
+                    const redirectToInstantiate = (template) =>
+                      history.push(PATH.TEMPLATE.VMS.INSTANTIATE, template)
+
+                    return (
+                      <VmTemplatesTable
+                        onlyGlobalSearch
+                        disableGlobalSort
+                        disableRowSelect
+                        classes={classes}
+                        onRowClick={redirectToInstantiate}
+                      />
+                    )
+                  },
+                  fixedWidth: true,
+                  fixedHeight: true,
+                  handleAccept: undefined,
+                  dataCy: `modal-${VM_ACTIONS.CREATE_DIALOG}`,
+                },
+              },
+            ],
           },
           {
             accessor: VM_ACTIONS.RESUME,
@@ -176,7 +205,7 @@ const Actions = () => {
                   subheader: SubHeader,
                 },
                 form: SaveAsTemplateForm,
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const data = { id: rows?.[0]?.original?.ID, ...formData }
                   const response = await saveAsTemplate(data)
                   enqueueSuccess(response)
@@ -201,7 +230,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.SUSPEND}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'suspend' }))
@@ -218,7 +247,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.STOP}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'stop' }))
@@ -235,7 +264,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.POWEROFF}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'poweroff' }))
@@ -252,7 +281,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.POWEROFF_HARD}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'poweroff-hard' }))
@@ -269,7 +298,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.REBOOT}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'reboot' }))
@@ -286,7 +315,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.REBOOT_HARD}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'reboot-hard' }))
@@ -303,7 +332,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.UNDEPLOY}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'undeploy' }))
@@ -320,7 +349,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.UNDEPLOY_HARD}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'undeploy-hard' }))
@@ -346,7 +375,7 @@ const Actions = () => {
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.DEPLOY}`,
                 },
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => deploy({ id, ...formData }))
@@ -363,7 +392,7 @@ const Actions = () => {
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.MIGRATE}`,
                 },
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => migrate({ id, ...formData }))
@@ -380,7 +409,7 @@ const Actions = () => {
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.MIGRATE_LIVE}`,
                 },
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => migrate({ id, ...formData, live: true }))
@@ -397,7 +426,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.HOLD}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'hold' }))
@@ -414,7 +443,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.RELEASE}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'release' }))
@@ -431,7 +460,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.RESCHED}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'resched' }))
@@ -448,7 +477,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.UNRESCHED}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'unresched' }))
@@ -465,7 +494,7 @@ const Actions = () => {
                   dataCy: `modal-${VM_ACTIONS.RECOVER}`,
                 },
                 form: RecoverForm,
-                onSubmit: async (formData, rows) => {
+                onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => recover({ id, ...formData }))
@@ -491,7 +520,7 @@ const Actions = () => {
                   dataCy: `modal-${VM_ACTIONS.CHANGE_OWNER}`,
                 },
                 form: ChangeUserForm,
-                onSubmit: async (newOwnership, rows) => {
+                onSubmit: (rows) => async (newOwnership) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => changeOwnership({ id, ...newOwnership }))
@@ -508,7 +537,7 @@ const Actions = () => {
                   dataCy: `modal-${VM_ACTIONS.CHANGE_GROUP}`,
                 },
                 form: ChangeGroupForm,
-                onSubmit: async (newOwnership, rows) => {
+                onSubmit: (rows) => async (newOwnership) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => changeOwnership({ id, ...newOwnership }))
@@ -534,7 +563,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.LOCK}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => lock({ id })))
                 },
@@ -549,7 +578,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.UNLOCK}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(ids.map((id) => unlock(id)))
                 },
@@ -573,7 +602,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.TERMINATE}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'terminate' }))
@@ -590,7 +619,7 @@ const Actions = () => {
                   children: MessageToConfirmAction,
                   dataCy: `modal-${VM_ACTIONS.TERMINATE_HARD}`,
                 },
-                onSubmit: async (_, rows) => {
+                onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => actionVm({ id, action: 'terminate-hard' }))

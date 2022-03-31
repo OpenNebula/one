@@ -13,47 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, JSXElementConstructor } from 'react'
-import PropTypes from 'prop-types'
-
-import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-
-import FormStepper from 'client/components/FormStepper'
-import Steps from 'client/components/Forms/MarketplaceApp/CreateForm/Steps'
-
-/**
- * Form to create a Marketplace App.
- *
- * @param {object} props - Props
- * @param {string} props.initialValues - Initial values
- * @param {function():object} props.onSubmit - Handle submit function
- * @returns {JSXElementConstructor} Form component
- */
-const CreateForm = ({ initialValues, onSubmit }) => {
-  const stepsForm = useMemo(() => Steps(initialValues, initialValues), [])
-  const { steps, defaultValues, resolver, transformBeforeSubmit } = stepsForm
-
-  const methods = useForm({
-    mode: 'onSubmit',
-    defaultValues,
-    resolver: yupResolver(resolver?.()),
-  })
-
-  return (
-    <FormProvider {...methods}>
-      <FormStepper
-        steps={steps}
-        schema={resolver}
-        onSubmit={(data) => onSubmit(transformBeforeSubmit?.(data) ?? data)}
-      />
-    </FormProvider>
-  )
-}
-
-CreateForm.propTypes = {
-  initialValues: PropTypes.object,
-  onSubmit: PropTypes.func,
-}
-
-export default CreateForm
+export { default } from 'client/components/Forms/MarketplaceApp/CreateForm/Steps'

@@ -50,7 +50,7 @@ const CheckboxController = memo(
     } = useController({ name, control })
 
     return (
-      <FormControl fullWidth error={Boolean(error)} margin="dense">
+      <FormControl error={Boolean(error)} margin="dense">
         <FormControlLabel
           control={
             <Checkbox

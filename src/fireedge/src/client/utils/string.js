@@ -21,7 +21,7 @@
  * @returns {string} Input string modified
  */
 export const upperCaseFirst = (input) =>
-  input?.charAt(0)?.toUpperCase() + input?.substr(1)
+  input?.charAt(0)?.toUpperCase() + input.substring(1)
 
 /**
  * Transform into a lower case with spaces between words, then capitalize the string.
