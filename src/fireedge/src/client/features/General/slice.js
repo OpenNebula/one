@@ -28,7 +28,6 @@ const initial = {
   withGroupSwitcher: false,
   isLoading: false,
   isFixMenu: false,
-
   notifications: [],
 }
 

@@ -18,19 +18,11 @@ import root from 'window-or-global'
 /**
  * Save an item in the browser storage.
  *
- * @param {string} name
- * - Name of item in the storage
- * @param {string} data
- * - Data will be saved into storage
- * @param {boolean} keepData
- * - If `true`, save the data in local storage, instead of session storage
+ * @param {string} name - Name of item in the storage
+ * @param {string} data - The data will be saved into local storage
  */
-export const storage = (name = '', data = '', keepData = false) => {
-  if (name && data) {
-    keepData
-      ? root?.localStorage?.setItem(name, data)
-      : root?.sessionStorage?.setItem(name, data)
-  }
+export const storage = (name = '', data = '') => {
+  name && data && root?.localStorage?.setItem(name, data)
 }
 
 /**
@@ -43,7 +35,6 @@ export const removeStoreData = (items = []) => {
 
   itemsToRemove.forEach((item) => {
     root?.localStorage?.removeItem(item)
-    root?.sessionStorage?.removeItem(item)
   })
 }
 
@@ -51,13 +42,11 @@ export const removeStoreData = (items = []) => {
  * Looking for an item in the browser storage.
  *
  * @param {string} name - Name of item
- * @returns {object|string} Returns the item if found it
+ * @returns {false|string} Returns the item if found it
  */
 export const findStorageData = (name = '') => {
   if (name && root?.localStorage?.getItem(name)) {
     return root.localStorage.getItem(name)
-  } else if (name && root?.sessionStorage?.getItem(name)) {
-    return root.sessionStorage.getItem(name)
   } else return false
 }
 

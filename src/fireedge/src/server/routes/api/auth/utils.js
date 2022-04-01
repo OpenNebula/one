@@ -201,7 +201,7 @@ const setRes = (newRes = {}) => {
  */
 const setDates = () => {
   limitToken = remember
-    ? appConfig.session__remember_expiration || defaultRememberSessionExpiration
+    ? appConfig.session_remember_expiration || defaultRememberSessionExpiration
     : appConfig.session_expiration || defaultSessionExpiration
   limitExpirationReuseToken =
     parseInt(appConfig.session_reuse_token_time, 10) ||

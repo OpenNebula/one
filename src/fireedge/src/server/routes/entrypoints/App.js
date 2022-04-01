@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+// eslint-disable-next-line node/no-deprecated-api
+const { parse } = require('url')
 const { Router } = require('express')
 const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
@@ -42,8 +44,8 @@ const router = Router()
 
 router.get('*', (req, res) => {
   const apps = Object.keys(defaultApps)
-  const appName = req.url
-    .split(/\//gi)
+  const appName = parse(req.url)
+    .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
     .find((resource) => apps.includes(resource))
 

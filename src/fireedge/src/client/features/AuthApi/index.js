@@ -88,12 +88,12 @@ const authApi = createApi({
           isLoginInProgress: withGroupSwitcher && !!token && !isOneAdmin,
         }
       },
-      async onQueryStarted({ remember }, { queryFulfilled, dispatch }) {
+      async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data: queryData } = await queryFulfilled
 
           if (queryData?.jwt) {
-            storage(JWT_NAME, queryData?.jwt, remember)
+            storage(JWT_NAME, queryData?.jwt)
             dispatch(dismissSnackbar({ dismissAll: true }))
           }
 
