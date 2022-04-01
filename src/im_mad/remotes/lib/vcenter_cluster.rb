@@ -831,7 +831,6 @@ class ClusterSet
                 if c[:cluster].nil?
                     c[:cluster] = Cluster.new(id, @client) rescue nil
                 end
-                next if c[:cluster].nil?
 
                 if c[:monitordc].nil?
                     next if conf[:address].nil? || conf[:port].nil?
