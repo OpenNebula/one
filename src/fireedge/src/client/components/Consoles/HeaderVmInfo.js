@@ -20,13 +20,12 @@ import { Stack, Typography, Divider, Skeleton } from '@mui/material'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { useGeneralApi } from 'client/features/General'
-import { useViews } from 'client/features/Auth'
 import { StatusCircle } from 'client/components/Status'
 import MultipleTags from 'client/components/MultipleTags'
 import { getIps, getState, isVCenter } from 'client/models/VirtualMachine'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { PATH } from 'client/apps/sunstone/routes'
-import { RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
+import { VM_ACTIONS } from 'client/constants'
 
 /**
  * @param {object} props - Props
@@ -37,7 +36,6 @@ import { RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
 const HeaderVmInfo = ({ id, type }) => {
   const { push: redirectTo } = useHistory()
   const { enqueueError } = useGeneralApi()
-  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
 
   const { data: vm, isSuccess, isLoading, isError } = useGetVmQuery(id)
 
@@ -46,12 +44,8 @@ const HeaderVmInfo = ({ id, type }) => {
   const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
 
   useEffect(() => {
-    const noAction = vmView?.actions?.[type] !== true
-
-    if ((view && noAction) || isError) {
-      redirectTo(PATH.DASHBOARD)
-    }
-  }, [view, isError])
+    isError && redirectTo(PATH.DASHBOARD)
+  }, [isError])
 
   useEffect(() => {
     if (type === VM_ACTIONS.VMRC && isSuccess && vm && !isVCenter(vm)) {

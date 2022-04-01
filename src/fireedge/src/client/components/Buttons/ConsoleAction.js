@@ -34,7 +34,7 @@ import {
   isAvailableAction,
 } from 'client/models/VirtualMachine'
 import { Translate } from 'client/components/HOC'
-import { T, VM, RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
+import { T, VM, RESOURCE_NAMES, VM_ACTIONS, _APPS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routes'
 
 const GUACAMOLE_BUTTONS = {
@@ -42,6 +42,9 @@ const GUACAMOLE_BUTTONS = {
   [VM_ACTIONS.SSH]: { tooltip: T.Ssh, icon: <SshIcon /> },
   [VM_ACTIONS.RDP]: { tooltip: T.Rdp, icon: <RdpIcon /> },
 }
+
+const openNewBrowserTab = (path) =>
+  window?.open(`/fireedge/${_APPS.sunstone.name}${path}`, '_blank')
 
 const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
   const { icon, tooltip } = GUACAMOLE_BUTTONS[connectionType]
@@ -54,11 +57,12 @@ const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
         evt.stopPropagation()
 
         const params = { id: vm?.ID, type: connectionType }
-        const session = await getSession(params).unwrap()
-
-        typeof onClick === 'function'
-          ? onClick(session)
-          : history.push(generatePath(PATH.GUACAMOLE, params))
+        if (typeof onClick === 'function') {
+          const session = await getSession(params).unwrap()
+          onClick(session)
+        } else {
+          openNewBrowserTab(generatePath(PATH.GUACAMOLE, params))
+        }
       } catch {}
     },
     [vm?.ID, connectionType, history, onClick]
@@ -85,11 +89,12 @@ const VMRCButton = memo(({ vm, onClick }) => {
         evt.stopPropagation()
 
         const params = { id: vm?.ID }
-        const session = await getSession(params).unwrap()
-
-        typeof onClick === 'function'
-          ? onClick(session)
-          : history.push(generatePath(PATH.WMKS, params))
+        if (typeof onClick === 'function') {
+          const session = await getSession(params).unwrap()
+          onClick(session)
+        } else {
+          openNewBrowserTab(generatePath(PATH.WMKS, params))
+        }
       } catch {}
     },
     [vm?.ID, history, onClick]
@@ -160,4 +165,4 @@ GuacamoleButton.displayName = 'GuacamoleButton'
 VMRCButton.displayName = 'VMRCButton'
 PreConsoleButton.displayName = 'PreConsoleButton'
 
-export { PreConsoleButton as GuacamoleButton }
+export { PreConsoleButton as ConsoleButton }

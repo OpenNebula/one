@@ -87,13 +87,15 @@ const WebMKSFullScreenButton = memo((session) => (
       </Typography>
     }
   >
-    <IconButton
-      data-cy={'vmrc-fullscreen-button'}
-      disabled={!session?.wmks?.canFullScreen?.() ?? true}
-      onClick={() => session?.wmks?.enterFullScreen?.()}
-    >
-      <Maximize />
-    </IconButton>
+    <div>
+      <IconButton
+        data-cy={'vmrc-fullscreen-button'}
+        disabled={!session?.wmks?.canFullScreen?.() ?? true}
+        onClick={() => session?.wmks?.enterFullScreen?.()}
+      >
+        <Maximize />
+      </IconButton>
+    </div>
   </Tooltip>
 ))
 

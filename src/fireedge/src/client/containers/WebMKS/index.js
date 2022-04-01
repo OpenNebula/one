@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
 import { Box, Stack, Typography } from '@mui/material'
+import { RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
+import { useViews } from 'client/features/Auth'
 
 import { useGetVMRCSessionQuery } from 'client/features/OneApi/vcenter'
 import {
@@ -25,28 +27,30 @@ import {
   WebMKSCtrlAltDelButton,
   WebMKSFullScreenButton,
 } from 'client/components/Consoles'
-import { PATH as ONE_PATH } from 'client/apps/sunstone/routesOne'
-// import { PATH } from 'client/apps/sunstone/routes'
+import { PATH } from 'client/apps/sunstone/routes'
 import { sentenceCase } from 'client/utils'
-import { VM_ACTIONS } from 'client/constants'
 
 /** @returns {ReactElement} WebMKS container */
 const WebMKS = () => {
   const { id } = useParams()
   const { push: redirectTo } = useHistory()
-
-  const { data: ticket } = useGetVMRCSessionQuery(
-    { id },
-    { refetchOnMountOrArgChange: false }
+  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
+  const isAvailableView = useMemo(
+    () => view && vmView?.actions?.[VM_ACTIONS.VMRC] === true,
+    [view]
   )
+
+  const { data: ticket, isError } = useGetVMRCSessionQuery(
+    { id },
+    { refetchOnMountOrArgChange: false, skip: !isAvailableView }
+  )
+
+  useEffect(() => {
+    ;(isError || !isAvailableView) && redirectTo(PATH.DASHBOARD)
+  }, [isError])
 
   const { ...session } = useWebMKSSession({ token: ticket })
   const { status, displayElement } = session
-
-  useEffect(() => {
-    // token should be saved after click on console button from datatable
-    !ticket && redirectTo(ONE_PATH.INSTANCE.VMS.LIST)
-  }, [ticket])
 
   return (
     <Box display="grid" gridTemplateRows="auto 1fr" width={1} height={1}>

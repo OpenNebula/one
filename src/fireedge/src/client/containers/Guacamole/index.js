@@ -16,6 +16,9 @@
 import { ReactElement, useMemo, useRef, useEffect } from 'react'
 import { useParams, useHistory } from 'react-router'
 import { Box, Stack, Typography } from '@mui/material'
+import { RESOURCE_NAMES } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
 
 import {
   HeaderVmInfo,
@@ -35,6 +38,21 @@ import { PATH } from 'client/apps/sunstone/routes'
 const Guacamole = () => {
   const { id, type = '' } = useParams()
   const { push: redirectTo } = useHistory()
+  const { view, [RESOURCE_NAMES.VM]: vmView } = useViews()
+
+  const isAvailableView = useMemo(
+    () => view && vmView?.actions?.[type] === true,
+    [view]
+  )
+
+  const { isError } = useGetGuacamoleSessionQuery(
+    { id, type },
+    { refetchOnMountOrArgChange: false, skip: !isAvailableView }
+  )
+
+  useEffect(() => {
+    ;(isError || !isAvailableView) && redirectTo(PATH.DASHBOARD)
+  }, [isError])
 
   const containerRef = useRef(null)
   const headerRef = useRef(null)
@@ -59,11 +77,6 @@ const Guacamole = () => {
       GuacamoleKeyboard,
       GuacamoleClipboard
     )
-
-  useEffect(() => {
-    // token should be saved after click on console button from datatable
-    !token && redirectTo(PATH.DASHBOARD)
-  }, [token])
 
   return (
     <Box

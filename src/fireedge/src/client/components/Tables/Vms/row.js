@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import vmApi from 'client/features/OneApi/vm'
 import { VirtualMachineCard } from 'client/components/Cards'
-import { GuacamoleButton } from 'client/components/Buttons'
+import { ConsoleButton } from 'client/components/Buttons'
 import { VM_ACTIONS } from 'client/constants'
 
 const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
@@ -40,7 +40,7 @@ const Row = memo(
         actions={
           <>
             {CONNECTION_TYPES.map((connectionType) => (
-              <GuacamoleButton
+              <ConsoleButton
                 key={`${memoVm}-${connectionType}`}
                 connectionType={connectionType}
                 vm={memoVm}
