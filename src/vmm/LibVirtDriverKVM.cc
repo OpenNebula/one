@@ -30,8 +30,6 @@
 
 using namespace std;
 
-const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
-
 const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
 
 const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
@@ -464,6 +462,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     int       num;
 
+    int     cgversion;
+
     string  vcpu;
     string  vcpu_max;
     float   cpu;
@@ -701,15 +701,40 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
     }
 
-    //Every process gets 1024 shares by default (cgroups), scale this with CPU
+    // Defaults to cgroups version 1 scaling for shares/weight
+    // cpu.weight/cpu.shares are scaled based on CPU value and defaults share
     cpu = 1;
     vm->get_template_attribute("CPU", cpu);
 
     topology = vm->get_template_attribute("TOPOLOGY");
     vm->get_template_attribute("NUMA_NODE", nodes);
 
+    get_attribute(nullptr, host, nullptr, "CGROUPS_VERSION", cgversion);
+
+    int  base = 1024;
+    int  min  = 2;
+    long max  = 262144;
+
+    if (cgversion == 2)
+    {
+        base = 100;
+        min  = 1;
+        max  = 10000;
+    }
+
+    long shares = ceil(base * cpu);
+
+    if (shares < min)
+    {
+        shares = min;
+    }
+    else if (shares > max)
+    {
+        shares = max;
+    }
+
     file << "\t<cputune>\n";
-    file << "\t\t<shares>"<< ceil(cpu * CGROUP_BASE_CPU_SHARES) << "</shares>\n";
+    file << "\t\t<shares>"<< shares << "</shares>\n";
 
     pin_cpu(file, topology, nodes);
 
