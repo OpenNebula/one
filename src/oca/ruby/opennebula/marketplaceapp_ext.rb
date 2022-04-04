@@ -186,6 +186,7 @@ module OpenNebula::MarketPlaceAppExt
                 # Created an associated VMTemplate if needed
                 #---------------------------------------------------------------
                 if is_vcenter &&
+                    !options[:notemplate] &&
                     (!options[:template] || options[:template] == -1)
                     tmpl = create_vcenter_template(ds, options, image)
 
