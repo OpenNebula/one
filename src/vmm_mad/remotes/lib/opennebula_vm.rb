@@ -195,8 +195,8 @@ class OpenNebulaVM
 
         b_shares = DEFAULT_SHARES[version][:base]
 
-        min_shares = DEFAULT_SHARES[version][:max]
-        max_shares = DEFAULT_SHARES[version][:min]
+        min_shares = DEFAULT_SHARES[version][:min]
+        max_shares = DEFAULT_SHARES[version][:max]
 
         return b_shares if cpu.nil? || cpu == ''
 
