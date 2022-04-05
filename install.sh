@@ -590,6 +590,7 @@ INSTALL_FILES=(
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
+    REMOTE_FILES:$VAR_LOCATION/remotes
     ONEDB_FILES:$LIB_LOCATION/ruby/onedb
     ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
     MADS_LIB_FILES:$LIB_LOCATION/mads
@@ -1041,10 +1042,11 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # and remotes directory
 #-----------------------------------------------------------------------------
 
+REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu"
+
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
                 src/mad/sh/create_container_image.sh \
-                src/mad/sh/create_docker_image.sh \
-                src/vmm_mad/remotes/kvm/vgpu"
+                src/mad/sh/create_docker_image.sh"
 
 MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 

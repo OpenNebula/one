@@ -66,13 +66,10 @@ ACTION=${1,,}
 # datastore -> vm deploy ID
 VM="$2"
 
-# Variables from driver
-DRIVER_PATH="$3"
+XPATH="$(dirname $0)/datastore/xpath.rb --stdin"
 
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-source "$DRIVER_PATH/../../etc/vmm/kvm/kvmrc"
-source "$DRIVER_PATH/../../scripts_common.sh"
+source "$(dirname $0)/etc/vmm/kvm/kvmrc"
+source "$(dirname $0)/scripts_common.sh"
 
 case "$ACTION" in
     "create")

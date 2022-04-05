@@ -24,7 +24,7 @@ count=0
 deploy_id=$1
 
 # Get datastore path to get vm.xml
-DATASTORE="$(/usr/lib/one/sh/vgpu "DATASTORE" "$deploy_id" "$(dirname "$0")")"
+DATASTORE="$(/var/tmp/one/vgpu "DATASTORE" "$deploy_id")"
 
 shutdown_command="virsh --connect $LIBVIRT_URI shutdown $deploy_id"
 
@@ -74,7 +74,7 @@ force_shutdown "$deploy_id" \
     "virsh --connect $LIBVIRT_URI destroy $deploy_id"
 
 # Destroy vGPU
-sudo /usr/lib/one/sh/vgpu "DELETE" "$DATASTORE/vm.xml" "$(dirname "$0")"
+sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then

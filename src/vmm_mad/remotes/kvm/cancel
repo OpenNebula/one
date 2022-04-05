@@ -26,14 +26,14 @@ TIMEOUT=60
 function destroy_and_monitor
 {
     # Get datastore path to get vm.xml
-    DATASTORE="$(/usr/lib/one/sh/vgpu "DATASTORE" "$deploy_id" "$(dirname "$0")")"
+    DATASTORE="$(/var/tmp/one/vgpu "DATASTORE" "$deploy_id")"
 
     virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1 || return 0
 
     virsh --connect $LIBVIRT_URI destroy $deploy_id
 
     # Destroy vGPU
-    sudo /usr/lib/one/sh/vgpu "DELETE" "$DATASTORE/vm.xml" "$(dirname "$0")"
+    sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
 
     virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1
     [ "x$?" != "x0" ]

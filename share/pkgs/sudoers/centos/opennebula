@@ -10,7 +10,7 @@ Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh, /usr/lib/one/
 Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip tuntap *, /usr/sbin/ip route *, /usr/sbin/ip neighbour *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl, /usr/bin/ovs-appctl
 Cmnd_Alias ONE_MEM = /usr/sbin/sysctl vm.drop_caches=3 vm.compact_memory=1
-Cmnd_Alias ONE_VGPU = /usr/lib/one/sh/vgpu
+Cmnd_Alias ONE_VGPU = /var/tmp/one/vgpu
 
 ## Command aliases are enabled individually in dedicated
 ## sudoers files by each OpenNebula component (server, node).

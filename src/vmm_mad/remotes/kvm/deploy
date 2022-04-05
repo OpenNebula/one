@@ -37,7 +37,7 @@ if [ -n "${nvram}" ]; then
 fi
 
 # Create vGPU following NVIDIA official guide: https://docs.nvidia.com/grid/latest/pdf/grid-vgpu-user-guide.pdf
-sudo /usr/lib/one/sh/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml" "$(dirname "$0")"
+sudo /var/tmp/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
 
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
