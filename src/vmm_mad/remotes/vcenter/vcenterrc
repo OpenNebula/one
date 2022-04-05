@@ -51,7 +51,7 @@
 # otherwise they will be imported as non persistent
 :wild_vm_persistent_images: true
 
-# Set to true to have Wild VM disks imported as persistent images,
+# Set to true to have VM Templates disks imported as persistent images,
 # otherwise they will be imported as non persistent
 :vm_template_persistent_images: false
 
