@@ -655,7 +655,7 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
 
         if ( rc != 0 )
         {
-            att.resp_msg = "Requested VNC port already assgined to a VM";
+            att.resp_msg = "Requested VNC port already assigned to a VM";
         }
     }
     else
