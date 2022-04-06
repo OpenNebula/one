@@ -998,10 +998,11 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     hpool->del_capacity(vm->get_hid(), sr);
 
-    const VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
     if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
     {
+        graphics->remove("PORT");
         clpool->release_vnc_port(vm->get_cid(), port);
     }
 
