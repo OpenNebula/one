@@ -195,7 +195,8 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     end
 
     # Convert from current format to VMDK
-    unless VCenterDriver::FileHelper.from_s3?(img_path)
+    unless VCenterDriver::FileHelper.from_s3?(img_path) ||
+           VCenterDriver::FileHelper.iso?(temp_file)
         file_type=nil
         temp_file_folder=nil
         begin
