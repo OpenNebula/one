@@ -101,7 +101,7 @@ class Qcow2Mapper
             m = p['name'].match(/nbd(\d+)/)
             next unless m
 
-            nbds << m[1].to_i
+            nbds << m[1].to_i if !p['uuid'].nil? && !p['uuid'].empty?
         end
 
         nbds_max.times do |i| # if nbds_max returns 0 block is skipped
