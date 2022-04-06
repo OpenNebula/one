@@ -140,7 +140,7 @@ define(function(require) {
       this.vCenterTemplatesTable.resetResourceTableSelect();
     }
     $("#NAME", context).focus();
-    $("#placeDatatablevCenterTemplate", context).hide();
+    $(".vCenterTemplateSelection", context).hide();
     return false;
   }
 
@@ -164,10 +164,10 @@ define(function(require) {
       var aData = that.datastoresTable.dataTable.fnGetData(this);
 
       if (aData[9] == "vcenter"){
-        $("#placeDatatablevCenterTemplate", context).show();
+        $(".vCenterTemplateSelection", context).show();
       }
       else{
-        $("#placeDatatablevCenterTemplate", context).hide();
+        $(".vCenterTemplateSelection", context).hide();
       }
       return true;
     });
