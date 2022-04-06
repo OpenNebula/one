@@ -69,17 +69,8 @@ if [[ "$LCM_STATE" =~ ^(16|60|61)$ ]]; then
     exit 0
 fi
 
-# preserve .monitor content (if any)
-MONITOR_CMD=$(cat <<EOF
-if [ -r '${SRC_DIR}/.monitor' ]; then
-    cat '${SRC_DIR}/.monitor' 2>/dev/null || :
-fi
-EOF
-)
 
-MONITOR=$(ssh_monitor_and_log "$SRC_HOST" "$MONITOR_CMD" 'Get .monitor')
-
-ssh_make_path "$DST_HOST" "$DST_PATH" "$MONITOR"
+ssh_make_path "$DST_HOST" "$DST_PATH"
 
 RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
 trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT

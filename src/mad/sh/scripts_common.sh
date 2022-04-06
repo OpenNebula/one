@@ -578,10 +578,10 @@ if [ ! -d $2 ]; then
     mkdir -p $2
 fi
 
+MONITOR_FN="\$(dirname $2)/.monitor"
+
 # create or update .monitor content
 if [ -n "$3" ]; then
-    MONITOR_FN="\$(dirname $2)/.monitor"
-
     MONITOR=''
     if [ -f "\\${MONITOR_FN}" ]; then
         MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
@@ -590,6 +590,9 @@ if [ -n "$3" ]; then
     if [ "x\\${MONITOR}" != "x$3" ]; then
         echo "$3" > "\\${MONITOR_FN}"
     fi
+else
+    # remove .monitor file (to avoid errors on driver change)
+    rm -f "\\${MONITOR_FN}"
 fi
 EOF`
     SSH_EXEC_RC=$?
