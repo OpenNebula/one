@@ -188,7 +188,12 @@ module OpenNebula::MarketPlaceAppExt
                 if is_vcenter &&
                     !options[:notemplate] &&
                     (!options[:template] || options[:template] == -1)
-                    tmpl = create_vcenter_template(ds, options, image)
+                    tmpl = create_vcenter_template(
+                        ds,
+                        options,
+                        self['TEMPLATE/VMTEMPLATE64'],
+                        image
+                    )
 
                     if OpenNebula.is_error?(tmpl)
                         rc_info[:vmtemplate] = [tmpl]
@@ -303,10 +308,11 @@ module OpenNebula::MarketPlaceAppExt
             # Create a VM template in vCenter in order to use it when
             # deploying an app from the marketplace
             #
-            # @param ds      [OpenNebula::Datastore] Datastore information
-            # @param options [Hash]                  Export options
-            # @param image   [OpenNebula::Image]     Image information
-            def create_vcenter_template(ds, options, image = nil)
+            # @param ds       [OpenNebula::Datastore] Datastore information
+            # @param options  [Hash]                  Export options
+            # @param template [String]                App template
+            # @param image    [OpenNebula::Image]     Image information
+            def create_vcenter_template(ds, options, template, image = nil)
                 ret  = {}
                 keys = %w[VCENTER_TEMPLATE_REF
                           VCENTER_CCR_REF
@@ -384,14 +390,24 @@ module OpenNebula::MarketPlaceAppExt
                 end
 
                 tmpl = <<-EOT
-                NAME   = "#{options[:vmtemplate_name] || options[:name]}"
-                CPU    = "1"
-                VCPU   = "1"
-                MEMORY = "128"
+                NAME = "#{options[:vmtemplate_name] || options[:name]}"
                 HYPERVISOR = "vcenter"
                 EOT
 
                 tmpl << "DISK = [ IMAGE_ID = \"#{image.id}\" ]" if image
+
+                template ||= ''
+                template   = Base64.decode64(template)
+
+                template.split("\n").each do |line|
+                    # Legacy, some apps in the marketplace have the sched
+                    # requirement to just be run on KVM, with this
+                    # the template cannot be run on vCenter, so don't add
+                    # it in the final VM template
+                    next if line =~ /SCHED_REQUIREMENTS/ || line.empty?
+
+                    tmpl << "#{line}\n"
+                end
 
                 ret.each do |key, value|
                     tmpl << "#{key}=\"#{value}\"\n"
