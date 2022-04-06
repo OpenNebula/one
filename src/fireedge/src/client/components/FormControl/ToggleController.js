@@ -48,6 +48,7 @@ const ToggleController = memo(
     values = [],
     tooltip,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
@@ -72,17 +73,17 @@ const ToggleController = memo(
           </Label>
         )}
         <ToggleButtonGroup
-          onChange={(_, newValues) => onChange(newValues)}
+          fullWidth
           ref={ref}
           id={cy}
+          onChange={(_, newValues) => !readOnly && onChange(newValues)}
           value={optionSelected}
-          fullWidth
           exclusive={!multiple}
           data-cy={cy}
           {...fieldProps}
         >
           {values?.map(({ text, value = '' }) => (
-            <ToggleButton key={`${name}-${value}`} value={value}>
+            <ToggleButton key={`${name}-${value}`} value={value} sx={{ p: 1 }}>
               {text}
             </ToggleButton>
           ))}
@@ -111,6 +112,7 @@ ToggleController.propTypes = {
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 ToggleController.displayName = 'ToggleController'

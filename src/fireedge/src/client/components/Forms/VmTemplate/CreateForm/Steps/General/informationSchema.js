@@ -16,7 +16,7 @@
 import { string } from 'yup'
 
 import Image from 'client/components/Image'
-import { T, LOGO_IMAGES_URL, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { T, STATIC_FILES_URL, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 import { Field, arrayToOptions } from 'client/utils'
 
 /**
@@ -31,7 +31,7 @@ export const NAME = (isUpdate) => ({
     .trim()
     .required()
     .default(() => undefined),
-  grid: { sm: 6 },
+  grid: { md: 12 },
   ...(isUpdate && { fieldProps: { disabled: true } }),
 })
 
@@ -40,10 +40,12 @@ export const DESCRIPTION = {
   name: 'DESCRIPTION',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
+  multiline: true,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Hypervisor field */
@@ -68,40 +70,38 @@ export const LOGO = {
   type: INPUT_TYPES.SELECT,
   values: [
     { text: '-', value: '' },
-    // client/assets/images/logos
-    { text: 'Alpine Linux', value: 'alpine.png' },
-    { text: 'ALT', value: 'alt.png' },
-    { text: 'Arch', value: 'arch.png' },
-    { text: 'CentOS', value: 'centos.png' },
-    { text: 'Debian', value: 'debian.png' },
-    { text: 'Devuan', value: 'devuan.png' },
-    { text: 'Fedora', value: 'fedora.png' },
-    { text: 'FreeBSD', value: 'freebsd.png' },
-    { text: 'HardenedBSD', value: 'hardenedbsd.png' },
-    { text: 'Knoppix', value: 'knoppix.png' },
-    { text: 'Linux', value: 'linux.png' },
-    { text: 'Oracle', value: 'oracle.png' },
-    { text: 'RedHat', value: 'redhat.png' },
-    { text: 'Suse', value: 'suse.png' },
-    { text: 'Ubuntu', value: 'ubuntu.png' },
-    { text: 'Windows xp', value: 'windowsxp.png' },
-    { text: 'Windows 10', value: 'windows8.png' },
+    { text: 'Alpine Linux', value: 'images/logos/alpine.png' },
+    { text: 'ALT', value: 'images/logos/alt.png' },
+    { text: 'Arch', value: 'images/logos/arch.png' },
+    { text: 'CentOS', value: 'images/logos/centos.png' },
+    { text: 'Debian', value: 'images/logos/debian.png' },
+    { text: 'Devuan', value: 'images/logos/devuan.png' },
+    { text: 'Fedora', value: 'images/logos/fedora.png' },
+    { text: 'FreeBSD', value: 'images/logos/freebsd.png' },
+    { text: 'HardenedBSD', value: 'images/logos/hardenedbsd.png' },
+    { text: 'Knoppix', value: 'images/logos/knoppix.png' },
+    { text: 'Linux', value: 'images/logos/linux.png' },
+    { text: 'Oracle', value: 'images/logos/oracle.png' },
+    { text: 'RedHat', value: 'images/logos/redhat.png' },
+    { text: 'Suse', value: 'images/logos/suse.png' },
+    { text: 'Ubuntu', value: 'images/logos/ubuntu.png' },
+    { text: 'Windows xp', value: 'images/logos/windowsxp.png' },
+    { text: 'Windows 10', value: 'images/logos/windows8.png' },
   ],
   renderValue: (value) => (
     <Image
       alt="logo"
-      imgProps={{
-        height: 25,
-        width: 25,
-        style: { marginRight: 10 },
-      }}
-      src={`${LOGO_IMAGES_URL}/${value}`}
+      imgProps={{ height: 25, width: 25, style: { marginRight: 10 } }}
+      // expected url for Ruby Sunstone compatibility
+      // => client/assets/images/logos/{value}.png
+      src={`${STATIC_FILES_URL}/${value}`}
     />
   ),
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
+  grid: { md: 12 },
 }
 
 /**

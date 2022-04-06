@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
@@ -22,13 +21,13 @@ import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
 
-import { HYPERVISOR_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/informationSchema'
 import {
   SCHEMA,
   SECTIONS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import { generateKey } from 'client/utils'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'general'
 
@@ -42,22 +41,21 @@ const Content = ({ isUpdate }) => {
     const dialog = getResourceView(resource)?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return SECTIONS(hypervisor, isUpdate).filter(
-      ({ id, required }) => required || sectionsAvailable.includes(id)
+    return (
+      SECTIONS(hypervisor, isUpdate)
+        .filter(
+          ({ id, required }) => required || sectionsAvailable.includes(id)
+        )
+        // unique keys to avoid duplicates
+        .map((section) => ({ key: generateKey(), ...section }))
     )
   }, [view, hypervisor])
 
   return (
     <div className={classes.root}>
-      <FormWithSchema
-        cy={`${STEP_ID}-hypervisor`}
-        fields={[HYPERVISOR_FIELD]}
-        legend={T.Hypervisor}
-        id={STEP_ID}
-      />
-      {sections.map(({ id, ...section }) => (
+      {sections.map(({ key, id, ...section }) => (
         <FormWithSchema
-          key={id}
+          key={key}
           id={STEP_ID}
           className={classes[id]}
           cy={`${STEP_ID}-${id}`}
@@ -68,9 +66,15 @@ const Content = ({ isUpdate }) => {
   )
 }
 
-const General = (initialValues) => {
-  const isUpdate = initialValues?.NAME
-  const initialHypervisor = initialValues?.TEMPLATE?.HYPERVISOR
+/**
+ * General configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} General configuration step
+ */
+const General = (vmTemplate) => {
+  const isUpdate = vmTemplate?.NAME
+  const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
     id: STEP_ID,

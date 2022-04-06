@@ -43,6 +43,7 @@ const SwitchController = memo(
     label = '',
     tooltip,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const {
       field: { value = false, onChange },
@@ -50,10 +51,11 @@ const SwitchController = memo(
     } = useController({ name, control })
 
     return (
-      <FormControl fullWidth error={Boolean(error)} margin="dense">
+      <FormControl error={Boolean(error)} margin="dense">
         <FormControlLabel
           control={
             <Switch
+              readOnly={readOnly}
               onChange={(e) => onChange(e.target.checked)}
               name={name}
               checked={Boolean(value)}
@@ -87,6 +89,7 @@ SwitchController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 SwitchController.displayName = 'SwitchController'

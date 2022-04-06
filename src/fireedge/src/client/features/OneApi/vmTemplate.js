@@ -215,6 +215,34 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
+      async onQueryStarted(
+        { id, ...permissions },
+        { dispatch, queryFulfilled }
+      ) {
+        const patchResult = dispatch(
+          vmTemplateApi.util.updateQueryData('getTemplate', { id }, (draft) => {
+            Object.entries(permissions)
+              .filter(([_, value]) => value !== '-1')
+              .forEach(([name, value]) => {
+                const ensuredName = {
+                  ownerUse: 'OWNER_U',
+                  ownerManage: 'OWNER_M',
+                  ownerAdmin: 'OWNER_A',
+                  groupUse: 'GROUP_U',
+                  groupManage: 'GROUP_M',
+                  groupAdmin: 'GROUP_A',
+                  otherUse: 'OTHER_U',
+                  otherManage: 'OTHER_M',
+                  otherAdmin: 'OTHER_A',
+                }[name]
+
+                draft.PERMISSIONS[ensuredName] = value
+              })
+          })
+        )
+
+        queryFulfilled.catch(patchResult.undo)
+      },
     }),
     changeTemplateOwnership: builder.mutation({
       /**
@@ -235,6 +263,19 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
+      async onQueryStarted(
+        { id, user, group },
+        { dispatch, queryFulfilled, getState }
+      ) {
+        const patchResult = dispatch(
+          vmTemplateApi.util.updateQueryData('getTemplate', id, (draft) => {
+            user > 0 && (draft.UID = user)
+            group > 0 && (draft.GID = group)
+          })
+        )
+
+        queryFulfilled.catch(patchResult.undo)
+      },
     }),
     renameTemplate: builder.mutation({
       /**

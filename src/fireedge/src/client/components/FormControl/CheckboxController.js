@@ -43,6 +43,7 @@ const CheckboxController = memo(
     label = '',
     tooltip,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const {
       field: { value = false, onChange },
@@ -56,6 +57,7 @@ const CheckboxController = memo(
             <Checkbox
               onChange={(e) => onChange(e.target.checked)}
               name={name}
+              readOnly={readOnly}
               checked={Boolean(value)}
               color="secondary"
               inputProps={{ 'data-cy': cy }}
@@ -87,6 +89,7 @@ CheckboxController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 CheckboxController.displayName = 'CheckboxController'

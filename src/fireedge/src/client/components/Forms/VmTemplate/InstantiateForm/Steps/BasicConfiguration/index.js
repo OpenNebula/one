@@ -22,23 +22,26 @@ import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/
 
 import {
   SCHEMA,
-  FIELDS,
+  SECTIONS,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = ({ hypervisor }) => {
+const Content = ({ vmTemplate }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
 
   const sections = useMemo(() => {
+    const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
     const resource = RESOURCE_NAMES.VM_TEMPLATE
     const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return FIELDS(hypervisor).filter(({ id }) => sectionsAvailable.includes(id))
+    return SECTIONS(vmTemplate).filter(({ id }) =>
+      sectionsAvailable.includes(id)
+    )
   }, [view])
 
   return (
@@ -57,26 +60,22 @@ const Content = ({ hypervisor }) => {
   )
 }
 
+Content.propTypes = {
+  vmTemplate: PropTypes.object,
+}
+
 /**
  * Basic configuration about VM Template.
  *
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Basic configuration step
  */
-const BasicConfiguration = (vmTemplate) => {
-  const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
-
-  return {
-    id: STEP_ID,
-    label: T.Configuration,
-    resolver: () => SCHEMA(hypervisor),
-    optionsValidate: { abortEarly: false },
-    content: (props) => Content({ ...props, hypervisor }),
-  }
-}
-
-Content.propTypes = {
-  hypervisor: PropTypes.string,
-}
+const BasicConfiguration = (vmTemplate) => ({
+  id: STEP_ID,
+  label: T.Configuration,
+  resolver: () => SCHEMA(vmTemplate),
+  optionsValidate: { abortEarly: false },
+  content: (props) => Content({ ...props, vmTemplate }),
+})
 
 export default BasicConfiguration

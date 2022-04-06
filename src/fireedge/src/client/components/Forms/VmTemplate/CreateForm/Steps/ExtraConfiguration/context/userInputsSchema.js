@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, array, string, boolean, number, ref, ObjectSchema } from 'yup'
 
-import { userInputsToObject } from 'client/models/Helper'
+import { userInputsToObject, userInputsToArray } from 'client/models/Helper'
 import {
   UserInputType,
   T,
@@ -40,7 +40,7 @@ const {
   boolean: uiBoolean,
 } = USER_INPUT_TYPES
 
-const { array: __, ...userInputTypes } = USER_INPUT_TYPES
+const { array: _array, fixed: _fixed, ...userInputTypes } = USER_INPUT_TYPES
 
 /** @type {UserInputType[]} User inputs types */
 const valuesOfUITypes = Object.values(userInputTypes)
@@ -90,7 +90,7 @@ const DESCRIPTION = {
 const OPTIONS = {
   name: 'options',
   label: T.Options,
-  tooltip: 'Press ENTER key to add a value',
+  tooltip: [T.PressKeysToAddAValue, ['ENTER']],
   dependOf: TYPE.name,
   type: INPUT_TYPES.AUTOCOMPLETE,
   multiple: true,
@@ -100,7 +100,7 @@ const OPTIONS = {
     .default(() => [])
     .when(TYPE.name, (type, schema) =>
       [uiList, uiListMultiple].includes(type)
-        ? schema.required()
+        ? schema.required().min(1)
         : schema.strip().notRequired()
     ),
   fieldProps: {
@@ -211,10 +211,22 @@ export const USER_INPUT_SCHEMA = getObjectSchemaFromFields(USER_INPUT_FIELDS)
 export const USER_INPUTS_SCHEMA = object({
   USER_INPUTS: array(USER_INPUT_SCHEMA)
     .ensure()
-    .afterSubmit((userInputs) => userInputsToObject(userInputs)),
+    .afterSubmit((userInputs, { context }) => {
+      const capacityInputs = userInputsToArray(context?.general?.MODIFICATION, {
+        filterCapacityInputs: false,
+      }).map(({ name, ...userInput }) => ({
+        name,
+        ...userInput,
+        // set default value from MEMORY, CPU and VCPU fields
+        default: context.general?.[name],
+        ...(['MEMORY', 'CPU'].includes(name) && { mandatory: true }),
+      }))
+
+      return userInputsToObject([...capacityInputs, ...userInputs])
+    }),
   INPUTS_ORDER: string()
     .trim()
-    .afterSubmit((_, { context }) => {
+    .afterSubmit((_inputsOrder_, { context }) => {
       const userInputs = context?.extra?.USER_INPUTS
 
       return userInputs?.map(({ name }) => String(name).toUpperCase()).join(',')

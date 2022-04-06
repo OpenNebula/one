@@ -124,4 +124,4 @@ AsyncLoadForm.propTypes = {
   componentToLoad: PropTypes.string,
 }
 
-export default AsyncLoadForm
+export { AsyncLoadForm }

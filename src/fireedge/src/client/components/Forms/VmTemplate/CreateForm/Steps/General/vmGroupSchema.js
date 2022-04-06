@@ -28,6 +28,7 @@ export const VM_GROUP_FIELD = {
     const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
     return arrayToOptions(vmGroups, {
+      addEmpty: false,
       getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
       getValue: ({ ID }) => ID,
       sorter: OPTION_SORTERS.numeric,
@@ -58,7 +59,7 @@ export const ROLE_FIELD = {
       )
       ?.flat()
 
-    return arrayToOptions(roles)
+    return arrayToOptions(roles, { addEmpty: false })
   },
   grid: { md: 12 },
   validation: string()

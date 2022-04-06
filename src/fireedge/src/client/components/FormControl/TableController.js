@@ -43,6 +43,7 @@ const TableController = memo(
     singleSelect = true,
     getRowId = defaultGetRowId,
     formContext = {},
+    readOnly = false,
     fieldProps: { initialState, ...fieldProps } = {},
   }) => {
     const { clearErrors } = formContext
@@ -74,7 +75,10 @@ const TableController = memo(
           onlyGlobalSelectedRows
           getRowId={getRowId}
           initialState={{ ...initialState, selectedRowIds: initialRows }}
+          disableRowSelect={readOnly}
           onSelectedRowsChange={(rows) => {
+            if (readOnly) return
+
             const rowValues = rows?.map(({ original }) => getRowId(original))
 
             onChange(singleSelect ? rowValues?.[0] : rowValues)
@@ -102,6 +106,7 @@ TableController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,
     setError: PropTypes.func,

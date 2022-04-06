@@ -22,16 +22,21 @@ import UserInputs, {
 import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
-import { jsonToXml } from 'client/models/Helper'
+import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  (vmTemplate) =>
-    [
+  (vmTemplate) => {
+    const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
+      order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
+    })
+
+    return [
       BasicConfiguration,
-      vmTemplate?.TEMPLATE?.USER_INPUTS && UserInputs,
+      !!userInputs.length && (() => UserInputs(userInputs)),
       ExtraConfiguration,
-    ].filter(Boolean),
+    ].filter(Boolean)
+  },
   {
     transformInitialValue: (vmTemplate, schema) => {
       const initialValue = schema.cast(

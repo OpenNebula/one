@@ -34,6 +34,7 @@ const SelectController = memo(
     renderValue,
     tooltip,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const firstValue = values?.[0]?.value ?? ''
     const defaultValue = multiple ? [firstValue] : firstValue
@@ -50,8 +51,15 @@ const SelectController = memo(
     )
 
     useEffect(() => {
-      if (multiple && !Array.isArray(optionSelected)) {
-        onChange([optionSelected])
+      if (!optionSelected && !optionSelected.length) return
+
+      if (multiple) {
+        const exists = values.some((v) => optionSelected.includes(v.value))
+        !exists && onChange([firstValue])
+      } else {
+        const exists = values.some((v) => `${v.value}` === `${optionSelected}`)
+
+        !exists && onChange(firstValue)
       }
     }, [multiple])
 
@@ -82,6 +90,7 @@ const SelectController = memo(
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputLabelProps={{ shrink: needShrink }}
         InputProps={{
+          readOnly,
           startAdornment:
             (optionSelected && renderValue?.(optionSelected)) ||
             (tooltip && <Tooltip title={tooltip} position="start" />),
@@ -118,6 +127,7 @@ SelectController.propTypes = {
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 SelectController.displayName = 'SelectController'

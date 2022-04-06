@@ -54,6 +54,7 @@ ErrorHelper.propTypes = {
   label: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node,
+    PropTypes.array,
     PropTypes.shape({
       word: PropTypes.string,
       values: PropTypes.oneOfType([

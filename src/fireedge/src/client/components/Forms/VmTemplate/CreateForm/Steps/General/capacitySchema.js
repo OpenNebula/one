@@ -13,105 +13,95 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, boolean } from 'yup'
+import { number } from 'yup'
 
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import {
+  generateModificationInputs,
+  generateHotResizeInputs,
+  generateCapacityInput,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
 import { Field } from 'client/utils'
+import { T, HYPERVISORS } from 'client/constants'
 
 const commonValidation = number()
   .positive()
   .default(() => undefined)
 
+// --------------------------------------------------------
+// MEMORY fields
+// --------------------------------------------------------
+
 /** @type {Field} Memory field */
-export const MEMORY = {
+export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
   label: T.Memory,
   tooltip: T.MemoryConcept,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
   validation: commonValidation
     .required()
     .when('HYPERVISOR', (hypervisor, schema) =>
       hypervisor === HYPERVISORS.vcenter ? schema.isDivisibleBy(4) : schema
     ),
-  grid: { md: 12 },
-}
+})
 
-/** @type {Field} Hot reloading on memory field */
-export const ENABLE_HR_MEMORY = {
-  name: 'HOT_RESIZE.MEMORY_HOT_ADD_ENABLED',
-  label: T.EnableHotResize,
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
-  grid: { xs: 4, md: 6 },
-}
+/** @type {Field[]} Hot resize on memory field */
+export const HR_MEMORY_FIELDS = generateHotResizeInputs(
+  { fieldName: MEMORY.name },
+  {
+    name: `${MEMORY.name}_MAX`,
+    label: T.MaxMemory,
+    tooltip: T.MaxMemoryConcept,
+  }
+)
 
-/** @type {Field} Maximum memory field */
-export const MEMORY_MAX = {
-  name: 'MEMORY_MAX',
-  label: T.MaxMemory,
-  dependOf: ENABLE_HR_MEMORY.name,
-  type: INPUT_TYPES.TEXT,
-  htmlType: (enabledHr) => (enabledHr ? 'number' : INPUT_TYPES.HIDDEN),
-  validation: commonValidation.when(
-    ENABLE_HR_MEMORY.name,
-    (enabledHr, schema) =>
-      enabledHr ? schema.required() : schema.notRequired()
-  ),
-  grid: { xs: 8, md: 6 },
-}
+/** @type {Field[]} Modification inputs on memory field */
+export const MOD_MEMORY_FIELDS = generateModificationInputs(MEMORY.name)
+
+/** @type {Field[]} List of memory fields */
+export const MEMORY_FIELDS = [MEMORY, ...HR_MEMORY_FIELDS, ...MOD_MEMORY_FIELDS]
+
+// --------------------------------------------------------
+// CPU fields
+// --------------------------------------------------------
 
 /** @type {Field} Physical CPU field */
-export const PHYSICAL_CPU = {
+export const PHYSICAL_CPU = generateCapacityInput({
   name: 'CPU',
   label: T.PhysicalCpu,
   tooltip: T.CpuConcept,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
   validation: commonValidation.required(),
-  grid: { md: 12 },
-}
+})
+
+/** @type {Field[]} Modification inputs on CPU field */
+export const MOD_CPU_FIELDS = generateModificationInputs(PHYSICAL_CPU.name)
+
+/** @type {Field[]} List of CPU fields */
+export const CPU_FIELDS = [PHYSICAL_CPU, ...MOD_CPU_FIELDS]
+
+// --------------------------------------------------------
+// Virtual CPU fields
+// --------------------------------------------------------
 
 /** @type {Field} Virtual CPU field */
-export const VIRTUAL_CPU = {
+export const VIRTUAL_CPU = generateCapacityInput({
   name: 'VCPU',
   label: T.VirtualCpu,
   tooltip: T.VirtualCpuConcept,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
   validation: commonValidation,
-  grid: { md: 12 },
-}
+  grid: { md: 3 },
+})
 
-/** @type {Field} Hot reloading on virtual CPU field */
-export const ENABLE_HR_VCPU = {
-  name: 'HOT_RESIZE.CPU_HOT_ADD_ENABLED',
-  label: T.EnableHotResize,
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
-  grid: { xs: 4, md: 6 },
-}
+/** @type {Field[]} Hot resize on memory field */
+export const HR_CPU_FIELDS = generateHotResizeInputs(
+  { name: PHYSICAL_CPU.name },
+  {
+    name: `${VIRTUAL_CPU.name}_MAX`,
+    label: T.MaxVirtualCpu,
+    tooltip: T.MaxVirtualCpuConcept,
+  }
+)
 
-/** @type {Field} Maximum virtual CPU field */
-export const VCPU_MAX = {
-  name: 'VCPU_MAX',
-  label: T.MaxVirtualCpu,
-  dependOf: ENABLE_HR_VCPU.name,
-  type: INPUT_TYPES.TEXT,
-  htmlType: (enabledHr) => (enabledHr ? 'number' : INPUT_TYPES.HIDDEN),
-  validation: commonValidation.when(ENABLE_HR_VCPU.name, (enabledHr, schema) =>
-    enabledHr ? schema.required() : schema.notRequired()
-  ),
-  grid: { xs: 8, md: 6 },
-}
+/** @type {Field[]} Modification inputs on Virtual CPU field */
+export const MOD_VCPU_FIELDS = generateModificationInputs(VIRTUAL_CPU.name)
 
-/** @type {Field[]} List of capacity fields */
-export const FIELDS = [
-  MEMORY,
-  ENABLE_HR_MEMORY,
-  MEMORY_MAX,
-  PHYSICAL_CPU,
-  VIRTUAL_CPU,
-  ENABLE_HR_VCPU,
-  VCPU_MAX,
-]
+/** @type {Field[]} List of Virtual CPU fields */
+export const VCPU_FIELDS = [VIRTUAL_CPU, ...HR_CPU_FIELDS, ...MOD_VCPU_FIELDS]

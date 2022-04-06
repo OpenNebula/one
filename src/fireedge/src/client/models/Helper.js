@@ -339,7 +339,7 @@ export const getUserInputString = (userInput) => {
   // mandatory|type|description|range/options/' '|defaultValue
   const uiString = [mandatoryString, type, description]
 
-  range?.length > 0
+  ;[USER_INPUT_TYPES.range, USER_INPUT_TYPES.rangeFloat].includes(type)
     ? uiString.push(range)
     : options?.length > 0
     ? uiString.push(options.join(LIST_SEPARATOR))
@@ -352,16 +352,19 @@ export const getUserInputString = (userInput) => {
  * Get list of user inputs defined in OpenNebula template.
  *
  * @param {object} userInputs - List of user inputs in string format
- * @param {string} [inputsOrder] - List separated by comma of input names
+ * @param {object} [options] - Options to filter user inputs
+ * @param {boolean} [options.filterCapacityInputs]
+ * - If false, will not filter capacity inputs: MEMORY, CPU, VCPU. By default `true`
+ * @param {string} [options.order] - List separated by comma of input names
  * @example
  * const userInputs = {
  *   "INPUT-1": "O|text|Description1| |text1",
  *   "INPUT-2": "M|text|Description2| |text2"
  * }
  *
- * const inputsOrder = "INPUT-2,INPUT-1"
+ * const order = "INPUT-2,INPUT-1"
  *
- * => userInputsToArray(userInputs, inputsOrder) => [{
+ * => userInputsToArray(userInputs, { order }) => [{
  *   name: 'INPUT-1',
  *   mandatory: false,
  *   type: 'text',
@@ -377,17 +380,33 @@ export const getUserInputString = (userInput) => {
  * }]
  * @returns {UserInputObject[]} User input object
  */
-export const userInputsToArray = (userInputs = {}, inputsOrder) => {
-  const orderedList = inputsOrder?.split(',') ?? []
+export const userInputsToArray = (
+  userInputs = {},
+  { filterCapacityInputs = true, order } = {}
+) => {
+  const orderedList = order?.split(',') ?? []
+  const userInputsArray = Object.entries(userInputs)
 
-  return Object.entries(userInputs)
-    .map(([name, ui]) => ({ name, ...getUserInputParams(ui) }))
-    .sort((a, b) => {
+  let list = userInputsArray.map(([name, ui]) => ({
+    name: `${name}`.toUpperCase(),
+    ...(typeof ui === 'string' ? getUserInputParams(ui) : ui),
+  }))
+
+  if (filterCapacityInputs) {
+    const capacityInputs = ['MEMORY', 'CPU', 'VCPU']
+    list = list.filter((ui) => !capacityInputs.includes(ui.name))
+  }
+
+  if (orderedList.length) {
+    list = list.sort((a, b) => {
       const upperAName = a.name?.toUpperCase?.()
       const upperBName = b.name?.toUpperCase?.()
 
       return orderedList.indexOf(upperAName) - orderedList.indexOf(upperBName)
     })
+  }
+
+  return list
 }
 
 /**

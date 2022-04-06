@@ -29,6 +29,7 @@ export const UID_FIELD = {
     const { data: users = [] } = useGetUsersQuery()
 
     return arrayToOptions(users, {
+      addEmpty: false,
       getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
       getValue: ({ ID }) => ID,
       sorter: OPTION_SORTERS.numeric,
@@ -50,6 +51,7 @@ export const GID_FIELD = {
     const { data: groups = [] } = useGetGroupsQuery()
 
     return arrayToOptions(groups, {
+      addEmpty: false,
       getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
       getValue: ({ ID }) => ID,
       sorter: OPTION_SORTERS.numeric,

@@ -28,50 +28,59 @@ import {
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
   Field,
+  Section,
 } from 'client/utils'
-import { T, HYPERVISORS } from 'client/constants'
+import { T, VmTemplate } from 'client/constants'
 
 /**
- * @param {HYPERVISORS} [hypervisor] - Template hypervisor
- * @returns {function(string):{ id: string, legend: string, fields: Field[] }[]} Fields
+ * @param {VmTemplate} [vmTemplate] - VM Template
+ * @returns {Section[]} Sections
  */
-const FIELDS = (hypervisor) => [
-  {
-    id: 'information',
-    legend: T.Information,
-    fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor),
-  },
-  {
-    id: 'capacity',
-    legend: T.Capacity,
-    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor),
-  },
-  {
-    id: 'ownership',
-    legend: T.Ownership,
-    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
-  },
-  {
-    id: 'vm_group',
-    legend: T.VMGroup,
-    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
-  },
-  {
-    id: 'vcenter',
-    legend: T.vCenterDeployment,
-    fields: filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
-  },
-]
+const SECTIONS = (vmTemplate) => {
+  const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+
+  return [
+    {
+      id: 'information',
+      legend: T.Information,
+      fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor),
+    },
+    {
+      id: 'capacity',
+      legend: T.Capacity,
+      fields: filterFieldsByHypervisor(CAPACITY_FIELDS(vmTemplate), hypervisor),
+    },
+    {
+      id: 'ownership',
+      legend: T.Ownership,
+      fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+    },
+    {
+      id: 'vm_group',
+      legend: T.VMGroup,
+      fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+    },
+    {
+      id: 'vcenter',
+      legend: T.vCenterDeployment,
+      fields: filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
+    },
+  ]
+}
 
 /**
- * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @param {VmTemplate} [vmTemplate] - VM Template
+ * @returns {Field[]} Basic configuration fields
+ */
+const FIELDS = (vmTemplate) =>
+  SECTIONS(vmTemplate)
+    .map(({ fields }) => fields)
+    .flat()
+
+/**
+ * @param {VmTemplate} [vmTemplate] - VM Template
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (hypervisor) =>
-  getObjectSchemaFromFields(
-    FIELDS(hypervisor)
-      .map(({ fields }) => fields)
-      .flat()
-  )
+const SCHEMA = (vmTemplate) => getObjectSchemaFromFields(FIELDS(vmTemplate))
 
-export { FIELDS, SCHEMA }
+export { SECTIONS, FIELDS, SCHEMA }

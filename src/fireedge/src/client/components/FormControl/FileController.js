@@ -49,6 +49,7 @@ const FileController = memo(
     validationBeforeTransform,
     transform,
     fieldProps = {},
+    readOnly = false,
     formContext = {},
   }) => {
     const { setValue, setError, clearErrors, watch } = formContext
@@ -115,12 +116,14 @@ const FileController = memo(
     }
 
     return (
-      <FormControl fullWidth margin="dense">
+      <FormControl margin="dense">
         <HiddenInput
           {...inputProps}
           ref={ref}
           id={cy}
           type="file"
+          readOnly={readOnly}
+          disabled={readOnly}
           onChange={handleChange}
           {...fieldProps}
         />
@@ -128,6 +131,7 @@ const FileController = memo(
           <SubmitButton
             color={success ? 'success' : 'secondary'}
             component="span"
+            disabled={readOnly}
             data-cy={`${cy}-button`}
             isSubmitting={isLoading}
             label={success ? <CheckIcon /> : <FileIcon />}
@@ -161,6 +165,7 @@ FileController.propTypes = {
   ),
   transform: PropTypes.func,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,
     setError: PropTypes.func,

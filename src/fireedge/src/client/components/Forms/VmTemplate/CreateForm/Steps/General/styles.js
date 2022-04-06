@@ -20,11 +20,11 @@ export default makeStyles((theme) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: theme.spacing(1),
-    [theme.breakpoints.down('lg')]: {
+    [theme.breakpoints.down('md')]: {
       gridTemplateColumns: '1fr',
     },
   },
-  information: {
+  capacity: {
     gridColumn: '1 / -1',
   },
 }))

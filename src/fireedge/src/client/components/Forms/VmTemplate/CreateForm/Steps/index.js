@@ -23,14 +23,13 @@ import CustomVariables, {
   STEP_ID as CUSTOM_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables'
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
-import { createSteps, isBase64 } from 'client/utils'
+import { createSteps, isBase64, encodeBase64 } from 'client/utils'
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   transformInitialValue: (vmTemplate, schema) => {
-    const userInputs = userInputsToArray(
-      vmTemplate?.TEMPLATE?.USER_INPUTS,
-      vmTemplate?.TEMPLATE?.INPUTS_ORDER
-    )
+    const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
+      order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
+    })
 
     const knownTemplate = schema.cast(
       {
@@ -56,7 +55,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   },
   transformBeforeSubmit: (formData) => {
     const {
-      [GENERAL_ID]: general = {},
+      [GENERAL_ID]: { MODIFICATION: _, ...general } = {},
       [CUSTOM_ID]: customVariables = {},
       [EXTRA_ID]: {
         CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
@@ -70,7 +69,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       // transform start script to base64 if needed
       [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
         ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
-          ? btoa(unescape(encodeURIComponent(START_SCRIPT)))
+          ? encodeBase64(START_SCRIPT)
           : START_SCRIPT,
     }
     const topology = ENABLE_NUMA ? { TOPOLOGY: restOfTopology } : {}

@@ -26,7 +26,7 @@ import Image from 'client/components/Image'
 
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { isExternalURL } from 'client/utils'
-import { VM, LOGO_IMAGES_URL } from 'client/constants'
+import { VM, STATIC_FILES_URL } from 'client/constants'
 
 const VmTemplateCard = memo(
   /**
@@ -48,13 +48,10 @@ const VmTemplateCard = memo(
       LOGO = '',
     } = template
 
-    const [logoSource] = useMemo(() => {
-      const external = isExternalURL(LOGO)
-      const cleanLogoAttribute = String(LOGO).split('/').at(-1)
-      const src = external ? LOGO : `${LOGO_IMAGES_URL}/${cleanLogoAttribute}`
-
-      return [src, external]
-    }, [LOGO])
+    const logoSource = useMemo(
+      () => (isExternalURL(LOGO) ? LOGO : `${STATIC_FILES_URL}/${LOGO}`),
+      [LOGO]
+    )
 
     const time = timeFromMilliseconds(+REGTIME)
 

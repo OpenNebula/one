@@ -484,6 +484,9 @@ module.exports = {
   DefaultNicFilter: 'Default network filtering rule for all NICs',
   /* VM Template schema - capacity */
   MaxMemory: 'Max memory',
+  MaxMemoryConcept: `
+    This value sets the maximum value of the MEMORY allowed to be modified
+    after instantiation, through the Capacity Resize options of instantiated VMs`,
   MemoryModification: 'Memory modification',
   AllowUsersToModifyMemory:
     "Allow users to modify this template's default memory on instantiate",
@@ -492,11 +495,15 @@ module.exports = {
     Percentage of CPU divided by 100 required for the
     Virtual Machine. Half a processor is written 0.5`,
   MaxVirtualCpu: 'Max Virtual CPU',
+  MaxVirtualCpuConcept: `
+    This value sets the maximum value of the VCPU allowed to be modified
+    after instantiation, through the Capacity Resize options of instantiated VMs`,
+  CpuModification: 'CPU modification',
+  AllowUsersToModifyCpu:
+    "Allow users to modify this template's default CPU on instantiate",
   VirtualCpuConcept: `
     Number of virtual cpus. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
-  AllowUsersToModifyCpu:
-    "Allow users to modify this template's default CPU on instantiate",
   VirtualCpuModification: 'Virtual CPU modification',
   AllowUsersToModifyVirtualCpu:
     "Allow users to modify this template's default Virtual CPU on instantiate",

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { v4 as uuidv4 } from 'uuid'
 import DOMPurify from 'dompurify'
 import { object, reach, ObjectSchema, BaseSchema } from 'yup'
 import { isMergeableObject } from 'client/utils/merge'
@@ -41,8 +42,7 @@ export const isExternalURL = (url) => /^(http|https):/g.test(url)
  *
  * @returns {string} Random key
  */
-export const generateKey = () =>
-  String(new Date().getTime() + Math.random()).replace('.', '')
+export const generateKey = () => uuidv4()
 
 /**
  * Sanitizes HTML and prevents XSS attacks.
@@ -442,15 +442,6 @@ export const isBase64 = (stringToValidate, options = {}) => {
 
   return regex.test(stringToValidate)
 }
-
-/**
- * Check if value is divisible by 4.
- *
- * @param {string|number} value - Number to check
- * @returns {boolean} Returns `true` if string is divisible by 4
- */
-export const isDivisibleBy4 = (value) =>
-  /[048]|\d*([02468][048]|[13579][26])/g.test(value)
 
 /**
  * Check if value is divisible by another number.

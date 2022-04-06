@@ -13,54 +13,73 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number } from 'yup'
+import { NumberSchema } from 'yup'
+import { getUserInputParams } from 'client/models/Helper'
+import {
+  Field,
+  schemaUserInput,
+  prettyBytes,
+  isDivisibleBy,
+} from 'client/utils'
+import { T, HYPERVISORS, VmTemplate } from 'client/constants'
 
-import { Field } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
-
-const commonValidation = number()
-  .positive()
-  .default(() => undefined)
-
-/** @type {Field} Memory field */
-const MEMORY = (hypervisor) => {
-  let validation = commonValidation.required()
-
-  if (hypervisor === HYPERVISORS.vcenter) {
-    validation = validation.isDivisibleBy(4)
-  }
-
-  return {
-    name: 'MEMORY',
-    label: T.Memory,
-    tooltip: T.MemoryConcept,
-    type: INPUT_TYPES.TEXT,
-    htmlType: 'number',
-    validation,
-    grid: { md: 12 },
-  }
+const TRANSLATES = {
+  MEMORY: { name: 'MEMORY', label: T.Memory, tooltip: T.MemoryConcept },
+  CPU: { name: 'CPU', label: T.PhysicalCpu, tooltip: T.CpuConcept },
+  VCPU: { name: 'VCPU', label: T.VirtualCpu, tooltip: T.VirtualCpuConcept },
 }
 
-/** @type {Field} Physical CPU field */
-const PHYSICAL_CPU = {
-  name: 'CPU',
-  label: T.PhysicalCpu,
-  tooltip: T.PhysicalCpuConcept,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
-  validation: commonValidation.required(),
-  grid: { md: 12 },
-}
+const valueLabelFormat = (value) => prettyBytes(value, 'MB')
 
-/** @type {Field} Virtual CPU field */
-const VIRTUAL_CPU = {
-  name: 'VCPU',
-  label: T.VirtualCpu,
-  tooltip: T.VirtualCpuConcept,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
-  validation: commonValidation.notRequired(),
-  grid: { md: 12 },
-}
+/**
+ * @param {VmTemplate} [vmTemplate] - VM Template
+ * @returns {Field[]} Basic configuration fields
+ */
+export const FIELDS = (vmTemplate) => {
+  const {
+    HYPERVISOR,
+    USER_INPUTS = {},
+    MEMORY = '',
+    CPU = '',
+    VCPU = '',
+  } = vmTemplate?.TEMPLATE || {}
 
-export const FIELDS = [MEMORY, PHYSICAL_CPU, VIRTUAL_CPU]
+  const {
+    MEMORY: memoryInput = `M|number|||${MEMORY}`,
+    CPU: cpuInput = `M|number-float|||${CPU}`,
+    VCPU: vcpuInput = `O|number|||${VCPU}`,
+  } = USER_INPUTS
+
+  return [
+    { name: 'MEMORY', ...getUserInputParams(memoryInput) },
+    { name: 'CPU', ...getUserInputParams(cpuInput) },
+    { name: 'VCPU', ...getUserInputParams(vcpuInput) },
+  ].map(({ name, options, ...userInput }) => {
+    const isMemory = name === 'MEMORY'
+    const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
+    const divisibleBy4 = isVCenter && isMemory
+
+    const ensuredOptions = divisibleBy4
+      ? options?.filter((value) => isDivisibleBy(+value, 4))
+      : options
+
+    const schemaUi = schemaUserInput({ options: ensuredOptions, ...userInput })
+    const isNumber = schemaUi.validation instanceof NumberSchema
+
+    if (isNumber) {
+      // add positive number validator
+      isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
+
+      // add label format on pretty bytes
+      isMemory &&
+        (schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat })
+
+      if (divisibleBy4) {
+        schemaUi.validation &&= schemaUi.validation.isDivisibleBy(4)
+        schemaUi.fieldProps = { ...schemaUi.fieldProps, step: 4 }
+      }
+    }
+
+    return { ...TRANSLATES[name], ...schemaUi, grid: { md: 12 } }
+  })
+}

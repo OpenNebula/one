@@ -16,6 +16,7 @@
 
 /**
  * @typedef {(
+ * 'fixed' |
  * 'text' |
  * 'text64' |
  * 'password' |
@@ -64,6 +65,7 @@
 
 /** @enum {UserInputType} User input types */
 export const USER_INPUT_TYPES = {
+  fixed: 'fixed',
   text: 'text',
   text64: 'text64',
   password: 'password',

@@ -35,6 +35,7 @@ const TextController = memo(
     watcher,
     dependencies,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const watch =
       dependencies &&
@@ -68,9 +69,17 @@ const TextController = memo(
         type={type}
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputProps={{
+          readOnly,
           endAdornment: tooltip && <Tooltip title={tooltip} />,
         }}
-        inputProps={{ 'data-cy': cy }}
+        inputProps={{
+          'data-cy': cy,
+          ...(type === 'number' && {
+            min: fieldProps.min,
+            max: fieldProps.max,
+            step: fieldProps.step,
+          }),
+        }}
         error={Boolean(error)}
         helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
@@ -99,6 +108,7 @@ TextController.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   fieldProps: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  readOnly: PropTypes.bool,
 }
 
 TextController.displayName = 'TextController'

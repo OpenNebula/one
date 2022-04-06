@@ -33,7 +33,7 @@ const TimeController = memo(
     label = '',
     tooltip,
     fieldProps: { defaultValue, ...fieldProps } = {},
-    ...props
+    readOnly = false,
   }) => {
     const {
       field: { value, ...controllerProps },
@@ -50,6 +50,7 @@ const TimeController = memo(
         clearText={<Translate word={T.Clear} />}
         todayText={<Translate word={T.Today} />}
         InputProps={{
+          readOnly,
           autoComplete: 'off',
           startAdornment: tooltip && <Tooltip title={tooltip} />,
         }}
@@ -80,6 +81,7 @@ TimeController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 TimeController.displayName = 'TimeController'

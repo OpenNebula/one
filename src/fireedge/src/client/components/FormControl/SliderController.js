@@ -31,6 +31,7 @@ const SliderController = memo(
     label = '',
     tooltip,
     fieldProps = {},
+    readOnly = false,
   }) => {
     const {
       field: { value, onChange, ...inputProps },
@@ -48,6 +49,7 @@ const SliderController = memo(
             value={typeof value === 'number' ? value : 0}
             aria-labelledby={sliderId}
             valueLabelDisplay="auto"
+            disabled={readOnly}
             data-cy={sliderId}
             onChange={(_, val) => onChange(val)}
             {...fieldProps}
@@ -60,6 +62,7 @@ const SliderController = memo(
             error={Boolean(error)}
             label={labelCanBeTranslated(label) ? Tr(label) : label}
             InputProps={{
+              readOnly,
               endAdornment: tooltip && <Tooltip title={tooltip} />,
             }}
             inputProps={{
@@ -98,6 +101,7 @@ SliderController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 SliderController.displayName = 'SliderController'

@@ -24,7 +24,7 @@ import { timeToString, levelLockToString } from 'client/models/Helper'
 import {
   T,
   VM_TEMPLATE_ACTIONS,
-  LOGO_IMAGES_URL,
+  STATIC_FILES_URL,
   VmTemplate,
 } from 'client/constants'
 
@@ -67,7 +67,7 @@ const InformationPanel = ({ template = {}, actions }) => {
     },
     LOGO && {
       name: T.Logo,
-      value: <Image alt="logo" src={`${LOGO_IMAGES_URL}/${LOGO}`} />,
+      value: <Image alt="logo" src={`${STATIC_FILES_URL}/${LOGO}`} />,
       dataCy: 'logo',
     },
   ].filter(Boolean)

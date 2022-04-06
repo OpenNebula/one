@@ -41,17 +41,17 @@ const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
     ownership_panel: ownershipPanel,
   } = tabProps
 
-  const [changeOwnership] = useChangeTemplatePermissionsMutation()
-  const [changePermissions] = useChangeTemplateOwnershipMutation()
+  const [changePermissions] = useChangeTemplatePermissionsMutation()
+  const [changeOwnership] = useChangeTemplateOwnershipMutation()
   const { data: template = {} } = useGetTemplateQuery({ id })
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS } = template
+  const { UNAME, UID, GNAME, GID, PERMISSIONS } = template
 
   const handleChangeOwnership = async (newOwnership) => {
-    await changeOwnership({ id: ID, ...newOwnership })
+    await changeOwnership({ id, ...newOwnership })
   }
 
   const handleChangePermission = async (newPermission) => {
-    await changePermissions({ id: ID, ...newPermission })
+    await changePermissions({ id, ...newPermission })
   }
 
   const getActions = (actions) => Helper.getActionsAvailable(actions)
@@ -72,6 +72,7 @@ const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
       {permissionsPanel?.enabled && (
         <Permissions
           actions={getActions(permissionsPanel?.actions)}
+          handleEdit={handleChangePermission}
           ownerUse={PERMISSIONS.OWNER_U}
           ownerManage={PERMISSIONS.OWNER_M}
           ownerAdmin={PERMISSIONS.OWNER_A}
@@ -81,17 +82,16 @@ const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
           otherUse={PERMISSIONS.OTHER_U}
           otherManage={PERMISSIONS.OTHER_M}
           otherAdmin={PERMISSIONS.OTHER_A}
-          handleEdit={handleChangePermission}
         />
       )}
       {ownershipPanel?.enabled && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
+          handleEdit={handleChangeOwnership}
           userId={UID}
           userName={UNAME}
           groupId={GID}
           groupName={GNAME}
-          handleEdit={handleChangeOwnership}
         />
       )}
     </Stack>

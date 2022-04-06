@@ -20,8 +20,7 @@ import {
   FIELDS,
   SCHEMA,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs/schema'
-import { userInputsToArray } from 'client/models/Helper'
-import { T, VmTemplate } from 'client/constants'
+import { T, UserInputObject } from 'client/constants'
 import { FormWithSchema } from 'client/components/Forms'
 
 export const STEP_ID = 'user_inputs'
@@ -42,22 +41,15 @@ Content.propTypes = {
 /**
  * User inputs step.
  *
- * @param {VmTemplate} vmTemplate - VM Template
+ * @param {UserInputObject[]} userInputs - User inputs
  * @returns {object} User inputs step
  */
-const UserInputsStep = (vmTemplate) => {
-  const userInputs = userInputsToArray(
-    vmTemplate?.TEMPLATE?.USER_INPUTS,
-    vmTemplate?.TEMPLATE?.INPUTS_ORDER
-  )
-
-  return {
-    id: STEP_ID,
-    label: T.UserInputs,
-    optionsValidate: { abortEarly: false },
-    resolver: SCHEMA(userInputs),
-    content: (props) => Content({ ...props, userInputs }),
-  }
-}
+const UserInputsStep = (userInputs) => ({
+  id: STEP_ID,
+  label: T.UserInputs,
+  optionsValidate: { abortEarly: false },
+  resolver: SCHEMA(userInputs),
+  content: (props) => Content({ ...props, userInputs }),
+})
 
 export default UserInputsStep

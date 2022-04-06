@@ -115,6 +115,8 @@ import { stringToBoolean } from 'client/models/Helper'
  * - Filters the field when the driver is not include on list
  * @property {TextFieldProps|CheckboxProps|InputBaseComponentProps} [fieldProps]
  * - Extra properties to material-ui field
+ * @property {boolean|DependOfCallback} [readOnly]
+ * - If `true`, the field is read only
  * @property {function(string|number):any} [renderValue]
  * - Render the current selected value inside selector input
  * - **Only for select inputs.**
@@ -218,12 +220,8 @@ const getRange = (options) => options?.split?.('..').map(parseFloat)
 const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
   options?.split(separator)
 
-const getOptionsFromList = (options) =>
-  options
-    ?.map((option) =>
-      typeof option === 'string' ? { text: option, value: option } : option
-    )
-    ?.filter(({ text, value } = {}) => text && value)
+const getOptionsFromList = (options = []) =>
+  arrayToOptions([...new Set(options)])
 
 const parseUserInputValue = (value) => {
   if (value === true) {
@@ -257,6 +255,22 @@ export const schemaUserInput = ({
   default: defaultValue,
 }) => {
   switch (type) {
+    case USER_INPUT_TYPES.fixed: {
+      const isNumeric = !isNaN(defaultValue)
+      const ensuredValue = isNumeric ? parseFloat(defaultValue) : defaultValue
+      const validation = isNumeric ? number() : string().trim()
+
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: isNaN(+defaultValue) ? 'text' : 'number',
+        validation: validation
+          .default(ensuredValue)
+          // ensures to send the value
+          .afterSubmit(() => defaultValue),
+        fieldProps: { disabled: true },
+        readOnly: true,
+      }
+    }
     case USER_INPUT_TYPES.text:
     case USER_INPUT_TYPES.text64:
     case USER_INPUT_TYPES.password:
@@ -311,7 +325,8 @@ export const schemaUserInput = ({
       }
     case USER_INPUT_TYPES.list: {
       const values = getOptionsFromList(options)
-      const firstOption = values?.[0]?.value ?? undefined
+      const optionValues = values.map(({ value }) => value).filter(Boolean)
+      const firstOption = optionValues[0] ?? undefined
 
       return {
         values,
@@ -319,7 +334,7 @@ export const schemaUserInput = ({
         validation: string()
           .trim()
           .concat(requiredSchema(mandatory, string()))
-          .oneOf(values.map(({ value }) => value))
+          .oneOf(optionValues)
           .default(() => defaultValue || firstOption),
       }
     }

@@ -33,6 +33,7 @@ const AutocompleteController = memo(
     multiple = false,
     values = [],
     fieldProps: { separators, ...fieldProps } = {},
+    readOnly = false,
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
@@ -78,6 +79,7 @@ const AutocompleteController = memo(
           <TextField
             label={labelCanBeTranslated(label) ? Tr(label) : label}
             inputProps={{ ...inputProps, 'data-cy': cy }}
+            InputProps={{ readOnly }}
             error={Boolean(error)}
             helperText={
               Boolean(error) && <ErrorHelper label={error?.message} />
@@ -115,6 +117,7 @@ AutocompleteController.propTypes = {
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object),
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

@@ -19,7 +19,7 @@ import {
   FIELDS as INFORMATION_FIELDS,
   HYPERVISOR_FIELD,
 } from './informationSchema'
-import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
+import { MEMORY_FIELDS, CPU_FIELDS, VCPU_FIELDS } from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
 import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
@@ -41,12 +41,28 @@ const SECTIONS = (hypervisor, isUpdate) => [
     id: 'information',
     legend: T.Information,
     required: true,
-    fields: filterFieldsByHypervisor(INFORMATION_FIELDS(isUpdate), hypervisor),
+    fields: INFORMATION_FIELDS(isUpdate),
+  },
+  {
+    id: 'hypervisor',
+    legend: T.Hypervisor,
+    required: true,
+    fields: [HYPERVISOR_FIELD],
   },
   {
     id: 'capacity',
-    legend: T.Capacity,
-    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor),
+    legend: T.Memory,
+    fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+  },
+  {
+    id: 'capacity',
+    legend: T.PhysicalCpu,
+    fields: filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
+  },
+  {
+    id: 'capacity',
+    legend: T.VirtualCpu,
+    fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
   },
   {
     id: 'ownership',
@@ -70,11 +86,10 @@ const SECTIONS = (hypervisor, isUpdate) => [
  * @returns {BaseSchema} Step schema
  */
 const SCHEMA = (hypervisor) =>
-  getObjectSchemaFromFields([
-    HYPERVISOR_FIELD,
-    ...SECTIONS(hypervisor)
+  getObjectSchemaFromFields(
+    SECTIONS(hypervisor)
       .map(({ fields }) => fields)
-      .flat(),
-  ])
+      .flat()
+  )
 
 export { SECTIONS, SCHEMA }
