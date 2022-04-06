@@ -47,6 +47,6 @@ inputs:
     default: 'kvm'
     options:
         - 'kvm'
-        - 'firecracker'
+        # - 'firecracker'
         - 'lxc'
 ...

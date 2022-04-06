@@ -276,6 +276,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge \
           $ETC_LOCATION/fireedge/provision \
           $ETC_LOCATION/fireedge/provision/providers.d \
+          $ETC_LOCATION/fireedge/provision/providers.d-extra \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/admin \
           $ETC_LOCATION/fireedge/sunstone/user"
@@ -889,6 +890,7 @@ INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
   PROVISION_ETC:$ETC_LOCATION/fireedge/provision
   PROVISION_ETC_PROVIDERS:$ETC_LOCTION/fireedge/provision/providers.d
+  PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCTION/fireedge/provision/providers.d-extra
   SUNSTONE_ETC_VIEWS:$ETC_LOCATION/fireedge/sunstone
   SUNSTONE_ETC_VIEWS_ADMIN:$ETC_LOCTION/fireedge/sunstone/admin
   SUNSTONE_ETC_VIEWS_USER:$ETC_LOCTION/fireedge/sunstone/user
@@ -899,6 +901,7 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
   FIREEDGE_PROVISION_ETC:$ETC_LOCATION/fireedge/provision
   FIREEDGE_PROVISION_ETC_PROVIDERS:$ETC_LOCATION/fireedge/provision/providers.d
+  FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCATION/fireedge/provision/providers.d-extra
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
@@ -2532,7 +2535,8 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/ \
+                              share/oneprovision/edge-clusters-extra/ "
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
@@ -2855,12 +2859,13 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
-                                src/fireedge/etc/provision/providers.d/digitalocean.yaml \
                                 src/fireedge/etc/provision/providers.d/dummy.yaml \
-                                src/fireedge/etc/provision/providers.d/google.yaml \
-                                src/fireedge/etc/provision/providers.d/equinix.yaml \
-                                src/fireedge/etc/provision/providers.d/vultr_metal.yaml \
-                                src/fireedge/etc/provision/providers.d/vultr_virtual.yaml"
+                                src/fireedge/etc/provision/providers.d/equinix.yaml"
+
+FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-extra/digitalocean.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/google.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/vultr_metal.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/vultr_virtual.yaml"
 
 #----------------------------------------------------------------------------
 # FireEdge Sunstone files
