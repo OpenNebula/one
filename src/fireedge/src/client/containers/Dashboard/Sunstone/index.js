@@ -17,15 +17,15 @@ import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { Container, Box, CircularProgress, Grid } from '@mui/material'
 import {
-  User as UserIcon,
-  Group as GroupIcon,
+  ModernTv as VmsIcons,
+  List as TemplatesIcon,
   Archive as ImageIcon,
   NetworkAlt as NetworkIcon,
 } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useGetUsersQuery } from 'client/features/OneApi/user'
-import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 import NumberEasing from 'client/components/NumberEasing'
@@ -55,16 +55,16 @@ function SunstoneDashboard() {
           spacing={3}
         >
           <ResourceWidget
-            query={useGetUsersQuery}
+            query={useGetVmsQuery}
             bgColor="#fa7892"
-            text={T.Users}
-            icon={UserIcon}
+            text={T.VMs}
+            icon={VmsIcons}
           />
           <ResourceWidget
-            query={useGetGroupsQuery}
+            query={useGetTemplatesQuery}
             bgColor="#b25aff"
-            text={T.Groups}
-            icon={GroupIcon}
+            text={T.VMTemplates}
+            icon={TemplatesIcon}
           />
           <ResourceWidget
             query={useGetImagesQuery}
