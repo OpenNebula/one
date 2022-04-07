@@ -16,8 +16,14 @@
 import { ReactElement, memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock, HardDrive } from 'iconoir-react'
-import { Stack, Typography } from '@mui/material'
+import {
+  User,
+  Group,
+  Lock,
+  HardDrive,
+  WarningCircledOutline as WarningIcon,
+} from 'iconoir-react'
+import { Box, Stack, Typography, Tooltip } from '@mui/material'
 
 import Timer from 'client/components/Timer'
 import MultipleTags from 'client/components/MultipleTags'
@@ -27,6 +33,7 @@ import {
   getState,
   getLastHistory,
   getHypervisor,
+  getErrorMessage,
 } from 'client/models/VirtualMachine'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { VM } from 'client/constants'
@@ -46,6 +53,7 @@ const VirtualMachineCard = memo(
     const HOSTNAME = getLastHistory(vm)?.HOSTNAME ?? '--'
     const hypervisor = getHypervisor(vm)
     const time = timeFromMilliseconds(+ETIME || +STIME)
+    const error = getErrorMessage(vm)
 
     const { color: stateColor, name: stateName } = getState(vm)
 
@@ -59,6 +67,17 @@ const VirtualMachineCard = memo(
             <Typography noWrap component="span">
               {NAME}
             </Typography>
+            {error && (
+              <Tooltip
+                arrow
+                placement="bottom"
+                title={<Typography variant="subtitle2">{error}</Typography>}
+              >
+                <Box color="error.dark" component="span">
+                  <WarningIcon />
+                </Box>
+              </Tooltip>
+            )}
             <span className={classes.labels}>
               {hypervisor && <StatusChip text={hypervisor} />}
               {LOCK && <Lock data-cy="lock" />}

@@ -21,11 +21,12 @@ import { Box, Typography, Paper } from '@mui/material'
 import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import { Tr } from 'client/components/HOC'
 
 import { getDiskName, getDiskType } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
-import { prettyBytes } from 'client/utils'
-import { Disk } from 'client/constants'
+import { prettyBytes, sentenceCase } from 'client/utils'
+import { T, Disk } from 'client/constants'
 
 const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
   const classes = rowStyles()
@@ -54,19 +55,19 @@ const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
       [
         { label: getDiskType(disk), dataCy: 'type' },
         {
-          label: stringToBoolean(PERSISTENT) && 'PERSISTENT',
+          label: stringToBoolean(PERSISTENT) && T.Persistent,
           dataCy: 'persistent',
         },
         {
-          label: stringToBoolean(READONLY) && 'READONLY',
+          label: stringToBoolean(READONLY) && T.ReadOnly,
           dataCy: 'readonly',
         },
         {
-          label: stringToBoolean(SAVE) && 'SAVE',
+          label: stringToBoolean(SAVE) && T.Save,
           dataCy: 'save',
         },
         {
-          label: stringToBoolean(CLONE) && 'CLONE',
+          label: stringToBoolean(CLONE) && T.Clone,
           dataCy: 'clone',
         },
       ].filter(({ label } = {}) => Boolean(label)),
@@ -89,7 +90,7 @@ const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
             {labels.map(({ label, dataCy }) => (
               <StatusChip
                 key={label}
-                text={label}
+                text={sentenceCase(Tr(label))}
                 {...(dataCy && { dataCy: dataCy })}
               />
             ))}
@@ -109,10 +110,17 @@ const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
               <span data-cy="datastore">{` ${DATASTORE}`}</span>
             </span>
           )}
-          <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
-            <ModernTv />
-            <span data-cy="monitorsize">{` ${monitorSize}/${size}`}</span>
-          </span>
+          {+MONITOR_SIZE ? (
+            <span title={`Monitor Size / Disk Size: ${monitorSize}/${size}`}>
+              <ModernTv />
+              <span data-cy="monitorsize">{` ${monitorSize}/${size}`}</span>
+            </span>
+          ) : (
+            <span title={`Disk Size: ${size}`}>
+              <ModernTv />
+              <span data-cy="disksize">{` ${size}`}</span>
+            </span>
+          )}
         </div>
       </div>
       {!IS_CONTEXT && !!actions && (

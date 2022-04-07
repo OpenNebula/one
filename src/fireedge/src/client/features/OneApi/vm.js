@@ -26,6 +26,7 @@ import {
 import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import http from 'client/utils/rest'
+import { xmlToJson } from 'client/models/Helper'
 import {
   LockLevel,
   FilterFlag,
@@ -741,6 +742,32 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      async onQueryStarted(
+        { id, template: xml, replace },
+        { dispatch, queryFulfilled }
+      ) {
+        try {
+          if (+replace !== 0 || !xml) return
+
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData('getVm', id, (draft) => {
+              draft.USER_TEMPLATE = xmlToJson(xml)
+            })
+          )
+
+          const patchVms = dispatch(
+            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
+              const vm = draft.find(({ ID }) => +ID === +id)
+              vm && (vm.USER_TEMPLATE = xmlToJson(xml))
+            })
+          )
+
+          queryFulfilled.catch(() => {
+            patchVm.undo()
+            patchVms.undo()
+          })
+        } catch {}
+      },
     }),
     updateConfiguration: builder.mutation({
       /**

@@ -14,7 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { DateTime } from 'luxon'
-import { j2xParser as Parser, J2xOptions } from 'fast-xml-parser'
+import {
+  parse as ParserToJson,
+  X2jOptions,
+  j2xParser as ParserToXml,
+  J2xOptions,
+} from 'fast-xml-parser'
 
 import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
 import { camelCase } from 'client/utils'
@@ -26,9 +31,30 @@ import { camelCase } from 'client/utils'
  * @returns {string} Xml in string format
  */
 export const jsonToXml = (json, { addRoot = true, ...options } = {}) => {
-  const parser = new Parser(options)
+  const parser = new ParserToXml(options)
 
   return parser.parse(addRoot ? { ROOT: json } : json)
+}
+
+/**
+ * @param {string} xml - XML in string format
+ * @param {X2jOptions} [options] - Options to parser
+ * @returns {object} JSON
+ */
+export const xmlToJson = (xml, options = {}) => {
+  const { ROOT, ...jsonWithoutROOT } = ParserToJson(xml, {
+    attributeNamePrefix: '',
+    attrNodeName: '',
+    ignoreAttributes: false,
+    ignoreNameSpace: true,
+    allowBooleanAttributes: false,
+    parseNodeValue: false,
+    parseAttributeValue: true,
+    trimValues: true,
+    ...options,
+  })
+
+  return ROOT ?? jsonWithoutROOT
 }
 
 /**

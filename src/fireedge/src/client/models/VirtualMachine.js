@@ -107,6 +107,17 @@ export const getState = (vm) => {
 
 /**
  * @param {VM} vm - Virtual machine
+ * @returns {string} Error message from resource
+ */
+export const getErrorMessage = (vm) => {
+  const { USER_TEMPLATE } = vm ?? {}
+  const { ERROR, SCHED_MESSAGE } = USER_TEMPLATE ?? {}
+
+  return [ERROR, SCHED_MESSAGE].filter(Boolean)[0]
+}
+
+/**
+ * @param {VM} vm - Virtual machine
  * @returns {Disk[]} List of disks from resource
  */
 export const getDisks = (vm) => {

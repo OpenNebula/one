@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
+import { ReactElement, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
+import { Stack, Alert, Fade } from '@mui/material'
+import { Cancel as CloseIcon } from 'iconoir-react'
 
 import {
   useGetVmQuery,
@@ -29,10 +30,11 @@ import {
   AttributePanel,
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
+import { SubmitButton } from 'client/components/FormControl'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { getHypervisor } from 'client/models/VirtualMachine'
+import { getHypervisor, getErrorMessage } from 'client/models/VirtualMachine'
 import {
   getActionsAvailable,
   filterAttributes,
@@ -65,12 +67,16 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
     attributes_panel: attributesPanel,
   } = tabProps
 
+  const { data: vm = {} } = useGetVmQuery(id)
   const [changeVmOwnership] = useChangeVmOwnershipMutation()
   const [changeVmPermissions] = useChangeVmPermissionsMutation()
   const [updateUserTemplate] = useUpdateUserTemplateMutation()
-  const { data: vm = {} } = useGetVmQuery(id)
+  const [dismissError] = useUpdateUserTemplateMutation()
 
   const { UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
+
+  const error = useMemo(() => getErrorMessage(vm), [vm])
+  const hypervisor = useMemo(() => getHypervisor(vm), [vm])
 
   const {
     attributes,
@@ -104,9 +110,16 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
     await updateUserTemplate({ id, template: xml, replace: 0 })
   }
 
+  const handleDismissError = async () => {
+    const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
+    const xml = jsonToXml({ ...templateWithoutError })
+
+    await dismissError({ id, template: xml, replace: 0 })
+  }
+
   const getActions = useCallback(
-    (actions) => getActionsAvailable(actions, getHypervisor(vm)),
-    [vm]
+    (actions) => getActionsAvailable(actions, hypervisor),
+    [hypervisor]
   )
 
   const ATTRIBUTE_FUNCTION = {
@@ -122,6 +135,22 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       gridTemplateColumns="repeat(auto-fit, minmax(380px, 1fr))"
       padding="0.8em"
     >
+      <Fade in={!!error} unmountOnExit>
+        <Alert
+          variant="outlined"
+          severity="error"
+          sx={{ gridColumn: 'span 2' }}
+          action={
+            <SubmitButton
+              onClick={handleDismissError}
+              icon={<CloseIcon />}
+              tooltip={<Translate word={T.Dismiss} />}
+            />
+          }
+        >
+          {error}
+        </Alert>
+      </Fade>
       {informationPanel?.enabled && (
         <Information actions={getActions(informationPanel?.actions)} vm={vm} />
       )}
@@ -155,7 +184,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
           {...ATTRIBUTE_FUNCTION}
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
-          title={Tr(T.Attributes)}
+          title={`${Tr(T.Attributes)}`}
         />
       )}
       {vcenterPanel?.enabled && vcenterAttributes && (
@@ -178,7 +207,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
         <AttributePanel
           actions={getActions(monitoringPanel?.actions)}
           attributes={monitoringAttributes}
-          title={Tr(T.Monitoring)}
+          title={`${Tr(T.Monitoring)}`}
         />
       )}
     </Stack>

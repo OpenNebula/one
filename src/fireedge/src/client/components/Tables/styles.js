@@ -68,7 +68,8 @@ export const rowStyles = makeStyles(
       color: palette.text.secondary,
       marginTop: 4,
       display: 'flex',
-      gap: '0.5em',
+      gap: '0.75em',
+      alignItems: 'center',
       flexWrap: 'wrap',
       wordWrap: 'break-word',
       '& > .full-width': {
