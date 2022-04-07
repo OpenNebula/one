@@ -43,18 +43,21 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
 
         string lxc_market =
             "NAME=\"Linux Containers\"\n"
+            "STATE=DISABLED\n"
             "MARKET_MAD=linuxcontainers\n"
             "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
             " LXD hosted at linuxcontainers.org\"";
 
         string tk_market =
             "NAME=\"TurnKey Linux Containers\"\n"
+            "STATE=DISABLED\n"
             "MARKET_MAD=turnkeylinux\n"
             "DESCRIPTION=\"TurnKey linux is a free software repository"
             " based on Debian images hosted at turnkeylinux.org\"";
 
         string dh_market =
             "NAME=\"DockerHub\"\n"
+            "STATE=DISABLED\n"
             "MARKET_MAD=dockerhub\n"
             "DESCRIPTION=\"DockerHub is the world's largest library and"
             "  community for container images hosted at hub.docker.com/\"";

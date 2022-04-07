@@ -119,6 +119,9 @@ error_common:
 
 int MarketPlace::parse_template(string& error_str)
 {
+    string state_str;
+    MarketPlaceState state_new;
+
 	//MarketPlacePool::allocate checks NAME & ZONE_ID
     erase_template_attribute("NAME", name);
     remove_template_attribute("ZONE_ID");
@@ -133,6 +136,13 @@ int MarketPlace::parse_template(string& error_str)
     if (set_market_mad(market_mad, error_str) != 0)
     {
         goto error_common;
+    }
+
+    if (get_template_attribute("STATE", state_str) &&
+        str_to_state(state_str, state_new) == 0)
+    {
+        state = state_new;
+        remove_template_attribute("STATE");
     }
 
     return 0;
