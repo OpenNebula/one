@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import DockerLogo from 'client/components/Icons/DockerIcon'
+import GuacamoleLogo from 'client/components/Icons/GuacamoleIcon'
 import OpenNebulaLogo from 'client/components/Icons/OpenNebulaIcon'
+import WebMKSLogo from 'client/components/Icons/WebMKSIcon'
 
-export { DockerLogo, OpenNebulaLogo }
+export { DockerLogo, GuacamoleLogo, OpenNebulaLogo, WebMKSLogo }

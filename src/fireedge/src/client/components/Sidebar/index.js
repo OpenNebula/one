@@ -76,7 +76,7 @@ const Sidebar = ({ endpoints }) => {
       matchPath(pathname, { path, exact: true })
     )
 
-    return endpoint?.disabledSidebar
+    return endpoint?.disableLayout
   }, [pathname])
 
   if (isDisabledSidebar) {

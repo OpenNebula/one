@@ -23,6 +23,10 @@ import { SOCKETS } from 'client/constants'
 
 const ERROR = 'Error'
 const UNINITIALIZED = 'Uninitialized'
+const CONNECTED = 'Connected'
+
+const compareStrings = (a, b) =>
+  `${a}`.toLocaleLowerCase() === `${b}`.toLocaleLowerCase()
 
 /**
  * @param {object} options - Client options
@@ -87,6 +91,9 @@ const WebMKSClient = ({ token }) => {
   return {
     wmks: wmks.current,
     status,
+    isUninitialized: compareStrings(status, UNINITIALIZED),
+    isError: compareStrings(status, ERROR),
+    isConnected: compareStrings(status, CONNECTED),
     displayElement: (
       <Box
         sx={{

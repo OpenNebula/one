@@ -15,10 +15,11 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-
 import { Tooltip, Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
   if (tags?.length === 0) {
@@ -62,7 +63,8 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
           })}
         >
           <Typography component="span" variant="subtitle2" sx={{ ml: 1 }}>
-            {`+${more} more`}
+            {`+${more} `}
+            <Translate word={T.More} />
           </Typography>
         </Tooltip>
       )}

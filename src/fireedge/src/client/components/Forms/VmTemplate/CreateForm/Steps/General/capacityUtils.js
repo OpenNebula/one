@@ -80,7 +80,7 @@ const modificationTypeInput = (fieldName, { type: typeId }) => ({
   validation: lazy((_, { context }) =>
     string().default(() => {
       const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
-      const { type } = getUserInputParams(capacityUserInput) ?? {}
+      const { type } = getUserInputParams(capacityUserInput)
 
       return type
     })
@@ -177,7 +177,7 @@ const modificationOptionsInput = (fieldName, { type, options: optionsId }) => ({
       })
       .default(() => {
         const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
-        const { options = [] } = getUserInputParams(capacityUserInput) ?? {}
+        const { options = [] } = getUserInputParams(capacityUserInput)
 
         return options
       })

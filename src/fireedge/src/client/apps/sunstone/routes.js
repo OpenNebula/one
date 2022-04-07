@@ -60,13 +60,13 @@ export const ENDPOINTS = [
   },
   {
     label: 'Guacamole',
-    disabledSidebar: true,
+    disableLayout: true,
     path: PATH.GUACAMOLE,
     Component: Guacamole,
   },
   {
     label: 'WebMKS',
-    disabledSidebar: true,
+    disableLayout: true,
     path: PATH.WMKS,
     Component: WebMKS,
   },

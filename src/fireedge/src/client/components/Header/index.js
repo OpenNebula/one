@@ -36,7 +36,7 @@ import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import { sentenceCase } from 'client/utils'
 
-const Header = ({ disabledSidebar = false }) => {
+const Header = () => {
   const { isOneAdmin } = useAuth()
   const { fixMenu } = useGeneralApi()
   const { appTitle, title, isBeta, withGroupSwitcher } = useGeneral()
@@ -45,17 +45,15 @@ const Header = ({ disabledSidebar = false }) => {
   return (
     <AppBar data-cy="header" elevation={0} position="absolute">
       <Toolbar>
-        {!disabledSidebar && (
-          <IconButton
-            onClick={() => fixMenu(true)}
-            edge="start"
-            size="small"
-            variant="outlined"
-            sx={{ display: { lg: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
+        <IconButton
+          onClick={() => fixMenu(true)}
+          edge="start"
+          size="small"
+          variant="outlined"
+          sx={{ display: { lg: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
         <Box
           flexGrow={1}
           ml={2}
@@ -117,7 +115,6 @@ const Header = ({ disabledSidebar = false }) => {
 }
 
 Header.propTypes = {
-  disabledSidebar: PropTypes.bool,
   scrollContainer: PropTypes.object,
 }
 

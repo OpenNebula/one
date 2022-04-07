@@ -325,6 +325,8 @@ const OPTIONAL = 'O'
  * @returns {UserInputObject} User input object
  */
 export const getUserInputParams = (userInputString) => {
+  if (!userInputString) return {}
+
   const params = String(userInputString).split(PARAMS_SEPARATOR)
 
   const options = [

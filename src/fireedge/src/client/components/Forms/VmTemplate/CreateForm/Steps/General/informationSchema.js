@@ -93,7 +93,7 @@ export const LOGO = {
       alt="logo"
       imgProps={{ height: 25, width: 25, style: { marginRight: 10 } }}
       // expected url for Ruby Sunstone compatibility
-      // => client/assets/images/logos/{value}.png
+      // => images/logos/{logo}.png
       src={`${STATIC_FILES_URL}/${value}`}
     />
   ),

@@ -15,10 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory, useParams } from 'react-router'
-import { Box, Stack, Typography } from '@mui/material'
-import { RESOURCE_NAMES, VM_ACTIONS } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { Box, Stack, Typography, Container } from '@mui/material'
 
+import { useViews } from 'client/features/Auth'
 import { useGetVMRCSessionQuery } from 'client/features/OneApi/vcenter'
 import {
   HeaderVmInfo,
@@ -27,8 +26,11 @@ import {
   WebMKSCtrlAltDelButton,
   WebMKSFullScreenButton,
 } from 'client/components/Consoles'
+import { WebMKSLogo } from 'client/components/Icons'
 import { PATH } from 'client/apps/sunstone/routes'
+import { Tr } from 'client/components/HOC'
 import { sentenceCase } from 'client/utils'
+import { RESOURCE_NAMES, T, VM_ACTIONS } from 'client/constants'
 
 /** @returns {ReactElement} WebMKS container */
 const WebMKS = () => {
@@ -40,27 +42,69 @@ const WebMKS = () => {
     [view]
   )
 
-  const { data: ticket, isError } = useGetVMRCSessionQuery(
+  const { data: ticket, isError: queryIsError } = useGetVMRCSessionQuery(
     { id },
     { refetchOnMountOrArgChange: false, skip: !isAvailableView }
   )
 
   useEffect(() => {
-    ;(isError || !isAvailableView) && redirectTo(PATH.DASHBOARD)
-  }, [isError])
+    ;(queryIsError || !isAvailableView) && redirectTo(PATH.DASHBOARD)
+  }, [queryIsError])
 
   const { ...session } = useWebMKSSession({ token: ticket })
-  const { status, displayElement } = session
+  const { status, isError, isConnected, displayElement } = session
+
+  const colorStatus = useMemo(
+    () =>
+      isError ? 'error.main' : isConnected ? 'success.main' : 'text.secondary',
+    [isError, isConnected]
+  )
+
+  const connectionState = useMemo(() => sentenceCase(status ?? ''), [status])
 
   return (
-    <Box display="grid" gridTemplateRows="auto 1fr" width={1} height={1}>
-      <Stack>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'grid',
+        gridTemplateRows: 'auto 1fr',
+        gap: '1em',
+      }}
+    >
+      <Stack
+        component={Container}
+        direction={{ sm: 'column', md: 'row' }}
+        alignItems="stretch"
+        justifyContent="space-between"
+        gap="1em"
+        padding="1em"
+      >
         <HeaderVmInfo id={id} type={VM_ACTIONS.VMRC} />
-        <Stack direction="row" alignItems="center" gap="1em" my="1em">
-          <WebMKSCtrlAltDelButton {...session} />
-          <WebMKSFullScreenButton {...session} />
-          {/* <WebMKSKeyboard {...session} /> */}
-          <Typography>{sentenceCase(status)}</Typography>
+        <Stack
+          direction={{ sm: 'row', md: 'column' }}
+          alignItems={{ sm: 'center', md: 'end' }}
+          flexGrow={{ sm: 1, md: 0 }}
+          flexWrap="wrap"
+          gap="1em"
+        >
+          {connectionState && (
+            <Stack
+              title={`${Tr(T.VMRCState)}: ${connectionState}`}
+              flexGrow={1}
+              direction={{ sm: 'row-reverse', md: 'row' }}
+              justifyContent="flex-end"
+              alignItems="flex-end"
+              gap="1em"
+            >
+              <Typography color={colorStatus}>{connectionState}</Typography>
+              <WebMKSLogo />
+            </Stack>
+          )}
+          <Stack direction="row" alignItems="center" gap="1em">
+            <WebMKSFullScreenButton {...session} />
+            <WebMKSCtrlAltDelButton {...session} />
+            {/* <WebMKSKeyboard {...session} /> */}
+          </Stack>
         </Stack>
       </Stack>
       {displayElement}

@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-import { Stack, Typography, Divider, Skeleton } from '@mui/material'
+import { Stack, Typography, Divider, Skeleton, Avatar } from '@mui/material'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
+import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
 import { useGeneralApi } from 'client/features/General'
-import { StatusCircle } from 'client/components/Status'
+import { StatusBadge } from 'client/components/Status'
+import { OpenNebulaLogo } from 'client/components/Icons'
 import MultipleTags from 'client/components/MultipleTags'
+import { Translate } from 'client/components/HOC'
 import { getIps, getState, isVCenter } from 'client/models/VirtualMachine'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { PATH } from 'client/apps/sunstone/routes'
-import { VM_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, STATIC_FILES_URL } from 'client/constants'
 
 /**
  * @param {object} props - Props
@@ -38,55 +41,102 @@ const HeaderVmInfo = ({ id, type }) => {
   const { enqueueError } = useGeneralApi()
 
   const { data: vm, isSuccess, isLoading, isError } = useGetVmQuery(id)
+  const [getService, { data: serviceFlow }] = useLazyGetServiceQuery()
 
   const ips = getIps(vm)
   const { color: stateColor, name: stateName } = getState(vm) ?? {}
   const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
+  const isVMRC = useMemo(() => type === VM_ACTIONS.VMRC, [type])
+  const serviceId = useMemo(() => vm?.USER_TEMPLATE?.SERVICE_ID, [vm])
+  const srcLogo = useMemo(() => vm?.USER_TEMPLATE?.LOGO?.toLowerCase(), [vm])
+
+  useEffect(() => {
+    serviceId !== undefined && getService({ id: serviceId })
+  }, [serviceId])
 
   useEffect(() => {
     isError && redirectTo(PATH.DASHBOARD)
   }, [isError])
 
   useEffect(() => {
-    if (type === VM_ACTIONS.VMRC && isSuccess && vm && !isVCenter(vm)) {
+    if (isVMRC && isSuccess && vm && !isVCenter(vm)) {
       enqueueError(`${vm.ID} - ${vm.NAME} is not located on vCenter Host`)
       redirectTo(PATH.DASHBOARD)
     }
-  }, [isSuccess])
+  }, [isVMRC, isSuccess])
 
   return (
-    <Stack direction="row" justifyContent="space-between" gap="1em" px={2}>
-      <Typography flexGrow={1} display="flex" alignItems="center" gap="0.5em">
+    <Stack
+      justifyContent="space-between"
+      flexGrow={1}
+      flexWrap="wrap"
+      gap="1em"
+    >
+      <Stack direction="row" alignItems="flex-end" gap="0.5em">
         {isLoading ? (
           <>
-            <Skeleton variant="circular" width={12} height={12} />
-            <Skeleton variant="text" width="60%" />
+            <Skeleton variant="circular" width={24} height={24} />
+            <Skeleton height={30} sx={{ width: { xs: '100%', sm: '60%' } }} />
           </>
         ) : (
           <>
-            <StatusCircle color={stateColor} tooltip={stateName} />
-            {`# ${vm?.ID} - ${vm?.NAME}`}
+            <StatusBadge title={stateName} stateColor={stateColor}>
+              {srcLogo ? (
+                <Avatar src={`${STATIC_FILES_URL}/${srcLogo}`} />
+              ) : (
+                <OpenNebulaLogo width={38} height={38} disabledBetaText />
+              )}
+            </StatusBadge>
+            <Typography noWrap component="span" variant="h6">
+              {vm?.NAME}
+            </Typography>
+            {serviceFlow && (
+              <Typography noWrap component="span">
+                <Translate word={T.PartOf} />
+                {`: ${serviceFlow?.NAME}`}
+              </Typography>
+            )}
           </>
         )}
-      </Typography>
+      </Stack>
       <Stack
-        flexGrow={1}
-        direction="row"
-        justifyContent="flex-end"
+        direction={{ xs: 'column', sm: 'row' }}
+        gap="0.5em"
+        alignItems="baseline"
         divider={<Divider orientation="vertical" flexItem />}
-        gap="1em"
       >
         {isLoading ? (
-          <Skeleton variant="text" width="60%" />
+          <Skeleton
+            variant="text"
+            sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}
+          />
         ) : (
-          <Typography>{`Started on: ${time.toFormat('ff')}`}</Typography>
+          <>
+            <Typography
+              noWrap
+              component="span"
+              variant="body1"
+              color="text.secondary"
+            >
+              {`# ${vm?.ID}`}
+            </Typography>
+            <Typography noWrap variant="body1">
+              <Translate
+                word={T.StartedOnTime}
+                values={[time.toFormat('ff')]}
+              />
+            </Typography>
+          </>
         )}
         {isLoading ? (
-          <Skeleton variant="text" width="40%" />
+          <Skeleton
+            variant="text"
+            sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}
+          />
         ) : (
           !!ips?.length && (
             <Typography>
-              <MultipleTags tags={ips} />
+              <MultipleTags tags={ips} clipboard />
             </Typography>
           )
         )}

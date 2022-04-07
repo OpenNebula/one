@@ -24,7 +24,7 @@ import {
   GuacamoleSession, // eslint-disable-line no-unused-vars
   SOCKETS,
   GUACAMOLE_STATES_STR,
-  THUMBNAIL_UPDATE_FREQUENCY,
+  // THUMBNAIL_UPDATE_FREQUENCY,
 } from 'client/constants'
 
 const {
@@ -55,7 +55,7 @@ const GuacamoleClient = ({ id, display }) => {
   const guac = useRef(createGuacamoleClient()).current
 
   // Automatically update the client thumbnail
-  guac.client.onsync = () => handleUpdateThumbnail()
+  // guac.client.onsync = () => handleUpdateThumbnail()
 
   const { enqueueError, enqueueInfo, enqueueSuccess } = useGeneralApi()
   const { token, ...session } = useGuacamole(id)
@@ -63,7 +63,7 @@ const GuacamoleClient = ({ id, display }) => {
     setConnectionState,
     setTunnelUnstable,
     setMultiTouchSupport,
-    updateThumbnail,
+    // updateThumbnail,
   } = useGuacamoleApi(id)
 
   const handleConnect = (width, height, force = false) => {
@@ -97,7 +97,7 @@ const GuacamoleClient = ({ id, display }) => {
    * history under its associated ID. If the client is not connected, this
    * function has no effect.
    */
-  const handleUpdateThumbnail = () => {
+  /* const handleUpdateThumbnail = () => {
     const nowTimestamp = new Date().getTime()
     const lastTimestamp = session?.thumbnail?.timestamp
 
@@ -142,7 +142,7 @@ const GuacamoleClient = ({ id, display }) => {
       const newThumbnail = { timestamp: nowTimestamp, canvas: url }
       updateThumbnail({ thumbnail: newThumbnail })
     }, 'image/webp')
-  }
+  } */
 
   useEffect(() => {
     guac.tunnel.onerror = (status) => {

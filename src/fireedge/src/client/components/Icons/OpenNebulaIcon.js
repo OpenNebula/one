@@ -26,15 +26,13 @@ const OpenNebulaLogo = memo(
     height,
     spinner,
     withText,
-    viewBox,
+    viewBox = withText ? '0 0 120 45' : '0 0 35 45',
     disabledBetaText,
     ...props
   }) => {
     const { isBeta } = useGeneral()
-    const {
-      palette: { mode },
-    } = useTheme()
-    const isDarkMode = mode === SCHEMES.DARK
+    const { palette } = useTheme()
+    const isDarkMode = palette.mode === SCHEMES.DARK
 
     const cloudColor = useMemo(
       () => ({
@@ -247,7 +245,6 @@ OpenNebulaLogo.propTypes = {
 OpenNebulaLogo.defaultProps = {
   width: 360,
   height: 360,
-  viewBox: '0 0 120 45',
   spinner: false,
   withText: false,
   disabledBetaText: false,

@@ -74,7 +74,7 @@ const GuacamoleCtrlAltDelButton = memo(
         variant="outlined"
         color="error"
       >
-        <Translate word={T.SendCtrlAltDel} />
+        <Translate word={T.CtrlAltDel} />
       </Button>
     )
   }

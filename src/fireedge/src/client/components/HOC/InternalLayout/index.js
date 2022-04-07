@@ -24,9 +24,9 @@ import { useGeneral, useGeneralApi } from 'client/features/General'
 import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
-import { sidebar } from 'client/theme/defaults'
+import { sidebar, footer } from 'client/theme/defaults'
 
-const InternalLayout = ({ title, customHeader, disabledSidebar, children }) => {
+const InternalLayout = ({ title, disableLayout, children }) => {
   const classes = internalStyles()
   const container = useRef()
   const { isFixMenu } = useGeneral()
@@ -37,30 +37,34 @@ const InternalLayout = ({ title, customHeader, disabledSidebar, children }) => {
     changeTitle(typeof title === 'function' ? title(params) : title)
   }, [title])
 
+  if (disableLayout) {
+    return (
+      <Box data-cy="main-layout" className={classes.root}>
+        <Box
+          component="main"
+          sx={{ height: '100vh', width: '100%', pb: `${footer.regular}px` }}
+        >
+          {children}
+        </Box>
+        <Footer />
+      </Box>
+    )
+  }
+
   return (
     <Box
       data-cy="main-layout"
       className={classes.root}
       sx={useMemo(
-        () =>
-          disabledSidebar
-            ? {}
-            : {
-                marginLeft: {
-                  lg: isFixMenu
-                    ? `${sidebar.fixed}px`
-                    : `${sidebar.minified}px`,
-                },
-              },
-        [isFixMenu, disabledSidebar]
+        () => ({
+          ml: {
+            lg: isFixMenu ? `${sidebar.fixed}px` : `${sidebar.minified}px`,
+          },
+        }),
+        [isFixMenu]
       )}
     >
-      {customHeader ?? (
-        <Header
-          disabledSidebar={disabledSidebar}
-          scrollContainer={container.current}
-        />
-      )}
+      <Header scrollContainer={container.current} />
       <Box component="main" className={classes.main}>
         <CSSTransition
           in
@@ -93,8 +97,7 @@ const InternalLayout = ({ title, customHeader, disabledSidebar, children }) => {
 
 InternalLayout.propTypes = {
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  customHeader: PropTypes.node,
-  disabledSidebar: PropTypes.bool,
+  disableLayout: PropTypes.bool,
   children: PropTypes.any,
 }
 

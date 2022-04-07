@@ -68,7 +68,7 @@ const WebMKSCtrlAltDelButton = memo((session) => {
       variant="outlined"
       color="error"
     >
-      <Translate word={T.SendCtrlAltDel} />
+      <Translate word={T.CtrlAltDel} />
     </Button>
   )
 })
