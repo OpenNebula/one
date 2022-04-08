@@ -1860,7 +1860,7 @@ end
             begin
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion
             rescue StandardError => e
-                error = "Cannot create snapshot for VM: #{e.message}."
+                error = "Cannot generate VM context info: #{e.message}."
 
                 if VCenterDriver::CONFIG[:debug_information]
                     error += "\n\n#{e.backtrace}"

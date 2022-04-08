@@ -64,7 +64,10 @@ begin
 
     one_item_xml     = drv_action.retrieve_xmlelements('VM').first.to_xml
     one_item_raw_xml = OpenNebula::XMLElement.build_xml(one_item_xml, 'VM')
-    one_item = OpenNebula::VirtualMachine.new(one_item_raw_xml, vi_client)
+    one_item = OpenNebula::VirtualMachine.new(
+        one_item_raw_xml,
+        OpenNebula::Client.new
+    )
 
     vm = VCenterDriver::VirtualMachine.new_one(vi_client, vm_ref, one_item)
 
