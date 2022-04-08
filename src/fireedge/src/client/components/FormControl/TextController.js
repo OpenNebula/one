@@ -81,7 +81,9 @@ const TextController = memo(
           }),
         }}
         error={Boolean(error)}
-        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        helperText={
+          error ? <ErrorHelper label={error?.message} /> : fieldProps.helperText
+        }
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
       />
@@ -91,7 +93,8 @@ const TextController = memo(
     prevProps.type === nextProps.type &&
     prevProps.label === nextProps.label &&
     prevProps.tooltip === nextProps.tooltip &&
-    prevProps.fieldProps?.value === nextProps.fieldProps?.value
+    prevProps.fieldProps?.value === nextProps.fieldProps?.value &&
+    prevProps.fieldProps?.helperText === nextProps.fieldProps?.helperText
 )
 
 TextController.propTypes = {

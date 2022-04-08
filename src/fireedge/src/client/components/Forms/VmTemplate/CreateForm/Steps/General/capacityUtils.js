@@ -212,8 +212,8 @@ export const generateHotResizeInputs = (
 ) => [
   {
     ...hrField,
-    name: `HOT_RESIZE.${hrFieldName}_HOT_ADD_ENABLED`,
-    dependOf: `HOT_RESIZE.${hrFieldName}_HOT_ADD_ENABLED`,
+    name: `HOT_RESIZE.${hrFieldName}`,
+    dependOf: `HOT_RESIZE.${hrFieldName}`,
     label: T.EnableHotResize,
     type: INPUT_TYPES.SWITCH,
     validation: boolean().yesOrNo(),
@@ -222,13 +222,13 @@ export const generateHotResizeInputs = (
   },
   {
     ...maxField,
-    dependOf: `HOT_RESIZE.${hrFieldName}_HOT_ADD_ENABLED`,
+    dependOf: `HOT_RESIZE.${hrFieldName}`,
     type: INPUT_TYPES.TEXT,
     htmlType: (enabledHr) => (enabledHr ? 'number' : INPUT_TYPES.HIDDEN),
     validation: number()
       .positive()
       .default(() => undefined)
-      .when(`HOT_RESIZE.${hrFieldName}_HOT_ADD_ENABLED`, (enabledHr, schema) =>
+      .when(`HOT_RESIZE.${hrFieldName}`, (enabledHr, schema) =>
         enabledHr ? schema.required() : schema.notRequired()
       ),
     grid: { xs: 5, sm: 7, md: 6 },
@@ -263,4 +263,21 @@ export const generateCapacityInput = ({ validation, ...field }) => ({
         modificationType === list ? schema.oneOf(options) : schema
     ),
   grid: { md: 3 },
+})
+
+/**
+ * @param {Field} config - Configuration
+ * @param {CapacityFieldName} config.name - Capacity field name
+ * @param {BaseSchema} config.validation - Validation schema
+ * @returns {Field} - Field with validation modification conditions
+ */
+export const generateCostCapacityInput = ({ validation, grid, ...field }) => ({
+  ...field,
+  type: INPUT_TYPES.TEXT,
+  htmlType: 'number',
+  validation:
+    typeof validation === 'function'
+      ? lazy((_, { context }) => validation(context.extra))
+      : validation,
+  grid: { md: 4 },
 })

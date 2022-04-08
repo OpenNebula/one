@@ -25,6 +25,7 @@ const rootReducer = require('client/store/reducers')
 const { getFireedgeConfig } = require('server/utils/yml')
 const {
   availableLanguages,
+  defaultCurrency,
   defaultApps,
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
@@ -32,6 +33,7 @@ const { upperCaseFirst } = require('client/utils')
 
 // settings
 const appConfig = getFireedgeConfig()
+const currency = appConfig.currency || defaultCurrency
 const langs = appConfig.langs || availableLanguages
 
 const languages = Object.keys(langs)
@@ -89,6 +91,7 @@ router.get('*', (req, res) => {
       <div id="root">${rootComponent}</div>
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
+      <script>${`currency = ${JSON.stringify(currency)}`}</script>
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

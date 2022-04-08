@@ -19,7 +19,12 @@ import {
   FIELDS as INFORMATION_FIELDS,
   HYPERVISOR_FIELD,
 } from './informationSchema'
-import { MEMORY_FIELDS, CPU_FIELDS, VCPU_FIELDS } from './capacitySchema'
+import {
+  MEMORY_FIELDS,
+  CPU_FIELDS,
+  VCPU_FIELDS,
+  SHOWBACK_FIELDS,
+} from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
 import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
@@ -63,6 +68,11 @@ const SECTIONS = (hypervisor, isUpdate) => [
     id: 'capacity',
     legend: T.VirtualCpu,
     fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
+  },
+  {
+    id: 'showback',
+    legend: T.Cost,
+    fields: filterFieldsByHypervisor(SHOWBACK_FIELDS, hypervisor),
   },
   {
     id: 'ownership',

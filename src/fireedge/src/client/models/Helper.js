@@ -76,6 +76,32 @@ export const stringToBoolean = (str) =>
   String(str).toLowerCase() === 'yes' || +str === 1
 
 /**
+ * Formats a number into a string according to the currency configuration.
+ *
+ * @param {number|bigint} number - Number to format
+ * @param {Intl.NumberFormatOptions} options - Options to format the number
+ * @returns {string} - Number in string format with the currency symbol
+ */
+export const formatNumberByCurrency = (number, options) => {
+  try {
+    const currency = window?.currency ?? 'EUR'
+    const locale = window?.lang?.replace('_', '-') ?? undefined
+
+    return Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'narrowSymbol',
+      notation: 'compact',
+      compactDisplay: 'long',
+      maximumFractionDigits: 2,
+      ...options,
+    }).format(number)
+  } catch {
+    return number.toString()
+  }
+}
+
+/**
  * Returns `true` if the given value is an instance of Date.
  *
  * @param {*} value - The value to check
@@ -333,8 +359,8 @@ export const getUserInputParams = (userInputString) => {
     USER_INPUT_TYPES.range,
     USER_INPUT_TYPES.rangeFloat,
   ].includes(params[1])
-    ? params[3].split(RANGE_SEPARATOR)
-    : params[3].split(LIST_SEPARATOR)
+    ? params[3]?.split(RANGE_SEPARATOR)
+    : params[3]?.split(LIST_SEPARATOR)
 
   return {
     mandatory: params[0] === MANDATORY,

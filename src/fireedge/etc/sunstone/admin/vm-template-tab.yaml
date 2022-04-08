@@ -74,6 +74,7 @@ dialogs:
     information: true
     ownership: true
     capacity: true
+    showback: true
     vm_group: true
     vcenter:
       enabled: true

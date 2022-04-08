@@ -76,8 +76,9 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     // add user inputs to context
     Object.keys(extraTemplate?.USER_INPUTS ?? {}).forEach((name) => {
+      const isCapacity = ['MEMORY', 'CPU', 'VCPU'].includes(name)
       const upperName = String(name).toUpperCase()
-      context[upperName] = `$${upperName}`
+      !isCapacity && (context[upperName] = `$${upperName}`)
     })
 
     return jsonToXml({

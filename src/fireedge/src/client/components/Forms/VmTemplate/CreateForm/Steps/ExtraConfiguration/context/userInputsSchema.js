@@ -229,6 +229,9 @@ export const USER_INPUTS_SCHEMA = object({
     .afterSubmit((_inputsOrder_, { context }) => {
       const userInputs = context?.extra?.USER_INPUTS
 
-      return userInputs?.map(({ name }) => String(name).toUpperCase()).join(',')
+      return userInputs
+        ?.filter(({ name }) => !['MEMORY', 'CPU', 'VCPU'].includes(name))
+        ?.map(({ name }) => String(name).toUpperCase())
+        .join(',')
     }),
 })

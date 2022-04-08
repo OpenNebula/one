@@ -412,8 +412,13 @@ module.exports = {
   Cores: 'Cores',
   Sockets: 'Sockets',
   Memory: 'Memory',
+  Cost: 'Cost',
+  CostEachMonth: '%s / month',
   CostCpu: 'Cost / CPU',
+  CostCpuConcept: 'Cost of each CPU per hour',
   CostMByte: 'Cost / MByte',
+  CostMemoryConcept: 'Cost of each memory MB per hour',
+  CostDiskConcept: 'Cost of each disk GB per hour',
   /* VM schema - storage */
   Storage: 'Storage',
   Disk: 'Disk',

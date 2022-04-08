@@ -163,6 +163,7 @@ const defaults = {
   defaultHost: '0.0.0.0',
   defaultPort: 2616,
   defaultEvents: ['SIGINT', 'SIGTERM'],
+  defaultCurrency: 'EUR',
   availableLanguages: {
     bg_BG: 'Bulgarian (Bulgaria)',
     bg: 'Bulgarian',

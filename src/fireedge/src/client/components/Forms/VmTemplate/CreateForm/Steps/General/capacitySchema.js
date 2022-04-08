@@ -19,7 +19,10 @@ import {
   generateModificationInputs,
   generateHotResizeInputs,
   generateCapacityInput,
+  generateCostCapacityInput,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
+import { Translate } from 'client/components/HOC'
+import { formatNumberByCurrency } from 'client/models/Helper'
 import { Field } from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
@@ -45,9 +48,9 @@ export const MEMORY = generateCapacityInput({
 
 /** @type {Field[]} Hot resize on memory field */
 export const HR_MEMORY_FIELDS = generateHotResizeInputs(
-  { fieldName: MEMORY.name },
+  { name: 'MEMORY_HOT_ADD_ENABLED' },
   {
-    name: `${MEMORY.name}_MAX`,
+    name: 'MEMORY_MAX',
     label: T.MaxMemory,
     tooltip: T.MaxMemoryConcept,
   }
@@ -87,14 +90,13 @@ export const VIRTUAL_CPU = generateCapacityInput({
   label: T.VirtualCpu,
   tooltip: T.VirtualCpuConcept,
   validation: commonValidation,
-  grid: { md: 3 },
 })
 
-/** @type {Field[]} Hot resize on memory field */
+/** @type {Field[]} Hot resize on CPU field */
 export const HR_CPU_FIELDS = generateHotResizeInputs(
-  { name: PHYSICAL_CPU.name },
+  { name: 'CPU_HOT_ADD_ENABLED' },
   {
-    name: `${VIRTUAL_CPU.name}_MAX`,
+    name: 'VCPU_MAX',
     label: T.MaxVirtualCpu,
     tooltip: T.MaxVirtualCpuConcept,
   }
@@ -105,3 +107,83 @@ export const MOD_VCPU_FIELDS = generateModificationInputs(VIRTUAL_CPU.name)
 
 /** @type {Field[]} List of Virtual CPU fields */
 export const VCPU_FIELDS = [VIRTUAL_CPU, ...HR_CPU_FIELDS, ...MOD_VCPU_FIELDS]
+
+// --------------------------------------------------------
+// Showback fields
+// --------------------------------------------------------
+
+/** @type {Field} Memory cost field */
+export const MEMORY_COST = generateCostCapacityInput({
+  name: 'MEMORY_COST',
+  label: T.Memory,
+  tooltip: T.CostMemoryConcept,
+  dependOf: [MEMORY.name, 'MEMORY_COST'],
+  validation: commonValidation,
+  fieldProps: ([memory, cost] = []) => {
+    const fieldProps = { step: 0.1 }
+
+    if (memory && cost) {
+      const monthCost = formatNumberByCurrency(memory * cost * 24 * 30)
+      fieldProps.helperText = (
+        <Translate word={T.CostEachMonth} values={[monthCost]} />
+      )
+    }
+
+    return fieldProps
+  },
+})
+
+/** @type {Field} CPU cost field */
+export const CPU_COST = generateCostCapacityInput({
+  name: 'CPU_COST',
+  label: T.PhysicalCpu,
+  tooltip: T.CostCpuConcept,
+  dependOf: [PHYSICAL_CPU.name, 'CPU_COST'],
+  validation: commonValidation,
+  fieldProps: ([cpu, cost] = []) => {
+    const fieldProps = { step: 0.1 }
+
+    if (cpu && cost) {
+      const monthCost = formatNumberByCurrency(cpu * cost * 24 * 30)
+      fieldProps.helperText = (
+        <Translate word={T.CostEachMonth} values={[monthCost]} />
+      )
+    }
+
+    return fieldProps
+  },
+})
+
+/** @type {Field} Disk cost field */
+export const DISK_COST = generateCostCapacityInput({
+  name: 'DISK_COST',
+  label: T.Disk,
+  tooltip: T.CostDiskConcept,
+  dependOf: ['$extra.DISK', 'DISK_COST'],
+  validation: (context) =>
+    commonValidation
+      .transform((value) =>
+        // transform the initial value from MB to GB
+        +context?.DISK_COST === +value ? context?.DISK_COST * 1024 : value
+      )
+      .afterSubmit((cost) => (cost ? cost / 1024 : undefined)),
+  fieldProps: ([disks, cost] = []) => {
+    const fieldProps = { step: 0.1 }
+
+    if (disks?.length && cost) {
+      const getSize = (disk) => disk?.IMAGE?.SIZE ?? disk?.SIZE ?? 0
+      const sizesInGB = disks.reduce((res, disk) => res + getSize(disk), 0)
+      const sizesInMB = sizesInGB / 1024
+      const monthCost = formatNumberByCurrency(sizesInMB * cost * 24 * 30)
+
+      fieldProps.helperText = (
+        <Translate word={T.CostEachMonth} values={[monthCost]} />
+      )
+    }
+
+    return fieldProps
+  },
+})
+
+/** @type {Field[]} List of showback fields */
+export const SHOWBACK_FIELDS = [MEMORY_COST, CPU_COST, DISK_COST]
