@@ -13,30 +13,50 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { Container, Stack } from '@mui/material'
+import { useHistory, generatePath } from 'react-router-dom'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { PATH } from 'client/apps/sunstone/routesOne'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { useGetHostQuery } from 'client/features/OneApi/host'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+import { VmsTable } from 'client/components/Tables'
+
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Host id
+ * @returns {ReactElement} Information tab
+ */
+const VmsInfoTab = ({ id }) => {
+  const { data: host = {} } = useGetHostQuery(id)
+  const path = PATH.INSTANCE.VMS.DETAIL
+  const history = useHistory()
+
+  const handleRowClick = (rowId) => {
+    history.push(generatePath(path, { id: String(rowId) }))
+  }
+
+  return (
+    <Stack height={1} py={2} overflow="auto" component={Container}>
+      <VmsTable
+        disableRowSelect
+        disableGlobalSort
+        host={host}
+        onRowClick={(row) => handleRowClick(row.ID)}
+      />
+    </Stack>
+  )
 }
 
-Row.displayName = 'HostRow'
+VmsInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
 
-export default Row
+VmsInfoTab.displayName = 'WildsInfoTab'
+
+export default VmsInfoTab

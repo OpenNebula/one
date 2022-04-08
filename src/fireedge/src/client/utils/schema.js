@@ -208,6 +208,7 @@ export const OPTION_SORTERS = {
       numeric: true,
       ignorePunctuation: true,
     }),
+  unsort: () => null,
 }
 
 const SEMICOLON_CHAR = ';'

@@ -15,75 +15,37 @@
  * ------------------------------------------------------------------------- */
 import { useMemo, ReactElement } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import EnhancedTable from 'client/components/Tables/Enhanced'
+import ZombieColumns from 'client/components/Tables/Zombies/columns'
+import ZombieRow from 'client/components/Tables/Zombies/row'
 
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
-import VmColumns from 'client/components/Tables/Vms/columns'
-import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES } from 'client/constants'
-
-const DEFAULT_DATA_CY = 'vms'
+const DEFAULT_DATA_CY = 'zombie'
 
 /**
  * @param {object} props - Props
- * @returns {ReactElement} Virtual Machines table
+ * @returns {ReactElement} - Zombies table
  */
-const VmsTable = (props) => {
-  const {
-    rootProps = {},
-    searchProps = {},
-    initialState = {},
-    host,
-    ...rest
-  } = props ?? {}
-
+const ZombiesTable = (props) => {
+  const { rootProps = {}, searchProps = {}, zombies, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
-  initialState.filters = useMemo(
-    () => initialState.filters ?? [],
-    [initialState.filters]
-  )
 
-  const { view, getResourceView } = useViews()
-
-  const { data, refetch, isFetching } = useGetVmsQuery(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data:
-        result?.data
-          ?.filter((vm) =>
-            host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
-          )
-          ?.filter(({ STATE }) => STATE !== '6') ?? [],
-    }),
-  })
-
-  const columns = useMemo(
-    () =>
-      createColumns({
-        filters: getResourceView(RESOURCE_NAMES.VM)?.filters,
-        columns: VmColumns,
-      }),
-    [view]
-  )
+  const columns = useMemo(() => ZombieColumns, [])
 
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={useMemo(() => zombies, [zombies])}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={refetch}
-      isLoading={isFetching}
-      getRowId={(row) => String(row.ID)}
-      RowComponent={VmRow}
-      initialState={initialState}
+      getRowId={(row) => String(row.ZOMBIE_VM)}
+      RowComponent={ZombieRow}
       {...rest}
     />
   )
 }
 
-VmsTable.displayName = 'VmsTable'
+ZombiesTable.propTypes = { ...EnhancedTable.propTypes }
+ZombiesTable.displayName = 'ZombiesTable'
 
-export default VmsTable
+export default ZombiesTable

@@ -17,21 +17,29 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth/hooks'
 import { useGetHostQuery } from 'client/features/OneApi/host'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Host/Info'
+import Wilds from 'client/components/Tabs/Host/Wilds'
+import Numa from 'client/components/Tabs/Host/Numa'
+import Zombies from 'client/components/Tabs/Host/Zombies'
+import Vms from 'client/components/Tabs/Host/Vms'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    vms: Vms,
+    wild: Wilds,
+    numa: Numa,
+    zombies: Zombies,
   }[tabName])
 
 const HostTabs = memo(({ id }) => {
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const { isLoading, isError, error } = useGetHostQuery(id)
 
   const tabsAvailable = useMemo(() => {

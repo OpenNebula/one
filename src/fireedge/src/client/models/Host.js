@@ -16,22 +16,26 @@
 import { prettyBytes } from 'client/utils'
 import {
   DEFAULT_CPU_MODELS,
+  CUSTOM_HOST_HYPERVISOR,
+  Host,
   HOST_STATES,
   HYPERVISORS,
+  NumaNode,
   PciDevice,
   StateInfo,
 } from 'client/constants'
+import { useGetOneConfigQuery } from 'client/features/OneApi/system'
 
 /**
  * Returns information about the host state.
  *
- * @param {object} host - Host
+ * @param {Host} host - Host
  * @returns {StateInfo} Host state object
  */
 export const getState = (host) => HOST_STATES[+host?.STATE ?? 0]
 
 /**
- * @param {object} host - Host
+ * @param {Host} host - Host
  * @returns {Array} List of datastores from resource
  */
 export const getDatastores = (host) =>
@@ -40,7 +44,7 @@ export const getDatastores = (host) =>
 /**
  * Returns the allocate information.
  *
- * @param {object} host - Host
+ * @param {Host} host - Host
  * @returns {{
  * percentCpuUsed: number,
  * percentCpuLabel: string,
@@ -75,7 +79,7 @@ export const getAllocatedInfo = (host) => {
 /**
  * Returns list of hugepage sizes from the host numa nodes.
  *
- * @param {object} host - Host
+ * @param {Host} host - Host
  * @returns {Array} List of hugepages sizes from resource
  */
 export const getHugepageSizes = (host) => {
@@ -90,7 +94,7 @@ export const getHugepageSizes = (host) => {
 /**
  * Returns list of PCI devices from the host.
  *
- * @param {object} host - Host
+ * @param {Host} host - Host
  * @returns {PciDevice[]} List of PCI devices from resource
  */
 export const getPciDevices = (host) =>
@@ -99,7 +103,7 @@ export const getPciDevices = (host) =>
 /**
  * Returns list of KVM CPU Models available from the host pool.
  *
- * @param {object[]} hosts - Hosts
+ * @param {Host[]} hosts - Hosts
  * @returns {Array} List of KVM CPU Models from the pool
  */
 export const getKvmCpuModels = (hosts = []) =>
@@ -111,7 +115,7 @@ export const getKvmCpuModels = (hosts = []) =>
 /**
  * Returns list of KVM Machines available from the host pool.
  *
- * @param {object[]} hosts - Hosts
+ * @param {Host[]} hosts - Hosts
  * @returns {Array} List of KVM Machines from the pool
  */
 export const getKvmMachines = (hosts = []) => {
@@ -121,4 +125,82 @@ export const getKvmMachines = (hosts = []) => {
     .flat()
 
   return [DEFAULT_CPU_MODELS, ...machineTypes]
+}
+
+/**
+ * Returns list of Zombies available from the host.
+ *
+ * @param {Host} host - Host
+ * @returns {object[]} - List of zombies from host
+ */
+export const getHostZombies = (host = {}) =>
+  [
+    host?.TEMPLATE?.ZOMBIES?.split(', ')?.map((zombie) => ({
+      ZOMBIE_VM: zombie,
+    })) ?? [],
+  ].flat()
+
+/**
+ * Returns list of Wilds available from the host.
+ *
+ * @param {Host} host - Host
+ * @returns {object[]} - List of wilds from host
+ */
+export const getHostWilds = (host = {}) =>
+  [host?.TEMPLATE?.VM ?? []]
+    .flat()
+    .filter((vm) => vm.VCENTER_TEMPLATE === 'YES')
+/**
+ * Returns list of Numa available from the host.
+ *
+ * @param {Host} host - Host
+ * @returns {NumaNode[]} - List of Numa nodes from host
+ */
+export const getHostNuma = (host = {}) =>
+  [host?.HOST_SHARE?.NUMA_NODES?.NODE ?? []].flat()
+
+/**
+ * Returns the Numa Node memory information.
+ *
+ * @param {NumaNode} numa - Host Numa
+ * @returns {{
+ * percentMemUsed: number,
+ * percentMemLabel: string
+ * }} Numa Node memory information
+ */
+export const getNumaMemory = (numa) => {
+  const { TOTAL, USED } = numa?.MEMORY ?? {}
+
+  const percentMemUsed = (+USED * 100) / +TOTAL || 0
+
+  const usedMemBytes = prettyBytes(Math.abs(+USED))
+  const totalMemBytes = prettyBytes(+TOTAL)
+  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} 
+      (${Math.round(isFinite(percentMemUsed) ? percentMemUsed : '--')}%)`
+
+  return {
+    percentMemUsed,
+    percentMemLabel,
+  }
+}
+
+/**
+ * Returns list of Hypervisors available to the host.
+ *
+ * @param {object} [options] - Options to conversion
+ * @param {boolean} [options.includeCustom] - If `true`, add an Custom hypervisor
+ * @returns {object[]} - List of hypervisors
+ */
+export const getHostHypervisors = (options = {}) => {
+  const { includeCustom = false } = options
+  const { data } = useGetOneConfigQuery()
+  const { VM_MAD } = data
+
+  return [VM_MAD ?? [], includeCustom ? CUSTOM_HOST_HYPERVISOR : []]
+    .flat()
+    .filter((hypervisor) => hypervisor.NAME !== HYPERVISORS.vcenter)
+    .map((hypervisor) => ({
+      displayName: hypervisor.SUNSTONE_NAME,
+      driverName: hypervisor.NAME,
+    }))
 }

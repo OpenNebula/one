@@ -13,30 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { Stack } from '@mui/material'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { getHostWilds } from 'client/models/Host'
+import { useGetHostQuery } from 'client/features/OneApi/host'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import WildsTable from 'client/components/Tables/Wilds'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Host id
+ * @returns {ReactElement} - Wild information tab
+ */
+const WildsInfoTab = ({ id }) => {
+  const { data: host = {} } = useGetHostQuery(id)
+  const wilds = getHostWilds(host)
+
+  return (
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
+    >
+      <WildsTable wilds={wilds} />
+    </Stack>
+  )
 }
 
-Row.displayName = 'HostRow'
+WildsInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
 
-export default Row
+WildsInfoTab.displayName = 'WildsInfoTab'
+
+export default WildsInfoTab

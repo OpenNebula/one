@@ -13,30 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import makeStyles from '@mui/styles/makeStyles'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
-
-    return <HostCard host={detail ?? original} rootProps={props} />
+export const useStyles = makeStyles((theme) => ({
+  list: {
+    '& > * > *': {
+      width: '25%',
+    },
   },
-  (prev, next) => prev.className === next.className
-)
-
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-}
-
-Row.displayName = 'HostRow'
-
-export default Row
+  title: {
+    fontWeight: theme.typography.fontWeightBold,
+    textTransform: 'uppercase',
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+}))

@@ -13,30 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
+import { Box, Grid, Typography } from '@mui/material'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import NumaCoreCPU from 'client/components/Tabs/Host/Numa/CPU'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/**
+ * @param {object} props - Props
+ * @param {object} props.core - Numa core
+ * @returns {ReactElement} Information tab
+ */
+const NumaCore = ({ core }) => {
+  const cpus = Object.fromEntries(
+    core.CPUS.split(',').map((item) => item.split(':'))
+  )
+
+  return (
+    <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
+      <Box width="200px">
+        <Typography gutterBottom variant="body1" component="div" align="center">
+          <Translate word={T.NumaCore} values={core.ID} />
+        </Typography>
+        <Grid container spacing={1}>
+          {Object.keys(cpus).map((cpu, index) => (
+            <NumaCoreCPU key={index} core={cpu} cpus={cpus} />
+          ))}
+        </Grid>
+      </Box>
+    </Grid>
+  )
 }
 
-Row.displayName = 'HostRow'
+NumaCore.propTypes = {
+  core: PropTypes.object.isRequired,
+}
 
-export default Row
+NumaCore.displayName = 'Core'
+
+export default NumaCore

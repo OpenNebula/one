@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as STATES from 'client/constants/states'
 import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
-
+import * as STATES from 'client/constants/states'
+import * as T from 'client/constants/translates'
 /**
  * @typedef {object} PciDevice - PCI device
  * @property {string} ADDRESS - Address, bus, slot and function
@@ -182,4 +182,22 @@ export const HOST_ACTIONS = {
   DISABLE: 'disable',
   OFFLINE: 'offline',
   DELETE: 'delete',
+}
+
+/** @enum {string} Numa Node CPU Status */
+export const CPU_STATUS = {
+  '-1': 'FREE',
+  '-2': 'ISOLATED',
+}
+
+/** @enum {string} Pin Policy  */
+export const PIN_POLICY = {
+  NONE: 'NONE',
+  PINNED: 'PINNED',
+}
+
+/** @type {object} Custom Hypervisor */
+export const CUSTOM_HOST_HYPERVISOR = {
+  NAME: 'Custom',
+  SUNSTONE_NAME: T.CustomHypervisor,
 }

@@ -21,8 +21,8 @@ import {
 } from 'client/features/OneApi'
 import { Cluster } from 'client/constants'
 
-const { CLUSTER } = ONE_RESOURCES
-const { CLUSTER_POOL } = ONE_RESOURCES_POOL
+const { CLUSTER, HOST } = ONE_RESOURCES
+const { CLUSTER_POOL, HOST_POOL } = ONE_RESOURCES_POOL
 
 const clusterApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -157,7 +157,12 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
+      invalidatesTags: (_, __, { id, host }) => [
+        { type: CLUSTER, id },
+        { type: HOST, id: host },
+        CLUSTER_POOL,
+        HOST_POOL,
+      ],
     }),
     removeHostFromCluster: builder.mutation({
       /**

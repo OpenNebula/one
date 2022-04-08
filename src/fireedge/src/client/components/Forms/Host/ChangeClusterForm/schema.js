@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { string, object, ObjectSchema } from 'yup'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { ClustersTable } from 'client/components/Tables'
+import { T, INPUT_TYPES } from 'client/constants'
+import { Field, getValidationFromFields } from 'client/utils'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
-
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/** @type {Field} Cluster field */
+const CLUSTER = {
+  name: 'cluster',
+  label: T.SelectNewCluster,
+  type: INPUT_TYPES.TABLE,
+  Table: () => ClustersTable,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
-Row.displayName = 'HostRow'
+/** @type {Field[]} List of fields */
+export const FIELDS = [CLUSTER]
 
-export default Row
+/** @type {ObjectSchema} Schema */
+export const SCHEMA = object(getValidationFromFields(FIELDS))

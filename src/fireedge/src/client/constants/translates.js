@@ -64,10 +64,12 @@ module.exports = {
   Deploy: 'Deploy',
   Detach: 'Detach',
   DetachSomething: 'Detach: %s',
+  Disable: 'Disable',
   Dismiss: 'Dismiss',
   Done: 'Done',
   Edit: 'Edit',
   EditSomething: 'Edit: %s',
+  Enable: 'Enable',
   Failure: 'Failure',
   Finish: 'Finish',
   Hold: 'Hold',
@@ -77,6 +79,7 @@ module.exports = {
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
+  Offline: 'Offline',
   Pin: 'Pin',
   Poweroff: 'Poweroff',
   PoweroffHard: 'Poweroff hard',
@@ -105,12 +108,14 @@ module.exports = {
   SaveAsTemplate: 'Save as Template',
   Search: 'Search',
   Select: 'Select',
+  SelectCluster: 'Select Cluster',
   SelectDatastore: 'Select a Datastore to store the resource',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
   SelectMarketplace: 'Select Marketplace',
   SelectNetwork: 'Select a network',
+  SelectNewCluster: 'Select a new Cluster',
   SelectRequest: 'Select request',
   SelectTheNewDatastore: 'Select the new datastore',
   SelectTheNewGroup: 'Select the new group',
@@ -324,6 +329,7 @@ module.exports = {
   Provisions: 'Provisions',
 
   /* tabs */
+  Drivers: 'Drivers',
   General: 'General',
   Information: 'Information',
   Placement: 'Placement',
@@ -455,11 +461,15 @@ module.exports = {
 
   /* VM Template schema */
   /* VM Template schema - general */
-  Logo: 'Logo',
-  Hypervisor: 'Hypervisor',
-  TemplateName: 'Template name',
-  MakeNewImagePersistent: 'Make the new images persistent',
+  CustomHypervisor: 'Custom',
   CustomVariables: 'Custom Variables',
+  Hypervisor: 'Hypervisor',
+  Logo: 'Logo',
+  MakeNewImagePersistent: 'Make the new images persistent',
+  TemplateName: 'Template name',
+  Virtualization: 'Virtualization',
+  CustomInformation: 'Custom information',
+  CustomVirtualization: 'Custom virtualization',
   VmTemplateNameHelper: `
     Defaults to 'template name-<vmid>' when empty.
     When creating several VMs, the wildcard %%idx will be
@@ -656,11 +666,21 @@ module.exports = {
   NumaTopologyConcept:
     'These settings will help you to fine tune the performance of VMs',
   PinPolicy: 'Pin Policy',
+  NumaNodeItem: 'Node #%s',
+  NumaNodeTitle: 'Cores & CPUS',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
   NumaSocketsConcept: 'Number of sockets or NUMA nodes',
   NumaCoresConcept: 'Number of cores per node',
+  NumaNodeMemory: 'Memory',
+  NumaCore: 'Core %s',
+  NumaNodeCPUItem: 'CPU #%s',
   Threads: 'Threads',
   ThreadsConcept: 'Number of threads per core',
+  HugepageNode: 'Hugepage',
+  HugepageNodeFree: 'Free',
+  HugepageNodePages: 'Pages',
+  HugepageNodeSize: 'Size',
+  HugepageNodeUsage: 'Usage',
   HugepagesSize: 'Hugepages size',
   HugepagesSizeConcept:
     'Size of hugepages (MB). If not defined no hugepages will be used',
@@ -740,6 +760,10 @@ module.exports = {
   RealMemory: 'Real Memory',
   RealCpu: 'Real CPU',
   Overcommitment: 'Overcommitment',
+  /* Host schema - template */
+  ISOLCPUS: 'Isolated CPUS',
+  TemplateToIsolateCpus:
+    'Comma separated list of CPU IDs that will be isolated from the NUMA scheduler',
 
   /* Cluster schema */
   /* Cluster schema - capacity */

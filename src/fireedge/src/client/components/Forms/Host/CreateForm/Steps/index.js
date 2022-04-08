@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import ClustersTable, {
+  STEP_ID as CLUSTER_ID,
+} from 'client/components/Forms/Host/CreateForm/Steps/ClustersTable'
+import General, {
+  STEP_ID as GENERAL_ID,
+} from 'client/components/Forms/Host/CreateForm/Steps/General'
+import { createSteps } from 'client/utils'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+const Steps = createSteps([General, ClustersTable], {
+  transformBeforeSubmit: (formData) => {
+    const { [GENERAL_ID]: general, [CLUSTER_ID]: [cluster] = [] } = formData
 
-    return <HostCard host={detail ?? original} rootProps={props} />
+    return {
+      hostname: general.hostname,
+      vmmMad: general.customVmm || general.customVmmMad || general.vmmMad,
+      imMad: general.customIm || general.customImMad || general.vmmMad,
+      cluster: cluster.ID,
+    }
   },
-  (prev, next) => prev.className === next.className
-)
+})
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-}
-
-Row.displayName = 'HostRow'
-
-export default Row
+export default Steps

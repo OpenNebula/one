@@ -13,30 +13,49 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import EmptyTab from 'client/components/Tabs/EmptyTab'
+import Information from 'client/components/Tabs/Host/Numa/information'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { getHostNuma } from 'client/models/Host'
+import { useGetHostQuery } from 'client/features/OneApi/host'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+import UpdatePinPolicyForm from 'client/components/Tabs/Host/Numa/UpdatePinPolicy'
+import UpdateIsolatedCPUSForm from 'client/components/Tabs/Host/Numa/UpdateIsolatedCPUS'
+
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Host id
+ * @returns {ReactElement} Information tab
+ */
+const NumaInfoTab = ({ id }) => {
+  const { data: host = {} } = useGetHostQuery(id)
+  const numa = getHostNuma(host)
+
+  return (
+    <>
+      <UpdatePinPolicyForm host={host} />
+      <UpdateIsolatedCPUSForm host={host} />
+      {numa?.length > 0 ? (
+        numa.map((node) => (
+          <Information key={node.NODE_ID} node={node} host={host} />
+        ))
+      ) : (
+        <EmptyTab />
+      )}
+    </>
+  )
 }
 
-Row.displayName = 'HostRow'
+NumaInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
 
-export default Row
+NumaInfoTab.displayName = 'NumaInfoTab'
+
+export default NumaInfoTab

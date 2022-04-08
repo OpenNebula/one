@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { object, string, ObjectSchema } from 'yup'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { Field, getValidationFromFields } from 'client/utils'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { PIN_POLICY, INPUT_TYPES } from 'client/constants'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/** @type {Field} Pin Policy field */
+const PIN_POLICY_FIELD = {
+  name: 'PIN_POLICY',
+  type: INPUT_TYPES.SELECT,
+  values: [
+    { text: 'None', value: PIN_POLICY.NONE },
+    { text: 'Pinned', value: PIN_POLICY.PINNED },
+  ],
+  validation: string()
+    .trim()
+    .required()
+    .default(() => PIN_POLICY.NONE),
+  grid: { md: 12 },
 }
 
-Row.displayName = 'HostRow'
+/** @type {Field[]} List of fields */
+export const FORM_FIELDS_PIN_POLICY = [PIN_POLICY_FIELD]
 
-export default Row
+/** @type {ObjectSchema} Schema */
+export const FORM_SCHEMA_PIN_POLICY = object(
+  getValidationFromFields(FORM_FIELDS_PIN_POLICY)
+)

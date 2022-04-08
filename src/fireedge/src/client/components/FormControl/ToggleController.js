@@ -50,10 +50,8 @@ const ToggleController = memo(
     fieldProps = {},
     readOnly = false,
   }) => {
-    const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
-
     const {
-      field: { ref, value: optionSelected = defaultValue, onChange },
+      field: { ref, value: optionSelected, onChange },
       fieldState: { error: { message } = {} },
     } = useController({ name, control })
 

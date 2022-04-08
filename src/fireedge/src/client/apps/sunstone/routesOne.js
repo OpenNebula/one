@@ -106,6 +106,9 @@ const Hosts = loadable(() => import('client/containers/Hosts'), { ssr: false })
 const HostDetail = loadable(() => import('client/containers/Hosts/Detail'), {
   ssr: false,
 })
+const CreateHost = loadable(() => import('client/containers/Hosts/Create'), {
+  ssr: false,
+})
 const Zones = loadable(() => import('client/containers/Zones'), { ssr: false })
 
 const Users = loadable(() => import('client/containers/Users'), { ssr: false })
@@ -180,6 +183,7 @@ export const PATH = {
     HOSTS: {
       LIST: `/${RESOURCE_NAMES.HOST}`,
       DETAIL: `/${RESOURCE_NAMES.HOST}/:id`,
+      CREATE: `/${RESOURCE_NAMES.HOST}/create`,
     },
     ZONES: {
       LIST: `/${RESOURCE_NAMES.ZONE}`,
@@ -328,6 +332,11 @@ const ENDPOINTS = [
         sidebar: true,
         icon: HostIcon,
         Component: Hosts,
+      },
+      {
+        label: 'Create Host',
+        path: PATH.INFRASTRUCTURE.HOSTS.CREATE,
+        Component: CreateHost,
       },
       {
         label: (params) => `Hosts #${params.id}`,

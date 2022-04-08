@@ -13,30 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { Box, Paper, Typography } from '@mui/material'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { T } from 'client/constants'
+import { Tr, Translate } from 'client/components/HOC'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+import { getNumaMemory } from 'client/models/Host'
+
+/**
+ * @param {object} props - Props
+ * @param {string} props.node - Numa node
+ * @returns {ReactElement} Information tab
+ */
+const NumaMemory = ({ node }) => {
+  const { percentMemUsed, percentMemLabel } = getNumaMemory(node)
+
+  return (
+    <Box>
+      <Typography gutterBottom variant="subtitle1" component="h3">
+        <Translate word={T.NumaNodeMemory} />
+      </Typography>
+      <Paper variant="outlined" sx={{ p: '1.25rem' }}>
+        <LinearProgressWithLabel
+          value={percentMemUsed}
+          label={percentMemLabel}
+          title={`${Tr(T.AllocatedCpu)}`}
+        />
+      </Paper>
+    </Box>
+  )
 }
 
-Row.displayName = 'HostRow'
+NumaMemory.propTypes = {
+  node: PropTypes.object.isRequired,
+}
 
-export default Row
+NumaMemory.displayName = 'NumaMemory'
+
+export default NumaMemory

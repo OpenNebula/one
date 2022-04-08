@@ -13,30 +13,57 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { useListForm } from 'client/hooks'
+import { ClustersTable } from 'client/components/Tables'
+import { Step } from 'client/utils'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { SCHEMA } from 'client/components/Forms/Host/CreateForm/Steps/ClustersTable/schema'
+import { T } from 'client/constants'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+export const STEP_ID = 'cluster'
+
+const Content = ({ data, setFormData }) => {
+  const { ID } = data?.[0] ?? {}
+
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
+
+  const handleSelectedRows = (rows) => {
+    const { original = {} } = rows?.[0] ?? {}
+
+    original.ID !== undefined ? handleSelect(original) : handleClear()
+  }
+
+  return (
+    <ClustersTable
+      singleSelect
+      onlyGlobalSearch
+      onlyGlobalSelectedRows
+      initialState={{ selectedRowIds: { [ID]: true } }}
+      onSelectedRowsChange={handleSelectedRows}
+    />
+  )
 }
 
-Row.displayName = 'HostRow'
+/**
+ * Step to select the Cluster.
+ *
+ * @returns {Step} Cluster Selection step
+ */
+const ClustersTableStep = () => ({
+  id: STEP_ID,
+  label: T.SelectCluster,
+  resolver: SCHEMA,
+  content: Content,
+})
 
-export default Row
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+}
+
+export default ClustersTableStep

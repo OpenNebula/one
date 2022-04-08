@@ -19,16 +19,21 @@ import { Container, Stack, Chip } from '@mui/material'
 
 import { HostsTable } from 'client/components/Tables'
 import HostTabs from 'client/components/Tabs/Host'
+import HostActions from 'client/components/Tables/Hosts/actions'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 
 function Hosts() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const actions = HostActions()
 
   return (
     <Stack height={1} py={2} overflow="auto" component={Container}>
       <SplitPane>
-        <HostsTable onSelectedRowsChange={onSelectedRowsChange} />
+        <HostsTable
+          onSelectedRowsChange={onSelectedRowsChange}
+          globalActions={actions}
+        />
 
         {selectedRows?.length > 0 && (
           <Stack overflow="auto">

@@ -15,75 +15,37 @@
  * ------------------------------------------------------------------------- */
 import { useMemo, ReactElement } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import EnhancedTable from 'client/components/Tables/Enhanced'
+import WildColumns from 'client/components/Tables/Wilds/columns'
+import WildRow from 'client/components/Tables/Wilds/row'
 
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
-import VmColumns from 'client/components/Tables/Vms/columns'
-import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES } from 'client/constants'
-
-const DEFAULT_DATA_CY = 'vms'
+const DEFAULT_DATA_CY = 'wilds'
 
 /**
  * @param {object} props - Props
- * @returns {ReactElement} Virtual Machines table
+ * @returns {ReactElement} - Wilds table
  */
-const VmsTable = (props) => {
-  const {
-    rootProps = {},
-    searchProps = {},
-    initialState = {},
-    host,
-    ...rest
-  } = props ?? {}
-
+const WildsTable = (props) => {
+  const { rootProps = {}, searchProps = {}, wilds, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
-  initialState.filters = useMemo(
-    () => initialState.filters ?? [],
-    [initialState.filters]
-  )
 
-  const { view, getResourceView } = useViews()
-
-  const { data, refetch, isFetching } = useGetVmsQuery(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data:
-        result?.data
-          ?.filter((vm) =>
-            host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
-          )
-          ?.filter(({ STATE }) => STATE !== '6') ?? [],
-    }),
-  })
-
-  const columns = useMemo(
-    () =>
-      createColumns({
-        filters: getResourceView(RESOURCE_NAMES.VM)?.filters,
-        columns: VmColumns,
-      }),
-    [view]
-  )
+  const columns = useMemo(() => WildColumns, [])
 
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={useMemo(() => wilds, [wilds])}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={refetch}
-      isLoading={isFetching}
-      getRowId={(row) => String(row.ID)}
-      RowComponent={VmRow}
-      initialState={initialState}
+      getRowId={(row) => String(row.DEPLOY_ID)}
+      RowComponent={WildRow}
       {...rest}
     />
   )
 }
 
-VmsTable.displayName = 'VmsTable'
+WildsTable.propTypes = { ...EnhancedTable.propTypes }
+WildsTable.displayName = 'WildsTable'
 
-export default VmsTable
+export default WildsTable

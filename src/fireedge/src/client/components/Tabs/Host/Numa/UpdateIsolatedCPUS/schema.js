@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { object, string, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields } from 'client/utils'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { INPUT_TYPES } from 'client/constants'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
-
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/** @type {Field} Isolation field */
+const ISOLATION = {
+  name: 'ISOLATION',
+  type: INPUT_TYPES.TEXT,
+  validation: string().default(() => ''),
+  grid: { md: 12 },
 }
 
-Row.displayName = 'HostRow'
+/** @type {Field[]} List of fields */
+export const FORM_FIELDS_ISOLATION = [ISOLATION]
 
-export default Row
+/** @type {ObjectSchema} Schema */
+export const FORM_SCHEMA_ISOLATION = object(
+  getValidationFromFields(FORM_FIELDS_ISOLATION)
+)

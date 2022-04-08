@@ -13,30 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { Stack } from '@mui/material'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { useGetHostQuery } from 'client/features/OneApi/host'
+import { getHostZombies } from 'client/models/Host'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import ZombiesTable from 'client/components/Tables/Zombies'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Host id
+ * @returns {ReactElement} - Zombies information tab
+ */
+const ZombiesInfoTab = ({ id }) => {
+  const { data: host = {} } = useGetHostQuery(id)
+  const zombies = getHostZombies(host)
+
+  return (
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
+      padding="0.8em"
+    >
+      <ZombiesTable disableRowSelect disableGlobalSort zombies={zombies} />
+    </Stack>
+  )
 }
 
-Row.displayName = 'HostRow'
+ZombiesInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
 
-export default Row
+ZombiesInfoTab.displayName = 'ZombiesInfoTab'
+
+export default ZombiesInfoTab

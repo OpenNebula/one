@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { ReactElement } from 'react'
+import { InfoEmpty } from 'iconoir-react'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { Translate } from 'client/components/HOC/Translate'
+import { useStyles } from 'client/components/Tabs/EmptyTab/styles'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { T } from 'client/constants'
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+/**
+ * Renders default empty tab.
+ *
+ * @returns {ReactElement} Empty tab
+ */
+const EmptyTab = () => {
+  const classes = useStyles()
+
+  return (
+    <span className={classes.noDataMessage}>
+      <InfoEmpty />
+      <Translate word={T.NoDataAvailable} />
+    </span>
+  )
 }
 
-Row.displayName = 'HostRow'
+EmptyTab.displayName = 'EmptyTab'
 
-export default Row
+export default EmptyTab

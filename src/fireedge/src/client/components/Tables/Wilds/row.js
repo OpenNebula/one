@@ -13,30 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { Typography } from '@mui/material'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+import { rowStyles } from 'client/components/Tables/styles'
+import { Row as RowType } from 'react-table'
+
+/**
+ * @param {RowType} props - Props
+ * @param {object} props.original - Wild
+ * @param {boolean} props.isSelected - Wild selection
+ * @param {Function} props.handleClick - Action by click
+ * @returns {ReactElement} - Table row
+ */
+const Row = memo(({ original, ...props }) => {
+  const classes = rowStyles()
+  const { DEPLOY_ID, VM_NAME } = original
+
+  return (
+    <div {...props}>
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <Typography component="span">{VM_NAME}</Typography>
+        </div>
+        <div className={classes.caption}>
+          <span>{`#${DEPLOY_ID}`}</span>
+        </div>
+      </div>
+    </div>
+  )
+})
 
 Row.propTypes = {
   original: PropTypes.object,
-  value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
 }
 
-Row.displayName = 'HostRow'
+Row.displayName = 'WildsRow'
 
 export default Row

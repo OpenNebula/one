@@ -13,30 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { Box, Grid, Paper, Typography } from '@mui/material'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
+import { Translate } from 'client/components/HOC'
+import { T, CPU_STATUS } from 'client/constants'
+
+/**
+ * @param {object} props - Props
+ * @param {string} props.core - Numa core
+ * @param {object} props.cpus - List of numa cores
+ * @returns {ReactElement} Information tab
+ */
+const NumaCoreCPU = ({ core, cpus }) => (
+  <Grid item xs={6}>
+    <Paper sx={{ pt: '0.3rem', pb: '0.1rem' }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography gutterBottom variant="body2" component="div" align="center">
+          <Translate word={T.NumaNodeCPUItem} values={core} />
+        </Typography>
+        <Typography gutterBottom variant="body2" component="div" align="center">
+          {CPU_STATUS[String(cpus[core])]}
+        </Typography>
+      </Box>
+    </Paper>
+  </Grid>
 )
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+NumaCoreCPU.propTypes = {
+  core: PropTypes.string.isRequired,
+  cpus: PropTypes.object.isRequired,
 }
 
-Row.displayName = 'HostRow'
+NumaCoreCPU.displayName = 'NumaCoreCPU'
 
-export default Row
+export default NumaCoreCPU
