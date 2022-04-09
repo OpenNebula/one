@@ -85,8 +85,6 @@ public:
 class VirtualNetworkRmAddressRange : public Request
 {
 public:
-
-
     VirtualNetworkRmAddressRange(
       const std::string& name = "one.vn.rm_ar",
       const std::string& sign = "A:sii",
@@ -221,6 +219,28 @@ public:
     };
 
     ~VirtualNetworkReserve(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkRecover : public Request
+{
+public:
+    VirtualNetworkRecover()
+        : Request("one.vn.recover",
+                  "A:sii",
+                  "Recover Virtual Network from ERROR or LOCKED state")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::MANAGE;
+    };
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
         RequestAttributes& att) override;

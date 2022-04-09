@@ -110,6 +110,7 @@ define(function(require) {
 
     return TemplateInfo({
       'element': this.element,
+      'stateStr': OpenNebulaNetwork.stateStr(this.element.STATE),
       'renameTrHTML': renameTrHTML,
       'reservationTrHTML': reservationTrHTML,
       'permissionsTableHTML': permissionsTableHTML,

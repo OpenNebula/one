@@ -107,6 +107,10 @@ module HEMHook
             when 'STATE'
                 object   = event.xpath('//HOOK_OBJECT')[0].text.upcase
 
+                # Fix inconsistency in Virtual Network object name
+                # and root xml node
+                object = 'VNET' if object == 'NET'
+
                 template = event.xpath("//#{object}")[0].to_s
                 template = Base64.strict_encode64(template)
             end

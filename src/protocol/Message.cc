@@ -86,6 +86,8 @@ const EString<IPAMManagerMessages> ipam_msg_t::_type_str({
     {"GET_ADDRESS", IPAMManagerMessages::GET_ADDRESS},
     {"ALLOCATE_ADDRESS", IPAMManagerMessages::ALLOCATE_ADDRESS},
     {"FREE_ADDRESS", IPAMManagerMessages::FREE_ADDRESS},
+    {"VNET_CREATE", IPAMManagerMessages::VNET_CREATE},
+    {"VNET_DELETE", IPAMManagerMessages::VNET_DELETE},
     {"LOG", IPAMManagerMessages::LOG},
 });
 

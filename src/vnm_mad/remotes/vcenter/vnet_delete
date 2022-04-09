@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'opennebula'
+require 'vcenter_driver'
+require 'base64'
+require 'nsx_driver'
+
+require_relative 'virtual_network_xml'
+
+begin
+    _vnet_id = ARGV[0]
+    vnet_xml = VirtualNetworkXML.new(STDIN.read)
+
+    estr = "Error importing network:"
+
+    vnmad = vnet_xml['VN_MAD']
+    raise "#{estr} driver is not vcenter" unless vnmad == 'vcenter'
+
+    unmanaged = vnet_xml['TEMPLATE/OPENNEBULA_MANAGED'].casecmp('NO') == 0
+    raise "#{estr} OPENNEBULA_MANAGED is set to NO" if unmanaged
+
+    imported = vnet_xml['TEMPLATE/VCENTER_IMPORTED']
+    raise "#{estr} network is already imported" unless imported.empty?
+
+    pg_type = vnet_xml['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+
+    raise "#{estr} Missing port group type (VCENTER_PORTGROUP_TYPE)" if pg_type.empty?
+
+    case pg_type
+    when VCenterDriver::Network::NETWORK_TYPE_PG
+        vnet_xml.delete_pg
+    when VCenterDriver::Network::NETWORK_TYPE_DPG
+        vnet_xml.delete_dpg
+    when VCenterDriver::Network::NETWORK_TYPE_NSXV
+        vnet_xml.delete_nsxv
+    when VCenterDriver::Network::NETWORK_TYPE_NSXT
+        vnet_xml.delete_nsxt
+    else
+        raise "Unknown portgroup type"
+    end
+rescue StandardError => e
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]
+    exit(-1)
+end

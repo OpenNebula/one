@@ -40,7 +40,19 @@ module OpenNebula
             :reserve    => "vn.reserve",
             :free_ar    => "vn.free_ar",
             :lock       => "vn.lock",
-            :unlock     => "vn.unlock"
+            :unlock     => "vn.unlock",
+            :recover    => "vn.recover"
+        }
+
+        VN_STATES=%w{INIT READY LOCK_CREATE LOCK_DELETE DONE ERROR}
+
+        SHORT_VN_STATES={
+            "INIT"          => "init",
+            "READY"         => "rdy",
+            "LOCK_CREATE"   => "lock",
+            "LOCK_DELETE"   => "lock",
+            "DONE"          => "done",
+            "ERROR"         => "err"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -311,6 +323,16 @@ module OpenNebula
             return call(VN_METHODS[:rename], @pe_id, name)
         end
 
+        # Recovers an stuck Virtual Network
+        #
+        # @param result [Integer] Recover with failure (0), success (1),
+        # delete (2)
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def recover(result)
+            return call(VN_METHODS[:recover], @pe_id, result)
+        end
+
         #######################################################################
         # Helpers to get VirtualNetwork information
         #######################################################################
@@ -338,6 +360,21 @@ module OpenNebula
             end
 
             return array
+        end
+
+        # Returns the state of the Virtual Network (numeric value)
+        def state
+            self['STATE'].to_i
+        end
+
+        # Returns the state of the Virtual Network (string value)
+        def state_str
+            VN_STATES[state]
+        end
+
+        # Returns the state of the Virtual Network (string value)
+        def short_state_str
+            SHORT_VN_STATES[state_str]
         end
 
     private

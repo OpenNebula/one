@@ -94,6 +94,26 @@ CommandParser::CmdParser.new(ARGV) do
                         'bypass the consistency checks'
     }
 
+    SUCCESS = {
+        :name => 'success',
+        :large => '--success',
+        :description => 'Recover a Virtual Network by succeeding ' \
+                        'the pending action'
+    }
+
+    FAILURE = {
+        :name => 'failure',
+        :large => '--failure',
+        :description => 'Recover a Virtual Network by failing ' \
+                        'the pending action'
+    }
+
+    DELETE = {
+        :name => 'delete',
+        :large => '--delete',
+        :description => 'No recover action possible, delete the Virtual Network'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -427,5 +447,42 @@ CommandParser::CmdParser.new(ARGV) do
         puts helper.check_orphans
 
         return 0
+    end
+
+    recover_desc = <<-EOT.unindent
+        Recovers a Virtual Network in ERROR state or waiting for a driver operation
+        to complete.
+        The recovery may be done by failing, succeeding or retrying the current operation.
+        YOU NEED TO MANUALLY CHECK THE VN STATUS, to decide if the
+        operation was successful or not, or if it can be retried.
+
+        States for success/failure recovers: LOCK_CREATE, LOCK_DELETE state.
+        States for a retry recover: LOCK_CREATE, LOCK_DELETE state
+        States for delete: Any but READY
+    EOT
+
+    command :recover, recover_desc, [:range, :vmid_list],
+            :options => [SUCCESS, FAILURE, DELETE] do
+        if !options[:success].nil?
+            result = 1
+        elsif !options[:failure].nil?
+            result = 0
+        elsif !options[:delete].nil?
+            result = 2
+        else
+            error_message = <<-EOT.unindent
+            Need to specify the result of the pending action.
+            \t--success recover the VN by succeeding the missing action.
+            \t--failure recover the VN by failing the missing action.
+            \t--delete no recover possible, delete the VN.
+            EOT
+
+            STDERR.puts error_message
+            exit(-1)
+        end
+
+        helper.perform_actions(args[0], options, 'recovering') do |vn|
+            vn.recover(result)
+        end
     end
 end

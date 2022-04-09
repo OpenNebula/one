@@ -18,6 +18,7 @@ package virtualnetwork
 
 import (
 	"encoding/xml"
+	"fmt"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
@@ -42,6 +43,7 @@ type VirtualNetwork struct {
 	Bridge               string              `xml:"BRIDGE,omitempty"`
 	BridgeType           string              `xml:"BRIDGE_TYPE,omitempty"` // minOccurs=0
 	ParentNetworkID      string              `xml:"PARENT_NETWORK_ID,omitempty"`
+	StateRaw             int                 `xml:"STATE,omitempty"`
 	VNMad                string              `xml:"VN_MAD"`
 	PhyDev               string              `xml:"PHYDEV,omitempty"`
 	VlanID               string              `xml:"VLAN_ID,omitempty"`       // minOccurs=0
@@ -92,4 +94,64 @@ type Lease struct {
 	VM        int    `xml:"VM,omitempty"`
 	VNet      int    `xml:"VNET,omitempty"`
 	VRouter   int    `xml:"VROUTER,omitempty"`
+}
+
+// State is the state of the Virtual Network
+type State int
+
+const (
+	// Init Virtual Network is being initialized
+	Init State = iota
+
+	// Ready Virtual Network is ready to be used
+	Ready
+
+	// LockCreate Virtual Network driver vnet_create pending
+	LockCreate
+
+	// LockDelete Virtual Network driver vnet_delete pending
+	LockDelete
+
+	// Done Virtual Netowrk finalized
+	Done
+
+	// Error Virtual Network is in error state
+	Error
+)
+
+func (s State) isValid() bool {
+	if s >= Init && s <= Error {
+		return true
+	}
+	return false
+}
+
+// String returns the string version of the State
+func (s State) String() string {
+	return [...]string{
+		"INIT",
+		"READY",
+		"LOCK_CREATE",
+		"LOCK_DELETE",
+		"DONE",
+		"ERROR",
+	}[s]
+}
+
+// State looks up the state of the Virtual Network and returns the State
+func (vn *VirtualNetwork) State() (State, error) {
+	state := State(vn.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Virtual Network State: this state value is not currently handled: %d\n", vn.StateRaw)
+	}
+	return state, nil
+}
+
+// StateString returns the state in string format
+func (vn *VirtualNetwork) StateString() (string, error) {
+	state := State(vn.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Virtual Network State: this state value is not currently handled: %d\n", vn.StateRaw)
+	}
+	return state.String(), nil
 }

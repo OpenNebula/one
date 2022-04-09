@@ -49,6 +49,20 @@ func createVirtualNetwork(t *testing.T) (*vn.VirtualNetwork, int) {
 	return vnet, id
 }
 
+func WaitState(t *testing.T, vnetC *VirtualNetworkController, state string) {
+	wait := WaitResource(func() bool {
+		vnet, _ := vnetC.Info(false)
+
+		st, _ := vnet.StateString()
+		return st == state
+	})
+
+	if !wait {
+		t.Error("Virtual Network should be in ERROR state")
+	}
+
+}
+
 func TestVirtualNetwork(t *testing.T) {
 	var err error
 
@@ -129,13 +143,43 @@ func TestVirtualNetwork(t *testing.T) {
 	gname = vnet.GName
 
 	if "serveradmin" != uname {
-		t.Error("Virtual network owner is not oenadmin")
+		t.Error("Virtual network owner is not oneadmin")
 	}
 
 	// Compare with caller group
 	if "users" != gname {
 		t.Error("Virtual network owner group is not oneadmin")
 	}
+
+	// Delete template
+	err = vnetC.Delete()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestVirtualNetworkRecover(t *testing.T) {
+	var err error
+
+	vnTpl := "NAME = vn_invalid_ar\n" +
+			 "BRIDGE = vbr0\n" +
+			 "VN_MAD = dummy\n" +
+			 "NETWORK_ADDRESS = 192.168.0.0\n"+
+			 "AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = -1 ]\n"
+
+	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Get Virtual Network by ID
+	vnetC := testCtrl.VirtualNetwork(id)
+
+	WaitState(t, vnetC, "ERROR")
+
+	vnetC.RecoverSuccess()
+
+	WaitState(t, vnetC, "READY")
 
 	// Delete template
 	err = vnetC.Delete()

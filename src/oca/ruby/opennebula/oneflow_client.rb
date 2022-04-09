@@ -45,17 +45,21 @@ module Role
     ]
 
     STATE = {
-        'PENDING'            => 0,
-        'DEPLOYING'          => 1,
-        'RUNNING'            => 2,
-        'UNDEPLOYING'        => 3,
-        'WARNING'            => 4,
-        'DONE'               => 5,
-        'FAILED_UNDEPLOYING' => 6,
-        'FAILED_DEPLOYING'   => 7,
-        'SCALING'            => 8,
-        'FAILED_SCALING'     => 9,
-        'COOLDOWN'           => 10
+        'PENDING'                 => 0,
+        'DEPLOYING'               => 1,
+        'RUNNING'                 => 2,
+        'UNDEPLOYING'             => 3,
+        'WARNING'                 => 4,
+        'DONE'                    => 5,
+        'FAILED_UNDEPLOYING'      => 6,
+        'FAILED_DEPLOYING'        => 7,
+        'SCALING'                 => 8,
+        'FAILED_SCALING'          => 9,
+        'COOLDOWN'                => 10,
+        'DEPLOYING_NETS'          => 11,
+        'UNDEPLOYING_NETS'        => 12,
+        'FAILED_DEPLOYING_NETS'   => 13,
+        'FAILED_UNDEPLOYING_NETS' => 14
     }
 
     STATE_STR = [
@@ -69,7 +73,11 @@ module Role
         'FAILED_DEPLOYING',
         'SCALING',
         'FAILED_SCALING',
-        'COOLDOWN'
+        'COOLDOWN',
+        'DEPLOYING_NETS',
+        'UNDEPLOYING_NETS',
+        'FAILED_DEPLOYING_NETS',
+        'FAILED_UNDEPLOYING_NETS'
     ]
 
     # Returns the string representation of the role state
@@ -83,17 +91,21 @@ end
 module Service
 
     STATE = {
-        'PENDING'            => 0,
-        'DEPLOYING'          => 1,
-        'RUNNING'            => 2,
-        'UNDEPLOYING'        => 3,
-        'WARNING'            => 4,
-        'DONE'               => 5,
-        'FAILED_UNDEPLOYING' => 6,
-        'FAILED_DEPLOYING'   => 7,
-        'SCALING'            => 8,
-        'FAILED_SCALING'     => 9,
-        'COOLDOWN'           => 10
+        'PENDING'                 => 0,
+        'DEPLOYING'               => 1,
+        'RUNNING'                 => 2,
+        'UNDEPLOYING'             => 3,
+        'WARNING'                 => 4,
+        'DONE'                    => 5,
+        'FAILED_UNDEPLOYING'      => 6,
+        'FAILED_DEPLOYING'        => 7,
+        'SCALING'                 => 8,
+        'FAILED_SCALING'          => 9,
+        'COOLDOWN'                => 10,
+        'DEPLOYING_NETS'          => 11,
+        'UNDEPLOYING_NETS'        => 12,
+        'FAILED_DEPLOYING_NETS'   => 13,
+        'FAILED_UNDEPLOYING_NETS' => 14
     }
 
     STATE_STR = [
@@ -107,7 +119,11 @@ module Service
         'FAILED_DEPLOYING',
         'SCALING',
         'FAILED_SCALING',
-        'COOLDOWN'
+        'COOLDOWN',
+        'DEPLOYING_NETS',
+        'UNDEPLOYING_NETS',
+        'FAILED_DEPLOYING_NETS',
+        'FAILED_UNDEPLOYING_NETS'
     ]
 
     # Returns the string representation of the service state

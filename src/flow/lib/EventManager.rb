@@ -26,15 +26,17 @@ class EventManager
 
     LOG_COMP = 'EM'
 
-    ACTIONS = {
-        'WAIT_DEPLOY'    => :wait_deploy,
-        'WAIT_UNDEPLOY'  => :wait_undeploy,
-        'WAIT_SCALEUP'   => :wait_scaleup,
-        'WAIT_SCALEDOWN' => :wait_scaledown,
-        'WAIT_ADD'       => :wait_add,
-        'WAIT_REMOVE'    => :wait_remove,
-        'WAIT_COOLDOWN'  => :wait_cooldown
-    }
+    ACTIONS = [
+        :wait_deploy_action,
+        :wait_undeploy_action,
+        :wait_scaleup_action,
+        :wait_scaledown_action,
+        :wait_add_action,
+        :wait_remove_action,
+        :wait_cooldown_action,
+        :wait_deploy_nets_action,
+        :wait_undeploy_nets_action
+    ]
 
     FAILURE_STATES = %w[
         BOOT_FAILURE
@@ -80,20 +82,9 @@ class EventManager
         @subscriber_endpoint = @cloud_auth.conf[:subscriber_endpoint]
 
         # Register Action Manager actions
-        @am.register_action(ACTIONS['WAIT_DEPLOY'],
-                            method('wait_deploy_action'))
-        @am.register_action(ACTIONS['WAIT_UNDEPLOY'],
-                            method('wait_undeploy_action'))
-        @am.register_action(ACTIONS['WAIT_COOLDOWN'],
-                            method('wait_cooldown'))
-        @am.register_action(ACTIONS['WAIT_SCALEUP'],
-                            method('wait_scaleup_action'))
-        @am.register_action(ACTIONS['WAIT_ADD'],
-                            method('wait_add_action'))
-        @am.register_action(ACTIONS['WAIT_REMOVE'],
-                            method('wait_remove_action'))
-        @am.register_action(ACTIONS['WAIT_SCALEDOWN'],
-                            method('wait_scaledown_action'))
+        ACTIONS.each do |m|
+            @am.register_action(m, method(m.to_s))
+        end
 
         Thread.new { @am.start_listener }
     end
@@ -130,6 +121,42 @@ class EventManager
                                 service_id,
                                 role_name)
         end
+    end
+
+    # Wait for networks to e ready
+    #
+    # @param client     [OpenNebula::Client] Client to perform requests
+    # @param service_id [Integer]            Service ID
+    # @param networks   [Array]              Network IDs to wait until ready
+    def wait_deploy_nets_action(client, service_id, networks)
+        Log.info LOG_COMP, "Waiting networks #{networks} to be (READY)"
+        rc = wait_nets(networks, 'READY')
+
+        if rc[0]
+            action = :deploy_nets_cb
+        else
+            action = :deploy_nets_failure_cb
+        end
+
+        @lcm.trigger_action(action, service_id, client, service_id)
+    end
+
+    # Wait for networks to e ready
+    #
+    # @param client     [OpenNebula::Client] Client to perform requests
+    # @param service_id [Integer]            Service ID
+    # @param networks   [Array]              Network IDs to wait until ready
+    def wait_undeploy_nets_action(client, service_id, networks)
+        Log.info LOG_COMP, "Waiting networks #{networks} to be (DONE)"
+        rc = wait_nets(networks, 'DONE')
+
+        if rc[0]
+            action = :undeploy_nets_cb
+        else
+            action = :undeploy_nets_failure_cb
+        end
+
+        @lcm.trigger_action(action, service_id, client, service_id)
     end
 
     # Wait for nodes to be in DONE
@@ -264,7 +291,7 @@ class EventManager
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_cooldown(client, service_id, role_name, cooldown_time)
+    def wait_cooldown_action(client, service_id, role_name, cooldown_time)
         Log.info LOG_COMP, "Waiting #{cooldown_time}s for cooldown for " \
                            "service #{service_id} and role #{role_name}."
 
@@ -309,10 +336,10 @@ class EventManager
         end
 
         nodes.each do |node|
-            subscribe(node, state, lcm_state, subscriber)
+            subscribe(subscriber, 'VM', node, state, lcm_state)
 
             (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                subscribe(node, s, 'LCM_INIT', subscriber)
+                subscribe(subscriber, 'VM', node, s, 'LCM_INIT')
             end
         end
 
@@ -339,10 +366,10 @@ class EventManager
                 next if !nodes.empty? && rc_nodes[:failure].empty?
 
                 nodes.each do |id|
-                    unsubscribe(id, state, lcm_state, subscriber)
+                    unsubscribe(subscriber, 'VM', id, state, lcm_state)
 
                     (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                        unsubscribe(id, s, 'LCM_INIT', subscriber)
+                        unsubscribe(subscriber, 'VM', id, s, 'LCM_INIT')
                     end
                 end
 
@@ -362,6 +389,98 @@ class EventManager
         subscriber.close
 
         [true, rc_nodes]
+    end
+
+    def wait_nets(networks, state)
+        subscriber = gen_subscriber
+
+        rc_nets = { :successful => {}, :failure => {} }
+        rc      = check_nets(networks, state, subscriber)
+
+        # rc_nets[:successful] has the following structure
+        #
+        #   vnet_id => boolean
+        #
+        # = true means the VNET was deleted by external user
+        # = false means the VNET state is in SUBSCRIBE_STATES
+        rc_nets[:successful].merge!(rc[:successful])
+        rc_nets[:failure].merge!(rc[:failure])
+
+        if networks.empty? && rc_nets[:failure].empty?
+            subscriber.close
+
+            return [true, rc_nets]
+        end
+
+        networks.each do |network|
+            [state, 'DONE', 'ERROR'].each do |s|
+                subscribe(subscriber, 'NET', network, s)
+            end
+        end
+
+        key     = ''
+        content = ''
+
+        until networks.empty?
+            rc = subscriber.recv_string(key)
+            rc = subscriber.recv_string(content) if rc != -1
+
+            # rubocop:disable Style/GuardClause
+            if rc == -1 && ZMQ::Util.errno != ZMQ::EAGAIN
+                # rubocop:enable Style/GuardClause
+                next Log.error LOG_COMP, 'Error reading from subscriber.'
+            elsif rc == -1
+                Log.info LOG_COMP, "Timeout reached for VNET #{networks} =>"\
+                                   " (#{state})"
+
+                rc = check_nets(networks, state, subscriber)
+
+                rc_nets[:successful].merge!(rc[:successful])
+                rc_nets[:failure].merge!(rc[:failure])
+
+                next if !networks.empty? && rc_nets[:failure].empty?
+
+                networks.each do |network|
+                    [state, 'DONE', 'ERROR'].each do |s|
+                        unsubscribe(subscriber, 'NET', network, s)
+                    end
+                end
+
+                # If any node is in error wait action will fails
+                return [false, rc_nets] unless rc_nets[:failure].empty?
+
+                return [true, rc_nets] # (networks.empty? && fail_nets.empty?)
+            end
+
+            # Read information from hook message
+            id      = retrieve_id(key)
+            xml     = Nokogiri::XML(Base64.decode64(content))
+            h_state = xml.xpath('//HOOK_MESSAGE/STATE').text
+
+            Log.info LOG_COMP, "VNET #{id} reached (#{h_state})"
+
+            case h_state
+            when 'DONE'
+                rc_nets[:successful][id] = true
+            when 'ERROR'
+                Log.error LOG_COMP, "VNET #{id} is in ERROR state"
+                rc_nets[:failure][id] = false
+            when h_state == state
+                rc_nets[:successful][id] = false
+            end
+
+            [state, 'DONE', 'ERROR'].each do |s|
+                unsubscribe(subscriber, 'NET', id, s)
+            end
+
+            networks.delete(id)
+        end
+
+        subscriber.close
+
+        return [false, rc_nets] unless rc_nets[:failure].empty?
+
+        [true, rc_nets]
     end
 
     def wait_report_ready(nodes)
@@ -385,7 +504,7 @@ class EventManager
 
         nodes.each do |node|
             (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                subscribe(node, s, 'LCM_INIT', subscriber)
+                subscribe(subscriber, 'VM', node, s, 'LCM_INIT')
             end
         end
 
@@ -415,7 +534,7 @@ class EventManager
 
                 nodes.each do |node|
                     (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                        unsubscribe(node, s, 'LCM_INIT', subscriber)
+                        unsubscribe(subscriber, 'VM', node, s, 'LCM_INIT')
                     end
                 end
 
@@ -439,7 +558,7 @@ class EventManager
             Log.info LOG_COMP, "Node #{rc[0]} reported ready"
 
             (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                unsubscribe(rc[0], s, 'LCM_INIT', subscriber)
+                unsubscribe(subscriber, 'VM', rc[0], s, 'LCM_INIT')
             end
 
             nodes.delete(rc[0])
@@ -501,10 +620,10 @@ class EventManager
 
                 rc_nodes[:failure][id] = false
             else
-                unsubscribe(id, state, lcm_state, subscriber)
+                unsubscribe(subscriber, 'VM', id, state, lcm_state)
 
                 (SUBSCRIBE_STATES + ['DONE']).each do |s|
-                    unsubscribe(id, s, 'LCM_INIT', subscriber)
+                    unsubscribe(subscriber, 'VM', id, s, 'LCM_INIT')
                 end
 
                 nodes.delete(id)
@@ -531,7 +650,7 @@ class EventManager
 
             if vm_state == 'DONE' ||
                (vm_state == state && vm_lcm_state == lcm_state)
-                unsubscribe(node, state, lcm_state, subscriber)
+                unsubscribe(subscriber, 'VM', node, state, lcm_state)
 
                 rc_nodes[:successful][node] = true
                 next true
@@ -552,6 +671,54 @@ class EventManager
         end
 
         rc_nodes
+    end
+
+    def check_nets(networks, state, subscriber)
+        rc = { :successful => {}, :failure => {} }
+
+        networks.delete_if do |id|
+            vnet = OpenNebula::VirtualNetwork.new_with_id(
+                id,
+                @cloud_auth.client
+            )
+
+            if OpenNebula.is_error?(vnet.info)
+                Log.info LOG_COMP, "VNET #{id} reached (#{state})"
+
+                [state, 'ERROR', 'DONE'].each do |s|
+                    unsubscribe(subscriber, 'NET', id, s)
+                end
+
+                rc[:successful][id] = true
+                next true
+            end
+
+            vnet_state = OpenNebula::VirtualNetwork::VN_STATES[vnet.state]
+
+            if vnet_state == state
+                Log.info LOG_COMP, "VNET #{id} reached (#{vnet_state})"
+
+                [state, 'ERROR', 'DONE'].each do |s|
+                    unsubscribe(subscriber, 'NET', id, s)
+                end
+
+                rc[:successful][id] = true
+                next true
+            elsif vnet_state == 'ERROR'
+                Log.error LOG_COMP, "VNET #{id} is in FAILURE state"
+
+                [state, 'ERROR', 'DONE'].each do |s|
+                    unsubscribe(subscriber, 'NET', id, s)
+                end
+
+                rc[:failure][id] = false
+                next true
+            end
+
+            false
+        end
+
+        rc
     end
 
     def check_nodes_report(nodes)
@@ -598,30 +765,34 @@ class EventManager
     end
 
     ############################################################################
-    #  Functionns to subscribe/unsuscribe to event changes on VM
+    # Functionns to subscribe/unsuscribe to event changes on VM/VNET
     ############################################################################
 
     def gen_subscriber
         subscriber = @context.socket(ZMQ::SUB)
-        # Set timeout (TODO add option for customize timeout)
+
         subscriber.setsockopt(ZMQ::RCVTIMEO, @wait_timeout * 10**3)
         subscriber.connect(@subscriber_endpoint)
 
         subscriber
     end
 
-    def subscribe(vm_id, state, lcm_state, subscriber)
-        subscriber.setsockopt(ZMQ::SUBSCRIBE,
-                              gen_filter(vm_id, state, lcm_state))
+    def subscribe(subscriber, object, id, state, lcm_state = nil)
+        subscriber.setsockopt(
+            ZMQ::SUBSCRIBE,
+            gen_filter(object, id, state, lcm_state)
+        )
     end
 
-    def unsubscribe(vm_id, state, lcm_state, subscriber)
-        subscriber.setsockopt(ZMQ::UNSUBSCRIBE,
-                              gen_filter(vm_id, state, lcm_state))
+    def unsubscribe(subscriber, object, id, state, lcm_state = nil)
+        subscriber.setsockopt(
+            ZMQ::UNSUBSCRIBE,
+            gen_filter(object, id, state, lcm_state)
+        )
     end
 
-    def gen_filter(vm_id, state, lcm_state)
-        "EVENT STATE VM/#{state}/#{lcm_state}/#{vm_id}"
+    def gen_filter(object, id, state, lcm_state)
+        "EVENT STATE #{object}/#{state}/#{lcm_state}/#{id}"
     end
 
 end

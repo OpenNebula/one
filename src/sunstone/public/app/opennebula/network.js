@@ -19,6 +19,26 @@ define(function(require) {
 
   var RESOURCE = "VNET";
 
+  var STATES = {
+    INIT            : 0,
+    READY           : 1,
+    LOCK_CREATE     : 2,
+    LOCK_DELETE     : 3,
+    LOCKED          : 4,
+    DONE            : 5,
+    ERROR           : 6
+  };
+
+  var STATES_STR = [
+    "INIT",
+    "READY",
+    "LOCK_CREATE",
+    "LOCK_DELETE",
+    "LOCKED",
+    "DONE",
+    "ERROR"
+  ];
+
   var Network =  {
     "resource": RESOURCE,
     "create": function(params) {
@@ -97,6 +117,10 @@ define(function(require) {
     "unlock" : function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
     },
+    "stateStr": function(stateId) {
+      return STATES_STR[stateId];
+    },
+    "STATES": STATES
   }
 
   return Network;

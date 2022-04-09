@@ -44,6 +44,13 @@ public class VirtualNetwork extends PoolElement{
     private static final String FREEAR          = METHOD_PREFIX + "free_ar";
     private static final String LOCK            = METHOD_PREFIX + "lock";
     private static final String UNLOCK          = METHOD_PREFIX + "unlock";
+    private static final String RECOVER         = METHOD_PREFIX + "recover";
+
+    private static final String[] VN_STATES =
+        {"INIT", "READY", "LOCK_CREATE", "LOCK_DELETE", "DONE", "ERROR"};
+
+    private static final String[] SHORT_VN_STATES =
+        {"init", "rdy", "lock", "lock", "done", "err"};
 
     /**
      * Creates a new virtual network representation.
@@ -403,6 +410,20 @@ public class VirtualNetwork extends PoolElement{
         return client.call(UNLOCK, id);
     }
 
+    /**
+     * Recovers a stuck Virtual Network.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Network ID of the target instance.
+     * @param operation to recover the VM: (0) failure, (1) success,
+     * (2) delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse recover(Client client, int id, int operation)
+    {
+        return client.call(RECOVER, id, operation);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -741,8 +762,46 @@ public class VirtualNetwork extends PoolElement{
         return unlock(client, id);
     }
 
+    /**
+     * Recovers a stuck Virtual Network.
+     *
+     * @param operation to recover the VM: (0) failure, (1) success,
+     * (2) delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse recover(int operation)
+    {
+        return recover(client, id, operation);
+    }
+
     // =================================
     // Helpers
     // =================================
+
+    /**
+     * Returns the state of the Virtual Network.
+     * <br>
+     * The method {@link VirtualNetowrk#info()} must be called before.
+     *
+     * @return The state of the Virtual Network.
+     */
+    public String stateString()
+    {
+        int state = state();
+        return state != -1 ? VN_STATES[state] : null;
+    }
+
+    /**
+     * Returns the short string state of the Virtual Network.
+     * <br>
+     * The method {@link VirtualNetowrk#info()} must be called before.
+     *
+     * @return The short string state of the Virtual Network.
+     */
+    public String shortStateStr()
+    {
+        int state = state();
+        return state != -1 ? SHORT_VN_STATES[state] : null;
+    }
 
 }

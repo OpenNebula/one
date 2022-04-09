@@ -21,6 +21,7 @@
 #include "HookStateHost.h"
 #include "HookStateVM.h"
 #include "HookStateImage.h"
+#include "HookStateVirtualNetwork.h"
 #include "HookLog.h"
 #include "OneDB.h"
 
@@ -385,6 +386,10 @@ int Hook::set_hook(HookType hook_type, string& error)
 
                 case PoolObjectSQL::IMAGE:
                     _hook = new HookStateImage();
+                    break;
+
+                case PoolObjectSQL::NET:
+                    _hook = new HookStateVirtualNetwork();
                     break;
 
                 default:

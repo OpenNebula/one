@@ -486,8 +486,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/autostart \
           $VAR_LOCATION/remotes/hooks/ft \
-          $VAR_LOCATION/remotes/hooks/vcenter \
-          $VAR_LOCATION/remotes/hooks/vcenter/templates \
           $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
@@ -759,8 +757,6 @@ INSTALL_FILES=(
     BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
-    HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
-    HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
@@ -1738,53 +1734,71 @@ NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
                     src/vnm_mad/remotes/802.1Q/update_sg \
-                    src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb"
+                    src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb \
+                    src/vnm_mad/remotes/802.1Q/vnet_create \
+                    src/vnm_mad/remotes/802.1Q/vnet_delete"
 
 NETWORK_VXLAN_FILES="src/vnm_mad/remotes/vxlan/clean \
                     src/vnm_mad/remotes/vxlan/post \
                     src/vnm_mad/remotes/vxlan/pre \
                     src/vnm_mad/remotes/vxlan/update_sg \
                     src/vnm_mad/remotes/vxlan/vxlan.rb \
-                    src/vnm_mad/remotes/vxlan/vxlan_driver.rb"
-
+                    src/vnm_mad/remotes/vxlan/vxlan_driver.rb \
+                    src/vnm_mad/remotes/vxlan/vnet_create \
+                    src/vnm_mad/remotes/vxlan/vnet_delete"
 
 NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
                     src/vnm_mad/remotes/dummy/update_sg \
-                    src/vnm_mad/remotes/dummy/pre"
+                    src/vnm_mad/remotes/dummy/pre \
+                    src/vnm_mad/remotes/dummy/vnet_create \
+                    src/vnm_mad/remotes/dummy/vnet_delete"
 
 NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
                     src/vnm_mad/remotes/bridge/post \
                     src/vnm_mad/remotes/bridge/update_sg \
-                    src/vnm_mad/remotes/bridge/pre"
+                    src/vnm_mad/remotes/bridge/pre \
+                    src/vnm_mad/remotes/bridge/vnet_create \
+                    src/vnm_mad/remotes/bridge/vnet_delete"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/post \
                     src/vnm_mad/remotes/ebtables/pre \
                     src/vnm_mad/remotes/ebtables/update_sg \
-                    src/vnm_mad/remotes/ebtables/Ebtables.rb"
+                    src/vnm_mad/remotes/ebtables/Ebtables.rb \
+                    src/vnm_mad/remotes/ebtables/vnet_create \
+                    src/vnm_mad/remotes/ebtables/vnet_delete"
 
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
                   src/vnm_mad/remotes/fw/pre \
                   src/vnm_mad/remotes/fw/update_sg \
-                  src/vnm_mad/remotes/fw/clean"
+                  src/vnm_mad/remotes/fw/clean \
+                  src/vnm_mad/remotes/fw/vnet_create \
+                  src/vnm_mad/remotes/fw/vnet_delete"
 
 NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
-                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb \
+                    src/vnm_mad/remotes/ovswitch/vnet_create \
+                    src/vnm_mad/remotes/ovswitch/vnet_delete"
 
 NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
                     src/vnm_mad/remotes/ovswitch_vxlan/post \
                     src/vnm_mad/remotes/ovswitch_vxlan/pre \
                     src/vnm_mad/remotes/ovswitch_vxlan/update_sg \
-                    src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb"
+                    src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb \
+                    src/vnm_mad/remotes/ovswitch_vxlan/vnet_create \
+                    src/vnm_mad/remotes/ovswitch_vxlan/vnet_delete"
 
 NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean \
-                       src/vnm_mad/remotes/vcenter/update_sg"
+                       src/vnm_mad/remotes/vcenter/update_sg \
+                       src/vnm_mad/remotes/vcenter/virtual_network_xml.rb \
+                       src/vnm_mad/remotes/vcenter/vnet_create \
+                       src/vnm_mad/remotes/vcenter/vnet_delete"
 
 NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/clean \
@@ -1792,13 +1806,17 @@ NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/post \
                        src/vnm_mad/remotes/elastic/remote_post \
                        src/vnm_mad/remotes/elastic/pre \
-                       src/vnm_mad/remotes/elastic/update_sg"
+                       src/vnm_mad/remotes/elastic/update_sg \
+                       src/vnm_mad/remotes/elastic/vnet_create \
+                       src/vnm_mad/remotes/elastic/vnet_delete"
 
 NETWORK_NODEPORT_FILES="src/vnm_mad/remotes/nodeport/nodeport.rb \
                         src/vnm_mad/remotes/nodeport/clean \
                         src/vnm_mad/remotes/nodeport/post \
                         src/vnm_mad/remotes/nodeport/pre \
-                        src/vnm_mad/remotes/nodeport/update_sg"
+                        src/vnm_mad/remotes/nodeport/update_sg \
+                        src/vnm_mad/remotes/nodeport/vnet_create \
+                        src/vnm_mad/remotes/nodeport/vnet_delete"
 
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
@@ -2308,22 +2326,6 @@ HOOK_AUTOSTART_FILES="share/hooks/autostart/host \
 
 HOOK_FT_FILES="share/hooks/ft/host_error.rb \
                share/hooks/ft/fence_host.sh"
-
-#-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/vcenter
-#-------------------------------------------------------------------------------
-
-HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
-                    share/hooks/vcenter/delete_vcenter_net.rb"
-
-#-------------------------------------------------------------------------------
-# HOOK templates, to be installed under
-# $VAR_LOCATION/remotes/hooks/vcenter/templates
-#-------------------------------------------------------------------------------
-
-HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/instantiate_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft

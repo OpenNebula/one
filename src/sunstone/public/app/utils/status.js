@@ -72,7 +72,20 @@ define(function(require) {
         FAILED_DEPLOYING:"#ec5840",
         SCALING:"#4DBBD3",
         FAILED_SCALING:"#ec5840",
-        COOLDOWN:"#4DBBD3"
+        COOLDOWN:"#4DBBD3",
+        DEPLOYING_NETS:"#4DBBD3",
+        UNDEPLOYING_NETS:"#4DBBD3",
+        FAILED_DEPLOYING_NETS:"#ec5840",
+        FAILED_UNDEPLOYING_NETS:"#ec5840"
+      },
+      VNET:{
+        INIT: "#4DBBD3",
+        READY: "#3adb76",
+        LOCK_CREATE: "lightsalmon",
+        LOCK_DELETE: "lightsalmon",
+        LOCKED: "lightsalmon",
+        DONE: "#ec5840",
+        ERROR: "#ec5840"
       }
     };
 

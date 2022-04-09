@@ -701,7 +701,7 @@ post '/service_template/:id/action' do
             return internal_error(service.message, GENERAL_EC)
         else
             # Starts service deployment async
-            rc = lcm.deploy_action(@client, service.id)
+            rc = lcm.deploy_nets_action(@client, service.id)
 
             if OpenNebula.is_error?(rc)
                 return internal_error(rc.message, one_error_to_http(rc.errno))

@@ -23,6 +23,7 @@
 #include "FedReplicaManager.h"
 #include "ImageManager.h"
 #include "InformationManager.h"
+#include "IPAMManager.h"
 #include "MarketPlaceManager.h"
 
 #include "ClusterPool.h"
@@ -323,12 +324,22 @@ int VirtualNetworkDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Re
         return -1;
     }
 
+    switch(vnet->get_state())
+    {
+        case VirtualNetwork::LOCK_CREATE:
+        case VirtualNetwork::LOCK_DELETE:
+        case VirtualNetwork::DONE:
+            att.resp_msg = "Can not remove a Virtual Network, wrong state "
+                + vnet->state_to_str(vnet->get_state());
+            return -1;
+        case VirtualNetwork::INIT:
+        case VirtualNetwork::READY:
+        case VirtualNetwork::ERROR:
+            break;
+    }
+
     Nebula& nd  = Nebula::instance();
     VirtualNetworkPool * vnpool = nd.get_vnpool();
-
-    int pvid = vnet->get_parent();
-    int uid  = vnet->get_uid();
-    int gid  = vnet->get_gid();
 
     // Delete all address ranges to call IPAM if needed
     string error_msg;
@@ -342,63 +353,15 @@ int VirtualNetworkDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Re
         return rc;
     }
 
-    rc  = RequestManagerDelete::drop(std::move(object), false, att);
+    vnet->set_state(VirtualNetwork::LOCK_DELETE);
 
-    if (pvid != -1)
-    {
-        int freed = 0;
-        if (auto vnet = pool->get<VirtualNetwork>(pvid))
-        {
-            freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+    vnpool->update(vnet);
 
-            pool->update(vnet.get());
-        }
-        else
-        {
-            return rc;
-        }
+    string xml64;
+    vnet->to_xml64(xml64);
 
-        if (freed > 0)
-        {
-            ostringstream oss;
-            Template      tmpl;
-
-            for (int i= 0 ; i < freed ; i++)
-            {
-                oss << " NIC = [ NETWORK_ID = " << pvid << " ]" << endl;
-            }
-
-            tmpl.parse_str_or_xml(oss.str(), att.resp_msg);
-
-            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
-        }
-    }
-
-    if (rc != 0)
-    {
-        return rc;
-    }
-
-    // Remove virtual network from VDC
-    int zone_id = nd.get_zone_id();
-
-    VdcPool * vdcpool = nd.get_vdcpool();
-
-    std::string error;
-    std::vector<int> vdcs;
-
-    vdcpool->list(vdcs);
-
-    for (int vdcId : vdcs)
-    {
-        if ( auto vdc = vdcpool->get(vdcId) )
-        {
-            if ( vdc->del_vnet(zone_id, oid, error) == 0 )
-            {
-                vdcpool->update(vdc.get());
-            }
-        }
-    }
+    auto ipamm = nd.get_ipamm();
+    ipamm->trigger_vnet_delete(oid, xml64);
 
     return rc;
 }

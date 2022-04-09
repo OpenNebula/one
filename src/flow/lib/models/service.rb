@@ -24,17 +24,21 @@ module OpenNebula
         DOCUMENT_TYPE = 100
 
         STATE = {
-            'PENDING'            => 0,
-            'DEPLOYING'          => 1,
-            'RUNNING'            => 2,
-            'UNDEPLOYING'        => 3,
-            'WARNING'            => 4,
-            'DONE'               => 5,
-            'FAILED_UNDEPLOYING' => 6,
-            'FAILED_DEPLOYING'   => 7,
-            'SCALING'            => 8,
-            'FAILED_SCALING'     => 9,
-            'COOLDOWN'           => 10
+            'PENDING'                 => 0,
+            'DEPLOYING'               => 1,
+            'RUNNING'                 => 2,
+            'UNDEPLOYING'             => 3,
+            'WARNING'                 => 4,
+            'DONE'                    => 5,
+            'FAILED_UNDEPLOYING'      => 6,
+            'FAILED_DEPLOYING'        => 7,
+            'SCALING'                 => 8,
+            'FAILED_SCALING'          => 9,
+            'COOLDOWN'                => 10,
+            'DEPLOYING_NETS'          => 11,
+            'UNDEPLOYING_NETS'        => 12,
+            'FAILED_DEPLOYING_NETS'   => 13,
+            'FAILED_UNDEPLOYING_NETS' => 14
         }
 
         STATE_STR = %w[
@@ -49,6 +53,10 @@ module OpenNebula
             SCALING
             FAILED_SCALING
             COOLDOWN
+            DEPLOYING_NETS
+            UNDEPLOYING_NETS
+            FAILED_DEPLOYING_NETS
+            FAILED_UNDEPLOYING_NETS
         ]
 
         TRANSIENT_STATES = %w[
@@ -56,12 +64,16 @@ module OpenNebula
             UNDEPLOYING
             SCALING
             COOLDOWN
+            DEPLOYING_NETS
+            UNDEPLOYING_NETS
         ]
 
         FAILED_STATES = %w[
             FAILED_DEPLOYING
             FAILED_UNDEPLOYING
             FAILED_SCALING
+            FAILED_DEPLOYING_NETS
+            FAILED_UNDEPLOYING_NETS
         ]
 
         RECOVER_DEPLOY_STATES = %w[
@@ -73,11 +85,19 @@ module OpenNebula
         RECOVER_UNDEPLOY_STATES = %w[
             FAILED_UNDEPLOYING
             UNDEPLOYING
+            FAILED_UNDEPLOYING_NETS
         ]
 
         RECOVER_SCALE_STATES = %w[
             FAILED_SCALING
             SCALING
+        ]
+
+        RECOVER_DEPLOY_NETS_STATES = %w[DEPLOYING_NETS FAILED_DEPLOYING_NETS]
+
+        RECOVER_UNDEPLOY_NETS_STATES = %w[
+            UNDEPLOYING_NETS
+            FAILED_UNDEPLOYING_NETS
         ]
 
         # List of attributes that can't be changed in update operation
@@ -168,6 +188,14 @@ module OpenNebula
             RECOVER_SCALE_STATES.include? STATE_STR[state]
         end
 
+        def can_recover_deploy_nets?
+            RECOVER_DEPLOY_NETS_STATES.include?(STATE_STR[state])
+        end
+
+        def can_recover_undeploy_nets?
+            RECOVER_UNDEPLOY_NETS_STATES.include?(STATE_STR[state])
+        end
+
         # Return true if the service is running
         # @return true if the service is runnning, false otherwise
         def running?
@@ -235,6 +263,24 @@ module OpenNebula
             end
 
             true
+        end
+
+        # Returns virtual networks IDs
+        # @return [Array] Array of integers containing the IDs
+        def networks(deploy)
+            ret = []
+
+            return ret unless @body['networks_values']
+
+            @body['networks_values'].each do |vnet|
+                vnet.each do |_, net|
+                    next if net.keys.first == 'id' && !deploy
+
+                    ret << net['id'].to_i
+                end
+            end
+
+            ret
         end
 
         # Create a new service based on the template provided
@@ -570,17 +616,22 @@ module OpenNebula
 
             return if body['networks_values'].nil?
 
-            body['networks_values'].each do |net|
-                rc = create_vnet(net) if net[net.keys[0]].key?('template_id')
+            body['networks_values'].each do |vnet|
+                vnet.each do |name, net|
+                    key = net.keys.first
 
-                if OpenNebula.is_error?(rc)
-                    return rc
-                end
+                    case key
+                    when 'id'
+                        next
+                    when 'template_id'
+                        rc = create_vnet(name, net)
+                    when 'reserve_from'
+                        rc = reserve(name, net)
+                    end
 
-                rc = reserve(net) if net[net.keys[0]].key?('reserve_from')
+                    return rc if OpenNebula.is_error?(rc)
 
-                if OpenNebula.is_error?(rc)
-                    return rc
+                    net['id'] = rc
                 end
             end if deploy
 
@@ -593,22 +644,25 @@ module OpenNebula
         end
 
         def delete_networks
-            vnets = @body['networks_values']
+            vnets        = @body['networks_values']
             vnets_failed = []
 
             return if vnets.nil?
 
             vnets.each do |vnet|
-                next unless vnet[vnet.keys[0]].key?('template_id') ||
-                            vnet[vnet.keys[0]].key?('reserve_from')
+                vnet.each do |_, net|
+                    key = net.keys.first
 
-                vnet_id = vnet[vnet.keys[0]]['id'].to_i
+                    next unless %w[template_id reserve_from].include?(key)
 
-                rc = OpenNebula::VirtualNetwork
-                     .new_with_id(vnet_id, @client).delete
+                    rc = OpenNebula::VirtualNetwork.new_with_id(
+                        net['id'],
+                        @client
+                    ).delete
 
-                if OpenNebula.is_error?(rc)
-                    vnets_failed << vnet_id
+                    next unless OpenNebula.is_error?(rc)
+
+                    vnets_failed << net['id']
                 end
             end
 
@@ -677,44 +731,32 @@ module OpenNebula
             @body['log'] = @body['log'].last(MAX_LOG)
         end
 
-        def create_vnet(net)
+        def create_vnet(name, net)
             extra = ''
+            extra = net['extra'] if net.key? 'extra'
 
-            extra = net[net.keys[0]]['extra'] if net[net.keys[0]].key? 'extra'
-
-            vntmpl_id = OpenNebula::VNTemplate
-                        .new_with_id(net[net.keys[0]]['template_id']
-                        .to_i, @client).instantiate(get_vnet_name(net), extra)
-
-            # TODO, check which error should be returned
-            return vntmpl_id if OpenNebula.is_error?(vntmpl_id)
-
-            net[net.keys[0]]['id'] = vntmpl_id
-
-            true
+            OpenNebula::VNTemplate.new_with_id(
+                net['template_id'].to_i,
+                @client
+            ).instantiate(get_vnet_name(name), extra)
         end
 
-        def reserve(net)
-            get_vnet_name(net)
-            extra = net[net.keys[0]]['extra'] if net[net.keys[0]].key? 'extra'
+        def reserve(name, net)
+            extra = ''
+            extra = net['extra'] if net.key? 'extra'
 
             return false if !extra || extra.empty?
 
-            extra.concat("\nNAME=\"#{get_vnet_name(net)}\"\n")
+            extra.concat("\nNAME=\"#{get_vnet_name(name)}\"\n")
 
-            reserve_id = OpenNebula::VirtualNetwork
-                         .new_with_id(net[net.keys[0]]['reserve_from']
-                         .to_i, @client).reserve_with_extra(extra)
-
-            return reserve_id if OpenNebula.is_error?(reserve_id)
-
-            net[net.keys[0]]['id'] = reserve_id
-
-            true
+            OpenNebula::VirtualNetwork.new_with_id(
+                net['reserve_from'].to_i,
+                @client
+            ).reserve_with_extra(extra)
         end
 
         def get_vnet_name(net)
-            "#{net.keys[0]}-#{id}"
+            "#{net}-#{id}"
         end
 
         def resolve_attributes(template)

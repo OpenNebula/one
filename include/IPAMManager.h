@@ -85,6 +85,16 @@ public:
      */
     void trigger_free_address(IPAMRequest& ir);
 
+    /**
+     * Call vnet_create action
+     */
+    void trigger_vnet_create(int vnid, const std::string& xml64);
+
+    /**
+     * Call vnet_create action
+     */
+    void trigger_vnet_delete(int vnid, const std::string& xml64);
+
 private:
     /**
      *  Timer action async execution
@@ -110,10 +120,20 @@ private:
 
     /**
      *  This function initializes a request to call the IPAM driver
+     *    @param type Message type
      *    @param ir the IPAM request
-     *    @return pointer to the IPAM driver to use, 0 on failure
      */
     void send_request(IPAMManagerMessages type, IPAMRequest& ir);
+
+    /**
+     *  This function send an action message to IPAM driver
+     *    @param type Message type
+     *    @param oid Object ID
+     *    @param xml Object xml data
+     */
+    void send_message(IPAMManagerMessages type,
+                      int oid,
+                      const std::string& xml);
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
@@ -127,6 +147,10 @@ private:
      *
      */
     void _notify_request(std::unique_ptr<ipam_msg_t> msg);
+
+    void _vnet_create(std::unique_ptr<ipam_msg_t> msg);
+
+    void _vnet_delete(std::unique_ptr<ipam_msg_t> msg);
 
     /**
      *

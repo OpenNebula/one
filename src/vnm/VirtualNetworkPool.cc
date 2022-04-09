@@ -21,7 +21,12 @@
 #include "PoolObjectAuth.h"
 #include "AuthManager.h"
 #include "AddressRange.h"
+#include "IPAMManager.h"
 #include "VirtualMachineNic.h"
+#include "ClusterPool.h"
+#include "HookManager.h"
+#include "HookStateVirtualNetwork.h"
+#include "VdcPool.h"
 
 #include <sstream>
 #include <ctype.h>
@@ -143,24 +148,32 @@ int VirtualNetworkPool::allocate (
     // Insert the VN in the DB
     *oid = PoolSQL::allocate(vn, error_str);
 
-    // Get a free VLAN_ID from the pool if needed
-    if ( *oid != -1 )
+    if ( *oid == -1)
     {
-        if ( auto vnet = get(*oid) )
-        {
-            if ( set_vlan_id(vnet.get()) != 0 )
-            {
-                error_str = "Cannot automatically assign VLAN_ID to network.";
-                drop(vnet.get(), error_str);
+        return *oid;
+    }
 
-                *oid = -1;
-            }
-        }
-        else
+    // Get a free VLAN_ID from the pool if needed
+    if ( auto vnet = get(*oid) )
+    {
+        if ( set_vlan_id(vnet.get()) != 0 )
         {
-            error_str = "An error occurred while allocating the virtual network.";
+            error_str = "Cannot automatically assign VLAN_ID to network.";
+            drop(vnet.get(), error_str);
+
             goto error_common;
         }
+
+        string xml64;
+        vnet->to_xml64(xml64);
+
+        auto ipamm = Nebula::instance().get_ipamm();
+        ipamm->trigger_vnet_create(*oid, xml64);
+    }
+    else
+    {
+        error_str = "An error occurred while allocating the virtual network.";
+        goto error_common;
     }
 
     return *oid;
@@ -177,6 +190,30 @@ error_common:
     *oid = -1;
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::update(PoolObjectSQL * objsql)
+{
+    VirtualNetwork * vn = dynamic_cast<VirtualNetwork *>(objsql);
+
+    if ( vn == nullptr )
+    {
+        return -1;
+    }
+
+    if ( HookStateVirtualNetwork::trigger(vn) )
+    {
+        std::string event = HookStateVirtualNetwork::format_message(vn);
+
+        Nebula::instance().get_hm()->trigger_send_event(event);
+    }
+
+    vn->set_prev_state();
+
+    return vn->update(db);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -797,5 +834,114 @@ int VirtualNetworkPool::reserve_addr_by_mac(int pid, int rid, unsigned int rsize
     }
 
     return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
+{
+    Nebula& nd = Nebula::instance();
+
+    int oid  = vn->get_oid();
+    int pvid = vn->get_parent();
+    int uid  = vn->get_uid();
+    int gid  = vn->get_gid();
+
+    set<int> cluster_ids = vn->get_cluster_ids();
+
+    vn->set_state(VirtualNetwork::DONE);
+    vn->clear_template_error_message();
+
+    update(vn.get());
+
+    string err;
+    auto rc = drop(vn.get(), err);
+
+    if ( rc != 0 )
+    {
+        NebulaLog::error("IPM", "Unable to delete Virtual Network id = "
+            + to_string(oid));
+        return;
+    }
+
+    vn.reset();
+
+    // Remove from clusters
+    auto clpool = nd.get_clpool();
+
+    for (auto cid : cluster_ids)
+    {
+        if ( auto cluster = clpool->get(cid) )
+        {
+            rc = clpool->del_from_cluster(PoolObjectSQL::NET, cluster.get(), oid, err);
+
+            if ( rc < 0 )
+            {
+                NebulaLog::error("IPM", "Unable to remove Virtual Network id="
+                    + to_string(oid)
+                    + " from cluster id=" + to_string(cluster->get_oid())
+                    + ", error: " + err);
+            }
+        }
+    }
+
+    // Relase from parent network
+    if (pvid != -1)
+    {
+        int freed = 0;
+
+        if (auto vnet = get(pvid))
+        {
+            freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+
+            update(vnet.get());
+        }
+        else
+        {
+            NebulaLog::error("IPM", "VN " + to_string(oid) +
+                " unable to free resources from parent network id=" +
+                to_string(pvid) + ", it doesn't exists");
+        }
+
+        if (freed > 0)
+        {
+            ostringstream oss;
+            Template      tmpl;
+
+            for (int i= 0 ; i < freed ; i++)
+            {
+                oss << " NIC = [ NETWORK_ID = " << pvid << " ]" << endl;
+            }
+
+            tmpl.parse_str_or_xml(oss.str(), err);
+
+            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+        }
+    }
+
+    // Remove virtual network from VDC
+    int zone_id = nd.get_zone_id();
+
+    VdcPool * vdcpool = nd.get_vdcpool();
+
+    std::vector<int> vdcs;
+
+    vdcpool->list(vdcs);
+
+    for (int vdcId : vdcs)
+    {
+        if ( auto vdc = vdcpool->get(vdcId) )
+        {
+            if ( vdc->del_vnet(zone_id, oid, err) == 0 )
+            {
+                vdcpool->update(vdc.get());
+            }
+            else
+            {
+                NebulaLog::error("IPM", "Unable to remove Virtual Network id="
+                    + to_string(oid) + " from VDC, error: " + err);
+            }
+        }
+    }
 }
 

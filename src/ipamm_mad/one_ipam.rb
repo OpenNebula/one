@@ -64,7 +64,9 @@ class IPAMDriver < OpenNebulaDriver
         :unregister_address_range => "UNREGISTER_ADDRESS_RANGE",
         :allocate_address         => "ALLOCATE_ADDRESS",
         :get_address              => "GET_ADDRESS",
-        :free_address             => "FREE_ADDRESS"
+        :free_address             => "FREE_ADDRESS",
+        :vnet_create              => "VNET_CREATE",
+        :vnet_delete              => "VNET_DELETE"
     }
 
     # Init the driver
@@ -78,7 +80,9 @@ class IPAMDriver < OpenNebulaDriver
                 ACTION[:unregister_address_range] => nil,
                 ACTION[:allocate_address]         => nil,
                 ACTION[:get_address]              => nil,
-                ACTION[:free_address]             => nil
+                ACTION[:free_address]             => nil,
+                ACTION[:vnet_create]              => nil,
+                ACTION[:vnet_delete]              => nil
             }
         }.merge!(options)
 
@@ -106,6 +110,10 @@ class IPAMDriver < OpenNebulaDriver
         register_action(ACTION[:get_address].to_sym, method("get_address"))
 
         register_action(ACTION[:free_address].to_sym, method("free_address"))
+
+        register_action(ACTION[:vnet_create].to_sym, method("vnet_create"))
+
+        register_action(ACTION[:vnet_delete].to_sym, method("vnet_delete"))
     end
 
     def register_address_range(id, drv_message)
@@ -128,6 +136,14 @@ class IPAMDriver < OpenNebulaDriver
         do_ipam_action(id, :free_address, drv_message)
     end
 
+    def vnet_create(id, drv_message)
+        do_vnet_action(id, :vnet_create, drv_message)
+    end
+
+    def vnet_delete(id, drv_message)
+        do_vnet_action(id, :vnet_delete, drv_message)
+    end
+
     private
 
     def do_ipam_action(id, action, arguments)
@@ -135,7 +151,6 @@ class IPAMDriver < OpenNebulaDriver
             message = Base64.decode64(arguments)
             xml_doc = REXML::Document.new(message)
 
-            xml_doc.root
             ipam = xml_doc.elements['IPAM_DRIVER_ACTION_DATA/AR/IPAM_MAD'].text.strip
             raise if ipam.empty?
         rescue
@@ -168,6 +183,37 @@ class IPAMDriver < OpenNebulaDriver
             return false
         end
     end
+
+    def do_vnet_action(id, action, arguments)
+        begin
+            message = Base64.decode64(arguments)
+            xml_doc = REXML::Document.new(message)
+
+            xml_doc.root
+            vn_mad = xml_doc.elements['VNET/VN_MAD'].text.strip
+            raise if vn_mad.empty?
+        rescue
+            send_message(ACTION[action], RESULT[:failure], id,
+                "Cannot perform #{action}, cannot find VN driver")
+            return
+        end
+
+        #return if not is_available?(vn_mad, id, action)
+
+        path = File.join(@local_scripts_path, '../vnm/')
+        path = File.join(path, vn_mad)
+        cmd  = File.join(path, ACTION[action].downcase)
+        cmd << " " << id
+
+        rc = LocalCommand.run(cmd, log_method(id), arguments)
+
+        result, info = get_info_from_execution(rc)
+
+        info = Base64::encode64(info).strip.delete("\n")
+
+        send_message(ACTION[action], result, id, info)
+    end
+
 end
 
 ################################################################################

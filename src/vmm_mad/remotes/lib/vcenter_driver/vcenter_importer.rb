@@ -380,7 +380,7 @@ module VCenterDriver
                         # rubocop:enable Layout/LineLength
                     end
                 end
-                VCenterDriver::VcImporter.register_hooks
+
             rescue Interrupt
                 puts "\n"
                 exit 0 # Ctrl+C
@@ -393,16 +393,6 @@ module VCenterDriver
             ensure
                 vi_client.close_connection if vi_client
                 raise if raise_error
-            end
-        end
-
-        def self.register_hooks
-            hooks_path = HOOK_LOCATION + '/vcenter/templates'
-            client = OpenNebula::Client.new
-            hook = OpenNebula::Hook.new(OpenNebula::Hook.build_xml, client)
-            hook_files = Dir["#{hooks_path}/*.tmpl"]
-            hook_files.each do |hook_file|
-                hook.allocate(File.open(hook_file).read)
             end
         end
 

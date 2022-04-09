@@ -67,6 +67,15 @@ public:
         BRNONE              = 5
     };
 
+    enum VirtualNetworkState {
+        INIT        = 0, //!< Initialization state
+        READY       = 1, //!< Virtual Network ready to use
+        LOCK_CREATE = 2, //!< Driver create in progress
+        LOCK_DELETE = 3, //!< Driver delete in progress
+        DONE        = 4, //!< The Virtual Network is being deleted
+        ERROR       = 5  //!< Driver operation failed
+    };
+
     static std::string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
@@ -178,6 +187,51 @@ public:
     };
 
     /**
+     * Returns the string representation of an VirtualNetworkState
+     * @param state The state
+     * @return the string representation
+     */
+    static std::string state_to_str(VirtualNetworkState state)
+    {
+        switch (state)
+        {
+            case INIT:              return "INIT";          break;
+            case READY:             return "READY";         break;
+            case LOCK_CREATE:       return "LOCK_CREATE";   break;
+            case LOCK_DELETE:       return "LOCK_DELETE";   break;
+            case DONE:              return "DONE";          break;
+            case ERROR:             return "ERROR";         break;
+            default:                return "";
+        }
+    }
+
+    static VirtualNetworkState str_to_state(const std::string& str_state)
+    {
+        if ( str_state == "READY" )
+        {
+            return READY;
+        }
+        else if ( str_state == "LOCK_CREATE" )
+        {
+            return LOCK_CREATE;
+        }
+        else if ( str_state == "LOCK_DELETE" )
+        {
+            return LOCK_DELETE;
+        }
+        else if ( str_state == "DONE" )
+        {
+            return DONE;
+        }
+        else if ( str_state == "ERROR")
+        {
+            return ERROR;
+        }
+
+        return INIT;
+    }
+
+    /**
      *  Check consistency of PHYDEV, BRIDGE and VLAN attributes depending on
      *  the network driver
      *    @param error_str describing the error
@@ -198,6 +252,39 @@ public:
     // *************************************************************************
 
     virtual ~VirtualNetwork() = default;
+
+    /**
+     *  Return state of Virtual Network
+     */
+    VirtualNetworkState get_state()
+    {
+        return state;
+    }
+
+    /**
+     *  Set state of Virtual Network
+     */
+    void set_state(VirtualNetworkState _state)
+    {
+        state = _state;
+    }
+
+    /**
+     *  Sets the previous state
+     */
+    void set_prev_state()
+    {
+        prev_state = state;
+    }
+
+    /**
+     *  Test if the Image has changed state since last time prev state was set
+     *    @return true if state changed
+     */
+    bool has_changed_state() const
+    {
+        return prev_state != state;
+    }
 
     /**
      *  Factory method for virtual network templates
@@ -603,6 +690,10 @@ private:
     // *************************************************************************
     // Virtual Network Private Attributes
     // *************************************************************************
+
+    VirtualNetworkState state;
+
+    VirtualNetworkState prev_state;
 
     // -------------------------------------------------------------------------
     // Binded physical attributes

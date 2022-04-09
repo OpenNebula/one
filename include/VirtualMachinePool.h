@@ -133,7 +133,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep

@@ -28,6 +28,7 @@ source_files=[
     'HookStateVM.cc',
     'HookStateHost.cc',
     'HookStateImage.cc',
+    'HookStateVirtualNetwork.cc',
     'HookManager.cc',
     'HookManagerProtocol.cc',
     'ExecuteHook.cc',

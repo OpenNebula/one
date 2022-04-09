@@ -230,3 +230,25 @@ func (vc *VirtualNetworkController) Unlock() error {
 	_, err := vc.c.Client.Call("one.vn.unlock", vc.ID)
 	return err
 }
+
+// Recover recovers a stuck Virtual Network
+// * op: (0) failure, (1) success, (2) retry, (3) delete
+func (vc *VirtualNetworkController) Recover(op int) error {
+	_, err := vc.c.Client.Call("one.vn.recover", vc.ID, op)
+	return err
+}
+
+// RecoverFailure forces a failure
+func (vc *VirtualNetworkController) RecoverFailure() error {
+	return vc.Recover(0)
+}
+
+// RecoverSuccess forces a success
+func (vc *VirtualNetworkController) RecoverSuccess() error {
+	return vc.Recover(1)
+}
+
+// RecoverDelete delete the network, call driver cleanup action
+func (vc *VirtualNetworkController) RecoverDelete() error {
+	return vc.Recover(2)
+}

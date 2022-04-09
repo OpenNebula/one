@@ -188,9 +188,17 @@ module CLIHelper
                         error
                         ERROR
                         FAILED_DEPLOYING
+                        FAILED_DEPLOYING_NETS
                         FAILED_UNDEPLOYING
+                        FAILED_UNDEPLOYING_NETS
                         FAILED_SCALING]
-    REGULAR_STATES = %w[PENDING DEPLOYING CONFIGURING WARNING]
+    REGULAR_STATES = %w[PENDING
+                        DEPLOYING
+                        DEPLOYING_NETS
+                        UNDEPLOYING
+                        UNDEPLOYING_NETS
+                        CONFIGURING
+                        WARNING]
 
     # Set state color
     #

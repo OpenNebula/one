@@ -57,6 +57,18 @@ define(function(require) {
   STATE_ACTIONS[OpenNebulaFlow.STATES.COOLDOWN] =
     ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
 
+  STATE_ACTIONS[OpenNebulaFlow.STATES.DEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.UNDEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.FAILED_DEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.FAILED_UNDEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
   return {
     'disableStateButton': disableStateButton,
     'enableStateButton': enableStateButton,

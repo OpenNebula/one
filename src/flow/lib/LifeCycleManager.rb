@@ -27,28 +27,33 @@ class ServiceLCM
     attr_reader :am
 
     LOG_COMP = 'LCM'
-
-    ACTIONS = {
+    ACTIONS  = [
         # Callbacks
-        'DEPLOY_CB'            => :deploy_cb,
-        'DEPLOY_FAILURE_CB'    => :deploy_failure_cb,
-        'UNDEPLOY_CB'          => :undeploy_cb,
-        'UNDEPLOY_FAILURE_CB'  => :undeploy_failure_cb,
-        'COOLDOWN_CB'          => :cooldown_cb,
-        'SCALEUP_CB'           => :scaleup_cb,
-        'SCALEUP_FAILURE_CB'   => :scaleup_failure_cb,
-        'SCALEDOWN_CB'         => :scaledown_cb,
-        'SCALEDOWN_FAILURE_CB' => :scaledown_failure_cb,
-        'ADD_CB'               => :add_cb,
-        'ADD_FAILURE_CB'       => :add_failure_cb,
-        'REMOVE_CB'            => :remove_cb,
-        'REMOVE_FAILURE_CB'    => :remove_failure_cb,
+        :deploy_cb,
+        :deploy_failure_cb,
+        :undeploy_cb,
+        :undeploy_failure_cb,
+        :cooldown_cb,
+        :scaleup_cb,
+        :scaleup_failure_cb,
+        :scaledown_cb,
+        :scaledown_failure_cb,
+        :add_cb,
+        :add_failure_cb,
+        :remove_cb,
+        :remove_failure_cb,
+
+        # Network callbacks
+        :deploy_nets_cb,
+        :deploy_nets_failure_cb,
+        :undeploy_nets_cb,
+        :undeploy_nets_failure_cb,
 
         # WD callbacks
-        'ERROR_WD_CB'   => :error_wd_cb,
-        'DONE_WD_CB'    => :done_wd_cb,
-        'RUNNING_WD_CB' => :running_wd_cb
-    }
+        :error_wd_cb,
+        :done_wd_cb,
+        :running_wd_cb
+    ]
 
     def initialize(client, concurrency, cloud_auth)
         @cloud_auth = cloud_auth
@@ -61,42 +66,12 @@ class ServiceLCM
         }
 
         @event_manager = EventManager.new(em_conf).am
-
-        @wd = ServiceWD.new(em_conf)
+        @wd            = ServiceWD.new(em_conf)
 
         # Register Action Manager actions
-        @am.register_action(ACTIONS['DEPLOY_CB'],
-                            method('deploy_cb'))
-        @am.register_action(ACTIONS['DEPLOY_FAILURE_CB'],
-                            method('deploy_failure_cb'))
-        @am.register_action(ACTIONS['UNDEPLOY_CB'],
-                            method('undeploy_cb'))
-        @am.register_action(ACTIONS['UNDEPLOY_FAILURE_CB'],
-                            method('undeploy_failure_cb'))
-        @am.register_action(ACTIONS['SCALEUP_CB'],
-                            method('scaleup_cb'))
-        @am.register_action(ACTIONS['SCALEUP_FAILURE_CB'],
-                            method('scaleup_failure_cb'))
-        @am.register_action(ACTIONS['SCALEDOWN_CB'],
-                            method('scaledown_cb'))
-        @am.register_action(ACTIONS['SCALEDOWN_FAILURE_CB'],
-                            method('scaledown_failure_cb'))
-        @am.register_action(ACTIONS['COOLDOWN_CB'],
-                            method('cooldown_cb'))
-        @am.register_action(ACTIONS['ADD_CB'],
-                            method('add_cb'))
-        @am.register_action(ACTIONS['add_FAILURE_CB'],
-                            method('add_failure_cb'))
-        @am.register_action(ACTIONS['REMOVE_CB'],
-                            method('remove_cb'))
-        @am.register_action(ACTIONS['REMOVE_FAILURE_CB'],
-                            method('remove_failure_cb'))
-        @am.register_action(ACTIONS['ERROR_WD_CB'],
-                            method('error_wd_cb'))
-        @am.register_action(ACTIONS['DONE_WD_CB'],
-                            method('done_wd_cb'))
-        @am.register_action(ACTIONS['RUNNING_WD_CB'],
-                            method('running_wd_cb'))
+        ACTIONS.each do |m|
+            @am.register_action(m, method(m.to_s))
+        end
 
         Thread.new { @am.start_listener }
 
@@ -105,10 +80,11 @@ class ServiceLCM
         Thread.new { @wd.start(@srv_pool) }
 
         Thread.new do
-            auto_scaler = ServiceAutoScaler.new(@srv_pool,
-                                                @cloud_auth,
-                                                self)
-            auto_scaler.start
+            ServiceAutoScaler.new(
+                @srv_pool,
+                @cloud_auth,
+                self
+            ).start
         end
     end
 
@@ -223,13 +199,17 @@ class ServiceLCM
         rc
     end
 
-    # Create new service
+    ############################################################################
+    # Life cycle manager actions
+    ############################################################################
+
+    # Deploy service networks
     #
     # @param client     [OpenNebula::Client] Client executing action
     # @param service_id [Integer]            Service ID
     #
     # @return [OpenNebula::Error] Error if any
-    def deploy_action(client, service_id)
+    def deploy_nets_action(client, service_id)
         rc = @srv_pool.get(service_id, client) do |service|
             # Create vnets only first time action is called
             if service.state == Service::STATE['PENDING']
@@ -243,6 +223,58 @@ class ServiceLCM
                 end
             end
 
+            service.set_state(Service::STATE['DEPLOYING_NETS'])
+
+            @event_manager.trigger_action(
+                :wait_deploy_nets_action,
+                service.id,
+                client,
+                service.id,
+                service.networks(true)
+            )
+
+            service.update
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        rc
+    end
+
+    # Undeploy service networks
+    #
+    # @param client     [OpenNebula::Client] Client executing action
+    # @param service_id [Integer]            Service ID
+    #
+    # @return [OpenNebula::Error] Error if any
+    def undeploy_nets_action(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
+            service.set_state(Service::STATE['UNDEPLOYING_NETS'])
+
+            @event_manager.trigger_action(
+                :wait_undeploy_nets_action,
+                service.id,
+                client,
+                service.id,
+                service.networks(false)
+            )
+
+            service.update
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        rc
+    end
+
+    # Create new service
+    #
+    # @param client     [OpenNebula::Client] Client executing action
+    # @param service_id [Integer]            Service ID
+    #
+    # @return [OpenNebula::Error] Error if any
+    def deploy_action(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
             set_deploy_strategy(service)
 
             roles = service.roles_deploy
@@ -264,7 +296,7 @@ class ServiceLCM
                               roles,
                               'DEPLOYING',
                               'FAILED_DEPLOYING',
-                              :wait_deploy,
+                              :wait_deploy_action,
                               service.report_ready?)
 
             if !OpenNebula.is_error?(rc)
@@ -316,7 +348,7 @@ class ServiceLCM
                                 roles,
                                 'UNDEPLOYING',
                                 'FAILED_UNDEPLOYING',
-                                :wait_undeploy)
+                                :wait_undeploy_action)
 
             if !OpenNebula.is_error?(rc)
                 service.set_state(Service::STATE['UNDEPLOYING'])
@@ -383,7 +415,7 @@ class ServiceLCM
                                   { role_name => role },
                                   'SCALING',
                                   'FAILED_SCALING',
-                                  :wait_scaleup,
+                                  :wait_scaleup_action,
                                   service.report_ready?)
             elsif cardinality_diff < 0
                 role.scale_way('DOWN')
@@ -392,7 +424,7 @@ class ServiceLCM
                                     { role_name => role },
                                     'SCALING',
                                     'FAILED_SCALING',
-                                    :wait_scaledown)
+                                    :wait_scaledown_action)
             else
                 break OpenNebula::Error.new(
                     "Cardinality of #{role_name} is already at #{cardinality}"
@@ -438,6 +470,10 @@ class ServiceLCM
 
                 service.replace_client(client)
                 recover_scale(client, service)
+            elsif service.can_recover_deploy_nets?
+                recover_nets(:wait_deploy_nets_action, client, service)
+            elsif service.can_recover_undeploy_nets?
+                recover_nets(:wait_undeploy_nets_action, client, service)
             elsif Service::STATE['COOLDOWN'] == service.state
                 service.set_state(Service::STATE['RUNNING'])
 
@@ -623,7 +659,7 @@ class ServiceLCM
                              service.roles_deploy,
                              'DEPLOYING',
                              'FAILED_DEPLOYING',
-                             :wait_deploy,
+                             :wait_deploy_action,
                              service.report_ready?)
             end
 
@@ -657,7 +693,25 @@ class ServiceLCM
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
+    def deploy_nets_cb(client, service_id)
+        deploy_action(client, service_id)
+    end
+
+    def deploy_nets_failure_cb(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
+            service.set_state(Service::STATE['FAILED_DEPLOYING_NETS'])
+            service.update
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+    end
+
     def undeploy_cb(client, service_id, role_name, nodes)
+        undeploy_nets = false
+
         rc = @srv_pool.get(service_id, client) do |service|
             service.roles[role_name].set_state(Role::STATE['DONE'])
 
@@ -674,7 +728,7 @@ class ServiceLCM
                                        "Virtual Networks #{rc}"
                 end
 
-                service.delete
+                undeploy_nets = true
 
                 break
             elsif service.strategy == 'straight'
@@ -684,9 +738,31 @@ class ServiceLCM
                                service.roles_shutdown,
                                'UNDEPLOYING',
                                'FAILED_UNDEPLOYING',
-                               :wait_undeploy)
+                               :wait_undeploy_action)
             end
 
+            service.update
+        end
+
+        undeploy_nets_action(client, service_id) if undeploy_nets
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def undeploy_nets_cb(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
+            service.delete
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def undeploy_nets_failure_cb(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
+            service.set_state(Service::STATE['FAILED_UNDEPLOYING_NETS'])
             service.update
         end
 
@@ -726,7 +802,7 @@ class ServiceLCM
             service.set_state(Service::STATE['COOLDOWN'])
             service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
 
-            @event_manager.trigger_action(:wait_cooldown,
+            @event_manager.trigger_action(:wait_cooldown_action,
                                           service.id,
                                           client,
                                           service.id,
@@ -751,7 +827,7 @@ class ServiceLCM
                     nodes[:successful].include?(node['deploy_id'])
             end
 
-            @event_manager.trigger_action(:wait_cooldown,
+            @event_manager.trigger_action(:wait_cooldown_action,
                                           service.id,
                                           client,
                                           service.id,
@@ -1091,7 +1167,7 @@ class ServiceLCM
 
             nodes = role.recover_deploy(service.report_ready?)
 
-            @event_manager.trigger_action(:wait_deploy,
+            @event_manager.trigger_action(:wait_deploy_action,
                                           service.id,
                                           client,
                                           service.id,
@@ -1107,7 +1183,7 @@ class ServiceLCM
 
             nodes = role.recover_undeploy
 
-            @event_manager.trigger_action(:wait_undeploy,
+            @event_manager.trigger_action(:wait_undeploy_action,
                                           service.id,
                                           client,
                                           service.id,
@@ -1123,7 +1199,7 @@ class ServiceLCM
             nodes, up = role.recover_scale(service.report_ready?)
 
             if up
-                @event_manager.trigger_action(:wait_scaleup,
+                @event_manager.trigger_action(:wait_scaleup_action,
                                               service.id,
                                               client,
                                               service.id,
@@ -1131,7 +1207,7 @@ class ServiceLCM
                                               nodes,
                                               service.report_ready?)
             else
-                @event_manager.trigger_action(:wait_scaledown,
+                @event_manager.trigger_action(:wait_scaledown_action,
                                               service.id,
                                               client,
                                               service.id,
@@ -1139,6 +1215,18 @@ class ServiceLCM
                                               nodes)
             end
         end
+    end
+
+    def recover_nets(action, client, service)
+        action == :wait_deploy_nets_action ? deploy = true : deploy = false
+
+        @event_manager.trigger_action(
+            action,
+            service.id,
+            client,
+            service.id,
+            service.networks(deploy)
+        )
     end
 
     def add_role(client, service, role)
@@ -1150,7 +1238,7 @@ class ServiceLCM
                           { role.name => role },
                           'DEPLOYING',
                           'FAILED_DEPLOYING',
-                          :wait_add,
+                          :wait_add_action,
                           service.report_ready?)
 
         if !OpenNebula.is_error?(rc)
@@ -1175,7 +1263,7 @@ class ServiceLCM
                             { role.name => role },
                             'UNDEPLOYING',
                             'FAILED_UNDEPLOYING',
-                            :wait_remove)
+                            :wait_remove_action)
 
         if !OpenNebula.is_error?(rc)
             service.set_state(Service::STATE['UNDEPLOYING'])

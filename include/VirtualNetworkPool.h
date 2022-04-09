@@ -72,6 +72,15 @@ public:
         std::string&                error_str);
 
     /**
+     *  Updates a Virtual Network in the data base. It also updates the previous state
+     *  after executing the hooks.
+     *    @param objsql a pointer to the Host
+     *
+     *    @return 0 on success.
+     */
+    int update(PoolObjectSQL * objsql) override;
+
+    /**
      *  Drops a Virtual Network and the associated VLAN_ID if needed
      */
     int drop(PoolObjectSQL * vn, std::string& error_msg)
@@ -276,6 +285,8 @@ public:
 
     int reserve_addr_by_mac(int pid, int rid, unsigned int rsize,
             unsigned int ar_id, const std::string& mac, std::string& err);
+
+    void delete_success(std::unique_ptr<VirtualNetwork> vn);
 
 private:
     /**

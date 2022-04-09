@@ -36,21 +36,29 @@ define(function(require) {
     Locale.tr("FAILED_DEPLOYING"),
     Locale.tr("SCALING"),
     Locale.tr("FAILED_SCALING"),
-    Locale.tr("COOLDOWN")
+    Locale.tr("COOLDOWN"),
+    Locale.tr("DEPLOYING_NETS"),
+    Locale.tr("UNDEPLOYING_NETS"),
+    Locale.tr("FAILED_DEPLOYING_NETS"),
+    Locale.tr("FAILED_UNDEPLOYING_NETS")
   ];
 
   var STATES = {
-    PENDING             : 0,
-    DEPLOYING           : 1,
-    RUNNING             : 2,
-    UNDEPLOYING         : 3,
-    WARNING             : 4,
-    DONE                : 5,
-    FAILED_UNDEPLOYING  : 6,
-    FAILED_DEPLOYING    : 7,
-    SCALING             : 8,
-    FAILED_SCALING      : 9,
-    COOLDOWN            : 10
+    PENDING                 : 0,
+    DEPLOYING               : 1,
+    RUNNING                 : 2,
+    UNDEPLOYING             : 3,
+    WARNING                 : 4,
+    DONE                    : 5,
+    FAILED_UNDEPLOYING      : 6,
+    FAILED_DEPLOYING        : 7,
+    SCALING                 : 8,
+    FAILED_SCALING          : 9,
+    COOLDOWN                : 10,
+    DEPLOYING_NETS          : 11,
+    UNDEPLOYING_NETS        : 12,
+    FAILED_DEPLOYING_NETS   : 13,
+    FAILED_UNDEPLOYING_NETS : 14
   };
 
   var Service = {

@@ -142,6 +142,15 @@ public:
         return _payload;
     }
 
+    std::string payload64() const
+    {
+        std::string buffer;
+
+        ssl_util::base64_decode(_payload, buffer);
+
+        return buffer;
+    }
+
     void payload(const std::string& p)
     {
         _payload = p;

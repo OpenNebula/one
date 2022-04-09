@@ -360,6 +360,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
     xmlrpc_c::methodPtr vn_reserve(new VirtualNetworkReserve());
+    xmlrpc_c::methodPtr vn_recover(new VirtualNetworkRecover());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -697,6 +698,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.rename", vn_rename);
     RequestManagerRegistry.addMethod("one.vn.lock", vn_lock);
     RequestManagerRegistry.addMethod("one.vn.unlock", vn_unlock);
+    RequestManagerRegistry.addMethod("one.vn.recover", vn_recover);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info);
 

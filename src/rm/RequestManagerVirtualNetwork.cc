@@ -17,6 +17,7 @@
 #include "RequestManagerVirtualNetwork.h"
 #include "VirtualNetworkTemplate.h"
 #include "ClusterPool.h"
+#include "IPAMManager.h"
 
 using namespace std;
 
@@ -53,6 +54,15 @@ void RequestManagerVirtualNetwork::
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if (vn->get_state() != VirtualNetwork::READY)
+    {
+        att.resp_msg = "Could not execute " + method_name +
+                        "Virtual Network is in wrong state: "
+                        + vn->state_to_str(vn->get_state());
+        failure_response(ACTION, att);
         return;
     }
 
@@ -110,6 +120,15 @@ void VirtualNetworkRmAddressRange::
     // -------------------------------------------------------------------------
     if ( auto vn = pool->get<VirtualNetwork>(id) )
     {
+        if (vn->get_state() != VirtualNetwork::READY)
+        {
+            att.resp_msg = "Could not remove Adress Range, "
+                           "Virtual Network is in wrong state: "
+                           + vn->state_to_str(vn->get_state());
+            failure_response(ACTION, att);
+            return;
+        }
+
         parent    = vn->get_parent();
         parent_ar = vn->get_ar_parent(ar_id);
 
@@ -481,4 +500,135 @@ void VirtualNetworkReserve::request_execute(
     }
 
     success_response(rid, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkRecover::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int id = xmlrpc_c::value_int(paramList.getInt(1));
+    int op = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula& nd = Nebula::instance();
+    auto ipamm = nd.get_ipamm();
+    auto vnpool = static_cast<VirtualNetworkPool*>(pool);
+
+    ostringstream oss;
+
+    if (op < 0 || op > 2)
+    {
+        att.resp_msg = "Wrong recovery operation code";
+        failure_response(ACTION, att);
+    }
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    auto vn = pool->get<VirtualNetwork>(id);
+
+    if ( vn == nullptr )
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    auto state = vn->get_state();
+
+    if (state == VirtualNetwork::READY)
+    {
+        att.resp_msg = "Unable to recover from " + vn->state_to_str(state);
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    switch (op)
+    {
+        case 0: //recover-failure
+            switch(state)
+            {
+                case VirtualNetwork::INIT:
+                case VirtualNetwork::LOCK_CREATE:
+                case VirtualNetwork::LOCK_DELETE:
+                    vn->set_state(VirtualNetwork::ERROR);
+                    vn->set_template_error_message("Failure forced by user");
+                    pool->update(vn.get());
+                    break;
+
+                case VirtualNetwork::DONE:
+                case VirtualNetwork::READY:
+                case VirtualNetwork::ERROR:
+                    oss << "Could not perform 'recover failure' on VN " << id
+                        << ", wrong state " << vn->state_to_str(state) << ".";
+
+                    att.resp_msg = oss.str();
+                    failure_response(INTERNAL, att);
+                    return;
+            }
+            break;
+
+        case 1: //recover-success
+            vn->clear_template_error_message();
+
+            switch(state)
+            {
+                case VirtualNetwork::INIT:
+                case VirtualNetwork::LOCK_CREATE:
+                case VirtualNetwork::ERROR:
+                    vn->set_state(VirtualNetwork::READY);
+                    pool->update(vn.get());
+                    break;
+
+                case VirtualNetwork::LOCK_DELETE:
+                    vn->set_state(VirtualNetwork::DONE);
+                    vnpool->delete_success(move(vn));
+                    break;
+
+                case VirtualNetwork::DONE:
+                case VirtualNetwork::READY:
+                    oss << "Could not perform 'recover success' on VN " << id
+                        << ", wrong state " << vn->state_to_str(state) << ".";
+
+                    att.resp_msg = oss.str();
+                    failure_response(INTERNAL, att);
+                    return;
+            }
+            break;
+
+        case 2: //delete
+            switch(state)
+            {
+                case VirtualNetwork::INIT:
+                case VirtualNetwork::LOCK_CREATE:
+                case VirtualNetwork::LOCK_DELETE:
+                case VirtualNetwork::ERROR:
+                    {
+                        string xml64;
+                        vn->to_xml64(xml64);
+
+                        vnpool->delete_success(move(vn));
+
+                        ipamm->trigger_vnet_delete(id, xml64);
+                    }
+                    break;
+
+                case VirtualNetwork::DONE:
+                case VirtualNetwork::READY:
+                    oss << "Could not perform 'recover delete' on VN " << id
+                        << ", wrong state " << vn->state_to_str(state) << ".";
+
+                    att.resp_msg = oss.str();
+                    failure_response(INTERNAL, att);
+                    return;
+            }
+            break;
+    }
+
+    success_response(id, att);
+
+    return;
 }

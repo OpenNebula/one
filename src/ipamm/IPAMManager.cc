@@ -48,6 +48,12 @@ int IPAMManager::start()
     register_action(IPAMManagerMessages::FREE_ADDRESS,
             bind(&IPAMManager::_notify_request, this, _1));
 
+    register_action(IPAMManagerMessages::VNET_CREATE,
+            bind(&IPAMManager::_vnet_create, this, _1));
+
+    register_action(IPAMManagerMessages::VNET_DELETE,
+            bind(&IPAMManager::_vnet_delete, this, _1));
+
     register_action(IPAMManagerMessages::LOG,
             &IPAMManager::_log);
 
@@ -87,6 +93,24 @@ void IPAMManager::send_request(IPAMManagerMessages type, IPAMRequest& ir)
     string action_data;
     ipam_msg_t msg(type, "", ir.id, ir.to_xml64(action_data));
 
+    ipammd->write(msg);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void IPAMManager::send_message(IPAMManagerMessages type,
+                               int oid,
+                               const string& xml)
+{
+    auto ipammd = get();
+
+    if (ipammd == nullptr)
+    {
+        NebulaLog::error("IPM", "Unable to find IPAM Manager driver");
+        return;
+    }
+
+    ipam_msg_t msg(type, "", oid, xml);
     ipammd->write(msg);
 }
 
@@ -135,6 +159,20 @@ void IPAMManager::trigger_free_address(IPAMRequest& ir)
     });
 }
 
+/* -------------------------------------------------------------------------- */
+
+void IPAMManager::trigger_vnet_create(int vnid, const std::string& xml64)
+{
+    send_message(IPAMManagerMessages::VNET_CREATE, vnid, xml64);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void IPAMManager::trigger_vnet_delete(int vnid, const std::string& xml64)
+{
+    send_message(IPAMManagerMessages::VNET_DELETE, vnid, xml64);
+}
+
 /* ************************************************************************** */
 /* MAD Loading                                                                */
 /* ************************************************************************** */
@@ -159,6 +197,15 @@ int IPAMManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
     VectorAttribute ipam_conf("IPAM_MAD", vattr->value());
 
     ipam_conf.replace("NAME", ipam_driver_name);
+
+    // Set default for threads
+    int threads = 0;
+    ipam_conf.vector_value("THREADS", threads);
+        
+    if ( threads < 16 )
+    {
+        ipam_conf.replace("THREADS", 16);
+    }
 
     if ( load_driver(&ipam_conf) != 0 )
     {

@@ -96,6 +96,8 @@ enum class IPAMManagerMessages : unsigned short int
     GET_ADDRESS,
     ALLOCATE_ADDRESS,
     FREE_ADDRESS,
+    VNET_CREATE,
+    VNET_DELETE,
     LOG,
     ENUM_MAX
 };

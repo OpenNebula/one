@@ -369,7 +369,7 @@ public:
      *    @param values of the attribute
      *    @return the number of values
      */
-	template<typename T>
+    template<typename T>
     int get_template_attribute(const std::string& name,
                                std::vector<const T*>& values) const
     {
@@ -378,15 +378,15 @@ public:
 
     /**
      *  These methods gets the value of a SingleAttribute and converts it to the
-	 *  target type
+     *  target type
      *    @param name of the attribute
      *    @param value of the attribute, will be ""/0/false if not defined or
      *    not a single attribute
-	 *
+     *
      *    @return true if the attribute was found and is a valid type for the
-	 *    target value
+     *    target value
      */
-	template<typename T>
+    template<typename T>
     bool get_template_attribute(const std::string& name, T& value) const
     {
         return obj_template->get(name, value);
@@ -396,10 +396,10 @@ public:
      *  These methods get and remove a string based attribute (single)
      *    @param name of the attribute
      *    @param value of the attribute (a string), will be ""/0/false if not
-	 *    defined or  not a single attribute, depending on the target value type
+     *    defined or  not a single attribute, depending on the target value type
      *    @return the number of attributes erased
      */
-	template<typename T>
+    template<typename T>
     int erase_template_attribute(const std::string& name, T& value)
     {
         obj_template->get(name, value);
@@ -413,7 +413,7 @@ public:
      *    @param value of the new attribute
      *    @return 0 on success
      */
-	template<typename T>
+    template<typename T>
     int replace_template_attribute(const std::string& name, const T& value)
     {
         return obj_template->replace(name, value);
@@ -426,7 +426,7 @@ public:
      *    @param values a vector containing a pointer to the attributes
      *    @return the number of attributes removed
      */
-	template<typename T>
+    template<typename T>
     int remove_template_attribute(const std::string& n, std::vector<T *>& v)
     {
         return obj_template->remove(n, v);
@@ -466,7 +466,7 @@ public:
      *    @param att_name Name for the attribute
      *    @param att_val Message string
      */
-	template<typename T>
+    template<typename T>
     void add_template_attribute(const std::string& name, const T& value)
     {
         obj_template->add(name, value);

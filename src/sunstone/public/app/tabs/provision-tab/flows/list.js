@@ -687,6 +687,22 @@ define(function(require) {
         state_color = "off";
         state_str = Locale.tr("DONE");
         break;
+      case OpenNebula.Service.STATES.DEPLOYING_NETS:
+        state_color = "deploying";
+        state_str = Locale.tr("DEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.UNDEPLOYING_NETS:
+        state_color = "deploying";
+        state_str = Locale.tr("UNDEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.FAILED_DEPLOYING_NETS:
+        state_color = "error";
+        state_str = Locale.tr("FAILED DEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.FAILED_UNDEPLOYING_NETS:
+        state_color = "error";
+        state_str = Locale.tr("FAILED UNDEPLOYING NETS");
+        break;
       default:
         state_color = "powering_off";
         state_str = Locale.tr("UNKNOWN");

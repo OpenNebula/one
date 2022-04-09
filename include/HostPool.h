@@ -57,7 +57,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
