@@ -14,7 +14,6 @@
         - { protocol: 'tcp', port: 179 }
         # TCP/8742 default VXLAN port on Linux (UDP/4789 default IANA)
         - { protocol: 'udp', port: 8472 }
-    - update-replica
     - role: frr
       #bond0_0 is attached to the project private network
       frr_iface: 'bond0_0'

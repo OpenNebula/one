@@ -20,6 +20,7 @@
 # ------------------------------------------------------------------------------
 
 name: 'onprem-cluster'
+description: 'On-premises cluster'
 
 extends:
     - onprem.d/defaults.yml

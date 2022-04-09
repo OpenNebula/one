@@ -1,0 +1,14 @@
+---
+- name: get oneadmin key
+  shell: ceph auth get-key client.oneadmin
+  register: ceph_oneadmin_key
+  delegate_to: "{{ running_mon }}"
+  when:
+    - running_mon is defined
+
+- name: get oneadmin keyring
+  shell: ceph auth export client.oneadmin
+  register: ceph_oneadmin_keyring
+  delegate_to: "{{ running_mon }}"
+  when:
+    - running_mon is defined

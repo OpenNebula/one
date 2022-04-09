@@ -18,6 +18,7 @@ require 'erb'
 require 'ostruct'
 require 'yaml'
 require 'zlib'
+require 'json'
 
 if !ONE_LOCATION
     PROVIDERS_LOCATION = '/usr/lib/one/oneprovision/lib/terraform/providers'
@@ -232,22 +233,17 @@ module OneProvision
             # Get IP information and deploy IDs
             info = output(tempdir)
 
-            info.gsub!(' ', '')
-            info = info.split("\n")
-            info.map! {|val| val.split('=')[1] }
+            # Filter ids
+            hash_ids = info.select do |key, _value|
+                key.to_s.match(/^device_[0-9]*_id/)
+            end
+            ids = hash_ids.values.map {|h| h['value'] }
 
-            # rubocop:disable Style/StringLiterals
-            info.map! {|val| val.gsub("\"", '') }
-            # rubocop:enable Style/StringLiterals
-
-            # rubocop:disable Style/StringLiterals
-            info.map! {|val| val.gsub("\"", '') }
-            # rubocop:enable Style/StringLiterals
-
-            # From 0 to (size / 2) - 1 -> deploy IDS
-            # From (size / 2) until the end -> IPs
-            ids = info[0..(info.size / 2) - 1]
-            ips = info[(info.size / 2)..-1]
+            # Filter ips
+            hash_ips = info.select do |key, _value|
+                key.to_s.match(/^device_[0-9]*_ip/)
+            end
+            ips = hash_ips.values.map {|h| h['value'] }
 
             conf  = Base64.encode64(Zlib::Deflate.deflate(@conf))
             state = Base64.encode64(Zlib::Deflate.deflate(@state))
@@ -431,7 +427,8 @@ module OneProvision
                 c = ERBVal.render_from_hash(c,
                                             :c         => cluster,
                                             :obj       => obj,
-                                            :provision => p)
+                                            :provision => p,
+                                            :ceph_vars => provision.ceph_vars)
 
                 @conf << c
             end
@@ -517,13 +514,21 @@ module OneProvision
         # @param tempdir  [String] Path to temporal directory
         # @param variable [String] Variable to check
         #
-        # @return [String] Variable value
+        # @return [Hash] Variable value
+        #
+        #                example:
+        #                { "device_51_id" => {
+        #                     "sensitive" => false,
+        #                     "type"      => "string",
+        #                     "value"     => "i-02a4d0f8012392d83"
+        #                }
+
         def output(tempdir, variable = nil)
             ret = nil
 
             Driver.retry_loop "Driver action 'tf output' failed" do
                 ret, e, s = Driver.run(
-                    "cd #{tempdir}; terraform output #{variable}"
+                    "cd #{tempdir}; terraform output -json #{variable}"
                 )
 
                 unless s && s.success?
@@ -531,7 +536,7 @@ module OneProvision
                 end
             end
 
-            ret
+            JSON.parse(ret)
         end
 
         # Destroys an specific resource

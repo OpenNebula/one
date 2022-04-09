@@ -26,11 +26,49 @@ resource "aws_instance" "device_<%= obj['ID'] %>" {
     }
 }
 
-output "ip_<%= obj['ID'] %>" {
-  value = aws_instance.device_<%= obj['ID'] %>.public_ip
+<% if ceph_vars['ceph_hci'] %>
+
+<%# additional CEPH network interface %>
+resource "aws_network_interface" "device_<%= obj['ID'] %>_ceph" {
+    subnet_id       = aws_subnet.device_<%= c['ID'] %>_ceph.id
+
+    <% ecidr = c['TEMPLATE']['PROVISION']['HCI_CIDR'] || "10.1.0.0/16"
+       pref = ecidr.split('/').first.rpartition(".")[0]
+       ceph_ip = pref << '.' << ( provision['INDEX'].to_i + 4 ).to_s
+    %>
+
+    private_ips     = ["<%= ceph_ip %>"]
+    security_groups = [ aws_security_group.device_<%= c['ID'] %>_all.id ]
+
+    attachment {
+        instance     = aws_instance.device_<%= obj['ID'] %>.id
+        device_index = 1
+    }
+
+    tags                   = {
+        Name = "device_<%= obj['ID'] %>_ceph"
+    }
 }
 
-output "device_id_<%= obj['ID'] %>" {
+<%# additional CEPH disk %>
+resource "aws_ebs_volume" "device_<%= obj['ID'] %>_ceph_volume" {
+  availability_zone = local.my_zones[0]
+  size              = <%= ceph_vars['ceph_disk_size'] %>
+}
+
+resource "aws_volume_attachment" "device_<%= obj['ID'] %>_ebs_att" {
+    device_name = "/dev/xvdb"
+    volume_id   = aws_ebs_volume.device_<%= obj['ID'] %>_ceph_volume.id
+    instance_id = aws_instance.device_<%= obj['ID'] %>.id
+    stop_instance_before_detaching = true
+}
+<% end %>
+
+output "device_<%= obj['ID'] %>_id" {
   value = aws_instance.device_<%= obj['ID'] %>.id
+}
+
+output "device_<%= obj['ID'] %>_ip" {
+  value = aws_instance.device_<%= obj['ID'] %>.public_ip
 }
 

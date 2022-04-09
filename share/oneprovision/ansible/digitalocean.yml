@@ -13,7 +13,6 @@
         - { protocol: 'tcp', port: 179 }
         # TCP/8742 default VXLAN port on Linux (UDP/4789 default IANA)
         - { protocol: 'udp', port: 8472 }
-    - update-replica
     - role: frr
       frr_iface: 'eth1'
       # Use /20 for the internal management network address

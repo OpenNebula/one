@@ -236,6 +236,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         :format => Array
     }
 
+    HOST_PARAMS = {
+        :name  => 'host_params',
+        :large => '--host-params param=value',
+        :description => 'Extra param to pass to host, e.g.: ceph_group=osd',
+        :format => String
+    }
+
     ########################################################################
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
@@ -481,7 +488,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         return [-1, rc.message] if OpenNebula.is_error?(rc)
 
-        rc = provision.add_hosts(amount, options[:hostnames])
+        rc = provision.add_hosts(amount, options[:hostnames],
+                                 options[:host_params])
 
         return [-1, rc.message] if OpenNebula.is_error?(rc)
 

@@ -79,18 +79,34 @@ class AWSProvider
         instcs = @ec2.describe_instances({ :instance_ids => [@deploy_id] })
         inst   = instcs[0][0].instances[0]
 
-        nic_id = inst.network_interfaces[0].network_interface_id
+        # find NIC to which the IP belongs (avoid Ceph network)
+        nic_id = nil
+        inst.network_interfaces.each do |ec2_nic|
+            ec2_subnet = @ec2.describe_subnets(
+                { :subnet_ids => [ec2_nic.subnet_id] }
+            )[0][0]
+            ip_range = IPAddr.new(ec2_subnet.cidr_block)
 
-        @ec2.assign_private_ip_addresses(
-            { :network_interface_id => nic_id,
-              :private_ip_addresses => [ip] }
-        )
+            if ip_range.include?(ip)
+                nic_id = ec2_nic.network_interface_id
+            end
+        end
 
-        @ec2.associate_address(
-            { :network_interface_id => nic_id,
-              :allocation_id        => opts[:alloc_id],
-              :private_ip_address   => ip }
-        )
+        if nic_id
+            @ec2.assign_private_ip_addresses(
+                { :network_interface_id => nic_id,
+                  :private_ip_addresses => [ip] }
+            )
+
+            @ec2.associate_address(
+                { :network_interface_id => nic_id,
+                  :allocation_id        => opts[:alloc_id],
+                  :private_ip_address   => ip }
+            )
+        else
+            OpenNebula.log_error("Can not find any interface to assign #{ip}")
+            exit 1
+        end
 
         0
     rescue StandardError => e

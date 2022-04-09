@@ -85,6 +85,25 @@ module OneProvision
                 exit(code)
             end
 
+            # Shows warning and ask to continue
+            #
+            # @param text [String]  Error message
+            # @param code [Integer] Error code
+            def warn(text, code = -1)
+                STDOUT.puts "WARN: #{text}"
+                STDOUT.puts 'Continue? yes/no'
+
+                answer = STDIN.readline.chop
+
+                until %w[YES NO].include?(answer.upcase)
+                    STDOUT.puts "Invalid #{answer}, put yes/no"
+                    STDOUT.puts 'Continue?'
+                    answer = STDIN.readline.chop
+                end
+
+                exit(code) if answer.upcase == 'NO'
+            end
+
             # Checks if the return_code is error
             def exception(return_code)
                 error = OpenNebula.is_error?(return_code)

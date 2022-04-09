@@ -1,0 +1,96 @@
+---
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+#-------------------------------------------------------------------------------
+# This is the canonical description file for a cluster build with 'AWS'
+# resources using the KVM hypervisor.
+# ------------------------------------------------------------------------------
+
+name: 'aws-hci-cluster'
+description: 'AWS hyper-convergent metal Ceph cluster'
+
+extends:
+    - common.d/defaults.yml
+    - common.d/resources.yml
+    - common.d/hosts-hci.yml
+    - aws.d/defaults.yml
+    - aws.d/datastores-hci.yml
+    - aws.d/fireedge.yml
+    - aws.d/inputs-hci.yml
+    - aws.d/networks.yml
+
+#-------------------------------------------------------------------------------
+# playbook: Ansible playbook used for hosts configuration. Check ansible/aws.yml
+# for the specific roles applied.
+#-------------------------------------------------------------------------------
+playbook:
+  - aws
+  - ceph_hci/site
+
+#-------------------------------------------------------------------------------
+# defaults: Common configuration attributes for provision objects
+#--------------------------------------------------------------------------------
+defaults:
+  provision:
+    provider_name: 'aws'
+    ami: "${input.aws_ami_image}"
+    instancetype: "${input.aws_instance_type}"
+    cloud_init: true
+  connection:
+    remote_user: 'ubuntu'
+
+# Defaults ceph options
+ceph_vars:
+  ceph_hci: true
+  setup_eth1: true
+  devices: [ "/dev/nvme1n1" ]
+  monitor_interface: "ens1"
+  public_network: "10.1.0.0/16"
+  ceph_disk_size: "${input.ceph_disk_size}"
+
+#-------------------------------------------------------------------------------
+# cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts
+#--------------------------------------------------------------------------------
+#  name: of the cluster
+#  description: Additional information
+#  reserved_cpu: In percentage. It will be subtracted from the TOTAL CPU
+#  reserved_memory: In percentage. It will be subtracted from the TOTAL MEM
+#--------------------------------------------------------------------------------
+cluster:
+  name: "${provision}"
+  description: 'AWS edge cluster'
+  reserved_cpu: '0'
+  reserved_mem: '0'
+  datastores:
+    - 1
+    - 2
+  provision:
+      cidr: '10.0.0.0/16'
+      hci_cidr: '10.1.0.0/16'
+
+#-------------------------------------------------------------------------------
+# AWS provision parameters.
+#-------------------------------------------------------------------------------
+# This section is used by provision drivers. DO NOT MODIFY IT
+#
+#   CIDR: Private IP block for the cluster. This value HAS TO MATCH that on
+#   cluster.
+#-------------------------------------------------------------------------------
+aws_configuration:
+    cidr: '10.0.0.0/16'
+
+...

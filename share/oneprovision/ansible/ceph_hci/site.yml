@@ -1,0 +1,279 @@
+---
+
+- hosts: all
+
+  pre_tasks:
+    # eth0_ip = 10.0.X.Y, eth1_ip = 10.1.X.Y
+    - set_fact:
+        eth1_ip: "{{ ansible_default_ipv4.address.split('.')[0] }}.{{ ansible_default_ipv4.address.split('.')[1]|int + 1 }}.{{ ansible_default_ipv4.address.split('.')[2]  }}.{{ ansible_default_ipv4.address.split('.')[3] }}"
+
+  roles:
+
+  - role: stackhpc.systemd_networkd
+    systemd_networkd_apply_config: true
+    systemd_networkd_network:
+      eth1:
+        - Match:
+          - Name: "{{ monitor_interface }}"
+        - Network:
+          - DHCP: "no"
+          - Address: "{{ (eth1_ip + '/' + ansible_default_ipv4.netmask) | ipaddr('host/prefix') }}"
+    when: setup_eth1 | default('false') | bool
+
+- hosts:
+  - mons
+  - osds
+  - clients
+  - mgrs
+
+  gather_facts: false
+  any_errors_fatal: true
+  become: true
+
+  tags: always
+
+  vars:
+    delegate_facts_host: True
+
+  pre_tasks:
+    - name: gather facts
+      setup:
+        gather_subset:
+          - 'all'
+          - '!facter'
+          - '!ohai'
+      when:
+        - not delegate_facts_host | bool or inventory_hostname in groups.get(client_group_name, [])
+
+    - name: gather and delegate facts
+      setup:
+        gather_subset:
+          - 'all'
+          - '!facter'
+          - '!ohai'
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      with_items: "{{ groups['all'] | difference(groups.get('clients', [])) }}"
+      run_once: true
+      when: delegate_facts_host | bool
+
+  tasks:
+    - import_role:
+        name: ceph-slice
+    - import_role:
+        name: ceph-defaults
+    - import_role:
+        name: ceph-facts
+    - import_role:
+        name: ceph-opennebula-facts
+    - import_role:
+        name: ceph-handler
+    - import_role:
+        name: ceph-validate
+    - import_role:
+        name: ceph-infra
+    - import_role:
+        name: ceph-common
+
+- hosts: mons
+  gather_facts: false
+  become: True
+  any_errors_fatal: true
+  pre_tasks:
+    - name: set ceph monitor install 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_mon:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+  tasks:
+    - import_role:
+        name: ceph-defaults
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-facts
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-handler
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-config
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-mon
+    - import_role:
+        name: ceph-mgr
+      when: groups.get(mgr_group_name, []) | length == 0
+    - import_role:
+        name: ceph-opennebula-mon
+
+  post_tasks:
+    - name: set ceph monitor install 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_mon:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- hosts: mgrs
+  gather_facts: false
+  become: True
+  any_errors_fatal: true
+  pre_tasks:
+    - name: set ceph manager install 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_mgr:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+  tasks:
+    - import_role:
+        name: ceph-defaults
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-facts
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-handler
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-config
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-mgr
+
+  post_tasks:
+    - name: set ceph manager install 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_mgr:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- hosts: osds
+  gather_facts: false
+  become: True
+  any_errors_fatal: true
+  pre_tasks:
+    - name: set ceph osd install 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_osd:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+  tasks:
+    - import_role:
+        name: ceph-defaults
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-facts
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-handler
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-config
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-osd
+
+    - import_role:
+        name: ceph-opennebula-osd
+      vars:
+        ceph_opennebula_osd_libvirt_enabled: "{% if oneprovision_hypervisor == 'lxc' %}False{% else %}True{% endif %}"
+
+    - name: Install rbd-nbd ceph client
+      package:
+        name: rbd-nbd
+        state: latest
+        update_cache: yes
+      when: oneprovision_hypervisor== 'lxc'
+
+
+  post_tasks:
+    - name: set ceph osd install 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_osd:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+
+- hosts: clients
+  gather_facts: false
+  become: True
+  any_errors_fatal: true
+  tags: 'ceph_client'
+  pre_tasks:
+    - name: set ceph client install 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_client:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+  tasks:
+    - import_role:
+        name: ceph-defaults
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-facts
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-handler
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-config
+      tags: ['ceph_update_config']
+    - import_role:
+        name: ceph-client
+
+    - import_role:
+        name: ceph-opennebula-osd
+      vars:
+        ceph_opennebula_osd_libvirt_enabled: "{% if oneprovision_hypervisor == 'lxc' %}False{% else %}True{% endif %}"
+
+
+  post_tasks:
+    - name: set ceph client install 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_ceph_client:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+
+- hosts: mons
+  gather_facts: false
+  become: True
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: ceph-defaults
+    - name: get ceph status from the first monitor
+      command: ceph --cluster {{ cluster }} -s
+      register: ceph_status
+      changed_when: false
+      delegate_to: "{{ groups[mon_group_name][0] }}"
+      run_once: true
+
+    - name: "show ceph status for cluster {{ cluster }}"
+      debug:
+        msg: "{{ ceph_status.stdout_lines }}"
+      delegate_to: "{{ groups[mon_group_name][0] }}"
+      run_once: true
+      when:
+        - ceph_status is not skipped
+        - ceph_status is successful
+

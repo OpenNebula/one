@@ -7,7 +7,7 @@ frr_frrver: 'frr-7'
 frr_rr_num: 1
 
 # Network interface name to route VXLAN traffic
-frr_iface: 'eth0'
+frr_iface: "{{ ansible_default_ipv4.interface }}"
 
 # The AS number used for BGP
 frr_as: 65000

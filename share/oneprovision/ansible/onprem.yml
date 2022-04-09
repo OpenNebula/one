@@ -7,7 +7,6 @@
     - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
     - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
     - opennebula-ssh
-    - update-replica
     - role: frr
       #bond0_0 is attached to the project private network
       frr_iface: '{{ oneprovision_private_phydev }}'

@@ -20,6 +20,5 @@
 #--------------------------------------------------------------------------------
 
 defaults:
-  configuration:
+  configuration: {}
     # Select the physical device for private network (VXLAN)
-    oneprovision_private_phydev: "${input.private_phydev}"

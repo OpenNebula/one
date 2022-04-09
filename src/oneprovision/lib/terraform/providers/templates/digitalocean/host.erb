@@ -57,10 +57,10 @@ resource "digitalocean_firewall" "device_<%= obj['ID'] %>" {
     }
 }
 
-output "ip_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_ip" {
   value = digitalocean_droplet.device_<%= obj['ID'] %>.ipv4_address
 }
 
-output "device_id_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_id" {
   value = digitalocean_droplet.device_<%= obj['ID'] %>.id
 }

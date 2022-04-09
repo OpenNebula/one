@@ -9,11 +9,11 @@ resource "packet_device" "device_<%= obj['ID'] %>" {
     tags             = ["OpenNebula", "ONE_ID=<%= obj['ID'] %>"]
 }
 
-output "ip_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_ip" {
   value = packet_device.device_<%= obj['ID'] %>.network[0].address
 }
 
-output "device_id_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_id" {
   value = packet_device.device_<%= obj['ID'] %>.id
 }
 

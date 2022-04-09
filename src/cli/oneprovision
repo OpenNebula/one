@@ -256,7 +256,8 @@ CommandParser::CmdParser.new(ARGV) do
             :provisionid,
             :options => [OneProvisionHelper::MODES,
                          OneProvisionHelper::AMOUNT,
-                         OneProvisionHelper::HOSTNAMES] do
+                         OneProvisionHelper::HOSTNAMES,
+                         OneProvisionHelper::HOST_PARAMS] do
         helper.add_hosts(args[0], options)
     end
 

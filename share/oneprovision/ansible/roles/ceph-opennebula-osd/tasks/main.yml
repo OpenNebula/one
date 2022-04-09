@@ -1,0 +1,48 @@
+---
+- name: open /etc/ceph
+  file: path=/etc/ceph mode=0755
+
+- name: create oneadmin keyring
+  shell: echo "{{ ceph_oneadmin_keyring.stdout }}" > /etc/ceph/ceph.client.oneadmin.keyring
+
+- name: configure rbd clients directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: oneadmin
+    group: oneadmin
+    mode: 0775
+  with_items:
+    - /var/log/rbd-clients/
+    - /var/run/ceph/rbd-clients
+
+- name: Add rbd default features
+  blockinfile:
+    dest: /etc/ceph/ceph.conf
+    block: |
+        [client]
+        rbd default features = 1
+
+# configure libvirt secretes
+- name: Include libvirt configuration tasks
+  include: libvirt.yml
+  when: ceph_opennebula_osd_libvirt_enabled
+
+# stop and disable docker on hypervisors
+- name: Check /etc/docker exists
+  stat:
+    path: /etc/docker
+  register: docker_result
+
+- block:
+  - name: stop and disable Docker
+    service:
+      name: docker
+      state: stopped
+      enabled: false
+
+  - name: Allow forwading
+    shell: iptables -I DOCKER-USER -j ACCEPT
+    ignore_errors: yes
+
+  when: docker_result.stat.exists

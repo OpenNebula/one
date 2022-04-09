@@ -1,0 +1,36 @@
+---
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+#-------------------------------------------------------------------------------
+# hosts: AWS, Digital Ocean or Google servers
+# provision:
+#   - count: Number of servers to create
+#   - hostname: edge-vhost1, edge-vhost2 .... of the server
+#
+# You can define specific OpenNebula configuration attributes for all the hosts:
+#    - reserved_cpu: In percentage. It will be subtracted from the TOTAL CPU
+#    - reserved_memory: In percentage. It will be subtracted from the TOTAL MEM
+#-------------------------------------------------------------------------------
+hosts:
+
+  - im_mad: "${input.one_hypervisor}"
+    vm_mad: "${input.one_hypervisor}"
+    provision:
+      count: "${input.number_hosts}"
+      ceph_full_count: "${input.number_ceph_full_hosts}"
+      ceph_osd_count: "${input.number_ceph_osd_hosts}"
+      hostname: "edge-vhost${index}"

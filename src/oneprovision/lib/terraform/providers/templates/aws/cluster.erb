@@ -23,6 +23,7 @@ resource "aws_vpc" "device_<%= obj['ID'] %>" {
     }
 }
 
+
 resource "aws_subnet" "device_<%= obj['ID'] %>" {
     vpc_id     = aws_vpc.device_<%= obj['ID'] %>.id
     cidr_block = "<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
@@ -35,6 +36,28 @@ resource "aws_subnet" "device_<%= obj['ID'] %>" {
 
     availability_zone      = local.my_zones[0]
 }
+
+<% if ceph_vars['ceph_hci'] %>
+<%# Additional CIDR block for HCI %>
+resource "aws_vpc_ipv4_cidr_block_association" "hci_cidr_<%= obj['ID'] %>" {
+    vpc_id     = aws_vpc.device_<%= obj['ID'] %>.id
+
+    cidr_block = "<%= provision['HCI_CIDR'] ? provision['HCI_CIDR'] : '10.1.0.0/16'%>"
+}
+
+resource "aws_subnet" "device_<%= obj['ID'] %>_ceph" {
+    vpc_id     = aws_vpc.device_<%= obj['ID'] %>.id
+    cidr_block = "<%= provision['HCI_CIDR'] ? provision['HCI_CIDR'] : '10.1.0.0/16'%>"
+
+    tags = {
+        Name = "<%= obj['NAME'] %>_ceph_subnet"
+    }
+
+    availability_zone      = local.my_zones[0]
+
+    depends_on = [ aws_vpc_ipv4_cidr_block_association.hci_cidr_<%= obj['ID'] %> ]
+}
+<% end %>
 
 resource "aws_internet_gateway" "device_<%= obj['ID'] %>" {
     vpc_id = aws_vpc.device_<%= obj['ID'] %>.id

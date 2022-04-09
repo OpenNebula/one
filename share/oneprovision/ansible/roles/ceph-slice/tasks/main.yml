@@ -1,0 +1,51 @@
+---
+- name: Create ceph slice
+  copy:
+    dest: /usr/lib/systemd/system/ceph
+    content: |
+      [Unit]
+      Description=Ceph slice
+      Documentation=man:systemd.special(7)
+      DefaultDependencies=no
+      Before=slices.target
+      Requires=system.slice
+      After=system.slice
+
+- name: Ceph ceph.slice setting override dir
+  file:
+    path: /etc/systemd/system/ceph.slice.d/
+    state: directory
+
+- name: Ceph ceph.slice setting override
+  copy:
+    dest: /etc/systemd/system/ceph.slice.d/override.conf
+    content: |
+      [Slice]
+      MemoryAccounting=true
+      CPUAccounting=true
+      MemoryHigh=
+      AllowedCPUs=
+
+- name: Ceph services override dirs
+  file:
+    path: /etc/systemd/system/{{ item }}@.service.d/
+    state: directory
+  with_items:
+    - ceph-mds
+    - ceph-mgr
+    - ceph-mon
+    - ceph-osd
+
+- name: Ceph services overrides
+  copy:
+    dest: /etc/systemd/system/{{ item }}@.service.d/override.conf
+    content: |
+      [Service]
+      Slice=ceph.slice
+  with_items:
+    - ceph-mds
+    - ceph-mgr
+    - ceph-mon
+    - ceph-osd
+  notify:
+    - reload systemd

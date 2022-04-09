@@ -14,6 +14,7 @@
 
 require 'opennebula/document_json'
 require 'opennebula/wait_ext'
+require 'securerandom'
 
 module OneProvision
 
@@ -78,7 +79,7 @@ module OneProvision
                 rc = to_json(template, provider)
 
                 return rc if OpenNebula.is_error?(rc)
-            rescue StandardError => e
+            rescue StandardError
                 return OpenNebula::Error.new(e)
             end
 
@@ -165,6 +166,13 @@ module OneProvision
             infrastructure_objects['networks']
         end
 
+        # Returns provision vnetemplates
+        def vntemplates
+            return unless resource_objects
+
+            resource_objects['vntemplates']
+        end
+
         # Returns provision resources objects
         def resource_objects
             @body['provision']['resource']
@@ -212,6 +220,16 @@ module OneProvision
         # Returns address range template to recreate it
         def ar_template
             @body['ar_template']
+        end
+
+        # Returns hci bool
+        def hci?
+            @body['ceph_vars']
+        end
+
+        # Returns vars
+        def ceph_vars
+            @body['ceph_vars']
         end
 
         # Get OpenNebula information for specific objects
@@ -274,7 +292,7 @@ module OneProvision
         #
         # @return [Integer] Provision ID
         def deploy(config, cleanup, timeout, skip, provider)
-            Ansible.check_ansible_version if skip == :none
+            Ansible.check_ansible_version(nil) if skip == :none
 
             # Config contains
             #   :inputs -> array with user inputs values
@@ -336,10 +354,14 @@ module OneProvision
                 # read provision file
                 cfg.parse(true)
 
-                puts
-
                 # @name is used for template evaluation
                 @name = cfg['name']
+
+                # copy ceph_vars and generate secret uuid
+                if cfg['ceph_vars']
+                    @body['ceph_vars'] = cfg['ceph_vars']
+                    @body['ceph_vars']['ceph_secret_uuid'] = SecureRandom.uuid
+                end
 
                 OneProvisionLogger.info('Creating provision objects')
 
@@ -409,8 +431,10 @@ module OneProvision
         #
         # @param amount    [Intenger] Amount of hosts to add to the provision
         # @param hostnames [Array]    Array of hostnames to add. Works only in
-        #                               on premise provisions
-        def add_hosts(amount, hostnames)
+        #                             on premise provisions
+        # @param params    [String]   Extra params for hosts in format
+        #                             ceph_group=osd, ...
+        def add_hosts(amount, hostnames, params)
             if !state || state != STATE['RUNNING']
                 return OpenNebula::Error.new(
                     "Can't add hosts to provision in #{STATE_STR[state]}"
@@ -441,6 +465,11 @@ module OneProvision
             host.delete('ERROR')
             host['PROVISION'].delete('DEPLOY_ID')
             host['PROVISION'].delete('HOSTNAME')
+
+            params.split(',').each do |par_val|
+                param, value = par_val.split('=')
+                host['PROVISION'][param] = value
+            end if params
 
             # Downcase to use create_deployment_file
             host = host.transform_keys(&:downcase)
@@ -478,9 +507,7 @@ module OneProvision
 
                 h         = Resource.object('hosts', @provider, host)
                 dfile     = h.create_deployment_file
-                one_host  = h.create(dfile.to_xml,
-                                     cid,
-                                     host['ansible_playbook'])
+                one_host  = h.create(dfile.to_xml, cid)
 
                 obj = { 'id'   => Integer(one_host['ID']),
                         'name' => one_host['NAME'] }
@@ -495,16 +522,17 @@ module OneProvision
             OneProvisionLogger.info('Deploying')
 
             ips, ids, state, conf = Driver.tf_action(self, 'add_hosts', tf)
+            hostnames ? added_hosts = hostnames : added_hosts = ips.last(amount)
 
             OneProvisionLogger.info('Monitoring hosts')
 
-            update_hosts(ips, ids)
+            update_hosts(ips, ids, {})
 
             add_tf(state, conf) if state && conf
 
             update
 
-            configure_resources
+            configure_resources(added_hosts)
         end
 
         # Adds more IPs to the existing virtual network
@@ -878,13 +906,33 @@ module OneProvision
                         h['provision']['index'] = idx + global_idx
                         h['provision']['count'] = count
                         h['provision']['id']    = @id
+                        h['provision']['ansible_playbook'] = playbooks
 
+                        # if hci? then assign ceph_group
+                        #  - hosts 1 .. ceph_full                     -> osd,mon
+                        #  - hosts ceph_full  .. ceph_full + ceph_osd -> osd
+                        #  - hosts ceph_full + ceph_osd .. count      -> clients
+                        if hci? && h['provision']['ceph_full_count']
+
+                            if idx < h['provision']['ceph_full_count'].to_i
+                                h['provision']['ceph_group'] = 'osd,mon'
+
+                            elsif idx < h['provision']['ceph_full_count'].to_i +
+                                        h['provision']['ceph_osd_count'].to_i
+                                h['provision']['ceph_group'] = 'osd'
+
+                            else
+                                h['provision']['ceph_group'] = 'clients'
+                            end
+                        end
+
+                        # create OpenNebula client, saves
                         host = Resource.object('hosts', @provider, h)
 
                         host.evaluate_rules(self)
 
                         dfile = host.create_deployment_file
-                        host  = host.create(dfile.to_xml, cid, playbooks)
+                        host  = host.create(dfile.to_xml, cid)
 
                         obj = { 'id'   => Integer(host['ID']),
                                 'name' => host['NAME'] }
@@ -900,12 +948,16 @@ module OneProvision
         end
 
         # Configures provision resources
-        def configure_resources
+        def configure_resources(only_hosts = nil)
             self.state = STATE['CONFIGURING']
 
             update
 
-            rc = Ansible.configure(hosts, datastores, self)
+            rc, facts = Ansible.configure(hosts, datastores, self, only_hosts)
+
+            update_hosts(nil, nil, facts)
+            update_datastores
+            update_networks(facts)
 
             if rc == 0
                 self.state = STATE['RUNNING']
@@ -916,44 +968,206 @@ module OneProvision
             update
         end
 
-        # Updates provision hosts with new name
+        # Updates provision hosts with new name or facts
         #
-        # @param ips [Array] IPs for each host
-        # @param ids [Array] IDs for each host
-        def update_hosts(ips, ids)
+        # @param ips        [Array] IPs for each host
+        # @param ids        [Array] IDs for each host
+        # @param facts      [Hash]  Facts, such as:
+        #   { 'host1' => {
+        #         'ansible_facts' => {
+        #              'ansible_memtotal_mb' => ''}
+        #              ...
+        #          }
+        #   }
+        #
+        def update_hosts(ips, ids, facts = {})
             hosts.each do |h|
                 host = Resource.object('hosts', provider)
                 host.info(h['id'])
 
-                # Avoid existing hosts
-                if host.one['//TEMPLATE/PROVISION/DEPLOY_ID']
-                    ips.shift
-                    ids.shift
-                    next
+                if ips
+                    # Avoid existing hosts
+                    if host.one['//TEMPLATE/PROVISION/DEPLOY_ID']
+                        ips.shift
+                        ids.shift
+                        next
+                    end
+
+                    name = ips.shift
+                    id   = ids.shift if ids
+
+                    # Rename using public IP address
+                    host.one.rename(name)
+                    h['name'] = name
+
+                    # Add deployment ID
+                    host.one.add_element('//TEMPLATE/PROVISION',
+                                         'DEPLOY_ID' => id)
+
+                    Terraform.p_load
+
+                    # Read private IP if any
+                    terraform = Terraform.singleton(@provider, {})
+
+                    if terraform.respond_to? :add_host_vars
+                        terraform.add_host_vars(host)
+                    end
                 end
 
-                name = ips.shift
-                id   = ids.shift if ids
+                # Update TEMPLATE
+                if !facts.empty? && hci?
 
-                # Rename using public IP address
-                host.one.rename(name)
+                    hostname = host.one['//NAME']
 
-                # Add deployment ID
-                host.one.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => id)
+                    next unless facts[hostname]
 
-                Terraform.p_load
+                    begin
+                        host_mem = facts[hostname]['ansible_facts']\
+                            ['ansible_memtotal_mb']
+                        host_cpu = facts[hostname]['ansible_facts']\
+                            ['ansible_processor_count']
 
-                # Read private IP if any
-                terraform = Terraform.singleton(@provider, {})
+                        # Compute reserved CPU shares for host
+                        res_cpu = 100 * case host_cpu
+                                        when  1..4
+                                            0 # looks like testing environment
+                                        when  5..10 then 1   # reserve 1 core
+                                        when 11..20 then 2   # 2 cores
+                                        else 3 # 3 cores
+                                        end
 
-                if terraform.respond_to? :add_host_vars
-                    terraform.add_host_vars(host)
+                        # Compute reserved MEMORY for host (in KB)
+                        res_mem = 1024 * case host_mem
+                                         when 0..4000
+                                             0 # looks like testing environment
+                                         when  4001..6001 then    1000 # reserv
+                                         when  6001..10000 then   2000 # 2GB
+                                         when 10001..20000 then   4000 # 4GB
+                                         when 20001..40000 then   5000 # 5GB
+                                         when 40001..64000 then   8000 # 8GB
+                                         when 64001..128000 then 12000 # 12GB
+                                         else 16000 # 16GB
+                                         end
+                    rescue StandardError
+                        raise OneProvisionLoopException, \
+                              "Missing facts for #{hostname}" \
+                    end
+
+                    host.one.delete_element('//TEMPLATE/RESERVED_MEM')
+                    host.one.add_element('//TEMPLATE',
+                                         'RESERVED_MEM' => res_mem)
+
+                    host.one.delete_element('//TEMPLATE/RESERVED_CPU')
+                    host.one.add_element('//TEMPLATE',
+                                         'RESERVED_CPU' => res_cpu)
                 end
 
                 host.one.update(host.one.template_str)
-
-                h['name'] = name
             end
+        end
+
+        # Updates datastores with ad-hoc changes:
+        #  - replica_host  <- replace by first host
+        #  - bridge_list   <- replace by ceph hosts list
+        #  - ceph_secret   <- replace by generated ceph secret
+        #
+        # @param ips [Array] IPs for each host
+        def update_datastores
+            datastores.each do |d|
+                datastore = Resource.object('datastores', provider)
+                datastore.info(d['id'])
+
+                if datastore.one['TEMPLATE/BRIDGE_LIST'] == 'ceph-hosts-list'
+                    bridge_list = []
+                    hosts.each do |h|
+                        host = Resource.object('hosts', provider)
+                        host.info(h['id'])
+
+                        # add ceph hosts to bridge_list
+                        ceph_group = host.one['TEMPLATE/PROVISION/CEPH_GROUP']
+                        if ['osd', 'osd,mon'].include?(ceph_group)
+                            bridge_list << host.one['NAME']
+                        end
+                    end
+
+                    if bridge_list
+                        datastore.one.delete_element('//TEMPLATE/BRIDGE_LIST')
+                        datastore.one.add_element(
+                            '//TEMPLATE',
+                            'BRIDGE_LIST' => bridge_list.join(' ')
+                        )
+                    end
+                end
+
+                if datastore.one['TEMPLATE/REPLICA_HOST'] == 'first-host' \
+                        && hosts.first['name']
+
+                    datastore.one.delete_element('//TEMPLATE/REPLICA_HOST')
+                    datastore.one.add_element(
+                        '//TEMPLATE',
+                        'REPLICA_HOST' => hosts.first['name']
+                    )
+                end
+
+                if datastore.one['TEMPLATE/CEPH_SECRET'] == 'ceph-secret'
+                    datastore.one.delete_element('//TEMPLATE/CEPH_SECRET')
+                    datastore.one.add_element(
+                        '//TEMPLATE',
+                        'CEPH_SECRET' => @body['ceph_vars']['ceph_secret_uuid']
+                    )
+                end
+
+                datastore.one.update(datastore.one.template_str)
+            end
+        end
+
+        # Updates provision vnets & vnetmplates phydev from fact
+        #
+        # @param facts [Hash]  Facts, such as:
+        #
+        # { 'host1' => { 'ansible_facts' => {'ansible_default_ipv4' => ''}, }
+        def update_networks(facts)
+            networks.each do |net|
+                vnet = OpenNebula::VirtualNetwork.new_with_id(net['id'],
+                                                              @client)
+                vnet.info
+
+                next unless vnet['//TEMPLATE/PHYDEV'] == 'default-ipv4-nic'
+
+                begin
+                    # asume all hosts have same default nic, use first
+                    nic = facts[facts.keys[0]]['ansible_facts']\
+                        ['ansible_default_ipv4']['interface']
+                rescue StandardError
+                    raise OneProvisionLoopException, 'Missing network facts'
+                end
+
+                vnet.delete_element('//TEMPLATE/PHYDEV')
+                vnet.add_element('//TEMPLATE', 'PHYDEV' => nic)
+
+                vnet.update(vnet.template_str)
+            end if networks
+
+            vntemplates.each do |vntemplate|
+                vntempl = OpenNebula::VNTemplate.new_with_id(vntemplate['id'],
+                                                             @client)
+                vntempl.info
+
+                next unless vntempl['//TEMPLATE/PHYDEV'] == 'default-ipv4-nic'
+
+                begin
+                    # asume all hosts have same default nic, use first
+                    nic = facts[facts.keys[0]]['ansible_facts']\
+                        ['ansible_default_ipv4']['interface']
+                rescue StandardError
+                    raise OneProvisionLoopException, 'Missing network facts'
+                end
+
+                vntempl.delete_element('//TEMPLATE/PHYDEV')
+                vntempl.add_element('//TEMPLATE', 'PHYDEV' => nic)
+
+                vntempl.update(vntempl.template_str)
+            end if vntemplates
         end
 
         # Checks if provision has running VMs

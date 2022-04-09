@@ -48,9 +48,4 @@ inputs:
     options:
         - 'qemu'
         - 'lxc'
-
-  - name: 'private_phydev'
-    type: text
-    description: 'Physical device to be used for private networking.'
-    default: 'eth0'
 ...

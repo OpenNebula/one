@@ -133,10 +133,9 @@ module OneProvision
         #
         # @param dfile     [String]  XML with all the HOST information
         # @param cluster   [Integer] ID of the CLUSTER where
-        # @param playbooks [String]  Ansible playbooks to configure host
         #
         # @retun [OpenNebula::Host] The ONE HOST object
-        def create(dfile, cluster, playbooks)
+        def create(dfile, cluster)
             xhost = OpenNebula::XMLElement.new
             xhost.initialize_xml(dfile, 'HOST')
 
@@ -152,10 +151,6 @@ module OneProvision
 
             host.allocate(name, im, vm, cluster)
             host.update(xhost.template_str, true)
-
-            unless playbooks.nil?
-                host.update("ANSIBLE_PLAYBOOK=\"#{playbooks}\"", true)
-            end
 
             host.offline
             host.info

@@ -22,6 +22,7 @@ require 'json'
 require 'base64'
 require 'erb'
 require 'ostruct'
+require 'fileutils'
 
 if !ONE_LOCATION
     ANSIBLE_LOCATION = '/usr/share/one/oneprovision/ansible'
@@ -40,9 +41,12 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_VERSION = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
-ANSIBLE_ARGS = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
+ANSIBLE_VERSION     = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
+ANSIBLE_ARGS        = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
+CEPH_ANSIBLE_URL    = 'https://github.com/ceph/ceph-ansible.git'
+CEPH_ANSIBLE_BRANCH = 'stable-6.0'
+CEPH_ANSIBLE_DIR    = '/var/lib/one/.ansible/ceph-6.0'
 
 module OneProvision
 
@@ -65,7 +69,7 @@ module OneProvision
         class << self
 
             # Checks ansible installed version
-            def check_ansible_version
+            def check_ansible_version(provision)
                 # Get just first line with Ansible version
                 version = `ansible --version`.split("\n")[0]
 
@@ -78,38 +82,79 @@ module OneProvision
                          "must be >= #{ANSIBLE_VERSION[0]} " \
                          "and < #{ANSIBLE_VERSION[1]}")
                 end
+
+                return if provision.nil? || !provision.hci?
+
+                unless system('ansible-galaxy --version >/dev/null')
+                    Utils.fail('Missing ansible-galaxy')
+                end
+
+                return if system('git --version >/dev/null')
+
+                Utils.fail('Missing git to checkout ceph-ansible')
+            end
+
+            def install_ansible_dependencies(provision)
+                return unless provision.hci?
+
+                unless File.directory?("#{CEPH_ANSIBLE_DIR}/roles")
+                    ansible_dir = File.dirname(CEPH_ANSIBLE_DIR)
+                    FileUtils.mkdir_p(ansible_dir) \
+                        unless File.exist?(ansible_dir)
+
+                    Driver.run('git clone --branch ' <<
+                               "#{CEPH_ANSIBLE_BRANCH} " <<
+                               "--depth 1 #{CEPH_ANSIBLE_URL} " <<
+                               CEPH_ANSIBLE_DIR.to_s)
+                end
+
+                Driver.run('ansible-galaxy install -r ' <<
+                           '/usr/share/one/oneprovision/ansible/' <<
+                           'hci-requirements.yml')
             end
 
             # TODO: expect multiple hosts
             # Configures host via ansible
             #
-            # @param hosts [OpenNebula::Host Array] Hosts to configure
-            # @param hosts [OpenNebula::Datastore array] Datastores for vars
-            # @param provision [OpenNebula::Provision] Provision info
-            # @param ping  [Boolean]                True to check ping to hosts
-            def configure(hosts, datastores = nil, provision = nil, ping = true)
+            # @param hosts   [OpenNebula::Host Array] Hosts to configure
+            # @param hosts   [OpenNebula::Datastore array] Datastores for var
+            # @param provision  [OpenNebula::Provision] Provision info
+            # @param only_hosts [Array] Hostames - limit configure to them
+            def configure(hosts, datastores = nil, provision = nil,
+                          only_hosts = [])
+
                 return if hosts.nil? || hosts.empty?
 
                 Driver.retry_loop('Failed to configure hosts', provision) do
-                    check_ansible_version
+                    check_ansible_version(provision)
 
-                    ansible_dir = generate_ansible_configs(hosts, datastores)
+                    install_ansible_dependencies(provision)
 
-                    try_ssh(ansible_dir) if ping
+                    # sets @inventories, @group_vars, @playbooks
+                    dir = generate_ansible_configs(hosts, datastores, provision)
+
+                    # extends @inventories, @group_vars
+                    if provision.hci?
+                        generate_ceph_ansible_configs(dir, hosts, provision)
+                    end
+
+                    # try_ssh + gather facts
+                    try_ssh_and_gather_facts(dir)
 
                     OneProvisionLogger.info('Configuring hosts')
 
-                    @inventories.each do |i|
+                    @playbooks.each do |playbook|
                         # build Ansible command
-                        cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
+                        cmd = "ANSIBLE_CONFIG=#{dir}/ansible.cfg "
                         cmd << "ansible-playbook #{ANSIBLE_ARGS}"
-                        cmd << " -i #{ansible_dir}/inventory"
-                        cmd << " -e @#{ansible_dir}/group_vars.yml"
-                        cmd << " #{ANSIBLE_LOCATION}/#{i}.yml"
+                        @inventories.each {|i| cmd << " -i  #{i}" }
+                        @group_vars.each  {|g| cmd << " -e @#{g}" }
+                        cmd << " --limit #{only_hosts.join(',')}" if only_hosts
+                        cmd << " #{ANSIBLE_LOCATION}/#{playbook}.yml"
 
                         o, _e, s = Driver.run(cmd, true)
 
-                        if s && s.success? && i == @inventories.last
+                        if s && s.success? && playbook == @playbooks.last
                             # enable configured ONE host back
                             OneProvisionLogger.debug(
                                 'Enabling OpenNebula hosts'
@@ -129,7 +174,7 @@ module OneProvision
                     end
                 end
 
-                0
+                [0, @facts]
             rescue StandardError => e
                 raise e
             end
@@ -193,13 +238,15 @@ module OneProvision
             # Checks ssh connection
             #
             # @param ansible_dir [Dir] Directory with ansible information
-            def try_ssh(ansible_dir)
+            def try_ssh_and_gather_facts(ansible_dir)
                 OneProvisionLogger.info('Checking working SSH connection')
 
-                return if retry_ssh(ansible_dir)
-
-                Driver.retry_loop 'SSH connection is failing' do
-                    ansible_ssh(ansible_dir)
+                if retry_ssh(ansible_dir)
+                    @facts = gather_facts(ansible_dir)
+                else
+                    Driver.retry_loop 'SSH connection is failing' do
+                        ansible_ssh(ansible_dir)
+                    end
                 end
             end
 
@@ -247,15 +294,50 @@ module OneProvision
                 rtn.join("\n")
             end
 
+            # After ping to ssh also gather some basics facts from hosts
+            # They are later reused to update OpenNebula resources:
+            # hosts and vnets
+            #
+            # @param ansible_dir [String] Ansible directory
+            #
+            # @return [Hash] facts
+
+            def gather_facts(ansible_dir)
+                cmd = "ANSIBLE_CONFIG=#{ansible_dir}"
+                cmd += '/ansible.cfg ANSIBLE_BECOME=false'
+                cmd << " ansible #{ANSIBLE_ARGS}"
+                cmd << " -i #{ansible_dir}/inventory"
+                cmd << ' --one-line'
+                cmd << " -m setup all -a 'gather_subset=network,hardware'"
+
+                o, _e, s = Driver.run(cmd)
+                raise OneProvisionLoopException if !s || !s.success?
+
+                # ansbile output post-procesing, remove " | SUCCESS " suffix
+                # create a hash like { "hostname" => { facts }, }
+                begin
+                    facts = {}
+                    o.each_line do |line|
+                        hostname, host_facts = line.split(' | SUCCESS => ')
+                        facts[hostname] = JSON.parse(host_facts)
+                    end
+                rescue StandardError
+                    raise OneProvisionLoopException
+                end
+
+                facts
+            end
+
             # TODO: support different variables and
             #   connection parameters for each host
             # Generates ansible configurations
             #
-            # @param hosts [OpenNebula::Host array] Hosts to configure
-            # @param hosts [OpenNebula::Datastore array] Datastores for vars
+            # @param hosts      [OpenNebula::Host array] Hosts to configure
+            # @param datastores [OpenNebula::Datastore array] Datastores for var
+            # @param provision  [OpenNebula::Datastore array] Provision for var
             #
             # @return [Dir] Directory with Ansible information
-            def generate_ansible_configs(hosts, datastores)
+            def generate_ansible_configs(hosts, _datastores, _provision)
                 ansible_dir = Dir.mktmpdir
                 msg = "Generating Ansible configurations into #{ansible_dir}"
 
@@ -294,24 +376,11 @@ module OneProvision
                     c << "ansible_port=#{conn['remote_port']}\n"
                 end
 
-                Driver.write_file_log("#{ansible_dir}/inventory", c)
-
-                # Generate "group_vars" file
-                group_vars = { 'sys_ds_ids' => [], 'first_host' => '' }
-                group_vars['first_host'] = hosts.first['name'] \
-                    unless hosts.empty?
-
-                datastores.each do |d|
-                    ds = Resource.object('datastores')
-                    ds.info(d['id'])
-                    next unless ds.one['TYPE'] == '1' # only system ds
-
-                    group_vars['sys_ds_ids'] << d['id']
-                end unless datastores.nil?
-
-                c = YAML.dump(group_vars)
-                fname = "#{ansible_dir}/group_vars.yml"
+                fname = "#{ansible_dir}/inventory"
                 Driver.write_file_log(fname, c)
+                @inventories = [fname]
+
+                @group_vars = []
 
                 # Generate "host_vars" directory
                 Dir.mkdir("#{ansible_dir}/host_vars")
@@ -331,21 +400,20 @@ module OneProvision
                 host = Resource.object('hosts')
                 host.info(hosts[0]['id'])
 
-                if host.one['TEMPLATE/ANSIBLE_PLAYBOOK']
-                    @inventories = host.one['TEMPLATE/ANSIBLE_PLAYBOOK']
-                    @inventories = @inventories.split(',')
+                if host.one['TEMPLATE/PROVISION/ANSIBLE_PLAYBOOK']
+                    @playbooks = host.one['TEMPLATE/PROVISION/ANSIBLE_PLAYBOOK']
+                    @playbooks = @playbooks.split(',')
                 else
-                    @inventories = [ANSIBLE_INVENTORY_DEFAULT]
+                    @playbooks = [ANSIBLE_INVENTORY_DEFAULT]
                 end
 
                 # Generate "ansible.cfg" file
                 # TODO: what if private_key isn't filename, but content
                 # TODO: store private key / equinix
                 #   credentials securely in the ONE
-                roles = "#{ANSIBLE_LOCATION}/roles"
 
                 c = File.read("#{ANSIBLE_LOCATION}/ansible.cfg.erb")
-                c = ERBVal.render_from_hash(c, :roles => roles)
+                c = ERBVal.render_from_hash(c, :ans_loc => ANSIBLE_LOCATION)
 
                 Driver.write_file_log("#{ansible_dir}/ansible.cfg", c)
 
@@ -354,6 +422,64 @@ module OneProvision
                 #   File.open("#{$ANSIBLE_LOCATION}/site.yml").read(), true)
 
                 ansible_dir
+            end
+
+            # Generate ceph inventory based on hosts and theirs ceph_groups,
+            # add it to @inventories, also include ceph group_vars.yml to
+            # @group_vars array
+            #
+            # @param ansible_dir [String]                 Ansible tmp dir
+            # @param hosts       [OpenNebula::Host array] Hosts to configure
+            # @param provision   [OpenNebula::Datastore array] Provision vars
+            #
+            # @return nil
+            def generate_ceph_ansible_configs(ansible_dir, hosts, provision)
+                ceph_inventory = \
+                    {
+                        'mons'    => { 'hosts' => {} },
+                        'mgrs'    => { 'hosts' => {} },
+                        'osds'    => { 'hosts' => {} },
+                        'clients' => { 'hosts' => {},
+                                       'vars'  => { 'copy_admin_key' => true } }
+                    }
+
+                hosts.each do |h|
+                    host = Resource.object('hosts')
+                    host.info(h['id'])
+
+                    ceph_group = host.one['TEMPLATE/PROVISION/CEPH_GROUP']
+
+                    case ceph_group
+                    when 'osd,mon'
+                        ceph_inventory['mons']['hosts'][host.one['NAME']] = nil
+                        ceph_inventory['mgrs']['hosts'][host.one['NAME']] = nil
+                        ceph_inventory['osds']['hosts'][host.one['NAME']] = nil
+                    when 'osd'
+                        ceph_inventory['osds']['hosts'][host.one['NAME']] = nil
+                    when 'clients'
+                        ceph_inventory['clients']['hosts'][host.one['NAME']] =
+                            nil
+                    end
+                end
+
+                fname = "#{ansible_dir}/ceph_inventory.yml"
+                Driver.write_file_log(fname, YAML.dump(ceph_inventory))
+                @inventories << fname
+
+                # eval ceph group_vars template
+                ceph_vars = File.read(
+                    "#{ANSIBLE_LOCATION}/ceph_hci/group_vars.yml.erb"
+                )
+                yaml = provision.body['ceph_vars'].to_yaml.gsub!("---\n", '')
+
+                ceph_vars = ERBVal.render_from_hash(
+                    ceph_vars,
+                    'vars' => yaml
+                )
+
+                fname = "#{ansible_dir}/ceph_group_vars.yml"
+                Driver.write_file_log(fname, ceph_vars)
+                @group_vars << fname
             end
 
             # Gets host connection options

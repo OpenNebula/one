@@ -150,6 +150,8 @@ module OneProvision
                 return unless eval_ui
 
                 eval_user_inputs
+
+                validate_user_inputs
             rescue StandardError => e
                 Utils.fail("Failed to read configuration: #{e}")
             end
@@ -674,9 +676,11 @@ module OneProvision
 
                         case input['type']
                         when 'array'
-                            value = []
-                            value << i_value.split(';')
-                            value.flatten!
+                            if i_value.nil?
+                                value = []
+                            else
+                                value = i_value.split(';')
+                            end
                         else
                             value.gsub!("${#{match.join('.')}}", i_value.to_s)
                         end
@@ -809,20 +813,37 @@ module OneProvision
                     answer = input['options'][0] if !answer || answer.empty?
                 end
             when 'array'
-                answer = ''
+                print "Array `#{input['name']}` " \
+                      "(default=#{input['default']}): "
 
-                until answer.match(/(\w+)(;\s*\w+)*/)
-                    print "Array `#{input['name']}` " \
-                          "(default=#{input['default']}): "
-
-                    answer = STDIN.readline.chop
-                    answer = input['default'] if !answer || answer.empty?
-                end
+                answer = STDIN.readline.chop
+                answer = input['default'] if answer.empty?
             when 'fixed'
                 answer = input['default']
             end
 
             answer
+        end
+
+        # Validate user inputs
+        def validate_user_inputs
+            return unless @config['ceph_vars']
+
+            osd_full_hosts_count = 0
+            @config['hosts'].each do |h|
+                if h['provision'] && h['provision']['ceph_group'] == 'osd,mon'
+                    osd_full_hosts_count += h['provision']['hostname'].length
+
+                elsif h['provision'] && h['provision']['ceph_full_count']
+                    osd_full_hosts_count += \
+                        h['provision']['ceph_full_count'].to_i
+                end
+            end
+
+            return if [3, 5].include? osd_full_hosts_count == 3
+
+            Utils.warn('Recomended number of Mon+OSD Ceph hosts ' \
+                       "is 3 or 5, given #{osd_full_hosts_count}")
         end
 
     end

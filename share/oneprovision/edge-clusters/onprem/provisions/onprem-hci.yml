@@ -1,0 +1,75 @@
+---
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+#-------------------------------------------------------------------------------
+# This is the canonical description file for a cluster build On-Premise
+# ------------------------------------------------------------------------------
+
+name: 'onprem-hci-cluster'
+
+description: 'On-premises hyper-convergent Ceph cluster'
+
+extends:
+    - onprem.d/defaults.yml
+    - onprem.d/resources.yml
+    - onprem.d/hosts-hci.yml
+    - onprem.d/datastores-hci.yml
+    - onprem.d/fireedge.yml
+    - onprem.d/inputs-hci.yml
+    - onprem.d/networks.yml
+
+#-------------------------------------------------------------------------------
+# playbook: Ansible playbook used for hosts configuration. Check ansible/aws.yml
+# for the specific roles applied.
+#-------------------------------------------------------------------------------
+playbook:
+  - onprem
+  - ceph_hci/site
+
+#-------------------------------------------------------------------------------
+# defaults: Common configuration attributes for provision objects
+#--------------------------------------------------------------------------------
+defaults:
+  provision:
+    provider_name: 'onprem'
+  connection:
+    remote_user: 'root'
+
+ceph_vars:
+  ceph_hci: true
+  devices: "${input.ceph_device}"
+  monitor_interface: "${input.ceph_monitor_interface}"
+  public_network: "${input.ceph_public_network}"
+
+#-------------------------------------------------------------------------------
+# cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts
+#--------------------------------------------------------------------------------
+#  name: of the cluster
+#  description: Additional information
+#  reserved_cpu: In percentage. It will be subtracted from the TOTAL CPU
+#  reserved_memory: In percentage. It will be subtracted from the TOTAL MEM
+#--------------------------------------------------------------------------------
+cluster:
+  name: "${provision}"
+  description: 'On-Premise edge cluster'
+  reserved_cpu: '0'
+  reserved_mem: '0'
+  datastores:
+    - 1
+    - 2
+
+...

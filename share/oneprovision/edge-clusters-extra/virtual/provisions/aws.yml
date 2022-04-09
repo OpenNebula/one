@@ -21,6 +21,7 @@
 # ------------------------------------------------------------------------------
 
 name: 'aws-cluster'
+description: 'AWS cluster'
 
 extends:
     - common.d/defaults.yml
