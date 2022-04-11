@@ -37,8 +37,8 @@ define(function(require) {
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 10;
-  var SEARCH_COLUMN = 11;
+  var LABELS_COLUMN = 11;
+  var SEARCH_COLUMN = 12;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*

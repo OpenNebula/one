@@ -177,13 +177,14 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
-            #- 3        # Owner
+            #- 3         # Owner
             - 4         # Group
-            #- 5        # Reservation
-            #- 6        # Cluster
-            #- 7        # Bridge
-            #- 8        # Leases
-            #- 9        # VLAN ID
+            - 5         # Status
+            #- 6         # Reservation
+            - 7         # Cluster
+            #- 8        # Bridge
+            #- 9         # Leases
+            #- 10        # VLAN ID
     secgroups-tab:
         table_columns:
             - 0         # Checkbox
