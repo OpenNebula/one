@@ -31,7 +31,7 @@ import { AuthLayout } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { _APPS } from 'client/constants'
 
-export const APP_NAME = _APPS.provision.name
+export const APP_NAME = _APPS.provision
 
 const MESSAGE_PROVISION_SUCCESS_CREATED = 'Provision successfully created'
 

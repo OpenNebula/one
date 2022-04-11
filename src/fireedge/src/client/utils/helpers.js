@@ -339,14 +339,14 @@ export const set = (obj, path, value) => {
  * @returns {object} Objects group by the property
  */
 export const groupBy = (list, key) =>
-  list.reduce((objectsByKeyValue, obj) => {
+  list?.reduce((objectsByKeyValue, obj) => {
     const keyValue = get(obj, key)
     const newValue = (objectsByKeyValue[keyValue] || []).concat(obj)
 
     set(objectsByKeyValue, keyValue, newValue)
 
     return objectsByKeyValue
-  }, {})
+  }, {}) ?? {}
 
 /**
  * Clone an object.
@@ -460,3 +460,21 @@ export const isDivisibleBy = (number, divisor) => !(number % divisor)
  */
 export const getFactorsOfNumber = (value) =>
   [...Array(+value + 1).keys()].filter((idx) => value % idx === 0)
+
+/**
+ * Returns an array with the separator interspersed between elements of the given array.
+ *
+ * @param {any} arr - Array
+ * @param {any} sep - Separator
+ * @returns {number[]} Returns list of numbers
+ * @example [1,2,3].intersperse(0) => [1,0,2,0,3]
+ */
+export const intersperse = (arr, sep) => {
+  const ensuredArr = (Array.isArray(arr) ? arr : [arr]).filter(Boolean)
+
+  if (ensuredArr.length === 0) return []
+
+  return ensuredArr
+    .slice(1)
+    .reduce((xs, x, i) => xs.concat([sep, x]), [ensuredArr[0]])
+}

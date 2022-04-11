@@ -21,26 +21,31 @@ const root = require('window-or-global')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
-const rootReducer = require('client/store/reducers')
+
+// server side constants (not all of them are used in client)
 const { getFireedgeConfig } = require('server/utils/yml')
-const {
-  availableLanguages,
-  defaultCurrency,
-  defaultApps,
-} = require('server/utils/constants/defaults')
-const { APP_URL, STATIC_FILES_URL } = require('client/constants')
+const { defaultApps } = require('server/utils/constants/defaults')
+
+// client
+const rootReducer = require('client/store/reducers')
 const { upperCaseFirst } = require('client/utils')
+const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 
-// settings
-const appConfig = getFireedgeConfig()
-const currency = appConfig.currency || defaultCurrency
-const langs = appConfig.langs || availableLanguages
+const ALLOWED_KEYS_FROM_CONFIG = ['currency', 'default_lang', 'langs']
 
-const languages = Object.keys(langs)
-const scriptLanguages = languages.map((language) => ({
-  key: language,
-  value: `${langs[language]}`,
-}))
+const ensuredConfig = Object.entries(getFireedgeConfig()).reduce(
+  (config, [key, value]) => {
+    if (ALLOWED_KEYS_FROM_CONFIG.includes(key)) {
+      config[key] = value
+    }
+
+    return config
+  },
+  {}
+)
+
+const ensuredScriptValue = (value) =>
+  JSON.stringify(value).replace(/</g, '\\u003c')
 
 const router = Router()
 
@@ -61,9 +66,9 @@ router.get('*', (req, res) => {
     composeEnhancer(applyMiddleware(thunk))
   )
 
-  const storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
+  const storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${ensuredScriptValue(
     store.getState()
-  ).replace(/</g, '\\u003c')}</script>`
+  )}</script>`
 
   const App = require(`../../../client/apps/${appName}/index.js`).default
 
@@ -90,8 +95,9 @@ router.get('*', (req, res) => {
     <body>
       <div id="root">${rootComponent}</div>
       ${storeRender}
-      <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
-      <script>${`currency = ${JSON.stringify(currency)}`}</script>
+      <script id="preload-server-side">
+        ${`window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(ensuredConfig)}`}
+      </script>
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

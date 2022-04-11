@@ -13,32 +13,69 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
+  styled,
   useMediaQuery,
   Typography,
   Box,
   Paper,
   Stack,
-  Divider,
+  Accordion as MuiAccordion,
+  AccordionSummary as MuiAccordionSummary,
+  AccordionDetails as MuiAccordionDetails,
 } from '@mui/material'
+import { NavArrowRight } from 'iconoir-react'
 
 import { rowStyles } from 'client/components/Tables/styles'
 import { StatusChip } from 'client/components/Status'
 import MultipleTags from 'client/components/MultipleTags'
-import SecurityGroupCard from 'client/components/Cards/SecurityGroupCard'
 
 import { Translate } from 'client/components/HOC'
 import { stringToBoolean } from 'client/models/Helper'
-import { T, Nic, NicAlias } from 'client/constants'
+import { groupBy } from 'client/utils'
+import { T, Nic, NicAlias, PrettySecurityGroupRule } from 'client/constants'
+
+const Accordion = styled((props) => (
+  <MuiAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+  flexBasis: '100%',
+  border: `1px solid ${theme.palette.divider}`,
+  '&:before': { display: 'none' },
+}))
+
+const AccordionSummary = styled((props) => (
+  <MuiAccordionSummary expandIcon={<NavArrowRight />} {...props} />
+))(({ theme }) => ({
+  backgroundColor:
+    theme.palette.mode === 'dark'
+      ? 'rgba(255, 255, 255, .05)'
+      : 'rgba(0, 0, 0, .03)',
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  flexDirection: 'row-reverse',
+  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+    transform: 'rotate(90deg)',
+  },
+  '& .MuiAccordionSummary-content': {
+    marginLeft: theme.spacing(1),
+  },
+}))
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)',
+}))
 
 const NicCard = memo(
   ({
     nic = {},
-    actions = [],
-    aliasActions = [],
+    actions,
+    aliasActions,
+    securityGroupActions,
     showParents = false,
     clipboardOnTags = true,
   }) => {
@@ -85,10 +122,7 @@ const NicCard = memo(
         variant="outlined"
         className={classes.root}
         data-cy={`${dataCy}-${NIC_ID}`}
-        sx={{
-          flexWrap: 'wrap',
-          boxShadow: 'none !important',
-        }}
+        sx={{ flexWrap: 'wrap', boxShadow: 'none !important' }}
       >
         <Box
           className={classes.main}
@@ -99,6 +133,7 @@ const NicCard = memo(
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
             <span className={classes.labels}>
+              {isAlias && <StatusChip stateColor="info" text={'ALIAS'} />}
               {noClipboardTags.map((tag) => (
                 <StatusChip
                   key={`${dataCy}-${NIC_ID}-${tag.dataCy}`}
@@ -121,42 +156,39 @@ const NicCard = memo(
               <NicCard
                 key={alias.NIC_ID}
                 nic={alias}
-                actions={aliasActions}
+                actions={aliasActions?.({ alias })}
                 showParents={showParents}
               />
             ))}
           </Box>
         )}
-        {Array.isArray(SECURITY_GROUPS) && !!SECURITY_GROUPS?.length && (
-          <Paper
-            variant="outlined"
-            sx={{
-              display: 'flex',
-              flexBasis: '100%',
-              flexDirection: 'column',
-              gap: '0.5em',
-              p: '0.8em',
-            }}
-          >
-            <Typography variant="body1">
-              <Translate word={T.SecurityGroups} />
-            </Typography>
+        {useMemo(() => {
+          if (!Array.isArray(SECURITY_GROUPS) || !SECURITY_GROUPS?.length) {
+            return null
+          }
 
-            <Stack direction="column" divider={<Divider />} spacing={1}>
-              {SECURITY_GROUPS?.map((securityGroup, idx) => {
-                const key = `nic${NIC_ID}-${idx}-${securityGroup.NAME}`
+          const rulesById = Object.entries(groupBy(SECURITY_GROUPS, 'ID'))
+
+          return (
+            <Accordion TransitionProps={{ unmountOnExit: true }}>
+              <AccordionSummary>
+                <Typography variant="body1">
+                  <Translate word={T.SecurityGroups} />
+                </Typography>
+              </AccordionSummary>
+              {rulesById.map(([ID, rules]) => {
+                const key = `nic-${NIC_ID}-secgroup-${ID}`
+                const acts = securityGroupActions?.({ securityGroupId: ID })
 
                 return (
-                  <SecurityGroupCard
-                    key={key}
-                    data-cy={key}
-                    securityGroup={securityGroup}
-                  />
+                  <AccordionDetails key={key}>
+                    <SecurityGroupRules id={ID} rules={rules} actions={acts} />
+                  </AccordionDetails>
                 )
               })}
-            </Stack>
-          </Paper>
-        )}
+            </Accordion>
+          )
+        }, [SECURITY_GROUPS])}
       </Paper>
     )
   }
@@ -165,11 +197,85 @@ const NicCard = memo(
 NicCard.propTypes = {
   nic: PropTypes.object,
   actions: PropTypes.node,
-  aliasActions: PropTypes.node,
+  aliasActions: PropTypes.func,
+  securityGroupActions: PropTypes.func,
   showParents: PropTypes.bool,
   clipboardOnTags: PropTypes.bool,
 }
 
 NicCard.displayName = 'NicCard'
+
+const SecurityGroupRules = memo(({ id, actions, rules }) => {
+  const classes = rowStyles()
+
+  const COLUMNS = useMemo(
+    () => [T.Protocol, T.Type, T.Range, T.Network, T.IcmpType],
+    []
+  )
+
+  const name = rules?.[0]?.NAME ?? 'default'
+
+  return (
+    <>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Typography noWrap component="span" variant="subtitle1">
+          {`#${id} ${name}`}
+        </Typography>
+        {!!actions && <div className={classes.actions}>{actions}</div>}
+      </Stack>
+      <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap="0.5em">
+        {COLUMNS.map((col) => (
+          <Typography key={col} noWrap component="span" variant="subtitle2">
+            <Translate word={col} />
+          </Typography>
+        ))}
+        {rules.map((rule, ruleIdx) => (
+          <SecurityGroupRule key={`${id}-rule-${ruleIdx}`} rule={rule} />
+        ))}
+      </Box>
+    </>
+  )
+})
+
+SecurityGroupRules.propTypes = {
+  id: PropTypes.string,
+  rules: PropTypes.array,
+  actions: PropTypes.node,
+}
+
+SecurityGroupRules.displayName = 'SecurityGroupRule'
+
+const SecurityGroupRule = memo(({ rule, 'data-cy': cy }) => {
+  /** @type {PrettySecurityGroupRule} */
+  const { PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID } = rule
+
+  return (
+    <>
+      {[
+        { text: PROTOCOL, dataCy: 'protocol' },
+        { text: RULE_TYPE, dataCy: 'ruletype' },
+        { text: RANGE, dataCy: 'range' },
+        { text: NETWORK_ID, dataCy: 'networkid' },
+        { text: ICMP_TYPE, dataCy: 'icmp-type' },
+      ].map(({ text, dataCy }) => (
+        <Typography
+          noWrap
+          key={cy}
+          data-cy={`${cy}-${dataCy}`}
+          variant="subtitle2"
+        >
+          {text}
+        </Typography>
+      ))}
+    </>
+  )
+})
+
+SecurityGroupRule.propTypes = {
+  rule: PropTypes.object,
+  'data-cy': PropTypes.string,
+}
+
+SecurityGroupRule.displayName = 'SecurityGroupRule'
 
 export default NicCard

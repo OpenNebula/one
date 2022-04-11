@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { ReactElement, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
 
-const Row = memo(
-  ({ original, value, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+/**
+ * Provider component to preload configuration from server.
+ *
+ * @param {object} props - Props
+ * @param {any} props.children - Children
+ * @returns {ReactElement} React element
+ */
+const PreloadConfigProvider = ({ children }) => {
+  useEffect(() => {
+    const preload = document.querySelector('#preload-server-side')
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
+    if (preload) {
+      // remove preload script from DOM after it's loaded
+      preload.parentElement.removeChild(preload)
+    }
+  }, [])
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+  return <>{children}</>
 }
 
-Row.displayName = 'HostRow'
+PreloadConfigProvider.propTypes = {
+  children: PropTypes.node,
+}
 
-export default Row
+export default PreloadConfigProvider

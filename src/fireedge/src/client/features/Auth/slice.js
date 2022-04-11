@@ -16,12 +16,7 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
 import { removeStoreData } from 'client/utils'
-import {
-  JWT_NAME,
-  FILTER_POOL,
-  DEFAULT_SCHEME,
-  DEFAULT_LANGUAGE,
-} from 'client/constants'
+import { JWT_NAME, FILTER_POOL } from 'client/constants'
 
 export const logout = createAction('logout')
 
@@ -29,11 +24,6 @@ const initial = () => ({
   jwt: null,
   user: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
-  settings: {
-    SCHEME: DEFAULT_SCHEME,
-    LANG: DEFAULT_LANGUAGE,
-    DISABLE_ANIMATIONS: 'NO',
-  },
   isLoginInProgress: false,
 })
 
@@ -47,9 +37,6 @@ const slice = createSlice({
     }),
     changeJwt: (state, { payload }) => {
       state.jwt = payload
-    },
-    changeSettings: (state, { payload }) => {
-      state.settings = { ...state.settings, payload }
     },
     changeFilterPool: (state, { payload: filterPool }) => {
       state.filterPool = filterPool

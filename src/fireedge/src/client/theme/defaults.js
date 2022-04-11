@@ -21,6 +21,14 @@ const defaultTheme = createTheme()
 const { grey } = colors
 const black = '#1D1D1D'
 const white = '#ffffff'
+const bgBlueGrey = '#f2f4f8'
+
+const defaultPrimary = {
+  light: '#2a2d3d',
+  main: '#222431',
+  dark: '#191924',
+  contrastText: '#ffffff',
+}
 
 const systemFont = [
   '-apple-system',
@@ -70,8 +78,10 @@ const buttonSvgStyle = {
  * @returns {ThemeOptions} Material theme options
  */
 export default (appTheme, mode = SCHEMES.DARK) => {
-  const { primary, secondary } = appTheme.palette
   const isDarkMode = `${mode}`.toLowerCase() === SCHEMES.DARK
+
+  const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
+  const defaultContrastText = isDarkMode ? white : 'rgba(0, 0, 0, 0.87)'
 
   return {
     palette: {
@@ -84,7 +94,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       },
       background: {
         paper: isDarkMode ? primary.light : white,
-        default: isDarkMode ? primary.main : '#f2f4f8',
+        default: isDarkMode ? primary.main : bgBlueGrey,
       },
       error: {
         100: '#e98e7f',
@@ -112,13 +122,13 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         light: '#ffe4a3',
         main: '#f1a204',
         dark: '#f1a204',
-        contrastText: 'rgba(0, 0, 0, 0.87)',
+        contrastText: defaultContrastText,
       },
       info: {
         light: '#64b5f6',
         main: '#2196f3',
         dark: '#01579b',
-        contrastText: white,
+        contrastText: defaultContrastText,
       },
       success: {
         100: '#bce1bd',
@@ -132,13 +142,13 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         light: '#3adb76',
         main: '#4caf50',
         dark: '#388e3c',
-        contrastText: white,
+        contrastText: defaultContrastText,
       },
       debug: {
-        light: '#e0e0e0',
-        main: '#757575',
-        dark: '#424242',
-        contrastText: isDarkMode ? white : black,
+        light: grey[300],
+        main: grey[600],
+        dark: grey[800],
+        contrastText: defaultContrastText,
       },
     },
     breakpoints: {
@@ -414,7 +424,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       MuiToggleButtonGroup: {
         styleOverrides: {
           root: {
-            backgroundColor: isDarkMode ? primary.main : '#f2f4f8',
+            backgroundColor: 'background.default',
           },
         },
         defaultProps: {

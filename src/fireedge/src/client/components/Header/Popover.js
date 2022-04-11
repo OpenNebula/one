@@ -102,7 +102,7 @@ const HeaderPopover = memo(
           placement="bottom-end"
           keepMounted={false}
           style={{
-            zIndex: zIndex.appBar + 1,
+            zIndex: zIndex.modal + 1,
             ...mobileStyles,
           }}
           {...popperProps}

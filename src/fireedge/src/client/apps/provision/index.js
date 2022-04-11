@@ -21,6 +21,7 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import { Store } from 'redux'
 
+import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
@@ -39,25 +40,27 @@ buildTranslationLocale()
  * @returns {JSXElementConstructor} Provision App
  */
 const Provision = ({ store = {}, location = '' }) => (
-  <ReduxProvider store={store}>
-    <TranslateProvider>
-      <MuiProvider theme={theme}>
-        <NotistackProvider>
-          {location ? (
-            // server build
-            <StaticRouter location={location}>
-              <App />
-            </StaticRouter>
-          ) : (
-            // browser build
-            <BrowserRouter basename={`${APP_URL}/${ProvisionAppName}`}>
-              <App />
-            </BrowserRouter>
-          )}
-        </NotistackProvider>
-      </MuiProvider>
-    </TranslateProvider>
-  </ReduxProvider>
+  <PreloadConfigProvider>
+    <ReduxProvider store={store}>
+      <TranslateProvider>
+        <MuiProvider theme={theme}>
+          <NotistackProvider>
+            {location ? (
+              // server build
+              <StaticRouter location={location}>
+                <App />
+              </StaticRouter>
+            ) : (
+              // browser build
+              <BrowserRouter basename={`${APP_URL}/${ProvisionAppName}`}>
+                <App />
+              </BrowserRouter>
+            )}
+          </NotistackProvider>
+        </MuiProvider>
+      </TranslateProvider>
+    </ReduxProvider>
+  </PreloadConfigProvider>
 )
 
 Provision.propTypes = {

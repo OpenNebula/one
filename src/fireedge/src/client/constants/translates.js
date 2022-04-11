@@ -120,6 +120,7 @@ module.exports = {
   SelectTheNewDatastore: 'Select the new datastore',
   SelectTheNewGroup: 'Select the new group',
   SelectTheNewOwner: 'Select the new owner',
+  SelectTheNewSecurityGroup: 'Select the new security group',
   SelectVmTemplate: 'Select a VM Template',
   SelectYourActiveGroup: 'Select your active group',
   Share: 'Share',
@@ -440,6 +441,9 @@ module.exports = {
   OverrideNetworkValuesIPv6: 'Override Network Values IPv6',
   OverrideNetworkInboundTrafficQos: 'Override Network Inbound Traffic QoS',
   OverrideNetworkOutboundTrafficQos: 'Override Network Outbound Traffic QoS',
+  AttachSecurityGroup: 'Attach Security Group',
+  DetachSecurityGroup: 'Detach Security Group',
+  DetachSecurityGroupFromNic: 'Detach Security Group %1$s from NIC %2$s',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
   /* VM schema - actions */
@@ -752,6 +756,9 @@ module.exports = {
   IPSEC: 'IPsec',
   Outbound: 'Outbound',
   Inbound: 'Inbound',
+  Any: 'Any',
+  Protocol: 'Protocol',
+  IcmpType: 'ICMP Type',
 
   /* Host schema */
   IM_MAD: 'IM MAD',

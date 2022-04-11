@@ -40,6 +40,13 @@ const AttachNicForm = (configProps) =>
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const AttachSecGroupForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachSecGroupForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
  */
 const ChangeUserForm = (configProps) =>
@@ -144,6 +151,7 @@ const CreateRelativeCharterForm = (configProps) =>
 
 export {
   AttachNicForm,
+  AttachSecGroupForm,
   ChangeGroupForm,
   ChangeUserForm,
   CreateCharterForm,

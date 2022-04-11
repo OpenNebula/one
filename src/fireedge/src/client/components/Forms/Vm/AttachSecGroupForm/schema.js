@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+import { string, object } from 'yup'
 
-const Row = memo(
-  ({ original, value, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
+import { SecurityGroupsTable } from 'client/components/Tables'
+import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-    return <HostCard host={detail ?? original} rootProps={props} />
-  },
-  (prev, next) => prev.className === next.className
-)
-
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+const SEC_GROUP = {
+  name: 'secgroup',
+  label: T.SelectTheNewSecurityGroup,
+  type: INPUT_TYPES.TABLE,
+  Table: () => SecurityGroupsTable,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
-Row.displayName = 'HostRow'
+export const FIELDS = [SEC_GROUP]
 
-export default Row
+export const SCHEMA = object(getValidationFromFields(FIELDS))

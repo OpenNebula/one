@@ -49,7 +49,7 @@ export const rowStyles = makeStyles(
     main: {
       flex: 'auto',
       overflow: 'hidden',
-      alignSelf: 'start',
+      alignSelf: 'center',
     },
     title: {
       color: palette.text.primary,
@@ -57,10 +57,10 @@ export const rowStyles = makeStyles(
       gap: 6,
       alignItems: 'center',
       flexWrap: 'wrap',
-      marginBottom: 8,
     },
     labels: {
       display: 'inline-flex',
+      alignItems: 'center',
       gap: 6,
     },
     caption: {

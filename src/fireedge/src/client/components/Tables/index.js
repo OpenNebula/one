@@ -22,6 +22,7 @@ import HostsTable from 'client/components/Tables/Hosts'
 import ImagesTable from 'client/components/Tables/Images'
 import MarketplaceAppsTable from 'client/components/Tables/MarketplaceApps'
 import MarketplacesTable from 'client/components/Tables/Marketplaces'
+import SecurityGroupsTable from 'client/components/Tables/SecurityGroups'
 import SkeletonTable from 'client/components/Tables/Skeleton'
 import UsersTable from 'client/components/Tables/Users'
 import VirtualizedTable from 'client/components/Tables/Virtualized'
@@ -44,6 +45,7 @@ export {
   ImagesTable,
   MarketplaceAppsTable,
   MarketplacesTable,
+  SecurityGroupsTable,
   UsersTable,
   VmsTable,
   VmTemplatesTable,

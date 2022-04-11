@@ -22,6 +22,8 @@ import NicCard from 'client/components/Cards/NicCard'
 import {
   AttachAction,
   DetachAction,
+  AttachSecGroupAction,
+  DetachSecGroupAction,
 } from 'client/components/Tabs/Vm/Network/Actions'
 
 import {
@@ -32,7 +34,7 @@ import {
 import { getActionsAvailable } from 'client/models/Helper'
 import { VM_ACTIONS } from 'client/constants'
 
-const { ATTACH_NIC, DETACH_NIC } = VM_ACTIONS
+const { ATTACH_NIC, DETACH_NIC, ATTACH_SEC_GROUP } = VM_ACTIONS
 
 /**
  * Renders the list of networks from a VM.
@@ -76,8 +78,27 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
               key={key}
               nic={nic}
               actions={
+                <>
+                  {actionsAvailable.includes(DETACH_NIC) && (
+                    <DetachAction nic={nic} vmId={id} />
+                  )}
+                  {actionsAvailable.includes(ATTACH_SEC_GROUP) && (
+                    <AttachSecGroupAction nic={nic} vmId={id} />
+                  )}
+                </>
+              }
+              aliasActions={({ alias }) =>
                 actionsAvailable.includes(DETACH_NIC) && (
-                  <DetachAction nic={nic} vmId={id} />
+                  <DetachAction nic={alias} vmId={id} />
+                )
+              }
+              securityGroupActions={({ securityGroupId }) =>
+                actionsAvailable.includes(DETACH_NIC) && (
+                  <DetachSecGroupAction
+                    nic={nic}
+                    vmId={id}
+                    securityGroupId={securityGroupId}
+                  />
                 )
               }
             />

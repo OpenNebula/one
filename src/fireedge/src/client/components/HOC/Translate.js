@@ -13,122 +13,152 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useState, useEffect, createContext } from 'react'
+import {
+  ReactElement,
+  memo,
+  useContext,
+  useState,
+  useEffect,
+  Provider,
+  createContext,
+  useMemo,
+} from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
 import { sprintf } from 'sprintf-js'
 
 import { useAuth } from 'client/features/Auth'
-import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 import { isDevelopment } from 'client/utils'
+import { LANGUAGES, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()
 let languageScript = root.document?.createElement('script')
 
+/**
+ * @typedef {
+ * string |
+ * string[] |
+ * { word: string, values: string|string[] }
+ * } WordTranslation - The word to translate
+ */
+
+/**
+ * @typedef {string|string[]} ValuesTranslation
+ * - The The values to override in the translation
+ */
+
+/**
+ * Checks if the value is valid to translation.
+ *
+ * @param {WordTranslation} val - The value to translate
+ * @returns {boolean} - True if the value can be translated
+ */
 const labelCanBeTranslated = (val) =>
   typeof val === 'string' ||
   (Array.isArray(val) && val.length === 2) ||
   (typeof val === 'object' && val?.word)
 
-const GenerateScript = (
-  language = DEFAULT_LANGUAGE,
-  setHash = () => undefined
-) => {
-  try {
-    const script = root.document.createElement('script')
-    script.src = `${LANGUAGES_URL}/${language}.js`
-    script.async = true
-    script.onload = () => {
-      setHash(root.locale)
+/**
+ * Transforms the final string to be translated.
+ *
+ * @param {WordTranslation} word - The word to translate
+ * @param {ValuesTranslation} values - The The values to override in the translation
+ * @returns {boolean} - True if the value can be translated
+ */
+const translateString = (word = '', values) => {
+  const { hash = {} } = useContext(TranslateContext)
+  const { [word]: wordVal } = hash
+
+  const translation = useMemo(() => {
+    if (!wordVal) return word
+    if (!Array.isArray(wordVal)) return wordVal
+
+    try {
+      return sprintf(...wordVal)
+    } catch {
+      return word
     }
-    root.document.body.appendChild(script)
-    languageScript = script
-  } catch (error) {
-    isDevelopment() &&
-      console.error('Error while generating script language', error)
-  }
+  }, [word, values])
+
+  return translation
 }
 
-const RemoveScript = () => {
-  root.document.body.removeChild(languageScript)
-}
-
+/**
+ * Provider for the translate context.
+ *
+ * @param {object} props - The props of the provider
+ * @param {any} props.children - Children
+ * @returns {Provider} - The translation provider
+ */
 const TranslateProvider = ({ children = [] }) => {
   const [hash, setHash] = useState({})
   const { settings: { LANG: lang } = {} } = useAuth()
 
   useEffect(() => {
-    GenerateScript(lang, setHash)
+    if (!lang || !LANGUAGES[lang]) return
 
-    return () => {
-      RemoveScript()
+    try {
+      const script = root.document.createElement('script', {})
+
+      script.src = `${LANGUAGES_URL}/${lang}.js`
+      script.async = true
+      script.onload = () => setHash(root.locale)
+
+      root.document.body.appendChild(script)
+      languageScript = script
+    } catch (error) {
+      isDevelopment() &&
+        console.error('Error while generating script language', error)
     }
+
+    return () => root.document.body.removeChild(languageScript)
   }, [lang])
 
-  const changeLang = (language = DEFAULT_LANGUAGE) => {
-    RemoveScript()
-    GenerateScript(language, setHash)
-  }
-
   return (
-    <TranslateContext.Provider value={{ lang, hash, changeLang }}>
+    <TranslateContext.Provider value={{ lang, hash }}>
       {children}
     </TranslateContext.Provider>
   )
 }
 
-const translateString = (str = '', values) => {
-  const context = useContext(TranslateContext)
-  let key = str
+/**
+ * Function to translate a label.
+ *
+ * @param {WordTranslation} word - The label to translate
+ * @returns {string} - The translated label
+ */
+const Tr = (word = '') => {
+  const [w = '', v] = Array.isArray(word) ? word : [word]
+  const ensuredValues = !Array.isArray(v) ? [v] : v
 
-  if (context?.hash?.[key]) {
-    key = context.hash[key]
-  }
-
-  if (key && Array.isArray(values)) {
-    try {
-      key = sprintf(key, ...values)
-    } catch (e) {
-      return str
-    }
-  }
-
-  return key
+  return translateString(w, ensuredValues.filter(Boolean))
 }
 
-const Tr = (str = '') => {
-  let key = str
-  let values
-
-  if (Array.isArray(str)) {
-    key = str[0] || ''
-    values = str[1]
-  }
-
-  const valuesTr = !Array.isArray(values) ? [values] : values
-
-  return translateString(key, valuesTr.filter(Boolean))
-}
-
-const Translate = ({ word = '', values = [] }) => {
+/**
+ * Translate component.
+ *
+ * @param {object} props - The props of the component
+ * @param {WordTranslation} props.word - The word to translate
+ * @param {string|string[]} [props.values] - The values to override in the translation
+ * @returns {ReactElement} - The translated component
+ */
+const Translate = memo(({ word = '', values = [] }) => {
   const [w, v = values] = Array.isArray(word) ? word : [word, values]
-  const valuesTr = !Array.isArray(v) ? [v] : v
+  const ensuredValues = !Array.isArray(v) ? [v] : v
+  const translation = translateString(w, ensuredValues.filter(Boolean))
 
-  return translateString(w, valuesTr)
-}
+  return <>{translation}</>
+})
 
-TranslateProvider.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]),
-}
+TranslateProvider.propTypes = { children: PropTypes.any }
 
 Translate.propTypes = {
   word: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   values: PropTypes.any,
 }
+
+Tr.displayName = 'Tr'
+Translate.displayName = 'Translate'
 
 export {
   TranslateContext,

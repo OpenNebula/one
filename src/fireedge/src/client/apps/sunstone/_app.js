@@ -33,7 +33,7 @@ import { AuthLayout } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { _APPS } from 'client/constants'
 
-export const APP_NAME = _APPS.sunstone.name
+export const APP_NAME = _APPS.sunstone
 
 /**
  * Sunstone App component.

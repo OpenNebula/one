@@ -531,13 +531,53 @@ const vmApi = oneApi.injectEndpoints({
        * Detaches a network interface from a virtual machine.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
-       * @param {string|number} params.nic - NIC id
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.nic - NIC id
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
         const name = Actions.VM_NIC_DETACH
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
+    attachSecurityGroup: builder.mutation({
+      /**
+       * Attaches a security group to a network interface of a VM,
+       * if the VM is running it updates the associated rules.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.nic - The NIC ID
+       * @param {string} params.secgroup - The Security Group ID, which should be added to the NIC
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_SEC_GROUP_ATTACH
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
+    detachSecurityGroup: builder.mutation({
+      /**
+       * Detaches a security group from a network interface of a VM,
+       * if the VM is running it removes the associated rules.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.nic - The NIC ID
+       * @param {string} params.secgroup - The Security Group ID
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_SEC_GROUP_DETACH
         const command = { name, ...Commands[name] }
 
         return { params, command }
@@ -962,6 +1002,8 @@ export const {
   useResizeDiskMutation,
   useAttachNicMutation,
   useDetachNicMutation,
+  useAttachSecurityGroupMutation,
+  useDetachSecurityGroupMutation,
   useChangeVmPermissionsMutation,
   useChangeVmOwnershipMutation,
   useRenameVmMutation,

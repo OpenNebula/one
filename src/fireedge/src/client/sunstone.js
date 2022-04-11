@@ -20,6 +20,8 @@ import App from 'client/apps/sunstone'
 
 const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
 
+delete window.__PRELOADED_STATE__
+
 const rootHTML = document.getElementById('root')?.innerHTML
 const renderMethod = rootHTML !== '' ? hydrate : render
 

@@ -21,10 +21,16 @@ import { name as generalSlice } from 'client/features/General/slice'
 import { name as authSlice, actions } from 'client/features/Auth/slice'
 import groupApi from 'client/features/OneApi/group'
 import systemApi from 'client/features/OneApi/system'
-import { _APPS, RESOURCE_NAMES, ONEADMIN_ID } from 'client/constants'
 import { ResourceView } from 'client/apps/sunstone/routes'
+import {
+  _APPS,
+  RESOURCE_NAMES,
+  ONEADMIN_ID,
+  DEFAULT_SCHEME,
+  DEFAULT_LANGUAGE,
+} from 'client/constants'
 
-const APPS_WITH_VIEWS = [_APPS.sunstone.name].map((app) => app.toLowerCase())
+const APPS_WITH_VIEWS = [_APPS.sunstone].map((app) => app.toLowerCase())
 
 const appNeedViews = () => {
   const { appTitle } = useSelector((state) => state[generalSlice], shallowEqual)
@@ -38,7 +44,7 @@ const appNeedViews = () => {
 
 export const useAuth = () => {
   const auth = useSelector((state) => state[authSlice], shallowEqual)
-  const { jwt, user, view, settings, isLoginInProgress } = auth
+  const { jwt, user, view, isLoginInProgress } = auth
 
   const waitViewToLogin = appNeedViews() ? !!view : true
 
@@ -61,8 +67,13 @@ export const useAuth = () => {
       user,
       isOneAdmin: user?.ID === ONEADMIN_ID,
       groups: authGroups,
-      // Merge user settings with the existing one
-      settings: { ...settings, ...(user?.TEMPLATE?.FIREEDGE ?? {}) },
+      // Merge user settings with the defaults
+      settings: {
+        SCHEME: DEFAULT_SCHEME,
+        LANG: DEFAULT_LANGUAGE,
+        DISABLE_ANIMATIONS: 'NO',
+        ...(user?.TEMPLATE?.FIREEDGE ?? {}),
+      },
       isLogged:
         !!jwt &&
         !!user &&

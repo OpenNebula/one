@@ -19,7 +19,7 @@ import vmTemplateApi from 'client/features/OneApi/vmTemplate'
 import { VmTemplateCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, ...props }) => {
+  ({ original, value, ...props }) => {
     const state = vmTemplateApi.endpoints.getTemplates.useQueryState(
       undefined,
       {

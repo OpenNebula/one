@@ -24,6 +24,8 @@ const { store } = createStore({
   extraMiddleware: [onlyForOneadminMiddleware],
 })
 
+delete window.__PRELOADED_STATE__
+
 const rootHTML = document.getElementById('root')?.innerHTML
 const renderMethod = rootHTML !== '' ? hydrate : render
 

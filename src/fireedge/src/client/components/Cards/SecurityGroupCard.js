@@ -13,46 +13,83 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { useMediaQuery, Typography } from '@mui/material'
+import { User, Group, PcCheck, PcNoEntry, PcWarning } from 'iconoir-react'
+import { Typography } from '@mui/material'
 
-import MultipleTags from 'client/components/MultipleTags'
 import { rowStyles } from 'client/components/Tables/styles'
 import { SecurityGroup } from 'client/constants'
 
-const SecurityGroupCard = memo(({ securityGroup, ...props }) => {
-  const classes = rowStyles()
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
-  /** @type {SecurityGroup} */
-  const { ID, NAME, PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID } =
-    securityGroup
+const SecurityGroupCard = memo(
+  /**
+   * @param {object} props - Props
+   * @param {SecurityGroup} props.securityGroup - Security Group resource
+   * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} [props.actions] - Actions
+   * @returns {ReactElement} - Card
+   */
+  ({ securityGroup, rootProps, actions }) => {
+    const classes = rowStyles()
 
-  const tags = [
-    { text: PROTOCOL, dataCy: 'protocol' },
-    { text: RULE_TYPE, dataCy: 'ruletype' },
-    { text: RANGE, dataCy: 'range' },
-    { text: NETWORK_ID, dataCy: 'networkid' },
-    { text: ICMP_TYPE, dataCy: 'icmp-type' },
-  ].filter(({ text } = {}) => Boolean(text))
+    const { ID, NAME, UNAME, GNAME, UPDATED_VMS, OUTDATED_VMS, ERROR_VMS } =
+      securityGroup
 
-  return (
-    <div data-cy={props['data-cy']} className={classes.title}>
-      <Typography noWrap component="span" data-cy="name" variant="body2">
-        {`${ID} | ${NAME}`}
-      </Typography>
-      <span className={classes.labels}>
-        <MultipleTags limitTags={isMobile ? 2 : 5} tags={tags} />
-      </span>
-    </div>
-  )
-})
+    const [totalUpdatedVms, totalOutdatedVms, totalErrorVms] = useMemo(
+      () => [
+        getTotalOfResources(UPDATED_VMS),
+        getTotalOfResources(OUTDATED_VMS),
+        getTotalOfResources(ERROR_VMS),
+      ],
+      [UPDATED_VMS?.ID, OUTDATED_VMS?.ID, ERROR_VMS?.ID]
+    )
+
+    return (
+      <div {...rootProps} data-cy={`secgroup-${ID}`}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography component="span">{NAME}</Typography>
+          </div>
+          <div className={classes.caption}>
+            <span>{`#${ID}`}</span>
+            <span title={`Owner: ${UNAME}`}>
+              <User />
+              <span data-cy="uname">{` ${UNAME}`}</span>
+            </span>
+            <span title={`Group: ${GNAME}`}>
+              <Group />
+              <span data-cy="gname">{` ${GNAME}`}</span>
+            </span>
+            <span title={`Total updated VMs: ${totalUpdatedVms}`}>
+              <PcCheck />
+              <span>{` ${totalUpdatedVms}`}</span>
+            </span>
+            <span title={`Total outdated VMs: ${totalOutdatedVms}`}>
+              <PcNoEntry />
+              <span>{` ${totalOutdatedVms}`}</span>
+            </span>
+            <span title={`Total error VMs: ${totalErrorVms}`}>
+              <PcWarning />
+              <span>{` ${totalErrorVms}`}</span>
+            </span>
+          </div>
+          {actions && <div className={classes.actions}>{actions}</div>}
+        </div>
+      </div>
+    )
+  }
+)
 
 SecurityGroupCard.propTypes = {
   securityGroup: PropTypes.object,
-  'data-cy': PropTypes.string,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
+  }),
+  actions: PropTypes.any,
 }
 
 SecurityGroupCard.displayName = 'SecurityGroupCard'

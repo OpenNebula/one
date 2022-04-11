@@ -18,12 +18,6 @@ import { ThemeOptions } from '@mui/material'
 /** @type {ThemeOptions} Sunstone theme */
 export default {
   palette: {
-    primary: {
-      light: '#2a2d3d',
-      main: '#222431',
-      dark: '#191924',
-      contrastText: '#ffffff',
-    },
     secondary: {
       100: '#dff2f8',
       200: '#bfe6f0',

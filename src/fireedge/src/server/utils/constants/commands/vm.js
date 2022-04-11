@@ -47,6 +47,8 @@ const VM_DISK_DETACH = 'vm.detach'
 const VM_DISK_RESIZE = 'vm.diskresize'
 const VM_NIC_ATTACH = 'vm.attachnic'
 const VM_NIC_DETACH = 'vm.detachnic'
+const VM_SEC_GROUP_ATTACH = 'vm.attachsg'
+const VM_SEC_GROUP_DETACH = 'vm.detachsg'
 const VM_SCHED_ADD = 'vm.schedadd'
 const VM_SCHED_UPDATE = 'vm.schedupdate'
 const VM_SCHED_DELETE = 'vm.scheddelete'
@@ -86,6 +88,8 @@ const Actions = {
   VM_DISK_RESIZE,
   VM_NIC_ATTACH,
   VM_NIC_DETACH,
+  VM_SEC_GROUP_ATTACH,
+  VM_SEC_GROUP_DETACH,
   VM_SCHED_ADD,
   VM_SCHED_UPDATE,
   VM_SCHED_DELETE,
@@ -351,6 +355,42 @@ module.exports = {
           default: 0,
         },
         nic: {
+          from: postBody,
+          default: 0,
+        },
+      },
+    },
+    [VM_SEC_GROUP_ATTACH]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        nic: {
+          from: postBody,
+          default: 0,
+        },
+        secgroup: {
+          from: postBody,
+          default: 0,
+        },
+      },
+    },
+    [VM_SEC_GROUP_DETACH]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        nic: {
+          from: postBody,
+          default: 0,
+        },
+        secgroup: {
           from: postBody,
           default: 0,
         },

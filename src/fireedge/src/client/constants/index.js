@@ -13,28 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  defaultApps,
-  defaultAppName,
-  availableLanguages,
-} from 'server/utils/constants/defaults'
 import * as Setting from 'client/constants/setting'
+import { isBackend } from 'client/utils/environments'
 
 export const JWT_NAME = 'FireedgeToken'
 
-export const BY = {
-  text: 'by OpenNebula',
-  url: 'https://opennebula.io/',
-}
+export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
 
-export const _APPS = { ...defaultApps }
-export const APPS = Object.keys(defaultApps)
-export const APPS_IN_BETA = [_APPS.sunstone.name]
-export const APPS_WITH_SWITCHER = [_APPS.sunstone.name]
-export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
+/**
+ * Server side constants (not all of them are used in client)
+ * Check `window.__PRELOADED_CONFIG__` in src/server/routes/entrypoints/App.js
+ *
+ * @type {object} - Server configuration
+ */
+export const SERVER_CONFIG = (() => {
+  if (isBackend()) return {}
+
+  const config = { ...(window.__PRELOADED_CONFIG__ ?? {}) }
+  delete window.__PRELOADED_CONFIG__
+
+  return config
+})()
+
+// should be equal to the apps in src/server/utils/constants/defaults.js
+export const _APPS = { sunstone: 'sunstone', provision: 'provision' }
+export const APPS = Object.keys(_APPS)
+export const APPS_IN_BETA = [_APPS.sunstone]
+export const APPS_WITH_SWITCHER = [_APPS.sunstone]
+
+export const APP_URL = '/fireedge'
 export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
-
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`
 export const LOGO_IMAGES_URL = `${IMAGES_URL}/logos`
 export const PROVIDER_IMAGES_URL = `${IMAGES_URL}/providers`
@@ -47,9 +56,50 @@ export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
 export const SCHEMES = Setting.SCHEMES
 export const DEFAULT_SCHEME = Setting.SCHEMES.SYSTEM
 
-export const LANGUAGES = availableLanguages
-export const DEFAULT_LANGUAGE = 'en'
+export const CURRENCY = SERVER_CONFIG?.currency ?? 'EUR'
+export const DEFAULT_LANGUAGE = SERVER_CONFIG?.default_lang ?? 'en'
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
+export const LANGUAGES = SERVER_CONFIG.langs ?? {
+  bg_BG: 'Bulgarian (Bulgaria)',
+  bg: 'Bulgarian',
+  ca: 'Catalan',
+  cs_CZ: 'Czech',
+  da: 'Danish',
+  de_CH: 'German (Switzerland)',
+  de: 'German',
+  el_GR: 'Greek (Greece)',
+  en: 'English',
+  es_ES: 'Spanish',
+  et_EE: 'Estonian',
+  fa_IR: 'Persian (Iran)',
+  fa: 'Persian',
+  fr_CA: 'French (Canada)',
+  fr_FR: 'French',
+  hu_HU: 'Hungary',
+  it_IT: 'Italian',
+  ja: 'Japanese',
+  ka: 'Georgian',
+  lt_LT: 'Lithuanian',
+  nl_NL: 'Dutch',
+  pl: 'Polish',
+  pt_PT: 'Portuguese',
+  ro_RO: 'Romanian',
+  ru_RU: 'Russian',
+  ru: 'Russian',
+  si: 'Sinhala',
+  sk_SK: 'Slavak',
+  sr_RS: 'Serbian',
+  sv: 'Swedish',
+  th_TH: 'Thai (Thailand)',
+  th: 'Thai',
+  tr_TR: 'Turkish (Turkey)',
+  tr: 'Turkish',
+  uk_UA: 'Ukrainian (Ukraine)',
+  uk: 'Ukrainian',
+  vi: 'Vietnamese',
+  zh_CN: 'Chinese (China)',
+  zh_TW: 'Chinese (Taiwan)',
+}
 
 export const ONEADMIN_ID = '0'
 export const SERVERADMIN_ID = '1'

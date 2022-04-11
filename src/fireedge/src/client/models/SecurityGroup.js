@@ -20,25 +20,14 @@ import {
   ICMP_STRING,
   ICMP_V6_STRING,
   SecurityGroupRule,
+  PrettySecurityGroupRule,
 } from 'client/constants'
 
 /**
  * Converts a security group attributes into a readable format.
  *
  * @param {SecurityGroupRule} securityGroup - Security group
- * @returns {{
- * SECURITY_GROUP_ID: number|string,
- * SECURITY_GROUP_NAME: string,
- * PROTOCOL: PROTOCOL_STRING,
- * RULE_TYPE: RULE_TYPE_STRING,
- * ICMP_TYPE: ICMP_STRING,
- * ICMPv6_TYPE: ICMP_V6_STRING,
- * RANGE: string,
- * NETWORK_ID: number|string,
- * SIZE: number|string,
- * IP: string,
- * MAC: string
- * }} Readable attributes
+ * @returns {PrettySecurityGroupRule} Readable attributes
  */
 export const prettySecurityGroup = ({
   SECURITY_GROUP_ID: ID,
@@ -48,6 +37,7 @@ export const prettySecurityGroup = ({
   ICMP_TYPE: icmpType,
   ICMPv6_TYPE: icmpv6Type,
   RANGE: range,
+  NETWORK_ID: networkId,
   ...rest
 }) => ({
   ID,
@@ -57,6 +47,7 @@ export const prettySecurityGroup = ({
   ICMP_TYPE: ICMP_STRING[+icmpType] ?? '',
   ICMPv6_TYPE: ICMP_V6_STRING[+icmpv6Type] ?? '',
   RANGE: range || T.All,
+  NETWORK_ID: networkId ?? T.Any,
   ...rest,
 })
 

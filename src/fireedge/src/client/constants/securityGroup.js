@@ -16,7 +16,7 @@
 import { T } from 'client/constants'
 
 /**
- * @typedef {object} SecurityGroupRule
+ * @typedef SecurityGroupRule
  * @property {number|string} SECURITY_GROUP_ID - ID
  * @property {string} SECURITY_GROUP_NAME - Name
  * @property {string} PROTOCOL - Protocol
@@ -26,6 +26,21 @@ import { T } from 'client/constants'
  * @property {number|string} [RANGE] - Range
  * @property {number|string} [NETWORK_ID] - Network id
  * @property {number|string} [SIZE] - Network size
+ * @property {string} [IP] - Network IP
+ * @property {string} [MAC] - Network MAC
+ */
+
+/**
+ * @typedef PrettySecurityGroupRule
+ * @property {string} ID - ID
+ * @property {string} NAME - Name
+ * @property {PROTOCOL_STRING} PROTOCOL - Protocol
+ * @property {RULE_TYPE_STRING} RULE_TYPE - Rule type
+ * @property {ICMP_STRING} ICMP_TYPE - ICMP type
+ * @property {ICMP_V6_STRING} [ICMPv6_TYPE] - ICMP v6 type
+ * @property {string|'All'} [RANGE] - Range
+ * @property {string} [NETWORK_ID] - Network id
+ * @property {string} [SIZE] - Network size
  * @property {string} [IP] - Network IP
  * @property {string} [MAC] - Network MAC
  */

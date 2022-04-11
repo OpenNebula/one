@@ -15,14 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 import PropTypes from 'prop-types'
-import { Edit, Trash } from 'iconoir-react'
+import { Edit, Trash, ShieldAdd, ShieldCross } from 'iconoir-react'
 
 import {
   useAttachNicMutation,
   useDetachNicMutation,
+  useAttachSecurityGroupMutation,
+  useDetachSecurityGroupMutation,
 } from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { AttachNicForm } from 'client/components/Forms/Vm'
+import { AttachNicForm, AttachSecGroupForm } from 'client/components/Forms/Vm'
 
 import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
@@ -115,11 +117,84 @@ const DetachAction = memo(({ vmId, nic, onSubmit, sx }) => {
   )
 })
 
+const AttachSecGroupAction = memo(({ vmId, nic, onSubmit, sx }) => {
+  const [attachSecGroup] = useAttachSecurityGroupMutation()
+  const { NIC_ID } = nic
+
+  const handleAttachNic = async ({ secgroup } = {}) => {
+    const handleAttachSecGroup = onSubmit ?? attachSecGroup
+
+    secgroup !== undefined &&
+      (await handleAttachSecGroup({ id: vmId, nic: NIC_ID, secgroup }))
+  }
+
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        'data-cy': `attach-secgroup-${NIC_ID}`,
+        icon: <ShieldAdd />,
+        tooltip: Tr(T.AttachSecurityGroup),
+        sx,
+      }}
+      options={[
+        {
+          dialogProps: {
+            title: T.AttachSecurityGroup,
+            dataCy: 'modal-attach-secgroup',
+          },
+          form: AttachSecGroupForm,
+          onSubmit: handleAttachNic,
+        },
+      ]}
+    />
+  )
+})
+
+const DetachSecGroupAction = memo(
+  ({ vmId, nic, securityGroupId, onSubmit, sx }) => {
+    const [detachSecGroup] = useDetachSecurityGroupMutation()
+    const { NIC_ID } = nic
+
+    const handleDetachNic = async () => {
+      const handleDetachSecGroup = onSubmit ?? detachSecGroup
+      const data = { id: vmId, nic: NIC_ID, secgroup: securityGroupId }
+      await handleDetachSecGroup(data)
+    }
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `detach-secgroup-${securityGroupId}-from-${NIC_ID}`,
+          icon: <ShieldCross />,
+          tooltip: Tr(T.DetachSecurityGroup),
+          sx,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.DetachSecurityGroupFromNic}
+                  values={[`#${securityGroupId}`, `#${NIC_ID}`]}
+                />
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit: handleDetachNic,
+          },
+        ]}
+      />
+    )
+  }
+)
+
 const ActionPropTypes = {
   vmId: PropTypes.string,
   hypervisor: PropTypes.string,
   currentNics: PropTypes.array,
   nic: PropTypes.object,
+  securityGroupId: PropTypes.string,
   onSubmit: PropTypes.func,
   sx: PropTypes.object,
 }
@@ -128,5 +203,14 @@ AttachAction.propTypes = ActionPropTypes
 AttachAction.displayName = 'AttachActionButton'
 DetachAction.propTypes = ActionPropTypes
 DetachAction.displayName = 'DetachActionButton'
+AttachSecGroupAction.propTypes = ActionPropTypes
+AttachSecGroupAction.displayName = 'AttachSecGroupButton'
+DetachSecGroupAction.propTypes = ActionPropTypes
+DetachSecGroupAction.displayName = 'DetachSecGroupButton'
 
-export { AttachAction, DetachAction }
+export {
+  AttachAction,
+  DetachAction,
+  AttachSecGroupAction,
+  DetachSecGroupAction,
+}

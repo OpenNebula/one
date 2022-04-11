@@ -18,12 +18,6 @@ import { ThemeOptions } from '@mui/material'
 /** @type {ThemeOptions} Provision theme */
 export default {
   palette: {
-    primary: {
-      light: '#2a2d3d',
-      main: '#222431',
-      dark: '#191924',
-      contrastText: '#ffffff',
-    },
     secondary: {
       100: '#ffeae4',
       200: '#ffd6c8',
@@ -37,7 +31,7 @@ export default {
       light: '#ffd6c8',
       main: '#fe835a',
       dark: '#fe5a23',
-      contrastText: '#ffffff',
+      contrastText: '#fff',
     },
   },
 }

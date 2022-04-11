@@ -21,8 +21,13 @@ import {
   J2xOptions,
 } from 'fast-xml-parser'
 
-import { T, UserInputObject, USER_INPUT_TYPES } from 'client/constants'
 import { camelCase } from 'client/utils'
+import {
+  T,
+  UserInputObject,
+  USER_INPUT_TYPES,
+  SERVER_CONFIG,
+} from 'client/constants'
 
 /**
  * @param {object} json - JSON
@@ -84,8 +89,8 @@ export const stringToBoolean = (str) =>
  */
 export const formatNumberByCurrency = (number, options) => {
   try {
-    const currency = window?.currency ?? 'EUR'
-    const locale = window?.lang?.replace('_', '-') ?? undefined
+    const currency = SERVER_CONFIG?.currency ?? 'EUR'
+    const locale = SERVER_CONFIG?.lang?.replace('_', '-') ?? undefined
 
     return Intl.NumberFormat(locale, {
       style: 'currency',

@@ -14,16 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { object, boolean, string } from 'yup'
+import { arrayToOptions, getValidationFromFields } from 'client/utils'
 import {
   T,
   INPUT_TYPES,
   SCHEMES,
+  LANGUAGES,
   DEFAULT_SCHEME,
   DEFAULT_LANGUAGE,
 } from 'client/constants'
-import { getValidationFromFields } from 'client/utils'
 
-const SCHEME = {
+const SCHEME_FIELD = {
   name: 'SCHEME',
   label: T.Schema,
   type: INPUT_TYPES.SELECT,
@@ -39,12 +40,16 @@ const SCHEME = {
   grid: { md: 12 },
 }
 
-const LANGUAGES = {
+const LANG_FIELD = {
   name: 'LANG',
   label: T.Language,
   type: INPUT_TYPES.SELECT,
   values: () =>
-    window?.langs?.map(({ key, value }) => ({ text: value, value: key })) ?? [],
+    arrayToOptions(Object.entries(LANGUAGES), {
+      addEmpty: false,
+      getText: ([, text]) => text,
+      getValue: ([value]) => value,
+    }),
   validation: string()
     .trim()
     .required()
@@ -52,7 +57,7 @@ const LANGUAGES = {
   grid: { md: 12 },
 }
 
-const DISABLE_ANIMATIONS = {
+const DISABLE_ANIMATIONS_FIELD = {
   name: 'DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
@@ -62,6 +67,6 @@ const DISABLE_ANIMATIONS = {
   grid: { md: 12 },
 }
 
-export const FORM_FIELDS = [SCHEME, LANGUAGES, DISABLE_ANIMATIONS]
+export const FORM_FIELDS = [SCHEME_FIELD, LANG_FIELD, DISABLE_ANIMATIONS_FIELD]
 
 export const FORM_SCHEMA = object(getValidationFromFields(FORM_FIELDS))

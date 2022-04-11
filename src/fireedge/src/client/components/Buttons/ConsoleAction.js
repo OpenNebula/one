@@ -44,7 +44,7 @@ const GUACAMOLE_BUTTONS = {
 }
 
 const openNewBrowserTab = (path) =>
-  window?.open(`/fireedge/${_APPS.sunstone.name}${path}`, '_blank')
+  window?.open(`/fireedge/${_APPS.sunstone}${path}`, '_blank')
 
 const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
   const { icon, tooltip } = GUACAMOLE_BUTTONS[connectionType]

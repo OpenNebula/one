@@ -139,6 +139,8 @@ info-tabs:
     actions:
       attach_nic: true
       detach_nic: true
+      attach_secgroup: true
+      detach_secgroup: true
 
   snapshot:
     enabled: true

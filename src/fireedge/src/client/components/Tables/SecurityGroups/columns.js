@@ -13,30 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
-import { HostCard } from 'client/components/Cards'
+/* eslint-disable jsdoc/require-jsdoc */
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
-const Row = memo(
-  ({ original, value, ...props }) => {
-    const detail = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data }) =>
-        [data ?? []].flat().find((host) => +host?.ID === +original.ID),
-    })
-
-    return <HostCard host={detail ?? original} rootProps={props} />
+export default [
+  { Header: 'ID', accessor: 'ID', sortType: 'number' },
+  { Header: 'Name', accessor: 'NAME' },
+  { Header: 'Owner', accessor: 'UNAME' },
+  { Header: 'Group', accessor: 'GNAME' },
+  {
+    Header: 'Updated VMs',
+    id: 'UPDATED_VMS',
+    accessor: (row) => getTotalOfResources(row?.UPDATED_VMS),
+    sortType: 'number',
   },
-  (prev, next) => prev.className === next.className
-)
-
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-}
-
-Row.displayName = 'HostRow'
-
-export default Row
+  {
+    Header: 'Outdated VMs',
+    id: 'OUTDATED_VMS',
+    accessor: (row) => getTotalOfResources(row?.OUTDATED_VMS),
+    sortType: 'number',
+  },
+  {
+    Header: 'Updating VMs',
+    id: 'UPDATING_VMS',
+    accessor: (row) => getTotalOfResources(row?.UPDATING_VMS),
+    sortType: 'number',
+  },
+  {
+    Header: 'Error VMs',
+    id: 'ERROR_VMS',
+    accessor: (row) => getTotalOfResources(row?.ERROR_VMS),
+    sortType: 'number',
+  },
+]
