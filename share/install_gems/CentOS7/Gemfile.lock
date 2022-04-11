@@ -47,7 +47,7 @@ GEM
     configparser (0.1.7)
     curb (1.0.0)
     daemons (1.4.1)
-    dalli (3.0.4)
+    dalli (2.7.11)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     eventmachine (1.2.7)
@@ -159,7 +159,7 @@ DEPENDENCIES
   azure_mgmt_storage
   configparser
   curb
-  dalli
+  dalli (< 3.0)
   ffi-rzmq (~> 2.0.7)
   git (~> 1.5)
   gnuplot

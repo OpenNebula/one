@@ -136,7 +136,7 @@ group :sunstone do
     gem 'zendesk_api', zendesk
     gem 'rqrcode', rq
     gem 'memcache-client'
-    gem 'dalli'
+    gem 'dalli', '<3.0'  # https://github.com/OpenNebula/one/issues/5584
     gem 'rotp'
 end
 

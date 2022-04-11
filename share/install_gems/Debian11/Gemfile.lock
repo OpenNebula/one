@@ -12,7 +12,7 @@ GEM
     augeas (0.6.4)
     awrence (1.2.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.573.0)
+    aws-partitions (1.574.0)
     aws-sdk-cloudwatch (1.62.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
@@ -54,7 +54,7 @@ GEM
       openssl-signature_algorithm (~> 1.0)
     curb (1.0.0)
     daemons (1.4.1)
-    dalli (3.2.1)
+    dalli (2.7.11)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     eventmachine (1.2.7)
@@ -222,7 +222,7 @@ DEPENDENCIES
   azure_mgmt_storage
   configparser
   curb
-  dalli
+  dalli (< 3.0)
   faraday_middleware (~> 1.2.0)
   ffi-rzmq (~> 2.0.7)
   git (~> 1.5)
