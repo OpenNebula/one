@@ -17,6 +17,9 @@
 #--------------------------------------------------------------------------- #
 
 class VirtualNetworkXML
+    # Public attributes
+    attr_reader :imported, :pgtype
+
     #-----------------------------------------------------------------------
     # Class attributes
     #   - @vnet_xml [REXML] of the vnet
@@ -35,7 +38,11 @@ class VirtualNetworkXML
 
         raise "Error parsing XML document: #{vnet_raw}" unless @vnet_xml
 
-        @debug = VCenterDriver::CONFIG[:debug_information]
+        @debug    = VCenterDriver::CONFIG[:debug_information]
+        @pgtype   = self['TEMPLATE/VCENTER_PORTGROUP_TYPE']
+        @imported = self['TEMPLATE/VCENTER_IMPORTED'].casecmp('yes') == 0
+
+        return if @imported
 
         #-----------------------------------------------------------------------
         # Initialize Clusters

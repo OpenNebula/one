@@ -68,18 +68,12 @@ begin
     _vnet_id = ARGV[0]
     vnet_xml = VirtualNetworkXML.new(STDIN.read)
 
-    imported = vnet_xml['TEMPLATE/VCENTER_IMPORTED']
-    exit(0) unless imported.empty?
-
-    estr = "Error importing network:"
+    exit(0) if vnet_xml.imported
 
     vnmad = vnet_xml['VN_MAD']
-    raise "#{estr} driver is not vcenter" if vnmad != 'vcenter'
+    raise "Error importing network: driver is not vcenter" if vnmad != 'vcenter'
 
-    pg_type = vnet_xml['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-    raise "#{estr} Missing port group type (VCENTER_PORTGROUP_TYPE)" if pg_type.empty?
-
-    extra_info = case pg_type
+    extra_info = case vnet_xml.pgtype
         when VCenterDriver::Network::NETWORK_TYPE_PG
             vnet_xml.create_pg
         when VCenterDriver::Network::NETWORK_TYPE_DPG
@@ -89,7 +83,7 @@ begin
         when VCenterDriver::Network::NETWORK_TYPE_NSXT
             vnet_xml.create_nsxt
         else
-            raise "Unknown portgroup type"
+            raise "Unknown portgroup (VCENTER_PORTGROUP_TYPE): #{vnet_xml.pgtype}"
         end
 
     STDOUT.puts extra_info
