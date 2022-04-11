@@ -840,7 +840,7 @@ module OneProvision
                 end
             end
 
-            return if [3, 5].include? osd_full_hosts_count == 3
+            return if [3, 5].include? osd_full_hosts_count
 
             Utils.warn('Recomended number of Mon+OSD Ceph hosts ' \
                        "is 3 or 5, given #{osd_full_hosts_count}")
