@@ -63,19 +63,15 @@ begin
     _vnet_id = ARGV[0]
     vnet_xml = VirtualNetworkXML.new(STDIN.read)
 
+    imported = vnet_xml['TEMPLATE/VCENTER_IMPORTED']
+    exit(0) unless imported.empty?
+
     estr = "Error importing network:"
 
     vnmad = vnet_xml['VN_MAD']
-    raise "#{estr} driver is not vcenter" unless vnmad == 'vcenter'
-
-    unmanaged = vnet_xml['TEMPLATE/OPENNEBULA_MANAGED'].casecmp('NO') == 0
-    raise "#{estr} OPENNEBULA_MANAGED is set to NO" if unmanaged
-
-    imported = vnet_xml['TEMPLATE/VCENTER_IMPORTED']
-    raise "#{estr} network is already imported" unless imported.empty?
+    raise "#{estr} driver is not vcenter" if vnmad != 'vcenter'
 
     pg_type = vnet_xml['TEMPLATE/VCENTER_PORTGROUP_TYPE']
-
     raise "#{estr} Missing port group type (VCENTER_PORTGROUP_TYPE)" if pg_type.empty?
 
     case pg_type
