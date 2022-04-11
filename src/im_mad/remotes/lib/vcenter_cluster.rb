@@ -827,6 +827,18 @@ class ClusterSet
     #---------------------------------------------------------------------------
     def monitor(conf)
         @mutex.synchronize do
+            # Get current server raft status, to skip monitor being FOLLOWER
+            xml_e = OpenNebula::XMLElement.build_xml(
+                @client.call('zone.raftstatus'),
+                'RAFT'
+            )
+
+            xml = OpenNebula::XMLElement.new(xml_e)
+
+            # 0 -> SOLO
+            # 3 -> LEADER
+            next unless %w[0 3].include?(xml['//STATE'])
+
             @clusters.each do |id, c|
                 if c[:cluster].nil?
                     c[:cluster] = Cluster.new(id, @client) rescue nil
