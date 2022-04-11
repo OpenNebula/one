@@ -82,8 +82,9 @@ if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
     # or if VM is unknown
     # 9(49) = PROLOG_RESUME(+FAILURE)
     # 31(50) = PROLOG_UNDEPLOY(+FAILURE)
+    # 60(61) = PROLOG_MIGRATE_UNKNOWN(+FAILURE)
     # 16 = UNKNOWN
-    if ! [[ "$LCM_STATE" =~ ^(9|16|31|49|50)$ ]]; then
+    if ! [[ "$LCM_STATE" =~ ^(9|16|31|49|50|60|61)$ ]]; then
         # deactivate
         CMD=$(cat <<EOF
             set -ex -o pipefail
@@ -168,7 +169,7 @@ if [ "$SRC_PATH" == "$DST_PATH" ]; then
 fi
 
 # Return if VM is unknown, assume SRC host failure
-if [[ "$LCM_STATE" = "16" ]]; then
+if [[ "$LCM_STATE" =~ ^(16|60|61)$ ]]; then
     exit 0
 fi
 
