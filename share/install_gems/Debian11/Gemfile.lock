@@ -12,9 +12,9 @@ GEM
     augeas (0.6.4)
     awrence (1.2.1)
     aws-eventstream (1.2.0)
-    aws-partitions (1.501.0)
-    aws-sdk-cloudwatch (1.55.0)
-      aws-sdk-core (~> 3, >= 3.120.0)
+    aws-partitions (1.574.0)
+    aws-sdk-cloudwatch (1.62.0)
+      aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-core (3.121.0)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -201,9 +201,8 @@ DEPENDENCIES
   azure_mgmt_storage
   configparser
   curb
-  dalli
-  faraday (~> 0.15)
-  faraday_middleware (~> 0.12)
+  dalli (< 3.0)
+  faraday_middleware (~> 1.2.0)
   ffi-rzmq (~> 2.0.7)
   git (~> 1.5)
   gnuplot
