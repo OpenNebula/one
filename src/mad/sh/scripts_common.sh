@@ -577,28 +577,63 @@ set -e -o pipefail
 if [ ! -d $2 ]; then
     mkdir -p $2
 fi
-
-MONITOR_FN="\$(dirname $2)/.monitor"
-
-# create or update .monitor content
-if [ -n "$3" ]; then
-    MONITOR=''
-    if [ -f "\\${MONITOR_FN}" ]; then
-        MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
-    fi
-
-    if [ "x\\${MONITOR}" != "x$3" ]; then
-        echo "$3" > "\\${MONITOR_FN}"
-    fi
-else
-    # remove .monitor file (to avoid errors on driver change)
-    rm -f "\\${MONITOR_FN}"
-fi
 EOF`
     SSH_EXEC_RC=$?
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
         error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
+# Enables local monitoring for host $2 and DS $1, by creating the corresponding
+# .monitor file containing the $3 ( the driver name) (e.g ssh)
+function enable_local_monitoring
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+set -e -o pipefail
+
+MONITOR_FN="\$(dirname $2)/.monitor"
+
+# create or update .monitor content
+MONITOR=''
+if [ -f "\\${MONITOR_FN}" ]; then
+    MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
+fi
+
+if [ "x\\${MONITOR}" != "x$3" ]; then
+    echo "$3" > "\\${MONITOR_FN}"
+fi
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        error_message "Error creating $2/.monitor at $1: $SSH_EXEC_ERR"
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
+# Disables local monitoring for host $2 and DS $1, by removing the corresponding
+# .monitor file
+function disable_local_monitoring
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+set -e -o pipefail
+
+MONITOR_FN="\$(dirname $2)/.monitor"
+
+# remove .monitor file
+rm -f "\\${MONITOR_FN}"
+
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        error_message "Error creating $2/.monitor at $1: $SSH_EXEC_ERR"
 
         exit $SSH_EXEC_RC
     fi

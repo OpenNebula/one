@@ -74,6 +74,7 @@ FORMAT="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 ssh_make_path $DST_HOST $DST_DIR
+disable_local_monitoring $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST

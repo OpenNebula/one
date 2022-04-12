@@ -58,6 +58,8 @@ SRC_HOST=`arg_host $SRC`
 
 DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
 
+disable_local_monitoring $DST_HOST $DST_DIR
+
 #-------------------------------------------------------------------------------
 # Get Image information
 #-------------------------------------------------------------------------------

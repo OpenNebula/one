@@ -56,7 +56,8 @@ SRC_FORMAT=$(image_format "$SRC_PATH")
 # Create DST path
 #-------------------------------------------------------------------------------
 
-ssh_make_path $DST_HOST $DST_DIR 'ssh'
+ssh_make_path $DST_HOST $DST_DIR
+enable_local_monitoring $DST_HOST $DST_DIR "ssh"
 
 #-------------------------------------------------------------------------------
 # Copy SRC into DST

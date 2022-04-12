@@ -95,6 +95,8 @@ done < <(onedatastore show -x $DST_DS_ID | $XPATH \
 
 EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
+disable_local_monitoring $DST_HOST $DST_DIR
+
 #-------------------------------------------------------------------------------
 # Clone the image and create @snap if it does not exists
 #-------------------------------------------------------------------------------

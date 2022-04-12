@@ -97,9 +97,10 @@ if [ -z "$REPLICA_HOST" ]; then
 fi
 
 #-------------------------------------------------------------------------------
-# Create DST path
+# Create DST path and enable local monitoring
 #-------------------------------------------------------------------------------
-ssh_make_path $DST_HOST $DST_DIR "ssh"
+ssh_make_path $DST_HOST $DST_DIR
+enable_local_monitoring $DST_HOST $DST_DIR "ssh"
 
 # ------------------------------------------------------------------------------
 # Get REPLICA_STORAGE_IP from host template

@@ -91,7 +91,8 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
-ssh_make_path $DST_HOST $DST_DIR 'ssh'
+ssh_make_path $DST_HOST $DST_DIR
+enable_local_monitoring $DST_HOST $DST_DIR 'ssh'
 
 LN_CMD=$(cat <<EOF
     RBD="${RBD}"
