@@ -39,12 +39,7 @@ import { CloneForm } from 'client/components/Forms/VmTemplate'
 import { createActions } from 'client/components/Tables/Enhanced/Utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-import {
-  T,
-  VM_TEMPLATE_ACTIONS,
-  MARKETPLACE_APP_ACTIONS,
-  RESOURCE_NAMES,
-} from 'client/constants'
+import { T, VM_TEMPLATE_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -72,7 +67,7 @@ const Actions = () => {
   const [clone] = useCloneTemplateMutation()
   const [remove] = useRemoveTemplateMutation()
 
-  const vmTemplateActions = useMemo(
+  return useMemo(
     () =>
       createActions({
         filters: getResourceView(RESOURCE_NAMES.VM_TEMPLATE)?.actions,
@@ -273,28 +268,6 @@ const Actions = () => {
       }),
     [view]
   )
-
-  const marketplaceAppActions = useMemo(
-    () =>
-      createActions({
-        filters: getResourceView(RESOURCE_NAMES.APP)?.actions,
-        actions: [
-          {
-            accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-            tooltip: T.CreateMarketApp,
-            icon: Cart,
-            selected: { max: 1 },
-            disabled: true,
-            action: (rows) => {
-              // TODO: go to Marketplace App CREATE form
-            },
-          },
-        ],
-      }),
-    [view]
-  )
-
-  return [...vmTemplateActions, ...marketplaceAppActions]
 }
 
 export default Actions
