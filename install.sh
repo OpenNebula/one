@@ -323,7 +323,11 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/config/type \
           $LIB_LOCATION/onecfg/lib/config/type/augeas \
           $LIB_LOCATION/onecfg/lib/config/type/yaml \
-          $LIB_LOCATION/onecfg/lib/patch"
+          $LIB_LOCATION/onecfg/lib/patch \
+          $LIB_LOCATION/ruby/onevmdump \
+          $LIB_LOCATION/ruby/onevmdump/lib \
+          $LIB_LOCATION/ruby/onevmdump/lib/exporters \
+          $LIB_LOCATION/ruby/onevmdump/lib/restorers"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -774,6 +778,10 @@ INSTALL_FILES=(
     CONTEXT_SHARE:$SHARE_LOCATION/context
     DOCKERFILE_TEMPLATE:$SHARE_LOCATION/dockerhub
     DOCKERFILES_TEMPLATES:$SHARE_LOCATION/dockerhub/dockerfiles
+    ONEVMDUMP_FILES:$LIB_LOCATION/ruby/onevmdump
+    ONEVMDUMP_LIB_FILES:$LIB_LOCATION/ruby/onevmdump/lib
+    ONEVMDUMP_LIB_EXPORTERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/exporters
+    ONEVMDUMP_LIB_RESTORERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/restorers
 )
 
 INSTALL_CLIENT_FILES=(
@@ -984,6 +992,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevntemplate \
            src/cli/onehook \
            src/onedb/onedb \
+           src/onevmdump/onevmdump \
            share/scripts/qemu-kvm-one-gen \
            share/scripts/one"
 
@@ -2236,6 +2245,22 @@ ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
 
 #-------------------------------------------------------------------------------
+# onevmdump command, to be installed under $LIB_LOCATION
+#-------------------------------------------------------------------------------
+
+ONEVMDUMP_FILES="src/onevmdump/onevmdump.rb"
+
+ONEVMDUMP_LIB_FILES="src/onevmdump/lib/command.rb \
+                     src/onevmdump/lib/commons.rb"
+
+ONEVMDUMP_LIB_EXPORTERS_FILES="src/onevmdump/lib/exporters/base.rb \
+                               src/onevmdump/lib/exporters/file.rb \
+                               src/onevmdump/lib/exporters/lv.rb \
+                               src/onevmdump/lib/exporters/rbd.rb"
+
+ONEVMDUMP_LIB_RESTORERS_FILES="src/onevmdump/lib/restorers/base.rb"
+
+#-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
 #-------------------------------------------------------------------------------
 
@@ -3023,7 +3048,8 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
-        share/man/onevntemplate.1.gz"
+        share/man/onevntemplate.1.gz \
+        share/man/onevmdump.1.gz"
 
 #-----------------------------------------------------------------------------
 # Docs Files

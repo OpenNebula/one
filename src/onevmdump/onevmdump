@@ -1,0 +1,261 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+############################################################################
+# Set up Frontend libraries location
+############################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    LOG_FILE          = '/var/log/one/host_error.log'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    LOG_FILE          = ONE_LOCATION + '/var/host_error.log'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/onevmdump'
+
+############################################################################
+# Required libraries
+############################################################################
+
+require 'nokogiri'
+require 'optparse'
+require 'opennebula'
+
+require 'onevmdump'
+
+############################################################################
+# Constants
+############################################################################
+
+HELP_MSG = <<~EOF
+    COMMANDS
+    \texport\t\tExports VM into a bundle file.
+    \trestore\t\tRestore a VM from a bundle file.
+
+    \tCheck 'onevmdump COMMAND --help' for more information on an specific command.
+EOF
+
+############################################################################
+# Parameters initalization
+############################################################################
+
+options = {
+    :endpoint => 'http://localhost:2633/RPC2'
+}
+
+############################################################################
+# General optinos parser
+############################################################################
+
+global_parser = OptionParser.new do |opts|
+    opts.banner = 'Usage: onevmdump [options] [COMMAND [options]]'
+
+    desc = 'Run it on debug mode'
+    opts.on('-D', '--debug', desc) do |v|
+        options[:debug] = v
+    end
+
+    desc = 'OpenNebula endpoint (default http://localhost:2633/RPC2)'
+    opts.on('--endpoint=ENDPOINT', desc) do |v|
+        options[:endpoint] = v
+    end
+
+    opts.separator ''
+    opts.separator HELP_MSG
+end
+
+############################################################################
+# Commands optinos parser
+############################################################################
+
+commands_parsers = {
+    'export' => OptionParser.new do |opts|
+        opts.banner = 'Usage: onevmdump export [options] <vm_id>'
+        options[:lock] = true
+
+        desc = 'Path where the bundle will be created (default /tmp)'
+        opts.on('-dPATH', '--destination-path=PATH', desc) do |v|
+            options[:destination_path] = v
+        end
+
+        desc = 'Destination host for the bundle'
+        opts.on('--destination-host=HOST', desc) do |v|
+            options[:destination_host] = v
+        end
+
+        desc = 'Avoid locking the VM while doing the backup (another security' \
+               ' messures should be taken to avoid un expected status changes.)'
+        opts.on('-L', '--no-lock', desc) do |v|
+            options[:lock] = v # as parameter is *no*-lock if set v == false
+        end
+
+        desc = 'Remote user for accessing destination host via SSH'
+        opts.on('--destination-user=USER', desc) do |v|
+            options[:destination_user] = v
+        end
+
+        desc = 'Remote host, used when the VM storage is not available from ' \
+            'the curren node'
+        opts.on('-hHOST', '--remote-host=HOST', desc) do |v|
+            options[:remote_host] = v
+        end
+
+        desc = 'Remote user for accessing remote host via SSH'
+        opts.on('-lUSER', '--remote-user=USER', desc) do |v|
+            options[:remote_user] = v
+        end
+
+        desc = 'Instead of retrieving the VM XML querying the endpoint, it ' \
+            'will be readed from STDIN. The VM id will be automatically ' \
+            'retrieved from the XML'
+        opts.on(nil, '--stdin', desc) do |v|
+            options[:stdin] = v
+        end
+    end,
+    'restore' => OptionParser.new do |opts|
+        opts.banner = 'Usage: onevmdump restore [options] <backup_file>'
+
+        desc = 'Instantiate backup resulting template automatically'
+        opts.on('--instantiate', desc) do |v|
+            options[:instantiate] = v
+        end
+
+        desc = 'Name for the resulting VM Template'
+        opts.on('-nNAME', '--name=NAME', desc) do |v|
+            options[:tmpl_name] = v
+        end
+
+        desc = 'Force restore of original VM NICs'
+        opts.on('--restore-nics', desc) do |v|
+            options[:restore_nics] = v
+        end
+    end
+}
+
+############################################################################
+# Options parsing
+############################################################################
+
+begin
+    global_parser.order!
+    command = ARGV.shift
+
+    raise 'A valid comman must be provided' if command.nil? || command.empty?
+    raise "Invalid command: #{command}" if commands_parsers[command].nil?
+
+    commands_parsers[command].parse!
+rescue StandardError => e
+    STDERR.puts "ERROR parsing commands: #{e.message}"
+    exit(-1)
+end
+
+############################################################################
+# Main Program
+#
+# TODO
+# - Multithreading for multiple disks (async/await?)
+# - Add incremental
+############################################################################
+
+begin
+    client = OpenNebula::Client.new(nil, options[:endpoint])
+
+    case command
+    when 'export'
+        if options[:stdin]
+            vm_xml = OpenNebula::XMLElement.build_xml(STDIN.read, 'VM')
+            vm = OpenNebula::VirtualMachine.new(vm_xml, client)
+            vm.lock(4) if options[:lock]
+        else
+            begin
+                vm_id = Integer(ARGV[0])
+            rescue ArgumentError, TypeError
+                raise 'A VM ID must be provided.'
+            end
+
+            vm = OpenNebula::VirtualMachine.new_with_id(vm_id, client)
+            vm.lock(4) if options[:lock]
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                raise "Error getting VM info: #{rc.message}"
+            end
+        end
+
+        # Export VM. VM folder will be used as temporal storage
+        exporter = OneVMDump.get_exporter(vm, options)
+        bundle_location = exporter.export
+
+        puts bundle_location
+    when 'restore'
+        raise 'Bundle path must be provided' if ARGV[0].nil? || ARGV[0].empty?
+
+        tmpl = OneVMDump.get_restorer(ARGV[0], options).restore
+
+        if options[:instantiate]
+            rc = OpenNebula::Template.new_with_id(tmpl, client).instantiate
+
+            if OpenNebula.is_error?(rc)
+                raise "Error instantiating VM template: #{rc.message}"
+            end
+
+            puts "VM Restored: #{rc}"
+        else
+            puts "VM Template restored: #{tmpl}"
+        end
+    end
+rescue StandardError => e
+    STDERR.puts e.message
+    STDERR.puts e.backtrace if options[:debug]
+    exit(-1)
+ensure
+    vm.unlock if options[:lock] && !vm.nil?
+end
+
+exit(0)

@@ -825,6 +825,10 @@ module OpenNebula
             self['DEPLOY_ID']
         end
 
+        def get_history_record(seq)
+            retrieve_xmlelements('//HISTORY')[seq].to_xml
+        end
+
         def wait_state(state, timeout=120)
             require 'opennebula/wait_ext'
 
