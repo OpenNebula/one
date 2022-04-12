@@ -23,10 +23,12 @@ inputs:
   - name: 'ceph_osd_hosts_names'
     type: array
     description: 'Semicolon separated list of FQDNs or IP addresses of the Ceph osd hosts to be added to the cluster (osd only)'
+    mandatory: false
 
   - name: 'client_hosts_names'
     type: array
     description: 'Semicolon separated list of FQDNs or IP addresses of the non-Ceph hosts to be added to the cluster (ceph client)'
+    mandatory: false
 
   - name: 'one_hypervisor'
     type: list
