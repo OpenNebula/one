@@ -380,7 +380,6 @@ module VCenterDriver
                         # rubocop:enable Layout/LineLength
                     end
                 end
-
             rescue Interrupt
                 puts "\n"
                 exit 0 # Ctrl+C
