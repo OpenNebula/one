@@ -24,6 +24,7 @@ import { UserInputOneProvisionObject } from 'client/constants'
 export const FORM_FIELDS = (inputs) =>
   inputs?.map(
     ({
+      mandatory: mandatoryValue,
       name,
       description,
       type,
@@ -33,9 +34,9 @@ export const FORM_FIELDS = (inputs) =>
       options,
     }) => ({
       name,
-      label: `${description ?? name} *`,
+      label: `${description ?? name} ${ (mandatoryValue === false) ? '' : '*'}`,
       ...schemaUserInput({
-        mandatory: true,
+        mandatory: mandatoryValue ?? true,
         name,
         type,
         min,
