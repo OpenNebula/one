@@ -69,11 +69,12 @@ const translateString = (word = '', values) => {
   const { [word]: wordVal } = hash
 
   const translation = useMemo(() => {
-    if (!wordVal) return word
-    if (!Array.isArray(wordVal)) return wordVal
+    const ensuredWord = wordVal || word
+
+    if (!ensuredWord || !values) return ensuredWord
 
     try {
-      return sprintf(...wordVal)
+      return sprintf(ensuredWord, ...values)
     } catch {
       return word
     }

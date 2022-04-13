@@ -54,7 +54,9 @@ module.exports = {
   Configuration: 'Configuration',
   CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
+  CreateHost: 'Create Host',
   CreateMarketApp: 'Create Marketplace App',
+  CreateVmTemplate: 'Create VM Template',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -76,6 +78,7 @@ module.exports = {
   Import: 'Import',
   Info: 'Info',
   Instantiate: 'Instantiate',
+  InstantiateVmTemplate: 'Instantiate VM Template',
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
@@ -269,8 +272,10 @@ module.exports = {
 
   /* sections - system */
   User: 'User',
+  UserDetailId: 'User #%s',
   Users: 'Users',
   Group: 'Group',
+  GroupDetailId: 'Group #%s',
   Groups: 'Groups',
   VDC: 'VDC',
   VDCs: 'VDCs',
@@ -278,18 +283,23 @@ module.exports = {
   ACLs: 'ACLs',
 
   /* sections - infrastructure */
-  Zone: 'Zone',
-  Zones: 'Zones',
   Cluster: 'Cluster',
+  ClusterDetailId: 'Cluster #%s',
   Clusters: 'Clusters',
   Host: 'Host',
+  HostDetailId: 'Host #%s',
   Hosts: 'Hosts',
+  Infrastructure: 'Infrastructure',
+  Zone: 'Zone',
+  Zones: 'Zones',
 
   /* sections - network */
   Network: 'Network',
   Networks: 'Networks',
   VirtualNetwork: 'Virtual network',
   VirtualNetworks: 'Virtual networks',
+  NetworkTemplate: 'Network Template',
+  NetworkTemplates: 'Network Templates',
   NetworkTopology: 'Network topology',
   NetworksTopologies: 'Networks topologies',
   SecurityGroup: 'Security group',
@@ -308,12 +318,15 @@ module.exports = {
   Apps: 'Apps',
 
   /* sections - templates & instances */
+  Instances: 'Instances',
   VM: 'VM',
+  VMDetailId: 'VM #%s',
   VMs: 'VMs',
-  VirtualRouter: 'VirtualRouter',
-  VirtualRouters: 'VirtualRouters',
+  VirtualRouter: 'Virtual Router',
+  VirtualRouters: 'Virtual Routers',
   VMGroup: 'VM Group',
   VMGroups: 'VM Groups',
+  Templates: 'Templates',
   VMTemplate: 'VM Template',
   VMTemplates: 'VM Templates',
 

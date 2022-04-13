@@ -34,6 +34,7 @@ import User from 'client/components/Header/User'
 import View from 'client/components/Header/View'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
+import { Translate } from 'client/components/HOC'
 import { sentenceCase } from 'client/utils'
 
 const Header = () => {
@@ -87,7 +88,7 @@ const Header = () => {
               variant="h6"
               data-cy="header-description"
               sx={{
-                display: { xs: 'none', xl: 'block' },
+                display: { xs: 'none', md: 'block' },
                 '&::before': {
                   content: '"|"',
                   margin: '0.5em',
@@ -95,7 +96,7 @@ const Header = () => {
                 },
               }}
             >
-              {title}
+              <Translate word={title} />
             </Typography>
           )}
         </Box>

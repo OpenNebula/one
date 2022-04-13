@@ -37,7 +37,7 @@ import {
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
 
 const VirtualMachines = loadable(
   () => import('client/containers/VirtualMachines'),
@@ -204,23 +204,23 @@ export const PATH = {
 
 const ENDPOINTS = [
   {
-    label: 'Instances',
+    label: T.Instances,
     icon: InstancesIcons,
     routes: [
       {
-        label: 'VMs',
+        label: T.VMs,
         path: PATH.INSTANCE.VMS.LIST,
         sidebar: true,
         icon: VmsIcons,
         Component: VirtualMachines,
       },
       {
-        label: (params) => `VM #${params.id}`,
+        label: (params) => [T.VMDetailId, params.id],
         path: PATH.INSTANCE.VMS.DETAIL,
         Component: VirtualMachineDetail,
       },
       {
-        label: 'Virtual Routers',
+        label: T.VirtualRouters,
         path: PATH.INSTANCE.VROUTERS.LIST,
         sidebar: true,
         icon: VRoutersIcons,
@@ -229,80 +229,80 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: 'Templates',
+    label: T.Templates,
     icon: TemplatesIcon,
     routes: [
       {
-        label: 'VM Templates',
+        label: T.VMTemplates,
         path: PATH.TEMPLATE.VMS.LIST,
         sidebar: true,
         icon: TemplateIcon,
         Component: VmTemplates,
       },
       {
-        label: 'Instantiate VM Template',
+        label: T.InstantiateVmTemplate,
         path: PATH.TEMPLATE.VMS.INSTANTIATE,
         Component: InstantiateVmTemplate,
       },
       {
-        label: 'Create VM Template',
+        label: T.CreateVmTemplate,
         path: PATH.TEMPLATE.VMS.CREATE,
         Component: CreateVmTemplate,
       },
     ],
   },
   {
-    label: 'Storage',
+    label: T.Storage,
     icon: StorageIcon,
     routes: [
       {
-        label: 'Datastores',
+        label: T.Datastores,
         path: PATH.STORAGE.DATASTORES.LIST,
         sidebar: true,
         icon: DatastoreIcon,
         Component: Datastores,
       },
       {
-        label: 'Images',
+        label: T.Images,
         path: PATH.STORAGE.IMAGES.LIST,
         sidebar: true,
         icon: ImageIcon,
         Component: Images,
       },
       {
-        label: 'Marketplaces',
+        label: T.Marketplaces,
         path: PATH.STORAGE.MARKETPLACES.LIST,
         sidebar: true,
         icon: MarketplaceIcon,
         Component: Marketplaces,
       },
       {
-        label: 'Apps',
+        label: T.Apps,
         path: PATH.STORAGE.MARKETPLACE_APPS.LIST,
         sidebar: true,
         icon: MarketplaceAppIcon,
         Component: MarketplaceApps,
       },
       {
-        label: 'Create Marketplace App',
+        label: T.CreateMarketApp,
         path: PATH.STORAGE.MARKETPLACE_APPS.CREATE,
         Component: CreateMarketplaceApp,
       },
     ],
   },
   {
-    label: 'Networks',
+    label: T.Networks,
     icon: NetworksIcon,
     routes: [
       {
-        label: 'Virtual Networks',
+        label: T.VirtualNetworks,
         path: PATH.NETWORK.VNETS.LIST,
         sidebar: true,
         icon: NetworkIcon,
         Component: VirtualNetworks,
       },
       {
-        label: 'Network Templates',
+        label: T.NetworkTemplates,
         path: PATH.NETWORK.VN_TEMPLATES.LIST,
         sidebar: true,
         icon: NetworkTemplateIcon,
@@ -311,40 +311,40 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: 'Infrastructure',
+    label: T.Infrastructure,
     icon: InfrastructureIcon,
     routes: [
       {
-        label: 'Clusters',
+        label: T.Clusters,
         path: PATH.INFRASTRUCTURE.CLUSTERS.LIST,
         sidebar: true,
         icon: ClusterIcon,
         Component: Clusters,
       },
       {
-        label: (params) => `Clusters #${params.id}`,
+        label: (params) => [T.ClusterDetailId, params.id],
         path: PATH.INFRASTRUCTURE.CLUSTERS.DETAIL,
         Component: ClusterDetail,
       },
       {
-        label: 'Hosts',
+        label: T.Hosts,
         path: PATH.INFRASTRUCTURE.HOSTS.LIST,
         sidebar: true,
         icon: HostIcon,
         Component: Hosts,
       },
       {
-        label: 'Create Host',
+        label: T.CreateHost,
         path: PATH.INFRASTRUCTURE.HOSTS.CREATE,
         Component: CreateHost,
       },
       {
-        label: (params) => `Hosts #${params.id}`,
+        label: (params) => [T.HostDetailId, params.id],
         path: PATH.INFRASTRUCTURE.HOSTS.DETAIL,
         Component: HostDetail,
       },
       {
-        label: 'Zones',
+        label: T.Zones,
         path: PATH.INFRASTRUCTURE.ZONES.LIST,
         sidebar: true,
         icon: ZoneIcon,
@@ -353,30 +353,30 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: 'System',
+    label: T.System,
     icon: SystemIcon,
     routes: [
       {
-        label: 'Users',
+        label: T.Users,
         path: PATH.SYSTEM.USERS.LIST,
         sidebar: true,
         icon: UserIcon,
         Component: Users,
       },
       {
-        label: (params) => `User #${params.id}`,
+        label: (params) => [T.UserDetailId, params.id],
         path: PATH.SYSTEM.USERS.DETAIL,
         Component: UserDetail,
       },
       {
-        label: 'Groups',
+        label: T.Groups,
         path: PATH.SYSTEM.GROUPS.LIST,
         sidebar: true,
         icon: GroupIcon,
         Component: Groups,
       },
       {
-        label: (params) => `Group #${params.id}`,
+        label: (params) => [T.GroupDetailId, params.id],
         path: PATH.SYSTEM.GROUPS.DETAIL,
         Component: GroupDetail,
       },

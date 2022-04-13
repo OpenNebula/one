@@ -78,7 +78,7 @@ const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
     <Paper
       variant="outlined"
       className={classes.root}
-      sx={{ flexWrap: 'wrap' }}
+      sx={{ flexWrap: 'wrap', alignContent: 'start' }}
       data-cy={`disk-${DISK_ID}`}
     >
       <div className={classes.main}>

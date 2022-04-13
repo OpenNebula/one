@@ -27,6 +27,7 @@ import {
 
 import { useGeneralApi } from 'client/features/General'
 import { DevTypography } from 'client/components/Typography'
+import { Translate } from 'client/components/HOC'
 
 const SidebarLink = memo(
   ({
@@ -62,7 +63,7 @@ const SidebarLink = memo(
           </ListItemIcon>
         )}
         <ListItemText
-          primary={label}
+          primary={<Translate word={label} />}
           primaryTypographyProps={{
             ...(devMode && { component: DevTypography }),
             'data-cy': 'main-menu-item-text',

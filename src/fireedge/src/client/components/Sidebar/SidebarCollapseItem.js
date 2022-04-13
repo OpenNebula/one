@@ -32,6 +32,7 @@ import { Minus as CollapseIcon, Plus as ExpandMoreIcon } from 'iconoir-react'
 import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
+import { Translate } from 'client/components/HOC'
 
 /**
  * Renders nested list options for sidebar.
@@ -75,7 +76,7 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
         )}
         <ListItemText
           data-cy={label.toLocaleLowerCase()}
-          primary={label}
+          primary={<Translate word={label} />}
           {...(expanded && { className: 'open' })}
           primaryTypographyProps={{ variant: 'body1' }}
         />
