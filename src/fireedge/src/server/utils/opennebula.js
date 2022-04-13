@@ -511,26 +511,6 @@ const CSVtoArray = (text = '') => {
   return rtn
 }
 
-/**
- * Remove config sensitive data.
- *
- * @param {object} config - config data
- * @param {Array} keys - key for remove
- * @returns {object} config without sensitive data
- */
-const sensitiveDataRemoverConfig = (config = {}, keys = []) => {
-  const rtn = config
-  if (Array.isArray(keys)) {
-    keys.forEach((key) => {
-      if (Object.hasOwnProperty.call(config, key)) {
-        delete rtn[key]
-      }
-    })
-  }
-
-  return config
-}
-
 module.exports = {
   opennebulaConnect,
   responseOpennebula,
@@ -543,5 +523,4 @@ module.exports = {
   fillResourceforHookConnection,
   consoleParseToString,
   consoleParseToJSON,
-  sensitiveDataRemoverConfig,
 }

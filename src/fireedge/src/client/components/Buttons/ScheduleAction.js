@@ -15,10 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-
 import { Trash, Edit, ClockOutline } from 'iconoir-react'
 
-import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
   CreateCharterForm,
@@ -33,6 +31,7 @@ import {
   T,
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
+  SERVER_CONFIG,
   ScheduleAction,
 } from 'client/constants'
 
@@ -155,15 +154,13 @@ const DeleteSchedButton = memo(({ onSubmit, schedule }) => {
  * @returns {ReactElement} Button
  */
 const CharterButton = memo(({ relative, onSubmit }) => {
-  const { data: config } = useGetSunstoneConfigQuery()
-
   const leases = useMemo(
     () =>
       // filters if exists in the VM actions for charters
-      Object.entries(config?.leases ?? {}).filter(([action]) =>
+      Object.entries(SERVER_CONFIG?.leases ?? {}).filter(([action]) =>
         VM_ACTIONS_IN_CHARTER.includes(action)
       ),
-    [config?.leases]
+    []
   )
 
   const formConfig = { stepProps: leases, initialValues: leases }

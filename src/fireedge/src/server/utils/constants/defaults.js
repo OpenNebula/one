@@ -122,11 +122,7 @@ const defaults = {
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
-  defaultConfigFile: `${appName}-server.conf`,
   defaultSunstonePath: internalSunstonePath,
-  defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
-  defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
-  defaultProvisionConfig: `${appNameProvision}-server.conf`,
   defaultProvisionPath: internalProvisionPath,
   defaultProvidersConfigPath: 'providers.d',
   defaultTypeLog: 'prod',
@@ -163,6 +159,26 @@ const defaults = {
   defaultHost: '0.0.0.0',
   defaultPort: 2616,
   defaultEvents: ['SIGINT', 'SIGTERM'],
+
+  /** CONFIGURATION FILE */
+  defaultConfigFile: `${appName}-server.conf`,
+  defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
+  defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
+  defaultProvisionConfig: `${appNameProvision}-server.conf`,
+  protectedConfigData: {
+    [appNameSunstone]: [
+      'support_url',
+      'support_token',
+      'vcenter_prepend_command',
+      'sunstone_prepend',
+      'guacd',
+      'tmpdir',
+    ],
+    [appNameProvision]: [
+      'oneprovision_prepend_command',
+      'oneprovision_optional_create_command',
+    ],
+  },
 }
 
 module.exports = defaults

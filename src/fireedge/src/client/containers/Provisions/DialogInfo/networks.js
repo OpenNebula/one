@@ -24,7 +24,7 @@ import {
   useGetProvisionQuery,
   useAddIpToProvisionMutation,
   useRemoveResourceMutation,
-  useGetResourceQuery,
+  useGetProvisionResourceQuery,
 } from 'client/features/OneApi/provision'
 
 import { VNetworksTable } from 'client/components/Tables'
@@ -79,7 +79,7 @@ const Networks = memo(({ id }) => {
         disableRowSelect
         disableGlobalSort
         useQuery={() =>
-          useGetResourceQuery(
+          useGetProvisionResourceQuery(
             { resource: 'network' },
             {
               selectFromResult: ({ data: result = [], ...rest }) => ({

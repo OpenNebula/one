@@ -20,7 +20,7 @@ import { Trash as DeleteIcon } from 'iconoir-react'
 
 import {
   useGetProvisionQuery,
-  useGetResourceQuery,
+  useGetProvisionResourceQuery,
   useRemoveResourceMutation,
 } from 'client/features/OneApi/provision'
 import { useGeneralApi } from 'client/features/General'
@@ -48,7 +48,7 @@ const Datastores = memo(
         disableRowSelect
         disableGlobalSort
         useQuery={() =>
-          useGetResourceQuery(
+          useGetProvisionResourceQuery(
             { resource: 'datastore' },
             {
               selectFromResult: ({ data: result = [], ...rest }) => ({

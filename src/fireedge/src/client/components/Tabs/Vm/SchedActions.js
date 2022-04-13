@@ -17,7 +17,6 @@ import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
-import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 import {
   useGetVmQuery,
   useAddScheduledActionMutation,
@@ -38,7 +37,7 @@ import {
   isAvailableAction,
 } from 'client/models/VirtualMachine'
 import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
-import { VM_ACTIONS } from 'client/constants'
+import { VM_ACTIONS, SERVER_CONFIG } from 'client/constants'
 
 const {
   SCHED_ACTION_CREATE,
@@ -57,7 +56,6 @@ const {
  * @returns {ReactElement} Schedule actions tab
  */
 const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
-  const { data: config } = useGetSunstoneConfigQuery()
   const [addScheduledAction] = useAddScheduledActionMutation()
   const [updateScheduledAction] = useUpdateScheduledActionMutation()
   const [deleteScheduledAction] = useDeleteScheduledActionMutation()
@@ -77,7 +75,7 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
   const isUpdateEnabled = actionsAvailable?.includes?.(SCHED_ACTION_UPDATE)
   const isDeleteEnabled = actionsAvailable?.includes?.(SCHED_ACTION_DELETE)
   const isCharterEnabled =
-    actionsAvailable?.includes?.(CHARTER_CREATE) && config?.leases
+    actionsAvailable?.includes?.(CHARTER_CREATE) && SERVER_CONFIG?.leases
 
   /**
    * Add new schedule action to VM.

@@ -24,7 +24,7 @@ import {
 } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useGetResourceQuery } from 'client/features/OneApi/provision'
+import { useGetProvisionResourceQuery } from 'client/features/OneApi/provision'
 
 import {
   TotalProviders,
@@ -91,7 +91,7 @@ function ProvisionDashboard() {
 }
 
 const ResourceWidget = memo(({ resource, ...props }) => {
-  const { data, isLoading } = useGetResourceQuery({ resource })
+  const { data, isLoading } = useGetProvisionResourceQuery({ resource })
   const total = `${data?.length ?? 0}`
 
   return (

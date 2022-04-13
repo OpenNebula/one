@@ -29,7 +29,7 @@ import {
   useAddHostToProvisionMutation,
   useConfigureHostMutation,
   useRemoveResourceMutation,
-  useGetResourceQuery,
+  useGetProvisionResourceQuery,
 } from 'client/features/OneApi/provision'
 
 import { HostsTable } from 'client/components/Tables'
@@ -87,7 +87,7 @@ const Hosts = memo(({ id }) => {
         disableRowSelect
         disableGlobalSort
         useQuery={() =>
-          useGetResourceQuery(
+          useGetProvisionResourceQuery(
             { resource: 'host' },
             {
               selectFromResult: ({ data: result = [], ...rest }) => ({

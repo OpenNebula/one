@@ -119,9 +119,9 @@ const provisionApi = oneApi.injectEndpoints({
         return { params: { id }, command }
       },
     }),
-    getResource: builder.query({
+    getProvisionResource: builder.query({
       /**
-       * Delete the datastore from the provision.
+       * List all resources from a provision.
        *
        * @param {object} params - Request parameters
        * @param {
@@ -307,8 +307,8 @@ export const {
   useLazyGetProvisionTemplatesQuery,
   useGetProvisionLogQuery,
   useLazyGetProvisionLogQuery,
-  useGetResourceQuery,
-  useLazyGetResourceQuery,
+  useGetProvisionResourceQuery,
+  useLazyGetProvisionResourceQuery,
 
   // Mutations
   useCreateProvisionMutation,

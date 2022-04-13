@@ -265,19 +265,13 @@ const getEndpoint = () => {
  * @param {string} key - key get
  * @returns {string} value of config item
  */
-const getSpecificConfig = (key = '') => {
-  if (key) {
-    const appConfig = getFireedgeConfig()
-    const provisionConfig = getProvisionConfig()
-    if (Object.hasOwnProperty.call(provisionConfig, key)) {
-      return provisionConfig[key]
-    }
-    if (Object.hasOwnProperty.call(appConfig, key)) {
-      return appConfig[key]
-    }
-  }
+const getSpecificConfig = (key) => {
+  if (!key) return ''
 
-  return ''
+  const provisionConfig = getProvisionConfig({ includeProtectedConfig: true })
+  if (Object.hasOwnProperty.call(provisionConfig, key)) {
+    return provisionConfig[key]
+  }
 }
 
 const functionRoutes = {

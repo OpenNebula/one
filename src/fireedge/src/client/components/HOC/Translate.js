@@ -32,7 +32,6 @@ import { isDevelopment } from 'client/utils'
 import { LANGUAGES, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()
-let languageScript = root.document?.createElement('script')
 
 /**
  * @typedef {
@@ -102,16 +101,20 @@ const TranslateProvider = ({ children = [] }) => {
 
       script.src = `${LANGUAGES_URL}/${lang}.js`
       script.async = true
-      script.onload = () => setHash(root.locale)
+      script.onload = () => {
+        setHash(window.locale)
 
-      root.document.body.appendChild(script)
-      languageScript = script
+        // delete script and variables after load
+        delete window.lang
+        delete window.locale
+        window.document.body.removeChild(script)
+      }
+
+      window.document.body.appendChild(script)
     } catch (error) {
       isDevelopment() &&
         console.error('Error while generating script language', error)
     }
-
-    return () => root.document.body.removeChild(languageScript)
   }, [lang])
 
   return (

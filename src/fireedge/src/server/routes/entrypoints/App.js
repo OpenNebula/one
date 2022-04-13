@@ -22,8 +22,8 @@ const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 
-// server side constants (not all of them are used in client)
-const { getFireedgeConfig } = require('server/utils/yml')
+// server
+const { getSunstoneConfig, getProvisionConfig } = require('server/utils/yml')
 const { defaultApps } = require('server/utils/constants/defaults')
 
 // client
@@ -31,18 +31,12 @@ const rootReducer = require('client/store/reducers')
 const { upperCaseFirst } = require('client/utils')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 
-const ALLOWED_KEYS_FROM_CONFIG = ['currency', 'default_lang', 'langs']
+const APP_NAMES = Object.keys(defaultApps)
 
-const ensuredConfig = Object.entries(getFireedgeConfig()).reduce(
-  (config, [key, value]) => {
-    if (ALLOWED_KEYS_FROM_CONFIG.includes(key)) {
-      config[key] = value
-    }
-
-    return config
-  },
-  {}
-)
+const APP_CONFIG = {
+  [defaultApps.provision.name]: getProvisionConfig() || {},
+  [defaultApps.sunstone.name]: getSunstoneConfig() || {},
+}
 
 const ensuredScriptValue = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c')
@@ -50,11 +44,10 @@ const ensuredScriptValue = (value) =>
 const router = Router()
 
 router.get('*', (req, res) => {
-  const apps = Object.keys(defaultApps)
   const appName = parse(req.url)
     .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
-    .find((resource) => apps.includes(resource))
+    .find((resource) => APP_NAMES.includes(resource))
 
   const sheets = new ServerStyleSheets()
   const composeEnhancer =
@@ -66,15 +59,21 @@ router.get('*', (req, res) => {
     composeEnhancer(applyMiddleware(thunk))
   )
 
-  const storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${ensuredScriptValue(
-    store.getState()
-  )}</script>`
-
   const App = require(`../../../client/apps/${appName}/index.js`).default
 
   const rootComponent = renderToString(
     sheets.collect(<App location={req.url} store={store} />)
   )
+
+  const config = `
+    <script id="preload-server-side">
+      window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
+    </script>`
+
+  const storeRender = `
+    <script id="preloadState">
+      window.__PRELOADED_STATE__ = ${ensuredScriptValue(store.getState())}
+    </script>`
 
   const css = `<style id="jss-server-side">${sheets.toString()}</style>`
 
@@ -95,9 +94,7 @@ router.get('*', (req, res) => {
     <body>
       <div id="root">${rootComponent}</div>
       ${storeRender}
-      <script id="preload-server-side">
-        ${`window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(ensuredConfig)}`}
-      </script>
+      ${config}
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

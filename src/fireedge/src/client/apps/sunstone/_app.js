@@ -66,7 +66,6 @@ const SunstoneApp = () => {
     <AuthLayout
       subscriptions={[
         systemApi.endpoints.getOneConfig,
-        systemApi.endpoints.getSunstoneConfig,
         systemApi.endpoints.getSunstoneViews,
       ]}
     >

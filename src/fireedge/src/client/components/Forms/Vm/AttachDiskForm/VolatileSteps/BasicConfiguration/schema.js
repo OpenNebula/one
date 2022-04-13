@@ -15,14 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { number, string, object, ObjectSchema } from 'yup'
 
-import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 import {
   Field,
   getValidationFromFields,
   filterFieldsByHypervisor,
   arrayToOptions,
 } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { T, INPUT_TYPES, HYPERVISORS, SERVER_CONFIG } from 'client/constants'
 
 const { vcenter } = HYPERVISORS
 
@@ -89,11 +88,7 @@ const FILESYSTEM = {
   type: INPUT_TYPES.SELECT,
   dependOf: 'TYPE',
   htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
-  values: () => {
-    const { data: config } = useGetSunstoneConfigQuery()
-
-    return arrayToOptions(config?.supported_fs)
-  },
+  values: () => arrayToOptions(SERVER_CONFIG?.supported_fs),
   validation: string().trim().notRequired().default(undefined),
 }
 

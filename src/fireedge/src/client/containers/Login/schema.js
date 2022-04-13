@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
+import { string, boolean, object } from 'yup'
 
 import { useAuth } from 'client/features/Auth'
 import { getValidationFromFields, arrayToOptions } from 'client/utils'
 import { Tr } from 'client/components/HOC'
-import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
+import { T, INPUT_TYPES, FILTER_POOL, SERVER_CONFIG } from 'client/constants'
 
-export const USERNAME = {
+const USERNAME = {
   name: 'user',
   label: T.Username,
   type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
+  validation: string()
     .trim()
-    .required('Username is a required field')
+    .required()
     .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
@@ -39,14 +37,13 @@ export const USERNAME = {
   },
 }
 
-export const PASSWORD = {
+const PASSWORD = {
   name: 'token',
   label: T.Password,
   type: INPUT_TYPES.PASSWORD,
-  validation: yup
-    .string()
+  validation: string()
     .trim()
-    .required('Password is a required field')
+    .required()
     .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
@@ -56,22 +53,21 @@ export const PASSWORD = {
   },
 }
 
-export const REMEMBER = {
+const REMEMBER = {
   name: 'remember',
   label: T.KeepLoggedIn,
   type: INPUT_TYPES.CHECKBOX,
-  validation: yup.boolean().default(() => false),
+  validation: boolean().default(() => false),
   grid: { md: 12 },
 }
 
-export const TOKEN = {
+const TOKEN = {
   name: 'token2fa',
   label: T.Token2FA,
   type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
+  validation: string()
     .trim()
-    .required('Authenticator is a required field')
+    .required()
     .default(() => ''),
   grid: { md: 12 },
   fieldProps: {
@@ -81,46 +77,57 @@ export const TOKEN = {
   },
 }
 
-export const GROUP = {
+const GROUP = {
   name: 'group',
   label: T.SelectYourActiveGroup,
   type: INPUT_TYPES.SELECT,
   values: () => {
     const { user, groups } = useAuth()
+    const primaryText = Tr(T.Primary)
 
-    const sortedGroupsById = groups?.sort((a, b) => a.ID - b.ID)
-
-    const formatGroups = arrayToOptions(sortedGroupsById, {
+    const formatGroups = arrayToOptions(groups, {
       addEmpty: false,
       getText: ({ ID, NAME }) => {
-        const isPrimary = user?.GID === ID ? `(${Tr(T.Primary)})` : ''
+        const isPrimary = user?.GID === ID ? `(${primaryText})` : ''
 
         return `${ID} - ${NAME} ${isPrimary}`
       },
       getValue: ({ ID }) => String(ID),
+      sorter: (a, b) => a.ID - b.ID,
     })
 
     return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }].concat(
       formatGroups
     )
   },
-  validation: yup.string().trim().nullable().default(FILTER_POOL.ALL_RESOURCES),
+  validation: string().trim().nullable().default(FILTER_POOL.ALL_RESOURCES),
   grid: { md: 12 },
   fieldProps: {
     margin: 'normal',
   },
 }
 
-export const FORM_USER_FIELDS = [USERNAME, PASSWORD, REMEMBER]
-export const FORM_2FA_FIELDS = [TOKEN]
-export const FORM_GROUP_FIELDS = [GROUP]
+const FORM_USER_FIELDS = [
+  USERNAME,
+  PASSWORD,
+  `${SERVER_CONFIG?.keep_me_logged}` === 'true' && REMEMBER,
+].filter(Boolean)
 
-export const FORM_USER_SCHEMA = yup.object(
-  getValidationFromFields(FORM_USER_FIELDS)
-)
-export const FORM_2FA_SCHEMA = yup.object(
-  getValidationFromFields(FORM_2FA_FIELDS)
-)
-export const FORM_GROUP_SCHEMA = yup.object(
-  getValidationFromFields(FORM_GROUP_FIELDS)
-)
+const FORM_2FA_FIELDS = [TOKEN]
+
+const FORM_GROUP_FIELDS = [GROUP]
+
+const FORM_USER_SCHEMA = object(getValidationFromFields(FORM_USER_FIELDS))
+
+const FORM_2FA_SCHEMA = object(getValidationFromFields(FORM_2FA_FIELDS))
+
+const FORM_GROUP_SCHEMA = object(getValidationFromFields(FORM_GROUP_FIELDS))
+
+export {
+  FORM_USER_FIELDS,
+  FORM_2FA_FIELDS,
+  FORM_GROUP_FIELDS,
+  FORM_USER_SCHEMA,
+  FORM_2FA_SCHEMA,
+  FORM_GROUP_SCHEMA,
+}

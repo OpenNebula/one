@@ -57,22 +57,6 @@ const systemApi = oneApi.injectEndpoints({
       providesTags: [{ type: SYSTEM, id: 'config' }],
       keepUnusedDataFor: 600,
     }),
-    getSunstoneConfig: builder.query({
-      /**
-       * Returns the Sunstone configuration.
-       *
-       * @returns {object} The loaded sunstone-server.conf file
-       * @throws Fails when response isn't code 200
-       */
-      query: () => {
-        const name = SunstoneActions.SUNSTONE_CONFIG
-        const command = { name, ...SunstoneCommands[name] }
-
-        return { command }
-      },
-      providesTags: [{ type: SYSTEM, id: 'sunstone-config' }],
-      keepUnusedDataFor: 600,
-    }),
     getSunstoneViews: builder.query({
       /**
        * Returns the Sunstone configuration for resource tabs.
@@ -106,8 +90,6 @@ export const {
   useLazyGetOneVersionQuery,
   useGetOneConfigQuery,
   useLazyGetOneConfigQuery,
-  useGetSunstoneConfigQuery,
-  useLazyGetSunstoneConfigQuery,
   useGetSunstoneViewsQuery,
   useLazyGetSunstoneViewsQuery,
 } = systemApi
