@@ -49,10 +49,15 @@ class ServiceLCM
         :undeploy_nets_cb,
         :undeploy_nets_failure_cb,
 
+
         # WD callbacks
         :error_wd_cb,
         :done_wd_cb,
-        :running_wd_cb
+        :running_wd_cb,
+
+        # Hold/Release callbacks
+        :hold_cb,
+        :release_cb
     ]
 
     def initialize(client, concurrency, cloud_auth)
@@ -199,6 +204,43 @@ class ServiceLCM
         rc
     end
 
+    # Release a service on hold state
+    #
+    # @param client     [OpenNebula::Client] Client executing action
+    # @param service_id [Integer]            Service ID
+    #
+    # @return [OpenNebula::Error] Error if any
+    def release_action(client, service_id)
+        rc = @srv_pool.get(service_id, client) do |service|
+            # Get roles that can be release
+            set_deploy_strategy(service)
+            roles = service.roles_release
+
+            if roles.empty?
+                break OpenNebula::Error.new('Service has no roles in HOLD')
+            end
+
+            rc = release_roles(client,
+                               roles,
+                               'DEPLOYING',
+                               'FAILED_DEPLOYING',
+                               :wait_release,
+                               service.report_ready?)
+
+            if !OpenNebula.is_error?(rc)
+                service.set_state(Service::STATE['DEPLOYING'])
+            else
+                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+            end
+
+            service.update
+            rc
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+        rc
+    end
+
     ############################################################################
     # Life cycle manager actions
     ############################################################################
@@ -292,6 +334,16 @@ class ServiceLCM
                 break
             end
 
+            # Set all roles on hold if the on_hold option
+            # is set at service level
+            roles.each do |_, role|
+                if service.on_hold?
+                    role.hold(true)
+                elsif role.any_parent_on_hold?
+                    role.hold(true)
+                end
+            end
+
             rc = deploy_roles(client,
                               roles,
                               'DEPLOYING',
@@ -299,7 +351,9 @@ class ServiceLCM
                               :wait_deploy_action,
                               service.report_ready?)
 
-            if !OpenNebula.is_error?(rc)
+            if !OpenNebula.is_error?(rc) & service.on_hold?
+                service.set_state(Service::STATE['HOLD'])
+            elsif !OpenNebula.is_error?(rc) & !service.on_hold?
                 service.set_state(Service::STATE['DEPLOYING'])
             else
                 service.set_state(Service::STATE['FAILED_DEPLOYING'])
@@ -647,7 +701,7 @@ class ServiceLCM
                 nodes[node]
             end
 
-            # If the role has 0 nodes, delete role
+            # If the role has 0 nodes, deleteƒ role
             undeploy = service.check_role(service.roles[role_name])
 
             if service.all_roles_running?
@@ -978,6 +1032,80 @@ class ServiceLCM
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
+    def hold_cb(client, service_id, role_name)
+        rc = @srv_pool.get(service_id, client) do |service|
+            if service.roles[role_name].state != Role::STATE['HOLD']
+                service.roles[role_name].set_state(Role::STATE['HOLD'])
+            end
+
+            if service.all_roles_hold? &&
+                service.state != Service::STATE['HOLD']
+                service.set_state(Service::STATE['HOLD'])
+            elsif service.strategy == 'straight'
+                set_deploy_strategy(service)
+
+                deploy_roles(client,
+                             service.roles_hold,
+                             'DEPLOYING',
+                             'FAILED_DEPLOYING',
+                             :wait_deploy,
+                             service.report_ready?)
+            end
+
+            rc = service.update
+
+            return rc if OpenNebula.is_error?(rc)
+        end
+
+        Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def release_cb(client, service_id, role_name, nodes)
+        undeploy = false
+
+        rc = @srv_pool.get(service_id, client) do |service|
+            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+
+            service.roles[role_name].nodes.delete_if do |node|
+                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                    service.roles[role_name].cardinality -= 1
+                end
+
+                nodes[node]
+            end
+
+            # If the role has 0 nodes, delete role
+            undeploy = service.check_role(service.roles[role_name])
+
+            if service.all_roles_running?
+                service.set_state(Service::STATE['RUNNING'])
+            elsif service.strategy == 'straight'
+                set_deploy_strategy(service)
+
+                release_roles(client,
+                              service.roles_release,
+                              'DEPLOYING',
+                              'FAILED_DEPLOYING',
+                              :wait_deploy,
+                              service.report_ready?)
+            end
+
+            rc = service.update
+
+            return rc if OpenNebula.is_error?(rc)
+
+            @wd.add_service(service) if service.all_roles_running?
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        return unless undeploy
+
+        Log.info LOG_COMP, "Automatically deleting service #{service_id}"
+
+        undeploy_action(client, service_id)
+    end
+
     ############################################################################
     # WatchDog Callbacks
     ############################################################################
@@ -1105,6 +1233,16 @@ class ServiceLCM
     def deploy_roles(client, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
         roles.each do |name, role|
+            if role.state == Role::STATE['PENDING']
+                # Set all roles on hold if the on_hold option
+                # is set at service level
+                if role.service_on_hold?
+                    role.hold(true)
+                elsif role.any_parent_on_hold?
+                    role.hold(true)
+                end
+            end
+
             rc = role.deploy
 
             if !rc[0]
@@ -1114,15 +1252,24 @@ class ServiceLCM
                 )
             end
 
-            role.set_state(Role::STATE[success_state])
-
-            @event_manager.trigger_action(action,
-                                          role.service.id,
-                                          client,
-                                          role.service.id,
-                                          role.name,
-                                          rc[0],
-                                          report)
+            if role.on_hold? && role.state == Role::STATE['PENDING']
+                role.set_state(Role::STATE['HOLD'])
+                @event_manager.trigger_action(:wait_hold,
+                                              role.service.id,
+                                              client,
+                                              role.service.id,
+                                              role.name,
+                                              rc[0])
+            else
+                role.set_state(Role::STATE[success_state])
+                @event_manager.trigger_action(action,
+                                              role.service.id,
+                                              client,
+                                              role.service.id,
+                                              role.name,
+                                              rc[0],
+                                              report)
+            end
         end
     end
 
@@ -1147,6 +1294,31 @@ class ServiceLCM
                                           role.service.id,
                                           role.name,
                                           rc[0])
+        end
+    end
+
+    # rubocop:disable Metrics/ParameterLists
+    def release_roles(client, roles, success_state, error_state, action, report)
+        # rubocop:enable Metrics/ParameterLists
+        roles.each do |name, role|
+            rc = role.release
+
+            if !rc[1]
+                role.set_state(Role::STATE[error_state])
+                break OpenNebula::Error.new(
+                    "Error releasing role #{name}: #{rc[1]}"
+                )
+            end
+
+            role.set_state(Role::STATE[success_state])
+
+            @event_manager.trigger_action(action,
+                                          role.service.id,
+                                          client,
+                                          role.service.id,
+                                          role.name,
+                                          rc[0],
+                                          report)
         end
     end
 
