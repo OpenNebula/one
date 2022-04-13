@@ -55,11 +55,10 @@ const ProvisionCard = memo(
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
     const imageUrl = useMemo(() => {
-        if (!image) return DEFAULT_IMAGE
+      if (!image) return DEFAULT_IMAGE
 
-        return isExternalImage ? image : `${IMAGES_URL}/${image}`
-      },[isExternalImage]
-    )
+      return isExternalImage ? image : `${IMAGES_URL}/${image}`
+    }, [isExternalImage])
 
     return (
       <SelectCard

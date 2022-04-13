@@ -18,7 +18,6 @@ import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { List, ListItem, Typography, Grid, Paper, Divider } from '@mui/material'
-import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
 import { useGetProvisionQuery } from 'client/features/OneApi/provision'
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'
@@ -30,7 +29,7 @@ const Info = memo(({ id }) => {
   const classes = useStyles()
 
   const { data = {} } = useGetProvisionQuery(id)
-  const { ID, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
+  const { ID, TEMPLATE } = data
   const {
     state,
     description,
@@ -43,9 +42,6 @@ const Info = memo(({ id }) => {
   const { id: clusterId = '', name: clusterName = '' } =
     infrastructure?.clusters?.[0] ?? {}
   const stateInfo = PROVISIONS_STATES[state]
-
-  const isChecked = (checked) =>
-    checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Grid container spacing={1}>
@@ -88,53 +84,6 @@ const Info = memo(({ id }) => {
                 stateColor={stateInfo?.color}
                 text={stateInfo?.name}
               />
-            </ListItem>
-          </List>
-        </Paper>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Paper variant="outlined" className={classes.permissions}>
-          <List className={clsx(classes.list, 'w-25')}>
-            <ListItem className={classes.title}>
-              <Typography>{Tr(T.Permissions)}</Typography>
-              <Typography>{Tr(T.Use)}</Typography>
-              <Typography>{Tr(T.Manage)}</Typography>
-              <Typography>{Tr(T.Admin)}</Typography>
-            </ListItem>
-            <Divider />
-            <ListItem>
-              <Typography>{Tr(T.Owner)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OWNER_U)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OWNER_M)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OWNER_A)}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.Group)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.GROUP_U)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.GROUP_M)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.GROUP_A)}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.Other)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OTHER_U)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OTHER_M)}</Typography>
-              <Typography>{isChecked(PERMISSIONS.OTHER_A)}</Typography>
-            </ListItem>
-          </List>
-        </Paper>
-        <Paper variant="outlined">
-          <List className={clsx(classes.list, 'w-50')}>
-            <ListItem className={classes.title}>
-              <Typography>{Tr(T.Ownership)}</Typography>
-            </ListItem>
-            <Divider />
-            <ListItem>
-              <Typography>{Tr(T.Owner)}</Typography>
-              <Typography>{UNAME}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.Group)}</Typography>
-              <Typography>{GNAME}</Typography>
             </ListItem>
           </List>
         </Paper>
