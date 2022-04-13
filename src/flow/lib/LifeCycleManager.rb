@@ -49,7 +49,6 @@ class ServiceLCM
         :undeploy_nets_cb,
         :undeploy_nets_failure_cb,
 
-
         # WD callbacks
         :error_wd_cb,
         :done_wd_cb,

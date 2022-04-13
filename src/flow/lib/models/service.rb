@@ -288,7 +288,7 @@ module OpenNebula
 
             true
         end
- 
+
         # Returns virtual networks IDs
         # @return [Array] Array of integers containing the IDs
         def networks(deploy)
