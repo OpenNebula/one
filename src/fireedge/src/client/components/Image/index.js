@@ -78,14 +78,13 @@ const Image = memo(
 
     return withSources ? (
       <picture {...pictureProps}>
-        {withSources &&
-          IMAGE_FORMATS.map((format) => (
-            <source
-              key={format}
-              srcSet={`${src}.${format}`}
-              type={`image/${format}`}
-            />
-          ))}
+        {IMAGE_FORMATS.map((format) => (
+          <source
+            key={format}
+            srcSet={`${src}.${format}`}
+            type={`image/${format}`}
+          />
+        ))}
         <img alt="" {...imageProps} src={src} onError={onImageFail} />
       </picture>
     ) : (
