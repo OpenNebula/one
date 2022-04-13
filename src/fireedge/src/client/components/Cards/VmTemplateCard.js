@@ -45,7 +45,7 @@ const VmTemplateCard = memo(
       REGTIME,
       LOCK,
       VROUTER,
-      LOGO = '',
+      TEMPLATE: { LOGO = '' } = {},
     } = template
 
     const logoSource = useMemo(
