@@ -204,7 +204,7 @@ define(function(require) {
       nicTab.fill(nicContext, nicJSON);
 
       if (nicJSON.PARENT) {
-        nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
+        nicTab.fill_alias(nicJSON.PARENT);
       }
     });
 

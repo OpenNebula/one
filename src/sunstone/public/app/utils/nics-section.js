@@ -171,17 +171,11 @@ define(function(require) {
       if($("input#" + that.id + "_interface_type", context).prop("checked")) {
           if ($("#" + that.id + "_alias_parent", context).val() != "INVALID") {
             nic["PARENT"] = $("#" + that.id + "_alias_parent", context).val();
-
-            if ($("#" + that.id + "_alias_external", context).is(':checked')) {
-              nic["EXTERNAL"] =  'YES';
-            }
           } else {
             delete nic["PARENT"];
-            delete nic["EXTERNAL"];
           }
         } else {
           delete nic["PARENT"];
-          delete nic["EXTERNAL"];
       }
 
       (Boolean($("input#" + that.id + "_rdp", context).prop("checked")))
@@ -561,7 +555,7 @@ define(function(require) {
     Foundation.reInit(context);
 
     if(options.nic && options.nic.PARENT) {
-        _fill_alias(options.nic.PARENT, options.nic.EXTERNAL);
+        _fill_alias(options.nic.PARENT);
     }
 
     // fill rdp connection
@@ -728,7 +722,7 @@ define(function(require) {
     }
   }
 
-  function _fill_alias(nicParentName, isExternal) {
+  function _fill_alias(nicParentName) {
     $.each(_nics, function(_, value) {
         if (value.NAME === ("NIC" + nicId)) {
             value.ALIAS = nicParentName;
@@ -740,10 +734,6 @@ define(function(require) {
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_interface_type", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).val(nicParentName);
-
-    if (isExternal && String(isExternal).toLowerCase() === 'yes') {
-      $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_external", this.context).prop('checked', 'checked');
-    }
   }
 
   function _hide_remove() {

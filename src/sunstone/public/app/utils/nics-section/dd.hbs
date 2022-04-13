@@ -43,18 +43,6 @@
               </span>
               <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
             </div>
-            <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external_wrapper" style="min-height: 40px;">
-              <div class="switch left">
-                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external" type="checkbox">
-                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external">
-                </label>
-              </div>
-              <label class="left">
-                &nbsp;&nbsp;
-                {{tr "External"}}
-                {{{tip (tr "The NIC will be attached as an external alias of the VM")}}}
-              </label>
-            </div>
           </fieldset>
         {{/if}}
         {{#if displaySelection}}
