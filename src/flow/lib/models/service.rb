@@ -38,8 +38,7 @@ module OpenNebula
             'DEPLOYING_NETS'          => 11,
             'UNDEPLOYING_NETS'        => 12,
             'FAILED_DEPLOYING_NETS'   => 13,
-            'FAILED_UNDEPLOYING_NETS' => 14,
-            'HOLD'                    => 15
+            'FAILED_UNDEPLOYING_NETS' => 14
         }
 
         STATE_STR = %w[
@@ -58,7 +57,6 @@ module OpenNebula
             UNDEPLOYING_NETS
             FAILED_DEPLOYING_NETS
             FAILED_UNDEPLOYING_NETS
-            HOLD
         ]
 
         TRANSIENT_STATES = %w[
@@ -218,16 +216,6 @@ module OpenNebula
             self['GID'].to_i
         end
 
-        # Returns the on_hold service option
-        # @return [true, false] true if the on_hold option is enabled
-        def on_hold?
-            @body['on_hold']
-        end
-
-        def hold?
-            state_str == 'HOLD'
-        end
-
         # Replaces this object's client with a new one
         # @param [OpenNebula::Client] owner_client the new client
         def replace_client(owner_client)
@@ -270,18 +258,6 @@ module OpenNebula
         def all_roles_done?
             @roles.each do |_name, role|
                 if role.state != Role::STATE['DONE']
-                    return false
-                end
-            end
-
-            true
-        end
-
-        # Returns true if all the nodes are in hold state
-        # @return [true, false] true if all the nodes are in hold state
-        def all_roles_hold?
-            @roles.each do |_name, role|
-                if role.state != Role::STATE['HOLD']
                     return false
                 end
             end

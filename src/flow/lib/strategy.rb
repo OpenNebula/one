@@ -58,35 +58,4 @@ module Strategy
         result
     end
 
-    # Returns all node Roles ready to be set on hold
-    # @return [Hash<String, Role>] Roles
-    def roles_hold
-        result = roles.select do |_name, role|
-            role.state == Role::STATE['PENDING']
-        end
-
-        # Ruby 1.8 compatibility
-        if result.instance_of?(Array)
-            result = result.to_h
-        end
-
-        result
-    end
-
-    # Returns all node Roles ready to be released
-    # @param [Service] service
-    # @return [Hash<String, Role>] Roles
-    def roles_release
-        result = roles.select do |_name, role|
-            role.state == Role::STATE['HOLD']
-        end
-
-        # Ruby 1.8 compatibility
-        if result.instance_of?(Array)
-            result = result.to_h
-        end
-
-        result
-    end
-
 end

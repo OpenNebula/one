@@ -65,8 +65,7 @@ module OpenNebula
             'FAILED_DEPLOYING'   => 7,
             'SCALING'            => 8,
             'FAILED_SCALING'     => 9,
-            'COOLDOWN'           => 10,
-            'HOLD'               => 11
+            'COOLDOWN'           => 10
         }
 
         STATE_STR = %w[
@@ -81,7 +80,6 @@ module OpenNebula
             SCALING
             FAILED_SCALING
             COOLDOWN
-            HOLD
         ]
 
         RECOVER_DEPLOY_STATES = %w[
@@ -149,7 +147,6 @@ module OpenNebula
 
             @body['cooldown'] = @@default_cooldown if @body['cooldown'].nil?
             @body['nodes']    ||= []
-            @body['on_hold']  = false if @body['on_hold'].nil?
         end
 
         def name
@@ -198,23 +195,10 @@ module OpenNebula
             true
         end
 
-        def can_release?
-            state == STATE['HOLD']
-        end
-
         # Returns the role parents
         # @return [Array] the role parents
         def parents
             @body['parents'] || []
-        end
-
-        def any_parent_on_hold?
-            parents.each do |parent|
-                next unless @service.roles[parent]
-
-                return true if @service.roles[parent].on_hold?
-            end
-            false
         end
 
         # Returns the role cardinality
@@ -373,23 +357,6 @@ module OpenNebula
             @body.delete('scale_way')
         end
 
-        # Returns the on_hold role option
-        # @return [true, false] true if the on_hold option is enabled
-        def on_hold?
-            @body['on_hold']
-        end
-
-        # Returns the on_hold service option
-        # @return [true, false] true if the on_hold option is enabled
-        def service_on_hold?
-            @service.on_hold?
-        end
-
-        # Set the on_hold vm option to true
-        def hold(hold)
-            @body['on_hold'] = hold
-        end
-
         # Retrieves the VM information for each Node in this Role. If a Node
         # is to be disposed and it is found in DONE, it will be cleaned
         #
@@ -469,7 +436,7 @@ module OpenNebula
                           "template #{template_id}, with name #{vm_name}",
                           @service.id
 
-                vm_id = template.instantiate(vm_name, on_hold?, extra_template)
+                vm_id = template.instantiate(vm_name, false, extra_template)
 
                 deployed_nodes << vm_id
 
@@ -577,44 +544,6 @@ module OpenNebula
             end
 
             [true, nil]
-        end
-
-        # Release all the nodes in this role
-        # @return [Array, Bool] true if all the VMs
-        #   were released, false otherwise and Array with VMs released
-        def release
-            release_nodes = []
-            success       = true
-
-            # Release all vms in the role
-            nodes.each do |node|
-                vm_id = node['deploy_id']
-
-                Log.debug(LOG_COMP,
-                          "Role #{name}: Releasing VM #{vm_id}",
-                          @service.id)
-
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id,
-                                                            @service.client)
-                rc = vm.release
-
-                if OpenNebula.is_error?(rc)
-                    msg = "Role #{name}: Release failed for VM #{vm_id}, " \
-                          "#{rc.message}"
-
-                    Log.error(LOG_COMP, msg, @service.id)
-                    @service.log_error(msg)
-                    success = false
-                else
-                    Log.debug(LOG_COMP,
-                              "Role #{name}: Release success for VM #{vm_id}",
-                              @service.id)
-
-                    release_nodes << vm_id
-                end
-            end
-
-            [release_nodes, success]
         end
 
         # Schedule the given action on all the VMs that belong to the Role

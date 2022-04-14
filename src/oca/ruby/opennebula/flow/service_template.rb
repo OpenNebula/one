@@ -73,10 +73,6 @@ module OpenNebula
                     :required => false,
                     :minimum => 0
                 },
-                'on_hold' => {
-                    :type => :boolean,
-                    :required => false
-                },
                 'elasticity_policies' => {
                     :type => :array,
                     :items => {
@@ -223,10 +219,6 @@ module OpenNebula
                         :type => :object,
                         :properties => {}
                     },
-                    :required => false
-                },
-                'on_hold' => {
-                    :type => :boolean,
                     :required => false
                 }
             }

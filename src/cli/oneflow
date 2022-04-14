@@ -521,27 +521,4 @@ CommandParser::CmdParser.new(ARGV) do
             0
         end
     end
-
-    ###
-
-    release_desc = <<-EOT.unindent
-        Release roles of a service on hold
-    EOT
-
-    command :release, release_desc, :service_id do
-        service_id = args[0]
-        client     = helper.client(options)
-
-        params        = {}
-        json          = Service.build_json_action('release', params)
-
-        response = client.post("#{RESOURCE_PATH}/#{service_id}/action",
-                               json)
-
-        if CloudClient.is_error?(response)
-            [response.code.to_i, response.to_s]
-        else
-            0
-        end
-    end
 end

@@ -35,9 +35,7 @@ class EventManager
         :wait_remove_action,
         :wait_cooldown_action,
         :wait_deploy_nets_action,
-        :wait_undeploy_nets_action,
-        :wait_hold,
-        :wait_release
+        :wait_undeploy_nets_action
     ]
 
     FAILURE_STATES = %w[
@@ -84,7 +82,6 @@ class EventManager
         @subscriber_endpoint = @cloud_auth.conf[:subscriber_endpoint]
 
         # Register Action Manager actions
-
         ACTIONS.each do |m|
             @am.register_action(m, method(m.to_s))
         end
@@ -305,51 +302,6 @@ class EventManager
                             client,
                             service_id,
                             role_name)
-    end
-
-    # Wait for nodes to be in HOLD
-    # @param [service_id] the service id
-    # @param [role_name] the role name of the role which contains the VMs
-    # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_hold_action(client, service_id, role_name, nodes)
-        Log.info LOG_COMP, "Waiting #{nodes} to be (HOLD, LCM_INIT)"
-        wait(nodes, 'HOLD', 'LCM_INIT')
-
-        @lcm.trigger_action(:hold_cb,
-                            service_id,
-                            client,
-                            service_id,
-                            role_name)
-    end
-
-    # Wait for nodes to be in RUNNING if OneGate check required it will trigger
-    # another action after VMs are RUNNING
-    # @param [Service] service the service
-    # @param [Role] the role which contains the VMs
-    # @param [Node] nodes the list of nodes (VMs) to wait for
-    def wait_release_action(client, service_id, role_name, nodes, report)
-        if report
-            Log.info LOG_COMP, "Waiting #{nodes} to report ready"
-            rc = wait_report_ready(nodes)
-        else
-            Log.info LOG_COMP, "Waiting #{nodes} to be (ACTIVE, RUNNING)"
-            rc = wait(nodes, 'ACTIVE', 'RUNNING')
-        end
-
-        if rc[0]
-            @lcm.trigger_action(:release_cb,
-                                service_id,
-                                client,
-                                service_id,
-                                role_name,
-                                rc[1])
-        else
-            @lcm.trigger_action(:deploy_failure_cb,
-                                service_id,
-                                client,
-                                service_id,
-                                role_name)
-        end
     end
 
     private
