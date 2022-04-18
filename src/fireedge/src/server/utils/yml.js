@@ -86,12 +86,10 @@ const readYAMLFile = (filePath = '', onError = defaultEmptyFunction) => {
  * @param {Array} [keys] - List of keys to filter
  * @returns {object} Filtered object
  */
-const filterByProtectedKeys = (config = {}, keys = []) => {
-  const entries = Object.entries(config)
-  const filteredEntries = entries.filter(([key]) => !keys.includes(key))
-
-  return Object.fromEntries(filteredEntries)
-}
+const filterByProtectedKeys = (config = {}, keys = []) =>
+  Object.keys(config)
+    .filter((key) => !keys.includes(key))
+    .reduce((newConf, key) => ({ ...newConf, [key]: config[key] }), {})
 
 /**
  * @typedef GetConfigurationOptions
@@ -112,7 +110,7 @@ const getConfiguration = (
 ) => {
   const config = readYAMLFile(getConfigPathByApp(app), onError)
 
-  if (config && includeProtectedConfig) {
+  if (config && !includeProtectedConfig) {
     return filterByProtectedKeys(config, getProtectedKeysByApp(app))
   }
 
