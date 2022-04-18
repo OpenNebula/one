@@ -21,7 +21,6 @@ import {
   useEffect,
   Provider,
   createContext,
-  useMemo,
 } from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
@@ -68,19 +67,15 @@ const translateString = (word = '', values) => {
   const { hash = {} } = useContext(TranslateContext)
   const { [word]: wordVal } = hash
 
-  const translation = useMemo(() => {
-    const ensuredWord = wordVal || word
+  const ensuredWord = wordVal || word
 
-    if (!ensuredWord || !values) return ensuredWord
+  if (!ensuredWord || !values) return ensuredWord
 
-    try {
-      return sprintf(ensuredWord, ...values)
-    } catch {
-      return word
-    }
-  }, [word, values])
-
-  return translation
+  try {
+    return sprintf(ensuredWord, ...values)
+  } catch {
+    return word
+  }
 }
 
 /**
