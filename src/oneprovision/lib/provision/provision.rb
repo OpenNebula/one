@@ -354,10 +354,6 @@ module OneProvision
                 # read provision file
                 cfg.parse(true)
 
-
-                pp cfg
-                exit 0
-
                 # @name is used for template evaluation
                 @name = cfg['name']
 
@@ -526,7 +522,11 @@ module OneProvision
             OneProvisionLogger.info('Deploying')
 
             ips, ids, state, conf = Driver.tf_action(self, 'add_hosts', tf)
-            hostnames ? added_hosts = hostnames : added_hosts = ips.last(amount)
+            if hostnames
+                added_hosts = hostnames
+            else
+                added_hosts = ips.last(amount)
+            end
 
             OneProvisionLogger.info('Monitoring hosts')
 
@@ -1081,7 +1081,8 @@ module OneProvision
                 datastore = Resource.object('datastores', provider)
                 datastore.info(d['id'])
 
-                if datastore.one['TEMPLATE/BRIDGE_LIST'] == '${updates.ceph_hosts_list}'
+                if datastore.one['TEMPLATE/BRIDGE_LIST'] == \
+                        '${updates.ceph_hosts_list}'
                     bridge_list = []
                     hosts.each do |h|
                         host = Resource.object('hosts', provider)
@@ -1103,8 +1104,8 @@ module OneProvision
                     end
                 end
 
-                if datastore.one['TEMPLATE/REPLICA_HOST'] == '${updates.first_host}' \
-                        && hosts.first['name']
+                if datastore.one['TEMPLATE/REPLICA_HOST'] == \
+                        '${updates.first_host}' && hosts.first['name']
 
                     datastore.one.delete_element('//TEMPLATE/REPLICA_HOST')
                     datastore.one.add_element(
@@ -1113,7 +1114,8 @@ module OneProvision
                     )
                 end
 
-                if datastore.one['TEMPLATE/CEPH_SECRET'] == '${updates.ceph_secret}'
+                if datastore.one['TEMPLATE/CEPH_SECRET'] == \
+                        '${updates.ceph_secret}'
                     datastore.one.delete_element('//TEMPLATE/CEPH_SECRET')
                     datastore.one.add_element(
                         '//TEMPLATE',
@@ -1136,7 +1138,8 @@ module OneProvision
                                                               @client)
                 vnet.info
 
-                next unless vnet['//TEMPLATE/PHYDEV'] == '${updates.default_ipv4_nic}'
+                next unless vnet['//TEMPLATE/PHYDEV'] \
+                    == '${updates.default_ipv4_nic}'
 
                 begin
                     # asume all hosts have same default nic, use first
@@ -1157,7 +1160,8 @@ module OneProvision
                                                              @client)
                 vntempl.info
 
-                next unless vntempl['//TEMPLATE/PHYDEV'] == '${updates.default_ipv4_nic}'
+                next unless vntempl['//TEMPLATE/PHYDEV'] \
+                    == '${updates.default_ipv4_nic}'
 
                 begin
                     # asume all hosts have same default nic, use first
