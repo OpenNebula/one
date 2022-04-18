@@ -42,7 +42,7 @@
       enabled: false
 
   - name: Allow forwading
-    shell: iptables -I DOCKER-USER -j ACCEPT
+    shell: iptables -I DOCKER-USER -j RETRUN
     ignore_errors: yes
 
   when: docker_result.stat.exists

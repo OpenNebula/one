@@ -37,4 +37,4 @@ datastores:
     type: 'system_ds'
     tm_mad: 'ssh'
     safe_dirs: "/var/tmp /tmp"
-    replica_host: "first-host"
+    replica_host: "${updates.first_host}"

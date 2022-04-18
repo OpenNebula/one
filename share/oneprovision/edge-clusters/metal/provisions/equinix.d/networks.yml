@@ -32,7 +32,7 @@ networks:
 vntemplates:
   - name: "${provision}-private"
     vn_mad: 'vxlan'
-    phydev: 'default-ipv4-nic'
+    phydev: "${updates.default_ipv4_nic}"
     automatic_vlan_id: 'yes'
     netrole: 'private'
     vxlan_mode: 'evpn'

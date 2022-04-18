@@ -354,6 +354,10 @@ module OneProvision
                 # read provision file
                 cfg.parse(true)
 
+
+                pp cfg
+                exit 0
+
                 # @name is used for template evaluation
                 @name = cfg['name']
 
@@ -1077,7 +1081,7 @@ module OneProvision
                 datastore = Resource.object('datastores', provider)
                 datastore.info(d['id'])
 
-                if datastore.one['TEMPLATE/BRIDGE_LIST'] == 'ceph-hosts-list'
+                if datastore.one['TEMPLATE/BRIDGE_LIST'] == '${updates.ceph_hosts_list}'
                     bridge_list = []
                     hosts.each do |h|
                         host = Resource.object('hosts', provider)
@@ -1099,7 +1103,7 @@ module OneProvision
                     end
                 end
 
-                if datastore.one['TEMPLATE/REPLICA_HOST'] == 'first-host' \
+                if datastore.one['TEMPLATE/REPLICA_HOST'] == '${updates.first_host}' \
                         && hosts.first['name']
 
                     datastore.one.delete_element('//TEMPLATE/REPLICA_HOST')
@@ -1109,7 +1113,7 @@ module OneProvision
                     )
                 end
 
-                if datastore.one['TEMPLATE/CEPH_SECRET'] == 'ceph-secret'
+                if datastore.one['TEMPLATE/CEPH_SECRET'] == '${updates.ceph_secret}'
                     datastore.one.delete_element('//TEMPLATE/CEPH_SECRET')
                     datastore.one.add_element(
                         '//TEMPLATE',
@@ -1132,7 +1136,7 @@ module OneProvision
                                                               @client)
                 vnet.info
 
-                next unless vnet['//TEMPLATE/PHYDEV'] == 'default-ipv4-nic'
+                next unless vnet['//TEMPLATE/PHYDEV'] == '${updates.default_ipv4_nic}'
 
                 begin
                     # asume all hosts have same default nic, use first
@@ -1153,7 +1157,7 @@ module OneProvision
                                                              @client)
                 vntempl.info
 
-                next unless vntempl['//TEMPLATE/PHYDEV'] == 'default-ipv4-nic'
+                next unless vntempl['//TEMPLATE/PHYDEV'] == '${updates.default_ipv4_nic}'
 
                 begin
                     # asume all hosts have same default nic, use first

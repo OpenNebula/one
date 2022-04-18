@@ -30,9 +30,9 @@ datastores:
     type: 'image_ds'
     ds_mad: 'ceph'
     tm_mad: 'ceph'
-    bridge_list: "ceph-hosts-list"
+    bridge_list: "${updates.ceph_hosts_list}"
     safe_dirs: "/var/tmp /tmp"
-    ceph_secret: "ceph-secret"
+    ceph_secret: "${updates.ceph_secret}"
     ceph_user: "oneadmin"
     disk_type: "rbd"
 
@@ -41,8 +41,8 @@ datastores:
     tm_mad: 'ceph'
     safe_dirs: "/var/tmp /tmp"
     allow_orphans: 'mixed'
-    bridge_list: "ceph-hosts-list"
-    ceph_secret: "ceph-secret"
+    bridge_list: "${updates.ceph_hosts_list}"
+    ceph_secret: "${updates.ceph_secret}"
     ceph_user: "oneadmin"
     disk_type: "rbd"
     shared: "yes"
