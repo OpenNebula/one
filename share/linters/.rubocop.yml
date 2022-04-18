@@ -22,6 +22,7 @@
 AllCops:
   Exclude:
     - src/sunstone/public/node_modules/**/*
+    - src/oneprovision/lib/provision/provision.rb
     - src/vnm_mad/remotes/vcenter/vnet_create
     - src/vnm_mad/remotes/vcenter/vnet_delete
     - src/vnm_mad/remotes/vcenter/virtual_network_xml.rb
