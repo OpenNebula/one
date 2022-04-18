@@ -112,7 +112,7 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 +----------------+---------+--------+--------------------------+----------------+
 |    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
-| vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
+| vcenter        | no      | no     | no                       |                |
 | dummy          | no      | yes    | no                       |                |
 | bridge         | no      | no     | no                       |                |
 | ebtables       | no      | no     | no                       |                |
