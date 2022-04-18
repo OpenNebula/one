@@ -72,6 +72,7 @@ export const useAuth = () => {
         SCHEME: DEFAULT_SCHEME,
         LANG: DEFAULT_LANGUAGE,
         DISABLE_ANIMATIONS: 'NO',
+        ...(user?.TEMPLATE ?? {}),
         ...(user?.TEMPLATE?.FIREEDGE ?? {}),
       },
       isLogged:

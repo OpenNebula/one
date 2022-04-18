@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, boolean, string } from 'yup'
-import { arrayToOptions, getValidationFromFields } from 'client/utils'
+import { boolean, string } from 'yup'
+import { arrayToOptions, getObjectSchemaFromFields } from 'client/utils'
 import {
   T,
   INPUT_TYPES,
@@ -25,7 +25,7 @@ import {
 } from 'client/constants'
 
 const SCHEME_FIELD = {
-  name: 'SCHEME',
+  name: 'FIREEDGE.SCHEME',
   label: T.Schema,
   type: INPUT_TYPES.SELECT,
   values: [
@@ -41,7 +41,7 @@ const SCHEME_FIELD = {
 }
 
 const LANG_FIELD = {
-  name: 'LANG',
+  name: 'FIREEDGE.LANG',
   label: T.Language,
   type: INPUT_TYPES.SELECT,
   values: () =>
@@ -58,7 +58,7 @@ const LANG_FIELD = {
 }
 
 const DISABLE_ANIMATIONS_FIELD = {
-  name: 'DISABLE_ANIMATIONS',
+  name: 'FIREEDGE.DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean()
@@ -67,6 +67,6 @@ const DISABLE_ANIMATIONS_FIELD = {
   grid: { md: 12 },
 }
 
-export const FORM_FIELDS = [SCHEME_FIELD, LANG_FIELD, DISABLE_ANIMATIONS_FIELD]
+export const FIELDS = [SCHEME_FIELD, LANG_FIELD, DISABLE_ANIMATIONS_FIELD]
 
-export const FORM_SCHEMA = object(getValidationFromFields(FORM_FIELDS))
+export const SCHEMA = getObjectSchemaFromFields(FIELDS)
