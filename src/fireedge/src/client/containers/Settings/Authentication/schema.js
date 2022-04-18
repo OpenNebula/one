@@ -13,29 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { Container, Typography, Divider, Stack } from '@mui/material'
+import { object, string } from 'yup'
+import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
+const PUBLIC_KEY_FIELD = {
+  name: 'SSH_PUBLIC_KEY',
+  label: T.SshPublicKey,
+  tooltip: T.AddUserSshPublicKey,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+}
 
-import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
-import AuthenticationSection from 'client/containers/Settings/Authentication'
+const PRIVATE_KEY_FIELD = {
+  name: 'SSH_PRIVATE_KEY',
+  label: T.SshPrivateKey,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+}
 
-/** @returns {ReactElement} Settings container */
-const Settings = () => (
-  <Container disableGutters>
-    <Typography variant="h5">
-      <Translate word={T.Settings} />
-    </Typography>
+const PASSPHRASE_FIELD = {
+  name: 'SSH_PASSPHRASE',
+  label: T.SshPassphraseKey,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+}
 
-    <Divider sx={{ my: '1em' }} />
+export const FIELDS = [PUBLIC_KEY_FIELD, PRIVATE_KEY_FIELD, PASSPHRASE_FIELD]
 
-    <Stack gap="1em">
-      <ConfigurationUISection />
-      <AuthenticationSection />
-    </Stack>
-  </Container>
-)
-
-export default Settings
+export const SCHEMA = object(getValidationFromFields(FIELDS))

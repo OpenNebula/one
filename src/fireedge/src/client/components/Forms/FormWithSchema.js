@@ -57,7 +57,7 @@ const FormWithSchema = ({
   const formContext = useFormContext()
   const { control, watch } = formContext
 
-  const { sx: sxRoot, restOfRootProps } = rootProps ?? {}
+  const { sx: sxRoot, ...restOfRootProps } = rootProps ?? {}
 
   const getFields = useMemo(
     () => (typeof fields === 'function' ? fields() : fields),

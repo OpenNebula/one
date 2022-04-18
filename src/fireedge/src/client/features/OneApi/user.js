@@ -19,6 +19,7 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import { authApi } from 'client/features/AuthApi'
 import { User } from 'client/constants'
 
 const { USER } = ONE_RESOURCES
@@ -109,6 +110,19 @@ const userApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: USER, id }],
+      async onQueryStarted({ id }, { queryFulfilled, dispatch, getState }) {
+        try {
+          await queryFulfilled
+
+          if (+id === +getState().auth.user.ID) {
+            dispatch(
+              authApi.endpoints.getAuthUser.initiate(undefined, {
+                forceRefetch: true,
+              })
+            )
+          }
+        } catch {}
+      },
     }),
     removeUser: builder.mutation({
       /**

@@ -86,6 +86,7 @@ module.exports = {
   Pin: 'Pin',
   Poweroff: 'Poweroff',
   PoweroffHard: 'Poweroff hard',
+  PressEscapeToCancel: 'Press Escape to cancel',
   Reboot: 'Reboot',
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
@@ -269,6 +270,9 @@ module.exports = {
   Language: 'Language',
   DisableDashboardAnimations: 'Disable dashboard animations',
   ConfigurationUI: 'Configuration UI',
+  Authentication: 'Authentication',
+  SshPrivateKey: 'SSH private key',
+  SshPassphraseKey: 'SSH private key passphrase',
 
   /* sections - system */
   User: 'User',
