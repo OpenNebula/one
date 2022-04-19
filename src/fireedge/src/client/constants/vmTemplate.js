@@ -75,3 +75,25 @@ export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
 ])
 
 export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])
+
+export const DEFAULT_TEMPLATE_LOGO = 'images/logos/default.png'
+
+export const TEMPLATE_LOGOS = {
+  'Alpine Linux': 'images/logos/alpine.png',
+  ALT: 'images/logos/alt.png',
+  Arch: 'images/logos/arch.png',
+  CentOS: 'images/logos/centos.png',
+  Debian: 'images/logos/debian.png',
+  Devuan: 'images/logos/devuan.png',
+  Fedora: 'images/logos/fedora.png',
+  FreeBSD: 'images/logos/freebsd.png',
+  HardenedBSD: 'images/logos/hardenedbsd.png',
+  Knoppix: 'images/logos/knoppix.png',
+  Linux: 'images/logos/linux.png',
+  Oracle: 'images/logos/oracle.png',
+  RedHat: 'images/logos/redhat.png',
+  Suse: 'images/logos/suse.png',
+  Ubuntu: 'images/logos/ubuntu.png',
+  'Windows xp': 'images/logos/windowsxp.png',
+  'Windows 10': 'images/logos/windows8.png',
+}
