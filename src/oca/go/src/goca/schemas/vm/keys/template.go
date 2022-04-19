@@ -82,8 +82,10 @@ const (
 	ACPI             Feature = "ACPI"
 	APIC             Feature = "APIC"
 	LocalTime        Feature = "LOCAL_TIME"
+	HyperV           Feature = "HYPERV"
 	GuestAgent       Feature = "GUEST_AGENT"
 	VirtIOScsiQueues Feature = "VIRTIO_SCSI_QUEUES"
+	IOThreads        Feature = "IOTHREADS"
 )
 
 // IOGraphics define keys for the VM IO graphics
