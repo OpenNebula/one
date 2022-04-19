@@ -87,7 +87,7 @@ const HeaderVmInfo = ({ id, type }) => {
                 <OpenNebulaLogo width={38} height={38} disabledBetaText />
               )}
             </StatusBadge>
-            <Typography noWrap component="span" variant="h6">
+            <Typography noWrap component="span" variant="h6" data-cy="name">
               {vm?.NAME}
             </Typography>
             {serviceFlow && (
@@ -117,6 +117,7 @@ const HeaderVmInfo = ({ id, type }) => {
               component="span"
               variant="body1"
               color="text.secondary"
+              data-cy="id"
             >
               {`# ${vm?.ID}`}
             </Typography>
@@ -135,7 +136,7 @@ const HeaderVmInfo = ({ id, type }) => {
           />
         ) : (
           !!ips?.length && (
-            <Typography>
+            <Typography data-cy="ips">
               <MultipleTags tags={ips} clipboard />
             </Typography>
           )
