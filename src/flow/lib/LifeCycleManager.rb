@@ -223,7 +223,7 @@ class ServiceLCM
                                roles,
                                'DEPLOYING',
                                'FAILED_DEPLOYING',
-                               :wait_release,
+                               :wait_release_action,
                                service.report_ready?)
 
             if !OpenNebula.is_error?(rc)
@@ -331,16 +331,6 @@ class ServiceLCM
 
                 # If there is no node in PENDING the service is not modified.
                 break
-            end
-
-            # Set all roles on hold if the on_hold option
-            # is set at service level
-            roles.each do |_, role|
-                if service.on_hold?
-                    role.hold(true)
-                elsif role.any_parent_on_hold?
-                    role.hold(true)
-                end
             end
 
             rc = deploy_roles(client,
@@ -1047,7 +1037,7 @@ class ServiceLCM
                              service.roles_hold,
                              'DEPLOYING',
                              'FAILED_DEPLOYING',
-                             :wait_deploy,
+                             :wait_deploy_action,
                              service.report_ready?)
             end
 
@@ -1085,7 +1075,7 @@ class ServiceLCM
                               service.roles_release,
                               'DEPLOYING',
                               'FAILED_DEPLOYING',
-                              :wait_deploy,
+                              :wait_deploy_action,
                               service.report_ready?)
             end
 
@@ -1253,7 +1243,7 @@ class ServiceLCM
 
             if role.on_hold? && role.state == Role::STATE['PENDING']
                 role.set_state(Role::STATE['HOLD'])
-                @event_manager.trigger_action(:wait_hold,
+                @event_manager.trigger_action(:wait_hold_action,
                                               role.service.id,
                                               client,
                                               role.service.id,
