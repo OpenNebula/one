@@ -82,7 +82,13 @@ const AutocompleteController = memo(
             InputProps={{ readOnly }}
             error={Boolean(error)}
             helperText={
-              Boolean(error) && <ErrorHelper label={error?.message} />
+              Boolean(error) && (
+                <ErrorHelper
+                  label={
+                    Array.isArray(error) ? error[0]?.message : error?.message
+                  }
+                />
+              )
             }
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
             {...inputParams}
