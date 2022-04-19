@@ -26,7 +26,7 @@ import Image from 'client/components/Image'
 
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { isExternalURL } from 'client/utils'
-import { VM, STATIC_FILES_URL } from 'client/constants'
+import { VM, STATIC_FILES_URL, DEFAULT_TEMPLATE_LOGO } from 'client/constants'
 
 const VmTemplateCard = memo(
   /**
@@ -48,12 +48,15 @@ const VmTemplateCard = memo(
       TEMPLATE: { LOGO = '' } = {},
     } = template
 
-    const logoSource = useMemo(
-      () => (isExternalURL(LOGO) ? LOGO : `${STATIC_FILES_URL}/${LOGO}`),
-      [LOGO]
-    )
+    const isExternalImage = useMemo(() => isExternalURL(LOGO), [LOGO])
 
-    const time = timeFromMilliseconds(+REGTIME)
+    const logoSource = useMemo(() => {
+      if (!LOGO) return `${STATIC_FILES_URL}/${DEFAULT_TEMPLATE_LOGO}`
+
+      return isExternalImage ? LOGO : `${STATIC_FILES_URL}/${LOGO}`
+    }, [isExternalImage, LOGO])
+
+    const time = useMemo(() => timeFromMilliseconds(+REGTIME), [REGTIME])
 
     return (
       <div {...rootProps} data-cy={`template-${ID}`}>

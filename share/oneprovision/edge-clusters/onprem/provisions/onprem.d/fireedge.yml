@@ -15,5 +15,5 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-image: 'OPENNEBULA-ON-PREM'
+image: 'OPENNEBULA-ONPREMISE'
 provider: 'dummy'

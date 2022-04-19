@@ -16,8 +16,15 @@
 import { string } from 'yup'
 
 import Image from 'client/components/Image'
-import { T, STATIC_FILES_URL, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 import { Field, arrayToOptions } from 'client/utils'
+import {
+  T,
+  STATIC_FILES_URL,
+  INPUT_TYPES,
+  HYPERVISORS,
+  DEFAULT_TEMPLATE_LOGO,
+  TEMPLATE_LOGOS,
+} from 'client/constants'
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated
@@ -68,26 +75,14 @@ export const LOGO = {
   name: 'LOGO',
   label: T.Logo,
   type: INPUT_TYPES.SELECT,
-  values: [
-    { text: '-', value: '' },
-    { text: 'Alpine Linux', value: 'images/logos/alpine.png' },
-    { text: 'ALT', value: 'images/logos/alt.png' },
-    { text: 'Arch', value: 'images/logos/arch.png' },
-    { text: 'CentOS', value: 'images/logos/centos.png' },
-    { text: 'Debian', value: 'images/logos/debian.png' },
-    { text: 'Devuan', value: 'images/logos/devuan.png' },
-    { text: 'Fedora', value: 'images/logos/fedora.png' },
-    { text: 'FreeBSD', value: 'images/logos/freebsd.png' },
-    { text: 'HardenedBSD', value: 'images/logos/hardenedbsd.png' },
-    { text: 'Knoppix', value: 'images/logos/knoppix.png' },
-    { text: 'Linux', value: 'images/logos/linux.png' },
-    { text: 'Oracle', value: 'images/logos/oracle.png' },
-    { text: 'RedHat', value: 'images/logos/redhat.png' },
-    { text: 'Suse', value: 'images/logos/suse.png' },
-    { text: 'Ubuntu', value: 'images/logos/ubuntu.png' },
-    { text: 'Windows xp', value: 'images/logos/windowsxp.png' },
-    { text: 'Windows 10', value: 'images/logos/windows8.png' },
-  ],
+  values: arrayToOptions(
+    [['-', DEFAULT_TEMPLATE_LOGO], ...Object.entries(TEMPLATE_LOGOS)],
+    {
+      addEmpty: false,
+      getText: ([name]) => name,
+      getValue: ([, logo]) => logo,
+    }
+  ),
   renderValue: (value) => (
     <Image
       alt="logo"
@@ -100,7 +95,7 @@ export const LOGO = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined),
+    .default(() => DEFAULT_TEMPLATE_LOGO),
   grid: { md: 12 },
 }
 
