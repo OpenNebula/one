@@ -135,7 +135,9 @@ const Guacamole = () => {
               alignItems="flex-end"
               gap="1em"
             >
-              <Typography color={colorStatus}>{connectionState}</Typography>
+              <Typography color={colorStatus} data-cy="state">
+                {connectionState}
+              </Typography>
               <GuacamoleLogo />
             </Stack>
           )}
