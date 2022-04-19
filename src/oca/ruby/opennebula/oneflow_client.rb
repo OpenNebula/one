@@ -56,11 +56,7 @@ module Role
         'SCALING'                 => 8,
         'FAILED_SCALING'          => 9,
         'COOLDOWN'                => 10,
-        'DEPLOYING_NETS'          => 11,
-        'UNDEPLOYING_NETS'        => 12,
-        'FAILED_DEPLOYING_NETS'   => 13,
-        'FAILED_UNDEPLOYING_NETS' => 14,
-        'HOLD'                    => 15
+        'HOLD'                    => 11
     }
 
     STATE_STR = [
@@ -75,10 +71,6 @@ module Role
         'SCALING',
         'FAILED_SCALING',
         'COOLDOWN',
-        'DEPLOYING_NETS',
-        'UNDEPLOYING_NETS',
-        'FAILED_DEPLOYING_NETS',
-        'FAILED_UNDEPLOYING_NETS',
         'HOLD'
     ]
 

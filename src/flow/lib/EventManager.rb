@@ -36,8 +36,8 @@ class EventManager
         :wait_cooldown_action,
         :wait_deploy_nets_action,
         :wait_undeploy_nets_action,
-        :wait_hold,
-        :wait_release
+        :wait_hold_action,
+        :wait_release_action
     ]
 
     FAILURE_STATES = %w[
