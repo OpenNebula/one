@@ -43,7 +43,7 @@ const Legend = memo(
 )
 
 Legend.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.any,
   tooltip: PropTypes.string,
 }
 

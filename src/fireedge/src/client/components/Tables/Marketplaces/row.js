@@ -40,11 +40,9 @@ const Row = ({ original, value, ...props }) => {
 
   return (
     <div {...props}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
       <div className={classes.main}>
         <div className={classes.title}>
+          <StatusCircle color={stateColor} tooltip={stateName} />
           <Typography component="span">{NAME}</Typography>
           <span className={classes.labels}>
             <StatusChip text={MARKET_MAD} />

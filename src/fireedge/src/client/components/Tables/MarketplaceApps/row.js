@@ -49,11 +49,9 @@ const Row = ({ original, value, ...props }) => {
 
   return (
     <div {...props} data-cy={`app-${ID}`}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
       <div className={classes.main}>
         <div className={classes.title}>
+          <StatusCircle color={stateColor} tooltip={stateName} />
           <Typography component="span">{NAME}</Typography>
           {LOCK && <Lock />}
           <span className={classes.labels}>

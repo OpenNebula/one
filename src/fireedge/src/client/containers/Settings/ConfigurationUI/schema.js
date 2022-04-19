@@ -25,7 +25,7 @@ import {
 } from 'client/constants'
 
 const SCHEME_FIELD = {
-  name: 'FIREEDGE.SCHEME',
+  name: 'SCHEME',
   label: T.Schema,
   type: INPUT_TYPES.SELECT,
   values: [
@@ -41,7 +41,7 @@ const SCHEME_FIELD = {
 }
 
 const LANG_FIELD = {
-  name: 'FIREEDGE.LANG',
+  name: 'LANG',
   label: T.Language,
   type: INPUT_TYPES.SELECT,
   values: () =>
@@ -58,7 +58,7 @@ const LANG_FIELD = {
 }
 
 const DISABLE_ANIMATIONS_FIELD = {
-  name: 'FIREEDGE.DISABLE_ANIMATIONS',
+  name: 'DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean()

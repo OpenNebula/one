@@ -145,7 +145,7 @@ FormWithSchema.propTypes = {
     PropTypes.func,
     PropTypes.arrayOf(PropTypes.object),
   ]),
-  legend: PropTypes.string,
+  legend: PropTypes.any,
   legendTooltip: PropTypes.string,
   rootProps: PropTypes.object,
   className: PropTypes.string,
