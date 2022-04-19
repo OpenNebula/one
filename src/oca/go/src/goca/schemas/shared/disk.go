@@ -34,6 +34,9 @@ type DiskKeys string
 const (
 	DiskVec      string   = "DISK"
 	DevPrefix    DiskKeys = "DEV_PREFIX"
+	Cache        DiskKeys = "CACHE"
+	Discard      DiskKeys = "DISCARD"
+	IO           DiskKeys = "IO"
 	DiskID       DiskKeys = "DISK_ID"
 	Datastore    DiskKeys = "DATASTORE"
 	DatastoreID  DiskKeys = "DATASTORE_ID"
