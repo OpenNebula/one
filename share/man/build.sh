@@ -53,6 +53,9 @@ COMMANDS=(
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'
     'onevmdump'         'Dumps VM content'
+
+    'onelog'            'Access to OpenNebula services log files'
+    'oneirb'            'Opens an irb session'
 )
 
 DIR_BUILD=$(mktemp -d)

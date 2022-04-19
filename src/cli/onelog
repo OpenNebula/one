@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+
+# Default pager to check logs
+DEFAULT_PAGER = 'less'
+
+# List of OpenNebula services and the logs files
+SERVICES = {
+    'fireedge' => { :log => 'fireedge.log', :error => 'fireedge.error' },
+    'monitor'  => 'monitor.log',
+    'novnc'    => 'novnc.log',
+    'oned'     => 'oned.log',
+    'onehem'   => { :log => 'onehem.log', :error => 'onehem.error' },
+    'sched'    => 'sched.log',
+    'sunstone' => { :log => 'sunstone.log', :error => 'sunstone.error' },
+    'vcenter'  => 'vcenter_monitor.log'
+}
+
+require 'command_parser'
+require 'one_helper'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onelog` <command> [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    TYPE = {
+        :name => 'type',
+        :short => '-t type',
+        :large => '--type type',
+        :format => String,
+        :description => 'Log type (log/error) [default: log]'
+    }
+
+    PAGER = {
+        :name => 'pager',
+        :short => '-p pager',
+        :large => '--pager pager',
+        :format => String,
+        :description => 'Pager to use to read logs [defaul: less]'
+    }
+
+    PAGER_OPTS = {
+        :name => 'pager_opts',
+        :large => '--pager-opts pager_opts',
+        :format => String,
+        :description => 'Pager options'
+    }
+
+    get_desc = <<-EOT.unindent
+        Gets log from an specific OpenNebula service
+    EOT
+
+    command :get, get_desc, :service, :options => [TYPE, PAGER, PAGER_OPTS] do
+        unless SERVICES[args[0]]
+            STDERR.puts "Service '#{args[0]}' not found"
+            exit 1
+        end
+
+        if options[:type] && !SERVICES[args[0]][options[:type].to_sym]
+            STDERR.puts "Log file type '#{options[:type]}' not found"
+            exit 1
+        end
+
+        if (SERVICES[args[0]].is_a? Hash) && !options[:type]
+            options[:type] = :log
+        end
+
+        type  = options[:type].to_sym
+        pager = options[:pager] || DEFAULT_PAGER
+
+        type.nil? ? file = SERVICES[args[0]] : file = SERVICES[args[0]][type]
+
+        system("#{pager} #{options[:pager_opts]} /var/log/one/#{file}")
+    end
+end
