@@ -173,13 +173,14 @@ const modificationOptionsInput = (fieldName, { type, options: optionsId }) => ({
       .when(`$general.${type}`, {
         is: (modificationType) => modificationType === list,
         then: (schema) => schema.required().min(1),
-        otherwise: (schema) => schema.nullable(),
+        otherwise: (schema) => schema.notRequired().nullable(),
       })
       .default(() => {
         const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
         const { options = [] } = getUserInputParams(capacityUserInput)
+        const numberOpts = options?.filter((opt) => opt !== ' ' && !isNaN(+opt))
 
-        return options
+        return numberOpts
       })
   ),
   fieldProps: { freeSolo: true },

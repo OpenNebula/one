@@ -33,6 +33,8 @@ const SliderController = memo(
     fieldProps = {},
     readOnly = false,
   }) => {
+    const { min, max, step } = fieldProps ?? {}
+
     const {
       field: { value, onChange, ...inputProps },
       fieldState: { error },
@@ -68,14 +70,14 @@ const SliderController = memo(
             inputProps={{
               'data-cy': inputId,
               'aria-labelledby': sliderId,
-              ...fieldProps,
+              min,
+              max,
+              step,
             }}
             onChange={(evt) =>
               onChange(!evt.target.value ? '0' : Number(evt.target.value))
             }
             onBlur={() => {
-              const { min, max } = fieldProps ?? {}
-
               if (min && value < min) {
                 onChange(min)
               } else if (max && value > max) {

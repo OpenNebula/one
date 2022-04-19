@@ -21,7 +21,9 @@ import {
   prettyBytes,
   isDivisibleBy,
 } from 'client/utils'
-import { T, HYPERVISORS, VmTemplate } from 'client/constants'
+import { T, HYPERVISORS, USER_INPUT_TYPES, VmTemplate } from 'client/constants'
+
+const { number, numberFloat } = USER_INPUT_TYPES
 
 const TRANSLATES = {
   MEMORY: { name: 'MEMORY', label: T.Memory, tooltip: T.MemoryConcept },
@@ -45,9 +47,9 @@ export const FIELDS = (vmTemplate) => {
   } = vmTemplate?.TEMPLATE || {}
 
   const {
-    MEMORY: memoryInput = `M|number|||${MEMORY}`,
-    CPU: cpuInput = `M|number-float|||${CPU}`,
-    VCPU: vcpuInput = `O|number|||${VCPU}`,
+    MEMORY: memoryInput = `M|${number}|| |${MEMORY}`,
+    CPU: cpuInput = `M|${numberFloat}|| |${CPU}`,
+    VCPU: vcpuInput = `O|${number}|| |${VCPU}`,
   } = USER_INPUTS
 
   return [
@@ -58,6 +60,9 @@ export const FIELDS = (vmTemplate) => {
     const isMemory = name === 'MEMORY'
     const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
     const divisibleBy4 = isVCenter && isMemory
+
+    // set default type to number
+    userInput.type ??= name === 'CPU' ? numberFloat : number
 
     const ensuredOptions = divisibleBy4
       ? options?.filter((value) => isDivisibleBy(+value, 4))
