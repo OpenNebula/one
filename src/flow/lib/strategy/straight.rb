@@ -140,4 +140,78 @@ module Straight
         result
     end
 
+    # Returns all node Roles ready to be set on hold
+    # @return [Hash<String, Role>] Roles
+    def roles_hold
+        hold_roles = roles.select do |_name, role|
+            role.state == Role::STATE['HOLD']
+        end
+
+        # Ruby 1.8 compatibility
+        if hold_roles.instance_of?(Array)
+            hold_roles = hold_roles.to_h
+        end
+
+        result = roles.select do |_name, role|
+            check = true
+
+            if role.state == Role::STATE['PENDING']
+                role.parents.each do |parent|
+                    if !hold_roles.include?(parent)
+                        check = false
+                        break
+                    end
+                end
+            else
+                check = false
+            end
+
+            check
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
+    # Returns all node Roles ready to be released
+    # @return [Hash<String, Role>] Roles
+    def roles_release
+        running_roles = roles.select do |_name, role|
+            role.state == Role::STATE['RUNNING']
+        end
+
+        # Ruby 1.8 compatibility
+        if running_roles.instance_of?(Array)
+            running_roles = running_roles.to_h
+        end
+
+        result = roles.select do |_name, role|
+            check = true
+
+            if role.state == Role::STATE['HOLD']
+                role.parents.each do |parent|
+                    if !running_roles.include?(parent)
+                        check = false
+                        break
+                    end
+                end
+            else
+                check = false
+            end
+
+            check
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
 end

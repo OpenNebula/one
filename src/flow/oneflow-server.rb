@@ -294,6 +294,9 @@ post '/service/:id/action' do
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a name')
         end
+    when 'release'
+        rc = lcm.release_action(@client, params[:id])
+
     when *Role::SCHEDULE_ACTIONS
         # Use defaults only if one of the options is supplied
         opts['period'] ||= conf[:action_period]
