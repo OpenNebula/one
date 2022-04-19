@@ -59,11 +59,9 @@ const VirtualMachineCard = memo(
 
     return (
       <div {...rootProps} data-cy={`vm-${ID}`}>
-        <div>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-        </div>
         <div className={classes.main}>
           <div className={classes.title}>
+            <StatusCircle color={stateColor} tooltip={stateName} />
             <Typography noWrap component="span">
               {NAME}
             </Typography>

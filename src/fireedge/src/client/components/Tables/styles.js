@@ -76,6 +76,11 @@ export const rowStyles = makeStyles(
         flexBasis: '100%',
       },
     },
+    captionItem: {
+      display: 'flex',
+      gap: '0.5em',
+      alignItems: 'center',
+    },
     secondary: {
       width: '25%',
       flexShrink: 0,
