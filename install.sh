@@ -991,6 +991,8 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevcenter \
            src/cli/onevntemplate \
            src/cli/onehook \
+           src/cli/onelog \
+           src/cli/oneirb \
            src/onedb/onedb \
            src/onevmdump/onevmdump \
            share/scripts/qemu-kvm-one-gen \
@@ -2521,6 +2523,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onemarketapp \
                src/cli/onemarket \
                src/cli/onevntemplate \
+               src/cli/oneirb \
+               src/cli/onelog \
                src/cli/onehook"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
@@ -3025,6 +3029,8 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneshowback.1.gz \
         share/man/oneacl.1.gz \
         share/man/onehook.1.gz \
+        share/man/onelog.1.gz \
+        share/man/oneirb.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
         share/man/oneuser.1.gz \

@@ -49,6 +49,9 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
+# Default VNC viewer
+DEFAULT_VNC = 'vinagre'
+
 require 'command_parser'
 require 'one_helper/onevm_helper'
 require 'one_helper/onedatastore_helper'
@@ -237,6 +240,13 @@ CommandParser::CmdParser.new(ARGV) do
         :large  => '--ssh-options options',
         :format => String,
         :description => 'SSH options to use'
+    }
+
+    VNC = {
+        :name => 'vnc',
+        :large => '--vnc vnc',
+        :format => String,
+        :description => 'VNC client to use'
     }
 
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
@@ -1663,6 +1673,30 @@ CommandParser::CmdParser.new(ARGV) do
             else
                 puts "#{ip}@#{e_start_p + Integer(args[1]) - 1} -> #{args[1]}"
             end
+        end
+    end
+
+    connect_desc = <<-EOT.unindent
+        Opens a VNC session to the VM
+    EOT
+
+    command :vnc, connect_desc, :vmid, :options => [VNC] do
+        helper.perform_action(args[0], options, 'VNC') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(1)
+            end
+
+            host = vm['HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+            port = vm['TEMPLATE/GRAPHICS/PORT']
+
+            vncviewer = options['vnc'] || DEFAULT_VNC
+
+            cmd = [vncviewer, "#{host}::#{port}"]
+
+            exec(*cmd)
         end
     end
 
