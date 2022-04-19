@@ -53,11 +53,9 @@ const HostCard = memo(
 
     return (
       <div {...rootProps} data-cy={`host-${ID}`}>
-        <div>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-        </div>
         <div className={classes.main}>
           <div className={classes.title}>
+            <StatusCircle color={stateColor} tooltip={stateName} />
             <Typography noWrap component="span">
               {TEMPLATE?.NAME ?? NAME}
             </Typography>
@@ -82,11 +80,15 @@ const HostCard = memo(
         <div className={classes.secondary}>
           <LinearProgressWithLabel
             value={percentCpuUsed}
+            high={66}
+            low={33}
             label={percentCpuLabel}
             title={`${Tr(T.AllocatedCpu)}`}
           />
           <LinearProgressWithLabel
             value={percentMemUsed}
+            high={66}
+            low={33}
             label={percentMemLabel}
             title={`${Tr(T.AllocatedMemory)}`}
           />

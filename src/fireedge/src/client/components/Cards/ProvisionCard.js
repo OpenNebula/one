@@ -47,8 +47,6 @@ const ProvisionCard = memo(
       TEMPLATE: { BODY = {} },
     } = value
 
-    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-
     const stateInfo = PROVISIONS_STATES[BODY.state]
     const image = propImage ?? BODY?.image
 
@@ -57,8 +55,10 @@ const ProvisionCard = memo(
     const imageUrl = useMemo(() => {
       if (!image) return DEFAULT_IMAGE
 
+      const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+
       return isExternalImage ? image : `${IMAGES_URL}/${image}`
-    }, [isExternalImage])
+    }, [isExternalImage, isProvider, image])
 
     return (
       <SelectCard
