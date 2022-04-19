@@ -59,7 +59,8 @@ module Role
         'DEPLOYING_NETS'          => 11,
         'UNDEPLOYING_NETS'        => 12,
         'FAILED_DEPLOYING_NETS'   => 13,
-        'FAILED_UNDEPLOYING_NETS' => 14
+        'FAILED_UNDEPLOYING_NETS' => 14,
+        'HOLD'                    => 15
     }
 
     STATE_STR = [
@@ -77,7 +78,8 @@ module Role
         'DEPLOYING_NETS',
         'UNDEPLOYING_NETS',
         'FAILED_DEPLOYING_NETS',
-        'FAILED_UNDEPLOYING_NETS'
+        'FAILED_UNDEPLOYING_NETS',
+        'HOLD'
     ]
 
     # Returns the string representation of the role state
@@ -105,7 +107,8 @@ module Service
         'DEPLOYING_NETS'          => 11,
         'UNDEPLOYING_NETS'        => 12,
         'FAILED_DEPLOYING_NETS'   => 13,
-        'FAILED_UNDEPLOYING_NETS' => 14
+        'FAILED_UNDEPLOYING_NETS' => 14,
+        'HOLD'                    => 15
     }
 
     STATE_STR = [
@@ -123,7 +126,8 @@ module Service
         'DEPLOYING_NETS',
         'UNDEPLOYING_NETS',
         'FAILED_DEPLOYING_NETS',
-        'FAILED_UNDEPLOYING_NETS'
+        'FAILED_UNDEPLOYING_NETS',
+        'HOLD'
     ]
 
     # Returns the string representation of the service state
