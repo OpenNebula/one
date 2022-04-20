@@ -243,6 +243,9 @@ module OneProvision
                         # match[2]: attribute
                         match = match.split('.')
 
+                        # don't evaluate ${updates.foo}
+                        next if match.size == 2 && match[0] == 'updates'
+
                         if match.size == 1
                             if @config['provision']
                                 index = @config['provision']['index']
