@@ -975,23 +975,14 @@ module VCenterDriver
                 host_id = vi_client.instance_variable_get '@host_id'
 
                 begin
-                    nsx_client =
-                        NSXDriver::NSXClient
-                        .new_from_id(
-                            host_id
-                        )
+                    nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
                 rescue StandardError
                     nsx_client = nil
                 end
 
                 if !nsx_client.nil?
-                    nsx_net =
-                        NSXDriver::VirtualWire
-                        .new_from_name(
-                            nsx_client,
-                            nic[:net_name]
-                        )
-
+                    nsx_net = NSXDriver::VirtualWire
+                              .new_from_name(nsx_client, nic[:net_name])
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
                     config[:nsx_tz_id] = nsx_net.tz_id
@@ -1002,11 +993,8 @@ module VCenterDriver
                 # so all Standard
                 # PortGroups are networks and no uplinks
                 config[:uplink] = false
-                config[:sw_name] =
-                    VCenterDriver::Network
-                    .virtual_switch(
-                        nic[:network]
-                    )
+                config[:sw_name] = VCenterDriver::Network
+                                   .virtual_switch(nic[:network])
                 # NSX-T PortGroups
             when VCenterDriver::Network::NETWORK_TYPE_NSXT
                 config[:sw_name] = \
@@ -1027,10 +1015,7 @@ module VCenterDriver
                 if !nsx_client.nil?
                     nsx_net =
                         NSXDriver::OpaqueNetwork
-                        .new_from_name(
-                            nsx_client,
-                            nic[:net_name]
-                        )
+                        .new_from_name(nsx_client, nic[:net_name])
 
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
@@ -1103,6 +1088,31 @@ module VCenterDriver
             one_vn = VCenterDriver::Network.create_one_network(config)
             VCenterDriver::VIHelper.clean_ref_hash
             one_vn.info
+
+            # Wait until the virtual network is in ready state
+            t_start = Time.now
+            error   = false
+            timeout = 30
+
+            while Time.now - t_start < timeout
+                begin
+                  if one_vn.short_state_str == 'rdy'
+                      error = false
+                      break
+                  end
+                rescue StandardError
+                    error = true
+                end
+
+                sleep 1
+                one_vn.info
+            end
+
+            if error
+                 error_msg  = "VNET #{one_vn.id} in state "
+                 error_msg += "#{one_vn.short_state_str}, aborting import"
+                 raise error_msg
+            end
 
             one_vn
         end
