@@ -1096,10 +1096,10 @@ module VCenterDriver
 
             while Time.now - t_start < timeout
                 begin
-                  if one_vn.short_state_str == 'rdy'
-                      error = false
-                      break
-                  end
+                    if one_vn.short_state_str == 'rdy'
+                        error = false
+                        break
+                    end
                 rescue StandardError
                     error = true
                 end
@@ -1109,9 +1109,9 @@ module VCenterDriver
             end
 
             if error
-                 error_msg  = "VNET #{one_vn.id} in state "
-                 error_msg += "#{one_vn.short_state_str}, aborting import"
-                 raise error_msg
+                error_msg  = "VNET #{one_vn.id} in state "
+                error_msg += "#{one_vn.short_state_str}, aborting import"
+                raise error_msg
             end
 
             one_vn
