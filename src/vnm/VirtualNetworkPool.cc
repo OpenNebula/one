@@ -936,11 +936,6 @@ void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
             {
                 vdcpool->update(vdc.get());
             }
-            else
-            {
-                NebulaLog::error("IPM", "Unable to remove Virtual Network id="
-                    + to_string(oid) + " from VDC, error: " + err);
-            }
         }
     }
 }
