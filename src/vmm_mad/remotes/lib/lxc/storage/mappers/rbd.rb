@@ -42,7 +42,7 @@ class RBDMapper
 
         return unless dsrc
 
-        rc, out, err = Command.execute("#{@map_cmd} #{dsrc}", true)
+        rc, out, err = Command.execute("#{@map_cmd} #{dsrc}", true, 1)
 
         unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
