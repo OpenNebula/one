@@ -26,7 +26,7 @@ resource "aws_instance" "device_<%= obj['ID'] %>" {
     }
 }
 
-<% if ceph_vars['ceph_hci'] %>
+<% if !ceph_vars.nil? && ceph_vars['ceph_hci'] %>
 
 <%# additional CEPH network interface %>
 resource "aws_network_interface" "device_<%= obj['ID'] %>_ceph" {
