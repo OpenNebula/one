@@ -71,7 +71,7 @@ begin
     last_action = vm['HISTORY_RECORDS/HISTORY[last()]/ACTION']
     last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
 
-    exit 0 if last_action_str == "stop"
+    exit 0 if last_action_str == 'stop'
 
     src_ds = vm.retrieve_elements('HISTORY_RECORDS/HISTORY/DS_ID')[-2]
 
