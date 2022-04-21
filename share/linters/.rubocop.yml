@@ -768,6 +768,9 @@ Style/FileWrite:
 Style/FileRead:
   Enabled: false
 
+Style/FetchEnvVar:
+  Enabled: false
+
 ######
 # LINT
 ######
