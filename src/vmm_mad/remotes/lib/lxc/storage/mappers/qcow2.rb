@@ -73,7 +73,7 @@ class Qcow2Mapper
     def nbd_version
         cmd = "#{@commands[:nbd]} -V"
 
-        rc, out, _err = Command.execute(cmd, false)
+        rc, out, _err = Command.execute(cmd, false, 1)
 
         return '0.0.0' unless rc.zero?
 

@@ -30,9 +30,15 @@ class Container
     #-----------------------------------------------------------------------
     # @param [LXCVM] ONE VM information (XML), LXC specilization
     # @param [LXCClient] client to interact with LXC (command line)
+    # @param [name] container name to interact with LXC (command line)
+
+    attr_reader :name
+
     def initialize(one, client)
         @one    = one
         @client = client
+
+        @name = @one.vm_name
     end
 
     class << self
@@ -44,6 +50,40 @@ class Container
             Container.new(one, client)
         end
 
+    end
+
+    #-----------------------------------------------------------------------
+    # Monitoring
+    #-----------------------------------------------------------------------
+
+    STATES = {
+        :running => 'RUNNING',
+        :stopped => 'STOPPED'
+    }
+
+    # Get container config
+    # -c, --config=KEY    show configuration variable KEY from running container
+
+    # TODO: Validate, LXC doesn't correctly put exit status
+    # root@ubuntu1804-lxc-lvm-ssh-6-3-QQ57P-1:~# lxc-info ubuntu -c arch
+    # arch invalid
+    # root@ubuntu1804-lxc-lvm-ssh-6-3-QQ57P-1:~# echo $?
+    # 0
+
+    def config(config_str)
+        @client.info(@name, { :c => config_str })
+    end
+
+    def state
+        @client.info(@name, { :s => nil })['State']
+    end
+
+    def running?
+        state == STATES[:running]
+    end
+
+    def stopped?
+        state == STATES[:stopped]
     end
 
     #-----------------------------------------------------------------------
@@ -78,13 +118,13 @@ class Container
         options[:config] = "#{@one.location}/deployment.file"
         File.write(options[:config], @one.to_lxc)
 
-        @client.create(@one.vm_name, options)
+        @client.create(@name, options)
     end
 
     # Remove container in Linux
     def cancel
         options = { :kill => nil }
-        rc = @client.stop(@one.vm_name, options)
+        rc = @client.stop(@name, options)
 
         return false unless rc
 
@@ -93,7 +133,7 @@ class Container
     end
 
     def start
-        rc = @client.start(@one.vm_name)
+        rc = @client.start(@name)
 
         # Clean if container fails to start
         if !rc
@@ -105,7 +145,7 @@ class Container
     end
 
     def shutdown
-        rc = @client.stop(@one.vm_name)
+        rc = @client.stop(@name)
 
         return false unless rc
 
@@ -114,7 +154,7 @@ class Container
     end
 
     def reboot
-        rc = @client.stop(@one.vm_name)
+        rc = @client.stop(@name)
 
         # Remove nic from ovs-switch if needed
         @one.get_nics.each do |nic|
@@ -123,7 +163,7 @@ class Container
 
         return false unless rc
 
-        @client.start(@one.vm_name)
+        @client.start(@name)
     end
 
     def clean(ignore_err = false)
@@ -138,7 +178,7 @@ class Container
         FileUtils.rm_rf(@one.bind_folder) if Dir.exist?(@one.bind_folder)
 
         # Destroy container
-        @client.destroy(@one.vm_name) if @client.list.include?(@one.vm_name)
+        @client.destroy(@name) if @client.list.include?(@name)
     end
 
     #---------------------------------------------------------------------------
@@ -151,20 +191,14 @@ class Container
 
     private
 
-    STATES = {
-        :running => 'RUNNING',
-        :stopped => 'STOPPED'
-    }
-
     # Waits for the container to be RUNNING
     #  @param timeout[Integer] seconds to wait for the conatiner to start
     def wait_deploy(timeout)
         t_start = Time.now
 
-        next while (Time.now - t_start < timeout) &&
-                   (@client.info(@one.vm_name)['State'] != STATES[:running])
+        next while (Time.now - t_start < timeout) && !running?
 
-        @client.info(@one.vm_name)['State'] == STATES[:running]
+        running?
     end
 
     def del_bridge_port(nic)
@@ -173,7 +207,7 @@ class Container
         cmd = 'sudo -n ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
 
-        rc, _o, e = Command.execute(cmd, false)
+        rc, _o, e = Command.execute(cmd, false, 1)
 
         return true if rc.zero?
 
