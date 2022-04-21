@@ -218,7 +218,12 @@ const SecurityGroupRules = memo(({ id, actions, rules }) => {
   return (
     <>
       <Stack direction="row" spacing={1} alignItems="center">
-        <Typography noWrap component="span" variant="subtitle1">
+        <Typography
+          noWrap
+          component="span"
+          variant="subtitle1"
+          data-cy={`${id}-rule-name`}
+        >
           {`#${id} ${name}`}
         </Typography>
         {!!actions && <div className={classes.actions}>{actions}</div>}
@@ -230,7 +235,11 @@ const SecurityGroupRules = memo(({ id, actions, rules }) => {
           </Typography>
         ))}
         {rules.map((rule, ruleIdx) => (
-          <SecurityGroupRule key={`${id}-rule-${ruleIdx}`} rule={rule} />
+          <SecurityGroupRule
+            data-cy={`${id}-rule-${ruleIdx}`}
+            key={`${id}-rule-${ruleIdx}`}
+            rule={rule}
+          />
         ))}
       </Box>
     </>
@@ -257,10 +266,10 @@ const SecurityGroupRule = memo(({ rule, 'data-cy': cy }) => {
         { text: RANGE, dataCy: 'range' },
         { text: NETWORK_ID, dataCy: 'networkid' },
         { text: ICMP_TYPE, dataCy: 'icmp-type' },
-      ].map(({ text, dataCy }) => (
+      ].map(({ text, dataCy }, index) => (
         <Typography
           noWrap
-          key={cy}
+          key={`${index}-${cy}`}
           data-cy={`${cy}-${dataCy}`}
           variant="subtitle2"
         >
