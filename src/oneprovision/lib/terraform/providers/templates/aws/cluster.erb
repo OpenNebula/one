@@ -37,7 +37,7 @@ resource "aws_subnet" "device_<%= obj['ID'] %>" {
     availability_zone      = local.my_zones[0]
 }
 
-<% if ceph_vars['ceph_hci'] %>
+<% if !ceph_vars.nil? && ceph_vars['ceph_hci'] %>
 <%# Additional CIDR block for HCI %>
 resource "aws_vpc_ipv4_cidr_block_association" "hci_cidr_<%= obj['ID'] %>" {
     vpc_id     = aws_vpc.device_<%= obj['ID'] %>.id
