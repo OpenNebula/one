@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box, Backdrop, CircularProgress } from '@mui/material'
+import { Container, Box, Backdrop, CircularProgress, Typography } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import {
@@ -74,6 +74,11 @@ function Provisions() {
     listOptions: { shouldSort: true, keys: ['ID', 'NAME'] },
   })
 
+  const handleClickfn = (ID, NAME) => {
+    getProvision(ID)
+    show({ id: ID, title: `#${ID} ${NAME}` })
+  }
+
   return (
     <>
       <Container disableGutters>
@@ -99,10 +104,13 @@ function Provisions() {
               gridProps={{ 'data-cy': 'provisions' }}
               CardComponent={ProvisionCard}
               cardsProps={({ value: { ID, NAME } }) => ({
-                handleClick: () => {
-                  getProvision(ID)
-                  show({ id: ID, title: `#${ID} ${NAME}` })
-                },
+                handleClick: () => handleClickfn(ID, NAME),
+                title: <Typography 
+                  component='span'
+                  onClick={() => handleClickfn(ID, NAME)}
+                >
+                  {NAME}
+                </Typography>,
                 actions: [
                   {
                     handleClick: async () => {
