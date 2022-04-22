@@ -395,13 +395,13 @@ module OneProvision
                     update
                 end
 
+                create_virtual_resources(cfg)
+
                 if skip == :none
                     configure_resources
                 else
                     info_objects('hosts', true) {|h| h.enable }
                 end
-
-                create_virtual_resources(cfg)
 
                 self.state = STATE['RUNNING']
 
