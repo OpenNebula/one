@@ -306,7 +306,7 @@ const decrypt = (data = '', decryptKey = '', iv = '') => {
  * @param {string} path - path of file
  * @param {Function} success - function executed when file exist
  * @param {Function} error - function executed when file no exists
- * @param {boolean} notify - dissable the error CLI output 
+ * @param {boolean} notify - dissable the error CLI output
  * @returns {boolean} validate if file exists
  */
 const existsFile = (
