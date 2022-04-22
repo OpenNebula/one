@@ -40,6 +40,7 @@ const ProvisionCard = memo(
     isProvider,
     actions,
     deleteAction,
+    title,
   }) => {
     const {
       ID,
@@ -95,7 +96,7 @@ const ProvisionCard = memo(
           ),
         }}
         subheader={`#${ID}`}
-        title={NAME}
+        title={title ?? NAME}
         disableFilterImage={isExternalImage}
       />
     )
