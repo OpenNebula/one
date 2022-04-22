@@ -306,12 +306,14 @@ const decrypt = (data = '', decryptKey = '', iv = '') => {
  * @param {string} path - path of file
  * @param {Function} success - function executed when file exist
  * @param {Function} error - function executed when file no exists
+ * @param {boolean} notify - dissable the error CLI output 
  * @returns {boolean} validate if file exists
  */
 const existsFile = (
   path = '',
   success = defaultEmptyFunction,
-  error = defaultEmptyFunction
+  error = defaultEmptyFunction,
+  notify = true
 ) => {
   let rtn = false
   let file
@@ -325,11 +327,12 @@ const existsFile = (
   } catch (err) {
     errorData = (err && err.message) || ''
     writeInLogger(errorData)
-    messageTerminal({
-      color: 'red',
-      message: 'Error: %s',
-      error: errorData,
-    })
+    notify &&
+      messageTerminal({
+        color: 'red',
+        message: 'Error: %s',
+        error: errorData,
+      })
   }
   if (rtn) {
     success(file, path)
@@ -406,7 +409,8 @@ const genFireedgeKey = () => {
               })
             }
           )
-        }
+        },
+        false
       )
     }
     global.paths.FIREEDGE_KEY = uuidv4
