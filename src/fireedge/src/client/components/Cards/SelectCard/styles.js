@@ -87,7 +87,7 @@ const styles = makeStyles((theme) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'initial',
     display: '-webkit-box',
-    lineClamp: 2,
+    lineClamp: 1,
     boxOrient: 'vertical',
   },
 }))
