@@ -153,7 +153,7 @@ module OneProvision
                         # if adding host then first (main playbook)
                         # run on all hosts, others with `--limit ${only_hosts}`
                         cmd << " --limit #{only_hosts.join(',')}" \
-                            if only_hosts && @playbook.first != playbook
+                            if only_hosts && @playbooks.first != playbook
 
                         cmd << " #{ANSIBLE_LOCATION}/#{playbook}.yml"
 
