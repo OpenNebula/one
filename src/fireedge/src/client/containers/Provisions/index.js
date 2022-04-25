@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box, Backdrop, CircularProgress, Typography } from '@mui/material'
+import { Container, Box, Backdrop, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import {
@@ -105,12 +105,6 @@ function Provisions() {
               CardComponent={ProvisionCard}
               cardsProps={({ value: { ID, NAME } }) => ({
                 handleClick: () => handleClickfn(ID, NAME),
-                title: <Typography 
-                  component='span'
-                  onClick={() => handleClickfn(ID, NAME)}
-                >
-                  {NAME}
-                </Typography>,
                 actions: [
                   {
                     handleClick: async () => {

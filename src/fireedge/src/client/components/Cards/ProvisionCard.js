@@ -17,6 +17,7 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Db as ProviderIcon, Cloud as ProvisionIcon } from 'iconoir-react'
+import { Typography } from '@mui/material'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
@@ -40,7 +41,6 @@ const ProvisionCard = memo(
     isProvider,
     actions,
     deleteAction,
-    title,
   }) => {
     const {
       ID,
@@ -96,7 +96,21 @@ const ProvisionCard = memo(
           ),
         }}
         subheader={`#${ID}`}
-        title={title ?? NAME}
+        title={
+          <Typography
+            component="span"
+            sx={{
+              cursor: 'pointer',
+              '&:hover': {
+                color: 'secondary.dark',
+              },
+            }}
+            data-cy={`${isProvider ? 'provider' : 'provision'}-card-title`}
+            onClick={handleClick}
+          >
+            {NAME}
+          </Typography>
+        }
         disableFilterImage={isExternalImage}
       />
     )
