@@ -23,10 +23,6 @@ Add any other context or screenshots about the feature request here. Or any othe
 <!--////////////////////////////////////////////-->
 
 ## Progress Status
-- [ ] Branch created
-- [ ] Code committed to development branch
+- [ ] Code commited
 - [ ] Testing - QA
-- [ ] Documentation
-- [ ] Release notes - resolved issues, compatibility, known issues
-- [ ] Code committed to upstream release/hotfix branches
-- [ ] Documentation committed to upstream release/hotfix branches
+- [ ] Documentation (Release notes - resolved issues, compatibility, known issues)
