@@ -149,7 +149,12 @@ module OneProvision
                         cmd << "ansible-playbook #{ANSIBLE_ARGS}"
                         @inventories.each {|i| cmd << " -i  #{i}" }
                         @group_vars.each  {|g| cmd << " -e @#{g}" }
-                        cmd << " --limit #{only_hosts.join(',')}" if only_hosts
+
+                        # if adding host then first (main playbook)
+                        # run on all hosts, others with `--limit ${only_hosts}`
+                        cmd << " --limit #{only_hosts.join(',')}" \
+                            if only_hosts && @playbook.first != playbook
+
                         cmd << " #{ANSIBLE_LOCATION}/#{playbook}.yml"
 
                         o, _e, s = Driver.run(cmd, true)
