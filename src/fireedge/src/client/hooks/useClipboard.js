@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { useMemo, useState } from 'react'
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 
 /** @enum {string} Clipboard state */
 export const CLIPBOARD_STATUS = {
@@ -41,29 +41,38 @@ const { INIT, ERROR, COPIED } = CLIPBOARD_STATUS
 /**
  * Hook to manage a clipboard.
  *
- * @param {string|number} tooltipDelay - Time in milliseconds to hide the tooltip
+ * @param {string|number} [tooltipDelay] - Time in milliseconds to hide the tooltip
  * @returns {UseClipboard} Returns management attributes
  */
 const useClipboard = ({ tooltipDelay = 2000 } = {}) => {
-  const [state, setState] = useState(() => INIT)
+  const isMounted = useRef(true)
+  const [state, setState] = useState()
   const isCopied = useMemo(() => state === COPIED, [state])
 
-  const copy = async (text) => {
-    try {
-      // Use the Async Clipboard API when available.
-      // Requires a secure browsing context (i.e. HTTPS)
-      !navigator?.clipboard && setState(ERROR)
+  useEffect(() => () => (isMounted.current = false), [])
 
-      await navigator.clipboard.writeText(String(text))
+  const copy = useCallback(
+    async (text) => {
+      try {
+        // Use the Async Clipboard API when available.
+        // Requires a secure browsing context (i.e. HTTPS)
+        !navigator?.clipboard && setState(ERROR)
 
-      setState(COPIED)
-      if (+tooltipDelay > 0) {
-        setTimeout(() => setState(INIT), +tooltipDelay)
+        await navigator.clipboard.writeText(String(text))
+
+        setState(COPIED)
+
+        if (+tooltipDelay > 0) {
+          setTimeout(() => {
+            isMounted.current && setState(INIT)
+          }, +tooltipDelay)
+        }
+      } catch (error) {
+        setState(ERROR)
       }
-    } catch (error) {
-      setState(ERROR)
-    }
-  }
+    },
+    [tooltipDelay]
+  )
 
   return { copy, state, isCopied }
 }

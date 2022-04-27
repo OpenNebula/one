@@ -17,27 +17,12 @@ import { useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { AnySchema } from 'yup'
 
-import clsx from 'clsx'
-import makeStyles from '@mui/styles/makeStyles'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import DialogConfirmation, {
   DialogPropTypes,
 } from 'client/components/Dialogs/DialogConfirmation'
-
-const useStyles = makeStyles((theme) => ({
-  content: {
-    width: '80vw',
-    height: '60vh',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    [theme.breakpoints.only('xs')]: {
-      width: '100vw',
-      height: '100vh',
-    },
-  },
-}))
 
 /**
  * Creates dialog with a form inside.
@@ -57,13 +42,8 @@ const DialogForm = ({
   dialogProps,
   children,
 }) => {
-  const classes = useStyles()
-  const { className, ...contentProps } = dialogProps.contentProps ?? {}
-
-  dialogProps.contentProps = {
-    className: clsx(classes.content, className),
-    ...contentProps,
-  }
+  dialogProps.fixedWidth ??= true
+  dialogProps.fixedHeight ??= true
 
   const methods = useForm({
     mode: 'onBlur',

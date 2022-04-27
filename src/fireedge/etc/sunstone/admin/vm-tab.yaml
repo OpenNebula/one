@@ -29,8 +29,6 @@ actions:
   deploy: true
   migrate: true
   migrate_live: true
-  migrate_poff: false
-  migrate_poff_hard: false
   hold: true
   release: true
   suspend: true
@@ -56,13 +54,19 @@ actions:
   vnc: true
   ssh: true
   rdp: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
   state: true
-
+  owner: true
+  group: true
+  type: true
+  locked: true
+  ips: true
+  hostname: true
 
 # Info Tabs - Which info tabs are used to show extended information
 

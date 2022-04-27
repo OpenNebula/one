@@ -99,6 +99,7 @@ const NicCard = memo(
 
     const isAlias = !!PARENT?.length
     const isPciDevice = PCI_ID !== undefined
+    const isAdditionalIp = NIC_ID !== undefined || NETWORK === 'Additional IP'
 
     const dataCy = isAlias ? 'alias' : 'nic'
 
@@ -149,7 +150,9 @@ const NicCard = memo(
             </span>
           </div>
         </Box>
-        {!isPciDevice && <div className={classes.actions}>{actions}</div>}
+        {!isPciDevice && !isAdditionalIp && (
+          <div className={classes.actions}>{actions}</div>
+        )}
         {!!ALIAS?.length && (
           <Box flexBasis="100%">
             {ALIAS?.map((alias) => (
@@ -182,7 +185,12 @@ const NicCard = memo(
 
                 return (
                   <AccordionDetails key={key}>
-                    <SecurityGroupRules id={ID} rules={rules} actions={acts} />
+                    <SecurityGroupRules
+                      parentKey={key}
+                      id={ID}
+                      rules={rules}
+                      actions={acts}
+                    />
                   </AccordionDetails>
                 )
               })}
@@ -205,7 +213,7 @@ NicCard.propTypes = {
 
 NicCard.displayName = 'NicCard'
 
-const SecurityGroupRules = memo(({ id, actions, rules }) => {
+const SecurityGroupRules = memo(({ parentKey, id, actions, rules }) => {
   const classes = rowStyles()
 
   const COLUMNS = useMemo(
@@ -222,7 +230,7 @@ const SecurityGroupRules = memo(({ id, actions, rules }) => {
           noWrap
           component="span"
           variant="subtitle1"
-          data-cy={`${id}-rule-name`}
+          data-cy={`${parentKey}-rule-name`}
         >
           {`#${id} ${name}`}
         </Typography>
@@ -230,14 +238,19 @@ const SecurityGroupRules = memo(({ id, actions, rules }) => {
       </Stack>
       <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap="0.5em">
         {COLUMNS.map((col) => (
-          <Typography key={col} noWrap component="span" variant="subtitle2">
+          <Typography
+            key={`${parentKey}-${col}`}
+            noWrap
+            component="span"
+            variant="subtitle2"
+          >
             <Translate word={col} />
           </Typography>
         ))}
-        {rules.map((rule, ruleIdx) => (
+        {rules.map((rule) => (
           <SecurityGroupRule
-            data-cy={`${id}-rule-${ruleIdx}`}
-            key={`${id}-rule-${ruleIdx}`}
+            key={`${parentKey}-rule-${rule.RULE_TYPE}`}
+            data-cy={`${parentKey}-rule-${rule.RULE_TYPE}`}
             rule={rule}
           />
         ))}
@@ -247,6 +260,7 @@ const SecurityGroupRules = memo(({ id, actions, rules }) => {
 })
 
 SecurityGroupRules.propTypes = {
+  parentKey: PropTypes.string,
   id: PropTypes.string,
   rules: PropTypes.array,
   actions: PropTypes.node,
@@ -254,7 +268,7 @@ SecurityGroupRules.propTypes = {
 
 SecurityGroupRules.displayName = 'SecurityGroupRule'
 
-const SecurityGroupRule = memo(({ rule, 'data-cy': cy }) => {
+const SecurityGroupRule = memo(({ rule, 'data-cy': parentCy }) => {
   /** @type {PrettySecurityGroupRule} */
   const { PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID } = rule
 
@@ -266,11 +280,11 @@ const SecurityGroupRule = memo(({ rule, 'data-cy': cy }) => {
         { text: RANGE, dataCy: 'range' },
         { text: NETWORK_ID, dataCy: 'networkid' },
         { text: ICMP_TYPE, dataCy: 'icmp-type' },
-      ].map(({ text, dataCy }, index) => (
+      ].map(({ text, dataCy }) => (
         <Typography
           noWrap
-          key={`${index}-${cy}`}
-          data-cy={`${cy}-${dataCy}`}
+          key={`${parentCy}-${dataCy}`}
+          data-cy={`${parentCy}-${dataCy}`.toLowerCase()}
           variant="subtitle2"
         >
           {text}

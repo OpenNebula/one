@@ -53,11 +53,12 @@ const userApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for the user.
        *
-       * @param {string} id - User id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - User id
        * @returns {User} Get user identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: ({ id }) => {
         const name = Actions.USER_INFO
         const command = { name, ...Commands[name] }
 
@@ -115,7 +116,7 @@ const userApi = oneApi.injectEndpoints({
           await queryFulfilled
 
           if (+id === +getState().auth.user.ID) {
-            dispatch(
+            await dispatch(
               authApi.endpoints.getAuthUser.initiate(undefined, {
                 forceRefetch: true,
               })

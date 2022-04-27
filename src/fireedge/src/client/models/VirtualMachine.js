@@ -25,7 +25,8 @@ import {
   VM_ACTIONS_BY_STATE,
   VM_STATES,
   VM_LCM_STATES,
-  NIC_ALIAS_IP_ATTRS,
+  NIC_IP_ATTRS,
+  EXTERNAL_IP_ATTRS,
   HISTORY_ACTIONS,
   HYPERVISORS,
   StateInfo,
@@ -76,9 +77,9 @@ export const getLastHistory = (vm) => {
  * @returns {string} Resource type: VR, FLOW or VM
  */
 export const getType = (vm) =>
-  vm.TEMPLATE?.VROUTER_ID
+  vm.TEMPLATE?.VROUTER_ID !== undefined
     ? 'VR'
-    : vm?.USER_TEMPLATE?.USER_TEMPLATE?.SERVICE_ID
+    : vm?.USER_TEMPLATE?.USER_TEMPLATE?.SERVICE_ID !== undefined
     ? 'FLOW'
     : 'VM'
 
@@ -103,6 +104,17 @@ export const getState = (vm) => {
   const state = VM_STATES[+STATE]
 
   return state?.name === STATES.ACTIVE ? VM_LCM_STATES[+LCM_STATE] : state
+}
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @returns {string[]} Labels from resource
+ */
+export const getLabels = (vm) => {
+  const { USER_TEMPLATE } = vm ?? {}
+  const { LABELS } = USER_TEMPLATE ?? {}
+
+  return LABELS?.split(',') ?? []
 }
 
 /**
@@ -181,22 +193,27 @@ export const getDisks = (vm) => {
 export const getNics = (vm, options = {}) => {
   const { groupAlias = false, securityGroupsFromTemplate = false } = options
   const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
-
   const { NIC = [], NIC_ALIAS = [], PCI = [] } = TEMPLATE
-  const { GUEST_IP, GUEST_IP_ADDRESSES = '' } = MONITORING
 
   const pciNics = PCI.filter(({ NIC_ID } = {}) => NIC_ID !== undefined)
 
-  const extraIps = [GUEST_IP, ...GUEST_IP_ADDRESSES?.split(',')]
-    .filter(Boolean)
-    .map((ip) => ({
-      NIC_ID: '-',
-      IP: ip,
+  let nics = [NIC, NIC_ALIAS, pciNics].flat().filter(Boolean)
+
+  // MONITORING data is not always available
+  if (Object.keys(MONITORING).length > 0) {
+    const externalIps = EXTERNAL_IP_ATTRS.map((externalAttribute) =>
+      MONITORING[externalAttribute]?.split(',')
+    )
+
+    const ensuredExternalIps = [...externalIps].flat().filter(Boolean)
+    const externalNics = ensuredExternalIps.map((externalIp) => ({
+      NIC_ID: '_',
+      IP: externalIp,
       NETWORK: 'Additional IP',
-      BRIDGE: '-',
     }))
 
-  let nics = [NIC, NIC_ALIAS, pciNics, extraIps].flat().filter(Boolean)
+    nics = [...nics, ...externalNics]
+  }
 
   if (groupAlias) {
     nics = nics
@@ -222,15 +239,28 @@ export const getNics = (vm, options = {}) => {
 }
 
 /**
+ * @param {Nic} nic - NIC
+ * @returns {string} Ips from resource
+ */
+export const getIpsFromNic = (nic) => {
+  const attributeIp = NIC_IP_ATTRS.find((attr) =>
+    [attr].flat().every((flatted) => nic[flatted] !== undefined)
+  )
+
+  if (attributeIp) {
+    return [attributeIp]
+      .flat()
+      .map((attribute) => nic[attribute])
+      .join(' ')
+  }
+}
+
+/**
  * @param {VM} vm - Virtual machine
  * @returns {string[]} List of ips from resource
  */
-export const getIps = (vm) => {
-  const getIpsFromNic = (nic) =>
-    NIC_ALIAS_IP_ATTRS.map((attr) => nic[attr]).filter(Boolean)
-
-  return getNics(vm).map(getIpsFromNic).flat()
-}
+export const getIps = (vm) =>
+  getNics(vm).map(getIpsFromNic).filter(Boolean).flat()
 
 /**
  * @param {VM} vm - Virtual machine
@@ -245,6 +275,13 @@ export const splitNicAlias = (vm) =>
     },
     { nics: [], alias: [] }
   )
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @returns {Nic} Nic from resource with port forwarding
+ */
+export const getNicWithPortForwarding = (vm) =>
+  getNics(vm).find((nic) => nic.EXTERNAL_PORT_RANGE)
 
 /**
  * @param {VM} vm - Virtual machine

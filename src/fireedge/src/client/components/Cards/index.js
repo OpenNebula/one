@@ -22,6 +22,7 @@ import DiskCard from 'client/components/Cards/DiskCard'
 import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import EmptyCard from 'client/components/Cards/EmptyCard'
 import HostCard from 'client/components/Cards/HostCard'
+import MarketplaceAppCard from 'client/components/Cards/MarketplaceAppCard'
 import NetworkCard from 'client/components/Cards/NetworkCard'
 import NicCard from 'client/components/Cards/NicCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
@@ -29,8 +30,8 @@ import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
 import SecurityGroupCard from 'client/components/Cards/SecurityGroupCard'
-import SnapshotCard from 'client/components/Cards/SnapshotCard'
 import SelectCard from 'client/components/Cards/SelectCard'
+import SnapshotCard from 'client/components/Cards/SnapshotCard'
 import TierCard from 'client/components/Cards/TierCard'
 import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
 import VmTemplateCard from 'client/components/Cards/VmTemplateCard'
@@ -46,6 +47,7 @@ export {
   DiskSnapshotCard,
   EmptyCard,
   HostCard,
+  MarketplaceAppCard,
   NetworkCard,
   NicCard,
   PolicyCard,
@@ -53,8 +55,8 @@ export {
   ProvisionTemplateCard,
   ScheduleActionCard,
   SecurityGroupCard,
-  SnapshotCard,
   SelectCard,
+  SnapshotCard,
   TierCard,
   VirtualMachineCard,
   VmTemplateCard,

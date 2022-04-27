@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-import { ReactElement, useEffect } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { ReactElement, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
-
+import { debounce } from '@mui/material'
+import { FormProvider, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+
+import { useGeneralApi } from 'client/features/General'
+import { useUpdateHostMutation } from 'client/features/OneApi/host'
 
 import {
   FORM_FIELDS_PIN_POLICY,
   FORM_SCHEMA_PIN_POLICY,
 } from 'client/components/Tabs/Host/Numa/UpdatePinPolicy/schema'
-
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-
-import { useGeneralApi } from 'client/features/General'
-
-import { useUpdateHostMutation } from 'client/features/OneApi/host'
-
+import { FormWithSchema } from 'client/components/Forms'
 import { T, Host } from 'client/constants'
 /**
  * @param {object} props - Props
@@ -43,26 +39,31 @@ const UpdatePinPolicyForm = ({ host }) => {
   const { enqueueError } = useGeneralApi()
   const [updateUserTemplate] = useUpdateHostMutation()
 
-  const { watch, ...methods } = useForm({
+  const { watch, handleSubmit, ...methods } = useForm({
     reValidateMode: 'onSubmit',
-    defaultValues: {
-      PIN_POLICY: TEMPLATE.PIN_POLICY,
-    },
+    defaultValues: { PIN_POLICY: TEMPLATE.PIN_POLICY },
     resolver: yupResolver(FORM_SCHEMA_PIN_POLICY),
   })
 
-  useEffect(() => {
-    watch((data) => {
+  const handleUpdatePinPolicy = useCallback(
+    debounce(async ({ PIN_POLICY } = {}) => {
       try {
-        updateUserTemplate({
+        await updateUserTemplate({
           id: host.ID,
-          template: `PIN_POLICY = ${data.PIN_POLICY}`,
+          template: `PIN_POLICY = ${PIN_POLICY}`,
           replace: 1,
         })
       } catch {
         enqueueError(T.SomethingWrong)
       }
-    })
+    }, 500),
+    [updateUserTemplate]
+  )
+
+  useEffect(() => {
+    const subscription = watch(() => handleSubmit(handleUpdatePinPolicy)())
+
+    return () => subscription.unsubscribe()
   }, [watch])
 
   return (

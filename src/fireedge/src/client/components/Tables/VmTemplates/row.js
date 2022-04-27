@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import vmTemplateApi from 'client/features/OneApi/vmTemplate'
+
+import vmTemplateApi, {
+  useUpdateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
 import { VmTemplateCard } from 'client/components/Cards'
+import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
   ({ original, value, ...props }) => {
+    const [update] = useUpdateTemplateMutation()
+
     const state = vmTemplateApi.endpoints.getTemplates.useQueryState(
       undefined,
       {
@@ -28,7 +34,27 @@ const Row = memo(
       }
     )
 
-    return <VmTemplateCard template={state ?? original} rootProps={props} />
+    const memoTemplate = useMemo(() => state ?? original, [state, original])
+
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoTemplate.TEMPLATE?.LABELS?.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newUserTemplate = { ...memoTemplate.TEMPLATE, LABELS: newLabels }
+        const templateXml = jsonToXml(newUserTemplate)
+
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoTemplate.TEMPLATE?.LABELS, update]
+    )
+
+    return (
+      <VmTemplateCard
+        template={memoTemplate}
+        rootProps={props}
+        onDeleteLabel={handleDeleteLabel}
+      />
+    )
   },
   (prev, next) => prev.className === next.className
 )

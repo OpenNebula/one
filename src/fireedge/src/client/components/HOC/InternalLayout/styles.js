@@ -43,6 +43,9 @@ export default makeStyles((theme) => ({
   scrollable: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    [theme.breakpoints.up('xs')]: {
+      padding: 0,
+    },
     height: '100%',
     overflow: 'auto',
     '&::-webkit-scrollbar': {

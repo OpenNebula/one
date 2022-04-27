@@ -60,7 +60,7 @@ const HostTabs = memo(({ id }) => {
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />
   ) : (
-    <Tabs tabs={tabsAvailable} />
+    <Tabs addBorder tabs={tabsAvailable} />
   )
 })
 

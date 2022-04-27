@@ -37,11 +37,16 @@ actions:
   unlock: true
   share: true
   unshare: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  owner: true
+  group: true
+  locked: true
+  vrouter: true
 
 
 # Info Tabs - Which info tabs are used to show extended information

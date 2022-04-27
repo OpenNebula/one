@@ -19,7 +19,8 @@ import { styled, Link, Typography } from '@mui/material'
 
 import { useGetOneVersionQuery } from 'client/features/OneApi/system'
 import { StatusChip } from 'client/components/Status'
-import { BY } from 'client/constants'
+import { Translate } from 'client/components/HOC'
+import { BY, T } from 'client/constants'
 
 const FooterBox = styled('footer')(({ theme }) => ({
   color: theme.palette.primary.contrastText,
@@ -48,12 +49,19 @@ const Footer = memo(() => {
   return (
     <FooterBox>
       <Typography variant="body2">
-        {'Made with'}
+        <Translate word={T.MadeWith} />
         <HeartIcon role="img" aria-label="heart-emoji" />
         <Link href={BY.url} color="primary.contrastText">
           {BY.text}
         </Link>
-        {version && <StatusChip stateColor="secondary" text={version} mx={1} />}
+        {version && (
+          <StatusChip
+            forceWhiteColor
+            stateColor="secondary"
+            text={version}
+            mx={1}
+          />
+        )}
       </Typography>
     </FooterBox>
   )

@@ -75,9 +75,10 @@ const Networks = memo(({ id }) => {
         </Stack>
       </Stack>
       <VNetworksTable
-        onlyGlobalSearch
-        disableRowSelect
         disableGlobalSort
+        disableRowSelect
+        displaySelectedRows
+        pageSize={5}
         useQuery={() =>
           useGetProvisionResourceQuery(
             { resource: 'network' },

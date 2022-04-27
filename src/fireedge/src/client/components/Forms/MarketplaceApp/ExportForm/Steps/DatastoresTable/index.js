@@ -43,8 +43,9 @@ const Content = ({ data, app }) => {
   return (
     <DatastoresTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       getRowId={(row) => String(row.NAME)}
       initialState={{
         selectedRowIds: { [NAME]: true },

@@ -37,8 +37,9 @@ const Content = ({ data, app }) => {
     <DockerHubTagsTable
       app={app}
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       initialState={{ selectedRowIds: { [name]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />

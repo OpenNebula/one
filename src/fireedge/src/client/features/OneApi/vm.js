@@ -783,22 +783,31 @@ const vmApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
       async onQueryStarted(
-        { id, template: xml, replace },
+        { id, template: xml, replace = 0 },
         { dispatch, queryFulfilled }
       ) {
         try {
-          if (+replace !== 0 || !xml) return
-
+          // update user template by id
           const patchVm = dispatch(
             vmApi.util.updateQueryData('getVm', id, (draft) => {
-              draft.USER_TEMPLATE = xmlToJson(xml)
+              draft.USER_TEMPLATE =
+                +replace === 0
+                  ? xmlToJson(xml)
+                  : { ...draft.USER_TEMPLATE, ...xmlToJson(xml) }
             })
           )
 
+          // update user template on pool by id (if exists)
           const patchVms = dispatch(
             vmApi.util.updateQueryData('getVms', undefined, (draft) => {
               const vm = draft.find(({ ID }) => +ID === +id)
-              vm && (vm.USER_TEMPLATE = xmlToJson(xml))
+
+              if (!vm) return
+
+              vm.USER_TEMPLATE =
+                +replace === 0
+                  ? xmlToJson(xml)
+                  : { ...vm.USER_TEMPLATE, ...xmlToJson(xml) }
             })
           )
 

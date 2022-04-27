@@ -21,6 +21,7 @@ import { Box, List, ListItem, Paper, Typography } from '@mui/material'
 import { Translate } from 'client/components/HOC'
 import { useStyles } from 'client/components/Tabs/Host/Numa/Hugepage/styles'
 
+import { prettyBytes } from 'client/utils'
 import { T } from 'client/constants'
 
 /**
@@ -55,7 +56,7 @@ const NumaHugepage = ({ hugepage }) => {
           {hugepage.length > 0 &&
             hugepage.map(({ FREE, PAGES, SIZE, USAGE }, index) => (
               <ListItem key={index} className={classes.item} dense>
-                <Typography noWrap>{SIZE}</Typography>
+                <Typography noWrap>{prettyBytes(SIZE)}</Typography>
                 <Typography noWrap>{FREE}</Typography>
                 <Typography noWrap>{PAGES}</Typography>
                 <Typography noWrap>{USAGE}</Typography>

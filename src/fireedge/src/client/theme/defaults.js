@@ -83,6 +83,11 @@ export default (appTheme, mode = SCHEMES.DARK) => {
   const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
   const defaultContrastText = isDarkMode ? white : 'rgba(0, 0, 0, 0.87)'
 
+  const background = {
+    paper: isDarkMode ? primary.light : white,
+    default: isDarkMode ? primary.main : bgBlueGrey,
+  }
+
   return {
     palette: {
       mode,
@@ -92,10 +97,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         black,
         white,
       },
-      background: {
-        paper: isDarkMode ? primary.light : white,
-        default: isDarkMode ? primary.main : bgBlueGrey,
-      },
+      background,
       error: {
         100: '#e98e7f',
         200: '#ee6d58',
@@ -147,8 +149,8 @@ export default (appTheme, mode = SCHEMES.DARK) => {
       debug: {
         light: grey[300],
         main: grey[600],
-        dark: grey[800],
-        contrastText: defaultContrastText,
+        dark: grey[700],
+        contrastText: white,
       },
     },
     breakpoints: {
@@ -388,35 +390,25 @@ export default (appTheme, mode = SCHEMES.DARK) => {
         },
       },
       MuiTabs: {
+        defaultProps: {
+          indicatorColor: 'secondary',
+        },
         styleOverrides: {
           root: {
-            backgroundColor: isDarkMode ? secondary.dark : secondary.main,
-            borderRadius: 8,
-            boxShadow:
-              '0px 20px 25px rgba(0, 0, 0, 0.05), 0px 10px 10px rgba(0, 0, 0, 0.02)',
-          },
-          indicator: {
-            backgroundColor: 'transparent',
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              left: 30,
-              right: 30,
-              height: '100%',
-              backgroundColor: white,
-            },
+            backgroundColor: background.paper,
+            borderRadius: `8px 8px 0 0`,
+            border: `thin solid ${secondary.main}`,
           },
         },
       },
       MuiTab: {
         styleOverrides: {
           root: {
-            color: isDarkMode ? secondary[200] : secondary[100],
+            color: 'text.secondary',
             textTransform: 'capitalize',
             fontSize: '1rem',
             '&.Mui-selected': {
-              color: white,
+              color: secondary.main,
             },
           },
         },

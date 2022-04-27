@@ -42,7 +42,7 @@ function MarketplaceApps() {
         {selectedRows?.length > 0 && (
           <Stack overflow="auto">
             {selectedRows?.length === 1 ? (
-              <MarketplaceAppsTabs id={selectedRows[0]?.values.ID} />
+              <MarketplaceAppsTabs id={selectedRows[0]?.original.ID} />
             ) : (
               <Stack
                 direction="row"

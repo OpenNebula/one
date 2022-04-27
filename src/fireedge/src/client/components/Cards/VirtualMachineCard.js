@@ -13,49 +13,90 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo } from 'react'
+import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
-  User,
-  Group,
   Lock,
   HardDrive,
+  Cpu,
+  Network,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
 import { Box, Stack, Typography, Tooltip } from '@mui/material'
 
-import Timer from 'client/components/Timer'
+import { useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
+import Timer from 'client/components/Timer'
+import { MemoryIcon } from 'client/components/Icons'
 import { StatusCircle, StatusChip } from 'client/components/Status'
+import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
+
 import {
   getState,
   getLastHistory,
-  getHypervisor,
+  getIps,
   getErrorMessage,
 } from 'client/models/VirtualMachine'
-import { timeFromMilliseconds } from 'client/models/Helper'
-import { VM } from 'client/constants'
+import {
+  timeFromMilliseconds,
+  getUniqueLabels,
+  getColorFromString,
+} from 'client/models/Helper'
+import { prettyBytes } from 'client/utils'
+import { T, VM, ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const VirtualMachineCard = memo(
   /**
    * @param {object} props - Props
    * @param {VM} props.vm - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
+   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
    * @returns {ReactElement} - Card
    */
-  ({ vm, rootProps, actions }) => {
+  ({ vm, rootProps, actions, onDeleteLabel }) => {
     const classes = rowStyles()
-    const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, LOCK } = vm
+    const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
-    const HOSTNAME = getLastHistory(vm)?.HOSTNAME ?? '--'
-    const hypervisor = getHypervisor(vm)
-    const time = timeFromMilliseconds(+ETIME || +STIME)
-    const error = getErrorMessage(vm)
+    const enableEditLabels =
+      vmView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
+
+    const {
+      ID,
+      NAME,
+      STIME,
+      ETIME,
+      LOCK,
+      USER_TEMPLATE: { LABELS } = {},
+      TEMPLATE: { CPU, MEMORY } = {},
+    } = vm
+
+    const { HOSTNAME = '--', VM_MAD: hypervisor } = useMemo(
+      () => getLastHistory(vm) ?? '--',
+      [vm.HISTORY_RECORDS]
+    )
+
+    const time = useMemo(
+      () => timeFromMilliseconds(+ETIME || +STIME),
+      [ETIME, STIME]
+    )
 
     const { color: stateColor, name: stateName } = getState(vm)
+    const error = useMemo(() => getErrorMessage(vm), [vm])
+    const ips = useMemo(() => getIps(vm), [vm])
+    const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB'), [MEMORY])
+
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          stateColor: getColorFromString(label),
+          onDelete: enableEditLabels && onDeleteLabel,
+        })),
+      [LABELS, enableEditLabels, onDeleteLabel]
+    )
 
     return (
       <div {...rootProps} data-cy={`vm-${ID}`}>
@@ -79,34 +120,40 @@ const VirtualMachineCard = memo(
             <span className={classes.labels}>
               {hypervisor && <StatusChip text={hypervisor} />}
               {LOCK && <Lock data-cy="lock" />}
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>
-            <span title={time.toFormat('ff')}>
-              {`#${ID} ${+ETIME ? 'done' : 'started'} `}
+            <span data-cy="id">{`#${ID}`}</span>
+            <span title={useMemo(() => time.toFormat('ff'), [ETIME, STIME])}>
+              {`${+ETIME ? T.Done : T.Started} `}
               <Timer initial={time} />
             </span>
-            <span title={`Owner: ${UNAME}`}>
-              <User />
-              <span data-cy="uname">{` ${UNAME}`}</span>
+            <span title={`${Tr(T.PhysicalCpu)}: ${CPU}`}>
+              <Cpu />
+              <span data-cy="cpu">{CPU}</span>
             </span>
-            <span title={`Group: ${GNAME}`}>
-              <Group />
-              <span data-cy="gname">{` ${GNAME}`}</span>
+            <span title={`${Tr(T.Memory)}: ${memValue}`}>
+              <MemoryIcon width={20} height={20} />
+              <span data-cy="memory">{memValue}</span>
             </span>
-            <span title={`Hostname: ${HOSTNAME}`}>
+            <span
+              className={classes.captionItem}
+              title={`${Tr(T.Hostname)}: ${HOSTNAME}`}
+            >
               <HardDrive />
-              <span data-cy="hostname">{` ${HOSTNAME}`}</span>
+              <span data-cy="hostname">{HOSTNAME}</span>
             </span>
+            {!!ips?.length && (
+              <span className={classes.captionItem}>
+                <Network />
+                <Stack direction="row" justifyContent="end" alignItems="center">
+                  <MultipleTags tags={ips} clipboard />
+                </Stack>
+              </span>
+            )}
           </div>
         </div>
-        {!!IPS?.length && (
-          <div className={classes.secondary}>
-            <Stack flexWrap="wrap" justifyContent="end" alignItems="center">
-              <MultipleTags tags={IPS.split(',')} />
-            </Stack>
-          </div>
-        )}
         {actions && <div className={classes.actions}>{actions}</div>}
       </div>
     )
@@ -118,6 +165,7 @@ VirtualMachineCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
 }
 

@@ -16,124 +16,95 @@
 import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock } from 'iconoir-react'
+import { Lock, User, Group, Cart } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
-import MultipleTags from 'client/components/MultipleTags'
 import Timer from 'client/components/Timer'
-import Image from 'client/components/Image'
-import { StatusChip } from 'client/components/Status'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import {
-  timeFromMilliseconds,
-  getUniqueLabels,
-  getColorFromString,
-} from 'client/models/Helper'
-import { isExternalURL } from 'client/utils'
-import {
-  T,
-  VM,
-  ACTIONS,
-  RESOURCE_NAMES,
-  STATIC_FILES_URL,
-  DEFAULT_TEMPLATE_LOGO,
-} from 'client/constants'
+import { getState, getType } from 'client/models/MarketplaceApp'
+import { timeFromMilliseconds } from 'client/models/Helper'
+import { prettyBytes } from 'client/utils'
+import { T, MarketplaceApp } from 'client/constants'
 
-const VmTemplateCard = memo(
+const MarketplaceAppCard = memo(
   /**
    * @param {object} props - Props
-   * @param {VM} props.template - Virtual machine resource
+   * @param {MarketplaceApp} props.app - Marketplace App resource
    * @param {object} props.rootProps - Props to root component
-   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ template, rootProps, onDeleteLabel }) => {
+  ({ app, rootProps }) => {
     const classes = rowStyles()
-    const { [RESOURCE_NAMES.VM_TEMPLATE]: templateView } = useViews()
-
-    const enableEditLabels =
-      templateView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
-
     const {
       ID,
       NAME,
       UNAME,
       GNAME,
-      REGTIME,
       LOCK,
-      VROUTER,
-      TEMPLATE: { HYPERVISOR, LABELS, LOGO = '' } = {},
-    } = template
+      REGTIME,
+      MARKETPLACE,
+      ZONE_ID,
+      SIZE,
+    } = app
 
-    const isExternalImage = useMemo(() => isExternalURL(LOGO), [LOGO])
+    const state = useMemo(() => getState(app), [app?.STATE])
+    const { color: stateColor, name: stateName } = state
+
     const time = useMemo(() => timeFromMilliseconds(+REGTIME), [REGTIME])
-
-    const logoSource = useMemo(() => {
-      if (!LOGO) return `${STATIC_FILES_URL}/${DEFAULT_TEMPLATE_LOGO}`
-
-      return isExternalImage ? LOGO : `${STATIC_FILES_URL}/${LOGO}`
-    }, [isExternalImage, LOGO])
-
-    const labels = useMemo(
-      () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
-      [LABELS, enableEditLabels, onDeleteLabel]
-    )
+    const type = useMemo(() => getType(app), [app?.TYPE])
 
     return (
-      <div {...rootProps} data-cy={`template-${ID}`}>
-        <div className={classes.figure}>
-          <Image
-            alt="logo"
-            src={logoSource}
-            imgProps={{ className: classes.image }}
-          />
-        </div>
+      <div {...rootProps} data-cy={`app-${ID}`}>
         <div className={classes.main}>
           <div className={classes.title}>
+            <StatusCircle color={stateColor} tooltip={stateName} />
             <Typography component="span">{NAME}</Typography>
+            {LOCK && <Lock />}
             <span className={classes.labels}>
-              {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
-              {LOCK && <Lock />}
-              {VROUTER && <StatusChip text={VROUTER} />}
-              <MultipleTags tags={labels} />
+              <StatusChip text={type} />
             </span>
           </div>
           <div className={classes.caption}>
             <span data-cy="id">{`#${ID}`}</span>
-            <span title={time.toFormat('ff')}>
+            <span title={useMemo(() => time.toFormat('ff'), [REGTIME])}>
               <Timer translateWord={T.RegisteredAt} initial={time} />
             </span>
             <span title={`${Tr(T.Owner)}: ${UNAME}`}>
               <User />
-              <span>{` ${UNAME}`}</span>
+              <span data-cy="owner">{UNAME}</span>
             </span>
             <span title={`${Tr(T.Group)}: ${GNAME}`}>
               <Group />
-              <span>{` ${GNAME}`}</span>
+              <span data-cy="group">{GNAME}</span>
+            </span>
+            <span title={`${Tr(T.Marketplace)}: ${MARKETPLACE}`}>
+              <Cart />
+              <span data-cy="marketplace">{MARKETPLACE}</span>
             </span>
           </div>
+        </div>
+        <div className={classes.secondary}>
+          <span className={classes.labels}>
+            <StatusChip text={`${Tr(T.Zone)} ${ZONE_ID}`} />
+            <StatusChip text={prettyBytes(+SIZE, 'MB')} />
+          </span>
         </div>
       </div>
     )
   }
 )
 
-VmTemplateCard.propTypes = {
-  template: PropTypes.object,
+MarketplaceAppCard.propTypes = {
+  app: PropTypes.object,
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
-  onDeleteLabel: PropTypes.func,
+  actions: PropTypes.any,
 }
 
-VmTemplateCard.displayName = 'VmTemplateCard'
+MarketplaceAppCard.displayName = 'MarketplaceAppCard'
 
-export default VmTemplateCard
+export default MarketplaceAppCard

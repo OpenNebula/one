@@ -94,6 +94,7 @@ export const useAuthApi = () => {
     logout: () => dispatch(actions.logout()),
     changeView: (view) => dispatch(actions.changeView(view)),
     changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
+    changeAuthUser: (user) => dispatch(actions.changeAuthUser({ user })),
   }
 }
 
@@ -137,6 +138,6 @@ export const useViews = () => {
       views,
       view,
     }),
-    [views, view]
+    [view]
   )
 }

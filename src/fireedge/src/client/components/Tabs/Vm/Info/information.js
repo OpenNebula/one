@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory, generatePath } from 'react-router-dom'
-import { Card, CardActionArea, CardMedia } from '@mui/material'
+import { generatePath } from 'react-router-dom'
 
 import { useGetClusterQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
-import { useGuacamole } from 'client/features/Guacamole'
 
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
+import { Translate } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
 
-import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
-import * as Helper from 'client/models/Helper'
+import {
+  getState,
+  getLastHistory,
+  getIps,
+  getNicWithPortForwarding,
+} from 'client/models/VirtualMachine'
+import {
+  booleanToString,
+  levelLockToString,
+  timeToString,
+} from 'client/models/Helper'
 import { T, VM, VM_ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { PATH as DEFAULT_PATH } from 'client/apps/sunstone/routes'
 
 /**
  * Renders mainly information tab.
@@ -41,21 +48,15 @@ import { PATH as DEFAULT_PATH } from 'client/apps/sunstone/routes'
  * @returns {ReactElement} Information tab
  */
 const InformationPanel = ({ vm = {}, actions }) => {
-  const history = useHistory()
   const [renameVm] = useRenameVmMutation()
-  const sessions = useGuacamole(vm?.ID)
-
-  const [connectionType, { thumbnail: firstThumbnail } = {}] = useMemo(
-    () =>
-      Object.entries(sessions).find(
-        ([_, { thumbnail }]) => !!thumbnail?.canvas
-      ) ?? [],
-    [sessions]
-  )
 
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
   const { name: stateName, color: stateColor } = getState(vm)
+
   const ips = getIps(vm)
+  const { EXTERNAL_PORT_RANGE, INTERNAL_PORT_RANGE } =
+    getNicWithPortForwarding(vm) ?? {}
+
   const {
     HID: hostId,
     HOSTNAME: hostname = '--',
@@ -90,27 +91,42 @@ const InformationPanel = ({ vm = {}, actions }) => {
     },
     {
       name: T.Reschedule,
-      value: Helper.booleanToString(+RESCHED),
+      value: booleanToString(+RESCHED),
       dataCy: 'reschedule',
     },
     {
       name: T.Locked,
-      value: Helper.levelLockToString(LOCK?.LOCKED),
+      value: levelLockToString(LOCK?.LOCKED),
       dataCy: 'locked',
     },
     {
       name: T.IP,
-      value: ips?.length ? <MultipleTags tags={ips} /> : '--',
+      value: ips?.length ? <MultipleTags tags={ips} clipboard /> : '--',
       dataCy: 'ips',
     },
+    EXTERNAL_PORT_RANGE &&
+      INTERNAL_PORT_RANGE && {
+        name: T.PortForwarding,
+        value: (
+          <Translate
+            word={T.HostnamePortsForwardedToVmPorts}
+            values={[
+              hostname,
+              EXTERNAL_PORT_RANGE,
+              INTERNAL_PORT_RANGE?.split('/')[0]?.replace('-', ':'),
+            ]}
+          />
+        ),
+        dataCy: 'port_forwarding',
+      },
     {
       name: T.StartTime,
-      value: Helper.timeToString(STIME),
+      value: timeToString(STIME),
       dataCy: 'starttime',
     },
     {
       name: T.EndTime,
-      value: Helper.timeToString(ETIME),
+      value: timeToString(ETIME),
       dataCy: 'endtime',
     },
     hostId && {
@@ -133,32 +149,6 @@ const InformationPanel = ({ vm = {}, actions }) => {
       name: T.DeployID,
       value: DEPLOY_ID,
       dataCy: 'deployid',
-    },
-    firstThumbnail && {
-      name: T.LastConnection,
-      value: (
-        <Card sx={{ my: 1 }} data-cy={`${vm.ID}-${connectionType}-thumbnail`}>
-          <CardActionArea
-            disableTouchRipple={false}
-            onClick={() =>
-              history.push(
-                generatePath(DEFAULT_PATH.GUACAMOLE, {
-                  id: vm.ID,
-                  type: connectionType,
-                })
-              )
-            }
-          >
-            <CardMedia
-              component="img"
-              sx={{ bgcolor: 'text.primary', opacity: 0.8 }}
-              src={firstThumbnail?.canvas}
-              alt={`thumbnail-${vm.ID}-${connectionType}`}
-            />
-          </CardActionArea>
-        </Card>
-      ),
-      dataCy: 'last_connection',
     },
   ].filter(Boolean)
 

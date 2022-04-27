@@ -13,133 +13,116 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useMemo, JSXElementConstructor } from 'react'
+import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  List,
-  ListSubheader,
-  ListItemButton,
-  Typography,
-  IconButton,
-  Tooltip,
-} from '@mui/material'
-import { Cancel } from 'iconoir-react'
+import { styled, TextField, Popper, Chip } from '@mui/material'
+import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
 import { UseFiltersInstanceProps } from 'react-table'
 
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
+
+const StyledAutocompletePopper = styled(Popper)(
+  ({ theme: { palette, zIndex } }) => ({
+    [`& .${autocompleteClasses.paper}`]: {
+      boxShadow: 'none',
+      margin: 0,
+      color: 'inherit',
+      fontSize: '0.75rem',
+      border: `1px solid  ${palette.secondary[palette.mode]}`,
+    },
+    [`& .${autocompleteClasses.listbox}`]: {
+      padding: 0,
+      backgroundColor: palette.background.default,
+      [`& .${autocompleteClasses.option}`]: {
+        minHeight: 'auto',
+        alignItems: 'flex-start',
+        padding: '0.7em',
+        '&[aria-selected="true"]': {
+          backgroundColor: 'transparent',
+        },
+        '&[data-focus="true"], &[data-focus="true"][aria-selected="true"]': {
+          backgroundColor: palette.action.hover,
+        },
+        [`&:not(:last-child)`]: {
+          borderBottom: `1px solid  ${palette.divider}`,
+        },
+      },
+    },
+    [`&.${autocompleteClasses.popper}`]: {
+      zIndex: zIndex.modal + 2,
+    },
+  })
+)
 
 /**
  * Render category filter to table.
  *
  * @param {object} props - Props
- * @param {string} props.title - Title category
- * @param {UseFiltersInstanceProps} props.column - Column to filter by
- * @param {string} [props.accessorOption] - Name of property option
- * @param {boolean} [props.multiple] - If `true`, can be more than one filter
- * @returns {JSXElementConstructor} Component JSX
+ * @param {UseFiltersInstanceProps} props.column - Props
+ * @returns {ReactElement} Component JSX
  */
 const CategoryFilter = ({
-  title,
-  column,
-  accessorOption,
-  multiple = false,
+  column: { Header, filterValue = [], setFilter, preFilteredRows, id },
 }) => {
-  const {
-    setFilter,
-    id,
-    preFilteredRows,
-    filterValue = multiple ? [] : undefined,
-  } = column
-
-  useEffect(() => () => setFilter(undefined), [])
-
   // Calculate the options for filtering using the preFilteredRows
   const options = useMemo(() => {
-    const filteredOptions = {}
+    const uniqueOptions = new Set()
 
     preFilteredRows?.forEach((row) => {
-      const value = row.values[id]
-
-      if (!value) return
-
-      const count = filteredOptions[value[accessorOption] ?? value] || 0
-      filteredOptions[value[accessorOption] ?? value] = count + 1
+      const rowValue = row.values[id]
+      rowValue !== undefined && uniqueOptions.add(rowValue)
     })
 
-    return filteredOptions
+    return [...uniqueOptions.values()]
   }, [id, preFilteredRows])
 
-  const handleSelect = (value) => {
-    setFilter(multiple ? [...filterValue, value] : value)
-  }
-
-  const handleUnselect = (value) => {
-    setFilter(multiple ? filterValue.filter((v) => v !== value) : undefined)
-  }
-
-  const handleClear = () => setFilter(multiple ? [] : undefined)
-
-  const isFiltered = useMemo(
-    () => (multiple ? filterValue?.length > 0 : filterValue !== undefined),
-    [filterValue]
-  )
-
-  if (Object.keys(options).length === 0) {
+  if (options.length === 0) {
     return null
   }
 
   return (
-    <List>
-      {title && (
-        <ListSubheader
-          disableSticky
-          disableGutters
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
-          <Translate word={title} />
-          {isFiltered && (
-            <Tooltip title={<Translate word={T.Clear} />}>
-              <IconButton disableRipple size="small" onClick={handleClear}>
-                <Cancel />
-              </IconButton>
-            </Tooltip>
-          )}
-        </ListSubheader>
+    <Autocomplete
+      fullWidth
+      multiple
+      disableCloseOnSelect
+      limitTags={2}
+      color="secondary"
+      value={filterValue}
+      sx={{ minWidth: 300, position: 'relative' }}
+      options={options}
+      onChange={(_, newValue) => setFilter(newValue)}
+      PopperComponent={StyledAutocompletePopper}
+      renderInput={({ inputProps, ...inputParams }) => (
+        <TextField
+          label={Tr(Header)}
+          ref={inputParams.InputProps.ref}
+          inputProps={{ ...inputProps, 'data-cy': id }}
+          {...inputParams}
+        />
       )}
+      renderTags={(value, getTagProps) =>
+        value.map((option, index) => {
+          const { key, ...tagProps } = getTagProps({ index })
 
-      {Object.entries(options).map(([option, count], i) => {
-        const value = option[accessorOption] ?? option
-
-        const isSelected = multiple
-          ? filterValue?.includes?.(value)
-          : value === filterValue
-
-        return (
-          <ListItemButton
-            key={i}
-            selected={isSelected}
-            onClick={() =>
-              isSelected ? handleUnselect(value) : handleSelect(value)
-            }
-          >
-            <Typography noWrap variant="subtitle2" title={value}>
-              {`${value} (${count})`}
-            </Typography>
-          </ListItemButton>
-        )
-      })}
-    </List>
+          return (
+            <Chip
+              key={key}
+              variant="outlined"
+              size="small"
+              label={option}
+              onClick={tagProps.onDelete}
+              {...tagProps}
+            />
+          )
+        })
+      }
+    />
   )
 }
 
 CategoryFilter.propTypes = {
   column: PropTypes.object,
-  accessorOption: PropTypes.string,
-  icon: PropTypes.node,
-  title: PropTypes.string,
-  multiple: PropTypes.bool,
 }
 
 export default CategoryFilter

@@ -13,54 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-
-import { Typography, Tooltip, lighten, darken } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { Copy as CopyIcon } from 'iconoir-react'
+import { styled, Typography, alpha } from '@mui/material'
+import { Copy as CopyIcon, Check as CopiedIcon, Cancel } from 'iconoir-react'
 
 import { useClipboard } from 'client/hooks'
-import { Tr, Translate } from 'client/components/HOC'
-import { addOpacityToColor } from 'client/utils'
-import { T, SCHEMES } from 'client/constants'
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => {
-  const getBackgroundColor = palette.mode === SCHEMES.DARK ? lighten : darken
-  const defaultStateColor =
-    palette.grey[palette.mode === SCHEMES.DARK ? 300 : 700]
+const Chip = styled(Typography)(
+  ({ theme: { palette, typography }, state = 'debug', white, icon }) => {
+    const { dark = state } = palette[state] ?? {}
 
-  return {
-    text: ({ stateColor = defaultStateColor, clipboard }) => {
-      const paletteColor = palette[stateColor]
+    const bgColor = alpha(dark, 0.2)
+    const color = white ? palette.common.white : palette.text.primary
 
-      const color =
-        paletteColor?.contrastText ?? getBackgroundColor(stateColor, 0.75)
-      const bgColor = paletteColor?.dark ?? stateColor
-
-      return {
-        color,
-        backgroundColor: addOpacityToColor(bgColor, 0.2),
-        padding: spacing('0.25rem', '0.5rem'),
-        borderRadius: 2,
-        textTransform: 'uppercase',
-        fontSize: typography.overline.fontSize,
-        fontWeight: 500,
-        lineHeight: 'normal',
-        cursor: 'default',
-        ...(clipboard && {
+    return {
+      color,
+      backgroundColor: bgColor,
+      padding: icon ? '0.1rem 0.5rem' : '0.25rem 0.5rem',
+      borderRadius: 6,
+      textTransform: 'uppercase',
+      fontSize: typography.overline.fontSize,
+      fontWeight: 500,
+      lineHeight: 'normal',
+      cursor: 'default',
+      ...(icon && {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.5em',
+        '& > .icon': {
           cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5em',
-          '&:hover > .copy-icon': {
-            color: bgColor,
+          color,
+          '&:hover': {
+            color: white ? palette.getContrastText(color) : dark,
           },
-        }),
-      }
-    },
+        },
+      }),
+    }
   }
-})
+)
 
 const callAll =
   (...fns) =>
@@ -72,57 +63,66 @@ const StatusChip = memo(
     stateColor,
     text = '',
     dataCy = '',
-    clipboard = false,
+    clipboard,
     onClick,
+    onDelete,
+    forceWhiteColor,
     ...props
   }) => {
     const { copy, isCopied } = useClipboard()
-    const textToCopy = typeof clipboard === 'string' ? clipboard : text
-    const classes = useStyles({ stateColor, clipboard })
 
-    const handleCopy = (evt) => {
-      !isCopied && copy(textToCopy)
-      evt.stopPropagation()
-    }
+    const handleCopy = useCallback(
+      (evt) => {
+        const textToCopy = typeof clipboard === 'string' ? clipboard : text
+
+        !isCopied && copy(textToCopy)
+        evt.stopPropagation()
+      },
+      [clipboard, copy, text, isCopied]
+    )
+
+    const handleDelete = useCallback(
+      (evt) => {
+        onDelete(text)
+        evt.stopPropagation()
+      },
+      [text, onDelete]
+    )
 
     return (
-      <Tooltip
-        arrow
-        open={isCopied}
-        title={
-          <>
-            {'✔️'}
-            <Translate word={T.CopiedToClipboard} />
-          </>
-        }
+      <Chip
+        component="span"
+        state={stateColor}
+        white={forceWhiteColor ? 'true' : undefined}
+        icon={clipboard || onDelete ? 'true' : undefined}
+        onClick={callAll(onClick, clipboard && handleCopy)}
+        data-cy={dataCy}
+        {...props}
       >
-        <Typography
-          component="span"
-          className={classes.text}
-          onClick={callAll(onClick, clipboard && handleCopy)}
-          {...(dataCy && { 'data-cy': dataCy })}
-          {...props}
-        >
-          {text}
-          {clipboard && (
-            <CopyIcon className="copy-icon" title={Tr(T.ClickToCopy)} />
-          )}
-        </Typography>
-      </Tooltip>
+        {text}
+        {clipboard &&
+          (isCopied ? <CopiedIcon /> : <CopyIcon className="icon" />)}
+        {typeof onDelete === 'function' && (
+          <Cancel onClick={handleDelete} className="icon" />
+        )}
+      </Chip>
     )
   },
   (prev, next) =>
     prev.stateColor === next.stateColor &&
     prev.text === next.text &&
-    prev.clipboard === next.clipboard
+    prev.clipboard === next.clipboard &&
+    prev.onDelete === next.onDelete
 )
 
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
   text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  forceWhiteColor: PropTypes.bool,
   dataCy: PropTypes.string,
   onClick: PropTypes.func,
+  onDelete: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
 }
 
 StatusChip.displayName = 'StatusChip'

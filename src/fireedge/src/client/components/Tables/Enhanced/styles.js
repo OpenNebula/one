@@ -26,38 +26,34 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     ...typography.body1,
     marginBottom: 16,
     display: 'grid',
-    gridTemplateColumns: '1fr auto',
+    gridTemplateRows: 'auto auto',
+    gridTemplateAreas: `
+      'actions actions pagination'
+      'search search filters'`,
     alignItems: 'start',
     gap: '1em',
-    '& > .summary': {
-      // global sort and selected rows
-      gridRow: '2',
-      gridColumn: '1 / -1',
-      display: 'grid',
-      gridTemplateColumns: 'minmax(auto, 300px) 1fr',
-      gap: '0.8em',
-      [breakpoints.down('md')]: {
-        gridTemplateColumns: '1fr',
-      },
+    [breakpoints.down('md')]: {
+      gridTemplateAreas: `
+        'actions actions actions'
+        'pagination pagination pagination'
+        'search search filters'`,
     },
+  },
+  actions: {
+    gridArea: 'actions',
   },
   pagination: {
+    gridArea: 'pagination',
+  },
+  search: {
+    gridArea: 'search',
+  },
+  filters: {
+    gridArea: 'filters',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'end',
+    justifySelf: 'end',
     gap: '1em',
-  },
-  loading: {
-    transition: '200ms',
-  },
-  table: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(auto, 300px) 1fr',
-    gap: '0.8em',
-    overflow: 'auto',
-    [breakpoints.down('md')]: {
-      gridTemplateColumns: 'minmax(0, 1fr)',
-    },
   },
   body: {
     overflow: 'auto',

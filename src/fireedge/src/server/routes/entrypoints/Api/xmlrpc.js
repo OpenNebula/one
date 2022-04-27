@@ -100,7 +100,9 @@ const getCommandParams = (config) => {
   if (params && serverDataSource) {
     return Object.entries(params).map(([key, value]) => {
       if (key && value && value.from && typeof value.default !== 'undefined') {
-        return serverDataSource[value.from] && serverDataSource[value.from][key]
+        // `value == null` checks against undefined and null
+        return serverDataSource[value.from] &&
+          serverDataSource[value.from][key] != null
           ? upcast.to(
               serverDataSource[value.from][key],
               upcast.type(value.default)

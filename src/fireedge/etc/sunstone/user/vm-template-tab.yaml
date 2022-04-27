@@ -28,6 +28,7 @@ actions:
   import_dialog: false
   update_dialog: true
   instantiate_dialog: true
+  create_app_dialog: false # reference to create_dialog in marketplace-app-tab.yaml
   clone: true
   delete: true
   chown: false
@@ -36,11 +37,16 @@ actions:
   unlock: true
   share: true
   unshare: true
+  edit_labels: false
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  owner: true
+  group: true
+  locked: true
+  vrouter: true
 
 
 # Info Tabs - Which info tabs are used to show extended information
@@ -73,6 +79,7 @@ dialogs:
     information: true
     ownership: true
     capacity: true
+    showback: true
     vm_group: true
     vcenter:
       enabled: true
@@ -86,7 +93,6 @@ dialogs:
     sched_action: true
     booting: true
   create_dialog:
-    information: true
     capacity: true
     ownership: true
     vm_group: true

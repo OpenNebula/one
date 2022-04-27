@@ -38,7 +38,7 @@ function VirtualMachines() {
         {selectedRows?.length > 0 && (
           <Stack overflow="auto" data-cy={'detail'}>
             {selectedRows?.length === 1 ? (
-              <VmTabs id={selectedRows[0]?.values.ID} />
+              <VmTabs id={selectedRows[0]?.original.ID} />
             ) : (
               <Stack
                 direction="row"
@@ -52,7 +52,7 @@ function VirtualMachines() {
                     ({ original, id, toggleRowSelected }) => (
                       <Chip
                         key={id}
-                        variant="text"
+                        variant="outlined"
                         label={original?.NAME ?? id}
                         onDelete={() => toggleRowSelected(false)}
                       />

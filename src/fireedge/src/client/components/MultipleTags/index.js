@@ -13,55 +13,63 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement, useMemo, isValidElement } from 'react'
 import PropTypes from 'prop-types'
-import { Tooltip, Typography } from '@mui/material'
+import { Stack, Tooltip, Typography } from '@mui/material'
 
 import { StatusChip } from 'client/components/Status'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const MultipleTags = ({ tags, limitTags = 1, clipboard }) => {
+/**
+ * @typedef TagType
+ * @property {string} text - The text to display in the chip
+ * @property {string} [dataCy] - Data-cy to be used by Cypress
+ */
+
+/**
+ * Render a number of tags with a tooltip to show the full list.
+ *
+ * @param {object} props - Props
+ * @param {string[]|TagType} props.tags - Tags to display
+ * @param {number} [props.limitTags] - Limit the number of tags to display
+ * @param {boolean} [props.clipboard] - If true, the chip will be clickable
+ * @returns {ReactElement} - Tag list
+ */
+const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
   if (tags?.length === 0) {
     return null
   }
 
-  const more = tags.length - limitTags
+  const [tagsToDisplay, tagsToHide, more] = useMemo(() => {
+    const ensureTags = (dirtyTags = [], isHidden) =>
+      dirtyTags.map((tag) => {
+        if (isValidElement(tag)) return tag
 
-  const Tags = tags.splice(0, limitTags).map((tag, idx) => {
-    const text = tag.text ?? tag
+        const text = tag.text ?? tag
 
-    return (
-      <StatusChip
-        key={`${idx}-${text}`}
-        text={text}
-        clipboard={clipboard}
-        dataCy={tag.dataCy ?? ''}
-      />
-    )
-  })
+        return (
+          <StatusChip
+            key={text}
+            clipboard={clipboard}
+            forceWhiteColor={isHidden}
+            {...(typeof tag === 'string' ? { text } : tag)}
+          />
+        )
+      })
+
+    return [
+      ensureTags(tags.slice(0, limitTags)),
+      ensureTags(tags.slice(limitTags), true),
+      tags.length - limitTags,
+    ]
+  }, [tags, limitTags])
 
   return (
     <>
-      {Tags}
+      {tagsToDisplay}
       {more > 0 && (
-        <Tooltip
-          arrow
-          title={tags.map((tag, idx) => {
-            const text = tag.text ?? tag
-
-            return (
-              <Typography
-                key={`${idx}-${text}`}
-                variant="subtitle2"
-                sx={{ height: 'max-content' }}
-                {...(tag.dataCy && { dataCy: tag.dataCy })}
-              >
-                {text}
-              </Typography>
-            )
-          })}
-        >
+        <Tooltip arrow title={<Stack>{tagsToHide}</Stack>}>
           <Typography component="span" variant="subtitle2" sx={{ ml: 1 }}>
             {`+${more} `}
             <Translate word={T.More} />

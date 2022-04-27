@@ -32,9 +32,14 @@ import {
   UseRowSelectRowProps,
 } from 'react-table'
 
-import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
-import Filters from 'client/components/Tables/Enhanced/filters'
+import {
+  GlobalActions,
+  GlobalSearch,
+  GlobalFilter,
+  GlobalSort,
+  GlobalSelectedRows,
+} from 'client/components/Tables/Enhanced/Utils'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
 import { Translate } from 'client/components/HOC'
@@ -50,8 +55,7 @@ const EnhancedTable = ({
   initialState,
   refetch,
   isLoading,
-  onlyGlobalSearch,
-  onlyGlobalSelectedRows,
+  displaySelectedRows,
   disableRowSelect,
   disableGlobalSort,
   onSelectedRowsChange,
@@ -68,7 +72,7 @@ const EnhancedTable = ({
 
   const isUninitialized = useMemo(
     () => isLoading && data === undefined,
-    [isLoading, data]
+    [isLoading, data?.length]
   )
 
   const defaultColumn = useMemo(() => ({ disableFilters: true }), [])
@@ -149,80 +153,88 @@ const EnhancedTable = ({
       {...rootProps}
     >
       <div className={styles.toolbar}>
-        {/* TOOLBAR */}
-        <Toolbar
+        {/* ACTIONS */}
+        <GlobalActions
+          className={styles.actions}
           refetch={refetch}
           isLoading={isLoading}
-          globalActions={globalActions}
+          singleSelect={singleSelect}
           disableRowSelect={disableRowSelect}
-          disableGlobalSort={disableGlobalSort}
-          onlyGlobalSelectedRows={onlyGlobalSelectedRows}
+          globalActions={globalActions}
           useTableProps={useTableProps}
         />
 
         {/* PAGINATION */}
-        <div className={styles.pagination}>
-          <Pagination
-            handleChangePage={handleChangePage}
-            useTableProps={useTableProps}
-            count={rows.length}
-            showPageCount={showPageCount}
-          />
+        <Pagination
+          className={styles.pagination}
+          handleChangePage={handleChangePage}
+          useTableProps={useTableProps}
+          count={rows.length}
+          showPageCount={showPageCount}
+        />
+
+        {/* SEARCH */}
+        <GlobalSearch
+          className={styles.search}
+          useTableProps={useTableProps}
+          searchProps={searchProps}
+        />
+
+        {/* FILTERS */}
+        <div className={styles.filters}>
+          <GlobalFilter useTableProps={useTableProps} />
+          {!disableGlobalSort && <GlobalSort useTableProps={useTableProps} />}
         </div>
+
+        {/* SELECTED ROWS */}
+        {displaySelectedRows && (
+          <div>
+            <GlobalSelectedRows useTableProps={useTableProps} />
+          </div>
+        )}
       </div>
 
-      <div className={styles.table}>
-        {/* FILTERS */}
-        {!isUninitialized && (
-          <Filters
-            onlyGlobalSearch={onlyGlobalSearch}
-            useTableProps={useTableProps}
-            searchProps={searchProps}
-          />
+      <div className={clsx(styles.body, classes.body)}>
+        {/* NO DATA MESSAGE */}
+        {!isUninitialized && page?.length === 0 && (
+          <span className={styles.noDataMessage}>
+            <InfoEmpty />
+            <Translate word={T.NoDataAvailable} />
+          </span>
         )}
 
-        <div className={clsx(styles.body, classes.body)}>
-          {/* NO DATA MESSAGE */}
-          {!isUninitialized && page?.length === 0 && (
-            <span className={styles.noDataMessage}>
-              <InfoEmpty />
-              <Translate word={T.NoDataAvailable} />
-            </span>
-          )}
+        {/* DATALIST PER PAGE */}
+        {page.map((row) => {
+          prepareRow(row)
 
-          {/* DATALIST PER PAGE */}
-          {page.map((row) => {
-            prepareRow(row)
+          /** @type {UseRowSelectRowProps} */
+          const {
+            getRowProps,
+            original,
+            values,
+            toggleRowSelected,
+            isSelected,
+          } = row
+          const { key, ...rowProps } = getRowProps()
 
-            /** @type {UseRowSelectRowProps} */
-            const {
-              getRowProps,
-              original,
-              values,
-              toggleRowSelected,
-              isSelected,
-            } = row
-            const { key, ...rowProps } = getRowProps()
+          return (
+            <RowComponent
+              {...rowProps}
+              key={key}
+              original={original}
+              value={values}
+              className={isSelected ? 'selected' : ''}
+              onClick={() => {
+                typeof onRowClick === 'function' && onRowClick(original)
 
-            return (
-              <RowComponent
-                {...rowProps}
-                key={key}
-                original={original}
-                value={values}
-                className={isSelected ? 'selected' : ''}
-                onClick={() => {
-                  typeof onRowClick === 'function' && onRowClick(original)
-
-                  if (!disableRowSelect) {
-                    singleSelect && toggleAllRowsSelected?.(false)
-                    toggleRowSelected?.(!isSelected)
-                  }
-                }}
-              />
-            )
-          })}
-        </div>
+                if (!disableRowSelect) {
+                  singleSelect && toggleAllRowsSelected?.(false)
+                  toggleRowSelected?.(!isSelected)
+                }
+              }}
+            />
+          )
+        })}
       </div>
     </Box>
   )
@@ -251,8 +263,7 @@ EnhancedTable.propTypes = {
   isLoading: PropTypes.bool,
   disableGlobalSort: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
-  onlyGlobalSearch: PropTypes.bool,
-  onlyGlobalSelectedRows: PropTypes.bool,
+  displaySelectedRows: PropTypes.bool,
   onSelectedRowsChange: PropTypes.func,
   onRowClick: PropTypes.func,
   pageSize: PropTypes.number,

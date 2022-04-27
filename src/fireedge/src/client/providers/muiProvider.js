@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -37,14 +37,12 @@ const MuiProvider = ({ theme: appTheme, children }) => {
   const { settings: { SCHEME } = {} } = useAuth()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-  const changeScheme = () => {
+  const muiTheme = useMemo(() => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
     const newScheme = SCHEME === SYSTEM ? prefersScheme : SCHEME
 
     return createTheme(appTheme, newScheme)
-  }
-
-  const [muitheme, setTheme] = useState(changeScheme)
+  }, [SCHEME, prefersDarkMode])
 
   useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
@@ -53,14 +51,10 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     }
   }, [])
 
-  useEffect(() => {
-    setTheme(changeScheme)
-  }, [SCHEME, prefersDarkMode])
-
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={muitheme}>
+        <ThemeProvider theme={muiTheme}>
           <CssBaseline enableColorScheme />
           <StylesProvider generateClassName={generateClassName}>
             {children}

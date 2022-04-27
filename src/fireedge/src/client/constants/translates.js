@@ -19,6 +19,7 @@ module.exports = {
   Previous: 'Previous',
   Next: 'Next',
   SortBy: 'Sort by',
+  FilterBy: 'Filter by',
   Filter: 'Filter',
   Filters: 'Filters',
   All: 'All',
@@ -202,6 +203,9 @@ module.exports = {
   WhenYouWantThatTheActionFinishes: 'When you want that the action finishes',
 
   /* dashboard */
+  MadeWith: 'Made with',
+
+  /* dashboard */
   InTotal: 'In Total',
   Used: 'Used',
 
@@ -272,7 +276,9 @@ module.exports = {
   ConfigurationUI: 'Configuration UI',
   Authentication: 'Authentication',
   SshPrivateKey: 'SSH private key',
+  AddUserSshPrivateKey: 'Add user SSH private key',
   SshPassphraseKey: 'SSH private key passphrase',
+  AddUserSshPassphraseKey: 'Add user SSH private key passphrase',
 
   /* sections - system */
   User: 'User',
@@ -361,7 +367,10 @@ module.exports = {
   Description: 'Description',
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
+  Started: 'Started',
   StartedOnTime: 'Started on %s',
+  Total: 'Total',
+  Prolog: 'Prolog',
   EndTime: 'End time',
   Locked: 'Locked',
   Attributes: 'Attributes',
@@ -461,6 +470,8 @@ module.exports = {
   AttachSecurityGroup: 'Attach Security Group',
   DetachSecurityGroup: 'Detach Security Group',
   DetachSecurityGroupFromNic: 'Detach Security Group %1$s from NIC %2$s',
+  PortForwarding: 'Port forwarding',
+  HostnamePortsForwardedToVmPorts: '%1$s ports %2$s forwarded to VM ports %3$s',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
   /* VM schema - actions */
@@ -484,6 +495,11 @@ module.exports = {
   OperationConceptDeleteDb: `
     No recover action possible, delete the VM from the DB.
     It does not trigger any action on the hypervisor`,
+  /* VM schema - history */
+  RequestId: 'Request ID',
+  TimeWhenTheStateChanged: 'Time when the state changed',
+  TotalTimeInThisState: 'Total time in this state',
+  PrologTimeForThisState: 'Prolog time for this state',
 
   /* VM Template schema */
   /* VM Template schema - general */
@@ -783,6 +799,7 @@ module.exports = {
   Wilds: 'Wilds',
   Zombies: 'Zombies',
   Numa: 'NUMA',
+  Hostname: 'Hostname',
   /* Host schema - capacity */
   AllocatedMemory: 'Allocated Memory',
   AllocatedCpu: 'Allocated CPU',
@@ -801,6 +818,7 @@ module.exports = {
 
   /* Marketplace App schema */
   /* Marketplace App - general */
+  RegisteredAt: 'Registered %s',
   Version: 'Version',
   AppTemplate: 'App Template',
   TemplatesForTheApp: 'Templates for the App',

@@ -482,3 +482,52 @@ export const userInputsToObject = (userInputs) =>
     }),
     {}
   )
+
+/**
+ * Get list of unique labels from resource.
+ *
+ * @param {string} labels - List of labels separated by comma
+ * @returns {string[]} List of unique labels
+ */
+export const getUniqueLabels = (labels) =>
+  labels
+    ?.split(',')
+    ?.filter(
+      (label, _, list) =>
+        label !== '' && !list.some((element) => element.startsWith(`${label}/`))
+    )
+    ?.sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, ignorePunctuation: true })
+    ) ?? []
+
+// The number 16,777,215 is the total possible combinations
+// of RGB(255,255,255) which is 32 bit color
+const SEED = 16_777_215
+const FACTOR = 49979693
+
+/**
+ * Generate a random color from a string.
+ *
+ * @param {string} text - Text to generate a color from
+ * @param {object} [options] - Options to generate color
+ * @param {object} [options.caseSensitive] - If true, will not convert to lowercase
+ * @returns {string} Hexadecimal color
+ */
+export const getColorFromString = (text, options = {}) => {
+  const { caseSensitive = false } = options
+
+  let ensuredText = String(text)
+  !caseSensitive && (ensuredText = ensuredText.toLowerCase())
+
+  const base = ensuredText.split('').reduce((total, char) => {
+    const currentIndex = char.charCodeAt(0)
+    const digit = currentIndex > 0 ? currentIndex : 0
+    const range = parseInt(SEED / digit) * FACTOR
+
+    return (total + currentIndex * range) % SEED
+  }, 1)
+
+  const hex = ((base * ensuredText.length) % SEED).toString(16)
+
+  return `#${hex.padEnd(6, hex)}`
+}

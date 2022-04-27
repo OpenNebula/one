@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useMemo, JSXElementConstructor } from 'react'
+import { useState, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -21,7 +21,6 @@ import {
   Tabs as MTabs,
   TabsProps,
   Tab as MTab,
-  Box,
   Fade,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
@@ -30,33 +29,57 @@ const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
   color: theme.palette.error.main,
 }))
 
-const Content = ({ name, renderContent: RenderContent, hidden }) => (
-  <Fade in timeout={400} key={`tab-${name}`}>
-    <Box
-      sx={{
-        p: (theme) => theme.spacing(2, 1),
-        height: '100%',
-        display: hidden ? 'none' : 'flex',
-        flexDirection: 'column',
-        overflow: 'auto',
-      }}
-    >
-      {typeof RenderContent === 'function' ? <RenderContent /> : RenderContent}
-    </Box>
-  </Fade>
+const TabContent = styled('div')(({ hidden, addBorder, theme }) => ({
+  height: '100%',
+  display: hidden ? 'none' : 'flex',
+  flexDirection: 'column',
+  overflow: 'auto',
+  ...(addBorder && {
+    backgroundColor: theme.palette.background.paper,
+    border: `thin solid ${theme.palette.secondary.main}`,
+    borderTop: 'none',
+    borderRadius: `0 0 8px 8px`,
+  }),
+}))
+
+const Content = ({
+  id,
+  name,
+  renderContent: RenderContent,
+  hidden,
+  addBorder = false,
+}) => (
+  <TabContent
+    key={`tab-${id ?? name}`}
+    data-cy={`tab-content-${id ?? name}`}
+    hidden={hidden}
+    addBorder={addBorder}
+  >
+    <Fade in timeout={400}>
+      <TabContent sx={{ p: '1em .5em' }}>
+        {typeof RenderContent === 'function' ? (
+          <RenderContent />
+        ) : (
+          RenderContent
+        )}
+      </TabContent>
+    </Fade>
+  </TabContent>
 )
 
 /**
  * @param {object} props - Props
  * @param {Array} props.tabs - Tabs
  * @param {TabsProps} props.tabsProps - Props to tabs component
- * @param {boolean} props.renderHiddenTabs - If `true`, will be render hidden tabs
- * @returns {JSXElementConstructor} Tabs component with content
+ * @param {boolean} [props.renderHiddenTabs] - If `true`, will be render hidden tabs
+ * @param {boolean} [props.addBorder] - If `true`, will be add a border to tab content
+ * @returns {ReactElement} Tabs component with content
  */
 const Tabs = ({
   tabs = [],
   tabsProps: { sx, ...tabsProps } = {},
   renderHiddenTabs = false,
+  addBorder = false,
 }) => {
   const [tabSelected, setTab] = useState(() => 0)
 
@@ -70,7 +93,7 @@ const Tabs = ({
         sx={{
           position: 'sticky',
           top: 0,
-          zIndex: (theme) => theme.zIndex.appBar,
+          zIndex: ({ zIndex }) => zIndex.appBar,
           ...sx,
         }}
         {...tabsProps}
@@ -110,6 +133,7 @@ const Tabs = ({
         renderAllHiddenTabContents
       ) : (
         <Content
+          addBorder={addBorder}
           {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
         />
       )}
@@ -124,12 +148,15 @@ Tabs.propTypes = {
   tabs: PropTypes.array,
   tabsProps: PropTypes.object,
   renderHiddenTabs: PropTypes.bool,
+  addBorder: PropTypes.bool,
 }
 
 Content.propTypes = {
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   name: PropTypes.string,
   renderContent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   hidden: PropTypes.bool,
+  addBorder: PropTypes.bool,
 }
 
 export default Tabs

@@ -37,9 +37,12 @@ actions:
 
 filters:
   label: true
+  owner: true
+  group: true
   state: true
   type: true
   marketplace: true
+  zone: true
 
 # Info Tabs - Which info tabs are used to show extended information
 

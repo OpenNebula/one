@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, memo, useState } from 'react'
+import { ReactElement, memo, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import {
   Paper,
@@ -24,134 +24,208 @@ import {
   TextField,
 } from '@mui/material'
 import { Edit } from 'iconoir-react'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 
 import { useAuth } from 'client/features/Auth'
 import { useUpdateUserMutation } from 'client/features/OneApi/user'
 import { useGeneralApi } from 'client/features/General'
 
-import {
-  FIELDS,
-  SCHEMA,
-} from 'client/containers/Settings/Authentication/schema'
 import { Translate } from 'client/components/HOC'
 import { Legend } from 'client/components/Forms'
 import { jsonToXml } from 'client/models/Helper'
 import { sanitize } from 'client/utils'
 import { T } from 'client/constants'
 
-/** @returns {ReactElement} Settings authentication */
-const Settings = () => (
-  <Paper variant="outlined" sx={{ py: '1.5em' }}>
-    <Stack gap="1em">
-      {FIELDS.map((field) => (
-        <FieldComponent
-          key={'settings-authentication-field-' + field.name}
-          field={field}
-        />
-      ))}
-    </Stack>
-  </Paper>
+const FIELDS = [
+  {
+    name: 'SSH_PUBLIC_KEY',
+    label: T.SshPublicKey,
+    tooltip: T.AddUserSshPublicKey,
+  },
+  {
+    name: 'SSH_PRIVATE_KEY',
+    label: T.SshPrivateKey,
+    tooltip: T.AddUserSshPrivateKey,
+  },
+  {
+    name: 'SSH_PASSPHRASE',
+    label: T.SshPassphraseKey,
+    tooltip: T.AddUserSshPassphraseKey,
+  },
+]
+
+const removeProperty = (propKey, { [propKey]: _, ...rest }) => rest
+
+// -------------------------------------
+// FIELD COMPONENT
+// -------------------------------------
+
+const FieldComponent = memo(
+  ({ field, defaultValue, onSubmit, setIsEnabled }) => {
+    const { register, reset, handleSubmit } = useFormContext()
+    const { name } = field
+
+    useEffect(() => {
+      reset({ [name]: defaultValue })
+    }, [defaultValue])
+
+    const handleKeyDown = (evt) => {
+      if (evt.key === 'Escape') {
+        setIsEnabled(false)
+        reset({ [name]: defaultValue })
+        evt.stopPropagation()
+      }
+
+      if (evt.key === 'Enter') {
+        handleSubmit(onSubmit)(evt)
+      }
+    }
+
+    const handleBlur = (evt) => handleSubmit(onSubmit)(evt)
+
+    return (
+      <TextField
+        fullWidth
+        autoFocus
+        multiline
+        rows={5}
+        defaultValue={defaultValue}
+        variant="outlined"
+        onKeyDown={handleKeyDown}
+        helperText={<Translate word={T.PressEscapeToCancel} />}
+        {...register(name, { onBlur: handleBlur, shouldUnregister: true })}
+      />
+    )
+  }
 )
 
-const FieldComponent = memo(({ field }) => {
+FieldComponent.propTypes = {
+  field: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  setIsEnabled: PropTypes.func.isRequired,
+  defaultValue: PropTypes.string,
+}
+
+FieldComponent.displayName = 'FieldComponent'
+
+// -------------------------------------
+// STATIC COMPONENT
+// -------------------------------------
+
+const StaticComponent = memo(
+  ({ field, defaultValue, isEnabled, setIsEnabled }) => {
+    const { formState } = useFormContext()
+    const { name, tooltip } = field
+
+    return (
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        gap="1em"
+        paddingX={1}
+      >
+        {formState.isSubmitting ? (
+          <>
+            <Skeleton variant="text" width="100%" height={36} />
+            <Skeleton variant="circular" width={28} height={28} />
+          </>
+        ) : (
+          <>
+            <Typography
+              noWrap
+              title={sanitize`${defaultValue}`}
+              color="text.secondary"
+            >
+              {sanitize`${defaultValue}` || <Translate word={tooltip} />}
+            </Typography>
+
+            <IconButton
+              disabled={isEnabled && !isEnabled?.[name]}
+              onClick={() => setIsEnabled({ [name]: true })}
+            >
+              <Edit />
+            </IconButton>
+          </>
+        )}
+      </Stack>
+    )
+  }
+)
+
+StaticComponent.propTypes = {
+  field: PropTypes.object.isRequired,
+  isEnabled: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  setIsEnabled: PropTypes.func.isRequired,
+  defaultValue: PropTypes.string,
+}
+
+StaticComponent.displayName = 'StaticComponent'
+
+/**
+ * Section to change user settings about SSH keys and passphrase.
+ *
+ * @returns {ReactElement} Settings authentication
+ */
+const Settings = () => {
   const [isEnabled, setIsEnabled] = useState(false)
-  const { name, label, tooltip } = field
-
   const { user, settings } = useAuth()
-  const [updateUser, { isLoading }] = useUpdateUserMutation()
   const { enqueueError } = useGeneralApi()
+  const [updateUser] = useUpdateUserMutation()
 
-  const defaultValues = useMemo(() => SCHEMA.cast(settings), [settings])
+  const { ...methods } = useForm({ reValidateMode: 'onSubmit' })
 
-  const { watch, register, reset } = useForm({
-    reValidateMode: 'onSubmit',
-    defaultValues,
-    resolver: yupResolver(SCHEMA),
-  })
-
-  const sanitizedValue = useMemo(() => sanitize`${watch(name)}`, [isEnabled])
-
-  const handleUpdateUser = async () => {
+  const handleUpdateUser = async (formData) => {
     try {
-      if (isLoading || !isEnabled) return
-
-      const castedData = SCHEMA.cast(watch(), { isSubmit: true })
-      const template = jsonToXml(castedData)
-
-      updateUser({ id: user.ID, template })
       setIsEnabled(false)
+
+      const newSettings = FIELDS.reduce(
+        (result, { name }) =>
+          result[name] === '' ? removeProperty(name, result) : result,
+        { ...settings, ...formData }
+      )
+
+      const template = jsonToXml(newSettings)
+
+      await updateUser({ id: user.ID, template, replace: 0 })
     } catch {
+      isEnabled && setIsEnabled(false)
       enqueueError(T.SomethingWrong)
     }
   }
 
-  const handleBlur = () => {
-    handleUpdateUser()
-  }
-
-  const handleKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
-      reset(defaultValues)
-      setIsEnabled(false)
-      evt.stopPropagation()
-    }
-
-    if (evt.key === 'Enter') {
-      handleUpdateUser()
-    }
-  }
-
   return (
-    <Stack component="fieldset" sx={{ minInlineSize: 'auto' }}>
-      <Legend title={label} tooltip={tooltip} />
-      {isEnabled ? (
-        <>
-          <TextField
-            fullWidth
-            autoFocus
-            multiline
-            rows={5}
-            variant="outlined"
-            onKeyDown={handleKeyDown}
-            helperText={<Translate word={T.PressEscapeToCancel} />}
-            {...register(field.name, { onBlur: handleBlur })}
-          />
-        </>
-      ) : (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          gap="1em"
-          paddingX={1}
-        >
-          {isLoading ? (
-            <>
-              <Skeleton variant="text" width="100%" height={36} />
-              <Skeleton variant="circular" width={28} height={28} />
-            </>
-          ) : (
-            <>
-              <Typography noWrap title={sanitizedValue}>
-                {sanitizedValue}
-              </Typography>
-              <IconButton onClick={() => setIsEnabled(true)}>
-                <Edit />
-              </IconButton>
-            </>
-          )}
+    <Paper variant="outlined" sx={{ py: '1.5em' }}>
+      <FormProvider {...methods}>
+        <Stack gap="1em">
+          {FIELDS.map((field) => (
+            <Stack
+              component="fieldset"
+              key={'settings-authentication-field-' + field.name}
+              sx={{ minInlineSize: 'auto' }}
+            >
+              <Legend title={field.label} />
+              {isEnabled[field.name] ? (
+                <FieldComponent
+                  field={field}
+                  defaultValue={settings[field.name]}
+                  onSubmit={handleUpdateUser}
+                  setIsEnabled={setIsEnabled}
+                />
+              ) : (
+                <StaticComponent
+                  field={field}
+                  defaultValue={settings[field.name]}
+                  isEnabled={isEnabled}
+                  setIsEnabled={setIsEnabled}
+                />
+              )}
+            </Stack>
+          ))}
         </Stack>
-      )}
-    </Stack>
+      </FormProvider>
+    </Paper>
   )
-})
-
-FieldComponent.propTypes = {
-  field: PropTypes.object.isRequired,
 }
-
-FieldComponent.displayName = 'FieldComponent'
 
 export default Settings
