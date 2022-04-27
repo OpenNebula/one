@@ -69,13 +69,13 @@ const TableController = memo(
           <ErrorHelper data-cy={`${cy}-error`} label={error?.message} mb={2} />
         )}
         <Table
-          pageSize={4}
+          pageSize={5}
+          disableGlobalSort
+          displaySelectedRows
+          disableRowSelect={readOnly}
           singleSelect={singleSelect}
-          onlyGlobalSearch
-          onlyGlobalSelectedRows
           getRowId={getRowId}
           initialState={{ ...initialState, selectedRowIds: initialRows }}
-          disableRowSelect={readOnly}
           onSelectedRowsChange={(rows) => {
             if (readOnly) return
 

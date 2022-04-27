@@ -41,8 +41,9 @@ const Content = ({ data, setFormData }) => {
   return (
     <VNetworksTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       getRowId={(row) => String(row.NAME)}
       initialState={{ selectedRowIds: { [NAME]: true } }}
       onSelectedRowsChange={handleSelectedRows}

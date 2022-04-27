@@ -23,7 +23,7 @@ import {
 } from 'client/utils'
 import { T, HYPERVISORS, USER_INPUT_TYPES, VmTemplate } from 'client/constants'
 
-const { number, numberFloat } = USER_INPUT_TYPES
+const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
 
 const TRANSLATES = {
   MEMORY: { name: 'MEMORY', label: T.Memory, tooltip: T.MemoryConcept },
@@ -60,6 +60,7 @@ export const FIELDS = (vmTemplate) => {
     const isMemory = name === 'MEMORY'
     const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
     const divisibleBy4 = isVCenter && isMemory
+    const isRange = [range, rangeFloat].includes(userInput.type)
 
     // set default type to number
     userInput.type ??= name === 'CPU' ? numberFloat : number
@@ -71,18 +72,17 @@ export const FIELDS = (vmTemplate) => {
     const schemaUi = schemaUserInput({ options: ensuredOptions, ...userInput })
     const isNumber = schemaUi.validation instanceof NumberSchema
 
-    if (isNumber) {
-      // add positive number validator
-      isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
+    // add positive number validator
+    isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
 
+    if (isMemory && isRange) {
       // add label format on pretty bytes
-      isMemory &&
-        (schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat })
+      schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
+    }
 
-      if (divisibleBy4) {
-        schemaUi.validation &&= schemaUi.validation.isDivisibleBy(4)
-        schemaUi.fieldProps = { ...schemaUi.fieldProps, step: 4 }
-      }
+    if (isNumber && divisibleBy4) {
+      schemaUi.validation &&= schemaUi.validation.isDivisibleBy(4)
+      schemaUi.fieldProps = { ...schemaUi.fieldProps, step: 4 }
     }
 
     return { ...TRANSLATES[name], ...schemaUi, grid: { md: 12 } }

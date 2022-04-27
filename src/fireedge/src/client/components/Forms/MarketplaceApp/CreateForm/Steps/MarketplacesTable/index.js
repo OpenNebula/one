@@ -40,8 +40,9 @@ const Content = ({ data }) => {
   return (
     <MarketplacesTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       getRowId={(market) => String(market.NAME)}
       useQuery={() =>
         useGetMarketplacesQuery(undefined, {

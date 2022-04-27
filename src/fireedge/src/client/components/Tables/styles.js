@@ -32,18 +32,13 @@ export const rowStyles = makeStyles(
       },
     },
     figure: {
-      flexBasis: '20%',
-      paddingTop: '12.5%',
-      overflow: 'hidden',
-      position: 'relative',
+      flexBasis: '10%',
+      aspectRatio: '16/9',
     },
     image: {
-      top: 0,
-      left: 0,
       width: '100%',
       height: '100%',
       objectFit: 'contain',
-      position: 'absolute',
       userSelect: 'none',
     },
     main: {
@@ -68,18 +63,18 @@ export const rowStyles = makeStyles(
       color: palette.text.secondary,
       marginTop: 4,
       display: 'flex',
-      gap: '0.75em',
+      gap: '0.5em',
       alignItems: 'center',
       flexWrap: 'wrap',
       wordWrap: 'break-word',
       '& > .full-width': {
         flexBasis: '100%',
       },
-    },
-    captionItem: {
-      display: 'flex',
-      gap: '0.5em',
-      alignItems: 'center',
+      '& > span': {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5em',
+      },
     },
     secondary: {
       width: '25%',

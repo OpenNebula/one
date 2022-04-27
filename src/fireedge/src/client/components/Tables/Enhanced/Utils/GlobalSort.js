@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useMemo, JSXElementConstructor } from 'react'
+import { useEffect, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
@@ -25,16 +25,18 @@ import {
 } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 /**
  * Render all selected sorters.
  *
  * @param {object} props - Props
+ * @param {string} [props.className] - Class name for the container
  * @param {TableInstance} props.useTableProps - Table props
- * @returns {JSXElementConstructor} Component JSX
+ * @returns {ReactElement} Component JSX
  */
-const GlobalSort = ({ useTableProps }) => {
+const GlobalSort = ({ className, useTableProps }) => {
   const { headers, state } = useTableProps
 
   /** @type {UseSortByInstanceProps} */
@@ -66,7 +68,7 @@ const GlobalSort = ({ useTableProps }) => {
   useEffect(() => () => setSortBy([]), [])
 
   return !headersNotSorted.length && !sortBy.length ? null : (
-    <Stack direction="row" gap="0.5em" flexWrap="wrap">
+    <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
       {useMemo(
         () => (
           <HeaderPopover
@@ -79,24 +81,15 @@ const GlobalSort = ({ useTableProps }) => {
               variant: 'outlined',
               color: 'secondary',
             }}
-            popperProps={{ placement: 'bottom-start' }}
+            popperProps={{ placement: 'bottom-end' }}
           >
             {() => (
               <MenuList>
-                {headersNotSorted.length ? (
-                  headersNotSorted?.map(({ id, Header: name }) => (
-                    <MenuItem
-                      key={id}
-                      onClick={() => {
-                        handleClick(id, name)
-                      }}
-                    >
-                      {name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <span>{T.Empty}</span>
-                )}
+                {headersNotSorted?.map(({ id, Header: name }) => (
+                  <MenuItem key={id} onClick={() => handleClick(id, name)}>
+                    <Translate word={name} />
+                  </MenuItem>
+                ))}
               </MenuList>
             )}
           </HeaderPopover>
@@ -122,6 +115,7 @@ const GlobalSort = ({ useTableProps }) => {
 }
 
 GlobalSort.propTypes = {
+  className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired,
 }
 

@@ -14,22 +14,30 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Column } from 'react-table'
-import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
-import { GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
+
+import {
+  GlobalAction,
+  CategoryFilter,
+  TimeFilter,
+} from 'client/components/Tables/Enhanced/Utils'
 
 /**
  * Add filters defined in view yaml to columns.
  *
  * @param {object} config - Config
- * @param {object} config.filters - List of criteria to filter the columns.
+ * @param {object} config.filters - List of criteria to filter the columns
  * @param {Column[]} config.columns - Columns
- * @returns {object} Column with filters
+ * @returns {Column[]} Column with filters
  */
 export const createColumns = ({ filters = {}, columns = [] }) => {
   if (Object.keys(filters).length === 0) return columns
 
   return columns.map((column) => {
-    const { Header, id = '', accessor } = column
+    const { id = '', accessor, noFilterIds = [] } = column
+
+    // noFilterIds is a list of column ids that should not have a filter
+    // it's defined in the resource columns definition
+    if (noFilterIds.includes(id)) return column
 
     const filterById = !!filters[String(id.toLowerCase())]
 
@@ -38,26 +46,53 @@ export const createColumns = ({ filters = {}, columns = [] }) => {
 
     return {
       ...column,
-      ...((filterById || filterByAccessor) && createCategoryFilter(Header)),
+      ...((filterById || filterByAccessor) &&
+        (
+          {
+            // TODO: Add label to filters
+            // label: createLabelFilter,
+            time: createTimeFilter,
+          }[`${id}`.toLowerCase()] ?? createCategoryFilter
+        )(column)),
     }
   })
 }
 
 /**
+ * Create label filter as column.
+ *
+ * @param {Column} column - Column
+ * @returns {Column} - Label filter
+ */
+// export const createLabelFilter = (column) => ({
+//   disableFilters: false,
+//   Filter: LabelFilter,
+//   ...column,
+// })
+
+/**
+ * Create time filter as column.
+ *
+ * @param {Column} column - Column
+ * @returns {Column} - Time filter
+ */
+export const createTimeFilter = (column) => ({
+  disableFilters: false,
+  Filter: TimeFilter,
+  ...column,
+})
+
+/**
  * Create category filter as column.
  *
- * @param {string} title - Title
+ * @param {Column} column - Column
  * @returns {Column} - Category filter
  */
-export const createCategoryFilter = (title) => ({
+export const createCategoryFilter = (column) => ({
   disableFilters: false,
-  Filter: ({ column }) =>
-    CategoryFilter({
-      column,
-      multiple: true,
-      title,
-    }),
+  Filter: CategoryFilter,
   filter: 'includesValue',
+  ...column,
 })
 
 /**

@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const GroupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetGroupQuery(id)
+  const { isLoading, isError, error } = useGetGroupQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.GROUP
@@ -52,7 +52,7 @@ const GroupTabs = memo(({ id }) => {
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />
   ) : (
-    <Tabs tabs={tabsAvailable ?? []} />
+    <Tabs addBorder tabs={tabsAvailable ?? []} />
   )
 })
 

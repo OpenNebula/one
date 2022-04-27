@@ -83,9 +83,10 @@ const Hosts = memo(({ id }) => {
         </Stack>
       </Stack>
       <HostsTable
-        onlyGlobalSearch
-        disableRowSelect
         disableGlobalSort
+        disableRowSelect
+        displaySelectedRows
+        pageSize={5}
         useQuery={() =>
           useGetProvisionResourceQuery(
             { resource: 'host' },

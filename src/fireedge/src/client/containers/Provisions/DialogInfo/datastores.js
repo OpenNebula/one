@@ -44,9 +44,10 @@ const Datastores = memo(
 
     return (
       <DatastoresTable
-        onlyGlobalSearch
-        disableRowSelect
         disableGlobalSort
+        disableRowSelect
+        displaySelectedRows
+        pageSize={5}
         useQuery={() =>
           useGetProvisionResourceQuery(
             { resource: 'datastore' },

@@ -66,7 +66,7 @@ const useTableStyles = makeStyles({
 })
 
 const isDisabled = (action) => (rows) =>
-  isAvailableAction(action)(rows, ({ values }) => values?.STATE)
+  isAvailableAction(action)(rows, ({ values }) => values?.state)
 
 const ListVmNames = ({ rows = [] }) => {
   const { data: datastores = [] } = useGetDatastoresQuery()
@@ -147,7 +147,6 @@ const Actions = () => {
 
                     return (
                       <VmTemplatesTable
-                        onlyGlobalSearch
                         disableGlobalSort
                         disableRowSelect
                         classes={classes}

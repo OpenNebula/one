@@ -13,34 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
-import * as Helper from 'client/models/Helper'
-import {} from 'client/constants'
+import { Column } from 'react-table'
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
-  { Header: 'Owner', accessor: 'UNAME' },
-  { Header: 'Group', accessor: 'GNAME' },
-  { Header: 'Start Time', accessor: 'REGTIME' },
-  { Header: 'Locked', accessor: 'LOCK' },
+import { T } from 'client/constants'
+
+/** @type {Column[]} VM Template columns */
+const COLUMNS = [
+  { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: T.Name, id: 'name', accessor: 'NAME' },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
+  { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
+  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
   {
-    Header: 'Logo',
-    id: 'LOGO',
-    accessor: (row) => row?.TEMPLATE?.LOGO,
+    Header: T.Logo,
+    id: 'logo',
+    accessor: 'TEMPLATE.LOGO',
   },
   {
-    Header: 'Virtual Router',
-    id: 'VROUTER',
-    accessor: (row) =>
-      Helper.stringToBoolean(row?.TEMPLATE?.VROUTER) && 'VROUTER',
-    disableFilters: false,
-    Filter: ({ column }) =>
-      CategoryFilter({
-        column,
-        title: 'Virtual Router',
-      }),
-    filter: 'exact',
+    Header: T.VirtualRouter,
+    id: 'vrouter',
+    accessor: 'TEMPLATE.VROUTER',
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'time', 'logo']
+
+export default COLUMNS

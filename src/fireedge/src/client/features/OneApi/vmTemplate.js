@@ -20,6 +20,7 @@ import {
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
 import { LockLevel, FilterFlag, Permission, VmTemplate } from 'client/constants'
+import { xmlToJson } from 'client/models/Helper'
 
 const { TEMPLATE } = ONE_RESOURCES
 const { TEMPLATE_POOL, VM_POOL } = ONE_RESOURCES_POOL
@@ -187,6 +188,45 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
+      async onQueryStarted(
+        { id, template: xml, replace = 0 },
+        { dispatch, queryFulfilled }
+      ) {
+        try {
+          // update template by id
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData('getTemplate', id, (draft) => {
+              draft.TEMPLATE =
+                +replace === 0
+                  ? xmlToJson(xml)
+                  : { ...draft.TEMPLATE, ...xmlToJson(xml) }
+            })
+          )
+
+          // update template on pool by id (if exists)
+          const patchVmTemplates = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplates',
+              undefined,
+              (draft) => {
+                const template = draft.find(({ ID }) => +ID === +id)
+
+                if (!template) return
+
+                template.TEMPLATE =
+                  +replace === 0
+                    ? xmlToJson(xml)
+                    : { ...template.TEMPLATE, ...xmlToJson(xml) }
+              }
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
+        } catch {}
+      },
     }),
     changeTemplatePermissions: builder.mutation({
       /**

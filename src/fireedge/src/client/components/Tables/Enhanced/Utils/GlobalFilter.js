@@ -13,103 +13,71 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor, useState, useCallback } from 'react'
+import { Fragment, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-import { alpha, debounce, InputBase } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { Search as SearchIcon } from 'iconoir-react'
-import {
-  UseGlobalFiltersInstanceProps,
-  UseGlobalFiltersState,
-} from 'react-table'
+import { Stack, Button } from '@mui/material'
+import { Filter } from 'iconoir-react'
+import { TableInstance, UseTableInstanceProps } from 'react-table'
 
-const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
-  search: {
-    position: 'relative',
-    borderRadius: shape.borderRadius,
-    backgroundColor: alpha(palette.divider, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(palette.divider, 0.25),
-    },
-    width: '100%',
-    [breakpoints.up('sm')]: {
-      width: 'auto',
-    },
-  },
-  searchIcon: {
-    padding: spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
-    width: '100%',
-  },
-  inputInput: {
-    padding: spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${spacing(4)})`,
-  },
-}))
+import HeaderPopover from 'client/components/Header/Popover'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
- * Render search input.
+ * Render all selected sorters.
  *
  * @param {object} props - Props
- * @param {string} props.className - Class to wrapper root
- * @param {object} props.searchProps - Props for search input
- * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
- * @returns {JSXElementConstructor} Component JSX
+ * @param {string} [props.className] - Class name for the container
+ * @param {TableInstance} props.useTableProps - Table props
+ * @returns {ReactElement} Component JSX
  */
-const GlobalFilter = ({ useTableProps, className, searchProps }) => {
-  const classes = useStyles()
+const GlobalFilter = ({ className, useTableProps }) => {
+  /** @type {UseTableInstanceProps} */
+  const { rows, columns, setAllFilters } = useTableProps
 
-  const { setGlobalFilter, state } = useTableProps
-
-  /** @type {UseGlobalFiltersState} */
-  const { globalFilter } = state
-
-  const [value, setValue] = useState(() => globalFilter)
-
-  const handleChange = useCallback(
-    // Set undefined to remove the filter entirely
-    debounce((newFilter) => setGlobalFilter(newFilter || undefined), 200),
-    [setGlobalFilter]
+  const columnsCanFilter = useMemo(
+    () => columns.filter(({ canFilter }) => canFilter),
+    [columns]
   )
 
-  return (
-    <div className={clsx(classes.search, className)}>
-      <div className={classes.searchIcon}>
-        <SearchIcon />
-      </div>
-      <InputBase
-        value={value ?? ''}
-        type="search"
-        onChange={(event) => {
-          setValue(event.target.value)
-          handleChange(event.target.value)
+  return !columnsCanFilter.length ? null : (
+    <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
+      <HeaderPopover
+        id="filter-by-button"
+        icon={<Filter />}
+        buttonLabel={T.FilterBy}
+        buttonProps={{
+          'data-cy': 'filter-by-button',
+          variant: 'outlined',
+          color: 'secondary',
+          disabled: rows?.length === 0,
         }}
-        placeholder={'Search...'}
-        classes={{
-          root: classes.inputRoot,
-          input: classes.inputInput,
-        }}
-        inputProps={{ 'aria-label': 'search', ...(searchProps ?? {}) }}
-      />
-    </div>
+        popperProps={{ placement: 'bottom-end' }}
+      >
+        {() => (
+          <Stack sx={{ width: { xs: '100%', md: 500 }, p: 2 }}>
+            {columnsCanFilter.map((column, idx) => (
+              <Fragment key={idx}>{column.render('Filter')}</Fragment>
+            ))}
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setAllFilters([])}
+              sx={{ mt: 2, alignSelf: 'flex-end' }}
+            >
+              <Translate word={T.Clear} />
+            </Button>
+          </Stack>
+        )}
+      </HeaderPopover>
+    </Stack>
   )
 }
 
 GlobalFilter.propTypes = {
   className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired,
-  searchProps: PropTypes.object,
 }
 
 export default GlobalFilter

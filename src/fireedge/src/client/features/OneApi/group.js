@@ -52,11 +52,12 @@ const groupApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for the group.
        *
-       * @param {string|number} id - Group id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Group id
        * @returns {Group} Get group identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: ({ id }) => {
         const name = Actions.GROUP_INFO
         const command = { name, ...Commands[name] }
 

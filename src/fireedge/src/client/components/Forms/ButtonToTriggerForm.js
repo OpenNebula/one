@@ -36,7 +36,7 @@ import { isDevelopment } from 'client/utils'
 
 const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button'
-  const isGroupButton = options.length > 1
+  const moreThanOneOption = options.length > 1
 
   const [anchorEl, setAnchorEl] = useState(() => null)
   const open = Boolean(anchorEl)
@@ -76,16 +76,16 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
         aria-describedby={buttonId}
         aria-controls={open ? `${buttonId}-button` : undefined}
         aria-expanded={open ? 'true' : undefined}
-        aria-haspopup={isGroupButton ? 'true' : false}
+        aria-haspopup={moreThanOneOption ? 'true' : false}
         disabled={!options.length}
-        endicon={isGroupButton ? <NavArrowDown /> : undefined}
+        endicon={moreThanOneOption ? <NavArrowDown /> : undefined}
         onClick={(evt) =>
-          !isGroupButton ? openDialogForm(options[0]) : handleToggle(evt)
+          moreThanOneOption ? handleToggle(evt) : openDialogForm(options[0])
         }
         {...buttonProps}
       />
 
-      {isGroupButton && (
+      {moreThanOneOption && !buttonProps.disabled && (
         <Menu
           id={`${buttonId}-menu`}
           anchorEl={anchorEl}

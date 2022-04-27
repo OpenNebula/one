@@ -41,8 +41,9 @@ const Content = ({ data, setFormData }) => {
   return (
     <ClustersTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />

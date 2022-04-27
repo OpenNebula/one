@@ -13,91 +13,132 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { Folder, User } from 'iconoir-react'
-import { Typography, Paper } from '@mui/material'
+import { Folder, User, Group, InfoEmpty } from 'iconoir-react'
+import { Typography, Paper, Stack, Divider } from '@mui/material'
 
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { Tr, Translate } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 import { getHistoryAction } from 'client/models/VirtualMachine'
 import { timeFromMilliseconds, timeDiff } from 'client/models/Helper'
-import { HistoryRecord } from 'client/constants'
+import { T, HistoryRecord } from 'client/constants'
 
-/**
- * Renders history record card.
- *
- * @param {object} props - Props
- * @param {HistoryRecord} props.history - History
- * @returns {ReactElement} History record card component
- */
-const HistoryRecordCard = ({ history }) => {
-  const classes = rowStyles()
+const HistoryRecordCard = memo(
+  /**
+   * Renders history record card.
+   *
+   * @param {object} props - Props
+   * @param {HistoryRecord} props.history - History
+   * @returns {ReactElement} History record card component
+   */
+  ({ history }) => {
+    const classes = rowStyles()
 
-  const {
-    SEQ,
-    UID,
-    GID,
-    REQUEST_ID,
-    HOSTNAME,
-    HID,
-    DS_ID,
-    ACTION,
-    STIME,
-    ETIME,
-    PSTIME,
-    PETIME,
-  } = history
+    const {
+      SEQ,
+      UID,
+      GID,
+      REQUEST_ID,
+      HOSTNAME,
+      HID,
+      DS_ID,
+      ACTION,
+      STIME,
+      ETIME,
+      PSTIME,
+      PETIME,
+    } = history
 
-  const now = Math.round(Date.now() / 1000)
+    const now = Math.round(Date.now() / 1000)
+    const startTime = timeFromMilliseconds(+STIME)
 
-  const startTime = timeFromMilliseconds(+STIME)
+    const monitorEndTime = +ETIME === 0 ? now : +ETIME
+    const monitorDiffTime = timeDiff(+STIME, monitorEndTime)
 
-  const monitorEndTime = +ETIME === 0 ? now : +ETIME
-  const monitorDiffTime = timeDiff(+STIME, monitorEndTime)
+    const prologEndTime = +PSTIME === 0 ? 0 : +PETIME === 0 ? now : +PETIME
+    const prologDiffTime = timeDiff(+PSTIME, prologEndTime)
 
-  const prologEndTime = +PSTIME === 0 ? 0 : +PETIME === 0 ? now : +PETIME
-  const prologDiffTime = timeDiff(+PSTIME, prologEndTime)
+    const action = getHistoryAction(+ACTION)
 
-  const ownerInfo = `${UID} | ${GID} | ${REQUEST_ID}`
+    const getNameFromResult = useCallback(
+      (id, result) => ({
+        name: result?.find((item) => +item.ID === +id)?.NAME ?? '...',
+      }),
+      []
+    )
 
-  const action = getHistoryAction(+ACTION)
+    const { name: dsName } = useGetDatastoresQuery(undefined, {
+      selectFromResult: ({ data }) => getNameFromResult(DS_ID, data),
+    })
 
-  return (
-    <Paper variant="outlined" className={classes.root}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component="span">
-            {`#${SEQ} | #${HID} ${HOSTNAME} | Action: ${action}`}
-          </Typography>
-        </div>
-        <div className={classes.caption}>
-          <span title={`Datastore ID: ${DS_ID}`}>
-            <Folder />
-            <span>{` ${DS_ID}`}</span>
-          </span>
-          {+UID !== -1 && (
-            <span title={`Owner | Group | Request ID: ${ownerInfo}`}>
-              <User />
-              <span>{` ${ownerInfo}`}</span>
+    const { name: userName } = useGetUsersQuery(undefined, {
+      selectFromResult: ({ data }) => getNameFromResult(UID, data),
+    })
+
+    const { name: groupName } = useGetGroupsQuery(undefined, {
+      selectFromResult: ({ data }) => getNameFromResult(GID, data),
+    })
+
+    return (
+      <Paper variant="outlined" className={classes.root}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography component="span">
+              {`#${SEQ} | #${HID} ${HOSTNAME} | ${Tr(T.Action)}: ${action}`}
+            </Typography>
+          </div>
+          <div className={classes.caption}>
+            <span title={`${Tr(T.Datastore)}: #${DS_ID} ${dsName}`}>
+              <Folder />
+              <span data-cy="datastore">{`#${DS_ID} ${dsName}`}</span>
             </span>
-          )}
-          <span
-            title={`Time when the state changed: ${startTime.toFormat('ff')}`}
-          >
-            {`| start ${startTime.toRelative()}`}
-          </span>
-          <span title={'Total time in this state'}>
-            {`| total ${monitorDiffTime}`}
-          </span>
-          <span title={'Prolog time for this state'}>
-            {`| prolog ${prologDiffTime}`}
-          </span>
+            {+UID !== -1 && (
+              <>
+                <span title={`${Tr(T.Owner)}: #${UID} ${userName}`}>
+                  <User />
+                  <span data-cy="owner">{`#${UID} ${userName}`}</span>
+                </span>
+                <span title={`${Tr(T.Group)}: #${GID} ${groupName}`}>
+                  <Group />
+                  <span data-cy="group">{`#${GID} ${groupName}`}</span>
+                </span>
+                <span title={`${Tr(T.RequestId)}: ${REQUEST_ID}`}>
+                  <InfoEmpty />
+                  <span data-cy="request">{`#${REQUEST_ID}`}</span>
+                </span>
+              </>
+            )}
+            <Stack
+              direction="row"
+              component="span"
+              divider={<Divider orientation="vertical" flexItem />}
+            >
+              <span title={Tr(T.TimeWhenTheStateChanged)}>
+                <Translate
+                  word={T.StartedOnTime}
+                  values={[startTime.toFormat('ff')]}
+                />
+              </span>
+              <span title={Tr(T.TotalTimeInThisState)}>
+                <Translate word={T.Total} />
+                {` ${monitorDiffTime}`}
+              </span>
+              <span title={Tr(T.PrologTimeForThisState)}>
+                <Translate word={T.Prolog} />
+                {` ${prologDiffTime}`}
+              </span>
+            </Stack>
+          </div>
         </div>
-      </div>
-    </Paper>
-  )
-}
+      </Paper>
+    )
+  }
+)
 
 HistoryRecordCard.propTypes = {
   history: PropTypes.object.isRequired,

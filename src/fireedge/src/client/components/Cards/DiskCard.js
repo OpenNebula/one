@@ -83,7 +83,7 @@ const DiskCard = memo(({ disk = {}, actions = [], snapshotActions = [] }) => {
     >
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span" data-cy="name">
+          <Typography noWrap component="span" data-cy="name">
             {getDiskName(disk)}
           </Typography>
           <span className={classes.labels}>

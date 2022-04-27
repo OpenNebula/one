@@ -17,13 +17,14 @@
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, Typography } from '@mui/material'
+import { Stack, Button, Typography } from '@mui/material'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
 import { UsePaginationState } from 'react-table'
 
 import { T } from 'client/constants'
 
 const Pagination = ({
+  className,
   count = 0,
   handleChangePage,
   useTableProps,
@@ -43,7 +44,13 @@ const Pagination = ({
   }
 
   return (
-    <>
+    <Stack
+      className={className}
+      direction="row"
+      alignItems="center"
+      justifyContent="end"
+      gap="1em"
+    >
       <Button
         aria-label="previous page"
         disabled={pageIndex === 0}
@@ -67,11 +74,12 @@ const Pagination = ({
         {T.Next}
         <NavArrowRight />
       </Button>
-    </>
+    </Stack>
   )
 }
 
 Pagination.propTypes = {
+  className: PropTypes.string,
   handleChangePage: PropTypes.func.isRequired,
   useTableProps: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,

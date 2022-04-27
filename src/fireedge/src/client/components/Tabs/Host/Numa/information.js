@@ -37,8 +37,8 @@ const InformationPanel = ({ node = {} }) => {
     <>
       <Stack
         gap="1em"
-        gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
-        padding="0.8em"
+        gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+        padding={{ sm: '0.8em' }}
       >
         <Typography gutterBottom variant="h2" component="h2">
           <Translate word={T.NumaNodeItem} values={node.NODE_ID} />
@@ -56,8 +56,8 @@ const InformationPanel = ({ node = {} }) => {
       <Stack
         display="grid"
         gap="1em"
-        gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
-        padding="0.8em"
+        gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+        padding={{ sm: '0.8em' }}
       >
         <NumaHugepage hugepage={[HUGEPAGE].flat()} />
         <NumaMemory node={node} />

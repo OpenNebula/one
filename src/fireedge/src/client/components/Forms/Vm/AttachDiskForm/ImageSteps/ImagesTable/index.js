@@ -40,8 +40,8 @@ const Content = ({ data, setFormData }) => {
   return (
     <ImagesTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      pageSize={5}
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />

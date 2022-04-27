@@ -41,8 +41,9 @@ const Content = ({ data, setFormData }) => {
   return (
     <HostsTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />

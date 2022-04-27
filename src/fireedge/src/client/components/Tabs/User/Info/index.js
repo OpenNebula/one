@@ -47,7 +47,7 @@ const UserInfoTab = ({ tabProps = {}, id }) => {
   } = tabProps
 
   const [updateUser] = useUpdateUserMutation()
-  const { data: user = {} } = useGetUserQuery(id)
+  const { data: user = {} } = useGetUserQuery({ id })
   const { TEMPLATE } = user
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -74,8 +74,8 @@ const UserInfoTab = ({ tabProps = {}, id }) => {
     <Stack
       display="grid"
       gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
-      padding="0.8em"
+      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+      padding={{ sm: '0.8em' }}
     >
       {informationPanel?.enabled && (
         <Information

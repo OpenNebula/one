@@ -13,43 +13,50 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Row as RowType } from 'react-table'
 
-const Row = ({ row, handleClick }) => {
-  /** @type {RowType} */
-  const { getRowProps, cells, isSelected } = row
+import { Stack, TextField } from '@mui/material'
+import { UseFiltersInstanceProps } from 'react-table'
 
-  const renderCell = useCallback(
-    (cell) => (
-      <div {...cell.getCellProps()} data-header={cell.column.Header}>
-        {cell.render('Cell')}
-      </div>
-    ),
-    []
-  )
+import { Tr } from 'client/components/HOC'
 
-  return (
-    <div
-      {...getRowProps()}
-      className={isSelected ? 'selected' : ''}
-      onClick={handleClick}
-    >
-      {cells?.map(renderCell)}
-    </div>
-  )
+/**
+ * Render category filter to table.
+ *
+ * @param {object} props - Props
+ * @param {UseFiltersInstanceProps} props.column - Props
+ * @returns {ReactElement} Component JSX
+ */
+const CategoryFilter = ({ column: { Header, filterValue, setFilter, id } }) => (
+  <Stack direction="row">
+    <TextField
+      fullWidth
+      label={Tr(Header)}
+      value={new Date(filterValue)}
+      onChange={(evt) => {
+        console.log(evt.target.value)
+      }}
+      color="secondary"
+      type="date"
+      inputProps={{ 'data-cy': `after-${id}` }}
+    />
+    <TextField
+      fullWidth
+      label={Tr(Header)}
+      value={new Date(filterValue)}
+      onChange={(evt) => {
+        console.log(evt.target.value)
+      }}
+      color="secondary"
+      type="date"
+      inputProps={{ 'data-cy': `before-${id}` }}
+    />
+  </Stack>
+)
+
+CategoryFilter.propTypes = {
+  column: PropTypes.object,
 }
 
-Row.propTypes = {
-  row: PropTypes.object,
-  handleClick: PropTypes.func,
-}
-
-Row.defaultProps = {
-  row: {},
-  handleClick: undefined,
-}
-
-export default Row
+export default CategoryFilter

@@ -50,7 +50,7 @@ const GroupInfoTab = ({ tabProps = {}, id }) => {
   } = tabProps
 
   const [update] = useUpdateGroupMutation()
-  const { data: group } = useGetGroupQuery(id)
+  const { data: group } = useGetGroupQuery({ id })
   const { TEMPLATE } = group
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -80,8 +80,8 @@ const GroupInfoTab = ({ tabProps = {}, id }) => {
     <Stack
       display="grid"
       gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(480px, 1fr))"
-      padding="0.8em"
+      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+      padding={{ sm: '0.8em' }}
     >
       {informationPanel?.enabled && (
         <Information

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo, useRef } from 'react'
-import { Paper, Stack, CircularProgress } from '@mui/material'
+import { ReactElement, useEffect, useMemo, useCallback } from 'react'
+import { Paper, debounce } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 
-import { useAuth } from 'client/features/Auth'
+import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useUpdateUserMutation } from 'client/features/OneApi/user'
 import { useGeneralApi } from 'client/features/General'
 
@@ -27,44 +26,58 @@ import {
   SCHEMA,
 } from 'client/containers/Settings/ConfigurationUI/schema'
 import { FormWithSchema } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
 import { jsonToXml } from 'client/models/Helper'
 import { T } from 'client/constants'
 
-/** @returns {ReactElement} Settings configuration UI */
+/**
+ * Section to change user configuration about UI.
+ *
+ * @returns {ReactElement} Settings configuration UI
+ */
 const Settings = () => {
-  const fieldsetRef = useRef([])
   const { user, settings } = useAuth()
-  const [updateUser, { isLoading }] = useUpdateUserMutation()
+  const { changeAuthUser } = useAuthApi()
   const { enqueueError } = useGeneralApi()
+  const [updateUser] = useUpdateUserMutation()
 
-  const { watch, ...methods } = useForm({
-    reValidateMode: 'onSubmit',
-    defaultValues: useMemo(() => SCHEMA.cast(settings), [settings]),
-    resolver: yupResolver(SCHEMA),
+  const { watch, handleSubmit, ...methods } = useForm({
+    reValidateMode: 'onChange',
+    defaultValues: useMemo(
+      () => SCHEMA.cast(settings, { stripUnknown: true }),
+      [settings]
+    ),
   })
 
-  useEffect(() => {
-    watch((formData) => {
+  const handleUpdateUser = useCallback(
+    debounce(async (formData) => {
       try {
-        if (isLoading) return
+        if (methods?.formState?.isSubmitting) return
 
-        const castedData = SCHEMA.cast(formData, { isSubmit: true })
-        const template = jsonToXml(castedData)
-
-        updateUser({ id: user.ID, template })
+        const template = jsonToXml(formData)
+        await updateUser({ id: user.ID, template, replace: 1 })
       } catch {
         enqueueError(T.SomethingWrong)
       }
-    })
-  }, [watch])
+    }, 1000),
+    [updateUser]
+  )
 
   useEffect(() => {
-    fieldsetRef.current.disabled = isLoading
-  }, [isLoading])
+    const subscription = watch((formData) => {
+      // update user settings before submit
+      const newSettings = { TEMPLATE: { ...user.TEMPLATE, ...formData } }
+      changeAuthUser({ ...user, ...newSettings })
+
+      handleSubmit(handleUpdateUser)()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   return (
     <Paper
+      component="form"
+      onSubmit={handleSubmit(handleUpdateUser)}
       variant="outlined"
       sx={{ p: '1em', maxWidth: { sm: 'auto', md: 550 } }}
     >
@@ -72,13 +85,7 @@ const Settings = () => {
         <FormWithSchema
           cy={'settings-ui'}
           fields={FIELDS}
-          rootProps={{ ref: fieldsetRef }}
-          legend={
-            <Stack direction="row" alignItems="center" gap="1em">
-              <Translate word={T.ConfigurationUI} />
-              {isLoading && <CircularProgress size={20} color="secondary" />}
-            </Stack>
-          }
+          legend={T.ConfigurationUI}
         />
       </FormProvider>
     </Paper>

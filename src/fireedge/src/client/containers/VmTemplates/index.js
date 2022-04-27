@@ -38,7 +38,7 @@ function VmTemplates() {
         {selectedRows?.length > 0 && (
           <Stack overflow="auto">
             {selectedRows?.length === 1 ? (
-              <VmTemplateTabs id={selectedRows[0]?.values.ID} />
+              <VmTemplateTabs id={selectedRows[0]?.original.ID} />
             ) : (
               <Stack
                 direction="row"

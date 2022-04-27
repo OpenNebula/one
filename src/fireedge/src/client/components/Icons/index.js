@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import DockerLogo from 'client/components/Icons/DockerIcon'
 import GuacamoleLogo from 'client/components/Icons/GuacamoleIcon'
+import MemoryIcon from 'client/components/Icons/MemoryIcon'
 import OpenNebulaLogo from 'client/components/Icons/OpenNebulaIcon'
 import WebMKSLogo from 'client/components/Icons/WebMKSIcon'
 
-export { DockerLogo, GuacamoleLogo, OpenNebulaLogo, WebMKSLogo }
+export { DockerLogo, GuacamoleLogo, MemoryIcon, OpenNebulaLogo, WebMKSLogo }

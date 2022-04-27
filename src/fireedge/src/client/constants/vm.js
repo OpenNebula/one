@@ -819,6 +819,7 @@ export const VM_ACTIONS_BY_STATE = {
     STATES.INIT,
     STATES.PENDING,
     STATES.HOLD,
+    STATES.ACTIVE,
     STATES.STOPPED,
     STATES.SUSPENDED,
     STATES.POWEROFF,
@@ -1126,40 +1127,24 @@ export const HISTORY_ACTIONS = [
 ]
 
 /**
- * @enum {(
- * 'IP'|
- * 'IP6'|
- * 'IP6_GLOBAL'|
- * 'IP6_ULA'|
- * 'VROUTER_IP'|
- * 'VROUTER_IP6_GLOBAL'|
- * 'VROUTER_IP6_ULA'
- * )} Possible attribute names for nic alias ip
+ * @type {(string|string[])[]} Possible attribute names for nic alias ip
  */
-export const NIC_ALIAS_IP_ATTRS = [
+export const NIC_IP_ATTRS = [
+  'EXTERNAL_IP', // external IP must be first
   'IP',
   'IP6',
-  'IP6_GLOBAL',
-  'IP6_ULA',
-  'VROUTER_IP',
-  'VROUTER_IP6_GLOBAL',
-  'VROUTER_IP6_ULA',
+  ['IP6_ULA', 'IP6_GLOBAL'],
+  'MAC',
 ]
 
 /**
- * @enum {(
- * 'GUEST_IP'|
- * 'GUEST_IP_ADDRESSES'|
- * 'AWS_IP_ADDRESS'|
- * 'AWS_PUBLIC_IP_ADDRESS'|
- * 'AWS_PRIVATE_IP_ADDRESS'|
- * 'AZ_IPADDRESS'|
- * 'SL_PRIMARYIPADDRESS'
- * )} Possible attribute names for external ip
+ * @type {string[]} Possible attribute names for external ip
  */
 export const EXTERNAL_IP_ATTRS = [
   'GUEST_IP',
   'GUEST_IP_ADDRESSES',
+
+  // unsupported by OpenNebula
   'AWS_IP_ADDRESS',
   'AWS_PUBLIC_IP_ADDRESS',
   'AWS_PRIVATE_IP_ADDRESS',

@@ -13,31 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as VirtualMachineModel from 'client/models/VirtualMachine'
+import { Column } from 'react-table'
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
+import {
+  getState,
+  getIps,
+  getType,
+  getLastHistory,
+} from 'client/models/VirtualMachine'
+import { T } from 'client/constants'
+
+/** @type {Column[]} VM columns */
+const COLUMNS = [
+  { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: T.Name, id: 'name', accessor: 'NAME' },
   {
-    Header: 'State',
-    id: 'STATE',
-    accessor: (row) => VirtualMachineModel.getState(row)?.name,
+    Header: T.State,
+    id: 'state',
+    accessor: (row) => getState(row)?.name,
   },
-  { Header: 'Owner', accessor: 'UNAME' },
-  { Header: 'Group', accessor: 'GNAME' },
-  { Header: 'Start Time', accessor: 'STIME' },
-  { Header: 'End Time', accessor: 'ETIME' },
-  { Header: 'Locked', accessor: 'LOCK' },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
+  { Header: T.StartTime, id: 'time', accessor: 'STIME' },
+  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  { Header: T.Type, id: 'type', accessor: getType },
   {
-    Header: 'Ips',
-    id: 'IPS',
-    accessor: (row) => VirtualMachineModel.getIps(row).join(','),
+    Header: T.IP,
+    id: 'ips',
+    accessor: (row) => getIps(row).join(),
     sortType: 'length',
   },
   {
-    Header: 'Hostname',
-    id: 'HOSTNAME',
-    accessor: (row) => VirtualMachineModel.getLastHistory(row)?.HOSTNAME,
+    Header: T.Hostname,
+    id: 'hostname',
+    accessor: (row) => getLastHistory(row)?.HOSTNAME,
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'ips', 'time']
+
+export default COLUMNS

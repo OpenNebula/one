@@ -136,7 +136,7 @@ const Actions = () => {
                 dialogProps: {
                   title: (rows) => {
                     const isMultiple = rows?.length > 1
-                    const { ID, NAME } = rows?.[0]?.original
+                    const { ID, NAME } = rows?.[0]?.original ?? {}
 
                     return [
                       Tr(

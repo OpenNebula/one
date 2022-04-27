@@ -24,6 +24,9 @@ export const ADD_ATTRIBUTE = 'add'
 export const EDIT_ATTRIBUTE = 'edit'
 export const DELETE_ATTRIBUTE = 'delete'
 
+// LABELS
+export const EDIT_LABELS = 'edit_labels'
+
 // PERMISSION
 export const CHANGE_MODE = 'chmod'
 

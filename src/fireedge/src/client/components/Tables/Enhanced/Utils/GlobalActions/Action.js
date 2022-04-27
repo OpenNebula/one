@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line no-unused-vars
-import { memo, ReactElement, useCallback } from 'react'
+import { memo, ReactElement, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
@@ -69,7 +69,19 @@ const ActionItem = memo(
       action,
       disabled,
       useQuery,
+      selected = false,
     } = item
+
+    const isDisabledByNumberOfSelectedRows = useMemo(() => {
+      const numberOfRowSelected = selectedRows.length
+      const min = selected?.min ?? 1
+      const max = selected?.max ?? Number.MAX_SAFE_INTEGER
+
+      return (
+        (selected === true && !numberOfRowSelected) ||
+        (selected && min > numberOfRowSelected && numberOfRowSelected < max)
+      )
+    }, [selectedRows.length, selected])
 
     const buttonProps = {
       color,
@@ -77,7 +89,8 @@ const ActionItem = memo(
       'data-cy':
         (dataCy && `action-${dataCy}`) ?? (accessor && `action-${accessor}`),
       disabled:
-        typeof disabled === 'function' ? disabled(selectedRows) : disabled,
+        isDisabledByNumberOfSelectedRows ||
+        (typeof disabled === 'function' ? disabled(selectedRows) : disabled),
       icon: Icon && <Icon />,
       label: label && Tr(label),
       title: tooltip && Tr(tooltip),
