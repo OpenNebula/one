@@ -100,9 +100,6 @@ info-tabs:
       enabled: true
       actions:
         copy: true
-        add: false
-        edit: false
-        delete: false
     attributes_panel:
       enabled: true
       actions:
