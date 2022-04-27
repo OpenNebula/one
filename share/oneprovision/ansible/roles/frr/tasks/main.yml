@@ -55,13 +55,19 @@
   template:
     src: bgpd_rr.conf.j2
     dest: /etc/frr/bgpd.conf
-  when: vars['ansible_' + frr_iface].ipv4.address in rr_servers
+  when:
+  - vars['ansible_' + frr_iface].ipv4 is defined
+  - vars['ansible_' + frr_iface].ipv4.address is defined
+  - vars['ansible_' + frr_iface].ipv4.address in rr_servers
 
 - name: Configure BGP
   template:
     src: bgpd.conf.j2
     dest: /etc/frr/bgpd.conf
-  when: not vars['ansible_' + frr_iface].ipv4.address in rr_servers
+  when:
+  - vars['ansible_' + frr_iface].ipv4 is defined
+  - vars['ansible_' + frr_iface].ipv4.address is defined
+  - not vars['ansible_' + frr_iface].ipv4.address in rr_servers
 
 - name: Configure Zebra
   template:
