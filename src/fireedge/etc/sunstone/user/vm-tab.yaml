@@ -166,5 +166,3 @@ info-tabs:
 
   configuration:
     enabled: true
-    actions:
-      update_configuration: true
