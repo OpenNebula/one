@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash as DeleteIcon, AddCircledOutline } from 'iconoir-react'
@@ -37,15 +37,30 @@ const Networks = memo(({ id }) => {
   const [amount, setAmount] = useState(() => 1)
   const { enqueueSuccess } = useGeneralApi()
 
-  const [addIp, { isLoading: loadingAddIp }] = useAddIpToProvisionMutation()
-  const [removeResource, { isLoading: loadingRemove }] =
-    useRemoveResourceMutation()
+  const [addIp, { isLoading: loadingAddIp, isSuccess: successAddIp }] =
+    useAddIpToProvisionMutation()
+  const [
+    removeResource,
+    {
+      isLoading: loadingRemove,
+      isSuccess: successRemove,
+      originalArgs: { id: vnetId } = {},
+    },
+  ] = useRemoveResourceMutation()
   const { data = {} } = useGetProvisionQuery(id)
 
   const provisionNetworks =
     data?.TEMPLATE?.BODY?.provision?.infrastructure?.networks?.map(
       (network) => +network.id
     ) ?? []
+
+  useEffect(() => {
+    successAddIp && enqueueSuccess(`IP added ${amount}x`)
+  }, [successAddIp])
+
+  useEffect(() => {
+    successRemove && enqueueSuccess(`Network deleted - ID: ${vnetId}`)
+  }, [successRemove])
 
   return (
     <>
@@ -67,10 +82,7 @@ const Networks = memo(({ id }) => {
             label={<Translate word={T.AddIP} />}
             sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
             isSubmitting={loadingAddIp}
-            onClick={async () => {
-              await addIp({ id, amount })
-              enqueueSuccess(`IP added ${amount}x`)
-            }}
+            onClick={async () => await addIp({ id, amount })}
           />
         </Stack>
       </Stack>
@@ -102,14 +114,13 @@ const Networks = memo(({ id }) => {
                   data-cy={`provision-vnet-delete-${vnet.ID}`}
                   icon={<DeleteIcon />}
                   isSubmitting={loadingRemove}
-                  onClick={async () => {
-                    removeResource({
+                  onClick={async () =>
+                    await removeResource({
                       provision: id,
                       id: vnet.ID,
                       resource: 'network',
                     })
-                    enqueueSuccess(`Network deleted - ID: ${vnet.ID}`)
-                  }}
+                  }
                 />
               </>
             }
