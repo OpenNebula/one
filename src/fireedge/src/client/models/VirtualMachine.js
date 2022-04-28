@@ -326,13 +326,11 @@ export const getScheduleActions = (vm) => {
 export const isAvailableAction =
   (action) =>
   (vms = [], getVmState = (vm) => getState(vm)?.name) => {
-    if (VM_ACTIONS_BY_STATE[action]?.length === 0) return false
+    if (VM_ACTIONS_BY_STATE[action]?.length === 0) return true
 
     const states = [vms].flat().map(getVmState)
 
-    return states?.some(
-      (state) => !VM_ACTIONS_BY_STATE[action]?.includes(state)
-    )
+    return states?.some((state) => VM_ACTIONS_BY_STATE[action]?.includes(state))
   }
 
 /**

@@ -372,9 +372,9 @@ export const getUserInputParams = (userInputString) => {
     type: params[1],
     description: params[2],
     options: options,
-    default: params[4],
-    min: options[0],
-    max: options[1],
+    default: params?.[4],
+    min: options?.[0],
+    max: options?.[1],
   }
 }
 

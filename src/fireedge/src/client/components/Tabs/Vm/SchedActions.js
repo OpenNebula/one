@@ -64,8 +64,8 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
   const [scheduling, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor.filter(
-      (action) => !isAvailableAction(action)(vm)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action)(vm)
     )
 
     return [getScheduleActions(vm), actionsByState]
