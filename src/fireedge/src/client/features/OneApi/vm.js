@@ -404,7 +404,7 @@ const vmApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.VM_DISK_SNAP_CREATE
+        const name = Actions.VM_DISK_SNAP_DELETE
         const command = { name, ...Commands[name] }
 
         return { params, command }

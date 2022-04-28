@@ -67,6 +67,7 @@ const RevertAction = memo(({ vmId, snapshot }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
         icon: <UndoAction />,
+        tooltip: Tr(T.Revert),
       }}
       options={[
         {
@@ -100,6 +101,7 @@ const DeleteAction = memo(({ vmId, snapshot }) => {
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
         icon: <Trash />,
+        tooltip: Tr(T.Delete),
       }}
       options={[
         {

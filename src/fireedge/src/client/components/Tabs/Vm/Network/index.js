@@ -34,7 +34,8 @@ import {
 import { getActionsAvailable } from 'client/models/Helper'
 import { VM_ACTIONS } from 'client/constants'
 
-const { ATTACH_NIC, DETACH_NIC, ATTACH_SEC_GROUP } = VM_ACTIONS
+const { ATTACH_NIC, DETACH_NIC, ATTACH_SEC_GROUP, DETACH_SEC_GROUP } =
+  VM_ACTIONS
 
 /**
  * Renders the list of networks from a VM.
@@ -55,8 +56,8 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
     })
     const hyperV = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hyperV)
-    const actionsByState = actionsByHypervisor.filter(
-      (action) => !isAvailableAction(action)(vm)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action)(vm)
     )
 
     return [groupedNics, hyperV, actionsByState]
@@ -93,7 +94,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
                 )
               }
               securityGroupActions={({ securityGroupId }) =>
-                actionsAvailable.includes(DETACH_NIC) && (
+                actionsAvailable.includes(DETACH_SEC_GROUP) && (
                   <DetachSecGroupAction
                     nic={nic}
                     vmId={id}

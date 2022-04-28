@@ -65,8 +65,8 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
   const [disks, hypervisor, actionsAvailable] = useMemo(() => {
     const hyperV = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hyperV)
-    const actionsByState = actionsByHypervisor.filter(
-      (action) => !isAvailableAction(action)(vm)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action)(vm)
     )
 
     return [getDisks(vm), hyperV, actionsByState]

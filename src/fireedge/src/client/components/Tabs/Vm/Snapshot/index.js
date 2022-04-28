@@ -50,8 +50,8 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
   const [snapshots, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor.filter(
-      (action) => !isAvailableAction(action)(vm)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action)(vm)
     )
 
     return [getSnapshotList(vm), actionsByState]
@@ -66,6 +66,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
       <Stack direction="column" gap="1em" py="0.8em">
         {snapshots.map((snapshot) => (
           <SnapshotCard
+            snapshot={snapshot}
             key={snapshot.SNAPSHOT_ID}
             extraActionProps={{ vmId: id }}
             actions={[

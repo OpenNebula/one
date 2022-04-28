@@ -41,8 +41,8 @@ const VmHistoryTab = ({ tabProps: { actions } = {}, id }) => {
   const [records, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor.filter(
-      (action) => !isAvailableAction(action)(vm)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action)(vm)
     )
 
     return [getHistoryRecords(vm), actionsByState]
