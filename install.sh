@@ -2334,13 +2334,6 @@ WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
                                share/websockify/websockify/websocketproxy.py"
 
 #-------------------------------------------------------------------------------
-# Installation packages for ESX hosts to enable VNC ports
-#-------------------------------------------------------------------------------
-
-ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
-                        share/esx-fw-vnc/fw-vnc.zip"
-
-#-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/autostart
 #-------------------------------------------------------------------------------
 
