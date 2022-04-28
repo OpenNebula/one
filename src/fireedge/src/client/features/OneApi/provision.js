@@ -284,7 +284,7 @@ const provisionApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.PROVISION_ADD_HOST
+        const name = Actions.PROVISION_ADD_IP
         const command = { name, ...Commands[name] }
 
         return { params, command }
