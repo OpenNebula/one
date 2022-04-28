@@ -111,6 +111,6 @@ dialogs:
     booting: true
     numa:
       enabled: true
-      no_on:
+      not_on:
         - vcenter
         - kvm
