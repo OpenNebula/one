@@ -1,6 +1,6 @@
 name: 'aws-frankfurt'
 
-description: 'Elastic cluster in AWS Frankfurt'
+description: 'Virtual provision cluster in AWS Frankfurt'
 provider: 'aws'
 
 connection:
