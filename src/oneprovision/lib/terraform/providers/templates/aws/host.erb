@@ -13,6 +13,11 @@ resource "aws_instance" "device_<%= obj['ID'] %>" {
 
     subnet_id              = aws_subnet.device_<%= c['ID'] %>.id
 
+    root_block_device {
+        volume_size = "<%= provision['ROOT_SIZE'] %>"
+    }
+
+
     <% ecidr = c['TEMPLATE']['PROVISION']['CIDR'] || "10.0.0.0/16"
        pref = ecidr.split('/').first.rpartition(".")[0]
        ip = pref << '.' << ( provision['INDEX'].to_i + 4 ).to_s
