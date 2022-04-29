@@ -51,7 +51,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
     const hypervisor = getHypervisor(vm)
     const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
     const actionsByState = actionsByHypervisor.filter((action) =>
-      isAvailableAction(action)(vm)
+      isAvailableAction(action, vm)
     )
 
     return [getSnapshotList(vm), actionsByState]

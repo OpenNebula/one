@@ -125,7 +125,7 @@ const PreConsoleButton = memo(
 
     const isDisabled = useMemo(() => {
       const noAction = vmView?.actions?.[connectionType] !== true
-      const noAvailable = !isAvailableAction(connectionType)(vm)
+      const noAvailable = !isAvailableAction(connectionType, vm)
       const notHypervisor = !getHypervisor(vm)
 
       return noAction || noAvailable || notHypervisor

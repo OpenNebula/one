@@ -66,7 +66,10 @@ const useTableStyles = makeStyles({
 })
 
 const isDisabled = (action) => (rows) =>
-  !isAvailableAction(action)(rows, ({ values }) => values?.state)
+  !isAvailableAction(
+    action,
+    rows.map(({ original }) => original)
+  )
 
 const ListVmNames = ({ rows = [] }) => {
   const { data: datastores = [] } = useGetDatastoresQuery()
