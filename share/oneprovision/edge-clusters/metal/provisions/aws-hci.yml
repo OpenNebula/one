@@ -48,6 +48,7 @@ defaults:
   provision:
     provider_name: 'aws'
     ami: "${input.aws_ami_image}"
+    root_size: "${input.aws_root_size}"
     instancetype: "${input.aws_instance_type}"
     cloud_init: true
   connection:

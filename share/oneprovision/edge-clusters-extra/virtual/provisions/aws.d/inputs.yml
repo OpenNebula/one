@@ -36,6 +36,11 @@ inputs:
     description: 'AWS ami image used for host deployments'
     default: 'default'
 
+  - name: 'aws_root_size'
+    type: text
+    description: 'AWS instance root volume size, in GB'
+    default: '100'
+
   - name: 'aws_instance_type'
     type: text
     description: 'AWS instance type, use virtual instances'

@@ -51,6 +51,11 @@ inputs:
     description: 'AWS instance type, use bare-metal instances'
     default: 'c5.metal'
 
+  - name: 'aws_root_size'
+    type: text
+    description: 'AWS instance root volume size, in GB'
+    default: '100'
+
   - name: 'ceph_disk_size'
     type: text
     description: 'Disk size of CEPH disk volume, in GB'
