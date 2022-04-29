@@ -886,6 +886,10 @@ module OneProvision
                     hostnames = h['provision']['hostname']
                 elsif h['provision']['count']
                     count = Integer(h['provision']['count'])
+                elsif h['provision']['ceph_full_count']
+                    count = Integer(h['provision']['ceph_full_count']) + \
+                            Integer(h['provision']['ceph_osd_count']) + \
+                            Integer(h['provision']['ceph_client_count'])
                 else
                     count = 1
                 end
