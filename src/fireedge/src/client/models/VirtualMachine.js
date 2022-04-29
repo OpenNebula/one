@@ -317,21 +317,29 @@ export const getScheduleActions = (vm) => {
 }
 
 /**
- * Returns `true` if action is available by VM state.
+ * Check if action is available for **all VMs**.
  *
  * @param {object} action - VM action
- * @returns {function(Array, Function):boolean}
- * - The list of vms that will be perform the action
+ * @param {VM|VM[]} vms - Virtual machines
+ * @returns {boolean} If `true`, the action is available for all VMs
  */
-export const isAvailableAction =
-  (action) =>
-  (vms = [], getVmState = (vm) => getState(vm)?.name) => {
-    if (VM_ACTIONS_BY_STATE[action]?.length === 0) return true
+export const isAvailableAction = (action, vms = []) => {
+  if (VM_ACTIONS_BY_STATE[action]?.length === 0) return true
 
-    const states = [vms].flat().map(getVmState)
+  return [vms].flat().every((vm) => {
+    const state = VM_STATES[vm.STATE]?.name
+    const lcmState = VM_LCM_STATES[vm.LCM_STATE]?.name
 
-    return states?.some((state) => VM_ACTIONS_BY_STATE[action]?.includes(state))
-  }
+    return (
+      (state === STATES.ACTIVE &&
+        // if action includes ACTIVE state,
+        // it means that the action is available in all LCM states
+        (VM_ACTIONS_BY_STATE[action]?.includes(STATES.ACTIVE) ||
+          VM_ACTIONS_BY_STATE[action]?.includes(lcmState))) ||
+      VM_ACTIONS_BY_STATE[action]?.includes(state)
+    )
+  })
+}
 
 /**
  * @param {VM} vm - Virtual machine
