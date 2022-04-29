@@ -639,10 +639,10 @@ const getToken = (
 
                   responser(token, ok)
                 },
-                (error) => responser(error, internalServerError)
+                (error) => responser(error && error.message, internalServerError)
               )
             },
-            (error) => responser(error, internalServerError)
+            (error) => responser(error && error.message, internalServerError)
           )
         },
       })
