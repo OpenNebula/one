@@ -16,4 +16,4 @@
 # ---------------------------------------------------------------------------- #
 
 image: 'OPENNEBULA-ONPREMISE'
-provider: 'dummy'
+provider: 'oneprem'

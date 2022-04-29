@@ -21,7 +21,7 @@
 # ------------------------------------------------------------------------------
 
 name: 'aws-hci-cluster'
-description: 'AWS hyper-convergent metal Ceph cluster'
+description: 'AWS HCI cluster using Ceph'
 
 extends:
     - common.d/defaults.yml
@@ -73,7 +73,7 @@ ceph_vars:
 #--------------------------------------------------------------------------------
 cluster:
   name: "${provision}"
-  description: 'AWS edge cluster'
+  description: 'AWS HCI cluster using Ceph'
   reserved_cpu: '0'
   reserved_mem: '0'
   datastores:

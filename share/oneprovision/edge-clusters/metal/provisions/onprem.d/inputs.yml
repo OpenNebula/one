@@ -18,15 +18,15 @@
 inputs:
   - name: 'hosts_names'
     type: array
-    description: 'Semicolon separated list of FQDNs or IP addresses of the hosts to be added to the cluster'
+    description: 'Hosts of the cluster (semicolon list of FQDNs or IPs)'
 
   - name: 'one_hypervisor'
     type: list
     description: "Virtualization technology for the cluster hosts"
     options:
         - 'kvm'
+#        - 'firecracker'
         - 'lxc'
-        - 'firecracker'
 
   - name: 'first_public_ip'
     type: text

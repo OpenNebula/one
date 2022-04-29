@@ -20,8 +20,7 @@
 # ------------------------------------------------------------------------------
 
 name: 'onprem-hci-cluster'
-
-description: 'On-premises hyper-convergent Ceph cluster'
+description: 'On-premises HCI cluster using Ceph'
 
 extends:
     - onprem.d/defaults.yml
@@ -65,7 +64,7 @@ ceph_vars:
 #--------------------------------------------------------------------------------
 cluster:
   name: "${provision}"
-  description: 'On-Premise edge cluster'
+  description: 'On-premises HCI cluster using Ceph'
   reserved_cpu: '0'
   reserved_mem: '0'
   datastores:
