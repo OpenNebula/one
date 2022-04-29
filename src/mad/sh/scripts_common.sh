@@ -438,7 +438,12 @@ function mkfs_command {
 
         # Image create is required because of old MKFS version in c7
         echo "$QEMU_IMG create -f raw ${DST} ${SIZE}M"
-        echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+
+        if [ $FS == xfs ]; then
+            echo "$MKFS.xfs -f ${FS_OPTS} ${DST}"
+        else
+            echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+        fi
 
         if [ "$FORMAT" = "qcow2" ]; then
             echo "$QEMU_IMG convert -f raw -O qcow2 ${DST} ${DST}.qcow2"
