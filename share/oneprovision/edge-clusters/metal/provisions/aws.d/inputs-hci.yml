@@ -16,20 +16,20 @@
 # ---------------------------------------------------------------------------- #
 
 inputs:
-  - name: 'number_hosts'
-    type: text
-    description: 'Total number of AWS instances to create'
-    default: '1'
-
   - name: 'number_ceph_full_hosts'
     type: text
-    description: 'Number of instances to install Ceph HCI (osd + mon), usually 3'
-    default: '1'
+    description: 'Number of instances for Ceph full nodes (OSD+MON), usually 3'
+    default: '3'
 
   - name: 'number_ceph_osd_hosts'
     type: text
-    description: 'Number of instances to install Ceph HCI (osd only)'
-    default: '1'
+    description: 'Number of instances for Ceph OSD (OSD only)'
+    default: '0'
+
+  - name: 'number_ceph_client_hosts'
+    type: text
+    description: 'Number of instances for hypervisor (Ceph client only)'
+    default: '0'
 
   - name: 'number_public_ips'
     type: text
