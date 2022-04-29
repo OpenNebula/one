@@ -29,12 +29,12 @@ const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
   color: theme.palette.error.main,
 }))
 
-const TabContent = styled('div')(({ hidden, addBorder, theme }) => ({
+const TabContent = styled('div')(({ hidden, border, theme }) => ({
   height: '100%',
   display: hidden ? 'none' : 'flex',
   flexDirection: 'column',
   overflow: 'auto',
-  ...(addBorder && {
+  ...(border && {
     backgroundColor: theme.palette.background.paper,
     border: `thin solid ${theme.palette.secondary.main}`,
     borderTop: 'none',
@@ -53,7 +53,7 @@ const Content = ({
     key={`tab-${id ?? name}`}
     data-cy={`tab-content-${id ?? name}`}
     hidden={hidden}
-    addBorder={addBorder}
+    border={addBorder}
   >
     <Fade in timeout={400}>
       <TabContent sx={{ p: '1em .5em' }}>

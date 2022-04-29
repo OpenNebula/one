@@ -117,7 +117,9 @@ const InformationPanel = ({ host = {}, actions }) => {
         containerProps={{ sx: { gridRow: 'span 2' } }}
       />
       <List title={T.Capacity} list={capacity} />
-      <List title={T.Datastores} list={infoFromDatastores} />
+      {infoFromDatastores?.length > 0 && (
+        <List title={T.Datastores} list={infoFromDatastores} />
+      )}
     </>
   )
 }
