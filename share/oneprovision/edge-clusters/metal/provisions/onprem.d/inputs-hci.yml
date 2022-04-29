@@ -18,16 +18,16 @@
 inputs:
   - name: 'ceph_full_hosts_names'
     type: array
-    description: 'Semicolon separated list of FQDNs or IP addresses of the Ceph full hosts to be added to the cluster (osd + mon)'
+    description: 'Hosts to run hypervisor, osd and mon ceph daemons (semicolon list of FQDNs or IPs)'
 
   - name: 'ceph_osd_hosts_names'
     type: array
-    description: 'Semicolon separated list of FQDNs or IP addresses of the Ceph osd hosts to be added to the cluster (osd only)'
+    description: 'Hosts to run hypervisor and osd daemons (semicolon list of FQDNs or IPs)'
     mandatory: false
 
   - name: 'client_hosts_names'
     type: array
-    description: 'Semicolon separated list of FQDNs or IP addresses of the non-Ceph hosts to be added to the cluster (ceph client)'
+    description: 'Hosts to run hypervisor and ceph client (semicolon list of FQDNs or IPs)'
     mandatory: false
 
   - name: 'one_hypervisor'
@@ -60,13 +60,12 @@ inputs:
 
   - name: 'ceph_device'
     type: array
-    description: 'Semicolon separated list of block devices for Ceph OSD'
+    description: 'Block devices for Ceph OSD (semicolon separated list)'
     default: '/dev/sdb'
 
   - name: 'ceph_monitor_interface'
     type: text
     description: 'Physical device to be used for Ceph.'
     default: 'eth0'
-
 
 ...

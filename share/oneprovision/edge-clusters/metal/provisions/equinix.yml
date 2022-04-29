@@ -20,7 +20,8 @@
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: 'equinix-cluster'
+name: 'equinix-edge-cluster'
+description: 'Equinix edge cluster'
 
 extends:
     - common.d/defaults.yml

@@ -20,7 +20,8 @@
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: 'aws-cluster'
+name: 'aws-edge-cluster'
+description: 'AWS edge cluster'
 
 extends:
     - common.d/defaults.yml
