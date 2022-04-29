@@ -119,6 +119,12 @@
   group: oneadmin
   mode: '0640'
 
+- name: /etc/one/fireedge/provision/providers.d-extra/*.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
 - name: /etc/one/fireedge/sunstone/sunstone-server.conf
   class: Yaml
   owner: root
