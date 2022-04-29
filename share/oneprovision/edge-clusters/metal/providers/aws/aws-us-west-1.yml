@@ -1,6 +1,6 @@
 name: 'aws-north-california'
 
-description: 'Edge cluster in AWS North California'
+description: 'Provision cluster in AWS North California'
 provider: 'aws'
 
 connection:

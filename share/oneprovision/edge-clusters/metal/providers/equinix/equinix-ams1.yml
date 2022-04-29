@@ -1,6 +1,6 @@
 name: 'equinix-amsterdam'
 
-description: 'Edge cluster in Equinix Amsterdam'
+description: 'Provision cluster in Equinix Amsterdam'
 provider: 'equinix'
 
 connection:
