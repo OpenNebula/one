@@ -1,4 +1,4 @@
-The virtual edge provision uses virtual instances (VMs) to build an **edge cluster**. This provision is useful for developing and testing or light workloads. It features the following characteristics:
+The virtual provision uses virtual instances (VMs) to build a Provision. This provision is useful for developing and testing or light workloads. It features the following characteristics:
 
 * Hosts are provisioned as VM instances in the selected provider.
 * Supported virtualization technologies: QEMU (nested virtualization) and LXC (system containers)
