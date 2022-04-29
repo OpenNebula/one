@@ -1,6 +1,6 @@
 name: 'equinix-sjc1'
 
-description: 'Edge cluster in Equinix, USA, CA'
+description: 'Provision cluster in Equinix, USA, CA'
 provider: 'equinix'
 
 connection:

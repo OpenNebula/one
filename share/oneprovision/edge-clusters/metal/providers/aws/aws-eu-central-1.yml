@@ -1,6 +1,6 @@
 name: 'aws-frankfurt'
 
-description: 'Edge cluster in AWS Frankfurt'
+description: 'Provision cluster in AWS Frankfurt'
 provider: 'aws'
 
 connection:

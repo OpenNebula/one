@@ -1,6 +1,6 @@
 name: 'equinix-ewr1'
 
-description: 'Edge cluster in Equinix Parsippany, USA, NJ'
+description: 'Provision cluster in Equinix Parsippany, USA, NJ'
 provider: 'equinix'
 
 connection:

@@ -1,6 +1,6 @@
 name: 'equinix-nrt1'
 
-description: 'Edge cluster in Equinix Tokyo, Japan'
+description: 'Provision cluster in Equinix Tokyo, Japan'
 provider: 'equinix'
 
 connection:

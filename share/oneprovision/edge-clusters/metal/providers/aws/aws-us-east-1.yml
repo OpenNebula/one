@@ -1,6 +1,6 @@
 name: 'aws-north-virginia'
 
-description: 'Edge cluster in AWS North Virginia'
+description: 'Provision cluster in AWS North Virginia'
 provider: 'aws'
 
 connection:
