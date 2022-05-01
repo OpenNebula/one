@@ -180,8 +180,8 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            if @body['provider'] == 'dummy'
-                return { 'ID' => -1, 'NAME' => 'dummy' }
+            if @body['provider'] == 'onprem'
+                return { 'ID' => -1, 'NAME' => 'onprem' }
             end
 
             @provider ||= Provider.by_name(@client, @body['provider'])
@@ -732,7 +732,7 @@ module OneProvision
             if provider['NAME']
                 document['provider'] = provider['NAME']
             else
-                document['provider'] = 'dummy'
+                document['provider'] = 'onprem'
             end
 
             # Fill provision objects information

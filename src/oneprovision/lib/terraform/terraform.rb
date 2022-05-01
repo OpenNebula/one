@@ -133,7 +133,7 @@ module OneProvision
         def self.check_connection(provider)
             p_name = provider['provider']
 
-            return true if p_name == 'dummy'
+            return true if p_name == 'onprem'
 
             unless exist?(p_name)
                 raise OneProvisionLoopException, "Unknown provider: #{p_name}"

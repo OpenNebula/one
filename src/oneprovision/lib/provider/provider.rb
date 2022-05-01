@@ -103,7 +103,7 @@ module OneProvision
 
         # Gets connection information
         def connection
-            # Dummy case
+            # Onprem case
             return unless @body
 
             conn             = {}
@@ -118,7 +118,7 @@ module OneProvision
 
         # Gets inputs information
         def inputs
-            # Dummy case
+            # Onprem case
             return unless @body
 
             @body['inputs'] || []
@@ -126,8 +126,8 @@ module OneProvision
 
         # Gets provider type
         def type
-            # Dummy case
-            return 'dummy' unless @body
+            # Onprem case
+            return 'onprem' unless @body
 
             @body['provider']
         end
