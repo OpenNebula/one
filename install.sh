@@ -2602,7 +2602,7 @@ ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb"
 ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
                                   src/oneprovision/lib/terraform/providers/google.rb \
                                   src/oneprovision/lib/terraform/providers/digitalocean.rb \
-                                  src/oneprovision/lib/terraform/providers/dummy.rb \
+                                  src/oneprovision/lib/terraform/providers/onprem.rb \
                                   src/oneprovision/lib/terraform/providers/example \
                                   src/oneprovision/lib/terraform/providers/equinix.rb \
                                   src/oneprovision/lib/terraform/providers/vultr.rb \
@@ -2883,7 +2883,7 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
-                                src/fireedge/etc/provision/providers.d/dummy.yaml \
+                                src/fireedge/etc/provision/providers.d/onprem.yaml \
                                 src/fireedge/etc/provision/providers.d/equinix.yaml"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-extra/digitalocean.yaml \

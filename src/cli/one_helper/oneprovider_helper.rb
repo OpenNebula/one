@@ -102,7 +102,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
         puts format('ID   : %<s>s', :s => id)
         puts format('NAME : %<s>s', :s => provider['NAME'])
 
-        return if body['provider'] == 'dummy'
+        return if body['provider'] == 'onprem'
 
         # Get max size to adjust all the values
         size = body['connection'].keys.map {|k| k.size }.max
@@ -186,7 +186,7 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
                       "#{OneProvision::Terraform.providers.join(', ')}"
             end
 
-            return template if template['provider'] == 'dummy'
+            return template if template['provider'] == 'onprem'
 
             raise 'Connection info not found' unless template['connection']
 

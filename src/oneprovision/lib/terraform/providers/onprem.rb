@@ -19,8 +19,8 @@ require 'terraform/terraform'
 # Module OneProvision
 module OneProvision
 
-    # Dummy Provider
-    class Dummy < Terraform
+    # Onprem Provider
+    class Onprem < Terraform
 
         NAME = Terraform.append_provider(__FILE__, name)
 

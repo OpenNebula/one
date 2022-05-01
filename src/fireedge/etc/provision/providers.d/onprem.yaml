@@ -1,4 +1,4 @@
-name: 'Dummy'
+name: 'Onprem'
 image: 'ONPREMISE'
 provision_type: 'onprem'
 color: '#436637'
