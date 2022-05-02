@@ -40,7 +40,7 @@ const HostCard = memo(
    */
   ({ host, rootProps, actions }) => {
     const classes = rowStyles()
-    const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER, TEMPLATE } = host
+    const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER } = host
 
     const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
       getAllocatedInfo(host)
@@ -57,7 +57,7 @@ const HostCard = memo(
           <div className={classes.title}>
             <StatusCircle color={stateColor} tooltip={stateName} />
             <Typography noWrap component="span">
-              {TEMPLATE?.NAME ?? NAME}
+              {NAME}
             </Typography>
             <span className={classes.labels}>
               {labels.map((label) => (

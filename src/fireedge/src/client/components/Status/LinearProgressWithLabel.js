@@ -23,6 +23,8 @@ import {
   linearProgressClasses,
 } from '@mui/material'
 
+import { SCHEMES } from 'client/constants'
+
 const getRangeColor = ({ value, high, low, palette }) => {
   if (low > value) return palette.success.main
   if (low < value && value < high) return palette.warning.main
@@ -34,7 +36,7 @@ const BorderLinearProgress = styled(LinearProgress)(
     height: 8,
     borderRadius: 5,
     [`&.${linearProgressClasses.colorPrimary}`]: {
-      backgroundColor: palette.grey[palette.mode === 'light' ? 200 : 800],
+      backgroundColor: palette.grey[palette.mode === SCHEMES.LIGHT ? 400 : 800],
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
