@@ -1,4 +1,4 @@
 name: 'Onprem'
 image: 'ONPREMISE'
-provision_type: 'onprem'
+provision_type: 'metal'
 color: '#436637'
