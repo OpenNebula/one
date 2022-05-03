@@ -27,6 +27,26 @@ module OneProvision
         # These providers get the credentials via some file
         CREDENTIALS_FILE = { 'google' => 'credentials' }
 
+        def self.new_onprem(client)
+            xml_str = <<EOS
+              <DOCUMENT>
+                <ID>-1</ID>
+                <NAME>onprem</NAME>
+                <TEMPLATE>
+                  <PLAIN><![CDATA[{"provider":"onprem"}]]></PLAIN>
+                  <PROVISION_BODY><![CDATA[{"provider":"onprem","name":"onprem"}]]></PROVISION_BODY>
+                </TEMPLATE>
+              </DOCUMENT>
+EOS
+            xml = XMLElement.build_xml(xml_str,'DOCUMENT')
+
+            onprem = self.new(xml, client)
+
+            onprem.load_body
+
+            onprem
+        end
+
         # Allocates a new document
         #
         # @param template [Hash] Document information
