@@ -35,7 +35,8 @@ const APP_NAMES = Object.keys(defaultApps)
 
 const APP_CONFIG = {
   [defaultApps.provision.name]: getProvisionConfig() || {},
-  [defaultApps.sunstone.name]: getSunstoneConfig() || {},
+  [defaultApps.sunstone.name]:
+    getSunstoneConfig({ includeProtectedConfig: false }) || {},
 }
 
 const ensuredScriptValue = (value) =>

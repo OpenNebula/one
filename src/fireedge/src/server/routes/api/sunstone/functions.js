@@ -165,6 +165,7 @@ const getConfig = (
   let error
 
   const config = getSunstoneConfig({
+    includeProtectedConfig: false,
     onError: (err) => (error = err),
   })
 

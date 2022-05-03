@@ -14,10 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const btoa = require('btoa')
-const https = require('https')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
-const { request: axios } = require('axios')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 const {
@@ -26,6 +24,7 @@ const {
   executeCommandAsync,
   publish,
   getSunstoneAuth,
+  executeRequest,
 } = require('server/utils/server')
 const {
   consoleParseToString,
@@ -47,7 +46,6 @@ const {
 } = require('server/utils/constants/commands/cluster')
 
 const {
-  httpMethod,
   defaultEmptyFunction,
   defaultCommandVcenter,
   defaultRegexpStartJSON,
@@ -55,7 +53,6 @@ const {
   defaultRegexpSplitLine,
   defaultRegexID,
 } = defaults
-const { POST } = httpMethod
 const { ok, unauthorized, internalServerError, badRequest, accepted } =
   httpCodes
 const { LIST, IMPORT } = resourceFromData
@@ -504,29 +501,6 @@ const importVobject = (
 }
 
 /**
- * Axios request.
- *
- * @param {object} params - Axios params
- * @param {Function} callback - Success Axios callback
- * @param {Function} error - Error Axios callback
- */
-const request = (
-  params = {},
-  callback = defaultEmptyFunction,
-  error = defaultEmptyFunction
-) => {
-  const defaultsProperties = {
-    method: POST,
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    validateStatus: (status) => status >= 200 && status < 400,
-  }
-
-  axios({ ...defaultsProperties, ...params })
-    .then(({ data } = {}) => callback(data))
-    .catch(error)
-}
-
-/**
  * Get system config.
  *
  * @param {object} res - http response
@@ -606,44 +580,56 @@ const getToken = (
             responser(hostInfoError, unauthorized)
           }
 
-          request(
+          executeRequest(
             {
-              url: `https://${VCENTER_HOST}/api/session`,
-              headers: {
-                Authorization: `Basic ${btoa(
-                  `${VCENTER_USER}:${VCENTER_PASSWORD}`
-                )}`,
+              params: {
+                url: `https://${VCENTER_HOST}/api/session`,
+                headers: {
+                  Authorization: `Basic ${btoa(
+                    `${VCENTER_USER}:${VCENTER_PASSWORD}`
+                  )}`,
+                },
               },
+              agent: 'https',
             },
-            (sessionId) => {
-              const vmIdFromDeployId =
-                VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
+            {
+              success: (sessionId) => {
+                const vmIdFromDeployId =
+                  VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
 
-              request(
-                {
-                  url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmIdFromDeployId}/console/tickets`,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'vmware-api-session-id': sessionId,
+                executeRequest(
+                  {
+                    params: {
+                      url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmIdFromDeployId}/console/tickets`,
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'vmware-api-session-id': sessionId,
+                      },
+                      data: JSON.stringify({ type: 'WEBMKS' }),
+                    },
+                    agent: 'https',
                   },
-                  data: JSON.stringify({ type: 'WEBMKS' }),
-                },
-                (ticketData) => {
-                  const { ticket } = ticketData
-                  const { protocol, hostname, port, path } = parse(ticket)
+                  {
+                    success: (ticketData) => {
+                      const { ticket } = ticketData
+                      const { protocol, hostname, port, path } = parse(ticket)
 
-                  const httpProtocol = protocol === 'wss:' ? 'https' : 'http'
-                  const esxUrl = `${httpProtocol}://${hostname}:${port}`
-                  const token = path.replace('/ticket/', '')
-                  global.vcenterToken = { [token]: esxUrl }
+                      const httpProtocol =
+                        protocol === 'wss:' ? 'https' : 'http'
+                      const esxUrl = `${httpProtocol}://${hostname}:${port}`
+                      const token = path.replace('/ticket/', '')
+                      global.vcenterToken = { [token]: esxUrl }
 
-                  responser(token, ok)
-                },
-                (error) =>
-                  responser(error && error.message, internalServerError)
-              )
-            },
-            (error) => responser(error && error.message, internalServerError)
+                      responser(token, ok)
+                    },
+                    error: (error) =>
+                      responser(error && error.message, internalServerError),
+                  }
+                )
+              },
+              error: (error) =>
+                responser(error && error.message, internalServerError),
+            }
           )
         },
       })

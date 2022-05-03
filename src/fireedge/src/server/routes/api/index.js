@@ -22,8 +22,15 @@ const {
   defaultTmpPath,
 } = require('server/utils/constants/defaults')
 const { writeInLogger } = require('server/utils/logger')
+const { getSunstoneConfig } = require('server/utils/yml')
 
-const upload = multer({ dest: defaultTmpPath })
+const appConfig = getSunstoneConfig()
+const optsMulter = { dest: appConfig.tmpdir || defaultTmpPath }
+if (appConfig && appConfig.max_upload_file_size) {
+  optsMulter.limits = { fileSize: appConfig.max_upload_file_size }
+}
+
+const upload = multer(optsMulter)
 
 const routes = [
   '2fa',
@@ -37,6 +44,7 @@ const routes = [
   'oneprovision',
   'sunstone',
   'system',
+  'support',
 ]
 
 const serverRoutes = []

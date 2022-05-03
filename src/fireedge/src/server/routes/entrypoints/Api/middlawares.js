@@ -149,6 +149,9 @@ const getZone = (zone = '0') => {
     defaultOpennebulaZones[0].rpc
   ) {
     defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
+    if (appConfig.subscriber_endpoint) {
+      defaultOpennebulaZones[0].zeromq = appConfig.subscriber_endpoint
+    }
   }
 
   return getDataZone(zone, defaultOpennebulaZones)
