@@ -181,7 +181,7 @@ module OneProvision
         # Returns provision provider
         def provider
             if @body['provider'] == 'onprem'
-                return { 'ID' => -1, 'NAME' => 'onprem' }
+                return Provider.new_onprem(@client)
             end
 
             @provider ||= Provider.by_name(@client, @body['provider'])
