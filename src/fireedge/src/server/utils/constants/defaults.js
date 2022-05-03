@@ -170,13 +170,11 @@ const defaults = {
   protectedConfigData: {
     [appNameSunstone]: [
       'support_url',
+      'support_token',
       'vcenter_prepend_command',
       'sunstone_prepend',
       'guacd',
       'tmpdir',
-      'max_upload_file_size',
-      'proxy',
-      'token_remote_support',
     ],
     [appNameProvision]: [
       'oneprovision_prepend_command',
