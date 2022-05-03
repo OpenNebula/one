@@ -20,15 +20,20 @@ const { transports, format, createLogger } = require('winston')
 const { sprintf } = require('sprintf-js')
 const morgan = require('morgan')
 const { defaults } = require('server/utils/constants')
-const { defaultWebpackMode } = defaults
+const { defaultWebpackMode, defaultLogsLevels } = defaults
 
 let logger = null
 
 /**
  * Initialize logger.
+ *
+ * @param {number} logLevel - log level
  */
-const initLogger = () => {
+const initLogger = (logLevel = 0) => {
   if (global && global.paths && global.paths.FIREEDGE_LOG) {
+    const levelString = parseInt(logLevel, 10)
+    const logString = defaultLogsLevels && defaultLogsLevels[levelString]
+
     const trans = []
 
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
@@ -41,7 +46,7 @@ const initLogger = () => {
       trans.push(
         new transports.File({
           silent: false,
-          level: 'info',
+          level: logString,
           filename: global.paths.FIREEDGE_LOG,
           handleExceptions: true,
           format: format.simple(),
@@ -86,7 +91,12 @@ const getLogger = () => logger
 const getLoggerMiddleware = () => {
   const log = getLogger()
   if (log && log.stream) {
-    return morgan('combined', { stream: log.stream })
+    return morgan('combined', {
+      stream: log.stream,
+      skip: function (req, res) {
+        return res.statusCode < 400
+      },
+    })
   }
 }
 
@@ -94,13 +104,17 @@ const getLoggerMiddleware = () => {
  * Write in logger.
  *
  * @param {string} message - message for logger file
- * @param {string } formatLog - message format
+ * @param {object} optLog - message format
+ * @param {string} optLog.format - Message format. By default is '%s'
+ * @param {number} optLog.level - Log debug level. By default is 0
  */
-const writeInLogger = (message = '', formatLog = '%s') => {
+const writeInLogger = (message = '', optLog = {}) => {
+  const { format: formatLogger = '%s', level = 0 } = optLog
+  const logString = defaultLogsLevels && defaultLogsLevels[level]
   const log = getLogger()
   if (log) {
     const parseMessage = Array.isArray(message) ? message : [message]
-    log.info(sprintf(formatLog, ...parseMessage))
+    log[logString](sprintf(formatLogger, ...parseMessage))
   }
 }
 

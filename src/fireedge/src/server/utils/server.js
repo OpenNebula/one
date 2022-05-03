@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const https = require('https')
+const http = require('http')
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
@@ -41,6 +43,7 @@ const { defaults, httpCodes } = require('server/utils/constants')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
+const { request: axios } = require('axios')
 
 const eventsEmitter = new events.EventEmitter()
 const {
@@ -58,7 +61,6 @@ const {
   defaultKeyFilename,
   defaultSunstoneAuth,
   defaultWebpackMode,
-  defaultOpennebulaZones,
   defaultEtcPath,
   defaultTypeCrypto,
   defaultHash,
@@ -71,6 +73,7 @@ const {
   defaultEmptyFunction,
 } = defaults
 const { internalServerError } = httpCodes
+const { POST } = httpMethod
 
 let cert = ''
 let key = ''
@@ -392,10 +395,14 @@ const genFireedgeKey = () => {
             global.paths.FIREEDGE_KEY_PATH,
             uuidv4.replace(/-/g, ''),
             () => {
-              writeInLogger(`file ${global.paths.FIREEDGE_KEY_PATH} created`)
+              const formatError = 'file %s created'
+              writeInLogger(global.paths.FIREEDGE_KEY_PATH, {
+                format: formatError,
+                level: 2,
+              })
               messageTerminal({
                 color: 'green',
-                message: 'File %s created',
+                message: formatError,
                 error: global.paths.FIREEDGE_KEY_PATH,
               })
             },
@@ -482,8 +489,7 @@ const getSunstoneAuth = () => {
  */
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
-  const zones =
-    (global && global.zones) || configuredZones || defaultOpennebulaZones
+  const zones = (global && global.zones) || configuredZones
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
     if (Number.isInteger(parseInt(zone, 10))) {
@@ -525,6 +531,9 @@ const genPathResources = () => {
       global.paths.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
     }
     if (!global.paths.FIREEDGE_LOG) {
+      global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
+    }
+    if (!global.paths.FIREEDGE_LOG_LEVEL) {
       global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
     }
     if (!global.paths.DOWNLOADER) {
@@ -931,6 +940,37 @@ const subscriber = (eventName = '', callback = () => undefined) => {
   }
 }
 
+/**
+ * Axios request.
+ *
+ * @param {object} data - data for request
+ * @param {object} data.params - params for request
+ * @param {string} data.method - request method
+ * @param {string} data.agent - request agent
+ * @param {object} callbacks - callbacks
+ * @param {Function} callbacks.success - success callback
+ * @param {Function} callbacks.error - error callback
+ */
+const executeRequest = (data = {}, callbacks = {}) => {
+  const { params = {}, method = POST, agent } = data
+  const { success = defaultEmptyFunction, error = defaultEmptyFunction } =
+    callbacks
+  const defaultsProperties = agent
+    ? {
+        method,
+        httpsAgent:
+          agent === 'https'
+            ? new https.Agent({ rejectUnauthorized: false })
+            : new http.Agent({ rejectUnauthorized: false }),
+        validateStatus: (status) => status >= 200 && status < 400,
+      }
+    : {}
+
+  axios({ ...defaultsProperties, ...params })
+    .then(({ data: dataRequest } = {}) => success(dataRequest))
+    .catch(error)
+}
+
 module.exports = {
   encrypt,
   decrypt,
@@ -963,4 +1003,5 @@ module.exports = {
   validateHttpMethod,
   publish,
   subscriber,
+  executeRequest,
 }

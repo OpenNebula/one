@@ -53,11 +53,17 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
       const parseURL = parse(req.url)
       if (parseURL && parseURL.pathname) {
         const ticket = parseURL.pathname.split('/')[3]
-        writeInLogger(ticket, 'path to vmrc token: %s')
+        writeInLogger(ticket, {
+          format: 'path to vmrc token: %s',
+          level: 2,
+        })
         if (global && global.vcenterToken && global.vcenterToken[ticket]) {
           return global.vcenterToken[ticket]
         } else {
-          writeInLogger(ticket, 'Non-existent token: %s')
+          writeInLogger(ticket, {
+            format: 'Non-existent token: %s',
+            level: 2,
+          })
         }
       }
     }

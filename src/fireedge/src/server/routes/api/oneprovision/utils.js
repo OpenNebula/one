@@ -268,7 +268,7 @@ const getEndpoint = () => {
 const getSpecificConfig = (key) => {
   if (!key) return ''
 
-  const provisionConfig = getProvisionConfig({ includeProtectedConfig: true })
+  const provisionConfig = getProvisionConfig()
   if (Object.hasOwnProperty.call(provisionConfig, key)) {
     return provisionConfig[key]
   }

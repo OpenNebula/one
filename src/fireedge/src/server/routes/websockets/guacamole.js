@@ -98,7 +98,9 @@ const guacamole = (appServer) => {
       clientCallbacks
     )
     guacamoleServer.on('error', (clientConnection, error) => {
-      writeInLogger(error, formatError)
+      writeInLogger(error, {
+        format: formatError,
+      })
       messageTerminal(configError(error))
     })
   }

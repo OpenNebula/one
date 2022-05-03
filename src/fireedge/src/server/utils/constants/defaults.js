@@ -93,13 +93,14 @@ const defaults = {
     query: 'QUERY',
     postBody: 'POST_BODY',
   },
+  defaultEnterpriseRepo: 'https://enterprise.opennebula.io/repo/',
+  defaultComunityRepo: 'https://downloads.opennebula.io/repo/',
   defaultDownloader: 'remotes/datastore/downloader.sh',
   defaultOpennebulaZones: [
     {
       id: '0',
       name: 'OpenNebula',
       rpc: `${protocol}://${defaultIp}:2633/RPC2`,
-      zeromq: `tcp://${defaultIp}:2101`,
     },
   ],
   defaultConfigParseXML: {
@@ -125,6 +126,7 @@ const defaults = {
   defaultSunstonePath: internalSunstonePath,
   defaultProvisionPath: internalProvisionPath,
   defaultProvidersConfigPath: 'providers.d',
+  defaultLogsLevels: ['error', 'warm', 'info', 'http', 'verbose', 'debug'],
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultProductionWebpackMode: 'production',

@@ -94,7 +94,7 @@ const filterByProtectedKeys = (config = {}, keys = []) =>
 /**
  * @typedef GetConfigurationOptions
  * @property {function(string)} [onError] - Function to be called when an error
- * @property {boolean} [includeProtectedConfig] - Include protected config
+ * @property {boolean} [includeProtectedConfig] - Include protected config. By default is true.
  */
 
 /**
@@ -106,7 +106,7 @@ const filterByProtectedKeys = (config = {}, keys = []) =>
  */
 const getConfiguration = (
   app = defaultAppName,
-  { onError = defaultEmptyFunction, includeProtectedConfig = false } = {}
+  { onError = defaultEmptyFunction, includeProtectedConfig = true } = {}
 ) => {
   const config = readYAMLFile(getConfigPathByApp(app), onError)
 
@@ -123,8 +123,7 @@ const getConfiguration = (
  * @param {GetConfigurationOptions} [options] - Options
  * @returns {object} FireEdge configuration
  */
-const getFireedgeConfig = (options) =>
-  getConfiguration(defaultAppName, { includeProtectedConfig: true, ...options })
+const getFireedgeConfig = (options) => getConfiguration(defaultAppName, options)
 
 /**
  * Get Sunstone configuration.

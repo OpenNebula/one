@@ -51,6 +51,8 @@ import {
   validateServerIsSecure,
 } from './utils/server'
 
+const appConfig = getFireedgeConfig()
+
 // set paths
 genPathResources()
 
@@ -58,7 +60,7 @@ genPathResources()
 genFireedgeKey()
 
 // set logger
-initLogger()
+initLogger(appConfig.debug_level)
 
 // destructure imports
 const unsecureServer = http.createServer
@@ -70,7 +72,6 @@ const basename = defaultAppName ? `/${defaultAppName}` : ''
 let frontPath = 'client'
 
 // settings
-const appConfig = getFireedgeConfig()
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 

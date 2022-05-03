@@ -65,7 +65,10 @@ const executeWorker = ({
       worker.terminate()
       const err = result && result.data && result.data.err
       const value = result && result.data && result.data.value
-      writeInLogger([command, JSON.stringify(value)], 'worker: %s : %s')
+      writeInLogger([command, paramsCommand, JSON.stringify(value)], {
+        format: 'worker: %s, [%s]: %s',
+        level: 2,
+      })
       if (!err) {
         fillResourceforHookConnection(user, command, paramsCommand)
         res.locals.httpCode = parseReturnWorker(value)
