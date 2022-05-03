@@ -55,7 +55,7 @@ inputs:
     description: 'Physical device to be used for private networking.'
 
   - name: 'ceph_public_network'
-    type: test
+    type: text
     description: 'Ceph public network in CIDR notation'
 
   - name: 'ceph_device'
