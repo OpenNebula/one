@@ -460,7 +460,11 @@ module OpenNebula::MarketPlaceAppExt
                     end
 
                     if !options[:template] || options[:template] == -1
-                        vmtpl = create_vcenter_template(ds, options)
+                        vmtpl = create_vcenter_template(
+                            ds,
+                            options,
+                            self['TEMPLATE/VMTEMPLATE64']
+                        )
                     else
                         template_id = options[:template]
                         template    = Template.new_with_id(template_id, @client)
@@ -676,7 +680,8 @@ module OpenNebula::MarketPlaceAppExt
                          "Error deleting template #{id}"]
                     }
 
-                    delete_method = 'delete(true)'
+                    delete_method = 'delete'
+                    args          = true
                 else
                     obj_factory = lambda {|v|
                         id = v[:image].first
@@ -690,7 +695,13 @@ module OpenNebula::MarketPlaceAppExt
                 exported.each do |_, v|
                     obj, err_msg = obj_factory.call(v)
 
-                    next unless OpenNebula.is_error?(obj.send(delete_method))
+                    if args
+                        rc = obj.send(delete_method, args)
+                    else
+                        rc = obj.send(delete_method)
+                    end
+
+                    next unless OpenNebula.is_error?(rc)
 
                     ret << err_msg
                 end
