@@ -805,8 +805,8 @@ module OneProvision
                 end
             when 'list'
                 puts
-                input['options'].each_with_index do |opt, i|
-                    puts "    #{i}  #{opt}"
+                input['options'].each do |opt|
+                    puts "    - #{opt}"
                 end
                 puts
 
