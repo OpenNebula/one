@@ -180,12 +180,13 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            if @body['provider'] == 'onprem'
-                return Provider.new_onprem(@client)
-            end
+            return @provider if @provider
 
-            @provider ||= Provider.by_name(@client, @body['provider'])
-            @provider
+             @provider = if @body['provider'] == 'onprem'
+                 Provider.new_onprem(@client)
+             else
+                 Provider.by_name(@client, @body['provider'])
+             end
         end
 
         # Returns infrastructure + resource objects
