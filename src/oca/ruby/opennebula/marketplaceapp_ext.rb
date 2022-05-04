@@ -629,7 +629,7 @@ module OpenNebula::MarketPlaceAppExt
 
                     rc = obj.export(
                         :dsid       => options[:dsid],
-                        :name       => "#{options[:name]}-#{idx}",
+                        :name       => "#{options[:name]}-#{obj_name}-#{idx}",
                         :notemplate => options[:notemplate]
                     )
 
