@@ -663,7 +663,7 @@ module OneProvision
                                 v['name'] == match[1]
                             end
 
-                            input['value'] = i_value['value']
+                            input['value'] = i_value['value'] if i_value
                         end
 
                         if input['value']
