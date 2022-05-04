@@ -38,9 +38,9 @@ module OneProvision
                 </TEMPLATE>
               </DOCUMENT>
 EOS
-            xml = XMLElement.build_xml(xml_str,'DOCUMENT')
+            xml = XMLElement.build_xml(xml_str, 'DOCUMENT')
 
-            onprem = self.new(xml, client)
+            onprem = new(xml, client)
 
             onprem.load_body
 
