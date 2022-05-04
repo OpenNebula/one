@@ -182,11 +182,11 @@ module OneProvision
         def provider
             return @provider if @provider
 
-             @provider = if @body['provider'] == 'onprem'
-                 Provider.new_onprem(@client)
-             else
-                 Provider.by_name(@client, @body['provider'])
-             end
+            @provider = if @body['provider'] == 'onprem'
+                            Provider.new_onprem(@client)
+                        else
+                            Provider.by_name(@client, @body['provider'])
+                        end
         end
 
         # Returns infrastructure + resource objects

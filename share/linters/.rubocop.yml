@@ -579,7 +579,9 @@ Style/SignalException:
     EnforcedStyle: only_raise
 
 Style/ConditionalAssignment:
-    EnforcedStyle: assign_inside_condition
+    Enabled: false
+#    EnforcedStyle: assign_inside_condition
+#    EnforcedStyle: assign_to_condition
 
 # No parentheses with no argument
 Style/DefWithParentheses:
