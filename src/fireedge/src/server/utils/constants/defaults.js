@@ -174,9 +174,9 @@ const defaults = {
       'sunstone_prepend',
       'guacd',
       'tmpdir',
-+     'max_upload_file_size',
-+     'proxy',
-+     'token_remote_support',
+      'max_upload_file_size',
+      'proxy',
+      'token_remote_support',
     ],
     [appNameProvision]: [
       'oneprovision_prepend_command',
