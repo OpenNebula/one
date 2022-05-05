@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2018, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
-# 
+#
 # Translators:
 # catborise <muhammetalisag@gmail.com>, 2013,2019
 # Ekinoks Software <info@ekinokssoftware.com>, 2018
@@ -13,13 +13,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-25 13:37+0200\n"
-"PO-Revision-Date: 2021-10-25 11:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2012-05-30 07:14+0000\n"
+"Last-Translator: catborise <muhammetalisag@gmail.com>, 2013,2019\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/opennebula/one/language/tr_TR/)\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: tr_TR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../app/app.js:152 ../app/app.js:155 ../app/tabs/acls-tab/datatable.js:225
@@ -249,8 +249,7 @@ msgid "VMs"
 msgstr "Sanal Makineler"
 
 #: ../app/utils/quotas/quota-widgets.js:155
-#: ../app/tabs/groups-tab/datatable.js:73
-#: ../app/tabs/users-tab/datatable.js:79
+#: ../app/tabs/groups-tab/datatable.js:73 ../app/tabs/users-tab/datatable.js:79
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:82
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:48
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:49
@@ -263,8 +262,7 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/utils/quotas/quota-widgets.js:203
-#: ../app/tabs/groups-tab/datatable.js:72
-#: ../app/tabs/users-tab/datatable.js:78
+#: ../app/tabs/groups-tab/datatable.js:72 ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/provision-tab/vms/info.hbs:168
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:172
@@ -412,9 +410,9 @@ msgstr "İmajlar"
 msgid "Size"
 msgstr "Boyut"
 
-#: ../app/utils/quotas/quota-widgets.js:730
-#: ../app/utils/vcenter/networks.js:91 ../app/utils/user-inputs.js:317
-#: ../app/tabs/network-top-tab.js:23 ../app/tabs/vms-tab/panels/network.js:67
+#: ../app/utils/quotas/quota-widgets.js:730 ../app/utils/vcenter/networks.js:91
+#: ../app/utils/user-inputs.js:317 ../app/tabs/network-top-tab.js:23
+#: ../app/tabs/vms-tab/panels/network.js:67
 #: ../app/tabs/vms-tab/panels/network.js:96
 #: ../app/tabs/vms-tab/panels/network.js:489
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
@@ -912,51 +910,40 @@ msgstr "Yetkisiz Erişim"
 msgid "Hour"
 msgstr "Saat"
 
-#: ../app/utils/schedule_action.js:306
-#: ../app/utils/schedule_action/html.hbs:86
+#: ../app/utils/schedule_action.js:306 ../app/utils/schedule_action/html.hbs:86
 msgid "Mo"
 msgstr "Ptesi"
 
-#: ../app/utils/schedule_action.js:307
-#: ../app/utils/schedule_action/html.hbs:88
+#: ../app/utils/schedule_action.js:307 ../app/utils/schedule_action/html.hbs:88
 msgid "Tu"
 msgstr "Sa"
 
-#: ../app/utils/schedule_action.js:308
-#: ../app/utils/schedule_action/html.hbs:90
+#: ../app/utils/schedule_action.js:308 ../app/utils/schedule_action/html.hbs:90
 msgid "We"
 msgstr "Çar"
 
-#: ../app/utils/schedule_action.js:309
-#: ../app/utils/schedule_action/html.hbs:92
+#: ../app/utils/schedule_action.js:309 ../app/utils/schedule_action/html.hbs:92
 msgid "Th"
 msgstr "Per"
 
-#: ../app/utils/schedule_action.js:310
-#: ../app/utils/schedule_action/html.hbs:94
+#: ../app/utils/schedule_action.js:310 ../app/utils/schedule_action/html.hbs:94
 msgid "Fr"
 msgstr "Cu"
 
-#: ../app/utils/schedule_action.js:311
-#: ../app/utils/schedule_action/html.hbs:96
+#: ../app/utils/schedule_action.js:311 ../app/utils/schedule_action/html.hbs:96
 msgid "Sa"
 msgstr "Ctesi"
 
-#: ../app/utils/schedule_action.js:312
-#: ../app/utils/schedule_action/html.hbs:98
+#: ../app/utils/schedule_action.js:312 ../app/utils/schedule_action/html.hbs:98
 msgid "Su"
 msgstr "Pa"
 
 #: ../app/utils/schedule_action.js:317
-msgid ""
-"Comma separated list of days of the month to repeat the action on. Ex: "
-"1,15,25 repeats the action every first, 15th and 25th day of the month"
+msgid "Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month"
 msgstr "Eylemlerin ayın hangi günleri tekrarlanacağını belirten virgül ile ayrılmış liste. Örneğin; 1,15,25 ifadesi her ayın ilk günü, 15. günü ve 25. gününde eylemleri tekrarlar"
 
 #: ../app/utils/schedule_action.js:321
-msgid ""
-"Comma separated list of days of the year to repeat the action on. Ex: "
-"1,30,330 repeats the action every first, 30th and 330th day of the year"
+msgid "Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year"
 msgstr "Eylemlerin yılın günleri tekrarlanacağını belirten virgül ile ayrılmış liste. Örneğin; 1,30,330 ifadesi her yılın ilk günü, 30. günü ve 330. gününde eylemleri tekrarlar"
 
 #: ../app/utils/schedule_action.js:325 ../app/utils/schedule_action.js:858
@@ -967,23 +954,19 @@ msgstr ""
 msgid "hours"
 msgstr "saatler"
 
-#: ../app/utils/schedule_action.js:809
-#: ../app/utils/schedule_action/html.hbs:48
+#: ../app/utils/schedule_action.js:809 ../app/utils/schedule_action/html.hbs:48
 msgid "Years"
 msgstr "Yıllar"
 
-#: ../app/utils/schedule_action.js:812
-#: ../app/utils/schedule_action/html.hbs:49
+#: ../app/utils/schedule_action.js:812 ../app/utils/schedule_action/html.hbs:49
 msgid "Months"
 msgstr "Aylar"
 
-#: ../app/utils/schedule_action.js:815
-#: ../app/utils/schedule_action/html.hbs:50
+#: ../app/utils/schedule_action.js:815 ../app/utils/schedule_action/html.hbs:50
 msgid "Weeks"
 msgstr "Haftalar"
 
-#: ../app/utils/schedule_action.js:818
-#: ../app/utils/schedule_action/html.hbs:51
+#: ../app/utils/schedule_action.js:818 ../app/utils/schedule_action/html.hbs:51
 msgid "Days"
 msgstr "Günler"
 
@@ -992,23 +975,19 @@ msgstr "Günler"
 msgid "Hours"
 msgstr "Saatler"
 
-#: ../app/utils/schedule_action.js:824
-#: ../app/utils/schedule_action/html.hbs:53
+#: ../app/utils/schedule_action.js:824 ../app/utils/schedule_action/html.hbs:53
 msgid "Minutes"
 msgstr "Dakikalar"
 
-#: ../app/utils/schedule_action.js:843
-#: ../app/utils/schedule_action/html.hbs:77
+#: ../app/utils/schedule_action.js:843 ../app/utils/schedule_action/html.hbs:77
 msgid "Weekly"
 msgstr "Haftalık"
 
-#: ../app/utils/schedule_action.js:848
-#: ../app/utils/schedule_action/html.hbs:78
+#: ../app/utils/schedule_action.js:848 ../app/utils/schedule_action/html.hbs:78
 msgid "Monthly"
 msgstr "Aylık"
 
-#: ../app/utils/schedule_action.js:853
-#: ../app/utils/schedule_action/html.hbs:79
+#: ../app/utils/schedule_action.js:853 ../app/utils/schedule_action/html.hbs:79
 msgid "Yearly"
 msgstr "Yıllık"
 
@@ -1178,15 +1157,11 @@ msgid "DISK"
 msgstr "DISK"
 
 #: ../app/utils/disks-resize.js:165
-msgid ""
-"Persistent image. The changes will be saved back to the datastore after the "
-"VM is terminated (ie goes into DONE state)"
+msgid "Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:169
-msgid ""
-"Non-persistent disk. The changes will be lost once the VM is terminated (ie "
-"goes into DONE state)"
+msgid "Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)"
 msgstr ""
 
 #: ../app/utils/disks-resize.js:177
@@ -1764,8 +1739,7 @@ msgstr "Somut Makineler"
 msgid "Hosts"
 msgstr "Makineler"
 
-#: ../app/tabs/hosts-tab.js:53
-#: ../app/tabs/vms-tab/utils/datatable-common.js:38
+#: ../app/tabs/hosts-tab.js:53 ../app/tabs/vms-tab/utils/datatable-common.js:38
 #: ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/vms-tab/datatable/search.hbs:39
 #: ../app/tabs/vms-tab/panels/info/html.hbs:61
@@ -2025,9 +1999,7 @@ msgid "The template"
 msgstr "Şablon"
 
 #: ../app/tabs/provision-tab/templates/list.js:327
-msgid ""
-"and the image associated will be shared and all the users will be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "ve ilişkili imaj paylaşılacak ve tüm kullanıcılar bu şablonu kullanarak yeni Sanal Makineleri hazırlayabilecekler."
 
 #: ../app/tabs/provision-tab/templates/list.js:331
@@ -2035,9 +2007,7 @@ msgid "Share template"
 msgstr "Şablonu paylaş"
 
 #: ../app/tabs/provision-tab/templates/list.js:375
-msgid ""
-"and the image associated will be unshared and the users will not be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "ve ilişkili imaj paylaşılmayacak ve tüm kullanıcılar bu şablonu kullanarak yeni Sanal Makineleri paylaşamayacak."
 
 #: ../app/tabs/provision-tab/templates/list.js:379
@@ -2099,9 +2069,7 @@ msgid "saved successfully"
 msgstr "kaydetme başarılı"
 
 #: ../app/tabs/provision-tab/vms/list.js:588
-msgid ""
-"VM cloning in the background. The Template will appear as soon as it is "
-"ready, and the VM unlocked."
+msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr "Sanal Makine arka planda klonlanıyor. Şablon hazır olur olmaz görünecek ve Sanal Makine kilidi açılacak."
 
 #: ../app/tabs/provision-tab/vms/list.js:961
@@ -2125,8 +2093,7 @@ msgstr "Servis bulunmamaktadır"
 msgid "Change Cardinality"
 msgstr "Önem Derecesini Değiştir"
 
-#: ../app/tabs/provision-tab/flows/list.js:457
-#: ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:457 ../app/tabs/provision-tab.js:121
 msgid "The cardinality for this role cannot be changed"
 msgstr "Bu rolün önem derecesi değiştirilemez"
 
@@ -2136,8 +2103,7 @@ msgstr "Bu rolün önem derecesi değiştirilemez"
 msgid "Dismiss Alert"
 msgstr "Uyarıyı Reddet"
 
-#: ../app/tabs/provision-tab/flows/list.js:473
-#: ../app/tabs/provision-tab.js:143
+#: ../app/tabs/provision-tab/flows/list.js:473 ../app/tabs/provision-tab.js:143
 msgid "Number of VMs for Role"
 msgstr "Rol için Sanal Makine Sayısı"
 
@@ -2201,8 +2167,8 @@ msgid "Driver"
 msgstr "Sürücü"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:91
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#: ../app/tabs/zones-tab.js:45 ../app/tabs/acls-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:101 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:70
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
@@ -2297,8 +2263,7 @@ msgid "Storage bridge list"
 msgstr "Depolama köprü listesi"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:64
-msgid ""
-"Comma separated list of servers to access the image directory if not local"
+msgid "Comma separated list of servers to access the image directory if not local"
 msgstr "İmaj dizinine erişmek için virgülle ayrılmış yerel olmayan sunucular listesi"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:69
@@ -2330,9 +2295,7 @@ msgid "Signature Version"
 msgstr "İmza Versiyonu"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:96
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 's3'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
 msgstr "Amazon AWS S3 servisi için boş bırakınız. Eğer Ceph S3'e bağlanıyorsanız, 's3' **olmalı**."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:107
@@ -2340,9 +2303,7 @@ msgid "Force Path Style"
 msgstr "Yol Stili Zorlama"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:108
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 'YES'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."
 msgstr "Amazon AWS S3 servisi için boş bırakınız. Eğer Ceph S3'e bağlanıyorsanız, 's3', 'EVET' **olmalı**."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:113
@@ -2350,9 +2311,7 @@ msgid "Read block length in MB"
 msgstr "Okuma blok uzunluğu (MB)"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:114
-msgid ""
-"Split marketapps into chunks of this size (in MB). You should **never** user"
-" a quantity larger than 100. Defaults to 32 (MB)."
+msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
 msgstr "Market uygulamalarını bu boyutun parçalarının içine bölünüz. (MB cinsinden). 100'den fazla bir sayı **asla** kullanmayınız. Varsayılanlar to 32 MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:125
@@ -2463,8 +2422,7 @@ msgstr "Belirtilen veri depolarını seçtiniz:"
 msgid "Import"
 msgstr "İçe aktar"
 
-#: ../app/tabs/datastores-tab/buttons.js:42
-#: ../app/tabs/hosts-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:42 ../app/tabs/hosts-tab/buttons.js:32
 #: ../app/tabs/vnets-templates-tab/buttons.js:44
 msgid "Select cluster"
 msgstr "Küme seç"
@@ -2627,15 +2585,11 @@ msgid "Update Group"
 msgstr "Grup Güncelle"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
-msgid ""
-"Exposes a complete view of the cloud, allowing administrators and advanced "
-"users full control of any physical or virtual resource."
+msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
 msgstr "Bulutun tam bir görünümünü ortaya çıkarır, yöneticilere ve ileri düzey kullanıcılara herhangi bir fiziksel veya sanal kaynağın tam kontrolünü sağlar."
 
 #: ../app/tabs/groups-tab/utils/views.js:27
-msgid ""
-"Simplified version of the cloud allowing group admins and cloud end-users to"
-" manage any virtual resource."
+msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
 msgstr "Bulutun basitleştirilmiş versiyonu, grup yöneticileri ve bulut son kullanıcılarının herhangi bir sanal kaynağı yönetmesine olanak tanır."
 
 #: ../app/tabs/groups-tab/utils/views.js:39
@@ -2643,21 +2597,15 @@ msgid "Full control of the cloud, including virtual and physical resources."
 msgstr "Sanal ve fiziksel kaynaklar da dahil olmak üzere bulutun tam kontrolü."
 
 #: ../app/tabs/groups-tab/utils/views.js:45
-msgid ""
-"Users are not able to manage hosts and clusters, although they will be able "
-"to create new Images or Virtual Machines."
+msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
 msgstr "Kullanıcılar, yeni İmajlar veya Sanal Makineler oluşturabilecek olsalar da, ana makineleri ve kümeleri yönetemez."
 
 #: ../app/tabs/groups-tab/utils/views.js:51
-msgid ""
-"Control of all the resources belonging to a group, with the ability to "
-"create new users within the group."
+msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
 msgstr "Grup içinde yeni kullanıcılar oluşturabilme yeteneğiyle bir gruba ait tüm kaynakların kontrolü."
 
 #: ../app/tabs/groups-tab/utils/views.js:57
-msgid ""
-"Simplified view mainly where users can provision new Virtual Machines easily"
-" from pre-defined Templates."
+msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
 msgstr "Kullanıcıların önceden tanımlı Şablonlardan kolayca yeni Sanal Makineler hazırlayabildikleri basitleştirilmiş görünüm."
 
 #: ../app/tabs/groups-tab/panels/accounting.js:39
@@ -2768,9 +2716,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
 #: ../app/tabs/vms-tab/actions.js:458
-msgid ""
-"Import error: Can't import vCenter VMs to a marketplace, only vCenter VM "
-"templates."
+msgid "Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
@@ -2804,9 +2750,7 @@ msgid "This MarketPlace App resides in Zone "
 msgstr "Bu Pazar uygulaması bölge içindedir"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:189
-msgid ""
-". To delete it you need to switch to that Zone from the zone selector in the"
-" top-right corner."
+msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr ". Silmek için sağ üst köşedeki bölge seçiciden o bölgeye geçmeniz gerekir."
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:192
@@ -2990,17 +2934,7 @@ msgid "delete-db"
 msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:192
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation."
-"                     The recovery may be done by failing, succeeding or "
-"retrying the current operation.                     YOU NEED TO MANUALLY "
-"CHECK THE VM STATUS ON THE HOST, to decide if the operation"
-"                     was successful or not, or if it can be retried."
-"                    <br/>                    <br/>Delete: This will delete "
-"the selected VMs                    <br/>Delete-recreate: This will delete "
-"and recreate VMs to PENDING state                    <br/>Delete-db: This "
-"will delete the selected VMs, but will not perform any action on the "
-"hypervisor"
+msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
 msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:205 ../app/tabs/vms-tab/buttons.js:229
@@ -3431,8 +3365,7 @@ msgstr "Gruplar"
 msgid "RVMs"
 msgstr "RVM ler"
 
-#: ../app/tabs/hosts-tab/datatable.js:84
-#: ../app/tabs/hosts-tab/datatable.js:233
+#: ../app/tabs/hosts-tab/datatable.js:84 ../app/tabs/hosts-tab/datatable.js:233
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "Ayrılmış CPU"
@@ -4192,9 +4125,7 @@ msgid "Role "
 msgstr "Rol"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:55
-msgid ""
-"This will delete the Service.<br/>You can also delete the template or the "
-"template and image referenced inside this Service."
+msgid "This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
@@ -4307,9 +4238,7 @@ msgid "Purge done"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
-msgid ""
-"This will delete all services in DONE state to free some space in your "
-"database"
+msgid "This will delete all services in DONE state to free some space in your database"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
@@ -4386,9 +4315,7 @@ msgid "Virtual Data Center"
 msgstr "Sanal Veri Merkezi"
 
 #: ../app/tabs/templates-tab/actions-common.js:55
-msgid ""
-"This will delete the Template.<br/>You can also delete any Image referenced "
-"inside this Template"
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr "Bu, Şablonu silecektir.<br/> Ayrıca, bu Şablonda referans verilen herhangi bir İmajı silebilirsiniz"
 
 #: ../app/tabs/templates-tab/actions-common.js:58
@@ -4396,15 +4323,11 @@ msgid "Delete all images"
 msgstr "Tüm imajları sil"
 
 #: ../app/tabs/templates-tab/buttons.js:77
-msgid ""
-"The template, along with any image referenced by it, will be shared with the"
-" group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
 msgstr "Şablon, onun tarafından başvurulan herhangi bir imaj ile birlikte grubun kullanıcılarıyla paylaşılacaktır. İzin değiştirildi: GRUP KULLANIMI"
 
 #: ../app/tabs/templates-tab/buttons.js:83
-msgid ""
-"The template, along with any image referenced by it, will be unshared with "
-"the group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr "Şablon, onun tarafından başvurulan herhangi imaj ile birlikte grubun kullanıcılarıyla paylaşılmaz. İzin değiştirildi: GRUP KULLANIMI"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:69
@@ -4566,9 +4489,7 @@ msgid "Change primary group"
 msgstr "Birincil grubu değiştir"
 
 #: ../app/tabs/users-tab/buttons.js:35
-msgid ""
-"This will change the primary group of the selected users. Select the new "
-"group"
+msgid "This will change the primary group of the selected users. Select the new group"
 msgstr "Bu, seçilen kullanıcıların birincil grubunu değiştirecektir. Yeni grubu seçin"
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
@@ -4690,11 +4611,7 @@ msgid "Security Group created"
 msgstr "Güvenlik Grubu Oluşturuldu"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
-msgid ""
-"Please note: each time the rules are edited, the commit operation is done "
-"automatically. <br/><br/>This action will force the propagation of security "
-"group changes to VMs. The operation takes time to iterate over all VMs in "
-"the security group, the progress can be checked in the \"VMs\" panel."
+msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr "Lütfen dikkat: kurallar her düzenlendiğinde, tamamlama işlemi otomatik olarak yapılır. <br/> <br/> Bu eylem, güvenlik grubu değişikliklerinin Sanal Makinelere yayılmasını zorlar. İşlem, güvenlik grubundaki tüm Sanal Makinelerin yinelenmesi için zaman alır, ilerleme Sanal Makineler panelinde kontrol edilebilir."
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
@@ -4901,17 +4818,11 @@ msgid "Host Overcommitment"
 msgstr "Ana Makine Üzerine Kesinleştirme"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
-msgid ""
-"Prior to assigning a VM to a Host, the available capacity is checked to "
-"ensure that the VM fits in the host. The capacity is obtained by the monitor"
-" probes. You may alter this behaviour by reserving an amount of capacity. "
-"You can reserve this capacity:"
+msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
 msgstr "Bir Ana Makineye bir Sanal Makine atamadan önce, Sanal Makinenin ana bilgisayara uyduğundan emin olmak için kullanılabilir kapasite kontrol edilir. Kapasite, monitör probları tarafından elde edilir. Bir miktar kapasite ayırarak bu davranışı değiştirebilirsiniz. Bu kapasiteyi rezerve edebilirsiniz:"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:33
-msgid ""
-"Cluster-wise. All the hosts of the cluster will reserve the same amount of "
-"capacity."
+msgid "Cluster-wise. All the hosts of the cluster will reserve the same amount of capacity."
 msgstr "Karşılıklı-Küme. Kümenin tüm ana sunucuları aynı miktarda kapasite"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:34
@@ -4919,9 +4830,7 @@ msgid "Host-wise. This value will override those defined at cluster level."
 msgstr "Karşılıklı-Makine. Bu değer, küme düzeyinde tanımlanan değerleri geçersiz kılacaktır."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:38
-msgid ""
-"These values can be negative, in that case you'll be actually increasing the"
-" overall capacity so overcommitting host capacity."
+msgid "These values can be negative, in that case you'll be actually increasing the overall capacity so overcommitting host capacity."
 msgstr "Bu değerler negatif olabilir, bu durumda genel kapasiteyi artırarak ana makine kapasitesini aşırı yükleyeceksiniz."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -4934,9 +4843,7 @@ msgid "Reserved Memory in KB"
 msgstr "Ayrılmış Bellek KB boyutunda"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
-msgid ""
-"The values will overwrite the monitoring values in the next monitorization "
-"cycle"
+msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Değerler bir sonraki monitörizasyon devresinde izleme değerlerinin üzerine yazacaktır"
 
 #: ../app/utils/panel/ec2-tr/html.hbs:2
@@ -5027,11 +4934,7 @@ msgid "vCenter VM Folder"
 msgstr "vCenter Sanal Makine Klasörü"
 
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
-msgid ""
-"If specified, the VMs and Template folder path where the VM will be created "
-"inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Belirtilirse, Sanal Makinenin Veri Merkezi içinde oluşturulacağı Sanal Makineler ve Şablon klasör yolu. Yol, örneğin / Yönetim / Sanal Makineler ile eğik çizgilerle sınırlandırılır. Hiçbir yol ayarlanmazsa, Sanal Makine şablonun bulunduğu klasöre yerleştirilir."
 
 #: ../app/utils/showback/html.hbs:19
@@ -5439,9 +5342,7 @@ msgstr "İfade"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:110
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
-msgid ""
-"Boolean expression that rules out entries from the pool of datastores "
-"suitable to run this VM."
+msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
 msgstr "Boolean ifadesi, bu Sanal Makineyi çalıştırmak için uygun veri depoları girişlerini dışarıda bırakır."
 
 #: ../app/utils/nics-section/dd.hbs:138
@@ -5475,9 +5376,7 @@ msgstr "Sanal Makineleri vnetlerde yay"
 
 #: ../app/utils/nics-section/dd.hbs:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:138
-msgid ""
-"This field sets which attribute will be used to sort the suitable vnets for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable vnets for this VM"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:174
@@ -5494,9 +5393,7 @@ msgid "Floating IP"
 msgstr "Floating IP"
 
 #: ../app/utils/nics-section/dd.hbs:192
-msgid ""
-"If checked, each Virtual Machine will have a floating IP added to its "
-"network interface."
+msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "İşaretlenirse, her Sanal Makinenin kendi ağ arayüzüne eklenen bir kayan IP bulunur."
 
 #: ../app/utils/nics-section/dd.hbs:201
@@ -5505,9 +5402,7 @@ msgid "Management Interface"
 msgstr "Yönetim Arayüzü"
 
 #: ../app/utils/nics-section/dd.hbs:203
-msgid ""
-"If checked, this network interface will be a Virtual Router management "
-"interface. Traffic will not be forwarded."
+msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "İşaretlenirse, bu ağ birimi bir Sanal Yönlendirici yönetim arayüzü olacaktır. Trafik iletmez."
 
 #: ../app/utils/nics-section/dd.hbs:213
@@ -5515,10 +5410,7 @@ msgid "Force IPv6:"
 msgstr "IPv6 zorla"
 
 #: ../app/utils/nics-section/dd.hbs:231
-msgid ""
-"You can add Security Groups to this network interface. These IDs do not "
-"overwrite the ones defined in the Virtual Network. All the Security Group "
-"IDs are combined, and applied to the Virtual Machine instance."
+msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Bu ağ arayüzüne Güvenlik Grupları ekleyebilirsiniz. Bu ID'ler, Sanal Ağ'da tanımlanan kimselerin üzerine yazmaz. Tüm Güvenlik Grubu ID'leri birleştirilir ve Sanal Makine somut örneğine uygulanır."
 
 #: ../app/sunstone/buttons.hbs:27
@@ -5730,11 +5622,7 @@ msgid "This action will reboot this Virtual Machine."
 msgstr "Bu işlem Sanal Makineyi yeniden başlatacak."
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-msgid ""
-"You can send the reboot signal to the Virtual Machine (this is equivalent to"
-" execute the reboot command form the console). If that doesn't affect your "
-"Virtual Machine, try to Reboot the machine (this is equivalent to pressing "
-"the reset button a physical computer)."
+msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
 msgstr "Yeniden başlatma sinyalini Sanal Makineye gönderebilirsiniz (konsoldan yeniden başlat komutu yürütmeye eşdeğerdir). Bu, Sanal Makinenizi etkilemezse, makineyi yeniden başlatmayı deneyin (bu fiziksel bir bilgisayarı sıfırlama düğmesine basmaya eşdeğerdir)."
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
@@ -5746,18 +5634,12 @@ msgid "Send the reboot signal"
 msgstr "Yeniden başlat sinyali gönder"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
-msgid ""
-"This action will power off this Virtual Machine. The Virtual Machine will "
-"remain in the poweroff state, and can be powered on later"
+msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
 msgstr "Bu eylem bu Sanal Makineyi kapatacaktır. Sanal Makine güç kesintisi durumunda kalır ve daha sonra çalıştırılabilir"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
-msgid ""
-"You can send the power off signal to the Virtual Machine (this is equivalent"
-" to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to Power off the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "Güç kapatma sinyalini Sanal Makineye gönderebilirsiniz (bu, konsoldan komutu yürütmeye eşdeğerdir). Bu, Sanal Makinenizi etkilemezse makineyi kapatmayı deneyin (fiziksel bir bilgisayardaki kapatma düğmesine basmaya eşdeğerdir)."
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
@@ -5819,11 +5701,7 @@ msgid "Template Description"
 msgstr "Şablon Açıklaması"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
-msgid ""
-"The new Virtual Machine's disks can be made persistent. In a persistent "
-"Virtual Machine the changes made survive after it is destroyed. On the other"
-" hand, you cannot create more than one simultaneous Virtual Machine from a "
-"Template with persistent disks."
+msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
 msgstr "Yeni Sanal Makine'nin diskleri kalıcı hale getirilebilir. Kalıcı bir Sanal Makinede yapılan değişiklikler yok edildiğinde hayatta kalır. Öte yandan, kalıcı diskler içeren bir Şablondan birden fazla eşzamanlı Sanal Makine oluşturamazsınız."
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
@@ -5840,9 +5718,7 @@ msgstr "Sanal Makine Adı"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:42
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
-msgid ""
-"Creates a private persistent copy of the template plus any image defined in "
-"DISK, and instantiates that copy"
+msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr "Şablonun ve DISK'de tanımlanan herhangi bir imajın özel kalıcı bir kopyasını oluşturur ve bu kopyayı başlatır"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:158
@@ -5863,9 +5739,7 @@ msgid "Select the devices to boot from, and their order"
 msgstr "Önyüklenecek cihazları ve istekleri seçin"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-msgid ""
-"This action will power off this Virtual Machine and will be undeployed from "
-"the physical machine"
+msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
 msgstr "Bu eylem, bu Sanal Makineyi kapatacak ve fiziksel makineden konuşlandırmayı sonlandıracaktır."
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
@@ -5890,11 +5764,7 @@ msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
 msgstr "Dikkatli olun, bu eylem Sanal Makinenizi kapatır ve yok eder"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-msgid ""
-"You can send the shutdown signal to the Virtual Machine (this is equivalent "
-"to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to terminate the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "Kapatma sinyalini Sanal Makineye gönderebilirsiniz (bu, konsoldan komutu yürütmeye eşdeğerdir). Bu, Sanal Makinenizi etkilemezse, makineyi sonlandırmayı deneyin (fiziksel bir bilgisayardaki kapatma düğmesine basmaya eşdeğerdir)."
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
@@ -6060,9 +5930,7 @@ msgid "Transfer bandwidth limit (B/s)"
 msgstr "Aktarım bant genişliği limit (B/s)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
-msgid ""
-"Specify the maximum transfer rate in bytes/second when downloading images "
-"from a http/https URL. Suffixes K, M or G can be used."
+msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
 msgstr "Bir http / https URL'sinden resim indirirken maksimum aktarım hızını bayt / saniye cinsinden belirtin. K, M veya G soneki kullanılabilir."
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
@@ -6078,8 +5946,7 @@ msgid "Host bridge list"
 msgstr "Makine köprü listesi"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Space separated list of servers to add new Images to the Datastore storage"
+msgid "Space separated list of servers to add new Images to the Datastore storage"
 msgstr "Veri Deposu saklama alanına yeni Görüntüler eklemek için boşluklarla ayrılmış sunucular listesi"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
@@ -6167,8 +6034,7 @@ msgid "Compatible system datastores"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
-msgid ""
-"Specifies which system datastores are compatible with this image datastore"
+msgid "Specifies which system datastores are compatible with this image datastore"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
@@ -6279,9 +6145,7 @@ msgstr "Token Giriş"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:208
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
-msgid ""
-"A login token acts as a password and can be used to authenticate with "
-"OpenNebula through Sunstone, the CLI, or the API"
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
 msgstr "Bir oturum açma kodu, bir parola gibi davranır ve Sunstone, CLI veya API aracılığıyla OpenNebula ile kimlik doğrulaması yapmak için kullanılabilir"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:212
@@ -6363,9 +6227,7 @@ msgid "Create an administrator user"
 msgstr "Yönetici kullanıcısı oluştur"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:135
-msgid ""
-"You can create now an administrator user. More administrators can be added "
-"later."
+msgid "You can create now an administrator user. More administrators can be added later."
 msgstr "Artık bir yönetici kullanıcısı oluşturabilirsiniz. Daha sonra daha fazla yönetici eklenebilir."
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:147
@@ -6377,9 +6239,7 @@ msgid "Make new images persistent by default"
 msgstr "Varsayılan olarak yeni imajları kalıcı yap "
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Control the default value for the PERSISTENT attribute on image creation "
-"(oneimage create)."
+msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:166
@@ -6393,8 +6253,7 @@ msgid ""
 msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:187
-msgid ""
-"Allow users to view the VMs and Services of other users in the same group"
+msgid "Allow users to view the VMs and Services of other users in the same group"
 msgstr "Kullanıcıların aynı gruptaki diğer kullanıcıların Sanal Makinelerini ve Servislerini görüntülemesine izin ver"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:189
@@ -6444,9 +6303,7 @@ msgid "VM Template Name"
 msgstr "Sanal Makine Şablon Adı"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-msgid ""
-"The following template will be created in OpenNebula and the previous images"
-" will be referenced in the disks."
+msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
 msgstr "Aşağıdaki şablon OpenNebula'da oluşturulacak ve önceki imajlar disklerde referans alınacaktır."
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:43
@@ -6511,9 +6368,7 @@ msgid "VM template"
 msgstr "VM şablonu"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:97
-msgid ""
-"VM Template to be created. A DISK element pointing to the App Image will be "
-"automatically added when the App is exported"
+msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
 msgstr "Sanal Makine Şablonu oluşturulacak. Uygulama İmajına işaret eden bir DİSK öğesi, Uygulama dışa aktarıldığında otomatik olarak eklenecektir"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:103
@@ -6536,15 +6391,11 @@ msgid "Created before"
 msgstr "Daha önce oluşturulmuş"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
-msgid ""
-"You can provide a template for the resource that will be created in "
-"OpenNebula"
+msgid "You can provide a template for the resource that will be created in OpenNebula"
 msgstr "OpenNebula'da oluşturulacak kaynak için bir şablon sağlayabilirsiniz"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
-msgid ""
-"You can provide a VM template associated to the resource that will be "
-"created in OpenNebula"
+msgid "You can provide a VM template associated to the resource that will be created in OpenNebula"
 msgstr "OpenNebula'da oluşturulacak kaynakla ilişkili bir Sanal Makine şablonu sağlayabilirsiniz"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
@@ -6641,10 +6492,7 @@ msgstr "Kapasite kontrollerini zorla"
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
-msgid ""
-"If it is set to true, the host capacity will be checked. This will only "
-"affect oneadmin requests, regular users resize requests will always be "
-"enforced"
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "True olarak ayarlanırsa, makine kapasitesi kontrol edilir. Bu yalnızca oneadmin isteklerini etkiler, normal kullanıcılar yeniden boyutlandırma istekleri daima zorunlu olacak"
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
@@ -6807,10 +6655,7 @@ msgid "Secret access key"
 msgstr "Gizli erişim tuşu"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
-msgid ""
-"The valid list of instance types can be found in the official Amazon EC2 "
-"documentation, please use a value from the Model column of the following "
-"table: aws.amazon.com/ ec2/instance-types/"
+msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
@@ -6894,8 +6739,7 @@ msgid "Clone Image"
 msgstr "Imaj Klonla"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several images are selected, please choose a prefix to name the new copies"
+msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr "Birkaç imaj seçildi, lütfen yeni kopyaları adlandırmak için bir önek seçin"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
@@ -7074,9 +6918,7 @@ msgid "Network Driver (VN_MAD)"
 msgstr "Ağ Sürücüsü (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:155
-msgid ""
-"Bridged, virtual machine traffic is directly bridged. The Linux bridge is "
-"created in the nodes as needed. No traffic filtering is made."
+msgid "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:158
@@ -7084,38 +6926,27 @@ msgid "Bridged & Security Groups, bridged network with Security Group rules."
 msgstr "Köprülü & Güvenlik Grupları, güvenlik grubu kurallarıyla köprülenmiş ağ."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:161
-msgid ""
-"Bridged & ebtables VLAN, restrict network access through ebtables rules. "
-"Security Group rules are applied."
+msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
 msgstr "Köprülü & ebtables VLAN, ebtables kuralları aracılığıyla ağ erişimini kısıtlar. Güvenlik Grubu kuralları uygulanır."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:164
-msgid ""
-"802.1Q, restrict network access through VLAN tagging. Security Group rules "
-"are applied."
+msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
 msgstr "802.1Q, VLAN etiketleme yoluyla ağ erişimini kısıtlayın. Güvenlik Grubu kuralları uygulanır."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:167
-msgid ""
-"VXLAN, creates a L2 network overlay, each VLAN has associated a multicast "
-"address in the 239.0.0.0/8 range. Security Group rules are applied."
+msgid "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."
 msgstr "VXLAN, bir L2 ağ yerleşimi oluşturur, her VLAN, 239.0.0.0/8 aralığında çok noktaya yayın adresini ilişkilendirmiştir. Güvenlik Grubu kuralları uygulanır."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:170
-msgid ""
-"Open vSwitch, restrict network access with Open vSwitch Virtual Switch. "
-"Security Groups are not applied."
+msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."
 msgstr "vSwitch'i açın, Open vSwitch Virtual Switch ile ağ erişimini kısıtlayın. Güvenlik Grupları uygulanmıyor."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
-msgid ""
-"Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
+msgid "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:176
-msgid ""
-"vSphere standard switches or distributed switches with port groups. Security"
-" Groups are not applied."
+msgid "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."
 msgstr "vSphere standart anahtarları veya port gruplarıyla dağıtılan anahtarlar. Güvenlik Grupları uygulanmıyor."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:179
@@ -7152,9 +6983,7 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr "Sanal ağ trafiğini göndermek / almak için düğüm Ağ Arayüz Denetleyicisi"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
-msgid ""
-"Physical NIC names for uplinks. Use comma to separate values (e.g "
-"vmnic1,vmnic2)"
+msgid "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"
 msgstr "Bağlantılar için Fiziksel Ağ Arayüzü Denetleyicisi isimleri. Değerleri ayırmak için virgül kullanın (ör. Vmnic1, vmnic2)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:233
@@ -7202,14 +7031,12 @@ msgid "OpenNebula's Host ID"
 msgstr "OpenNebula Makinesinin ID'si"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:298
-msgid ""
-"Address Ranges need to be managed in the individual Virtual Network panel"
+msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr "Adres Aralıklarının tek tek Sanal Ağ panelinde yönetilmesi gerekir"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:308
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
-msgid ""
-"The default Security Group 0 is automatically added to new Virtual Networks"
+msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr "Varsayılan Güvenlik Grubu 0 otomatik olarak yeni Sanal Ağlara eklenir"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:315
@@ -7242,9 +7069,7 @@ msgid "Outbound traffic"
 msgstr "Giden trafik"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:363
-msgid ""
-"These values apply to each VM interface individually, they are not global "
-"values for the Virtual Network"
+msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
 msgstr "Bu değerler, her Sanal Makine arayüzü için ayrı ayrı geçerlidir, bunlar Sanal Ağ için genel değerler değildir"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:372
@@ -7418,8 +7243,7 @@ msgstr "Hizmet Şablonu Klonla"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "Birkaç şablon seçildi, lütfen yeni kopyaları adlandırmak için önek seçin"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
@@ -7433,9 +7257,7 @@ msgid "Service name"
 msgstr "Servis adı"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
-msgid ""
-"When creating several Services, the wildcard %i will be replaced with a "
-"number starting from 0"
+msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr "Birkaç Hizmet oluştururken joker karakter %i, 0'dan başlayarak bir sayı ile değiştirilir"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
@@ -7474,10 +7296,7 @@ msgstr "Strateji"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:84
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:78
-msgid ""
-"Straight strategy will instantiate each role in order: parents role will be "
-"deployed before their children. None strategy will instantiate the roles "
-"regardless of their relationships."
+msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
 msgstr "Doğru strateji, her bir rolü sıraya koyacaktır: ebeveynlerin rolü çocuklarının önünde konuşlandırılacaktır. Hiçbiri stratejileri rolleri ne olursa olsun rolleri samutlandırır."
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:87
@@ -7501,9 +7320,7 @@ msgstr "Zorla sonlandır"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:100
-msgid ""
-"Wait for VMs to report that they are READY via OneGate to consider them "
-"running"
+msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
 msgstr "Sanal Makinelerin, çalışmaya devam etmek için OneGate aracılığıyla HAZIR olduklarını bildirmesini bekleyin"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:114
@@ -7567,9 +7384,7 @@ msgstr "Ağ Arayüzü"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:64
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:64
-msgid ""
-"This network interface will be configured as an ALIAS in the VM without "
-"context configuration."
+msgid "This network interface will be configured as an ALIAS in the VM without context configuration."
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:56
@@ -7647,9 +7462,7 @@ msgstr "ÖNEM DERECESİ: Önem derecesini verilen bir sayıya ayarlayın."
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:29
-msgid ""
-"PERCENTAGE_CHANGE: Add/subtract the given percentage to the current "
-"cardinality."
+msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
 msgstr "YÜZDE_DEĞİŞİMİ: Belirtilen yüzdeyi geçerli önem derecesine ekleme/çıkarma."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
@@ -7694,9 +7507,7 @@ msgstr "Optional parameter for YÜZDE_DEĞİŞİM adjustment type."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:37
-msgid ""
-" If present, the policy will change the cardinality by at least the number "
-"of VMs set in this attribute."
+msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Varsa, ilke, en azından bu öznitelikte ayarlanan sanal makinelerin sayısına bağlı olarak önem derecesini değiştirecektir."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
@@ -7711,9 +7522,7 @@ msgstr "Örnek: ATT < 20"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:42
-msgid ""
-"Number of periods that the expression must be true before the elasticity is "
-"triggered"
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr "Elastikiyet tetiklenmeden ifadenin doğru olması gereken süreler"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
@@ -7739,19 +7548,14 @@ msgstr "Planlanmış politikalar"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:36
-msgid ""
-"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
-"policy will change the cardinality by at least the number of VMs set in this"
-" attribute."
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "PERCENTAGE_CHANGE ayar türü için isteğe bağlı parametre. Varsa, ilke, en azından bu öznitelikte ayarlanan sanal makinelerin sayısına bağlı olarak kararlılığı değiştirecektir."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:42
-msgid ""
-"Recurrence: Time for recurring adjustments. Time is specified with the Unix "
-"cron syntax"
+msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
 msgstr "Tekrarlama: Yinelenen ayarlamaların zamanı. Zaman Unix cron syntax ile belirtilir"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
@@ -7866,9 +7670,7 @@ msgid "Clone Template"
 msgstr "Şablon Klonla"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
-msgid ""
-"You can also clone any Image referenced inside this Template. They will be "
-"cloned to a new Image, and made persistent."
+msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr "Ayrıca, bu Şablonda referans verilen herhangi bir İmajı klonlayabilirsiniz. Yeni bir İmaj'a kopyalanacak ve kalıcı hale gelecekler."
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
@@ -7908,9 +7710,7 @@ msgid "Instantiate as persistent"
 msgstr "Kalıcı olarak Somutlaştır"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:43
-msgid ""
-"Defaults to 'template name-<vmid>' when empty. When creating several VMs, "
-"the wildcard %i will be replaced with a number starting from 0"
+msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
 msgstr "Varsayılan değerler 'şablon adı - <vmid>' boş olduğunda. Birkaç Sanal Makine oluştururken eşleme karakterleri %i, 0'dan başlayarak bir sayı ile değiştirilecektir."
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:59
@@ -7919,9 +7719,7 @@ msgid "Start on hold"
 msgstr "Bekletmeye başla"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
-msgid ""
-"Sets the new VM to hold state, instead of pending. The scheduler will not "
-"deploy VMs in this state. It can be released later, or deployed manually."
+msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
 msgstr "Beklemek yerine, yeni Sanal Makine'yi durumunu tutacak şekilde ayarlar. Zamanlayıcı, Sanal Makineleri bu durumda dağıtmaz. Daha sonra serbest bırakılabilir veya manuel olarak konuşlandırılabilir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
@@ -7950,9 +7748,7 @@ msgid "Swap"
 msgstr "Takas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping."
+msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr "İmaj diskini eşlemek için cihaz. Ayarlanırsa varsayılan cihaz eşlemesinin üzerine yazılır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
@@ -7984,9 +7780,7 @@ msgid "Size on instantiate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:98
-msgid ""
-"The size of the disk will be modified to match this size when the template "
-"is instantiated"
+msgid "The size of the disk will be modified to match this size when the template is instantiated"
 msgstr "The size of the disk will be modified to match this size when the template is instantiated"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
@@ -8054,10 +7848,7 @@ msgid "IOTHREAD id"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:266
-msgid ""
-"Iothread id used by this disk. Default is round robin. Can be used only if "
-"IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS "
-"value on OS & CPU -> Features."
+msgid "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:35
@@ -8129,9 +7920,7 @@ msgid "PCI Devices"
 msgstr "PCI Aygıtları"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
-msgid ""
-"PCI passthrough of network devices is configured per NIC, in the \"Network\""
-" tab. Do not add network devices here"
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr "Ağ aygıtlarının PCI geçişi her Ağ Arayüz Denetleyici'si başına \"Ağ\" sekmesinden yapılandırılır. Ağ cihazlarını buraya eklemeyin"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:140
@@ -8240,9 +8029,7 @@ msgid "Only supported for virtio driver."
 msgstr "Sadece virtio sürücüsü için desteklenmektedir"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:357
-msgid ""
-"Security Groups belonging to the selected Virtual Network will be applied "
-"and cannot be unselected"
+msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:362
@@ -8274,9 +8061,7 @@ msgid "  Add SSH contextualization"
 msgstr "SSH bağlamlaştırma ekle"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
-msgid ""
-"Add an ssh public key to the context. If the Public Key textarea is empty "
-"then the user variable SSH_PUBLIC_KEY will be used."
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "İçeriğe bir ssh genel anahtarı ekleyin. Ortak Anahtar metin alanı boşsa, kullanıcı değişkeni SSH_PUBLIC_KEY kullanılacaktır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
@@ -8288,10 +8073,7 @@ msgid "  Add Network contextualization"
 msgstr "Ağ bağlamlaştırma ekle"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
-msgid ""
-"Add network contextualization parameters. For each NIC defined in the "
-"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
-"the CONTEXT section and will be available in the Virtual Machine"
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "Ağ bağlamsallaştırma parametreleri ekleyin. AĞ bölümünde tanımlanan her bir Ağ Arayüz Denetleyicisi için, ETH $ i_IP, ETH $ i_NETWORK ... parametreleri İÇERİK bölümüne dahil edilecek ve Sanal Makinede uygun olacak"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
@@ -8299,9 +8081,7 @@ msgid "  Add OneGate token"
 msgstr "OneGate simgesi ekle"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
-msgid ""
-"Add a file (token.txt) to the context containing the token to push custom "
-"metrics to the VirtualMachine through OneGate"
+msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr "OneGate aracılığıyla Sanal Makineye özel metrikleri aktarmak için belirteç içeren içeriğe bir dosya (token.txt) ekleyin"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
@@ -8317,9 +8097,7 @@ msgid "Start script"
 msgstr "Komut dosyası başlat"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
-msgid ""
-"Text of the script executed when the machine starts up. It can contain "
-"shebang in case it is not shell script"
+msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr "Makine başlatıldığında çalıştırılan komut metni. Kabuk komut dosyası değilse, konu içerebilir"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
@@ -8331,9 +8109,7 @@ msgid "User Inputs"
 msgstr "Kullanıcı Girişleri"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
-msgid ""
-"These attributes must be provided by the user when a new VM is instantiated."
-" They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr "Yeni bir Sanal Makine örneği oluşturulduğunda, bu özellikler kullanıcı tarafından sağlanmalıdır. Sanal Makine kapsamına dahil edilecekler"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
@@ -8345,10 +8121,7 @@ msgid "Init scripts"
 msgstr "Init scripts"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
-msgid ""
-"The contextualization package executes an init.sh file if it exists. If more"
-" than one script file is added, this list contains the scripts to run and "
-"their order"
+msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr "Bağlamsallaştırma paketi, varsa bir init.sh dosyasını çalıştırır. Birden fazla betik dosyası eklenmişse, bu liste çalıştırılacak komut dosyaları ve bunların komutlarını içerir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
@@ -8358,17 +8131,13 @@ msgstr "Sanal Makine için gerekli RAM miktarı, Megabyte."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:35
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:141
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr "Sanal Makine için CPU'nun yüzdesi bölünmüş olarak 100 gereklidir. Yarım işlemciye 0.5 yazılır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:189
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:85
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "Sanal CPUs sayısı. Bu değer isteğe bağlıdır, varsayılan sanal yönetici davranışı kullanılır, genellikle bir sanal işlemci."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:29
@@ -8409,11 +8178,7 @@ msgid "Default Resource Pool"
 msgstr "Varsayılan Kaynak Havuzu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:118
-msgid ""
-"If specified, the the VMs and Template folder path where the VM will be "
-"created inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Belirtilirse, Sanal Makinenin veri merkezi içinde oluşturulacağı Sanal Makineler ve Şablon klasör yolu. Yol, örneğin / Yönetim / Sanal Makineler ile eğik çizgilerle sınırlandırılır. Hiçbir yol ayarlanmazsa, Sanal Makine şablonun bulunduğu klasöre yerleştirilir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:129
@@ -8459,10 +8224,7 @@ msgid "Make this template available for Virtual Router machines only"
 msgstr "Bu şablonu yalnızca Sanal Yönlendirici makineler için kullanılabilir yapın"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:234
-msgid ""
-"Virtual Routers create Virtual Machines from a source Template. This "
-"checkbox makes this template available to be selected in the New Virtual "
-"Router wizard"
+msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
 msgstr "Sanal Yönlendiriciler, bir Kaynak Şablondan Sanal Makineler oluşturur. Bu onay kutusu, bu şablonun Yeni Sanal Yönlendirici sihirbazında seçilebilmesini sağlar"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:244
@@ -8531,8 +8293,7 @@ msgid "AMI"
 msgstr "Gelişmiş Metraj Altyapısı"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
-msgid ""
-"Unique ID of a machine image, returned by a call to ec2-describe-images."
+msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
 msgstr "Bir makine resminin benzersiz ID, ec2-describe-images'e yapılan bir çağrı ile geri döndü."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
@@ -8557,10 +8318,7 @@ msgid "Block device mapping"
 msgstr "Blok cihaz eşleme"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:36
-msgid ""
-"The block device mapping for the instance. More than one can be specified in"
-" a space-separated list. Check the --block-device-mapping option of the EC2 "
-"CLI Reference for the syntax"
+msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax"
 msgstr "Somut örnek için blok aygıt eşlemesi. Boşlukla ayrılmış bir listede birden fazla belirtilebilir. Syntax için EC2 CLI Reference'ın --block-device-mapping seçeneğini kontrol edin"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
@@ -8568,9 +8326,7 @@ msgid "Client token"
 msgstr "Client simgesi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
-msgid ""
-"Unique, case-sensitive identifier you provide to ensure idempotency of the "
-"request."
+msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
 msgstr "İsteğin idempotansiyelini sağlamak için verdiğiniz eşsiz, büyük / küçük harf duyarlı tanımlayıcı."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
@@ -8586,9 +8342,7 @@ msgid "Elastic IP address"
 msgstr "Esnek IP adresi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
-msgid ""
-"This parameter is passed to the command ec2-associate-address -i i-0041230 "
-"elasticip."
+msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
 msgstr "Bu parametre ec2-associate-address -i i-0041230 elasticip komutuna geçirilir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
@@ -8604,9 +8358,7 @@ msgid "Keypair name"
 msgstr "Anahtar çifti adı"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:77
-msgid ""
-"The name of the key pair, later will be used to execute commands like ssh -i"
-" id_keypair or scp -i id_keypair"
+msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
 msgstr "Anahtar çifti adı, daha sonra ssh -i id_keypair veya scp -i id_keypair gibi komutları yürütmek için kullanılacaktır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:85
@@ -8622,10 +8374,7 @@ msgid "Private IP"
 msgstr "Özel IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
-msgid ""
-"If you're using Amazon Virtual Private Cloud, you can optionally use this "
-"parameter to assign the instance a specific available IP address from the "
-"subnet."
+msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
 msgstr "Amazon Sanal Özel Cloud kullanıyorsanız, isteğe bağlı olarak alt ağdan somut örneğe kullanılabilir bir IP adresi atamak için bu parametreyi kullanabilirsiniz."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
@@ -8650,16 +8399,11 @@ msgid "Subnet ID"
 msgstr "Alt Ağ ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
-msgid ""
-"If you're using Amazon Virtual Private Cloud, this specifies the ID of the "
-"subnet you want to launch the instance into. This parameter is also passed "
-"to the command ec2-associate-address -i i-0041230 -a elasticip."
+msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
 msgstr "Amazon Sanal Özel Bulut kullanıyorsanız, bu, somut örneği başlatmak istediğiniz alt ağın kimliğini belirtir. Bu parametre aynı zamanda ec2-ilişkili adres -i i-0041230 -a elasticip komutuna geçirilir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
-msgid ""
-"Key and optional value of the tag, separated by an equals sign ( = ).You can"
-" specify more than one tag (comma separated)."
+msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
 msgstr "Etiketin anahtar ve isteğe bağlı değeri, eşittir işaretiyle (=) ayrılır. Birden fazla etiket belirtebilirsiniz (virgülle ayrılmış)."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:147
@@ -8671,9 +8415,7 @@ msgid "User data"
 msgstr "Kullanıcı verisi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
-msgid ""
-"Specifies Base64-encoded MIME user data to be made available to the "
-"instance(s) in this reservation."
+msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr "Bu rezervasyonda somut örnek(ler) in kullanımına sunulacak Base64 kodlu Çok Amaçlı Internet Posta Uzantıları kullanıcı verilerini belirtir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:5
@@ -8721,9 +8463,7 @@ msgid "VM user name"
 msgstr "Sanal Makine kullanıcı ismi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-msgid ""
-"If the selected IMAGE is prepared for Azure provisioning, a username can be "
-"specified here to access the VM once booted"
+msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr "Seçilen IMAJ Azure ön hazırlığı için hazırlandıysa, bir kez daha önyüklenerek, sanal makineye erişmek için bir kullanıcı adı belirtilebilir"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:59
@@ -8735,10 +8475,7 @@ msgid "Password for VM User"
 msgstr "Sanal Makine Kullanıcı için Şifre"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
-msgid ""
-"Name of the virtual network which is already created in Azure. If not given,"
-" virtual network will be created based on VNET_* attributes below or using "
-"defaults."
+msgid "Name of the virtual network which is already created in Azure. If not given, virtual network will be created based on VNET_* attributes below or using defaults."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:75
@@ -8754,8 +8491,7 @@ msgid "VNET name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:88
-msgid ""
-"Name of virtual network which will be created on Azure. Default: one-vnet"
+msgid "Name of virtual network which will be created on Azure. Default: one-vnet"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:94
@@ -8803,10 +8539,7 @@ msgid "Proximity group"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:136
-msgid ""
-"Name of a proximity group already created in Azure. Proximity groups allow "
-"you to group your Azure services to optimize performance. All services and "
-"VMs within a proximity group will be located in the same region."
+msgid "Name of a proximity group already created in Azure. Proximity groups allow you to group your Azure services to optimize performance. All services and VMs within a proximity group will be located in the same region."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
@@ -8855,9 +8588,7 @@ msgid "Unique ID of the VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:103
-msgid ""
-"It's referenced as machine ID inside the VM. Could be used to force ID for "
-"licensing purposes"
+msgid "It's referenced as machine ID inside the VM. Could be used to force ID for licensing purposes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:111
@@ -8865,8 +8596,7 @@ msgid "Firmware"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:112
-msgid ""
-"This attribute allows to define the type of firmware used to boot the VM"
+msgid "This attribute allows to define the type of firmware used to boot the VM"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:116
@@ -8919,8 +8649,7 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:204
-msgid ""
-"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "Gelişmiş Yapılandırma ve Güç Arabirimi (ACPI) için Sanal Makineye destek ekleyin"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:214
@@ -8952,9 +8681,7 @@ msgid "Localtime"
 msgstr "Yerel zaman"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:252
-msgid ""
-"The guest clock will be synchronized to the hosts configured timezone when "
-"booted."
+msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
 msgstr "Konuk saati, önyükleme yapıldığında ana bölgeye yapılandırılan saat dilimine göre senkronize edilecektir."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:262
@@ -8962,9 +8689,7 @@ msgid "QEMU Guest Agent"
 msgstr "QEMU Konuk Temsilcisi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:263
-msgid ""
-"Enables the QEMU Guest Agent communication. This does not start the Guest "
-"Agent inside the VM."
+msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
 msgstr "QEMU Konuk Aracı iletişimini etkinleştirir. Bu Sanal Makine içindeki Konuk Aracını başlatmaz."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:275
@@ -8972,9 +8697,7 @@ msgid "virtio-scsi Queues"
 msgstr "virtio-scsi Sıraları"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:276
-msgid ""
-"Number of vCPU queues to use in the virtio-scsi controller. Leave blank to "
-"use the default value."
+msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value."
 msgstr "Virtio-scsi denetleyicisinde kullanılacak vCPU sıralarının sayısı. Varsayılan değeri kullanmak için boş bırakın."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:300
@@ -8982,10 +8705,7 @@ msgid "Iothreads"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:301
-msgid ""
-"Number of iothreads for virtio disks. By default threads will be assign to "
-"disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD"
-" attribute."
+msgid "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
@@ -9005,9 +8725,7 @@ msgid "Select Clusters "
 msgstr "Kümeleri Seç"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "Bu Sanal Makineyi çalıştırmak için uygun makinelerin listesinden ana makine sağlanmasını önleyen boolean ifadesi"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
@@ -9035,9 +8753,7 @@ msgid "Maximize the resources available to VMs in a Host"
 msgstr "Bir Makinedeki Sanal Makineler için mevcut kaynakları en üst düzeye çıkarın"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "Bu alan, bu Sanal Makine için uygun barındırıcıları sıralamak için hangi niteliğin kullanılacağını ayarlar"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
@@ -9045,19 +8761,15 @@ msgid "Datastore Rank"
 msgstr "Veri Deposu Sıralaması"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
-msgid ""
-"Tries to optimize storage usage by selecting the DS with less free space"
+msgid "Tries to optimize storage usage by selecting the DS with less free space"
 msgstr "Daha az boş alanla veri deposunu seçerek depolama alanı kullanımını optimize etmeye çalışır"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
-msgid ""
-"Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
 msgstr "Bölüştürme. Sanal Makineleri veri depoları boyunca dağıtarak Girdi/Çıktı'yı optimize etmeye çalışır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
-msgid ""
-"This field sets which attribute will be used to sort the suitable datastores"
-" for this VM"
+msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
 msgstr "Bu alan, bu Sanal Makine için hangi niteliğin uygun veri depolarını kullanıp sıralamak için ayarlanır."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:22
@@ -9315,8 +9027,7 @@ msgid "Private SSH Key"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:121
-msgid ""
-"You can provide a Private SSH Key for this User clicking on the edit button"
+msgid "You can provide a Private SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:132
@@ -9324,9 +9035,7 @@ msgid "Private SSH Key Passphrase"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:147
-msgid ""
-"You can provide a Private SSH Key Passphrase for this User clicking on the "
-"edit button"
+msgid "You can provide a Private SSH Key Passphrase for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
@@ -9362,9 +9071,7 @@ msgid "Clone Security Group"
 msgstr "Klon Güvenlik Grubu"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several security groups are selected, please choose a prefix to name the new"
-" copies"
+msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr "Birkaç güvenlik grubu seçildi, lütfen yeni kopyaları adlandırmak için bir önek seçin"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
@@ -9420,9 +9127,7 @@ msgid "Port Range"
 msgstr "Port Aralığı"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
-msgid ""
-"VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to "
-"be updated with the latest rules:"
+msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
@@ -9489,3 +9194,6 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
 msgstr "Rollerin Benzeşmesi"
+
+#~ msgid "VCPU"
+#~ msgstr "VCPU"
