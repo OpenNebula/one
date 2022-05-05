@@ -39,7 +39,7 @@ inputs:
   - name: 'aws_root_size'
     type: text
     description: 'AWS instance root volume size, in GB'
-    default: '100'
+    default: '512'
 
   - name: 'aws_instance_type'
     type: text
