@@ -1,11 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2018, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
-# 
+#
 # Translators:
 # Jan Benadik <jan.benadik@atos.net>, 2013
 # Ján Beňadik <>, 2012
-# Jan Benadik <jan.benadik@atos.net>, 2013-2021
+# Jan Benadik <jan.benadik@atos.net>, 2013-2022
 # Martin Martin <spam@profihost.sk>, 2019
 # micromanc3r <micromanc3r@gmail.com>, 2012
 msgid ""
@@ -13,13 +13,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-25 13:37+0200\n"
-"PO-Revision-Date: 2021-10-25 14:44+0000\n"
-"Last-Translator: Jan Benadik <jan.benadik@atos.net>\n"
+"PO-Revision-Date: 2012-05-30 07:14+0000\n"
+"Last-Translator: Jan Benadik <jan.benadik@atos.net>, 2013-2022\n"
 "Language-Team: Slovak (Slovakia) (http://www.transifex.com/opennebula/one/language/sk_SK/)\n"
+"Language: sk_SK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sk_SK\n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
 
 #: ../app/app.js:152 ../app/app.js:155 ../app/tabs/acls-tab/datatable.js:225
@@ -249,8 +249,7 @@ msgid "VMs"
 msgstr "Virtuálne stroje"
 
 #: ../app/utils/quotas/quota-widgets.js:155
-#: ../app/tabs/groups-tab/datatable.js:73
-#: ../app/tabs/users-tab/datatable.js:79
+#: ../app/tabs/groups-tab/datatable.js:73 ../app/tabs/users-tab/datatable.js:79
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:82
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:48
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:49
@@ -263,8 +262,7 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/utils/quotas/quota-widgets.js:203
-#: ../app/tabs/groups-tab/datatable.js:72
-#: ../app/tabs/users-tab/datatable.js:78
+#: ../app/tabs/groups-tab/datatable.js:72 ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/provision-tab/vms/info.hbs:168
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:172
@@ -412,9 +410,9 @@ msgstr "Obrazy"
 msgid "Size"
 msgstr "Veľkosť"
 
-#: ../app/utils/quotas/quota-widgets.js:730
-#: ../app/utils/vcenter/networks.js:91 ../app/utils/user-inputs.js:317
-#: ../app/tabs/network-top-tab.js:23 ../app/tabs/vms-tab/panels/network.js:67
+#: ../app/utils/quotas/quota-widgets.js:730 ../app/utils/vcenter/networks.js:91
+#: ../app/utils/user-inputs.js:317 ../app/tabs/network-top-tab.js:23
+#: ../app/tabs/vms-tab/panels/network.js:67
 #: ../app/tabs/vms-tab/panels/network.js:96
 #: ../app/tabs/vms-tab/panels/network.js:489
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
@@ -912,51 +910,40 @@ msgstr "Neautorizované"
 msgid "Hour"
 msgstr "Hodina"
 
-#: ../app/utils/schedule_action.js:306
-#: ../app/utils/schedule_action/html.hbs:86
+#: ../app/utils/schedule_action.js:306 ../app/utils/schedule_action/html.hbs:86
 msgid "Mo"
 msgstr "Po"
 
-#: ../app/utils/schedule_action.js:307
-#: ../app/utils/schedule_action/html.hbs:88
+#: ../app/utils/schedule_action.js:307 ../app/utils/schedule_action/html.hbs:88
 msgid "Tu"
 msgstr "Ut"
 
-#: ../app/utils/schedule_action.js:308
-#: ../app/utils/schedule_action/html.hbs:90
+#: ../app/utils/schedule_action.js:308 ../app/utils/schedule_action/html.hbs:90
 msgid "We"
 msgstr "St"
 
-#: ../app/utils/schedule_action.js:309
-#: ../app/utils/schedule_action/html.hbs:92
+#: ../app/utils/schedule_action.js:309 ../app/utils/schedule_action/html.hbs:92
 msgid "Th"
 msgstr "Št"
 
-#: ../app/utils/schedule_action.js:310
-#: ../app/utils/schedule_action/html.hbs:94
+#: ../app/utils/schedule_action.js:310 ../app/utils/schedule_action/html.hbs:94
 msgid "Fr"
 msgstr "Pi"
 
-#: ../app/utils/schedule_action.js:311
-#: ../app/utils/schedule_action/html.hbs:96
+#: ../app/utils/schedule_action.js:311 ../app/utils/schedule_action/html.hbs:96
 msgid "Sa"
 msgstr "So"
 
-#: ../app/utils/schedule_action.js:312
-#: ../app/utils/schedule_action/html.hbs:98
+#: ../app/utils/schedule_action.js:312 ../app/utils/schedule_action/html.hbs:98
 msgid "Su"
 msgstr "Ne"
 
 #: ../app/utils/schedule_action.js:317
-msgid ""
-"Comma separated list of days of the month to repeat the action on. Ex: "
-"1,15,25 repeats the action every first, 15th and 25th day of the month"
+msgid "Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month"
 msgstr "Čiarkou oddelený zoznam dní v mesiaci pre opakovanie udalosti. Napr. 1, 15, 25 znamená opakovanie udalosti každý prvý, 15-ty a 25-ty deň v mesiaci."
 
 #: ../app/utils/schedule_action.js:321
-msgid ""
-"Comma separated list of days of the year to repeat the action on. Ex: "
-"1,30,330 repeats the action every first, 30th and 330th day of the year"
+msgid "Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year"
 msgstr "Čiarkou oddelený zoznam dní v roku pre opakovanie udalosti. Napr. 1, 30, 330 zopakuje udalosť každý prvý, 30-ty s 330-ty deň v roku."
 
 #: ../app/utils/schedule_action.js:325 ../app/utils/schedule_action.js:858
@@ -967,23 +954,19 @@ msgstr "Každý"
 msgid "hours"
 msgstr "hodín"
 
-#: ../app/utils/schedule_action.js:809
-#: ../app/utils/schedule_action/html.hbs:48
+#: ../app/utils/schedule_action.js:809 ../app/utils/schedule_action/html.hbs:48
 msgid "Years"
 msgstr "Roky (-ov)"
 
-#: ../app/utils/schedule_action.js:812
-#: ../app/utils/schedule_action/html.hbs:49
+#: ../app/utils/schedule_action.js:812 ../app/utils/schedule_action/html.hbs:49
 msgid "Months"
 msgstr "Mesiace (-ov)"
 
-#: ../app/utils/schedule_action.js:815
-#: ../app/utils/schedule_action/html.hbs:50
+#: ../app/utils/schedule_action.js:815 ../app/utils/schedule_action/html.hbs:50
 msgid "Weeks"
 msgstr "Týždne (-ov)"
 
-#: ../app/utils/schedule_action.js:818
-#: ../app/utils/schedule_action/html.hbs:51
+#: ../app/utils/schedule_action.js:818 ../app/utils/schedule_action/html.hbs:51
 msgid "Days"
 msgstr "Dni (-í)"
 
@@ -992,23 +975,19 @@ msgstr "Dni (-í)"
 msgid "Hours"
 msgstr "Hodiny"
 
-#: ../app/utils/schedule_action.js:824
-#: ../app/utils/schedule_action/html.hbs:53
+#: ../app/utils/schedule_action.js:824 ../app/utils/schedule_action/html.hbs:53
 msgid "Minutes"
 msgstr "Minúty"
 
-#: ../app/utils/schedule_action.js:843
-#: ../app/utils/schedule_action/html.hbs:77
+#: ../app/utils/schedule_action.js:843 ../app/utils/schedule_action/html.hbs:77
 msgid "Weekly"
 msgstr "Týždenne"
 
-#: ../app/utils/schedule_action.js:848
-#: ../app/utils/schedule_action/html.hbs:78
+#: ../app/utils/schedule_action.js:848 ../app/utils/schedule_action/html.hbs:78
 msgid "Monthly"
 msgstr "Mesačne"
 
-#: ../app/utils/schedule_action.js:853
-#: ../app/utils/schedule_action/html.hbs:79
+#: ../app/utils/schedule_action.js:853 ../app/utils/schedule_action/html.hbs:79
 msgid "Yearly"
 msgstr "Ročne"
 
@@ -1178,15 +1157,11 @@ msgid "DISK"
 msgstr "Disk"
 
 #: ../app/utils/disks-resize.js:165
-msgid ""
-"Persistent image. The changes will be saved back to the datastore after the "
-"VM is terminated (ie goes into DONE state)"
+msgid "Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)"
 msgstr "Perzistentný obraz. Po zastavení VM budú zmeny uložené do dátového skladu (napr. pri prechode do stavu DONE)."
 
 #: ../app/utils/disks-resize.js:169
-msgid ""
-"Non-persistent disk. The changes will be lost once the VM is terminated (ie "
-"goes into DONE state)"
+msgid "Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)"
 msgstr "Neperzistentný disk. Po zastavení VM sa zmeny neuložia (napr. pri prechode do stavu DONE)."
 
 #: ../app/utils/disks-resize.js:177
@@ -1764,8 +1739,7 @@ msgstr "Inštancie"
 msgid "Hosts"
 msgstr "Hosty"
 
-#: ../app/tabs/hosts-tab.js:53
-#: ../app/tabs/vms-tab/utils/datatable-common.js:38
+#: ../app/tabs/hosts-tab.js:53 ../app/tabs/vms-tab/utils/datatable-common.js:38
 #: ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/vms-tab/datatable/search.hbs:39
 #: ../app/tabs/vms-tab/panels/info/html.hbs:61
@@ -2025,9 +1999,7 @@ msgid "The template"
 msgstr "Šablóna"
 
 #: ../app/tabs/provision-tab/templates/list.js:327
-msgid ""
-"and the image associated will be shared and all the users will be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "a pripojený obraz bude zdieľaný - všetci užívatelia budú schopní spustiť inštanciu nového VS s použitím tejto šablóny"
 
 #: ../app/tabs/provision-tab/templates/list.js:331
@@ -2035,9 +2007,7 @@ msgid "Share template"
 msgstr "Zdieľaj šablónu"
 
 #: ../app/tabs/provision-tab/templates/list.js:375
-msgid ""
-"and the image associated will be unshared and the users will not be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "a pripojený obraz prestane byť zdieľaný - žiadny užívateľ nebude schopný spustiť inštanciu nového VS s použitím tejto šablóny"
 
 #: ../app/tabs/provision-tab/templates/list.js:379
@@ -2099,9 +2069,7 @@ msgid "saved successfully"
 msgstr "Úspešne uložené"
 
 #: ../app/tabs/provision-tab/vms/list.js:588
-msgid ""
-"VM cloning in the background. The Template will appear as soon as it is "
-"ready, and the VM unlocked."
+msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr "Klonovanie VS na pozadí. Šablóna sa objaví akonáhle bude pripravená a VS bude odomknutý."
 
 #: ../app/tabs/provision-tab/vms/list.js:961
@@ -2125,8 +2093,7 @@ msgstr "Žiadne služby"
 msgid "Change Cardinality"
 msgstr "Zmeň kardinalitu"
 
-#: ../app/tabs/provision-tab/flows/list.js:457
-#: ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:457 ../app/tabs/provision-tab.js:121
 msgid "The cardinality for this role cannot be changed"
 msgstr "kardinalita pre túto rolu nemôže byť zmenená"
 
@@ -2136,8 +2103,7 @@ msgstr "kardinalita pre túto rolu nemôže byť zmenená"
 msgid "Dismiss Alert"
 msgstr "Ignoruj výstrahu"
 
-#: ../app/tabs/provision-tab/flows/list.js:473
-#: ../app/tabs/provision-tab.js:143
+#: ../app/tabs/provision-tab/flows/list.js:473 ../app/tabs/provision-tab.js:143
 msgid "Number of VMs for Role"
 msgstr "Počet VS na rolu"
 
@@ -2201,8 +2167,8 @@ msgid "Driver"
 msgstr "Ovládač"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:91
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#: ../app/tabs/zones-tab.js:45 ../app/tabs/acls-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:101 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:70
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
@@ -2297,8 +2263,7 @@ msgid "Storage bridge list"
 msgstr "Zoznam storage bridges"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:64
-msgid ""
-"Comma separated list of servers to access the image directory if not local"
+msgid "Comma separated list of servers to access the image directory if not local"
 msgstr "Čiarkou oddelený zoznam serverov s prístupom ku adresáru obrazov, pokiaľ nie je lokálny"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:69
@@ -2330,9 +2295,7 @@ msgid "Signature Version"
 msgstr "Verzia podpisu"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:96
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 's3'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
 msgstr "Nechaj prázdne pre Amazon S3 službu. Ak sa pripájaš ku Ceph S3, musí byť vyplnené 's3'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:107
@@ -2340,9 +2303,7 @@ msgid "Force Path Style"
 msgstr "Force Path Style"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:108
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 'YES'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."
 msgstr "Nechaj prázdne pre Amazon S3 službu. Ak sa pripájaš ku Ceph S3, musí byť vyplnené 'YES'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:113
@@ -2350,9 +2311,7 @@ msgid "Read block length in MB"
 msgstr "Dĺžka bloku na čítanie v MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:114
-msgid ""
-"Split marketapps into chunks of this size (in MB). You should **never** user"
-" a quantity larger than 100. Defaults to 32 (MB)."
+msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
 msgstr "Rozdeľ trhovisko na časti s touto veľkosťou (v MB). Nemal by si nikdy prekročiť počet 100. Štandardne je 32MB."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:125
@@ -2463,8 +2422,7 @@ msgstr "Vybral si tieto úložiská:"
 msgid "Import"
 msgstr "Importuj"
 
-#: ../app/tabs/datastores-tab/buttons.js:42
-#: ../app/tabs/hosts-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:42 ../app/tabs/hosts-tab/buttons.js:32
 #: ../app/tabs/vnets-templates-tab/buttons.js:44
 msgid "Select cluster"
 msgstr "Vyber cluster"
@@ -2627,15 +2585,11 @@ msgid "Update Group"
 msgstr "Aktualizácia skupiny"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
-msgid ""
-"Exposes a complete view of the cloud, allowing administrators and advanced "
-"users full control of any physical or virtual resource."
+msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
 msgstr "Poskytuje úplný pohľad na cloud, ktorý umožňuje správcovi a pokročilým používateľom plnú kontrolu nad všetkými fyzickými a virtuálnymi zdrojmi cloudu."
 
 #: ../app/tabs/groups-tab/utils/views.js:27
-msgid ""
-"Simplified version of the cloud allowing group admins and cloud end-users to"
-" manage any virtual resource."
+msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
 msgstr "Zjednodušená verzia cloudu, umožňujúca skupine administrátorov a koncových používateľov cloudu manažovať ľubovoľné virtuálne zdroje."
 
 #: ../app/tabs/groups-tab/utils/views.js:39
@@ -2643,21 +2597,15 @@ msgid "Full control of the cloud, including virtual and physical resources."
 msgstr "Úplné ovládanie cloudu, vrátane virtuálnych a fyzických zdrojov."
 
 #: ../app/tabs/groups-tab/utils/views.js:45
-msgid ""
-"Users are not able to manage hosts and clusters, although they will be able "
-"to create new Images or Virtual Machines."
+msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
 msgstr "Používatelia nie sú schopní manažovať hosty a clustre, hoci budú schopní vytvárať nové obrazy a virtuálne stroje."
 
 #: ../app/tabs/groups-tab/utils/views.js:51
-msgid ""
-"Control of all the resources belonging to a group, with the ability to "
-"create new users within the group."
+msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
 msgstr "Riadenie všetkých zdrojov prislúchajúcich skupine, so schopnosťou  vytvárať nových používateľovv rámci skupiny."
 
 #: ../app/tabs/groups-tab/utils/views.js:57
-msgid ""
-"Simplified view mainly where users can provision new Virtual Machines easily"
-" from pre-defined Templates."
+msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
 msgstr "Zjednodušený pohľad, kde používatelia môžu vytvárať nové virtuálne stroje z preddefinovaných šablón."
 
 #: ../app/tabs/groups-tab/panels/accounting.js:39
@@ -2768,9 +2716,7 @@ msgstr "Vytvor APP trhovisko z VS"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
 #: ../app/tabs/vms-tab/actions.js:458
-msgid ""
-"Import error: Can't import vCenter VMs to a marketplace, only vCenter VM "
-"templates."
+msgid "Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates."
 msgstr "Chyba importu: nie je možné importovať do trhoviska vCenter VS, ale iba šablóny vCenter VS"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
@@ -2804,9 +2750,7 @@ msgid "This MarketPlace App resides in Zone "
 msgstr "Táto APP trhoviska je v zóne"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:189
-msgid ""
-". To delete it you need to switch to that Zone from the zone selector in the"
-" top-right corner."
+msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr ". Pre vymazanie sa potrebuješ najprv prepnúť do Zóny prostredníctvom výberu v pravom hornom rohu"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:192
@@ -2990,17 +2934,7 @@ msgid "delete-db"
 msgstr "Zmazať DB"
 
 #: ../app/tabs/vms-tab/buttons.js:192
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation."
-"                     The recovery may be done by failing, succeeding or "
-"retrying the current operation.                     YOU NEED TO MANUALLY "
-"CHECK THE VM STATUS ON THE HOST, to decide if the operation"
-"                     was successful or not, or if it can be retried."
-"                    <br/>                    <br/>Delete: This will delete "
-"the selected VMs                    <br/>Delete-recreate: This will delete "
-"and recreate VMs to PENDING state                    <br/>Delete-db: This "
-"will delete the selected VMs, but will not perform any action on the "
-"hypervisor"
+msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
 msgstr "Obnoví zaseknutý VS, ktorý čaká na odozvu z ovládača. Obnovu je možné vykonať neúspešným, úspešným alebo opakovaným pokusom o aktuálnu operáciu. JE POTREBNÉ MANUÁLNE SKONTROLOVAŤ STAV VS NA HOSTE pre posúdenie, či operácia prebehla úspešne., alebo ju treba zopakovať. <br/> <br/>Zmaž: Zmaže vybraté VS <br/>Zmaž-Obnov: Zmaže a obnoví VS do stavu ČAKÁM <br/>Zmaž-db: Zmaže vybraté VS, ale nevykoná žiadne operácie na úrovni hypervízora"
 
 #: ../app/tabs/vms-tab/buttons.js:205 ../app/tabs/vms-tab/buttons.js:229
@@ -3431,8 +3365,7 @@ msgstr "Skupiny"
 msgid "RVMs"
 msgstr "RVMs"
 
-#: ../app/tabs/hosts-tab/datatable.js:84
-#: ../app/tabs/hosts-tab/datatable.js:233
+#: ../app/tabs/hosts-tab/datatable.js:84 ../app/tabs/hosts-tab/datatable.js:233
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "Alokovaný CPU"
@@ -4192,9 +4125,7 @@ msgid "Role "
 msgstr "Rola"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:55
-msgid ""
-"This will delete the Service.<br/>You can also delete the template or the "
-"template and image referenced inside this Service."
+msgid "This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."
 msgstr "Týmto vymažes službu. Môžeš tiež zmazať šablónu, alebo šablónu aj s obrazom, na ktoré služba odkazuje."
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
@@ -4307,9 +4238,7 @@ msgid "Purge done"
 msgstr "Čistenie ukončené"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
-msgid ""
-"This will delete all services in DONE state to free some space in your "
-"database"
+msgid "This will delete all services in DONE state to free some space in your database"
 msgstr "Slúži pre vymazanie UKONČENÝCH služieb na uvoľnenie priestoru v databáze"
 
 #: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
@@ -4386,9 +4315,7 @@ msgid "Virtual Data Center"
 msgstr "Virtuálne dátové centrum"
 
 #: ../app/tabs/templates-tab/actions-common.js:55
-msgid ""
-"This will delete the Template.<br/>You can also delete any Image referenced "
-"inside this Template"
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr "Týmto zmažeš šablónu. Môžeš tiež zmazať všetky obrazy odkazované  touto šablónou."
 
 #: ../app/tabs/templates-tab/actions-common.js:58
@@ -4396,15 +4323,11 @@ msgid "Delete all images"
 msgstr "Vymaž všetky obrazy"
 
 #: ../app/tabs/templates-tab/buttons.js:77
-msgid ""
-"The template, along with any image referenced by it, will be shared with the"
-" group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
 msgstr "Šablóna, spoločne s akýmkoľvek obrazom, na ktorý odkazuje, bude zdieľaná s používateľmi skupiny. Oprávnenie zmenené: GROUP USE"
 
 #: ../app/tabs/templates-tab/buttons.js:83
-msgid ""
-"The template, along with any image referenced by it, will be unshared with "
-"the group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr "Šablóna, spoločne s akýmkoľvek obrazom, na ktorý odkazuje, nebude zdieľaná s používateľmi skupiny. Oprávnenie zmenené: GROUP USE"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:69
@@ -4566,9 +4489,7 @@ msgid "Change primary group"
 msgstr "Zmeň primárnu skupinu"
 
 #: ../app/tabs/users-tab/buttons.js:35
-msgid ""
-"This will change the primary group of the selected users. Select the new "
-"group"
+msgid "This will change the primary group of the selected users. Select the new group"
 msgstr "Týmto zmeníš primárnu skupinu pre vybratých používateľov. Vyber novú skupinu."
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
@@ -4690,11 +4611,7 @@ msgid "Security Group created"
 msgstr "Security skupina bola vytvorená"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
-msgid ""
-"Please note: each time the rules are edited, the commit operation is done "
-"automatically. <br/><br/>This action will force the propagation of security "
-"group changes to VMs. The operation takes time to iterate over all VMs in "
-"the security group, the progress can be checked in the \"VMs\" panel."
+msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr "Zober na vedomie: po každej editácii pravidla je vždy automaticky vykonaný commit. Týmto je vynútené šírenie zmien skupinového zabezpečenia do virtuálnych strojov. Vykonanie operácie pre všetky virtuálne stroje zaberie určitý čas - progres možno skontrolovať na \"VS\" paneli."
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
@@ -4901,17 +4818,11 @@ msgid "Host Overcommitment"
 msgstr "Prebookovanie hosta"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
-msgid ""
-"Prior to assigning a VM to a Host, the available capacity is checked to "
-"ensure that the VM fits in the host. The capacity is obtained by the monitor"
-" probes. You may alter this behaviour by reserving an amount of capacity. "
-"You can reserve this capacity:"
+msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
 msgstr "Pred pridelením virtuálneho stroja hostu je najprv skontrolovaná jeho dostupná kapacita prostredníctvom monitorovacej sonndy. Toto správanie môžeš ovplyvniť rexzervovaním určitej kapacity. Môžeš rezervovať túto kapacitu:"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:33
-msgid ""
-"Cluster-wise. All the hosts of the cluster will reserve the same amount of "
-"capacity."
+msgid "Cluster-wise. All the hosts of the cluster will reserve the same amount of capacity."
 msgstr "Cluster-wise. Všetky hosty v clustri si budú rezervovať rovnakú kapacitu."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:34
@@ -4919,9 +4830,7 @@ msgid "Host-wise. This value will override those defined at cluster level."
 msgstr "Host-wise. Táto hodnota prepíše hodnotu definovanú na úrovni clustra."
 
 #: ../app/utils/dialogs/overcommit/html.hbs:38
-msgid ""
-"These values can be negative, in that case you'll be actually increasing the"
-" overall capacity so overcommitting host capacity."
+msgid "These values can be negative, in that case you'll be actually increasing the overall capacity so overcommitting host capacity."
 msgstr "Tieto hodnoty môžu byť záporné - v takom prípade budeš zvyšovať celkovú kapacitu, čiže prekračovať kapacitu hosta"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -4934,9 +4843,7 @@ msgid "Reserved Memory in KB"
 msgstr "Rezervovaná RAM v kB"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
-msgid ""
-"The values will overwrite the monitoring values in the next monitorization "
-"cycle"
+msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Hodnoty prepíšu hodnoty z monitoringu v ďalšom monitovacom cykle"
 
 #: ../app/utils/panel/ec2-tr/html.hbs:2
@@ -5027,11 +4934,7 @@ msgid "vCenter VM Folder"
 msgstr "Adresár vCenter VS"
 
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
-msgid ""
-"If specified, the VMs and Template folder path where the VM will be created "
-"inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Cesta ku adresáru s virtuálnymi strojmi a šablónami, kde budú vo vnútri dátového centra vytvárané virtuálne stroje. Cesta je oddeľovaná prostredníctvom lomítok, napr. /Management/VMs. Ak nie je nastavená, virtuálne stroje budú ukladané v tom istom adresári, kde sa nachádza šablóna. "
 
 #: ../app/utils/showback/html.hbs:19
@@ -5359,12 +5262,13 @@ msgstr "NIC má alias"
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:40
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:46
 msgid "External"
-msgstr "Externé"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:55
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:47
+#, fuzzy
 msgid "The NIC will be attached as an external alias of the VM"
-msgstr "Sieťový adaptér bude pripojený k VS ako externý alias"
+msgstr "NIC bude pripojený ako alias"
 
 #: ../app/utils/nics-section/dd.hbs:62
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
@@ -5439,9 +5343,7 @@ msgstr "Výraz"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:110
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
-msgid ""
-"Boolean expression that rules out entries from the pool of datastores "
-"suitable to run this VM."
+msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
 msgstr "Logický výraz, ktorý vylúči pre beh tohto virtuálneho stroja nevhodné položky z fondu úložísk"
 
 #: ../app/utils/nics-section/dd.hbs:138
@@ -5475,9 +5377,7 @@ msgstr "Rozlož virtuálne stroje do vnet-ov"
 
 #: ../app/utils/nics-section/dd.hbs:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:138
-msgid ""
-"This field sets which attribute will be used to sort the suitable vnets for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable vnets for this VM"
 msgstr "Toto pole nastavuje ktorý atribút bude použitý pre zoradenie vhodných vnet-ov pre tento VS"
 
 #: ../app/utils/nics-section/dd.hbs:174
@@ -5494,9 +5394,7 @@ msgid "Floating IP"
 msgstr "Plávajúca IP"
 
 #: ../app/utils/nics-section/dd.hbs:192
-msgid ""
-"If checked, each Virtual Machine will have a floating IP added to its "
-"network interface."
+msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "Pokiaľ je zaškrtnuté, každý virtuálny stroj bude mať pridelenú jeho sieťovému adaptéru plávajúcu IP "
 
 #: ../app/utils/nics-section/dd.hbs:201
@@ -5505,9 +5403,7 @@ msgid "Management Interface"
 msgstr "Rozhranie pre manažment"
 
 #: ../app/utils/nics-section/dd.hbs:203
-msgid ""
-"If checked, this network interface will be a Virtual Router management "
-"interface. Traffic will not be forwarded."
+msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "Pokiaľ je zaškrtnuté, tento sieťový adaptér bude manažovaným adaptérom virtuálneho routra. Traffic nebude forwardovaný."
 
 #: ../app/utils/nics-section/dd.hbs:213
@@ -5515,10 +5411,7 @@ msgid "Force IPv6:"
 msgstr "Vynútenie IPv6:"
 
 #: ../app/utils/nics-section/dd.hbs:231
-msgid ""
-"You can add Security Groups to this network interface. These IDs do not "
-"overwrite the ones defined in the Virtual Network. All the Security Group "
-"IDs are combined, and applied to the Virtual Machine instance."
+msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Môžeš pridať Security skupinu danému sieťovému adaptéru. Toto ID neprepíše ID definované vo virtuálnej sieti. Všetky ID security skupín sú kombinované a aplikované inštancii virtuálneho stroja."
 
 #: ../app/sunstone/buttons.hbs:27
@@ -5730,11 +5623,7 @@ msgid "This action will reboot this Virtual Machine."
 msgstr "Vykoná reboot virtuálneho stroja"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-msgid ""
-"You can send the reboot signal to the Virtual Machine (this is equivalent to"
-" execute the reboot command form the console). If that doesn't affect your "
-"Virtual Machine, try to Reboot the machine (this is equivalent to pressing "
-"the reset button a physical computer)."
+msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
 msgstr "Môžeš odoslať signál reboot virtuálnemu stroju (je to ekvivalent odoslania príkazu reboot z konzoly). Ak to na virtuálny stroj nemá efekt, skús reštartovať virtuálny stroj (toto je ekvivalent stlačenia Reset vypínača na fyzickom serveri)."
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
@@ -5746,18 +5635,12 @@ msgid "Send the reboot signal"
 msgstr "Pošli signál pre reboot"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
-msgid ""
-"This action will power off this Virtual Machine. The Virtual Machine will "
-"remain in the poweroff state, and can be powered on later"
+msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
 msgstr "Týmto vypneš tento virtuálny stroj. Ostane v stave power-off a môže byť neskôr zanutý."
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
-msgid ""
-"You can send the power off signal to the Virtual Machine (this is equivalent"
-" to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to Power off the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "Môžeš odoslať signál pre vypnutie VS (toto je ekvivalent vykonania príkazu z konzoly). Ak to nemá vplyv na Tvoj VS, skús ho vypnúť (toto je ekvivalent stlačenia tlačidla PowerOff na fyzickom počítači)."
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
@@ -5819,11 +5702,7 @@ msgid "Template Description"
 msgstr "Popis šablóny"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
-msgid ""
-"The new Virtual Machine's disks can be made persistent. In a persistent "
-"Virtual Machine the changes made survive after it is destroyed. On the other"
-" hand, you cannot create more than one simultaneous Virtual Machine from a "
-"Template with persistent disks."
+msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
 msgstr "Disky nových virtuálnych strojov môžu byť perzistentné. V takom prípade sa zmeny zachovajú aj po zrušení virtuálneho stroja. Na druhej strane - nie je možné vytvoriť viac ako jeden virtuálny stroj zo šablóny s perzistentnými diskami."
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
@@ -5840,9 +5719,7 @@ msgstr "Meno virtuálneho stroja"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:42
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
-msgid ""
-"Creates a private persistent copy of the template plus any image defined in "
-"DISK, and instantiates that copy"
+msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr "Vytvorí privátnu perzistentnú kópiu šablóny spolu so všetkými obrazmi definovanými v DISK a spustí ju ako inštanciu"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:158
@@ -5863,9 +5740,7 @@ msgid "Select the devices to boot from, and their order"
 msgstr "Vyber zariadenia a poradie bootovania"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-msgid ""
-"This action will power off this Virtual Machine and will be undeployed from "
-"the physical machine"
+msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
 msgstr "Tento krok vypne virtuálny stroj a zruší jeho nasadenie z fyzického servera"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
@@ -5890,11 +5765,7 @@ msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
 msgstr "OPATRNE - táto operácia okamžite zastaví a zmaže Tvoj virtuálny stroj!"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-msgid ""
-"You can send the shutdown signal to the Virtual Machine (this is equivalent "
-"to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to terminate the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "Môžeš odoslať signál pre vypnutie VS (toto je ekvivalent vykonania príkazu z konzoly). Ak to nemá vplyv na bez Tvojho VS, skús vypnúť VS (toto je ekvivalent stlačenia tlačidla PowerOff na fyzickom počítači)."
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
@@ -6060,9 +5931,7 @@ msgid "Transfer bandwidth limit (B/s)"
 msgstr "Limit prenosového pásma (B/s)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
-msgid ""
-"Specify the maximum transfer rate in bytes/second when downloading images "
-"from a http/https URL. Suffixes K, M or G can be used."
+msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
 msgstr "Nastav ohraničenie - maximálnu priepustnosť pre download obrazov v bytoch / sekundu z http/https URL. Prípony K, M, alebo G sú povolené."
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
@@ -6078,8 +5947,7 @@ msgid "Host bridge list"
 msgstr "Zoznam host bridge"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Space separated list of servers to add new Images to the Datastore storage"
+msgid "Space separated list of servers to add new Images to the Datastore storage"
 msgstr "Čiarkou oddelený zoznam serverov pre pridanie nových obrazov do úložiska"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
@@ -6167,8 +6035,7 @@ msgid "Compatible system datastores"
 msgstr "Kompatibilné systémové dátové úložiská"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
-msgid ""
-"Specifies which system datastores are compatible with this image datastore"
+msgid "Specifies which system datastores are compatible with this image datastore"
 msgstr "Špecifikuje, ktoré systémové úložisko je kompatibilné s úložiskom obrazov"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
@@ -6279,9 +6146,7 @@ msgstr "Prihlasovací token"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:208
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
-msgid ""
-"A login token acts as a password and can be used to authenticate with "
-"OpenNebula through Sunstone, the CLI, or the API"
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
 msgstr "Prihlasovací token nahrádza heslo a môže byť použitý na autentifikáciu do OpenNebuly prostredníctvom Sunstone, CLI, alebo API"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:212
@@ -6363,9 +6228,7 @@ msgid "Create an administrator user"
 msgstr "Vytvor užívateľa administrátor"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:135
-msgid ""
-"You can create now an administrator user. More administrators can be added "
-"later."
+msgid "You can create now an administrator user. More administrators can be added later."
 msgstr "Teraz môžeš vytvoriť administrátorský účet. Neskôr môžeš pridať ďalších administrátorov."
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:147
@@ -6377,9 +6240,7 @@ msgid "Make new images persistent by default"
 msgstr "Rob nové obrazy ako perzistentné "
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Control the default value for the PERSISTENT attribute on image creation "
-"(oneimage create)."
+msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
 msgstr "Nastavuje default hodnotu pre PERSISTENT atribút pri vytváraní obrazu (oneimage create)."
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:166
@@ -6390,18 +6251,21 @@ msgstr "Nastaví ulož-ako a klonuj obrazy perzistentne ako default "
 msgid ""
 "Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm\n"
 "              disk-saveas). If blank images will inherit the persistent attribute from the base image."
-msgstr "Riadi deafult hodnotu pre atribút PERSISTENT pri vytváraní obrázka (klon oneimage, onevm\ndisk-saveas). Ak nie je vyplnený, obrázy dediť atribút zo základného obrazu. "
+msgstr ""
+"Riadi deafult hodnotu pre atribút PERSISTENT pri vytváraní obrázka (klon oneimage, onevm\n"
+"disk-saveas). Ak nie je vyplnený, obrázy dediť atribút zo základného obrazu. "
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:187
-msgid ""
-"Allow users to view the VMs and Services of other users in the same group"
+msgid "Allow users to view the VMs and Services of other users in the same group"
 msgstr "Umožni užívateľom prezerať VS a služby iných užívateľov z rovnakej skupiny"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:189
 msgid ""
 "An ACL Rule will be created to give users in this group access to all the resources in the same\n"
 "              group."
-msgstr "Vytvorí sa pravidlo ACL, ktoré umožní používateľom v tejto skupine prístup ku všetkým zdrojom v rovnakej\nskupine. "
+msgstr ""
+"Vytvorí sa pravidlo ACL, ktoré umožní používateľom v tejto skupine prístup ku všetkým zdrojom v rovnakej\n"
+"skupine. "
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:198
 msgid "Allow users in this group to create the following resources"
@@ -6444,9 +6308,7 @@ msgid "VM Template Name"
 msgstr "Meno šablóny VS"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-msgid ""
-"The following template will be created in OpenNebula and the previous images"
-" will be referenced in the disks."
+msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
 msgstr "Nasledujúca šablóna bude vytvorená v OpenNebule a predchádzajúce obrazy budú odkazovať na disky"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:43
@@ -6511,9 +6373,7 @@ msgid "VM template"
 msgstr "Šablóna VS"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:97
-msgid ""
-"VM Template to be created. A DISK element pointing to the App Image will be "
-"automatically added when the App is exported"
+msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
 msgstr "Šablóna virtuálneho stroja bol avytvorená. DISK element ukazujúci na APP obraz bude automaticky pridaný v momente exportu APP"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:103
@@ -6536,15 +6396,11 @@ msgid "Created before"
 msgstr "Vytvorené pred"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
-msgid ""
-"You can provide a template for the resource that will be created in "
-"OpenNebula"
+msgid "You can provide a template for the resource that will be created in OpenNebula"
 msgstr "Môžeš poskytnúť šablónu zdroju, ktorý bude vytvorený v OpenNebule"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
-msgid ""
-"You can provide a VM template associated to the resource that will be "
-"created in OpenNebula"
+msgid "You can provide a VM template associated to the resource that will be created in OpenNebula"
 msgstr "Môžeš poskytnúť šablónu virtuálneho stroja asociovanú zdroju, ktorý bude vytvorený v OpenNebule"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
@@ -6641,10 +6497,7 @@ msgstr "Vyžiadať kontrolu kapacity"
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
-msgid ""
-"If it is set to true, the host capacity will be checked. This will only "
-"affect oneadmin requests, regular users resize requests will always be "
-"enforced"
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "Ak je nastavené, kapacita hosta bude kontrolovaná. Má význam iba pre požiadavky admina, zmenové požiadavky bežného užívateľa budú vždy vynútené."
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
@@ -6807,10 +6660,7 @@ msgid "Secret access key"
 msgstr "Privátny prístupový kľúč"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
-msgid ""
-"The valid list of instance types can be found in the official Amazon EC2 "
-"documentation, please use a value from the Model column of the following "
-"table: aws.amazon.com/ ec2/instance-types/"
+msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
 msgstr "Platný zoznam typov inštancií je možné nájsť v oficiálnej Amazon EC2 dokumentácii, použi hodnoty zo stĺpca Model v nasledujúcej tabuľke: aws.amazon.com/ ec2/instance-types/"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
@@ -6894,8 +6744,7 @@ msgid "Clone Image"
 msgstr "Klonovaný obraz"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several images are selected, please choose a prefix to name the new copies"
+msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr "Bolo vybratých viac obrazov - vyber prefix pre pomenovanie nových kópií"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
@@ -7074,9 +6923,7 @@ msgid "Network Driver (VN_MAD)"
 msgstr "Sieťový ovládač (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:155
-msgid ""
-"Bridged, virtual machine traffic is directly bridged. The Linux bridge is "
-"created in the nodes as needed. No traffic filtering is made."
+msgid "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."
 msgstr "Bridžovaný, prevádzka virtuálneho stroja je priamo bridžovaná. Linux bridge je vytvorený podľa potreby. Bez filtrovania prevádzky."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:158
@@ -7084,38 +6931,27 @@ msgid "Bridged & Security Groups, bridged network with Security Group rules."
 msgstr "Bridged & Security Groups, premostená sieť so skupinovými security pravidlami."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:161
-msgid ""
-"Bridged & ebtables VLAN, restrict network access through ebtables rules. "
-"Security Group rules are applied."
+msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
 msgstr "Bridged & ebtables VLAN, obmedzený sieťový prístup prostredníctvom pravidiel ebtables. Skupinové security pravidlá sú aplikované. "
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:164
-msgid ""
-"802.1Q, restrict network access through VLAN tagging. Security Group rules "
-"are applied."
+msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
 msgstr "802.1Q: obmedzený sieťový prístup prostredníctvom VLAN taggingu. Skupinové bezpečnostné pravidlá sú aplikované."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:167
-msgid ""
-"VXLAN, creates a L2 network overlay, each VLAN has associated a multicast "
-"address in the 239.0.0.0/8 range. Security Group rules are applied."
+msgid "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."
 msgstr "VXLAN: vytvára sieťové L2 prekrytie. Každá VLAN má pridelenú adresu v rozsahu 239.0.0.0/8. Skupinové bezpečnostné pravidlá sú aplikované."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:170
-msgid ""
-"Open vSwitch, restrict network access with Open vSwitch Virtual Switch. "
-"Security Groups are not applied."
+msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."
 msgstr "Open vSwitch: obmedzený sieťový prístup s Open vSwitch virtuálnym prepínačom. Security skupiny nie sú aplikované."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
-msgid ""
-"Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
+msgid "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
 msgstr "Open vSwitch na VXLAN L2 sieti. Security Groups nie sú aplikované."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:176
-msgid ""
-"vSphere standard switches or distributed switches with port groups. Security"
-" Groups are not applied."
+msgid "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."
 msgstr "Štandardné vSphere prepínače alebo distribuované prepínače so skupinami portov. Bezpečnostné skupinu nie sú aplikované."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:179
@@ -7152,9 +6988,7 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr "NIC nódu pre send / receive traffic virtuálnej siete"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
-msgid ""
-"Physical NIC names for uplinks. Use comma to separate values (e.g "
-"vmnic1,vmnic2)"
+msgid "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"
 msgstr "Mená fyzických sieťových adaptérov pre uplinky. Použi čiarku na oddelenie hodnôt (napr. vmnic1,vmnic2)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:233
@@ -7202,14 +7036,12 @@ msgid "OpenNebula's Host ID"
 msgstr "ID Opennebula hosta:"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:298
-msgid ""
-"Address Ranges need to be managed in the individual Virtual Network panel"
+msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr "Rozsahy adries musia byť manažované na paneloch jednotlivých virtuálnych sietí"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:308
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
-msgid ""
-"The default Security Group 0 is automatically added to new Virtual Networks"
+msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr "Základná security grupa 0 je automaticky pridaná do novej virtuálnej siete"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:315
@@ -7242,9 +7074,7 @@ msgid "Outbound traffic"
 msgstr "Odchádzajúca prevádzka"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:363
-msgid ""
-"These values apply to each VM interface individually, they are not global "
-"values for the Virtual Network"
+msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
 msgstr "Tieto hodnoty budú aplikované individiálne na každý interface VS, nie sú globálnymi hodnotami virtuálnej siete"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:372
@@ -7418,8 +7248,7 @@ msgstr "Klonuj šablónu služby"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "Bolo vybratých viac šablón, zvoľ prefix pre meno nových kópií."
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
@@ -7433,9 +7262,7 @@ msgid "Service name"
 msgstr "Meno služby"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
-msgid ""
-"When creating several Services, the wildcard %i will be replaced with a "
-"number starting from 0"
+msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr "Pri vytváraní viac VS naraz budú zástupné znaky %i nahradené pre každý z nich číslom od 0 vyššie."
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
@@ -7474,10 +7301,7 @@ msgstr "Stratégia"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:84
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:78
-msgid ""
-"Straight strategy will instantiate each role in order: parents role will be "
-"deployed before their children. None strategy will instantiate the roles "
-"regardless of their relationships."
+msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
 msgstr "Priama stratégia pre nasadzovanie rolí podľa poradia: rodičovské roly budú nasadené pred ich potomkovskými rolami. Žiadna stratégia nenasadí roly bez ich vzťahov."
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:87
@@ -7501,9 +7325,7 @@ msgstr "Ukonči - natvrdo"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:100
-msgid ""
-"Wait for VMs to report that they are READY via OneGate to consider them "
-"running"
+msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
 msgstr "Počkaj, kým VS nezahlásia stav pripravenosti prostrednáctvom OneGate, pre pre zváženie, že bežia"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:114
@@ -7567,9 +7389,7 @@ msgstr "Sieťové adaptéry"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:64
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:64
-msgid ""
-"This network interface will be configured as an ALIAS in the VM without "
-"context configuration."
+msgid "This network interface will be configured as an ALIAS in the VM without context configuration."
 msgstr "Tento sieťový interface bude nakonfigurovaný ako alias v rámci virtuálneho stroja, bez konfigurácie kontentu"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:56
@@ -7647,9 +7467,7 @@ msgstr "Kardinalita: Nastav kardinalitu na zadané číslo."
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:29
-msgid ""
-"PERCENTAGE_CHANGE: Add/subtract the given percentage to the current "
-"cardinality."
+msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
 msgstr "PERCENTUÁLNA_ZMENA: Pridaj / zniž o dané percento aktuálnu kardinalitu."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
@@ -7694,9 +7512,7 @@ msgstr "Voliteľný parameter pre typ PERCENTAGE:CHANGE"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:37
-msgid ""
-" If present, the policy will change the cardinality by at least the number "
-"of VMs set in this attribute."
+msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Ak je nastavená, politika zmení kardinalitu o najmenej taký počet VS ako je uvedené v tomto atribúte"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
@@ -7711,9 +7527,7 @@ msgstr "Príklad: ATT<20"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:42
-msgid ""
-"Number of periods that the expression must be true before the elasticity is "
-"triggered"
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr "Počet periód, pre ktoré musí byť výraz pravdivý, kým je elasticita spustená"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
@@ -7739,19 +7553,14 @@ msgstr "Naplánované pravidlá"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:36
-msgid ""
-"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
-"policy will change the cardinality by at least the number of VMs set in this"
-" attribute."
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Voliteľný parameter pre PERCENTAGE_CHANGE typ ladenia. Ak je zadaný, politiky zmenia kardinalitu o minimálne počet VS nastavený v tomto parametri."
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:42
-msgid ""
-"Recurrence: Time for recurring adjustments. Time is specified with the Unix "
-"cron syntax"
+msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
 msgstr "Opakovanie: Čas pre naladenie opakovania. Čas je vyjadrený v UNIX cron syntaxi"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
@@ -7866,9 +7675,7 @@ msgid "Clone Template"
 msgstr "Klonované šablóny"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
-msgid ""
-"You can also clone any Image referenced inside this Template. They will be "
-"cloned to a new Image, and made persistent."
+msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr "Môžeš tiež klonovať ľubovoľné obrazy odkazované vo vnútri šablóny. Tieto budú klonované na nový obraz a urobené ako perzistentné."
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
@@ -7908,9 +7715,7 @@ msgid "Instantiate as persistent"
 msgstr "Spusti inštanciu ako perzistantnú"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:43
-msgid ""
-"Defaults to 'template name-<vmid>' when empty. When creating several VMs, "
-"the wildcard %i will be replaced with a number starting from 0"
+msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
 msgstr "Default hodnoty, ak meno šablóny je prázdne. Pri vytváraní viacerých virtuálnych strojov , zástupné znaky %i budú nahradené číslom od 0 vyššie."
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:59
@@ -7919,9 +7724,7 @@ msgid "Start on hold"
 msgstr "Naštartuj do stavu POZASTAVENÝ"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
-msgid ""
-"Sets the new VM to hold state, instead of pending. The scheduler will not "
-"deploy VMs in this state. It can be released later, or deployed manually."
+msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
 msgstr "Nastaví nový VS do stavu POZASTAVENÝ namiesto ČAKÁ. Plánovač nenasadí VS v tomto stave, môže byť neskôr uvoľnený alebo nasadený manuálne."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
@@ -7950,9 +7753,7 @@ msgid "Swap"
 msgstr "Swap"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping."
+msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr "Zariadenie pre namapovanie obrazu disku. Ak je zadané, prepíše defaultné nastavenie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
@@ -7984,9 +7785,7 @@ msgid "Size on instantiate"
 msgstr "Veľkosť pre inštanciu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:98
-msgid ""
-"The size of the disk will be modified to match this size when the template "
-"is instantiated"
+msgid "The size of the disk will be modified to match this size when the template is instantiated"
 msgstr "Veľkosť disku bude zmenená na požadovanú hodnotu v čase spustenia inštancie pomocou tejto šablóny"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
@@ -8054,10 +7853,7 @@ msgid "IOTHREAD id"
 msgstr "IOTHREAD id"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:266
-msgid ""
-"Iothread id used by this disk. Default is round robin. Can be used only if "
-"IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS "
-"value on OS & CPU -> Features."
+msgid "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features."
 msgstr "ID IOTHREAD, ktoré používa tento disk. Predvolená hodnota je round robin. Možno použiť, iba ak IOTHREADS> 0. Ak je tento vstup zakázaný, najskôr nakonfiguruj hodnotu IOTHREADS na OS & CPU -> Vlastnosti. "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:35
@@ -8129,9 +7925,7 @@ msgid "PCI Devices"
 msgstr "PCI zariadenia"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
-msgid ""
-"PCI passthrough of network devices is configured per NIC, in the \"Network\""
-" tab. Do not add network devices here"
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr "PCI passthrough sieťového zariadenia je konfigurované \"per network adaptér\" na záložke \"Sieť\". Nepridávaj siieťové zariadenie tu."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:140
@@ -8240,9 +8034,7 @@ msgid "Only supported for virtio driver."
 msgstr "Podporované len pre virtio ovládače."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:357
-msgid ""
-"Security Groups belonging to the selected Virtual Network will be applied "
-"and cannot be unselected"
+msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
 msgstr "Security Groupy patriace do vybranej virtuálnej siete budú aplikované a nemôžu byť odobrané"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:362
@@ -8274,9 +8066,7 @@ msgid "  Add SSH contextualization"
 msgstr "Pridaj SSH kontextualizáciu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
-msgid ""
-"Add an ssh public key to the context. If the Public Key textarea is empty "
-"then the user variable SSH_PUBLIC_KEY will be used."
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "Pridaj SSH verejný kľúč pre context. Ak je toto pole prázdne, použije sa užívateľská premenná SSH_PUBLIC_KEY."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
@@ -8288,10 +8078,7 @@ msgid "  Add Network contextualization"
 msgstr "Pridaj sieťovú kontextualizáciu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
-msgid ""
-"Add network contextualization parameters. For each NIC defined in the "
-"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
-"the CONTEXT section and will be available in the Virtual Machine"
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "Pridaj parametre pre sieťovú kontextualizáciu. Pre každý sieťový adaptér definovaný v sieťovej sekcii  parametre ETH$i_IP, ETH$i_NAETWORK ... a iné budú zahrnuté v CONTEXT sekcii a dostupné pre VM"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
@@ -8299,9 +8086,7 @@ msgid "  Add OneGate token"
 msgstr "Pridaj OneGate token"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
-msgid ""
-"Add a file (token.txt) to the context containing the token to push custom "
-"metrics to the VirtualMachine through OneGate"
+msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr "Pridaj súbor (token.txt) do kontextu, obsahujúci token pre vtlačenie užívateľskej metriky virtuálneho stroja prostredníctvom OneGate"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
@@ -8317,9 +8102,7 @@ msgid "Start script"
 msgstr "Štartovací skript"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
-msgid ""
-"Text of the script executed when the machine starts up. It can contain "
-"shebang in case it is not shell script"
+msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr "Skript bude vykonaný v čase štartu stroja. Môže obsahovať shebang v prípade, že nejde o shell script"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
@@ -8331,9 +8114,7 @@ msgid "User Inputs"
 msgstr "Užívateľské vstupy"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
-msgid ""
-"These attributes must be provided by the user when a new VM is instantiated."
-" They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr "Tieto atribúty musia byť poskytnuté používateľom v čase spúšťania virtuálneho stroja. Budú zahrnuté do VS context."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
@@ -8345,10 +8126,7 @@ msgid "Init scripts"
 msgstr "Zavádzací script"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
-msgid ""
-"The contextualization package executes an init.sh file if it exists. If more"
-" than one script file is added, this list contains the scripts to run and "
-"their order"
+msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr "Kontextualizačný balík vykoná init.sh skript, pokiaľ tento existuje. Pokiaľ je pridaný viac ako jeden skript, tento zoznam obsahuje skripty a ich poradie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
@@ -8358,17 +8136,13 @@ msgstr "Množstvo RAM výžadované pre beh VS, v MB."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:35
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:141
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr "Percento CPU delené 100, vyžadované virtuálnym strojom. Polovica procesora sa zapisuje ako 0.5"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:189
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:85
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "Počet virtuálnych CPU. Hodnota je voliteľná, pri nevyplnení sa použije defaultná hodnota hypervízora, obyčajne 1 virtuálny CPU."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:29
@@ -8409,11 +8183,7 @@ msgid "Default Resource Pool"
 msgstr "Default fond zdrojov"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:118
-msgid ""
-"If specified, the the VMs and Template folder path where the VM will be "
-"created inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "Cesta ku adresáru s virtuálnymi strojmi a šablónami, kde budú vo vnútri dátového centra vytvárané virtuálne stroje. Cesta je oddeľovaná prostredníctvom lomítok, napr. /Management/VMs. Ak nie je nastavená, virtuálne stroje budú ukladané v tom istom adresári, kde sa nachádza šablóna.  "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:129
@@ -8459,10 +8229,7 @@ msgid "Make this template available for Virtual Router machines only"
 msgstr "Sprístupní šablónu iba pre virtuálne routre"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:234
-msgid ""
-"Virtual Routers create Virtual Machines from a source Template. This "
-"checkbox makes this template available to be selected in the New Virtual "
-"Router wizard"
+msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
 msgstr "Virtuálne routre vytvoria virtuálne stroje zo zdrojovej šablóny. Tento checkbox sprístupní túto šablónu pre možnošť výberu vo wizarde Nový virtuálny router."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:244
@@ -8531,8 +8298,7 @@ msgid "AMI"
 msgstr "AMI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
-msgid ""
-"Unique ID of a machine image, returned by a call to ec2-describe-images."
+msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
 msgstr "Unikátne ID obrazu, vrátené požiadavkou na ec2-describe-images"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
@@ -8557,10 +8323,7 @@ msgid "Block device mapping"
 msgstr "Mapovanie blokového zariadenia"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:36
-msgid ""
-"The block device mapping for the instance. More than one can be specified in"
-" a space-separated list. Check the --block-device-mapping option of the EC2 "
-"CLI Reference for the syntax"
+msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax"
 msgstr "Mapovanie blokového zariadenia pre inštanciu. Specifikované môže byť viac ako jedno v medzerou oddelenom zozname. Pozri  –block-device-mapping voľbu v EC2 CLI Reference pre syntax"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
@@ -8568,9 +8331,7 @@ msgid "Client token"
 msgstr "Token klienta"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
-msgid ""
-"Unique, case-sensitive identifier you provide to ensure idempotency of the "
-"request."
+msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
 msgstr "Unikátny, veľkosť písmen rozlišujúci identifikátor, zaisťujúci \"idempotency\" požiadavky"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
@@ -8586,9 +8347,7 @@ msgid "Elastic IP address"
 msgstr "Pružná IP adresa"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
-msgid ""
-"This parameter is passed to the command ec2-associate-address -i i-0041230 "
-"elasticip."
+msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
 msgstr "Tento parameter je odovzdaný príkazu ec2-associate-address -i i-0041230 elasticip."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
@@ -8604,9 +8363,7 @@ msgid "Keypair name"
 msgstr "Meno kľúčového páru"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:77
-msgid ""
-"The name of the key pair, later will be used to execute commands like ssh -i"
-" id_keypair or scp -i id_keypair"
+msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
 msgstr "Meno kľúčového páru, neskôr použité pre vykonanie príkazov ako ssh -i id_keypair alebo scp -i id_keypair"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:85
@@ -8622,10 +8379,7 @@ msgid "Private IP"
 msgstr "Privátna IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
-msgid ""
-"If you're using Amazon Virtual Private Cloud, you can optionally use this "
-"parameter to assign the instance a specific available IP address from the "
-"subnet."
+msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
 msgstr "Ak používaš Amazon Virtual Private Cloud, môžeš voliteľne použiť tento parameter pre priradenie inštancii špecifickej dostupnej IP adresy zo subnetu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
@@ -8650,16 +8404,11 @@ msgid "Subnet ID"
 msgstr "ID podsiete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
-msgid ""
-"If you're using Amazon Virtual Private Cloud, this specifies the ID of the "
-"subnet you want to launch the instance into. This parameter is also passed "
-"to the command ec2-associate-address -i i-0041230 -a elasticip."
+msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
 msgstr "Ak používaš Amazon Virtual Private Cloud, toto špacifikuje ID podsiete, ktorú chceš použiť pre inštanciu. Tento parameter tiež slúži pre príkaz ec2-associate-address -i i-0041230 -a elasticip."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
-msgid ""
-"Key and optional value of the tag, separated by an equals sign ( = ).You can"
-" specify more than one tag (comma separated)."
+msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
 msgstr "Kľúč a voliteľná hodnota tagu, priradené znakom ( = ). Môžeš špecifikovať viac ako jeden tag (oddelené čiarkou)."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:147
@@ -8671,9 +8420,7 @@ msgid "User data"
 msgstr "Používateľské dáta"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
-msgid ""
-"Specifies Base64-encoded MIME user data to be made available to the "
-"instance(s) in this reservation."
+msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr "Špecifikuj Base64-encoded MIME používateľské dáta dostupné inštancii (inštanciám) v rámci tejto rezervácie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:5
@@ -8721,9 +8468,7 @@ msgid "VM user name"
 msgstr "Meno používateľa VS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-msgid ""
-"If the selected IMAGE is prepared for Azure provisioning, a username can be "
-"specified here to access the VM once booted"
+msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr "Ak je vybratý obraz pripravený pre AZURE, tu je možné špecifikovať používateľské meno pre prístup počas bootu VS "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:59
@@ -8735,10 +8480,7 @@ msgid "Password for VM User"
 msgstr "Heslo pre používateľa VS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
-msgid ""
-"Name of the virtual network which is already created in Azure. If not given,"
-" virtual network will be created based on VNET_* attributes below or using "
-"defaults."
+msgid "Name of the virtual network which is already created in Azure. If not given, virtual network will be created based on VNET_* attributes below or using defaults."
 msgstr "Názov virtuálnej siete, ktorá je už vytvorená v Azure. Ak nie je zadaný, virtuálna sieť sa vytvorí na základe atribútov VNET_* uvedených nižšie alebo pomocou predvolených nastavení. "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:75
@@ -8754,9 +8496,10 @@ msgid "VNET name"
 msgstr "VNET meno"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:88
-msgid ""
-"Name of virtual network which will be created on Azure. Default: one-vnet"
-msgstr "Meno virtuálnej siete, ktorá bude vytvorená v Azure. \nDefault: one-vnet"
+msgid "Name of virtual network which will be created on Azure. Default: one-vnet"
+msgstr ""
+"Meno virtuálnej siete, ktorá bude vytvorená v Azure. \n"
+"Default: one-vnet"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:94
 msgid "VNET addr prefix"
@@ -8803,10 +8546,7 @@ msgid "Proximity group"
 msgstr "Proximity skupina"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:136
-msgid ""
-"Name of a proximity group already created in Azure. Proximity groups allow "
-"you to group your Azure services to optimize performance. All services and "
-"VMs within a proximity group will be located in the same region."
+msgid "Name of a proximity group already created in Azure. Proximity groups allow you to group your Azure services to optimize performance. All services and VMs within a proximity group will be located in the same region."
 msgstr "Názov blízkej skupiny už vytvorenej v Azure. Blízke skupiny umožňujú zoskupiť služby Azure za účelom optimalizácie výkonu. Všetky služby a virtuálne počítače v rámci blízkej skupiny budú umiestnené v rovnakom regióne. "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
@@ -8855,9 +8595,7 @@ msgid "Unique ID of the VM"
 msgstr "Unikátne ID virtuálneho stroja"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:103
-msgid ""
-"It's referenced as machine ID inside the VM. Could be used to force ID for "
-"licensing purposes"
+msgid "It's referenced as machine ID inside the VM. Could be used to force ID for licensing purposes"
 msgstr "Odkazuje na ID vovnútri  virtuálneho stroja. Môže byť použitý ako ID na licenčné účely."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:111
@@ -8865,8 +8603,7 @@ msgid "Firmware"
 msgstr "Firmware"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:112
-msgid ""
-"This attribute allows to define the type of firmware used to boot the VM"
+msgid "This attribute allows to define the type of firmware used to boot the VM"
 msgstr "Tento atribút umožňuje zadefinovať firmware pre nabootovanie VS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:116
@@ -8919,8 +8656,7 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:204
-msgid ""
-"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "Pridaj do VS podporu pre ACPI (Advanced Configuration and Power Interface)."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:214
@@ -8952,9 +8688,7 @@ msgid "Localtime"
 msgstr "Miestny čas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:252
-msgid ""
-"The guest clock will be synchronized to the hosts configured timezone when "
-"booted."
+msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
 msgstr "Hosťovské hodiny budú synchronizované do nakonfigurovanej časovej zóny počas bootovania."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:262
@@ -8962,9 +8696,7 @@ msgid "QEMU Guest Agent"
 msgstr "QEMU Guest Agent"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:263
-msgid ""
-"Enables the QEMU Guest Agent communication. This does not start the Guest "
-"Agent inside the VM."
+msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
 msgstr "Aktivuje QEMU Guest Agent komunikáciu. Toto nenaštartuje Guest agenta vo vnútri virtuálneho stroja."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:275
@@ -8972,9 +8704,7 @@ msgid "virtio-scsi Queues"
 msgstr "virtio-scsi fronty"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:276
-msgid ""
-"Number of vCPU queues to use in the virtio-scsi controller. Leave blank to "
-"use the default value."
+msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value."
 msgstr "Počet vCPU front pre použitie virtio-scsi radičom. Ponechaj prázdne pre použitie default hodnoty"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:300
@@ -8982,10 +8712,7 @@ msgid "Iothreads"
 msgstr "IO vlákna"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:301
-msgid ""
-"Number of iothreads for virtio disks. By default threads will be assign to "
-"disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD"
-" attribute."
+msgid "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute."
 msgstr "Počet IO vláken pre virtio disky. V základe budú vlákna disku prideľované algoritmom roud robin. ID vlákna môže byť vnútené pomocou atribútu IOTHREAD."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
@@ -9005,9 +8732,7 @@ msgid "Select Clusters "
 msgstr "Vyber clustre"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "Logický výraz, ktorý hovorí o možnosti hosta poskytovať svoje zdroje pre beh tohto virtuálneho stroja"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
@@ -9035,9 +8760,7 @@ msgid "Maximize the resources available to VMs in a Host"
 msgstr "Maximalizuj dostupné zdroje pre virtuálne stroje na hoste"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "Toto pole určuje, ktorý atribút bude použitý na vytriedenie vhodného hosta pre tento virtuálny stroj. "
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
@@ -9045,19 +8768,15 @@ msgid "Datastore Rank"
 msgstr "Postavenie úložiska"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
-msgid ""
-"Tries to optimize storage usage by selecting the DS with less free space"
+msgid "Tries to optimize storage usage by selecting the DS with less free space"
 msgstr "Optimalizácia využitia diskového priestoru výberom dátového skladu s menším objemom voľného priestoru"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
-msgid ""
-"Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
 msgstr "Striping - optimalizácia I/O operácií distribúciou virtuálôneho stroja naprieč úložiskami"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
-msgid ""
-"This field sets which attribute will be used to sort the suitable datastores"
-" for this VM"
+msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
 msgstr "Toto pole bude použité pre zoradenie vyhovujúcich úložísk pre tento virtuálny stroj"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:22
@@ -9315,8 +9034,7 @@ msgid "Private SSH Key"
 msgstr "Privátny SSH kľúč"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:121
-msgid ""
-"You can provide a Private SSH Key for this User clicking on the edit button"
+msgid "You can provide a Private SSH Key for this User clicking on the edit button"
 msgstr "Pre privátny kľúč klikni na edit tlačidlo"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:132
@@ -9324,9 +9042,7 @@ msgid "Private SSH Key Passphrase"
 msgstr "Prístupová fráza súkromného kľúča SSH "
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:147
-msgid ""
-"You can provide a Private SSH Key Passphrase for this User clicking on the "
-"edit button"
+msgid "You can provide a Private SSH Key Passphrase for this User clicking on the edit button"
 msgstr "Pre prístupovú frázu privátneho SSH kľúča tohto hosťa klikni na edit tlačidlo"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
@@ -9362,9 +9078,7 @@ msgid "Clone Security Group"
 msgstr "Klonuj security skupinu"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several security groups are selected, please choose a prefix to name the new"
-" copies"
+msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr "Je vybratých viac security skupín - zvoľ prefix pre pomenovanie kópií"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
@@ -9420,9 +9134,7 @@ msgid "Port Range"
 msgstr "Rozsah portov"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
-msgid ""
-"VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to "
-"be updated with the latest rules:"
+msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
 msgstr "VS označené<i class='fas fa-exclamation-triangle'></i>čakajú na aktualizáciu s najnovšími pravidlami:"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
@@ -9489,3 +9201,60 @@ msgstr "VS afinita"
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
 msgstr "Afinita rolí"
+
+#~ msgid "Bulk Action Created"
+#~ msgstr "Hromadná udalosť vytvorená"
+
+#~ msgid "DEPLOYING_NETS"
+#~ msgstr "DEPLOYING_NETS"
+
+#~ msgid "UNDEPLOYING_NETS"
+#~ msgstr "UNDEPLOYING_NETS"
+
+#~ msgid "FAILED_DEPLOYING_NETS"
+#~ msgstr "FAILED_DEPLOYING_NETS"
+
+#~ msgid "FAILED_UNDEPLOYING_NETS"
+#~ msgstr "FAILED_UNDEPLOYING_NETS"
+
+#~ msgid "DEPLOYING NETS"
+#~ msgstr "NASADENIE SIETÍ"
+
+#~ msgid "UNDEPLOYING NETS"
+#~ msgstr "ZRUŠENIE NASADENIA SIETÍ"
+
+#~ msgid "FAILED DEPLOYING NETS"
+#~ msgstr "ZRUŠENIE NASADENIA SIETÍ BOLO NEÚSPEŠNÉ"
+
+#~ msgid "FAILED UNDEPLOYING NETS"
+#~ msgstr "ZRUŠENIE NASADENIA SIETÍ NEÚSPEŠNÉ"
+
+#~ msgid "VCPU"
+#~ msgstr "Virtuálny CPU"
+
+#~ msgid "Container security mode"
+#~ msgstr "Kontajner security mód"
+
+#~ msgid "Attach security group"
+#~ msgstr "Pripoj security skupinu"
+
+#~ msgid "This will detach the security group immediately"
+#~ msgstr "Okamžite odpojiť security skupinu"
+
+#~ msgid "Scheduler Error"
+#~ msgstr "Chyba plánovača"
+
+#~ msgid "Running"
+#~ msgstr "Bežiaci"
+
+#~ msgid "(Optional) Select an existing VM Template"
+#~ msgstr "(Voliteľné) Vyber existujúcu šablónu VS"
+
+#~ msgid "Attach new security group to NIC"
+#~ msgstr "Priraď novú security skupinu ku adaptéru"
+
+#~ msgid "Method"
+#~ msgstr "Metóda"
+
+#~ msgid "IPv6 Method"
+#~ msgstr "IPv6 metóda"
