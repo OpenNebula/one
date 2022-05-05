@@ -44,7 +44,25 @@ module OneProvision
                 end
             end
 
-            super
+            net_id = super
+
+            vnet = OpenNebula::VirtualNetwork.new_with_id(net_id, @client)
+
+            require 'opennebula/wait_ext'
+
+            vnet.extend(OpenNebula::WaitExt)
+
+            rc = vnet.wait('READY', 300, 2)
+
+            if !rc && vnet.state_str == 'ERROR'
+                vnet.delete
+                Utils.exception(OpenNebula::Error.new('Error creating network'))
+            elsif !rc
+                OneProvisionLogger.warn('Network not READY, '\
+                    'check status after provision completes')
+            end
+
+            net_id
         end
 
         # Info an specific object
