@@ -151,7 +151,6 @@ module OneProvision
 
                 eval_user_inputs
 
-                validate_user_inputs
             rescue StandardError => e
                 Utils.fail("Failed to read configuration: #{e}")
             end
@@ -831,27 +830,6 @@ module OneProvision
             end
 
             answer
-        end
-
-        # Validate user inputs
-        def validate_user_inputs
-            return unless @config['ceph_vars']
-
-            osd_full_hosts_count = 0
-            @config['hosts'].each do |h|
-                if h['provision'] && h['provision']['ceph_group'] == 'osd,mon'
-                    osd_full_hosts_count += h['provision']['hostname'].length
-
-                elsif h['provision'] && h['provision']['ceph_full_count']
-                    osd_full_hosts_count += \
-                        h['provision']['ceph_full_count'].to_i
-                end
-            end
-
-            return if [3, 5].include? osd_full_hosts_count
-
-            Utils.warn('Recomended number of Mon+OSD Ceph hosts ' \
-                       "is 3 or 5, given #{osd_full_hosts_count}")
         end
 
     end
