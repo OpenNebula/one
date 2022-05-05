@@ -18,16 +18,35 @@
     user: "oneadmin"
     key: "{{ lookup('file', '/var/lib/one/.ssh/id_rsa.pub') }}"
 
-- name: Copy local SSH keys / known_hosts
+- name: Check for /var/lib/one/.ssh/id_rsa.pub
+  delegate_to: localhost
+  stat:
+    path: /var/lib/one/.ssh/id_rsa.pub
+  register: stat_id_rsa_pub
+
+- name: Check for /var/lib/one/.ssh/known_hosts
+  delegate_to: localhost
+  stat:
+    path: /var/lib/one/.ssh/known_hosts
+  register: stat_known_hosts
+
+- name: Copy local SSH keys
   copy:
-    src: /var/lib/one/.ssh/{{ item.name }}
-    dest: /var/lib/one/.ssh/{{ item.name }}
+    src: /var/lib/one/.ssh/id_rsa.pub
+    dest: /var/lib/one/.ssh/id_rsa.pub
     owner: 9869
     group: 9869
-    mode: "{{ item.mode }}"
-  with_items:
-    - { name: 'id_rsa.pub',  mode: '0644' }
-    - { name: 'known_hosts', mode: '0644' }
+    mode: "0644"
+  when: stat_id_rsa_pub.stat.exists == true
+
+- name: Copy local known_hosts
+  copy:
+    src: /var/lib/one/.ssh/known_hosts
+    dest: /var/lib/one/.ssh/known_hosts
+    owner: 9869
+    group: 9869
+    mode: "0644"
+  when: stat_known_hosts.stat.exists == true
 
 - name: Copy local private SSH keys
   copy:
