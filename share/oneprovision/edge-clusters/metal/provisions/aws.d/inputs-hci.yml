@@ -59,7 +59,7 @@ inputs:
   - name: 'ceph_disk_size'
     type: text
     description: 'Disk size of CEPH disk volume, in GB'
-    default: '100'
+    default: '512'
 
   - name: 'one_hypervisor'
     type: list
