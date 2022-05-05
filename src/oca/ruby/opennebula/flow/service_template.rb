@@ -414,9 +414,6 @@ module OpenNebula
                 return rc
             end
 
-            # add registration time, as the template is new
-            body['registration_time'] = Integer(Time.now)
-
             # update the template with the new body
             doc.update(body.to_json)
 
