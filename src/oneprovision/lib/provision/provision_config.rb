@@ -150,7 +150,6 @@ module OneProvision
                 return unless eval_ui
 
                 eval_user_inputs
-
             rescue StandardError => e
                 Utils.fail("Failed to read configuration: #{e}")
             end
