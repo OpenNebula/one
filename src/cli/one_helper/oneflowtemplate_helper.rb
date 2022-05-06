@@ -221,16 +221,14 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
                 exit(-1)
             end
 
-            mandatory, _type, description, _params, initial = input_cfg
-
-            vnet = {}
+            vnet                                  = {}
+            mandatory, _, description, _, initial = input_cfg
 
             if initial && !initial.empty?
                 type, resource_id, extra = initial.split(':', -1)
             end
 
-            if (type.nil? || resource_id.nil?) &&
-               (initial && !initial.empty?)
+            if (!type || !resource_id) && (initial && !initial.empty?)
                 STDERR.puts 'Wrong type for user input default value:'
                 STDERR.puts "  #{key}: #{val}"
                 exit(-1)
@@ -239,7 +237,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             vnet[key] = {}
 
             if get_defaults
-                vnet[key][type] = resource_id
+                vnet[key][type]    = resource_id
                 vnet[key]['extra'] = extra
 
                 answers << vnet unless mandatory == 'M'
@@ -248,22 +246,25 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
             puts "  * (#{key}) #{description}"
 
-            #######################################
-            # Asks for type
-            #######################################
-
-            header = '    '
+            ####################################################################
+            # Ask for type
+            ####################################################################
+            header  = '    '
             header += 'TYPE Existing(1), Create(2), Reserve(3). '
-
-            if !type.nil? && type != ''
-                header += 'Press enter for default. '
-            end
+            header += 'Press enter for default. ' if type && !type.empty?
 
             print header
 
             answer = STDIN.readline.chop
 
-            type_a = type
+            if type && !type.empty? && ![1, 2, 3].include?(answer.to_i)
+                type_a = type
+            else
+                until [1, 2, 3].include?(answer.to_i)
+                    print header
+                    answer = STDIN.readline.chop
+                end
+            end
 
             case answer.to_i
             when 1
@@ -274,18 +275,18 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
                 type_a = 'reserve_from'
             end
 
-            #######################################
-            # Asks for resource id
-            #######################################
-
+            ####################################################################
+            # Ask for resource id
+            ####################################################################
             header = '    '
+
             if type_a == 'template_id'
                 header += 'VN Template ID. '
             else
                 header += 'VN ID. '
             end
 
-            if !resource_id.nil? && resource_id != ''
+            if resource_id && !resource_id.empty?
                 header += "Press enter for default (#{resource_id}). "
             end
 
@@ -293,17 +294,23 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
             resource_id_a = STDIN.readline.chop
 
-            resource_id_a = resource_id if resource_id_a.empty?
+            if resource_id && !resource_id.empty?
+                resource_id_a = resource_id
+            else
+                while resource_id_a.empty?
+                    print header
+                    resource_id_a = STDIN.readline.chop
+                end
+            end
 
-            #######################################
+            ####################################################################
             # Asks for extra
-            #######################################
-
+            ####################################################################
             if type_a != 'id'
-                header = '    '
+                header  = '    '
                 header += 'EXTRA (Type EMPTY for leaving empty). '
 
-                if !extra.nil? && extra != ''
+                if extra && !extra.empty?
                     header += " Press enter for default (#{extra}). "
                 end
 
