@@ -16,8 +16,7 @@ inputs:
        - 'ubuntu_20_04'
    - name: 'equinix_plan'
      type: 'list'
-     default: 't1.small'
+     default: 'c2.medium'
      options:
-       - 't1.small'
-       - 'c1.small'
-       - 'm1.xlarge'
+       - 'c2.medium'
+       - 'm2.xlarge'
