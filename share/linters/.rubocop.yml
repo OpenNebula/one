@@ -773,6 +773,12 @@ Style/FileRead:
 Style/FetchEnvVar:
   Enabled: false
 
+Style/SlicingWithRange:
+  Enabled: false
+
+Style/RedundantCondition:
+  Enabled: false
+
 ######
 # LINT
 ######
