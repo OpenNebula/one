@@ -124,6 +124,9 @@ def child2dict(element):
     # Replace 'None' values returned by xmltodict by ""
     none2emptystr(ret)
 
+    if not isinstance(ret[tagName], OrderedDict) and isinstance(ret[tagName], dict):
+        ret[tagName] = OrderedDict(ret[tagName])
+
     # return the contents dictionary, but save a reference
     ret[tagName]._root = ret
     return ret[tagName]
