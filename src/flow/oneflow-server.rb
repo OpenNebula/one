@@ -70,6 +70,7 @@ require 'CloudServer'
 
 require 'models'
 require 'log'
+require 'syslog/logger'
 
 require 'LifeCycleManager'
 require 'EventManager'
@@ -87,7 +88,12 @@ rescue StandardError => e
     exit 1
 end
 
-conf[:debug_level]         ||= 2
+if conf[:log]
+    conf[:debug_level] = conf[:log][:level] || 2
+else
+    conf[:debug_level] ||= 2
+end
+
 conf[:autoscaler_interval] ||= 90
 conf[:default_cooldown]    ||= 300
 conf[:shutdown_action]     ||= 'terminate'
@@ -107,7 +113,13 @@ set :config, conf
 include CloudLogger
 # rubocop:enable Style/MixinUsage
 
-logger = enable_logging ONEFLOW_LOG, conf[:debug_level].to_i
+if conf[:log] && conf[:log][:system] == 'syslog'
+    logger   = Syslog::Logger.new('oneflow')
+    Log.type = 'syslog'
+else
+    logger   = enable_logging ONEFLOW_LOG, conf[:debug_level].to_i
+    Log.type = 'file'
+end
 
 use Rack::Session::Pool, :key => 'oneflow'
 
