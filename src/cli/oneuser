@@ -443,7 +443,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :key, key_desc, :options => [KEY] do
         require 'opennebula/ssh_auth'
 
-        options[:key] ||= ENV['HOME'] + '/.ssh/id_rsa'
+        options[:key] ||= Dir.home + '/.ssh/id_rsa'
 
         begin
             sshauth = SshAuth.new(:private_key => options[:key])
