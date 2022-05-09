@@ -20,12 +20,14 @@
 
 - name: Check for /var/lib/one/.ssh/id_rsa.pub
   delegate_to: localhost
+  become: no
   stat:
     path: /var/lib/one/.ssh/id_rsa.pub
   register: stat_id_rsa_pub
 
 - name: Check for /var/lib/one/.ssh/known_hosts
   delegate_to: localhost
+  become: no
   stat:
     path: /var/lib/one/.ssh/known_hosts
   register: stat_known_hosts
