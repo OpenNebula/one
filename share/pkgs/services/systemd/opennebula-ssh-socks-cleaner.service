@@ -7,3 +7,4 @@ Group=oneadmin
 User=oneadmin
 Type=oneshot
 ExecStart=/bin/sh -c '/usr/lib/one/sh/ssh-socks-cleaner'
+SyslogIdentifier=opennebula-ssh-socks-cleaner
