@@ -135,6 +135,7 @@ require 'base64'
 require 'rexml/document'
 require 'uri'
 require 'open3'
+require 'syslog/logger'
 
 require "sunstone_qr_code"
 require "sunstone_optp"
@@ -171,7 +172,6 @@ if $conf[:one_xmlrpc_timeout]
     ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
 end
 
-$conf[:debug_level] ||= 3
 $conf[:webauthn_avail] = webauthn_avail
 
 # Set Sunstone Session Timeout
@@ -246,7 +246,18 @@ use Rack::Deflater
 # Enable logger
 
 include CloudLogger
-logger=enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
+
+if $conf[:log]
+    $conf[:debug_level] = $conf[:log][:level] || 3
+else
+    $conf[:debug_level] ||= 3
+end
+
+if $conf[:log] && $conf[:log][:system] == 'syslog'
+    logger = Syslog::Logger.new('onegate')
+else
+    logger = enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
+end
 
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
