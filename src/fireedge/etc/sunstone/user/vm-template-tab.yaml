@@ -79,7 +79,6 @@ dialogs:
     information: true
     ownership: true
     capacity: true
-    showback: true
     vm_group: true
     vcenter:
       enabled: true
@@ -93,8 +92,9 @@ dialogs:
     sched_action: true
     booting: true
   create_dialog:
-    capacity: true
     ownership: true
+    capacity: true
+    showback: true
     vm_group: true
     vcenter:
       enabled: true
