@@ -33,15 +33,11 @@ import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import {
-  getState,
-  getLastHistory,
-  getIps,
-  getErrorMessage,
-} from 'client/models/VirtualMachine'
+import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
 import {
   timeFromMilliseconds,
   getUniqueLabels,
+  getErrorMessage,
   getColorFromString,
 } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'

@@ -14,11 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/vn'
+
 import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import {
   LockLevel,
   FilterFlag,
@@ -75,6 +77,40 @@ const vNetworkApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.VNET ?? {},
       providesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: queryVNet } = await queryFulfilled
+
+          dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              (draft) => {
+                const index = draft.findIndex(({ ID }) => +ID === +id)
+                index !== -1 && (draft[index] = queryVNet)
+              }
+            )
+          )
+        } catch {
+          dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              (draft) => draft.filter(({ ID }) => +ID !== +id)
+            )
+          )
+        }
+      },
+      onCacheEntryAdded: ({ id }, baseQueryApi) =>
+        UpdateFromSocket({
+          updateQueryData: (updateFn) =>
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              updateFn
+            ),
+          resource: 'net',
+        })(id, baseQueryApi),
     }),
     allocateVnet: builder.mutation({
       /**

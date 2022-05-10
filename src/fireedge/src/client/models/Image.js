@@ -17,7 +17,7 @@ import {
   IMAGE_TYPES,
   DISK_TYPES,
   IMAGE_STATES,
-  StateInfo,
+  STATES,
   Image,
 } from 'client/constants'
 import { prettyBytes } from 'client/utils'
@@ -35,7 +35,7 @@ export const getType = ({ TYPE } = {}) =>
  * Returns the image state.
  *
  * @param {Image} image - Image
- * @returns {StateInfo} - Image state information
+ * @returns {STATES.StateInfo} - Image state information
  */
 export const getState = ({ STATE } = {}) => IMAGE_STATES[+STATE]
 

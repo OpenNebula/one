@@ -34,11 +34,12 @@ import { SubmitButton } from 'client/components/FormControl'
 
 import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { getHypervisor, getErrorMessage } from 'client/models/VirtualMachine'
+import { getHypervisor } from 'client/models/VirtualMachine'
 import {
   getActionsAvailable,
   filterAttributes,
   jsonToXml,
+  getErrorMessage,
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 

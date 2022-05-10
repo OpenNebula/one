@@ -531,3 +531,15 @@ export const getColorFromString = (text, options = {}) => {
 
   return `#${hex.padEnd(6, hex)}`
 }
+
+/**
+ * @param {object} resource - OpenNebula resource
+ * @returns {string} Error message from resource
+ */
+export const getErrorMessage = (resource) => {
+  const { USER_TEMPLATE, TEMPLATE } = resource ?? {}
+  const { ERROR, SCHED_MESSAGE } = USER_TEMPLATE ?? {}
+  const { ERROR: templateError } = TEMPLATE ?? {}
+
+  return [ERROR, SCHED_MESSAGE, templateError].filter(Boolean)[0]
+}

@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
+  STATES,
   MARKETPLACE_APP_STATES,
   MARKETPLACE_APP_TYPES,
-  StateInfo,
 } from 'client/constants'
 
 /**
@@ -33,6 +33,6 @@ export const getType = ({ TYPE = 0 } = {}) => MARKETPLACE_APP_TYPES[+TYPE]
  *
  * @param {object} marketplaceApp - Marketplace app
  * @param {number|string} marketplaceApp.STATE - State
- * @returns {StateInfo} Marketplace app state information
+ * @returns {STATES.StateInfo} Marketplace app state information
  */
 export const getState = ({ STATE = 0 } = {}) => MARKETPLACE_APP_STATES[+STATE]

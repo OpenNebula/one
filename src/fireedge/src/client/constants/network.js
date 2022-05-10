@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 // eslint-disable-next-line no-unused-vars
 import { Permissions, LockInfo } from 'client/constants/common'
 import * as ACTIONS from 'client/constants/actions'
@@ -21,7 +23,7 @@ import * as ACTIONS from 'client/constants/actions'
  * @typedef ARLease
  * @property {string} [IP] - IP
  * @property {string} [IP6] - IP6
- * @property {string} [IP6_GLOBAL] - IP6 globa
+ * @property {string} [IP6_GLOBAL] - IP6 global
  * @property {string} [IP6_LINK] - IP6 link
  * @property {string} [IP6_ULA] - IP6 ULA
  * @property {string} MAC - MAC
@@ -64,6 +66,8 @@ import * as ACTIONS from 'client/constants/actions'
  * @property {string} GID - Group id
  * @property {string} GNAME - Group name
  * @property {Permissions} PERMISSIONS - Permissions
+ * @property {string|number} STATE - Current state
+ * @property {string|number} PREV_STATE - Previous state
  * @property {LockInfo} [LOCK] - Lock information
  * @property {{ ID: string|string[] }} CLUSTERS - Clusters
  * @property {{ ID: string|string[] }} VROUTERS - Virtual routers
@@ -97,6 +101,79 @@ import * as ACTIONS from 'client/constants/actions'
  * @property {string} [TEMPLATE.VCENTER_TEMPLATE_REF] - vCenter information
  */
 
+/** @type {STATES.StateInfo[]} Virtual Network states */
+export const VN_STATES = [
+  {
+    // 0
+    name: STATES.INIT,
+    color: COLOR.info.light,
+    meaning: 'Initialization state, the Virtual Network object was created',
+  },
+  {
+    // 1
+    name: STATES.READY,
+    color: COLOR.success.main,
+    meaning: 'Virtual Network is ready, can execute any action',
+  },
+  {
+    // 2
+    name: STATES.LOCK_CREATE,
+    color: COLOR.error.light,
+    meaning: 'The driver initialization action is in progress',
+  },
+  {
+    // 3
+    name: STATES.LOCK_DELETE,
+    color: COLOR.error.light,
+    meaning: 'The driver delete action is in progress',
+  },
+  {
+    // 4
+    name: STATES.DONE,
+    color: COLOR.debug.light,
+    meaning: 'Network driver delete successful',
+  },
+  {
+    // 5
+    name: STATES.ERROR,
+    color: COLOR.error.dark,
+    meaning: 'Driver action failed.',
+  },
+]
+
+/** @enum {string} Virtual network actions */
+export const VN_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  DELETE: 'delete',
+  RECOVER: 'recover',
+  UPDATE: 'update',
+
+  // INFORMATION
+  RENAME: ACTIONS.RENAME,
+  CHANGE_MODE: ACTIONS.CHANGE_MODE,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+}
+
+/** @enum {string} Virtual network actions by state */
+export const VN_ACTIONS_BY_STATE = {
+  [VN_ACTIONS.DELETE]: [STATES.READY],
+  [VN_ACTIONS.RECOVER]: [
+    STATES.INIT,
+    STATES.LOCK_CREATE,
+    STATES.LOCK_DELETE,
+    STATES.LOCKED,
+    STATES.ERROR,
+  ],
+  [VN_ACTIONS.UPDATE]: [STATES.READY],
+
+  // INFORMATION
+  [VN_ACTIONS.RENAME]: [],
+  [VN_ACTIONS.CHANGE_MODE]: [],
+  [VN_ACTIONS.CHANGE_OWNER]: [],
+  [VN_ACTIONS.CHANGE_GROUP]: [],
+}
+
 /** @enum {string} Type of Addresses defined by this address range */
 export const AR_TYPES = {
   NONE: 'NONE',
@@ -123,14 +200,10 @@ export const VN_DRIVERS = {
   nodeport: 'nodeport',
 }
 
-/** @enum {string} Virtual network actions */
-export const VN_ACTIONS = {
-  CREATE_DIALOG: 'create_dialog',
-  DELETE: 'delete',
-
-  // INFORMATION
-  RENAME: ACTIONS.RENAME,
-  CHANGE_MODE: ACTIONS.CHANGE_MODE,
-  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+/**
+ * @enum {{ high: number, low: number }}
+ * Virtual Network threshold to specify the maximum and minimum of the bar range
+ */
+export const VNET_THRESHOLD = {
+  LEASES: { high: 66, low: 33 },
 }

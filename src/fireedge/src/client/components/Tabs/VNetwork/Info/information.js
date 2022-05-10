@@ -17,8 +17,12 @@ import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { useRenameVNTemplateMutation } from 'client/features/OneApi/networkTemplate'
+
+import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
-import { T, VNetwork, VNET_ACTIONS } from 'client/constants'
+
+import { getState } from 'client/models/VirtualNetwork'
+import { T, VNetwork, VN_ACTIONS } from 'client/constants'
 
 /**
  * Renders mainly information tab.
@@ -32,6 +36,8 @@ const InformationPanel = ({ vnet = {}, actions }) => {
   const [rename] = useRenameVNTemplateMutation()
   const { ID, NAME } = vnet
 
+  const { name: stateName, color: stateColor } = getState(vnet)
+
   const handleRename = async (_, newName) => {
     await rename({ id: ID, name: newName })
   }
@@ -42,8 +48,14 @@ const InformationPanel = ({ vnet = {}, actions }) => {
       name: T.Name,
       value: NAME,
       dataCy: 'name',
-      canEdit: actions?.includes?.(VNET_ACTIONS.RENAME),
+      canEdit: actions?.includes?.(VN_ACTIONS.RENAME),
       handleEdit: handleRename,
+    },
+    {
+      name: T.State,
+      value: (
+        <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+      ),
     },
   ]
 

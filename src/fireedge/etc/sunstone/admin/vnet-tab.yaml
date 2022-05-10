@@ -40,6 +40,11 @@ actions:
 
 filters:
   label: true
+  state: true
+  owner: true
+  group: true
+  locked: true
+  vn_mad: true
 
 # Info Tabs - Which info tabs are used to show extended information
 

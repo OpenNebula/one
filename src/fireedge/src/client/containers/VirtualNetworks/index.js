@@ -33,7 +33,7 @@ function VirtualNetworks() {
         {selectedRows?.length > 0 && (
           <Stack overflow="auto" data-cy={'detail'}>
             {selectedRows?.length === 1 ? (
-              <VNetworkTabs id={selectedRows[0]?.values.ID} />
+              <VNetworkTabs id={selectedRows[0]?.original.ID} />
             ) : (
               <Stack
                 direction="row"

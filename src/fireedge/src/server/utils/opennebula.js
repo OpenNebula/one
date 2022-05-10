@@ -30,6 +30,7 @@ const {
   defaultEmptyFunction,
   defaultNamespace,
   defaultMessageProblemOpennebula,
+  hookObjectNames,
 } = defaults
 
 const { getFireedgeConfig } = require('server/utils/yml')
@@ -91,7 +92,11 @@ const fillResourceforHookConnection = (
     if (!global.users[username].resourcesHooks) {
       global.users[username].resourcesHooks = {}
     }
-    global.users[username].resourcesHooks[match[1]] = parameters[0]
+
+    const resourceName = match[1]
+    const ensuredName = hookObjectNames[resourceName] || resourceName
+
+    global.users[username].resourcesHooks[ensuredName] = parameters[0]
   }
 }
 
