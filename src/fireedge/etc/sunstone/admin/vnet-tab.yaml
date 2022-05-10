@@ -35,6 +35,7 @@ actions:
   delete: true
   lock: true
   unlock: true
+  recover: true
 
 # Filters - List of criteria to filter the resources
 

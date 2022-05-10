@@ -35,6 +35,7 @@ const VN_RENAME = 'vn.rename'
 const VN_INFO = 'vn.info'
 const VN_LOCK = 'vn.lock'
 const VN_UNLOCK = 'vn.unlock'
+const VN_RECOVER = 'vn.recover'
 const VN_POOL_INFO = 'vnpool.info'
 
 const Actions = {
@@ -54,6 +55,7 @@ const Actions = {
   VN_INFO,
   VN_LOCK,
   VN_UNLOCK,
+  VN_RECOVER,
   VN_POOL_INFO,
 }
 
@@ -313,6 +315,20 @@ module.exports = {
         id: {
           from: resource,
           default: 0,
+        },
+      },
+    },
+    [VN_RECOVER]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        operation: {
+          from: postBody,
+          default: 1,
         },
       },
     },

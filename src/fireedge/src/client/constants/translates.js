@@ -790,6 +790,14 @@ module.exports = {
   UsedLeases: 'Used leases',
   TotalLeases: 'Total leases',
   TotalClusters: 'Total clusters',
+  RecoverNetworkDescription: `
+    Recovers a Virtual Network in ERROR state or waiting for a driver operation to complete.
+    The recovery may be done by failing, succeeding or retrying the current operation.
+    YOU NEED TO MANUALLY CHECK THE VN STATUS, to decide if the operation was successful or not, or if it can be retried.
+
+    States for success/failure recovers: LOCK_CREATE, LOCK_DELETE state.
+    States for a retry recover: LOCK_CREATE, LOCK_DELETE state.
+    States for delete: Any but READY.`,
 
   /* security group schema */
   TCP: 'TCP',

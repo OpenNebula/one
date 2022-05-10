@@ -402,6 +402,27 @@ const vNetworkApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
     }),
+    recoverVNet: builder.mutation({
+      /**
+       * Recovers a stuck Virtual Network which is waiting for a driver operation.
+       * The recovery may be done by failing or succeeding the pending operation.
+       * You need to manually check the VN status, to decide if the operation was successful or not.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual network id
+       * @param {0|1|2|3} params.operation - Recover operation:
+       * failure (0), success (1), retry (2), delete (3)
+       * @returns {number} Virtual network id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VN_RECOVER
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+    }),
   }),
 })
 
