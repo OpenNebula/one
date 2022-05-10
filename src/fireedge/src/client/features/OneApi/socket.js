@@ -25,7 +25,7 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 /**
  * @typedef {object} HookStateMessage - Hook message from OpenNebula API
  * @property {'STATE'} HOOK_TYPE - Type of event API
- * @property {('VM'|'HOST'|'IMAGE')} HOOK_OBJECT - Type name of the resource
+ * @property {('VM'|'HOST'|'IMAGE'|'NET')} HOOK_OBJECT - Type name of the resource
  * @property {string} STATE - The state that triggers the hook.
  * @property {string} [LCM_STATE]
  * - The LCM state that triggers the hook (Only for VM hooks)
@@ -37,6 +37,7 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
  * @property {object} [VM] - New data of the VM
  * @property {object} [HOST] - New data of the HOST
  * @property {object} [IMAGE] - New data of the IMAGE
+ * @property {object} [VNET] - New data of the VNET
  */
 
 /**
@@ -57,13 +58,20 @@ const createWebsocket = (path, query) =>
 
 /**
  * @param {HookStateData} data - Event data from hook event STATE
- * @returns {{name: ('vm'|'host'|'image'), value: object}}
+ * @returns {{name: ('vm'|'host'|'image'|'net'), value: object}}
  * - Name and new value of resource
  */
 const getResourceFromEventState = (data) => {
-  const { HOOK_OBJECT: name, [name]: value } = data?.HOOK_MESSAGE ?? {}
+  const { HOOK_OBJECT: name } = data?.HOOK_MESSAGE ?? {}
 
-  return { name: String(name).toLowerCase(), value }
+  const ensuredValue =
+    data?.HOOK_MESSAGE?.[name] ??
+    data?.HOOK_MESSAGE?.VM ??
+    data?.HOOK_MESSAGE?.HOST ??
+    data?.HOOK_MESSAGE?.IMAGE ??
+    data?.HOOK_MESSAGE?.VNET
+
+  return { name: String(name).toLowerCase(), value: ensuredValue }
 }
 
 /**

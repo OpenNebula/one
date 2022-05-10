@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ZONE_STATES, StateInfo } from 'client/constants'
+import { STATES, ZONE_STATES } from 'client/constants'
 
 /**
  * Returns state information about the zone.
  *
  * @param {object} zone - Zone
  * @param {number|string} zone.STATE - State
- * @returns {StateInfo} State information
+ * @returns {STATES.StateInfo} State information
  */
 export const getState = ({ STATE = 0 } = {}) => ZONE_STATES[+STATE]

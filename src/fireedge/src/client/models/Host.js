@@ -19,10 +19,10 @@ import {
   CUSTOM_HOST_HYPERVISOR,
   Host,
   HOST_STATES,
+  STATES,
   HYPERVISORS,
   NumaNode,
   PciDevice,
-  StateInfo,
 } from 'client/constants'
 import { useGetOneConfigQuery } from 'client/features/OneApi/system'
 
@@ -30,7 +30,7 @@ import { useGetOneConfigQuery } from 'client/features/OneApi/system'
  * Returns information about the host state.
  *
  * @param {Host} host - Host
- * @returns {StateInfo} Host state object
+ * @returns {STATES.StateInfo} Host state object
  */
 export const getState = (host) => HOST_STATES[+host?.STATE ?? 0]
 

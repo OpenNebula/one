@@ -137,7 +137,7 @@ module.exports = {
         },
         replace: {
           from: postBody,
-          default: 1,
+          default: 0,
         },
       },
     },

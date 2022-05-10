@@ -13,7 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { VirtualNetwork } from 'client/constants'
+import { VirtualNetwork, VN_STATES, STATES } from 'client/constants'
+
+/**
+ * Returns the state of the virtual network.
+ *
+ * @param {VirtualNetwork} virtualNetwork - Virtual network
+ * @returns {STATES.StateInfo} State information from resource
+ */
+export const getState = ({ STATE = 0 } = {}) => VN_STATES[+STATE]
+
+/**
+ * Returns the Virtual Network Manager name.
+ *
+ * @param {VirtualNetwork} virtualNetwork - Virtual network
+ * @returns {string} Virtual Network Manager
+ */
+export const getVNManager = (virtualNetwork) => virtualNetwork?.VN_MAD
 
 /**
  * Returns the total number of leases in the virtual network.

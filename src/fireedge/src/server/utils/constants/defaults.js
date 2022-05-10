@@ -183,6 +183,11 @@ const defaults = {
       'oneprovision_optional_create_command',
     ],
   },
+
+  /** HOOK OBJECT NAMES */
+  hookObjectNames: {
+    vn: 'net',
+  },
 }
 
 module.exports = defaults

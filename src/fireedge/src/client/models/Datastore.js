@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { DATASTORE_STATES, DATASTORE_TYPES, StateInfo } from 'client/constants'
+import { DATASTORE_STATES, DATASTORE_TYPES, STATES } from 'client/constants'
 
 /**
  * Returns the datastore type name.
@@ -30,7 +30,7 @@ export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
  *
  * @param {object} datastore - Datastore
  * @param {number} datastore.STATE - Datastore state ID
- * @returns {StateInfo} - Datastore state object
+ * @returns {STATES.StateInfo} - Datastore state object
  */
 export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 

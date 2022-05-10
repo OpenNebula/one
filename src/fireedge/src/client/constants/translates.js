@@ -749,6 +749,7 @@ module.exports = {
     be unshared with the group's users. Permission changed: GROUP USE`,
 
   /* Virtual Network schema - network */
+  Driver: 'Driver',
   IP: 'IP',
   IPv4Concept: 'First IP in the range in dot notation',
   IPv6Concept: 'First IP6 (full 128 bits) in the range',
@@ -786,6 +787,9 @@ module.exports = {
   GuestOptions: 'Guest options',
   GuestMTU: 'GuestMTU',
   GuestMTUConcept: 'Sets the MTU for the NICs in this network',
+  UsedLeases: 'Used leases',
+  TotalLeases: 'Total leases',
+  TotalClusters: 'Total clusters',
 
   /* security group schema */
   TCP: 'TCP',
@@ -887,6 +891,10 @@ module.exports = {
     Iothread id used by this disk. Default is round robin.
     Can be used only if IOTHREADS > 0. If this input is disabled
     please first configure IOTHREADS value on OS & CPU -> Features`,
+
+  /* Provision schema */
+  /* Provision - general */
+  ProvisionId: 'Provision ID',
 
   /* User inputs */
   UserInputs: 'User Inputs',

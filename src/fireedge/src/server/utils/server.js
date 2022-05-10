@@ -204,6 +204,7 @@ const middlewareValidateResourceForHookConnection = (
   next = () => undefined
 ) => {
   const { id, resource, username } = getResourceDataForRequest(server)
+
   if (
     id &&
     resource &&

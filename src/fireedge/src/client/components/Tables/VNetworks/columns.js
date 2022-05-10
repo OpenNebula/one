@@ -13,39 +13,64 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as VirtualNetworkModel from 'client/models/VirtualNetwork'
+import { Column } from 'react-table'
+
+import {
+  getState,
+  getTotalLeases,
+  getVNManager,
+} from 'client/models/VirtualNetwork'
+import { T } from 'client/constants'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
-  { Header: 'Owner', accessor: 'UNAME' },
-  { Header: 'Group', accessor: 'GNAME' },
-  { Header: 'Locked', accessor: 'LOCK' },
+/** @type {Column[]} VM columns */
+const COLUMNS = [
+  { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: T.Name, id: 'name', accessor: 'NAME' },
   {
-    Header: 'Total Clusters',
-    id: 'CLUSTERS',
+    Header: T.State,
+    id: 'state',
+    accessor: (row) => getState(row)?.name,
+  },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
+  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  { Header: T.Driver, id: 'vn_mad', accessor: getVNManager },
+  {
+    Header: T.TotalClusters,
+    id: 'clusters',
     accessor: (row) => getTotalOfResources(row?.CLUSTERS),
     sortType: 'number',
   },
   {
-    Header: 'Used Leases',
+    Header: T.UsedLeases,
+    id: 'used_leases',
     accessor: 'USED_LEASES',
     sortType: 'number',
   },
   {
-    Header: 'Total Leases',
-    id: 'TOTAL_LEASES',
-    accessor: (row) => VirtualNetworkModel.getTotalLeases(row),
+    Header: T.TotalLeases,
+    id: 'total_leases',
+    accessor: getTotalLeases,
     sortType: 'number',
   },
   {
-    Header: 'Provision ID',
-    id: 'PROVISION_ID',
+    Header: T.ProvisionId,
+    id: 'provision_id',
     accessor: (row) => row?.TEMPLATE?.PROVISION?.ID,
     disableSortBy: true,
   },
 ]
+
+COLUMNS.noFilterIds = [
+  'id',
+  'name',
+  'clusters',
+  'used_leases',
+  'total_leases',
+  'provision_id',
+]
+
+export default COLUMNS

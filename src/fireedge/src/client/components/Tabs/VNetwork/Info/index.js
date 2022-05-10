@@ -28,7 +28,7 @@ import {
   Ownership,
   AttributePanel,
 } from 'client/components/Tabs/Common'
-import Information from 'client/components/Tabs/VNetworkTemplate/Info/information'
+import Information from 'client/components/Tabs/VNetwork/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -42,7 +42,7 @@ import { cloneObject, set } from 'client/utils'
 const LXC_ATTRIBUTES_REG = /^LXC_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG =
-  /^(SECURITY_GROUPS|INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|OUTBOUND_AVG_BW|OUTBOUND_PEAK_BW|OUTBOUND_PEAK_KB)$/
+  /^(ERROR|SECURITY_GROUPS|INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|OUTBOUND_AVG_BW|OUTBOUND_PEAK_BW|OUTBOUND_PEAK_KB)$/
 
 /**
  * Renders mainly information tab.
