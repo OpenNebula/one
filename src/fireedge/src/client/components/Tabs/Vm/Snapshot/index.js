@@ -45,7 +45,7 @@ const { SNAPSHOT_CREATE, SNAPSHOT_REVERT, SNAPSHOT_DELETE } = VM_ACTIONS
  * @returns {ReactElement} Snapshots tab
  */
 const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
 
   const [snapshots, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)

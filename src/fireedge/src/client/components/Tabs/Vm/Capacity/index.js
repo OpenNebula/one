@@ -33,7 +33,7 @@ import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
  */
 const VmCapacityTab = ({ tabProps: { actions } = {}, id }) => {
   const [resizeCapacity] = useResizeMutation()
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
 
   const actionsAvailable = useMemo(() => {
     const hypervisor = getHypervisor(vm)

@@ -59,7 +59,7 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
   const [addScheduledAction] = useAddScheduledActionMutation()
   const [updateScheduledAction] = useUpdateScheduledActionMutation()
   const [deleteScheduledAction] = useDeleteScheduledActionMutation()
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
 
   const [scheduling, actionsAvailable] = useMemo(() => {
     const hypervisor = getHypervisor(vm)

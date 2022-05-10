@@ -14,13 +14,23 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/template'
+
 import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateLockLevelOnResource,
+  removeLockLevelOnResource,
+  updatePermissionOnResource,
+  updateOwnershipOnResource,
+  updateUserTemplateOnResource,
+} from 'client/features/OneApi/common'
 import { LockLevel, FilterFlag, Permission, VmTemplate } from 'client/constants'
-import { xmlToJson } from 'client/models/Helper'
 
 const { TEMPLATE } = ONE_RESOURCES
 const { TEMPLATE_POOL, VM_POOL } = ONE_RESOURCES_POOL
@@ -49,7 +59,10 @@ const vmTemplateApi = oneApi.injectEndpoints({
       providesTags: (vmTemplates) =>
         vmTemplates
           ? [
-              ...vmTemplates.map(({ ID }) => ({ type: TEMPLATE_POOL, ID })),
+              ...vmTemplates.map(({ ID }) => ({
+                type: TEMPLATE_POOL,
+                id: `${ID}`,
+              })),
               TEMPLATE_POOL,
             ]
           : [TEMPLATE_POOL],
@@ -75,19 +88,25 @@ const vmTemplateApi = oneApi.injectEndpoints({
       providesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryTemplate } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              (draft) => {
-                const index = draft.findIndex(({ ID }) => +ID === +id)
-                index !== -1 && (draft[index] = queryTemplate)
-              }
+              updateResourceOnPool({ id, resourceFromQuery })
             )
           )
-        } catch {}
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplates',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
       },
     }),
     allocateTemplate: builder.mutation({
@@ -188,36 +207,21 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
-      async onQueryStarted(
-        { id, template: xml, replace = 0 },
-        { dispatch, queryFulfilled }
-      ) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          // update template by id
           const patchVmTemplate = dispatch(
-            vmTemplateApi.util.updateQueryData('getTemplate', id, (draft) => {
-              draft.TEMPLATE =
-                +replace === 0
-                  ? xmlToJson(xml)
-                  : { ...draft.TEMPLATE, ...xmlToJson(xml) }
-            })
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              updateUserTemplateOnResource(params, 'TEMPLATE')
+            )
           )
 
-          // update template on pool by id (if exists)
           const patchVmTemplates = dispatch(
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              (draft) => {
-                const template = draft.find(({ ID }) => +ID === +id)
-
-                if (!template) return
-
-                template.TEMPLATE =
-                  +replace === 0
-                    ? xmlToJson(xml)
-                    : { ...template.TEMPLATE, ...xmlToJson(xml) }
-              }
+              updateUserTemplateOnResource(params, 'TEMPLATE')
             )
           )
 
@@ -234,7 +238,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
        * If set any permission to -1, it's not changed.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - VM Template id
+       * @param {string} params.id - VM Template id
        * @param {Permission|'-1'} params.ownerUse - User use
        * @param {Permission|'-1'} params.ownerManage - User manage
        * @param {Permission|'-1'} params.ownerAdmin - User administrator
@@ -255,33 +259,29 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
-      async onQueryStarted(
-        { id, ...permissions },
-        { dispatch, queryFulfilled }
-      ) {
-        const patchResult = dispatch(
-          vmTemplateApi.util.updateQueryData('getTemplate', { id }, (draft) => {
-            Object.entries(permissions)
-              .filter(([_, value]) => value !== '-1')
-              .forEach(([name, value]) => {
-                const ensuredName = {
-                  ownerUse: 'OWNER_U',
-                  ownerManage: 'OWNER_M',
-                  ownerAdmin: 'OWNER_A',
-                  groupUse: 'GROUP_U',
-                  groupManage: 'GROUP_M',
-                  groupAdmin: 'GROUP_A',
-                  otherUse: 'OTHER_U',
-                  otherManage: 'OTHER_M',
-                  otherAdmin: 'OTHER_A',
-                }[name]
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              updatePermissionOnResource(params)
+            )
+          )
 
-                draft.PERMISSIONS[ensuredName] = value
-              })
+          const patchVmTemplates = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplates',
+              undefined,
+              updatePermissionOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
           })
-        )
-
-        queryFulfilled.catch(patchResult.undo)
+        } catch {}
       },
     }),
     changeTemplateOwnership: builder.mutation({
@@ -303,18 +303,29 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
-      async onQueryStarted(
-        { id, user, group },
-        { dispatch, queryFulfilled, getState }
-      ) {
-        const patchResult = dispatch(
-          vmTemplateApi.util.updateQueryData('getTemplate', id, (draft) => {
-            user > 0 && (draft.UID = user)
-            group > 0 && (draft.GID = group)
-          })
-        )
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
 
-        queryFulfilled.catch(patchResult.undo)
+          const patchVmTemplates = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplates',
+              undefined,
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
+        } catch {}
       },
     }),
     renameTemplate: builder.mutation({
@@ -334,20 +345,28 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
-      async onQueryStarted({ id, name }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
 
-          dispatch(
+          const patchVmTemplates = dispatch(
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              (draft) => {
-                const template = draft.find(({ ID }) => +ID === +id)
-                template && (template.NAME = name)
-              }
+              updateNameOnResource(params)
             )
           )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
         } catch {}
       },
     }),
@@ -356,7 +375,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
        * Locks a VM Template.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - VM Template id
+       * @param {string} params.id - VM Template id
        * @param {LockLevel} params.lock - Lock level
        * @param {boolean} params.test - Checks if the object is already locked to return an error
        * @returns {number} VM Template id
@@ -369,20 +388,28 @@ const vmTemplateApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: TEMPLATE, id }],
-      async onQueryStarted({ id, level = '4' }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              updateLockLevelOnResource(params)
+            )
+          )
 
-          dispatch(
+          const patchVmTemplates = dispatch(
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              (draft) => {
-                const template = draft.find(({ ID }) => +ID === +id)
-                template && (template.LOCK = { LOCKED: level })
-              }
+              updateLockLevelOnResource(params)
             )
           )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
         } catch {}
       },
     }),
@@ -390,31 +417,40 @@ const vmTemplateApi = oneApi.injectEndpoints({
       /**
        * Unlocks a VM Template.
        *
-       * @param {string|number} id - VM Template id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - VM Template id
        * @returns {number} VM Template id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.TEMPLATE_UNLOCK
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: (_, __, id) => [{ type: TEMPLATE, id }],
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const patchVmTemplate = dispatch(
+            vmTemplateApi.util.updateQueryData(
+              'getTemplate',
+              { id: params.id },
+              removeLockLevelOnResource(params)
+            )
+          )
 
-          dispatch(
+          const patchVmTemplates = dispatch(
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              (draft) => {
-                const template = draft.find(({ ID }) => +ID === +id)
-                template && (template.LOCK = undefined)
-              }
+              removeLockLevelOnResource(params)
             )
           )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
         } catch {}
       },
     }),

@@ -40,7 +40,7 @@ const HeaderVmInfo = ({ id, type }) => {
   const { push: redirectTo } = useHistory()
   const { enqueueError } = useGeneralApi()
 
-  const { data: vm, isSuccess, isLoading, isError } = useGetVmQuery(id)
+  const { data: vm, isSuccess, isLoading, isError } = useGetVmQuery({ id })
   const [getService, { data: serviceFlow }] = useLazyGetServiceQuery()
 
   const ips = getIps(vm)

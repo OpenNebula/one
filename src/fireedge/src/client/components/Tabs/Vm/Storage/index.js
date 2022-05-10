@@ -60,7 +60,7 @@ const {
  * @returns {ReactElement} Storage tab
  */
 const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
 
   const [disks, hypervisor, actionsAvailable] = useMemo(() => {
     const hyperV = getHypervisor(vm)

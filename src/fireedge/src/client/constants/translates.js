@@ -741,6 +741,12 @@ module.exports = {
   CloneWithImagesConcept: `
     You can also clone any Image referenced inside this Template.
     They will be cloned to a new Image, and made persistent`,
+  ShareVmTemplateDescription: `
+    The VM Template(s), along with any image referenced by it, will
+    be shared with the group's users. Permission changed: GROUP USE`,
+  UnshareVmTemplateDescription: `
+    The VM Template(s), along with any image referenced by it, will
+    be unshared with the group's users. Permission changed: GROUP USE`,
 
   /* Virtual Network schema - network */
   IP: 'IP',
