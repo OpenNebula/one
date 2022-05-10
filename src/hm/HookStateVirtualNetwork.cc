@@ -38,7 +38,7 @@ string HookStateVirtualNetwork::format_message(VirtualNetwork * vn)
 
     oss << "<HOOK_MESSAGE>"
         << "<HOOK_TYPE>STATE</HOOK_TYPE>"
-        << "<HOOK_OBJECT>NET</HOOK_OBJECT>"
+        << "<HOOK_OBJECT>VNET</HOOK_OBJECT>"
         << "<STATE>" << VirtualNetwork::state_to_str(vn->get_state()) << "</STATE>"
         << "<RESOURCE_ID>" << vn->get_oid() << "</RESOURCE_ID>"
         << vn->to_xml(vn_xml)
