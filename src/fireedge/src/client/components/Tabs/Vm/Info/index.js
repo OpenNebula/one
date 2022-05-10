@@ -67,7 +67,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
     attributes_panel: attributesPanel,
   } = tabProps
 
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
   const [changeVmOwnership] = useChangeVmOwnershipMutation()
   const [changeVmPermissions] = useChangeVmPermissionsMutation()
   const [updateUserTemplate] = useUpdateUserTemplateMutation()

@@ -582,7 +582,7 @@ const Actions = () => {
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => unlock(id)))
+                  await Promise.all(ids.map((id) => unlock({ id })))
                 },
               },
             ],

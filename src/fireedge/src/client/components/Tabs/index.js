@@ -53,7 +53,7 @@ const Content = ({
     key={`tab-${id ?? name}`}
     data-cy={`tab-content-${id ?? name}`}
     hidden={hidden}
-    border={addBorder}
+    border={addBorder ? 'true' : undefined}
   >
     <Fade in timeout={400}>
       <TabContent sx={{ p: '1em .5em' }}>

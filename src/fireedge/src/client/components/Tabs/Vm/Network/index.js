@@ -47,7 +47,7 @@ const { ATTACH_NIC, DETACH_NIC, ATTACH_SEC_GROUP, DETACH_SEC_GROUP } =
  * @returns {ReactElement} Networks tab
  */
 const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
-  const { data: vm } = useGetVmQuery(id)
+  const { data: vm } = useGetVmQuery({ id })
 
   const [nics, hypervisor, actionsAvailable] = useMemo(() => {
     const groupedNics = getNics(vm, {

@@ -80,7 +80,7 @@ const getResourceFromEventState = (data) => {
 const UpdateFromSocket =
   ({ updateQueryData, resource }) =>
   async (
-    id,
+    { id },
     { cacheEntryRemoved, cacheDataLoaded, updateCachedData, getState, dispatch }
   ) => {
     const { zone } = getState().general

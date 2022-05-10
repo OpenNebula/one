@@ -18,15 +18,25 @@ import {
   Actions as ExtraActions,
   Commands as ExtraCommands,
 } from 'server/routes/api/vm/routes'
+
 import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateLockLevelOnResource,
+  removeLockLevelOnResource,
+  updatePermissionOnResource,
+  updateOwnershipOnResource,
+  updateUserTemplateOnResource,
+} from 'client/features/OneApi/common'
 import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import http from 'client/utils/rest'
-import { xmlToJson } from 'client/models/Helper'
 import {
   LockLevel,
   FilterFlag,
@@ -44,7 +54,7 @@ const vmApi = oneApi.injectEndpoints({
        * Retrieves information for all or part of
        * the VMs in the pool.
        *
-       * @param {object} params - Request params
+       * @param {object} params - Request parameters
        * @param {boolean} params.extended - Retrieves information for all or part
        * @param {FilterFlag} [params.filter] - Filter flag
        * @param {number} [params.start] - Range start ID
@@ -85,32 +95,37 @@ const vmApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for the virtual machine.
        *
-       * @param {string} id - VM id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - VM id
        * @returns {VmType} Get VM identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.VM_INFO
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       transformResponse: (data) => data?.VM ?? {},
       providesTags: (_, __, id) => [{ type: VM, id }],
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryVm } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
-              const index = draft.findIndex(({ ID }) => +ID === +id)
-              index !== -1 && (draft[index] = queryVm)
-            })
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
           )
         } catch {
+          // if the query fails, we want to remove the resource from the pool
           dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) =>
-              draft.filter(({ ID }) => +ID !== +id)
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              removeResourceOnPool({ id })
             )
           )
         }
@@ -590,7 +605,7 @@ const vmApi = oneApi.injectEndpoints({
        * If set any permission to -1, it's not changed.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {Permission|'-1'} params.ownerUse - User use
        * @param {Permission|'-1'} params.ownerManage - User manage
        * @param {Permission|'-1'} params.ownerAdmin - User administrator
@@ -610,33 +625,18 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
-      async onQueryStarted(
-        { id, ...permissions },
-        { dispatch, queryFulfilled }
-      ) {
-        const patchResult = dispatch(
-          vmApi.util.updateQueryData('getVm', id, (draft) => {
-            Object.entries(permissions)
-              .filter(([_, value]) => value !== '-1')
-              .forEach(([name, value]) => {
-                const ensuredName = {
-                  ownerUse: 'OWNER_U',
-                  ownerManage: 'OWNER_M',
-                  ownerAdmin: 'OWNER_A',
-                  groupUse: 'GROUP_U',
-                  groupManage: 'GROUP_M',
-                  groupAdmin: 'GROUP_A',
-                  otherUse: 'OTHER_U',
-                  otherManage: 'OTHER_M',
-                  otherAdmin: 'OTHER_A',
-                }[name]
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              updatePermissionOnResource(params)
+            )
+          )
 
-                draft.PERMISSIONS[ensuredName] = value
-              })
-          })
-        )
-
-        queryFulfilled.catch(patchResult.undo)
+          queryFulfilled.catch(patchVm.undo)
+        } catch {}
       },
     }),
     changeVmOwnership: builder.mutation({
@@ -644,7 +644,7 @@ const vmApi = oneApi.injectEndpoints({
        * Changes the ownership bits of a virtual machine.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {number} params.user - The user id
        * @param {number} params.group - The group id
        * @returns {number} Virtual machine id
@@ -657,13 +657,26 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(patchVm.undo())
+        } catch {}
+      },
     }),
     renameVm: builder.mutation({
       /**
        * Renames a virtual machine.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {string} params.name - The new name
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
@@ -675,16 +688,28 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
-      async onQueryStarted({ id, name }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-
-          dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
-              const vm = draft.find(({ ID }) => +ID === +id)
-              vm && (vm.NAME = name)
-            })
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
           )
+
+          const patchVms = dispatch(
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVm.undo()
+            patchVms.undo()
+          })
         } catch {}
       },
     }),
@@ -693,7 +718,7 @@ const vmApi = oneApi.injectEndpoints({
        * Creates a new virtual machine snapshot.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {string} params.name - The new snapshot name
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
@@ -711,8 +736,8 @@ const vmApi = oneApi.injectEndpoints({
        * Reverts a virtual machine to a snapshot.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
-       * @param {string|number} params.snapshot - The snapshot id
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.snapshot - The snapshot id
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
@@ -729,8 +754,8 @@ const vmApi = oneApi.injectEndpoints({
        * Deletes a virtual machine snapshot.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
-       * @param {string|number} params.snapshot - The snapshot id
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.snapshot - The snapshot id
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
@@ -747,7 +772,7 @@ const vmApi = oneApi.injectEndpoints({
        * Changes the capacity of the virtual machine.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {string} params.template - Template containing the new capacity
        * @param {boolean} params.enforce - `true` to enforce the Host capacity isn't over committed
        * @returns {number} Virtual machine id
@@ -766,7 +791,7 @@ const vmApi = oneApi.injectEndpoints({
        * Replaces the user template contents.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {string} params.template - The new user template contents on syntax XML
        * @param {0|1} params.replace
        * - Update type:
@@ -782,33 +807,22 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
-      async onQueryStarted(
-        { id, template: xml, replace = 0 },
-        { dispatch, queryFulfilled }
-      ) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          // update user template by id
           const patchVm = dispatch(
-            vmApi.util.updateQueryData('getVm', id, (draft) => {
-              draft.USER_TEMPLATE =
-                +replace === 0
-                  ? xmlToJson(xml)
-                  : { ...draft.USER_TEMPLATE, ...xmlToJson(xml) }
-            })
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              updateUserTemplateOnResource(params)
+            )
           )
 
-          // update user template on pool by id (if exists)
           const patchVms = dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
-              const vm = draft.find(({ ID }) => +ID === +id)
-
-              if (!vm) return
-
-              vm.USER_TEMPLATE =
-                +replace === 0
-                  ? xmlToJson(xml)
-                  : { ...vm.USER_TEMPLATE, ...xmlToJson(xml) }
-            })
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              updateUserTemplateOnResource(params)
+            )
           )
 
           queryFulfilled.catch(() => {
@@ -823,7 +837,7 @@ const vmApi = oneApi.injectEndpoints({
        * Updates (appends) a set of supported configuration attributes in the VM template.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {string} params.template - The new configuration contents on syntax XML
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
@@ -845,7 +859,7 @@ const vmApi = oneApi.injectEndpoints({
        * if the operation was successful or not.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {0|1|2|3|4} params.operation - Recover operation:
        * failure (0), success (1), retry (2), delete (3), delete-recreate (4)
        * @returns {number} Virtual machine id
@@ -864,7 +878,7 @@ const vmApi = oneApi.injectEndpoints({
        * Locks a Virtual Machine. Lock certain actions depending on blocking level.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.id - Virtual machine id
        * @param {LockLevel} params.level - Lock level
        * @param {boolean} params.test - Checks if the object is already locked to return an error
        * @returns {number} Virtual machine id
@@ -877,16 +891,28 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
-      async onQueryStarted({ id, level = '4' }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-
-          dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
-              const vm = draft.find(({ ID }) => +ID === +id)
-              vm && (vm.LOCK = { LOCKED: level })
-            })
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              updateLockLevelOnResource(params)
+            )
           )
+
+          const patchVms = dispatch(
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              updateLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVm.undo()
+            patchVms.undo()
+          })
         } catch {}
       },
     }),
@@ -894,27 +920,40 @@ const vmApi = oneApi.injectEndpoints({
       /**
        * Unlocks a Virtual Machine.
        *
-       * @param {string|number} id - Virtual machine id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.VM_UNLOCK
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: (_, __, id) => [{ type: VM, id }],
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-
-          dispatch(
-            vmApi.util.updateQueryData('getVms', undefined, (draft) => {
-              const vm = draft.find(({ ID }) => +ID === +id)
-              vm && (vm.LOCK = undefined)
-            })
+          const patchVm = dispatch(
+            vmApi.util.updateQueryData(
+              'getVm',
+              { id: params.id },
+              removeLockLevelOnResource(params)
+            )
           )
+
+          const patchVms = dispatch(
+            vmApi.util.updateQueryData(
+              'getVms',
+              undefined,
+              removeLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVm.undo()
+            patchVms.undo()
+          })
         } catch {}
       },
     }),

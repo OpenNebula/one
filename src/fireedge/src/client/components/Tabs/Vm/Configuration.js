@@ -30,7 +30,7 @@ import { T } from 'client/constants'
  * @returns {ReactElement} Configuration tab
  */
 const VmConfigurationTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery(id)
+  const { data: vm = {} } = useGetVmQuery({ id })
   const { TEMPLATE, USER_TEMPLATE } = vm
 
   return (
