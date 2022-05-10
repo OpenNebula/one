@@ -585,25 +585,22 @@ module OneProvision
         def delete(cleanup, timeout, force = false)
             exist = true
 
-            unless force
-                if running_vms? && !cleanup
-                    Utils.fail('Provision with running VMs can\'t be deleted')
-                end
+            if !force && !cleanup && running_vms?
+                Utils.fail('Provision with running VMs can\'t be deleted')
+            end
 
-                if images? && !cleanup
-                    Utils.fail('Provision with images can\'t be deleted')
-                end
-
-                self.state = STATE['DELETING']
-
-                update
-
-                delete_vms(timeout) if cleanup
-
-                delete_images(timeout) if cleanup
+            if !force && !cleanup && images?
+                Utils.fail('Provision with images can\'t be deleted')
             end
 
             self.state = STATE['DELETING']
+
+            update
+
+            if !force && cleanup
+                delete_vms(timeout)
+                delete_images(timeout)
+            end
 
             OneProvisionLogger.info("Deleting provision #{self['ID']}")
 
