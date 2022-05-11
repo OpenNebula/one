@@ -20,7 +20,7 @@ import { TextField, Chip, Autocomplete } from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
 const AutocompleteController = memo(
@@ -77,17 +77,17 @@ const AutocompleteController = memo(
         isOptionEqualToValue={(option) => option.value === renderValue}
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField
-            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            label={<Translate word={label} />}
             inputProps={{ ...inputProps, 'data-cy': cy }}
             InputProps={{ readOnly }}
             error={Boolean(error)}
             helperText={
               Boolean(error) && (
-                <ErrorHelper
-                  label={
-                    Array.isArray(error) ? error[0]?.message : error?.message
-                  }
-                />
+                <ErrorHelper label={error?.message ?? error[0]?.message}>
+                  {tooltip &&
+                    inputProps?.value?.length > 0 &&
+                    `. ${Tr(tooltip)}`}
+                </ErrorHelper>
               )
             }
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
@@ -96,7 +96,7 @@ const AutocompleteController = memo(
         )}
         {...(tooltip && {
           loading: true,
-          loadingText: labelCanBeTranslated(tooltip) ? Tr(tooltip) : tooltip,
+          loadingText: <Translate word={tooltip} />,
         })}
         {...(Array.isArray(separators) && {
           autoSelect: true,

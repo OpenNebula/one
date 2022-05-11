@@ -971,7 +971,7 @@ module.exports = {
   /* Validation - object  */
   'validation.object.noUnknown': 'Has unspecified keys: %s',
   /* Validation - array  */
-  'validation.array.min': 'Must have at least %s items',
-  'validation.array.max': 'Must have less than or equal to %s items',
-  'validation.array.length': 'Must have %s items',
+  'validation.array.min': 'Must have at least %s item(s) to act as a default',
+  'validation.array.max': 'Must have less than or equal to %s item(s)',
+  'validation.array.length': 'Must have %s item(s)',
 }
