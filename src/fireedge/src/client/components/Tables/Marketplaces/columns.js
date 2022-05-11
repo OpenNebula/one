@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
-import * as MarketplaceModel from 'client/models/Datastore'
+import { getState } from 'client/models/Datastore'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
@@ -28,7 +28,7 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: (row) => MarketplaceModel.getState(row)?.name,
+    accessor: (row) => getState(row)?.name,
     disableFilters: false,
     Filter: ({ column }) =>
       CategoryFilter({

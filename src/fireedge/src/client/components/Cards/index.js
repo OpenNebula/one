@@ -23,6 +23,7 @@ import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import EmptyCard from 'client/components/Cards/EmptyCard'
 import HostCard from 'client/components/Cards/HostCard'
 import MarketplaceAppCard from 'client/components/Cards/MarketplaceAppCard'
+import MarketplaceCard from 'client/components/Cards/MarketplaceCard'
 import NetworkCard from 'client/components/Cards/NetworkCard'
 import NicCard from 'client/components/Cards/NicCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
@@ -48,6 +49,7 @@ export {
   EmptyCard,
   HostCard,
   MarketplaceAppCard,
+  MarketplaceCard,
   NetworkCard,
   NicCard,
   PolicyCard,

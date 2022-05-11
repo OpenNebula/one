@@ -19,8 +19,6 @@ import PropTypes from 'prop-types'
 import {
   User,
   Group,
-  Lock,
-  Cloud,
   Server,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
@@ -34,32 +32,31 @@ import {
 import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import { getState, getType, getCapacityInfo } from 'client/models/Datastore'
+import { getState, getCapacityInfo } from 'client/models/Datastore'
 import { getErrorMessage } from 'client/models/Helper'
-import { T, Datastore, DS_THRESHOLD } from 'client/constants'
+import { T, Marketplace, MARKET_THRESHOLD } from 'client/constants'
 
-const DatastoreCard = memo(
+const MarketplaceCard = memo(
   /**
    * @param {object} props - Props
-   * @param {Datastore} props.datastore - Datastore resource
+   * @param {Marketplace} props.market - Marketplace resource
    * @param {object} props.rootProps - Props to root component
    * @param {ReactElement} props.actions - Actions
    * @returns {ReactElement} - Card
    */
-  ({ datastore: ds, rootProps, actions }) => {
+  ({ market, rootProps, actions }) => {
     const classes = rowStyles()
 
-    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = ds
+    const { ID, NAME, UNAME, GNAME, MARKET_MAD, MARKETPLACEAPPS } = market
 
-    const type = getType(ds)
-    const { color: stateColor, name: stateName } = getState(ds)
-    const error = useMemo(() => getErrorMessage(ds), [ds])
-    const capacity = useMemo(() => getCapacityInfo(ds), [ds])
+    const { color: stateColor, name: stateName } = getState(market)
+    const error = useMemo(() => getErrorMessage(market), [market])
+    const capacity = useMemo(() => getCapacityInfo(market), [market])
     const { percentOfUsed, percentLabel } = capacity
 
-    const clusters = useMemo(
-      () => [CLUSTERS?.ID ?? []].flat().join(),
-      [CLUSTERS?.ID]
+    const apps = useMemo(
+      () => [MARKETPLACEAPPS?.ID ?? []].flat().length || 0,
+      [MARKETPLACEAPPS?.ID]
     )
 
     return (
@@ -80,8 +77,7 @@ const DatastoreCard = memo(
               </Tooltip>
             )}
             <span className={classes.labels}>
-              {LOCK && <Lock />}
-              <StatusChip text={type} />
+              <StatusChip text={MARKET_MAD} />
             </span>
           </div>
           <div className={classes.caption}>
@@ -94,15 +90,9 @@ const DatastoreCard = memo(
               <Group />
               <span>{` ${GNAME}`}</span>
             </span>
-            {PROVISION_ID && (
-              <span title={`${Tr(T.ProvisionId)}: #${PROVISION_ID}`}>
-                <Cloud />
-                <span>{` ${PROVISION_ID}`}</span>
-              </span>
-            )}
-            <span title={`${Tr(T.Clusters)}: ${clusters}`}>
+            <span title={`${Tr(T.Apps)}: ${apps}`}>
               <Server />
-              <span>{` ${clusters}`}</span>
+              <span>{` ${apps}`}</span>
             </span>
           </div>
         </div>
@@ -110,8 +100,8 @@ const DatastoreCard = memo(
           <LinearProgressWithLabel
             value={percentOfUsed}
             label={percentLabel}
-            high={DS_THRESHOLD.CAPACITY.high}
-            low={DS_THRESHOLD.CAPACITY.low}
+            high={MARKET_THRESHOLD.CAPACITY.high}
+            low={MARKET_THRESHOLD.CAPACITY.low}
             title={Tr(T.UsedOfTotal)}
           />
         </div>
@@ -121,14 +111,14 @@ const DatastoreCard = memo(
   }
 )
 
-DatastoreCard.propTypes = {
-  datastore: PropTypes.object,
+MarketplaceCard.propTypes = {
+  market: PropTypes.object,
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
   actions: PropTypes.any,
 }
 
-DatastoreCard.displayName = 'DatastoreCard'
+MarketplaceCard.displayName = 'MarketplaceCard'
 
-export default DatastoreCard
+export default MarketplaceCard

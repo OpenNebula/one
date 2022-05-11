@@ -258,3 +258,5 @@ export const {
   useEnableMarketplaceMutation,
   useDisableMarketplaceMutation,
 } = marketplaceApi
+
+export default marketplaceApi

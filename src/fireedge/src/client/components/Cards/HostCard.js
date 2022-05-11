@@ -28,7 +28,7 @@ import { rowStyles } from 'client/components/Tables/styles'
 import { Tr } from 'client/components/HOC'
 
 import { getAllocatedInfo, getState } from 'client/models/Host'
-import { T, Host } from 'client/constants'
+import { T, Host, HOST_THRESHOLD } from 'client/constants'
 
 const HostCard = memo(
   /**
@@ -80,15 +80,15 @@ const HostCard = memo(
         <div className={classes.secondary}>
           <LinearProgressWithLabel
             value={percentCpuUsed}
-            high={66}
-            low={33}
+            high={HOST_THRESHOLD.CPU.high}
+            low={HOST_THRESHOLD.CPU.low}
             label={percentCpuLabel}
             title={`${Tr(T.AllocatedCpu)}`}
           />
           <LinearProgressWithLabel
             value={percentMemUsed}
-            high={66}
-            low={33}
+            high={HOST_THRESHOLD.MEMORY.high}
+            low={HOST_THRESHOLD.MEMORY.low}
             label={percentMemLabel}
             title={`${Tr(T.AllocatedMemory)}`}
           />

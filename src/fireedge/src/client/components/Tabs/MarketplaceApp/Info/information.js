@@ -77,7 +77,7 @@ const InformationPanel = ({ app = {}, actions }) => {
       name: T.StartTime,
       value: timeToString(REGTIME),
     },
-    { name: T.Type, value: typeName },
+    { name: T.Type, value: <StatusChip text={typeName} /> },
     { name: T.Size, value: prettyBytes(SIZE, 'MB') },
     {
       name: T.State,
