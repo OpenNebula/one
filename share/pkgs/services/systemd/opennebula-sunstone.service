@@ -33,6 +33,7 @@ StartLimitInterval=60
 StartLimitBurst=3
 Restart=on-failure
 RestartSec=5
+SyslogIdentifier=opennebula-sunstone
 
 [Install]
 WantedBy=multi-user.target
