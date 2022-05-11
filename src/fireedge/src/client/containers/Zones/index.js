@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-import { Container, Stack, Chip } from '@mui/material'
+import { Stack, Chip } from '@mui/material'
 
 import { ZonesTable } from 'client/components/Tables'
 import ZoneTabs from 'client/components/Tabs/Zone'
@@ -26,40 +26,33 @@ function Zones() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
 
   return (
-    <Stack height={1} py={2} overflow="auto" component={Container}>
-      <SplitPane>
-        <ZonesTable onSelectedRowsChange={onSelectedRowsChange} />
+    <SplitPane>
+      <ZonesTable onSelectedRowsChange={onSelectedRowsChange} />
 
-        {selectedRows?.length > 0 && (
-          <Stack overflow="auto" data-cy={'detail'}>
-            {selectedRows?.length === 1 ? (
-              <ZoneTabs id={selectedRows[0]?.values.ID} />
-            ) : (
-              <Stack
-                direction="row"
-                flexWrap="wrap"
-                gap={1}
-                alignItems="center"
-              >
-                <MultipleTags
-                  limitTags={10}
-                  tags={selectedRows?.map(
-                    ({ original, id, toggleRowSelected }) => (
-                      <Chip
-                        key={id}
-                        variant="text"
-                        label={original?.NAME ?? id}
-                        onDelete={() => toggleRowSelected(false)}
-                      />
-                    )
-                  )}
-                />
-              </Stack>
-            )}
-          </Stack>
-        )}
-      </SplitPane>
-    </Stack>
+      {selectedRows?.length > 0 && (
+        <Stack overflow="auto" data-cy={'detail'}>
+          {selectedRows?.length === 1 ? (
+            <ZoneTabs id={selectedRows[0]?.values.ID} />
+          ) : (
+            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
+              <MultipleTags
+                limitTags={10}
+                tags={selectedRows?.map(
+                  ({ original, id, toggleRowSelected }) => (
+                    <Chip
+                      key={id}
+                      variant="text"
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  )
+                )}
+              />
+            </Stack>
+          )}
+        </Stack>
+      )}
+    </SplitPane>
   )
 }
 

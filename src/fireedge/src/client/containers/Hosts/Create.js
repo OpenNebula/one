@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import {
@@ -58,11 +57,9 @@ function CreateHost() {
   }
 
   return (
-    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
-        {(config) => <DefaultFormStepper {...config} />}
-      </CreateForm>
-    </Container>
+    <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
+      {(config) => <DefaultFormStepper {...config} />}
+    </CreateForm>
   )
 }
 

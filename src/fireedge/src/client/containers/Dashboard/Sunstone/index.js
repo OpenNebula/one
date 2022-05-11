@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Container, Box, CircularProgress, Grid } from '@mui/material'
+import { Box, CircularProgress, Grid } from '@mui/material'
 import {
   ModernTv as VmsIcons,
   List as TemplatesIcon,
@@ -38,8 +38,8 @@ function SunstoneDashboard() {
   const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
 
   return (
-    <Container
-      disableGutters
+    <Box
+      py={3}
       {...(stringToBoolean(DISABLE_ANIMATIONS) && {
         sx: {
           '& *, & *::before, & *::after': {
@@ -48,39 +48,37 @@ function SunstoneDashboard() {
         },
       })}
     >
-      <Box py={3}>
-        <Grid
-          container
-          data-cy="dashboard-widget-total-sunstone-resources"
-          spacing={3}
-        >
-          <ResourceWidget
-            query={useGetVmsQuery}
-            bgColor="#fa7892"
-            text={T.VMs}
-            icon={VmsIcons}
-          />
-          <ResourceWidget
-            query={useGetTemplatesQuery}
-            bgColor="#b25aff"
-            text={T.VMTemplates}
-            icon={TemplatesIcon}
-          />
-          <ResourceWidget
-            query={useGetImagesQuery}
-            bgColor="#1fbbc6"
-            text={T.Images}
-            icon={ImageIcon}
-          />
-          <ResourceWidget
-            query={useGetVNetworksQuery}
-            bgColor="#f09d42"
-            text={T.VirtualNetworks}
-            icon={NetworkIcon}
-          />
-        </Grid>
-      </Box>
-    </Container>
+      <Grid
+        container
+        data-cy="dashboard-widget-total-sunstone-resources"
+        spacing={3}
+      >
+        <ResourceWidget
+          query={useGetVmsQuery}
+          bgColor="#fa7892"
+          text={T.VMs}
+          icon={VmsIcons}
+        />
+        <ResourceWidget
+          query={useGetTemplatesQuery}
+          bgColor="#b25aff"
+          text={T.VMTemplates}
+          icon={TemplatesIcon}
+        />
+        <ResourceWidget
+          query={useGetImagesQuery}
+          bgColor="#1fbbc6"
+          text={T.Images}
+          icon={ImageIcon}
+        />
+        <ResourceWidget
+          query={useGetVNetworksQuery}
+          bgColor="#f09d42"
+          text={T.VirtualNetworks}
+          icon={NetworkIcon}
+        />
+      </Grid>
+    </Box>
   )
 }
 

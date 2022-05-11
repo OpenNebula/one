@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useParams, Redirect } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
 
 import UserTabs from 'client/components/Tabs/User'
 
@@ -26,17 +25,7 @@ function UserDetail() {
     return <Redirect to="/" />
   }
 
-  return (
-    <Box
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
-      <UserTabs id={id} />
-    </Box>
-  )
+  return <UserTabs id={id} />
 }
 
 export default UserDetail

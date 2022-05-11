@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { useEffect, ReactElement } from 'react'
 import { useParams, useHistory, Redirect } from 'react-router'
-import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import {
@@ -118,21 +117,17 @@ function ProviderCreateForm() {
     }
   }
 
-  return (
-    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      {id && (!providerConfig || !connection || !provider) ? (
-        <SkeletonStepsForm />
-      ) : (
-        <CreateForm
-          initialValues={getInitialValues()}
-          stepProps={{ isUpdate: id !== undefined }}
-          onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
-        >
-          {(config) => <DefaultFormStepper {...config} />}
-        </CreateForm>
-      )}
-    </Container>
+  return id && (!providerConfig || !connection || !provider) ? (
+    <SkeletonStepsForm />
+  ) : (
+    <CreateForm
+      initialValues={getInitialValues()}
+      stepProps={{ isUpdate: id !== undefined }}
+      onSubmit={onSubmit}
+      fallback={<SkeletonStepsForm />}
+    >
+      {(config) => <DefaultFormStepper {...config} />}
+    </CreateForm>
   )
 }
 

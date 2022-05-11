@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { useHistory, useLocation, Redirect } from 'react-router'
-import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import {
@@ -70,21 +69,17 @@ function InstantiateVmTemplate() {
     return <Redirect to={PATH.TEMPLATE.VMS.LIST} />
   }
 
-  return (
-    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      {!data ? (
-        <SkeletonStepsForm />
-      ) : (
-        <InstantiateForm
-          initialValues={data}
-          stepProps={data}
-          onSubmit={onSubmit}
-          fallback={<SkeletonStepsForm />}
-        >
-          {(config) => <DefaultFormStepper {...config} />}
-        </InstantiateForm>
-      )}
-    </Container>
+  return !data ? (
+    <SkeletonStepsForm />
+  ) : (
+    <InstantiateForm
+      initialValues={data}
+      stepProps={data}
+      onSubmit={onSubmit}
+      fallback={<SkeletonStepsForm />}
+    >
+      {(config) => <DefaultFormStepper {...config} />}
+    </InstantiateForm>
   )
 }
 

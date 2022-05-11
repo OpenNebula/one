@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, JSXElementConstructor } from 'react'
-import { Container, Grid, Button } from '@mui/material'
+import { useMemo, ReactElement } from 'react'
+import { Grid, Button } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { object } from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -22,8 +22,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { FormWithSchema } from 'client/components/Forms'
 
 /**
- * @returns {JSXElementConstructor}
- * - Component that allows you to test a form and their components
+ * @returns {ReactElement}
+ * Component that allows you to test a form and their components
  */
 function TestForm() {
   const fields = useMemo(
@@ -45,20 +45,24 @@ function TestForm() {
   }
 
   return (
-    <Container component="form" onSubmit={methods.handleSubmit(onSubmit)}>
-      <Grid container direction="row" spacing={2}>
-        <Grid item xs={12}>
-          <FormProvider {...methods}>
-            <FormWithSchema fields={fields} />
-          </FormProvider>
-        </Grid>
-        <Grid item xs={12}>
-          <Button type="submit" variant="contained">
-            {'Submit'}
-          </Button>
-        </Grid>
+    <Grid
+      container
+      direction="row"
+      spacing={2}
+      component="form"
+      onSubmit={methods.handleSubmit(onSubmit)}
+    >
+      <Grid item xs={12}>
+        <FormProvider {...methods}>
+          <FormWithSchema fields={fields} />
+        </FormProvider>
       </Grid>
-    </Container>
+      <Grid item xs={12}>
+        <Button type="submit" variant="contained">
+          {'Submit'}
+        </Button>
+      </Grid>
+    </Grid>
   )
 }
 

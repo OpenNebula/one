@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Container, Stack } from '@mui/material'
 import { useHistory, generatePath } from 'react-router-dom'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
@@ -41,14 +40,12 @@ const VmsInfoTab = ({ id }) => {
   }
 
   return (
-    <Stack height={1} py={2} overflow="auto" component={Container}>
-      <VmsTable
-        disableRowSelect
-        disableGlobalSort
-        host={host}
-        onRowClick={(row) => handleRowClick(row.ID)}
-      />
-    </Stack>
+    <VmsTable
+      disableRowSelect
+      disableGlobalSort
+      host={host}
+      onRowClick={(row) => handleRowClick(row.ID)}
+    />
   )
 }
 

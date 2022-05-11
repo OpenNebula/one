@@ -17,7 +17,7 @@ import { useState, memo, ReactElement } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
-import { Box, Container, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 
 import { useSocket } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
@@ -64,16 +64,12 @@ function ProvisionCreateForm() {
     return <Redirect to={PATH.PROVISIONS.LIST} />
   }
 
-  return (
-    <Container sx={{ display: 'flex', flexDirection: 'column' }} disableGutters>
-      {!providers || isLoading ? (
-        <SkeletonStepsForm />
-      ) : (
-        <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
-          {(config) => <DefaultFormStepper {...config} />}
-        </CreateForm>
-      )}
-    </Container>
+  return !providers || isLoading ? (
+    <SkeletonStepsForm />
+  ) : (
+    <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
+      {(config) => <DefaultFormStepper {...config} />}
+    </CreateForm>
   )
 }
 

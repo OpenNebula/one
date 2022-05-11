@@ -15,23 +15,10 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-import { Container, Box } from '@mui/material'
-
 import { VRoutersTable } from 'client/components/Tables'
 
 function VirtualRouters() {
-  return (
-    <Box
-      height={1}
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
-      <VRoutersTable />
-    </Box>
-  )
+  return <VRoutersTable />
 }
 
 export default VirtualRouters

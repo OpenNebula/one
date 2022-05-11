@@ -17,7 +17,7 @@ import { memo, ReactElement, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useHistory, generatePath } from 'react-router-dom'
-import { Container, Box, Backdrop, CircularProgress } from '@mui/material'
+import { Box, Backdrop, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import {
@@ -74,64 +74,60 @@ function Providers() {
 
   return (
     <>
-      <Container disableGutters>
-        <ListHeader
-          title={T.Providers}
-          reloadButtonProps={{
-            'data-cy': 'refresh-provider-list',
-            onClick: () => refetch(),
-            isSubmitting: isFetching,
-          }}
-          addButtonProps={{
-            'data-cy': 'create-provider',
-            onClick: () => history.push(PATH.PROVIDERS.CREATE),
-          }}
-          searchProps={{ handleChange }}
-        />
-        <Box p={3}>
-          {error ? (
-            <AlertError>{T.CannotConnectOneProvision}</AlertError>
-          ) : (
-            <ListCards
-              list={result ?? providers}
-              gridProps={{ 'data-cy': 'providers' }}
-              CardComponent={ProvisionCard}
-              cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
-                image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
-                isProvider: true,
-                handleClick: () => show({ id: ID, title: `#${ID} ${NAME}` }),
-                actions: [
-                  {
-                    handleClick: () =>
-                      history.push(
-                        generatePath(PATH.PROVIDERS.EDIT, { id: ID })
+      <ListHeader
+        title={T.Providers}
+        reloadButtonProps={{
+          'data-cy': 'refresh-provider-list',
+          onClick: () => refetch(),
+          isSubmitting: isFetching,
+        }}
+        addButtonProps={{
+          'data-cy': 'create-provider',
+          onClick: () => history.push(PATH.PROVIDERS.CREATE),
+        }}
+        searchProps={{ handleChange }}
+      />
+      <Box p={3}>
+        {error ? (
+          <AlertError>{T.CannotConnectOneProvision}</AlertError>
+        ) : (
+          <ListCards
+            list={result ?? providers}
+            gridProps={{ 'data-cy': 'providers' }}
+            CardComponent={ProvisionCard}
+            cardsProps={({ value: { ID, NAME, TEMPLATE } }) => ({
+              image: providerConfig[TEMPLATE?.PLAIN?.provider]?.image,
+              isProvider: true,
+              handleClick: () => show({ id: ID, title: `#${ID} ${NAME}` }),
+              actions: [
+                {
+                  handleClick: () =>
+                    history.push(generatePath(PATH.PROVIDERS.EDIT, { id: ID })),
+                  icon: <EditIcon />,
+                  cy: 'provider-edit',
+                },
+                {
+                  handleClick: () =>
+                    show({
+                      id: ID,
+                      title: (
+                        <Translate
+                          word={T.DeleteSomething}
+                          values={`#${ID} ${NAME}`}
+                        />
                       ),
-                    icon: <EditIcon />,
-                    cy: 'provider-edit',
-                  },
-                  {
-                    handleClick: () =>
-                      show({
-                        id: ID,
-                        title: (
-                          <Translate
-                            word={T.DeleteSomething}
-                            values={`#${ID} ${NAME}`}
-                          />
-                        ),
-                        handleAccept: () => handleDelete(ID),
-                      }),
-                    icon: <DeleteIcon />,
-                    isSubmitting: isDeleting,
-                    color: 'error',
-                    cy: 'provider-delete',
-                  },
-                ],
-              })}
-            />
-          )}
-        </Box>
-      </Container>
+                      handleAccept: () => handleDelete(ID),
+                    }),
+                  icon: <DeleteIcon />,
+                  isSubmitting: isDeleting,
+                  color: 'error',
+                  cy: 'provider-delete',
+                },
+              ],
+            })}
+          />
+        )}
+      </Box>
       {display && dialogProps?.id && (
         <DialogProvider
           hide={hide}

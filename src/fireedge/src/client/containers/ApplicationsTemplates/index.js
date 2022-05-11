@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
 import { useHistory, generatePath } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
+import { Box } from '@mui/material'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
 import { useGetServiceTemplatesQuery } from 'client/features/OneApi/serviceTemplate'
@@ -38,7 +38,7 @@ function ApplicationsTemplates() {
   } = useGetServiceTemplatesQuery()
 
   return (
-    <Container disableGutters>
+    <>
       <ListHeader
         title={T.ApplicationsTemplates}
         hasReloadButton
@@ -79,7 +79,7 @@ function ApplicationsTemplates() {
           handleCancel={() => setShowDialog(false)}
         />
       )}
-    </Container>
+    </>
   )
 }
 

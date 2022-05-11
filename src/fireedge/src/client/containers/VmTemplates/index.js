@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-import { Container, Stack, Chip } from '@mui/material'
+import { Stack, Chip } from '@mui/material'
 
 import { VmTemplatesTable } from 'client/components/Tables'
 import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
@@ -28,43 +28,36 @@ function VmTemplates() {
   const actions = VmTemplateActions()
 
   return (
-    <Stack height={1} py={2} overflow="auto" component={Container}>
-      <SplitPane>
-        <VmTemplatesTable
-          onSelectedRowsChange={onSelectedRowsChange}
-          globalActions={actions}
-        />
+    <SplitPane>
+      <VmTemplatesTable
+        onSelectedRowsChange={onSelectedRowsChange}
+        globalActions={actions}
+      />
 
-        {selectedRows?.length > 0 && (
-          <Stack overflow="auto">
-            {selectedRows?.length === 1 ? (
-              <VmTemplateTabs id={selectedRows[0]?.original.ID} />
-            ) : (
-              <Stack
-                direction="row"
-                flexWrap="wrap"
-                gap={1}
-                alignItems="center"
-              >
-                <MultipleTags
-                  limitTags={10}
-                  tags={selectedRows?.map(
-                    ({ original, id, toggleRowSelected }) => (
-                      <Chip
-                        key={id}
-                        variant="text"
-                        label={original?.NAME ?? id}
-                        onDelete={() => toggleRowSelected(false)}
-                      />
-                    )
-                  )}
-                />
-              </Stack>
-            )}
-          </Stack>
-        )}
-      </SplitPane>
-    </Stack>
+      {selectedRows?.length > 0 && (
+        <Stack overflow="auto">
+          {selectedRows?.length === 1 ? (
+            <VmTemplateTabs id={selectedRows[0]?.original.ID} />
+          ) : (
+            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
+              <MultipleTags
+                limitTags={10}
+                tags={selectedRows?.map(
+                  ({ original, id, toggleRowSelected }) => (
+                    <Chip
+                      key={id}
+                      variant="text"
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  )
+                )}
+              />
+            </Stack>
+          )}
+        </Stack>
+      )}
+    </SplitPane>
   )
 }
 
