@@ -153,6 +153,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Delete,
                   children: MessageToConfirmAction,
+                  dataCy: `modal-host-${HOST_ACTIONS.DELETE}`,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
