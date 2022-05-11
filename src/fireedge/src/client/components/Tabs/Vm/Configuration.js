@@ -16,7 +16,6 @@
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { Translate } from 'client/components/HOC'
@@ -35,8 +34,8 @@ const VmConfigurationTab = ({ id }) => {
 
   return (
     <div>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Accordion>
+        <AccordionSummary>
           <Translate word={T.UserTemplate} />
         </AccordionSummary>
         <AccordionDetails>
@@ -47,8 +46,8 @@ const VmConfigurationTab = ({ id }) => {
           </pre>
         </AccordionDetails>
       </Accordion>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Accordion>
+        <AccordionSummary>
           <Translate word={T.Template} />
         </AccordionSummary>
         <AccordionDetails>
