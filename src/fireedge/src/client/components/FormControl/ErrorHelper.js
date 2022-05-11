@@ -27,7 +27,7 @@ const ErrorTypo = styled(Typography)(({ theme }) => ({
   overflowWrap: 'anywhere',
 }))
 
-const ErrorHelper = memo(({ label, ...rest }) => {
+const ErrorHelper = memo(({ label, children, ...rest }) => {
   const ensuredLabel = Array.isArray(label) ? label[0] : label
 
   const translateProps = ensuredLabel?.word
@@ -45,12 +45,14 @@ const ErrorHelper = memo(({ label, ...rest }) => {
       <WarningIcon />
       <ErrorTypo component="span" data-cy="error-text">
         <Translate {...translateProps} />
+        {children}
       </ErrorTypo>
     </Stack>
   )
 })
 
 ErrorHelper.propTypes = {
+  children: PropTypes.any,
   label: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node,
