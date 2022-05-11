@@ -138,11 +138,6 @@ define(function(require) {
       $(".service_networks tbody").append(
         "<tr id=\"network"+nic_index+"\">\
           <td>\
-            <input checked=\"\" type=\"checkbox\" name=\"service_network_mandatory"+nic_index+"\"\
-              class=\"switch input service_network_mandatory slaac\" id=\"service_network_mandatory"+nic_index+"\" hidden=\"\">\
-            <label class=\"switch-paddle\" for=\"service_network_mandatory"+nic_index+"\" style=\"cursor: pointer;\"></label>\
-          </td>\
-          <td>\
             <input class=\"service_network_name\" type=\"text\" data-index=\""+nic_index+"\" required />\
             <small class=\"form-error\"><br/>"+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+"</small>\
           </td>\
@@ -297,7 +292,7 @@ define(function(require) {
       var row = $(this);
       var attr_name = $(".service_network_name", row).val();
       if (attr_name) {
-        var attr_mandatory = $(".service_network_mandatory", row).prop("checked") ? "M" : "O";
+        var attr_mandatory = "M";
         var attr_desc = ($(".service_network_description", row).val() || "");
         var attr_type = $(".service_network_type", row).val() || "";
         var attr_id = $(".service_network_id", row).val() || "";
@@ -474,7 +469,6 @@ define(function(require) {
         if (parts[1] === "network") {
           $(".add_service_network", context).trigger("click");
           var tr = $(".service_networks tbody > tr", context).last();
-          $(".service_network_mandatory", tr).prop("checked", attrs.mandatory).change();
           $(".service_network_name", tr).val(attrs.name).change();
           $(".service_network_description", tr).val(attrs.description).change();
           $(".service_network_type", tr).val(attrs.type).change();
