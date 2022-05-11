@@ -33,7 +33,7 @@ import {
 import { LockLevel, FilterFlag, Permission, VmTemplate } from 'client/constants'
 
 const { TEMPLATE } = ONE_RESOURCES
-const { TEMPLATE_POOL, VM_POOL } = ONE_RESOURCES_POOL
+const { TEMPLATE_POOL, VM_POOL, IMAGE_POOL } = ONE_RESOURCES_POOL
 
 const vmTemplateApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -163,7 +163,11 @@ const vmTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [TEMPLATE_POOL],
+      invalidatesTags: (_, __, { id, image }) => [
+        TEMPLATE_POOL,
+        { type: TEMPLATE, id },
+        ...(image ? [IMAGE_POOL] : []),
+      ],
     }),
     instantiateTemplate: builder.mutation({
       /**

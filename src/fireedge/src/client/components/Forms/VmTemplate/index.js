@@ -35,7 +35,14 @@ const CreateForm = (configProps) =>
  * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
  */
+const DeleteForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/DeleteForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
 const InstantiateForm = (configProps) =>
   AsyncLoadForm({ formPath: 'VmTemplate/InstantiateForm' }, configProps)
 
-export { CloneForm, CreateForm, InstantiateForm }
+export { CloneForm, CreateForm, DeleteForm, InstantiateForm }

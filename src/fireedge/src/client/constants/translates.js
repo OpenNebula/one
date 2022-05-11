@@ -63,7 +63,10 @@ module.exports = {
   Delete: 'Delete',
   DeleteDb: 'Delete database',
   DeleteScheduleAction: 'Delete schedule action: %s',
+  DeleteSeveralTemplates: 'Delete several Templates',
+  DeleteTemplate: 'Delete Template',
   DeleteSomething: 'Delete: %s',
+  DeleteAllImages: 'Delete all images',
   Deploy: 'Deploy',
   Detach: 'Detach',
   DetachSomething: 'Detach: %s',
@@ -733,6 +736,8 @@ module.exports = {
     Number of virtual CPUs. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
   /* VM Template schema - actions */
+  DeleteAllImagesConcept:
+    'Enable to delete the template plus any image defined in DISK',
   CopyOf: 'Copy of ',
   PrefixMultipleConcept:
     'Several templates are selected, please choose prefix to name the new copies',
