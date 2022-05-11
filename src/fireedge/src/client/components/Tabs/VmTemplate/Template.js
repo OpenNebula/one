@@ -30,7 +30,7 @@ const TemplateTab = ({ id }) => {
   const { data: vmTemplate = {} } = useGetTemplateQuery({ id })
 
   return (
-    <Accordion expanded TransitionProps={{ unmountOnExit: true }}>
+    <Accordion expanded>
       <AccordionDetails>
         <Box component="pre">
           <Box

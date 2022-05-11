@@ -43,7 +43,7 @@ const AppTemplateTab = ({ id }) => {
 
   return (
     <>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
+      <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Translate word={T.AppTemplate} />
         </AccordionSummary>
@@ -57,7 +57,7 @@ const AppTemplateTab = ({ id }) => {
           </pre>
         </AccordionDetails>
       </Accordion>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
+      <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Translate word={T.VMTemplate} />
         </AccordionSummary>

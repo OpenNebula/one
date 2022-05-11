@@ -183,6 +183,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={`${Tr(T.Attributes)}`}
@@ -191,6 +192,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       {vcenterPanel?.enabled && vcenterAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(vcenterPanel?.actions)}
           attributes={vcenterAttributes}
           title={`vCenter ${Tr(T.Information)}`}
@@ -199,6 +201,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       {lxcPanel?.enabled && lxcAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(lxcPanel?.actions)}
           attributes={lxcAttributes}
           title={`LXC ${Tr(T.Information)}`}
@@ -206,6 +209,7 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       )}
       {monitoringPanel?.enabled && monitoringAttributes && (
         <AttributePanel
+          collapse
           actions={getActions(monitoringPanel?.actions)}
           attributes={monitoringAttributes}
           title={`${Tr(T.Monitoring)}`}

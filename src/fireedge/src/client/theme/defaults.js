@@ -14,6 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createTheme, ThemeOptions, colors, alpha } from '@mui/material'
+import { accordionSummaryClasses } from '@mui/material/AccordionSummary'
+import { iconButtonClasses } from '@mui/material/IconButton'
+import { buttonClasses } from '@mui/material/Button'
+import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
+
 import { UbuntuFont } from 'client/theme/fonts'
 import { SCHEMES } from 'client/constants'
 
@@ -77,7 +82,7 @@ const buttonSvgStyle = {
  * @param {SCHEMES} mode - Scheme type
  * @returns {ThemeOptions} Material theme options
  */
-export default (appTheme, mode = SCHEMES.DARK) => {
+const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
   const isDarkMode = `${mode}`.toLowerCase() === SCHEMES.DARK
 
   const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
@@ -347,7 +352,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             borderWidth: 0,
             borderBottomWidth: 'thin',
             backgroundColor: primary.main,
-            '& .MuiIconButton-root, & .MuiButton-root': {
+            [`& .${iconButtonClasses.root}, & .${buttonClasses.root}`]: {
               color: white,
               border: 'none',
               backgroundColor: 'transparent',
@@ -456,6 +461,50 @@ export default (appTheme, mode = SCHEMES.DARK) => {
           },
         ],
       },
+      MuiAccordion: {
+        defaultProps: {
+          elevation: 0,
+          square: true,
+          disableGutters: true,
+          TransitionProps: { unmountOnExit: true },
+        },
+        styleOverrides: {
+          root: {
+            flexBasis: '100%',
+            border: `1px solid ${defaultTheme.palette.divider}`,
+            '&:before': { display: 'none' },
+          },
+        },
+      },
+      MuiAccordionDetails: {
+        styleOverrides: {
+          root: {
+            border: `1px solid ${defaultTheme.palette.divider}`,
+          },
+        },
+      },
+      MuiAccordionSummary: {
+        defaultProps: {
+          expandIcon: <ExpandMoreIcon />,
+        },
+        styleOverrides: {
+          flexDirection: 'row-reverse',
+          backgroundColor: isDarkMode
+            ? 'rgba(255, 255, 255, .05)'
+            : 'rgba(0, 0, 0, .03)',
+          '&:not(:last-child)': {
+            borderBottom: 0,
+          },
+          [`& .${accordionSummaryClasses.expandIconWrapper}.Mui-expanded`]: {
+            transform: 'rotate(90deg)',
+          },
+          [`& .${accordionSummaryClasses.content}`]: {
+            marginLeft: '.5em',
+          },
+        },
+      },
     },
   }
 }
+
+export default createAppTheme

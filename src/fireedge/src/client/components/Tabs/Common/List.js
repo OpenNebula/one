@@ -14,38 +14,43 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { Fragment, isValidElement } from 'react'
+import { useMemo, Fragment, isValidElement } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-import { List as MList, ListItem, Typography, Paper } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import {
+  styled,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  List,
+  ListItem,
+  Typography,
+  Paper,
+} from '@mui/material'
 
 import {
   Attribute,
   AttributePropTypes,
 } from 'client/components/Tabs/Common/Attribute'
 import AttributeCreateForm from 'client/components/Tabs/Common/AttributeCreateForm'
-
 import { Tr } from 'client/components/HOC'
 
-const useStyles = makeStyles((theme) => ({
-  title: {
-    fontWeight: theme.typography.fontWeightBold,
-    borderBottom: `1px solid ${theme.palette.divider}`,
+const Title = styled(ListItem)(({ theme }) => ({
+  fontWeight: theme.typography.fontWeightBold,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}))
+
+const Item = styled(ListItem)(({ theme }) => ({
+  gap: '1em',
+  '& > *': {
+    flex: '1 1 50%',
+    overflow: 'hidden',
+    minHeight: '100%',
   },
-  item: {
-    gap: '1em',
-    '& > *': {
-      flex: '1 1 50%',
-      overflow: 'hidden',
-      minHeight: '100%',
-    },
-    '&:hover': {
-      backgroundColor: theme.palette.action.hover,
-    },
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
   },
-  typo: theme.typography.body2,
 }))
 
 const AttributeList = ({
@@ -56,8 +61,21 @@ const AttributeList = ({
   itemProps = {},
   listProps = {},
   subListProps = {},
+  collapse = false,
 }) => {
-  const classes = useStyles()
+  const RootElement = useMemo(() => (collapse ? Box : Paper), [collapse])
+  const ListElement = useMemo(() => (collapse ? Accordion : List), [collapse])
+
+  const TitleElement = useMemo(
+    () => (collapse ? AccordionSummary : Title),
+    [collapse]
+  )
+
+  const DetailsElement = useMemo(
+    () => (collapse ? AccordionDetails : Fragment),
+    [collapse]
+  )
+
   const { className: itemClassName, ...restOfItemProps } = itemProps
 
   const renderList = (attribute, parentPath = false) => {
@@ -67,9 +85,9 @@ const AttributeList = ({
 
     return (
       <Fragment key={`${title}.${parentPath || name}`}>
-        <ListItem
+        <Item
           sx={isReactElement ? { minHeight: '2.4em' } : { height: '2.4em' }}
-          className={clsx(classes.item, itemClassName)}
+          className={itemClassName}
           {...restOfItemProps}
         >
           <Attribute
@@ -77,44 +95,46 @@ const AttributeList = ({
             {...attribute}
             {...(isParent && { canEdit: false, value: undefined })}
           />
-        </ListItem>
+        </Item>
         {isParent && (
-          <MList {...subListProps}>
+          <List {...subListProps}>
             {Object.entries(value).map(([childName, childValue]) => {
+              const attributePath = `${parentPath || name}.${childName}`
               const subAttributeProps = {
                 ...attribute,
                 name: childName,
                 value: childValue,
               }
-              const attributePath = `${parentPath || name}.${childName}`
 
               return renderList(subAttributeProps, attributePath)
             })}
-          </MList>
+          </List>
         )}
       </Fragment>
     )
   }
 
   return (
-    <Paper variant="outlined" {...containerProps}>
-      <MList {...listProps}>
+    <RootElement variant="outlined" {...containerProps}>
+      <ListElement {...listProps}>
         {/* TITLE */}
         {title && (
-          <ListItem className={classes.title}>
+          <TitleElement>
             <Typography noWrap>{Tr(title)}</Typography>
-          </ListItem>
+          </TitleElement>
         )}
-        {/* LIST */}
-        {list.map((attr) => renderList(attr))}
-        {/* ADD ACTION */}
-        {handleAdd && (
-          <ListItem className={clsx(classes.item, itemClassName)}>
-            <AttributeCreateForm handleAdd={handleAdd} />
-          </ListItem>
-        )}
-      </MList>
-    </Paper>
+        <DetailsElement>
+          {/* LIST */}
+          {list.map((attr) => renderList(attr))}
+          {/* ADD ACTION */}
+          {handleAdd && (
+            <Item className={itemClassName}>
+              <AttributeCreateForm handleAdd={handleAdd} />
+            </Item>
+          )}
+        </DetailsElement>
+      </ListElement>
+    </RootElement>
   )
 }
 
@@ -126,6 +146,7 @@ AttributeList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.shape(AttributePropTypes)),
   listProps: PropTypes.object,
   subListProps: PropTypes.object,
+  collapse: PropTypes.bool,
 }
 
 AttributeList.displayName = 'AttributeList'

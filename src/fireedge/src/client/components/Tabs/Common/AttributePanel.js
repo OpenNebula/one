@@ -89,6 +89,7 @@ const AttributePanel = memo(
     handleAdd,
     actions = [],
     filtersSpecialAttributes = true,
+    collapse = false,
   }) => {
     const classes = useStyles()
 
@@ -121,6 +122,7 @@ const AttributePanel = memo(
         title={title}
         list={formatAttributes}
         handleAdd={actions?.includes?.(ADD) && handleAdd}
+        collapse={collapse}
       />
     )
   }
@@ -134,6 +136,7 @@ AttributePanel.propTypes = {
   handleDelete: PropTypes.func,
   title: PropTypes.string,
   filtersSpecialAttributes: PropTypes.bool,
+  collapse: PropTypes.bool,
 }
 
 AttributePanel.displayName = 'AttributePanel'

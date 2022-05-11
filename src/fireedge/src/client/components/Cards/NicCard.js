@@ -17,17 +17,15 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
-  styled,
   useMediaQuery,
   Typography,
   Box,
   Paper,
   Stack,
-  Accordion as MuiAccordion,
-  AccordionSummary as MuiAccordionSummary,
-  AccordionDetails as MuiAccordionDetails,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material'
-import { NavArrowRight } from 'iconoir-react'
 
 import { rowStyles } from 'client/components/Tables/styles'
 import { StatusChip } from 'client/components/Status'
@@ -37,38 +35,6 @@ import { Translate } from 'client/components/HOC'
 import { stringToBoolean } from 'client/models/Helper'
 import { groupBy } from 'client/utils'
 import { T, Nic, NicAlias, PrettySecurityGroupRule } from 'client/constants'
-
-const Accordion = styled((props) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  flexBasis: '100%',
-  border: `1px solid ${theme.palette.divider}`,
-  '&:before': { display: 'none' },
-}))
-
-const AccordionSummary = styled((props) => (
-  <MuiAccordionSummary expandIcon={<NavArrowRight />} {...props} />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === 'dark'
-      ? 'rgba(255, 255, 255, .05)'
-      : 'rgba(0, 0, 0, .03)',
-  '&:not(:last-child)': {
-    borderBottom: 0,
-  },
-  flexDirection: 'row-reverse',
-  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-    transform: 'rotate(90deg)',
-  },
-  '& .MuiAccordionSummary-content': {
-    marginLeft: theme.spacing(1),
-  },
-}))
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: '1px solid rgba(0, 0, 0, .125)',
-}))
 
 const NicCard = memo(
   ({
@@ -173,7 +139,7 @@ const NicCard = memo(
           const rulesById = Object.entries(groupBy(SECURITY_GROUPS, 'ID'))
 
           return (
-            <Accordion TransitionProps={{ unmountOnExit: true }}>
+            <Accordion>
               <AccordionSummary>
                 <Typography variant="body1">
                   <Translate word={T.SecurityGroups} />
