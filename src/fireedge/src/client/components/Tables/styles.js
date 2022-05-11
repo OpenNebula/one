@@ -62,7 +62,7 @@ export const rowStyles = makeStyles(
       color: palette.text.secondary,
       marginTop: 4,
       display: 'flex',
-      gap: '0.5em',
+      gap: '1em',
       alignItems: 'center',
       flexWrap: 'wrap',
       wordWrap: 'break-word',
