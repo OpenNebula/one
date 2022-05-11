@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-import { Container, Typography, Stack, Chip } from '@mui/material'
+import { Typography, Stack, Chip } from '@mui/material'
 
 import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'
@@ -33,41 +33,35 @@ function VirtualMachines() {
         onSelectedRowsChange={onSelectedRowsChange}
         globalActions={actions}
       />
-
-        {selectedRows?.length > 0 && (
-          <Stack overflow="auto" data-cy={'detail'}>
-            {selectedRows?.length === 1 ? (
-              <>
-                <Typography color="text.primary" noWrap mb={1}>
-                  {`#${selectedRows[0]?.original.ID} | ${selectedRows[0]?.original.NAME}`}
-                </Typography>
-                <VmTabs id={selectedRows[0]?.original.ID} />
-              </>
-            ) : (
-              <Stack
-                direction="row"
-                flexWrap="wrap"
-                gap={1}
-                alignItems="center"
-              >
-                <MultipleTags
-                  limitTags={10}
-                  tags={selectedRows?.map(
-                    ({ original, id, toggleRowSelected }) => (
-                      <Chip
-                        key={id}
-                        variant="outlined"
-                        label={original?.NAME ?? id}
-                        onDelete={() => toggleRowSelected(false)}
-                      />
-                    )
-                  )}
-                />
-              </Stack>
-            )}
-          </Stack>
-        )}
-      </SplitPane>
+      {selectedRows?.length > 0 && (
+        <Stack overflow="auto" data-cy={'detail'}>
+          {selectedRows?.length === 1 ? (
+            <>
+              <Typography color="text.primary" noWrap mb={1}>
+                {`#${selectedRows[0]?.original.ID} | ${selectedRows[0]?.original.NAME}`}
+              </Typography>
+              <VmTabs id={selectedRows[0]?.original.ID} />
+            </>
+          ) : (
+            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
+              <MultipleTags
+                limitTags={10}
+                tags={selectedRows?.map(
+                  ({ original, id, toggleRowSelected }) => (
+                    <Chip
+                      key={id}
+                      variant="outlined"
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  )
+                )}
+              />
+            </Stack>
+          )}
+        </Stack>
+      )}
+    </SplitPane>
   )
 }
 
