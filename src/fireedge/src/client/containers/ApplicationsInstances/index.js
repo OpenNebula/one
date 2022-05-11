@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useState } from 'react'
-import { Container, Box } from '@mui/material'
+import { Box } from '@mui/material'
 
 import { useGetServicesQuery } from 'client/features/OneApi/service'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
@@ -35,7 +35,7 @@ function ApplicationsInstances() {
   } = useGetServicesQuery()
 
   return (
-    <Container disableGutters>
+    <>
       <ListHeader
         title={T.ApplicationsInstances}
         hasReloadButton
@@ -65,7 +65,7 @@ function ApplicationsInstances() {
           handleClose={() => setShowDialog(false)}
         />
       )}
-    </Container>
+    </>
   )
 }
 

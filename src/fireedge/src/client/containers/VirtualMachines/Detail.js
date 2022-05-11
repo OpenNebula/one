@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useParams, Redirect } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
 
 import VmTabs from 'client/components/Tabs/Vm'
 
@@ -26,17 +25,7 @@ function VirtualMachineDetail() {
     return <Redirect to="/" />
   }
 
-  return (
-    <Box
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
-      <VmTabs id={id} />
-    </Box>
-  )
+  return <VmTabs id={id} />
 }
 
 export default VirtualMachineDetail

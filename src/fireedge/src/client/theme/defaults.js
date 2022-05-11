@@ -408,7 +408,7 @@ export default (appTheme, mode = SCHEMES.DARK) => {
             textTransform: 'capitalize',
             fontSize: '1rem',
             '&.Mui-selected': {
-              color: secondary.main,
+              color: isDarkMode ? secondary.main : 'text.primary',
             },
           },
         },

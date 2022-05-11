@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Container, Box, Grid, CircularProgress } from '@mui/material'
+import { Box, Grid, CircularProgress } from '@mui/material'
 import {
   Server as ClusterIcon,
   HardDrive as HostIcon,
@@ -40,8 +40,8 @@ function ProvisionDashboard() {
   const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
 
   return (
-    <Container
-      disableGutters
+    <Box
+      py={3}
       {...(stringToBoolean(DISABLE_ANIMATIONS) && {
         sx: {
           '& *, & *::before, & *::after': {
@@ -50,43 +50,41 @@ function ProvisionDashboard() {
         },
       })}
     >
-      <Box py={3}>
-        <Grid container spacing={3}>
-          <Grid item container spacing={3} xs={12}>
-            <ResourceWidget
-              resource="cluster"
-              bgColor="#fa7892"
-              text={T.Clusters}
-              icon={ClusterIcon}
-            />
-            <ResourceWidget
-              resource="host"
-              bgColor="#b25aff"
-              text={T.Hosts}
-              icon={HostIcon}
-            />
-            <ResourceWidget
-              resource="datastore"
-              bgColor="#1fbbc6"
-              text={T.Datastores}
-              icon={DatastoreIcon}
-            />
-            <ResourceWidget
-              resource="network"
-              bgColor="#f09d42"
-              text={T.Networks}
-              icon={NetworkIcon}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TotalProviders />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TotalProvisionsByState />
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid item container spacing={3} xs={12}>
+          <ResourceWidget
+            resource="cluster"
+            bgColor="#fa7892"
+            text={T.Clusters}
+            icon={ClusterIcon}
+          />
+          <ResourceWidget
+            resource="host"
+            bgColor="#b25aff"
+            text={T.Hosts}
+            icon={HostIcon}
+          />
+          <ResourceWidget
+            resource="datastore"
+            bgColor="#1fbbc6"
+            text={T.Datastores}
+            icon={DatastoreIcon}
+          />
+          <ResourceWidget
+            resource="network"
+            bgColor="#f09d42"
+            text={T.Networks}
+            icon={NetworkIcon}
+          />
         </Grid>
-      </Box>
-    </Container>
+        <Grid item xs={12} md={6}>
+          <TotalProviders />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TotalProvisionsByState />
+        </Grid>
+      </Grid>
+    </Box>
   )
 }
 

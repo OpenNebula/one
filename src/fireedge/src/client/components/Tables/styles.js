@@ -26,7 +26,6 @@ export const rowStyles = makeStyles(
       borderRadius: 6,
       display: 'flex',
       gap: 8,
-      boxShadow: shadows[1],
       [breakpoints.down('md')]: {
         flexWrap: 'wrap',
       },

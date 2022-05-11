@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useParams, Redirect } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
 
 // import GroupTabs from 'client/components/Tabs/Group'
 
@@ -27,16 +26,10 @@ function GroupDetail() {
   }
 
   return (
-    <Box
-      py={2}
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      component={Container}
-    >
+    <>
       {/* <GroupTabs id={id} /> */}
       {id}
-    </Box>
+    </>
   )
 }
 

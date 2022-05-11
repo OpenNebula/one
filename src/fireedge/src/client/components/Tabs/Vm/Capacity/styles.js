@@ -17,8 +17,7 @@ import makeStyles from '@mui/styles/makeStyles'
 
 export default makeStyles((theme) => ({
   root: {
-    marginBlock: '0.8em',
-    padding: '1em',
+    padding: '0.5em',
     display: 'grid',
     gap: '1em',
     gridAutoFlow: 'column',
@@ -38,14 +37,11 @@ export default makeStyles((theme) => ({
   actions: {
     [theme.breakpoints.down('md')]: {
       borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: '1em',
+      padding: '0 1em 1em 1em',
     },
     [theme.breakpoints.up('md')]: {
       order: 1,
       textAlign: 'end',
     },
-  },
-  title: {
-    fontWeight: theme.typography.fontWeightMedium,
   },
 }))

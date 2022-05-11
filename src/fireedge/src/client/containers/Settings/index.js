@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { Container, Typography, Divider, Stack } from '@mui/material'
+import { Typography, Divider, Stack } from '@mui/material'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -24,7 +24,7 @@ import AuthenticationSection from 'client/containers/Settings/Authentication'
 
 /** @returns {ReactElement} Settings container */
 const Settings = () => (
-  <Container disableGutters>
+  <>
     <Typography variant="h5">
       <Translate word={T.Settings} />
     </Typography>
@@ -35,7 +35,7 @@ const Settings = () => (
       <ConfigurationUISection />
       <AuthenticationSection />
     </Stack>
-  </Container>
+  </>
 )
 
 export default Settings

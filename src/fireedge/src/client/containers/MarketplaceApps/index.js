@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, JSXElementConstructor } from 'react'
-import { Container, Stack, Chip } from '@mui/material'
+import { Stack, Chip } from '@mui/material'
 
 import { MarketplaceAppsTable } from 'client/components/Tables'
 import MarketplaceAppActions from 'client/components/Tables/MarketplaceApps/actions'
@@ -32,43 +32,36 @@ function MarketplaceApps() {
   const actions = MarketplaceAppActions()
 
   return (
-    <Stack height={1} py={2} overflow="auto" component={Container}>
-      <SplitPane>
-        <MarketplaceAppsTable
-          onSelectedRowsChange={onSelectedRowsChange}
-          globalActions={actions}
-        />
+    <SplitPane>
+      <MarketplaceAppsTable
+        onSelectedRowsChange={onSelectedRowsChange}
+        globalActions={actions}
+      />
 
-        {selectedRows?.length > 0 && (
-          <Stack overflow="auto">
-            {selectedRows?.length === 1 ? (
-              <MarketplaceAppsTabs id={selectedRows[0]?.original.ID} />
-            ) : (
-              <Stack
-                direction="row"
-                flexWrap="wrap"
-                gap={1}
-                alignItems="center"
-              >
-                <MultipleTags
-                  limitTags={10}
-                  tags={selectedRows?.map(
-                    ({ original, id, toggleRowSelected }) => (
-                      <Chip
-                        key={id}
-                        variant="text"
-                        label={original?.NAME ?? id}
-                        onDelete={() => toggleRowSelected(false)}
-                      />
-                    )
-                  )}
-                />
-              </Stack>
-            )}
-          </Stack>
-        )}
-      </SplitPane>
-    </Stack>
+      {selectedRows?.length > 0 && (
+        <Stack overflow="auto">
+          {selectedRows?.length === 1 ? (
+            <MarketplaceAppsTabs id={selectedRows[0]?.original.ID} />
+          ) : (
+            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
+              <MultipleTags
+                limitTags={10}
+                tags={selectedRows?.map(
+                  ({ original, id, toggleRowSelected }) => (
+                    <Chip
+                      key={id}
+                      variant="text"
+                      label={original?.NAME ?? id}
+                      onDelete={() => toggleRowSelected(false)}
+                    />
+                  )
+                )}
+              />
+            </Stack>
+          )}
+        </Stack>
+      )}
+    </SplitPane>
   )
 }
 

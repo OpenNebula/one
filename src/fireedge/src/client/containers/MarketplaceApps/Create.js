@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { Container } from '@mui/material'
 
 import { useGeneralApi } from 'client/features/General'
 import {
@@ -65,15 +64,13 @@ function CreateMarketplaceApp() {
   }
 
   return (
-    <Container sx={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <CreateForm
-        initialValues={{ type: resourceName, id: ID }}
-        onSubmit={handleTriggerSubmit}
-        fallback={<SkeletonStepsForm />}
-      >
-        {(config) => <DefaultFormStepper {...config} />}
-      </CreateForm>
-    </Container>
+    <CreateForm
+      initialValues={{ type: resourceName, id: ID }}
+      onSubmit={handleTriggerSubmit}
+      fallback={<SkeletonStepsForm />}
+    >
+      {(config) => <DefaultFormStepper {...config} />}
+    </CreateForm>
   )
 }
 

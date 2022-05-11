@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useMemo, JSXElementConstructor } from 'react'
-import { Container, TextField, Autocomplete, Grid, Box } from '@mui/material'
+import { TextField, Autocomplete, Grid, Box } from '@mui/material'
 
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
 import { InputCode } from 'client/components/FormControl'
@@ -40,36 +40,31 @@ function TestApi() {
   const handleChangeResponse = (res) => setResponse(res)
 
   return (
-    <Container
-      disableGutters
-      sx={{ display: 'flex', flexFlow: 'column', height: '100%' }}
-    >
-      <Grid container direction="row" spacing={2} className={classes.root}>
-        <Grid item xs={12} md={6}>
-          <Autocomplete
-            disablePortal
-            color="secondary"
-            options={useMemo(() => COMMANDS, [])}
-            value={name}
-            onChange={handleChangeCommand}
-            renderInput={(params) => (
-              <TextField {...params} label={Tr(T.SelectRequest)} />
-            )}
-          />
-          {name && name !== '' && (
-            <ResponseForm
-              handleChangeResponse={handleChangeResponse}
-              command={{ name, ...Commands[name] }}
-            />
+    <Grid container direction="row" spacing={2} className={classes.root}>
+      <Grid item xs={12} md={6}>
+        <Autocomplete
+          disablePortal
+          color="secondary"
+          options={useMemo(() => COMMANDS, [])}
+          value={name}
+          onChange={handleChangeCommand}
+          renderInput={(params) => (
+            <TextField {...params} label={Tr(T.SelectRequest)} />
           )}
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Box height="100%" minHeight={200}>
-            <InputCode code={response} readOnly />
-          </Box>
-        </Grid>
+        />
+        {name && name !== '' && (
+          <ResponseForm
+            handleChangeResponse={handleChangeResponse}
+            command={{ name, ...Commands[name] }}
+          />
+        )}
       </Grid>
-    </Container>
+      <Grid item xs={12} md={6}>
+        <Box height="100%" minHeight={200}>
+          <InputCode code={response} readOnly />
+        </Box>
+      </Grid>
+    </Grid>
   )
 }
 

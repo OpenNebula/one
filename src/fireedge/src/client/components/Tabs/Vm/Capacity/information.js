@@ -15,22 +15,20 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { Paper, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ResizeCapacityForm } from 'client/components/Forms/Vm'
 import { Tr } from 'client/components/HOC'
 import useCapacityTabStyles from 'client/components/Tabs/Vm/Capacity/styles'
 
-import * as VirtualMachine from 'client/models/VirtualMachine'
+import { isVCenter } from 'client/models/VirtualMachine'
 import { prettyBytes } from 'client/utils'
 import { T, VM_ACTIONS } from 'client/constants'
 
 const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
   const classes = useCapacityTabStyles()
   const { TEMPLATE } = vm
-
-  const isVCenter = VirtualMachine.isVCenter(vm)
 
   const capacity = [
     {
@@ -43,7 +41,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
       value: TEMPLATE?.VCPU ?? '-',
       dataCy: 'virtualcpu',
     },
-    isVCenter && {
+    isVCenter(vm) && {
       name: T.VirtualCores,
       value: (
         <>
@@ -71,7 +69,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
   ].filter(Boolean)
 
   return (
-    <Paper variant="outlined" className={classes.root}>
+    <div className={classes.root}>
       <div className={classes.actions}>
         {actions?.includes?.(VM_ACTIONS.RESIZE_CAPACITY) && (
           <ButtonToTriggerForm
@@ -93,7 +91,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
       </div>
       {capacity.map(({ name, value, dataCy }) => (
         <div key={name} className={classes.item}>
-          <Typography className={classes.title} noWrap title={name}>
+          <Typography fontWeight="medium" noWrap title={name}>
             {name}
           </Typography>
           <Typography variant="body2" noWrap title={value} data-cy={dataCy}>
@@ -101,7 +99,7 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
           </Typography>
         </div>
       ))}
-    </Paper>
+    </div>
   )
 }
 

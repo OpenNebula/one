@@ -81,11 +81,7 @@ const InternalLayout = ({ title, disableLayout, children }) => {
           timeout={300}
           unmountOnExit
         >
-          <Container
-            ref={container}
-            maxWidth={false}
-            className={classes.scrollable}
-          >
+          <Container ref={container} className={classes.scrollable}>
             {children}
           </Container>
         </CSSTransition>

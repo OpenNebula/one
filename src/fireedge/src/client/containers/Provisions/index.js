@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box, Backdrop, CircularProgress } from '@mui/material'
+import { Box, Backdrop, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import {
@@ -81,73 +81,71 @@ function Provisions() {
 
   return (
     <>
-      <Container disableGutters>
-        <ListHeader
-          title={T.Provisions}
-          reloadButtonProps={{
-            'data-cy': 'refresh-provision-list',
-            onClick: () => refetch(),
-            isSubmitting: isFetching,
-          }}
-          addButtonProps={{
-            'data-cy': 'create-provision',
-            onClick: () => history.push(PATH.PROVISIONS.CREATE),
-          }}
-          searchProps={{ handleChange }}
-        />
-        <Box p={3}>
-          {error ? (
-            <AlertError>{T.CannotConnectOneProvision}</AlertError>
-          ) : (
-            <ListCards
-              list={result ?? provisions}
-              gridProps={{ 'data-cy': 'provisions' }}
-              CardComponent={ProvisionCard}
-              cardsProps={({ value: { ID, NAME } }) => ({
-                handleClick: () => handleClickfn(ID, NAME),
-                actions: [
+      <ListHeader
+        title={T.Provisions}
+        reloadButtonProps={{
+          'data-cy': 'refresh-provision-list',
+          onClick: () => refetch(),
+          isSubmitting: isFetching,
+        }}
+        addButtonProps={{
+          'data-cy': 'create-provision',
+          onClick: () => history.push(PATH.PROVISIONS.CREATE),
+        }}
+        searchProps={{ handleChange }}
+      />
+      <Box p={3}>
+        {error ? (
+          <AlertError>{T.CannotConnectOneProvision}</AlertError>
+        ) : (
+          <ListCards
+            list={result ?? provisions}
+            gridProps={{ 'data-cy': 'provisions' }}
+            CardComponent={ProvisionCard}
+            cardsProps={({ value: { ID, NAME } }) => ({
+              handleClick: () => handleClickfn(ID, NAME),
+              actions: [
+                {
+                  handleClick: async () => {
+                    await configureProvision({ id: ID })
+                    enqueueInfo(`Configuring provision - ID: ${ID}`)
+                  },
+                  icon: <EditIcon />,
+                  cy: 'provision-configure',
+                },
+              ],
+              deleteAction: {
+                buttonProps: {
+                  'data-cy': 'provision-delete',
+                  icon: <DeleteIcon />,
+                  color: 'error',
+                },
+                options: [
                   {
-                    handleClick: async () => {
-                      await configureProvision({ id: ID })
-                      enqueueInfo(`Configuring provision - ID: ${ID}`)
+                    dialogProps: {
+                      title: (
+                        <Translate
+                          word={T.DeleteSomething}
+                          values={`#${ID} ${NAME}`}
+                        />
+                      ),
                     },
-                    icon: <EditIcon />,
-                    cy: 'provision-configure',
+                    form: DeleteForm,
+                    onSubmit: async (formData) => {
+                      try {
+                        await deleteProvision({ id: ID, ...formData })
+                        enqueueInfo(`Deleting provision - ID: ${ID}`)
+                      } finally {
+                        hide()
+                      }
+                    },
                   },
                 ],
-                deleteAction: {
-                  buttonProps: {
-                    'data-cy': 'provision-delete',
-                    icon: <DeleteIcon />,
-                    color: 'error',
-                  },
-                  options: [
-                    {
-                      dialogProps: {
-                        title: (
-                          <Translate
-                            word={T.DeleteSomething}
-                            values={`#${ID} ${NAME}`}
-                          />
-                        ),
-                      },
-                      form: DeleteForm,
-                      onSubmit: async (formData) => {
-                        try {
-                          await deleteProvision({ id: ID, ...formData })
-                          enqueueInfo(`Deleting provision - ID: ${ID}`)
-                        } finally {
-                          hide()
-                        }
-                      },
-                    },
-                  ],
-                },
-              })}
-            />
-          )}
-        </Box>
-      </Container>
+              },
+            })}
+          />
+        )}
+      </Box>
       {display &&
         !provisionError &&
         (provisionDetail?.ID !== originalArgs || provisionIsLoading ? (
