@@ -16,11 +16,12 @@
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router-dom'
+import { Stack } from '@mui/material'
 
 import { useGetClusterQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
 
-import { StatusChip } from 'client/components/Status'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 import { Translate } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
@@ -86,7 +87,10 @@ const InformationPanel = ({ vm = {}, actions }) => {
     {
       name: T.State,
       value: (
-        <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+        <Stack direction="row" alignItems="center" gap={1}>
+          <StatusCircle color={stateColor} tooltip={stateName} />
+          <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+        </Stack>
       ),
     },
     {
