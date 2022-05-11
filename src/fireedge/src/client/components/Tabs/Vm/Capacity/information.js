@@ -13,27 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@mui/material'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ResizeCapacityForm } from 'client/components/Forms/Vm'
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import useCapacityTabStyles from 'client/components/Tabs/Vm/Capacity/styles'
 
 import { isVCenter } from 'client/models/VirtualMachine'
+import { formatNumberByCurrency } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
-import { T, VM_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, VM } from 'client/constants'
 
+/**
+ * Renders capacity information.
+ *
+ * @param {object} props - Props
+ * @param {string[]} props.actions - Actions tab
+ * @param {VM} props.vm - Virtual Machine id
+ * @param {string} props.handleResizeCapacity - Resize capacity
+ * @returns {ReactElement} Capacity information
+ */
 const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
   const classes = useCapacityTabStyles()
   const { TEMPLATE } = vm
 
+  const memory = TEMPLATE?.MEMORY
+  const memoryCost = useMemo(() => {
+    const cost = TEMPLATE?.MEMORY_COST || 0
+    const monthCost = formatNumberByCurrency(memory * cost * 24 * 30)
+
+    return <Translate word={T.CostEachMonth} values={[monthCost]} />
+  }, [memory, TEMPLATE?.MEMORY_COST])
+
+  const cpu = TEMPLATE?.CPU
+  const cpuCost = useMemo(() => {
+    const cost = TEMPLATE?.CPU_COST || 0
+    const monthCost = formatNumberByCurrency(cpu * cost * 24 * 30)
+
+    return <Translate word={T.CostEachMonth} values={[monthCost]} />
+  }, [cpu, TEMPLATE?.CPU_COST])
+
   const capacity = [
     {
       name: T.PhysicalCpu,
-      value: TEMPLATE?.CPU,
+      value: cpu,
       dataCy: 'cpu',
     },
     {
@@ -53,17 +79,17 @@ const InformationPanel = ({ actions, vm = {}, handleResizeCapacity }) => {
     },
     {
       name: T.Memory,
-      value: prettyBytes(+TEMPLATE?.MEMORY, 'MB'),
+      value: prettyBytes(+memory, 'MB'),
       dataCy: 'memory',
     },
     {
       name: T.CostCpu,
-      value: TEMPLATE?.CPU_COST || 0,
+      value: cpuCost,
       dataCy: 'cpucost',
     },
     {
-      name: T.CostMByte,
-      value: TEMPLATE?.MEMORY_COST || 0,
+      name: T.CostMemory,
+      value: memoryCost,
       dataCy: 'memorycost',
     },
   ].filter(Boolean)
