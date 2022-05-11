@@ -40,6 +40,7 @@ export const MEMORY = generateCapacityInput({
   label: T.Memory,
   tooltip: T.MemoryConcept,
   validation: commonValidation
+    .integer()
     .required()
     .when('HYPERVISOR', (hypervisor, schema) =>
       hypervisor === HYPERVISORS.vcenter ? schema.isDivisibleBy(4) : schema
