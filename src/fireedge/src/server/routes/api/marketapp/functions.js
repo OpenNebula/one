@@ -170,7 +170,7 @@ const downloadApp = (
           )
           const execChild = exec(
             downloadCmd,
-            { maxBuffer: 1024 ** 3 },
+            { maxBuffer: 1024 ** 3, encoding: '' },
             (error) => {
               error &&
                 writeInLogger(error) &&
