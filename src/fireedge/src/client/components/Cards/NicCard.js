@@ -96,7 +96,11 @@ const NicCard = memo(
           {...(!isAlias && !showParents && { pl: '1em' })}
         >
           <div className={classes.title}>
-            <Typography component="span" data-cy={`${dataCy}-name`}>
+            <Typography
+              component="span"
+              fontWeight="bold"
+              data-cy={`${dataCy}-name`}
+            >
               {`${NIC_ID} | ${NETWORK}`}
             </Typography>
             <span className={classes.labels}>
@@ -120,16 +124,16 @@ const NicCard = memo(
           <div className={classes.actions}>{actions}</div>
         )}
         {!!ALIAS?.length && (
-          <Box flexBasis="100%">
-            {ALIAS?.map((alias) => (
+          <Stack direction="column" gap="1em" flexBasis="100%" my="0.5em">
+            {ALIAS?.map((alias, aliasIdx) => (
               <NicCard
                 key={alias.NIC_ID}
-                nic={alias}
+                nic={{ ...alias, NIC_ID: `${NIC_ID}.${aliasIdx + 1}` }}
                 actions={aliasActions?.({ alias })}
                 showParents={showParents}
               />
             ))}
-          </Box>
+          </Stack>
         )}
         {useMemo(() => {
           if (!Array.isArray(SECURITY_GROUPS) || !SECURITY_GROUPS?.length) {
