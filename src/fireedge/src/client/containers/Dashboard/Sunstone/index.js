@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement } from 'react'
+import { memo, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Box, CircularProgress, Grid } from '@mui/material'
+import { useHistory } from 'react-router-dom'
+import { Container, Box, CircularProgress, Grid } from '@mui/material'
 import {
   ModernTv as VmsIcons,
   List as TemplatesIcon,
@@ -23,19 +24,30 @@ import {
   NetworkAlt as NetworkIcon,
 } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
 import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+
 import NumberEasing from 'client/components/NumberEasing'
 import WavesCard from 'client/components/Cards/WavesCard'
 import { stringToBoolean } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { T, RESOURCE_NAMES } from 'client/constants'
+
+const { VM, VM_TEMPLATE, IMAGE, VNET } = RESOURCE_NAMES
 
 /** @returns {ReactElement} Sunstone dashboard container */
 function SunstoneDashboard() {
   const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { view, hasAccessToResource } = useViews()
+  const { push: goTo } = useHistory()
+
+  const vmAccess = useMemo(() => hasAccessToResource(VM), [view])
+  const templateAccess = useMemo(() => hasAccessToResource(VM_TEMPLATE), [view])
+  const imageAccess = useMemo(() => hasAccessToResource(IMAGE), [view])
+  const vnetAccess = useMemo(() => hasAccessToResource(VNET), [view])
 
   return (
     <Box
@@ -48,37 +60,42 @@ function SunstoneDashboard() {
         },
       })}
     >
-      <Grid
-        container
-        data-cy="dashboard-widget-total-sunstone-resources"
-        spacing={3}
-      >
-        <ResourceWidget
-          query={useGetVmsQuery}
-          bgColor="#fa7892"
-          text={T.VMs}
-          icon={VmsIcons}
-        />
-        <ResourceWidget
-          query={useGetTemplatesQuery}
-          bgColor="#b25aff"
-          text={T.VMTemplates}
-          icon={TemplatesIcon}
-        />
-        <ResourceWidget
-          query={useGetImagesQuery}
-          bgColor="#1fbbc6"
-          text={T.Images}
-          icon={ImageIcon}
-        />
-        <ResourceWidget
-          query={useGetVNetworksQuery}
-          bgColor="#f09d42"
-          text={T.VirtualNetworks}
-          icon={NetworkIcon}
-        />
-      </Grid>
-    </Box>
+      <Box py={3}>
+        <Grid
+          container
+          data-cy="dashboard-widget-total-sunstone-resources"
+          spacing={3}
+        >
+          <ResourceWidget
+            query={useGetVmsQuery}
+            bgColor="#fa7892"
+            text={T.VMs}
+            icon={VmsIcons}
+            onClick={vmAccess && (() => goTo(PATH.INSTANCE.VMS.LIST))}
+          />
+          <ResourceWidget
+            query={useGetTemplatesQuery}
+            bgColor="#b25aff"
+            text={T.VMTemplates}
+            icon={TemplatesIcon}
+            onClick={templateAccess && (() => goTo(PATH.TEMPLATE.VMS.LIST))}
+          />
+          <ResourceWidget
+            query={useGetImagesQuery}
+            bgColor="#1fbbc6"
+            text={T.Images}
+            icon={ImageIcon}
+            onClick={imageAccess && (() => goTo(PATH.STORAGE.IMAGES.LIST))}
+          />
+          <ResourceWidget
+            query={useGetVNetworksQuery}
+            bgColor="#f09d42"
+            text={T.VirtualNetworks}
+            icon={NetworkIcon}
+            onClick={vnetAccess && (() => goTo(PATH.NETWORK.VNETS.LIST))}
+          />
+        </Grid>
+      </Box>
   )
 }
 

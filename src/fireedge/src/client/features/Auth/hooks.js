@@ -125,6 +125,17 @@ export const useViews = () => {
     [view]
   )
 
+  /**
+   * Check if user has a view for a resource.
+   *
+   * @param {RESOURCE_NAMES} resourceName - Name of resource
+   * @returns {boolean} Returns true if user has a view for a resource
+   */
+  const hasAccessToResource = useCallback(
+    (resourceName) => !!getResourceView(resourceName),
+    [view]
+  )
+
   return useMemo(
     () => ({
       ...Object.values(RESOURCE_NAMES).reduce(
@@ -134,6 +145,7 @@ export const useViews = () => {
         }),
         {}
       ),
+      hasAccessToResource,
       getResourceView,
       views,
       view,
