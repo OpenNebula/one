@@ -37,7 +37,7 @@ import {
 } from 'client/features/OneApi/vmTemplate'
 
 import { ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
-import { CloneForm } from 'client/components/Forms/VmTemplate'
+import { CloneForm, DeleteForm } from 'client/components/Forms/VmTemplate'
 import {
   createActions,
   GlobalAction,
@@ -318,14 +318,26 @@ const Actions = () => {
             color: 'error',
             options: [
               {
-                isConfirmDialog: true,
                 dialogProps: {
-                  title: T.Delete,
-                  children: MessageToConfirmAction,
+                  title: (rows) => {
+                    const isMultiple = rows?.length > 1
+                    const { ID, NAME } = rows?.[0]?.original ?? {}
+
+                    return [
+                      Tr(
+                        isMultiple ? T.DeleteSeveralTemplates : T.DeleteTemplate
+                      ),
+                      !isMultiple && `#${ID} ${NAME}`,
+                    ]
+                      .filter(Boolean)
+                      .join(' - ')
+                  },
                 },
-                onSubmit: (rows) => async () => {
+                form: DeleteForm,
+                onSubmit: (rows) => async (formData) => {
+                  const { image } = formData ?? {}
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => remove({ id })))
+                  await Promise.all(ids.map((id) => remove({ id, image })))
                 },
               },
             ],
