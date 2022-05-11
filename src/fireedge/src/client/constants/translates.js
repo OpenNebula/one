@@ -383,6 +383,7 @@ module.exports = {
   Format: 'Format',
   Prefix: 'Prefix',
   More: 'More',
+  UsedOfTotal: 'Used / Total',
 
   /* permissions */
   Permissions: 'Permissions',

@@ -81,3 +81,11 @@ export const DATASTORE_ACTIONS = {
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
+
+/**
+ * @enum {{ high: number, low: number }}
+ * Datastore threshold to specify the maximum and minimum of the bar range
+ */
+export const DS_THRESHOLD = {
+  CAPACITY: { high: 66, low: 33 },
+}

@@ -21,7 +21,12 @@ import { StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getState, getCapacityInfo } from 'client/models/Marketplace'
-import { T, Marketplace, MARKETPLACE_ACTIONS } from 'client/constants'
+import {
+  T,
+  Marketplace,
+  MARKETPLACE_ACTIONS,
+  MARKET_THRESHOLD,
+} from 'client/constants'
 
 /**
  * Renders mainly information tab.
@@ -54,7 +59,7 @@ const InformationPanel = ({ marketplace = {}, actions }) => {
     },
     {
       name: T.Driver,
-      value: MARKET_MAD,
+      value: <StatusChip text={MARKET_MAD} />,
       dataCy: 'market_mad',
     },
     {
@@ -65,7 +70,12 @@ const InformationPanel = ({ marketplace = {}, actions }) => {
     {
       name: T.Capacity,
       value: (
-        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+        <LinearProgressWithLabel
+          value={percentOfUsed}
+          label={percentLabel}
+          high={MARKET_THRESHOLD.CAPACITY.high}
+          low={MARKET_THRESHOLD.CAPACITY.low}
+        />
       ),
       dataCy: 'capacity',
     },

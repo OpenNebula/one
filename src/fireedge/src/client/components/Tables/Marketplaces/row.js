@@ -13,69 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, CloudDownload } from 'iconoir-react'
-import { Typography } from '@mui/material'
+import marketplaceApi from 'client/features/OneApi/marketplace'
+import { MarketplaceCard } from 'client/components/Cards'
 
-import {
-  StatusCircle,
-  LinearProgressWithLabel,
-  StatusChip,
-} from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
+const Row = memo(
+  ({ original, value, ...props }) => {
+    const state = marketplaceApi.endpoints.getMarketplaces.useQueryState(
+      undefined,
+      {
+        selectFromResult: ({ data = [] }) =>
+          data.find((market) => +market?.ID === +original.ID),
+      }
+    )
 
-import * as MarketplaceModel from 'client/models/Datastore'
+    const memoMarket = useMemo(() => state ?? original, [state, original])
 
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, MARKET_MAD, TOTAL_APPS } = value
-
-  const { name: stateName, color: stateColor } =
-    MarketplaceModel.getState(original)
-
-  const { percentOfUsed, percentLabel } =
-    MarketplaceModel.getCapacityInfo(value)
-
-  return (
-    <div {...props}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-          <Typography component="span">{NAME}</Typography>
-          <span className={classes.labels}>
-            <StatusChip text={MARKET_MAD} />
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-          <span title={`Total Apps: ${TOTAL_APPS}`}>
-            <CloudDownload />
-            <span>{` ${TOTAL_APPS}`}</span>
-          </span>
-        </div>
-      </div>
-      <div className={classes.secondary}>
-        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
-      </div>
-    </div>
-  )
-}
+    return <MarketplaceCard market={memoMarket} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
-  value: PropTypes.object,
   original: PropTypes.object,
+  value: PropTypes.object,
   isSelected: PropTypes.bool,
+  className: PropTypes.string,
   handleClick: PropTypes.func,
 }
+
+Row.displayName = 'MarketplaceRow'
 
 export default Row

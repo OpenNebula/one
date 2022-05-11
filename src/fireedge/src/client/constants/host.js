@@ -196,8 +196,17 @@ export const PIN_POLICY = {
   PINNED: 'PINNED',
 }
 
-/** @type {object} Custom Hypervisor */
+/** @enum {string} Custom Hypervisor */
 export const CUSTOM_HOST_HYPERVISOR = {
   NAME: 'Custom',
   SUNSTONE_NAME: T.CustomHypervisor,
+}
+
+/**
+ * @enum {{ high: number, low: number }}
+ * Host threshold to specify the maximum and minimum of the bar range
+ */
+export const HOST_THRESHOLD = {
+  CPU: { high: 66, low: 33 },
+  MEMORY: { high: 90, low: 40 },
 }

@@ -24,7 +24,13 @@ import { List } from 'client/components/Tabs/Common'
 
 import { getState, getDatastores, getAllocatedInfo } from 'client/models/Host'
 import { getCapacityInfo } from 'client/models/Datastore'
-import { T, VM_ACTIONS, Host } from 'client/constants'
+import {
+  T,
+  VM_ACTIONS,
+  Host,
+  HOST_THRESHOLD,
+  DS_THRESHOLD,
+} from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 /**
@@ -71,26 +77,30 @@ const InformationPanel = ({ host = {}, actions }) => {
         generatePath(PATH.INFRASTRUCTURE.CLUSTERS.DETAIL, { id: CLUSTER_ID }),
       dataCy: 'clusterid',
     },
-    { name: T.IM_MAD, value: IM_MAD, dataCy: 'immad' },
-    { name: T.VM_MAD, value: VM_MAD, dataCy: 'vmmad' },
+    { name: T.IM_MAD, value: <StatusChip text={IM_MAD} />, dataCy: 'immad' },
+    { name: T.VM_MAD, value: <StatusChip text={VM_MAD} />, dataCy: 'vmmad' },
   ]
 
   const capacity = [
-    {
-      name: T.AllocatedMemory,
-      value: (
-        <LinearProgressWithLabel
-          value={percentMemUsed}
-          label={percentMemLabel}
-        />
-      ),
-    },
     {
       name: T.AllocatedCpu,
       value: (
         <LinearProgressWithLabel
           value={percentCpuUsed}
           label={percentCpuLabel}
+          high={HOST_THRESHOLD.CPU.high}
+          low={HOST_THRESHOLD.CPU.low}
+        />
+      ),
+    },
+    {
+      name: T.AllocatedMemory,
+      value: (
+        <LinearProgressWithLabel
+          value={percentMemUsed}
+          label={percentMemLabel}
+          high={HOST_THRESHOLD.MEMORY.high}
+          low={HOST_THRESHOLD.MEMORY.low}
         />
       ),
     },
@@ -104,7 +114,12 @@ const InformationPanel = ({ host = {}, actions }) => {
       name: `#${dsHost.ID} ${dsName}`,
       dataCy: `ds-id-${dsHost.ID}`,
       value: (
-        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+        <LinearProgressWithLabel
+          value={percentOfUsed}
+          label={percentLabel}
+          high={DS_THRESHOLD.CAPACITY.high}
+          low={DS_THRESHOLD.CAPACITY.low}
+        />
       ),
     }
   })
