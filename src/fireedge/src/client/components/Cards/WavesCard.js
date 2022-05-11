@@ -16,93 +16,95 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-import { Paper, Typography, lighten, darken } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { styled, keyframes, lighten, darken } from '@mui/material'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
-import { addOpacityToColor } from 'client/utils'
 import { SCHEMES } from 'client/constants'
 
-const useStyles = makeStyles((theme) => {
+const Card = styled(Paper)(({ theme, bgcolor, onClick }) => {
   const getBackgroundColor =
     theme.palette.mode === SCHEMES.DARK ? darken : lighten
-  const getContrastBackgroundColor =
-    theme.palette.mode === SCHEMES.LIGHT ? darken : lighten
 
   return {
-    root: {
-      padding: '2em',
-      position: 'relative',
-      overflow: 'hidden',
-      backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3),
-      [theme.breakpoints.only('xs')]: {
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: '1em',
+    padding: '2em',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: getBackgroundColor(bgcolor, 0.3),
+    ...(onClick && {
+      '&:hover': {
+        backgroundColor: getBackgroundColor(bgcolor, 0.4),
+        boxShadow: theme.shadows[10],
+        cursor: 'pointer',
       },
-    },
-    icon: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: '100%',
-      height: '100%',
-      textAlign: 'end',
-      '& > svg': {
-        color: addOpacityToColor(theme.palette.common.white, 0.2),
-        height: '100%',
-        width: '30%',
-      },
-    },
-    wave: {
-      display: 'block',
-      position: 'absolute',
-      opacity: 0.4,
-      top: '-5%',
-      left: '50%',
-      width: 220,
-      height: 220,
-      borderRadius: '43%',
-    },
-    wave1: {
-      backgroundColor: ({ bgColor }) =>
-        getContrastBackgroundColor(bgColor, 0.3),
-      animation: '$drift 7s infinite linear',
-    },
-    wave2: {
-      backgroundColor: ({ bgColor }) =>
-        getContrastBackgroundColor(bgColor, 0.5),
-      animation: '$drift 5s infinite linear',
-    },
-    '@keyframes drift': {
-      from: { transform: 'rotate(0deg)' },
-      to: { transform: 'rotate(360deg)' },
+    }),
+    [theme.breakpoints.only('xs')]: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: '1em',
     },
   }
 })
 
-const WavesCard = memo(
-  ({ text, value, bgColor, icon: Icon }) => {
-    const classes = useStyles({ bgColor })
-
-    return (
-      <Paper className={classes.root}>
-        <Typography variant="h6" zIndex={2}>
-          {text}
-        </Typography>
-        <Typography variant="h4" zIndex={2}>
-          {value}
-        </Typography>
-        <span className={clsx(classes.wave, classes.wave1)} />
-        <span className={clsx(classes.wave, classes.wave2)} />
-        {Icon && (
-          <span className={classes.icon}>
-            <Icon />
-          </span>
-        )}
-      </Paper>
-    )
+const OverSizeIcon = styled('span')(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  width: '100%',
+  height: '100%',
+  textAlign: 'end',
+  '& > svg': {
+    color: theme.palette.action.active,
+    height: '100%',
+    width: '30%',
   },
+}))
+
+const drift = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+const Wave = styled('span')(({ theme, bgcolor, duration = 1 }) => {
+  const getContrastBackgroundColor =
+    theme.palette.mode === SCHEMES.DARK ? lighten : darken
+
+  return {
+    display: 'block',
+    position: 'absolute',
+    opacity: 0.4,
+    top: '-5%',
+    left: '50%',
+    width: 220,
+    height: 220,
+    borderRadius: '43%',
+    backgroundColor: getContrastBackgroundColor(bgcolor, duration / 10),
+    animation: `${drift} ${duration}s infinite linear`,
+  }
+})
+
+const WavesCard = memo(
+  ({ text, value, bgColor, icon: Icon, onClick }) => (
+    <Card bgcolor={bgColor} onClick={onClick || undefined}>
+      <Typography variant="h6" zIndex={2}>
+        {text}
+      </Typography>
+      <Typography variant="h4" zIndex={2}>
+        {value}
+      </Typography>
+      <Wave bgcolor={bgColor} duration={7} />
+      <Wave bgcolor={bgColor} duration={5} />
+      {Icon && (
+        <OverSizeIcon>
+          <Icon />
+        </OverSizeIcon>
+      )}
+    </Card>
+  ),
   (prev, next) => prev.value === next.value
 )
 
@@ -115,6 +117,7 @@ WavesCard.propTypes = {
   ]),
   bgColor: PropTypes.string,
   icon: PropTypes.any,
+  onClick: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 }
 
 WavesCard.defaultProps = {
@@ -122,6 +125,7 @@ WavesCard.defaultProps = {
   value: undefined,
   bgColor: '#ffffff00',
   icon: undefined,
+  onClick: undefined,
 }
 
 WavesCard.displayName = 'WavesCard'
