@@ -22,10 +22,7 @@ const getQueries = (params) =>
   Object.entries(params)
     ?.filter(([, { from }]) => from === fromTypes.query)
     ?.filter(([, { value }]) => value !== undefined)
-    ?.reduce(
-      (acc, [name, { value }]) => ({ ...acc, [name]: encodeURI(value) }),
-      {}
-    )
+    ?.reduce((acc, [name, { value }]) => ({ ...acc, [name]: value }), {})
 
 const replacePathWithResources = (path = '', params) =>
   Object.entries(params)
