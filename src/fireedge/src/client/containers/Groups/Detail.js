@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 
-// import GroupTabs from 'client/components/Tabs/Group'
+import GroupTabs from 'client/components/Tabs/Group'
 
+/**
+ * Displays the detail information about a Group.
+ *
+ * @returns {ReactElement} Group detail component.
+ */
 function GroupDetail() {
   const { id } = useParams()
 
@@ -25,12 +30,7 @@ function GroupDetail() {
     return <Redirect to="/" />
   }
 
-  return (
-    <>
-      {/* <GroupTabs id={id} /> */}
-      {id}
-    </>
-  )
+  return <GroupTabs id={id} />
 }
 
 export default GroupDetail

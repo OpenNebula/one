@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { Stack } from '@mui/material'
 import { useParams, Redirect } from 'react-router-dom'
 
 import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
@@ -31,11 +30,7 @@ function VMTemplateDetail() {
     return <Redirect to="/" />
   }
 
-  return (
-    <Stack height={1} overflow="auto">
-      <VmTemplateTabs id={id} />
-    </Stack>
-  )
+  return <VmTemplateTabs id={id} />
 }
 
 export default VMTemplateDetail
