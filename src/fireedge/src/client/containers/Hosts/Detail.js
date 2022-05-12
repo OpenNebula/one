@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 
 import HostTabs from 'client/components/Tabs/Host'
 
+/**
+ * Displays the detail information about a Host.
+ *
+ * @returns {ReactElement} Host detail component.
+ */
 function HostDetail() {
   const { id } = useParams()
 

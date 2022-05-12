@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 
 import UserTabs from 'client/components/Tabs/User'
 
+/**
+ * Displays the detail information about a User.
+ *
+ * @returns {ReactElement} User detail component.
+ */
 function UserDetail() {
   const { id } = useParams()
 
