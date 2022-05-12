@@ -22,6 +22,8 @@ import {
 
 import loadable from '@loadable/component'
 
+import { T } from 'client/constants'
+
 const Dashboard = loadable(
   () => import('client/containers/Dashboard/Provision'),
   { ssr: false }
@@ -64,48 +66,48 @@ export const PATH = {
 
 export const ENDPOINTS = [
   {
-    label: 'Dashboard',
+    title: T.Dashboard,
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
     Component: Dashboard,
   },
   {
-    label: 'Providers',
+    title: T.Providers,
     path: PATH.PROVIDERS.LIST,
     sidebar: true,
     icon: ProvidersIcon,
     Component: Providers,
   },
   {
-    label: 'Create Provider',
+    title: T.CreateProvider,
     path: PATH.PROVIDERS.CREATE,
     Component: CreateProvider,
   },
   {
-    label: 'Edit Provider template',
+    title: T.UpdateProvider,
     path: PATH.PROVIDERS.EDIT,
     Component: CreateProvider,
   },
   {
-    label: 'Provisions',
+    title: T.Provisions,
     path: PATH.PROVISIONS.LIST,
     sidebar: true,
     icon: ProvisionsIcon,
     Component: Provisions,
   },
   {
-    label: 'Create Provision',
+    title: T.CreateProvision,
     path: PATH.PROVISIONS.CREATE,
     Component: CreateProvision,
   },
   {
-    label: 'Edit Provision template',
+    title: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
     Component: CreateProvision,
   },
   {
-    label: 'Settings',
+    title: T.Settings,
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,

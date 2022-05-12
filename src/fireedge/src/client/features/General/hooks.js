@@ -29,7 +29,6 @@ export const useGeneralApi = () => {
   return {
     fixMenu: (isFixed) => dispatch(actions.fixMenu(isFixed)),
     changeLoading: (isLoading) => dispatch(actions.changeLoading(isLoading)),
-    changeTitle: (title) => dispatch(actions.changeTitle(title)),
     changeAppTitle: (appTitle) => dispatch(actions.changeAppTitle(appTitle)),
     changeZone: (zone) => dispatch(actions.changeZone(zone)),
 

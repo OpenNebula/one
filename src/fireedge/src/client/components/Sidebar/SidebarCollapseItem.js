@@ -38,12 +38,12 @@ import { Translate } from 'client/components/HOC'
  * Renders nested list options for sidebar.
  *
  * @param {object} props - Props
- * @param {string} props.label - Label
+ * @param {string} props.title - Title
  * @param {object[]} props.routes - Nested list of routes
  * @param {ReactElement} props.icon - Icon
  * @returns {ReactElement} Sidebar option that includes other list of routes
  */
-const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
+const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
   const classes = sidebarStyles()
   const { pathname } = useLocation()
   const { isFixMenu } = useGeneral()
@@ -75,8 +75,8 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
           </ListItemIcon>
         )}
         <ListItemText
-          data-cy={label.toLocaleLowerCase()}
-          primary={<Translate word={label} />}
+          data-cy={title.toLocaleLowerCase()}
+          primary={<Translate word={title} />}
           {...(expanded && { className: 'open' })}
           primaryTypographyProps={{ variant: 'body1' }}
         />
@@ -90,10 +90,7 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
       >
         <List component="div" disablePadding>
           {routes
-            ?.filter(
-              ({ sidebar = false, ...route }) =>
-                sidebar && typeof route.label === 'string'
-            )
+            ?.filter(({ sidebar = false }) => sidebar)
             ?.map((subItem, index) => (
               <SidebarLink key={`subitem-${index}`} isSubItem {...subItem} />
             ))}
@@ -104,7 +101,7 @@ const SidebarCollapseItem = ({ label = '', routes = [], icon: Icon }) => {
 }
 
 SidebarCollapseItem.propTypes = {
-  label: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   icon: PropTypes.oneOfType([PropTypes.node, PropTypes.object]),
   routes: PropTypes.arrayOf(
     PropTypes.shape({

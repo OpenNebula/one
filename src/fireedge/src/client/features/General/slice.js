@@ -22,7 +22,6 @@ import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 
 const initial = {
   zone: 0,
-  title: null,
   appTitle: null,
   isBeta: false,
   withGroupSwitcher: false,
@@ -53,10 +52,6 @@ const { name, reducer } = createSlice({
       .addCase(actions.changeLoading, (state, { payload }) => ({
         ...state,
         isLoading: !!payload,
-      }))
-      .addCase(actions.changeTitle, (state, { payload }) => ({
-        ...state,
-        title: payload,
       }))
       .addCase(actions.changeAppTitle, (state, { payload: appTitle }) => {
         const lowerAppTitle = String(appTitle).toLowerCase()

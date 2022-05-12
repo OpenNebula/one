@@ -204,23 +204,24 @@ export const PATH = {
 
 const ENDPOINTS = [
   {
-    label: T.Instances,
+    title: T.Instances,
     icon: InstancesIcons,
     routes: [
       {
-        label: T.VMs,
+        title: T.VMs,
         path: PATH.INSTANCE.VMS.LIST,
         sidebar: true,
         icon: VmsIcons,
         Component: VirtualMachines,
       },
       {
-        label: (params) => [T.VMDetailId, params.id],
+        title: T.VM,
+        description: (params) => `#${params?.id}`,
         path: PATH.INSTANCE.VMS.DETAIL,
         Component: VirtualMachineDetail,
       },
       {
-        label: T.VirtualRouters,
+        title: T.VirtualRouters,
         path: PATH.INSTANCE.VROUTERS.LIST,
         sidebar: true,
         icon: VRoutersIcons,
@@ -229,80 +230,85 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: T.Templates,
+    title: T.Templates,
     icon: TemplatesIcon,
     routes: [
       {
-        label: T.VMTemplates,
+        title: T.VMTemplates,
         path: PATH.TEMPLATE.VMS.LIST,
         sidebar: true,
         icon: TemplateIcon,
         Component: VmTemplates,
       },
       {
-        label: T.InstantiateVmTemplate,
+        title: T.InstantiateVmTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.TEMPLATE.VMS.INSTANTIATE,
         Component: InstantiateVmTemplate,
       },
       {
-        label: T.CreateVmTemplate,
+        title: (_, state) =>
+          state?.ID !== undefined ? T.UpdateVmTemplate : T.CreateVmTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.TEMPLATE.VMS.CREATE,
         Component: CreateVmTemplate,
       },
     ],
   },
   {
-    label: T.Storage,
+    title: T.Storage,
     icon: StorageIcon,
     routes: [
       {
-        label: T.Datastores,
+        title: T.Datastores,
         path: PATH.STORAGE.DATASTORES.LIST,
         sidebar: true,
         icon: DatastoreIcon,
         Component: Datastores,
       },
       {
-        label: T.Images,
+        title: T.Images,
         path: PATH.STORAGE.IMAGES.LIST,
         sidebar: true,
         icon: ImageIcon,
         Component: Images,
       },
       {
-        label: T.Marketplaces,
+        title: T.Marketplaces,
         path: PATH.STORAGE.MARKETPLACES.LIST,
         sidebar: true,
         icon: MarketplaceIcon,
         Component: Marketplaces,
       },
       {
-        label: T.Apps,
+        title: T.Apps,
         path: PATH.STORAGE.MARKETPLACE_APPS.LIST,
         sidebar: true,
         icon: MarketplaceAppIcon,
         Component: MarketplaceApps,
       },
       {
-        label: T.CreateMarketApp,
+        title: T.CreateMarketApp,
         path: PATH.STORAGE.MARKETPLACE_APPS.CREATE,
         Component: CreateMarketplaceApp,
       },
     ],
   },
   {
-    label: T.Networks,
+    title: T.Networks,
     icon: NetworksIcon,
     routes: [
       {
-        label: T.VirtualNetworks,
+        title: T.VirtualNetworks,
         path: PATH.NETWORK.VNETS.LIST,
         sidebar: true,
         icon: NetworkIcon,
         Component: VirtualNetworks,
       },
       {
-        label: T.NetworkTemplates,
+        title: T.NetworkTemplates,
         path: PATH.NETWORK.VN_TEMPLATES.LIST,
         sidebar: true,
         icon: NetworkTemplateIcon,
@@ -311,40 +317,42 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: T.Infrastructure,
+    title: T.Infrastructure,
     icon: InfrastructureIcon,
     routes: [
       {
-        label: T.Clusters,
+        title: T.Clusters,
         path: PATH.INFRASTRUCTURE.CLUSTERS.LIST,
         sidebar: true,
         icon: ClusterIcon,
         Component: Clusters,
       },
       {
-        label: (params) => [T.ClusterDetailId, params.id],
+        title: T.Cluster,
+        description: (params) => `#${params?.id}`,
         path: PATH.INFRASTRUCTURE.CLUSTERS.DETAIL,
         Component: ClusterDetail,
       },
       {
-        label: T.Hosts,
+        title: T.Hosts,
         path: PATH.INFRASTRUCTURE.HOSTS.LIST,
         sidebar: true,
         icon: HostIcon,
         Component: Hosts,
       },
       {
-        label: T.CreateHost,
+        title: T.CreateHost,
         path: PATH.INFRASTRUCTURE.HOSTS.CREATE,
         Component: CreateHost,
       },
       {
-        label: (params) => [T.HostDetailId, params.id],
+        title: T.Host,
+        description: (params) => `#${params?.id}`,
         path: PATH.INFRASTRUCTURE.HOSTS.DETAIL,
         Component: HostDetail,
       },
       {
-        label: T.Zones,
+        title: T.Zones,
         path: PATH.INFRASTRUCTURE.ZONES.LIST,
         sidebar: true,
         icon: ZoneIcon,
@@ -353,30 +361,32 @@ const ENDPOINTS = [
     ],
   },
   {
-    label: T.System,
+    title: T.System,
     icon: SystemIcon,
     routes: [
       {
-        label: T.Users,
+        title: T.Users,
         path: PATH.SYSTEM.USERS.LIST,
         sidebar: true,
         icon: UserIcon,
         Component: Users,
       },
       {
-        label: (params) => [T.UserDetailId, params.id],
+        title: T.User,
+        description: (params) => `#${params?.id}`,
         path: PATH.SYSTEM.USERS.DETAIL,
         Component: UserDetail,
       },
       {
-        label: T.Groups,
+        title: T.Groups,
         path: PATH.SYSTEM.GROUPS.LIST,
         sidebar: true,
         icon: GroupIcon,
         Component: Groups,
       },
       {
-        label: (params) => [T.GroupDetailId, params.id],
+        title: T.Group,
+        description: (params) => `#${params?.id}`,
         path: PATH.SYSTEM.GROUPS.DETAIL,
         Component: GroupDetail,
       },

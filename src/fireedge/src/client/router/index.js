@@ -28,9 +28,9 @@ import {
 import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
 import { InternalLayout } from 'client/components/HOC'
 
-const renderRoute = ({ Component, label, disableLayout, ...rest }, index) => (
-  <ProtectedRoute key={index} exact {...rest}>
-    <InternalLayout title={label} disableLayout={disableLayout}>
+const renderRoute = ({ Component, ...route }) => (
+  <ProtectedRoute key={route.path} exact {...route}>
+    <InternalLayout {...route}>
       <Component fallback={<LinearProgress color="secondary" />} />
     </InternalLayout>
   </ProtectedRoute>

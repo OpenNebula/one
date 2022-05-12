@@ -31,7 +31,7 @@ import { Translate } from 'client/components/HOC'
 
 const SidebarLink = memo(
   ({
-    label = '',
+    title = '',
     path = '/',
     icon: Icon,
     devMode = false,
@@ -63,7 +63,7 @@ const SidebarLink = memo(
           </ListItemIcon>
         )}
         <ListItemText
-          primary={<Translate word={label} />}
+          primary={<Translate word={title} />}
           primaryTypographyProps={{
             ...(devMode && { component: DevTypography }),
             'data-cy': 'main-menu-item-text',
@@ -76,7 +76,7 @@ const SidebarLink = memo(
 )
 
 SidebarLink.propTypes = {
-  label: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
   icon: PropTypes.any,
   devMode: PropTypes.bool,
