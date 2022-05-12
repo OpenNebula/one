@@ -34,7 +34,9 @@ const Row = ({ original, value, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
+          <Typography noWrap component="span">
+            {NAME}
+          </Typography>
           <span className={classes.labels}>{LOCK && <Lock />}</span>
         </div>
         <div className={classes.caption}>

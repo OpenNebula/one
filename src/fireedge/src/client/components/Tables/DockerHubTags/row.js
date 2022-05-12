@@ -95,7 +95,9 @@ const Row = ({ original, value: _, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{name}</Typography>
+          <Typography noWrap component="span">
+            {name}
+          </Typography>
         </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')} className="full-width">

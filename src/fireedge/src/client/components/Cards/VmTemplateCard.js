@@ -98,7 +98,9 @@ const VmTemplateCard = memo(
         </div>
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography component="span">{NAME}</Typography>
+            <Typography noWrap component="span">
+              {NAME}
+            </Typography>
             <span className={classes.labels}>
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock />}

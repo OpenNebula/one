@@ -52,7 +52,9 @@ const DiskSnapshotCard = memo(({ snapshot = {}, actions = [] }) => {
     <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
+          <Typography noWrap component="span">
+            {NAME}
+          </Typography>
           <span className={classes.labels}>
             {isActive && <StatusChip text={<Translate word={T.Active} />} />}
             <StatusChip text={<Translate word={T.Snapshot} />} />

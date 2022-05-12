@@ -29,7 +29,9 @@ const Row = ({ original, value, ...props }) => {
     <div {...props} data-cy={`user-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
+          <Typography noWrap component="span">
+            {NAME}
+          </Typography>
           <span className={classes.labels}>{!+ENABLED && <Lock />}</span>
         </div>
         <div className={classes.caption}>

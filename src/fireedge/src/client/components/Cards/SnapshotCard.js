@@ -35,7 +35,9 @@ const SnapshotCard = memo(
       <Paper variant="outlined" className={classes.root}>
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography component="span">{NAME}</Typography>
+            <Typography noWrap component="span">
+              {NAME}
+            </Typography>
           </div>
           <div className={classes.caption}>
             <span title={time.toFormat('ff')}>

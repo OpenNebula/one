@@ -36,7 +36,9 @@ const Row = memo(({ original, ...props }) => {
     <div {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{ZOMBIE_VM}</Typography>
+          <Typography noWrap component="span">
+            {ZOMBIE_VM}
+          </Typography>
         </div>
       </div>
     </div>
