@@ -32,7 +32,7 @@ function Marketplaces() {
       {selectedRows?.length > 0 && (
         <Stack overflow="auto" data-cy={'detail'}>
           {selectedRows?.length === 1 ? (
-            <MarketplaceTabs id={selectedRows[0]?.values.ID} />
+            <MarketplaceTabs id={selectedRows[0]?.original.ID} />
           ) : (
             <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
               <MultipleTags
