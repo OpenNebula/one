@@ -22,6 +22,7 @@ import {
   TabsProps,
   Tab as MTab,
   Fade,
+  Stack,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
 
@@ -125,7 +126,7 @@ const Tabs = ({
   )
 
   return (
-    <>
+    <Stack height={1} overflow="auto">
       <Fade in timeout={300}>
         {renderTabs}
       </Fade>
@@ -137,7 +138,7 @@ const Tabs = ({
           {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
         />
       )}
-    </>
+    </Stack>
   )
 }
 
