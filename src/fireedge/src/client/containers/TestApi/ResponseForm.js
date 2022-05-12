@@ -51,10 +51,9 @@ const ResponseForm = ({
       const config = requestConfig(dataForm, { name, httpMethod, params })
 
       const res = (await RestClient.request(config)) ?? {}
-      handleChangeResponse(JSON.stringify(res, null, '\t'))
+      handleChangeResponse(res)
     } catch (err) {
-      handleChangeResponse(JSON.stringify(err.data, null, '\t'))
-      console.log('ERROR', err)
+      handleChangeResponse(err?.data ?? err?.message ?? err)
     }
   }
 
