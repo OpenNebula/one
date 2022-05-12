@@ -63,6 +63,10 @@ const CreateVmTemplate = loadable(
   () => import('client/containers/VmTemplates/Create'),
   { ssr: false }
 )
+const VMTemplateDetail = loadable(
+  () => import('client/containers/VmTemplates/Detail'),
+  { ssr: false }
+)
 // const VrTemplates = loadable(() => import('client/containers/VrTemplates'), { ssr: false })
 // const VmGroups = loadable(() => import('client/containers/VmGroups'), { ssr: false })
 
@@ -137,9 +141,9 @@ export const PATH = {
   TEMPLATE: {
     VMS: {
       LIST: `/${RESOURCE_NAMES.VM_TEMPLATE}`,
-      DETAIL: `/${RESOURCE_NAMES.VM_TEMPLATE}/:id`,
       INSTANTIATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/instantiate`,
       CREATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/create`,
+      DETAIL: `/${RESOURCE_NAMES.VM_TEMPLATE}/:id`,
     },
   },
   STORAGE: {
@@ -254,6 +258,12 @@ const ENDPOINTS = [
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.TEMPLATE.VMS.CREATE,
         Component: CreateVmTemplate,
+      },
+      {
+        title: T.VMTemplate,
+        description: (params) => `#${params?.id}`,
+        path: PATH.TEMPLATE.VMS.DETAIL,
+        Component: VMTemplateDetail,
       },
     ],
   },
