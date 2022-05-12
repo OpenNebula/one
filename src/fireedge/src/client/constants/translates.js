@@ -57,16 +57,18 @@ module.exports = {
   Create: 'Create',
   CreateHost: 'Create Host',
   CreateMarketApp: 'Create Marketplace App',
+  CreateProvider: 'Create Provider',
+  CreateProvision: 'Create Provision',
   CreateVmTemplate: 'Create VM Template',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
+  DeleteAllImages: 'Delete all images',
   DeleteDb: 'Delete database',
   DeleteScheduleAction: 'Delete schedule action: %s',
   DeleteSeveralTemplates: 'Delete several Templates',
-  DeleteTemplate: 'Delete Template',
   DeleteSomething: 'Delete: %s',
-  DeleteAllImages: 'Delete all images',
+  DeleteTemplate: 'Delete Template',
   Deploy: 'Deploy',
   Detach: 'Detach',
   DetachSomething: 'Detach: %s',
@@ -152,7 +154,9 @@ module.exports = {
   UnReschedule: 'Un-Reschedule',
   Unshare: 'Unshare',
   Update: 'Update',
+  UpdateProvider: 'Update Provider',
   UpdateScheduleAction: 'Update schedule action: %s',
+  UpdateVmTemplate: 'Update VM Template',
 
   /* questions */
   Yes: 'Yes',
@@ -285,10 +289,8 @@ module.exports = {
 
   /* sections - system */
   User: 'User',
-  UserDetailId: 'User #%s',
   Users: 'Users',
   Group: 'Group',
-  GroupDetailId: 'Group #%s',
   Groups: 'Groups',
   VDC: 'VDC',
   VDCs: 'VDCs',
@@ -297,10 +299,8 @@ module.exports = {
 
   /* sections - infrastructure */
   Cluster: 'Cluster',
-  ClusterDetailId: 'Cluster #%s',
   Clusters: 'Clusters',
   Host: 'Host',
-  HostDetailId: 'Host #%s',
   Hosts: 'Hosts',
   Infrastructure: 'Infrastructure',
   Zone: 'Zone',
@@ -333,7 +333,6 @@ module.exports = {
   /* sections - templates & instances */
   Instances: 'Instances',
   VM: 'VM',
-  VMDetailId: 'VM #%s',
   VMs: 'VMs',
   VirtualRouter: 'Virtual Router',
   VirtualRouters: 'Virtual Routers',

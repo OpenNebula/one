@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import loadable from '@loadable/component'
 import {
   ReportColumns as DashboardIcon,
   Settings as SettingsIcon,
 } from 'iconoir-react'
+
+import loadable from '@loadable/component'
+
+import { T } from 'client/constants'
 
 const Dashboard = loadable(
   () => import('client/containers/Dashboard/Sunstone'),
@@ -43,7 +46,7 @@ export const PATH = {
 
 export const ENDPOINTS = [
   {
-    label: 'Dashboard',
+    title: T.Dashboard,
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
@@ -51,7 +54,7 @@ export const ENDPOINTS = [
     Component: Dashboard,
   },
   {
-    label: 'Settings',
+    title: T.Settings,
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,
@@ -59,13 +62,13 @@ export const ENDPOINTS = [
     Component: Settings,
   },
   {
-    label: 'Guacamole',
+    title: 'Guacamole', // no need to translate
     disableLayout: true,
     path: PATH.GUACAMOLE,
     Component: Guacamole,
   },
   {
-    label: 'WebMKS',
+    title: 'WebMKS', // no need to translate
     disableLayout: true,
     path: PATH.WMKS,
     Component: WebMKS,

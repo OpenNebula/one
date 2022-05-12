@@ -14,30 +14,23 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useParams } from 'react-router-dom'
 import { Box, Container } from '@mui/material'
 import { CSSTransition } from 'react-transition-group'
 
-import { useGeneral, useGeneralApi } from 'client/features/General'
+import { useGeneral } from 'client/features/General'
 import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 import { sidebar, footer } from 'client/theme/defaults'
 
-const InternalLayout = ({ title, disableLayout, children }) => {
+const InternalLayout = ({ children, ...route }) => {
   const classes = internalStyles()
   const container = useRef()
   const { isFixMenu } = useGeneral()
-  const { changeTitle } = useGeneralApi()
-  const params = useParams()
 
-  useEffect(() => {
-    changeTitle(typeof title === 'function' ? title(params) : title)
-  }, [title])
-
-  if (disableLayout) {
+  if (route.disableLayout) {
     return (
       <Box data-cy="main-layout" className={classes.root}>
         <Box
@@ -64,7 +57,7 @@ const InternalLayout = ({ title, disableLayout, children }) => {
         [isFixMenu]
       )}
     >
-      <Header scrollContainer={container.current} />
+      <Header scrollContainer={container.current} route={route} />
       <Box component="main" className={classes.main}>
         <CSSTransition
           in
@@ -92,7 +85,6 @@ const InternalLayout = ({ title, disableLayout, children }) => {
 }
 
 InternalLayout.propTypes = {
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   disableLayout: PropTypes.bool,
   children: PropTypes.any,
 }

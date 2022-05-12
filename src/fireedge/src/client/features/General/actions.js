@@ -18,7 +18,6 @@ import { createAction } from '@reduxjs/toolkit'
 export const fixMenu = createAction('Fix menu')
 export const changeZone = createAction('Change zone')
 export const changeLoading = createAction('Change loading')
-export const changeTitle = createAction('Change title')
 export const changeAppTitle = createAction('Change App title')
 
 export const dismissSnackbar = createAction('Dismiss snackbar')

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import loadable from '@loadable/component'
 import { Code as DevIcon } from 'iconoir-react'
+import loadable from '@loadable/component'
 
 const TestApi = loadable(() => import('client/containers/TestApi'), {
   ssr: false,
@@ -30,7 +30,7 @@ export const PATH = {
 
 export const ENDPOINTS = [
   {
-    label: 'Test API',
+    title: 'Test API', // no need to translate
     path: PATH.TEST_API,
     devMode: true,
     sidebar: true,
@@ -38,7 +38,7 @@ export const ENDPOINTS = [
     Component: TestApi,
   },
   {
-    label: 'Test Form',
+    title: 'Test Form', // no need to translate
     path: PATH.TEST_FORM,
     devMode: true,
     sidebar: true,
