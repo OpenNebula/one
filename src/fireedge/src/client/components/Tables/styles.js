@@ -50,7 +50,6 @@ export const rowStyles = makeStyles(
       display: 'flex',
       gap: 6,
       alignItems: 'center',
-      flexWrap: 'wrap',
     },
     labels: {
       display: 'inline-flex',

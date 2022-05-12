@@ -53,7 +53,9 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
     <Paper variant="outlined" className={classes.root}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{titleAction}</Typography>
+          <Typography noWrap component="span">
+            {titleAction}
+          </Typography>
           {MESSAGE && (
             <span className={classes.labels}>
               <StatusChip text={MESSAGE} />

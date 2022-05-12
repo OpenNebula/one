@@ -97,6 +97,7 @@ const NicCard = memo(
         >
           <div className={classes.title}>
             <Typography
+              noWrap
               component="span"
               fontWeight="bold"
               data-cy={`${dataCy}-name`}

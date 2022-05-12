@@ -29,7 +29,9 @@ const Row = ({ original, value, ...props }) => {
     <div data-cy={`cluster-${ID}`} {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component="span">{NAME}</Typography>
+          <Typography noWrap component="span">
+            {NAME}
+          </Typography>
         </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>

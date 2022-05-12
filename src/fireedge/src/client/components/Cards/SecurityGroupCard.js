@@ -52,7 +52,9 @@ const SecurityGroupCard = memo(
       <div {...rootProps} data-cy={`secgroup-${ID}`}>
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography component="span">{NAME}</Typography>
+            <Typography noWrap component="span">
+              {NAME}
+            </Typography>
           </div>
           <div className={classes.caption}>
             <span>{`#${ID}`}</span>

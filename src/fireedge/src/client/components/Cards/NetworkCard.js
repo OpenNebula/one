@@ -106,7 +106,9 @@ const NetworkCard = memo(
         <div className={classes.main}>
           <div className={classes.title}>
             <StatusCircle color={stateColor} tooltip={stateName} />
-            <Typography component="span">{NAME}</Typography>
+            <Typography noWrap component="span">
+              {NAME}
+            </Typography>
             {error && (
               <Tooltip
                 arrow

@@ -35,7 +35,9 @@ const Row = ({ original, value, ...props }) => {
       <div className={classes.main}>
         <div className={classes.title}>
           <StatusCircle color={stateColor} tooltip={stateName} />
-          <Typography component="span">{NAME}</Typography>
+          <Typography noWrap component="span">
+            {NAME}
+          </Typography>
         </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>

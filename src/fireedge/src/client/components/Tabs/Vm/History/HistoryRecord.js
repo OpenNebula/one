@@ -88,7 +88,7 @@ const HistoryRecordCard = memo(
       <Paper variant="outlined" className={classes.root}>
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography component="span">
+            <Typography noWrap component="span">
               {`#${SEQ} | #${HID} ${HOSTNAME} | ${Tr(T.Action)}: ${action}`}
             </Typography>
           </div>
