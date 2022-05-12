@@ -32,7 +32,7 @@ function Datastores() {
       {selectedRows?.length > 0 && (
         <Stack overflow="auto">
           {selectedRows?.length === 1 ? (
-            <DatastoreTabs id={selectedRows[0]?.values.ID} />
+            <DatastoreTabs id={selectedRows[0]?.original.ID} />
           ) : (
             <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
               <MultipleTags

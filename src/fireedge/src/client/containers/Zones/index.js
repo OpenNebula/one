@@ -32,7 +32,7 @@ function Zones() {
       {selectedRows?.length > 0 && (
         <Stack overflow="auto" data-cy={'detail'}>
           {selectedRows?.length === 1 ? (
-            <ZoneTabs id={selectedRows[0]?.values.ID} />
+            <ZoneTabs id={selectedRows[0]?.original.ID} />
           ) : (
             <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
               <MultipleTags
