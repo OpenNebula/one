@@ -13,68 +13,77 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import makeStyles from '@mui/styles/makeStyles'
-import { useForm, Controller } from 'react-hook-form'
+import { AddSquare as AddIcon } from 'iconoir-react'
+import { Box, TextField } from '@mui/material'
+import { useForm } from 'react-hook-form'
 
-import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
+import { SubmitButton } from 'client/components/FormControl'
 import { generateKey } from 'client/utils'
 
-const useStyles = makeStyles({
-  wrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    '& > *:first-child': {
-      flexGrow: 1,
-    },
-  },
-})
-
 const AttributeCreateForm = memo(({ handleAdd }) => {
-  const classes = useStyles()
   const key = useMemo(() => generateKey(), [])
   const nameInputKey = useMemo(() => `name-${key}`, [key])
   const valueInputKey = useMemo(() => `value-${key}`, [key])
 
-  const { handleSubmit, reset, control } = useForm({
+  const { handleSubmit, register, reset, formState } = useForm({
     defaultValues: { [nameInputKey]: '', [valueInputKey]: '' },
+    reValidateMode: 'onSubmit',
   })
 
-  const handleCreateAttribute = async (data) => {
-    const { [nameInputKey]: name, [valueInputKey]: value } = data
+  const handleCreateAttribute = useCallback(
+    async (data) => {
+      try {
+        const { [nameInputKey]: name, [valueInputKey]: value } = data
 
-    await handleAdd?.(String(name).toUpperCase(), String(value).toUpperCase())
+        if (!name || !value || formState.isSubmitting) return
 
-    reset()
+        const upperName = `${name}`.toUpperCase()
+        const upperValue = `${value}`.toUpperCase()
+
+        await handleAdd?.(upperName, upperValue)
+        reset()
+      } catch {}
+    },
+    [handleAdd]
+  )
+
+  const handleKeyDown = (evt) => {
+    if (evt.key === 'Enter') {
+      handleSubmit(handleCreateAttribute)(evt)
+    }
   }
+
+  const handleBlur = (evt) => handleSubmit(handleCreateAttribute)(evt)
 
   return (
     <>
       {/* NAME ATTRIBUTE */}
-      <Controller
-        control={control}
-        name={nameInputKey}
-        render={({ field, formState }) => (
-          <Inputs.Text {...field} disabled={formState.isSubmitting} />
-        )}
+      <TextField
+        onKeyDown={handleKeyDown}
+        disabled={formState.isSubmitting}
+        inputProps={{ 'data-cy': `text-${nameInputKey}` }}
+        {...register(nameInputKey, { onBlur: handleBlur })}
       />
 
       {/* VALUE ATTRIBUTE */}
-      <div className={classes.wrapper}>
-        <Controller
-          control={control}
-          name={valueInputKey}
-          render={({ field, formState }) => (
-            <Inputs.Text {...field} disabled={formState.isSubmitting} />
-          )}
+      <Box display="inline-flex" alignItems="center">
+        <TextField
+          sx={{ flexGrow: 1 }}
+          onKeyDown={handleKeyDown}
+          disabled={formState.isSubmitting}
+          inputProps={{ 'data-cy': `text-${valueInputKey}` }}
+          {...register(valueInputKey, { onBlur: handleBlur })}
         />
-        <Actions.Add
-          name={'action-add'}
-          handleClick={handleSubmit(handleCreateAttribute)}
+        <SubmitButton
+          data-cy={'action-add'}
+          icon={<AddIcon />}
+          isSubmitting={formState.isSubmitting}
+          onClick={handleSubmit(handleCreateAttribute)}
         />
-      </div>
+      </Box>
     </>
   )
 })
