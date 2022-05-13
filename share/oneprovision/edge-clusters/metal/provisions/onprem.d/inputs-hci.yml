@@ -57,6 +57,7 @@ inputs:
   - name: 'ceph_public_network'
     type: text
     description: 'Ceph public network in CIDR notation'
+    mandatory: false
 
   - name: 'ceph_device'
     type: array
