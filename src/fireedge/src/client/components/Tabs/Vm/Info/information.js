@@ -88,7 +88,7 @@ const InformationPanel = ({ vm = {}, actions }) => {
       name: T.State,
       value: (
         <Stack direction="row" alignItems="center" gap={1}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
+          <StatusCircle color={stateColor} />
           <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
         </Stack>
       ),
