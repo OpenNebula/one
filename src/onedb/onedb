@@ -354,6 +354,13 @@ PAGES = {
     :format => Integer
 }
 
+FILE = {
+    :name  => 'file',
+    :large => '--file file',
+    :description => 'File with object XML to update directly in the database',
+    :format => String
+}
+
 CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -733,15 +740,24 @@ CommandParser::CmdParser.new(ARGV) do
         #{LIVE_ACTION_HELP}
     EOT
 
-    command :'update-body', update_body_desc, :object, :options => [ID] do
+    command :'update-body', update_body_desc, :object, :options => [ID, FILE] do
         begin
             if !options[:id]
                 puts 'Missing object ID'
                 return -1
             end
 
+            if options[:file] && !File.exist?(options[:file])
+                STDERR.puts "File '#{options[:file]}' doesn't exist"
+                exit(-1)
+            end
+
             action = OneDBLive.new
-            rc     = action.update_body_cli(args[0], options[:id])
+            rc     = action.update_body_cli(
+                args[0],
+                options[:id],
+                options[:file]
+            )
 
             if OpenNebula.is_error?(rc)
                 STDERR.puts "ERROR: #{rc.message}"

@@ -492,26 +492,30 @@ class OneDBLive
         File.read(tmp.path)
     end
 
-    def update_body_cli(object, id)
+    def update_body_cli(object, id, file)
         table, _object, federate = get_pool_config(object)
 
-        # Get body from the database
-        begin
-            db_data = select(table, "oid = #{id}")
-        rescue StandardError => e
-            STDERR.puts "Error getting #{object} with id #{id}"
-            STDERR.puts e.message
-            exit(-1)
+        if file
+            doc = File.read(file)
+        else
+            # Get body from the database
+            begin
+                db_data = select(table, "oid = #{id}")
+            rescue StandardError => e
+                STDERR.puts "Error getting #{object} with id #{id}"
+                STDERR.puts e.message
+                exit(-1)
+            end
+
+            row  = db_data.first
+            body = Base64.decode64(row['body64'])
+
+            doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+            end
+
+            doc = editor_body(doc.root.to_s)
         end
-
-        row = db_data.first
-        body = Base64.decode64(row['body64'])
-
-        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
-            c.default_xml.noblanks
-        end
-
-        doc = editor_body(doc.root.to_s)
 
         begin
             xml_doc = Nokogiri::XML(doc, nil, NOKOGIRI_ENCODING) do |c|
