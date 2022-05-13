@@ -213,7 +213,7 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: true }, command }
       },
-      invalidatesTags: (_, __, id) => [
+      invalidatesTags: (_, __, { id }) => [
         { type: MARKETPLACE, id },
         MARKETPLACE_POOL,
       ],
@@ -233,7 +233,7 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params: { id, enable: false }, command }
       },
-      invalidatesTags: (_, __, id) => [
+      invalidatesTags: (_, __, { id }) => [
         { type: MARKETPLACE, id },
         MARKETPLACE_POOL,
       ],

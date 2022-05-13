@@ -65,7 +65,7 @@ const userApi = oneApi.injectEndpoints({
         return { params: { id }, command }
       },
       transformResponse: (data) => data?.USER ?? {},
-      providesTags: (_, __, id) => [{ type: USER, id }],
+      providesTags: (_, __, { id }) => [{ type: USER, id }],
     }),
     allocateUser: builder.mutation({
       /**

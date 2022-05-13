@@ -43,20 +43,20 @@ function InstantiateVmTemplate() {
   const { enqueueInfo } = useGeneralApi()
   const [instantiate] = useInstantiateTemplateMutation()
 
-  useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
-  useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
-
   const { data, isError } = useGetTemplateQuery(
     { id: templateId, extended: true },
-    { refetchOnMountOrArgChange: false }
+    { skip: templateId === undefined, refetchOnMountOrArgChange: false }
   )
+
+  useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async ([templateSelected, templates]) => {
     try {
       const { ID, NAME } = templateSelected
       const templatesWithId = templates.map((t) => ({ id: ID, ...t }))
 
-      await Promise.all(templatesWithId.map(instantiate))
+      await Promise.all(templatesWithId.map((t) => instantiate(t).unwrap()))
 
       history.push(PATH.INSTANCE.VMS.LIST)
 

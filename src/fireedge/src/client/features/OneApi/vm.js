@@ -107,7 +107,7 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => data?.VM ?? {},
-      providesTags: (_, __, id) => [{ type: VM, id }],
+      providesTags: (_, __, { id }) => [{ type: VM, id }],
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         try {
           const { data: resourceFromQuery } = await queryFulfilled
@@ -267,7 +267,6 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VM_POOL],
     }),
     saveAsTemplate: builder.mutation({
       /**
@@ -338,7 +337,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
     }),
     migrate: builder.mutation({
       /**
@@ -363,7 +362,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
     }),
     saveAsDisk: builder.mutation({
       /**
@@ -931,7 +930,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
