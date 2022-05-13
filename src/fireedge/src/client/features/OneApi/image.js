@@ -186,7 +186,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
     changeImageType: builder.mutation({
       /**
@@ -222,7 +222,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }],
     }),
     changeImagePermissions: builder.mutation({
       /**
@@ -380,7 +380,7 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }, IMAGE_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
   }),
 })

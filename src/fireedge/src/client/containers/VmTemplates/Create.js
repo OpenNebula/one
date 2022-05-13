@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, ReactElement } from 'react'
+import { ReactElement } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
 import {
   useUpdateTemplateMutation,
   useAllocateTemplateMutation,
-  useLazyGetTemplateQuery,
+  useGetTemplateQuery,
 } from 'client/features/OneApi/vmTemplate'
 import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
@@ -48,13 +48,16 @@ function CreateVmTemplate() {
   const [update] = useUpdateTemplateMutation()
   const [allocate] = useAllocateTemplateMutation()
 
+  const { data } = useGetTemplateQuery(
+    { id: templateId, extended: true },
+    { skip: templateId === undefined }
+  )
+
   useGetVMGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetHostsQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetImagesQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetDatastoresQuery(undefined, { refetchOnMountOrArgChange: false })
-
-  const [getTemplate, { data }] = useLazyGetTemplateQuery()
 
   const onSubmit = async (xmlTemplate) => {
     try {
@@ -63,16 +66,12 @@ function CreateVmTemplate() {
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(`VM Template created - #${newTemplateId}`)
       } else {
-        await update({ id: templateId, template: xmlTemplate })
+        await update({ id: templateId, template: xmlTemplate }).unwrap()
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(`VM Template updated - #${templateId} ${NAME}`)
       }
     } catch {}
   }
-
-  useEffect(() => {
-    templateId && getTemplate({ id: templateId, extended: true })
-  }, [])
 
   return templateId && !data ? (
     <SkeletonStepsForm />

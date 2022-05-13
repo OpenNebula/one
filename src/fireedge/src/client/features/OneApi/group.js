@@ -64,7 +64,7 @@ const groupApi = oneApi.injectEndpoints({
         return { params: { id }, command }
       },
       transformResponse: (data) => data?.GROUP ?? {},
-      invalidatesTags: (_, __, id) => [{ type: GROUP, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: GROUP, id }],
     }),
     allocateGroup: builder.mutation({
       /**
