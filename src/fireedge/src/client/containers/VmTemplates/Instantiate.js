@@ -38,7 +38,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  */
 function InstantiateVmTemplate() {
   const history = useHistory()
-  const { state: { ID: templateId } = {} } = useLocation()
+  const { state: { ID: templateId, NAME: templateName } = {} } = useLocation()
 
   const { enqueueInfo } = useGeneralApi()
   const [instantiate] = useInstantiateTemplateMutation()
@@ -51,17 +51,16 @@ function InstantiateVmTemplate() {
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
 
-  const onSubmit = async ([templateSelected, templates]) => {
+  const onSubmit = async (templates) => {
     try {
-      const { ID, NAME } = templateSelected
-      const templatesWithId = templates.map((t) => ({ id: ID, ...t }))
-
-      await Promise.all(templatesWithId.map((t) => instantiate(t).unwrap()))
+      const promises = await Promise.all(templates.map(instantiate))
+      promises.map((res) => res.unwrap?.())
 
       history.push(PATH.INSTANCE.VMS.LIST)
 
       const total = templates.length
-      enqueueInfo(`VM Template instantiated x${total} - #${ID} ${NAME}`)
+      const templateInfo = `#${templateId} ${templateName}`
+      enqueueInfo(`VM Template instantiated x${total} - ${templateInfo}`)
     } catch {}
   }
 

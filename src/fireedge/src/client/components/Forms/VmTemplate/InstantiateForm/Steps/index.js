@@ -66,11 +66,12 @@ const Steps = createSteps(
       const data = { instances, hold, persistent, template: templateXML }
 
       const templates = [...new Array(instances)].map((_, idx) => ({
+        id: vmTemplate.ID,
         name: name?.replace(/%idx/gi, idx),
         ...data,
       }))
 
-      return [vmTemplate, templates]
+      return templates
     },
   }
 )
