@@ -24,6 +24,10 @@ class OneDBLive
 
     def db_escape(string)
         escaped = string.gsub("'", "''")
+
+        # Provision documents are already scaped
+        return escaped if string.include?("\"ar_template\":\"AR=[")
+
         escaped.gsub('\\') { '\\\\' }
     end
 
