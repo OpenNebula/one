@@ -57,7 +57,8 @@ module Migrator
     def feature_4089
         @db.transaction do
             @db.fetch('SELECT max(oid) as maxid FROM marketplace_pool') do |row|
-                next_oid = row[:maxid] + 1
+                next_oid = 0
+                next_oid = row[:maxid] + 1 unless row[:maxid].nil?
 
                 body = "<MARKETPLACE><ID>#{next_oid}</ID><UID>0</UID><GID>0" \
                         '</GID><UNAME>oneadmin</UNAME><GNAME>oneadmin' \
