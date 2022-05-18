@@ -13,47 +13,90 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState } from 'react'
-import { Stack, Chip } from '@mui/material'
+import { ReactElement, useState, memo } from 'react'
+import PropTypes from 'prop-types'
+import { Typography, Box, Stack, Chip } from '@mui/material'
+import { Row } from 'react-table'
 
 import { DatastoresTable } from 'client/components/Tables'
 import DatastoreTabs from 'client/components/Tabs/Datastore'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 
+/**
+ * Displays a list of Datastores with a split pane between the list and selected row(s).
+ *
+ * @returns {ReactElement} Datastores list and selected row(s)
+ */
 function Datastores() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
 
-  return (
-    <SplitPane>
-      <DatastoresTable onSelectedRowsChange={onSelectedRowsChange} />
+  const hasSelectedRows = selectedRows?.length > 0
+  const moreThanOneSelected = selectedRows?.length > 1
+  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
 
-      {selectedRows?.length > 0 && (
-        <Stack overflow="auto">
-          {selectedRows?.length === 1 ? (
-            <DatastoreTabs id={selectedRows[0]?.original.ID} />
-          ) : (
-            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
-              <MultipleTags
-                limitTags={10}
-                tags={selectedRows?.map(
-                  ({ original, id, toggleRowSelected }) => (
-                    <Chip
-                      key={id}
-                      variant="text"
-                      label={original?.NAME ?? id}
-                      onDelete={() => toggleRowSelected(false)}
-                    />
-                  )
-                )}
-              />
-            </Stack>
+  return (
+    <SplitPane gridTemplateRows={gridTemplateRows}>
+      {({ getGridProps, GutterComponent }) => (
+        <Box {...getGridProps()}>
+          <DatastoresTable onSelectedRowsChange={onSelectedRowsChange} />
+
+          {hasSelectedRows && (
+            <>
+              <GutterComponent direction="row" track={1} />
+              {moreThanOneSelected ? (
+                <GroupedTags tags={selectedRows} />
+              ) : (
+                <InfoTabs datastore={selectedRows[0]?.original} />
+              )}
+            </>
           )}
-        </Stack>
+        </Box>
       )}
     </SplitPane>
   )
 }
+
+/**
+ * Displays details of a Datastore.
+ *
+ * @param {object} datastore - Datastore to display
+ * @returns {ReactElement} Datastore details
+ */
+const InfoTabs = memo(({ datastore }) => (
+  <Stack overflow="auto">
+    <Typography color="text.primary" noWrap mb={1}>
+      {`#${datastore.ID} | ${datastore.NAME}`}
+    </Typography>
+    <DatastoreTabs id={datastore.ID} />
+  </Stack>
+))
+
+InfoTabs.propTypes = { datastore: PropTypes.object.isRequired }
+InfoTabs.displayName = 'InfoTabs'
+
+/**
+ * Displays a list of tags that represent the selected rows.
+ *
+ * @param {Row[]} tags - Row(s) to display as tags
+ * @returns {ReactElement} List of tags
+ */
+const GroupedTags = memo(({ tags = [] }) => (
+  <Stack direction="row" flexWrap="wrap" gap={1}>
+    <MultipleTags
+      limitTags={10}
+      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+        <Chip
+          key={id}
+          label={original?.NAME ?? id}
+          onDelete={() => toggleRowSelected(false)}
+        />
+      ))}
+    />
+  </Stack>
+))
+
+GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.displayName = 'GroupedTags'
 
 export default Datastores

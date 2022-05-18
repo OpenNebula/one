@@ -126,6 +126,7 @@
     "socket.io": "4.4.1",
     "socket.io-client": "4.4.1",
     "speakeasy": "2.0.0",
+    "split-grid": "1.0.11",
     "sprintf-js": "1.1.2",
     "style-loader": "3.2.1",
     "terser-webpack-plugin": "5.1.4",

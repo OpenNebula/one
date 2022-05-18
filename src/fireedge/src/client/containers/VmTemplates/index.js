@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState } from 'react'
-import { Typography, Stack, Chip } from '@mui/material'
+import { ReactElement, useState, memo } from 'react'
+import PropTypes from 'prop-types'
+import { Typography, Box, Stack, Chip } from '@mui/material'
+import { Row } from 'react-table'
 
 import { VmTemplatesTable } from 'client/components/Tables'
 import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
@@ -23,46 +24,84 @@ import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 
+/**
+ * Displays a list of VM Templates with a split pane between the list and selected row(s).
+ *
+ * @returns {ReactElement} VM Templates list and selected row(s)
+ */
 function VmTemplates() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = VmTemplateActions()
 
+  const hasSelectedRows = selectedRows?.length > 0
+  const moreThanOneSelected = selectedRows?.length > 1
+  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
+
   return (
-    <SplitPane>
-      <VmTemplatesTable
-        onSelectedRowsChange={onSelectedRowsChange}
-        globalActions={actions}
-      />
-      {selectedRows?.length > 0 && (
-        <Stack overflow="auto">
-          {selectedRows?.length === 1 ? (
+    <SplitPane gridTemplateRows={gridTemplateRows}>
+      {({ getGridProps, GutterComponent }) => (
+        <Box {...getGridProps()}>
+          <VmTemplatesTable
+            onSelectedRowsChange={onSelectedRowsChange}
+            globalActions={actions}
+          />
+
+          {hasSelectedRows && (
             <>
-              <Typography color="text.primary" noWrap mb={1}>
-                {`#${selectedRows[0]?.original.ID} | ${selectedRows[0]?.original.NAME}`}
-              </Typography>
-              <VmTemplateTabs id={selectedRows[0]?.original.ID} />
+              <GutterComponent direction="row" track={1} />
+              {moreThanOneSelected ? (
+                <GroupedTags tags={selectedRows} />
+              ) : (
+                <InfoTabs vmTemplate={selectedRows[0]?.original} />
+              )}
             </>
-          ) : (
-            <Stack direction="row" flexWrap="wrap" gap={1} alignItems="center">
-              <MultipleTags
-                limitTags={10}
-                tags={selectedRows?.map(
-                  ({ original, id, toggleRowSelected }) => (
-                    <Chip
-                      key={id}
-                      variant="text"
-                      label={original?.NAME ?? id}
-                      onDelete={() => toggleRowSelected(false)}
-                    />
-                  )
-                )}
-              />
-            </Stack>
           )}
-        </Stack>
+        </Box>
       )}
     </SplitPane>
   )
 }
+
+/**
+ * Displays details of a VM Template.
+ *
+ * @param {object} vmTemplate - VM Template to display
+ * @returns {ReactElement} VM Template details
+ */
+const InfoTabs = memo(({ vmTemplate }) => (
+  <Stack overflow="auto">
+    <Typography color="text.primary" noWrap mb={1}>
+      {`#${vmTemplate.ID} | ${vmTemplate.NAME}`}
+    </Typography>
+    <VmTemplateTabs id={vmTemplate.ID} />
+  </Stack>
+))
+
+InfoTabs.propTypes = { vmTemplate: PropTypes.object.isRequired }
+InfoTabs.displayName = 'InfoTabs'
+
+/**
+ * Displays a list of tags that represent the selected rows.
+ *
+ * @param {Row[]} tags - Row(s) to display as tags
+ * @returns {ReactElement} List of tags
+ */
+const GroupedTags = memo(({ tags = [] }) => (
+  <Stack direction="row" flexWrap="wrap" gap={1}>
+    <MultipleTags
+      limitTags={10}
+      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+        <Chip
+          key={id}
+          label={original?.NAME ?? id}
+          onDelete={() => toggleRowSelected(false)}
+        />
+      ))}
+    />
+  </Stack>
+))
+
+GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.displayName = 'GroupedTags'
 
 export default VmTemplates
