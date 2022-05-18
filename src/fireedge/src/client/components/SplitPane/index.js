@@ -13,130 +13,117 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, createRef, useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback, Children, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import { Divider } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import Split, { SplitOptions } from 'split-grid'
+import { styled, Divider } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  splitPane: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
-  topPane: {
-    flex: 1,
-  },
-  separator: {
-    position: 'relative',
-    cursor: 'row-resize',
+const Gutter = styled(Divider)(({ theme, direction = 'row' }) => ({
+  position: 'relative',
+  cursor: `${direction}-resize`,
+  height: 8,
+  marginBlock: '1em',
+  background: `linear-gradient(
+    to right,
+    transparent,
+    ${theme.palette.divider},
+    transparent
+  )`,
+  '&:after': {
+    content: "''",
+    position: 'absolute',
+    zIndex: 1,
+    left: '50%',
+    width: 8,
     height: 8,
-    marginBlock: '1em',
-    background: `linear-gradient(
-      to right,
-      transparent,
-      ${theme.palette.divider},
-      transparent
-    )`,
-    '&:after': {
-      content: "''",
-      position: 'absolute',
-      zIndex: 1,
-      left: '50%',
-      width: 8,
-      height: 8,
-      transform: 'rotate(45deg)',
-      backgroundColor: theme.palette.action.active,
-    },
+    transform: 'rotate(45deg)',
+    backgroundColor: theme.palette.action.active,
   },
 }))
 
-const SplitPane = ({ children, containerProps }) => {
-  const classes = useStyles()
-  const [topHeight, setTopHeight] = useState(null)
+/**
+ * @typedef SplitGridHook
+ * @property {function():object} getGridProps - Function to get grid props
+ * @property {ReactElement} GutterComponent - Gutter component
+ */
 
-  const splitPaneRef = createRef()
-  const topRef = createRef()
-  const separatorYPosition = useRef(null)
+/**
+ * Hook to create a split pane with a divider between the two panes.
+ *
+ * @param {SplitOptions} options - Options to configure the split pane
+ * @returns {SplitGridHook} Hook functions to element grid and gutter
+ */
+const useSplitGrid = (options) => {
+  const {
+    columnMinSizes,
+    rowMinSizes,
+    columnMaxSizes,
+    rowMaxSizes,
+    gridTemplateColumns,
+    gridTemplateRows,
+  } = options
 
-  const onMouseDown = (event) => {
-    separatorYPosition.current = event?.touches?.[0]?.clientY ?? event.clientY
-  }
-
-  const onMouseMove = (event) => {
-    if (!separatorYPosition.current) return
-
-    const clientY = event?.touches?.[0]?.clientY || event.clientY
-
-    const newTopHeight = topHeight + clientY - separatorYPosition.current
-    separatorYPosition.current = clientY
-
-    if (newTopHeight <= 0) {
-      return topHeight !== 0 && setTopHeight(0)
-    }
-
-    const splitPaneHeight = splitPaneRef.current?.clientHeight
-
-    if (newTopHeight >= splitPaneHeight) {
-      return topHeight !== splitPaneHeight && setTopHeight(splitPaneHeight)
-    }
-
-    setTopHeight(newTopHeight)
-  }
-
-  const onMouseUp = () => {
-    separatorYPosition.current = null
-  }
+  const split = useRef({})
 
   useEffect(() => {
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    // on mobile device
-    document.addEventListener('touchmove', onMouseMove)
-    document.addEventListener('touchend', onMouseUp)
+    split.current = Split(options)
 
-    return () => {
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseup', onMouseUp)
-      // on mobile device
-      document.removeEventListener('touchmove', onMouseMove)
-      document.removeEventListener('touchend', onMouseUp)
-    }
-  })
+    return () => split.current.destroy()
+  }, [columnMinSizes, rowMinSizes, columnMaxSizes, rowMaxSizes])
 
-  useEffect(() => {
-    if (!topHeight && children[1]) {
-      setTopHeight(document.body.clientHeight / 2)
-      topRef.current.style.flex = 'none'
-    }
-
-    topRef.current.style.height = children[1]
-      ? `${topHeight}px`
-      : `${splitPaneRef.current?.clientHeight}px`
-  }, [topHeight, children[1]])
-
-  return (
-    <div {...containerProps} className={classes.splitPane} ref={splitPaneRef}>
-      <div className={classes.topPane} ref={topRef}>
-        {children[0]}
-      </div>
-      {!!children[1] && (
-        <Divider
-          className={classes.separator}
-          onTouchStart={onMouseDown}
-          onMouseDown={onMouseDown}
-        />
-      )}
-      {children[1]}
-    </div>
+  const getGridProps = useCallback(
+    () => ({
+      display: 'grid',
+      height: 1, // 100%
+      gridTemplateColumns,
+      gridTemplateRows,
+    }),
+    [gridTemplateColumns, gridTemplateRows]
   )
+
+  const GutterComponent = useCallback(
+    ({ direction, track }) => {
+      const handleDragStart = (e) => {
+        split.current?.handleDragStart(e, direction, track)
+      }
+
+      return (
+        <Gutter
+          key={`gutter-${direction}-${track}`}
+          className="gutter"
+          direction={direction}
+          track={track}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        />
+      )
+    },
+    [split.current?.handleDragStart]
+  )
+
+  return { getGridProps, GutterComponent }
 }
 
-SplitPane.propTypes = {
-  children: PropTypes.array.isRequired,
-  containerProps: PropTypes.object,
+/**
+ * @param {SplitOptions} props - Component props
+ * @param {Function|ReactElement} [props.children] - Child components
+ * @returns {ReactElement|function(SplitGridHook):ReactElement} Split pane component
+ */
+const SplitGrid = ({ children, ...options }) => {
+  const hook = useSplitGrid(options)
+
+  if (!children) return null
+  if (typeof children === 'function') return children(hook)
+
+  return !(Children.count(children) === 0) ? Children.only(children) : null
 }
 
-export default SplitPane
+SplitGrid.propTypes = {
+  children: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
+  options: PropTypes.object,
+}
+
+export { Gutter, useSplitGrid }
+
+export default SplitGrid
