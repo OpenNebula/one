@@ -38,8 +38,10 @@ export const SERVER_CONFIG = (() => {
 // should be equal to the apps in src/server/utils/constants/defaults.js
 export const _APPS = { sunstone: 'sunstone', provision: 'provision' }
 export const APPS = Object.keys(_APPS)
+
 export const APPS_IN_BETA = []
 export const APPS_WITH_SWITCHER = [_APPS.sunstone]
+export const APPS_WITH_ONE_PREFIX = [_APPS.provision]
 
 export const APP_URL = '/fireedge'
 export const WEBSOCKET_URL = `${APP_URL}/websockets`

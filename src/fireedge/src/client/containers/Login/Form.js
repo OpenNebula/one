@@ -17,16 +17,13 @@
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
 import { Button, Box, Slide, Stack } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import loginStyles from 'client/containers/Login/styles'
-
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const Form = ({
@@ -38,12 +35,9 @@ const Form = ({
   isLoading,
   transitionProps,
 }) => {
-  const defaultValues = resolver.default()
-  const classes = loginStyles()
-
   const { handleSubmit, setError, ...methods } = useForm({
     reValidateMode: 'onSubmit',
-    defaultValues,
+    defaultValues: resolver.default(),
     resolver: yupResolver(resolver),
   })
 
@@ -61,23 +55,28 @@ const Form = ({
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
-        className={clsx(classes.form, { [classes.loading]: isLoading })}
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        flexShrink={0}
+        justifyContent={{ sm: 'center' }}
+        sx={{ opacity: isLoading ? 0.7 : 1 }}
       >
         <FormProvider {...methods}>
           <FormWithSchema cy="login" fields={fields} />
         </FormProvider>
-        <Stack direction="row" gap={1} m={2}>
+        <Stack direction="row" gap={1} my={2}>
           {onBack && (
             <Button color="secondary" onClick={onBack} disabled={isLoading}>
-              {Tr(T.Back)}
+              <Translate word={T.Back} />
             </Button>
           )}
           <SubmitButton
             color="secondary"
             data-cy="login-button"
             isSubmitting={isLoading}
-            sx={{ textTransform: 'uppercase', padding: '0.5em' }}
-            label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
+            sx={{ textTransform: 'uppercase' }}
+            label={<Translate word={onBack ? T.Next : T.SignIn} />}
           />
         </Stack>
       </Box>
