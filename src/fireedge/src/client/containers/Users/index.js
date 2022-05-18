@@ -15,13 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import { BookmarkEmpty } from 'iconoir-react'
+import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
 import { UsersTable } from 'client/components/Tables'
 import UserTabs from 'client/components/Tabs/User'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { Tr } from 'client/components/HOC'
+import { T, User } from 'client/constants'
 
 /**
  * Displays a list of Users with a split pane between the list and selected row(s).
@@ -47,7 +50,10 @@ function Users() {
               {moreThanOneSelected ? (
                 <GroupedTags tags={selectedRows} />
               ) : (
-                <InfoTabs user={selectedRows[0]?.original} />
+                <InfoTabs
+                  user={selectedRows[0]?.original}
+                  gotoPage={selectedRows[0]?.gotoPage}
+                />
               )}
             </>
           )}
@@ -60,19 +66,31 @@ function Users() {
 /**
  * Displays details of an User.
  *
- * @param {object} user - User to display
+ * @param {User} user - User to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of an User
  * @returns {ReactElement} User details
  */
-const InfoTabs = memo(({ user }) => (
+const InfoTabs = memo(({ user, gotoPage }) => (
   <Stack overflow="auto">
-    <Typography color="text.primary" noWrap mb={1}>
-      {`#${user.ID} | ${user.NAME}`}
-    </Typography>
+    <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Typography color="text.primary" noWrap>
+        {`#${user.ID} | ${user.NAME}`}
+      </Typography>
+      {gotoPage && (
+        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+          <BookmarkEmpty />
+        </IconButton>
+      )}
+    </Stack>
     <UserTabs id={user.ID} />
   </Stack>
 ))
 
-InfoTabs.propTypes = { user: PropTypes.object.isRequired }
+InfoTabs.propTypes = {
+  user: PropTypes.object.isRequired,
+  gotoPage: PropTypes.func,
+}
+
 InfoTabs.displayName = 'InfoTabs'
 
 /**
@@ -82,13 +100,14 @@ InfoTabs.displayName = 'InfoTabs'
  * @returns {ReactElement} List of tags
  */
 const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1}>
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
         <Chip
           key={id}
           label={original?.NAME ?? id}
+          onClick={gotoPage}
           onDelete={() => toggleRowSelected(false)}
         />
       ))}

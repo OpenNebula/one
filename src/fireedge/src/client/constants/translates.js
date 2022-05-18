@@ -85,6 +85,7 @@ module.exports = {
   Info: 'Info',
   Instantiate: 'Instantiate',
   InstantiateVmTemplate: 'Instantiate VM Template',
+  LocateOnTable: 'Locate on table',
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',

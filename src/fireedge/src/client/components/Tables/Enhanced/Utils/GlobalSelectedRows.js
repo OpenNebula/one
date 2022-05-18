@@ -16,7 +16,7 @@
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { TableProps } from 'react-table'
+import { TableProps, Row } from 'react-table'
 import { styled, Chip, Alert, Button, alertClasses } from '@mui/material'
 
 import { Translate } from 'client/components/HOC'
@@ -39,10 +39,15 @@ const MessageStyled = styled(Alert)({
  *
  * @param {object} props - Props
  * @param {boolean} props.withAlert - If `true`, the list of selected rows will be an alert
+ * @param {function(Row)} [props.gotoRowPage] - Function to navigate to a page of the row
  * @param {TableProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX
  */
-const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
+const GlobalSelectedRows = ({
+  withAlert = false,
+  useTableProps,
+  gotoRowPage,
+}) => {
   const {
     preFilteredRows,
     toggleAllRowsSelected,
@@ -78,11 +83,12 @@ const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
     </MessageStyled>
   ) : (
     <div>
-      {selectedRows?.map(({ original, id, toggleRowSelected }) => (
+      {selectedRows?.map((row) => (
         <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onDelete={() => toggleRowSelected(false)}
+          key={row.id}
+          label={row.original?.NAME ?? row.id}
+          onDelete={() => row.toggleRowSelected(false)}
+          {...(gotoRowPage && { onClick: () => gotoRowPage(row) })}
         />
       ))}
     </div>
@@ -92,6 +98,7 @@ const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
 GlobalSelectedRows.propTypes = {
   withAlert: PropTypes.bool,
   useTableProps: PropTypes.object.isRequired,
+  gotoRowPage: PropTypes.func,
 }
 
 GlobalSelectedRows.displayName = ' GlobalSelectedRows'
