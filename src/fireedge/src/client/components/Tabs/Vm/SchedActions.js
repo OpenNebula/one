@@ -137,7 +137,7 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
         </Stack>
       )}
 
-      <Stack direction="column" gap="1em" py="0.8em">
+      <Stack gap="1em" py="0.8em">
         {scheduling.map((schedule) => {
           const { ID, NAME } = schedule
 

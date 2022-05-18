@@ -125,7 +125,7 @@ const NicCard = memo(
           <div className={classes.actions}>{actions}</div>
         )}
         {!!ALIAS?.length && (
-          <Stack direction="column" gap="1em" flexBasis="100%" my="0.5em">
+          <Stack gap="1em" flexBasis="100%" my="0.5em">
             {ALIAS?.map((alias, aliasIdx) => (
               <NicCard
                 key={alias.NIC_ID}
