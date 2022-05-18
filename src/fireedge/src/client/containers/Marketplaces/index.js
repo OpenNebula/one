@@ -15,13 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import { BookmarkEmpty } from 'iconoir-react'
+import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
 import { MarketplacesTable } from 'client/components/Tables'
 import MarketplaceTabs from 'client/components/Tabs/Marketplace'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { Tr } from 'client/components/HOC'
+import { T, Marketplace } from 'client/constants'
 
 /**
  * Displays a list of Marketplaces with a split pane between the list and selected row(s).
@@ -47,7 +50,10 @@ function Marketplaces() {
               {moreThanOneSelected ? (
                 <GroupedTags tags={selectedRows} />
               ) : (
-                <InfoTabs market={selectedRows[0]?.original} />
+                <InfoTabs
+                  market={selectedRows[0]?.original}
+                  gotoPage={selectedRows[0]?.gotoPage}
+                />
               )}
             </>
           )}
@@ -60,19 +66,31 @@ function Marketplaces() {
 /**
  * Displays details of a Marketplace.
  *
- * @param {object} market - Marketplace to display
+ * @param {Marketplace} market - Marketplace to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of a Marketplace
  * @returns {ReactElement} Marketplace details
  */
-const InfoTabs = memo(({ market }) => (
+const InfoTabs = memo(({ market, gotoPage }) => (
   <Stack overflow="auto">
-    <Typography color="text.primary" noWrap mb={1}>
-      {`#${market.ID} | ${market.NAME}`}
-    </Typography>
+    <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Typography color="text.primary" noWrap>
+        {`#${market.ID} | ${market.NAME}`}
+      </Typography>
+      {gotoPage && (
+        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+          <BookmarkEmpty />
+        </IconButton>
+      )}
+    </Stack>
     <MarketplaceTabs id={market.ID} />
   </Stack>
 ))
 
-InfoTabs.propTypes = { market: PropTypes.object.isRequired }
+InfoTabs.propTypes = {
+  market: PropTypes.object.isRequired,
+  gotoPage: PropTypes.func,
+}
+
 InfoTabs.displayName = 'InfoTabs'
 
 /**
@@ -82,13 +100,14 @@ InfoTabs.displayName = 'InfoTabs'
  * @returns {ReactElement} List of tags
  */
 const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1}>
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
         <Chip
           key={id}
           label={original?.NAME ?? id}
+          onClick={gotoPage}
           onDelete={() => toggleRowSelected(false)}
         />
       ))}

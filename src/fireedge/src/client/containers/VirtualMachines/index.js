@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import { BookmarkEmpty } from 'iconoir-react'
+import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
 import { VmsTable } from 'client/components/Tables'
@@ -23,6 +24,8 @@ import VmActions from 'client/components/Tables/Vms/actions'
 import VmTabs from 'client/components/Tabs/Vm'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { Tr } from 'client/components/HOC'
+import { T, VM } from 'client/constants'
 
 /**
  * Displays a list of VMs with a split pane between the list and selected row(s).
@@ -52,7 +55,10 @@ function VirtualMachines() {
               {moreThanOneSelected ? (
                 <GroupedTags tags={selectedRows} />
               ) : (
-                <InfoTabs vm={selectedRows[0]?.original} />
+                <InfoTabs
+                  vm={selectedRows[0]?.original}
+                  gotoPage={selectedRows[0]?.gotoPage}
+                />
               )}
             </>
           )}
@@ -65,19 +71,31 @@ function VirtualMachines() {
 /**
  * Displays details of a VM.
  *
- * @param {object} vm - VM to display
+ * @param {VM} vm - VM to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of a VM
  * @returns {ReactElement} VM details
  */
-const InfoTabs = memo(({ vm }) => (
+const InfoTabs = memo(({ vm, gotoPage }) => (
   <Stack overflow="auto">
-    <Typography color="text.primary" noWrap mb={1}>
-      {`#${vm.ID} | ${vm.NAME}`}
-    </Typography>
+    <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Typography color="text.primary" noWrap>
+        {`#${vm.ID} | ${vm.NAME}`}
+      </Typography>
+      {gotoPage && (
+        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+          <BookmarkEmpty />
+        </IconButton>
+      )}
+    </Stack>
     <VmTabs id={vm.ID} />
   </Stack>
 ))
 
-InfoTabs.propTypes = { vm: PropTypes.object.isRequired }
+InfoTabs.propTypes = {
+  vm: PropTypes.object.isRequired,
+  gotoPage: PropTypes.func,
+}
+
 InfoTabs.displayName = 'InfoTabs'
 
 /**
@@ -87,13 +105,14 @@ InfoTabs.displayName = 'InfoTabs'
  * @returns {ReactElement} List of tags
  */
 const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1}>
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
         <Chip
           key={id}
           label={original?.NAME ?? id}
+          onClick={gotoPage}
           onDelete={() => toggleRowSelected(false)}
         />
       ))}

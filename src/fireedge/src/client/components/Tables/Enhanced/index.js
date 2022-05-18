@@ -104,11 +104,9 @@ const EnhancedTable = ({
       autoResetSelectedRow: false,
       autoResetSelectedRows: false,
       autoResetSortBy: false,
+      autoResetPage: false,
       // -------------------------------------
-      initialState: {
-        pageSize,
-        ...initialState,
-      },
+      initialState: { pageSize, ...initialState },
     },
     useGlobalFilter,
     useFilters,
@@ -126,13 +124,24 @@ const EnhancedTable = ({
     page,
     gotoPage,
     pageCount,
-    state: { pageIndex, selectedRowIds },
+    state: { pageIndex, selectedRowIds, ...state },
   } = useTableProps
 
+  const gotoRowPage = async (row) => {
+    const pageIdx = Math.floor(row.index / state.pageSize)
+
+    await gotoPage(pageIdx)
+
+    // scroll to the row in the table view (if it's visible)
+    document
+      ?.querySelector(`.selected[role='row'][data-cy$='-${row.id}']`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   useMountedLayoutEffect(() => {
-    const selectedRows = preFilteredRows.filter(
-      (row) => !!selectedRowIds[row.id]
-    )
+    const selectedRows = preFilteredRows
+      .filter((row) => !!selectedRowIds[row.id])
+      .map((row) => ({ ...row, gotoPage: () => gotoRowPage(row) }))
 
     onSelectedRowsChange?.(selectedRows)
   }, [selectedRowIds])
@@ -189,7 +198,10 @@ const EnhancedTable = ({
         {/* SELECTED ROWS */}
         {displaySelectedRows && (
           <div>
-            <GlobalSelectedRows useTableProps={useTableProps} />
+            <GlobalSelectedRows
+              useTableProps={useTableProps}
+              gotoRowPage={gotoRowPage}
+            />
           </div>
         )}
       </div>

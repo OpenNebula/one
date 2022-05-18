@@ -15,7 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import { BookmarkEmpty } from 'iconoir-react'
+import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
 import { HostsTable } from 'client/components/Tables'
@@ -23,6 +24,8 @@ import HostTabs from 'client/components/Tabs/Host'
 import HostActions from 'client/components/Tables/Hosts/actions'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { Tr } from 'client/components/HOC'
+import { T, Host } from 'client/constants'
 
 /**
  * Displays a list of Hosts with a split pane between the list and selected row(s).
@@ -52,7 +55,10 @@ function Hosts() {
               {moreThanOneSelected ? (
                 <GroupedTags tags={selectedRows} />
               ) : (
-                <InfoTabs host={selectedRows[0]?.original} />
+                <InfoTabs
+                  host={selectedRows[0]?.original}
+                  gotoPage={selectedRows[0]?.gotoPage}
+                />
               )}
             </>
           )}
@@ -65,19 +71,31 @@ function Hosts() {
 /**
  * Displays details of a Host.
  *
- * @param {object} host - Host to display
+ * @param {Host} host - Host to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of a Host
  * @returns {ReactElement} Host details
  */
-const InfoTabs = memo(({ host }) => (
+const InfoTabs = memo(({ host, gotoPage }) => (
   <Stack overflow="auto">
-    <Typography color="text.primary" noWrap mb={1}>
-      {`#${host.ID} | ${host.NAME}`}
-    </Typography>
+    <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Typography color="text.primary" noWrap>
+        {`#${host.ID} | ${host.NAME}`}
+      </Typography>
+      {gotoPage && (
+        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+          <BookmarkEmpty />
+        </IconButton>
+      )}
+    </Stack>
     <HostTabs id={host.ID} />
   </Stack>
 ))
 
-InfoTabs.propTypes = { host: PropTypes.object.isRequired }
+InfoTabs.propTypes = {
+  host: PropTypes.object.isRequired,
+  gotoPage: PropTypes.func,
+}
+
 InfoTabs.displayName = 'InfoTabs'
 
 /**
@@ -87,13 +105,14 @@ InfoTabs.displayName = 'InfoTabs'
  * @returns {ReactElement} List of tags
  */
 const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1}>
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected }) => (
+      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
         <Chip
           key={id}
           label={original?.NAME ?? id}
+          onClick={gotoPage}
           onDelete={() => toggleRowSelected(false)}
         />
       ))}
