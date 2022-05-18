@@ -20,6 +20,7 @@ import { styled, keyframes, lighten, darken } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import { Translate, Tr } from 'client/components/HOC'
 import { SCHEMES } from 'client/constants'
 
 const Card = styled(Paper)(({ theme, bgcolor, onClick }) => {
@@ -89,9 +90,9 @@ const Wave = styled('span')(({ theme, bgcolor, duration = 1 }) => {
 
 const WavesCard = memo(
   ({ text, value, bgColor, icon: Icon, onClick }) => (
-    <Card bgcolor={bgColor} onClick={onClick || undefined}>
-      <Typography variant="h6" zIndex={2}>
-        {text}
+    <Card title={Tr(text)} bgcolor={bgColor} onClick={onClick || undefined}>
+      <Typography variant="h6" zIndex={2} noWrap>
+        <Translate word={text} />
       </Typography>
       <Typography variant="h4" zIndex={2}>
         {value}
