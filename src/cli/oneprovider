@@ -220,7 +220,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :providerid_list], :octet do
         helper.perform_actions(args[0], options, 'Permissions changed') do |p|
-            p.chmod_octet(args[1])
+            p.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 end

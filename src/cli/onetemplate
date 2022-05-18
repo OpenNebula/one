@@ -378,7 +378,7 @@ CommandParser::CmdParser.new(ARGV) do
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
-            t.chmod_octet(args[1], recursive)
+            t.chmod_octet(OpenNebulaHelper.to_octet(args[1]), recursive)
         end
     end
 
