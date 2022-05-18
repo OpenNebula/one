@@ -89,8 +89,7 @@ function ProvisionDashboard() {
 }
 
 const ResourceWidget = memo(({ resource, ...props }) => {
-  const { data, isLoading } = useGetProvisionResourceQuery({ resource })
-  const total = `${data?.length ?? 0}`
+  const { data = [], isLoading } = useGetProvisionResourceQuery({ resource })
 
   return (
     <Grid item xs={12} sm={6} md={3} data-cy={`widget-total-${resource}`}>
@@ -99,7 +98,7 @@ const ResourceWidget = memo(({ resource, ...props }) => {
           isLoading ? (
             <CircularProgress size={20} />
           ) : (
-            <NumberEasing value={total} />
+            <NumberEasing value={data?.length} />
           )
         }
         {...props}
