@@ -53,7 +53,7 @@ const TotalProvisionsByState = () => {
           {isLoading ? (
             <CircularProgress size={20} />
           ) : (
-            <NumberEasing value={`${totalProvisions}`} />
+            <NumberEasing value={totalProvisions} />
           )}
           <span>{T.Provisions}</span>
         </Typography>

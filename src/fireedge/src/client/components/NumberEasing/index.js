@@ -16,40 +16,50 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+const TOTAL_PROGRESS = 1
+
 /**
  * React component for fancy number transitions.
  *
  * @param {object} props - Props
- * @param {string} props.value - The value to display at the end of the animation
- * @param {number} [props.speed] - Duration of animation effect in ms
+ * @param {string|number} props.value - The value to display at the end of the animation
+ * @param {number} [props.start] - The value to display at the start of the animation
+ * @param {number} [props.duration] - Duration of animation effect in ms
  * @returns {string} Returns a count number
  */
-const NumberEasing = ({ value = '0', speed = 200 }) => {
-  const [count, setCount] = useState('0')
+const NumberEasing = ({ value = 0, start = 0, duration = 2000 }) => {
+  const [count, setCount] = useState(start)
 
   useEffect(() => {
-    let start = 0
-    const end = parseInt(String(value).substring(0, 3))
+    let startTimestamp = null
+    let animation = null
 
-    if (start === end) return
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp
 
-    const timer = setInterval(() => {
-      start += 1
+      const leftTime = (timestamp - startTimestamp) / duration
 
-      setCount(String(start) + String(value).substring(3))
+      // Math.min() is used here to make sure
+      // the element stops animating when the duration is reached
+      const progress = Math.min(leftTime, TOTAL_PROGRESS)
 
-      if (start === end) clearInterval(timer)
-    }, speed)
+      setCount(Math.floor(progress * (value - start) + start))
 
-    return () => clearInterval(timer)
-  }, [value, speed])
+      if (progress < 1) animation = window.requestAnimationFrame(step)
+    }
+
+    animation = window.requestAnimationFrame(step)
+
+    return () => window.cancelAnimationFrame(animation)
+  }, [])
 
   return count
 }
 
 NumberEasing.propTypes = {
-  value: PropTypes.string,
-  speed: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  start: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  duration: PropTypes.number,
 }
 
 NumberEasing.displayName = 'NumberEasing'

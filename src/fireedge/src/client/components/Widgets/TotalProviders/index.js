@@ -55,7 +55,7 @@ const TotalProviders = () => {
       <div>
         {chartData?.map(({ title: titleLegend, value, color }) => (
           <TypographyWithPoint key={titleLegend} pointColor={color}>
-            <NumberEasing value={`${value}`} />
+            <NumberEasing value={+value} />
             <span className={classes.legendSecondary} title={titleLegend}>
               {titleLegend}
             </span>
@@ -90,7 +90,7 @@ const TotalProviders = () => {
           {isLoading ? (
             <CircularProgress size={20} />
           ) : (
-            <NumberEasing value={`${totalProviders}`} />
+            <NumberEasing value={totalProviders} />
           )}
           <span>{T.Providers}</span>
         </Typography>
