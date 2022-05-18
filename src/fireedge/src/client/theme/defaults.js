@@ -88,6 +88,8 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
   const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
   const defaultContrastText = isDarkMode ? white : 'rgba(0, 0, 0, 0.87)'
 
+  console.log({ mode, isDarkMode })
+
   const background = {
     paper: isDarkMode ? primary.light : white,
     default: isDarkMode ? primary.main : bgBlueGrey,
@@ -254,6 +256,16 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
       MuiCssBaseline: {
         styleOverrides: {
           '@font-face': UbuntuFont,
+          '*::-webkit-scrollbar': {
+            width: 14,
+          },
+          '*::-webkit-scrollbar-thumb': {
+            backgroundClip: 'content-box',
+            border: '4px solid transparent',
+            borderRadius: 7,
+            boxShadow: 'inset 0 0 0 10px',
+            color: secondary.light,
+          },
           '.loading_screen': {
             width: '100%',
             height: '100vh',
