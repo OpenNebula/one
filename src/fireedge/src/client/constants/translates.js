@@ -209,7 +209,7 @@ module.exports = {
   HoursBetween0_168: 'Hours should be between 0 and 168',
   WhenYouWantThatTheActionFinishes: 'When you want that the action finishes',
 
-  /* dashboard */
+  /* footer */
   MadeWith: 'Made with',
 
   /* dashboard */
@@ -224,6 +224,7 @@ module.exports = {
   Credentials: 'Credentials',
   SwitchView: 'Switch view',
   SwitchGroup: 'Switch group',
+  TakeMeToTheAppGui: 'Take me to the %s GUI',
 
   /* errors */
   SessionExpired: 'Sorry, your session has expired',

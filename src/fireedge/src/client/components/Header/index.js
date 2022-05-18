@@ -37,6 +37,7 @@ import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import { Translate } from 'client/components/HOC'
 import { sentenceCase } from 'client/utils'
+import { APPS_WITH_ONE_PREFIX } from 'client/constants'
 
 const Header = memo(({ route: { title, description } = {} }) => {
   const { isOneAdmin } = useAuth()
@@ -77,7 +78,7 @@ const Header = memo(({ route: { title, description } = {} }) => {
           sx={{ userSelect: 'none' }}
         >
           <Typography variant="h6" data-cy="header-app-title">
-            {'One'}
+            {APPS_WITH_ONE_PREFIX.includes(appTitle) && 'One'}
             <Typography
               variant={'inherit'}
               color="secondary.800"
