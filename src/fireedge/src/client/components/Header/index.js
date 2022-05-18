@@ -120,7 +120,7 @@ const Header = memo(({ route: { title, description } = {} }) => {
                 noWrap
                 variant="subtitle2"
                 data-cy="header-description"
-                sx={{ color: 'text.secondary' }}
+                sx={{ color: 'text.contrastText' }}
               >
                 <Translate word={ensuredDescription} />
               </Typography>
