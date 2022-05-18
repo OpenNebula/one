@@ -363,7 +363,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :chmod, chmod_desc, [:range, :imageid_list], :octet do
         helper.perform_actions(args[0], options,
                                'Permissions changed') do |image|
-            image.chmod_octet(args[1])
+            image.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 

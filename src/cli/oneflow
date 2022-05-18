@@ -285,7 +285,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         Service.perform_actions(args[0]) do |service_id|
             params = {}
-            params['octet'] = args[1]
+            params['octet'] = OpenNebulaHelper.to_octet(args[1])
 
             json = Service.build_json_action('chmod', params)
 
