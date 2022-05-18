@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createTheme, ThemeOptions, colors, alpha } from '@mui/material'
-import { accordionSummaryClasses } from '@mui/material/AccordionSummary'
 import { iconButtonClasses } from '@mui/material/IconButton'
 import { buttonClasses } from '@mui/material/Button'
 import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
@@ -22,7 +21,8 @@ import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 import { UbuntuFont } from 'client/theme/fonts'
 import { SCHEMES } from 'client/constants'
 
-const defaultTheme = createTheme()
+const defaultDarkTheme = createTheme({ palette: { mode: 'dark' } })
+const defaultLightTheme = createTheme({ palette: { mode: 'light' } })
 const { grey } = colors
 const black = '#1D1D1D'
 const white = '#ffffff'
@@ -87,8 +87,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
 
   const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
   const defaultContrastText = isDarkMode ? white : 'rgba(0, 0, 0, 0.87)'
-
-  console.log({ mode, isDarkMode })
+  const defaultTheme = isDarkMode ? defaultDarkTheme : defaultLightTheme
 
   const background = {
     paper: isDarkMode ? primary.light : white,
@@ -491,7 +490,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
       MuiAccordionDetails: {
         styleOverrides: {
           root: {
-            border: `1px solid ${defaultTheme.palette.divider}`,
+            borderTop: `1px solid ${defaultTheme.palette.divider}`,
           },
         },
       },
@@ -500,18 +499,10 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           expandIcon: <ExpandMoreIcon />,
         },
         styleOverrides: {
-          flexDirection: 'row-reverse',
-          backgroundColor: isDarkMode
-            ? 'rgba(255, 255, 255, .05)'
-            : 'rgba(0, 0, 0, .03)',
-          '&:not(:last-child)': {
-            borderBottom: 0,
-          },
-          [`& .${accordionSummaryClasses.expandIconWrapper}.Mui-expanded`]: {
-            transform: 'rotate(90deg)',
-          },
-          [`& .${accordionSummaryClasses.content}`]: {
-            marginLeft: '.5em',
+          root: {
+            '&.Mui-expanded, &:hover': {
+              backgroundColor: defaultTheme.palette.action.hover,
+            },
           },
         },
       },
