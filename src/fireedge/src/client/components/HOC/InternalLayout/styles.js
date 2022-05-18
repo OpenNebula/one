@@ -45,16 +45,6 @@ export default makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     height: '100%',
     overflow: 'auto',
-    '&::-webkit-scrollbar': {
-      width: 14,
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundClip: 'content-box',
-      border: '4px solid transparent',
-      borderRadius: 7,
-      boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light,
-    },
   },
   /* ROUTES TRANSITIONS */
   appear: {},

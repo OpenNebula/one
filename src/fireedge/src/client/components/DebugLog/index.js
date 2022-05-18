@@ -37,16 +37,6 @@ const debugLogStyles = makeStyles((theme) => ({
     borderRadius: 5,
     backgroundColor: '#1d1f21',
     wordBreak: 'break-word',
-    '&::-webkit-scrollbar': {
-      width: 14,
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundClip: 'content-box',
-      border: '4px solid transparent',
-      borderRadius: 7,
-      boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light,
-    },
   },
 }))
 
