@@ -69,7 +69,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
         <AttachAction vmId={id} currentNics={nics} hypervisor={hypervisor} />
       )}
 
-      <Stack direction="column" gap="1em" py="0.8em">
+      <Stack gap="1em" py="0.8em">
         {nics.map((nic) => {
           const { IP, MAC, ADDRESS } = nic
           const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
