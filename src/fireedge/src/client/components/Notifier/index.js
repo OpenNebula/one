@@ -22,6 +22,7 @@ import { IconButton } from '@mui/material'
 import { Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
+import { Translate } from 'client/components/HOC'
 
 const CloseButton = ({ handleClick }) => (
   <IconButton onClick={handleClick} component="span">
@@ -56,7 +57,7 @@ const Notifier = () => {
 
         if (displayed.includes(key)) return
 
-        enqueueSnackbar(message, {
+        enqueueSnackbar(<Translate word={message} />, {
           key,
           ...options,
           action: CloseButton({ handleClick: () => closeSnackbar(key) }),
