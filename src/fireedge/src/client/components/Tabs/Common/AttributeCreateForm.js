@@ -56,7 +56,14 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
     }
   }
 
-  const handleBlur = (evt) => handleSubmit(handleCreateAttribute)(evt)
+  const handleBlur = (evt) => {
+    const nextTarget = evt.relatedTarget?.name
+
+    // If the next target isn't the name or value input, submit the form
+    if (![nameInputKey, valueInputKey].includes(nextTarget)) {
+      handleSubmit(handleCreateAttribute)(evt)
+    }
+  }
 
   return (
     <>
