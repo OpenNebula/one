@@ -217,7 +217,9 @@ define(function(require) {
       return false;
     }
 
-    var vm_name = $("#vm_name", context).val();
+    if (Config.isTabActionEnabled("vms-tab", "VM.instantiate_name")){
+      var vm_name = $("#vm_name", context).val();
+    }
     var n_times = $("#vm_n_times", context).val();
     var n_times_int = 1;
 
@@ -407,16 +409,15 @@ define(function(require) {
 
       if (boot && boot.length > 0) {
         os.BOOT = boot;
-        tmp_json.OS = os;
-      } else {
-        tmp_json.OS = os;
       }
-
-
+      
+      tmp_json.OS = os;
 
       extra_info["template"] = tmp_json;
       for (var i = 0; i < n_times_int; i++) {
-        extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
+        if (Config.isTabActionEnabled("vms-tab", "VM.instantiate_name")){
+          extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
+        }
         Sunstone.runAction("Template."+action, [template_id], extra_info);
       }
     });
