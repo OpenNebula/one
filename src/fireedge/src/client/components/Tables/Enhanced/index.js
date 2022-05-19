@@ -208,7 +208,7 @@ const EnhancedTable = ({
 
       <div className={clsx(styles.body, classes.body)}>
         {/* NO DATA MESSAGE */}
-        {!isUninitialized && page?.length === 0 && (
+        {!isLoading && !isUninitialized && page?.length === 0 && (
           <span className={styles.noDataMessage}>
             <InfoEmpty />
             <Translate word={T.NoDataAvailable} />
