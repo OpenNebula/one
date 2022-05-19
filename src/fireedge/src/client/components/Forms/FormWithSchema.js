@@ -14,11 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createElement, useMemo, isValidElement } from 'react'
+import {
+  Fragment,
+  createElement,
+  useMemo,
+  useCallback,
+  isValidElement,
+} from 'react'
 import PropTypes from 'prop-types'
 
-import { FormControl, Grid } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
+import { FormControl, Accordion, AccordionSummary, Grid } from '@mui/material'
 
 import * as FC from 'client/components/FormControl'
 import Legend from 'client/components/Forms/Legend'
@@ -46,6 +52,7 @@ const INPUT_CONTROLLER = {
 }
 
 const FormWithSchema = ({
+  accordion = false,
   id,
   cy,
   fields,
@@ -59,6 +66,26 @@ const FormWithSchema = ({
 
   const { sx: sxRoot, ...restOfRootProps } = rootProps ?? {}
 
+  const RootWrapper = useMemo(
+    () =>
+      accordion && legend
+        ? ({ children }) => (
+            <Accordion
+              variant="transparent"
+              TransitionProps={{ unmountOnExit: false }}
+            >
+              {children}
+            </Accordion>
+          )
+        : Fragment,
+    [accordion, legend]
+  )
+
+  const LegendWrapper = useMemo(
+    () => (accordion && legend ? AccordionSummary : Fragment),
+    [accordion, legend]
+  )
+
   const getFields = useMemo(
     () => (typeof fields === 'function' ? fields() : fields),
     [fields?.length]
@@ -66,12 +93,15 @@ const FormWithSchema = ({
 
   if (!getFields || getFields?.length === 0) return null
 
-  const addIdToName = (name) =>
-    name.startsWith('$')
-      ? name.slice(1) // removes character '$' and returns
-      : id
-      ? `${id}.${name}`
-      : name // concat form ID if exists
+  const addIdToName = useCallback(
+    (name) =>
+      name.startsWith('$')
+        ? name.slice(1) // removes character '$' and returns
+        : id
+        ? `${id}.${name}` // concat form ID if exists
+        : name,
+    [id]
+  )
 
   return (
     <FormControl
@@ -80,65 +110,75 @@ const FormWithSchema = ({
       sx={{ width: '100%', ...sxRoot }}
       {...restOfRootProps}
     >
-      {legend && <Legend title={legend} tooltip={legendTooltip} />}
-      <Grid container spacing={1} alignContent="flex-start">
-        {getFields?.map?.(({ dependOf, ...attributes }) => {
-          let valueOfDependField = null
-          let nameOfDependField = null
+      <RootWrapper>
+        <LegendWrapper>
+          {legend && (
+            <Legend
+              title={legend}
+              tooltip={legendTooltip}
+              disableGutters={accordion}
+            />
+          )}
+        </LegendWrapper>
+        <Grid container spacing={1} alignContent="flex-start">
+          {getFields?.map?.(({ dependOf, ...attributes }) => {
+            let valueOfDependField = null
+            let nameOfDependField = null
 
-          if (dependOf) {
-            nameOfDependField = Array.isArray(dependOf)
-              ? dependOf.map(addIdToName)
-              : addIdToName(dependOf)
+            if (dependOf) {
+              nameOfDependField = Array.isArray(dependOf)
+                ? dependOf.map(addIdToName)
+                : addIdToName(dependOf)
 
-            valueOfDependField = watch(nameOfDependField)
-          }
+              valueOfDependField = watch(nameOfDependField)
+            }
 
-          const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
-            attributes
-          ).reduce((field, attribute) => {
-            const [key, value] = attribute
-            const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+            const { name, type, htmlType, grid, ...fieldProps } =
+              Object.entries(attributes).reduce((field, attribute) => {
+                const [key, value] = attribute
+                const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
 
-            const finalValue =
-              typeof value === 'function' &&
-              !isNotDependAttribute &&
-              !isValidElement(value())
-                ? value(valueOfDependField, formContext)
-                : value
+                const finalValue =
+                  typeof value === 'function' &&
+                  !isNotDependAttribute &&
+                  !isValidElement(value())
+                    ? value(valueOfDependField, formContext)
+                    : value
 
-            return { ...field, [key]: finalValue }
-          }, {})
+                return { ...field, [key]: finalValue }
+              }, {})
 
-          const dataCy = `${cy}-${name}`.replaceAll('.', '-')
-          const inputName = addIdToName(name)
+            const dataCy = `${cy}-${name}`.replaceAll('.', '-')
+            const inputName = addIdToName(name)
 
-          const isHidden = htmlType === INPUT_TYPES.HIDDEN
+            const isHidden = htmlType === INPUT_TYPES.HIDDEN
 
-          if (isHidden) return null
+            if (isHidden) return null
 
-          return (
-            INPUT_CONTROLLER[type] && (
-              <Grid key={dataCy} item xs={12} md={6} {...grid}>
-                {createElement(INPUT_CONTROLLER[type], {
-                  control,
-                  cy: dataCy,
-                  formContext,
-                  dependencies: nameOfDependField,
-                  name: inputName,
-                  type: htmlType === false ? undefined : htmlType,
-                  ...fieldProps,
-                })}
-              </Grid>
+            return (
+              INPUT_CONTROLLER[type] && (
+                <Grid key={dataCy} item xs={12} md={6} {...grid}>
+                  {createElement(INPUT_CONTROLLER[type], {
+                    control,
+                    cy: dataCy,
+                    formContext,
+                    dependencies: nameOfDependField,
+                    name: inputName,
+                    type: htmlType === false ? undefined : htmlType,
+                    ...fieldProps,
+                  })}
+                </Grid>
+              )
             )
-          )
-        })}
-      </Grid>
+          })}
+        </Grid>
+      </RootWrapper>
     </FormControl>
   )
 }
 
 FormWithSchema.propTypes = {
+  accordion: PropTypes.bool,
   id: PropTypes.string,
   cy: PropTypes.string,
   fields: PropTypes.oneOfType([

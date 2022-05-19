@@ -30,8 +30,8 @@ export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
 const Context = (props) => (
   <>
     <ConfigurationSection />
-    <FilesSection {...props} />
     <UserInputsSection />
+    <FilesSection {...props} />
   </>
 )
 

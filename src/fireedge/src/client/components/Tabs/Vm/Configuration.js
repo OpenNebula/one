@@ -34,7 +34,7 @@ const VmConfigurationTab = ({ id }) => {
 
   return (
     <div>
-      <Accordion>
+      <Accordion variant="outlined">
         <AccordionSummary>
           <Translate word={T.UserTemplate} />
         </AccordionSummary>
@@ -46,7 +46,7 @@ const VmConfigurationTab = ({ id }) => {
           </pre>
         </AccordionDetails>
       </Accordion>
-      <Accordion>
+      <Accordion variant="outlined">
         <AccordionSummary>
           <Translate word={T.Template} />
         </AccordionSummary>

@@ -30,7 +30,7 @@ const TemplateTab = ({ id }) => {
   const { data: vmTemplate = {} } = useGetTemplateQuery({ id })
 
   return (
-    <Accordion expanded>
+    <Accordion variant="outlined" expanded>
       <AccordionDetails>
         <Box component="pre">
           <Box
