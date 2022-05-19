@@ -196,7 +196,7 @@ const AppLink = memo(({ app }) => {
       color="text.secondary"
       padding={1}
     >
-      <Translate word={T.TakeMeToTheAppGui} value={name} />
+      <Translate word={T.TakeMeToTheAppGui} values={name} />
     </Link>
   )
 })
