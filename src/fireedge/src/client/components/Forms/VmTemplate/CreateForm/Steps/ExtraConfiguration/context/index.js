@@ -22,6 +22,7 @@ import UserInputsSection, {
 } from './userInputsSection'
 import ConfigurationSection from './configurationSection'
 import FilesSection from './filesSection'
+import ContextVarsSection from './contextVarsSection'
 
 import { T } from 'client/constants'
 
@@ -32,6 +33,7 @@ const Context = (props) => (
     <ConfigurationSection />
     <UserInputsSection />
     <FilesSection {...props} />
+    <ContextVarsSection {...props} />
   </>
 )
 

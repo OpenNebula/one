@@ -42,6 +42,8 @@ const {
   DELETE_ATTRIBUTE: DELETE,
 } = ACTIONS
 
+const ALL_ACTIONS = [COPY, ADD, EDIT, DELETE]
+
 // This attributes has special restrictions
 const SPECIAL_ATTRIBUTES = {
   VCENTER_CCR_REF: {
@@ -87,7 +89,8 @@ const AttributePanel = memo(
     handleEdit,
     handleDelete,
     handleAdd,
-    actions = [],
+    allActionsEnabled = true,
+    actions = allActionsEnabled ? ALL_ACTIONS : [],
     filtersSpecialAttributes = true,
     collapse = false,
   }) => {
@@ -136,6 +139,7 @@ AttributePanel.propTypes = {
   handleDelete: PropTypes.func,
   title: PropTypes.string,
   filtersSpecialAttributes: PropTypes.bool,
+  allActionsEnabled: PropTypes.bool,
   collapse: PropTypes.bool,
 }
 

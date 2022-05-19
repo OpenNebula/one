@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
-import { Box } from '@mui/material'
+import { useCallback } from 'react'
+import { object } from 'yup'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { Box } from '@mui/material'
 
 import { AttributePanel } from 'client/components/Tabs/Common'
-import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables/schema'
 import { cleanEmpty, cloneObject, set } from 'client/utils'
-import { T, ACTIONS } from 'client/constants'
-
-const ALL_ACTIONS = [
-  ACTIONS.COPY_ATTRIBUTE,
-  ACTIONS.ADD_ATTRIBUTE,
-  ACTIONS.EDIT_ATTRIBUTE,
-  ACTIONS.DELETE_ATTRIBUTE,
-]
+import { T } from 'client/constants'
 
 export const STEP_ID = 'custom-variables'
 
@@ -36,37 +28,41 @@ const Content = () => {
   const { setValue } = useFormContext()
   const customVars = useWatch({ name: STEP_ID })
 
-  const handleChangeAttribute = (path, newValue) => {
-    const newCustomVars = cloneObject(customVars)
+  const handleChangeAttribute = useCallback(
+    (path, newValue) => {
+      const newCustomVars = cloneObject(customVars)
 
-    set(newCustomVars, path, newValue)
-    setValue(STEP_ID, cleanEmpty(newCustomVars))
-  }
+      set(newCustomVars, path, newValue)
+      setValue(STEP_ID, cleanEmpty(newCustomVars))
+    },
+    [customVars]
+  )
 
   return (
     <Box display="grid" gap="1em">
       <AttributePanel
+        allActionsEnabled
         handleAdd={handleChangeAttribute}
         handleEdit={handleChangeAttribute}
         handleDelete={handleChangeAttribute}
         attributes={customVars}
-        actions={ALL_ACTIONS}
         filtersSpecialAttributes={false}
       />
     </Box>
   )
 }
 
+/**
+ * Custom variables about VM Template.
+ *
+ * @returns {object} Custom configuration step
+ */
 const CustomVariables = () => ({
   id: STEP_ID,
   label: T.CustomVariables,
-  resolver: SCHEMA,
+  resolver: object(),
   optionsValidate: { abortEarly: false },
   content: Content,
 })
-
-Content.propTypes = {
-  data: PropTypes.any,
-}
 
 export default CustomVariables

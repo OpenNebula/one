@@ -478,3 +478,27 @@ export const intersperse = (arr, sep) => {
     .slice(1)
     .reduce((xs, x, i) => xs.concat([sep, x]), [ensuredArr[0]])
 }
+
+/**
+ * Returns the unknown properties of an object.
+ *
+ * @param {object} obj - Object
+ * @param {string[]|object} knownAttributes - Attributes to check
+ * @returns {object} Returns object with unknown properties
+ */
+export const getUnknownAttributes = (obj, knownAttributes) => {
+  const unknown = {}
+  const entries = Object.entries(obj)
+
+  const attributes = Array.isArray(knownAttributes)
+    ? knownAttributes
+    : Object.getOwnPropertyNames({ ...knownAttributes })
+
+  for (const [key, value] of entries) {
+    if (!attributes.includes(key) && value !== undefined) {
+      unknown[key] = obj[key]
+    }
+  }
+
+  return unknown
+}

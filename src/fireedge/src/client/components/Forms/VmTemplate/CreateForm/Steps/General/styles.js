@@ -20,6 +20,7 @@ export default makeStyles((theme) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: theme.spacing(1),
+    overflow: 'auto',
     [theme.breakpoints.down('md')]: {
       gridTemplateColumns: '1fr',
     },
