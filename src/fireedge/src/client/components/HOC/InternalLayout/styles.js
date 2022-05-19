@@ -45,6 +45,8 @@ export default makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     height: '100%',
     overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
   },
   /* ROUTES TRANSITIONS */
   appear: {},

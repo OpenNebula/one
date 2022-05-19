@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 // eslint-disable-next-line no-unused-vars
 import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
@@ -36,7 +35,7 @@ import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfi
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 /**
  * @typedef {object} TabType
@@ -99,17 +98,27 @@ const Content = ({ data, setFormData }) => {
   return <Tabs tabs={tabs} />
 }
 
-const ExtraConfiguration = () => ({
-  id: STEP_ID,
-  label: T.AdvancedOptions,
-  resolver: (formData) => {
-    const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR
+/**
+ * Optional configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} Optional configuration step
+ */
+const ExtraConfiguration = (vmTemplate) => {
+  const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
-    return SCHEMA(hypervisor)
-  },
-  optionsValidate: { abortEarly: false },
-  content: Content,
-})
+  return {
+    id: STEP_ID,
+    label: T.AdvancedOptions,
+    resolver: (formData) => {
+      const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR ?? initialHypervisor
+
+      return SCHEMA(hypervisor)
+    },
+    optionsValidate: { abortEarly: false },
+    content: Content,
+  }
+}
 
 Content.propTypes = {
   data: PropTypes.any,

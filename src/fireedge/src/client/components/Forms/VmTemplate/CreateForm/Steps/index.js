@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { reach } from 'yup'
+
 import General, {
   STEP_ID as GENERAL_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
@@ -22,8 +24,14 @@ import ExtraConfiguration, {
 import CustomVariables, {
   STEP_ID as CUSTOM_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables'
+
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
-import { createSteps, isBase64, encodeBase64 } from 'client/utils'
+import {
+  createSteps,
+  isBase64,
+  encodeBase64,
+  getUnknownAttributes,
+} from 'client/utils'
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   transformInitialValue: (vmTemplate, schema) => {
@@ -39,19 +47,33 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } }
     )
 
-    const customVars = {}
-    const knownAttributes = Object.getOwnPropertyNames({
+    const knownAttributes = {
       ...knownTemplate[GENERAL_ID],
       ...knownTemplate[EXTRA_ID],
-    })
+    }
 
-    Object.entries(vmTemplate?.TEMPLATE).forEach(([key, value]) => {
-      if (!knownAttributes.includes(key) && value) {
-        customVars[key] = value
-      }
-    })
+    // Set the unknown attributes to the custom variables section
+    knownTemplate[CUSTOM_ID] = getUnknownAttributes(
+      vmTemplate?.TEMPLATE,
+      knownAttributes
+    )
 
-    return { ...knownTemplate, [CUSTOM_ID]: customVars }
+    // Get the custom vars from the context
+    const knownContext = reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
+      vmTemplate?.TEMPLATE?.CONTEXT,
+      { stripUnknown: true, context: { extra: vmTemplate.TEMPLATE } }
+    )
+
+    // Merge known and unknown context custom vars
+    knownTemplate[EXTRA_ID].CONTEXT = {
+      ...reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
+        vmTemplate?.TEMPLATE?.CONTEXT,
+        { stripUnknown: true, context: { extra: vmTemplate.TEMPLATE } }
+      ),
+      ...getUnknownAttributes(vmTemplate?.TEMPLATE?.CONTEXT, knownContext),
+    }
+
+    return knownTemplate
   },
   transformBeforeSubmit: (formData) => {
     const {

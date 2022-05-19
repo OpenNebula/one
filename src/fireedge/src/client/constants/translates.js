@@ -691,6 +691,10 @@ module.exports = {
     The contextualization package executes an init.sh file if it exists.
     If more than one script file is added, this list contains the scripts
     to run and their order`,
+  ContextCustomVariables: 'Context Custom Variables',
+  ContextCustomVariablesConcept:
+    'Context information will be send to the VM at boot time',
+  ContextCustomVarErrorExists: 'Context Custom Variable already exists',
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
   Inputs: 'Inputs',

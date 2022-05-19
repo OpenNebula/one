@@ -475,6 +475,7 @@ export const createSteps =
       steps: performedSteps,
       defaultValues,
       resolver: generateSchema,
+      initialValues,
       ...extraParams,
     }
   }
