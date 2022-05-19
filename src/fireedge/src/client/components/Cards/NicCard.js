@@ -144,7 +144,7 @@ const NicCard = memo(
           const rulesById = Object.entries(groupBy(SECURITY_GROUPS, 'ID'))
 
           return (
-            <Accordion>
+            <Accordion variant="outlined">
               <AccordionSummary>
                 <Typography variant="body1">
                   <Translate word={T.SecurityGroups} />

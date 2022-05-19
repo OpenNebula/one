@@ -64,12 +64,17 @@ const ConfigurationSection = () => {
           <Stack direction="row" gap="1em">
             <Button
               onClick={handleAddUserKey}
+              color="secondary"
               variant="contained"
               data-cy={`${EXTRA_ID}-add-context-ssh-public-key`}
             >
               {T.AddUserSshPublicKey}
             </Button>
-            <Button onClick={handleClearKey} variant="outlined">
+            <Button
+              onClick={handleClearKey}
+              color="secondary"
+              variant="outlined"
+            >
               {T.Clear}
             </Button>
           </Stack>

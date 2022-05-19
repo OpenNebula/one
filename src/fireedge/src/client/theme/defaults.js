@@ -287,9 +287,18 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
         },
       },
       MuiPaper: {
+        defaultProps: {
+          elevation: 0,
+        },
         styleOverrides: {
           root: { backgroundImage: 'unset' },
         },
+        variants: [
+          {
+            props: { variant: 'transparent' },
+            style: { backgroundColor: 'transparent' },
+          },
+        ],
       },
       MuiButtonBase: {
         defaultProps: {
@@ -461,36 +470,15 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           dense: true,
         },
       },
-      MuiChip: {
-        variants: [
-          {
-            props: { variant: 'text' },
-            style: {
-              border: 0,
-              backgroundColor: 'transparent',
-            },
-          },
-        ],
-      },
       MuiAccordion: {
         defaultProps: {
-          elevation: 0,
-          square: true,
           disableGutters: true,
           TransitionProps: { unmountOnExit: true },
         },
         styleOverrides: {
           root: {
             flexBasis: '100%',
-            border: `1px solid ${defaultTheme.palette.divider}`,
             '&:before': { display: 'none' },
-          },
-        },
-      },
-      MuiAccordionDetails: {
-        styleOverrides: {
-          root: {
-            borderTop: `1px solid ${defaultTheme.palette.divider}`,
           },
         },
       },

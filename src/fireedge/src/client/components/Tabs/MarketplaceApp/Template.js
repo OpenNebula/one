@@ -43,7 +43,7 @@ const AppTemplateTab = ({ id }) => {
 
   return (
     <>
-      <Accordion>
+      <Accordion variant="outlined">
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Translate word={T.AppTemplate} />
         </AccordionSummary>

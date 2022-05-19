@@ -116,7 +116,7 @@ const AttributeList = ({
 
   return (
     <RootElement variant="outlined" {...containerProps}>
-      <ListElement {...listProps}>
+      <ListElement variant="outlined" {...listProps}>
         {/* TITLE */}
         {title && (
           <TitleElement>
