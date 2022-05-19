@@ -81,6 +81,7 @@ const ContextVarsSection = ({ hypervisor }) => {
         <AccordionSummary>
           <Legend
             disableGutters
+            data-cy={'context-custom-vars'}
             title={T.ContextCustomVariables}
             tooltip={T.ContextCustomVariablesConcept}
           />

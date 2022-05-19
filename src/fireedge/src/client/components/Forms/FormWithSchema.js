@@ -114,6 +114,7 @@ const FormWithSchema = ({
         <LegendWrapper>
           {legend && (
             <Legend
+              data-cy={`legend-${cy}`}
               title={legend}
               tooltip={legendTooltip}
               disableGutters={accordion}
