@@ -23,6 +23,6 @@ Add any other context or screenshots about the feature request here. Or any othe
 <!--////////////////////////////////////////////-->
 
 ## Progress Status
-- [ ] Code commited
+- [ ] Code committed
 - [ ] Testing - QA
 - [ ] Documentation (Release notes - resolved issues, compatibility, known issues)
