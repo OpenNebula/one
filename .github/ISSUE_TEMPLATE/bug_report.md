@@ -31,6 +31,6 @@ Add any other context about the problem here.
 <!--////////////////////////////////////////////-->
 
 ## Progress Status
-- [ ] Code commited
+- [ ] Code committed
 - [ ] Testing - QA
 - [ ] Documentation (Release notes - resolved issues, compatibility, known issues)
