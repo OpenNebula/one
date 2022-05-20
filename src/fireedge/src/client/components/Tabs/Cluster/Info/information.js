@@ -55,11 +55,7 @@ const InformationPanel = ({ cluster = {}, actions }) => {
 
   return (
     <>
-      <List
-        title={T.Information}
-        list={info}
-        containerProps={{ sx: { gridRow: 'span 3' } }}
-      />
+      <List title={T.Information} list={info} />
       <List title={T.Overcommitment} list={overcommitment} />
     </>
   )
