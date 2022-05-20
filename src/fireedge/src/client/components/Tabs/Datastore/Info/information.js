@@ -86,7 +86,7 @@ const InformationPanel = ({ datastore = {}, actions }) => {
       <List
         title={T.Information}
         list={info}
-        containerProps={{ sx: { gridRow: 'span 3' } }}
+        containerProps={{ sx: { gridRow: 'span 2' } }}
       />
     </>
   )
