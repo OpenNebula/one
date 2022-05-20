@@ -17,7 +17,7 @@ import { useEffect, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
-import { MenuItem, MenuList, Chip, Stack } from '@mui/material'
+import { MenuItem, MenuList, Stack } from '@mui/material'
 import {
   TableInstance,
   UseSortByInstanceProps,
@@ -45,71 +45,52 @@ const GlobalSort = ({ className, useTableProps }) => {
   /** @type {UseSortByState} */
   const { sortBy } = state
 
-  const headersNotSorted = useMemo(
+  const sorters = useMemo(
     () =>
-      headers.filter(
-        ({ isSorted, canSort, isVisible }) => !isSorted && canSort && isVisible
-      ),
-    [sortBy.length]
+      headers
+        .filter((header) => header.canSort && header.isVisible)
+        .map((header) => {
+          const sorter = sortBy.find((s) => s.id === header.id)
+
+          return { ...header, ...sorter }
+        }),
+    [headers.length, sortBy?.[0]?.id, sortBy?.[0]?.desc]
   )
 
-  const handleClick = (id, name) => {
-    setSortBy([{ id, desc: false, name }, ...sortBy])
-  }
-
-  const handleDelete = (removeId) => {
-    setSortBy(sortBy.filter(({ id }) => id !== removeId))
-  }
-
-  const handleToggle = (id, desc) => {
-    setSortBy(sortBy.map((sort) => (sort.id === id ? { ...sort, desc } : sort)))
+  const handleClick = (id, name, prevDesc = true) => {
+    setSortBy([{ id, desc: !prevDesc, name }])
   }
 
   useEffect(() => () => setSortBy([]), [])
 
-  return !headersNotSorted.length && !sortBy.length ? null : (
-    <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
-      {useMemo(
-        () => (
-          <HeaderPopover
-            id="sort-by-button"
-            icon={<SortDown />}
-            buttonLabel={T.SortBy}
-            buttonProps={{
-              'data-cy': 'sort-by-button',
-              disabled: headersNotSorted.length === 0,
-              variant: 'outlined',
-              color: 'secondary',
-            }}
-            popperProps={{ placement: 'bottom-end' }}
-          >
-            {() => (
-              <MenuList>
-                {headersNotSorted?.map(({ id, Header: name }) => (
-                  <MenuItem key={id} onClick={() => handleClick(id, name)}>
-                    <Translate word={name} />
-                  </MenuItem>
-                ))}
-              </MenuList>
-            )}
-          </HeaderPopover>
-        ),
-        [headersNotSorted.length]
-      )}
+  if (sorters.length === 0) {
+    return null
+  }
 
-      {useMemo(
-        () =>
-          sortBy?.map(({ name, id, desc }) => (
-            <Chip
-              key={`${id}-${desc ? 'desc' : 'asc'}`}
-              icon={desc ? <ArrowUp /> : <ArrowDown />}
-              label={name ?? id}
-              onClick={() => handleToggle(id, !desc)}
-              onDelete={() => handleDelete(id)}
-            />
-          )),
-        [sortBy.length, handleToggle]
-      )}
+  return (
+    <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
+      <HeaderPopover
+        id="sort-by-button"
+        icon={<SortDown />}
+        buttonLabel={T.SortBy}
+        buttonProps={{
+          'data-cy': 'sort-by-button',
+          variant: 'outlined',
+          color: 'secondary',
+        }}
+        popperProps={{ placement: 'bottom-end' }}
+      >
+        {() => (
+          <MenuList>
+            {sorters?.map(({ id, Header: name, desc }) => (
+              <MenuItem key={id} onClick={() => handleClick(id, name, desc)}>
+                {desc !== undefined && (desc ? <ArrowUp /> : <ArrowDown />)}
+                <Translate word={name} />
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
+      </HeaderPopover>
     </Stack>
   )
 }
@@ -118,5 +99,7 @@ GlobalSort.propTypes = {
   className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired,
 }
+
+GlobalSort.displayName = 'GlobalSort'
 
 export default GlobalSort
