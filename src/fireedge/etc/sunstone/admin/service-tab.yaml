@@ -1,0 +1,84 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+---
+# This file describes the information and actions available in the Service tab
+
+# Resource
+
+resource_name: "SERVICE"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true # reference to deploy_dialog in service-template-tab.yaml
+  update_dialog: true
+  recover: true
+  recover_delete: true
+  delete: true
+  chown: true
+  chgrp: true
+  share: true
+  unshare: true
+  edit_labels: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  state: true
+  owner: true
+  group: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+
+  roles:
+    enabled: true
+
+  log:
+    enabled: true
+  
+  scheduler_actions:
+    enabled: true
+    actions:
+      sched_action_create: true
+      sched_action_update: true
+      sched_action_delete: true
+      charter_create: true
+
+# Dialogs
+
+dialogs:
+  # update_dialog:
