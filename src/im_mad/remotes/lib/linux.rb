@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,7 +32,7 @@ class LinuxHost
     #  TODO : use virsh freecell when available
     ######
 
-    attr_accessor :cpu, :memory, :net
+    attr_accessor :cpu, :memory, :net, :cgversion
 
     def initialize
         cpuinfo = `#{CPUINFO}`
@@ -75,6 +75,20 @@ class LinuxHost
 
         @memory[:used] = meminfo['MemTotal'] - meminfo['MemFree'] - meminfo['Buffers'] - meminfo['Cached']
         @memory[:free] = @memory[:total] - @memory[:used]
+
+        ######
+        #  CGROUPS VERSION
+        ######
+        is_cg1 = !(`mount | grep "type cgroup ("`.empty?)
+        is_cg2 = !(`mount | grep "type cgroup2 ("`.empty?)
+
+        if is_cg1
+            @cgversion="1"
+        elsif is_cg2
+            @cgversion="2"
+        else
+            @cgversion=""
+        end
 
         ######
         #  INTERFACE
@@ -145,6 +159,7 @@ class LinuxHost
         print_info('CPUSPEED', linux.cpu[:speed])
 
         print_info('TOTALMEMORY', linux.memory[:total])
+        print_info('CGROUPS_VERSION', linux.cgversion) unless linux.cgversion.empty?
     end
 
 end

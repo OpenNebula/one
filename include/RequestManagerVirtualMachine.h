@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -587,6 +587,42 @@ protected:
 
 private:
     ImagePool* ipool;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttachSG : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttachSG():
+        RequestManagerVirtualMachine("one.vm.attachsg",
+                           "Attaches a SG to the virtual machine NIC",
+                           "A:siii")
+    {
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDetachSG : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetachSG():
+        RequestManagerVirtualMachine("one.vm.detachsg",
+                           "Detaches a SG form virtual machine NIC",
+                           "A:siii")
+    {
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
 };
 
 #endif

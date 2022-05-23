@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,58 +13,117 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
-import { Container, Box, Grid } from '@mui/material'
+import { memo, useMemo, ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router-dom'
+import { Box, CircularProgress, Grid } from '@mui/material'
+import {
+  ModernTv as VmsIcons,
+  List as TemplatesIcon,
+  Archive as ImageIcon,
+  NetworkAlt as NetworkIcon,
+} from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetchAll } from 'client/hooks'
-import { useUserApi, useImageApi, useVNetworkApi, useDatastoreApi } from 'client/features/One'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 
-import * as Widgets from 'client/components/Widgets'
-import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
+import NumberEasing from 'client/components/NumberEasing'
+import WavesCard from 'client/components/Cards/WavesCard'
+import { stringToBoolean } from 'client/models/Helper'
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { T, RESOURCE_NAMES } from 'client/constants'
 
-function Dashboard () {
-  const { status, fetchRequestAll, STATUS } = useFetchAll()
-  const { INIT, PENDING } = STATUS
+const { VM, VM_TEMPLATE, IMAGE, VNET } = RESOURCE_NAMES
 
-  const { getUsers } = useUserApi()
-  const { getImages } = useImageApi()
-  const { getVNetworks } = useVNetworkApi()
-  const { getDatastores } = useDatastoreApi()
+/** @returns {ReactElement} Sunstone dashboard container */
+function SunstoneDashboard() {
+  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { view, hasAccessToResource } = useViews()
+  const { push: goTo } = useHistory()
 
-  const { settings: { disableanimations } = {} } = useAuth()
-  const classes = dashboardStyles({ disableanimations })
-
-  const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
-
-  useEffect(() => {
-    fetchRequestAll([
-      getUsers(),
-      getImages(),
-      getVNetworks(),
-      getDatastores()
-    ])
-  }, [])
+  const vmAccess = useMemo(() => hasAccessToResource(VM), [view])
+  const templateAccess = useMemo(() => hasAccessToResource(VM_TEMPLATE), [view])
+  const imageAccess = useMemo(() => hasAccessToResource(IMAGE), [view])
+  const vnetAccess = useMemo(() => hasAccessToResource(VNET), [view])
 
   return (
-    <Container
-      disableGutters
-      {...withoutAnimations && {
-        className: classes.withoutAnimations
-      }}
+    <Box
+      py={3}
+      {...(stringToBoolean(DISABLE_ANIMATIONS) && {
+        sx: {
+          '& *, & *::before, & *::after': {
+            animation: 'none !important',
+          },
+        },
+      })}
     >
-      <Box py={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Widgets.TotalSunstoneResources
-              isLoading={[INIT, PENDING].includes(status)}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+      <Grid
+        container
+        data-cy="dashboard-widget-total-sunstone-resources"
+        spacing={3}
+      >
+        <ResourceWidget
+          query={useGetVmsQuery}
+          bgColor="#fa7892"
+          text={T.VMs}
+          icon={VmsIcons}
+          onClick={vmAccess && (() => goTo(PATH.INSTANCE.VMS.LIST))}
+        />
+        <ResourceWidget
+          query={useGetTemplatesQuery}
+          bgColor="#b25aff"
+          text={T.VMTemplates}
+          icon={TemplatesIcon}
+          onClick={templateAccess && (() => goTo(PATH.TEMPLATE.VMS.LIST))}
+        />
+        <ResourceWidget
+          query={useGetImagesQuery}
+          bgColor="#1fbbc6"
+          text={T.Images}
+          icon={ImageIcon}
+          onClick={imageAccess && (() => goTo(PATH.STORAGE.IMAGES.LIST))}
+        />
+        <ResourceWidget
+          query={useGetVNetworksQuery}
+          bgColor="#f09d42"
+          text={T.VirtualNetworks}
+          icon={NetworkIcon}
+          onClick={vnetAccess && (() => goTo(PATH.NETWORK.VNETS.LIST))}
+        />
+      </Grid>
+    </Box>
   )
 }
 
-export default Dashboard
+const ResourceWidget = memo(({ query, ...props }) => {
+  const { data = [], isLoading } = query()
+
+  return (
+    <Grid item xs={12} sm={6} md={3}>
+      <WavesCard
+        value={
+          isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <NumberEasing value={data?.length} />
+          )
+        }
+        {...props}
+      />
+    </Grid>
+  )
+})
+
+ResourceWidget.displayName = 'ResourceWidget'
+
+ResourceWidget.propTypes = {
+  query: PropTypes.func,
+  text: PropTypes.string,
+  bgColor: PropTypes.string,
+  icon: PropTypes.any,
+}
+
+export default SunstoneDashboard

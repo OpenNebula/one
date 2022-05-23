@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,58 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { LinearProgress } from '@mui/material'
 
-import { useFetch, useSocket } from 'client/hooks'
-import { useProvisionApi } from 'client/features/One'
+import { useSocket } from 'client/hooks'
+import { useGetProvisionLogQuery } from 'client/features/OneApi/provision'
 import DebugLog, { LogUtils } from 'client/components/DebugLog'
 
-const Log = memo(({ hidden, data: { ID } }) => {
+const Log = memo(({ id }) => {
   const { getProvisionSocket } = useSocket()
-  const { getProvisionLog } = useProvisionApi()
+  const { data, isLoading } = useGetProvisionLogQuery(id)
+  const { uuid = id, log } = data ?? {}
 
-  const {
-    data: { uuid = ID, log } = {},
-    fetchRequest,
-    loading
-  } = useFetch(getProvisionLog)
+  const parsedLog = useMemo(
+    () =>
+      log
+        ?.map((entry) => {
+          try {
+            return JSON.parse(entry)
+          } catch {
+            return entry
+          }
+        })
+        ?.reduce(LogUtils.concatNewMessageToLog, {}),
+    [isLoading]
+  )
 
-  useEffect(() => {
-    (!log && !hidden) && fetchRequest(ID)
-  }, [hidden])
-
-  const parsedLog = useMemo(() =>
-    log
-      ?.map(entry => {
-        try { return JSON.parse(entry) } catch { return entry }
-      })
-      ?.reduce(LogUtils.concatNewMessageToLog, {})
-  , [loading])
-
-  return loading ? (
-    <LinearProgress color='secondary' style={{ width: '100%' }} />
+  return isLoading ? (
+    <LinearProgress color="secondary" sx={{ width: '100%' }} />
   ) : (
     <DebugLog uuid={uuid} socket={getProvisionSocket} logDefault={parsedLog} />
   )
-}, (prev, next) =>
-  prev.hidden === next.hidden && prev.reloading === next.reloading
-)
+})
 
-Log.propTypes = {
-  data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool,
-  fetchRequest: PropTypes.func
-}
-
-Log.defaultProps = {
-  data: {},
-  hidden: false,
-  fetchRequest: () => undefined
-}
-
+Log.propTypes = { id: PropTypes.string.isRequired }
 Log.displayName = 'Log'
 
 export default Log

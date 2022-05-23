@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,27 +20,25 @@ import clsx from 'clsx'
 import { Fab } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     transition: '0.5s ease',
     zIndex: theme.zIndex.appBar,
     position: 'absolute',
     bottom: 60,
-    right: theme.spacing(5)
-  }
+    right: theme.spacing(5),
+  },
 }))
 
-const FloatingActionButton = memo(
-  ({ icon, className, ...props }) => {
-    const classes = useStyles()
+const FloatingActionButton = memo(({ icon, className, ...props }) => {
+  const classes = useStyles()
 
-    return (
-      <Fab className={clsx(classes.root, className)} {...props}>
-        {icon}
-      </Fab>
-    )
-  }
-)
+  return (
+    <Fab className={clsx(classes.root, className)} {...props}>
+      {icon}
+    </Fab>
+  )
+})
 
 FloatingActionButton.propTypes = {
   icon: PropTypes.node.isRequired,
@@ -48,7 +46,7 @@ FloatingActionButton.propTypes = {
   color: PropTypes.oneOf(['inherit', 'primary', 'secondary']),
   disabled: PropTypes.bool,
   size: PropTypes.oneOf(['large', 'medium', 'small']),
-  variant: PropTypes.oneOf(['extended', 'circular'])
+  variant: PropTypes.oneOf(['extended', 'circular']),
 }
 
 FloatingActionButton.defaultProps = {
@@ -57,7 +55,7 @@ FloatingActionButton.defaultProps = {
   color: 'primary',
   disabled: false,
   size: 'large',
-  variant: 'circular'
+  variant: 'circular',
 }
 
 FloatingActionButton.displayName = 'FloatingActionButton'

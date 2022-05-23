@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -438,7 +438,12 @@ function mkfs_command {
 
         # Image create is required because of old MKFS version in c7
         echo "$QEMU_IMG create -f raw ${DST} ${SIZE}M"
-        echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+
+        if [ $FS == xfs ]; then
+            echo "$MKFS.xfs -f ${FS_OPTS} ${DST}"
+        else
+            echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+        fi
 
         if [ "$FORMAT" = "qcow2" ]; then
             echo "$QEMU_IMG convert -f raw -O qcow2 ${DST} ${DST}.qcow2"
@@ -577,25 +582,63 @@ set -e -o pipefail
 if [ ! -d $2 ]; then
     mkdir -p $2
 fi
-
-# create or update .monitor content
-if [ -n "$3" ]; then
-    MONITOR_FN="\$(dirname $2)/.monitor"
-
-    MONITOR=''
-    if [ -f "\\${MONITOR_FN}" ]; then
-        MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
-    fi
-
-    if [ "x\\${MONITOR}" != "x$3" ]; then
-        echo "$3" > "\\${MONITOR_FN}"
-    fi
-fi
 EOF`
     SSH_EXEC_RC=$?
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
         error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
+# Enables local monitoring for host $2 and DS $1, by creating the corresponding
+# .monitor file containing the $3 ( the driver name) (e.g ssh)
+function enable_local_monitoring
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+set -e -o pipefail
+
+MONITOR_FN="\$(dirname $2)/.monitor"
+
+# create or update .monitor content
+MONITOR=''
+if [ -f "\\${MONITOR_FN}" ]; then
+    MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
+fi
+
+if [ "x\\${MONITOR}" != "x$3" ]; then
+    echo "$3" > "\\${MONITOR_FN}"
+fi
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        error_message "Error creating $2/.monitor at $1: $SSH_EXEC_ERR"
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
+# Disables local monitoring for host $2 and DS $1, by removing the corresponding
+# .monitor file
+function disable_local_monitoring
+{
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+set -e -o pipefail
+
+MONITOR_FN="\$(dirname $2)/.monitor"
+
+# remove .monitor file
+rm -f "\\${MONITOR_FN}"
+
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        error_message "Error creating $2/.monitor at $1: $SSH_EXEC_ERR"
 
         exit $SSH_EXEC_RC
     fi

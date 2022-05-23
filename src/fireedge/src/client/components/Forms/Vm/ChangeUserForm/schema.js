@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { string, object } from 'yup'
 
 import { UsersTable } from 'client/components/Tables'
-import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const USER = {
   name: 'user',
-  label: 'Select the new owner',
+  label: T.SelectTheNewOwner,
   type: INPUT_TYPES.TABLE,
-  Table: UsersTable,
+  Table: () => UsersTable,
   validation: string()
     .trim()
-    .required('You must select an user')
+    .required()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FIELDS = [USER]

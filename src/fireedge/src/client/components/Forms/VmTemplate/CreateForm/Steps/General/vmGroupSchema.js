@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { useVmGroup } from 'client/features/One'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
+import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field } from 'client/utils'
 
 /** @type {Field} VM Group field */
 export const VM_GROUP_FIELD = {
@@ -25,21 +25,20 @@ export const VM_GROUP_FIELD = {
   label: T.AssociateToVMGroup,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const vmGroups = useVmGroup()
+    const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
-    return vmGroups
-      ?.map(({ ID, NAME }) => ({ text: `#${ID} ${NAME}`, value: ID }))
-      ?.sort((a, b) => {
-        const compareOptions = { numeric: true, ignorePunctuation: true }
-
-        return a.value.localeCompare(b.value, undefined, compareOptions)
-      })
+    return arrayToOptions(vmGroups, {
+      addEmpty: false,
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
   grid: { md: 12 },
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field} Role field */
@@ -48,9 +47,10 @@ export const ROLE_FIELD = {
   label: T.Role,
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: VM_GROUP_FIELD.name,
-  htmlType: vmGroup => vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
-  values: vmGroupSelected => {
-    const vmGroups = useVmGroup()
+  htmlType: (vmGroup) =>
+    vmGroup && vmGroup !== '' ? undefined : INPUT_TYPES.HIDDEN,
+  values: (vmGroupSelected) => {
+    const { data: vmGroups = [] } = useGetVMGroupsQuery()
 
     const roles = vmGroups
       ?.filter(({ ID }) => ID === vmGroupSelected)
@@ -59,20 +59,16 @@ export const ROLE_FIELD = {
       )
       ?.flat()
 
-    return roles.map(role => ({ text: role, value: role }))
+    return arrayToOptions(roles, { addEmpty: false })
   },
   grid: { md: 12 },
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(
-      'VMGROUP_ID',
-      (vmGroup, schema) => vmGroup ? schema.required() : schema
-    )
+    .when('VMGROUP_ID', (vmGroup, schema) =>
+      vmGroup ? schema.required() : schema
+    ),
 }
 
 /** @type {Field[]} List of VM Group fields */
-export const FIELDS = [
-  VM_GROUP_FIELD,
-  ROLE_FIELD
-]
+export const FIELDS = [VM_GROUP_FIELD, ROLE_FIELD]

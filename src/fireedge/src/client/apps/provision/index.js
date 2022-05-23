@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,7 +21,7 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import { Store } from 'redux'
 
-import SocketProvider from 'client/providers/socketProvider'
+import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
@@ -37,18 +37,17 @@ buildTranslationLocale()
  * @param {object} props - Props
  * @param {Store} props.store - Redux store
  * @param {string|object} props.location - The URL the server received
- * @param {object} props.context - Context object contains the results of the render
  * @returns {JSXElementConstructor} Provision App
  */
-const Provision = ({ store = {}, location = '', context = {} }) => (
-  <ReduxProvider store={store}>
-    <SocketProvider>
+const Provision = ({ store = {}, location = '' }) => (
+  <PreloadConfigProvider>
+    <ReduxProvider store={store}>
       <TranslateProvider>
         <MuiProvider theme={theme}>
           <NotistackProvider>
-            {location && context ? (
+            {location ? (
               // server build
-              <StaticRouter location={location} context={context}>
+              <StaticRouter location={location}>
                 <App />
               </StaticRouter>
             ) : (
@@ -60,14 +59,14 @@ const Provision = ({ store = {}, location = '', context = {} }) => (
           </NotistackProvider>
         </MuiProvider>
       </TranslateProvider>
-    </SocketProvider>
-  </ReduxProvider>
+    </ReduxProvider>
+  </PreloadConfigProvider>
 )
 
 Provision.propTypes = {
   location: PropTypes.string,
   context: PropTypes.object,
-  store: PropTypes.object
+  store: PropTypes.object,
 }
 
 Provision.displayName = 'ProvisionApp'

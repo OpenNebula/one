@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,42 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const privateRoutes = []
+const { Actions, Commands } = require('server/routes/api/zendesk/routes')
+const {
+  login,
+  list,
+  comments,
+  create,
+  update,
+} = require('server/routes/api/zendesk/functions')
 
-const publicRoutes = []
+const {
+  ZENDESK_LOGIN,
+  ZENDESK_CREATE,
+  ZENDESK_UPDATE,
+  ZENDESK_COMMENT,
+  ZENDESK_LIST,
+} = Actions
 
-const functionRoutes = {
-  private: privateRoutes,
-  public: publicRoutes
-}
-
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[ZENDESK_LOGIN],
+    action: login,
+  },
+  {
+    ...Commands[ZENDESK_CREATE],
+    action: create,
+  },
+  {
+    ...Commands[ZENDESK_UPDATE],
+    action: update,
+  },
+  {
+    ...Commands[ZENDESK_COMMENT],
+    action: comments,
+  },
+  {
+    ...Commands[ZENDESK_LIST],
+    action: list,
+  },
+]

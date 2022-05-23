@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -24,8 +24,8 @@ resource_name: "HOST"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  rename: true
-  addtocluster: true
+  create_dialog: true
+  change_cluster: true
   enable: true
   disable: true
   offline: true
@@ -45,31 +45,33 @@ info-tabs:
     enabled: true
     information_panel:
       enabled: true
-    permissions_panel:
-      enabled: true
-    ownership_panel:
-      enabled: true
+      actions:
+        rename: true
     vcenter_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     nsx_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     monitoring_panel:
       enabled: true
       actions:
+        copy: false
         add: false
         edit: false
         delete: false
     attributes_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
@@ -86,3 +88,16 @@ info-tabs:
     enabled: true
   numa:
     enabled: true
+
+# Dialogs
+# ** Required means that it's necessary for the operation of the form
+
+dialogs:
+  create_dialog:
+    information: true # required
+    vcenter:
+      enabled: true
+      not_on:
+        - kvm
+        - lxc
+        - firecracker

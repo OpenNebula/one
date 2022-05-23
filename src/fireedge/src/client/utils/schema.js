@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,12 +16,32 @@
 /* eslint-disable jsdoc/valid-types */
 
 // eslint-disable-next-line no-unused-vars
-import { JSXElementConstructor, SetStateAction } from 'react'
-// eslint-disable-next-line no-unused-vars
-import { GridProps, TextFieldProps, CheckboxProps, InputBaseComponentProps } from '@mui/material'
+import { ReactElement, SetStateAction } from 'react'
+import {
+  // eslint-disable-next-line no-unused-vars
+  GridProps,
+  // eslint-disable-next-line no-unused-vars
+  TextFieldProps,
+  // eslint-disable-next-line no-unused-vars
+  CheckboxProps,
+  // eslint-disable-next-line no-unused-vars
+  InputBaseComponentProps,
+} from '@mui/material'
 import { string, number, boolean, array, object, BaseSchema } from 'yup'
+// eslint-disable-next-line no-unused-vars
+import { Row } from 'react-table'
 
-import { INPUT_TYPES } from 'client/constants'
+import {
+  UserInputObject,
+  T,
+  // eslint-disable-next-line no-unused-vars
+  HYPERVISORS,
+  // eslint-disable-next-line no-unused-vars
+  VN_DRIVERS,
+  INPUT_TYPES,
+  USER_INPUT_TYPES,
+} from 'client/constants'
+import { stringToBoolean } from 'client/models/Helper'
 
 // ----------------------------------------------------------
 // Types
@@ -55,7 +75,7 @@ import { INPUT_TYPES } from 'client/constants'
 
 /**
  * @typedef {object} SelectOption - Option of select field
- * @property {string|JSXElementConstructor} text - Text to display on select list
+ * @property {string|ReactElement} text - Text to display on select list
  * @property {any} value - Value to option
  */
 
@@ -89,15 +109,42 @@ import { INPUT_TYPES } from 'client/constants'
  * - Default: { xs: 12, md: 6 }
  * @property {BaseSchema|DependOfCallback} [validation]
  * - Schema to validate the field value
+ * @property {HYPERVISORS[]|DependOfCallback} [notOnHypervisors]
+ * - Filters the field when the hypervisor is not include on list
+ * @property {VN_DRIVERS[]|DependOfCallback} [notOnDrivers]
+ * - Filters the field when the driver is not include on list
  * @property {TextFieldProps|CheckboxProps|InputBaseComponentProps} [fieldProps]
- * - Extra properties to material field
+ * - Extra properties to material-ui field
+ * @property {boolean|DependOfCallback} [readOnly]
+ * - If `true`, the field is read only
+ * @property {function(string|number):any} [renderValue]
+ * - Render the current selected value inside selector input
+ * - **Only for select inputs.**
+ * @property {ReactElement} [Table]
+ * - Table component. One of table defined in: `client/components/Tables`
+ * - **Only for table inputs.**
+ * @property {boolean|DependOfCallback} [singleSelect]
+ * If `true`, the table component only will allows to select one row
+ * - **Only for table inputs.**
+ * @property {function(Row, number):string} [getRowId]
+ * This function changes how React Table detects unique rows
+ * and also how it constructs each row's underlying id property.
+ * - **Only for table inputs.**
  * @property {{message: string, test: Function}[]|DependOfCallback} [validationBeforeTransform]
  * - Tests to validate the field value.
  * - **Only for file inputs.**
- * @property {Function|DependOfCallback} [transform]
+ * @property {Function} [transform]
  * - Transform the file value.
  * - For example: to save file as string value in base64 format.
  * - **Only for file inputs.**
+ */
+
+/**
+ * @typedef {object} Section
+ * @property {string} id - Section id
+ * @property {string} legend - Legend text
+ * @property {string} legendTooltip - Legend tooltip
+ * @property {Field[]} fields - The Fields will be includes on section
  */
 
 /**
@@ -112,7 +159,7 @@ import { INPUT_TYPES } from 'client/constants'
  * @property {string} id - Id
  * @property {string} label - Label
  * @property {BaseSchema|function(object):BaseSchema} resolver - Schema
- * @property {function(object, SetStateAction):JSXElementConstructor} content - Content
+ * @property {function(object, SetStateAction):ReactElement} content - Content
  * @property {ValidateOptions|undefined} optionsValidate - Validate options
  */
 
@@ -149,38 +196,43 @@ import { INPUT_TYPES } from 'client/constants'
  * @returns {Form & ExtraParams}
  */
 
-/**
- * @typedef {('text'|'text64'|'password'|'number'|'number-float'|'range'|
- * 'range-float'|'boolean'|'list'|'array'|'list-multiple')} UserInputType
- * - OpenNebula types for user inputs
- */
-
 // ----------------------------------------------------------
 // Constants
 // ----------------------------------------------------------
 
-const requiredSchema = (mandatory, name, schema) =>
-  mandatory
-    ? schema.required(`${name} field is required`)
-    : schema.notRequired().nullable()
+/** @enum {Function} Sorters */
+export const OPTION_SORTERS = {
+  default: (a, b) => `${a.value}`.localeCompare(`${b.value}`),
+  numeric: (a, b) =>
+    `${a.value}`.localeCompare(`${b.value}`, undefined, {
+      numeric: true,
+      ignorePunctuation: true,
+    }),
+  unsort: () => null,
+}
 
-const getRange = options => options?.split('..').map(option => parseFloat(option))
+const SEMICOLON_CHAR = ';'
 
-const getValuesFromArray = (options, separator = ';') => options?.split(separator)
+const requiredSchema = (mandatory, schema) =>
+  mandatory ? schema.required() : schema.notRequired().nullable()
 
-const getOptionsFromList = options => options
-  ?.map(option => typeof option === 'string'
-    ? ({ text: option, value: option })
-    : option
-  )
-  ?.filter(({ text, value } = {}) => text && value)
+const getRange = (options) => options?.split?.('..').map(parseFloat)
 
-const parseUserInputValue = value => {
+const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
+  options?.split(separator)
+
+const getOptionsFromList = (options = []) =>
+  arrayToOptions([...new Set(options)])
+
+const parseUserInputValue = (value) => {
   if (value === true) {
     return 'YES'
   } else if (value === false) {
     return 'NO'
-  } else if (Array.isArray(value)) {
+  } else if (
+    Array.isArray(value) &&
+    value.every((v) => typeof v === 'string')
+  ) {
     return value.join(',')
   } else return value
 }
@@ -190,87 +242,118 @@ const parseUserInputValue = value => {
 // ----------------------------------------------------------
 
 /**
- * Get input schema for the user input defined in OpenNebula resource.
+ * Get field properties to represent an user input defined by OpenNebula.
  *
- * @param {object} userInput - User input from OpenNebula document
- * @param {boolean} userInput.mandatory - If `true`, the input will be required
- * @param {string} userInput.name - Name of input
- * @param {UserInputType} userInput.type - Input type
- * @param {string} [userInput.options] - Options available for the input
- * @param {number|string|string[]} [userInput.defaultValue] - Default value for the input
+ * @param {UserInputObject} userInput - User input from OpenNebula document
  * @returns {Field} Field properties
  */
-export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }) => {
+export const schemaUserInput = ({
+  mandatory,
+  type,
+  min,
+  max,
+  options,
+  default: defaultValue,
+}) => {
   switch (type) {
-    case 'text':
-    case 'text64':
-    case 'password': return {
-      type: INPUT_TYPES.TEXT,
-      htmlType: type === 'password' ? 'password' : 'text',
-      validation: string()
-        .trim()
-        .concat(requiredSchema(mandatory, name, string()))
-        .default(defaultValue || undefined)
+    case USER_INPUT_TYPES.fixed: {
+      const isNumeric = !isNaN(defaultValue)
+      const ensuredValue = isNumeric ? parseFloat(defaultValue) : defaultValue
+      const validation = isNumeric ? number() : string().trim()
+
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: isNaN(+defaultValue) ? 'text' : 'number',
+        validation: validation
+          .default(ensuredValue)
+          // ensures to send the value
+          .afterSubmit(() => defaultValue),
+        fieldProps: { disabled: true },
+        readOnly: true,
+      }
     }
-    case 'number':
-    case 'number-float': return {
-      type: INPUT_TYPES.TEXT,
-      htmlType: 'number',
-      validation: number()
-        .typeError(`${name} must be a number`)
-        .concat(requiredSchema(mandatory, name, number()))
-        .transform(value => !isNaN(value) ? value : null)
-        .default(() => parseFloat(defaultValue) ?? undefined)
+    case USER_INPUT_TYPES.text:
+    case USER_INPUT_TYPES.text64:
+    case USER_INPUT_TYPES.password:
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: type === USER_INPUT_TYPES.password ? 'password' : 'text',
+        validation: string()
+          .trim()
+          .concat(requiredSchema(mandatory, string()))
+          .default(defaultValue || undefined),
+      }
+    case USER_INPUT_TYPES.number:
+    case USER_INPUT_TYPES.numberFloat: {
+      const ensuredValue = parseFloat(defaultValue)
+
+      return {
+        type: INPUT_TYPES.TEXT,
+        htmlType: 'number',
+        validation: number()
+          .concat(requiredSchema(mandatory, number()))
+          .transform((value) => (!isNaN(value) ? value : null))
+          .default(isNaN(ensuredValue) ? undefined : ensuredValue),
+      }
     }
-    case 'range':
-    case 'range-float': {
-      const [min, max] = getRange(options)
+    case USER_INPUT_TYPES.range:
+    case USER_INPUT_TYPES.rangeFloat: {
+      const [minimum, maximum] = getRange(options) ?? [min, max].map(parseFloat)
+      const ensuredValue = parseFloat(defaultValue)
 
       return {
         type: INPUT_TYPES.SLIDER,
         validation: number()
-          .typeError(`${name} must be a number`)
-          .concat(requiredSchema(mandatory, name, number()))
-          .min(min, `${name} must be greater than or equal to ${min}`)
-          .max(max, `${name} must be less than or equal to ${max}`)
-          .transform(value => !isNaN(value) ? value : undefined)
-          .default(parseFloat(defaultValue) ?? undefined),
-        fieldProps: { min, max, step: type === 'range-float' ? 0.01 : 1 }
+          .concat(requiredSchema(mandatory, number()))
+          .min(minimum)
+          .max(maximum)
+          .transform((value) => (!isNaN(value) ? value : undefined))
+          .default(isNaN(ensuredValue) ? undefined : ensuredValue),
+        fieldProps: {
+          min: minimum,
+          max: maximum,
+          step: type === USER_INPUT_TYPES.rangeFloat ? 0.1 : 1,
+        },
       }
     }
-    case 'boolean': return {
-      type: INPUT_TYPES.CHECKBOX,
-      validation: boolean()
-        .concat(requiredSchema(mandatory, name, boolean()))
-        .default(defaultValue === 'YES' ?? false)
-    }
-    case 'list': {
+    case USER_INPUT_TYPES.boolean:
+      return {
+        type: INPUT_TYPES.CHECKBOX,
+        validation: boolean()
+          .concat(requiredSchema(mandatory, boolean()))
+          .default(() => stringToBoolean(defaultValue))
+          .yesOrNo(),
+      }
+    case USER_INPUT_TYPES.list: {
       const values = getOptionsFromList(options)
-      const firstOption = values?.[0]?.value ?? undefined
+      const optionValues = values.map(({ value }) => value).filter(Boolean)
+      const firstOption = optionValues[0] ?? undefined
 
       return {
         values,
         type: INPUT_TYPES.SELECT,
         validation: string()
           .trim()
-          .concat(requiredSchema(mandatory, name, string()))
-          .oneOf(values.map(({ value }) => value))
-          .default(defaultValue ?? firstOption)
+          .concat(requiredSchema(mandatory, string()))
+          .oneOf(optionValues)
+          .default(() => defaultValue || firstOption),
       }
     }
-    case 'array': {
+    case USER_INPUT_TYPES.array: {
       const defaultValues = getValuesFromArray(defaultValue)
 
       return {
         type: INPUT_TYPES.AUTOCOMPLETE,
         multiple: true,
+        tooltip: [T.PressKeysToAddAValue, ['ENTER, semicolon (;)']],
+        fieldProps: { freeSolo: true, separators: [SEMICOLON_CHAR] },
         validation: array(string().trim())
-          .concat(requiredSchema(mandatory, name, array()))
-          .default(defaultValues),
-        fieldProps: { freeSolo: true }
+          .concat(requiredSchema(mandatory, array()))
+          .default(() => defaultValues)
+          .afterSubmit((value) => value?.join(SEMICOLON_CHAR)),
       }
     }
-    case 'list-multiple': {
+    case USER_INPUT_TYPES.listMultiple: {
       const values = getOptionsFromList(options)
       const defaultValues = defaultValue?.split(',') ?? undefined
 
@@ -279,17 +362,18 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         type: INPUT_TYPES.SELECT,
         multiple: true,
         validation: array(string().trim())
-          .concat(requiredSchema(mandatory, name, array()))
-          .default(defaultValues)
+          .concat(requiredSchema(mandatory, array()))
+          .default(defaultValues),
       }
     }
-    default: return {
-      type: INPUT_TYPES.TEXT,
-      validation: string()
-        .trim()
-        .concat(requiredSchema(mandatory, name, string()))
-        .default(defaultValue || undefined)
-    }
+    default:
+      return {
+        type: INPUT_TYPES.TEXT,
+        validation: string()
+          .trim()
+          .concat(requiredSchema(mandatory, string()))
+          .default(defaultValue || undefined),
+      }
   }
 }
 
@@ -303,26 +387,45 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
  * @returns {object} - Returns same object with values can be operated by OpenNebula
  */
 export const mapUserInputs = (userInputs = {}) =>
-  Object.entries(userInputs)?.reduce((res, [key, value]) => ({
-    ...res, [key]: parseUserInputValue(value)
-  }), {})
+  Object.entries(userInputs)?.reduce(
+    (res, [key, value]) => ({
+      ...res,
+      [key]: parseUserInputValue(value),
+    }),
+    {}
+  )
 
 /**
  * Converts a list of values to usable options.
  *
- * @param {any[]} array - List of option values
+ * @param {any[]} list - List of option values
  * @param {object} [options] - Options to conversion
- * @param {boolean} [options.addEmpty] - If `true`, add an empty option
- * @param {function(any):any} [options.getText] - Function to get the text option
- * @param {function(any):any} [options.getValue] - Function to get the value option
+ * @param {boolean|string} [options.addEmpty] - If `true`, add an empty option
+ * @param {function(any, number):any} [options.getText] - Function to get the text option
+ * @param {function(any, number):any} [options.getValue] - Function to get the value option
+ * @param {function(any, any):any} [options.sorter] - Function to sort the options
  * @returns {SelectOption} Options
  */
-export const arrayToOptions = (array = [], options = {}) => {
-  const { addEmpty = true, getText = o => o, getValue = o => o } = options
+export const arrayToOptions = (list = [], options = {}) => {
+  const {
+    addEmpty = true,
+    getText = (o) => `${o}`,
+    getValue = (o) => `${o}`,
+    sorter = OPTION_SORTERS.default,
+  } = options
 
-  const values = array.map(item => ({ text: getText(item), value: getValue(item) }))
+  const values = list
+    .map((item, idx) => ({
+      text: getText(item, idx),
+      value: getValue(item, idx),
+    }))
+    .sort(sorter)
 
-  addEmpty && values.unshift({ text: '-', value: '' })
+  if (addEmpty) {
+    typeof addEmpty === 'string'
+      ? values.unshift({ text: addEmpty, value: '' })
+      : values.unshift({ text: '-', value: '' })
+  }
 
   return values
 }
@@ -344,31 +447,36 @@ export const clearNames = (names = '') =>
  * @param {ExtraParams} [extraParams] - Extra parameters
  * @returns {CreateStepsCallback} Function to get steps
  */
-export const createSteps = (steps, extraParams = {}) =>
+export const createSteps =
+  (steps, extraParams = {}) =>
   (stepProps = {}, initialValues) => {
     const { transformInitialValue = () => initialValues } = extraParams
 
     const stepCallbacks = typeof steps === 'function' ? steps(stepProps) : steps
-    const performedSteps = stepCallbacks.map(step => step(stepProps))
+    const performedSteps = stepCallbacks.map((step) => step(stepProps))
 
-    const schemas = {}
-    for (const { id, resolver } of performedSteps) {
-      const schema = typeof resolver === 'function' ? resolver() : resolver
+    // Generate the schema in the last instance
+    const generateSchema = () => {
+      const schemas = {}
+      for (const { id, resolver } of performedSteps) {
+        const schema = typeof resolver === 'function' ? resolver() : resolver
 
-      schemas[id] = schema
+        schemas[id] = schema
+      }
+
+      return object(schemas)
     }
 
-    const allResolver = object(schemas)
-
     const defaultValues = initialValues
-      ? transformInitialValue(initialValues, allResolver)
-      : allResolver.default()
+      ? transformInitialValue(initialValues, generateSchema())
+      : generateSchema().default()
 
     return {
       steps: performedSteps,
       defaultValues,
-      resolver: () => allResolver,
-      ...extraParams
+      resolver: generateSchema,
+      initialValues,
+      ...extraParams,
     }
   }
 
@@ -380,24 +488,37 @@ export const createSteps = (steps, extraParams = {}) =>
  * @param {ExtraParams} [extraParams] - Extra parameters
  * @returns {CreateFormCallback} Function to get form parameters
  */
-export const createForm = (schema, fields, extraParams = {}) =>
+export const createForm =
+  (schema, fields, extraParams = {}) =>
   (props = {}, initialValues) => {
     const schemaCallback = typeof schema === 'function' ? schema(props) : schema
     const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
 
-    const defaultTransformInitialValue = (values, schema) =>
-      schema.cast(values, { stripUnknown: true })
+    const defaultTransformInitialValue = (values) =>
+      schemaCallback.cast(values, { stripUnknown: true })
 
-    const { transformInitialValue = defaultTransformInitialValue } = extraParams
+    const {
+      transformBeforeSubmit,
+      transformInitialValue = defaultTransformInitialValue,
+      ...restOfParams
+    } = extraParams
 
     const defaultValues = initialValues
       ? transformInitialValue(initialValues, schemaCallback)
       : schemaCallback.default()
 
+    const ensuredExtraParams = {}
+    for (const [name, param] of Object.entries(restOfParams)) {
+      const isFunction = typeof param === 'function'
+
+      ensuredExtraParams[name] = isFunction ? param(props) : param
+    }
+
     return {
       resolver: () => schemaCallback,
       fields: () => fieldsCallback,
       defaultValues,
-      ...extraParams
+      transformBeforeSubmit,
+      ...ensuredExtraParams,
     }
   }

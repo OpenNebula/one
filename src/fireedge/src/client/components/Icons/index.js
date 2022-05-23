@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import DockerLogo from 'client/components/Icons/DockerIcon'
+import GuacamoleLogo from 'client/components/Icons/GuacamoleIcon'
+import MemoryIcon from 'client/components/Icons/MemoryIcon'
 import OpenNebulaLogo from 'client/components/Icons/OpenNebulaIcon'
+import WebMKSLogo from 'client/components/Icons/WebMKSIcon'
 
-export {
-  DockerLogo,
-  OpenNebulaLogo
-}
+export { DockerLogo, GuacamoleLogo, MemoryIcon, OpenNebulaLogo, WebMKSLogo }

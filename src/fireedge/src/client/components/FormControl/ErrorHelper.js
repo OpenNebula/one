@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,30 +14,58 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
-import { oneOfType, string, node } from 'prop-types'
+import PropTypes from 'prop-types'
 
 import { Stack, Typography, styled } from '@mui/material'
 import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 
 const ErrorTypo = styled(Typography)(({ theme }) => ({
   ...theme.typography.body1,
   paddingLeft: theme.spacing(1),
-  overflowWrap: 'anywhere'
+  overflowWrap: 'anywhere',
 }))
 
-const ErrorHelper = memo(({ label, ...rest }) => (
-  <Stack component='span' color='error.dark' direction='row' alignItems='center' {...rest}>
-    <WarningIcon />
-    <ErrorTypo component='span' data-cy='error-text'>
-      {labelCanBeTranslated(label) ? Tr(label) : label}
-    </ErrorTypo>
-  </Stack>
-))
+const ErrorHelper = memo(({ label, children, ...rest }) => {
+  const ensuredLabel = Array.isArray(label) && label[0]?.word ? label[0] : label
+
+  const translateProps = ensuredLabel?.word
+    ? { ...ensuredLabel }
+    : { word: ensuredLabel }
+
+  return (
+    <Stack
+      component="span"
+      color="error.dark"
+      direction="row"
+      alignItems="center"
+      {...rest}
+    >
+      <WarningIcon />
+      <ErrorTypo component="span" data-cy="error-text">
+        <Translate {...translateProps} />
+        {children}
+      </ErrorTypo>
+    </Stack>
+  )
+})
 
 ErrorHelper.propTypes = {
-  label: oneOfType([string, node])
+  children: PropTypes.any,
+  label: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.array,
+    PropTypes.shape({
+      word: PropTypes.string,
+      values: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+        PropTypes.array,
+      ]),
+    }),
+  ]),
 }
 
 ErrorHelper.displayName = 'ErrorHelper'

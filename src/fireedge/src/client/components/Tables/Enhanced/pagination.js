@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,17 +17,18 @@
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, Typography } from '@mui/material'
+import { Stack, Button, Typography } from '@mui/material'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
 import { UsePaginationState } from 'react-table'
 
 import { T } from 'client/constants'
 
 const Pagination = ({
+  className,
   count = 0,
   handleChangePage,
   useTableProps,
-  showPageCount = true
+  showPageCount = true,
 }) => {
   /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
@@ -43,39 +44,46 @@ const Pagination = ({
   }
 
   return (
-    <>
+    <Stack
+      className={className}
+      direction="row"
+      alignItems="center"
+      justifyContent="end"
+      gap="1em"
+    >
       <Button
-        aria-label='previous page'
+        aria-label="previous page"
         disabled={pageIndex === 0}
         onClick={handleBackButtonClick}
-        size='small'
-        color='inherit'
+        size="small"
+        color="inherit"
       >
         <NavArrowLeft />
         {T.Previous}
       </Button>
-      <Typography variant='body2' component='span'>
+      <Typography variant="body2" component="span">
         {`${pageIndex + 1} of ${showPageCount ? pageCount : 'many'}`}
       </Typography>
       <Button
-        aria-label='next page'
+        aria-label="next page"
         disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
         onClick={handleNextButtonClick}
-        size='small'
-        color='inherit'
+        size="small"
+        color="inherit"
       >
         {T.Next}
         <NavArrowRight />
       </Button>
-    </>
+    </Stack>
   )
 }
 
 Pagination.propTypes = {
+  className: PropTypes.string,
   handleChangePage: PropTypes.func.isRequired,
   useTableProps: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
-  showPageCount: PropTypes.bool
+  showPageCount: PropTypes.bool,
 }
 
 export default Pagination

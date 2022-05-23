@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 
 const jwt = require('jwt-simple')
-const { messageTerminal } = require('./general')
 const speakeasy = require('speakeasy')
+const { messageTerminal } = require('server/utils/general')
 
 /**
  * Create a JWT.
@@ -29,23 +29,55 @@ const speakeasy = require('speakeasy')
  * @param {number} exp - epoch expire time
  * @returns {string} JWT
  */
-const createJWT = (
-  { id: iss, user: aud, token: jti },
-  iat = '',
-  exp = ''
-) => {
+const createJWT = ({ id: iss, user: aud, token: jti }, iat = '', exp = '') => {
   let rtn = null
-  if (iss && aud && jti && iat && exp && global && global.paths && global.paths.FIREEDGE_KEY) {
+  if (iss && aud && jti && iat && exp) {
     const payload = {
       iss,
       aud,
       jti,
       iat,
-      exp
+      exp,
     }
+    rtn = jwtEncode(payload)
+  }
+
+  return rtn
+}
+
+/**
+ * Encode JWT.
+ *
+ * @param {object} payload - data object
+ * @returns {object} - jwt or null
+ */
+const jwtEncode = (payload = {}) => {
+  let rtn = null
+  if (global && global.paths && global.paths.FIREEDGE_KEY) {
     rtn = jwt.encode(payload, global.paths.FIREEDGE_KEY)
   }
+
   return rtn
+}
+
+/**
+ * Decode JWT.
+ *
+ * @param {string} token - token JWT
+ * @returns {object} data JWT
+ */
+const jwtDecode = (token = '') => {
+  if (global && global.paths && global.paths.FIREEDGE_KEY) {
+    try {
+      return jwt.decode(token, global.paths.FIREEDGE_KEY)
+    } catch (messageError) {
+      messageTerminal({
+        color: 'red',
+        message: 'invalid: %s',
+        error: messageError,
+      })
+    }
+  }
 }
 
 /**
@@ -60,10 +92,9 @@ const validateAuth = (req = {}) => {
     const authorization = req.headers.authorization
     const removeBearer = /^Bearer /i
     const token = authorization.replace(removeBearer, '')
-    const fireedgeKey = global && global.paths && global.paths.FIREEDGE_KEY
-    if (token && fireedgeKey) {
+    if (token) {
       try {
-        const payload = jwt.decode(token, fireedgeKey)
+        const payload = jwtDecode(token)
         if (
           payload &&
           'iss' in payload &&
@@ -78,22 +109,23 @@ const validateAuth = (req = {}) => {
             aud,
             jti,
             iat,
-            exp
+            exp,
           }
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     } else {
-      const messageError = (!token && 'jwt') || (!fireedgeKey && 'fireedge_key')
+      const messageError =
+        token || (global && global.paths && global.paths.FIREEDGE_KEY)
       if (messageError) {
         messageTerminal({
           color: 'red',
           message: 'invalid: %s',
-          error: messageError
+          error: messageError,
         })
       }
     }
   }
+
   return rtn
 }
 
@@ -110,14 +142,16 @@ const check2Fa = (secret = '', token = '') => {
     rtn = speakeasy.totp.verify({
       secret,
       encoding: 'base32',
-      token
+      token,
     })
   }
+
   return rtn
 }
 
 module.exports = {
+  jwtDecode,
   createJWT,
   validateAuth,
-  check2Fa
+  check2Fa,
 }

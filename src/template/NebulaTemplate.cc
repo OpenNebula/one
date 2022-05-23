@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -82,4 +82,58 @@ void NebulaTemplate::set_conf_single(const std::string& attr,
 
     attribute = new SingleAttribute(attr, value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string& NebulaTemplate::to_str(std::string& str) const
+{
+    ostringstream os;
+
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        string s;
+
+        auto hidden_it = hidden_attributes.find(it->first);
+        if (hidden_it != hidden_attributes.end())
+        {
+            if (it->second->type() == Attribute::SIMPLE)
+            {
+                s = "***";
+            }
+            else
+            {
+                ostringstream oss_vector;
+                string sep = "";
+
+                auto attribute_value = static_cast<VectorAttribute*>(it->second)->value();
+
+                for (auto& kv : attribute_value)
+                {
+                    if (hidden_it->second.find(kv.first) != hidden_it->second.end())
+                    {
+                        oss_vector << sep << kv.first << "=" << "***";
+                    }
+                    else
+                    {
+                        oss_vector << sep << kv.first << "=" << kv.second;
+                    }
+                    sep = ",";
+                }
+
+                s = oss_vector.str();
+            }
+        }
+        else
+        {
+            s = it->second->marshall(",");
+        }
+
+        os << it->first << '=' << s << endl;
+    }
+
+    str = os.str();
+
+    return str;
 }

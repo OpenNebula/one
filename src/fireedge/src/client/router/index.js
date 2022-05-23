@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -22,16 +22,16 @@ import { LinearProgress } from '@mui/material'
 
 import {
   PATH as COMMON_PATH,
-  ENDPOINTS as COMMON_ENDPOINTS
+  ENDPOINTS as COMMON_ENDPOINTS,
 } from 'client/router/common'
 
 import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
 import { InternalLayout } from 'client/components/HOC'
 
-const renderRoute = ({ Component, label, ...rest }, index) => (
-  <ProtectedRoute key={index} exact {...rest}>
-    <InternalLayout title={label}>
-      <Component fallback={<LinearProgress color='secondary' />} />
+const renderRoute = ({ Component, ...route }) => (
+  <ProtectedRoute key={route.path} exact {...route}>
+    <InternalLayout {...route}>
+      <Component fallback={<LinearProgress color="secondary" />} />
     </InternalLayout>
   </ProtectedRoute>
 )
@@ -51,11 +51,16 @@ const Router = ({ redirectWhenAuth, endpoints }) => (
           ? subRoutes?.map(renderRoute)
           : renderRoute(rest, index)
       )}
-      {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) =>
-        <NoAuthRoute key={index} exact redirectWhenAuth={redirectWhenAuth} {...rest}>
+      {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) => (
+        <NoAuthRoute
+          key={index}
+          exact
+          redirectWhenAuth={redirectWhenAuth}
+          {...rest}
+        >
           <Component />
         </NoAuthRoute>
-      )}
+      ))}
       <Route component={() => <Redirect to={COMMON_PATH.LOGIN} />} />
     </Switch>
   </TransitionGroup>
@@ -67,17 +72,18 @@ Router.propTypes = {
     PropTypes.shape({
       Component: PropTypes.object,
       icon: PropTypes.object,
-      label: PropTypes.string.isRequired,
+      label: PropTypes.string,
       path: PropTypes.string,
       sidebar: PropTypes.bool,
-      routes: PropTypes.array
+      disableLayout: PropTypes.bool,
+      routes: PropTypes.array,
     })
-  )
+  ),
 }
 
 Router.defaultProps = {
   redirectWhenAuth: '/dashboard',
-  endpoints: []
+  endpoints: [],
 }
 
 Router.displayName = 'Router'

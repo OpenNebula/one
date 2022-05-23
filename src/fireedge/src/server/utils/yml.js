@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,83 +16,135 @@
 
 const { env } = require('process')
 const { resolve } = require('path')
-const { parse } = require('yaml')
-const { defaultConfigFile, defaultWebpackMode, defaultSunstoneConfig, defaultProvisionConfig, defaultEmptyFunction } = require('./constants/defaults')
+const { parse: yamlToJson } = require('yaml')
+const {
+  defaultConfigFile,
+  defaultWebpackMode,
+  defaultSunstoneConfig,
+  defaultProvisionConfig,
+  protectedConfigData,
+  defaultAppName,
+  defaultApps,
+  defaultEmptyFunction,
+} = require('./constants/defaults')
 const { existsFile, defaultError } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
 const { global } = require('window-or-global')
 
-const defaultPath = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
+const defaultPath =
+  env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
+
 const basePaths = [__dirname, ...defaultPath, 'etc']
+
+const getConfigPathByApp = (app) =>
+  ({
+    [defaultAppName]:
+      global?.paths?.FIREEDGE_CONFIG ||
+      resolve(...basePaths, defaultConfigFile),
+    [defaultApps.sunstone.name]:
+      global?.paths?.SUNSTONE_CONFIG ||
+      resolve(...basePaths, 'sunstone', defaultSunstoneConfig),
+    [defaultApps.provision.name]:
+      global?.paths?.PROVISION_CONFIG ||
+      resolve(...basePaths, 'provision', defaultProvisionConfig),
+  }[app])
+
+const getProtectedKeysByApp = (app) => protectedConfigData[app] || []
 
 /**
  * Get fireedge configurations.
  *
- * @param {string} pathfile - path config file
- * @param {Function} errorFunction - callback error
+ * @param {string} filePath - path config file
+ * @param {Function} onError - callback error
  * @returns {object} fireedge configurations
  */
-const readYAMLFile = (pathfile = '', errorFunction = defaultEmptyFunction) => {
+const readYAMLFile = (filePath = '', onError = defaultEmptyFunction) => {
   let rtn = {}
-  const err = error => {
-    messageTerminal(
-      defaultError(error)
-    )
-    if (typeof errorFunction === 'function') {
-      errorFunction(error)
+
+  const errorFunction = (error) => {
+    messageTerminal(defaultError(error))
+    onError === 'function' && onError(error)
+  }
+
+  const successFunction = (data) => {
+    try {
+      rtn = yamlToJson(data)
+    } catch (error) {
+      errorFunction(error?.message)
     }
   }
-  if (pathfile) {
-    existsFile(
-      pathfile,
-      filedata => {
-        try {
-          rtn = parse(filedata)
-        } catch (error) {
-          err(error && error.message)
-        }
-      },
-      err
-    )
-  }
+
+  filePath && existsFile(filePath, successFunction, errorFunction)
+
   return rtn
 }
 
 /**
- * Get fireedge configurations.
+ * Filter configuration by list of keys.
  *
- * @param {Function} callbackError - callback error
- * @returns {object} fireedge configurations
+ * @param {object} config - Config to filter
+ * @param {Array} [keys] - List of keys to filter
+ * @returns {object} Filtered object
  */
-const getFireedgeConfig = (callbackError = defaultEmptyFunction) => {
-  const pathfile = (global && global.paths && global.paths.FIREEDGE_CONFIG) || resolve(...basePaths, defaultConfigFile)
-  return readYAMLFile(pathfile, callbackError)
+const filterByProtectedKeys = (config = {}, keys = []) =>
+  Object.keys(config)
+    .filter((key) => !keys.includes(key))
+    .reduce((newConf, key) => ({ ...newConf, [key]: config[key] }), {})
+
+/**
+ * @typedef GetConfigurationOptions
+ * @property {function(string)} [onError] - Function to be called when an error
+ * @property {boolean} [includeProtectedConfig] - Include protected config. By default is true.
+ */
+
+/**
+ * Get configuration by app name.
+ *
+ * @param {string} [app] - App name. Default: fireedge
+ * @param {GetConfigurationOptions} options - Options
+ * @returns {object} Configuration
+ */
+const getConfiguration = (
+  app = defaultAppName,
+  { onError = defaultEmptyFunction, includeProtectedConfig = true } = {}
+) => {
+  const config = readYAMLFile(getConfigPathByApp(app), onError)
+
+  if (config && !includeProtectedConfig) {
+    return filterByProtectedKeys(config, getProtectedKeysByApp(app))
+  }
+
+  return config
 }
 
 /**
- * Get sunstone configurations.
+ * Get FireEdge configuration.
  *
- * @param {Function} callbackError - callback error
- * @returns {object} sunstone configurations
+ * @param {GetConfigurationOptions} [options] - Options
+ * @returns {object} FireEdge configuration
  */
-const getSunstoneConfig = (callbackError = defaultEmptyFunction) => {
-  const pathfile = (global && global.paths && global.paths.SUNSTONE_CONFIG) || resolve(...basePaths, 'sunstone', defaultSunstoneConfig)
-  return readYAMLFile(pathfile, callbackError)
-}
+const getFireedgeConfig = (options) => getConfiguration(defaultAppName, options)
 
 /**
- * Get provision configurations.
+ * Get Sunstone configuration.
  *
- * @param {Function} callbackError - callback error
- * @returns {object} provision configurations
+ * @param {GetConfigurationOptions} [options] - Options
+ * @returns {object} Sunstone configuration
  */
-const getProvisionConfig = (callbackError = defaultEmptyFunction) => {
-  const pathfile = (global && global.paths && global.paths.PROVISION_CONFIG) || resolve(...basePaths, 'provision', defaultProvisionConfig)
-  return readYAMLFile(pathfile, callbackError)
-}
+const getSunstoneConfig = (options) =>
+  getConfiguration(defaultApps.sunstone.name, options)
+
+/**
+ * Get Provision configuration.
+ *
+ * @param {GetConfigurationOptions} [options] - Options
+ * @returns {object} Provision configuration
+ */
+const getProvisionConfig = (options) =>
+  getConfiguration(defaultApps.provision.name, options)
 
 module.exports = {
   getFireedgeConfig,
   getSunstoneConfig,
-  getProvisionConfig
+  getProvisionConfig,
 }

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -28,69 +28,108 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { List } from 'client/components/Tabs/Common'
 import { ACTIONS } from 'client/constants'
 
+const {
+  COPY_ATTRIBUTE: COPY,
+  ADD_ATTRIBUTE: ADD,
+  EDIT_ATTRIBUTE: EDIT,
+  DELETE_ATTRIBUTE: DELETE,
+} = ACTIONS
+
+const ALL_ACTIONS = [COPY, ADD, EDIT, DELETE]
+
 // This attributes has special restrictions
 const SPECIAL_ATTRIBUTES = {
-  VCENTER_CCR_REF: { edit: false, delete: false },
-  VCENTER_HOST: { edit: false, delete: false },
-  VCENTER_INSTANCE_ID: { edit: false, delete: false },
-  VCENTER_PASSWORD: { edit: true, delete: false },
-  VCENTER_USER: { edit: false, delete: false },
-  VCENTER_VERSION: { edit: false, delete: false }
+  VCENTER_CCR_REF: {
+    [EDIT]: false,
+    [DELETE]: false,
+  },
+  VCENTER_HOST: {
+    [EDIT]: false,
+    [DELETE]: false,
+  },
+  VCENTER_INSTANCE_ID: {
+    [EDIT]: false,
+    [DELETE]: false,
+  },
+  VCENTER_PASSWORD: {
+    [DELETE]: false,
+  },
+  VCENTER_USER: {
+    [EDIT]: false,
+    [DELETE]: false,
+  },
+  VCENTER_VERSION: {
+    [EDIT]: false,
+    [DELETE]: false,
+  },
 }
 
 const useStyles = makeStyles({
   container: {
-    gridColumn: '1 / -1'
+    gridColumn: '1 / -1',
   },
   item: {
     '& > *:first-child': {
-      flex: '1 1 20%'
-    }
+      flex: '1 1 20%',
+    },
+  },
+})
+
+const AttributePanel = memo(
+  ({
+    title,
+    attributes = {},
+    handleEdit,
+    handleDelete,
+    handleAdd,
+    allActionsEnabled = true,
+    actions = allActionsEnabled ? ALL_ACTIONS : [],
+    filtersSpecialAttributes = true,
+    collapse = false,
+  }) => {
+    const classes = useStyles()
+
+    const canUseAction = useCallback(
+      (name, action) =>
+        actions?.includes?.(action) &&
+        (!filtersSpecialAttributes ||
+          SPECIAL_ATTRIBUTES[name]?.[action] === undefined),
+      [actions?.length]
+    )
+
+    const formatAttributes = Object.entries(attributes).map(
+      ([name, value]) => ({
+        name,
+        value,
+        showActionsOnHover: true,
+        canCopy: canUseAction(name, COPY),
+        canEdit: canUseAction(name, EDIT),
+        canDelete: canUseAction(name, DELETE),
+        handleEdit,
+        handleDelete,
+      })
+    )
+
+    return (
+      <List
+        containerProps={{ className: classes.container }}
+        itemProps={{ dense: true, className: classes.item }}
+        subListProps={{ disablePadding: true }}
+        title={title}
+        list={formatAttributes}
+        handleAdd={actions?.includes?.(ADD) && handleAdd}
+        collapse={collapse}
+      />
+    )
   }
-})
-
-const AttributePanel = memo(({
-  title,
-  attributes = {},
-  handleEdit,
-  handleDelete,
-  handleAdd,
-  actions
-}) => {
-  const classes = useStyles()
-
-  const formatAttributes = Object.entries(attributes)
-    .map(([name, value]) => ({
-      name,
-      value,
-      canEdit:
-        actions?.includes?.(ACTIONS.EDIT_ATTRIBUTE) &&
-        SPECIAL_ATTRIBUTES[name]?.edit !== false,
-      canDelete:
-        actions?.includes?.(ACTIONS.DELETE_ATTRIBUTE) &&
-        SPECIAL_ATTRIBUTES[name]?.delete !== false,
-      handleEdit,
-      handleDelete
-    }))
-
-  return (
-    <List
-      containerProps={{ className: classes.container }}
-      itemProps={{ dense: true, className: classes.item }}
-      subListProps={{ disablePadding: true }}
-      title={title}
-      list={formatAttributes}
-      handleAdd={actions?.includes?.(ACTIONS.ADD_ATTRIBUTE) && handleAdd}
-    />
-  )
-})
+)
 
 AttributePanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
@@ -98,7 +137,10 @@ AttributePanel.propTypes = {
   handleAdd: PropTypes.func,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
-  title: PropTypes.string
+  title: PropTypes.string,
+  filtersSpecialAttributes: PropTypes.bool,
+  allActionsEnabled: PropTypes.bool,
+  collapse: PropTypes.bool,
 }
 
 AttributePanel.displayName = 'AttributePanel'

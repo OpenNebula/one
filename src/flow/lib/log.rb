@@ -1,6 +1,6 @@
 # rubocop:disable Style/ClassVars
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,15 @@ class Log
         # @param [CloudLogger::CloudLogger, Logger] logger
         def logger=(logger)
             @@logger = logger
+        end
+
+        # Sets the logger type
+        # @param type [String]
+        #
+        #   - file: log into log files
+        #   - syslog: log into syslog
+        def type=(type)
+            @@type = type
         end
 
         # Sets the log level
@@ -135,23 +144,25 @@ class Log
             end
 
             begin
-                msg = format(MSG_FORMAT,
-                             Time.now.strftime(DATE_FORMAT),
-                             Logger::SEV_LABEL[severity][0..0],
-                             component,
-                             message)
+                file = "#{LOG_LOCATION}/oneflow/#{service_id}.log"
+                msg  = format(
+                    MSG_FORMAT,
+                    Time.now.strftime(DATE_FORMAT),
+                    Logger::SEV_LABEL[severity][0..0],
+                    component,
+                    message
+                )
 
-                File.open("#{LOG_LOCATION}/oneflow/#{service_id}.log",
-                          'a') do |f|
-                    f <<  msg
+                case @@type
+                when 'syslog'
+                    @@logger.info(msg)
+                else
+                    File.open(file, 'a') {|f| f << msg }
                 end
             rescue Errno::ENOENT
                 FileUtils.mkdir("#{LOG_LOCATION}/oneflow/")
 
-                File.open("#{LOG_LOCATION}/oneflow/#{service_id}.log",
-                          'a') do |f|
-                    f <<  msg
-                end
+                File.open(file, 'a') {|f| f << msg }
             rescue StandardError => e
                 message = 'Could not log into ' \
                           "#{LOG_LOCATION}/oneflow/#{service_id}.log: " \

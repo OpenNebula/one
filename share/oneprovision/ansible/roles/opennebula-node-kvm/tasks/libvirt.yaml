@@ -1,0 +1,7 @@
+---
+
+- name: Restart Libvirtd (Ubuntu from 18.10)
+  service:
+    name: libvirtd
+    state: restarted
+    enabled: yes

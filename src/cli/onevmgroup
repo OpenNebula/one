@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -197,7 +197,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :vmgroupid_list], :octet do
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
-            t.chmod_octet(args[1])
+            t.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 
@@ -233,8 +233,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM, show and
-        monitoring never will be locked.
+        Locks a VM Group to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -261,7 +261,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a VM Group.
         Valid states are: All.
     EOT
 

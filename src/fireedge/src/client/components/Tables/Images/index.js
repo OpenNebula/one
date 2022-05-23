@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,46 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useImage, useImageApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import ImageColumns from 'client/components/Tables/Images/columns'
 import ImageRow from 'client/components/Tables/Images/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const ImagesTable = props => {
-  const columns = useMemo(() => ImageColumns, [])
+const DEFAULT_DATA_CY = 'images'
 
-  const images = useImage()
-  const { getImages } = useImageApi()
-  const { filterPool } = useAuth()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Images table
+ */
+const ImagesTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getImages)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useGetImagesQuery()
 
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (images?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.IMAGE)?.filters,
+        columns: ImageColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={images}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={ImageRow}
-      {...props}
+      {...rest}
     />
   )
 }
 
-ImagesTable.propTypes = EnhancedTableProps
+ImagesTable.propTypes = { ...EnhancedTable.propTypes }
 ImagesTable.displayName = 'ImagesTable'
 
 export default ImagesTable

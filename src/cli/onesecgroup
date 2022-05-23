@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -174,7 +174,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :secgroupid_list], :octet do
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
-            t.chmod_octet(args[1])
+            t.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 

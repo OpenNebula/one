@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
-
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
 import {
-  FORM_FIELDS, STEP_FORM_SCHEMA
+  FORM_FIELDS,
+  STEP_FORM_SCHEMA,
 } from 'client/components/Forms/Provision/CreateForm/Steps/BasicConfiguration/schema'
 
 export const STEP_ID = 'configuration'
@@ -30,10 +29,9 @@ const BasicConfiguration = () => ({
   label: T.ProvisionOverview,
   resolver: () => STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: useCallback(
-    () => <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />,
-    []
-  )
+  content: () => (
+    <FormWithSchema cy="form-provision" fields={FORM_FIELDS} id={STEP_ID} />
+  ),
 })
 
 export default BasicConfiguration

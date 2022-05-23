@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,12 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const entrypoint404 = require('./404')
-const entrypointApi = require('./Api')
-const entrypointApp = require('./App')
+const entrypoint404 = require('server/routes/entrypoints/404')
+const entrypointApi = require('server/routes/entrypoints/Api')
+const entrypointApp = require('server/routes/entrypoints/App')
 
 module.exports = {
   entrypoint404,
   entrypointApi,
-  entrypointApp
+  entrypointApp,
 }

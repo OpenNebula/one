@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,78 +13,59 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, Typography } from '@mui/material'
+import { Stack, FormControl } from '@mui/material'
+import { SystemShut as OsIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import Legend from 'client/components/Forms/Legend'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import BootOrder, { reorderBootAfterRemove } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import BootOrder, {
+  BOOT_ORDER_NAME,
+  reorderBootAfterRemove,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
 import { TAB_ID as STORAGE_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
 import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
-import { BOOT_FIELDS, KERNEL_FIELDS, RAMDISK_FIELDS, FEATURES_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
-import { Translate } from 'client/components/HOC'
+import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
+
 import { T } from 'client/constants'
-import AdornmentWithTooltip from 'client/components/FormControl/Tooltip'
 
 export const TAB_ID = 'OS'
 
-const Booting = props => {
-  const { hypervisor } = props
+const Booting = ({ hypervisor, ...props }) => {
+  const sections = useMemo(() => SECTIONS(hypervisor), [hypervisor])
 
   return (
-    <>
-      {(
-        !!props.data?.[STORAGE_ID]?.length ||
-        !!props.data?.[NIC_ID]?.length
-      ) && (
-        <fieldset>
-          <Typography
-            variant='subtitle1'
-            component='legend'
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center'
-            }}
-          >
-            <Translate word={T.BootOrder} />
-            <AdornmentWithTooltip title={T.BootOrderConcept} />
-          </Typography>
-          <BootOrder {...props} />
-        </fieldset>
+    <Stack
+      display="grid"
+      gap="1em"
+      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+    >
+      {(!!props.data?.[STORAGE_ID]?.length ||
+        !!props.data?.[NIC_ID[0]]?.length ||
+        !!props.data?.[NIC_ID[1]]?.length) && (
+        <FormControl
+          component="fieldset"
+          sx={{ width: '100%', gridColumn: '1 / -1' }}
+        >
+          <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
+          <BootOrder />
+        </FormControl>
       )}
-      <Stack
-        display='grid'
-        gap='2em'
-        sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-      >
+      {sections.map(({ id, ...section }) => (
         <FormWithSchema
-          cy='create-vm-template-extra.os-boot'
-          fields={BOOT_FIELDS(hypervisor)}
-          legend={T.Boot}
-          id={STEP_ID}
+          key={id}
+          id={EXTRA_ID}
+          cy={`${EXTRA_ID}-${id}`}
+          {...section}
         />
-        <FormWithSchema
-          cy='create-vm-template-extra.os-features'
-          fields={FEATURES_FIELDS(hypervisor)}
-          legend={T.Features}
-          id={STEP_ID}
-        />
-        <FormWithSchema
-          cy='create-vm-template-extra.os-kernel'
-          fields={KERNEL_FIELDS(hypervisor)}
-          legend={T.Kernel}
-          id={STEP_ID}
-        />
-        <FormWithSchema
-          cy='create-vm-template-extra.os-ramdisk'
-          fields={RAMDISK_FIELDS(hypervisor)}
-          legend={T.Ramdisk}
-          id={STEP_ID}
-        />
-      </Stack>
-    </>
+      ))}
+    </Stack>
   )
 }
 
@@ -92,11 +73,18 @@ Booting.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
-  control: PropTypes.object
+  control: PropTypes.object,
 }
 
-Booting.displayName = 'Booting'
+/** @type {TabType} */
+const TAB = {
+  id: 'booting',
+  name: T.OSAndCpu,
+  icon: OsIcon,
+  Content: Booting,
+  getError: (error) => !!error?.[TAB_ID],
+}
 
-export default Booting
+export default TAB
 
-export { reorderBootAfterRemove }
+export { reorderBootAfterRemove, BOOT_ORDER_NAME }

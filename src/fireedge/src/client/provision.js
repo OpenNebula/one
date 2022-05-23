@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,8 +17,14 @@ import { hydrate, render } from 'react-dom'
 
 import { createStore } from 'client/store'
 import App from 'client/apps/provision'
+import { onlyForOneadminMiddleware } from 'client/features/middleware'
 
-const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
+const { store } = createStore({
+  initState: window.__PRELOADED_STATE__,
+  extraMiddleware: [onlyForOneadminMiddleware],
+})
+
+delete window.__PRELOADED_STATE__
 
 const rootHTML = document.getElementById('root')?.innerHTML
 const renderMethod = rootHTML !== '' ? hydrate : render

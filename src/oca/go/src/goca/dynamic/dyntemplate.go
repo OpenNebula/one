@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -74,7 +74,7 @@ func (t *Template) String() string {
 
 // String prints a Pair in OpenNebula syntax
 func (p *Pair) String() string {
-	return fmt.Sprintf("%s=\"%s\"", p.XMLName.Local, p.Value)
+	return fmt.Sprintf("%s=%s", p.XMLName.Local, strconv.Quote(p.Value))
 }
 
 func (v *Vector) String() string {

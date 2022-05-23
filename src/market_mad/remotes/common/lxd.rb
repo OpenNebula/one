@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,12 +22,14 @@ module LXDMarket
     class << self
 
         # TODO: Make configurable
-        def template
+        def template(options = {})
             unindent(<<-EOS)
         SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
+        CPU = \"#{options[:cpu]}\"
+        VCPU = \"#{options[:vcpu]}\"
+        MEMORY = \"#{options[:memory]}\"
+        LXD_SECURITY_PRIVILEGED = \"#{options[:privileged]}\"
+        LXC_UNPRIVILEGED = \"#{!options[:privileged]}\"
         GRAPHICS = [
             LISTEN  =\"0.0.0.0\",
             TYPE  =\"vnc\"

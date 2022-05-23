@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -123,6 +123,9 @@ def child2dict(element):
 
     # Replace 'None' values returned by xmltodict by ""
     none2emptystr(ret)
+
+    if not isinstance(ret[tagName], OrderedDict) and isinstance(ret[tagName], dict):
+        ret[tagName] = OrderedDict(ret[tagName])
 
     # return the contents dictionary, but save a reference
     ret[tagName]._root = ret

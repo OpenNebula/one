@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const {
-  httpMethod: { GET }
+  httpMethod: { GET },
 } = require('../defaults')
 
 const SYSTEM_VERSION = 'system.version'
@@ -23,7 +23,7 @@ const SYSTEM_CONFIG = 'system.config'
 
 const Actions = {
   SYSTEM_VERSION,
-  SYSTEM_CONFIG
+  SYSTEM_CONFIG,
 }
 
 module.exports = {
@@ -32,12 +32,12 @@ module.exports = {
     [SYSTEM_VERSION]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [SYSTEM_CONFIG]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

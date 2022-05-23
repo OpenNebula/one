@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -109,7 +109,7 @@ define(function(require) {
    *                   options.hide_pci {bool} true to disable the pci checkbox
    *                   options.hide_auto {bool} true to disable the selection mode auto checkbox
    */
-  function _setup(context, options) {
+  function _setup(context, options = {}) {
     var that = this;
     that.context = context;
 
@@ -121,9 +121,39 @@ define(function(require) {
       $(".only_create", context).hide();
     }
 
+    var isInHostOrClusterTable = function(vnet){
+      if (!options.hostsTable || !options.clustersTable) return true;
+
+      var clusters = vnet.CLUSTERS.ID;
+      var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+
+      var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+      var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+      var clustersIds = options.clustersTable.getColumnDataInSelectedRows()
+
+      return (
+        (hostClustersIds.length === 0 && clustersIds.length === 0) ||
+        hostClustersIds
+          .concat(clustersIds)
+          .some(function(id) { return ensuredClusters.includes(id) })
+      )
+    }
+
     that.vnetsTable.initialize({
       'selectOptions': {
-        'select_callback': function(aData, options) {
+        filter_fn: function(vnet) {
+          const filterResource = isInHostOrClusterTable(vnet)
+
+          if (!filterResource && $('#NETWORK', context).val() === vnet.NAME) {
+            that.secgroupsTable.selectResourceTableSelect({ ids: [] });
+            $.each(['NETWORK_ID', 'NETWORK', 'NETWORK_UNAME', 'NETWORK_UID'], function() {
+              $('#' + this, context).val('');
+            })
+          }
+
+          return filterResource
+        },
+        select_callback: function(aData, options) {
           // If the net is selected by Id, avoid overwriting it with name+uname
           if ($('#NETWORK_ID', context).val() != aData[options.id_index]) {
             OpenNebulaNetwork.show({
@@ -144,7 +174,7 @@ define(function(require) {
             $('#NETWORK_UID', context).val("");
           }
         },
-        'unselect_callback': function() {
+        unselect_callback: function() {
           // reset values
           that.secgroupsTable.selectResourceTableSelect({ ids: [] });
           $.each(['NETWORK_ID', 'NETWORK', 'NETWORK_UNAME', 'NETWORK_UID'], function() {
@@ -158,19 +188,40 @@ define(function(require) {
     that.secgroupsTable.refreshResourceTableSelect();
     that.vnetsTable.refreshResourceTableSelect();
 
-    var selectOptions = {
-      'selectOptions': {
-        'select_callback': function(aData, options) {
+    that.vnetsTableAuto.initialize({
+      selectOptions: {
+        filter_fn: function(vnet) {
+          return isInHostOrClusterTable(vnet)
+        },
+        select_callback: function(aData, options) {
           that.generateRequirements(context)
         },
-        'unselect_callback': function(aData, options) {
+        unselect_callback: function(aData, options) {
           that.generateRequirements(context)
         }
       }
+    });
+    that.vnetsTableAuto.refreshResourceTableSelect();
+
+    var updateRowSelected = function() {
+      that.vnetsTable.updateFn();
+      that.vnetsTableAuto.updateFn();
+
+      if ($("td.markrowchecked", this).length > 0) {
+        that.vnetsTable.deselectHiddenResources();
+        that.vnetsTableAuto.deselectHiddenResources();
+      }
+    };
+
+    if (options.hostsTable && options.hostsTable.dataTable) {
+      // Filters the vnet tables by hosts
+      options.hostsTable.dataTable.children('tbody').on('click', 'tr', updateRowSelected)
     }
 
-    that.vnetsTableAuto.initialize(selectOptions);
-    that.vnetsTableAuto.refreshResourceTableSelect();
+    if (options.clustersTable && options.clustersTable.dataTable) {
+      // Filters the vnet tables by cluster
+      options.clustersTable.dataTable.children('tbody').on('click', 'tr', updateRowSelected)
+    }
 
     $("input.pci-type-nic", context).on("change", function(){
       var tbody = $(".pci-row tbody", context);
@@ -376,10 +427,6 @@ define(function(require) {
         delete nicJSON["PARENT"];
     } else {
       nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
-
-      if ($("#" + this.nicTabId + "_alias_external", context).is(':checked')) {
-        nicJSON["EXTERNAL"] =  'YES';
-      }
     }
 
     if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {

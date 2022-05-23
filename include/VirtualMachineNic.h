@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -62,6 +62,18 @@ public:
     {
         one_util::split_unique(vector_value("SECURITY_GROUPS"), ',', sgs);
     }
+
+    /**
+     * Add security group
+     *    @param sgid ID of the group
+     */
+    void add_security_group(int sgid);
+
+    /**
+     * Remove security group
+     *    @param sgid ID of the group
+     */
+    void remove_security_group(int sgid);
 
     /**
      *  Get the effective uid to get the VirtualNetwork.

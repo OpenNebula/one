@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -34,17 +34,20 @@ const TextController = memo(
     tooltip,
     watcher,
     dependencies,
-    fieldProps = {}
+    fieldProps = {},
+    readOnly = false,
   }) => {
-    const watch = dependencies && useWatch({
-      control,
-      name: dependencies,
-      disabled: dependencies === null
-    })
+    const watch =
+      dependencies &&
+      useWatch({
+        control,
+        name: dependencies,
+        disabled: dependencies === null,
+      })
 
     const {
       field: { ref, value = '', onChange, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     useEffect(() => {
@@ -62,25 +65,36 @@ const TextController = memo(
         value={value}
         onChange={onChange}
         multiline={multiline}
+        rows={3}
         type={type}
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputProps={{
-          endAdornment: tooltip && <Tooltip title={tooltip} />
+          readOnly,
+          endAdornment: tooltip && <Tooltip title={tooltip} />,
         }}
-        inputProps={{ 'data-cy': cy, ...fieldProps }}
+        inputProps={{
+          'data-cy': cy,
+          ...(type === 'number' && {
+            min: fieldProps.min,
+            max: fieldProps.max,
+            step: fieldProps.step,
+          }),
+        }}
         error={Boolean(error)}
-        helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+        helperText={
+          error ? <ErrorHelper label={error?.message} /> : fieldProps.helperText
+        }
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
       />
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
     prevProps.type === nextProps.type &&
     prevProps.label === nextProps.label &&
     prevProps.tooltip === nextProps.tooltip &&
-    prevProps.fieldProps?.value === nextProps.fieldProps?.value
+    prevProps.fieldProps?.value === nextProps.fieldProps?.value &&
+    prevProps.fieldProps?.helperText === nextProps.fieldProps?.helperText
 )
 
 TextController.propTypes = {
@@ -93,17 +107,11 @@ TextController.propTypes = {
   tooltip: PropTypes.any,
   watcher: PropTypes.func,
   dependencies: PropTypes.oneOfType([
-    PropTypes.strin,
-    PropTypes.arrayOf(PropTypes.string)
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
   ]),
-  fieldProps: PropTypes.object,
-  formContext: PropTypes.shape({
-    setValue: PropTypes.func,
-    setError: PropTypes.func,
-    clearErrors: PropTypes.func,
-    watch: PropTypes.func,
-    register: PropTypes.func
-  })
+  fieldProps: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  readOnly: PropTypes.bool,
 }
 
 TextController.displayName = 'TextController'

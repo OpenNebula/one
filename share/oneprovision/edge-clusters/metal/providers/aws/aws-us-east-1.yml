@@ -1,6 +1,6 @@
 name: 'aws-north-virginia'
 
-description: 'Edge cluster in AWS North Virginia'
+description: 'Provision cluster in AWS North Virginia'
 provider: 'aws'
 
 connection:
@@ -10,11 +10,12 @@ connection:
 
 inputs:
    - name: 'aws_ami_image'
-     type: 'list'
-     options:
-       - 'ami-0d6e9a57f6259ba3a'
+     type: 'text'
+     default: 'default'
+     description: 'AWS AMI image (default = Ubuntu Focal)'
    - name: 'aws_instance_type'
      type: 'list'
+     default: 'c5.metal'
      options:
        - 'c5.metal'
        - 'i3.metal'

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,22 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
-  const templates = useVmTemplate()
-  const { getTemplates } = useVmTemplateApi()
-
-  useEffect(() => {
-    getTemplates()
-  }, [])
+  const { data: templates = [] } = useGetTemplatesQuery()
 
   return (
     <Search
@@ -39,19 +33,21 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
       renderResult={({ ID, NAME }) => {
         const isSelected = ID === String(currentValue)
 
-        return <SelectCard
-          key={`tmp-${ID}`}
-          title={`📁 ${NAME}`}
-          isSelected={isSelected}
-          handleClick={() => handleSetData(!isSelected && ID)}
-        />
+        return (
+          <SelectCard
+            key={`tmp-${ID}`}
+            title={`📁 ${NAME}`}
+            isSelected={isSelected}
+            handleClick={() => handleSetData(!isSelected && ID)}
+          />
+        )
       }}
       searchBoxProps={{
         style: {
           display: 'flex',
           padding: '1rem 0',
-          gap: 10
-        }
+          gap: 10,
+        },
       }}
     />
   )
@@ -60,13 +56,13 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
 ListTemplates.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 ListTemplates.defaultProps = {
   backButton: null,
   currentValue: undefined,
-  handleSetData: () => undefined
+  handleSetData: () => undefined,
 }
 
 export default ListTemplates

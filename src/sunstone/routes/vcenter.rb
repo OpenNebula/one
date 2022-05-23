@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -151,8 +151,11 @@ get '/vcenter/datastores' do
     begin
         client = one_client
         new_vcenter_importer("datastores", client)
-
-        [200, $importer.retrieve_resources.to_json]
+        opts = {
+          :host => params["host"]
+        }
+        resources_list = $importer.retrieve_resources(opts).to_json
+        [200, resources_list]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)

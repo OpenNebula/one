@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -561,7 +561,7 @@ module VCenterDriver
             rescue StandardError => e
                 message = "Could not find file. Reason: \"#{e.message}\"."
                 if VCenterDriver::CONFIG[:debug_information]
-                    message += ' ' + e.backtrace
+                    message += ' ' + e.backtrace.to_s
                 end
                 raise message
             end
@@ -881,7 +881,7 @@ module VCenterDriver
             @one_class = OpenNebula::Datastore
         end
 
-        def get_list(_args = {})
+        def get_list(args = {})
             dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
             # one pool creation
@@ -908,7 +908,8 @@ module VCenterDriver
                  .get_unimported_datastores(
                      dpool,
                      @vi_client.vc_name,
-                     hpool
+                     hpool,
+                     args
                  )
             @list = rs
         end
@@ -948,7 +949,11 @@ module VCenterDriver
                 clusters = opts['selected_clusters'].each.map(&:to_i)
             end
 
-            res = { :id => [], :name => selected[:simple_name] }
+            name = VCenterDriver::VcImporter.sanitize(
+                selected[:simple_name]
+            )
+
+            res = { :id => [], :name => name }
             @info[:rollback] = []
             pair.each do |ds|
                 create(ds[:one]) do |one_object, id|
@@ -1011,7 +1016,9 @@ module VCenterDriver
             message = 'Error creating the OpenNebula resource'
             info = selected[:one]
             dsid = selected[:dsid].to_i
-            name = selected[:name]
+            name = VCenterDriver::VcImporter.sanitize(
+                selected[:name]
+            )
 
             rc = resource.allocate(info, dsid, false)
             VCenterDriver::VIHelper.check_error(rc, message)

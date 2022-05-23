@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,17 +14,28 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { createElement, useMemo } from 'react'
+import {
+  Fragment,
+  createElement,
+  useMemo,
+  useCallback,
+  isValidElement,
+} from 'react'
 import PropTypes from 'prop-types'
 
-import { Grid, Typography } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
+import { FormControl, Accordion, AccordionSummary, Grid } from '@mui/material'
 
 import * as FC from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
+import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
 
-const NOT_DEPEND_ATTRIBUTES = ['watcher', 'transform', 'Table', 'renderValue']
+const NOT_DEPEND_ATTRIBUTES = [
+  'watcher',
+  'transform',
+  'getRowId',
+  'renderValue',
+]
 
 const INPUT_CONTROLLER = {
   [INPUT_TYPES.TEXT]: FC.TextController,
@@ -37,31 +48,81 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.FILE]: FC.FileController,
   [INPUT_TYPES.TIME]: FC.TimeController,
   [INPUT_TYPES.TABLE]: FC.TableController,
-  [INPUT_TYPES.TOGGLE]: FC.ToggleController
+  [INPUT_TYPES.TOGGLE]: FC.ToggleController,
 }
 
-const FormWithSchema = ({ id, cy, fields, className, legend }) => {
+const FormWithSchema = ({
+  accordion = false,
+  id,
+  cy,
+  fields,
+  rootProps,
+  className,
+  legend,
+  legendTooltip,
+}) => {
   const formContext = useFormContext()
   const { control, watch } = formContext
 
-  const getFields = useMemo(() => typeof fields === 'function' ? fields() : fields, [])
+  const { sx: sxRoot, ...restOfRootProps } = rootProps ?? {}
 
-  if (getFields.length === 0) return null
+  const RootWrapper = useMemo(
+    () =>
+      accordion && legend
+        ? ({ children }) => (
+            <Accordion
+              variant="transparent"
+              TransitionProps={{ unmountOnExit: false }}
+            >
+              {children}
+            </Accordion>
+          )
+        : Fragment,
+    [accordion, legend]
+  )
 
-  const addIdToName = name => name.startsWith('$')
-    ? name.slice(1) // removes character '$' and returns
-    : id ? `${id}.${name}` : name // concat form ID if exists
+  const LegendWrapper = useMemo(
+    () => (accordion && legend ? AccordionSummary : Fragment),
+    [accordion, legend]
+  )
+
+  const getFields = useMemo(
+    () => (typeof fields === 'function' ? fields() : fields),
+    [fields?.length]
+  )
+
+  if (!getFields || getFields?.length === 0) return null
+
+  const addIdToName = useCallback(
+    (name) =>
+      name.startsWith('$')
+        ? name.slice(1) // removes character '$' and returns
+        : id
+        ? `${id}.${name}` // concat form ID if exists
+        : name,
+    [id]
+  )
 
   return (
-    <fieldset className={className}>
-      {legend && (
-        <Typography variant='subtitle1' component='legend'>
-          {Tr(legend)}
-        </Typography>
-      )}
-      <Grid container spacing={1} alignContent='flex-start'>
-        {getFields?.map?.(
-          ({ dependOf, ...attributes }) => {
+    <FormControl
+      component="fieldset"
+      className={className}
+      sx={{ width: '100%', ...sxRoot }}
+      {...restOfRootProps}
+    >
+      <RootWrapper>
+        <LegendWrapper>
+          {legend && (
+            <Legend
+              data-cy={`legend-${cy}`}
+              title={legend}
+              tooltip={legendTooltip}
+              disableGutters={accordion}
+            />
+          )}
+        </LegendWrapper>
+        <Grid container spacing={1} alignContent="flex-start">
+          {getFields?.map?.(({ dependOf, ...attributes }) => {
             let valueOfDependField = null
             let nameOfDependField = null
 
@@ -73,20 +134,22 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
               valueOfDependField = watch(nameOfDependField)
             }
 
-            const { name, type, htmlType, grid, ...fieldProps } = Object
-              .entries(attributes)
-              .reduce((field, attribute) => {
+            const { name, type, htmlType, grid, ...fieldProps } =
+              Object.entries(attributes).reduce((field, attribute) => {
                 const [key, value] = attribute
                 const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
 
-                const finalValue = typeof value === 'function' && !isNotDependAttribute
-                  ? value(valueOfDependField, formContext)
-                  : value
+                const finalValue =
+                  typeof value === 'function' &&
+                  !isNotDependAttribute &&
+                  !isValidElement(value())
+                    ? value(valueOfDependField, formContext)
+                    : value
 
                 return { ...field, [key]: finalValue }
               }, {})
 
-            const dataCy = `${cy}-${name}`
+            const dataCy = `${cy}-${name}`.replaceAll('.', '-')
             const inputName = addIdToName(name)
 
             const isHidden = htmlType === INPUT_TYPES.HIDDEN
@@ -103,27 +166,30 @@ const FormWithSchema = ({ id, cy, fields, className, legend }) => {
                     dependencies: nameOfDependField,
                     name: inputName,
                     type: htmlType === false ? undefined : htmlType,
-                    ...fieldProps
+                    ...fieldProps,
                   })}
                 </Grid>
               )
             )
-          }
-        )}
-      </Grid>
-    </fieldset>
+          })}
+        </Grid>
+      </RootWrapper>
+    </FormControl>
   )
 }
 
 FormWithSchema.propTypes = {
+  accordion: PropTypes.bool,
   id: PropTypes.string,
   cy: PropTypes.string,
   fields: PropTypes.oneOfType([
     PropTypes.func,
-    PropTypes.arrayOf(PropTypes.object)
+    PropTypes.arrayOf(PropTypes.object),
   ]),
-  legend: PropTypes.string,
-  className: PropTypes.string
+  legend: PropTypes.any,
+  legendTooltip: PropTypes.string,
+  rootProps: PropTypes.object,
+  className: PropTypes.string,
 }
 
 export default FormWithSchema

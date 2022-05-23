@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -138,6 +138,28 @@ module OpenNebula::WaitExt
 
     # Wait classes and the name published in ZMQ/STATE
     WAIT = {
+        OpenNebula::VirtualNetwork  => {
+            :event => lambda {|o, s1, _s2|
+                "EVENT STATE NET/#{s1}//#{o['ID']}"
+            },
+
+            :in_state => lambda {|o, s1, _s2|
+                obj_s = Integer(o['STATE'])
+                inx_s = OpenNebula::VirtualNetwork::VN_STATES.index(s1)
+
+                obj_s == inx_s
+            },
+
+            :in_state_e => lambda {|s1, _s2, content|
+                xml   = Nokogiri::XML(Base64.decode64(content))
+
+                obj_s = Integer(xml.xpath('//VNET/STATE').text)
+                inx_s = OpenNebula::VirtualNetwork::VN_STATES.index(s1)
+
+                obj_s == inx_s
+            }
+        },
+
         OpenNebula::Host  => {
             :event => lambda {|o, s1, _s2|
                 "EVENT STATE HOST/#{s1}//#{o['ID']}"

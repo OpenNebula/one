@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -196,7 +196,7 @@ public:
      *    @param str string that hold the template representation
      *    @return a reference to the generated string
      */
-    std::string& to_str(std::string& str) const;
+    virtual std::string& to_str(std::string& str) const;
 
     /* ---------------------------------------------------------------------- */
     /* Functions to add, remove and change attributes from a Template         */

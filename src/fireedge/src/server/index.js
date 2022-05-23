@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -27,21 +27,31 @@ import webpack from 'webpack'
 import {
   entrypoint404,
   entrypointApi,
-  entrypointApp
+  entrypointApp,
 } from './routes/entrypoints'
-import { websockets } from './routes/websockets'
-import { guacamole } from './routes/websockets/guacamole'
-import { vmrc } from './routes/websockets/vmrc'
-import { getFireedgeConfig, messageTerminal } from './utils'
+import opennebulaWebsockets from './routes/websockets/opennebula'
+import guacamole from './routes/websockets/guacamole'
+import vmrc from './routes/websockets/vmrc'
+import { getFireedgeConfig } from './utils/yml'
+import { messageTerminal } from './utils/general'
 import {
-  defaultAppName, defaultApps,
-  defaultEvents, defaultHost,
-  defaultPort, defaultWebpackMode
+  defaultAppName,
+  defaultApps,
+  defaultEvents,
+  defaultHost,
+  defaultPort,
+  defaultWebpackMode,
 } from './utils/constants/defaults'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
-  genFireedgeKey, genPathResources, getCert, getKey, validateServerIsSecure
+  genFireedgeKey,
+  genPathResources,
+  getCert,
+  getKey,
+  validateServerIsSecure,
 } from './utils/server'
+
+const appConfig = getFireedgeConfig()
 
 // set paths
 genPathResources()
@@ -50,7 +60,7 @@ genPathResources()
 genFireedgeKey()
 
 // set logger
-initLogger()
+initLogger(appConfig.debug_level)
 
 // destructure imports
 const unsecureServer = http.createServer
@@ -62,7 +72,6 @@ const basename = defaultAppName ? `/${defaultAppName}` : ''
 let frontPath = 'client'
 
 // settings
-const appConfig = getFireedgeConfig()
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 
@@ -74,28 +83,28 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
     app.use(
       // eslint-disable-next-line import/no-extraneous-dependencies
       require('webpack-dev-middleware')(compiler, {
-        publicPath: webpackConfig.output.publicPath
+        publicPath: webpackConfig.output.publicPath,
       })
     )
 
     app.use(
       // eslint-disable-next-line import/no-extraneous-dependencies
       require('webpack-hot-middleware')(compiler, {
-        log: false,
         path: '/__webpack_hmr',
-        heartbeat: 10 * 1000
+        heartbeat: 10 * 1000,
       })
     )
   } catch (error) {
     if (error) {
       messageTerminal({
         color: 'red',
-        error
+        error,
       })
     }
   }
   frontPath = '../client'
 }
+app.use(helmet.xssFilter())
 app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
@@ -116,31 +125,37 @@ app.use(express.json())
 
 app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
 const frontApps = Object.keys(defaultApps)
-frontApps.forEach(frontApp => {
+frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
+app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/sunstone`))
 // 404 - public
 app.get('*', entrypoint404)
 
 const appServer = validateServerIsSecure()
-  ? secureServer({ key: readFileSync(getKey(), 'utf8'), cert: readFileSync(getCert(), 'utf8') }, app)
+  ? secureServer(
+      {
+        key: readFileSync(getKey(), 'utf8'),
+        cert: readFileSync(getCert(), 'utf8'),
+      },
+      app
+    )
   : unsecureServer(app)
 
-const sockets = websockets(appServer) || []
+const websockets = opennebulaWebsockets(appServer) || []
 
 let config = {
   color: 'red',
-  message: 'Server could not be started'
+  message: 'Server could not be started',
 }
 
-appServer.listen(port, host, err => {
+appServer.listen(port, host, (err) => {
   if (!err) {
     config = {
       color: 'green',
       error: `${host}:${port}`,
-      message: 'Server listen in %s'
+      message: 'Server listen in %s',
     }
   }
   messageTerminal(config)
@@ -152,7 +167,7 @@ guacamole(appServer)
  * Handle sigterm and sigint.
  */
 const handleBreak = () => {
-  sockets.forEach((socket) => {
+  websockets.forEach((socket) => {
     if (socket && socket.close && typeof socket.close === 'function') {
       socket.close()
     }

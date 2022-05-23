@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -411,6 +411,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
     vvalue.insert(make_pair("SYSTEM","file"));
     vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+    vvalue.insert(make_pair("USE_VMS_LOCATION","NO"));
 
     vattribute = new VectorAttribute("LOG",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
@@ -550,6 +551,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
     set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
+    set_conf_single("VM_SNAPSHOT_FACTOR", "0");
 /*
 #*******************************************************************************
 # Auth Manager Configuration

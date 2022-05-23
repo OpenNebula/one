@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -25,7 +25,7 @@ import {
   EXPRESSION,
   PERIOD_NUMBER,
   PERIOD,
-  COOLDOWN
+  COOLDOWN,
 } from './fields'
 
 export const TAB_ID = 'elasticity'
@@ -40,11 +40,12 @@ export const ELASTICITY_FORM_FIELDS = [
   EXPRESSION,
   PERIOD_NUMBER,
   PERIOD,
-  COOLDOWN
+  COOLDOWN,
 ]
 
-export const ELASTICITY_FORM_SCHEMA = yup
-  .object(getValidationFromFields(ELASTICITY_FORM_FIELDS))
+export const ELASTICITY_FORM_SCHEMA = yup.object(
+  getValidationFromFields(ELASTICITY_FORM_FIELDS)
+)
 
 export const ELASTICITY_TAB_SCHEMA = yup
   .array(ELASTICITY_FORM_SCHEMA)

@@ -27,6 +27,26 @@ module OneProvision
         # These providers get the credentials via some file
         CREDENTIALS_FILE = { 'google' => 'credentials' }
 
+        def self.new_onprem(client)
+            xml_str = <<EOS
+              <DOCUMENT>
+                <ID>-1</ID>
+                <NAME>onprem</NAME>
+                <TEMPLATE>
+                  <PLAIN><![CDATA[{"provider":"onprem"}]]></PLAIN>
+                  <PROVISION_BODY><![CDATA[{"provider":"onprem","name":"onprem"}]]></PROVISION_BODY>
+                </TEMPLATE>
+              </DOCUMENT>
+EOS
+            xml = XMLElement.build_xml(xml_str, 'DOCUMENT')
+
+            onprem = new(xml, client)
+
+            onprem.load_body
+
+            onprem
+        end
+
         # Allocates a new document
         #
         # @param template [Hash] Document information
@@ -103,7 +123,7 @@ module OneProvision
 
         # Gets connection information
         def connection
-            # Dummy case
+            # Onprem case
             return unless @body
 
             conn             = {}
@@ -118,7 +138,7 @@ module OneProvision
 
         # Gets inputs information
         def inputs
-            # Dummy case
+            # Onprem case
             return unless @body
 
             @body['inputs'] || []
@@ -126,8 +146,8 @@ module OneProvision
 
         # Gets provider type
         def type
-            # Dummy case
-            return 'dummy' unless @body
+            # Onprem case
+            return 'onprem' unless @body
 
             @body['provider']
         end

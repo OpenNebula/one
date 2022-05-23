@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,14 +21,14 @@ import { DEBUG_LEVEL } from 'client/constants'
  * @param {string} data - Message text
  * @returns {string} Severity type (debug level)
  */
-export const getSeverityFromData = data =>
+export const getSeverityFromData = (data) =>
   data.includes(DEBUG_LEVEL.ERROR)
     ? DEBUG_LEVEL.ERROR
     : data.includes(DEBUG_LEVEL.INFO)
-      ? DEBUG_LEVEL.INFO
-      : data.includes(DEBUG_LEVEL.WARN)
-        ? DEBUG_LEVEL.WARN
-        : DEBUG_LEVEL.DEBUG
+    ? DEBUG_LEVEL.INFO
+    : data.includes(DEBUG_LEVEL.WARN)
+    ? DEBUG_LEVEL.WARN
+    : DEBUG_LEVEL.DEBUG
 
 /**
  * Returns the message information as json.
@@ -39,7 +39,7 @@ export const getSeverityFromData = data =>
 export const getMessageInfo = (data = '') => {
   try {
     const { message, timestamp, severity } = JSON.parse(data)
-    const decryptMessage = atob(message)
+    const decryptMessage = decodeURIComponent(escape(atob(message)))
 
     return { timestamp, severity, message: decryptMessage }
   } catch {
@@ -67,7 +67,7 @@ export const concatNewMessageToLog = (log, message = {}) => {
   return {
     ...log,
     [command]: {
-      [commandId]: [...(log?.[command]?.[commandId] ?? []), data]
-    }
+      [commandId]: [...(log?.[command]?.[commandId] ?? []), data],
+    },
   }
 }

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -30,21 +30,19 @@ const Steps = () => {
 
   const steps = [basic, networks, template, policies]
 
-  const resolvers = () => yup.object({
-    id: yup
-      .string()
-      .uuid()
-      .default(uuidv4),
-    [basic.id]: basic.resolver,
-    [networks.id]: networks.resolver,
-    [template.id]: template.resolver,
-    [policies.id]: policies.resolver,
-    parents: yup.array().default([]),
-    position: yup.object({
-      x: yup.number().round().default(0),
-      y: yup.number().round().default(0)
+  const resolvers = () =>
+    yup.object({
+      id: yup.string().uuid().default(uuidv4),
+      [basic.id]: basic.resolver,
+      [networks.id]: networks.resolver,
+      [template.id]: template.resolver,
+      [policies.id]: policies.resolver,
+      parents: yup.array().default([]),
+      position: yup.object({
+        x: yup.number().round().default(0),
+        y: yup.number().round().default(0),
+      }),
     })
-  })
 
   const defaultValues = resolvers().default()
 

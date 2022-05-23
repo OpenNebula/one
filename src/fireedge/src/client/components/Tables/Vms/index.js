@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,73 +13,77 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useVm, useVmApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const INITIAL_ELEMENT = 0
-const INTERVAL_ON_FIRST_RENDER = 2_000
+const DEFAULT_DATA_CY = 'vms'
 
-const VmsTable = props => {
-  const vms = useVm()
-  const { getVms } = useVmApi()
-  const { view, getResourceView, filterPool } = useAuth()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual Machines table
+ */
+const VmsTable = (props) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    initialState = {},
+    host,
+    ...rest
+  } = props ?? {}
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('VM')?.filters,
-    columns: VmColumns
-  }), [view])
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
+  initialState.filters = useMemo(
+    () => initialState.filters ?? [],
+    [initialState.filters]
+  )
 
-  const { status, data, fetchRequest, loading, reloading, error, STATUS } = useFetch(getVms)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useViews()
 
-  useEffect(() => {
-    const requests = {
-      INIT: () => fetchRequest({
-        start: INITIAL_ELEMENT,
-        end: -INTERVAL_ON_FIRST_RENDER,
-        state: -1 // Any state, except DONE
+  const { data, refetch, isFetching } = useGetVmsQuery(undefined, {
+    selectFromResult: (result) => ({
+      ...result,
+      data:
+        result?.data
+          ?.filter((vm) =>
+            host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
+          )
+          ?.filter(({ STATE }) => STATE !== '6') ?? [],
+    }),
+  })
+
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.VM)?.filters,
+        columns: VmColumns,
       }),
-      FETCHED: () => {
-        const canFetchMore = !error && data?.vms?.length === INTERVAL_ON_FIRST_RENDER
-
-        // fetch the rest of VMs, from 0 to last VM ID fetched
-        canFetchMore && fetchRequest({
-          start: INITIAL_ELEMENT,
-          end: data?.vms[INTERVAL_ON_FIRST_RENDER - 1]?.ID,
-          state: -1 // Any state, except DONE
-        })
-      }
-    }
-
-    requests[status]?.()
-  }, [filterPool, status, data])
-
-  if (vms?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vms}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VmRow}
-      {...props}
+      initialState={initialState}
+      {...rest}
     />
   )
 }
 
-VmsTable.propTypes = EnhancedTableProps
 VmsTable.displayName = 'VmsTable'
 
 export default VmsTable

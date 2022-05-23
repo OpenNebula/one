@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -94,6 +94,90 @@ module VCenterDriver
 
         def vcenter_instance_uuid
             @vi_client.vim.serviceContent.about.instanceUuid rescue nil
+        end
+
+        def save_as_linked_clones(name)
+            error = nil
+
+            disks = @item.config.hardware.device.grep(
+                RbVmomi::VIM::VirtualMachine
+            )
+            disks.select {|x| x.backing.parent.nil? }.each do |disk|
+                spec = {
+                    :deviceChange => [
+                        {
+                            :operation => :remove,
+                            :device => disk
+                        },
+                        {
+                            :operation => :add,
+                            :fileOperation => :create,
+                            :device => disk.dup.tap do |x|
+                                x.backing = x.backing.dup
+                                x.backing.fileName =
+                                    "[#{disk.backing.datastore.name}]"
+                                x.backing.parent = disk.backing
+                            end
+                        }
+                    ]
+                }
+                @item.ReconfigVM_Task(
+                    :spec => spec
+                ).wait_for_completion
+            end
+
+            relocateSpec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+                :diskMoveType => :moveChildMostDiskBacking
+            )
+
+            spec = RbVmomi::VIM.VirtualMachineCloneSpec(
+                :location => relocateSpec,
+                :powerOn => false,
+                :template => true
+            )
+
+            new_template = @item.CloneVM_Task(
+                :folder => @item.parent,
+                :name => name,
+                :spec => spec
+            ).wait_for_completion
+
+            new_vm_template_ref = new_template._ref
+
+            one_client = OpenNebula::Client.new
+            importer = VCenterDriver::VmImporter.new(
+                one_client,
+                @vi_client
+            )
+
+            importer.retrieve_resources({})
+            importer.get_indexes(new_vm_template_ref)
+
+            importer.process_import(
+                new_vm_template_ref,
+                {
+                    new_vm_template_ref.to_s => {
+                        :type => 'default',
+                        :linked_clone => '1',
+                        :copy => '0',
+                        :name => '',
+                        :folder => ''
+                    }
+                }
+            )
+
+            begin
+                importer.output[:success][0][:id][0]
+            rescue StandardError => e
+                error = 'Creating linked clone VM Template' \
+                    " failed due to \"#{e.message}\".\n"
+
+                if VCenterDriver::CONFIG[:debug_information]
+                    error += " #{e.backtrace}\n"
+                end
+            end
+
+            [error, new_vm_template_ref]
         end
 
         def create_template_copy(template_name)
@@ -324,13 +408,25 @@ module VCenterDriver
                         break
                     end
 
+                    # Read configuration for imported images, taking
+                    # into account if we are importing a VM Tempalte
+                    # or a Wild VM
+                    image_persistency = nil
+                    if vm?
+                        image_persistency = :wild_vm_persistent_images
+                    else
+                        image_persistency = :vm_template_persistent_images
+                    end
+
+                    image_persistency = VCenterDriver::CONFIG[image_persistency]
+
                     params = {
                         :disk => disk,
                         :ipool => ipool,
                         :_type => type,
                         :ds_id => datastore_found['ID'],
                         :opts => {
-                            :persistent => vm? ? 'YES':'NO'
+                            :persistent => image_persistency ? 'YES':'NO'
                         },
                         :images => images
                     }
@@ -539,6 +635,23 @@ module VCenterDriver
 
             network.info
 
+            if nic[:ipv4] || nic[:ipv6]
+                ar_array = network.to_hash['VNET']['AR_POOL']['AR']
+                ar_array = [ar_array] if ar_array.is_a?(Hash)
+
+                ipv4, _ipv6, _arid = find_ip_in_ar(
+                    IPAddr.new(nic[:ipv4]),
+                    ar_array
+                ) if ar_array && nic[:ipv4]
+
+                _ipv4, ipv6, _arid = find_ip_in_ar(
+                    IPAddr.new(nic[:ipv6]),
+                    ar_array
+                ) if ar_array && nic[:ipv6]
+
+                return [ipv4, ipv6]
+            end
+
             # Iterate over Retrieve vCenter VM NICs
             unless vm_object.item.guest.net.empty?
                 vm_object.item.guest.net.each do |net|
@@ -671,9 +784,10 @@ module VCenterDriver
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
             nic_tmp << "NAME =\"VC_NIC#{nic_index}\",\n"
+            nic_tmp << "IP = \"#{nic[:ipv4]}\",\n" if nic[:ipv4]
 
             if vm?
-                if nic[:mac]
+                if nic[:mac] && !nic[:ipv4]
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
                 if nic[:ipv4_additionals]
@@ -729,6 +843,7 @@ module VCenterDriver
                     ar_tmp = create_ar(nic)
                     network_found.add_ar(ar_tmp)
                 end
+
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object,
                                                  nic, true)
                 network_found.info
@@ -740,8 +855,10 @@ module VCenterDriver
                 if nic[:mac] && ipv4.empty? && ipv6.empty?
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
+
                 nic_tmp << "IP=\"#{ipv4}\"," unless ipv4.empty?
                 nic_tmp << "IP6=\"#{ipv6}\"," unless ipv6.empty?
+
                 if nic[:ipv4_additionals]
                     nic_tmp <<
                         'VCENTER_ADDITIONALS_IP4'\
@@ -858,23 +975,14 @@ module VCenterDriver
                 host_id = vi_client.instance_variable_get '@host_id'
 
                 begin
-                    nsx_client =
-                        NSXDriver::NSXClient
-                        .new_from_id(
-                            host_id
-                        )
+                    nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
                 rescue StandardError
                     nsx_client = nil
                 end
 
                 if !nsx_client.nil?
-                    nsx_net =
-                        NSXDriver::VirtualWire
-                        .new_from_name(
-                            nsx_client,
-                            nic[:net_name]
-                        )
-
+                    nsx_net = NSXDriver::VirtualWire
+                              .new_from_name(nsx_client, nic[:net_name])
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
                     config[:nsx_tz_id] = nsx_net.tz_id
@@ -885,11 +993,8 @@ module VCenterDriver
                 # so all Standard
                 # PortGroups are networks and no uplinks
                 config[:uplink] = false
-                config[:sw_name] =
-                    VCenterDriver::Network
-                    .virtual_switch(
-                        nic[:network]
-                    )
+                config[:sw_name] = VCenterDriver::Network
+                                   .virtual_switch(nic[:network])
                 # NSX-T PortGroups
             when VCenterDriver::Network::NETWORK_TYPE_NSXT
                 config[:sw_name] = \
@@ -910,10 +1015,7 @@ module VCenterDriver
                 if !nsx_client.nil?
                     nsx_net =
                         NSXDriver::OpaqueNetwork
-                        .new_from_name(
-                            nsx_client,
-                            nic[:net_name]
-                        )
+                        .new_from_name(nsx_client, nic[:net_name])
 
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
@@ -969,7 +1071,13 @@ module VCenterDriver
             ar_tmp << "]\n"
 
             if vm?
-                ar_tmp << create_ar(nic, true)
+                ar_tmp << create_ar(nic, false, nic[:ipv4]) if nic[:ipv4]
+
+                if nic[:ipv6]
+                    ar_tmp << create_ar(nic, false, nil, nic[:ipv6])
+                end
+
+                ar_tmp << create_ar(nic, true) if !nic[:ipv4] && !nic[:ipv6]
             end
 
             one_vnet[:one] << ar_tmp
@@ -980,6 +1088,31 @@ module VCenterDriver
             one_vn = VCenterDriver::Network.create_one_network(config)
             VCenterDriver::VIHelper.clean_ref_hash
             one_vn.info
+
+            # Wait until the virtual network is in ready state
+            t_start = Time.now
+            error   = false
+            timeout = 30
+
+            while Time.now - t_start < timeout
+                begin
+                    if one_vn.short_state_str == 'rdy'
+                        error = false
+                        break
+                    end
+                rescue StandardError
+                    error = true
+                end
+
+                sleep 1
+                one_vn.info
+            end
+
+            if error
+                error_msg  = "VNET #{one_vn.id} in state "
+                error_msg += "#{one_vn.short_state_str}, aborting import"
+                raise error_msg
+            end
 
             one_vn
         end
@@ -1024,6 +1157,23 @@ module VCenterDriver
                 nic_index = 0
 
                 vc_nics.each do |nic|
+                    [:ipv4, :ipv6].each do |type|
+                        if nic[type]
+                            opts[type].shift if opts[type]
+                            next
+                        end
+
+                        begin
+                            ip = opts[type].shift if opts[type]
+
+                            # Check if it is a valid IP
+                            IPAddr.new(ip)
+
+                            nic[type] = ip
+                        rescue StandardError
+                        end
+                    end
+
                     # Check if the network already exists
                     network_found =
                         VCenterDriver::VIHelper
@@ -1835,12 +1985,10 @@ module VCenterDriver
                 # the template if something go wrong
                 if copy
                     error, template_copy_ref =
-                        selected[:template]
-                        .create_template_copy(
-                            opts[:name]
-                        )
+                        selected[:template].save_as_linked_clones(opts[:name])
+
                     unless template_copy_ref
-                        raise 'There is a problem creating creating' \
+                        raise 'There is a problem creating ' \
                               "your copy: #{error}"
                     end
 
@@ -1893,68 +2041,70 @@ module VCenterDriver
             working_template[:one] <<
                 "VCENTER_TEMPLATE_NAME=\"#{selected[:name]}\"\n"
 
-            create(working_template[:one]) do |one_object, id|
-                res[:id] << id
+            unless copy
+                create(working_template[:one]) do |one_object, id|
+                    res[:id] << id
 
-                type = { :object => 'template', :id => id }
-                error, template_disks, allocated_images =
-                    template
-                    .import_vcenter_disks(
-                        vc_uuid,
-                        dpool,
-                        ipool,
-                        type
+                    type = { :object => 'template', :id => id }
+                    error, template_disks, allocated_images =
+                        template
+                        .import_vcenter_disks(
+                            vc_uuid,
+                            dpool,
+                            ipool,
+                            type
+                        )
+
+                    if allocated_images
+                        # rollback stack
+                        allocated_images.reverse.each do |i|
+                            @rollback.unshift(Raction.new(i, :delete))
+                        end
+                    end
+                    raise error unless error.empty?
+
+                    working_template[:one] << template_disks
+
+                    if template_copy_ref
+                        template_moref = template_copy_ref
+                    else
+                        template_moref = selected[:vcenter_ref]
+                    end
+
+                    opts_nics = {
+                        :vi_client => @vi_client,
+                        :vc_uuid => vc_uuid,
+                        :npool => npool,
+                        :hpool => hpool,
+                        :vcenter => vcenter,
+                        :template_moref => template_moref,
+                        :vm_object => nil
+                    }
+
+                    error, template_nics, _ar_ids, allocated_nets =
+                        template
+                        .import_vcenter_nics(
+                            opts_nics,
+                            id,
+                            dc
+                        )
+
+                    if allocated_nets
+                        # rollback stack
+                        allocated_nets.reverse.each do |n|
+                            @rollback.unshift(Raction.new(n, :delete))
+                        end
+                    end
+                    raise error unless error.empty?
+
+                    working_template[:one] << template_nics
+                    working_template[:one] << rp_opts(
+                        opts[:type],
+                        opts[:resourcepool]
                     )
 
-                if allocated_images
-                    # rollback stack
-                    allocated_images.reverse.each do |i|
-                        @rollback.unshift(Raction.new(i, :delete))
-                    end
+                    one_object.update(working_template[:one])
                 end
-                raise error unless error.empty?
-
-                working_template[:one] << template_disks
-
-                if template_copy_ref
-                    template_moref = template_copy_ref
-                else
-                    template_moref = selected[:vcenter_ref]
-                end
-
-                opts_nics = {
-                    :vi_client => @vi_client,
-                    :vc_uuid => vc_uuid,
-                    :npool => npool,
-                    :hpool => hpool,
-                    :vcenter => vcenter,
-                    :template_moref => template_moref,
-                    :vm_object => nil
-                }
-
-                error, template_nics, _ar_ids, allocated_nets =
-                    template
-                    .import_vcenter_nics(
-                        opts_nics,
-                        id,
-                        dc
-                    )
-
-                if allocated_nets
-                    # rollback stack
-                    allocated_nets.reverse.each do |n|
-                        @rollback.unshift(Raction.new(n, :delete))
-                    end
-                end
-                raise error unless error.empty?
-
-                working_template[:one] << template_nics
-                working_template[:one] << rp_opts(
-                    opts[:type],
-                    opts[:resourcepool]
-                )
-
-                one_object.update(working_template[:one])
             end
 
             res

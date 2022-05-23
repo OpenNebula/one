@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,6 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useLocation, matchPath } from 'react-router'
 
 import clsx from 'clsx'
 import {
@@ -24,13 +25,13 @@ import {
   Divider,
   Box,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 
 import {
   Menu as MenuIcon,
   NavArrowLeft as ArrowLeftIcon,
-  Cancel as CloseIcon
+  Cancel as CloseIcon,
 } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
@@ -41,8 +42,11 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
 
 const Sidebar = ({ endpoints }) => {
+  const { pathname } = useLocation()
   const classes = sidebarStyles()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
+  const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
+    noSsr: true,
+  })
 
   const { isFixMenu } = useGeneral()
   const { fixMenu } = useGeneralApi()
@@ -50,43 +54,58 @@ const Sidebar = ({ endpoints }) => {
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 
   const SidebarEndpoints = useMemo(
-    () => endpoints
-      ?.filter(({ sidebar = false }) => sidebar)
-      ?.sort(({ position: posA = 1 }, { position: posB = 1 }) => posB - posA)
-      ?.map((endpoint, index) =>
-        endpoint.routes ? (
-          <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
-        ) : (
-          <SidebarLink key={`item-${index}`} {...endpoint} />
+    () =>
+      endpoints
+        ?.filter(
+          ({ sidebar = false, routes = [] }) =>
+            sidebar || routes.some((subRoute) => subRoute?.sidebar)
         )
-      ),
+        ?.sort(({ position: posA = 1 }, { position: posB = 1 }) => posB - posA)
+        ?.map((endpoint, index) =>
+          endpoint.routes ? (
+            <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
+          ) : (
+            <SidebarLink key={`item-${index}`} {...endpoint} />
+          )
+        ),
     [endpoints]
   )
 
+  const isDisabledSidebar = useMemo(() => {
+    const endpoint = endpoints.find(({ path }) =>
+      matchPath(pathname, { path, exact: true })
+    )
+
+    return endpoint?.disableLayout
+  }, [pathname])
+
+  if (isDisabledSidebar) {
+    return null
+  }
+
   return (
     <Drawer
-      variant='permanent'
-      className={clsx({ [classes.drawerFixed]: isFixMenu })}
+      variant="permanent"
       classes={{
         paper: clsx(classes.drawerPaper, {
-          [classes.drawerFixed]: isFixMenu
-        })
+          [classes.drawerFixed]: isFixMenu,
+        }),
       }}
-      anchor='left'
+      anchor="left"
       open={isFixMenu}
       PaperProps={{ 'data-cy': 'sidebar' }}
     >
       <Box className={classes.header}>
         <OpenNebulaLogo
-          width='100%'
+          width="100%"
           height={50}
           withText
-          className={classes.svg}
+          className={classes.logo}
           disabledBetaText
         />
         {!isUpLg || isFixMenu ? (
           <IconButton onClick={handleSwapMenu}>
-            {!isUpLg ? <CloseIcon/> : <ArrowLeftIcon />}
+            {!isUpLg ? <CloseIcon /> : <ArrowLeftIcon />}
           </IconButton>
         ) : (
           <IconButton onClick={handleSwapMenu}>
@@ -96,20 +115,18 @@ const Sidebar = ({ endpoints }) => {
       </Box>
       <Divider />
       <Box className={classes.menu}>
-        <List className={classes.list} data-cy='main-menu'>
-          {SidebarEndpoints}
-        </List>
+        <List data-cy="main-menu">{SidebarEndpoints}</List>
       </Box>
     </Drawer>
   )
 }
 
 Sidebar.propTypes = {
-  endpoints: PropTypes.array
+  endpoints: PropTypes.array,
 }
 
 Sidebar.defaultProps = {
-  endpoints: []
+  endpoints: [],
 }
 
 Sidebar.displayName = 'Sidebar'

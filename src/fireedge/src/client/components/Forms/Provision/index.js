@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CreateForm from 'client/components/Forms/Provision/CreateForm'
-import DeleteForm from 'client/components/Forms/Provision/DeleteForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
 
-export {
-  CreateForm,
-  DeleteForm
-}
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Provision/CreateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const DeleteForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Provision/DeleteForm' }, configProps)
+
+export { CreateForm, DeleteForm }

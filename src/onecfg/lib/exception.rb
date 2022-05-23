@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,18 +43,10 @@ module OneCfg
         # rubocop:disable Lint/UselessMethodDefinition
         class FileReadError < Generic
 
-            def initialize(text)
-                super(text)
-            end
-
         end
 
         # OneCfg config exception on file write
         class FileWriteError < Generic
-
-            def initialize(text)
-                super(text)
-            end
 
         end
         # rubocop:enable Lint/UselessMethodDefinition
@@ -62,10 +54,6 @@ module OneCfg
         # OneCfg parser exception on file
         # rubocop:disable Lint/UselessMethodDefinition
         class FileParseError < Generic
-
-            def initialize(text)
-                super(text)
-            end
 
         end
         # rubocop:enable Lint/UselessMethodDefinition

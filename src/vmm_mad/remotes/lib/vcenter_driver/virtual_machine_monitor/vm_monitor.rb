@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -274,6 +274,10 @@ module VirtualMachineMonitor
 
         info_disks.each do |disk|
             next if disk[1].no_exists?
+
+            # disk[0] contains the disk ID in OpenNebula or the disk path if
+            #         there is no corresponding OpenNebula disk
+            # disk[1] contains the vcenter resource corresponding to the VM disk
 
             # Delete special characters
             name = disk[0].gsub(/[^0-9A-Za-z]/, '_')

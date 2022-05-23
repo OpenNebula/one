@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 const {
   from: { resource, postBody },
-  httpMethod: { GET, POST, DELETE }
+  httpMethod: { GET, POST, DELETE },
 } = require('../defaults')
 
 const ACL_ADDRULE = 'acl.addrule'
@@ -25,7 +25,7 @@ const ACL_INFO = 'acl.info'
 const Actions = {
   ACL_ADDRULE,
   ACL_DELRULE,
-  ACL_INFO
+  ACL_INFO,
 }
 
 module.exports = {
@@ -37,17 +37,17 @@ module.exports = {
       params: {
         user: {
           from: postBody,
-          default: '0x100000000'
+          default: '0x100000000',
         },
         resource: {
           from: postBody,
-          default: '0x1000000000'
+          default: '0x1000000000',
         },
         right: {
           from: postBody,
-          default: '0x1'
-        }
-      }
+          default: '0x1',
+        },
+      },
     },
     [ACL_DELRULE]: {
       // inspected
@@ -55,14 +55,14 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [ACL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

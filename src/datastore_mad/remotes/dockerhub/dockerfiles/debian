@@ -1,4 +1,4 @@
-RUN [ ! -e /sbin/init ] && ln -s /lib/systemd/systemd /sbin/init
+RUN [ -e /sbin/init ] || ln -s /lib/systemd/systemd /sbin/init
 RUN apt-get update
 RUN apt-get update && apt-get install -y \
     curl \

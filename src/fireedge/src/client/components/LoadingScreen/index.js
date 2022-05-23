@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement } from 'react'
 
 import { Box } from '@mui/material'
 import { OpenNebulaLogo } from 'client/components/Icons'
@@ -21,25 +21,11 @@ import { OpenNebulaLogo } from 'client/components/Icons'
 /**
  * Component with OpenNebula logo as spinner in full width and height.
  *
- * @returns {JSXElementConstructor} Container with logo inside
+ * @returns {ReactElement} Container with logo inside
  */
 const LoadingScreen = () => (
-  <Box sx={{
-    width: '100%',
-    height: '100vh',
-    backgroundColor: 'background.default',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'fixed',
-    zIndex: 10000
-  }}>
-    <OpenNebulaLogo
-      width={360}
-      height={360}
-      spinner
-      withText
-    />
+  <Box className="loading_screen">
+    <OpenNebulaLogo width={360} height={360} spinner withText />
   </Box>
 )
 

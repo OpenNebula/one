@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,6 +17,7 @@ import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Db as ProviderIcon, Cloud as ProvisionIcon } from 'iconoir-react'
+import { Typography } from '@mui/material'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
@@ -28,37 +29,50 @@ import {
   PROVISIONS_STATES,
   PROVIDER_IMAGES_URL,
   PROVISION_IMAGES_URL,
-  DEFAULT_IMAGE
+  DEFAULT_IMAGE,
 } from 'client/constants'
 
 const ProvisionCard = memo(
-  ({ value, image: propImage, isSelected, handleClick, isProvider, actions, deleteAction }) => {
-    const { ID, NAME, TEMPLATE: { BODY = {} } } = value
-
-    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+  ({
+    value,
+    image: propImage,
+    isSelected,
+    handleClick,
+    isProvider,
+    actions,
+    deleteAction,
+  }) => {
+    const {
+      ID,
+      NAME,
+      TEMPLATE: { BODY = {} },
+    } = value
 
     const stateInfo = PROVISIONS_STATES[BODY.state]
-    const image = propImage ?? BODY?.image ?? DEFAULT_IMAGE
+    const image = propImage ?? BODY?.image
 
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-    const imageUrl = useMemo(
-      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
-      [isExternalImage]
-    )
+    const imageUrl = useMemo(() => {
+      if (!image) return DEFAULT_IMAGE
+
+      const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+
+      return isExternalImage ? image : `${IMAGES_URL}/${image}`
+    }, [isExternalImage, isProvider, image])
 
     return (
       <SelectCard
-        action={(actions?.length > 0 || deleteAction) && (
-          <>
-            {actions?.map(action =>
-              <Action key={action?.cy} {...action} />
-            )}
-            {deleteAction && (
-              <ButtonToTriggerForm {...deleteAction} />
-            )}
-          </>
-        )}
+        action={
+          (actions?.length > 0 || deleteAction) && (
+            <>
+              {actions?.map((action) => (
+                <Action key={action?.cy} {...action} />
+              ))}
+              {deleteAction && <ButtonToTriggerForm {...deleteAction} />}
+            </>
+          )
+        }
         dataCy={isProvider ? 'provider' : 'provision'}
         handleClick={handleClick}
         icon={
@@ -75,20 +89,35 @@ const ProvisionCard = memo(
           component: 'div',
           children: (
             <Image
+              alt={`${isProvider ? 'provider' : 'provision'}-logo`}
               src={imageUrl}
               withSources={image && !isExternalImage}
             />
-          )
+          ),
         }}
         subheader={`#${ID}`}
-        title={NAME}
+        title={
+          <Typography
+            component="span"
+            sx={{
+              cursor: 'pointer',
+              '&:hover': {
+                color: 'secondary.dark',
+              },
+            }}
+            data-cy={`${isProvider ? 'provider' : 'provision'}-card-title`}
+            onClick={handleClick}
+          >
+            {NAME}
+          </Typography>
+        }
         disableFilterImage={isExternalImage}
       />
     )
-  }, (prev, next) => (
+  },
+  (prev, next) =>
     prev.isSelected === next.isSelected &&
     prev.value?.TEMPLATE?.BODY?.state === next.value?.TEMPLATE?.BODY?.state
-  )
 )
 
 ProvisionCard.propTypes = {
@@ -97,14 +126,14 @@ ProvisionCard.propTypes = {
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
   image: PropTypes.string,
-  deleteAction: PropTypes.func,
+  deleteAction: PropTypes.object,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.object.isRequired,
-      cy: PropTypes.string
+      cy: PropTypes.string,
     })
-  )
+  ),
 }
 
 ProvisionCard.defaultProps = {
@@ -114,7 +143,7 @@ ProvisionCard.defaultProps = {
   isSelected: undefined,
   image: undefined,
   deleteAction: undefined,
-  value: {}
+  value: {},
 }
 
 ProvisionCard.displayName = 'ProvisionCard'

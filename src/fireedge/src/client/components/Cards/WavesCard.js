@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,101 +16,117 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-import { Paper, Typography, lighten, darken } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { styled, keyframes, lighten, darken } from '@mui/material'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
-import { addOpacityToColor } from 'client/utils'
+import { Translate, Tr } from 'client/components/HOC'
 import { SCHEMES } from 'client/constants'
 
-const useStyles = makeStyles(theme => {
-  const getBackgroundColor = theme.palette.mode === SCHEMES.DARK ? darken : lighten
-  const getContrastBackgroundColor = theme.palette.mode === SCHEMES.LIGHT ? darken : lighten
+const Card = styled(Paper)(({ theme, bgcolor, onClick }) => {
+  const getBackgroundColor =
+    theme.palette.mode === SCHEMES.DARK ? darken : lighten
 
   return {
-    root: {
-      padding: '2em',
-      position: 'relative',
-      overflow: 'hidden',
-      backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3),
-      [theme.breakpoints.only('xs')]: {
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: '1em'
-      }
+    padding: '2em',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: getBackgroundColor(bgcolor, 0.3),
+    ...(onClick && {
+      '&:hover': {
+        backgroundColor: getBackgroundColor(bgcolor, 0.4),
+        boxShadow: theme.shadows[10],
+        cursor: 'pointer',
+      },
+    }),
+    [theme.breakpoints.only('xs')]: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: '1em',
     },
-    icon: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: '100%',
-      height: '100%',
-      textAlign: 'end',
-      '& > svg': {
-        color: addOpacityToColor(theme.palette.common.white, 0.2),
-        height: '100%',
-        width: '30%'
-      }
-    },
-    wave: {
-      display: 'block',
-      position: 'absolute',
-      opacity: 0.4,
-      top: '-5%',
-      left: '50%',
-      width: 220,
-      height: 220,
-      borderRadius: '43%'
-    },
-    wave1: {
-      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.3),
-      animation: '$drift 7s infinite linear'
-    },
-    wave2: {
-      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.5),
-      animation: '$drift 5s infinite linear'
-    },
-    '@keyframes drift': {
-      from: { transform: 'rotate(0deg)' },
-      to: { transform: 'rotate(360deg)' }
-    }
   }
 })
 
-const WavesCard = memo(({ text, value, bgColor, icon: Icon }) => {
-  const classes = useStyles({ bgColor })
+const OverSizeIcon = styled('span')(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  width: '100%',
+  height: '100%',
+  textAlign: 'end',
+  '& > svg': {
+    color: theme.palette.action.active,
+    height: '100%',
+    width: '30%',
+  },
+}))
 
-  return (
-    <Paper className={classes.root}>
-      <Typography variant='h6' zIndex={2}>{text}</Typography>
-      <Typography variant='h4' zIndex={2}>{value}</Typography>
-      <span className={clsx(classes.wave, classes.wave1)} />
-      <span className={clsx(classes.wave, classes.wave2)} />
+const drift = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+const Wave = styled('span')(({ theme, bgcolor, duration = 1 }) => {
+  const getContrastBackgroundColor =
+    theme.palette.mode === SCHEMES.DARK ? lighten : darken
+
+  return {
+    display: 'block',
+    position: 'absolute',
+    opacity: 0.4,
+    top: '-5%',
+    left: '50%',
+    width: 220,
+    height: 220,
+    borderRadius: '43%',
+    backgroundColor: getContrastBackgroundColor(bgcolor, duration / 10),
+    animation: `${drift} ${duration}s infinite linear`,
+  }
+})
+
+const WavesCard = memo(
+  ({ text, value, bgColor, icon: Icon, onClick }) => (
+    <Card title={Tr(text)} bgcolor={bgColor} onClick={onClick || undefined}>
+      <Typography variant="h6" zIndex={2} noWrap>
+        <Translate word={text} />
+      </Typography>
+      <Typography variant="h4" zIndex={2}>
+        {value}
+      </Typography>
+      <Wave bgcolor={bgColor} duration={7} />
+      <Wave bgcolor={bgColor} duration={5} />
       {Icon && (
-        <span className={classes.icon}>
+        <OverSizeIcon>
           <Icon />
-        </span>
+        </OverSizeIcon>
       )}
-    </Paper>
-  )
-}, (prev, next) => prev.value === next.value)
+    </Card>
+  ),
+  (prev, next) => prev.value === next.value
+)
 
 WavesCard.propTypes = {
   text: PropTypes.string,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.element
+    PropTypes.element,
   ]),
   bgColor: PropTypes.string,
-  icon: PropTypes.any
+  icon: PropTypes.any,
+  onClick: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 }
 
 WavesCard.defaultProps = {
   text: undefined,
   value: undefined,
   bgColor: '#ffffff00',
-  icon: undefined
+  icon: undefined,
+  onClick: undefined,
 }
 
 WavesCard.displayName = 'WavesCard'

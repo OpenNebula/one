@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,28 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { Folder as ContextIcon } from 'iconoir-react'
 
-// import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import UserInputsSection, {
+  SECTION_ID as USER_INPUTS_ID,
+} from './userInputsSection'
+import ConfigurationSection from './configurationSection'
+import FilesSection from './filesSection'
+import ContextVarsSection from './contextVarsSection'
 
-// import { STEP_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-// import {} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-// import { T } from 'client/constants'
+import { T } from 'client/constants'
 
-const Context = () => {
-  return (
-    <>
-      {'Context'}
-    </>
-  )
-}
+export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
+
+const Context = (props) => (
+  <>
+    <ConfigurationSection />
+    <UserInputsSection />
+    <FilesSection {...props} />
+    <ContextVarsSection {...props} />
+  </>
+)
 
 Context.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
+  hypervisor: PropTypes.string,
+  control: PropTypes.object,
 }
 
-Context.displayName = 'Context'
+/** @type {TabType} */
+const TAB = {
+  id: 'context',
+  name: T.Context,
+  icon: ContextIcon,
+  Content: Context,
+  getError: (error) => TAB_ID.some((id) => error?.[id]),
+}
 
-export default Context
+export default TAB

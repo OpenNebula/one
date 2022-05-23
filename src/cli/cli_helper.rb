@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -61,7 +61,8 @@ module CLIHelper
                         ' ' * 31 << 'column=value pairs.' <<
                         ' ' * 31 << "Valid operators #{FILTER_OPS.join(',')}" <<
                         ' ' * 31 << 'e.g. NAME=test (match name with test)' <<
-                        ' ' * 31 << 'NAME~test (match test, te, tes..)'
+                        ' ' * 31 << 'NAME~test (match every NAME containing' <<
+                        ' ' * 31 << 'the substring \'test\')'
     }
 
     OPERATOR = {
@@ -187,9 +188,17 @@ module CLIHelper
                         error
                         ERROR
                         FAILED_DEPLOYING
+                        FAILED_DEPLOYING_NETS
                         FAILED_UNDEPLOYING
+                        FAILED_UNDEPLOYING_NETS
                         FAILED_SCALING]
-    REGULAR_STATES = %w[PENDING DEPLOYING CONFIGURING WARNING]
+    REGULAR_STATES = %w[PENDING
+                        DEPLOYING
+                        DEPLOYING_NETS
+                        UNDEPLOYING
+                        UNDEPLOYING_NETS
+                        CONFIGURING
+                        WARNING]
 
     # Set state color
     #

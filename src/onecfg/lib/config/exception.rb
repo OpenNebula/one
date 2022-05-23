@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,36 +21,20 @@ module OneCfg::Config::Exception
     # OneCfg critical error, which shouldn't happen
     class FatalError < OneCfg::Exception::Generic
 
-        def initialize(text)
-            super(text)
-        end
-
     end
 
     # Unsupported OpenNebula version exception
     class UnsupportedVersion < OneCfg::Exception::Generic
-
-        def initialize(text)
-            super(text)
-        end
 
     end
 
     # Invalid file structure.
     class StructureError < OneCfg::Exception::Generic
 
-        def initialize(text)
-            super(text)
-        end
-
     end
 
     # OneCfg config exception when content is not initialized
     class NoContent < OneCfg::Exception::Generic
-
-        def initialize
-            super('Uninitialized content')
-        end
 
     end
 
@@ -61,10 +45,6 @@ module OneCfg::Config::Exception
 
         # Failed diff operation
         attr_accessor :data
-
-        def initialize(text)
-            super(text)
-        end
 
     end
 

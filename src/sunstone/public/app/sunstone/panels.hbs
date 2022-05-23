@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,6 +15,7 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div id="{{containerId}}">
+  <div id="{{containerId}}Errors"></div>
   <ul id="{{containerId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     {{#each panels}}
     <li class="{{class}} tabs-title {{#if active}}is-active{{/if}}">

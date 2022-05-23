@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,84 +13,131 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { Trash as DeleteIcon, Settings as ConfigureIcon } from 'iconoir-react'
+import {
+  Trash as DeleteIcon,
+  Settings as ConfigureIcon,
+  AddCircledOutline,
+} from 'iconoir-react'
+import { Stack, TextField } from '@mui/material'
 
-import { useFetchAll } from 'client/hooks'
-import { useHostApi, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import { ListCards } from 'client/components/List'
+import {
+  useGetProvisionQuery,
+  useAddHostToProvisionMutation,
+  useConfigureHostMutation,
+  useRemoveResourceMutation,
+  useGetProvisionResourceQuery,
+} from 'client/features/OneApi/provision'
+
+import { HostsTable } from 'client/components/Tables'
 import { HostCard } from 'client/components/Cards'
+import { SubmitButton } from 'client/components/FormControl'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
-const Hosts = memo(
-  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const {
-      hosts = []
-    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Hosts = memo(({ id }) => {
+  const [amount, setAmount] = useState(() => 1)
+  const { enqueueSuccess, enqueueInfo } = useGeneralApi()
 
-    const { enqueueSuccess, enqueueInfo } = useGeneralApi()
-    const { configureHost, deleteHost } = useProvisionApi()
-    const { getHost } = useHostApi()
+  const [addHost, { isLoading: loadingAddHost }] =
+    useAddHostToProvisionMutation()
+  const [configureHost, { isLoading: loadingConfigure }] =
+    useConfigureHostMutation()
+  const [removeResource, { isLoading: loadingRemove }] =
+    useRemoveResourceMutation()
+  const { data = {} } = useGetProvisionQuery(id)
 
-    const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchHosts = () => fetchRequestAll(hosts?.map(({ id }) => getHost(id)))
+  const provisionHosts =
+    data?.TEMPLATE?.BODY?.provision?.infrastructure?.hosts?.map(
+      (host) => +host.id
+    ) ?? []
 
-    useEffect(() => {
-      !hidden && !list && fetchHosts()
-    }, [hidden])
-
-    useEffect(() => {
-      !reloading && !loading && fetchHosts()
-    }, [reloading])
-
-    return (
-      <ListCards
-        list={list}
-        isLoading={!list && loading}
-        CardComponent={HostCard}
-        cardsProps={({ value: { ID } }) => !disableAllActions && ({
-          actions: [
+  return (
+    <>
+      <Stack direction="row" mb="0.5em">
+        <TextField
+          type="number"
+          inputProps={{ 'data-cy': 'amount' }}
+          onChange={(event) => {
+            const newAmount = event.target.value
+            ;+newAmount > 0 && setAmount(newAmount)
+          }}
+          value={amount}
+        />
+        <Stack alignSelf="center">
+          <SubmitButton
+            data-cy="add-host"
+            color="secondary"
+            sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
+            endicon={<AddCircledOutline />}
+            label={<Translate word={T.AddHost} />}
+            isSubmitting={loadingAddHost}
+            onClick={async () => {
+              addHost({ id, amount })
+              enqueueSuccess(`Host added ${amount}x`)
+            }}
+          />
+        </Stack>
+      </Stack>
+      <HostsTable
+        disableGlobalSort
+        disableRowSelect
+        displaySelectedRows
+        pageSize={5}
+        useQuery={() =>
+          useGetProvisionResourceQuery(
+            { resource: 'host' },
             {
-              handleClick: () => configureHost(ID)
-                .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
-                .then(refetchProvision),
-              icon: <ConfigureIcon />,
-              cy: `provision-host-configure-${ID}`
-            },
-            {
-              handleClick: () => deleteHost(ID)
-                .then(refetchProvision)
-                .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
-              icon: <DeleteIcon color='error' />,
-              cy: `provision-host-delete-${ID}`
+              selectFromResult: ({ data: result = [], ...rest }) => ({
+                data: result?.filter((host) =>
+                  provisionHosts.includes(+host.ID)
+                ),
+                ...rest,
+              }),
             }
-          ]
-        })}
-        displayEmpty
-        breakpoints={{ xs: 12, md: 6 }}
+          )
+        }
+        RowComponent={({ original: host, handleClick: _, ...props }) => (
+          <HostCard
+            host={host}
+            rootProps={props}
+            actions={
+              <>
+                <SubmitButton
+                  data-cy={`provision-host-configure-${host.ID}`}
+                  icon={<ConfigureIcon />}
+                  isSubmitting={loadingConfigure}
+                  onClick={async () => {
+                    configureHost({ provision: id, id: host.ID })
+                    enqueueInfo(`Configuring host - ID: ${host.ID}`)
+                  }}
+                />
+                <SubmitButton
+                  data-cy={`provision-host-delete-${host.ID}`}
+                  icon={<DeleteIcon />}
+                  isSubmitting={loadingRemove}
+                  onClick={async () => {
+                    removeResource({
+                      provision: id,
+                      id: host.ID,
+                      resource: 'host',
+                    })
+                    enqueueSuccess(`Host deleted - ID: ${host.ID}`)
+                  }}
+                />
+              </>
+            }
+          />
+        )}
       />
-    )
-  }, (prev, next) =>
-    prev.hidden === next.hidden && prev.reloading === next.reloading)
+    </>
+  )
+})
 
-Hosts.propTypes = {
-  data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool,
-  refetchProvision: PropTypes.func,
-  reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool
-}
-
-Hosts.defaultProps = {
-  data: {},
-  hidden: false,
-  refetchProvision: () => undefined,
-  reloading: false,
-  disableAllActions: false
-}
-
+Hosts.propTypes = { id: PropTypes.string.isRequired }
 Hosts.displayName = 'Hosts'
 
 export default Hosts

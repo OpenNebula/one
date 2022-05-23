@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,40 +13,72 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useHistory, useLocation } from 'react-router'
-import { Container } from '@mui/material'
+import { ReactElement } from 'react'
+import { useHistory, useLocation, Redirect } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
-import { useVmTemplateApi } from 'client/features/One'
+import {
+  useInstantiateTemplateMutation,
+  useGetTemplateQuery,
+} from 'client/features/OneApi/vmTemplate'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { isDevelopment } from 'client/utils'
 
-function InstantiateVmTemplate () {
+/**
+ * Displays the instantiation form for a VM Template.
+ *
+ * @returns {ReactElement} Instantiation form
+ */
+function InstantiateVmTemplate() {
   const history = useHistory()
-  const { state: { ID: templateId } = {} } = useLocation()
+  const { state: { ID: templateId, NAME: templateName } = {} } = useLocation()
 
   const { enqueueInfo } = useGeneralApi()
-  const { instantiate } = useVmTemplateApi()
+  const [instantiate] = useInstantiateTemplateMutation()
 
-  const onSubmit = async ([templateSelected, templates]) => {
+  const { data, isError } = useGetTemplateQuery(
+    { id: templateId, extended: true },
+    { skip: templateId === undefined, refetchOnMountOrArgChange: false }
+  )
+
+  useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
+  useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
+
+  const onSubmit = async (templates) => {
     try {
-      const { ID, NAME } = templateSelected
+      const promises = await Promise.all(templates.map(instantiate))
+      promises.map((res) => res.unwrap?.())
 
-      await Promise.all(templates.map(template => instantiate(ID, template)))
+      history.push(PATH.INSTANCE.VMS.LIST)
 
-      history.push(templateId ? PATH.TEMPLATE.VMS.LIST : PATH.INSTANCE.VMS.LIST)
-      enqueueInfo(`VM Template instantiated x${templates.length} - #${ID} ${NAME}`)
-    } catch (err) {
-      isDevelopment() && console.error(err)
-    }
+      const total = templates.length
+      const templateInfo = `#${templateId} ${templateName}`
+      enqueueInfo(`VM Template instantiated x${total} - ${templateInfo}`)
+    } catch {}
   }
 
-  return (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
-      <InstantiateForm templateId={templateId} onSubmit={onSubmit} />
-    </Container>
+  if (!templateId || isError) {
+    return <Redirect to={PATH.TEMPLATE.VMS.LIST} />
+  }
+
+  return !data ? (
+    <SkeletonStepsForm />
+  ) : (
+    <InstantiateForm
+      initialValues={data}
+      stepProps={data}
+      onSubmit={onSubmit}
+      fallback={<SkeletonStepsForm />}
+    >
+      {(config) => <DefaultFormStepper {...config} />}
+    </InstantiateForm>
   )
 }
 

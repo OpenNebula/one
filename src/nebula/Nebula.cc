@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -734,6 +734,7 @@ void Nebula::start(bool bootstrap_only)
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const SingleAttribute *> user_restricted;
         vector<const SingleAttribute *> group_restricted;
+        vector<const SingleAttribute *> user_encrypted;
 
         time_t  expiration_time;
 
@@ -743,9 +744,10 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
         nebula_configuration->get("USER_RESTRICTED_ATTR", user_restricted);
+        nebula_configuration->get("USER_ENCRYPTED_ATTR", user_encrypted);
 
         upool = new UserPool(db_ptr, expiration_time, is_federation_slave(),
-                user_restricted);
+                user_restricted, user_encrypted);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
         string  image_type;
@@ -1270,8 +1272,16 @@ void Nebula::get_ds_location(string& dsloc) const
 string Nebula::get_vm_log_filename(int oid) const
 {
     ostringstream oss;
+    bool use_vms_location;
 
-    if (nebula_location == "/")
+    const VectorAttribute * log = nebula_configuration->get("LOG");
+
+    if ( log != 0 )
+    {
+        log->vector_value("USE_VMS_LOCATION", use_vms_location);
+    }
+
+    if (nebula_location == "/" && ! use_vms_location)
     {
         oss << log_location << oid << ".log";
     }

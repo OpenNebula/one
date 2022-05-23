@@ -40,6 +40,8 @@ module OneDBFsck
                 @vms_ports[port][cid] << vm_doc.root.at_xpath('ID').text.to_i
             end
 
+            fix_permissions('VM', row[:oid], vm_doc)
+
             # DATA: Images used by this VM
             vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
                 img_id = e.text.to_i
@@ -182,6 +184,10 @@ module OneDBFsck
                     }
 
                     vms_fix[row[:oid]] = vm_doc.root.to_s
+                else
+                    @db[:vm_pool].where(
+                        :oid => row[:oid]
+                    ).update(:body => vm_doc.root.to_s)
                 end
 
                 # DATA: add resources to host counters

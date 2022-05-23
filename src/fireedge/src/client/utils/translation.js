@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,27 +14,76 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-/* eslint-disable react/display-name */
-/* eslint-disable react/prop-types */
-import { setLocale, addMethod, number, string } from 'yup'
+import {
+  setLocale,
+  addMethod,
+  number,
+  string,
+  boolean,
+  object,
+  array,
+  date,
+} from 'yup'
 
 import { T } from 'client/constants'
 import { isDivisibleBy, isBase64 } from 'client/utils/helpers'
 
 const buildMethods = () => {
+  ;[number, string, boolean, object, array, date].forEach((schemaType) => {
+    addMethod(schemaType, 'afterSubmit', function (fn) {
+      this._mutate = true // allows to mutate the initial schema
+      this.submit = (...args) =>
+        typeof fn === 'function' ? fn(...args) : args[0]
+
+      return this
+    })
+    addMethod(schemaType, 'cast', function (value, options = {}) {
+      const resolvedSchema = this.resolve({ value, ...options })
+      let result = resolvedSchema._cast(value, options)
+
+      if (options.isSubmit) {
+        result = this.submit?.(result, options) ?? result
+      }
+
+      return result
+    })
+  })
+  addMethod(boolean, 'yesOrNo', function (addAfterSubmit = true) {
+    const schema = this.transform(function (value) {
+      return !this.isType(value) ? String(value).toUpperCase() === 'YES' : value
+    })
+
+    if (addAfterSubmit) {
+      schema.afterSubmit((value) => (value ? 'YES' : 'NO'))
+    }
+
+    return schema
+  })
   addMethod(number, 'isDivisibleBy', function (divisor) {
     return this.test(
       'is-divisible',
       [T['validation.number.isDivisible'], divisor],
-      value => isDivisibleBy(value, divisor)
+      (value) => isDivisibleBy(value, divisor)
     )
   })
   addMethod(string, 'isBase64', function () {
     return this.test(
       'is-base64',
       T['validation.string.invalidFormat'],
-      value => isBase64(value)
+      (value) => isBase64(value)
     )
+  })
+  addMethod(string, 'includesInOptions', function (options, separator = ',') {
+    return this.test({
+      name: 'includes-string-of-values',
+      message: [T['validation.string.invalidFormat'], options.join(separator)],
+      exclusive: true,
+      test: function (values) {
+        return values
+          ?.split(separator)
+          ?.every((value) => this.resolve(options).includes(value))
+      },
+    })
   })
 }
 
@@ -49,47 +98,95 @@ const buildTranslationLocale = () => {
       default: () => T['validation.mixed.default'],
       required: () => T['validation.mixed.required'],
       defined: () => T['validation.mixed.defined'],
-      oneOf: ({ values }) => [T['validation.mixed.oneOf'], values],
-      notOneOf: ({ values }) => [T['validation.mixed.notOneOf'], values],
+      oneOf: ({ values }) => ({ word: T['validation.mixed.oneOf'], values }),
+      notOneOf: ({ values }) => ({
+        word: T['validation.mixed.notOneOf'],
+        values,
+      }),
       notType: ({ type }) =>
-        T[`validation.mixed.notType.${type}`] ?? T['validation.mixed.notType']
+        T[`validation.mixed.notType.${type}`] ?? T['validation.mixed.notType'],
     },
     string: {
-      length: ({ length }) => [T['validation.string.length'], length],
-      min: ({ min }) => [T['validation.string.min'], min],
-      max: ({ max }) => [T['validation.string.max'], max],
-      matches: ({ matches }) => [T['validation.string.matches'], matches],
+      length: ({ length }) => ({
+        word: T['validation.string.length'],
+        values: length,
+      }),
+      min: ({ min }) => ({
+        word: T['validation.string.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.string.max'],
+        values: max,
+      }),
+      matches: ({ matches }) => ({
+        word: T['validation.string.matches'],
+        values: matches,
+      }),
       email: () => T['validation.string.email'],
       url: () => T['validation.string.url'],
       uuid: () => T['validation.string.uuid'],
       trim: () => T['validation.string.trim'],
       lowercase: () => T['validation.string.lowercase'],
-      uppercase: () => T['validation.string.uppercase']
+      uppercase: () => T['validation.string.uppercase'],
     },
     number: {
-      min: ({ min }) => [T['validation.number.min'], min],
-      max: ({ max }) => [T['validation.number.max'], max],
-      lessThan: ({ less }) => [T['validation.number.lessThan'], less],
-      moreThan: ({ more }) => [T['validation.number.moreThan'], more],
+      min: ({ min }) => ({
+        word: T['validation.number.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.number.max'],
+        values: max,
+      }),
+      lessThan: ({ less }) => ({
+        word: T['validation.number.lessThan'],
+        values: less,
+      }),
+      moreThan: ({ more }) => ({
+        word: T['validation.number.moreThan'],
+        values: more,
+      }),
       positive: () => T['validation.number.positive'],
       negative: () => T['validation.number.negative'],
-      integer: () => T['validation.number.integer']
+      integer: () => T['validation.number.integer'],
     },
     boolean: {
-      isValue: ({ value }) => [T['validation.boolean.isValue'], value]
+      isValue: ({ value }) => ({
+        word: T['validation.boolean.isValue'],
+        values: [value],
+      }),
     },
     date: {
-      min: ({ min }) => [T['validation.date.min'], min],
-      max: ({ max }) => [T['validation.date.max'], max]
+      min: ({ min }) => ({
+        word: T['validation.date.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.date.max'],
+        values: max,
+      }),
     },
     object: {
-      noUnknown: ({ nounknown }) => [T['validation.object.noUnknown'], nounknown]
+      noUnknown: ({ nounknown }) => ({
+        word: T['validation.object.noUnknown'],
+        values: nounknown,
+      }),
     },
     array: {
-      min: ({ min }) => [T['validation.array.min'], min],
-      max: ({ max }) => [T['validation.array.max'], max],
-      length: ({ length }) => [T['validation.array.length'], length]
-    }
+      min: ({ min }) => ({
+        word: T['validation.array.min'],
+        values: min,
+      }),
+      max: ({ max }) => ({
+        word: T['validation.array.max'],
+        values: max,
+      }),
+      length: ({ length }) => ({
+        word: T['validation.array.length'],
+        values: length,
+      }),
+    },
   })
 }
 

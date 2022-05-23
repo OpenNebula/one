@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ButtonToTriggerForm, { ButtonToTriggerFormPropTypes } from 'client/components/Forms/ButtonToTriggerForm'
+import ButtonToTriggerForm, {
+  ButtonToTriggerFormPropTypes,
+} from 'client/components/Forms/ButtonToTriggerForm'
+import Legend from 'client/components/Forms/Legend'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
 export {
   ButtonToTriggerForm,
   ButtonToTriggerFormPropTypes,
-  FormWithSchema
+  Legend,
+  FormWithSchema,
 }

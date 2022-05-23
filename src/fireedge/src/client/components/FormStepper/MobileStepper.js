@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -18,26 +18,29 @@ import PropTypes from 'prop-types'
 
 import { Button, MobileStepper, Typography, Box, alpha } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
-import { NavArrowLeft as PreviousIcon, NavArrowRight as NextIcon } from 'iconoir-react'
+import {
+  NavArrowLeft as PreviousIcon,
+  NavArrowRight as NextIcon,
+} from 'iconoir-react'
 
-import { Tr, Translate, labelCanBeTranslated } from 'client/components/HOC'
+import { Translate, labelCanBeTranslated } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     position: 'sticky',
     top: -15,
     background: alpha(theme.palette.primary.light, 0.65),
     zIndex: theme.zIndex.mobileStepper,
-    margin: theme.spacing(2, 0)
+    margin: theme.spacing(2, 0),
   },
   title: {
     padding: theme.spacing(1, 2),
-    color: theme.palette.primary.contrastText
+    color: theme.palette.primary.contrastText,
   },
   error: { padding: theme.spacing(1, 2) },
   button: { color: theme.palette.action.active },
-  stepper: { background: 'transparent' }
+  stepper: { background: 'transparent' },
 }))
 
 const CustomMobileStepper = ({
@@ -48,7 +51,7 @@ const CustomMobileStepper = ({
   disabledBack,
   handleNext,
   handleBack,
-  errors
+  errors,
 }) => {
   const classes = useStyles()
   const { id, label } = steps[activeStep]
@@ -57,25 +60,25 @@ const CustomMobileStepper = ({
     <Box className={classes.root}>
       <Box minHeight={60}>
         <Typography className={classes.title}>
-          {labelCanBeTranslated(label) ? Tr(label) : label}
+          {labelCanBeTranslated(label) ? <Translate word={label} /> : label}
         </Typography>
         {Boolean(errors[id]) && (
-          <Typography className={classes.error} variant='caption' color='error'>
-            {errors[id]?.message}
+          <Typography className={classes.error} variant="caption" color="error">
+            <Translate word={errors[id]?.message} />
           </Typography>
         )}
       </Box>
       <MobileStepper
         className={classes.stepper}
-        variant='progress'
-        position='static'
+        variant="progress"
+        position="static"
         steps={totalSteps}
         activeStep={activeStep}
         LinearProgressProps={{ color: 'secondary' }}
         backButton={
           <Button
             className={classes.button}
-            size='small'
+            size="small"
             onClick={handleBack}
             disabled={disabledBack}
           >
@@ -84,11 +87,12 @@ const CustomMobileStepper = ({
           </Button>
         }
         nextButton={
-          <Button className={classes.button} size='small' onClick={handleNext}>
-            {activeStep === lastStep
-              ? <Translate word={T.Finish} />
-              : <Translate word={T.Next} />
-            }
+          <Button className={classes.button} size="small" onClick={handleNext}>
+            {activeStep === lastStep ? (
+              <Translate word={T.Finish} />
+            ) : (
+              <Translate word={T.Next} />
+            )}
             <NextIcon />
           </Button>
         }
@@ -100,11 +104,8 @@ const CustomMobileStepper = ({
 CustomMobileStepper.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-      ]).isRequired,
-      label: PropTypes.string.isRequired
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      label: PropTypes.string.isRequired,
     })
   ),
   totalSteps: PropTypes.number,
@@ -114,8 +115,8 @@ CustomMobileStepper.propTypes = {
   handleNext: PropTypes.func,
   handleBack: PropTypes.func,
   errors: PropTypes.shape({
-    message: PropTypes.string
-  })
+    message: PropTypes.string,
+  }),
 }
 
 CustomMobileStepper.defaultProps = {
@@ -126,7 +127,7 @@ CustomMobileStepper.defaultProps = {
   disabledBack: false,
   handleNext: () => undefined,
   handleBack: () => undefined,
-  errors: undefined
+  errors: undefined,
 }
 
 CustomMobileStepper.displayName = 'MobileStepper'

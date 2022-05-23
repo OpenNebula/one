@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -404,6 +404,8 @@ string& History::to_xml_short(string& xml) const
           "<HID>"    << hid   << "</HID>"   <<
           "<CID>"    << cid   << "</CID>"   <<
           "<DS_ID>"  << ds_id << "</DS_ID>" <<
+          "<VM_MAD>" << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
+          "<TM_MAD>" << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
           "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
         "</HISTORY>";
 

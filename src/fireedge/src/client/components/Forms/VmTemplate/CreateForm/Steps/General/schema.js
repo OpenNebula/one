@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,55 +15,91 @@
  * ------------------------------------------------------------------------- */
 import { BaseSchema } from 'yup'
 
-import { FIELDS as INFORMATION_FIELDS, HYPERVISOR_FIELD } from './informationSchema'
-import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
+import {
+  FIELDS as INFORMATION_FIELDS,
+  HYPERVISOR_FIELD,
+} from './informationSchema'
+import {
+  MEMORY_FIELDS,
+  CPU_FIELDS,
+  VCPU_FIELDS,
+  SHOWBACK_FIELDS,
+} from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
 import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
 
-import { filterFieldsByHypervisor, getObjectSchemaFromFields, Field } from 'client/utils'
+import {
+  Section,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
- * @returns {{ id: string, legend: string, fields: Field[] }[]} Fields
+ * @param {boolean} [isUpdate] - If `true`, the form is being updated
+ * @returns {Section[]} Fields
  */
-const FIELDS = hypervisor => [
+const SECTIONS = (hypervisor, isUpdate) => [
   {
     id: 'information',
     legend: T.Information,
     required: true,
-    fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor)
+    fields: INFORMATION_FIELDS(isUpdate),
+  },
+  {
+    id: 'hypervisor',
+    legend: T.Hypervisor,
+    required: true,
+    fields: [HYPERVISOR_FIELD],
   },
   {
     id: 'capacity',
-    legend: T.Capacity,
-    fields: filterFieldsByHypervisor(CAPACITY_FIELDS, hypervisor)
+    legend: T.Memory,
+    fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+  },
+  {
+    id: 'capacity',
+    legend: T.PhysicalCpu,
+    fields: filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
+  },
+  {
+    id: 'capacity',
+    legend: T.VirtualCpu,
+    fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
+  },
+  {
+    id: 'showback',
+    legend: T.Cost,
+    fields: filterFieldsByHypervisor(SHOWBACK_FIELDS, hypervisor),
   },
   {
     id: 'ownership',
     legend: T.Ownership,
-    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
   },
   {
     id: 'vm_group',
     legend: T.VMGroup,
-    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor)
+    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
   },
   {
     id: 'vcenter',
     legend: T.vCenterDeployment,
-    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor)
-  }
+    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+  },
 ]
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = hypervisor => getObjectSchemaFromFields([
-  HYPERVISOR_FIELD,
-  ...FIELDS(hypervisor).map(({ fields }) => fields).flat()
-])
+const SCHEMA = (hypervisor) =>
+  getObjectSchemaFromFields(
+    SECTIONS(hypervisor)
+      .map(({ fields }) => fields)
+      .flat()
+  )
 
-export { FIELDS, SCHEMA }
+export { SECTIONS, SCHEMA }

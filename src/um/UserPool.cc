@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -54,7 +54,8 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs)
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs)
     : PoolSQL(db, one_db::user_table)
 {
     int one_uid    = -1;
@@ -80,6 +81,8 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
 
     // Set restricted attributes
     UserTemplate::parse_restricted(restricted_attrs);
+
+    UserTemplate::parse_encrypted(encrypted_attrs);
 
     auto oneadmin_user = get_ro(0);
 

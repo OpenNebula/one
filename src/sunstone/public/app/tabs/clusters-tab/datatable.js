@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,8 +32,15 @@ define(function(require) {
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 6;
   var TEMPLATE_ATTR = 'TEMPLATE';
+  var COLUMNS = {
+    ID: 1,
+    NAME: 2,
+    HOSTS: 3,
+    VNETS: 4,
+    DATASTORES: 5,
+    LABELS: 6
+  }
 
   /*
     CONSTRUCTOR
@@ -45,7 +52,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
-    this.labelsColumn = LABELS_COLUMN;
+    this.labelsColumn = COLUMNS.LABELS;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -88,6 +95,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.columnsIndex = COLUMNS;
 
   return Table;
 
@@ -129,5 +137,4 @@ define(function(require) {
   function _postUpdateView() {
     $(".total_clusters").text(this.totalClusters);
   }
-
 });

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,10 +16,10 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Typography, TextField, Slider, FormHelperText, Grid } from '@mui/material'
+import { TextField, Slider, FormHelperText, Stack } from '@mui/material'
 import { useController } from 'react-hook-form'
 
-import { ErrorHelper } from 'client/components/FormControl'
+import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
@@ -29,11 +29,15 @@ const SliderController = memo(
     cy = `slider-${generateKey()}`,
     name = '',
     label = '',
-    fieldProps = {}
+    tooltip,
+    fieldProps = {},
+    readOnly = false,
   }) => {
+    const { min, max, step } = fieldProps ?? {}
+
     const {
       field: { value, onChange, ...inputProps },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     const sliderId = `${cy}-slider`
@@ -41,39 +45,47 @@ const SliderController = memo(
 
     return (
       <>
-        <Typography id={sliderId} gutterBottom>
-          {labelCanBeTranslated(label) ? Tr(label) : label}
-        </Typography>
-        <Grid container spacing={2} alignItems='center'>
-          <Grid item xs>
-            <Slider
-              color='secondary'
-              value={typeof value === 'number' ? value : 0}
-              aria-labelledby={sliderId}
-              valueLabelDisplay='auto'
-              data-cy={sliderId}
-              onChange={(_, val) => onChange(val)}
-              {...fieldProps}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              {...inputProps}
-              fullWidth
-              value={value}
-              error={Boolean(error)}
-              type='number'
-              inputProps={{
-                'data-cy': inputId,
-                'aria-labelledby': sliderId,
-                ...fieldProps
-              }}
-              onChange={evt => onChange(
-                evt.target.value === '' ? '0' : Number(evt.target.value)
-              )}
-            />
-          </Grid>
-        </Grid>
+        <Stack direction="row" mt="0.5rem" spacing={2} alignItems="center">
+          <Slider
+            color="secondary"
+            value={typeof value === 'number' ? value : 0}
+            aria-labelledby={sliderId}
+            valueLabelDisplay="auto"
+            disabled={readOnly}
+            data-cy={sliderId}
+            onChange={(_, val) => onChange(val)}
+            {...fieldProps}
+          />
+          <TextField
+            {...inputProps}
+            fullWidth
+            value={value}
+            type="number"
+            error={Boolean(error)}
+            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            InputProps={{
+              readOnly,
+              endAdornment: tooltip && <Tooltip title={tooltip} />,
+            }}
+            inputProps={{
+              'data-cy': inputId,
+              'aria-labelledby': sliderId,
+              min,
+              max,
+              step,
+            }}
+            onChange={(evt) =>
+              onChange(!evt.target.value ? '0' : Number(evt.target.value))
+            }
+            onBlur={() => {
+              if (min && value < min) {
+                onChange(min)
+              } else if (max && value > max) {
+                onChange(max)
+              }
+            }}
+          />
+        </Stack>
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
             <ErrorHelper label={error?.message} />
@@ -81,8 +93,7 @@ const SliderController = memo(
         )}
       </>
     )
-  },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  }
 )
 
 SliderController.propTypes = {
@@ -91,9 +102,8 @@ SliderController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
   tooltip: PropTypes.any,
-  multiple: PropTypes.bool,
-  values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 SliderController.displayName = 'SliderController'

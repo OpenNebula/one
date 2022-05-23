@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,48 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useDatastore, useDatastoreApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const DatastoresTable = props => {
-  const { view, getResourceView, filterPool } = useAuth()
+const DEFAULT_DATA_CY = 'datastores'
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('DATASTORE')?.filters,
-    columns: DatastoreColumns
-  }), [view])
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Datastores table
+ */
+const DatastoresTable = (props) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetDatastoresQuery,
+    ...rest
+  } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const datastores = useDatastore()
-  const { getDatastores } = useDatastoreApi()
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useQuery()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getDatastores)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (datastores?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.DATASTORE)?.filters,
+        columns: DatastoreColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={datastores}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={DatastoreRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+DatastoresTable.propTypes = { ...EnhancedTable.propTypes }
+DatastoresTable.displayName = 'DatastoresTable'
 
 export default DatastoresTable

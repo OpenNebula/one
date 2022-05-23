@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -171,17 +171,11 @@ define(function(require) {
       if($("input#" + that.id + "_interface_type", context).prop("checked")) {
           if ($("#" + that.id + "_alias_parent", context).val() != "INVALID") {
             nic["PARENT"] = $("#" + that.id + "_alias_parent", context).val();
-
-            if ($("#" + that.id + "_alias_external", context).is(':checked')) {
-              nic["EXTERNAL"] =  'YES';
-            }
           } else {
             delete nic["PARENT"];
-            delete nic["EXTERNAL"];
           }
         } else {
           delete nic["PARENT"];
-          delete nic["EXTERNAL"];
       }
 
       (Boolean($("input#" + that.id + "_rdp", context).prop("checked")))
@@ -342,6 +336,19 @@ define(function(require) {
 
     var selectOptions = {
       "selectOptions": {
+        filter_fn: function(vnet) {
+          if (!options.hostsTable) return true;
+
+          var clusters = vnet.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+          var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+
+          return hostClustersIds.length === 0 ||
+            hostClustersIds.some(function(id) {
+              return ensuredClusters.includes(id)
+            })
+        },
         "select_callback": function(aData, options) {
             var req_string=[];
             var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
@@ -548,7 +555,7 @@ define(function(require) {
     Foundation.reInit(context);
 
     if(options.nic && options.nic.PARENT) {
-        _fill_alias(options.nic.PARENT, options.nic.EXTERNAL);
+        _fill_alias(options.nic.PARENT);
     }
 
     // fill rdp connection
@@ -575,8 +582,37 @@ define(function(require) {
 
     provision_nic_accordion_dd_id += 1;
 
-    vnetsTable.initialize();
+    vnetsTable.initialize({
+      selectOptions: {
+        filter_fn: function(vnet) {
+          if (!options.hostsTable) return true;
+
+          var clusters = vnet.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+          var hostClusterIndex = options.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = options.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+
+          return hostClustersIds.length === 0 ||
+            hostClustersIds.some(function(id) {
+              return ensuredClusters.includes(id)
+            })
+        },
+      }
+    });
     vnetsTable.refreshResourceTableSelect();
+
+    if (options.hostsTable) {
+      // Filters the vnet tables by cluster
+      options.hostsTable.dataTable.children('tbody').on('click', 'tr', function() {
+        vnetsTable.updateFn();
+        vnetsTableAuto.updateFn();
+
+        if ($("td.markrowchecked", this).length > 0) {
+          vnetsTable.deselectHiddenResources();
+          vnetsTableAuto.deselectHiddenResources();
+        }
+      })
+    }
 
     if (options.securityGroups == true){
       sgTable.initialize();
@@ -686,7 +722,7 @@ define(function(require) {
     }
   }
 
-  function _fill_alias(nicParentName, isExternal) {
+  function _fill_alias(nicParentName) {
     $.each(_nics, function(_, value) {
         if (value.NAME === ("NIC" + nicId)) {
             value.ALIAS = nicParentName;
@@ -698,10 +734,6 @@ define(function(require) {
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_interface_type", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).val(nicParentName);
-
-    if (isExternal && String(isExternal).toLowerCase() === 'yes') {
-      $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_external", this.context).prop('checked', 'checked');
-    }
   }
 
   function _hide_remove() {

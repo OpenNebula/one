@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,36 +17,36 @@
 const httpCodes = {
   badRequest: {
     id: 400,
-    message: 'Bad Request'
+    message: 'Bad Request',
   },
   unauthorized: {
     id: 401,
-    message: 'Unauthorized'
+    message: 'Unauthorized',
   },
   notFound: {
     id: 404,
-    message: 'Not Found'
+    message: 'Not Found',
   },
   methodNotAllowed: {
     id: 405,
-    message: 'Method not Allowed'
+    message: 'Method not Allowed',
   },
   internalServerError: {
     id: 500,
-    message: 'Internal Server Error'
+    message: 'Internal Server Error',
   },
   serviceUnavailable: {
     id: 503,
-    message: 'Service Unavailable'
+    message: 'Service Unavailable',
   },
   accepted: {
     id: 202,
-    message: 'Accepted'
+    message: 'Accepted',
   },
   ok: {
     id: 200,
-    message: 'OK'
-  }
+    message: 'OK',
+  },
 }
 
 module.exports = httpCodes

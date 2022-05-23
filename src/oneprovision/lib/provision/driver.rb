@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -104,7 +104,7 @@ module OneProvision
             # @param block [Ruby Code]
             #
             # @return      [Array]       Output, Error and Value returned
-            def run(*cmd, &_block)
+            def run((*cmd), out = false)
                 OneProvisionLogger.debug("Command run: #{cmd.join(' ')}")
 
                 rtn = nil
@@ -126,8 +126,8 @@ module OneProvision
                             e.binmode
                         end
 
-                        out_reader = Thread.new { o.read }
-                        err_reader = Thread.new { e.read }
+                        out_reader = Thread.new { streamer(o, out) }
+                        err_reader = Thread.new { streamer(e, out) }
 
                         begin
                             i.write stdin_data
@@ -141,7 +141,9 @@ module OneProvision
                             raise OneProvisionLoopException, e.text
                         end
 
-                        rtn = [out_reader.value, err_reader.value, t.value]
+                        rtn = [out_reader.value.strip,
+                               err_reader.value,
+                               t.value]
                     end
 
                     @@mutex.synchronize do
@@ -175,6 +177,27 @@ module OneProvision
                 end
 
                 rtn
+            end
+
+            # Print lines until empty
+            #
+            # @param str       [String]  Line to print
+            # @param logstdout [Boolean] True to print the line
+            def streamer(str, logstdout)
+                full = ''
+
+                str.each do |l|
+                    next if l.empty? || l == "\n"
+
+                    full << l
+
+                    next unless logstdout
+
+                    print l
+                    $stdout.flush
+                end
+
+                full
             end
 
             # TODO: handle exceptions?

@@ -66,6 +66,12 @@ module OneDBFsck
             end
 
             if error
+                error = fix_permissions('VMTEMPLATE', row[:oid], doc)
+
+                next unless error
+
+                templates_fix[row[:oid]] = doc.root.to_s
+
                 next
             end
 
@@ -74,6 +80,8 @@ module OneDBFsck
             log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", is was updated to #{new_boot}")
 
             boot.content = new_boot
+
+            fix_permissions('VMTEMPLATE', row[:oid], doc)
 
             templates_fix[row[:oid]] = doc.root.to_s
         end

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
-import PropTypes from 'prop-types'
 
-import { AppBar, Box, Toolbar, Typography, IconButton, Stack } from '@mui/material'
+import { memo, useMemo } from 'react'
+import PropTypes from 'prop-types'
+import { useParams, useLocation } from 'react-router-dom'
+
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  IconButton,
+  Stack,
+} from '@mui/material'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
@@ -27,22 +35,37 @@ import User from 'client/components/Header/User'
 import View from 'client/components/Header/View'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
+import { Translate } from 'client/components/HOC'
 import { sentenceCase } from 'client/utils'
+import { APPS_WITH_ONE_PREFIX } from 'client/constants'
 
-const Header = () => {
+const Header = memo(({ route: { title, description } = {} }) => {
   const { isOneAdmin } = useAuth()
   const { fixMenu } = useGeneralApi()
-  const { appTitle, title, isBeta } = useGeneral()
+  const { appTitle, isBeta, withGroupSwitcher } = useGeneral()
+
+  const params = useParams()
+  const { state } = useLocation()
+
   const appAsSentence = useMemo(() => sentenceCase(appTitle), [appTitle])
 
+  const [ensuredTitle, ensuredDescription] = useMemo(() => {
+    if (!title) return []
+
+    const ensure = (label) =>
+      typeof label === 'function' ? label(params, state) : label
+
+    return [ensure(title), ensure(description)]
+  }, [params, state, title, description])
+
   return (
-    <AppBar data-cy='header' elevation={0} position='absolute'>
+    <AppBar data-cy="header" elevation={0} position="absolute">
       <Toolbar>
         <IconButton
           onClick={() => fixMenu(true)}
-          edge='start'
-          size='small'
-          variant='outlined'
+          edge="start"
+          size="small"
+          variant="outlined"
           sx={{ display: { lg: 'none' } }}
         >
           <MenuIcon />
@@ -50,70 +73,80 @@ const Header = () => {
         <Box
           flexGrow={1}
           ml={2}
-          sx={{
-            display: { xs: 'none', sm: 'inline-flex' },
-            userSelect: 'none'
-          }}
+          alignItems="baseline"
+          display={{ xs: 'none', sm: 'inline-flex' }}
+          sx={{ userSelect: 'none' }}
         >
-          <Typography
-            variant='h6'
-            data-cy='header-app-title'
-          >
-            {'One'}
+          <Typography variant="h6" data-cy="header-app-title">
+            {APPS_WITH_ONE_PREFIX.includes(appTitle) && 'One'}
             <Typography
               variant={'inherit'}
-              color='secondary.800'
-              component='span'
+              color="secondary.800"
+              component="span"
               sx={{ textTransform: 'capitalize' }}
             >
               {appAsSentence}
             </Typography>
             {isBeta && (
               <Typography
-                variant='overline'
-                color='primary.contrastText'
-                ml='0.5rem'
+                variant="overline"
+                color="primary.contrastText"
+                ml="0.5rem"
               >
                 {'BETA'}
               </Typography>
             )}
           </Typography>
-          <Typography
-            variant='h6'
-            data-cy='header-description'
+          <Box
+            alignItems="baseline"
+            display={{ xs: 'none', md: 'inline-flex' }}
+            gap=".5em"
             sx={{
-              display: { xs: 'none', xl: 'block' },
-              '&::before': {
-                content: '"|"',
-                margin: '0.5em',
-                color: 'primary.contrastText'
-              }
+              '&::before': { content: '"|"', ml: '.5em' },
             }}
           >
-            {title}
-          </Typography>
+            {ensuredTitle && (
+              <Typography
+                noWrap
+                variant="subtitle1"
+                data-cy="header-title"
+                sx={{ color: 'primary.contrastText' }}
+              >
+                <Translate word={ensuredTitle} />
+              </Typography>
+            )}
+            {ensuredDescription && (
+              <Typography
+                noWrap
+                variant="subtitle2"
+                data-cy="header-description"
+                sx={{ color: 'text.contrastText' }}
+              >
+                <Translate word={ensuredDescription} />
+              </Typography>
+            )}
+          </Box>
         </Box>
         <Stack
-          direction='row'
-          justifyContent='end'
+          direction="row"
+          justifyContent="end"
           sx={{ flexGrow: { xs: 1, sm: 0 } }}
         >
           <User />
           <View />
-          {!isOneAdmin && <Group />}
+          {!isOneAdmin && withGroupSwitcher && <Group />}
           <Zone />
         </Stack>
       </Toolbar>
     </AppBar>
   )
-}
+})
 
 Header.propTypes = {
-  scrollContainer: PropTypes.object
+  route: PropTypes.object,
+  scrollContainer: PropTypes.object,
 }
 
-Header.defaultProps = {
-  scrollContainer: null
-}
+Header.displayName = 'Header'
 
 export default Header

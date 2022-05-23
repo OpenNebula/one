@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,8 +85,6 @@ public:
 class VirtualNetworkRmAddressRange : public Request
 {
 public:
-
-
     VirtualNetworkRmAddressRange(
       const std::string& name = "one.vn.rm_ar",
       const std::string& sign = "A:sii",
@@ -221,6 +219,28 @@ public:
     };
 
     ~VirtualNetworkReserve(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkRecover : public Request
+{
+public:
+    VirtualNetworkRecover()
+        : Request("one.vn.recover",
+                  "A:sii",
+                  "Recover Virtual Network from ERROR or LOCKED state")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::MANAGE;
+    };
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
         RequestAttributes& att) override;

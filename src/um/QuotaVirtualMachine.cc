@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,7 +65,9 @@ bool QuotaVirtualMachine::check(Template * tmpl,
         return false;
     }
 
-    size = VirtualMachineDisks::system_ds_size(tmpl);
+    size = VirtualMachineDisks::system_ds_size(tmpl, true);
+
+    size += VirtualMachine::get_snapshots_system_size(tmpl);
 
     if ( tmpl->get("VMS", vms) == false )
     {
@@ -148,7 +150,9 @@ void QuotaVirtualMachine::del(Template * tmpl)
         running_vms = 0;
     }
 
-    size = VirtualMachineDisks::system_ds_size(tmpl);
+    size = VirtualMachineDisks::system_ds_size(tmpl, true);
+
+    size += VirtualMachine::get_snapshots_system_size(tmpl);
 
     vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
@@ -211,7 +215,9 @@ bool QuotaVirtualMachine::update(Template * tmpl,
         vm_request.insert(make_pair("RUNNING_CPU", delta_running_cpu));
     }
 
-    delta_size = VirtualMachineDisks::system_ds_size(tmpl);
+    delta_size = VirtualMachineDisks::system_ds_size(tmpl, true);
+
+    delta_size += VirtualMachine::get_snapshots_system_size(tmpl);
 
     if ( delta_size != 0 )
     {

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import useClipboard, { CLIPBOARD_STATUS } from 'client/hooks/useClipboard'
 import useDialog from 'client/hooks/useDialog'
 import useFetch from 'client/hooks/useFetch'
 import useFetchAll from 'client/hooks/useFetchAll'
@@ -23,6 +24,7 @@ import useSearch from 'client/hooks/useSearch'
 import useSocket from 'client/hooks/useSocket'
 
 export {
+  useClipboard,
   useDialog,
   useFetch,
   useFetchAll,
@@ -30,5 +32,6 @@ export {
   useListForm,
   useNearScreen,
   useSearch,
-  useSocket
+  useSocket,
+  CLIPBOARD_STATUS,
 }

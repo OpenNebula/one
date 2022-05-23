@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -23,20 +23,20 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => ZoneModel.getState(row)?.name,
+    accessor: (row) => ZoneModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'ENDPOINT',
     id: 'ENDPOINT',
-    accessor: row => row?.TEMPLATE?.ENDPOINT,
-    disableSortBy: true
-  }
-
+    accessor: (row) => row?.TEMPLATE?.ENDPOINT,
+    disableSortBy: true,
+  },
 ]

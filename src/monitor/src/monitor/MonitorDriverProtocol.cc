@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,7 +69,6 @@ void MonitorDriverProtocol::_monitor_vm(unique_ptr<monitor_msg_t> msg)
         NebulaLog::warn("MDP", "Failed to monitor VM for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
-        hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 
@@ -269,7 +268,6 @@ void MonitorDriverProtocol::_state_vm(unique_ptr<monitor_msg_t> msg)
         NebulaLog::warn("MDP", "Failed to monitor VM state for host " +
             to_string(msg->oid()) + ": " + msg->payload());
 
-        hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 

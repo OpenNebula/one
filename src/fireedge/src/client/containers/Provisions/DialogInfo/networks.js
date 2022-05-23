@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,76 +13,125 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { Trash as DeleteIcon } from 'iconoir-react'
+import { Trash as DeleteIcon, AddCircledOutline } from 'iconoir-react'
+import { Stack, TextField } from '@mui/material'
 
-import { useFetchAll } from 'client/hooks'
-import { useVNetworkApi, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
-import { ListCards } from 'client/components/List'
+import {
+  useGetProvisionQuery,
+  useAddIpToProvisionMutation,
+  useRemoveResourceMutation,
+  useGetProvisionResourceQuery,
+} from 'client/features/OneApi/provision'
+
+import { VNetworksTable } from 'client/components/Tables'
 import { NetworkCard } from 'client/components/Cards'
+import { SubmitButton } from 'client/components/FormControl'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
-const Networks = memo(
-  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
-    const {
-      networks = []
-    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Networks = memo(({ id }) => {
+  const [amount, setAmount] = useState(() => 1)
+  const { enqueueSuccess } = useGeneralApi()
 
-    const { enqueueSuccess } = useGeneralApi()
-    const { deleteVNetwork } = useProvisionApi()
-    const { getVNetwork } = useVNetworkApi()
+  const [addIp, { isLoading: loadingAddIp, isSuccess: successAddIp }] =
+    useAddIpToProvisionMutation()
+  const [
+    removeResource,
+    {
+      isLoading: loadingRemove,
+      isSuccess: successRemove,
+      originalArgs: { id: vnetId } = {},
+    },
+  ] = useRemoveResourceMutation()
+  const { data = {} } = useGetProvisionQuery(id)
 
-    const { data: list, fetchRequestAll, loading } = useFetchAll()
-    const fetchVNetworks = () => fetchRequestAll(networks?.map(({ id }) => getVNetwork(id)))
+  const provisionNetworks =
+    data?.TEMPLATE?.BODY?.provision?.infrastructure?.networks?.map(
+      (network) => +network.id
+    ) ?? []
 
-    useEffect(() => {
-      !hidden && !list && fetchVNetworks()
-    }, [hidden])
+  useEffect(() => {
+    successAddIp && enqueueSuccess(`IP added ${amount}x`)
+  }, [successAddIp])
 
-    useEffect(() => {
-      !reloading && !loading && fetchVNetworks()
-    }, [reloading])
+  useEffect(() => {
+    successRemove && enqueueSuccess(`Network deleted - ID: ${vnetId}`)
+  }, [successRemove])
 
-    return (
-      <ListCards
-        list={list}
-        isLoading={!list && loading}
-        CardComponent={NetworkCard}
-        cardsProps={({ value: { ID } }) => !disableAllActions && ({
-          actions: [{
-            handleClick: () => deleteVNetwork(ID)
-              .then(refetchProvision)
-              .then(() => enqueueSuccess(`VNetwork deleted - ID: ${ID}`)),
-            icon: <DeleteIcon color='error' />,
-            cy: `provision-vnet-delete-${ID}`
-          }]
-        })}
-        displayEmpty
-        breakpoints={{ xs: 12, md: 6 }}
+  return (
+    <>
+      <Stack direction="row" mb="0.5em">
+        <TextField
+          type="number"
+          inputProps={{ 'data-cy': 'amount' }}
+          onChange={(event) => {
+            const newAmount = event.target.value
+            ;+newAmount > 0 && setAmount(newAmount)
+          }}
+          value={amount}
+        />
+        <Stack alignSelf="center">
+          <SubmitButton
+            data-cy="add-ip"
+            color="secondary"
+            endicon={<AddCircledOutline />}
+            label={<Translate word={T.AddIP} />}
+            sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
+            isSubmitting={loadingAddIp}
+            onClick={async () => await addIp({ id, amount })}
+          />
+        </Stack>
+      </Stack>
+      <VNetworksTable
+        disableGlobalSort
+        disableRowSelect
+        displaySelectedRows
+        pageSize={5}
+        useQuery={() =>
+          useGetProvisionResourceQuery(
+            { resource: 'network' },
+            {
+              selectFromResult: ({ data: result = [], ...rest }) => ({
+                data: result?.filter((vnet) =>
+                  provisionNetworks.includes(+vnet.ID)
+                ),
+                ...rest,
+              }),
+            }
+          )
+        }
+        RowComponent={({ original: vnet, handleClick: _, ...props }) => (
+          <NetworkCard
+            network={vnet}
+            rootProps={props}
+            actions={
+              <>
+                <SubmitButton
+                  data-cy={`provision-vnet-delete-${vnet.ID}`}
+                  icon={<DeleteIcon />}
+                  isSubmitting={loadingRemove}
+                  onClick={async () =>
+                    await removeResource({
+                      provision: id,
+                      id: vnet.ID,
+                      resource: 'network',
+                    })
+                  }
+                />
+              </>
+            }
+          />
+        )}
       />
-    )
-  }, (prev, next) =>
-    prev.hidden === next.hidden && prev.reloading === next.reloading
-)
+    </>
+  )
+})
 
-Networks.propTypes = {
-  data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool,
-  refetchProvision: PropTypes.func,
-  reloading: PropTypes.bool,
-  disableAllActions: PropTypes.bool
-}
-
-Networks.defaultProps = {
-  data: {},
-  hidden: false,
-  refetchProvision: () => undefined,
-  reloading: false,
-  disableAllActions: false
-}
-
+Networks.propTypes = { id: PropTypes.string.isRequired }
 Networks.displayName = 'Networks'
 
 export default Networks

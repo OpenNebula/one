@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 
 import { PieChart } from 'react-minimal-pie-chart'
-import { Skeleton, Typography, Paper } from '@mui/material'
+import { Typography, Paper, CircularProgress } from '@mui/material'
 
-import { useAuth } from 'client/features/Auth'
-import { useProvider } from 'client/features/One'
+import {
+  useGetProviderConfigQuery,
+  useGetProvidersQuery,
+} from 'client/features/OneApi/provider'
 import { TypographyWithPoint } from 'client/components/Typography'
 import NumberEasing from 'client/components/NumberEasing'
 import { groupBy } from 'client/utils'
@@ -28,78 +29,79 @@ import { T } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
-const TotalProviders = ({ isLoading }) => {
+/**
+ * Renders a widget to display the all providers grouped by type.
+ *
+ * @returns {ReactElement} Total providers by type
+ */
+const TotalProviders = () => {
   const classes = useStyles()
-  const { providerConfig } = useAuth()
-  const providers = useProvider()
+  const { data: config } = useGetProviderConfigQuery()
+  const { data: providers = [], isLoading } = useGetProvidersQuery()
   const totalProviders = providers?.length
 
   const chartData = useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
-    return Object.entries(providerConfig)
-      .map(([id, { name, color }]) => ({
-        color,
-        title: name,
-        value: groups[id]?.length ?? 0
-      }))
+    return Object.entries(config).map(([id, { name, color }]) => ({
+      color,
+      title: name,
+      value: groups[id]?.length ?? 0,
+    }))
   }, [totalProviders])
 
-  const title = useMemo(() => (
-    <div className={classes.title}>
-      <Typography className={classes.titlePrimary}>
-        <NumberEasing value={`${totalProviders}`} />
-        <span>{T.Providers}</span>
-      </Typography>
-      <Typography className={classes.titleSecondary}>
-        {T.InTotal}
-      </Typography>
-    </div>
-  ), [classes, totalProviders])
+  const legend = useMemo(
+    () => (
+      <div>
+        {chartData?.map(({ title: titleLegend, value, color }) => (
+          <TypographyWithPoint key={titleLegend} pointColor={color}>
+            <NumberEasing value={+value} />
+            <span className={classes.legendSecondary} title={titleLegend}>
+              {titleLegend}
+            </span>
+          </TypographyWithPoint>
+        ))}
+      </div>
+    ),
+    [classes, chartData]
+  )
 
-  const legend = useMemo(() => (
-    <div>
-      {chartData?.map(({ title: titleLegend, value, color }) =>
-        <TypographyWithPoint key={titleLegend} pointColor={color}>
-          <NumberEasing value={`${value}`} />
-          <span className={classes.legendSecondary} title={titleLegend}>
-            {titleLegend}
-          </span>
-        </TypographyWithPoint>
-      )}
-    </div>
-  ), [classes, chartData])
-
-  const chart = useMemo(() => (
-    <PieChart
-      className={classes.chart}
-      background={totalProviders === 0 && '#c3c3c3'}
-      data={chartData}
-      lineWidth={18}
-      rounded
-      animate
-    />
-  ), [classes, chartData])
-
-  return useMemo(() => (
-    !totalProviders && isLoading ? (
-      <Skeleton
-        variant='rectangular'
-        sx={{ height: { xs: 210, sm: 350 } }}
+  const chart = useMemo(
+    () => (
+      <PieChart
+        className={classes.chart}
+        background={totalProviders === 0 && '#c3c3c3'}
+        data={chartData}
+        lineWidth={18}
+        rounded
+        animate
       />
-    ) : (
-      <Paper
-        data-cy='dashboard-widget-total-providers-by-type'
-        className={classes.root}
-      >
-        {title}
-        <div className={classes.content}>
-          {chart}
-          {legend}
-        </div>
-      </Paper>
-    )
-  ), [classes, chart, totalProviders, isLoading])
+    ),
+    [classes, chartData]
+  )
+
+  return (
+    <Paper
+      data-cy="dashboard-widget-total-providers-by-type"
+      className={classes.root}
+    >
+      <div className={classes.title}>
+        <Typography className={classes.titlePrimary}>
+          {isLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <NumberEasing value={totalProviders} />
+          )}
+          <span>{T.Providers}</span>
+        </Typography>
+        <Typography className={classes.titleSecondary}>{T.InTotal}</Typography>
+      </div>
+      <div className={classes.content}>
+        {chart}
+        {legend}
+      </div>
+    </Paper>
+  )
 }
 
 TotalProviders.displayName = 'TotalProviders'

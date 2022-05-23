@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -607,6 +607,8 @@ void VirtualMachineXML::log(const string &st)
     oss << one_util::log_time() << ": " << st;
 
     string sched_message = oss.str();
+
+    sched_message = one_util::gsub(sched_message, "\"",  "\\\"");
 
     user_template->replace("SCHED_MESSAGE", sched_message);
 

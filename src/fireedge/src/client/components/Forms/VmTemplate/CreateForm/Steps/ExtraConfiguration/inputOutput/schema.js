@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,131 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { string, boolean } from 'yup'
+import { object, ObjectSchema } from 'yup'
 
-import { Field, arrayToOptions, filterFieldsByHypervisor } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
-
-const { vcenter, lxc, kvm } = HYPERVISORS
-
-/** @type {Field} Type field */
-export const TYPE = {
-  name: 'GRAPHICS.TYPE',
-  label: T.Type,
-  type: INPUT_TYPES.TOGGLE,
-  dependOf: '$general.HYPERVISOR',
-  values: (hypervisor = kvm) => {
-    const types = {
-      [vcenter]: [T.VMRC],
-      [lxc]: [T.VNC]
-    }[hypervisor] ?? [T.VNC, T.SDL, T.SPICE]
-
-    return arrayToOptions(types)
-  },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-  grid: { md: 12 }
-}
-
-/** @type {Field} Listen field */
-export const LISTEN = {
-  name: 'GRAPHICS.LISTEN',
-  label: T.ListenOnIp,
-  type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-  fieldProps: { placeholder: '0.0.0.0' },
-  grid: { md: 12 }
-}
-
-/** @type {Field} Port field */
-export const PORT = {
-  name: 'GRAPHICS.PORT',
-  label: T.ServerPort,
-  tooltip: T.ServerPortConcept,
-  type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined)
-}
-
-/** @type {Field} Keymap field */
-export const KEYMAP = {
-  name: 'GRAPHICS.KEYMAP',
-  label: T.Keymap,
-  type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-  fieldProps: { placeholder: 'en-us' }
-}
-
-/** @type {Field} Password random field  */
-export const RANDOM_PASSWD = {
-  name: 'OS.RANDOM_PASSWD',
-  label: T.GenerateRandomPassword,
-  type: INPUT_TYPES.CHECKBOX,
-  dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: boolean()
-    .default(() => false)
-    .transform(value => {
-      if (typeof value === 'boolean') return value
-
-      return String(value).toUpperCase() === 'YES'
-    }),
-  grid: { md: 12 }
-}
-
-/** @type {Field} Password field */
-export const PASSWD = {
-  name: 'GRAPHICS.PASSWD',
-  label: T.Password,
-  type: INPUT_TYPES.PASSWORD,
-  dependOf: [TYPE.name, RANDOM_PASSWD.name],
-  htmlType: ([noneType, random] = []) =>
-    (!noneType || random) && INPUT_TYPES.HIDDEN,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-  grid: { md: 12 }
-}
-
-/** @type {Field} Command field */
-export const COMMAND = {
-  name: 'GRAPHICS.COMMAND',
-  label: T.Command,
-  notOnHypervisors: [lxc],
-  type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
-  htmlType: noneType => !noneType && INPUT_TYPES.HIDDEN,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-  grid: { md: 12 }
-}
+import { GRAPHICS_SCHEMA } from './graphicsSchema'
+import { INPUTS_SCHEMA } from './inputsSchema'
+import { PCI_DEVICES_SCHEMA } from './pciDevicesSchema'
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} List of I/O fields
+ * @returns {ObjectSchema} I/O schema
  */
-export const INPUT_OUTPUT_FIELDS = hypervisor =>
-  filterFieldsByHypervisor(
-    [TYPE, LISTEN, PORT, KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
-    hypervisor
-  )
+export const SCHEMA = (hypervisor) =>
+  object()
+    .concat(INPUTS_SCHEMA)
+    .concat(PCI_DEVICES_SCHEMA)
+    .concat(GRAPHICS_SCHEMA(hypervisor))
+
+export * from './graphicsSchema'
+export * from './inputsSchema'
+export * from './pciDevicesSchema'

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -23,7 +23,7 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  IconButton
+  IconButton,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import { Cancel as CancelIcon } from 'iconoir-react'
@@ -44,6 +44,7 @@ import { T } from 'client/constants'
  * @property {object} [cancelButtonProps] - Cancel button properties
  * @property {boolean} [fixedWidth] - Fix minimum with to dialog
  * @property {boolean} [fixedHeight] - Fix minimum height to dialog
+ * @property {object} [dataCy] - identifier for cypress tests
  * @property {JSXElementConstructor} [children] - Fix minimum height
  */
 
@@ -64,9 +65,10 @@ const DialogConfirmation = memo(
     handleEntering,
     fixedWidth,
     fixedHeight,
-    children
+    children,
+    dataCy,
   }) => {
-    const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
     return (
       <Dialog
@@ -75,58 +77,65 @@ const DialogConfirmation = memo(
           elevation: 0,
           sx: {
             minWidth: fixedWidth ? '80vw' : 'auto',
-            minHeight: fixedHeight ? '80vh' : 'auto'
-          }
+            minHeight: fixedHeight ? '80vh' : 'auto',
+          },
         }}
         open={open}
         onClose={handleCancel}
-        maxWidth='lg'
-        scroll='paper'
+        maxWidth="lg"
+        scroll="paper"
         TransitionProps={{
-          onEntering: handleEntering
-        }}>
+          onEntering: handleEntering,
+        }}
+        {...(dataCy && { 'data-cy': dataCy })}
+      >
         <DialogTitle
           sx={{
             display: 'flex',
             flexWrap: 'nowrap',
             alignItems: 'center',
-            gap: '2em'
+            gap: '2em',
           }}
         >
           <Box flexGrow={1}>
             {title && (
-              <Typography variant='h6'>
+              <Typography variant="h6">
                 {typeof title === 'string' ? Tr(title) : title}
               </Typography>
             )}
             {subheader && (
-              <Typography variant='body1'>
+              <Typography variant="body1">
                 {typeof subheader === 'string' ? Tr(subheader) : subheader}
               </Typography>
             )}
           </Box>
           {handleCancel && (
             <IconButton
-              aria-label='close'
+              aria-label="close"
               onClick={handleCancel}
-              data-cy='dg-cancel-button'
+              data-cy="dg-cancel-button"
               {...cancelButtonProps}
-              size="large">
+              size="large"
+            >
               <CancelIcon />
             </IconButton>
           )}
         </DialogTitle>
         {children && (
-          <DialogContent dividers {...contentProps}>
+          <DialogContent
+            dividers
+            sx={{ display: 'flex', flexDirection: 'column' }}
+            {...contentProps}
+          >
             {children}
           </DialogContent>
         )}
         {handleAccept && (
           <DialogActions>
             <Action
-              aria-label='accept'
-              color='secondary'
-              data-cy='dg-accept-button'
+              aria-label="accept"
+              color="secondary"
+              data-cy="dg-accept-button"
               handleClick={handleAccept}
               label={T.Accept}
               {...acceptButtonProps}
@@ -140,23 +149,18 @@ const DialogConfirmation = memo(
 
 export const DialogPropTypes = {
   open: PropTypes.bool,
-  title: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
-  subheader: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ]),
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  subheader: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   contentProps: PropTypes.object,
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.object,
   handleCancel: PropTypes.func,
   cancelButtonProps: PropTypes.object,
+  dataCy: PropTypes.string,
   handleEntering: PropTypes.func,
   fixedWidth: PropTypes.bool,
   fixedHeight: PropTypes.bool,
-  children: PropTypes.any
+  children: PropTypes.any,
 }
 
 DialogConfirmation.propTypes = DialogPropTypes

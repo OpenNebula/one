@@ -1,8 +1,0 @@
-name: 'digitalocean-sgp1'
-
-description: 'Virtual Edge Cluster in DigitalOcean datacenter in Singapore (SGP1)'
-provider: 'digitalocean'
-
-connection:
-  token: 'DigitalOcean token'
-  region: 'sgp1'

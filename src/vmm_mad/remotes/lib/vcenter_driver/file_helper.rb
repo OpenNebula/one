@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -98,7 +98,7 @@ module VCenterDriver
         end
 
         def self.get_type(file)
-            type = `file -b --mime-type #{file}`
+            type = `file -P bytes=256 -b --mime-type #{file}`
             if $?.exitstatus != 0 # rubocop:disable Style/SpecialGlobalVars
                 STDERR.puts "Can not read file #{file}"
                 exit(-1)

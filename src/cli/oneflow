@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -285,7 +285,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         Service.perform_actions(args[0]) do |service_id|
             params = {}
-            params['octet'] = args[1]
+            params['octet'] = OpenNebulaHelper.to_octet(args[1])
 
             json = Service.build_json_action('chmod', params)
 
@@ -513,6 +513,29 @@ CommandParser::CmdParser.new(ARGV) do
         json          = Service.build_json_action('remove_role', params)
 
         response = client.post("#{RESOURCE_PATH}/#{service_id}/role_action",
+                               json)
+
+        if CloudClient.is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            0
+        end
+    end
+
+    ###
+
+    release_desc = <<-EOT.unindent
+        Release roles of a service on hold
+    EOT
+
+    command :release, release_desc, :service_id do
+        service_id = args[0]
+        client     = helper.client(options)
+
+        params        = {}
+        json          = Service.build_json_action('release', params)
+
+        response = client.post("#{RESOURCE_PATH}/#{service_id}/action",
                                json)
 
         if CloudClient.is_error?(response)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,6 +65,7 @@ require 'sinatra'
 require 'yaml'
 require 'json'
 require 'set'
+require 'syslog/logger'
 
 require 'CloudAuth'
 require 'CloudServer'
@@ -111,7 +112,18 @@ set :port, $conf[:port]
 set :config, $conf
 
 include CloudLogger
-logger = enable_logging(ONEGATE_LOG, $conf[:debug_level].to_i)
+
+if $conf[:log]
+    $conf[:debug_level] = $conf[:log][:level] || 2
+else
+    $conf[:debug_level] ||= 2
+end
+
+if $conf[:log] && $conf[:log][:system] == 'syslog'
+    logger = Syslog::Logger.new('onegate')
+else
+    logger = enable_logging(ONEGATE_LOG, $conf[:debug_level].to_i)
+end
 
 begin
     ENV["ONE_CIPHER_AUTH"] = ONEGATE_AUTH

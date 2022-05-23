@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -19,50 +19,59 @@ const { global } = require('window-or-global')
 const { transports, format, createLogger } = require('winston')
 const { sprintf } = require('sprintf-js')
 const morgan = require('morgan')
-const { defaultWebpackMode } = require('./constants/defaults')
+const { defaults } = require('server/utils/constants')
+const { defaultWebpackMode, defaultLogsLevels } = defaults
 
 let logger = null
 
 /**
  * Initialize logger.
+ *
+ * @param {number} logLevel - log level
  */
-const initLogger = () => {
+const initLogger = (logLevel = 0) => {
   if (global && global.paths && global.paths.FIREEDGE_LOG) {
+    const levelString = parseInt(logLevel, 10)
+    const logString = defaultLogsLevels && defaultLogsLevels[levelString]
+
     const trans = []
 
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
       trans.push(
         new transports.Console({
-          format: format.simple()
-        }))
+          format: format.simple(),
+        })
+      )
     } else {
       trans.push(
         new transports.File({
           silent: false,
-          level: 'info',
+          level: logString,
           filename: global.paths.FIREEDGE_LOG,
           handleExceptions: true,
           format: format.simple(),
           maxsize: 5242880, // 5MB
-          colorize: false
+          colorize: false,
         })
       )
     }
 
     logger = createLogger({
       transports: trans,
-      exitOnError: false
+      exitOnError: false,
     })
 
     logger.stream = {
       write: (message = '') => {
         writeInLogger(message)
-      }
+      },
     }
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-      logger.clear().add(new transports.Console({
-        format: format.simple()
-      }))
+      logger.clear().add(
+        new transports.Console({
+          format: format.simple(),
+        })
+      )
     }
   }
 }
@@ -80,9 +89,14 @@ const getLogger = () => logger
  * @returns {object} - morgan middleware
  */
 const getLoggerMiddleware = () => {
-  const logger = getLogger()
-  if (logger && logger.stream) {
-    return morgan('combined', { stream: logger.stream })
+  const log = getLogger()
+  if (log && log.stream) {
+    return morgan('combined', {
+      stream: log.stream,
+      skip: function (req, res) {
+        return res.statusCode < 400
+      },
+    })
   }
 }
 
@@ -90,13 +104,17 @@ const getLoggerMiddleware = () => {
  * Write in logger.
  *
  * @param {string} message - message for logger file
- * @param {string } format - message format
+ * @param {object} optLog - message format
+ * @param {string} optLog.format - Message format. By default is '%s'
+ * @param {number} optLog.level - Log debug level. By default is 0
  */
-const writeInLogger = (message = '', format = '%s') => {
-  const logger = getLogger()
-  if (logger) {
+const writeInLogger = (message = '', optLog = {}) => {
+  const { format: formatLogger = '%s', level = 0 } = optLog
+  const logString = defaultLogsLevels && defaultLogsLevels[level]
+  const log = getLogger()
+  if (log) {
     const parseMessage = Array.isArray(message) ? message : [message]
-    logger.info(sprintf(format, ...parseMessage))
+    log[logString](sprintf(formatLogger, ...parseMessage))
   }
 }
 

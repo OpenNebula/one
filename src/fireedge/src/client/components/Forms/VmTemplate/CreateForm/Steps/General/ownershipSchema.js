@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { useGroup, useUser } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field } from 'client/utils'
 
 /** @type {Field} User id field */
 export const UID_FIELD = {
@@ -25,17 +26,20 @@ export const UID_FIELD = {
   label: T.InstantiateAsUser,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const users = useUser()
+    const { data: users = [] } = useGetUsersQuery()
 
-    return users
-      .map(({ ID: value, NAME: text }) => ({ text, value }))
-      .sort((a, b) => a.value - b.value)
+    return arrayToOptions(users, {
+      addEmpty: false,
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
   validation: string()
     .trim()
     .notRequired()
-    .default(undefined),
-  grid: { md: 12 }
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Group id field */
@@ -44,21 +48,21 @@ export const GID_FIELD = {
   label: T.InstantiateAsGroup,
   type: INPUT_TYPES.AUTOCOMPLETE,
   values: () => {
-    const groups = useGroup()
+    const { data: groups = [] } = useGetGroupsQuery()
 
-    return groups
-      .map(({ ID: value, NAME: text }) => ({ text, value }))
-      .sort((a, b) => a.value - b.value)
+    return arrayToOptions(groups, {
+      addEmpty: false,
+      getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
+      getValue: ({ ID }) => ID,
+      sorter: OPTION_SORTERS.numeric,
+    })
   },
   validation: string()
     .trim()
     .notRequired()
-    .default(undefined),
-  grid: { md: 12 }
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
 /** @type {Field[]} List of ownership fields */
-export const FIELDS = [
-  UID_FIELD,
-  GID_FIELD
-]
+export const FIELDS = [UID_FIELD, GID_FIELD]

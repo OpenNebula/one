@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,12 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CloneForm from 'client/components/Forms/VmTemplate/CloneForm'
-import CreateForm from 'client/components/Forms/VmTemplate/CreateForm'
-import InstantiateForm from 'client/components/Forms/VmTemplate/InstantiateForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
 
-export {
-  CloneForm,
-  CreateForm,
-  InstantiateForm
-}
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CloneForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/CloneForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/CreateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const DeleteForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/DeleteForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const InstantiateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VmTemplate/InstantiateForm' }, configProps)
+
+export { CloneForm, CreateForm, DeleteForm, InstantiateForm }

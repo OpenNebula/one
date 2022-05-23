@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,7 +44,25 @@ module OneProvision
                 end
             end
 
-            super
+            net_id = super
+
+            vnet = OpenNebula::VirtualNetwork.new_with_id(net_id, @client)
+
+            require 'opennebula/wait_ext'
+
+            vnet.extend(OpenNebula::WaitExt)
+
+            rc = vnet.wait('READY', 300, 2)
+
+            if !rc && vnet.state_str == 'ERROR'
+                vnet.delete
+                Utils.exception(OpenNebula::Error.new('Error creating network'))
+            elsif !rc
+                OneProvisionLogger.warn('Network not READY, '\
+                    'check status after provision completes')
+            end
+
+            net_id
         end
 
         # Info an specific object
@@ -57,12 +75,13 @@ module OneProvision
 
         # Destroy network in provider
         #
+        # @param provision [OpenNebula::Provision] Provision information
         # @param tf [Hash] Terraform configuration
-        def destroy(tf)
+        def destroy(provision, tf)
             Terraform.p_load
 
             terraform = Terraform.singleton(@provider, tf)
-            terraform.destroy_network(@one.id)
+            terraform.destroy_network(provision, @one.id)
         end
 
         private

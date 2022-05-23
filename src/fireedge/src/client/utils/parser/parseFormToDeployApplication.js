@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -30,12 +30,18 @@ import { mapUserInputs, deepmerge } from 'client/utils'
  * @returns {Array} Roles
  */
 export const mapTiersToRoles = (tiers, networking, cluster) =>
-  tiers?.map(data => {
-    const { template, parents, networks, user_inputs_values = {}, tier } = data
+  tiers?.map((data) => {
+    const {
+      template,
+      parents,
+      networks,
+      user_inputs_values: userInputs = {},
+      tier,
+    } = data
 
     const networksValue = networks
       ?.reduce((res, id, idx) => {
-        const network = networking.find(net => net.id === id)
+        const network = networking.find((net) => net.id === id)
         const networkString = `NIC = [\n NAME = "NIC${idx}",\n NETWORK_ID = "$${network.name}" ]\n`
 
         return [...res, networkString]
@@ -44,7 +50,8 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
       ?.concat(`SCHED_REQUIREMENTS = "ClUSTER_ID=\\"${cluster}\\""`)
 
     const parentsValue = parents?.reduce((res, id) => {
-      const parent = tiers.find(t => t.id === id)
+      const parent = tiers.find((t) => t.id === id)
+
       return [...res, parent?.tier?.name]
     }, [])
 
@@ -53,7 +60,7 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
       parents: parentsValue,
       vm_template: template?.id ?? template?.app,
       vm_template_contents: networksValue,
-      user_inputs_values: mapUserInputs(user_inputs_values)
+      user_inputs_values: mapUserInputs(userInputs),
     }
   })
 
@@ -69,16 +76,16 @@ const parseFormToDeployApplication = (formData, template) => {
     [BASIC_ID]: application,
     [NETWORKING_ID]: networking,
     [CLUSTER_ID]: cluster,
-    [TIERS_ID]: tiers
+    [TIERS_ID]: tiers,
   } = deepmerge(template, formData)
 
   return {
     ...application,
     custom_attrs_values: {},
     networks_values: networking?.map(({ name, type, idVnet }) => ({
-      [name]: { [type]: idVnet }
+      [name]: { [type]: idVnet },
     })),
-    roles: mapTiersToRoles(tiers, networking, cluster)
+    roles: mapTiersToRoles(tiers, networking, cluster),
   }
 }
 

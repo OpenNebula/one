@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,36 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { List } from 'client/components/Tabs/Common'
 
-import * as Helper from 'client/models/Helper'
-import { T } from 'client/constants'
+import { stringToBoolean, booleanToString } from 'client/models/Helper'
+import { T, User } from 'client/constants'
 
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {User} props.user - User
+ * @returns {ReactElement} Information tab
+ */
 const InformationPanel = ({ user = {} }) => {
   const { ID, NAME, ENABLED } = user
-  const isEnabled = Helper.stringToBoolean(ENABLED)
+  const isEnabled = stringToBoolean(ENABLED)
 
   const info = [
     { name: T.ID, value: ID },
     { name: T.Name, value: NAME },
-    {
-      name: T.State,
-      value: Helper.booleanToString(isEnabled)
-    }
+    { name: T.State, value: booleanToString(isEnabled) },
   ]
 
-  return (
-    <List title={T.Information} list={info} />
-  )
+  return <List title={T.Information} list={info} />
 }
 
 InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
-  user: PropTypes.object
+  actions: PropTypes.arrayOf(PropTypes.string),
+  user: PropTypes.object,
 }
 
 export default InformationPanel

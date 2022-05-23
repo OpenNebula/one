@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,75 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
+import api from 'client/features/OneApi/network'
+import { NetworkCard } from 'client/components/Cards'
 
-import { User, Group, Lock, Server, Cloud } from 'iconoir-react'
-import { Typography } from '@mui/material'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = api.endpoints.getVNetworks.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((network) => +network.ID === +original.ID),
+    })
 
-import { LinearProgressWithLabel } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-
-import * as VirtualNetworkModel from 'client/models/VirtualNetwork'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const {
-    ID, NAME, UNAME, GNAME, LOCK, CLUSTERS,
-    USED_LEASES, TOTAL_LEASES, PROVISION_ID
-  } = value
-
-  const { percentOfUsed, percentLabel } = VirtualNetworkModel.getLeasesInfo(original)
-
-  return (
-    <div {...props}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span>
-            {`#${ID}`}
-          </span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-          <span title={`Total Clusters: ${CLUSTERS}`}>
-            <Server />
-            <span>{` ${CLUSTERS}`}</span>
-          </span>
-          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud />
-            <span>{` ${PROVISION_ID}`}</span>
-          </span>}
-        </div>
-      </div>
-      <div className={classes.secondary}>
-        <LinearProgressWithLabel
-          title={`Used / Total Leases: ${USED_LEASES} / ${TOTAL_LEASES}`}
-          value={percentOfUsed}
-          label={percentLabel}
-        />
-      </div>
-    </div>
-  )
-}
+    return <NetworkCard network={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
+
+Row.displayName = 'VirtualNetworkRow'
 
 export default Row

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-
-import { Typography } from '@mui/material'
 import { useController } from 'react-hook-form'
 
-import { ErrorHelper, Tooltip } from 'client/components/FormControl'
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import Legend from 'client/components/Forms/Legend'
+import { ErrorHelper } from 'client/components/FormControl'
 import { generateKey } from 'client/utils'
 
-const defaultGetRowId = item => typeof item === 'object' ? item?.id ?? item?.ID : item
+const defaultGetRowId = (item) =>
+  typeof item === 'object' ? item?.id ?? item?.ID : item
+
+const getSelectedRowIds = (value) =>
+  [value ?? []]
+    .flat()
+    .reduce(
+      (initialSelected, rowId) => ({ ...initialSelected, [rowId]: true }),
+      {}
+    )
 
 const TableController = memo(
   ({
@@ -35,50 +42,56 @@ const TableController = memo(
     Table,
     singleSelect = true,
     getRowId = defaultGetRowId,
-    formContext = {}
+    formContext = {},
+    readOnly = false,
+    fieldProps: { initialState, ...fieldProps } = {},
   }) => {
     const { clearErrors } = formContext
 
     const {
-      field: { onChange },
-      fieldState: { error }
+      field: { value, onChange },
+      fieldState: { error },
     } = useController({ name, control })
+
+    const [initialRows, setInitialRows] = useState(() =>
+      getSelectedRowIds(value)
+    )
+
+    useEffect(() => {
+      onChange(singleSelect ? undefined : [])
+      setInitialRows({})
+    }, [Table])
 
     return (
       <>
-        {error ? (
-          <ErrorHelper
-            data-cy={`${cy}-error`}
-            label={error?.message}
-            mb={2}
-          />
-        ) : (
-          label && (
-            <Typography variant='body1' mb={2}>
-              {tooltip && <Tooltip title={tooltip} position='start' />}
-              {labelCanBeTranslated(label) ? Tr(label) : label}
-            </Typography>
-          )
+        <Legend title={label} tooltip={tooltip} />
+        {error && (
+          <ErrorHelper data-cy={`${cy}-error`} label={error?.message} mb={2} />
         )}
         <Table
-          pageSize={4}
+          pageSize={5}
+          disableGlobalSort
+          displaySelectedRows
+          disableRowSelect={readOnly}
           singleSelect={singleSelect}
-          onlyGlobalSearch
-          onlyGlobalSelectedRows
           getRowId={getRowId}
-          onSelectedRowsChange={rows => {
+          initialState={{ ...initialState, selectedRowIds: initialRows }}
+          onSelectedRowsChange={(rows) => {
+            if (readOnly) return
+
             const rowValues = rows?.map(({ original }) => getRowId(original))
 
             onChange(singleSelect ? rowValues?.[0] : rowValues)
             clearErrors(name)
           }}
+          {...fieldProps}
         />
       </>
     )
   },
   (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
     prevProps.label === nextProps.label &&
+    prevProps.Table === nextProps.Table &&
     prevProps.tooltip === nextProps.tooltip
 )
 
@@ -93,13 +106,14 @@ TableController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
   formContext: PropTypes.shape({
     setValue: PropTypes.func,
     setError: PropTypes.func,
     clearErrors: PropTypes.func,
     watch: PropTypes.func,
-    register: PropTypes.func
-  })
+    register: PropTypes.func,
+  }),
 }
 
 TableController.displayName = 'TableController'

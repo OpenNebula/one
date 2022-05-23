@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,9 +46,20 @@ define(function(require) {
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require("./tabId");
-  var LABELS_COLUMN = 10;
-  var SEARCH_COLUMN = 11;
   var TEMPLATE_ATTR = "TEMPLATE";
+  var COLUMNS = {
+    ID: 1,
+    NAME: 2,
+    CLUSTER: 3,
+    RVMS: 4,
+    ALLOCATED_CPU: 5,
+    ALLOCATED_MEM: 6,
+    STATUS: 7,
+    IM_MAD: 8,
+    VM_MAD: 9,
+    LABELS: 10,
+    SEARCH: 10,
+  }
 
   /*
     CONSTRUCTOR
@@ -60,7 +71,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
-    this.labelsColumn = LABELS_COLUMN;
+    this.labelsColumn = COLUMNS.LABELS;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -109,7 +120,7 @@ define(function(require) {
     this.allocatedMemory = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
-    this.searchColumn = SEARCH_COLUMN;
+    this.searchColumn = COLUMNS.SEARCH;
 
     TabDataTable.call(this);
   };
@@ -119,6 +130,7 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.columnsIndex = COLUMNS;
 
   return Table;
 

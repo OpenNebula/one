@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -22,7 +23,7 @@ export default [
   {
     Header: 'Total Users',
     id: 'TOTAL_USERS',
-    accessor: row => getTotalOfResources(row?.USERS),
-    sortType: 'number'
-  }
+    accessor: (row) => getTotalOfResources(row?.USERS),
+    sortType: 'number',
+  },
 ]

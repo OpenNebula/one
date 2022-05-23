@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,38 +13,66 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import VmTemplatesTable, { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
-import ExtraConfiguration, { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
-import { jsonToXml } from 'client/models/Helper'
+import BasicConfiguration, {
+  STEP_ID as BASIC_ID,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
+import UserInputs, {
+  STEP_ID as USER_INPUTS_ID,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
+import ExtraConfiguration, {
+  STEP_ID as EXTRA_ID,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  [VmTemplatesTable, BasicConfiguration, ExtraConfiguration],
+  (vmTemplate) => {
+    const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
+      order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
+    })
+
+    return [
+      BasicConfiguration,
+      !!userInputs.length && (() => UserInputs(userInputs)),
+      ExtraConfiguration,
+    ].filter(Boolean)
+  },
   {
-    transformInitialValue: (vmTemplate, schema) => ({
-      ...schema.cast({
-        [TEMPLATE_ID]: [vmTemplate],
-        [BASIC_ID]: vmTemplate?.TEMPLATE,
-        [EXTRA_ID]: vmTemplate?.TEMPLATE
-      }, { stripUnknown: true })
-    }),
-    transformBeforeSubmit: formData => {
+    transformInitialValue: (vmTemplate, schema) => {
+      const initialValue = schema.cast(
+        {
+          [BASIC_ID]: vmTemplate?.TEMPLATE,
+          [EXTRA_ID]: vmTemplate?.TEMPLATE,
+        },
+        { stripUnknown: true }
+      )
+
+      return initialValue
+    },
+    transformBeforeSubmit: (formData, vmTemplate) => {
       const {
-        [TEMPLATE_ID]: [templateSelected] = [],
         [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
-        [EXTRA_ID]: extraTemplate = {}
+        [USER_INPUTS_ID]: userInputs,
+        [EXTRA_ID]: extraTemplate = {},
       } = formData ?? {}
 
       // merge with template disks to get TYPE attribute
-      const templateXML = jsonToXml({ ...extraTemplate, ...restOfConfig })
+      const templateXML = jsonToXml({
+        ...userInputs,
+        ...extraTemplate,
+        ...restOfConfig,
+      })
+
       const data = { instances, hold, persistent, template: templateXML }
 
-      const templates = [...new Array(instances)]
-        .map((_, idx) => ({ name: name?.replace(/%idx/gi, idx), ...data }))
+      const templates = [...new Array(instances)].map((_, idx) => ({
+        id: vmTemplate.ID,
+        name: name?.replace(/%idx/gi, idx),
+        ...data,
+      }))
 
-      return [templateSelected, templates]
-    }
+      return templates
+    },
   }
 )
 

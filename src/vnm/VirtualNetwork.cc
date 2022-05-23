@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,6 +46,8 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                unique_ptr<VirtualNetworkTemplate> _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,one_db::vn_table),
             Clusterable(_cluster_ids),
+            state(LOCK_CREATE),
+            prev_state(INIT),
             bridge(""),
             vlan_id_automatic(false),
             outer_vlan_id_automatic(false),
@@ -110,7 +112,7 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 +----------------+---------+--------+--------------------------+----------------+
 |    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
-| vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
+| vcenter        | no      | no     | no                       |                |
 | dummy          | no      | yes    | no                       |                |
 | bridge         | no      | no     | no                       |                |
 | ebtables       | no      | no     | no                       |                |
@@ -189,7 +191,6 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    vector<VectorAttribute *> ars;
     ostringstream       ose;
 
     string sg_str, vis;
@@ -198,7 +199,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     string name;
     string prefix;
 
-    int rc, num_ars;
+    int rc;
 
     ostringstream oss;
 
@@ -315,23 +316,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     add_template_attribute("BRIDGE", bridge);
 
     //--------------------------------------------------------------------------
-    // Get the Address Ranges
-    //--------------------------------------------------------------------------
-
-    num_ars = remove_template_attribute("AR", ars);
-    rc      = add_var(ars, error_str);
-
-    for (int i=0; i < num_ars; i++)
-    {
-        delete ars[i];
-    }
-
-    if ( rc != 0)
-    {
-        goto error_ar;
-    }
-
-    //--------------------------------------------------------------------------
     // Add default Security Group
     //--------------------------------------------------------------------------
 
@@ -378,7 +362,6 @@ error_vn_mad:
 
 error_parse:
 error_db:
-error_ar:
 error_common:
     NebulaLog::log("VNM", Log::ERROR, error_str);
     return -1;
@@ -600,7 +583,9 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
             "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
-            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>";
+            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>"
+            "<STATE>" << one_util::escape_xml(state) << "</STATE>"
+            "<PREV_STATE>" << one_util::escape_xml(prev_state) << "</PREV_STATE>";
 
     if (parent_vid != -1)
     {
@@ -694,6 +679,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     int rc = 0;
 
+    int int_state;
     int int_vlan_id_automatic;
     int int_outer_vlan_id_automatic;
 
@@ -708,6 +694,13 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(gname,  "/VNET/GNAME", "not_found");
     rc += xpath(name,   "/VNET/NAME",  "not_found");
     rc += xpath(bridge, "/VNET/BRIDGE","not_found");
+    rc += xpath(int_state, "/VNET/STATE", 0);
+
+    state = static_cast<VirtualNetworkState>(int_state);
+
+    rc += xpath(int_state, "/VNET/PREV_STATE", 0);
+
+    prev_state = static_cast<VirtualNetworkState>(int_state);
 
     rc += lock_db_from_xml();
 

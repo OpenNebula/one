@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,35 +13,62 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Box } from '@mui/material'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions/schema'
-import { T } from 'client/constants'
+import {
+  SCHEMA,
+  SECTIONS,
+} from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions/schema'
+import { Step } from 'client/utils'
+import { T, HYPERVISORS } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
-const Content = ({ hypervisor }) => (
-  <FormWithSchema
-    cy='attach-disk-advanced'
-    fields={FIELDS(hypervisor)}
-    id={STEP_ID}
-  />
-)
+const Content = ({ hypervisor }) => {
+  const sections = useMemo(() => SECTIONS(hypervisor), [])
 
+  return (
+    <Box
+      display="grid"
+      gap="2em"
+      sx={{ gridTemplateColumns: { lg: '1fr 1fr', md: '1fr' } }}
+    >
+      {sections.map(({ id, legend, fields }) => (
+        <FormWithSchema
+          key={id}
+          rootProps={{ sx: id === 'general' && { gridColumn: '1 / -1' } }}
+          cy={id}
+          fields={fields}
+          legend={legend}
+          id={STEP_ID}
+        />
+      ))}
+    </Box>
+  )
+}
+
+/**
+ * Renders advanced options to volatile disk.
+ *
+ * @param {object} props - Props
+ * @param {HYPERVISORS} props.hypervisor - Hypervisor
+ * @returns {Step} Advance options step
+ */
 const AdvancedOptions = ({ hypervisor } = {}) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
   resolver: () => SCHEMA(hypervisor),
   optionsValidate: { abortEarly: false },
-  content: () => Content({ hypervisor })
+  content: () => Content({ hypervisor }),
 })
 
 Content.propTypes = {
   hypervisor: PropTypes.any,
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default AdvancedOptions

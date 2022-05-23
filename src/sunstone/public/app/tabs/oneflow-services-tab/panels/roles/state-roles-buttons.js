@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,6 +55,18 @@ define(function(require) {
     ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
 
   STATE_ACTIONS[OpenNebulaFlow.STATES.COOLDOWN] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.DEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.UNDEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.FAILED_DEPLOYING_NETS] =
+    ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
+
+  STATE_ACTIONS[OpenNebulaFlow.STATES.FAILED_UNDEPLOYING_NETS] =
     ['Role.scale_dialog','Role.terminate', 'Role.terminate_hard'];
 
   return {

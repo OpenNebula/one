@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -80,11 +80,14 @@ define(function(require) {
     );
   }
 
-  function _html() {
-    var optionsActions = ScheduleActions.defaultActions.map(function(ac){
-      return "<option value='"+ac+"'>"+ac+"</option>";
-    }).join("");
+  function _htmlPerformAction(optionsRoles){
+    return ScheduleActions.htmlPerformAction(
+      RESOURCE,
+      optionsRoles
+    );
+  }
 
+  function _html() {
     var optionsRoles = this.data
       .filter(function(role) {
         return role && role.name;
@@ -106,9 +109,7 @@ define(function(require) {
 
     return TemplateHTML({
       sched_actions_table: _htmlSchedActions(),
-      actions: optionsActions,
-      res: RESOURCE,
-      roles: optionsRoles
+      perform_action: _htmlPerformAction(optionsRoles)
     });
   }
   
@@ -120,6 +121,11 @@ define(function(require) {
       RESOURCE_SCHED_ACTIONS,
       context,
       that
+    );
+
+    ScheduleActions.setupPerformAction(
+      RESOURCE,
+      that.id //service ID
     );
   }
 });

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -97,7 +97,12 @@ module VCenterDriver
 
         def self.one_item(the_class, id, exit_if_fail = true)
             item = the_class.new_with_id(id, client)
-            rc = item.info
+            rc=nil
+            if the_class == OpenNebula::VirtualMachine
+                rc = item.info(true)
+            else
+                rc = item.info
+            end
             return_if_error(rc, item, exit_if_fail)
         end
 
@@ -116,6 +121,16 @@ module VCenterDriver
             end
 
             return_if_error(rc, item, exit_if_fail)
+        end
+
+        # Since https://github.com/OpenNebula/one/issues/5689
+        # there two deploy_ids allowed:
+        #    * moref, eg: vm-567
+        #    * moref +"_" + vcenter uuid, eg:
+        #           2499952a-6c85-480e-b7df-4cbd2137eb69_vm-456
+        # This function will always return the moref
+        def self.get_deploy_id(deploy_id)
+            deploy_id.split('_')[0]
         end
 
         def self.find_by_name(the_class, name, pool = nil, raise_if_fail = true)
@@ -251,7 +266,7 @@ module VCenterDriver
             # Let's try to find the VM object only by its name
             # Let's build the VM name
             vm_prefix = host['TEMPLATE/VM_PREFIX']
-            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+            vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil?
             vm_prefix.gsub!('$i', one_vm['ID'])
             vm_name = vm_prefix + one_vm['NAME']
 

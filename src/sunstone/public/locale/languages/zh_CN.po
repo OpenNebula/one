@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2018, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
-# 
+#
 # Translators:
 # mm8m6m7m <766527901@qq.com>, 2018-2019
 # aaron hsu <anronghsu@gmail.com>, 2016
@@ -9,6 +9,7 @@
 # Alan Zhang <alan.zhang@linux.com>, 2015
 # Alan Zhang <alan.zhang@linux.com>, 2015
 # clm_sky <clm_sky@hotmail.com>, 2014-2019,2021
+# Funk Popo, 2022
 # Lei Zhou <leizho_ray2222@163.com>, 2016
 # Ming Jin <skyairmj@gmail.com>, 2018
 # Pascal Janus <pascal_janus@163.com>, 2019-2020
@@ -16,6 +17,7 @@
 # Qingye Jiang (John) <qingye.jiang@eucalyptus.com>, 2013
 # Rendy Wang <rendywang@gmail.com>, 2017
 # Tony Yu <tony19955569@gmail.com>, 2016
+# Zheng Feng, 2022
 # NateQI <nateqigl@gmail.com>, 2017
 # mm8m6m7m <766527901@qq.com>, 2018
 msgid ""
@@ -23,13 +25,13 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-25 13:37+0200\n"
-"PO-Revision-Date: 2021-10-25 11:27+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
+"PO-Revision-Date: 2012-05-30 07:14+0000\n"
+"Last-Translator: Zheng Feng, 2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/opennebula/one/language/zh_CN/)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../app/app.js:152 ../app/app.js:155 ../app/tabs/acls-tab/datatable.js:225
@@ -236,7 +238,7 @@ msgstr "HTML"
 
 #: ../app/utils/remote-actions.js:186
 msgid "Client"
-msgstr ""
+msgstr "客户端"
 
 #: ../app/utils/panel/template-table.js:123
 msgid "Not valid attribute"
@@ -259,8 +261,7 @@ msgid "VMs"
 msgstr "虚拟机"
 
 #: ../app/utils/quotas/quota-widgets.js:155
-#: ../app/tabs/groups-tab/datatable.js:73
-#: ../app/tabs/users-tab/datatable.js:79
+#: ../app/tabs/groups-tab/datatable.js:73 ../app/tabs/users-tab/datatable.js:79
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:82
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:48
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:49
@@ -273,8 +274,7 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/utils/quotas/quota-widgets.js:203
-#: ../app/tabs/groups-tab/datatable.js:72
-#: ../app/tabs/users-tab/datatable.js:78
+#: ../app/tabs/groups-tab/datatable.js:72 ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/provision-tab/vms/info.hbs:168
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:172
@@ -422,9 +422,9 @@ msgstr "镜像"
 msgid "Size"
 msgstr "大小"
 
-#: ../app/utils/quotas/quota-widgets.js:730
-#: ../app/utils/vcenter/networks.js:91 ../app/utils/user-inputs.js:317
-#: ../app/tabs/network-top-tab.js:23 ../app/tabs/vms-tab/panels/network.js:67
+#: ../app/utils/quotas/quota-widgets.js:730 ../app/utils/vcenter/networks.js:91
+#: ../app/utils/user-inputs.js:317 ../app/tabs/network-top-tab.js:23
+#: ../app/tabs/vms-tab/panels/network.js:67
 #: ../app/tabs/vms-tab/panels/network.js:96
 #: ../app/tabs/vms-tab/panels/network.js:489
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
@@ -553,7 +553,7 @@ msgstr "回溯分析"
 
 #: ../app/utils/common-actions.js:239 ../app/utils/common-actions.js:257
 msgid "Please select one (and just one) resource to update."
-msgstr ""
+msgstr "请选择一个（只有一个）需要更新的资源"
 
 #: ../app/utils/lock.js:47
 msgid "Unlocked!"
@@ -922,51 +922,40 @@ msgstr "未经授权"
 msgid "Hour"
 msgstr "小时"
 
-#: ../app/utils/schedule_action.js:306
-#: ../app/utils/schedule_action/html.hbs:86
+#: ../app/utils/schedule_action.js:306 ../app/utils/schedule_action/html.hbs:86
 msgid "Mo"
 msgstr "星期一"
 
-#: ../app/utils/schedule_action.js:307
-#: ../app/utils/schedule_action/html.hbs:88
+#: ../app/utils/schedule_action.js:307 ../app/utils/schedule_action/html.hbs:88
 msgid "Tu"
 msgstr "星期二"
 
-#: ../app/utils/schedule_action.js:308
-#: ../app/utils/schedule_action/html.hbs:90
+#: ../app/utils/schedule_action.js:308 ../app/utils/schedule_action/html.hbs:90
 msgid "We"
 msgstr "星期三"
 
-#: ../app/utils/schedule_action.js:309
-#: ../app/utils/schedule_action/html.hbs:92
+#: ../app/utils/schedule_action.js:309 ../app/utils/schedule_action/html.hbs:92
 msgid "Th"
 msgstr "星期四"
 
-#: ../app/utils/schedule_action.js:310
-#: ../app/utils/schedule_action/html.hbs:94
+#: ../app/utils/schedule_action.js:310 ../app/utils/schedule_action/html.hbs:94
 msgid "Fr"
 msgstr "星期五"
 
-#: ../app/utils/schedule_action.js:311
-#: ../app/utils/schedule_action/html.hbs:96
+#: ../app/utils/schedule_action.js:311 ../app/utils/schedule_action/html.hbs:96
 msgid "Sa"
 msgstr "星期六"
 
-#: ../app/utils/schedule_action.js:312
-#: ../app/utils/schedule_action/html.hbs:98
+#: ../app/utils/schedule_action.js:312 ../app/utils/schedule_action/html.hbs:98
 msgid "Su"
 msgstr "星期天"
 
 #: ../app/utils/schedule_action.js:317
-msgid ""
-"Comma separated list of days of the month to repeat the action on. Ex: "
-"1,15,25 repeats the action every first, 15th and 25th day of the month"
+msgid "Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month"
 msgstr "以逗号分隔的列表，在每月的几天中重复该操作。 例如：1,15,25 表示每月的第一天，第十五天和第二十五天重复该操作"
 
 #: ../app/utils/schedule_action.js:321
-msgid ""
-"Comma separated list of days of the year to repeat the action on. Ex: "
-"1,30,330 repeats the action every first, 30th and 330th day of the year"
+msgid "Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year"
 msgstr "以逗号分隔的列表，在每年的几天中重复该操作。 例如：1,30,330 表示每年的第一天，第三十天和第三百天重复该操作"
 
 #: ../app/utils/schedule_action.js:325 ../app/utils/schedule_action.js:858
@@ -977,23 +966,19 @@ msgstr "每"
 msgid "hours"
 msgstr "小时"
 
-#: ../app/utils/schedule_action.js:809
-#: ../app/utils/schedule_action/html.hbs:48
+#: ../app/utils/schedule_action.js:809 ../app/utils/schedule_action/html.hbs:48
 msgid "Years"
 msgstr "年"
 
-#: ../app/utils/schedule_action.js:812
-#: ../app/utils/schedule_action/html.hbs:49
+#: ../app/utils/schedule_action.js:812 ../app/utils/schedule_action/html.hbs:49
 msgid "Months"
 msgstr "月"
 
-#: ../app/utils/schedule_action.js:815
-#: ../app/utils/schedule_action/html.hbs:50
+#: ../app/utils/schedule_action.js:815 ../app/utils/schedule_action/html.hbs:50
 msgid "Weeks"
 msgstr "周"
 
-#: ../app/utils/schedule_action.js:818
-#: ../app/utils/schedule_action/html.hbs:51
+#: ../app/utils/schedule_action.js:818 ../app/utils/schedule_action/html.hbs:51
 msgid "Days"
 msgstr "天"
 
@@ -1002,23 +987,19 @@ msgstr "天"
 msgid "Hours"
 msgstr "小时"
 
-#: ../app/utils/schedule_action.js:824
-#: ../app/utils/schedule_action/html.hbs:53
+#: ../app/utils/schedule_action.js:824 ../app/utils/schedule_action/html.hbs:53
 msgid "Minutes"
 msgstr "分钟"
 
-#: ../app/utils/schedule_action.js:843
-#: ../app/utils/schedule_action/html.hbs:77
+#: ../app/utils/schedule_action.js:843 ../app/utils/schedule_action/html.hbs:77
 msgid "Weekly"
 msgstr "每周"
 
-#: ../app/utils/schedule_action.js:848
-#: ../app/utils/schedule_action/html.hbs:78
+#: ../app/utils/schedule_action.js:848 ../app/utils/schedule_action/html.hbs:78
 msgid "Monthly"
 msgstr "每月"
 
-#: ../app/utils/schedule_action.js:853
-#: ../app/utils/schedule_action/html.hbs:79
+#: ../app/utils/schedule_action.js:853 ../app/utils/schedule_action/html.hbs:79
 msgid "Yearly"
 msgstr "每年"
 
@@ -1188,15 +1169,11 @@ msgid "DISK"
 msgstr "磁盘"
 
 #: ../app/utils/disks-resize.js:165
-msgid ""
-"Persistent image. The changes will be saved back to the datastore after the "
-"VM is terminated (ie goes into DONE state)"
+msgid "Persistent image. The changes will be saved back to the datastore after the VM is terminated (ie goes into DONE state)"
 msgstr "持久化镜像。虚拟机被删除后所有更改会保存回数据存储中（例如进入 完成 状态）。"
 
 #: ../app/utils/disks-resize.js:169
-msgid ""
-"Non-persistent disk. The changes will be lost once the VM is terminated (ie "
-"goes into DONE state)"
+msgid "Non-persistent disk. The changes will be lost once the VM is terminated (ie goes into DONE state)"
 msgstr "非持久化磁盘。虚拟机被删除后所有更改将会丢失（例如进入 完成 状态）。"
 
 #: ../app/utils/disks-resize.js:177
@@ -1774,8 +1751,7 @@ msgstr "实例"
 msgid "Hosts"
 msgstr "主机"
 
-#: ../app/tabs/hosts-tab.js:53
-#: ../app/tabs/vms-tab/utils/datatable-common.js:38
+#: ../app/tabs/hosts-tab.js:53 ../app/tabs/vms-tab/utils/datatable-common.js:38
 #: ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/vms-tab/datatable/search.hbs:39
 #: ../app/tabs/vms-tab/panels/info/html.hbs:61
@@ -2035,9 +2011,7 @@ msgid "The template"
 msgstr "该模板"
 
 #: ../app/tabs/provision-tab/templates/list.js:327
-msgid ""
-"and the image associated will be shared and all the users will be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "及与其关联的镜像将被共享，所有的用户均可使用此模板实例化新的虚拟机。"
 
 #: ../app/tabs/provision-tab/templates/list.js:331
@@ -2045,9 +2019,7 @@ msgid "Share template"
 msgstr "共享模板"
 
 #: ../app/tabs/provision-tab/templates/list.js:375
-msgid ""
-"and the image associated will be unshared and the users will not be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "及与其关联的镜像将被取消共享，用户将不能使用此模板实例化新的虚拟机。"
 
 #: ../app/tabs/provision-tab/templates/list.js:379
@@ -2109,9 +2081,7 @@ msgid "saved successfully"
 msgstr "保存成功"
 
 #: ../app/tabs/provision-tab/vms/list.js:588
-msgid ""
-"VM cloning in the background. The Template will appear as soon as it is "
-"ready, and the VM unlocked."
+msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr "虚拟机克隆正在后台运行。克隆完成后模板将会显示，源虚拟机也会解锁。"
 
 #: ../app/tabs/provision-tab/vms/list.js:961
@@ -2135,8 +2105,7 @@ msgstr "没有服务"
 msgid "Change Cardinality"
 msgstr "改变基数"
 
-#: ../app/tabs/provision-tab/flows/list.js:457
-#: ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:457 ../app/tabs/provision-tab.js:121
 msgid "The cardinality for this role cannot be changed"
 msgstr "不能更改此角色的基数"
 
@@ -2146,8 +2115,7 @@ msgstr "不能更改此角色的基数"
 msgid "Dismiss Alert"
 msgstr "消除告警"
 
-#: ../app/tabs/provision-tab/flows/list.js:473
-#: ../app/tabs/provision-tab.js:143
+#: ../app/tabs/provision-tab/flows/list.js:473 ../app/tabs/provision-tab.js:143
 msgid "Number of VMs for Role"
 msgstr "角色的虚拟机数量"
 
@@ -2211,8 +2179,8 @@ msgid "Driver"
 msgstr "驱动器"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:91
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#: ../app/tabs/zones-tab.js:45 ../app/tabs/acls-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:101 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:70
 #: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
@@ -2307,8 +2275,7 @@ msgid "Storage bridge list"
 msgstr "存储网桥列表"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:64
-msgid ""
-"Comma separated list of servers to access the image directory if not local"
+msgid "Comma separated list of servers to access the image directory if not local"
 msgstr "如果不是本地，以逗号分隔的服务器列表访问镜像文件目录"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:69
@@ -2340,9 +2307,7 @@ msgid "Signature Version"
 msgstr "签名版本"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:96
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 's3'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
 msgstr "若使用亚马逊AWS S3服务则留空不填。若连接Ceph S3则**必须**填's3'。"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:107
@@ -2350,9 +2315,7 @@ msgid "Force Path Style"
 msgstr "强制路径样式"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:108
-msgid ""
-"Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** "
-"be 'YES'."
+msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."
 msgstr "若使用亚马逊AWS S3服务则留空不填。若连接Ceph S3则**必须**填'YES'。"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:113
@@ -2360,9 +2323,7 @@ msgid "Read block length in MB"
 msgstr "读取文件块长度，单位为MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:114
-msgid ""
-"Split marketapps into chunks of this size (in MB). You should **never** user"
-" a quantity larger than 100. Defaults to 32 (MB)."
+msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
 msgstr "市场应用以该长度分割成块(单位为MB)。注意长度不要大于100。默认值为32(MB)。"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:125
@@ -2383,15 +2344,15 @@ msgstr "只显示自动填写上下文的应用"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:146
 msgid "DockerHub marketplace url"
-msgstr ""
+msgstr "DockerHub 市场URL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:151
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:154
 msgid "SSL connection"
-msgstr ""
+msgstr "SSL连接"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:168
 msgid "Create MarketPlace"
@@ -2408,7 +2369,7 @@ msgstr "启用"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:47
 msgid "Disabled"
-msgstr ""
+msgstr "禁用"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
@@ -2473,8 +2434,7 @@ msgstr "您选中了下列数据存储："
 msgid "Import"
 msgstr "导入"
 
-#: ../app/tabs/datastores-tab/buttons.js:42
-#: ../app/tabs/hosts-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:42 ../app/tabs/hosts-tab/buttons.js:32
 #: ../app/tabs/vnets-templates-tab/buttons.js:44
 msgid "Select cluster"
 msgstr "选择集群"
@@ -2637,15 +2597,11 @@ msgid "Update Group"
 msgstr "更新群组"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
-msgid ""
-"Exposes a complete view of the cloud, allowing administrators and advanced "
-"users full control of any physical or virtual resource."
+msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
 msgstr "暴露云的完整视图，允许管理员和高级用户完全控制任何物理或虚拟资源"
 
 #: ../app/tabs/groups-tab/utils/views.js:27
-msgid ""
-"Simplified version of the cloud allowing group admins and cloud end-users to"
-" manage any virtual resource."
+msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
 msgstr "云的简化版本，允许群组管理员和云的终端用户去管理任何虚拟资源"
 
 #: ../app/tabs/groups-tab/utils/views.js:39
@@ -2653,21 +2609,15 @@ msgid "Full control of the cloud, including virtual and physical resources."
 msgstr "对云拥有完全控制，包括虚拟和物理资源"
 
 #: ../app/tabs/groups-tab/utils/views.js:45
-msgid ""
-"Users are not able to manage hosts and clusters, although they will be able "
-"to create new Images or Virtual Machines."
+msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
 msgstr "用户不能去管理主机和集群，但能够创建新的镜像或者虚拟机"
 
 #: ../app/tabs/groups-tab/utils/views.js:51
-msgid ""
-"Control of all the resources belonging to a group, with the ability to "
-"create new users within the group."
+msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
 msgstr "控制属于群组的所有资源，包括在群组中创建新用户的能力。"
 
 #: ../app/tabs/groups-tab/utils/views.js:57
-msgid ""
-"Simplified view mainly where users can provision new Virtual Machines easily"
-" from pre-defined Templates."
+msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
 msgstr "简化视图，主要用于利用预定义模板划分新的虚拟机"
 
 #: ../app/tabs/groups-tab/panels/accounting.js:39
@@ -2778,9 +2728,7 @@ msgstr "从VM创建 MarketPlace 应用程序"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
 #: ../app/tabs/vms-tab/actions.js:458
-msgid ""
-"Import error: Can't import vCenter VMs to a marketplace, only vCenter VM "
-"templates."
+msgid "Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates."
 msgstr "导入错误:不能将vCenter虚拟机导入市场，只能导入vCenter虚拟机模板。"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
@@ -2814,9 +2762,7 @@ msgid "This MarketPlace App resides in Zone "
 msgstr "这个市场应用程序驻留在区域中"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:189
-msgid ""
-". To delete it you need to switch to that Zone from the zone selector in the"
-" top-right corner."
+msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr "要删除它您需要从右上角的区域选择器切换到那个区域。"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:192
@@ -3000,17 +2946,7 @@ msgid "delete-db"
 msgstr "删除 - 数据库"
 
 #: ../app/tabs/vms-tab/buttons.js:192
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation."
-"                     The recovery may be done by failing, succeeding or "
-"retrying the current operation.                     YOU NEED TO MANUALLY "
-"CHECK THE VM STATUS ON THE HOST, to decide if the operation"
-"                     was successful or not, or if it can be retried."
-"                    <br/>                    <br/>Delete: This will delete "
-"the selected VMs                    <br/>Delete-recreate: This will delete "
-"and recreate VMs to PENDING state                    <br/>Delete-db: This "
-"will delete the selected VMs, but will not perform any action on the "
-"hypervisor"
+msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
 msgstr "恢复正在等待驱动器操作的卡住的虚拟机。此恢复操作可以是使当前操作失败，使当前操作成功或重试当前操作。你需要手动检查主机上的虚拟机状态，以确定操作是否成功，或者是否可以重试操作。<br/><br/>删除：这将删除所选的虚拟机。<br/>删除 - 重新创建：这将删除并重新创建虚拟机并使其处于等待状态。<br/>删除 - 数据库：这将从数据库中删除选定的虚拟机，但不会对虚拟机管理程序执行任何操作。"
 
 #: ../app/tabs/vms-tab/buttons.js:205 ../app/tabs/vms-tab/buttons.js:229
@@ -3027,7 +2963,7 @@ msgstr "SPICE"
 
 #: ../app/tabs/vms-tab/buttons.js:223
 msgid "Virt Viewer"
-msgstr ""
+msgstr "Virt查看器"
 
 #: ../app/tabs/vms-tab/buttons.js:235
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:67
@@ -3301,11 +3237,11 @@ msgstr "否"
 
 #: ../app/tabs/vms-tab/panels/info.js:125
 msgid "Driver Error"
-msgstr ""
+msgstr "启动错误"
 
 #: ../app/tabs/vms-tab/panels/info.js:142
 msgid "Scheduled Action Error"
-msgstr ""
+msgstr "调度操作失败"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:47
 #: ../app/tabs/images-tab/panels/snapshots.js:46
@@ -3441,8 +3377,7 @@ msgstr "群组"
 msgid "RVMs"
 msgstr "正在运行的虚拟机数量"
 
-#: ../app/tabs/hosts-tab/datatable.js:84
-#: ../app/tabs/hosts-tab/datatable.js:233
+#: ../app/tabs/hosts-tab/datatable.js:84 ../app/tabs/hosts-tab/datatable.js:233
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "已分配CPU"
@@ -4202,9 +4137,7 @@ msgid "Role "
 msgstr "角色"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:55
-msgid ""
-"This will delete the Service.<br/>You can also delete the template or the "
-"template and image referenced inside this Service."
+msgid "This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."
 msgstr "这将删除服务。<br/>您还可以删除该服务中引用的模板或模板和图像。"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
@@ -4317,9 +4250,7 @@ msgid "Purge done"
 msgstr "删除完成"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
-msgid ""
-"This will delete all services in DONE state to free some space in your "
-"database"
+msgid "This will delete all services in DONE state to free some space in your database"
 msgstr "这将删除所有处于“完成”状态的服务，以释放数据库中的一些空间"
 
 #: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
@@ -4344,7 +4275,7 @@ msgstr "扩展"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "移除角色"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:228
 msgid "The VM is ready"
@@ -4356,15 +4287,15 @@ msgstr "等待虚拟机就绪"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:193
 msgid "VM: "
-msgstr ""
+msgstr "虚拟主机："
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:195
 msgid "has error: "
-msgstr ""
+msgstr "有错误："
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:202
 msgid "Dismiss"
-msgstr ""
+msgstr "驳回"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:148
 msgid "Purge DONE services"
@@ -4385,7 +4316,7 @@ msgstr "确认"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:345
 msgid "Are you sure you want to delete the role"
-msgstr ""
+msgstr "您确认要删除角色吗"
 
 #: ../app/tabs/vdcs-tab.js:49
 msgid "Virtual Data Centers"
@@ -4396,9 +4327,7 @@ msgid "Virtual Data Center"
 msgstr "虚拟数据中心"
 
 #: ../app/tabs/templates-tab/actions-common.js:55
-msgid ""
-"This will delete the Template.<br/>You can also delete any Image referenced "
-"inside this Template"
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr "此操作将删除该模板。 <br/>您也可以删除任何在此模板中引用的镜像"
 
 #: ../app/tabs/templates-tab/actions-common.js:58
@@ -4406,15 +4335,11 @@ msgid "Delete all images"
 msgstr "删除所有镜像"
 
 #: ../app/tabs/templates-tab/buttons.js:77
-msgid ""
-"The template, along with any image referenced by it, will be shared with the"
-" group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
 msgstr "该模板以及它所引用的任何镜像，将与群组的用户共享。权限更改：群组使用"
 
 #: ../app/tabs/templates-tab/buttons.js:83
-msgid ""
-"The template, along with any image referenced by it, will be unshared with "
-"the group's users. Permission changed: GROUP USE"
+msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr "该模板以及它所引用的任何镜像，将不会共享给群组的用户。 权限变更：群组使用"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:69
@@ -4576,9 +4501,7 @@ msgid "Change primary group"
 msgstr "更改主要群组"
 
 #: ../app/tabs/users-tab/buttons.js:35
-msgid ""
-"This will change the primary group of the selected users. Select the new "
-"group"
+msgid "This will change the primary group of the selected users. Select the new group"
 msgstr "此操作将更改所选用户的主要群组，请选择新群组"
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
@@ -4700,11 +4623,7 @@ msgid "Security Group created"
 msgstr "安全组已创建"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
-msgid ""
-"Please note: each time the rules are edited, the commit operation is done "
-"automatically. <br/><br/>This action will force the propagation of security "
-"group changes to VMs. The operation takes time to iterate over all VMs in "
-"the security group, the progress can be checked in the \"VMs\" panel."
+msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr "注意：每次编辑规则后，更改会被自动提交。<br/><br/>该操作将强制将虚拟机安全组策略的变更传播给虚拟机。该操作下发至安全组内所有虚拟机将需要一些时间，下发进度可在“虚拟机”面板上查看。"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
@@ -4911,17 +4830,11 @@ msgid "Host Overcommitment"
 msgstr "主机超分使用"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
-msgid ""
-"Prior to assigning a VM to a Host, the available capacity is checked to "
-"ensure that the VM fits in the host. The capacity is obtained by the monitor"
-" probes. You may alter this behaviour by reserving an amount of capacity. "
-"You can reserve this capacity:"
+msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
 msgstr "在将虚拟机分配给主机之前, 可用容量将被检查以确保虚拟机能适配到主机中。通过监控探头获取容量信息。你通过预留一定的资源容量改变这种行为。你可以预留此容量："
 
 #: ../app/utils/dialogs/overcommit/html.hbs:33
-msgid ""
-"Cluster-wise. All the hosts of the cluster will reserve the same amount of "
-"capacity."
+msgid "Cluster-wise. All the hosts of the cluster will reserve the same amount of capacity."
 msgstr "集群范围。所有集群中的主机都将预留相同的容量。"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:34
@@ -4929,9 +4842,7 @@ msgid "Host-wise. This value will override those defined at cluster level."
 msgstr "主机范围。这个值将覆盖在集群级别定义的参数。"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:38
-msgid ""
-"These values can be negative, in that case you'll be actually increasing the"
-" overall capacity so overcommitting host capacity."
+msgid "These values can be negative, in that case you'll be actually increasing the overall capacity so overcommitting host capacity."
 msgstr "这些值可以为负，在那种情况下您实际上是通过超分主机的容量来增加了总容量。"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -4944,9 +4855,7 @@ msgid "Reserved Memory in KB"
 msgstr "预留的内存（KB）"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
-msgid ""
-"The values will overwrite the monitoring values in the next monitorization "
-"cycle"
+msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "这个值将在下个监控周期覆盖监控值"
 
 #: ../app/utils/panel/ec2-tr/html.hbs:2
@@ -5037,11 +4946,7 @@ msgid "vCenter VM Folder"
 msgstr "vCenter虚拟机文件夹"
 
 #: ../app/utils/vcenter-vm-folder/html.hbs:21
-msgid ""
-"If specified, the VMs and Template folder path where the VM will be created "
-"inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "如果指定，在数据中心内按照虚拟机和模板文件夹路径创建虚拟机，这个路径是用斜杠分隔的，例如 /Management/VMs。如果没有设置虚拟机的路径，该虚拟机会使用和模板相同的路径。"
 
 #: ../app/utils/showback/html.hbs:19
@@ -5369,12 +5274,13 @@ msgstr "网卡有别名"
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:40
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:46
 msgid "External"
-msgstr "外部"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:55
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:47
+#, fuzzy
 msgid "The NIC will be attached as an external alias of the VM"
-msgstr ""
+msgstr "这个网卡将以别名被附加"
 
 #: ../app/utils/nics-section/dd.hbs:62
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
@@ -5394,26 +5300,26 @@ msgstr "调度器将决定哪一个网络是最佳的虚拟网络"
 #: ../app/utils/nics-section/dd.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:67
 msgid "RDP connection"
-msgstr ""
+msgstr "RDP连接"
 
 #: ../app/utils/nics-section/dd.hbs:90 ../app/utils/nics-section/dd.hbs:107
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:75
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:88
 msgid "Activate"
-msgstr ""
+msgstr "激活"
 
 #: ../app/utils/nics-section/dd.hbs:91
 msgid "RDP will be enabled in this network"
-msgstr ""
+msgstr "RDP将在这个网络中被启用"
 
 #: ../app/utils/nics-section/dd.hbs:98
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:80
 msgid "SSH connection"
-msgstr ""
+msgstr "SSH连接"
 
 #: ../app/utils/nics-section/dd.hbs:108
 msgid "SSH will be enabled in this network"
-msgstr ""
+msgstr "SSH将在这个网络中被启用"
 
 #: ../app/utils/nics-section/dd.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:95
@@ -5449,9 +5355,7 @@ msgstr "表达式"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:113
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:110
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:61
-msgid ""
-"Boolean expression that rules out entries from the pool of datastores "
-"suitable to run this VM."
+msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
 msgstr "布尔表达式，用于从适合运行此虚拟机的数据存储池中排除一些项目。"
 
 #: ../app/utils/nics-section/dd.hbs:138
@@ -5485,9 +5389,7 @@ msgstr "在虚拟机中散布虚拟机"
 
 #: ../app/utils/nics-section/dd.hbs:158
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:138
-msgid ""
-"This field sets which attribute will be used to sort the suitable vnets for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable vnets for this VM"
 msgstr "这个字段设置哪个属性将被用来对适合放置此虚拟机的虚拟网络进行排序"
 
 #: ../app/utils/nics-section/dd.hbs:174
@@ -5504,9 +5406,7 @@ msgid "Floating IP"
 msgstr "浮动IP"
 
 #: ../app/utils/nics-section/dd.hbs:192
-msgid ""
-"If checked, each Virtual Machine will have a floating IP added to its "
-"network interface."
+msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "如果选中此选项，每个虚拟机将会有一个浮动IP地址添加到其网络接口。"
 
 #: ../app/utils/nics-section/dd.hbs:201
@@ -5515,9 +5415,7 @@ msgid "Management Interface"
 msgstr "管理接口"
 
 #: ../app/utils/nics-section/dd.hbs:203
-msgid ""
-"If checked, this network interface will be a Virtual Router management "
-"interface. Traffic will not be forwarded."
+msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "如果选中此选项，此网络接口将成为一个虚拟路由器的管理接口。网络流量不会被转发。"
 
 #: ../app/utils/nics-section/dd.hbs:213
@@ -5525,10 +5423,7 @@ msgid "Force IPv6:"
 msgstr "强制 IPv6："
 
 #: ../app/utils/nics-section/dd.hbs:231
-msgid ""
-"You can add Security Groups to this network interface. These IDs do not "
-"overwrite the ones defined in the Virtual Network. All the Security Group "
-"IDs are combined, and applied to the Virtual Machine instance."
+msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "您可以添加安全组到此网络接口。这些ID不会覆盖在虚拟网络中定义的设置。所有安全组ID将被组合起来，并应用到虚拟机实例。"
 
 #: ../app/sunstone/buttons.hbs:27
@@ -5674,7 +5569,7 @@ msgstr "镜像位置"
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:56
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:76
 msgid "Path/URL"
-msgstr ""
+msgstr "路径/URL"
 
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:58
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:78
@@ -5684,7 +5579,7 @@ msgstr "上传"
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:65
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:87
 msgid "Path in OpenNebula server or URL"
-msgstr ""
+msgstr "OpenNebula服务器中的路径或URL"
 
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:96
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:118
@@ -5706,11 +5601,11 @@ msgstr "虚拟机组"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:94
 msgid "Memory GB"
-msgstr ""
+msgstr "内存GB"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:106
 msgid "Disk MB"
-msgstr ""
+msgstr "磁盘MB"
 
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:36
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:37
@@ -5725,26 +5620,22 @@ msgstr "内存"
 
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:79
 msgid "IP LEASES"
-msgstr ""
+msgstr "IP租赁"
 
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:91
 msgid "SYSTEM DISK"
-msgstr ""
+msgstr "系统盘"
 
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:103
 msgid "DATASTORE"
-msgstr ""
+msgstr "数据存储"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:5
 msgid "This action will reboot this Virtual Machine."
 msgstr "此操作将重启虚拟机"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-msgid ""
-"You can send the reboot signal to the Virtual Machine (this is equivalent to"
-" execute the reboot command form the console). If that doesn't affect your "
-"Virtual Machine, try to Reboot the machine (this is equivalent to pressing "
-"the reset button a physical computer)."
+msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
 msgstr "您可以给虚拟机发送重启信号（这相当于从控制台执行重新启动的命令）。如果对您的虚拟机不起作用，请尝试Reboot机器（这相当于按下物理计算机的复位按钮）。"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
@@ -5756,18 +5647,12 @@ msgid "Send the reboot signal"
 msgstr "发送重启信号"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
-msgid ""
-"This action will power off this Virtual Machine. The Virtual Machine will "
-"remain in the poweroff state, and can be powered on later"
+msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
 msgstr "此操作将关闭虚拟机电源。虚拟机将保持在关机状态，后续可以执行开机操作"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
-msgid ""
-"You can send the power off signal to the Virtual Machine (this is equivalent"
-" to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to Power off the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "您可以发送关闭电源的信号给虚拟机（这相当于从控制台执行命令）。如果对您的虚拟机不起作用，请尝试关闭虚拟机电源（这是相当于在一个物理计算机上按下电源按钮）。"
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:18
@@ -5829,11 +5714,7 @@ msgid "Template Description"
 msgstr "模版描述"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:26
-msgid ""
-"The new Virtual Machine's disks can be made persistent. In a persistent "
-"Virtual Machine the changes made survive after it is destroyed. On the other"
-" hand, you cannot create more than one simultaneous Virtual Machine from a "
-"Template with persistent disks."
+msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
 msgstr "新虚拟机磁盘可被设置为持久的。一个持久的虚拟机被删除后其变更仍会保留。另一方面，您不能从一个包含有持久性磁盘的模板创建多于1个的虚拟机。"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:43
@@ -5850,9 +5731,7 @@ msgstr "虚拟机名称"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:42
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:33
-msgid ""
-"Creates a private persistent copy of the template plus any image defined in "
-"DISK, and instantiates that copy"
+msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr "创建模板的一个私有持久副本，包含在DISK中定义的任意镜像，并实例化该副本"
 
 #: ../app/tabs/provision-tab/vms/create.hbs:158
@@ -5873,9 +5752,7 @@ msgid "Select the devices to boot from, and their order"
 msgstr "选择启动设备及其顺序"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-msgid ""
-"This action will power off this Virtual Machine and will be undeployed from "
-"the physical machine"
+msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
 msgstr "此操作将关闭虚拟机电源并在将物理机器中取消部署"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
@@ -5900,11 +5777,7 @@ msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
 msgstr "小心，此操作将关闭和删除你的虚拟机"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-msgid ""
-"You can send the shutdown signal to the Virtual Machine (this is equivalent "
-"to execute the command from the console). If that doesn't affect your "
-"Virtual Machine, try to terminate the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "您可以发送关闭的信号给虚拟机（这相当于从控制台执行命令）。如果对您的虚拟机不起作用，请尝试终止虚拟机（这相当于在一个物理计算机上按下电源按钮）。"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
@@ -6070,9 +5943,7 @@ msgid "Transfer bandwidth limit (B/s)"
 msgstr "传输带宽限制（字节/秒）"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:134
-msgid ""
-"Specify the maximum transfer rate in bytes/second when downloading images "
-"from a http/https URL. Suffixes K, M or G can be used."
+msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
 msgstr "当从一个 http/https URL下载镜像时指定最大的传输速率 字节/秒，后缀可以使用 K，M或者G"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:141
@@ -6088,8 +5959,7 @@ msgid "Host bridge list"
 msgstr "主机网桥列表"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Space separated list of servers to add new Images to the Datastore storage"
+msgid "Space separated list of servers to add new Images to the Datastore storage"
 msgstr "空格分隔的服务器列表，用于添加新的镜像到数据存储"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:159
@@ -6177,8 +6047,7 @@ msgid "Compatible system datastores"
 msgstr "兼容的系统数据存储"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:257
-msgid ""
-"Specifies which system datastores are compatible with this image datastore"
+msgid "Specifies which system datastores are compatible with this image datastore"
 msgstr "指定哪些系统数据存储与此镜像数据存储兼容"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:264
@@ -6289,9 +6158,7 @@ msgstr "登录令牌"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:208
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
-msgid ""
-"A login token acts as a password and can be used to authenticate with "
-"OpenNebula through Sunstone, the CLI, or the API"
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
 msgstr "登录令牌作为密码，可以在Sunstone、CLI 或 API中用来与OpenNebula进行身份验证"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:212
@@ -6307,7 +6174,7 @@ msgstr "两步身份验证"
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:242
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:29
 msgid "Two factor authentication can be enabled for logging into Sunstone UI."
-msgstr ""
+msgstr "可以为登录Sunstone UI启用双因素认证。"
 
 #: ../app/tabs/dashboard-tab/storage.hbs:30
 #: ../app/tabs/dashboard-tab/storage.hbs:31
@@ -6373,9 +6240,7 @@ msgid "Create an administrator user"
 msgstr "创建一个管理员用户"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:135
-msgid ""
-"You can create now an administrator user. More administrators can be added "
-"later."
+msgid "You can create now an administrator user. More administrators can be added later."
 msgstr "你现在可以创建一个管理员用户。后续可添加更多的管理员。"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:147
@@ -6387,9 +6252,7 @@ msgid "Make new images persistent by default"
 msgstr "默认将新镜像设置为持久化"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:153
-msgid ""
-"Control the default value for the PERSISTENT attribute on image creation "
-"(oneimage create)."
+msgid "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."
 msgstr "控制镜像创建时（oneimage create）“持久化”属性的默认值。默认值为非持久化。"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:166
@@ -6400,18 +6263,17 @@ msgstr "将另存和克隆的镜像默认设置为持久化"
 msgid ""
 "Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm\n"
 "              disk-saveas). If blank images will inherit the persistent attribute from the base image."
-msgstr ""
+msgstr "在创建镜像时控制持久属性的默认值(镜像克隆，磁盘保存)。如果留空，镜像将继承基础镜像的持久属性。"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:187
-msgid ""
-"Allow users to view the VMs and Services of other users in the same group"
+msgid "Allow users to view the VMs and Services of other users in the same group"
 msgstr "允许同一群组中的用户查看其他用户的虚拟机和服务"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:189
 msgid ""
 "An ACL Rule will be created to give users in this group access to all the resources in the same\n"
 "              group."
-msgstr ""
+msgstr "一条ACL规则将被创建，允许此群组中的用户访问群组中的所有资源。"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:198
 msgid "Allow users in this group to create the following resources"
@@ -6421,13 +6283,13 @@ msgstr "允许此群组中的用户创建以下资源"
 msgid ""
 "This will create new ACL Rules to define which virtual resources this group's users will be able to\n"
 "              create."
-msgstr ""
+msgstr "这将创建新的ACL规则来定义此群组中的用户可创建哪些虚拟资源"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:221
 msgid ""
 "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to\n"
 "                    enable users of this group to use service composition via OneFlow, let it checked."
-msgstr ""
+msgstr "Documents 是一个用于一般用途的专用工具，主要由OneFlow使用。如果您想允许此群组中的用户通过OneFlow使用服务组合，请选中它。"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"
@@ -6454,14 +6316,12 @@ msgid "VM Template Name"
 msgstr "虚拟机模板名称"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-msgid ""
-"The following template will be created in OpenNebula and the previous images"
-" will be referenced in the disks."
+msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
 msgstr "以下模板将在OpenNebula中创建，以前的镜像将在磁盘中被引用"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:43
 msgid "Do not import/export associated VM templates/images"
-msgstr ""
+msgstr "不导入/导出关联的虚拟机模板/镜像"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:48
 msgid "Select the Datastore to store the resource"
@@ -6469,11 +6329,11 @@ msgstr "选择数据存储以保存资源"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:52
 msgid "Select the vCenter Template to use"
-msgstr ""
+msgstr "选择要使用的vCenter模板"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:56
 msgid "Select the Dockerhub tag"
-msgstr ""
+msgstr "选择Dockerhub标签"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:19
 msgid "Select the Marketplace where the App will be created"
@@ -6485,15 +6345,15 @@ msgstr "在此输入应用市场App模板"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 msgid "Import images"
-msgstr ""
+msgstr "导入镜像"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:50
 msgid "Select the Service to create the App"
-msgstr ""
+msgstr "选择服务以创建App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:62
 msgid "Select the VM Template to create the App"
-msgstr ""
+msgstr "选择虚拟机模板以创建App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 msgid "Select the Image to create the App"
@@ -6501,15 +6361,15 @@ msgstr "选择镜像以创建App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:72
 msgid "Select the VM to create the App"
-msgstr ""
+msgstr "选择虚拟机以创建App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:80
 msgid "Select the Marketplace where the Images will be created"
-msgstr ""
+msgstr "选择将要创建镜像的应用市场"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:85
 msgid "Select the Marketplace where where the App will be created"
-msgstr ""
+msgstr "选择将要创建App的应用市场"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:92
 msgid "Templates for the App"
@@ -6521,9 +6381,7 @@ msgid "VM template"
 msgstr "虚拟机模板"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:97
-msgid ""
-"VM Template to be created. A DISK element pointing to the App Image will be "
-"automatically added when the App is exported"
+msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
 msgstr "要创建的虚拟机模板。当App导出时一个指向App镜像的磁盘元素将被自动添加"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:103
@@ -6546,15 +6404,11 @@ msgid "Created before"
 msgstr "之前创建的"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
-msgid ""
-"You can provide a template for the resource that will be created in "
-"OpenNebula"
+msgid "You can provide a template for the resource that will be created in OpenNebula"
 msgstr "您可提供一个资源模板，它将在OpenNebula中被创建"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:58
-msgid ""
-"You can provide a VM template associated to the resource that will be "
-"created in OpenNebula"
+msgid "You can provide a VM template associated to the resource that will be created in OpenNebula"
 msgstr "您可提供一个关联到资源的虚拟机模板，它将在OpenNebula中被创建"
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
@@ -6614,7 +6468,7 @@ msgstr "新名称"
 
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:33
 msgid "Attach as an alias"
-msgstr ""
+msgstr "附加为别名"
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize/html.hbs:20
 msgid "Disk Resize"
@@ -6651,10 +6505,7 @@ msgstr "强制容量检查"
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
-msgid ""
-"If it is set to true, the host capacity will be checked. This will only "
-"affect oneadmin requests, regular users resize requests will always be "
-"enforced"
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "如果设置为true，系统将会检查主机的容量。这只会影响oneadmin的请求，来自普通用户的调整大小请求总是会被强制检查。"
 
 #: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:20
@@ -6737,7 +6588,7 @@ msgstr "LCM状态"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:74
 msgid "Port forwarding"
-msgstr ""
+msgstr "端口转发"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:86
 msgid "Deploy ID"
@@ -6755,17 +6606,17 @@ msgstr "用户模板"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:34
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:140
 msgid "Physical CPU"
-msgstr ""
+msgstr "物理CPU"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:23
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:45
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:188
 msgid "Virtual CPU"
-msgstr ""
+msgstr "虚拟CPU"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:25
 msgid "Virtual Cores"
-msgstr ""
+msgstr "虚拟核心"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:29
 msgid "Cost / CPU"
@@ -6817,10 +6668,7 @@ msgid "Secret access key"
 msgstr "安全访问密钥"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
-msgid ""
-"The valid list of instance types can be found in the official Amazon EC2 "
-"documentation, please use a value from the Model column of the following "
-"table: aws.amazon.com/ ec2/instance-types/"
+msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
 msgstr "有效的实例类型列表可以在Amazon EC2官方文档中找到，请使用下表Model列中的值：aws.amazon.com/ec2/instance-types/"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:141
@@ -6904,8 +6752,7 @@ msgid "Clone Image"
 msgstr "克隆镜像"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several images are selected, please choose a prefix to name the new copies"
+msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr "数个镜像被选中，请选择一个前缀来命名新的副本"
 
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
@@ -6961,7 +6808,7 @@ msgstr "自定义属性"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker/html.hbs:33
 msgid "Write the Dockerfile template here"
-msgstr ""
+msgstr "在这里写Docker文件模板"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
@@ -7009,7 +6856,7 @@ msgstr "IP或MAC"
 
 #: ../app/tabs/vnets-tab/dialogs/add-secgroups/html.hbs:22
 msgid "Add Security Group"
-msgstr ""
+msgstr "添加安全组"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
@@ -7084,9 +6931,7 @@ msgid "Network Driver (VN_MAD)"
 msgstr "网络驱动器 (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:155
-msgid ""
-"Bridged, virtual machine traffic is directly bridged. The Linux bridge is "
-"created in the nodes as needed. No traffic filtering is made."
+msgid "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."
 msgstr "桥接，虚拟机流量直接桥接到网卡。 Linux网桥根据需要在节点中创建。 没有流量过滤。"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:158
@@ -7094,38 +6939,27 @@ msgid "Bridged & Security Groups, bridged network with Security Group rules."
 msgstr "桥接安全组，带有安全组规则的桥接网络。"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:161
-msgid ""
-"Bridged & ebtables VLAN, restrict network access through ebtables rules. "
-"Security Group rules are applied."
+msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
 msgstr "桥接与ebtables VLAN，通过ebtables规则限制网络访问，应用安全组规则。"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:164
-msgid ""
-"802.1Q, restrict network access through VLAN tagging. Security Group rules "
-"are applied."
+msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
 msgstr "802.1Q ：通过VLAN标签限制网络访问，应用安全组规则"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:167
-msgid ""
-"VXLAN, creates a L2 network overlay, each VLAN has associated a multicast "
-"address in the 239.0.0.0/8 range. Security Group rules are applied."
+msgid "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."
 msgstr "VXLAN: 创建一个二层网络，每一个VLAN会关联一个在239.0.0.0/8范围内的组播地址，应用安全组规则"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:170
-msgid ""
-"Open vSwitch, restrict network access with Open vSwitch Virtual Switch. "
-"Security Groups are not applied."
+msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."
 msgstr "Open vSwitch，通过Open vSwitch 虚拟交换机限制网络访问，安全组不适用"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:173
-msgid ""
-"Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
+msgid "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."
 msgstr "在VXLAN二层网络overlay上的Open vSwitch，安全组不适用"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:176
-msgid ""
-"vSphere standard switches or distributed switches with port groups. Security"
-" Groups are not applied."
+msgid "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."
 msgstr "带端口组的vSphere标准交换机或分布式交换机，安全组不适用"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:179
@@ -7162,9 +6996,7 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr "用于发送/接收虚拟网络流量的节点网卡"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:226
-msgid ""
-"Physical NIC names for uplinks. Use comma to separate values (e.g "
-"vmnic1,vmnic2)"
+msgid "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"
 msgstr "用于上连链路的物理网卡名称，使用逗号分隔（例如  vmnic1,vmnic2）"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:233
@@ -7212,14 +7044,12 @@ msgid "OpenNebula's Host ID"
 msgstr "OpenNebula的主机ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:298
-msgid ""
-"Address Ranges need to be managed in the individual Virtual Network panel"
+msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr "地址范围需要在单独的虚拟网络面板中管理"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:308
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:101
-msgid ""
-"The default Security Group 0 is automatically added to new Virtual Networks"
+msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr "默认安全组0会自动添加到新的虚拟网络"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:315
@@ -7252,9 +7082,7 @@ msgid "Outbound traffic"
 msgstr "出口流量"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:363
-msgid ""
-"These values apply to each VM interface individually, they are not global "
-"values for the Virtual Network"
+msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
 msgstr "这些值单独应用到每一个虚拟机接口，它们不是虚拟网络的全局值"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:372
@@ -7428,8 +7256,7 @@ msgstr "克隆服务模板"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "已选中多个模版，请选择用于命名新副本的前缀"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
@@ -7443,9 +7270,7 @@ msgid "Service name"
 msgstr "服务名称"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
-msgid ""
-"When creating several Services, the wildcard %i will be replaced with a "
-"number starting from 0"
+msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr "当创建数个服务时，通配符%i将被替换成从0开始的数字"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
@@ -7469,11 +7294,11 @@ msgstr "网络配置"
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:68
 msgid "Custom Attributes Values Configuration"
-msgstr ""
+msgstr "自定义属性值配置"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:72
 msgid "Service Scheduled Actions"
-msgstr ""
+msgstr "服务调度操作"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:41
@@ -7484,10 +7309,7 @@ msgstr "策略"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:84
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:78
-msgid ""
-"Straight strategy will instantiate each role in order: parents role will be "
-"deployed before their children. None strategy will instantiate the roles "
-"regardless of their relationships."
+msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
 msgstr "直接策略将按顺序实例化每个角色，先部署父角色，再部署子角色。空策略在实例化角色时将不考虑它们之间的关系。"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:87
@@ -7511,15 +7333,13 @@ msgstr "强制终止"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:100
-msgid ""
-"Wait for VMs to report that they are READY via OneGate to consider them "
-"running"
+msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
 msgstr "等待虚拟机在确认其运行后，通过OneGate报告它们已处于就绪状态"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:114
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:108
 msgid "Automatic deletion of service when all VMs terminated"
-msgstr ""
+msgstr "当所有虚拟机被终止时，自动删除服务"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:79
 #: ../app/tabs/oneflow-services-tab/form-panels/update/html.hbs:73
@@ -7577,10 +7397,8 @@ msgstr "网络接口"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:64
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:64
-msgid ""
-"This network interface will be configured as an ALIAS in the VM without "
-"context configuration."
-msgstr ""
+msgid "This network interface will be configured as an ALIAS in the VM without context configuration."
+msgstr "将为此虚拟机未配置别名的这个网络接口配置别名。"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:56
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:56
@@ -7657,9 +7475,7 @@ msgstr "基数：将基数设置为给定的数字"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:29
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:29
-msgid ""
-"PERCENTAGE_CHANGE: Add/subtract the given percentage to the current "
-"cardinality."
+msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
 msgstr "变更百分比：将当前的基数添加/减去给定的百分比"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
@@ -7704,9 +7520,7 @@ msgstr "“变更百分比”调整类型的可选参数。"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:37
-msgid ""
-" If present, the policy will change the cardinality by at least the number "
-"of VMs set in this attribute."
+msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "如果存在，该策略会将基数变更为至少等于在此属性中设置的虚拟机数量。"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
@@ -7721,9 +7535,7 @@ msgstr "例如：ATT < 20"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/elasticity-thead.hbs:42
-msgid ""
-"Number of periods that the expression must be true before the elasticity is "
-"triggered"
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr "在弹性操作被激活之前，表达式必须保持为真的周期数量"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
@@ -7749,19 +7561,14 @@ msgstr "调度策略"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:36
-msgid ""
-"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
-"policy will change the cardinality by at least the number of VMs set in this"
-" attribute."
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "“变更百分比”调整类型的可选参数。如果存在，该策略会将基数变更为至少等于在此属性中设置的虚拟机数量。"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:38
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/sched-thead.hbs:42
-msgid ""
-"Recurrence: Time for recurring adjustments. Time is specified with the Unix "
-"cron syntax"
+msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
 msgstr "重复：重复调整的时间。时间按照UNIX的cron语法格式指定"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
@@ -7800,7 +7607,7 @@ msgstr "就绪状态门"
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:61
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:61
 msgid "Automatic Deletion"
-msgstr ""
+msgstr "自动删除"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:76
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:39
@@ -7829,7 +7636,7 @@ msgstr "选择当前和未来的所有数据存储"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:19
 msgid "Add role"
-msgstr ""
+msgstr "添加角色"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
@@ -7861,24 +7668,22 @@ msgstr "从列表中选择一个角色查看更多信息"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:20
 msgid "Scheduled actions in service"
-msgstr ""
+msgstr "服务中的调度操作"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:28
 msgid "Perform an action"
-msgstr ""
+msgstr "执行一个操作"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched-actions/html.hbs:48
 msgid "Perform"
-msgstr ""
+msgstr "执行"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
 msgid "Clone Template"
 msgstr "克隆模板"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
-msgid ""
-"You can also clone any Image referenced inside this Template. They will be "
-"cloned to a new Image, and made persistent."
+msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr "您也能克隆在此模板中引用的任意镜像。他们将被克隆到新的镜像，并使之持久化。"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
@@ -7918,9 +7723,7 @@ msgid "Instantiate as persistent"
 msgstr "持久化的实例化"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:43
-msgid ""
-"Defaults to 'template name-<vmid>' when empty. When creating several VMs, "
-"the wildcard %i will be replaced with a number starting from 0"
+msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
 msgstr "留空时默认为'模板名称-<vmid>'。当创建多台虚拟机时，通配符%i将被替换为从0开始的数字"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:59
@@ -7929,9 +7732,7 @@ msgid "Start on hold"
 msgstr "从保持状态启动"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:61
-msgid ""
-"Sets the new VM to hold state, instead of pending. The scheduler will not "
-"deploy VMs in this state. It can be released later, or deployed manually."
+msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
 msgstr "将新虚拟机设置为保持状态，而不是等待状态。在此状态下调度器将不会部署虚拟机。它可以后续被释放或被手动部署。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
@@ -7960,9 +7761,7 @@ msgid "Swap"
 msgstr "交换分区"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping."
+msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr "设备映射磁盘镜像。如果设定，将会覆盖默认的设备映射。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
@@ -7994,9 +7793,7 @@ msgid "Size on instantiate"
 msgstr "实例化时的容量大小"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:98
-msgid ""
-"The size of the disk will be modified to match this size when the template "
-"is instantiated"
+msgid "The size of the disk will be modified to match this size when the template is instantiated"
 msgstr "当模板实例化时磁盘的容量大小将被修改来匹配此容量大小"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
@@ -8041,15 +7838,15 @@ msgstr "OPENNEBULA 管理"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:237
 msgid "IOPS Size"
-msgstr ""
+msgstr "IOPS大小"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:239
 msgid "Size of IOPS per second"
-msgstr ""
+msgstr "每秒IOPS大小"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:247
 msgid "Edge Cluster"
-msgstr ""
+msgstr "边缘集群"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:252
 msgid "Snapshot Frequency in Seconds"
@@ -8057,17 +7854,14 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:260
 msgid "IOTHREADS"
-msgstr ""
+msgstr "IO线程"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:265
 msgid "IOTHREAD id"
-msgstr ""
+msgstr "IO线程id"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:266
-msgid ""
-"Iothread id used by this disk. Default is round robin. Can be used only if "
-"IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS "
-"value on OS & CPU -> Features."
+msgid "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:35
@@ -8139,9 +7933,7 @@ msgid "PCI Devices"
 msgstr "PCI设备"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:131
-msgid ""
-"PCI passthrough of network devices is configured per NIC, in the \"Network\""
-" tab. Do not add network devices here"
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
 msgstr "网络设备的PCI直通在“网络”标签里针对每个网卡设置。请不要在这里添加网络设备"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:140
@@ -8174,15 +7966,15 @@ msgstr "用于模拟所有网卡的默认硬件模式"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/html.hbs:47
 msgid "Default network filtering rule for all NICs"
-msgstr ""
+msgstr "用于所有网卡的默认网络过滤规则"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:76
 msgid "RDP will be activate in this network"
-msgstr ""
+msgstr "RDP将在这个网络中被启用"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 msgid "SSH will be enable in this network"
-msgstr ""
+msgstr "SSH将在这个网络中被启用"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:155
 msgid "Choose Network"
@@ -8250,9 +8042,7 @@ msgid "Only supported for virtio driver."
 msgstr "仅支持virtio驱动。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:357
-msgid ""
-"Security Groups belonging to the selected Virtual Network will be applied "
-"and cannot be unselected"
+msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
 msgstr "属于所选虚拟网络的安全组将被应用，且不能取消选择"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:362
@@ -8284,9 +8074,7 @@ msgid "  Add SSH contextualization"
 msgstr "添加SSH contextualization"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:62
-msgid ""
-"Add an ssh public key to the context. If the Public Key textarea is empty "
-"then the user variable SSH_PUBLIC_KEY will be used."
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "在context中添加一个SSH公钥。如果公钥输入框为空，则用户变量SSH_PUBLIC_KEY将被使用。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
@@ -8298,10 +8086,7 @@ msgid "  Add Network contextualization"
 msgstr "添加网络Contextualization"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:81
-msgid ""
-"Add network contextualization parameters. For each NIC defined in the "
-"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
-"the CONTEXT section and will be available in the Virtual Machine"
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "添加网络contextualization参数。对于NETWORK部分所定义的每一个NIC，ETH$i_IP, ETH$i_NETWORK等参数会被包含在CONTEXT部分，并可在虚拟机中访问。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:89
@@ -8309,9 +8094,7 @@ msgid "  Add OneGate token"
 msgstr "添加OneGate令牌"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
-msgid ""
-"Add a file (token.txt) to the context containing the token to push custom "
-"metrics to the VirtualMachine through OneGate"
+msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr "增加一个文件（token.txt）到包含令牌的context中以通过OneGate推送自定义指标到虚拟机"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
@@ -8327,9 +8110,7 @@ msgid "Start script"
 msgstr "启动脚本"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
-msgid ""
-"Text of the script executed when the machine starts up. It can contain "
-"shebang in case it is not shell script"
+msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr "当机器启动时执行脚本的文本，在不是shell脚本的情况下它能包含shebang"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
@@ -8341,9 +8122,7 @@ msgid "User Inputs"
 msgstr "用户输入"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
-msgid ""
-"These attributes must be provided by the user when a new VM is instantiated."
-" They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr "这些属性在实例化一个新的虚拟机时必须由用户提供。它们将被包含在虚拟机的context中"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
@@ -8355,10 +8134,7 @@ msgid "Init scripts"
 msgstr "初始化脚本"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
-msgid ""
-"The contextualization package executes an init.sh file if it exists. If more"
-" than one script file is added, this list contains the scripts to run and "
-"their order"
+msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr "如果init.sh文件存在，contextualization包将执行它。如果添加了不止一个脚本文件，则将按照脚本列表的顺序执行"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:22
@@ -8368,17 +8144,13 @@ msgstr "虚拟机所需要的内存大小，单位为MB。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:35
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:141
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr "虚拟机所需要的CPU资源百分比除以100。例如需要半颗CPU资源，可填写0.5。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:189
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:85
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "虚拟CPU数目。这个值是可选的，未填写时将使用虚拟化管理程序的默认值，通常为1个虚拟CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:29
@@ -8392,7 +8164,7 @@ msgstr "KVM"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:35
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:125
 msgid "LXC"
-msgstr ""
+msgstr "LXC"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:37
 msgid "Firecracker"
@@ -8419,16 +8191,12 @@ msgid "Default Resource Pool"
 msgstr "默认资源池"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:118
-msgid ""
-"If specified, the the VMs and Template folder path where the VM will be "
-"created inside the data center. The path is delimited by slashes e.g "
-"/Management/VMs. If no path is set the VM will be placed in the same folder "
-"where the template is located."
+msgid "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located."
 msgstr "如果指定，即为虚拟机和模板文件夹路径，用于放置在数据中心内创建的虚拟机。这个路径以斜杠分隔，例如/Management/VMs。如果没有设置虚拟机的路径，则虚拟机会放置在和模板相同的路径下。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:129
 msgid "Unprivileged mode"
-msgstr ""
+msgstr "非特权模式"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:152
 msgid "Cost of each MB or GB per hour"
@@ -8469,10 +8237,7 @@ msgid "Make this template available for Virtual Router machines only"
 msgstr "使此模板仅对虚拟路由器可用"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:234
-msgid ""
-"Virtual Routers create Virtual Machines from a source Template. This "
-"checkbox makes this template available to be selected in the New Virtual "
-"Router wizard"
+msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
 msgstr "虚拟路由器从一个源模板创建虚拟机。此复选框被选中时此模板将在新虚拟路由器设置向导中可被选中"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:244
@@ -8490,11 +8255,11 @@ msgstr "用户/群组"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:52
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:201
 msgid "Enable hot resize?"
-msgstr ""
+msgstr "启用热调整？"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:67
 msgid "Max memory"
-msgstr ""
+msgstr "最大内存"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:92
 msgid "Memory modification"
@@ -8526,7 +8291,7 @@ msgstr "在实例化时允许用户去修改此模板的默认CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:216
 msgid "Max VCPU"
-msgstr ""
+msgstr "最大虚拟CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:228
 msgid "VCPU modification"
@@ -8541,8 +8306,7 @@ msgid "AMI"
 msgstr "AMI 亚马逊机器镜像"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:5
-msgid ""
-"Unique ID of a machine image, returned by a call to ec2-describe-images."
+msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
 msgstr "机器镜像的唯一ID，通过调用ec2-describe-images来返回。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
@@ -8567,10 +8331,7 @@ msgid "Block device mapping"
 msgstr "块设备映射"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:36
-msgid ""
-"The block device mapping for the instance. More than one can be specified in"
-" a space-separated list. Check the --block-device-mapping option of the EC2 "
-"CLI Reference for the syntax"
+msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax"
 msgstr "映射至实例的块设备。可使用空格分隔列表来指定多个设备。在EC2 命令行参考文档中查看--block-device-mapping 选项以了解语法"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
@@ -8578,9 +8339,7 @@ msgid "Client token"
 msgstr "客户端令牌"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
-msgid ""
-"Unique, case-sensitive identifier you provide to ensure idempotency of the "
-"request."
+msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
 msgstr "提供唯一的、区分大小写的标识符来确保该请求的幂等性。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:51
@@ -8596,9 +8355,7 @@ msgid "Elastic IP address"
 msgstr "弹性IP地址"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
-msgid ""
-"This parameter is passed to the command ec2-associate-address -i i-0041230 "
-"elasticip."
+msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
 msgstr "此参数将被传递至“ec2-associate-address -i i-0041230 elasticip”命令。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:67
@@ -8614,9 +8371,7 @@ msgid "Keypair name"
 msgstr "密钥对名称"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:77
-msgid ""
-"The name of the key pair, later will be used to execute commands like ssh -i"
-" id_keypair or scp -i id_keypair"
+msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
 msgstr "密钥对名称，将在之后的“ssh -i id_keypair or scp -i id_keypair”等命令的执行中使用。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:85
@@ -8632,10 +8387,7 @@ msgid "Private IP"
 msgstr "私有IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:100
-msgid ""
-"If you're using Amazon Virtual Private Cloud, you can optionally use this "
-"parameter to assign the instance a specific available IP address from the "
-"subnet."
+msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
 msgstr "如果您在使用亚马逊AWS虚拟私有云，你可以选择使用此参数来从子网选择一个可以的IP地址分配给实例。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:107
@@ -8660,16 +8412,11 @@ msgid "Subnet ID"
 msgstr "子网ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:132
-msgid ""
-"If you're using Amazon Virtual Private Cloud, this specifies the ID of the "
-"subnet you want to launch the instance into. This parameter is also passed "
-"to the command ec2-associate-address -i i-0041230 -a elasticip."
+msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
 msgstr "如果您在使用亚马逊AWS虚拟私有云，此参数指定了你的实例所部署到的子网ID。此参数也会被传递给命令“ec2-associate-address -i i-0041230 -a elasticip”。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
-msgid ""
-"Key and optional value of the tag, separated by an equals sign ( = ).You can"
-" specify more than one tag (comma separated)."
+msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
 msgstr "标签的键和可选的值，用等号分隔（=）。您可以指定多个标签（用逗号分隔）。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:147
@@ -8681,9 +8428,7 @@ msgid "User data"
 msgstr "用户数据"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:154
-msgid ""
-"Specifies Base64-encoded MIME user data to be made available to the "
-"instance(s) in this reservation."
+msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr "指定Base64编码的MIME用户数据对在此预留中的实例可用。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:5
@@ -8696,44 +8441,42 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:20
 msgid "Image offer"
-msgstr ""
+msgstr "镜像报价"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:21
 msgid "Specifies the OS image offer of the VM."
-msgstr ""
+msgstr "为虚拟机指定操作系统镜像"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:27
 msgid "Image publisher"
-msgstr ""
+msgstr "镜像发布者"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:28
 msgid "Specifies the image publisher."
-msgstr ""
+msgstr "指定镜像发布者。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
 msgid "Image SKU"
-msgstr ""
+msgstr "镜像SKU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
 msgid "Specifies the image SKU (stock keeping unit)."
-msgstr ""
+msgstr "指定镜像SKU(stock keeping unit)."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:43
 msgid "Image version"
-msgstr ""
+msgstr "镜像版本"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:44
 msgid "Specifies the image version."
-msgstr ""
+msgstr "指定镜像版本。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:52
 msgid "VM user name"
 msgstr "虚拟机用户名"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-msgid ""
-"If the selected IMAGE is prepared for Azure provisioning, a username can be "
-"specified here to access the VM once booted"
+msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr "如果所选镜像是为Azure预置准备的，可在此指定用户名用于虚拟机启动后访问虚拟机。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:59
@@ -8745,60 +8488,56 @@ msgid "Password for VM User"
 msgstr "虚拟机用户的密码"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
-msgid ""
-"Name of the virtual network which is already created in Azure. If not given,"
-" virtual network will be created based on VNET_* attributes below or using "
-"defaults."
+msgid "Name of the virtual network which is already created in Azure. If not given, virtual network will be created based on VNET_* attributes below or using defaults."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:75
 msgid "Public IP"
-msgstr ""
+msgstr "公共IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:76
 msgid "Whether to assgin public IP to the VM"
-msgstr ""
+msgstr "是否为虚拟机分配公网IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:87
 msgid "VNET name"
-msgstr ""
+msgstr "虚拟网络名称"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:88
-msgid ""
-"Name of virtual network which will be created on Azure. Default: one-vnet"
-msgstr ""
+msgid "Name of virtual network which will be created on Azure. Default: one-vnet"
+msgstr "创建在Azure上的虚拟网络名称。默认：one-vnet"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:94
 msgid "VNET addr prefix"
-msgstr ""
+msgstr "虚拟网络地址"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:95
 msgid "Vnet address prefix on. Default: 10.0.0.0/16."
-msgstr ""
+msgstr "虚拟网络地址。默认：10.0.0.0/16。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:103
 msgid "VNET dns"
-msgstr ""
+msgstr "虚拟网络DNS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:104
 msgid "DNS server. Default: 8.8.8.8."
-msgstr ""
+msgstr "DNS服务器。默认：8.8.8.8。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:110
 msgid "VNET subname"
-msgstr ""
+msgstr "虚拟网络子网名"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:111
 msgid "Subnet name. Default: default."
-msgstr ""
+msgstr "默认子网名：default。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:119
 msgid "VNET sub prefix"
-msgstr ""
+msgstr "虚拟网络子网"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:120
 msgid "Vnet subnet prefix. Default: 10.0.0.0/24."
-msgstr ""
+msgstr "虚拟网络子网。默认：10.0.0.0/24。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:128
 msgid "Availability set"
@@ -8810,14 +8549,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:135
 msgid "Proximity group"
-msgstr ""
+msgstr "邻近组"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:136
-msgid ""
-"Name of a proximity group already created in Azure. Proximity groups allow "
-"you to group your Azure services to optimize performance. All services and "
-"VMs within a proximity group will be located in the same region."
-msgstr ""
+msgid "Name of a proximity group already created in Azure. Proximity groups allow you to group your Azure services to optimize performance. All services and VMs within a proximity group will be located in the same region."
+msgstr "已经在Azure中创建的邻近组的名称。邻近组允许您对Azure服务进行分组，以优化性能。邻近组内的所有服务和虚拟机将位于同一区域。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
 msgid "Remote VM Template ID"
@@ -8862,38 +8598,35 @@ msgstr "bootloader可执行文件的路径"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:102
 msgid "Unique ID of the VM"
-msgstr ""
+msgstr "虚拟机的唯一ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:103
-msgid ""
-"It's referenced as machine ID inside the VM. Could be used to force ID for "
-"licensing purposes"
+msgid "It's referenced as machine ID inside the VM. Could be used to force ID for licensing purposes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:111
 msgid "Firmware"
-msgstr ""
+msgstr "固件"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:112
-msgid ""
-"This attribute allows to define the type of firmware used to boot the VM"
-msgstr ""
+msgid "This attribute allows to define the type of firmware used to boot the VM"
+msgstr "该属性允许定义用于启动虚拟机的固件类型"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:116
 msgid "BIOS"
-msgstr ""
+msgstr "BIOS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:120
 msgid "EFI"
-msgstr ""
+msgstr "EFI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:124
 msgid "Custom Firmware Path"
-msgstr ""
+msgstr "自定义固件路径"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:131
 msgid "Secure Firmware"
-msgstr ""
+msgstr "安全的固件"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:141
 msgid "Registered Image"
@@ -8929,8 +8662,7 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:204
-msgid ""
-"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "为虚拟机添加高级配置与电源管理接口（ACPI）支持"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:214
@@ -8962,9 +8694,7 @@ msgid "Localtime"
 msgstr "本地时间"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:252
-msgid ""
-"The guest clock will be synchronized to the hosts configured timezone when "
-"booted."
+msgid "The guest clock will be synchronized to the hosts configured timezone when booted."
 msgstr "虚拟机启动时，时钟将与配置了时区的所在主机同步。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:262
@@ -8972,9 +8702,7 @@ msgid "QEMU Guest Agent"
 msgstr "QEMU客户机代理"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:263
-msgid ""
-"Enables the QEMU Guest Agent communication. This does not start the Guest "
-"Agent inside the VM."
+msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
 msgstr "启用QEMU客户机代理通信。这不需要在虚拟机中启动客户机代理。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:275
@@ -8982,20 +8710,15 @@ msgid "virtio-scsi Queues"
 msgstr "virtio-scsi 队列"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:276
-msgid ""
-"Number of vCPU queues to use in the virtio-scsi controller. Leave blank to "
-"use the default value."
+msgid "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value."
 msgstr "在 virtio-scsi 控制器中vCPU队列的数量，留空将使用默认值。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:300
 msgid "Iothreads"
-msgstr ""
+msgstr "io线程"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:301
-msgid ""
-"Number of iothreads for virtio disks. By default threads will be assign to "
-"disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD"
-" attribute."
+msgid "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
@@ -9015,9 +8738,7 @@ msgid "Select Clusters "
 msgstr "选择集群"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:48
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "布尔表达式，用于从适合运行此虚拟机的主机列表中排除一些项目"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
@@ -9045,9 +8766,7 @@ msgid "Maximize the resources available to VMs in a Host"
 msgstr "最大化主机上可供虚拟机使用的资源"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:95
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "这个字段设置哪个属性将被用来对适合放置此虚拟机的主机进行排序"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:102
@@ -9055,19 +8774,15 @@ msgid "Datastore Rank"
 msgstr "数据存储等级"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:108
-msgid ""
-"Tries to optimize storage usage by selecting the DS with less free space"
+msgid "Tries to optimize storage usage by selecting the DS with less free space"
 msgstr "尝试通过选择剩余空间较少的数据存储来优化存储使用"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:113
-msgid ""
-"Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
 msgstr "条带化。尝试通过向不同的数据存储分配虚拟机来优化I/O。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:122
-msgid ""
-"This field sets which attribute will be used to sort the suitable datastores"
-" for this VM"
+msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
 msgstr "这个字段设置哪个属性将被用来对适合放置此虚拟机的数据存储进行排序"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:22
@@ -9153,7 +8868,7 @@ msgstr "私有"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "选中虚拟CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:20
 msgid "RAW data"
@@ -9165,7 +8880,7 @@ msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:27
 msgid "lxc"
-msgstr ""
+msgstr "lxc"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:35
 msgid "Data"
@@ -9177,7 +8892,7 @@ msgstr "直接传递给hypervisor的裸数据"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:42
 msgid "Validate"
-msgstr ""
+msgstr "验证"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:49
 msgid "Custom Tags"
@@ -9205,11 +8920,11 @@ msgstr "获取一个新的令牌"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:39
 msgid "Authenticator Type"
-msgstr ""
+msgstr "身份验证器类型"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:40
 msgid "Authenticator Name"
-msgstr ""
+msgstr "身份验证器名称"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:47
 msgid "TYPE"
@@ -9217,11 +8932,11 @@ msgstr "类型"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:61
 msgid "Register authenticator app"
-msgstr ""
+msgstr "注册身份验证器应用"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:64
 msgid "Register new security key"
-msgstr ""
+msgstr "注册一个新的安全密钥"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:74
 msgid "Get authenticator app: "
@@ -9249,7 +8964,7 @@ msgstr "输入验证码。"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:101
 msgid "Nickname for this security key"
-msgstr ""
+msgstr "此安全密码的友好名称"
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
 msgid "Select Secondary Groups"
@@ -9286,7 +9001,7 @@ msgstr "次要群组"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Is enabled?"
-msgstr ""
+msgstr "是否启用？"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:42
 msgid "Table Order"
@@ -9306,7 +9021,7 @@ msgstr "身份验证驱动器"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:38
 msgid "Two factor authentication"
-msgstr ""
+msgstr "双因素认证"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:62
 msgid "Login token"
@@ -9322,22 +9037,19 @@ msgstr "点击编辑按钮，您可以为此用户提供SSH密钥"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:106
 msgid "Private SSH Key"
-msgstr ""
+msgstr "SSH私钥"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:121
-msgid ""
-"You can provide a Private SSH Key for this User clicking on the edit button"
-msgstr ""
+msgid "You can provide a Private SSH Key for this User clicking on the edit button"
+msgstr "点击编辑按钮，您可以为此用户提供SSH私钥"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:132
 msgid "Private SSH Key Passphrase"
-msgstr ""
+msgstr "SSH私钥密码"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:147
-msgid ""
-"You can provide a Private SSH Key Passphrase for this User clicking on the "
-"edit button"
-msgstr ""
+msgid "You can provide a Private SSH Key Passphrase for this User clicking on the edit button"
+msgstr "点击编辑按钮，您可以为此用户提供SSH密钥密码"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
 msgid "Primary Group"
@@ -9372,9 +9084,7 @@ msgid "Clone Security Group"
 msgstr "克隆安全组"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
-msgid ""
-"Several security groups are selected, please choose a prefix to name the new"
-" copies"
+msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr "已选中数个安全组，请选择一个前缀来命名新的副本"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
@@ -9430,9 +9140,7 @@ msgid "Port Range"
 msgstr "端口范围"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
-msgid ""
-"VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to "
-"be updated with the latest rules:"
+msgid "VMs marked with <i class='fas fa-exclamation-triangle'></i> are waiting to be updated with the latest rules:"
 msgstr "被标记为 <i class='fas fa-exclamation-triangle'></i> 的虚拟机在等待更新到最新的规则："
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
@@ -9499,3 +9207,9 @@ msgstr "虚拟机亲和性"
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:85
 msgid "Roles Affinity"
 msgstr "角色亲和性"
+
+#~ msgid "Bulk Action Created"
+#~ msgstr "批量操作已创建"
+
+#~ msgid "VCPU"
+#~ msgstr "VCPU"

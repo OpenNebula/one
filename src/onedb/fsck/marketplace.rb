@@ -68,6 +68,8 @@ module OneDBFsck
                 zone_elem.content = "0"
             end
 
+            error = fix_permissions('MARKETPLACE', row[:oid], doc)
+
             if (error)
                 @fixes_marketplace[row[:oid]] = doc.root.to_s
             end

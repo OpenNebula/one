@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,59 +13,61 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo } from 'react'
+import { memo, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
-import { Tooltip, Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { SvgIcon, Tooltip, Typography } from '@mui/material'
 
-const useStyles = makeStyles({
-  circle: ({ color }) => ({
-    color,
-    fill: 'currentColor',
-    verticalAlign: 'middle',
-    pointerEvents: 'auto'
-  })
-})
+// ----------------------------------------
+// Circle SVG
+// ----------------------------------------
 
-const StatusCircle = memo(({ color, tooltip, size }) => {
-  const classes = useStyles({ color })
+const Circle = forwardRef(({ size, color, ...props }, ref) => (
+  <SvgIcon
+    {...props}
+    ref={ref}
+    viewBox="0 0 100 100"
+    sx={{
+      color,
+      width: size,
+      height: size,
+      fill: 'currentColor',
+      verticalAlign: 'middle',
+      pointerEvents: 'auto',
+    }}
+  >
+    <circle cx="50" cy="50" r="50" />
+  </SvgIcon>
+))
 
-  return (
-    <Tooltip
-      arrow
-      placement='right-end'
-      title={<Typography variant='subtitle2'>{tooltip}</Typography>}
-    >
-      <svg
-        viewBox='0 0 100 100'
-        version='1.1'
-        width={size}
-        height={size}
-        aria-hidden='true'
-        className={classes.circle}
-      >
-        <circle cx='50' cy='50' r='50' />
-      </svg>
-    </Tooltip>
-  )
-}, (prev, next) => prev.color === next.color && prev.tooltip === next.tooltip)
-
-StatusCircle.propTypes = {
-  tooltip: PropTypes.string,
+Circle.propTypes = {
   color: PropTypes.string,
-  size: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ])
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 }
 
-StatusCircle.defaultProps = {
-  tooltip: undefined,
-  color: undefined,
-  size: 12
-}
+Circle.displayName = 'Circle'
+
+// ----------------------------------------
+// Status Circle component
+// ----------------------------------------
+
+const StatusCircle = memo(
+  ({ color, tooltip, size = 12 }) =>
+    tooltip ? (
+      <Tooltip
+        arrow
+        placement="right-end"
+        title={<Typography variant="subtitle2">{tooltip}</Typography>}
+      >
+        <Circle color={color} size={size} />
+      </Tooltip>
+    ) : (
+      <Circle color={color} size={size} />
+    ),
+  (prev, next) => prev.color === next.color && prev.tooltip === next.tooltip
+)
+
+StatusCircle.propTypes = { tooltip: PropTypes.string, ...Circle.propTypes }
 
 StatusCircle.displayName = 'StatusCircle'
 

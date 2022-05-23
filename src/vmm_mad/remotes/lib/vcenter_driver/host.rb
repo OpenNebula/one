@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -712,7 +712,7 @@ module VCenterDriver
 
                 # Only take care of VMs, not templates
                 if !hashed_properties['config.template']
-                    vms[r.obj._ref] = hashed_properties
+                    vms[r.obj._ref + '_' + vc_uuid] = hashed_properties
                     vm_objects << r.obj
                 end
             end
@@ -802,7 +802,8 @@ module VCenterDriver
                     found_vm =
                         host_vms
                         .select do |vm|
-                            vm['DEPLOY_ID'].eql? vm_ref
+                            vm['DEPLOY_ID'] == vm_ref ||
+                            vm['DEPLOY_ID'] == VIHelper.get_deploy_id(vm_ref)
                         end.first
                     id = found_vm['ID'] if found_vm
 

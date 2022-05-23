@@ -174,6 +174,8 @@ module OneDBFsck
                     end
                 }
 
+                fix_permissions('IMAGE', row[:oid], doc)
+
                 # row[:body] = doc.root.to_s
 
                 # # commit

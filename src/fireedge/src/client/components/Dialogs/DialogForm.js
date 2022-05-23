@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,63 +13,66 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { AnySchema } from 'yup'
 
-import clsx from 'clsx'
-import makeStyles from '@mui/styles/makeStyles'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import DialogConfirmation, { DialogPropTypes } from 'client/components/Dialogs/DialogConfirmation'
+import DialogConfirmation, {
+  DialogPropTypes,
+} from 'client/components/Dialogs/DialogConfirmation'
 
-const useStyles = makeStyles(theme => ({
-  content: {
-    width: '80vw',
-    height: '60vh',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    [theme.breakpoints.only('xs')]: {
-      width: '100vw',
-      height: '100vh'
-    }
-  }
-}))
-
-const DialogForm = ({ values, resolver, handleSubmit, dialogProps, children }) => {
-  const classes = useStyles()
-
-  const { className, ...contentProps } = dialogProps.contentProps ?? {}
-
-  dialogProps.contentProps = {
-    className: clsx(classes.content, className),
-    ...contentProps
-  }
+/**
+ * Creates dialog with a form inside.
+ *
+ * @param {object} props - Props
+ * @param {object} props.values - Default values
+ * @param {function():AnySchema} props.resolver - Resolver schema
+ * @param {function():Promise} props.handleSubmit - Submit function
+ * @param {object} props.dialogProps - Dialog props
+ * @param {ReactElement|ReactElement[]} props.children - Children element
+ * @returns {ReactElement} Dialog with form
+ */
+const DialogForm = ({
+  values,
+  resolver,
+  handleSubmit,
+  dialogProps,
+  children,
+}) => {
+  dialogProps.fixedWidth ??= true
+  dialogProps.fixedHeight ??= true
 
   const methods = useForm({
     mode: 'onBlur',
     reValidateMode: 'onSubmit',
     defaultValues: values,
-    resolver: yupResolver(resolver())
+    resolver: yupResolver(resolver()),
+  })
+
+  const callbackSubmit = useCallback((formData) => {
+    const schemaData = resolver().cast(formData, {
+      context: formData,
+      isSubmit: true,
+    })
+
+    return handleSubmit(schemaData)
   })
 
   return (
     <DialogConfirmation
-      handleAccept={handleSubmit && methods.handleSubmit(handleSubmit)}
+      handleAccept={handleSubmit && methods.handleSubmit(callbackSubmit)}
       acceptButtonProps={{
-        isSubmitting: methods.formState.isSubmitting
+        isSubmitting: methods.formState.isSubmitting,
       }}
       cancelButtonProps={{
-        disabled: methods.formState.isSubmitting
+        disabled: methods.formState.isSubmitting,
       }}
       {...dialogProps}
     >
-      <FormProvider {...methods}>
-        {children}
-      </FormProvider>
+      <FormProvider {...methods}>{children}</FormProvider>
     </DialogConfirmation>
   )
 }
@@ -77,7 +80,7 @@ const DialogForm = ({ values, resolver, handleSubmit, dialogProps, children }) =
 DialogForm.propTypes = {
   values: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.any),
-    PropTypes.objectOf(PropTypes.any)
+    PropTypes.objectOf(PropTypes.any),
   ]),
   resolver: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func,
@@ -85,8 +88,8 @@ DialogForm.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
-    PropTypes.func
-  ])
+    PropTypes.func,
+  ]),
 }
 
 export default DialogForm

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -22,54 +22,55 @@ import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const ApplicationNetworkCard = memo(({
-  value,
-  isSelected,
-  handleClick,
-  handleEdit,
-  handleClone,
-  handleRemove
-}) => {
-  const { mandatory, name, description } = value
+const ApplicationNetworkCard = memo(
+  ({
+    value,
+    isSelected,
+    handleClick,
+    handleEdit,
+    handleClone,
+    handleRemove,
+  }) => {
+    const { mandatory, name, description } = value
 
-  return (
-    <SelectCard
-      icon={mandatory ? 'M' : undefined}
-      title={name}
-      subheader={description}
-      isSelected={isSelected}
-      handleClick={handleClick}
-    >
-      <CardActions>
-        {handleEdit && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleEdit}
-            disableElevation
-          >
-            {Tr(T.Edit)}
-          </Button>
-        )}
-        {handleClone && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleClone}
-            disableElevation
-          >
-            {Tr(T.Clone)}
-          </Button>
-        )}
-        {handleRemove && (
-          <Button size="small" onClick={handleRemove} disableElevation>
-            {Tr(T.Remove)}
-          </Button>
-        )}
-      </CardActions>
-    </SelectCard>
-  )
-}
+    return (
+      <SelectCard
+        icon={mandatory ? 'M' : undefined}
+        title={name}
+        subheader={description}
+        isSelected={isSelected}
+        handleClick={handleClick}
+      >
+        <CardActions>
+          {handleEdit && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleEdit}
+              disableElevation
+            >
+              {Tr(T.Edit)}
+            </Button>
+          )}
+          {handleClone && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleClone}
+              disableElevation
+            >
+              {Tr(T.Clone)}
+            </Button>
+          )}
+          {handleRemove && (
+            <Button size="small" onClick={handleRemove} disableElevation>
+              {Tr(T.Remove)}
+            </Button>
+          )}
+        </CardActions>
+      </SelectCard>
+    )
+  }
 )
 
 ApplicationNetworkCard.propTypes = {
@@ -79,13 +80,13 @@ ApplicationNetworkCard.propTypes = {
     description: PropTypes.string,
     type: PropTypes.string,
     id: PropTypes.string,
-    extra: PropTypes.string
+    extra: PropTypes.string,
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   handleEdit: PropTypes.func,
   handleClone: PropTypes.func,
-  handleRemove: PropTypes.func
+  handleRemove: PropTypes.func,
 }
 
 ApplicationNetworkCard.defaultProps = {
@@ -94,7 +95,7 @@ ApplicationNetworkCard.defaultProps = {
   handleClick: undefined,
   handleEdit: undefined,
   handleClone: undefined,
-  handleRemove: undefined
+  handleRemove: undefined,
 }
 
 ApplicationNetworkCard.displayName = 'ApplicationNetworkCard'

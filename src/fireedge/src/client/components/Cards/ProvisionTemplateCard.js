@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,25 +16,33 @@
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Db as ProviderIcon, SettingsCloud as ProvisionIcon } from 'iconoir-react'
+import {
+  Db as ProviderIcon,
+  SettingsCloud as ProvisionIcon,
+} from 'iconoir-react'
 
 import { SelectCard } from 'client/components/Cards'
 import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
-import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
+import {
+  PROVIDER_IMAGES_URL,
+  PROVISION_IMAGES_URL,
+  DEFAULT_IMAGE,
+} from 'client/constants'
 
 const ProvisionTemplateCard = memo(
   ({ value, image, isProvider, isSelected, isValid, handleClick }) => {
     const { description, name } = value
 
-    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-
     const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-    const imageUrl = useMemo(
-      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
-      [isExternalImage]
-    )
+    const imageUrl = useMemo(() => {
+      if (!image) return DEFAULT_IMAGE
+
+      const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+
+      return isExternalImage ? image : `${IMAGES_URL}/${image}`
+    }, [isExternalImage, isProvider, image])
 
     return (
       <SelectCard
@@ -48,10 +56,11 @@ const ProvisionTemplateCard = memo(
           component: 'div',
           children: (
             <Image
+              alt="provision-logo"
               src={imageUrl}
               withSources={image && !isExternalImage}
             />
-          )
+          ),
         }}
         subheader={description}
         title={name}
@@ -67,7 +76,7 @@ ProvisionTemplateCard.propTypes = {
   isSelected: PropTypes.bool,
   isValid: PropTypes.bool,
   image: PropTypes.string,
-  value: PropTypes.object
+  value: PropTypes.object,
 }
 
 ProvisionTemplateCard.defaultProps = {
@@ -76,7 +85,7 @@ ProvisionTemplateCard.defaultProps = {
   isSelected: false,
   isValid: true,
   image: undefined,
-  value: { name: '', description: '' }
+  value: { name: '', description: '' },
 }
 
 ProvisionTemplateCard.displayName = 'ProvisionTemplateCard'

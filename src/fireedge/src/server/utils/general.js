@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,8 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-// const colors = require('colors')
+const { parse: xmlParse } = require('fast-xml-parser')
 const { sprintf } = require('sprintf-js')
+
+const { defaults } = require('server/utils/constants')
+
+const { defaultEmptyFunction, defaultConfigParseXML } = defaults
 
 /**
  * Message in CLI (console.log).
@@ -25,13 +29,7 @@ const { sprintf } = require('sprintf-js')
  * @param {string} config.error - error mesage
  * @param {string} config.message - formar error
  */
-const messageTerminal = (
-  {
-    color = 'red',
-    error = '',
-    message = '%s'
-  }
-) => {
+const messageTerminal = ({ color = 'red', error = '', message = '%s' }) => {
   const reset = '\x1b[0m'
   let consoleColor = ''
   switch (color) {
@@ -63,6 +61,7 @@ const addPrintf = (string = '', args = '') => {
       typeof replacers[number] !== 'undefined' ? replacers[number] : match
     )
   }
+
   return rtn
 }
 
@@ -75,8 +74,28 @@ const addPrintf = (string = '', args = '') => {
 const checkEmptyObject = (obj = {}) =>
   Object.keys(obj).length === 0 && obj.constructor === Object
 
+/**
+ * Parse XML to JSON.
+ *
+ * @param {string} xml - xml data in  string
+ * @param {Function} callback - callback data
+ */
+const xml2json = (xml = '', callback = defaultEmptyFunction) => {
+  let rtn = []
+  try {
+    const jsonObj = xmlParse(xml, defaultConfigParseXML)
+    rtn = [null, jsonObj]
+  } catch (error) {
+    rtn = [error]
+  }
+
+  // eslint-disable-next-line node/no-callback-literal
+  callback(...rtn)
+}
+
 module.exports = {
   messageTerminal,
   addPrintf,
-  checkEmptyObject
+  checkEmptyObject,
+  xml2json,
 }

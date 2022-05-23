@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1120,12 +1120,20 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
             VirtualMachineTemplate quota_tmpl;
             string error;
 
+            time_t the_time = time(0);
+
+            // Prevent Monitor and VMM driver race condition.
+            // Ignore state updates for 30s after state changes
+            if ( the_time - vm->get_running_etime() < 30 )
+            {
+                vm->log("VMM", Log::INFO, "Ignoring VM state update");
+                return;
+            }
+
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
             vm->log("VMM",Log::INFO,"VM found again by the drivers");
-
-            time_t the_time = time(0);
 
             vm->set_state(VirtualMachine::ACTIVE);
 
@@ -1385,24 +1393,45 @@ void LifeCycleManager::trigger_snapshot_create_success(int vid)
 void LifeCycleManager::trigger_snapshot_create_failure(int vid)
 {
     trigger([this, vid] {
-        auto vm = vmpool->get(vid);
+        int vm_uid, vm_gid;
+        VectorAttribute* snap = nullptr;
 
-        if ( vm == nullptr )
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+            {
+                vm_uid = vm->get_uid();
+                vm_gid = vm->get_gid();
+
+                snap = vm->get_active_snapshot();
+
+                if (snap)
+                {
+                    snap = snap->clone();
+                }
+
+                vm->delete_active_snapshot();
+
+                vm->set_state(VirtualMachine::RUNNING);
+
+                vmpool->update(vm.get());
+            }
+            else
+            {
+                vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+            }
+        }
+        else
         {
             return;
         }
 
-        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+        if (snap)
         {
-            vm->delete_active_snapshot();
+            Template quota_tmpl;
+            quota_tmpl.set(snap);
 
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vmpool->update(vm.get());
-        }
-        else
-        {
-            vm->log("LCM",Log::ERROR,"snapshot_create_failure, VM in a wrong state");
+            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }
@@ -1451,24 +1480,45 @@ void LifeCycleManager::trigger_snapshot_revert_failure(int vid)
 void LifeCycleManager::trigger_snapshot_delete_success(int vid)
 {
     trigger([this, vid] {
-        auto vm = vmpool->get(vid);
+        int vm_uid, vm_gid;
+        VectorAttribute* snap = nullptr;
 
-        if ( vm == nullptr )
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+            {
+                vm_uid = vm->get_uid();
+                vm_gid = vm->get_gid();
+
+                snap = vm->get_active_snapshot();
+
+                if (snap)
+                {
+                    snap = snap->clone();
+                }
+
+                vm->delete_active_snapshot();
+
+                vm->set_state(VirtualMachine::RUNNING);
+
+                vmpool->update(vm.get());
+            }
+            else
+            {
+                vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+            }
+        }
+        else
         {
             return;
         }
 
-        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_SNAPSHOT )
+        if (snap)
         {
-            vm->delete_active_snapshot();
+            Template quota_tmpl;
+            quota_tmpl.set(snap);
 
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vmpool->update(vm.get());
-        }
-        else
-        {
-            vm->log("LCM",Log::ERROR,"snapshot_delete_success, VM in a wrong state");
+            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }
@@ -1711,6 +1761,8 @@ void LifeCycleManager::trigger_saveas_success(int vid)
 
         if ( auto image = ipool->get(image_id) )
         {
+            image->clear_saving();
+
             image->set_state_unlock();
 
             ipool->update(image.get());
@@ -1761,6 +1813,8 @@ void LifeCycleManager::trigger_saveas_failure(int vid)
 
         if ( auto image = ipool->get(image_id) )
         {
+            image->clear_saving();
+
             image->set_state(Image::ERROR);
 
             ipool->update(image.get());

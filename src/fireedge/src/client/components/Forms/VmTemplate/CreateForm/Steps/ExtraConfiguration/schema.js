@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,43 +13,66 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { array, object } from 'yup'
+import { array, object, ObjectSchema } from 'yup'
 
-import { PLACEMENT_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
-import { OS_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
-import { NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+import { HYPERVISORS } from 'client/constants'
 import { getObjectSchemaFromFields } from 'client/utils'
+import { FIELDS as PLACEMENT_FIELDS } from './placement/schema'
+import { FIELDS as OS_FIELDS, BOOT_ORDER_FIELD } from './booting/schema'
+import { FIELDS as NUMA_FIELDS } from './numa/schema'
+import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
+import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
+import { SCHEMA as STORAGE_SCHEMA } from './storage/schema'
+import { SCHEMA as NETWORK_SCHEMA } from './networking/schema'
 
-export const SCHEMA = hypervisor => object({
-  DISK: array()
-    .ensure()
-    .transform(disks => disks?.map((disk, idx) => ({
-      ...disk,
-      NAME: disk?.NAME?.startsWith('DISK') || !disk?.NAME
-        ? `DISK${idx}`
-        : disk?.NAME
-    }))),
-  NIC: array()
-    .ensure()
-    .transform(nics => nics?.map((nic, idx) => ({
-      ...nic,
-      NAME: nic?.NAME?.startsWith('NIC') || !nic?.NAME
-        ? `NIC${idx}`
-        : nic?.NAME
-    }))),
+/**
+ * Map name attribute if not exists.
+ *
+ * @param {string} prefixName - Prefix to add in name
+ * @returns {object[]} Resource object
+ */
+const mapNameByIndex = (prefixName) => (resource, idx) => ({
+  ...resource,
+  NAME:
+    resource?.NAME?.startsWith(prefixName) || !resource?.NAME
+      ? `${prefixName}${idx}`
+      : resource?.NAME,
+})
+
+const SCHED_ACTION_SCHEMA = object({
   SCHED_ACTION: array()
     .ensure()
-    .transform(actions => actions?.map((action, idx) => ({
-      ...action,
-      NAME: action?.NAME?.startsWith('SCHED_ACTION') || !action?.NAME
-        ? `SCHED_ACTION${idx}`
-        : action?.NAME
-    })))
+    .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION'))),
 })
-  .concat(getObjectSchemaFromFields([
-    ...PLACEMENT_FIELDS,
-    ...OS_FIELDS(hypervisor),
-    ...NUMA_FIELDS(hypervisor)
-  ]))
-  .noUnknown(false)
+
+/**
+ * @param {HYPERVISORS} hypervisor - VM hypervisor
+ * @returns {ObjectSchema} Extra configuration schema
+ */
+export const SCHEMA = (hypervisor) =>
+  object()
+    .concat(SCHED_ACTION_SCHEMA)
+    .concat(NETWORK_SCHEMA)
+    .concat(STORAGE_SCHEMA)
+    .concat(CONTEXT_SCHEMA(hypervisor))
+    .concat(IO_SCHEMA(hypervisor))
+    .concat(
+      getObjectSchemaFromFields([
+        ...PLACEMENT_FIELDS,
+        ...OS_FIELDS(hypervisor),
+        ...NUMA_FIELDS(hypervisor),
+      ])
+    )
+
+export {
+  mapNameByIndex,
+  SCHED_ACTION_SCHEMA,
+  STORAGE_SCHEMA,
+  NETWORK_SCHEMA,
+  IO_SCHEMA,
+  CONTEXT_SCHEMA,
+  PLACEMENT_FIELDS,
+  OS_FIELDS,
+  BOOT_ORDER_FIELD,
+  NUMA_FIELDS,
+}

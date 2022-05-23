@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,93 +13,67 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo, useEffect, useState } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
-import { useFetch, useSocket } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
-import { useVmApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import { getAvailableInfoTabs } from 'client/models/Helper'
+import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
-import { camelCase } from 'client/utils'
-
-import TabProvider from 'client/components/Tabs/TabProvider'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
 import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
-import Log from 'client/components/Tabs/Vm/Log'
 import Network from 'client/components/Tabs/Vm/Network'
-import Placement from 'client/components/Tabs/Vm/Placement'
+import History from 'client/components/Tabs/Vm/History'
 import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
 
-const getTabComponent = tabName => ({
-  capacity: Capacity,
-  configuration: Configuration,
-  info: Info,
-  log: Log,
-  network: Network,
-  placement: Placement,
-  schedActions: SchedActions,
-  snapshot: Snapshot,
-  storage: Storage
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    capacity: Capacity,
+    configuration: Configuration,
+    info: Info,
+    network: Network,
+    history: History,
+    schedActions: SchedActions,
+    snapshot: Snapshot,
+    storage: Storage,
+  }[tabName])
 
 const VmTabs = memo(({ id }) => {
-  const { getHooksSocket } = useSocket()
-  const { getVm } = useVmApi()
+  const { view, getResourceView } = useViews()
+  const { isLoading, isError, error } = useGetVmQuery(
+    { id },
+    { refetchOnMountOrArgChange: 10 }
+  )
 
-  const {
-    data,
-    fetchRequest,
-    loading,
-    error
-  } = useFetch(getVm, getHooksSocket({ resource: 'vm', id }))
+  const tabsAvailable = useMemo(() => {
+    const resource = RESOURCE_NAMES.VM
+    const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-  const handleRefetch = () => fetchRequest(id, { reload: true })
-
-  const [tabsAvailable, setTabs] = useState(() => [])
-  const { view, getResourceView } = useAuth()
-
-  useEffect(() => {
-    fetchRequest(id)
-  }, [id])
-
-  useEffect(() => {
-    const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
-
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
-
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
 
-  if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
   }
 
-  return (
-    <TabProvider initialState={{ data, handleRefetch }}>
-      <Tabs tabs={tabsAvailable} />
-    </TabProvider>
+  return isLoading ? (
+    <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  ) : (
+    <Tabs addBorder tabs={tabsAvailable} />
   )
 })
 
-VmTabs.propTypes = {
-  id: PropTypes.string.isRequired
-}
-
+VmTabs.propTypes = { id: PropTypes.string.isRequired }
 VmTabs.displayName = 'VmTabs'
 
 export default VmTabs

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -66,6 +66,11 @@ int VMRPCPool::update_monitoring(const VirtualMachineMonitorInfo& monitoring)
 
 bool VMRPCPool::get_monitoring(int vmid, VirtualMachineMonitorInfo& vm)
 {
+    if (monitor_expiration <= 0)
+    {
+        return false;
+    }
+
     ostringstream cmd;
     string monitor_str;
 
@@ -126,7 +131,7 @@ int VMRPCPool::get_vmid(const string& deploy_id)
 
 int VMRPCPool::clean_expired_monitoring()
 {
-    if (monitor_expiration == 0)
+    if (monitor_expiration <= 0)
     {
         return 0;
     }

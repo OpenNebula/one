@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,85 +17,102 @@ import {
   ReportColumns as DashboardIcon,
   DatabaseSettings as ProvidersIcon,
   SettingsCloud as ProvisionsIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
 
-const Dashboard = loadable(() => import('client/containers/Dashboard/Provision'), { ssr: false })
+import { T } from 'client/constants'
 
-const Providers = loadable(() => import('client/containers/Providers'), { ssr: false })
-const CreateProvider = loadable(() => import('client/containers/Providers/Create'), { ssr: false })
+const Dashboard = loadable(
+  () => import('client/containers/Dashboard/Provision'),
+  { ssr: false }
+)
 
-const Provisions = loadable(() => import('client/containers/Provisions'), { ssr: false })
-const CreateProvision = loadable(() => import('client/containers/Provisions/Create'), { ssr: false })
+const Providers = loadable(() => import('client/containers/Providers'), {
+  ssr: false,
+})
+const CreateProvider = loadable(
+  () => import('client/containers/Providers/Create'),
+  { ssr: false }
+)
 
-const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
+const Provisions = loadable(() => import('client/containers/Provisions'), {
+  ssr: false,
+})
+const CreateProvision = loadable(
+  () => import('client/containers/Provisions/Create'),
+  { ssr: false }
+)
+
+const Settings = loadable(() => import('client/containers/Settings'), {
+  ssr: false,
+})
 
 export const PATH = {
   DASHBOARD: '/dashboard',
   PROVIDERS: {
     LIST: '/providers',
     CREATE: '/providers/create',
-    EDIT: '/providers/edit/:id'
+    EDIT: '/providers/edit/:id',
   },
   PROVISIONS: {
     LIST: '/provisions',
     CREATE: '/provisions/create',
-    EDIT: '/provisions/edit/:id'
+    EDIT: '/provisions/edit/:id',
   },
-  SETTINGS: '/settings'
+  SETTINGS: '/settings',
 }
 
 export const ENDPOINTS = [
   {
-    label: 'Dashboard',
+    title: T.Dashboard,
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
-    Component: Dashboard
+    Component: Dashboard,
   },
   {
-    label: 'Providers',
+    title: T.Providers,
     path: PATH.PROVIDERS.LIST,
     sidebar: true,
     icon: ProvidersIcon,
-    Component: Providers
+    Component: Providers,
   },
   {
-    label: 'Create Provider',
+    title: T.CreateProvider,
     path: PATH.PROVIDERS.CREATE,
-    Component: CreateProvider
+    Component: CreateProvider,
   },
   {
-    label: 'Edit Provider template',
+    title: T.UpdateProvider,
     path: PATH.PROVIDERS.EDIT,
-    Component: CreateProvider
+    Component: CreateProvider,
   },
   {
-    label: 'Provisions',
+    title: T.Provisions,
     path: PATH.PROVISIONS.LIST,
     sidebar: true,
     icon: ProvisionsIcon,
-    Component: Provisions
+    Component: Provisions,
   },
   {
-    label: 'Create Provision',
+    title: T.CreateProvision,
     path: PATH.PROVISIONS.CREATE,
-    Component: CreateProvision
+    Component: CreateProvision,
   },
   {
-    label: 'Edit Provision template',
+    title: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
-    Component: CreateProvision
+    Component: CreateProvision,
   },
   {
-    label: 'Settings',
+    title: T.Settings,
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,
-    Component: Settings
-  }
+    Component: Settings,
+  },
 ]
 
 export default { PATH, ENDPOINTS }

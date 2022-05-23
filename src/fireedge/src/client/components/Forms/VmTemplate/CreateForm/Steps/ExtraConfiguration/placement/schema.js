@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,45 +13,62 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { string } from 'yup'
 
+import { Field, Section } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 
+/** @type {Field} Host requirement field */
 const HOST_REQ_FIELD = {
   name: 'SCHED_REQUIREMENTS',
   label: T.HostReqExpression,
   tooltip: T.HostReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
+/** @type {Field} Host rank requirement field */
 const HOST_RANK_FIELD = {
   name: 'SCHED_RANK',
   label: T.HostPolicyExpression,
   tooltip: T.HostPolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
+/** @type {Field} Datastore requirement field */
 const DS_REQ_FIELD = {
   name: 'DS_SCHED_REQUIREMENTS',
   label: T.DatastoreReqExpression,
   tooltip: T.DatastoreReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
+/** @type {Field} Datastore rank requirement field */
 const DS_RANK_FIELD = {
   name: 'DS_SCHED_RANK',
   label: T.DatastorePolicyExpression,
   tooltip: T.DatastorePolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
+  validation: string().trim().notRequired(),
 }
 
-export const PLACEMENT_HOST_FIELDS = [HOST_REQ_FIELD, HOST_RANK_FIELD]
+/** @type {Section[]} Sections */
+const SECTIONS = [
+  {
+    id: 'placement-host',
+    legend: T.Host,
+    fields: [HOST_REQ_FIELD, HOST_RANK_FIELD],
+  },
+  {
+    id: 'placement-ds',
+    legend: T.Datastore,
+    fields: [DS_REQ_FIELD, DS_RANK_FIELD],
+  },
+]
 
-export const PLACEMENT_DS_FIELDS = [DS_REQ_FIELD, DS_RANK_FIELD]
+/** @type {Field[]} List of Placement fields */
+const FIELDS = [HOST_REQ_FIELD, HOST_RANK_FIELD, DS_REQ_FIELD, DS_RANK_FIELD]
 
-export const PLACEMENT_FIELDS = [PLACEMENT_HOST_FIELDS, PLACEMENT_DS_FIELDS]
+export { SECTIONS, FIELDS }

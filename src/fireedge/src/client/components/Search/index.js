@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -25,7 +25,7 @@ const Search = ({
   listOptions,
   renderResult,
   startAdornment,
-  searchBoxProps
+  searchBoxProps,
 }) => {
   const { result, query, handleChange } = useSearch({ list, listOptions })
 
@@ -52,28 +52,25 @@ const Search = ({
 
 Search.propTypes = {
   list: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.object,
-      PropTypes.string
-    ])
+    PropTypes.oneOfType([PropTypes.object, PropTypes.string])
   ).isRequired,
   listOptions: PropTypes.shape({
     isCaseSensitive: PropTypes.bool,
     shouldSort: PropTypes.bool,
     sortFn: PropTypes.func,
-    keys: PropTypes.arrayOf(PropTypes.string)
+    keys: PropTypes.arrayOf(PropTypes.string),
   }),
   renderResult: PropTypes.func,
   startAdornment: PropTypes.objectOf(PropTypes.any),
-  searchBoxProps: PropTypes.objectOf(PropTypes.any)
+  searchBoxProps: PropTypes.objectOf(PropTypes.any),
 }
 
 Search.defaultProps = {
   list: [],
   listOptions: { keys: [] },
-  renderResult: item => item,
+  renderResult: (item) => item,
   startAdornment: undefined,
-  searchBoxProps: undefined
+  searchBoxProps: undefined,
 }
 
 export default Search

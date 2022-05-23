@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,10 +44,10 @@ module OneProvision
         def create_deployment_file
             ssh_key = Utils.try_read_file(
                 @p_template['connection']['public_key']
-            )
+            ) if @p_template['connection']
             config = Base64.strict_encode64(
                 @p_template['configuration'].to_yaml
-            )
+            ) if @p_template['configuration']
 
             reject = %w[im_mad vm_mad provision connection configuration count]
 
@@ -133,10 +133,9 @@ module OneProvision
         #
         # @param dfile     [String]  XML with all the HOST information
         # @param cluster   [Integer] ID of the CLUSTER where
-        # @param playbooks [String]  Ansible playbooks to configure host
         #
         # @retun [OpenNebula::Host] The ONE HOST object
-        def create(dfile, cluster, playbooks)
+        def create(dfile, cluster)
             xhost = OpenNebula::XMLElement.new
             xhost.initialize_xml(dfile, 'HOST')
 
@@ -153,10 +152,6 @@ module OneProvision
             host.allocate(name, im, vm, cluster)
             host.update(xhost.template_str, true)
 
-            unless playbooks.nil?
-                host.update("ANSIBLE_PLAYBOOK=\"#{playbooks}\"", true)
-            end
-
             host.offline
             host.info
 
@@ -167,12 +162,14 @@ module OneProvision
 
         # Deletes the HOST
         #
+        # @param force [Boolean] Force host deletion
+        # @param provision [OpenNebula::Provision] Provision information
         # @param tf [Hash] Terraform :conf and :state
         #
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def delete(tf = nil)
+        def delete(force, provision, tf = nil)
             check
 
             id = @one.id
@@ -182,7 +179,11 @@ module OneProvision
                 OneProvisionLogger.debug("Offlining OpenNebula host: #{id}")
 
                 @@mutex.synchronize do
-                    Utils.exception(@one.offline)
+                    if force
+                        @one.offline
+                    else
+                        Utils.exception(@one.offline)
+                    end
                 end
             end
 
@@ -190,14 +191,18 @@ module OneProvision
                 Terraform.p_load
 
                 terraform   = Terraform.singleton(@provider, tf)
-                state, conf = terraform.destroy_host(id)
+                state, conf = terraform.destroy_host(provision, id)
             end
 
             # delete ONE host
             OneProvisionLogger.debug("Deleting OpenNebula host: #{id}")
 
             @@mutex.synchronize do
-                Utils.exception(@one.delete)
+                if force
+                    @one.delete
+                else
+                    Utils.exception(@one.delete)
+                end
             end
 
             if state && conf

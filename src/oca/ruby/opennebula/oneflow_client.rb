@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,17 +45,18 @@ module Role
     ]
 
     STATE = {
-        'PENDING'            => 0,
-        'DEPLOYING'          => 1,
-        'RUNNING'            => 2,
-        'UNDEPLOYING'        => 3,
-        'WARNING'            => 4,
-        'DONE'               => 5,
-        'FAILED_UNDEPLOYING' => 6,
-        'FAILED_DEPLOYING'   => 7,
-        'SCALING'            => 8,
-        'FAILED_SCALING'     => 9,
-        'COOLDOWN'           => 10
+        'PENDING'                 => 0,
+        'DEPLOYING'               => 1,
+        'RUNNING'                 => 2,
+        'UNDEPLOYING'             => 3,
+        'WARNING'                 => 4,
+        'DONE'                    => 5,
+        'FAILED_UNDEPLOYING'      => 6,
+        'FAILED_DEPLOYING'        => 7,
+        'SCALING'                 => 8,
+        'FAILED_SCALING'          => 9,
+        'COOLDOWN'                => 10,
+        'HOLD'                    => 11
     }
 
     STATE_STR = [
@@ -69,7 +70,8 @@ module Role
         'FAILED_DEPLOYING',
         'SCALING',
         'FAILED_SCALING',
-        'COOLDOWN'
+        'COOLDOWN',
+        'HOLD'
     ]
 
     # Returns the string representation of the role state
@@ -83,17 +85,22 @@ end
 module Service
 
     STATE = {
-        'PENDING'            => 0,
-        'DEPLOYING'          => 1,
-        'RUNNING'            => 2,
-        'UNDEPLOYING'        => 3,
-        'WARNING'            => 4,
-        'DONE'               => 5,
-        'FAILED_UNDEPLOYING' => 6,
-        'FAILED_DEPLOYING'   => 7,
-        'SCALING'            => 8,
-        'FAILED_SCALING'     => 9,
-        'COOLDOWN'           => 10
+        'PENDING'                 => 0,
+        'DEPLOYING'               => 1,
+        'RUNNING'                 => 2,
+        'UNDEPLOYING'             => 3,
+        'WARNING'                 => 4,
+        'DONE'                    => 5,
+        'FAILED_UNDEPLOYING'      => 6,
+        'FAILED_DEPLOYING'        => 7,
+        'SCALING'                 => 8,
+        'FAILED_SCALING'          => 9,
+        'COOLDOWN'                => 10,
+        'DEPLOYING_NETS'          => 11,
+        'UNDEPLOYING_NETS'        => 12,
+        'FAILED_DEPLOYING_NETS'   => 13,
+        'FAILED_UNDEPLOYING_NETS' => 14,
+        'HOLD'                    => 15
     }
 
     STATE_STR = [
@@ -107,7 +114,12 @@ module Service
         'FAILED_DEPLOYING',
         'SCALING',
         'FAILED_SCALING',
-        'COOLDOWN'
+        'COOLDOWN',
+        'DEPLOYING_NETS',
+        'UNDEPLOYING_NETS',
+        'FAILED_DEPLOYING_NETS',
+        'FAILED_UNDEPLOYING_NETS',
+        'HOLD'
     ]
 
     # Returns the string representation of the service state
@@ -319,10 +331,21 @@ module Service
 
     class Client
         def initialize(opts={})
+            endpoint  = '/.one/oneflow_endpoint'
             @username = opts[:username] || ENV['ONEFLOW_USER']
             @password = opts[:password] || ENV['ONEFLOW_PASSWORD']
 
-            url = opts[:url] || ENV['ONEFLOW_URL'] || 'http://localhost:2474'
+            if opts[:url]
+                url = opts[:url]
+            elsif ENV['ONEFLOW_URL']
+                url = ENV['ONEFLOW_URL']
+            elsif ENV['HOME'] && File.exists?(ENV['HOME'] + endpoint)
+                url = File.read(ENV['HOME'] + endpoint).strip
+            elsif File.exists?('/var/lib/one/.one/oneflow_endpoint')
+                url = File.read('/var/lib/one/.one/oneflow_endpoint').strip
+            else
+                url = 'http://localhost:2474'
+            end
 
             if @username.nil? && @password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])

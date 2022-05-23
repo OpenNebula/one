@@ -1,6 +1,6 @@
 name: 'aws-north-california'
 
-description: 'Edge cluster in AWS North California'
+description: 'Provision cluster in AWS North California'
 provider: 'aws'
 
 connection:
@@ -10,11 +10,12 @@ connection:
 
 inputs:
    - name: 'aws_ami_image'
-     type: 'list'
-     options:
-       - 'ami-08b547f0dcb46c4d3'
+     type: 'text'
+     default: 'default'
+     description: 'AWS AMI image (default = Ubuntu Focal)'
    - name: 'aws_instance_type'
      type: 'list'
+     default: 'c5.metal'
      options:
        - 'c5.metal'
        - 'i3.metal'

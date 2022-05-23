@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,7 +17,11 @@
 <tr class='tr_action_{{id}}' data='{{action}}'>
     <td class='id_row'>{{id}}</td>
     <td nowrap class='action_row'>{{name}}</td>
-    <td nowrap class='time_row'>{{time}}</td>
+    <td nowrap class='time_row'>
+        <span data-tooltip class="top" tabindex="2" title="{{time_date}}">
+            {{time}}
+        </span>
+    </td>
     <td nowrap class='rep_row'>{{rep_str}}</td>
     <td nowrap class='end_row'>{{end_str}}</td>
     <td nowrap class='done_row'>{{done_str}}</td>

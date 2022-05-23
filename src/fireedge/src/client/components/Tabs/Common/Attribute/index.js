@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import Attribute, { AttributePropTypes } from 'client/components/Tabs/Common/Attribute/Attribute'
+import Attribute, {
+  AttributePropTypes,
+} from 'client/components/Tabs/Common/Attribute/Attribute'
 
 import * as Actions from 'client/components/Tabs/Common/Attribute/Actions'
 import * as Inputs from 'client/components/Tabs/Common/Attribute/Inputs'
 
-export {
-  Actions,
-  Attribute,
-  AttributePropTypes,
-  Inputs
-}
+export { Actions, Attribute, AttributePropTypes, Inputs }

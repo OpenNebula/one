@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const MARKET_ALLOCATE = 'market.allocate'
@@ -25,6 +25,7 @@ const MARKET_UPDATE = 'market.update'
 const MARKET_CHMOD = 'market.chmod'
 const MARKET_CHOWN = 'market.chown'
 const MARKET_RENAME = 'market.rename'
+const MARKET_ENABLE = 'market.enable'
 const MARKET_INFO = 'market.info'
 const MARKET_POOL_INFO = 'marketpool.info'
 
@@ -35,8 +36,9 @@ const Actions = {
   MARKET_CHMOD,
   MARKET_CHOWN,
   MARKET_RENAME,
+  MARKET_ENABLE,
   MARKET_INFO,
-  MARKET_POOL_INFO
+  MARKET_POOL_INFO,
 }
 
 module.exports = {
@@ -48,9 +50,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [MARKET_DELETE]: {
       // inspected
@@ -58,9 +60,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKET_UPDATE]: {
       // inspected
@@ -68,17 +70,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         update: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [MARKET_CHMOD]: {
       // inspected
@@ -86,45 +88,45 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         ownerUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         ownerAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupAdmin: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherUse: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherManage: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         otherAdmin: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [MARKET_CHOWN]: {
       // inspected
@@ -132,17 +134,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         userId: {
           from: postBody,
-          default: -1
+          default: -1,
         },
         groupId: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [MARKET_RENAME]: {
       // inspected
@@ -150,13 +152,27 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         name: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
+    },
+    [MARKET_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        enable: {
+          from: postBody,
+          default: true,
+        },
+      },
     },
     [MARKET_INFO]: {
       // inspected
@@ -164,18 +180,18 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [MARKET_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
-    }
-  }
+      params: {},
+    },
+  },
 }

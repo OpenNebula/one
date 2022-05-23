@@ -1,6 +1,6 @@
 # rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -213,6 +213,16 @@ class ServiceWD
                 nodes_ids = role.nodes_ids
 
                 next unless nodes_ids
+
+                if nodes_ids.empty?
+                    # If there are no VM, the role should be running
+                    @lcm.trigger_action(:running_wd_cb,
+                                        service.id,
+                                        client,
+                                        service.id,
+                                        name,
+                                        [])
+                end
 
                 nodes_ids.each do |node|
                     check_role_state(client, service.id, name, node)

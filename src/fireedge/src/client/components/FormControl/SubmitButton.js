@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,33 +17,43 @@ import { forwardRef, memo } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-import { CircularProgress, Button, IconButton, Tooltip, Typography } from '@mui/material'
+import {
+  CircularProgress,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { Tr, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     transition: 'disabled 0.5s ease',
-    boxShadow: 'none'
+    boxShadow: 'none',
   },
   disabled: {
     '& svg': {
-      color: theme.palette.action.disabled
-    }
-  }
+      color: theme.palette.action.disabled,
+    },
+  },
 }))
 
 const ButtonComponent = forwardRef(
-  ({ icon, endicon, children, size, variant = 'contained', ...props }, ref) =>
+  (
+    { icon, endicon, children, size, variant = 'contained', value, ...props },
+    ref
+  ) =>
     icon && !endicon ? (
-      <IconButton ref={ref} {...props}>
+      <IconButton ref={ref} {...props} value={value}>
         {children}
       </IconButton>
     ) : (
-      <Button ref={ref}
-        type='submit'
+      <Button
+        ref={ref}
+        type="submit"
         endIcon={endicon}
         variant={variant}
         {...props}
@@ -53,19 +63,17 @@ const ButtonComponent = forwardRef(
     )
 )
 
-const TooltipComponent = ({ tooltip, tooltipProps, children }) => (
+const TooltipComponent = ({ tooltip, tooltipprops, children }) => (
   <ConditionalWrap
     condition={tooltip && tooltip !== ''}
-    wrap={wrapperChildren => (
+    wrap={(wrapperChildren) => (
       <Tooltip
         arrow
-        placement='bottom'
-        title={<Typography variant='subtitle2'>{tooltip}</Typography>}
-        {...tooltipProps}
+        placement="bottom"
+        title={<Typography variant="subtitle2">{tooltip}</Typography>}
+        {...tooltipprops}
       >
-        <span>
-          {wrapperChildren}
-        </span>
+        <span>{wrapperChildren}</span>
       </Tooltip>
     )}
   >
@@ -81,18 +89,16 @@ const SubmitButton = memo(
     return (
       <TooltipComponent {...props}>
         <ButtonComponent
-          className={clsx(
-            classes.root,
-            className,
-            { [classes.disabled]: disabled }
-          )}
+          className={clsx(classes.root, className, {
+            [classes.disabled]: disabled,
+          })}
           disabled={disabled || isSubmitting}
           icon={icon}
           aria-label={label ?? T.Submit}
           {...props}
         >
           {isSubmitting && (
-            <CircularProgress color='secondary' size={progressSize} />
+            <CircularProgress color="secondary" size={progressSize} />
           )}
           {!isSubmitting && (icon ?? label ?? Tr(T.Submit))}
         </ButtonComponent>
@@ -112,13 +118,14 @@ export const SubmitButtonPropTypes = {
   endicon: PropTypes.node,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-  tooltipProps: PropTypes.object,
+  tooltipprops: PropTypes.object,
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   className: PropTypes.string,
   color: PropTypes.string,
   size: PropTypes.string,
-  variant: PropTypes.string
+  variant: PropTypes.string,
+  value: PropTypes.string,
 }
 
 TooltipComponent.propTypes = SubmitButtonPropTypes

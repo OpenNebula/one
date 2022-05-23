@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,6 +87,14 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
+    PREFIX = {
+        :name => 'prefix',
+        :large => '--prefix prefix',
+        :description => 'Prefix to autogenerate name, e.g: 001, 01',
+        :format => String
+
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -102,7 +110,8 @@ CommandParser::CmdParser.new(ARGV) do
         OneVNTemplateHelper::MULTIPLE,
         OneVNTemplateHelper::EXTENDED,
         OpenNebulaHelper::AS_USER,
-        OpenNebulaHelper::AS_GROUP
+        OpenNebulaHelper::AS_GROUP,
+        PREFIX
     ]
 
     ########################################################################
@@ -204,10 +213,32 @@ CommandParser::CmdParser.new(ARGV) do
         number = options[:multiple] || 1
 
         number.times do |i|
-            exit_code = helper.perform_action(args[0], options,
-                                              'instantiated') do |t|
-                name = options[:name]
-                name = name.gsub('%i', i.to_s) if name
+            exit_code = helper.perform_action(
+                args[0],
+                options,
+                'instantiated'
+            ) do |t|
+                name   = options[:name]
+                prefix = options[:prefix]
+                c_i    = nil
+                p      = nil
+
+                if prefix && name
+                    # Get leading zeros
+                    p = prefix.scan(/^0+/)[0]
+
+                    # Get current index
+                    c_i = prefix.gsub(p, '') if p
+
+                    # Convert it to Integer to check if we can use it
+                    begin
+                        c_i  = Integer(c_i)
+                        name = name.gsub('%i', "#{p}#{c_i + index}")
+                    rescue StandardError
+                    end
+                elsif name
+                    name = name.gsub('%i', i.to_s)
+                end
 
                 extra_template = ''
                 rc = t.info
@@ -232,6 +263,10 @@ CommandParser::CmdParser.new(ARGV) do
                     if OneVNetHelper.add_ar_options_used?(options)
                         extra_template << OpenNebulaHelper.create_ar(options)
                     end
+                end
+
+                if c_i
+                    extra_template.gsub!('%i', "#{p}#{c_i + index}")
                 end
 
                 res = t.instantiate(name, extra_template)
@@ -279,7 +314,7 @@ CommandParser::CmdParser.new(ARGV) do
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
-            t.chmod_octet(args[1], recursive)
+            t.chmod_octet(OpenNebulaHelper.to_octet(args[1]), recursive)
         end
     end
 
@@ -341,8 +376,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VN template with differents levels for lock any actions with this VN template,
-        show and monitoring never will be locked.
+        Locks a VN Template to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -369,7 +404,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VN template for unlock any actions with this VN template.
+        Unlocks a VN Template.
         Valid states are: All.
     EOT
 

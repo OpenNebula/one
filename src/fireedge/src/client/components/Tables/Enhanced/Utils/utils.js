@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,74 +14,110 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Column } from 'react-table'
-import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
+
+import {
+  GlobalAction,
+  CategoryFilter,
+  TimeFilter,
+} from 'client/components/Tables/Enhanced/Utils'
 
 /**
  * Add filters defined in view yaml to columns.
  *
- * @param {object} config -
- * @param {object[]} config.filters - List of criteria to filter the columns.
+ * @param {object} config - Config
+ * @param {object} config.filters - List of criteria to filter the columns
  * @param {Column[]} config.columns - Columns
- * @returns {object} Column with filters
+ * @returns {Column[]} Column with filters
  */
 export const createColumns = ({ filters = {}, columns = [] }) => {
   if (Object.keys(filters).length === 0) return columns
 
-  return columns.map(column => {
-    const { Header, id = '', accessor } = column
+  return columns.map((column) => {
+    const { id = '', accessor, noFilterIds = [] } = column
+
+    // noFilterIds is a list of column ids that should not have a filter
+    // it's defined in the resource columns definition
+    if (noFilterIds.includes(id)) return column
 
     const filterById = !!filters[String(id.toLowerCase())]
 
     const filterByAccessor =
-      typeof accessor === 'string' &&
-      !!filters[String(accessor.toLowerCase())]
+      typeof accessor === 'string' && !!filters[String(accessor.toLowerCase())]
 
     return {
       ...column,
-      ...((filterById || filterByAccessor) && createCategoryFilter(Header)
-      )
+      ...((filterById || filterByAccessor) &&
+        (
+          {
+            // TODO: Add label to filters
+            // label: createLabelFilter,
+            time: createTimeFilter,
+          }[`${id}`.toLowerCase()] ?? createCategoryFilter
+        )(column)),
     }
   })
 }
 
 /**
+ * Create label filter as column.
+ *
+ * @param {Column} column - Column
+ * @returns {Column} - Label filter
+ */
+// export const createLabelFilter = (column) => ({
+//   disableFilters: false,
+//   Filter: LabelFilter,
+//   ...column,
+// })
+
+/**
+ * Create time filter as column.
+ *
+ * @param {Column} column - Column
+ * @returns {Column} - Time filter
+ */
+export const createTimeFilter = (column) => ({
+  disableFilters: false,
+  Filter: TimeFilter,
+  ...column,
+})
+
+/**
  * Create category filter as column.
  *
- * @param {string} title - Title
+ * @param {Column} column - Column
  * @returns {Column} - Category filter
  */
-export const createCategoryFilter = title => ({
+export const createCategoryFilter = (column) => ({
   disableFilters: false,
-  Filter: ({ column }) => CategoryFilter({
-    column,
-    multiple: true,
-    title
-  }),
-  filter: 'includesValue'
+  Filter: CategoryFilter,
+  filter: 'includesValue',
+  ...column,
 })
 
 /**
  * Add filters defined in view yaml to bulk actions.
  *
  * @param {object} params - Config parameters
- * @param {object[]} params.filters - Which buttons are visible to operate over the resources
- * @param {object[]} params.actions - Actions
+ * @param {object} params.filters - Which buttons are visible to operate over the resources
+ * @param {GlobalAction[]} params.actions - Actions
  * @returns {object} Action with filters
  */
 export const createActions = ({ filters = {}, actions = [] }) => {
   if (Object.keys(filters).length === 0) return actions
 
   return actions
-    .filter(({ accessor }) =>
-      !accessor || filters[String(accessor.toLowerCase())] === true
+    .filter(
+      ({ accessor }) =>
+        !accessor || filters[String(accessor.toLowerCase())] === true
     )
-    .map(action => {
+    .map((action) => {
       const { accessor, options } = action
 
       if (accessor) return action
 
-      const groupActions = options?.filter(option =>
-        filters[String(option.accessor?.toLowerCase())] === true
+      const groupActions = options?.filter(
+        (option) => filters[`${option.accessor?.toLowerCase()}`] === true
       )
 
       return groupActions?.length > 0

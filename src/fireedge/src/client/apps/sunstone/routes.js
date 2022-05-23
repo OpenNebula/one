@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,36 +15,64 @@
  * ------------------------------------------------------------------------- */
 import {
   ReportColumns as DashboardIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
 
-const Dashboard = loadable(() => import('client/containers/Dashboard/Sunstone'), { ssr: false })
-const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
+import { T } from 'client/constants'
+
+const Dashboard = loadable(
+  () => import('client/containers/Dashboard/Sunstone'),
+  { ssr: false }
+)
+const Settings = loadable(() => import('client/containers/Settings'), {
+  ssr: false,
+})
+const Guacamole = loadable(() => import('client/containers/Guacamole'), {
+  ssr: false,
+})
+
+const WebMKS = loadable(() => import('client/containers/WebMKS'), {
+  ssr: false,
+})
 
 export const PATH = {
   DASHBOARD: '/dashboard',
-  SETTINGS: '/settings'
+  SETTINGS: '/settings',
+  GUACAMOLE: '/guacamole/:id/:type',
+  WMKS: '/wmks/:id',
 }
 
 export const ENDPOINTS = [
   {
-    label: 'Dashboard',
+    title: T.Dashboard,
     path: PATH.DASHBOARD,
     sidebar: true,
     icon: DashboardIcon,
     position: 1,
-    Component: Dashboard
+    Component: Dashboard,
   },
   {
-    label: 'Settings',
+    title: T.Settings,
     path: PATH.SETTINGS,
     sidebar: true,
     icon: SettingsIcon,
     position: -1,
-    Component: Settings
-  }
+    Component: Settings,
+  },
+  {
+    title: 'Guacamole', // no need to translate
+    disableLayout: true,
+    path: PATH.GUACAMOLE,
+    Component: Guacamole,
+  },
+  {
+    title: 'WebMKS', // no need to translate
+    disableLayout: true,
+    path: PATH.WMKS,
+    Component: WebMKS,
+  },
 ]
 
 /**
@@ -69,25 +97,36 @@ export const getEndpointsByView = (views, endpoints = []) => {
    * @param {string} [route.path] - Pathname route
    * @returns {boolean | object} If user view yaml contains the route, return it
    */
-  const hasRoutePermission = route =>
-    views?.some(({ resource_name: name = '', actions: bulkActions = [] }) => {
-      // eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
-      const paths = route?.path
-        ?.toLowerCase?.()
-        ?.split?.('/')
-        ?.filter?.(Boolean)
+  const hasRoutePermission = (route) => {
+    // Eg: '/vm-template/instantiate' => ['vm-template', 'instantiate']
+    const splittedPath = String(route?.path)
+      ?.toLowerCase()
+      ?.split('/')
+      ?.filter(Boolean)
 
-      const [resource, dialogName] = paths
+    const [resource, ...restOfParams] = splittedPath ?? []
+    const hasParams = !!restOfParams.length
 
-      return dialogName && !dialogName.includes(':') // filter params. eg: '/vm/:id'
-        ? bulkActions[`${dialogName}_dialog`]
-        : resource === name.toLowerCase()
-    }) && route
+    const view = views?.find((v) => resource === v.resource_name?.toLowerCase())
+
+    // view file not exists or not match the `resource_name`
+    if (!view) return false
+
+    return (
+      // match exactly. Eg: /vm
+      !hasParams ||
+      // allow routes with params. Eg: /vm/:id
+      restOfParams.some((p) => p.includes(':')) ||
+      // first param is dialog name. Eg: /vm/create or /vm-template/instantiate
+      // allow action if exists on bulk actions list
+      view?.actions[`${restOfParams[0]}_dialog`]
+    )
+  }
 
   return endpoints
     .map(({ routes: subRoutes, ...restOfProps }) => {
       if (Array.isArray(subRoutes)) {
-        const routes = subRoutes.map(hasRoutePermission).filter(Boolean)
+        const routes = subRoutes.filter(hasRoutePermission)
 
         return !!routes.length && { ...restOfProps, routes }
       }

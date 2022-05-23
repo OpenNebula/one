@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -88,7 +88,7 @@ define(function(require) {
       }
     },
     'groupquotas': {
-      'html': require('hbs!./provision-tab/dashboard/group-quotas'),
+      'html': require('hbs!./provision-tab/dashboard/html/group-quotas'),
       'onShow': function() {
         OpenNebula.Group.show({
           data : {
@@ -134,7 +134,7 @@ define(function(require) {
       }
     },
     'quotas': {
-      'html': require('hbs!./provision-tab/dashboard/quotas'),
+      'html': require('hbs!./provision-tab/dashboard/html/quotas'),
       'onShow': function() {
         OpenNebula.User.show({
           data : {

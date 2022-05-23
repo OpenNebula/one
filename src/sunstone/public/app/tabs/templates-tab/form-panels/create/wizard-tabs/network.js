@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,6 +37,7 @@ define(function(require) {
     CONSTANTS
    */
 
+  var SCHED_TAB_ID = require('./scheduling/wizardTabId');
   var WIZARD_TAB_ID = require('./network/wizardTabId');
   var LINKS_CONTAINER_ID = 'template_create_network_tabs';
   var CONTENTS_CONTAINER_ID = 'template_create_network_tabs_content';
@@ -196,16 +197,14 @@ define(function(require) {
     }
 
     $.each(nics, function(nicId, nicJSON) {
-      if (nicId > 0) {
-        that.addNicTab(context);
-      }
+      nicId > 0 && that.addNicTab(context);
 
       var nicTab = that.nicTabObjects[that.numberOfNics];
       var nicContext = $('#' + nicTab.nicTabId, context);
       nicTab.fill(nicContext, nicJSON);
 
       if (nicJSON.PARENT) {
-        nicTab.fill_alias(nicJSON.PARENT, nicJSON.EXTERNAL);
+        nicTab.fill_alias(nicJSON.PARENT);
       }
     });
 
@@ -279,7 +278,8 @@ define(function(require) {
 
     $("a", a).trigger("click");
 
-    nicTab.setup(content);
+    nicTab.setup(content, $("div[id^='" + SCHED_TAB_ID + "']").data());
+
     content.attr("nicId", that.numberOfNics);
 
     that.renameTabLinks(context);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,8 +46,6 @@ public:
                           std::string& error) const override;
 
 private:
-    static const float  CGROUP_BASE_CPU_SHARES;
-
     static const int    CEPH_DEFAULT_PORT;
 
     static const int    GLUSTER_DEFAULT_PORT;

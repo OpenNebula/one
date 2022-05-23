@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -18,9 +18,4 @@ import StatusChip from 'client/components/Status/Chip'
 import StatusCircle from 'client/components/Status/Circle'
 import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel
-}
+export { StatusBadge, StatusChip, StatusCircle, LinearProgressWithLabel }

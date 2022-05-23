@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,7 +42,7 @@ class RBDMapper
 
         return unless dsrc
 
-        rc, out, err = Command.execute("#{@map_cmd} #{dsrc}", true)
+        rc, out, err = Command.execute("#{@map_cmd} #{dsrc}", true, 1)
 
         unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")

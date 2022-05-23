@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,32 +14,57 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const {
-  opennebulaConnect
-} = require('../../../src/server/utils/opennebula')
+const { opennebulaConnect } = require('../../../src/server/utils/opennebula')
 
 // eslint-disable-next-line no-undef
 onmessage = function (ev = {}) {
+  const { data } = ev
   let pass = true
 
-  const returnData = (data = '') => {
+  /**
+   * Return data worker.
+   *
+   * @param {any} rtnData - data for worker
+   */
+  const returnDataWorker = (rtnData = '') => {
     if (pass) {
       // eslint-disable-next-line no-undef
-      postMessage(data)
+      postMessage(rtnData)
     }
   }
 
-  if (ev && ev.data) {
-    const { globalState = {}, user = '', password = '', rpc = '', command = '', paramsCommand = [] } = ev.data
+  /**
+   * Function when the worker is XMLRPC.
+   *
+   * @param {object} config - config XMLRPC
+   */
+  const xmlrpc = (config = {}) => {
+    const {
+      globalState = {},
+      user = '',
+      password = '',
+      rpc = '',
+      command = '',
+      paramsCommand = [],
+    } = config
     if (globalState && user && password && rpc && command) {
       pass = false
       global.paths = globalState
-      const connect = opennebulaConnect(user, password, rpc)
-      connect(command, paramsCommand, (err, value) => {
-        pass = true
-        returnData({ err, value })
+      const oneConnect = opennebulaConnect(user, password, rpc)
+      oneConnect({
+        action: command,
+        parameters: paramsCommand,
+        callback: (err, value) => {
+          pass = true
+          returnDataWorker({ err, value })
+        },
       })
     }
   }
-  returnData()
+
+  if (data) {
+    const { type = '', config = '' } = data
+    type === 'xmlrpc' && xmlrpc(config)
+  }
+  returnDataWorker()
 }

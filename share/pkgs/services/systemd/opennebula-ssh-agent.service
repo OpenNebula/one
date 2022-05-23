@@ -19,6 +19,7 @@ Restart=on-failure
 # without this following directive the "systemctl stop" would fail and cleanup
 # (ExecStopPost) would not be triggered...
 SuccessExitStatus=2
+SyslogIdentifier=opennebula-ssh-agent
 
 [Install]
 WantedBy=default.target

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,68 +13,132 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import { Tabs as MTabs, Tab as MTab, Fade } from '@mui/material'
-import { Box } from '@mui/system'
+import {
+  styled,
+  Tabs as MTabs,
+  TabsProps,
+  Tab as MTab,
+  Fade,
+  Stack,
+} from '@mui/material'
+import { WarningCircledOutline } from 'iconoir-react'
 
-const Content = ({ name, renderContent: Content, hidden }) => (
-  <Fade in timeout={400} key={`tab-${name}`}>
-    <Box
-      sx={{
-        p: theme => theme.spacing(2, 1),
-        height: '100%',
-        display: hidden ? 'none' : 'block'
-      }}
-    >
-      {typeof Content === 'function' ? <Content /> : Content}
-    </Box>
-  </Fade>
+const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
+  color: theme.palette.error.main,
+}))
+
+const TabContent = styled('div')(({ hidden, border, theme }) => ({
+  height: '100%',
+  display: hidden ? 'none' : 'flex',
+  flexDirection: 'column',
+  overflow: 'auto',
+  ...(border && {
+    backgroundColor: theme.palette.background.paper,
+    border: `thin solid ${theme.palette.secondary.main}`,
+    borderTop: 'none',
+    borderRadius: `0 0 8px 8px`,
+  }),
+}))
+
+const Content = ({
+  id,
+  name,
+  renderContent: RenderContent,
+  hidden,
+  addBorder = false,
+}) => (
+  <TabContent
+    key={`tab-${id ?? name}`}
+    data-cy={`tab-content-${id ?? name}`}
+    hidden={hidden}
+    border={addBorder ? 'true' : undefined}
+  >
+    <Fade in timeout={400}>
+      <TabContent sx={{ p: '1em .5em' }}>
+        {typeof RenderContent === 'function' ? (
+          <RenderContent />
+        ) : (
+          RenderContent
+        )}
+      </TabContent>
+    </Fade>
+  </TabContent>
 )
 
-const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
+/**
+ * @param {object} props - Props
+ * @param {Array} props.tabs - Tabs
+ * @param {TabsProps} props.tabsProps - Props to tabs component
+ * @param {boolean} [props.renderHiddenTabs] - If `true`, will be render hidden tabs
+ * @param {boolean} [props.addBorder] - If `true`, will be add a border to tab content
+ * @returns {ReactElement} Tabs component with content
+ */
+const Tabs = ({
+  tabs = [],
+  tabsProps: { sx, ...tabsProps } = {},
+  renderHiddenTabs = false,
+  addBorder = false,
+}) => {
   const [tabSelected, setTab] = useState(() => 0)
 
-  const renderTabs = useMemo(() => (
-    <MTabs
-      value={tabSelected}
-      variant='scrollable'
-      scrollButtons='auto'
-      onChange={(_, tab) => setTab(tab)}
-    >
-      {tabs.map(({ value, name, label, icon: Icon }, idx) =>
-        <MTab
-          key={`tab-${name}`}
-          id={`tab-${name}`}
-          icon={Icon && <Icon />}
-          value={value ?? idx}
-          label={label ?? name}
-        />
-      )}
-    </MTabs>
-  ), [tabs.length, tabSelected])
+  const renderTabs = useMemo(
+    () => (
+      <MTabs
+        value={tabSelected}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, tab) => setTab(tab)}
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: ({ zIndex }) => zIndex.appBar,
+          ...sx,
+        }}
+        {...tabsProps}
+      >
+        {tabs.map(({ id, value, name, label, error, icon: Icon }, idx) => (
+          <MTab
+            key={`tab-${name}`}
+            id={`tab-${name}`}
+            icon={error ? <WarningIcon /> : Icon && <Icon />}
+            value={value ?? idx}
+            label={label ?? name}
+            data-cy={`tab-${id}`}
+          />
+        ))}
+      </MTabs>
+    ),
+    [tabs, tabSelected]
+  )
 
-  const renderAllHiddenTabContents = useMemo(() =>
-    tabs.map((tabProps, idx) => {
-      const { name, value = idx } = tabProps
-      const hidden = tabSelected !== value
+  const renderAllHiddenTabContents = useMemo(
+    () =>
+      tabs.map((tabProps, idx) => {
+        const { name, value = idx } = tabProps
+        const hidden = tabSelected !== value
 
-      return <Content key={`tab-${name}`} {...tabProps} hidden={hidden} />
-    }), [tabSelected])
+        return <Content key={`tab-${name}`} {...tabProps} hidden={hidden} />
+      }),
+    [tabSelected]
+  )
 
   return (
-    <>
+    <Stack height={1} overflow="auto">
       <Fade in timeout={300}>
         {renderTabs}
       </Fade>
       {renderHiddenTabs ? (
         renderAllHiddenTabContents
       ) : (
-        <Content {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
+        <Content
+          addBorder={addBorder}
+          {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
+        />
       )}
-    </>
+    </Stack>
   )
 }
 
@@ -83,16 +147,17 @@ Content.displayName = 'Content'
 
 Tabs.propTypes = {
   tabs: PropTypes.array,
-  renderHiddenTabs: PropTypes.bool
+  tabsProps: PropTypes.object,
+  renderHiddenTabs: PropTypes.bool,
+  addBorder: PropTypes.bool,
 }
 
 Content.propTypes = {
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   name: PropTypes.string,
-  renderContent: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.func
-  ]),
-  hidden: PropTypes.bool
+  renderContent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  hidden: PropTypes.bool,
+  addBorder: PropTypes.bool,
 }
 
 export default Tabs

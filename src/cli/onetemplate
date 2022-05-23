@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,6 +87,14 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
+    PREFIX = {
+        :name => 'prefix',
+        :large => '--prefix prefix',
+        :description => 'Prefix to autogenerate name, e.g: 001, 01',
+        :format => String
+
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -102,7 +110,8 @@ CommandParser::CmdParser.new(ARGV) do
         OneTemplateHelper::MULTIPLE,
         OneTemplateHelper::USERDATA,
         OneVMHelper::HOLD,
-        OneTemplateHelper::PERSISTENT
+        OneTemplateHelper::PERSISTENT,
+        PREFIX
     ]
 
     ########################################################################
@@ -252,16 +261,37 @@ CommandParser::CmdParser.new(ARGV) do
         number      = options[:multiple] || 1
         user_inputs = options[:user_inputs]
 
-        number.times do |i|
-            exit_code = helper.perform_action(args[0], options,
-                                              'instantiated') do |t|
-                name = options[:name]
-                name = name.gsub('%i', i.to_s) if name
+        number.times.each_with_index do |i, index|
+            exit_code = helper.perform_action(
+                args[0],
+                options,
+                'instantiated'
+            ) do |t|
+                name   = options[:name]
+                prefix = options[:prefix]
+                c_i    = nil
+                p      = nil
 
-                on_hold = !options[:hold].nil?
+                if prefix && name
+                    # Get leading zeros
+                    p = prefix.scan(/^0+/)[0]
 
+                    # Get current index
+                    c_i = prefix.gsub(p, '') if p
+
+                    # Convert it to Integer to check if we can use it
+                    begin
+                        c_i  = Integer(c_i)
+                        name = name.gsub('%i', "#{p}#{c_i + index}")
+                    rescue StandardError
+                    end
+                elsif name
+                    name = name.gsub('%i', i.to_s)
+                end
+
+                on_hold        = !options[:hold].nil?
                 extra_template = ''
-                rc = t.info
+                rc             = t.info
 
                 if OpenNebula.is_error?(rc)
                     STDERR.puts rc.message
@@ -279,6 +309,10 @@ CommandParser::CmdParser.new(ARGV) do
                     end
 
                     extra_template = res.last
+                end
+
+                if c_i
+                    extra_template.gsub!('%i', "#{p}#{c_i + index}")
                 end
 
                 if !user_inputs
@@ -344,7 +378,7 @@ CommandParser::CmdParser.new(ARGV) do
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
-            t.chmod_octet(args[1], recursive)
+            t.chmod_octet(OpenNebulaHelper.to_octet(args[1]), recursive)
         end
     end
 
@@ -406,8 +440,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM,
-        show and monitoring never will be locked.
+        Locks a Template to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -434,7 +468,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a Template.
         Valid states are: All.
     EOT
 

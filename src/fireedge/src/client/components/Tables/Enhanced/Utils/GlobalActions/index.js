@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor, useMemo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Stack, Checkbox } from '@mui/material'
+import { RefreshDouble } from 'iconoir-react'
 import {
   UseTableInstanceProps,
   UseRowSelectState,
   UseFiltersInstanceProps,
-  UseRowSelectInstanceProps
+  UseRowSelectInstanceProps,
 } from 'react-table'
 
-import Action, { ActionPropTypes, GlobalAction } from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
+import {
+  Action,
+  GlobalAction,
+} from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -32,71 +37,80 @@ import { T } from 'client/constants'
  * Render bulk actions.
  *
  * @param {object} props - Props
+ * @param {function():Promise} props.refetch - Function to refetch data
+ * @param {object} [props.className] - Class name for the container
+ * @param {boolean} props.isLoading - The data is fetching
+ * @param {boolean} props.singleSelect - If true, only one row can be selected
+ * @param {boolean} props.disableRowSelect - Rows can't select
  * @param {GlobalAction[]} props.globalActions - Possible bulk actions
  * @param {UseTableInstanceProps} props.useTableProps - Table props
- * @returns {JSXElementConstructor} Component JSX with all actions
+ * @returns {ReactElement} Component JSX with all actions
  */
-const GlobalActions = ({ globalActions = [], useTableProps }) => {
+const GlobalActions = ({
+  refetch,
+  className,
+  isLoading,
+  singleSelect = false,
+  disableRowSelect = false,
+  globalActions = [],
+  useTableProps = {},
+}) => {
   /** @type {UseRowSelectInstanceProps} */
-  const {
-    getToggleAllPageRowsSelectedProps,
-    getToggleAllRowsSelectedProps
-  } = useTableProps
-
-  /** @type {UseRowSelectState} */
-  const { selectedRowIds } = useTableProps?.state ?? {}
+  const { getToggleAllPageRowsSelectedProps, getToggleAllRowsSelectedProps } =
+    useTableProps
 
   /** @type {UseFiltersInstanceProps} */
-  const { preFilteredRows } = useTableProps ?? {}
+  const { preFilteredRows } = useTableProps
 
-  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
-  const numberOfRowSelected = selectedRows.length
+  /** @type {UseRowSelectState} */
+  const { selectedRowIds } = useTableProps?.state
 
-  const [actionsSelected, actionsNoSelected] = useMemo(
-    () => globalActions.reduce((memoResult, item) => {
-      const { selected = false } = item
-
-      selected ? memoResult[0].push(item) : memoResult[1].push(item)
-
-      return memoResult
-    }, [[], []]),
-    [globalActions]
-  )
+  const selectedRows = preFilteredRows.filter((row) => !!selectedRowIds[row.id])
 
   return (
-    <Stack direction='row' flexWrap='wrap' alignItems='center' gap={1.5}>
-      <Checkbox
-        {...getToggleAllPageRowsSelectedProps()}
-        title={Tr(T.ToggleAllCurrentPageRowsSelected)}
-        indeterminate={getToggleAllRowsSelectedProps().indeterminate}
-        color='secondary' />
+    <Stack
+      className={className}
+      direction="row"
+      flexWrap="wrap"
+      alignItems="center"
+      gap="0.5em"
+    >
+      {refetch && (
+        <SubmitButton
+          data-cy="refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isLoading}
+          onClick={refetch}
+        />
+      )}
+      {!singleSelect && !disableRowSelect && (
+        <>
+          <Checkbox
+            {...getToggleAllPageRowsSelectedProps()}
+            title={Tr(T.ToggleAllCurrentPageRowsSelected)}
+            indeterminate={getToggleAllRowsSelectedProps().indeterminate}
+            color="secondary"
+          />
+          {globalActions?.map((item, idx) => {
+            const key = item.accessor ?? item.label ?? item.tooltip ?? idx
 
-      {actionsNoSelected?.map(item => (
-        <Action key={item.accessor} item={item} />
-      ))}
-      {numberOfRowSelected > 0 && (
-        actionsSelected?.map((item, idx) => {
-          const { min = 1, max = Number.MAX_SAFE_INTEGER } = item?.selected ?? {}
-          const key = item.accessor ?? item.label ?? item.tooltip ?? idx
-
-          if (min < numberOfRowSelected && numberOfRowSelected > max) {
-            return null
-          }
-
-          return (
-            <Action key={key} item={item} selectedRows={selectedRows} />
-          )
-        })
+            return <Action key={key} item={item} selectedRows={selectedRows} />
+          })}
+        </>
       )}
     </Stack>
   )
 }
 
 GlobalActions.propTypes = {
-  globalActions: PropTypes.arrayOf(ActionPropTypes),
-  useTableProps: PropTypes.object
+  refetch: PropTypes.func,
+  className: PropTypes.string,
+  isLoading: PropTypes.bool,
+  singleSelect: PropTypes.bool,
+  disableRowSelect: PropTypes.bool,
+  globalActions: PropTypes.array,
+  useTableProps: PropTypes.object,
 }
-
-export { Action, ActionPropTypes }
 
 export default GlobalActions

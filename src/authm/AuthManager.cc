@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -183,13 +183,16 @@ void AuthManager::trigger_authenticate(AuthRequest& ar)
         // Make the request to the driver
         // ---- --------------------------------------------------------------------
 
+        string session64;
+        ssl_util::base64_encode(ar.session, session64);
+
         ostringstream oss;
 
         oss << ar.uid << " "
             << ar.driver << " "
             << ar.username << " "
             << ar.password << " "
-            << ar.session << " " << endl;
+            << session64 << " " << endl;
 
         auth_msg_t msg(AuthManagerMessages::AUTHENTICATE, "", ar.id, oss.str());
 

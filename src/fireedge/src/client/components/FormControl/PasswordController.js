@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,44 +21,45 @@ import { EyeEmpty as Visibility, EyeOff as VisibilityOff } from 'iconoir-react'
 
 import { TextController } from 'client/components/FormControl'
 
-const PasswordController = memo(({ fieldProps, ...props }) => {
-  const [showPassword, setShowPassword] = useState(() => false)
+const PasswordController = memo(
+  ({ fieldProps, ...props }) => {
+    const [showPassword, setShowPassword] = useState(() => false)
 
-  const handleClickShowPassword = useCallback(() => {
-    setShowPassword(prev => !prev)
-  }, [setShowPassword])
+    const handleClickShowPassword = useCallback(() => {
+      setShowPassword((prev) => !prev)
+    }, [setShowPassword])
 
-  return (
-    <TextController
-      {...props}
-      type={showPassword ? 'text' : 'password'}
-      fieldProps={{
-        InputProps: {
-          endAdornment: <InputAdornment position='end'>
-            <IconButton
-              aria-label='toggle password visibility'
-              onClick={handleClickShowPassword}
-            >
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          </InputAdornment>
-        },
-        ...fieldProps
-      }}
-    />
-  )
-},
-(prevProps, nextProps) =>
-  prevProps.error === nextProps.error &&
-  prevProps.type === nextProps.type
+    return (
+      <TextController
+        {...props}
+        type={showPassword ? 'text' : 'password'}
+        fieldProps={{
+          InputProps: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+          ...fieldProps,
+        }}
+      />
+    )
+  },
+  (prevProps, nextProps) => prevProps.type === nextProps.type
 )
 
 PasswordController.propTypes = {
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
 }
 
 PasswordController.defaultProps = {
-  fieldProps: undefined
+  fieldProps: undefined,
 }
 
 PasswordController.displayName = 'PasswordController'

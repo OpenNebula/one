@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -18,17 +18,16 @@ import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { SCHEMA, FIELDS } from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions/schema'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/MigrateForm/Steps/AdvancedOptions/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
 const Content = () => (
-  <FormWithSchema
-    cy='migrate-vm-advanced'
-    id={STEP_ID}
-    fields={FIELDS}
-  />
+  <FormWithSchema cy="migrate-vm-advanced" id={STEP_ID} fields={FIELDS} />
 )
 
 const AdvancedOptions = () => ({
@@ -36,13 +35,13 @@ const AdvancedOptions = () => ({
   label: T.AdvancedOptions,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
-  nics: PropTypes.array
+  nics: PropTypes.array,
 }
 
 export default AdvancedOptions

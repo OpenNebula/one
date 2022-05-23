@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import { useParams, Redirect } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
 
 import HostTabs from 'client/components/Tabs/Host'
 
-function HostDetail () {
+/**
+ * Displays the detail information about a Host.
+ *
+ * @returns {ReactElement} Host detail component.
+ */
+function HostDetail() {
   const { id } = useParams()
 
   if (Number.isNaN(+id)) {
-    return <Redirect to='/' />
+    return <Redirect to="/" />
   }
 
-  return (
-    <Box
-      py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
-      component={Container}
-    >
-      <HostTabs id={id} />
-    </Box>
-  )
+  return <HostTabs id={id} />
 }
 
 export default HostDetail

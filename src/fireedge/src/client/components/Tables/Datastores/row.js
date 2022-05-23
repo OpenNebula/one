@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,72 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock, Cloud, Server } from 'iconoir-react'
-import { Typography } from '@mui/material'
+import api from 'client/features/OneApi/datastore'
+import { DatastoreCard } from 'client/components/Cards'
 
-import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
+const Row = memo(
+  ({ original, ...props }) => {
+    const state = api.endpoints.getDatastores.useQueryState(undefined, {
+      selectFromResult: ({ data = [] }) =>
+        data.find((datastore) => +datastore.ID === +original.ID),
+    })
 
-import * as DatastoreModel from 'client/models/Datastore'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, TYPE, CLUSTERS, LOCK, PROVISION_ID } = value
-
-  const { percentOfUsed, percentLabel } = DatastoreModel.getCapacityInfo(value)
-
-  const { color: stateColor, name: stateName } = DatastoreModel.getState(original)
-
-  return (
-    <div {...props}>
-      <div>
-        <StatusCircle color={stateColor} tooltip={stateName} />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-            <StatusChip text={TYPE?.name} />
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
-            <Cloud />
-            <span>{` ${PROVISION_ID}`}</span>
-          </span>}
-          <span title={`Cluster IDs: ${CLUSTERS.join(',')}`}>
-            <Server />
-            <span>{` ${CLUSTERS.join(',')}`}</span>
-          </span>
-        </div>
-      </div>
-      <div className={classes.secondary}>
-        <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
-      </div>
-    </div>
-  )
-}
+    return <DatastoreCard datastore={state ?? original} rootProps={props} />
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
+
+Row.displayName = 'DatastoreRow'
 
 export default Row

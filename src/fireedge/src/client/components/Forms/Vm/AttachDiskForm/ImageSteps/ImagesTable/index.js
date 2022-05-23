@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
 import { useListForm } from 'client/hooks'
 import { ImagesTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable/schema'
+import { Step } from 'client/utils'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'image'
@@ -26,12 +26,12 @@ export const STEP_ID = 'image'
 const Content = ({ data, setFormData }) => {
   const { ID } = data?.[0] ?? {}
 
-  const {
-    handleSelect,
-    handleClear
-  } = useListForm({ key: STEP_ID, setList: setFormData })
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     original.ID !== undefined ? handleSelect(original) : handleClear()
@@ -40,24 +40,29 @@ const Content = ({ data, setFormData }) => {
   return (
     <ImagesTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
+      disableGlobalSort
+      pageSize={5}
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
   )
 }
 
+/**
+ * Renders datatable to select an image form pool.
+ *
+ * @returns {Step} Image step
+ */
 const ImageStep = () => ({
   id: STEP_ID,
   label: T.Image,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ImageStep

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -25,7 +25,9 @@ import TextController from 'client/components/FormControl/TextController'
 import TimeController from 'client/components/FormControl/TimeController'
 import ToggleController from 'client/components/FormControl/ToggleController'
 
-import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
+import SubmitButton, {
+  SubmitButtonPropTypes,
+} from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
 import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import Tooltip from 'client/components/FormControl/Tooltip'
@@ -42,10 +44,9 @@ export {
   TextController,
   TimeController,
   ToggleController,
-
   SubmitButton,
   SubmitButtonPropTypes,
   InputCode,
   ErrorHelper,
-  Tooltip
+  Tooltip,
 }

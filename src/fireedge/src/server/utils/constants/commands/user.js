@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,7 +16,7 @@
 
 const {
   from: { resource, postBody, query },
-  httpMethod: { GET, POST, PUT, DELETE }
+  httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
 
 const USER_ALLOCATE = 'user.allocate'
@@ -29,6 +29,7 @@ const USER_QUOTA = 'user.quota'
 const USER_CHGRP = 'user.chgrp'
 const USER_ADDGROUP = 'user.addgroup'
 const USER_DELGROUP = 'user.delgroup'
+const USER_ENABLE = 'user.enable'
 const USER_INFO = 'user.info'
 const USER_POOL_INFO = 'userpool.info'
 const USER_QUOTA_INFO = 'userquota.info'
@@ -48,7 +49,7 @@ const Actions = {
   USER_INFO,
   USER_POOL_INFO,
   USER_QUOTA_INFO,
-  USER_QUOTA_UPDATE
+  USER_QUOTA_UPDATE,
 }
 
 module.exports = {
@@ -60,21 +61,21 @@ module.exports = {
       params: {
         username: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         password: {
           from: postBody,
-          default: ''
+          default: '',
         },
         driver: {
           from: postBody,
-          default: ''
+          default: '',
         },
         group: {
           from: postBody,
-          default: []
-        }
-      }
+          default: [],
+        },
+      },
     },
     [USER_DELETE]: {
       // inspected
@@ -82,9 +83,9 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [USER_PASSWD]: {
       // inspected
@@ -92,13 +93,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         password: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [USER_LOGIN]: {
       // inspected
@@ -106,21 +107,21 @@ module.exports = {
       params: {
         user: {
           from: postBody,
-          default: ''
+          default: '',
         },
         token: {
           from: postBody,
-          default: ''
+          default: '',
         },
         expire: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         gid: {
           from: postBody,
-          default: -1
-        }
-      }
+          default: -1,
+        },
+      },
     },
     [USER_UPDATE]: {
       // inspected
@@ -128,17 +129,17 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
+          default: '',
         },
         replace: {
           from: postBody,
-          default: 1
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [USER_CHAUTH]: {
       // inspected
@@ -146,17 +147,17 @@ module.exports = {
       params: {
         id: {
           from: postBody,
-          default: 0
+          default: 0,
         },
         driver: {
           from: postBody,
-          default: ''
+          default: '',
         },
         password: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [USER_QUOTA]: {
       // inspected
@@ -164,13 +165,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         template: {
           from: postBody,
-          default: ''
-        }
-      }
+          default: '',
+        },
+      },
     },
     [USER_CHGRP]: {
       // inspected
@@ -178,13 +179,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         group: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [USER_ADDGROUP]: {
       // inspected
@@ -192,13 +193,13 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         group: {
           from: postBody,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     },
     [USER_DELGROUP]: {
       // inspected
@@ -206,13 +207,27 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0
+          default: 0,
         },
         group: {
           from: query,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
+    },
+    [USER_ENABLE]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        enable: {
+          from: postBody,
+          default: true,
+        },
+      },
     },
     [USER_INFO]: {
       // inspected
@@ -220,23 +235,23 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: -1
+          default: -1,
         },
         decrypt: {
           from: query,
-          default: false
-        }
-      }
+          default: false,
+        },
+      },
     },
     [USER_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [USER_QUOTA_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {}
+      params: {},
     },
     [USER_QUOTA_UPDATE]: {
       // inspected
@@ -244,9 +259,9 @@ module.exports = {
       params: {
         template: {
           from: postBody,
-          default: ''
-        }
-      }
-    }
-  }
+          default: '',
+        },
+      },
+    },
+  },
 }

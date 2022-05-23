@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -141,6 +141,26 @@ define(function(require) {
       driver: 'linuxcontainers'
     },
     {
+      name: 'MEMORY',
+      label: Locale.tr("Memory"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'CPU',
+      label: Locale.tr("CPU"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'VCPU',
+      label: Locale.tr("VCPU"),
+      driver: 'linuxcontainers'
+    },
+    {
+      name: 'PRIVILEGED',
+      label: Locale.tr("Container security mode"),
+      driver: 'linuxcontainers'
+    },
+    {
       name: 'BASE_URL',
       id: 'DOCKER_REGISTRY_BASE_URL',
       label: Locale.tr("DockerHub marketplace url"),
@@ -261,18 +281,18 @@ define(function(require) {
     var marketObj = {};
 
     $.extend(marketObj, WizardFields.retrieve(dialog));
-    
+
     var checkboxAttr = MARKET_MAD_ATTRS.filter(function(e) {
       return e.checkbox;
     }).map(function(e){
       return e.name;
     });
-    
+
     $.each(marketObj, function(key, value){
       if (checkboxAttr.includes(key)) marketObj[key] = (value === "on") ? "true" : "false";
     });
-    
-    
+
+
     if (this.action == "create") {
       marketObj = {
         "marketplace" : marketObj

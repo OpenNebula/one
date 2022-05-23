@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -60,13 +60,6 @@ module OneProvision
 
             user_data << "chmod 700 ~/.ssh\n"
             user_data << "chmod 644 ~/.ssh/authorized_keys\n"
-
-            # Rename last NIC to eth_one
-            user_data << 'NIC=$(ip --brief link show | '\
-                               "tail -1 | awk '{print $1}')\n"
-            user_data << "ip link set down $NIC\n"
-            user_data << "ip link set $NIC name eth_one\n"
-            user_data << 'ip link set up $NIC'
 
             Base64.strict_encode64(user_data)
         end

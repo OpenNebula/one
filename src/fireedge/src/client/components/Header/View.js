@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,47 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, memo, JSXElementConstructor } from 'react'
+import { useMemo, memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button } from '@mui/material'
-import { ViewGrid as ViewIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
+import {
+  ViewGrid as ViewIcon,
+  VerifiedBadge as SelectIcon,
+} from 'iconoir-react'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuthApi, useViews } from 'client/features/Auth'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const ButtonView = memo(({ view, handleClick }) => {
-  const { changeView } = useAuthApi()
-  const { view: currentView } = useAuth()
-  const isCurrentView = currentView === view
+const ButtonView = memo(
+  ({ view, handleClick }) => {
+    const { changeView } = useAuthApi()
+    const { view: currentView } = useViews()
+    const isCurrentView = currentView === view
 
-  return (
-    <Button
-      fullWidth
-      color='debug'
-      variant='outlined'
-      onClick={() => {
-        view && !isCurrentView && changeView(view)
-        handleClick()
-      }}
-      sx={{
-        color: theme => theme.palette.text.primary,
-        justifyContent: 'start',
-        '& svg:first-of-type': { my: 0, mx: 2 }
-      }}
-    >
-      {view}
-      {isCurrentView && <SelectIcon />}
-    </Button>
-  )
-}, (prev, next) => prev.view === next.view)
+    return (
+      <Button
+        fullWidth
+        color="debug"
+        variant="outlined"
+        onClick={() => {
+          view && !isCurrentView && changeView(view)
+          handleClick()
+        }}
+        sx={{
+          color: (theme) => theme.palette.text.primary,
+          justifyContent: 'start',
+          '& svg:first-of-type': { my: 0, mx: 2 },
+        }}
+      >
+        {view}
+        {isCurrentView && <SelectIcon />}
+      </Button>
+    )
+  },
+  (prev, next) => prev.view === next.view
+)
 
 ButtonView.propTypes = {
   view: PropTypes.string.isRequired,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 ButtonView.displayName = 'ButtonView'
@@ -64,15 +70,15 @@ ButtonView.displayName = 'ButtonView'
  *
  * These views are defined in yaml config.
  *
- * @returns {JSXElementConstructor} Returns interface views list
+ * @returns {ReactElement} Returns interface views list
  */
 const View = () => {
-  const { view: currentView, views = {} } = useAuth()
+  const { view: currentView, views = {} } = useViews()
   const viewNames = useMemo(() => Object.keys(views), [currentView])
 
   return (
     <HeaderPopover
-      id='view-list'
+      id="view-list"
       icon={<ViewIcon />}
       tooltip={<Translate word={T.SwitchView} />}
       buttonProps={{ 'data-cy': 'header-view-button' }}
@@ -82,7 +88,7 @@ const View = () => {
         <Search
           list={viewNames}
           maxResults={5}
-          renderResult={view => (
+          renderResult={(view) => (
             <ButtonView
               key={`view-${view}`}
               view={view}

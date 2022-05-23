@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,71 +13,106 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import NicCard from 'client/components/Cards/NicCard'
+import {
+  AttachAction,
+  DetachAction,
+  AttachSecGroupAction,
+  DetachSecGroupAction,
+} from 'client/components/Tabs/Vm/Network/Actions'
 
-import NetworkList from 'client/components/Tabs/Vm/Network/List'
-import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { AttachNicForm } from 'client/components/Forms/Vm'
+import {
+  getNics,
+  getHypervisor,
+  isAvailableAction,
+} from 'client/models/VirtualMachine'
+import { getActionsAvailable } from 'client/models/Helper'
+import { VM_ACTIONS } from 'client/constants'
 
-import { getNics, getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
-import { jsonToXml, getActionsAvailable } from 'client/models/Helper'
-import { T, VM_ACTIONS } from 'client/constants'
+const { ATTACH_NIC, DETACH_NIC, ATTACH_SEC_GROUP, DETACH_SEC_GROUP } =
+  VM_ACTIONS
 
-const VmNetworkTab = ({ tabProps: { actions } = {} }) => {
-  const { attachNic } = useVmApi()
+/**
+ * Renders the list of networks from a VM.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
+ * @param {string} props.id - Virtual Machine id
+ * @returns {ReactElement} Networks tab
+ */
+const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
+  const { data: vm } = useGetVmQuery({ id })
 
-  const { handleRefetch, data: vm } = useContext(TabContext)
+  const [nics, hypervisor, actionsAvailable] = useMemo(() => {
+    const groupedNics = getNics(vm, {
+      groupAlias: true,
+      securityGroupsFromTemplate: true,
+    })
+    const hyperV = getHypervisor(vm)
+    const actionsByHypervisor = getActionsAvailable(actions, hyperV)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action, vm)
+    )
 
-  const [nics, actionsAvailable] = useMemo(() => {
-    const groupedNics = getNics(vm, { groupAlias: true, securityGroupsFromTemplate: true })
-    const hypervisor = getHypervisor(vm)
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
-
-    return [groupedNics, actionsByState]
+    return [groupedNics, hyperV, actionsByState]
   }, [vm])
 
-  const handleAttachNic = async formData => {
-    const isAlias = !!formData?.PARENT?.length
-    const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
-
-    const template = jsonToXml(data)
-    const response = await attachNic(vm.ID, template)
-
-    String(response) === String(vm.ID) && (await handleRefetch?.(vm.ID))
-  }
-
   return (
-    <>
-      {actionsAvailable?.includes?.(VM_ACTIONS.ATTACH_NIC) && (
-        <ButtonToTriggerForm
-          buttonProps={{
-            color: 'secondary',
-            'data-cy': 'attach-nic',
-            label: T.AttachNic,
-            variant: 'outlined'
-          }}
-          options={[{
-            dialogProps: { title: T.AttachNic },
-            form: () => AttachNicForm({ nics }),
-            onSubmit: handleAttachNic
-          }]}
-        />
+    <div>
+      {actionsAvailable?.includes?.(ATTACH_NIC) && (
+        <AttachAction vmId={id} currentNics={nics} hypervisor={hypervisor} />
       )}
 
-      <NetworkList actions={actionsAvailable} nics={nics} />
-    </>
+      <Stack gap="1em" py="0.8em">
+        {nics.map((nic) => {
+          const { IP, MAC, ADDRESS } = nic
+          const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
+
+          return (
+            <NicCard
+              key={key}
+              nic={nic}
+              actions={
+                <>
+                  {actionsAvailable.includes(DETACH_NIC) && (
+                    <DetachAction nic={nic} vmId={id} />
+                  )}
+                  {actionsAvailable.includes(ATTACH_SEC_GROUP) && (
+                    <AttachSecGroupAction nic={nic} vmId={id} />
+                  )}
+                </>
+              }
+              aliasActions={({ alias }) =>
+                actionsAvailable.includes(DETACH_NIC) && (
+                  <DetachAction nic={alias} vmId={id} />
+                )
+              }
+              securityGroupActions={({ securityGroupId }) =>
+                actionsAvailable.includes(DETACH_SEC_GROUP) && (
+                  <DetachSecGroupAction
+                    nic={nic}
+                    vmId={id}
+                    securityGroupId={securityGroupId}
+                  />
+                )
+              }
+            />
+          )
+        })}
+      </Stack>
+    </div>
   )
 }
 
 VmNetworkTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -276,6 +276,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge \
           $ETC_LOCATION/fireedge/provision \
           $ETC_LOCATION/fireedge/provision/providers.d \
+          $ETC_LOCATION/fireedge/provision/providers.d-extra \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/admin \
           $ETC_LOCATION/fireedge/sunstone/user"
@@ -322,7 +323,11 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/config/type \
           $LIB_LOCATION/onecfg/lib/config/type/augeas \
           $LIB_LOCATION/onecfg/lib/config/type/yaml \
-          $LIB_LOCATION/onecfg/lib/patch"
+          $LIB_LOCATION/onecfg/lib/patch \
+          $LIB_LOCATION/ruby/onevmdump \
+          $LIB_LOCATION/ruby/onevmdump/lib \
+          $LIB_LOCATION/ruby/onevmdump/lib/exporters \
+          $LIB_LOCATION/ruby/onevmdump/lib/restorers"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -465,6 +470,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
           $VAR_LOCATION/remotes/vnm/elastic \
+          $VAR_LOCATION/remotes/vnm/elastic/pre.d \
+          $VAR_LOCATION/remotes/vnm/elastic/clean.d \
           $VAR_LOCATION/remotes/vnm/nodeport\
           $VAR_LOCATION/remotes/vnm/hooks/pre \
           $VAR_LOCATION/remotes/vnm/hooks/post \
@@ -483,8 +490,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/autostart \
           $VAR_LOCATION/remotes/hooks/ft \
-          $VAR_LOCATION/remotes/hooks/vcenter \
-          $VAR_LOCATION/remotes/hooks/vcenter/templates \
           $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
@@ -540,7 +545,8 @@ ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/models"
 
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula"
+                 $LIB_LOCATION/ruby/opennebula \
+                 $LIB_LOCATION/ruby/opennebula/flow"
 
 LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
                      $LIB_LOCATION/ruby/cli/one_helper"
@@ -587,6 +593,7 @@ INSTALL_FILES=(
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
+    REMOTE_FILES:$VAR_LOCATION/remotes
     ONEDB_FILES:$LIB_LOCATION/ruby/onedb
     ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
     ONEDB_SHARED_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/shared
@@ -756,8 +763,6 @@ INSTALL_FILES=(
     BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
-    HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
-    HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
@@ -775,6 +780,10 @@ INSTALL_FILES=(
     CONTEXT_SHARE:$SHARE_LOCATION/context
     DOCKERFILE_TEMPLATE:$SHARE_LOCATION/dockerhub
     DOCKERFILES_TEMPLATES:$SHARE_LOCATION/dockerhub/dockerfiles
+    ONEVMDUMP_FILES:$LIB_LOCATION/ruby/onevmdump
+    ONEVMDUMP_LIB_FILES:$LIB_LOCATION/ruby/onevmdump/lib
+    ONEVMDUMP_LIB_EXPORTERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/exporters
+    ONEVMDUMP_LIB_RESTORERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/restorers
 )
 
 INSTALL_CLIENT_FILES=(
@@ -887,6 +896,7 @@ INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
   PROVISION_ETC:$ETC_LOCATION/fireedge/provision
   PROVISION_ETC_PROVIDERS:$ETC_LOCTION/fireedge/provision/providers.d
+  PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCTION/fireedge/provision/providers.d-extra
   SUNSTONE_ETC_VIEWS:$ETC_LOCATION/fireedge/sunstone
   SUNSTONE_ETC_VIEWS_ADMIN:$ETC_LOCTION/fireedge/sunstone/admin
   SUNSTONE_ETC_VIEWS_USER:$ETC_LOCTION/fireedge/sunstone/user
@@ -897,6 +907,7 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
   FIREEDGE_PROVISION_ETC:$ETC_LOCATION/fireedge/provision
   FIREEDGE_PROVISION_ETC_PROVIDERS:$ETC_LOCATION/fireedge/provision/providers.d
+  FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCATION/fireedge/provision/providers.d-extra
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
@@ -982,7 +993,10 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevcenter \
            src/cli/onevntemplate \
            src/cli/onehook \
+           src/cli/onelog \
+           src/cli/oneirb \
            src/onedb/onedb \
+           src/onevmdump/onevmdump \
            share/scripts/qemu-kvm-one-gen \
            share/scripts/one"
 
@@ -1039,6 +1053,8 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # MAD Script library files, to be installed under $LIB_LOCATION/<script lang>
 # and remotes directory
 #-----------------------------------------------------------------------------
+
+REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu"
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
                 src/mad/sh/create_container_image.sh \
@@ -1731,53 +1747,71 @@ NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
                     src/vnm_mad/remotes/802.1Q/update_sg \
-                    src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb"
+                    src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb \
+                    src/vnm_mad/remotes/802.1Q/vnet_create \
+                    src/vnm_mad/remotes/802.1Q/vnet_delete"
 
 NETWORK_VXLAN_FILES="src/vnm_mad/remotes/vxlan/clean \
                     src/vnm_mad/remotes/vxlan/post \
                     src/vnm_mad/remotes/vxlan/pre \
                     src/vnm_mad/remotes/vxlan/update_sg \
                     src/vnm_mad/remotes/vxlan/vxlan.rb \
-                    src/vnm_mad/remotes/vxlan/vxlan_driver.rb"
-
+                    src/vnm_mad/remotes/vxlan/vxlan_driver.rb \
+                    src/vnm_mad/remotes/vxlan/vnet_create \
+                    src/vnm_mad/remotes/vxlan/vnet_delete"
 
 NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
                     src/vnm_mad/remotes/dummy/update_sg \
-                    src/vnm_mad/remotes/dummy/pre"
+                    src/vnm_mad/remotes/dummy/pre \
+                    src/vnm_mad/remotes/dummy/vnet_create \
+                    src/vnm_mad/remotes/dummy/vnet_delete"
 
 NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
                     src/vnm_mad/remotes/bridge/post \
                     src/vnm_mad/remotes/bridge/update_sg \
-                    src/vnm_mad/remotes/bridge/pre"
+                    src/vnm_mad/remotes/bridge/pre \
+                    src/vnm_mad/remotes/bridge/vnet_create \
+                    src/vnm_mad/remotes/bridge/vnet_delete"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/post \
                     src/vnm_mad/remotes/ebtables/pre \
                     src/vnm_mad/remotes/ebtables/update_sg \
-                    src/vnm_mad/remotes/ebtables/Ebtables.rb"
+                    src/vnm_mad/remotes/ebtables/Ebtables.rb \
+                    src/vnm_mad/remotes/ebtables/vnet_create \
+                    src/vnm_mad/remotes/ebtables/vnet_delete"
 
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
                   src/vnm_mad/remotes/fw/pre \
                   src/vnm_mad/remotes/fw/update_sg \
-                  src/vnm_mad/remotes/fw/clean"
+                  src/vnm_mad/remotes/fw/clean \
+                  src/vnm_mad/remotes/fw/vnet_create \
+                  src/vnm_mad/remotes/fw/vnet_delete"
 
 NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
-                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+                    src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb \
+                    src/vnm_mad/remotes/ovswitch/vnet_create \
+                    src/vnm_mad/remotes/ovswitch/vnet_delete"
 
 NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
                     src/vnm_mad/remotes/ovswitch_vxlan/post \
                     src/vnm_mad/remotes/ovswitch_vxlan/pre \
                     src/vnm_mad/remotes/ovswitch_vxlan/update_sg \
-                    src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb"
+                    src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb \
+                    src/vnm_mad/remotes/ovswitch_vxlan/vnet_create \
+                    src/vnm_mad/remotes/ovswitch_vxlan/vnet_delete"
 
 NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean \
-                       src/vnm_mad/remotes/vcenter/update_sg"
+                       src/vnm_mad/remotes/vcenter/update_sg \
+                       src/vnm_mad/remotes/vcenter/virtual_network_xml.rb \
+                       src/vnm_mad/remotes/vcenter/vnet_create \
+                       src/vnm_mad/remotes/vcenter/vnet_delete"
 
 NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/clean \
@@ -1785,13 +1819,17 @@ NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/post \
                        src/vnm_mad/remotes/elastic/remote_post \
                        src/vnm_mad/remotes/elastic/pre \
-                       src/vnm_mad/remotes/elastic/update_sg"
+                       src/vnm_mad/remotes/elastic/update_sg \
+                       src/vnm_mad/remotes/elastic/vnet_create \
+                       src/vnm_mad/remotes/elastic/vnet_delete"
 
 NETWORK_NODEPORT_FILES="src/vnm_mad/remotes/nodeport/nodeport.rb \
                         src/vnm_mad/remotes/nodeport/clean \
                         src/vnm_mad/remotes/nodeport/post \
                         src/vnm_mad/remotes/nodeport/pre \
-                        src/vnm_mad/remotes/nodeport/update_sg"
+                        src/vnm_mad/remotes/nodeport/update_sg \
+                        src/vnm_mad/remotes/nodeport/vnet_create \
+                        src/vnm_mad/remotes/nodeport/vnet_delete"
 
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
@@ -2275,6 +2313,22 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/5.12.0_to_6.0.0.rb"
 
 #-------------------------------------------------------------------------------
+# onevmdump command, to be installed under $LIB_LOCATION
+#-------------------------------------------------------------------------------
+
+ONEVMDUMP_FILES="src/onevmdump/onevmdump.rb"
+
+ONEVMDUMP_LIB_FILES="src/onevmdump/lib/command.rb \
+                     src/onevmdump/lib/commons.rb"
+
+ONEVMDUMP_LIB_EXPORTERS_FILES="src/onevmdump/lib/exporters/base.rb \
+                               src/onevmdump/lib/exporters/file.rb \
+                               src/onevmdump/lib/exporters/lv.rb \
+                               src/onevmdump/lib/exporters/rbd.rb"
+
+ONEVMDUMP_LIB_RESTORERS_FILES="src/onevmdump/lib/restorers/base.rb"
+
+#-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
 #-------------------------------------------------------------------------------
 
@@ -2346,13 +2400,6 @@ WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
                                share/websockify/websockify/websocketproxy.py"
 
 #-------------------------------------------------------------------------------
-# Installation packages for ESX hosts to enable VNC ports
-#-------------------------------------------------------------------------------
-
-ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
-                        share/esx-fw-vnc/fw-vnc.zip"
-
-#-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/autostart
 #-------------------------------------------------------------------------------
 
@@ -2365,22 +2412,6 @@ HOOK_AUTOSTART_FILES="share/hooks/autostart/host \
 
 HOOK_FT_FILES="share/hooks/ft/host_error.rb \
                share/hooks/ft/fence_host.sh"
-
-#-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/vcenter
-#-------------------------------------------------------------------------------
-
-HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
-                    share/hooks/vcenter/delete_vcenter_net.rb"
-
-#-------------------------------------------------------------------------------
-# HOOK templates, to be installed under
-# $VAR_LOCATION/remotes/hooks/vcenter/templates
-#-------------------------------------------------------------------------------
-
-HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/delete_vcenter_net.tmpl \
-                    share/hooks/vcenter/templates/instantiate_vcenter_net.tmpl"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
@@ -2551,6 +2582,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onemarketapp \
                src/cli/onemarket \
                src/cli/onevntemplate \
+               src/cli/oneirb \
+               src/cli/onelog \
                src/cli/onehook"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
@@ -2592,7 +2625,8 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/ \
+                              share/oneprovision/edge-clusters-extra/ "
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
@@ -2634,7 +2668,7 @@ ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb"
 ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
                                   src/oneprovision/lib/terraform/providers/google.rb \
                                   src/oneprovision/lib/terraform/providers/digitalocean.rb \
-                                  src/oneprovision/lib/terraform/providers/dummy.rb \
+                                  src/oneprovision/lib/terraform/providers/onprem.rb \
                                   src/oneprovision/lib/terraform/providers/example \
                                   src/oneprovision/lib/terraform/providers/equinix.rb \
                                   src/oneprovision/lib/terraform/providers/vultr.rb \
@@ -2915,12 +2949,13 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
-                                src/fireedge/etc/provision/providers.d/digitalocean.yaml \
-                                src/fireedge/etc/provision/providers.d/dummy.yaml \
-                                src/fireedge/etc/provision/providers.d/google.yaml \
-                                src/fireedge/etc/provision/providers.d/equinix.yaml \
-                                src/fireedge/etc/provision/providers.d/vultr_metal.yaml \
-                                src/fireedge/etc/provision/providers.d/vultr_virtual.yaml"
+                                src/fireedge/etc/provision/providers.d/onprem.yaml \
+                                src/fireedge/etc/provision/providers.d/equinix.yaml"
+
+FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-extra/digitalocean.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/google.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/vultr_metal.yaml \
+                                        src/fireedge/etc/provision/providers.d-extra/vultr_virtual.yaml"
 
 #----------------------------------------------------------------------------
 # FireEdge Sunstone files
@@ -2929,9 +2964,9 @@ FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yam
 FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/sunstone-views.yaml"
 
-FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/cluster-tab.yaml \
+FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-template-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
@@ -3054,6 +3089,8 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneshowback.1.gz \
         share/man/oneacl.1.gz \
         share/man/onehook.1.gz \
+        share/man/onelog.1.gz \
+        share/man/oneirb.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \
         share/man/oneuser.1.gz \
@@ -3077,7 +3114,8 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
-        share/man/onevntemplate.1.gz"
+        share/man/onevntemplate.1.gz \
+        share/man/onevmdump.1.gz"
 
 #-----------------------------------------------------------------------------
 # Docs Files

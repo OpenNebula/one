@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -359,14 +359,16 @@ define(function(require) {
         var sizeStr = "";
         if (disksSize[disk.DISK_ID]) {
           sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
-        } else {
-          sizeStr += '-';
-        }
-
-        sizeStr += '/';
-        if (disk.SIZE) {
+          sizeStr += '/';
+          if (disk.SIZE) {
+            sizeStr += Humanize.sizeFromMB(disk.SIZE);
+          } else {
+            sizeStr += '-';
+          }
+        } else if (disk.SIZE){
           sizeStr += Humanize.sizeFromMB(disk.SIZE);
-        } else {
+        }
+        else {
           sizeStr += '-';
         }
 

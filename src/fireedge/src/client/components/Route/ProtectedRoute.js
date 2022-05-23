@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect } from 'react'
 import { Redirect, Route } from 'react-router-dom'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth } from 'client/features/Auth'
 
 /**
  * Private route.
@@ -25,15 +24,10 @@ import { useAuth, useAuthApi } from 'client/features/Auth'
  * @returns {Redirect|Route}
  * - If current user isn't authenticated, then redirect to landing page
  */
-const ProtectedRoute = props => {
-  const { isLogged, jwt } = useAuth()
-  const { getAuthUser } = useAuthApi()
+const ProtectedRoute = (props) => {
+  const { isLogged: isAuthenticated } = useAuth()
 
-  useEffect(() => {
-    jwt && getAuthUser()
-  }, [])
-
-  return isLogged ? <Route {...props}/> : <Redirect to='/' />
+  return isAuthenticated ? <Route {...props} /> : <Redirect to="/" />
 }
 
 export default ProtectedRoute

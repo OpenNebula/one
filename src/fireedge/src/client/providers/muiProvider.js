@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,16 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
   CssBaseline,
   ThemeProvider,
   StyledEngineProvider,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material'
 import StylesProvider from '@mui/styles/StylesProvider'
+import AdapterLuxon from '@mui/lab/AdapterLuxon'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+
 import { createTheme, generateClassName } from 'client/theme'
 import { useAuth } from 'client/features/Auth'
 import { SCHEMES } from 'client/constants'
@@ -31,17 +34,15 @@ import { SCHEMES } from 'client/constants'
 const { DARK, LIGHT, SYSTEM } = SCHEMES
 
 const MuiProvider = ({ theme: appTheme, children }) => {
-  const { settings: { scheme } = {} } = useAuth()
+  const { settings: { SCHEME } = {} } = useAuth()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-  const changeScheme = () => {
+  const muiTheme = useMemo(() => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
-    const newScheme = scheme === SYSTEM ? prefersScheme : scheme
+    const newScheme = SCHEME === SYSTEM ? prefersScheme : SCHEME
 
     return createTheme(appTheme, newScheme)
-  }
-
-  const [muitheme, setTheme] = useState(changeScheme)
+  }, [SCHEME, prefersDarkMode])
 
   useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
@@ -50,19 +51,17 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     }
   }, [])
 
-  useEffect(() => {
-    setTheme(changeScheme)
-  }, [scheme, prefersDarkMode])
-
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={muitheme}>
-        <CssBaseline />
-        <StylesProvider generateClassName={generateClassName}>
-          {children}
-        </StylesProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <LocalizationProvider dateAdapter={AdapterLuxon}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muiTheme}>
+          <CssBaseline enableColorScheme />
+          <StylesProvider generateClassName={generateClassName}>
+            {children}
+          </StylesProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </LocalizationProvider>
   )
 }
 
@@ -70,8 +69,8 @@ MuiProvider.propTypes = {
   theme: PropTypes.object,
   children: PropTypes.oneOfType([
     PropTypes.node,
-    PropTypes.arrayOf(PropTypes.node)
-  ])
+    PropTypes.arrayOf(PropTypes.node),
+  ]),
 }
 
 export default MuiProvider

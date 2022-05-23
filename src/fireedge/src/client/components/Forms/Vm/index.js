@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,28 +13,159 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttachNicForm from 'client/components/Forms/Vm/AttachNicForm'
-import ChangeUserForm from 'client/components/Forms/Vm/ChangeUserForm'
-import ChangeGroupForm from 'client/components/Forms/Vm/ChangeGroupForm'
-import CreateDiskSnapshotForm from 'client/components/Forms/Vm/CreateDiskSnapshotForm'
-import CreateSnapshotForm from 'client/components/Forms/Vm/CreateSnapshotForm'
-import MigrateForm from 'client/components/Forms/Vm/MigrateForm'
-import RecoverForm from 'client/components/Forms/Vm/RecoverForm'
-import ResizeCapacityForm from 'client/components/Forms/Vm/ResizeCapacityForm'
-import ResizeDiskForm from 'client/components/Forms/Vm/ResizeDiskForm'
-import SaveAsDiskForm from 'client/components/Forms/Vm/SaveAsDiskForm'
-export * from 'client/components/Forms/Vm/AttachDiskForm'
-export * from 'client/components/Forms/Vm/CreateSchedActionForm'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const ImageSteps = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachDiskForm/ImageSteps' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const VolatileSteps = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachDiskForm/VolatileSteps' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const AttachNicForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachNicForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const AttachSecGroupForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachSecGroupForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ChangeUserForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/ChangeUserForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ChangeGroupForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/ChangeGroupForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateDiskSnapshotForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/CreateDiskSnapshotForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateSnapshotForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/CreateSnapshotForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const MigrateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/MigrateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const RecoverForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/RecoverForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ResizeCapacityForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/ResizeCapacityForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ResizeDiskForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/ResizeDiskForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const SaveAsDiskForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/SaveAsDiskForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const SaveAsTemplateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/SaveAsTemplateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateSchedActionForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/CreateSchedActionForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateRelativeSchedActionForm = (configProps) =>
+  AsyncLoadForm(
+    { formPath: 'Vm/CreateSchedActionForm', componentToLoad: 'RelativeForm' },
+    configProps
+  )
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateCharterForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/CreateCharterForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateRelativeCharterForm = (configProps) =>
+  AsyncLoadForm(
+    { formPath: 'Vm/CreateCharterForm', componentToLoad: 'RelativeForm' },
+    configProps
+  )
 
 export {
   AttachNicForm,
-  ChangeUserForm,
+  AttachSecGroupForm,
   ChangeGroupForm,
+  ChangeUserForm,
+  CreateCharterForm,
   CreateDiskSnapshotForm,
+  CreateRelativeCharterForm,
+  CreateRelativeSchedActionForm,
+  CreateSchedActionForm,
   CreateSnapshotForm,
+  ImageSteps,
   MigrateForm,
   RecoverForm,
   ResizeCapacityForm,
   ResizeDiskForm,
-  SaveAsDiskForm
+  SaveAsDiskForm,
+  SaveAsTemplateForm,
+  VolatileSteps,
 }

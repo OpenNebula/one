@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,35 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { getValidationFromFields, schemaUserInput } from 'client/utils'
+import { object, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields, schemaUserInput } from 'client/utils'
+import { UserInputOneProvisionObject } from 'client/constants'
 
-export const FORM_FIELDS = inputs =>
-  inputs?.map(({
-    name,
-    description,
-    type,
-    default: defaultValue,
-    min_value: min,
-    max_value: max,
-    options
-  }) => {
-    const optionsValue = options ?? `${min}..${max}`
-
-    return {
+/**
+ * @param {UserInputOneProvisionObject[]} inputs - Inputs
+ * @returns {Field[]} Inputs in Field format
+ */
+export const FORM_FIELDS = (inputs) =>
+  inputs?.map(
+    ({
+      mandatory = true,
       name,
-      label: `${description ?? name} *`,
+      description,
+      type,
+      default: defaultValue,
+      min_value: min,
+      max_value: max,
+      options,
+    }) => ({
+      name,
+      label: `${description ?? name} ${mandatory ? '*' : ''}`,
       ...schemaUserInput({
-        mandatory: true,
+        mandatory,
         name,
         type,
-        options: optionsValue,
-        defaultValue
-      })
-    }
-  })
+        min,
+        max,
+        options,
+        default: defaultValue,
+      }),
+    })
+  )
 
-export const STEP_FORM_SCHEMA = inputs => yup.object(
-  getValidationFromFields(FORM_FIELDS(inputs))
-)
+/**
+ * @param {UserInputOneProvisionObject[]} inputs - Inputs
+ * @returns {ObjectSchema} Inputs step schema
+ */
+export const STEP_FORM_SCHEMA = (inputs) =>
+  object(getValidationFromFields(FORM_FIELDS(inputs)))

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -26,17 +26,15 @@ const Row = ({ original, value, ...props }) => {
   const { ID, NAME, TOTAL_USERS } = value
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`group-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography component='span'>
+          <Typography noWrap component="span">
             {NAME}
           </Typography>
         </div>
         <div className={classes.caption}>
-          <span>
-            {`#${ID}`}
-          </span>
+          <span>{`#${ID}`}</span>
           <span title={`Total Users: ${TOTAL_USERS}`}>
             <Group />
             <span>{` ${TOTAL_USERS}`}</span>
@@ -51,7 +49,7 @@ Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 export default Row

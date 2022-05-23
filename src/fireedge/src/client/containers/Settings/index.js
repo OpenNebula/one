@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,114 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
+import { ReactElement } from 'react'
+import { Typography, Divider, Stack } from '@mui/material'
 
-import { Container, Paper, Box, Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-
-import { useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import SubmitButton from 'client/components/FormControl/SubmitButton'
-
-import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useUserApi } from 'client/features/One'
-import { useGeneralApi } from 'client/features/General'
-import { Tr } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
-import { mapUserInputs } from 'client/utils'
-import * as Helper from 'client/models/Helper'
+import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
+import AuthenticationSection from 'client/containers/Settings/Authentication'
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    paddingTop: '1rem'
-  },
-  title: {
-    flexGrow: 1,
-    letterSpacing: 0.1,
-    fontWeight: 500
-  },
-  wrapper: {
-    backgroundColor: theme.palette.background.default,
-    maxWidth: 550,
-    padding: '1rem'
-  },
-  subheader: {
-    marginBottom: '1rem'
-  },
-  actions: {
-    padding: '1rem 0',
-    textAlign: 'end'
-  }
-}))
+/** @returns {ReactElement} Settings container */
+const Settings = () => (
+  <>
+    <Typography variant="h5">
+      <Translate word={T.Settings} />
+    </Typography>
 
-const Settings = () => {
-  const classes = useStyles()
-  const { user, settings } = useAuth()
-  const { getAuthUser } = useAuthApi()
-  const { updateUser } = useUserApi()
-  const { enqueueError } = useGeneralApi()
+    <Divider sx={{ my: '1em' }} />
 
-  const { handleSubmit, setError, reset, formState, ...methods } = useForm({
-    reValidateMode: 'onSubmit',
-    defaultValues: settings,
-    resolver: yupResolver(FORM_SCHEMA)
-  })
-
-  useEffect(() => {
-    reset(
-      FORM_SCHEMA.cast(settings),
-      { keepIsSubmitted: false, keepErrors: false }
-    )
-  }, [settings])
-
-  const onSubmit = async dataForm => {
-    try {
-      const inputs = mapUserInputs(dataForm)
-      const template = Helper.jsonToXml({ FIREEDGE: inputs })
-
-      await updateUser(user.ID, { template }).then(getAuthUser)
-    } catch {
-      enqueueError(Tr(T.SomethingWrong))
-    }
-  }
-
-  return (
-    <Container disableGutters>
-      <div className={classes.header}>
-        <Typography variant='h5' className={classes.title}>
-          {Tr(T.Settings)}
-        </Typography>
-      </div>
-
-      <hr />
-
-      <Paper className={classes.wrapper} variant='outlined'>
-        <Typography variant='overline' component='div' className={classes.subheader}>
-          {`${Tr(T.Configuration)} UI`}
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <FormProvider {...methods}>
-            <FormWithSchema cy='settings' fields={FORM_FIELDS} />
-          </FormProvider>
-          <div className={classes.actions}>
-            <SubmitButton
-              color='secondary'
-              data-cy='settings-submit-button'
-              label={Tr(T.Save)}
-              onClick={handleSubmit}
-              disabled={!formState.isDirty}
-              isSubmitting={formState.isSubmitting}
-            />
-          </div>
-        </Box>
-      </Paper>
-    </Container>
-  )
-}
+    <Stack gap="1em">
+      <ConfigurationUISection />
+      <AuthenticationSection />
+    </Stack>
+  </>
+)
 
 export default Settings

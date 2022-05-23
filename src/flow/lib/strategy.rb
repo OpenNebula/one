@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -48,6 +48,37 @@ module Strategy
             [Role::STATE['UNDEPLOYING'],
              Role::STATE['DONE'],
              Role::STATE['FAILED_UNDEPLOYING']].include?(role.state)
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
+    # Returns all node Roles ready to be set on hold
+    # @return [Hash<String, Role>] Roles
+    def roles_hold
+        result = roles.select do |_name, role|
+            role.state == Role::STATE['PENDING']
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
+    # Returns all node Roles ready to be released
+    # @param [Service] service
+    # @return [Hash<String, Role>] Roles
+    def roles_release
+        result = roles.select do |_name, role|
+            role.state == Role::STATE['HOLD']
         end
 
         # Ruby 1.8 compatibility

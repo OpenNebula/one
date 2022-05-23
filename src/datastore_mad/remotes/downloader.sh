@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -295,7 +295,30 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecomp -- "$@"`
+# Compare 2 version strings using sort -V
+# Usage:
+#   verlte "3.2.9" "3.4.0"
+function verlte() {
+    [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+}
+
+# Returns curl retry options based on its version
+function curl_retry_args {
+    [ "$NO_RETRY" = "yes" ] && return
+
+    RETRY_ARGS="--retry 3 --retry-delay 3"
+
+    CURL_VER=`curl --version | grep -o 'curl [0-9\.]*' | awk '{print $2}'`
+
+    # To retry also on conn-reset-by-peer fresh curl is needed
+    if verlte "7.71.0" "$CURL_VER"; then
+        RETRY_ARGS+=" --retry-all-errors"
+    fi
+
+    echo $RETRY_ARGS
+}
+
+TEMP=`getopt -o m:s:l:c:no -l md5:,sha1:,limit:,max-size:,nodecomp,noretry -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error" >&2
@@ -328,9 +351,9 @@ while true; do
             export MAX_SIZE="$2"
             shift 2
             ;;
-        --convert)
-            export CONVERT="$2"
-            shift 2
+        -o|--noretry)
+            export NO_RETRY="yes"
+            shift
             ;;
         --)
             shift
@@ -353,7 +376,7 @@ else
     export HASH_FILE="/tmp/downloader.hash.$$"
 fi
 
-GLOBAL_CURL_ARGS="--fail -sS -k -L"
+GLOBAL_CURL_ARGS="--fail -sS -k -L $(curl_retry_args)"
 
 case "$FROM" in
 http://*|https://*)
@@ -477,24 +500,7 @@ if [ -n "$HASH_TYPE" ]; then
     fi
 fi
 
-function convert_image
-{
-    original_type=$(qemu-img info $TO | grep "^file format:" | awk '{print $3}' || :)
-    if [ "$CONVERT" != "$original_type" ]; then
-        tmpimage=$TO".tmp"
-        qemu-img convert -f $original_type -O $CONVERT $TO $tmpimage
-        mv $tmpimage $TO
-    fi
-}
-
 # Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
-
-    if [ -n "$CONVERT" ] && [ -f "$TO" ]; then
-        convert_image
-    fi
-
-elif [ -n "$CONVERT" ]; then
-    convert_image
 fi

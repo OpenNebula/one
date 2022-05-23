@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,65 +13,84 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
+import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
 
-import { HYPERVISOR_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/informationSchema'
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
+import {
+  SCHEMA,
+  SECTIONS,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { generateKey } from 'client/utils'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'general'
 
-const Content = () => {
+const Content = ({ isUpdate }) => {
   const classes = useStyles()
-  const { view, getResourceView } = useAuth()
+  const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
 
-  const groups = useMemo(() => {
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
+  const sections = useMemo(() => {
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return FIELDS(hypervisor)
-      .filter(({ id, required }) => required || sectionsAvailable.includes(id))
+    return (
+      SECTIONS(hypervisor, isUpdate)
+        .filter(
+          ({ id, required }) => required || sectionsAvailable.includes(id)
+        )
+        // unique keys to avoid duplicates
+        .map((section) => ({ key: generateKey(), ...section }))
+    )
   }, [view, hypervisor])
 
   return (
     <div className={classes.root}>
-      <FormWithSchema
-        cy={'create-vm-template-general.hypervisor'}
-        fields={[HYPERVISOR_FIELD]}
-        legend={T.Hypervisor}
-        id={STEP_ID}
-      />
-      {groups.map(({ id, legend, fields }) => (
+      {sections.map(({ key, id, ...section }) => (
         <FormWithSchema
-          key={id}
-          className={classes[id]}
-          cy={`create-vm-template-general.${id}`}
-          fields={fields}
-          legend={legend}
+          key={key}
           id={STEP_ID}
+          className={classes[id]}
+          cy={`${STEP_ID}-${id}`}
+          {...section}
         />
       ))}
     </div>
   )
 }
 
-const General = () => ({
-  id: STEP_ID,
-  label: T.General,
-  resolver: formData => {
-    const hypervisor = formData?.[STEP_ID]?.HYPERVISOR
-    return SCHEMA(hypervisor)
-  },
-  optionsValidate: { abortEarly: false },
-  content: Content
-})
+/**
+ * General configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} General configuration step
+ */
+const General = (vmTemplate) => {
+  const isUpdate = vmTemplate?.NAME
+  const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+
+  return {
+    id: STEP_ID,
+    label: T.General,
+    resolver: (formData) => {
+      const hypervisor = formData?.[STEP_ID]?.HYPERVISOR ?? initialHypervisor
+
+      return SCHEMA(hypervisor, isUpdate)
+    },
+    optionsValidate: { abortEarly: false },
+    content: () => Content({ isUpdate }),
+  }
+}
+
+Content.propTypes = {
+  isUpdate: PropTypes.bool,
+}
 
 export default General

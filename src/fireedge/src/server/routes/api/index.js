@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,22 +14,114 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const multer = require('multer')
 const { messageTerminal } = require('server/utils/general')
-const { getRouteForOpennebulaCommand } = require('server/utils/opennebula')
-const { defaultFilesRoutes, defaultConfigErrorMessage } = require('server/utils/constants/defaults')
+const { getRequestParameters, getRequestFiles } = require('server/utils/server')
+const {
+  defaultConfigErrorMessage,
+  defaultTmpPath,
+} = require('server/utils/constants/defaults')
+const { writeInLogger } = require('server/utils/logger')
+const { getSunstoneConfig } = require('server/utils/yml')
 
-const filesDataPrivate = []
-const filesDataPublic = []
-defaultFilesRoutes.map(file => {
+const appConfig = getSunstoneConfig()
+const optsMulter = { dest: appConfig.tmpdir || defaultTmpPath }
+if (appConfig && appConfig.max_upload_file_size) {
+  optsMulter.limits = { fileSize: appConfig.max_upload_file_size }
+}
+
+const upload = multer(optsMulter)
+
+const routes = [
+  '2fa',
+  'auth',
+  'files',
+  'marketapp',
+  'oneflow',
+  'vcenter',
+  'vm',
+  'zendesk',
+  'oneprovision',
+  'sunstone',
+  'system',
+  'support',
+]
+
+const serverRoutes = []
+
+/**
+ * Parse files for actions.
+ *
+ * @param {Array} files - files
+ * @returns {Array} files
+ */
+const parseFiles = (files = []) => {
+  let rtn
+  if (files && Array.isArray(files)) {
+    rtn = {}
+    files.forEach((file) => {
+      if (file.fieldname) {
+        rtn[file.fieldname]
+          ? rtn[file.fieldname].push(file)
+          : (rtn[file.fieldname] = [file])
+      }
+    })
+  }
+
+  return rtn
+}
+
+routes.forEach((file) => {
   try {
     // eslint-disable-next-line global-require
     const fileInfo = require(`./${file}`)
 
-    if (fileInfo.private && fileInfo.private.length) {
-      filesDataPrivate.push(...fileInfo.private)
-    }
-    if (fileInfo.public && fileInfo.public.length) {
-      filesDataPublic.push(...fileInfo.public)
+    if (fileInfo && Array.isArray(fileInfo) && fileInfo.length) {
+      serverRoutes.push(
+        ...fileInfo.map((route) => {
+          const { action, params } = route
+          if (action) {
+            route.action = (req, res, next, oneConnection, oneUser) => {
+              const { serverDataSource } = req
+              const uploadFiles = getRequestFiles(params)
+              if (!(uploadFiles && uploadFiles.length)) {
+                return action(
+                  res,
+                  next,
+                  getRequestParameters(params, serverDataSource),
+                  oneUser,
+                  oneConnection
+                )
+              }
+
+              /** Request with files */
+              const files = upload.array(uploadFiles)
+              files(req, res, (err) => {
+                if (err) {
+                  const errorData = (err && err.message) || ''
+                  writeInLogger(errorData)
+                  messageTerminal({
+                    color: 'red',
+                    message: 'Error: %s',
+                    error: errorData,
+                  })
+                }
+                serverDataSource.files = parseFiles(req && req.files)
+
+                return action(
+                  res,
+                  next,
+                  getRequestParameters(params, serverDataSource),
+                  oneUser,
+                  oneConnection
+                )
+              })
+            }
+          }
+
+          return route
+        })
+      )
     }
   } catch (error) {
     if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
@@ -39,9 +131,5 @@ defaultFilesRoutes.map(file => {
     }
   }
 })
-const opennebulaActions = getRouteForOpennebulaCommand()
-const routes = {
-  private: [...opennebulaActions, ...filesDataPrivate],
-  public: [...filesDataPublic]
-}
-module.exports = routes
+
+module.exports = serverRoutes

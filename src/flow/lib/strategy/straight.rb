@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -130,6 +130,80 @@ module Straight
         # Select the nodes that are not parent from any node
         result = running_roles.reject do |name, _role|
             parents.include?(name)
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
+    # Returns all node Roles ready to be set on hold
+    # @return [Hash<String, Role>] Roles
+    def roles_hold
+        hold_roles = roles.select do |_name, role|
+            role.state == Role::STATE['HOLD']
+        end
+
+        # Ruby 1.8 compatibility
+        if hold_roles.instance_of?(Array)
+            hold_roles = hold_roles.to_h
+        end
+
+        result = roles.select do |_name, role|
+            check = true
+
+            if role.state == Role::STATE['PENDING']
+                role.parents.each do |parent|
+                    if !hold_roles.include?(parent)
+                        check = false
+                        break
+                    end
+                end
+            else
+                check = false
+            end
+
+            check
+        end
+
+        # Ruby 1.8 compatibility
+        if result.instance_of?(Array)
+            result = result.to_h
+        end
+
+        result
+    end
+
+    # Returns all node Roles ready to be released
+    # @return [Hash<String, Role>] Roles
+    def roles_release
+        running_roles = roles.select do |_name, role|
+            role.state == Role::STATE['RUNNING']
+        end
+
+        # Ruby 1.8 compatibility
+        if running_roles.instance_of?(Array)
+            running_roles = running_roles.to_h
+        end
+
+        result = roles.select do |_name, role|
+            check = true
+
+            if role.state == Role::STATE['HOLD']
+                role.parents.each do |parent|
+                    if !running_roles.include?(parent)
+                        check = false
+                        break
+                    end
+                end
+            else
+                check = false
+            end
+
+            check
         end
 
         # Ruby 1.8 compatibility

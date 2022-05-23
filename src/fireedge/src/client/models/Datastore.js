@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { DATASTORE_STATES, DATASTORE_TYPES, StateInfo } from 'client/constants'
+import { DATASTORE_STATES, DATASTORE_TYPES, STATES } from 'client/constants'
 
 /**
  * Returns the datastore type name.
@@ -30,26 +30,59 @@ export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
  *
  * @param {object} datastore - Datastore
  * @param {number} datastore.STATE - Datastore state ID
- * @returns {StateInfo} - Datastore state object
+ * @returns {STATES.StateInfo} - Datastore state object
  */
 export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 
 /**
+ * Return the TM_MAD_SYSTEM attribute.
+ *
+ * @param {object} datastore - Datastore
+ * @returns {string[]} - The list of deploy modes available
+ */
+export const getDeployMode = (datastore = {}) => {
+  const { TEMPLATE = {} } = datastore
+  const isImage = getType(datastore)?.name === DATASTORE_TYPES[0]?.name
+
+  return isImage
+    ? TEMPLATE?.TM_MAD_SYSTEM?.split(',')?.filter(Boolean) ?? []
+    : []
+}
+
+/**
  * Returns information about datastore capacity.
  *
- * @param {object} props - Props object
- * @param {number} props.TOTAL_MB - Datastore total space in MB
- * @param {number} props.USED_MB - Datastore used space in MB
+ * @param {object} datastore - Datastore
+ * @param {number} datastore.TOTAL_MB - Total capacity in MB
+ * @param {number} datastore.USED_MB - Used capacity in MB
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
  * }} - Datastore used percentage and label.
  */
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
-  const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
+  const percentOfUsed = (+USED_MB * 100) / +TOTAL_MB || 0
   const usedBytes = prettyBytes(+USED_MB, 'MB')
   const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
-  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
+  const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(
+    percentOfUsed
+  )}%)`
 
   return { percentOfUsed, percentLabel }
 }
+
+/**
+ * Returns `true` if Datastore allows to export to Marketplace.
+ *
+ * @param {object} props - Datastore ob
+ * @param {object} props.NAME - Name
+ * @param {object} oneConfig - One config from redux
+ * @returns {boolean} - Datastore supports to export
+ */
+export const isMarketExportSupport = ({ NAME } = {}, oneConfig) =>
+  // When in doubt, allow the action and let oned return failure
+  !NAME ||
+  oneConfig?.DS_MAD_CONF?.some(
+    (dsMad) =>
+      dsMad?.NAME === NAME && dsMad?.MARKETPLACE_ACTIONS?.includes?.('export')
+  )

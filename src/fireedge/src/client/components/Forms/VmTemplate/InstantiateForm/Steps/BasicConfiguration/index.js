@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,41 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
+import PropTypes from 'prop-types'
 
-import { useAuth } from 'client/features/Auth'
+import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/VmTemplatesTable'
-import { SCHEMA, FIELDS } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
+import {
+  SCHEMA,
+  SECTIONS,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = () => {
+const Content = ({ vmTemplate }) => {
   const classes = useStyles()
-  const { view, getResourceView } = useAuth()
-  const { watch } = useFormContext()
+  const { view, getResourceView } = useViews()
 
-  const groups = useMemo(() => {
-    const hypervisor = watch(`${TEMPLATE_ID}[0].TEMPLATE.HYPERVISOR`)
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.instantiate_dialog
+  const sections = useMemo(() => {
+    const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return FIELDS(hypervisor).filter(({ id }) => sectionsAvailable.includes(id))
+    return SECTIONS(vmTemplate).filter(({ id }) =>
+      sectionsAvailable.includes(id)
+    )
   }, [view])
 
   return (
     <div className={classes.root}>
-      {groups.map(({ id, legend, fields }) => (
+      {sections.map(({ id, legend, fields }) => (
         <FormWithSchema
           key={id}
           className={classes[id]}
-          cy={`instantiate-vm-template-configuration.${id}`}
+          cy={id}
           fields={fields}
           legend={legend}
           id={STEP_ID}
@@ -57,15 +60,22 @@ const Content = () => {
   )
 }
 
-const BasicConfiguration = () => ({
+Content.propTypes = {
+  vmTemplate: PropTypes.object,
+}
+
+/**
+ * Basic configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} Basic configuration step
+ */
+const BasicConfiguration = (vmTemplate) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: formData => {
-    const hypervisor = formData?.[TEMPLATE_ID]?.[0]?.TEMPLATE?.HYPERVISOR
-    return SCHEMA(hypervisor)
-  },
+  resolver: () => SCHEMA(vmTemplate),
   optionsValidate: { abortEarly: false },
-  content: Content
+  content: (props) => Content({ ...props, vmTemplate }),
 })
 
 export default BasicConfiguration

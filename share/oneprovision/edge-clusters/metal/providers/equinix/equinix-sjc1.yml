@@ -1,6 +1,6 @@
 name: 'equinix-sjc1'
 
-description: 'Edge cluster in Equinix, USA, CA'
+description: 'Provision cluster in Equinix, USA, CA'
 provider: 'equinix'
 
 connection:
@@ -11,11 +11,17 @@ connection:
 inputs:
    - name: 'equinix_os'
      type: 'list'
+     default: 'ubuntu_20_04'
      options:
-       - 'centos_8'
+       - 'ubuntu_20_04'
    - name: 'equinix_plan'
      type: 'list'
+     default: 'c3.small'
      options:
-       - 't1.small'
-       - 'c1.small'
-       - 'm1.xlarge'
+       - 'c3.small'
+       - 'c2.medium'
+       - 'c3.medium'
+       - 's3.xlarge'
+       - 'm2.xlarge'
+       - 'm3.large'
+       - 'n2.xlarge'

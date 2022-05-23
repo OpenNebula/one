@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,7 +16,7 @@
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { TableProps } from 'react-table'
+import { TableProps, Row } from 'react-table'
 import { styled, Chip, Alert, Button, alertClasses } from '@mui/material'
 
 import { Translate } from 'client/components/HOC'
@@ -30,8 +30,8 @@ const MessageStyled = styled(Alert)({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 })
 
 /**
@@ -39,36 +39,56 @@ const MessageStyled = styled(Alert)({
  *
  * @param {object} props - Props
  * @param {boolean} props.withAlert - If `true`, the list of selected rows will be an alert
+ * @param {function(Row)} [props.gotoRowPage] - Function to navigate to a page of the row
  * @param {TableProps} props.useTableProps - Table props
  * @returns {JSXElementConstructor} Component JSX
  */
-const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
-  const { preFilteredRows, toggleAllRowsSelected, state: { selectedRowIds } } = useTableProps
+const GlobalSelectedRows = ({
+  withAlert = false,
+  useTableProps,
+  gotoRowPage,
+}) => {
+  const {
+    preFilteredRows,
+    toggleAllRowsSelected,
+    state: { selectedRowIds },
+  } = useTableProps
 
-  const selectedRows = preFilteredRows.filter(row => !!selectedRowIds[row.id])
+  const selectedRows = preFilteredRows.filter((row) => !!selectedRowIds[row.id])
   const numberOfRowSelected = selectedRows.length
   const allSelected = numberOfRowSelected === preFilteredRows.length
 
   return withAlert ? (
-    <MessageStyled icon={false} severity='debug' variant='outlined'>
+    <MessageStyled icon={false} severity="info" variant="outlined">
       <span>
-        <Translate word={T.NumberOfResourcesSelected} values={numberOfRowSelected} />{'.'}
+        <Translate
+          word={T.NumberOfResourcesSelected}
+          values={numberOfRowSelected}
+        />
+        {'.'}
       </span>
       <Button
         sx={{ mx: 1, p: 0.5, fontSize: 'inherit', lineHeight: 'normal' }}
         onClick={() => toggleAllRowsSelected(!allSelected)}
       >
-        {allSelected
-          ? <Translate word={T.ClearSelection} />
-          : <Translate word={T.SelectAllResources} values={preFilteredRows.length} />}
+        {allSelected ? (
+          <Translate word={T.ClearSelection} />
+        ) : (
+          <Translate
+            word={T.SelectAllResources}
+            values={preFilteredRows.length}
+          />
+        )}
       </Button>
     </MessageStyled>
   ) : (
     <div>
-      {selectedRows?.map(({ original, id, toggleRowSelected }) => (
-        <Chip key={id}
-          label={original?.NAME ?? id}
-          onDelete={() => toggleRowSelected(false)}
+      {selectedRows?.map((row) => (
+        <Chip
+          key={row.id}
+          label={row.original?.NAME ?? row.id}
+          onDelete={() => row.toggleRowSelected(false)}
+          {...(gotoRowPage && { onClick: () => gotoRowPage(row) })}
         />
       ))}
     </div>
@@ -77,7 +97,8 @@ const GlobalSelectedRows = ({ withAlert = false, useTableProps }) => {
 
 GlobalSelectedRows.propTypes = {
   withAlert: PropTypes.bool,
-  useTableProps: PropTypes.object.isRequired
+  useTableProps: PropTypes.object.isRequired,
+  gotoRowPage: PropTypes.func,
 }
 
 GlobalSelectedRows.displayName = ' GlobalSelectedRows'

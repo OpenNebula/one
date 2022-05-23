@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -107,6 +107,10 @@ module HEMHook
             when 'STATE'
                 object   = event.xpath('//HOOK_OBJECT')[0].text.upcase
 
+                # Fix inconsistency in Virtual Network object name
+                # and root xml node
+                object = 'VNET' if object == 'NET'
+
                 template = event.xpath("//#{object}")[0].to_s
                 template = Base64.strict_encode64(template)
             end
@@ -128,7 +132,7 @@ module HEMHook
             end
         end
 
-        parguments
+        parguments.strip
     end
 
     def remote_host(event)

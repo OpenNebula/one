@@ -1,6 +1,6 @@
 ---
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -20,12 +20,14 @@
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: 'aws-cluster'
+name: 'aws-edge-cluster'
+description: 'AWS edge cluster'
 
 extends:
     - common.d/defaults.yml
     - common.d/resources.yml
     - common.d/hosts.yml
+    - aws.d/defaults.yml
     - aws.d/datastores.yml
     - aws.d/fireedge.yml
     - aws.d/inputs.yml
@@ -45,10 +47,11 @@ defaults:
   provision:
     provider_name: 'aws'
     ami: "${input.aws_ami_image}"
+    root_size: "${input.aws_root_size}"
     instancetype: "${input.aws_instance_type}"
     cloud_init: true
   connection:
-    remote_user: 'centos'
+    remote_user: 'ubuntu'
 
 #-------------------------------------------------------------------------------
 # cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts

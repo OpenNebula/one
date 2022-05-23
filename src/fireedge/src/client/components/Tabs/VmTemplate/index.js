@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,72 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo, useEffect, useState } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { LinearProgress } from '@mui/material'
+import { Alert, LinearProgress } from '@mui/material'
 
-import { useFetch } from 'client/hooks'
-import { useAuth } from 'client/features/Auth'
-import { useVmTemplateApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
+import { getAvailableInfoTabs } from 'client/models/Helper'
+import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
-import { camelCase } from 'client/utils'
-
-import TabProvider from 'client/components/Tabs/TabProvider'
 import Info from 'client/components/Tabs/VmTemplate/Info'
 import Template from 'client/components/Tabs/VmTemplate/Template'
 
-const getTabComponent = tabName => ({
-  info: Info,
-  template: Template
-}[tabName])
+const getTabComponent = (tabName) =>
+  ({
+    info: Info,
+    template: Template,
+  }[tabName])
 
 const VmTemplateTabs = memo(({ id }) => {
-  const { getVmTemplate } = useVmTemplateApi()
-  const { data, fetchRequest, loading, error } = useFetch(getVmTemplate)
+  const { view, getResourceView } = useViews()
+  const { isLoading, isError, error } = useGetTemplateQuery({ id })
 
-  const handleRefetch = () => fetchRequest(id, { reload: true })
+  const tabsAvailable = useMemo(() => {
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-  const [tabsAvailable, setTabs] = useState(() => [])
-  const { view, getResourceView } = useAuth()
-
-  useEffect(() => {
-    fetchRequest(id)
-  }, [id])
-
-  useEffect(() => {
-    const infoTabs = getResourceView('VM-TEMPLATE')?.['info-tabs'] ?? {}
-
-    setTabs(() => Object.entries(infoTabs)
-      ?.filter(([_, { enabled } = {}]) => !!enabled)
-      ?.map(([tabName, tabProps]) => {
-        const camelName = camelCase(tabName)
-        const TabContent = getTabComponent(camelName)
-
-        return TabContent && {
-          name: camelName,
-          renderContent: props => TabContent({ ...props, tabProps })
-        }
-      })
-      ?.filter(Boolean))
+    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
   }, [view])
 
-  if ((!data && !error) || loading) {
-    return <LinearProgress color='secondary' style={{ width: '100%' }} />
+  if (isError) {
+    return (
+      <Alert severity="error" variant="outlined">
+        {error.data}
+      </Alert>
+    )
   }
 
-  return (
-    <TabProvider initialState={{ data, handleRefetch }}>
-      <Tabs tabs={tabsAvailable} />
-    </TabProvider>
+  return isLoading ? (
+    <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  ) : (
+    <Tabs addBorder tabs={tabsAvailable ?? []} />
   )
 })
 
-VmTemplateTabs.propTypes = {
-  id: PropTypes.string.isRequired
-}
-
+VmTemplateTabs.propTypes = { id: PropTypes.string.isRequired }
 VmTemplateTabs.displayName = 'VmTemplateTabs'
 
 export default VmTemplateTabs

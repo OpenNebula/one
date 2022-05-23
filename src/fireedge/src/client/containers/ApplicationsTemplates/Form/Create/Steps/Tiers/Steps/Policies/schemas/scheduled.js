@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -22,7 +22,7 @@ import {
   ADJUST,
   MIN_ADJUST_STEP,
   TIME_FORMAT,
-  TIME_EXPRESSION
+  TIME_EXPRESSION,
 } from './fields'
 
 export const TAB_ID = 'scheduled'
@@ -35,11 +35,12 @@ export const SCHEDULED_FORM_FIELDS = [
   MIN_ADJUST_STEP,
   // Auto-scaling Based on Schedule
   TIME_FORMAT,
-  TIME_EXPRESSION
+  TIME_EXPRESSION,
 ]
 
-export const SCHEDULED_FORM_SCHEMA = yup
-  .object(getValidationFromFields(SCHEDULED_FORM_FIELDS))
+export const SCHEDULED_FORM_SCHEMA = yup.object(
+  getValidationFromFields(SCHEDULED_FORM_FIELDS)
+)
 
 export const SCHEDULED_TAB_SCHEMA = yup
   .array(SCHEDULED_FORM_SCHEMA)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@ package goca
 
 import (
 	"encoding/xml"
+	"fmt"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/acl"
 )
@@ -51,8 +52,22 @@ func (ac *ACLsController) Info() (*acl.Pool, error) {
 // * user: User component of the new rule. A string containing a hex number.
 // * resource: Resource component of the new rule. A string containing a hex number.
 // * rights: Rights component of the new rule. A string containing a hex number.
-func (ac *ACLsController) CreateRule(user, resource, rights string) (int, error) {
-	response, err := ac.c.Client.Call("one.acl.addrule", user, resource, rights)
+// * zone: Optional zone component of the new rule. A string containing a hex number.
+func (ac *ACLsController) CreateRule(user, resource, rights string, zone ...string) (int, error) {
+
+	if len(zone) > 1 {
+		return -1, fmt.Errorf("CreateRule: %d extra parameters passed", len(zone)-1)
+	}
+
+	parameters := []interface{}{
+		user, resource, rights,
+	}
+
+	for _, z := range zone {
+		parameters = append(parameters, z)
+	}
+
+	response, err := ac.c.Client.Call("one.acl.addrule", parameters...)
 	if err != nil {
 		return -1, err
 	}

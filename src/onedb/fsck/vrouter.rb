@@ -70,7 +70,7 @@ module OneDBFsck
             end
 
             # DATA: re-do list of VM IDs per vrouter
-            error = false
+            error = fix_permissions('VROUTER', row[:oid], vrouter_doc)
 
             counters_vrouter = counters[:vrouter][row[:oid]]
 

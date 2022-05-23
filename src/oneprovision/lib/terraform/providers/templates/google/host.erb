@@ -21,11 +21,11 @@ resource "google_compute_instance" "device_<%= obj['ID'] %>" {
     }
 }
 
-output "ip_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_ip" {
   value = google_compute_instance.device_<%= obj['ID'] %>.network_interface[0].access_config[0].nat_ip
 }
 
-output "device_id_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_id" {
   value = google_compute_instance.device_<%= obj['ID'] %>.id
 }
 

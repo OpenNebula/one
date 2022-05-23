@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,15 +19,15 @@ define(function(require) {
     Sunstone = require("sunstone"),
     Config = require("sunstone-config"),
     OpenNebulaVM = require("opennebula/vm"),
-    FireedgeValidator = require('utils/fireedge-validator'),
-    Notifier = require('utils/notifier');
-  
+    FireedgeValidator = require("utils/fireedge-validator"),
+    Notifier = require("utils/notifier");
+
   function _callSpice(data) {
-    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startspice_action', String(data.id));
+    if (data.hasOwnProperty("id")) Sunstone.runAction("VM.startspice_action", String(data.id));
   }
 
   function _callVNC(data) {
-    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startvnc_action', String(data.id));
+    if (data.hasOwnProperty("id")) Sunstone.runAction("VM.startvnc_action", String(data.id));
   }
 
   function _callSaveRDP(data) {
@@ -99,6 +99,21 @@ define(function(require) {
     return $("<div>").append(button.append(icon)).html();
   }
 
+  function buttonWFile(id = "", wfile = {}) {
+    var icon = $("<i>", { class: "fas fa-file-code" });
+
+    var button = $("<button>", {
+      title: "w-file",
+      class: "w-file remote-vm",
+      "data-id": id,
+      "data-hostname": wfile.hostname,
+      "data-type": wfile.type,
+      "data-port": wfile.port
+    });
+
+    return $("<div>").append(button.append(icon)).html();
+  }
+
   function buttonSSH(id = "") {
     var icon = $("<i>", { class: "fas fa-terminal" });
 
@@ -122,22 +137,6 @@ define(function(require) {
 
     return $("<div>").append(button.append(icon)).html();
   }
-
-  function buttonWFile(id = "", data = {}) {
-    var icon = $("<i>", { class: "fas fa-external-link-square-alt" });
-
-    var button = $("<button>", {
-      title: "download virt-viewer file",
-      class: "w-file remote-vm",
-      "data-id": id,
-      "data-type": data.type,
-      "data-port": data.port,
-      "data-hostname":data.hostname
-    });
-
-    return $("<div>").append(button.append(icon)).html();
-  }
-
 
   function dropdownRDP(id = "", ip = "", vm = {}) {
     var icon = $("<i>", { class: "fab fa-windows" });
@@ -214,7 +213,7 @@ define(function(require) {
     }
 
     var wFile = OpenNebulaVM.isWFileSupported(vm);
-    actions += wFile ? buttonWFile(vm.ID, wFile) : "";
+    actions +=  wFile ? buttonWFile(vm.ID, wFile) : "";
 
     var rdpIp = OpenNebulaVM.isConnectionSupported(vm, "rdp");
     actions += rdpIp ? dropdownRDP(vm.ID, rdpIp, vm) : "";
@@ -293,58 +292,60 @@ define(function(require) {
   }
 
   /**
-   * 
-   * @param {Object} response Callback response with the token and info 
-   * @param {Object} options 
-   * @returns 
+   *
+   * @param {Object} response Callback response with the token and info
+   * @param {Object} options
+   * @returns
    */
    function _getLink(response, options){
     options = $.extend({
       host: undefined,
       port: undefined,
-      connnection_type: '',
-      extra_path: '',
+      connnection_type: "",
+      extra_path: "",
       extra_params: []
     }, options);
 
+    var paramInfo = config && config.system_config && !config.system_config.disable_guacamole_info_header && response.info && "info=" + response.info;
+
     var params = options.extra_params.concat([
-      response.token && 'token=' + response.token,
-      response.info && 'info=' + response.info
+      response.token && "token=" + response.token,
+      paramInfo
     ]).filter(Boolean);
 
     var endpoint = new URL(window.location.href);
-    var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+    var websocketProtocol = endpoint.protocol === "https:" ? "wss:" : "ws:";
 
-    var websocket = websocketProtocol + '//';
+    var websocket = websocketProtocol + "//";
 
     if (options.host && options.port)
-      websocket += options.host + ':' + options.port
+      websocket += options.host + ":" + options.port;
     else if (options.port)
-      websocket += endpoint.hostname + ':' + options.port
-    else  
+      websocket += endpoint.hostname + ":" + options.port;
+    else
       websocket += endpoint.host;
-    
-    websocket += options.extra_path + '?' + params.join("&");
+
+    websocket += options.extra_path + "?" + params.join("&");
 
     var encoded_socket = btoa(websocket);
 
     var link = endpoint.origin + "/" + options.connnection_type + "?socket=" + encoded_socket;
-    
+
     return link;
   }
 
   return {
-    'callSpice': _callSpice,
-    'callVNC': _callVNC,
-    'callSaveRDP': _callSaveRDP,
-    'callSaveWFile': _callSaveWFile,
-    'callVMRC': _callVMRC,
-    'callGuacVNC': _callGuacVNC,
-    'callGuacSSH': _callGuacSSH,
-    'callGuacRDP': _callGuacRDP,
-    'callGuacVNC': _callGuacVNC,
-    'renderActionsHtml': _renderActionsHtml,
-    'bindActionsToContext': _bindActionsToContext,
-    'getLink': _getLink
+    "callSpice": _callSpice,
+    "callVNC": _callVNC,
+    "callSaveRDP": _callSaveRDP,
+    "callSaveWFile": _callSaveWFile,
+    "callVMRC": _callVMRC,
+    "callGuacVNC": _callGuacVNC,
+    "callGuacSSH": _callGuacSSH,
+    "callGuacRDP": _callGuacRDP,
+    "callGuacVNC": _callGuacVNC,
+    "renderActionsHtml": _renderActionsHtml,
+    "bindActionsToContext": _bindActionsToContext,
+    "getLink": _getLink
   };
 });

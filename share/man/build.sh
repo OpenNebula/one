@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,6 +52,10 @@ COMMANDS=(
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'
+    'onevmdump'         'Dumps VM content'
+
+    'onelog'            'Access to OpenNebula services log files'
+    'oneirb'            'Opens an irb session'
 )
 
 DIR_BUILD=$(mktemp -d)

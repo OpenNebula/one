@@ -2,7 +2,7 @@
 
 ## Description
 
-Installs python2 for Debian and Ubuntu.
+Installs default Python for Debians and Red Hats.
 
 ## Requirements
 

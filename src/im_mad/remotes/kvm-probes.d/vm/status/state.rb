@@ -26,5 +26,6 @@ begin
 
     puts vmdb.to_status
 rescue StandardError => e
-    puts e
+    STDERR.puts e.message
+    exit(-1)
 end

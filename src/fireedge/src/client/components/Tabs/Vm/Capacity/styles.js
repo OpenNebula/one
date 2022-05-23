@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,37 +15,33 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
-    marginBlock: '0.8em',
-    padding: '1em',
+    padding: '0.5em',
     display: 'grid',
     gap: '1em',
     gridAutoFlow: 'column',
     [theme.breakpoints.down('md')]: {
-      gridAutoFlow: 'initial'
-    }
+      gridAutoFlow: 'initial',
+    },
   },
   item: {
     [theme.breakpoints.down('md')]: {
       display: 'flex',
       gap: '1em',
       '& > *': {
-        width: '50%'
-      }
-    }
+        width: '50%',
+      },
+    },
   },
   actions: {
     [theme.breakpoints.down('md')]: {
       borderBottom: `1px solid ${theme.palette.divider}`,
-      padding: '1em'
+      padding: '0 1em 1em 1em',
     },
     [theme.breakpoints.up('md')]: {
       order: 1,
-      textAlign: 'end'
-    }
+      textAlign: 'end',
+    },
   },
-  title: {
-    fontWeight: theme.typography.fontWeightBold
-  }
 }))

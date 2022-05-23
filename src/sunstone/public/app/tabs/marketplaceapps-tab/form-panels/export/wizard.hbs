@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -48,10 +48,14 @@
     <legend>{{tr "Select the Datastore to store the resource"}}</legend>
     {{{ datastoresTableHTML }}}
   </fieldset>
-  <fieldset id="placeDatatablevCenterTemplate">
-    <legend>{{tr "Select the vCenter Template to use"}}</legend>
-    {{{ vCenterTemplatesTableHTML }}}
-  </fieldset>
+  <div class="vCenterTemplateSelection">
+    {{#advancedSection (tr "(Optional) Select an existing VM Template") }}
+    <fieldset id="placeDatatablevCenterTemplate">
+      <legend>{{tr "Select the vCenter Template to use"}}</legend>
+      {{{ vCenterTemplatesTableHTML }}}
+    </fieldset>
+    {{/advancedSection}}
+  </div>
   <fieldset id="placeDatatableDockerTags" style="display: none;">
     <legend>{{tr "Select the Dockerhub tag"}}</legend>
     {{{ dockertagsTableHTML }}}

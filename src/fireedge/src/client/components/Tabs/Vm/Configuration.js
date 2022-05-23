@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const VmConfigurationTab = () => {
-  const { data: vm = {} } = useContext(TabContext)
+/**
+ * Renders configuration tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Virtual machine id
+ * @returns {ReactElement} Configuration tab
+ */
+const VmConfigurationTab = ({ id }) => {
+  const { data: vm = {} } = useGetVmQuery({ id })
   const { TEMPLATE, USER_TEMPLATE } = vm
 
   return (
     <div>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Accordion variant="outlined">
+        <AccordionSummary>
           <Translate word={T.UserTemplate} />
         </AccordionSummary>
         <AccordionDetails>
@@ -40,8 +46,8 @@ const VmConfigurationTab = () => {
           </pre>
         </AccordionDetails>
       </Accordion>
-      <Accordion TransitionProps={{ unmountOnExit: true }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Accordion variant="outlined">
+        <AccordionSummary>
           <Translate word={T.Template} />
         </AccordionSummary>
         <AccordionDetails>
@@ -54,6 +60,11 @@ const VmConfigurationTab = () => {
       </Accordion>
     </div>
   )
+}
+
+VmConfigurationTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmConfigurationTab.displayName = 'VmConfigurationTab'

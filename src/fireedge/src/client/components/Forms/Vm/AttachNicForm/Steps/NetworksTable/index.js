@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -27,12 +27,12 @@ export const STEP_ID = 'network'
 const Content = ({ data, setFormData }) => {
   const { NAME } = data?.[0] ?? {}
 
-  const {
-    handleSelect,
-    handleClear
-  } = useListForm({ key: STEP_ID, setList: setFormData })
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
 
-  const handleSelectedRows = rows => {
+  const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
     original.ID !== undefined ? handleSelect(original) : handleClear()
@@ -41,9 +41,10 @@ const Content = ({ data, setFormData }) => {
   return (
     <VNetworksTable
       singleSelect
-      onlyGlobalSearch
-      onlyGlobalSelectedRows
-      getRowId={row => String(row.NAME)}
+      disableGlobalSort
+      displaySelectedRows
+      pageSize={5}
+      getRowId={(row) => String(row.NAME)}
       initialState={{ selectedRowIds: { [NAME]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
@@ -52,14 +53,14 @@ const Content = ({ data, setFormData }) => {
 
 const NetworkStep = () => ({
   id: STEP_ID,
-  label: T.Network,
+  label: T.SelectNetwork,
   resolver: SCHEMA,
-  content: Content
+  content: Content,
 })
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default NetworkStep

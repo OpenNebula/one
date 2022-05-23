@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -89,15 +89,18 @@ module ProcessList
 
     def self.retrieve_names
         text, _e, s = KVM.virsh(:list, '')
-        names = []
 
-        return names if s.exitstatus != 0
+        if s.exitstatus != 0
+            raise 'Error retrieving names. Check Libvirtd service is up.'
+        end
 
         lines = text.split(/\n/)[2..-1]
 
+        # rubocop:disable Style/RedundantAssignment
         names = lines.map do |line|
             line.split(/\s+/).delete_if {|d| d.empty? }[1]
         end
+        # rubocop:enable Style/RedundantAssignment
 
         names
     end

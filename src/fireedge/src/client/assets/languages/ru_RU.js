@@ -1,1 +1,1 @@
-lang="ru_RU"locale={  "":"",}
+lang="ru_RU"locale={  "":"",  "VMRC":"VMRC",  "col":"col",}

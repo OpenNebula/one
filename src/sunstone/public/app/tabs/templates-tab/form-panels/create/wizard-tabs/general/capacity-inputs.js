@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -110,6 +110,10 @@ define(function(require) {
       attr.min = 0.01;
     }
 
+    if (['range', 'range-float'].includes(attr.type)) {
+      attr.readonly = true
+    }
+
     input = UserInputs.attributeInput(attr);
 
     if (attr.type != "range-float"){
@@ -130,6 +134,10 @@ define(function(require) {
 
     if(attr.min == undefined){
       attr.min = 1;
+    }
+
+    if (['range', 'range-float'].includes(attr.type)) {
+      attr.readonly = true
     }
 
     input = UserInputs.attributeInput(attr);
@@ -236,6 +244,14 @@ define(function(require) {
       attr.initial = element.TEMPLATE.MEMORY;
     } else {
       attr.mandatory = true;
+    }
+
+    if (String(element.TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter") {
+      attr.step = 4;
+    }
+
+    if (['range', 'range-float'].includes(attr.type)) {
+      attr.readonly = true
     }
 
     if(attr.min == undefined){

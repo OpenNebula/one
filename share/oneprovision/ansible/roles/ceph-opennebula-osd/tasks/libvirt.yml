@@ -1,0 +1,11 @@
+---
+
+- name: create secret.xml
+  template: src=secret.xml.j2 dest=/tmp/secret.xml
+
+- name: define secret
+  command: virsh -c qemu:///system secret-define /tmp/secret.xml
+
+- name: register libvirt secret key
+  command: virsh -c qemu:///system  secret-set-value --secret {{ ceph_secret_uuid }} --base64 {{ ceph_oneadmin_key.stdout }}
+  changed_when: false

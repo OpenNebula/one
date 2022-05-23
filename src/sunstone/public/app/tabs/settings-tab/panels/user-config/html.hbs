@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -67,12 +67,12 @@
           <form id="provision_change_password_form">
             <div class="row">
               <div class="large-12 columns">
-                <input type="password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}"/>
+                <input type="password" autocomplete="new-password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}"/>
               </div>
             </div>
             <div class="row">
               <div class="large-12 columns">
-                <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
+                <input type="password" autocomplete="new-password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
               </div>
             </div>
             {{#if cantChangePassword}}

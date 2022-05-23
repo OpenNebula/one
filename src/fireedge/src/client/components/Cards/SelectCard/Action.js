@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -19,21 +19,16 @@ import PropTypes from 'prop-types'
 import useFetch from 'client/hooks/useFetch'
 import { SubmitButton } from 'client/components/FormControl'
 
-const Action = memo(({
-  cy,
-  handleClick,
-  stopPropagation,
-  ...props
-}) => {
-  const { fetchRequest, data, loading } = useFetch(
-    e => Promise.resolve(handleClick?.(e))
+const Action = memo(({ cy, handleClick, stopPropagation, ...props }) => {
+  const { fetchRequest, data, loading } = useFetch((e) =>
+    Promise.resolve(handleClick?.(e))
   )
 
   return (
     <SubmitButton
       data-cy={cy}
       isSubmitting={loading}
-      onClick={evt => {
+      onClick={(evt) => {
         stopPropagation && evt?.stopPropagation?.()
         fetchRequest()
       }}
@@ -47,12 +42,12 @@ Action.propTypes = {
   cy: PropTypes.string,
   handleClick: PropTypes.func.isRequired,
   icon: PropTypes.node,
-  stopPropagation: PropTypes.bool
+  stopPropagation: PropTypes.bool,
 }
 
 Action.defaultProps = {
   icon: undefined,
-  cy: 'action-card'
+  cy: 'action-card',
 }
 
 Action.displayName = 'ActionCard'

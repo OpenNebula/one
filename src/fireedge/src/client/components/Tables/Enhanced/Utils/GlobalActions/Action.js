@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, JSXElementConstructor } from 'react'
+// eslint-disable-next-line no-unused-vars
+import { memo, ReactElement, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
+// eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
+import QueryButton from 'client/components/Buttons/QueryButton'
 import { Action } from 'client/components/Cards/SelectCard'
 import { ButtonToTriggerForm } from 'client/components/Forms'
 import { Tr } from 'client/components/HOC'
@@ -29,7 +32,7 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @typedef {object} Option
  * @property {string} name - Label of option
  * @property {DialogProps} [dialogProps] - Dialog properties
- * @property {JSXElementConstructor} [icon] - Icon
+ * @property {ReactElement} [icon] - Icon
  * @property {boolean} [isConfirmDialog] - If `true`, the form will be a dialog with confirmation buttons
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, option will be disabled
  * @property {function(object, Row[])} onSubmit - Function to handle after finish the form
@@ -48,133 +51,106 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @property {function(Row[])} [action] - Singular action without form
  * @property {boolean|{min: number, max: number}} [selected] - Condition for selected rows
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, action will be disabled
+ * @property {function(Row[]):object} [useQuery] - Function to get rtk query result
  */
 
-/**
- * Render global action.
- *
- * @param {object} props - Props
- * @param {GlobalAction[]} props.item - Item action
- * @param {Row[]} props.selectedRows - Selected rows
- * @returns {JSXElementConstructor} Component JSX
- */
-const ActionItem = memo(({ item, selectedRows }) => {
-  const {
-    accessor,
-    tooltip,
-    label,
-    color,
-    variant = 'contained',
-    icon: Icon,
-    options,
-    action,
-    disabled
-  } = item
+const ActionItem = memo(
+  ({ item, selectedRows }) => {
+    /** @type {GlobalAction} */
+    const {
+      accessor,
+      dataCy,
+      tooltip,
+      label,
+      color,
+      variant = 'contained',
+      icon: Icon,
+      options,
+      action,
+      disabled,
+      useQuery,
+      selected = false,
+    } = item
 
-  const buttonProps = {
-    color,
-    variant,
-    'data-cy': accessor && `action.${accessor}`,
-    disabled: typeof disabled === 'function' ? disabled(selectedRows) : disabled,
-    icon: Icon && <Icon />,
-    label: label && Tr(label),
-    title: tooltip && Tr(tooltip)
+    const isDisabledByNumberOfSelectedRows = useMemo(() => {
+      const numberOfRowSelected = selectedRows.length
+      const min = selected?.min ?? 1
+      const max = selected?.max ?? Number.MAX_SAFE_INTEGER
+
+      return (
+        (selected === true && !numberOfRowSelected) ||
+        (selected && min > numberOfRowSelected && numberOfRowSelected < max)
+      )
+    }, [selectedRows.length, selected])
+
+    const buttonProps = {
+      color,
+      variant,
+      'data-cy':
+        (dataCy && `action-${dataCy}`) ?? (accessor && `action-${accessor}`),
+      disabled:
+        isDisabledByNumberOfSelectedRows ||
+        (typeof disabled === 'function' ? disabled(selectedRows) : disabled),
+      icon: Icon && <Icon />,
+      label: label && Tr(label),
+      title: tooltip && Tr(tooltip),
+    }
+
+    const addRowsToFn = useCallback(
+      (fn) => (typeof fn === 'function' ? fn(selectedRows) : fn),
+      [selectedRows]
+    )
+
+    const addRowsToEntries = useCallback(
+      (entries) =>
+        Object.entries(entries).reduce(
+          (res, [prop, value]) => ({ ...res, [prop]: addRowsToFn(value) }),
+          {}
+        ),
+      [addRowsToFn]
+    )
+
+    return action ? (
+      <Action {...buttonProps} handleClick={() => addRowsToFn(action)} />
+    ) : useQuery ? (
+      <QueryButton {...buttonProps} useQuery={() => addRowsToFn(useQuery)} />
+    ) : (
+      <ButtonToTriggerForm
+        buttonProps={buttonProps}
+        options={options?.map((option) => {
+          const {
+            form,
+            accessor: optionAccessor,
+            dialogProps = {},
+            ...restOfOption
+          } = option ?? {}
+
+          return {
+            ...addRowsToEntries(restOfOption),
+            form: form ? () => addRowsToFn(form) : undefined,
+            cy: optionAccessor && `action-${optionAccessor}`,
+            dialogProps: addRowsToEntries(dialogProps),
+          }
+        })}
+      />
+    )
+  },
+  (prev, next) => {
+    const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
+    const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
+
+    return (
+      prev.selectedRows?.length === next.selectedRows?.length &&
+      prevStates?.every((prevState) => nextStates?.includes(prevState))
+    )
   }
-
-  return action ? (
-    <Action {...buttonProps} handleClick={() => action?.(selectedRows)} />
-  ) : (
-    <ButtonToTriggerForm
-      buttonProps={buttonProps}
-      options={options?.map(option => {
-        const { accessor, form, onSubmit, dialogProps, disabled: optionDisabled } = option ?? {}
-        const { description, subheader, title, children } = dialogProps ?? {}
-
-        return {
-          ...option,
-          cy: accessor && `action.${accessor}`,
-          disabled: typeof optionDisabled === 'function'
-            ? optionDisabled(selectedRows)
-            : optionDisabled,
-          dialogProps: {
-            ...dialogProps,
-            description: typeof description === 'function' ? description(selectedRows) : description,
-            subheader: typeof subheader === 'function' ? subheader(selectedRows) : subheader,
-            title: typeof title === 'function' ? title(selectedRows) : title,
-            children: typeof children === 'function' ? children(selectedRows) : children
-          },
-          form: form ? () => form(selectedRows) : undefined,
-          onSubmit: data => onSubmit(data, selectedRows)
-        }
-      })}
-    />
-  )
-}, (prev, next) => {
-  const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
-  const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
-
-  return (
-    prev.selectedRows?.length === next.selectedRows?.length &&
-    prevStates?.every(prevState => nextStates?.includes(prevState))
-  )
-})
-
-export const ActionPropTypes = PropTypes.shape({
-  accessor: PropTypes.string,
-  variant: PropTypes.string,
-  color: PropTypes.string,
-  size: PropTypes.string,
-  label: PropTypes.string,
-  tooltip: PropTypes.string,
-  icon: PropTypes.any,
-  disabled: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.func
-  ]),
-  selected: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.shape({
-      min: PropTypes.number,
-      max: PropTypes.number
-    })
-  ]),
-  action: PropTypes.func,
-  isConfirmDialog: PropTypes.bool,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      accessor: PropTypes.string,
-      name: PropTypes.string,
-      icon: PropTypes.any,
-      disabled: PropTypes.oneOfType([
-        PropTypes.bool,
-        PropTypes.func
-      ]),
-      form: PropTypes.func,
-      onSubmit: PropTypes.func,
-      dialogProps: PropTypes.shape({
-        ...DialogPropTypes,
-        description: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ]),
-        subheader: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ]),
-        title: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.func
-        ])
-      })
-    })
-  )
-})
+)
 
 ActionItem.propTypes = {
-  item: ActionPropTypes,
-  selectedRows: PropTypes.array
+  item: PropTypes.object,
+  selectedRows: PropTypes.array,
 }
 
 ActionItem.displayName = 'ActionItem'
 
-export default ActionItem
+export { ActionItem as Action }

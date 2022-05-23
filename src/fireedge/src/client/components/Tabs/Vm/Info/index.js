@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,27 +13,51 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext, useCallback } from 'react'
+import { ReactElement, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { Stack, Alert, Fade } from '@mui/material'
+import { Cancel as CloseIcon } from 'iconoir-react'
 
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
-import { Permissions, Ownership, AttributePanel } from 'client/components/Tabs/Common'
+import {
+  useGetVmQuery,
+  useChangeVmOwnershipMutation,
+  useChangeVmPermissionsMutation,
+  useUpdateUserTemplateMutation,
+} from 'client/features/OneApi/vm'
+import {
+  Permissions,
+  Ownership,
+  AttributePanel,
+} from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
+import { SubmitButton } from 'client/components/FormControl'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
-import { getActionsAvailable, filterAttributes, jsonToXml } from 'client/models/Helper'
+import { getHypervisor } from 'client/models/VirtualMachine'
+import {
+  getActionsAvailable,
+  filterAttributes,
+  jsonToXml,
+  getErrorMessage,
+} from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG = /^(USER_INPUTS|BACKUP|HOT_RESIZE)$|SCHED_|ERROR/
-const HIDDEN_MONITORING_REG = /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
+const HIDDEN_MONITORING_REG =
+  /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
 
-const VmInfoTab = ({ tabProps = {} }) => {
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Virtual machine id
+ * @returns {ReactElement} Information tab
+ */
+const VmInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -41,89 +65,100 @@ const VmInfoTab = ({ tabProps = {} }) => {
     vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
     monitoring_panel: monitoringPanel,
-    attributes_panel: attributesPanel
+    attributes_panel: attributesPanel,
   } = tabProps
 
-  const { changeOwnership, changePermissions, rename, updateUserTemplate } = useVmApi()
-  const { handleRefetch, data: vm = {} } = useContext(TabContext)
-  const { ID, UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
+  const { data: vm = {} } = useGetVmQuery({ id })
+  const [changeVmOwnership] = useChangeVmOwnershipMutation()
+  const [changeVmPermissions] = useChangeVmPermissionsMutation()
+  const [updateUserTemplate] = useUpdateUserTemplateMutation()
+  const [dismissError] = useUpdateUserTemplateMutation()
 
-  const handleChangeOwnership = async newOwnership => {
-    const response = await changeOwnership(ID, newOwnership)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
+  const { UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
 
-  const handleChangePermission = async newPermission => {
-    const response = await changePermissions(ID, newPermission)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleRename = async (_, newName) => {
-    const response = await rename(ID, newName)
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const handleAttributeInXml = async (path, newValue) => {
-    const newTemplate = cloneObject(USER_TEMPLATE)
-
-    set(newTemplate, path, newValue)
-
-    const xml = jsonToXml(newTemplate)
-
-    // 0: Replace the whole user template
-    const response = await updateUserTemplate(ID, xml, 0)
-
-    String(response) === String(ID) && (await handleRefetch?.())
-  }
-
-  const getActions = useCallback(actions => {
-    const hypervisor = getHypervisor(vm)
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor
-      .filter(action => !isAvailableAction(action)(vm))
-
-    return actionsByState
-  }, [vm])
+  const error = useMemo(() => getErrorMessage(vm), [vm])
+  const hypervisor = useMemo(() => getHypervisor(vm), [vm])
 
   const {
     attributes,
     lxc: lxcAttributes,
-    vcenter: vcenterAttributes
+    vcenter: vcenterAttributes,
   } = filterAttributes(USER_TEMPLATE, {
     extra: {
       vcenter: VCENTER_ATTRIBUTES_REG,
-      lxc: LXC_ATTRIBUTES_REG
+      lxc: LXC_ATTRIBUTES_REG,
     },
-    hidden: HIDDEN_ATTRIBUTES_REG
+    hidden: HIDDEN_ATTRIBUTES_REG,
   })
 
-  const {
-    attributes: monitoringAttributes
-  } = filterAttributes(MONITORING, { hidden: HIDDEN_MONITORING_REG })
+  const { attributes: monitoringAttributes } = filterAttributes(MONITORING, {
+    hidden: HIDDEN_MONITORING_REG,
+  })
+
+  const handleChangeOwnership = async (newOwnership) => {
+    await changeVmOwnership({ id, ...newOwnership })
+  }
+
+  const handleChangePermission = async (newPermission) => {
+    await changeVmPermissions({ id, ...newPermission })
+  }
+
+  const handleAttributeInXml = async (path, newValue) => {
+    const newTemplate = cloneObject(USER_TEMPLATE)
+    set(newTemplate, path, newValue)
+
+    const xml = jsonToXml(newTemplate)
+    await updateUserTemplate({ id, template: xml, replace: 0 })
+  }
+
+  const handleDismissError = async () => {
+    const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
+    const xml = jsonToXml({ ...templateWithoutError })
+
+    await dismissError({ id, template: xml, replace: 0 })
+  }
+
+  const getActions = useCallback(
+    (actions) => getActionsAvailable(actions, hypervisor),
+    [hypervisor]
+  )
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
     handleEdit: handleAttributeInXml,
-    handleDelete: handleAttributeInXml
+    handleDelete: handleAttributeInXml,
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '0.8em'
-    }}>
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+      padding={{ sm: '0.8em' }}
+    >
+      <Fade in={!!error} unmountOnExit>
+        <Alert
+          variant="outlined"
+          severity="error"
+          sx={{ gridColumn: 'span 2' }}
+          action={
+            <SubmitButton
+              onClick={handleDismissError}
+              icon={<CloseIcon />}
+              tooltip={<Translate word={T.Dismiss} />}
+            />
+          }
+        >
+          {error}
+        </Alert>
+      </Fade>
       {informationPanel?.enabled && (
-        <Information
-          actions={getActions(informationPanel?.actions)}
-          handleRename={handleRename}
-          vm={vm}
-        />
+        <Information actions={getActions(informationPanel?.actions)} vm={vm} />
       )}
       {permissionsPanel?.enabled && (
         <Permissions
           actions={getActions(permissionsPanel?.actions)}
+          handleEdit={handleChangePermission}
           ownerUse={PERMISSIONS.OWNER_U}
           ownerManage={PERMISSIONS.OWNER_M}
           ownerAdmin={PERMISSIONS.OWNER_A}
@@ -133,30 +168,31 @@ const VmInfoTab = ({ tabProps = {} }) => {
           otherUse={PERMISSIONS.OTHER_U}
           otherManage={PERMISSIONS.OTHER_M}
           otherAdmin={PERMISSIONS.OTHER_A}
-          handleEdit={handleChangePermission}
         />
       )}
       {ownershipPanel?.enabled && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
+          handleEdit={handleChangeOwnership}
           userId={UID}
           userName={UNAME}
           groupId={GID}
           groupName={GNAME}
-          handleEdit={handleChangeOwnership}
         />
       )}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
-          title={Tr(T.Attributes)}
+          title={`${Tr(T.Attributes)}`}
         />
       )}
       {vcenterPanel?.enabled && vcenterAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(vcenterPanel?.actions)}
           attributes={vcenterAttributes}
           title={`vCenter ${Tr(T.Information)}`}
@@ -165,6 +201,7 @@ const VmInfoTab = ({ tabProps = {} }) => {
       {lxcPanel?.enabled && lxcAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(lxcPanel?.actions)}
           attributes={lxcAttributes}
           title={`LXC ${Tr(T.Information)}`}
@@ -172,16 +209,19 @@ const VmInfoTab = ({ tabProps = {} }) => {
       )}
       {monitoringPanel?.enabled && monitoringAttributes && (
         <AttributePanel
+          collapse
+          actions={getActions(monitoringPanel?.actions)}
           attributes={monitoringAttributes}
-          title={Tr(T.Monitoring)}
+          title={`${Tr(T.Monitoring)}`}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 
 VmInfoTab.propTypes = {
-  tabProps: PropTypes.object
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 VmInfoTab.displayName = 'VmInfoTab'

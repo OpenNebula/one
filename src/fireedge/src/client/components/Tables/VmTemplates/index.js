@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,48 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const VmTemplatesTable = props => {
-  const { view, getResourceView, filterPool } = useAuth()
+const DEFAULT_DATA_CY = 'vm-templates'
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('VM-TEMPLATE')?.filters,
-    columns: VmTemplateColumns
-  }), [view])
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} VM Templates table
+ */
+const VmTemplatesTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const vmTemplates = useVmTemplate()
-  const { getVmTemplates } = useVmTemplateApi()
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useGetTemplatesQuery()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVmTemplates)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (vmTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.VM_TEMPLATE)?.filters,
+        columns: VmTemplateColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vmTemplates}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VmTemplateRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+VmTemplatesTable.propTypes = { ...EnhancedTable.propTypes }
+VmTemplatesTable.displayName = 'VmTemplatesTable'
 
 export default VmTemplatesTable

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -443,7 +443,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :key, key_desc, :options => [KEY] do
         require 'opennebula/ssh_auth'
 
-        options[:key] ||= ENV['HOME'] + '/.ssh/id_rsa'
+        options[:key] ||= Dir.home + '/.ssh/id_rsa'
 
         begin
             sshauth = SshAuth.new(:private_key => options[:key])
@@ -573,7 +573,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, [:userid, nil],
-            :options => OpenNebulaHelper::FORMAT do
+            :options => [OpenNebulaHelper::FORMAT, OpenNebulaHelper::DECRYPT] do
         user = args[0] || OpenNebula::User::SELF
         helper.show_resource(user, options)
     end

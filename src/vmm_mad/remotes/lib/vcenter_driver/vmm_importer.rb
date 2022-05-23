@@ -46,7 +46,8 @@ module VCenterDriver
             vm_ref     = selected['DEPLOY_ID'] || selected[:wild]['DEPLOY_ID']
             vm         = selected[:one_item]   || build
             template   = selected[:template]   || import_tmplt
-            host_id    = selected[:host]       || @list.keys[0]
+            template = "DEPLOY_ID = #{vm_ref}\n" + template
+            host_id    = selected[:host] || @list.keys[0]
 
             vc_uuid    = @vi_client.vim.serviceContent.about.instanceUuid
             vc_name    = @vi_client.vim.host
@@ -72,13 +73,15 @@ module VCenterDriver
             template << template_disks
 
             opts = {
-                :vi_client => @vi_client,
-                :vc_uuid => vc_uuid,
-                :npool => npool,
-                :hpool => hpool,
-                :vcenter => vc_name,
+                :vi_client      => @vi_client,
+                :vc_uuid        => vc_uuid,
+                :npool          => npool,
+                :hpool          => hpool,
+                :vcenter        => vc_name,
                 :template_moref => vm_ref,
-                :vm_object => vc_vm
+                :vm_object      => vc_vm,
+                :ipv4           => selected[:ipv4],
+                :ipv6           => selected[:ipv6]
             }
 
             # Create images or get nics information for template

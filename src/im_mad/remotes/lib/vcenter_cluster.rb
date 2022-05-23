@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -201,6 +201,8 @@ class Cluster
 
     # Retrieve all known VM states from vCenter
     def vcenter_vms_state
+        vc_uuid = @vic.vim.serviceContent.about.instanceUuid
+
         view = @vic.vim
                    .serviceContent
                    .viewManager
@@ -244,7 +246,7 @@ class Cluster
         result.each do |r|
             next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
 
-            vms_hash[r.obj._ref] = r.to_hash
+            vms_hash[r.obj._ref + '_' + vc_uuid] = r.to_hash
         end
 
         view.DestroyView
@@ -257,7 +259,13 @@ class Cluster
         vms = {}
         vms_hash.each do |vm_ref, info|
             one_id = -1
-            ids    = vmpool.retrieve_xmlelements("/VM_POOL/VM[DEPLOY_ID = '#{vm_ref}']")
+
+            # Add OR to retrieve VMs that are using old deploy ID
+            ids    = vmpool.retrieve_xmlelements(
+                "/VM_POOL/VM[(DEPLOY_ID = '#{vm_ref}')" \
+                ' or ' \
+                "(DEPLOY_ID = '#{vm_ref.split('_')[0]}')]"
+            )
 
             ids.select do |vm|
                 hid = vm['HISTORY_RECORDS/HISTORY/HID']
@@ -819,11 +827,22 @@ class ClusterSet
     #---------------------------------------------------------------------------
     def monitor(conf)
         @mutex.synchronize do
+            # Get current server raft status, to skip monitor being FOLLOWER
+            xml_e = OpenNebula::XMLElement.build_xml(
+                @client.call('zone.raftstatus'),
+                'RAFT'
+            )
+
+            xml = OpenNebula::XMLElement.new(xml_e)
+
+            # 0 -> SOLO
+            # 3 -> LEADER
+            next unless %w[0 3].include?(xml['//STATE'])
+
             @clusters.each do |id, c|
                 if c[:cluster].nil?
                     c[:cluster] = Cluster.new(id, @client) rescue nil
                 end
-                next if c[:cluster].nil?
 
                 if c[:monitordc].nil?
                     next if conf[:address].nil? || conf[:port].nil?

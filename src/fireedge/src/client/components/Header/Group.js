@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,47 +16,48 @@
 import { useMemo, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button } from '@mui/material'
+import { Button, Stack, CircularProgress } from '@mui/material'
 import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useAuth } from 'client/features/Auth'
+import { useChangeAuthGroupMutation } from 'client/features/AuthApi'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
-import { Translate } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T, FILTER_POOL } from 'client/constants'
 
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
-const ButtonGroup = memo(({ group, handleClick }) => {
-  const { changeGroup } = useAuthApi()
-  const { user, filterPool } = useAuth()
+const ButtonGroup = memo(
+  ({ group, handleClick, disabled }) => {
+    const { user, filterPool } = useAuth()
+    const { ID, NAME } = group
 
-  const { ID, NAME } = group
-
-  const isSelected =
+    const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
       (filterPool === PRIMARY_GROUP_RESOURCES && user?.GID === ID)
 
-  return (
-    <Button
-      fullWidth
-      color='debug'
-      variant='outlined'
-      onClick={() => {
-        ID && changeGroup({ id: user.ID, group: ID })
-        handleClick()
-      }}
-      sx={{
-        color: theme => theme.palette.text.primary,
-        justifyContent: 'start',
-        '& svg:first-of-type': { my: 0, mx: 2 }
-      }}
-    >
-      {NAME}
-      {isSelected && <SelectIcon />}
-    </Button>
-  )
-}, (prev, next) => prev.group.ID === next.group.ID)
+    return (
+      <Button
+        fullWidth
+        disabled={disabled}
+        color="debug"
+        variant="outlined"
+        onClick={handleClick}
+        sx={{
+          color: (theme) => theme.palette.text.primary,
+          justifyContent: 'start',
+          '& svg:first-of-type': { my: 0, mx: 2 },
+        }}
+      >
+        {NAME}
+        {isSelected && <SelectIcon />}
+      </Button>
+    )
+  },
+  (prev, next) =>
+    prev.group.ID === next.group.ID && prev.disabled === next.disabled
+)
 
 /**
  * Menu to select the user group that
@@ -65,28 +66,31 @@ const ButtonGroup = memo(({ group, handleClick }) => {
  * @returns {JSXElementConstructor} Returns group list
  */
 const Group = () => {
+  const [changeGroup, { isLoading }] = useChangeAuthGroupMutation()
   const { user, groups } = useAuth()
 
-  const sortGroupAsMainFirst = (a, b) => {
-    return a.ID === user?.GUID
-      ? -1
-      : b.ID === user?.GUID ? 1 : 0
-  }
+  const sortGroupAsMainFirst = (a, b) =>
+    a.ID === user?.GUID ? -1 : b.ID === user?.GUID ? 1 : 0
+
+  const ShowAllOption = { ID: ALL_RESOURCES, NAME: Tr(T.ShowAll) }
 
   const sortMainGroupFirst = useMemo(
-    () => [{ ID: ALL_RESOURCES, NAME: <Translate word={T.ShowAll} /> }]
-      ?.concat(groups)
-      ?.sort(sortGroupAsMainFirst),
-    [user?.GUID]
+    () => [ShowAllOption].concat(groups).sort(sortGroupAsMainFirst),
+    [user?.GUID, ShowAllOption?.NAME]
   )
 
   return (
     <HeaderPopover
-      id='group-list'
+      id="group-list"
       icon={<GroupIcon />}
       tooltip={<Translate word={T.SwitchGroup} />}
       buttonProps={{ 'data-cy': 'header-group-button' }}
-      headerTitle={<Translate word={T.SwitchGroup} />}
+      headerTitle={
+        <Stack direction="row" alignItems="center" gap="1em" component="span">
+          <Translate word={T.SwitchGroup} />
+          {isLoading && <CircularProgress size={20} />}
+        </Stack>
+      }
     >
       {({ handleClose }) => (
         <Search
@@ -94,14 +98,18 @@ const Group = () => {
           listOptions={{
             shouldSort: true,
             sortFn: sortGroupAsMainFirst,
-            keys: ['NAME']
+            keys: ['NAME'],
           }}
           maxResults={5}
-          renderResult={group => (
+          renderResult={(group) => (
             <ButtonGroup
               key={`switcher-group-${group?.ID}`}
               group={group}
-              handleClick={handleClose}
+              disabled={isLoading}
+              handleClick={async () => {
+                group?.ID && (await changeGroup({ group: group.ID }))
+                handleClose()
+              }}
             />
           )}
         />
@@ -111,14 +119,9 @@ const Group = () => {
 }
 
 ButtonGroup.propTypes = {
-  group: PropTypes.shape({
-    ID: PropTypes.string,
-    NAME: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.node
-    ])
-  }).isRequired,
-  handleClick: PropTypes.func
+  group: PropTypes.object,
+  handleClick: PropTypes.func,
+  disabled: PropTypes.bool,
 }
 
 ButtonGroup.displayName = 'ButtonGroup'

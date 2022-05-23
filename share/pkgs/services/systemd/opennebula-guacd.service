@@ -12,6 +12,7 @@ StartLimitBurst=3
 Restart=on-failure
 User=oneadmin
 Group=oneadmin
+SyslogIdentifier=opennebula-guacd
 
 [Install]
 WantedBy=multi-user.target

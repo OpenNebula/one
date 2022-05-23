@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -48,6 +48,9 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+
+# Default VNC viewer
+DEFAULT_VNC = 'vinagre'
 
 require 'command_parser'
 require 'one_helper/onevm_helper'
@@ -238,6 +241,17 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String,
         :description => 'SSH options to use'
     }
+
+    VNC = {
+        :name => 'vnc',
+        :large => '--vnc vnc',
+        :format => String,
+        :description => 'VNC client to use'
+    }
+
+    OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
+        %w[as_gid as_uid].include?(v[:name])
+    end
 
     ########################################################################
     # Global Options
@@ -909,6 +923,36 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    sg_attach_desc = <<-EOT.unindent
+        Attaches a Security Group to a VM.
+
+        States: All, except BOOT, MIGRATE and HOTPLUG_NIC
+    EOT
+
+    command :"sg-attach", sg_attach_desc, :vmid, :nicid, :sgid do
+        nic_id = args[1].to_i
+        sg_id = args[2].to_i
+
+        helper.perform_action(args[0], options, 'Attach SG') do |vm|
+            vm.sg_attach(nic_id, sg_id)
+        end
+    end
+
+    sg_detach_desc = <<-EOT.unindent
+        Detaches a Security Group from a VM.
+
+        States: All, except BOOT, MIGRATE and HOTPLUG_NIC
+    EOT
+
+    command :"sg-detach", sg_detach_desc, :vmid, :nicid, :sgid do
+        nic_id = args[1].to_i
+        sg_id = args[2].to_i
+
+        helper.perform_action(args[0], options, 'Detach SG') do |vm|
+            vm.sg_detach(nic_id, sg_id)
+        end
+    end
+
     chgrp_desc = <<-EOT.unindent
         Changes the VM group
     EOT
@@ -937,7 +981,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :vmid_list], :octet do
         helper.perform_actions(args[0], options, 'Permissions changed') do |vm|
-            vm.chmod_octet(args[1])
+            vm.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 
@@ -1338,9 +1382,12 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM, show and
-        monitoring never will be locked.
+        Locks a VM to prevent certain actions defined by different levels.
+        The show and monitoring action will never be locked.
         Valid states are: All.
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
     EOT
 
     command :lock, lock_desc, [:range, :vmid_list],
@@ -1362,7 +1409,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a Virtual Machine.
         Valid states are: All.
     EOT
 
@@ -1391,16 +1438,22 @@ CommandParser::CmdParser.new(ARGV) do
         acc_t = 0
         acc_w = 0
 
-        charters.each do |action, time|
-            sched = "+#{time[:time].to_i + acc_t}"
+        helper.perform_action(args[0], {}, 'Charter added') do |vm|
+            vm.info
 
-            helper.schedule_actions([args[0]].flatten,
-                                    { :schedule => sched },
-                                    action.to_s,
-                                    time[:warning][:time] + acc_w)
+            diff_stime = Time.now.to_i - vm['/VM/STIME'].to_i
 
-            acc_t += time[:time].to_i
-            acc_w += time[:warning][:time].to_i
+            charters.each do |action, time|
+                sched = "+#{time[:time].to_i + acc_t + diff_stime}"
+
+                helper.schedule_actions([args[0]].flatten,
+                                        { :schedule => sched },
+                                        action.to_s,
+                                        time[:warning][:time] + acc_w)
+
+                acc_t += time[:time].to_i
+                acc_w += time[:warning][:time].to_i
+            end
         end
 
         0
@@ -1620,6 +1673,30 @@ CommandParser::CmdParser.new(ARGV) do
             else
                 puts "#{ip}@#{e_start_p + Integer(args[1]) - 1} -> #{args[1]}"
             end
+        end
+    end
+
+    connect_desc = <<-EOT.unindent
+        Opens a VNC session to the VM
+    EOT
+
+    command :vnc, connect_desc, :vmid, :options => [VNC] do
+        helper.perform_action(args[0], options, 'VNC') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(1)
+            end
+
+            host = vm['HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+            port = vm['TEMPLATE/GRAPHICS/PORT']
+
+            vncviewer = options['vnc'] || DEFAULT_VNC
+
+            cmd = [vncviewer, "#{host}::#{port}"]
+
+            exec(*cmd)
         end
     end
 

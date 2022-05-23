@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, memo, JSXElementConstructor } from 'react'
+import { useState, memo, useEffect, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
 import { DEFAULT_IMAGE, IMAGE_FORMATS } from 'client/constants'
@@ -35,7 +35,7 @@ const Image = memo(
     imageInError = DEFAULT_IMAGE,
     withSources = false,
     pictureProps = {},
-    imgProps = {}
+    imgProps = {},
   }) => {
     const [error, setError] = useState(INITIAL_STATE)
 
@@ -43,17 +43,21 @@ const Image = memo(
       decoding: 'async',
       draggable: false,
       loading: 'lazy',
-      ...imgProps
+      ...imgProps,
     }
+
+    useEffect(() => {
+      error && setError(INITIAL_STATE)
+    }, [src])
 
     /** Increment retries by one in error state. */
     const addRetry = () => {
-      setError(prev => ({ ...prev, retries: prev.retries + 1 }))
+      setError((prev) => ({ ...prev, retries: prev.retries + 1 }))
     }
 
     /** Set failed state. */
     const onImageFail = () => {
-      setError(prev => ({ fail: true, retries: prev.retries + 1 }))
+      setError((prev) => ({ fail: true, retries: prev.retries + 1 }))
     }
 
     if (error.retries >= MAX_RETRIES) {
@@ -61,35 +65,41 @@ const Image = memo(
     }
 
     if (error.fail) {
-      return <img
-        {...imageProps}
-        src={imageInError}
-        draggable={false}
-        onError={addRetry}
-      />
+      return (
+        <img
+          alt=""
+          {...imageProps}
+          src={imageInError}
+          draggable={false}
+          onError={addRetry}
+        />
+      )
     }
 
     return withSources ? (
       <picture {...pictureProps}>
-        {withSources && IMAGE_FORMATS.map(format => (
-          <source key={format}
+        {IMAGE_FORMATS.map((format) => (
+          <source
+            key={format}
             srcSet={`${src}.${format}`}
             type={`image/${format}`}
           />
         ))}
-        <img {...imageProps} src={src} onError={onImageFail} />
+        <img alt="" {...imageProps} src={src} onError={onImageFail} />
       </picture>
     ) : (
-      <img {...imageProps} src={src} onError={onImageFail} />
+      <img alt="" {...imageProps} src={src} onError={onImageFail} />
     )
-  }, (prev, next) => prev.src === next.src)
+  },
+  (prev, next) => prev.src === next.src
+)
 
 Image.propTypes = {
   src: PropTypes.string,
   imageInError: PropTypes.string,
   withSources: PropTypes.bool,
   pictureProps: PropTypes.object,
-  imgProps: PropTypes.object
+  imgProps: PropTypes.object,
 }
 
 Image.displayName = 'Image'

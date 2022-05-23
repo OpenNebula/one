@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,31 +20,31 @@ export const PROVISIONS_STATES = [
   {
     name: STATES.PENDING,
     color: COLOR.warning.main,
-    meaning: ''
+    meaning: '',
   },
   {
     name: STATES.DEPLOYING,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
   {
     name: STATES.CONFIGURING,
     color: COLOR.info.main,
-    meaning: ''
+    meaning: '',
   },
   {
     name: STATES.RUNNING,
     color: COLOR.success.main,
-    meaning: ''
+    meaning: '',
   },
   {
     name: STATES.ERROR,
     color: COLOR.error.dark,
-    meaning: ''
+    meaning: '',
   },
   {
     name: STATES.DELETING,
     color: COLOR.error.light,
-    meaning: ''
-  }
+    meaning: '',
+  },
 ]

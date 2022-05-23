@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -343,6 +343,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_sched_add(new RequestManagerSchedAdd());
     xmlrpc_c::methodPtr vm_sched_delete(new RequestManagerSchedDelete());
     xmlrpc_c::methodPtr vm_sched_update(new RequestManagerSchedUpdate());
+    xmlrpc_c::methodPtr vm_attachsg(new VirtualMachineAttachSG());
+    xmlrpc_c::methodPtr vm_detachsg(new VirtualMachineDetachSG());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -358,6 +360,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
     xmlrpc_c::methodPtr vn_reserve(new VirtualNetworkReserve());
+    xmlrpc_c::methodPtr vn_recover(new VirtualNetworkRecover());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -577,6 +580,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.schedadd", vm_sched_add);
     RequestManagerRegistry.addMethod("one.vm.scheddelete", vm_sched_delete);
     RequestManagerRegistry.addMethod("one.vm.schedupdate", vm_sched_update);
+    RequestManagerRegistry.addMethod("one.vm.attachsg", vm_attachsg);
+    RequestManagerRegistry.addMethod("one.vm.detachsg", vm_detachsg);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);
@@ -693,6 +698,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.rename", vn_rename);
     RequestManagerRegistry.addMethod("one.vn.lock", vn_lock);
     RequestManagerRegistry.addMethod("one.vn.unlock", vn_unlock);
+    RequestManagerRegistry.addMethod("one.vn.recover", vn_recover);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info);
 

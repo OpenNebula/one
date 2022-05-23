@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,80 +13,125 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { memo, useContext } from 'react'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash, UndoAction } from 'iconoir-react'
-
-import { useVmApi } from 'client/features/One'
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import {
+  useCreateVmSnapshotMutation,
+  useRevertVmSnapshotMutation,
+  useDeleteVmSnapshotMutation,
+} from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { CreateSnapshotForm } from 'client/components/Forms/Vm'
 
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const RevertAction = memo(({ snapshot }) => {
-  const { SNAPSHOT_ID, NAME } = snapshot
-  const { revertSnapshot } = useVmApi()
-  const { data: vm } = useContext(TabContext)
+const CreateAction = memo(({ vmId }) => {
+  const [createSnapshot] = useCreateVmSnapshotMutation()
 
-  const handleRevert = async () => await revertSnapshot(vm.ID, SNAPSHOT_ID)
+  const handleCreate = async ({ name } = {}) => {
+    await createSnapshot({ id: vmId, name })
+  }
+
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        color: 'secondary',
+        'data-cy': 'snapshot-create',
+        label: T.TakeSnapshot,
+        variant: 'outlined',
+      }}
+      options={[
+        {
+          dialogProps: { title: T.TakeSnapshot },
+          form: CreateSnapshotForm,
+          onSubmit: handleCreate,
+        },
+      ]}
+    />
+  )
+})
+
+const RevertAction = memo(({ vmId, snapshot }) => {
+  const [revertSnapshot] = useRevertVmSnapshotMutation()
+  const { SNAPSHOT_ID, NAME } = snapshot
+
+  const handleRevert = async () => {
+    await revertSnapshot({ id: vmId, snapshot: SNAPSHOT_ID })
+  }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_REVERT}-${SNAPSHOT_ID}`,
-        icon: <UndoAction />
+        icon: <UndoAction />,
+        tooltip: Tr(T.Revert),
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.RevertSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.RevertSomething}
+                values={`#${SNAPSHOT_ID} - ${NAME}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleRevert,
         },
-        onSubmit: handleRevert
-      }]}
+      ]}
     />
   )
 })
 
-const DeleteAction = memo(({ snapshot }) => {
+const DeleteAction = memo(({ vmId, snapshot }) => {
+  const [deleteSnapshot] = useDeleteVmSnapshotMutation()
   const { SNAPSHOT_ID, NAME } = snapshot
-  const { deleteSnapshot } = useVmApi()
-  const { data: vm } = useContext(TabContext)
 
-  const handleDelete = async () => await deleteSnapshot(vm.ID, SNAPSHOT_ID)
+  const handleDelete = async () => {
+    await deleteSnapshot({ id: vmId, snapshot: SNAPSHOT_ID })
+  }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         'data-cy': `${VM_ACTIONS.SNAPSHOT_DELETE}-${SNAPSHOT_ID}`,
-        icon: <Trash />
+        icon: <Trash />,
+        tooltip: Tr(T.Delete),
       }}
-      options={[{
-        isConfirmDialog: true,
-        dialogProps: {
-          title: <Translate word={T.DeleteSomething} values={`#${SNAPSHOT_ID} - ${NAME}`} />,
-          children: <p>{Tr(T.DoYouWantProceed)}</p>
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.DeleteSomething}
+                values={`#${SNAPSHOT_ID} - ${NAME}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: handleDelete,
         },
-        onSubmit: handleDelete
-      }]}
+      ]}
     />
   )
 })
 
 const ActionPropTypes = {
+  vmId: PropTypes.string.isRequired,
   snapshot: PropTypes.object,
-  name: PropTypes.string
 }
 
+CreateAction.propTypes = ActionPropTypes
+CreateAction.displayName = 'CreateActionButton'
 RevertAction.propTypes = ActionPropTypes
 RevertAction.displayName = 'RevertActionButton'
 DeleteAction.propTypes = ActionPropTypes
 DeleteAction.displayName = 'DeleteActionButton'
 
-export {
-  DeleteAction,
-  RevertAction
-}
+export { CreateAction, DeleteAction, RevertAction }

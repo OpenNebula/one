@@ -1,8 +1,0 @@
-name: 'digitalocean-nyc3'
-
-description: 'Virtual Edge Cluster in DigitalOcean datacenter in New York City (NYC3)'
-provider: 'digitalocean'
-
-connection:
-  token: 'DigitalOcean token'
-  region: 'nyc3'

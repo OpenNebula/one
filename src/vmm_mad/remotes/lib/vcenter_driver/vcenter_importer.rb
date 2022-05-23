@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -202,7 +202,7 @@ module VCenterDriver
         # index associated to his own resource opt
         #
         # Example:
-        # {"vm-343" => {linked: '0', copy: '0'...}
+        # {"vm-343" => {:linked_clone: '0', :copy: '0'...}
         #
         # @ return [Hash] the list of unimported resources
         #
@@ -263,7 +263,10 @@ module VCenterDriver
 
                 cluster_list = {}
                 cpool.each do |c|
-                    cluster_list[c['ID']] = c['NAME'] if c['ID'].to_i != 0
+                    name = VCenterDriver::VcImporter.sanitize(
+                        c['NAME']
+                    )
+                    cluster_list[c['ID']] = name if c['ID'].to_i != 0
                 end
 
                 # Get OpenNebula's host pool
@@ -275,6 +278,15 @@ module VCenterDriver
 
                 rs = dc_folder.get_unimported_hosts(hpool,
                                                     vcenter_instance_name)
+
+                # Select just cluster with this reference
+                if options[:cluster_ref]
+                    rs.each do |_, clusters|
+                        clusters.select! do |c|
+                            c[:cluster_ref] == options[:cluster_ref]
+                        end
+                    end
+                end
 
                 STDOUT.print "done!\n\n"
 
@@ -312,10 +324,13 @@ module VCenterDriver
 
                                 cluster_list_str = "\n"
                                 cluster_list.each do |key, value|
+                                    name = VCenterDriver::VcImporter.sanitize(
+                                        value
+                                    )
                                     cluster_list_str << "      - \e[94mID: " \
                                                      << key \
                                                      << "\e[39m - NAME: " \
-                                                     << value << "\n"
+                                                     << name << "\n"
                                 end
 
                                 STDOUT.print "\n    #{cluster_list_str}"
@@ -330,15 +345,19 @@ module VCenterDriver
                             end
                         end
 
+                        cluster_name = VCenterDriver::VcImporter.sanitize(
+                            cluster[:cluster_name]
+                        )
+
                         # Check if the OpenNebula Cluster exists, and reuse it
                         one_cluster_id ||= cluster_list
-                                           .key(cluster[:cluster_name])
+                                           .key(cluster_name)
 
                         if !one_cluster_id
                             one_cluster = VCenterDriver::VIHelper
                                           .new_one_item(OpenNebula::Cluster)
                             rc = one_cluster
-                                 .allocate((cluster[:cluster_name]).to_s)
+                                 .allocate(cluster_name.to_s)
                             if ::OpenNebula.is_error?(rc)
                                 # rubocop:disable Layout/LineLength
                                 STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
@@ -355,13 +374,12 @@ module VCenterDriver
                                            rpool,
                                            one_cluster_id)
                         # rubocop:disable Layout/LineLength
-                        STDOUT.puts "\n    OpenNebula host \e[92m#{cluster[:cluster_name]}\e[39m with"\
+                        STDOUT.puts "\n    OpenNebula host \e[92m#{cluster_name}\e[39m with"\
                                     " ID \e[94m#{one_host.id}\e[39m successfully created."
                         STDOUT.puts
                         # rubocop:enable Layout/LineLength
                     end
                 end
-                VCenterDriver::VcImporter.register_hooks
             rescue Interrupt
                 puts "\n"
                 exit 0 # Ctrl+C
@@ -374,16 +392,6 @@ module VCenterDriver
             ensure
                 vi_client.close_connection if vi_client
                 raise if raise_error
-            end
-        end
-
-        def self.register_hooks
-            hooks_path = HOOK_LOCATION + '/vcenter/templates'
-            client = OpenNebula::Client.new
-            hook = OpenNebula::Hook.new(OpenNebula::Hook.build_xml, client)
-            hook_files = Dir["#{hooks_path}/*.tmpl"]
-            hook_files.each do |hook_file|
-                hook.allocate(File.open(hook_file).read)
             end
         end
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,7 +26,7 @@ require_relative 'process_list'
 require_relative 'domain'
 
 #-------------------------------------------------------------------------------
-#  Extends ProcessList module defined at process_list.rb
+#  Extends ProcessList module defined at procepss_list.rb
 #-------------------------------------------------------------------------------
 module ProcessList
 
@@ -53,7 +53,7 @@ module ProcessList
 
             procs[container] = {
                 :pid => info['PID'],
-                :memory => Integer(info['Memory use']) / 1024,
+                :memory => info['Memory use'].to_i / 1024,
                 :cpu => usage_cpu(container)
             }
         end
@@ -200,11 +200,11 @@ class Domain < BaseDomain
 
         # Add RX bytes of every NIC
         Array(domain_info['RX bytes']).each do |i|
-            @vm[:netrx] += Integer(i)
+            @vm[:netrx] += i.to_i
         end
 
         Array(domain_info['TX bytes']).each do |i|
-            @vm[:nettx] += Integer(i)
+            @vm[:nettx] += i.to_i
         end
     end
 

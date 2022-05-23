@@ -1,0 +1,16 @@
+---
+
+###############################################################################
+# Valid defaults
+###############################################################################
+
+# List of Ceph pools to create, each specified as a hash with parameters:
+# - name: Pool name
+# - pg_num: Number of placement groups (http://docs.ceph.com/docs/firefly/rados/operations/placement-groups/)
+# - type: Pool type 'replicated' (default) or 'erasure'
+ceph_opennebula_mon_pools:
+  - { name: one, pg_num: 128 }
+
+# Crush tunables to apply:
+# http://docs.ceph.com/docs/master/rados/operations/crush-map/#tunables
+ceph_opennebula_mon_tunables: default

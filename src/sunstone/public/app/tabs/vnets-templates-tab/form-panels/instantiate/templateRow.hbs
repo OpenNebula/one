@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -80,6 +80,32 @@
             {{tr "MTU of the Guest interfaces"}}
           </label>
           <input type="text" wizard_field="GUEST_MTU" name="net_mtu" id="net_mtu" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="method">
+            {{tr "Method"}}
+          </label>
+          <select wizard_field="METHOD" name="method" id="method">
+            <option value="">none (Use default)</option> {{!-- This option is the same than static --}}
+            <option value="static">static (Based on context)</option>
+            <option value="dhcp">dhcp (DHCPv4)</option>
+            <option value="skip">skip (Do not configure IPv4)</option>
+          </select>
+        </div>
+        <div class="medium-6 columns">
+          <label for="ipv6_method">
+            {{tr "IPv6 Method"}}
+          </label>
+          <select wizard_field="IP6_METHOD" name="ipv6_method" id="ipv6_method">
+            <option value="">none (Use default)</option> {{!-- This option is the same than static --}}
+            <option value="static">static (Based on context)</option>
+            <option value="auto">auto (SLAAC)</option>
+            <option value="dhcp">dhcp (SLAAC and DHCPv6)</option>
+            <option value="disable">disable (Do not use IPv6)</option>
+            <option value="skip">skip (Do not configure IPv6)</option>
+          </select>
         </div>
       </div>
       <fieldset>

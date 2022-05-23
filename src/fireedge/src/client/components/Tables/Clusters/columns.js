@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -22,24 +23,24 @@ export default [
   {
     Header: 'Total Hosts',
     id: 'HOSTS',
-    accessor: row => getTotalOfResources(row?.HOSTS),
-    sortType: 'number'
+    accessor: (row) => getTotalOfResources(row?.HOSTS),
+    sortType: 'number',
   },
   {
     Header: 'Total Datastores',
     id: 'DATASTORES',
-    accessor: row => getTotalOfResources(row?.DATASTORES),
-    sortType: 'number'
+    accessor: (row) => getTotalOfResources(row?.DATASTORES),
+    sortType: 'number',
   },
   {
     Header: 'Total VNets',
     id: 'VNETS',
-    accessor: row => getTotalOfResources(row?.VNETS),
-    sortType: 'number'
+    accessor: (row) => getTotalOfResources(row?.VNETS),
+    sortType: 'number',
   },
   {
     Header: 'Provider',
     id: 'PROVIDER_NAME',
-    accessor: row => row?.TEMPLATE?.PROVISION?.PROVIDER_NAME
-  }
+    accessor: (row) => row?.TEMPLATE?.PROVISION?.PROVIDER_NAME,
+  },
 ]

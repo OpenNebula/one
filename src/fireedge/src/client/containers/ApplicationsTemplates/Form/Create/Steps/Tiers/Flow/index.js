@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useMemo, JSXElementConstructor } from 'react'
+import { memo, useEffect, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import makeStyles from '@mui/styles/makeStyles'
-import { AddCircledOutline as AddIcon, Selection as SelectAllIcon } from 'iconoir-react'
+import {
+  AddCircledOutline as AddIcon,
+  Selection as SelectAllIcon,
+} from 'iconoir-react'
 
 import ReactFlow, { Background } from 'react-flow-renderer'
 import { useFormContext } from 'react-hook-form'
@@ -37,16 +40,16 @@ const useStyles = makeStyles(() => ({
       height: 10,
       backgroundColor: 'rgba(0,0,0,0.2)',
       '&-bottom': {
-        bottom: -6
+        bottom: -6,
       },
       '&-connecting': {
-        backgroundColor: '#ff6060'
+        backgroundColor: '#ff6060',
       },
       '&-valid': {
-        backgroundColor: '#55dd99'
-      }
-    }
-  }
+        backgroundColor: '#55dd99',
+      },
+    },
+  },
 }))
 
 /**
@@ -57,7 +60,7 @@ const useStyles = makeStyles(() => ({
  * @param {Function} props.handleCreate - Create a new Node
  * @param {Function} props.handleEdit - Edit a current Node
  * @param {Function} props.handleSetData - Set new list of nodes
- * @returns {JSXElementConstructor} ReactFlow component
+ * @returns {ReactElement} ReactFlow component
  */
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
   const { watch } = useFormContext()
@@ -68,14 +71,13 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
     handleRemoveElements,
     handleConnect,
     handleUpdatePosition,
-    handleSelectAll
+    handleSelectAll,
   } = useFlowGraph({ nodeFields: dataFields, setList: handleSetData })
 
   useEffect(() => {
-    handleRefreshFlow(
-      watch(TIER_ID),
-      ({ id }) => ({ handleEdit: () => handleEdit(id) })
-    )
+    handleRefreshFlow(watch(TIER_ID), ({ id }) => ({
+      handleEdit: () => handleEdit(id),
+    }))
   }, [watch])
 
   const actions = useMemo(
@@ -83,13 +85,13 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       {
         icon: <AddIcon />,
         name: 'Add',
-        handleClick: handleCreate
+        handleClick: handleCreate,
       },
       {
         icon: <SelectAllIcon />,
         name: 'Select all',
-        handleClick: handleSelectAll
-      }
+        handleClick: handleSelectAll,
+      },
     ],
     [handleCreate, handleSelectAll]
   )
@@ -105,23 +107,25 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       selectionKeyCode={NOT_KEY_CODE}
     >
       <SpeedDial actions={actions} />
-      <Background color='#aaa' gap={16} />
+      <Background color="#aaa" gap={16} />
     </ReactFlow>
   )
 })
+
+Flow.displayName = 'FlowGraph'
 
 Flow.propTypes = {
   dataFields: PropTypes.arrayOf(PropTypes.string),
   handleCreate: PropTypes.func,
   handleEdit: PropTypes.func,
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 Flow.defaultProps = {
   dataFields: [],
   handleCreate: undefined,
   handleEdit: undefined,
-  handleSetData: undefined
+  handleSetData: undefined,
 }
 
 export default Flow

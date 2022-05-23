@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,19 +14,85 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const questions = {
-  datastores: [
+const DATASTORES = 'datastores'
+const TEMPLATES = 'templates'
+const NETWORKS = 'networks'
+const IMAGES = 'images'
 
-  ],
-  templates: [
+const LIST = 'list'
+const IMPORT = 'import'
 
-  ],
-  networks: [
-
-  ],
-  images: [
-
-  ]
+const resourceFromData = {
+  LIST,
+  IMPORT,
 }
 
-module.exports = questions
+const resources = {
+  DATASTORES,
+  TEMPLATES,
+  NETWORKS,
+  IMAGES,
+}
+
+const params = {
+  [DATASTORES]: [
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+  ],
+  [TEMPLATES]: [
+    {
+      param: 'datastore',
+      flag: '--datastore',
+      for: [LIST, IMPORT],
+    },
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+    {
+      param: 'folder',
+      flag: '--folder',
+      for: [IMPORT],
+    },
+    {
+      param: 'linked_clone',
+      flag: '--linked_clone',
+      for: [IMPORT],
+    },
+  ],
+  [NETWORKS]: [
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+  ],
+  [IMAGES]: [
+    {
+      param: 'host',
+      flag: '-h',
+      for: [LIST, IMPORT],
+    },
+    {
+      param: 'datastore',
+      flag: '--datastore',
+      for: [LIST, IMPORT],
+    },
+  ],
+}
+
+const paramsImportNetwork = {
+  size: 'SIZE',
+  type: 'TYPE',
+  mac: 'MAC',
+  ip: 'IP',
+  globalPrefix: 'GLOBAL_PREFIX',
+  ulaPrefix: 'ULA_PREFIX',
+  ip6Global: 'IP6_GLOBAL',
+}
+
+module.exports = { resourceFromData, resources, params, paramsImportNetwork }

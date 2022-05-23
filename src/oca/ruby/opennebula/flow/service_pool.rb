@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,8 +55,12 @@ module OpenNebula
             @one_pool   = nil
 
             if @client
-                info     = Nokogiri::XML(@client.call('user.info', -1))
-                @user_id = Integer(info.xpath('/USER/ID').text)
+                rc = @client.call('user.info', -1)
+
+                unless OpenNebula.is_error?(rc)
+                    info     = Nokogiri::XML(rc)
+                    @user_id = Integer(info.xpath('/USER/ID').text)
+                end
             end
 
             super('DOCUMENT_POOL', 'DOCUMENT', @client)

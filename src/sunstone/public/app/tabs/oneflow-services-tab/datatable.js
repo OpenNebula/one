@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -244,6 +244,7 @@ define(function(require) {
     };
 
     var color_html = Status.state_lock_to_color("SERVICE",state, element_json[XML_ROOT]["LOCK"]);
+    var start_time = element.TEMPLATE.BODY["start_time"] ? Humanize.prettyTime(element.TEMPLATE.BODY["start_time"]) : "-";
 
     return [
       "<input class=\"check_item\" type=\"checkbox\" "+
@@ -255,7 +256,7 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         state,
-        Humanize.prettyTime(element.TEMPLATE.BODY["start_time"]),
+        start_time,
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         leasesClock(element),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))

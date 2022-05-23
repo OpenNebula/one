@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,66 +17,54 @@ import { memo } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router-dom'
 
-import { useUserApi, useGroupApi, RESOURCES } from 'client/features/One'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { List } from 'client/components/Tabs/Common'
 import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-const Ownership = memo(({
-  actions,
-  groupId,
-  groupName,
-  handleEdit,
-  userId,
-  userName
-}) => {
-  const { getUsers } = useUserApi()
-  const { getGroups } = useGroupApi()
+const Ownership = memo(
+  ({ actions, groupId, groupName, handleEdit, userId, userName }) => {
+    const { data: users = [] } = useGetUsersQuery()
+    const { data: groups = [] } = useGetGroupsQuery()
 
-  const getUserOptions = async () => {
-    const response = await getUsers()
+    const getUserOptions = () =>
+      users
+        ?.filter?.(({ ID } = {}) => ID !== SERVERADMIN_ID)
+        ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID }))
 
-    return response
-      ?.[RESOURCES.user]
-      ?.filter?.(({ ID } = {}) => ID !== SERVERADMIN_ID)
-      ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID })
-      )
+    const getGroupOptions = () =>
+      groups?.map?.(({ ID, NAME } = {}) => ({
+        text: NAME,
+        value: ID,
+      }))
+
+    const ownership = [
+      {
+        name: T.Owner,
+        value: userName,
+        valueInOptionList: userId,
+        link: generatePath(PATH.SYSTEM.USERS.DETAIL, { id: userId }),
+        canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
+        handleGetOptionList: getUserOptions,
+        handleEdit: (_, user) => handleEdit?.({ user }),
+        dataCy: 'owner',
+      },
+      {
+        name: T.Group,
+        value: groupName,
+        valueInOptionList: groupId,
+        link: generatePath(PATH.SYSTEM.GROUPS.DETAIL, { id: groupId }),
+        canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
+        handleGetOptionList: getGroupOptions,
+        handleEdit: (_, group) => handleEdit?.({ group }),
+        dataCy: 'group',
+      },
+    ]
+
+    return <List title={T.Ownership} list={ownership} />
   }
-
-  const getGroupOptions = async () => {
-    const response = await getGroups()
-
-    return response
-      ?.[RESOURCES.group]
-      ?.map?.(({ ID, NAME } = {}) => ({ text: NAME, value: ID })
-      )
-  }
-
-  const ownership = [
-    {
-      name: T.Owner,
-      value: userName,
-      valueInOptionList: userId,
-      link: generatePath(PATH.SYSTEM.USERS.DETAIL, { id: userId }),
-      canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
-      handleGetOptionList: getUserOptions,
-      handleEdit: (_, user) => handleEdit?.({ user })
-    },
-    {
-      name: T.Group,
-      value: groupName,
-      valueInOptionList: groupId,
-      link: generatePath(PATH.SYSTEM.GROUPS.DETAIL, { id: groupId }),
-      canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
-      handleGetOptionList: getGroupOptions,
-      handleEdit: (_, group) => handleEdit?.({ group })
-    }
-  ]
-
-  return (
-    <List title={T.Ownership} list={ownership} />
-  )
-})
+)
 
 Ownership.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
@@ -84,7 +72,7 @@ Ownership.propTypes = {
   userName: PropTypes.string.isRequired,
   groupId: PropTypes.string.isRequired,
   groupName: PropTypes.string.isRequired,
-  handleEdit: PropTypes.func
+  handleEdit: PropTypes.func,
 }
 
 Ownership.displayName = 'Ownership'

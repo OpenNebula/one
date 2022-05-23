@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useState, useEffect, createElement } from 'react'
+import { ReactElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
+import { Box, Backdrop, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
-import { PATH } from 'client/apps/provision/routes'
-import { useFetch, useSearch } from 'client/hooks'
-import { useProvision, useProvisionApi } from 'client/features/One'
+import {
+  useGetProvisionsQuery,
+  useLazyGetProvisionQuery,
+  useConfigureProvisionMutation,
+  useDeleteProvisionMutation,
+} from 'client/features/OneApi/provision'
+import { useSearch, useDialog } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
 
 import { DeleteForm } from 'client/components/Forms/Provision'
@@ -31,46 +34,63 @@ import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
 import { Translate } from 'client/components/HOC'
 
-import { DialogRequest } from 'client/components/Dialogs'
+import { DialogConfirmation } from 'client/components/Dialogs'
 import DialogInfo from 'client/containers/Provisions/DialogInfo'
+import { PATH } from 'client/apps/provision/routes'
 import { T } from 'client/constants'
 
-function Provisions () {
+/**
+ * Renders a list of available cluster provisions.
+ *
+ * @returns {ReactElement} List of provisions
+ */
+function Provisions() {
   const history = useHistory()
-  const [{ content, ...showDialog } = {}, setShowDialog] = useState()
-  const handleCloseDialog = () => setShowDialog()
+  const { display, show, hide, values: dialogProps } = useDialog()
 
   const { enqueueInfo } = useGeneralApi()
-  const provisions = useProvision()
+  const [configureProvision] = useConfigureProvisionMutation()
+  const [deleteProvision] = useDeleteProvisionMutation()
 
   const {
-    getProvisions,
-    getProvision,
-    configureProvision,
-    deleteProvision
-  } = useProvisionApi()
+    refetch,
+    data: provisions = [],
+    isFetching,
+    error,
+  } = useGetProvisionsQuery()
 
-  const { error, fetchRequest, loading, reloading } = useFetch(getProvisions)
+  const [
+    getProvision,
+    {
+      currentData: provisionDetail,
+      isLoading: provisionIsLoading,
+      error: provisionError,
+      originalArgs,
+    },
+  ] = useLazyGetProvisionQuery()
 
   const { result, handleChange } = useSearch({
     list: provisions,
-    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
+    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] },
   })
 
-  useEffect(() => { fetchRequest() }, [])
+  const handleClickfn = (ID, NAME) => {
+    getProvision(ID)
+    show({ id: ID, title: `#${ID} ${NAME}` })
+  }
 
   return (
-    <Container disableGutters>
+    <>
       <ListHeader
         title={T.Provisions}
         reloadButtonProps={{
           'data-cy': 'refresh-provision-list',
-          onClick: () => fetchRequest(undefined, { reload: true }),
-          isSubmitting: Boolean(loading || reloading)
+          onClick: () => refetch(),
+          isSubmitting: isFetching,
         }}
         addButtonProps={{
           'data-cy': 'create-provision',
-          onClick: () => history.push(PATH.PROVISIONS.CREATE)
+          onClick: () => history.push(PATH.PROVISIONS.CREATE),
         }}
         searchProps={{ handleChange }}
       />
@@ -80,73 +100,75 @@ function Provisions () {
         ) : (
           <ListCards
             list={result ?? provisions}
-            isLoading={provisions.length === 0 && loading}
             gridProps={{ 'data-cy': 'provisions' }}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
-              handleClick: () => setShowDialog({
-                id: ID,
-                title: `#${ID} ${NAME}`,
-                content: props => createElement(DialogInfo, {
-                  ...props,
-                  displayName: 'DialogDetailProvision'
-                })
-              }),
+              handleClick: () => handleClickfn(ID, NAME),
               actions: [
                 {
-                  handleClick: () => configureProvision(ID)
-                    .then(() => enqueueInfo(`Configuring provision - ID: ${ID}`))
-                    .then(() => fetchRequest(undefined, { reload: true })),
+                  handleClick: async () => {
+                    await configureProvision({ id: ID })
+                    enqueueInfo(`Configuring provision - ID: ${ID}`)
+                  },
                   icon: <EditIcon />,
-                  cy: 'provision-configure'
-                }
+                  cy: 'provision-configure',
+                },
               ],
               deleteAction: {
                 buttonProps: {
                   'data-cy': 'provision-delete',
                   icon: <DeleteIcon />,
-                  color: 'error'
+                  color: 'error',
                 },
-                options: [{
-                  dialogProps: {
-                    title: (
-                      <Translate
-                        word={T.DeleteSomething}
-                        values={`#${ID} ${NAME}`}
-                      />
-                    )
+                options: [
+                  {
+                    dialogProps: {
+                      title: (
+                        <Translate
+                          word={T.DeleteSomething}
+                          values={`#${ID} ${NAME}`}
+                        />
+                      ),
+                    },
+                    form: DeleteForm,
+                    onSubmit: async (formData) => {
+                      try {
+                        await deleteProvision({ id: ID, ...formData })
+                        enqueueInfo(`Deleting provision - ID: ${ID}`)
+                      } finally {
+                        hide()
+                      }
+                    },
                   },
-                  form: DeleteForm,
-                  onSubmit: async formData => {
-                    try {
-                      await deleteProvision(ID, formData)
-                      enqueueInfo(`Deleting provision - ID: ${ID}`)
-                    } finally {
-                      handleCloseDialog()
-                      fetchRequest(undefined, { reload: true })
-                    }
-                  }
-                }]
-              }
+                ],
+              },
             })}
           />
         )}
       </Box>
-      {content && (
-        <DialogRequest
-          withTabs
-          request={() => getProvision(showDialog.id)}
-          dialogProps={{
-            fixedWidth: true,
-            fixedHeight: true,
-            handleCancel: handleCloseDialog,
-            ...showDialog
-          }}
-        >
-          {props => content(props)}
-        </DialogRequest>
-      )}
-    </Container>
+      {display &&
+        !provisionError &&
+        (provisionDetail?.ID !== originalArgs || provisionIsLoading ? (
+          <Backdrop
+            open
+            sx={{
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+              color: (theme) => theme.palette.common.white,
+            }}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        ) : (
+          <DialogConfirmation
+            fixedWidth
+            fixedHeight
+            handleCancel={hide}
+            {...dialogProps}
+          >
+            <DialogInfo id={provisionDetail.ID} />
+          </DialogConfirmation>
+        ))}
+    </>
   )
 }
 

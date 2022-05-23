@@ -5,3 +5,29 @@
 .fa-question-circle {
   color: $medium-gray;
 }
+
+/* Tooltip container */
+.opennebula-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.opennebula-tooltip .opennebula-tooltiptext {
+  visibility: hidden;
+  width: 15em;
+  background-color: $bold-black;
+  color: $white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  font-size: $helptext-font-size;
+  font-weight: bold;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.opennebula-tooltip:hover .opennebula-tooltiptext {
+  visibility: visible;
+}

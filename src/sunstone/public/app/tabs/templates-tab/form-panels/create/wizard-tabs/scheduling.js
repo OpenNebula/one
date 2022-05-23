@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,6 +69,7 @@ define(function(require) {
   WizardTab.prototype.constructor = WizardTab;
   WizardTab.prototype.html = _html;
   WizardTab.prototype.setup = _setup;
+  WizardTab.prototype.setupOrder = 1;
   WizardTab.prototype.onShow = _onShow;
   WizardTab.prototype.retrieve = _retrieve;
   WizardTab.prototype.fill = _fill;
@@ -96,6 +97,9 @@ define(function(require) {
     Foundation.reflow(context, 'tabs');
 
     context.on("change", "input[name='req_select']", function() {
+      that.datastoresTable.updateFn();
+      that.datastoresTable.deselectHiddenResources();
+
       if ($("input[name='req_select']:checked").val() == "host_select") {
         $("div.host_select",    context).show();
         $("div.cluster_select", context).hide();
@@ -113,24 +117,59 @@ define(function(require) {
       WizardFields.fillInput($("#SCHED_DS_RANK", context), this.value);
     });
 
-    var selectOptions = {
-      'selectOptions': {
-        'select_callback': function(aData, options) {
+    var generateCallbacks = function (updateDatastores) {
+      return {
+        select_callback: function() {
+          if (updateDatastores) {
+            that.datastoresTable.updateFn();
+            that.datastoresTable.deselectHiddenResources();
+          }
+
           that.generateRequirements(context)
         },
-        'unselect_callback': function(aData, options) {
+        unselect_callback: function() {
+          if (updateDatastores) {
+            that.datastoresTable.updateFn();
+          }
+
           that.generateRequirements(context)
         }
       }
     }
 
-    that.hostsTable.initialize(selectOptions);
-    that.hostsTable.refreshResourceTableSelect();
-    that.clustersTable.initialize(selectOptions);
-    that.clustersTable.refreshResourceTableSelect();
-    that.datastoresTable.initialize(selectOptions);
+    that.clustersTable.initialize({ selectOptions: generateCallbacks(true) });
+    that.hostsTable.initialize({ selectOptions: generateCallbacks(true) });
+    that.datastoresTable.initialize({
+      selectOptions: Object.assign(generateCallbacks(), {
+        filter_fn: function(ds) {
+          if (!that.hostsTable || !that.clustersTable) return true;
+
+          var clusters = ds.CLUSTERS.ID;
+          var ensuredClusters = Array.isArray(clusters) ? clusters : [clusters];
+
+          var hostClusterIndex = that.hostsTable.columnsIndex.CLUSTER
+          var hostClustersIds = that.hostsTable.getColumnDataInSelectedRows(hostClusterIndex)
+          var clustersIds = that.clustersTable.getColumnDataInSelectedRows()
+
+          return (
+            (hostClustersIds.length === 0 && clustersIds.length === 0) ||
+            hostClustersIds
+              .concat(clustersIds)
+              .some(function(id) { return ensuredClusters.includes(id) })
+          )
+        }
+      })
+    });
     that.datastoresTable.filter("system", 10);
+    that.hostsTable.refreshResourceTableSelect();
+    that.clustersTable.refreshResourceTableSelect();
     that.datastoresTable.refreshResourceTableSelect();
+
+    $("#" + this.wizardTabId).data({
+      hostsTable: that.hostsTable,
+      clustersTable: that.clustersTable,
+      datastoresTable: that.datastoresTable,
+    });
   }
 
   function _retrieve(context) {
@@ -156,18 +195,11 @@ define(function(require) {
           clusters.push(match[1])
       }
 
-      var selectedResources = {
-          ids : hosts
-        }
+      this.hostsTable.selectResourceTableSelect({ ids: hosts });
+      this.clustersTable.selectResourceTableSelect({ ids: clusters });
 
-      this.hostsTable.selectResourceTableSelect(selectedResources);
-
-
-      var selectedResources = {
-          ids : clusters
-        }
-
-      this.clustersTable.selectResourceTableSelect(selectedResources);
+      this.datastoresTable.updateFn();
+      this.datastoresTable.deselectHiddenResources();
     }
 
     var dsReqJSON = templateJSON['SCHED_DS_REQUIREMENTS'];

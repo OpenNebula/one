@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,7 +17,7 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :OVS, :LVM, :LXD, :MEM]
+    NODECMDS = [:NET, :OVS, :LVM, :LXD, :MEM, :VGPU]
 
     attr_accessor :cmds
 
@@ -72,7 +72,8 @@ class Sudoers
                 lxc-create lxc-destroy lxc-info lxc-ls lxc-start lxc-stop
                 lxc-console e2fsck resize2fs xfs_growfs rbd-nbd
             ],
-            :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1']
+            :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
+            :VGPU => %w[sudo /var/tmp/one/vgpu]
         }
     end
 

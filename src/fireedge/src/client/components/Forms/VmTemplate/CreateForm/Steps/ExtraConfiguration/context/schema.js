@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { string } from 'yup'
+import { object, ObjectSchema } from 'yup'
 
-import { INPUT_TYPES } from 'client/constants'
+import { USER_INPUTS_SCHEMA } from './userInputsSchema'
+import { CONFIGURATION_SCHEMA } from './configurationSchema'
+import { FILES_SCHEMA } from './filesSchema'
 
-const FIELD = {
-  name: '',
-  label: '',
-  tooltip: '',
-  type: INPUT_TYPES.TEXT,
-  validation: string().trim().notRequired()
-}
+/**
+ * @param {string} [hypervisor] - VM hypervisor
+ * @returns {ObjectSchema} Context schema
+ */
+export const SCHEMA = (hypervisor) =>
+  object()
+    .concat(CONFIGURATION_SCHEMA)
+    .concat(USER_INPUTS_SCHEMA)
+    .concat(FILES_SCHEMA(hypervisor))
 
-export const CONTEXT_FIELDS = [FIELD]
+export * from './userInputsSchema'
+export * from './configurationSchema'
+export * from './filesSchema'

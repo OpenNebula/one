@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState, useEffect, useCallback } from 'react'
-
+import { useState, useCallback } from 'react'
 import { useWatch } from 'react-hook-form'
 
 import { useListForm } from 'client/hooks'
-import { useVNetworkApi, useVNetworkTemplateApi } from 'client/features/One'
-
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { ListCards } from 'client/components/List'
 import { DialogForm } from 'client/components/Dialogs'
@@ -40,26 +37,13 @@ const Networks = () => ({
     const form = useWatch({})
     const [showDialog, setShowDialog] = useState(false)
 
-    const { getVNetworks } = useVNetworkApi()
-    const { getVNetworkTemplates } = useVNetworkTemplateApi()
-
-    const {
-      editingData,
-      handleSave,
-      handleEdit,
-      handleClone,
-      handleRemove
-    } = useListForm({
-      key: STEP_ID,
-      list: data,
-      setList: setFormData,
-      defaultValue: NETWORK_FORM_SCHEMA.default()
-    })
-
-    useEffect(() => {
-      getVNetworks()
-      getVNetworkTemplates()
-    }, [])
+    const { editingData, handleSave, handleEdit, handleClone, handleRemove } =
+      useListForm({
+        key: STEP_ID,
+        list: data,
+        setList: setFormData,
+        defaultValue: NETWORK_FORM_SCHEMA.default(),
+      })
 
     return (
       <>
@@ -81,7 +65,7 @@ const Networks = () => ({
                 setShowDialog(true)
               },
               handleClone: () => handleClone(id),
-              handleRemove: !isUsed ? () => handleRemove(id) : undefined
+              handleRemove: !isUsed ? () => handleRemove(id) : undefined,
             }
           }}
         />
@@ -91,7 +75,7 @@ const Networks = () => ({
             resolver={() => NETWORK_FORM_SCHEMA}
             open={showDialog}
             values={editingData}
-            onSubmit={values => {
+            onSubmit={(values) => {
               handleSave(values)
               setShowDialog(false)
             }}
@@ -102,7 +86,7 @@ const Networks = () => ({
         )}
       </>
     )
-  }, [])
+  }, []),
 })
 
 export default Networks

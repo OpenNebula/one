@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,66 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const privateRoutes = []
+const { Actions, Commands } = require('server/routes/api/vcenter/routes')
+const {
+  importVobject,
+  list,
+  listAll,
+  cleartags,
+  importHost,
+  getToken,
+} = require('server/routes/api/vcenter/functions')
+const { resources } = require('server/routes/api/vcenter/command-flags')
 
-const publicRoutes = []
+const { TEMPLATES, DATASTORES, NETWORKS, IMAGES } = resources
 
-const functionRoutes = {
-  private: privateRoutes,
-  public: publicRoutes
-}
+const {
+  VCENTER_TOKEN,
+  VCENTER_CLEAR_TAGS,
+  VCENTER_IMPORT_HOSTS,
+  VCENTER_IMPORT_DATASTORES,
+  VCENTER_IMPORT_TEMPLATES,
+  VCENTER_IMPORT_NETWORKS,
+  VCENTER_IMPORT_IMAGES,
+  VCENTER_LIST_ALL,
+  VCENTER_LIST,
+} = Actions
 
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[VCENTER_TOKEN],
+    action: getToken,
+  },
+  {
+    ...Commands[VCENTER_CLEAR_TAGS],
+    action: cleartags,
+  },
+  {
+    ...Commands[VCENTER_IMPORT_HOSTS],
+    action: importHost,
+  },
+  {
+    ...Commands[VCENTER_IMPORT_DATASTORES],
+    action: (...args) => importVobject(...args, DATASTORES),
+  },
+  {
+    ...Commands[VCENTER_IMPORT_NETWORKS],
+    action: (...args) => importVobject(...args, NETWORKS),
+  },
+  {
+    ...Commands[VCENTER_IMPORT_IMAGES],
+    action: (...args) => importVobject(...args, IMAGES),
+  },
+  {
+    ...Commands[VCENTER_IMPORT_TEMPLATES],
+    action: (...args) => importVobject(...args, TEMPLATES),
+  },
+  {
+    ...Commands[VCENTER_LIST_ALL],
+    action: listAll,
+  },
+  {
+    ...Commands[VCENTER_LIST],
+    action: list,
+  },
+]

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -134,6 +134,8 @@ class AuthDriver < OpenNebulaDriver
                 request_id,
                 "Authentication driver '#{driver}' not available")
         end
+
+        secret = Base64.decode64(secret)
 
         #build path for the auth action
         #/var/lib/one/remotes/auth/<driver>/authenticate

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,28 +22,32 @@ require 'open3'
 # locking capabilites using flock
 module Command
 
-    def self.execute(cmd, block)
+    def self.execute(cmd, block, verbose = 0)
         stdout = ''
         stderr = ''
 
         begin
             fd = lock if block
 
+            STDERR.puts "Running command #{cmd}" if verbose >= 1
+
             stdout, stderr, s = Open3.capture3(cmd)
         ensure
             unlock(fd) if block
         end
 
+        STDERR.puts "#{stdout}\n#{stderr}" if verbose == 2
+
         [s.exitstatus, stdout, stderr]
     end
 
     def self.execute_once(cmd, lock)
-        execute(cmd, lock) unless running?(cmd.split[0])
+        execute(cmd, lock, 1) unless running?(cmd.split[0])
     end
 
     # Returns true/false if status is 0/!=0 and logs error if needed
     def self.execute_rc_log(cmd, lock = false)
-        rc, _stdout, stderr = execute(cmd, lock)
+        rc, _stdout, stderr = execute(cmd, lock, 1)
 
         STDERR.puts stderr unless rc.zero?
 
@@ -52,7 +56,7 @@ module Command
 
     # Execute cmd and logs error if needed
     def self.execute_log(cmd, lock = false)
-        rc = execute(cmd, lock)
+        rc = execute(cmd, lock, 1)
 
         STDERR.puts rc[2] unless rc[0].zero?
 

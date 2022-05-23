@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -18,35 +18,42 @@ import Template from 'client/components/Forms/Provision/CreateForm/Steps/Templat
 import Provider from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import BasicConfiguration from 'client/components/Forms/Provision/CreateForm/Steps/BasicConfiguration'
 import Inputs from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
-import { set, createSteps, cloneObject, mapUserInputs } from 'client/utils'
+import { set, createSteps, cloneObject } from 'client/utils'
 
-const Steps = createSteps(
-  [Template, Provider, BasicConfiguration, Inputs],
-  {
-    transformBeforeSubmit: formData => {
-      const { template, provider, configuration, inputs: dirtyInputs } = formData
-      const { name, description } = configuration
-      const providerName = provider?.[0]?.NAME
+const Steps = createSteps([Template, Provider, BasicConfiguration, Inputs], {
+  transformBeforeSubmit: (formData) => {
+    const { template, provider, configuration, inputs } = formData
+    const { name, description } = configuration
+    const providerName = provider?.[0]?.NAME
 
-      // clone object from redux store
-      const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
+    // clone object from redux store
+    const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
 
-      // update provider name if changed during form
-      if (provisionTemplateSelected.defaults?.provision?.provider_name) {
-        set(provisionTemplateSelected, 'defaults.provision.provider_name', providerName)
-      } else if (provisionTemplateSelected.hosts?.length > 0) {
-        provisionTemplateSelected.hosts.forEach(host => {
-          set(host, 'provision.provider_name', providerName)
-        })
-      }
-
-      const parseInputs = mapUserInputs(dirtyInputs)
-      const inputs = provisionTemplateSelected?.inputs
-        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
-
-      return { ...provisionTemplateSelected, name, description, inputs }
+    // update provider name if changed during form
+    if (provisionTemplateSelected.defaults?.provision?.provider_name) {
+      set(
+        provisionTemplateSelected,
+        'defaults.provision.provider_name',
+        providerName
+      )
+    } else if (provisionTemplateSelected.hosts?.length > 0) {
+      provisionTemplateSelected.hosts.forEach((host) => {
+        set(host, 'provision.provider_name', providerName)
+      })
     }
-  }
-)
+
+    const resolvedInputs = provisionTemplateSelected?.inputs?.map((input) => ({
+      ...input,
+      value: `${inputs[input?.name]}`,
+    }))
+
+    return {
+      ...provisionTemplateSelected,
+      name,
+      description,
+      inputs: resolvedInputs,
+    }
+  },
+})
 
 export default Steps

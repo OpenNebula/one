@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -46,3 +46,14 @@
 
 # Set to true if you need OpenNebula avoid change imported MAC
 :keep_mac_on_imported: false
+
+# Set to true to have Wild VM disks imported as persistent images,
+# otherwise they will be imported as non persistent
+:wild_vm_persistent_images: true
+
+# Set to true to have VM Templates disks imported as persistent images,
+# otherwise they will be imported as non persistent
+:vm_template_persistent_images: false
+
+# Set to true to convert/leave images to sparse instead of flat
+:sparse_images: false

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,33 +13,47 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { configureStore, getDefaultMiddleware, EnhancedStore } from '@reduxjs/toolkit'
-import thunkMiddleware from 'redux-thunk'
+import { configureStore, Middleware, EnhancedStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query/react'
 
-import rootReducer from 'client/store/reducers'
 import { isDevelopment } from 'client/utils'
+
+import * as Auth from 'client/features/Auth/slice'
+import * as General from 'client/features/General/slice'
+import * as Guacamole from 'client/features/Guacamole/slice'
+import { authApi } from 'client/features/AuthApi'
+import { oneApi } from 'client/features/OneApi'
+import { unauthenticatedMiddleware } from 'client/features/middleware'
 
 /**
  * @param {object} props - Props
  * @param {object} props.initState - Initial state
- * @param {*} props.services - Services
+ * @param {Middleware[]} props.extraMiddleware - Extra middleware to apply on store
  * @returns {{ store: EnhancedStore }} Configured Redux Store
  */
-export const createStore = ({ initState = {}, services }) => {
-  const middleware = getDefaultMiddleware({
-    immutableCheck: true,
-    serializableCheck: false,
-    thunk: false
-  })
-
-  middleware.push(thunkMiddleware.withExtraArgument({ services }))
-
+export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
   const store = configureStore({
-    reducer: rootReducer,
+    reducer: {
+      [Auth.name]: Auth.reducer,
+      [General.name]: General.reducer,
+      [Guacamole.name]: Guacamole.reducer,
+      [authApi.reducerPath]: authApi.reducer,
+      [oneApi.reducerPath]: oneApi.reducer,
+    },
     devTools: isDevelopment(),
-    middleware,
-    preloadedState: initState
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        immutableCheck: true,
+      }).concat([
+        ...extraMiddleware,
+        unauthenticatedMiddleware,
+        authApi.middleware,
+        oneApi.middleware,
+      ]),
+    preloadedState: initState,
   })
+
+  setupListeners(store.dispatch)
 
   return { store }
 }

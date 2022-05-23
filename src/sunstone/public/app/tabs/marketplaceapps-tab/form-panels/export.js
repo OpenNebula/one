@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -140,7 +140,7 @@ define(function(require) {
       this.vCenterTemplatesTable.resetResourceTableSelect();
     }
     $("#NAME", context).focus();
-    $("#placeDatatablevCenterTemplate", context).hide();
+    $(".vCenterTemplateSelection", context).hide();
     return false;
   }
 
@@ -164,10 +164,10 @@ define(function(require) {
       var aData = that.datastoresTable.dataTable.fnGetData(this);
 
       if (aData[9] == "vcenter"){
-        $("#placeDatatablevCenterTemplate", context).show();
+        $(".vCenterTemplateSelection", context).show();
       }
       else{
-        $("#placeDatatablevCenterTemplate", context).hide();
+        $(".vCenterTemplateSelection", context).hide();
       }
       return true;
     });

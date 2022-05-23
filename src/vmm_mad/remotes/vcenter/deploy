@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -75,6 +75,7 @@ deploy[:boot] = drv_action['TEMPLATE/OS/BOOT'] \
 begin
     retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty? &&
@@ -84,8 +85,10 @@ begin
 
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
+        deploy[:new] = false
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
+        deploy[:new] = true
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
@@ -115,7 +118,9 @@ begin
         spec_hash[:uuid] = drv_action['TEMPLATE/OS/UUID'] \
                                      unless drv_action['TEMPLATE/OS/UUID'].nil?
 
-        unless drv_action['TEMPLATE/OS/FIRMWARE'].nil?
+        firmware = drv_action['TEMPLATE/OS/FIRMWARE']
+
+        unless firmware.nil? || firmware.empty?
             spec_hash[:firmware] = drv_action['TEMPLATE/OS/FIRMWARE']
         end
 
@@ -126,13 +131,14 @@ begin
             :spec => spec
         ).wait_for_completion
 
+        vm.reference_all_disks
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
         set_running = !deploy_id_valid?(deploy_id)
         vm.poweron(set_running)
     end
 
-    puts vm['_ref']
+    puts vm['_ref'] + '_' + vc_uuid
 rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"" \

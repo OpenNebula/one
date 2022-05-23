@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,34 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as ACTIONS from 'client/constants/actions'
+// eslint-disable-next-line no-unused-vars
+import { Permissions, LockInfo } from 'client/constants/common'
+
+/**
+ * @typedef {object} VmTemplate
+ * @property {string|number} ID - Id
+ * @property {string} NAME - Name
+ * @property {string|number} UID - User id
+ * @property {string|number} GID - Group id
+ * @property {string} UNAME - User name
+ * @property {string} GNAME - Group name
+ * @property {Permissions} PERMISSIONS - Permissions
+ * @property {LockInfo} [LOCK] - Lock information
+ * @property {string|number} REGTIME - Registration time
+ * @property {object} TEMPLATE - Template information
+ * @property {string} [TEMPLATE.CONTEXT] - Context
+ * @property {string} [TEMPLATE.VCENTER_CCR_REF] - vCenter information
+ * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
+ * @property {string} [TEMPLATE.VCENTER_TEMPLATE_REF] - vCenter information
+ */
 
 export const VM_TEMPLATE_ACTIONS = {
-  REFRESH: 'refresh',
+  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   IMPORT_DIALOG: 'import_dialog',
   UPDATE_DIALOG: 'update_dialog',
   INSTANTIATE_DIALOG: 'instantiate_dialog',
+  CREATE_APP_DIALOG: 'create_app_dialog',
   CLONE: 'clone',
   DELETE: 'delete',
   LOCK: 'lock',
@@ -30,7 +51,7 @@ export const VM_TEMPLATE_ACTIONS = {
 
   RENAME: ACTIONS.RENAME,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
 
 export const NUMA_PIN_POLICIES = ['NONE', 'THREAD', 'SHARED', 'CORE']
@@ -43,11 +64,36 @@ export const DEFAULT_CPU_MODELS = ['host-passthrough']
 
 export const SD_DISK_BUSES = ['scsi', 'sata']
 
+export const DEVICE_TYPES = { mouse: 'mouse', tablet: 'tablet' }
+export const DEVICE_BUS_TYPES = { usb: 'usb', ps2: 'ps2' }
+
 export const FIRMWARE_TYPES = ['BIOS']
 
 export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
   '/usr/share/OVMF/OVMF_CODE.fd',
-  '/usr/share/OVMF/OVMF_CODE.secboot.fd'
+  '/usr/share/OVMF/OVMF_CODE.secboot.fd',
 ])
 
 export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])
+
+export const DEFAULT_TEMPLATE_LOGO = 'images/logos/default.png'
+
+export const TEMPLATE_LOGOS = {
+  'Alpine Linux': 'images/logos/alpine.png',
+  ALT: 'images/logos/alt.png',
+  Arch: 'images/logos/arch.png',
+  CentOS: 'images/logos/centos.png',
+  Debian: 'images/logos/debian.png',
+  Devuan: 'images/logos/devuan.png',
+  Fedora: 'images/logos/fedora.png',
+  FreeBSD: 'images/logos/freebsd.png',
+  HardenedBSD: 'images/logos/hardenedbsd.png',
+  Knoppix: 'images/logos/knoppix.png',
+  Linux: 'images/logos/linux.png',
+  Oracle: 'images/logos/oracle.png',
+  RedHat: 'images/logos/redhat.png',
+  Suse: 'images/logos/suse.png',
+  Ubuntu: 'images/logos/ubuntu.png',
+  'Windows xp': 'images/logos/windowsxp.png',
+  'Windows 10': 'images/logos/windows8.png',
+}

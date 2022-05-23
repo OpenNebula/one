@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,6 +65,38 @@ int VirtualMachineNic::release_network_leases(int vmid)
     vnpool->update(vn.get());
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineNic::add_security_group(int sg)
+{
+    set<int> sgs;
+    get_security_groups(sgs);
+
+    auto rc = sgs.insert(sg);
+
+    if (rc.second)
+    {
+        replace("SECURITY_GROUPS", one_util::join(sgs.begin(), sgs.end(), ','));
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineNic::remove_security_group(int sg)
+{
+    set<int> sgs;
+    get_security_groups(sgs);
+
+    auto rc = sgs.erase(sg);
+
+    if (rc)
+    {
+        replace("SECURITY_GROUPS", one_util::join(sgs.begin(), sgs.end(), ','));
+    }
 }
 
 /* -------------------------------------------------------------------------- */

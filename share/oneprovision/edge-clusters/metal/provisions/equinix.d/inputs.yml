@@ -1,6 +1,6 @@
 ---
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -18,7 +18,7 @@
 inputs:
   - name: 'number_hosts'
     type: text
-    description: "Number of metal servers to create"
+    description: 'Number of metal servers to create'
     default: '1'
 
   - name: 'number_public_ips'
@@ -33,21 +33,20 @@ inputs:
 
   - name: 'equinix_plan'
     type: text
-    description: "Equinix plan (device type)"
-    default: 'baremetal_0'
+    description: 'Equinix plan (device type)'
+    default: 't1.small'
 
   - name: 'equinix_os'
     type: text
-    description: "Equinix host operating system"
-    default: 'centos_8'
+    description: 'Equinix host operating system'
+    default: 'ubuntu_20_04'
 
   - name: 'one_hypervisor'
     type: list
-    description: "Virtualization technology for the cluster hosts"
+    description: 'Virtualization technology for the cluster hosts'
+    default: 'kvm'
     options:
         - 'kvm'
-        - 'firecracker'
+        # - 'firecracker'
         - 'lxc'
-    default: 'kvm'
-
 ...

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,6 +25,7 @@ require 'storageutils'
 class Qcow2Mapper
 
     QEMU_NBD_FORK_VERSION = '2.8.0'
+    CACHE_MODES = %w[none writethrough writeback directsync unsafe]
 
     COMMANDS = {
         :map     => 'sudo -n qemu-nbd --fork -c',
@@ -37,6 +38,9 @@ class Qcow2Mapper
         device = nbd_device.strip
 
         cmd = "#{COMMANDS[:map]} #{device} #{file}"
+
+        cmd << " --cache=#{disk['CACHE']}" if
+            CACHE_MODES.include?(disk['CACHE'])
 
         rc = Command.execute_rc_log(cmd, false)
 
@@ -69,7 +73,7 @@ class Qcow2Mapper
     def nbd_version
         cmd = "#{@commands[:nbd]} -V"
 
-        rc, out, _err = Command.execute(cmd, false)
+        rc, out, _err = Command.execute(cmd, false, 1)
 
         return '0.0.0' unless rc.zero?
 
@@ -97,7 +101,7 @@ class Qcow2Mapper
             m = p['name'].match(/nbd(\d+)/)
             next unless m
 
-            nbds << m[1].to_i
+            nbds << m[1].to_i if !p['uuid'].nil? && !p['uuid'].empty?
         end
 
         nbds_max.times do |i| # if nbds_max returns 0 block is skipped

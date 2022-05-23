@@ -241,6 +241,9 @@ module OneProvision
                         # match[2]: attribute
                         match = match.split('.')
 
+                        # don't evaluate ${updates.foo}
+                        next if match.size == 2 && match[0] == 'updates'
+
                         if match.size == 1
                             if @config['provision']
                                 index = @config['provision']['index']
@@ -480,7 +483,7 @@ module OneProvision
                 match = match.split('.')
 
                 ################################################################
-                # Special evaluation for keys provision, provison_id and idx
+                # Special evaluation for keys provision, provision_id and idx
                 ################################################################
 
                 if match.size == 1 && !Resource::S_EVAL_KEYS.include?(match[0])
@@ -488,6 +491,11 @@ module OneProvision
                 end
 
                 next if match.size == 1
+
+                ################################################################
+                # Updates - will be evaluated after deploy
+                ################################################################
+                next if match.size == 2 && match[0] == 'updates'
 
                 ################################################################
                 # User inputs
@@ -653,7 +661,7 @@ module OneProvision
                                 v['name'] == match[1]
                             end
 
-                            input['value'] = i_value['value']
+                            input['value'] = i_value['value'] if i_value
                         end
 
                         if input['value']
@@ -674,9 +682,11 @@ module OneProvision
 
                         case input['type']
                         when 'array'
-                            value = []
-                            value << i_value.split(';')
-                            value.flatten!
+                            if i_value.nil?
+                                value = []
+                            else
+                                value = i_value.split(';')
+                            end
                         else
                             value.gsub!("${#{match.join('.')}}", i_value.to_s)
                         end
@@ -793,8 +803,8 @@ module OneProvision
                 end
             when 'list'
                 puts
-                input['options'].each_with_index do |opt, i|
-                    puts "    #{i}  #{opt}"
+                input['options'].each do |opt|
+                    puts "    - #{opt}"
                 end
                 puts
 
@@ -809,15 +819,11 @@ module OneProvision
                     answer = input['options'][0] if !answer || answer.empty?
                 end
             when 'array'
-                answer = ''
+                print "Array `#{input['name']}` " \
+                      "(default=#{input['default']}): "
 
-                until answer.match(/(\w+)(;\s*\w+)*/)
-                    print "Array `#{input['name']}` " \
-                          "(default=#{input['default']}): "
-
-                    answer = STDIN.readline.chop
-                    answer = input['default'] if !answer || answer.empty?
-                end
+                answer = STDIN.readline.chop
+                answer = input['default'] if answer.empty?
             when 'fixed'
                 answer = input['default']
             end

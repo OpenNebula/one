@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -197,12 +197,19 @@ func (vc *VMController) Info(decrypt bool) (*vm.VM, error) {
 // >= 0: UID User's Resources
 // num: Retrieve monitor records in the last num seconds.
 // 0 just the last record, -1 all records
-func (vc *VMsController) Monitoring(filter, num int) (string, error) {
+func (vc *VMsController) Monitoring(filter, num int) (*vm.PoolMonitoring, error) {
 	monitorData, err := vc.c.Client.Call("one.vmpool.monitoring", filter, num)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return monitorData.Body(), nil
+
+	vmsMon := &vm.PoolMonitoring{}
+	err = xml.Unmarshal([]byte(monitorData.Body()), &vmsMon)
+	if err != nil {
+		return nil, err
+	}
+
+	return vmsMon, nil
 }
 
 // Accounting returns the virtual machine history records
@@ -285,12 +292,19 @@ func (vc *VMController) UpdateConf(tpl string) error {
 }
 
 // Monitoring Returns the virtual machine monitoring records
-func (vc *VMController) Monitoring() (string, error) {
+func (vc *VMController) Monitoring() (*vm.Monitoring, error) {
 	monitorData, err := vc.c.Client.Call("one.vm.monitoring", vc.ID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return monitorData.Body(), nil
+
+	vmMon := &vm.Monitoring{}
+	err = xml.Unmarshal([]byte(monitorData.Body()), &vmMon)
+	if err != nil {
+		return nil, err
+	}
+
+	return vmMon, nil
 }
 
 // Chown changes the owner/group of a VM. If uid or gid is -1 it will not
@@ -311,12 +325,6 @@ func (vc *VMController) Chmod(perm shared.Permissions) error {
 // Rename changes the name of a VM
 func (vc *VMController) Rename(newName string) error {
 	_, err := vc.c.Client.Call("one.vm.rename", vc.ID, newName)
-	return err
-}
-
-// Delete will remove the VM from OpenNebula
-func (vc *VMController) Delete() error {
-	_, err := vc.c.Client.Call("one.vm.delete", vc.ID)
 	return err
 }
 
@@ -572,5 +580,17 @@ func (vc *VMController) UpdateSchedAction(action *vm.SchedAction) error {
 // DeleteSchedAction deletes the actionId action
 func (vc *VMController) DeleteSchedAction(actionId int) error {
 	_, err := vc.c.Client.Call("one.vm.scheddelete", vc.ID, actionId)
+	return err
+}
+
+// AttachSG attaches new Security Group to Virtual Machine NIC
+func (vc *VMController) AttachSG(nicID int, sgID int) error {
+	_, err := vc.c.Client.Call("one.vm.attachsg", vc.ID, nicID, sgID)
+	return err
+}
+
+// DetachSG detaches a Security Group from Virtual Machine NIC
+func (vc *VMController) DetachSG(nicID int, sgID int) error {
+	_, err := vc.c.Client.Call("one.vm.detachsg", vc.ID, nicID, sgID)
 	return err
 }

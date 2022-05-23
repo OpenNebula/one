@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,7 +160,11 @@ func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 // * tpl: Template
 func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
 	response, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
-	return response.BodyInt(), err
+	if err != nil {
+		return -1, err
+	}
+
+	return response.BodyInt(), nil
 }
 
 // FreeAR frees a reserved address range from a virtual network.
@@ -225,4 +229,26 @@ func (vc *VirtualNetworkController) Lock(level shared.LockLevel) error {
 func (vc *VirtualNetworkController) Unlock() error {
 	_, err := vc.c.Client.Call("one.vn.unlock", vc.ID)
 	return err
+}
+
+// Recover recovers a stuck Virtual Network
+// * op: (0) failure, (1) success, (2) retry, (3) delete
+func (vc *VirtualNetworkController) Recover(op int) error {
+	_, err := vc.c.Client.Call("one.vn.recover", vc.ID, op)
+	return err
+}
+
+// RecoverFailure forces a failure
+func (vc *VirtualNetworkController) RecoverFailure() error {
+	return vc.Recover(0)
+}
+
+// RecoverSuccess forces a success
+func (vc *VirtualNetworkController) RecoverSuccess() error {
+	return vc.Recover(1)
+}
+
+// RecoverDelete delete the network, call driver cleanup action
+func (vc *VirtualNetworkController) RecoverDelete() error {
+	return vc.Recover(2)
 }

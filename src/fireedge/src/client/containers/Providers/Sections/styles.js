@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,33 +15,33 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   marginBottom: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
   },
   list: {
     '& p': {
       ...theme.typography.body2,
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
+      textOverflow: 'ellipsis',
     },
     '&.w-50 > *': {
       '& > p, & > span': {
-        width: '50%'
-      }
+        width: '50%',
+      },
     },
     '&.w-25 > *': {
       '& > p, & > span': {
-        width: '25%'
-      }
-    }
+        width: '25%',
+      },
+    },
   },
   title: {
     '& p.bold': {
-      fontWeight: theme.typography.fontWeightBold
-    }
+      fontWeight: theme.typography.fontWeightBold,
+    },
   },
   alignToRight: {
-    textAlign: 'right'
-  }
+    textAlign: 'right',
+  },
 }))

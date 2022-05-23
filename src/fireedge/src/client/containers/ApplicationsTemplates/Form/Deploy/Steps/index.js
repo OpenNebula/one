@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,10 +21,8 @@ import Networking, { STEP_ID as NETWORKING_ID } from './Networking'
 import Tiers, { STEP_ID as TIERS_ID } from './Tiers'
 
 const Steps = ({ applicationTemplate = {}, vmTemplates }) => {
-  const {
-    [TIERS_ID]: appTiers,
-    [NETWORKING_ID]: appNetworking
-  } = applicationTemplate
+  const { [TIERS_ID]: appTiers, [NETWORKING_ID]: appNetworking } =
+    applicationTemplate
 
   const basic = BasicConfiguration()
   const tiers = Tiers({ tiers: appTiers, vmTemplates })
@@ -33,10 +31,16 @@ const Steps = ({ applicationTemplate = {}, vmTemplates }) => {
   const steps = [basic, tiers]
   appNetworking?.length > 0 && steps.push(networking)
 
-  const resolvers = () => yup
-    .object(steps.reduce((res, step) => ({
-      ...res, [step.id]: step.resolver
-    }), {}))
+  const resolvers = () =>
+    yup.object(
+      steps.reduce(
+        (res, step) => ({
+          ...res,
+          [step.id]: step.resolver,
+        }),
+        {}
+      )
+    )
 
   const defaultValues = resolvers().default()
 

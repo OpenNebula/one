@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -273,28 +273,35 @@ class SunstoneServer < CloudServer
     end
 
     ############################################################################
-    # Unused
+    #
     ############################################################################
     def get_vm_log(id)
         resource = retrieve_resource("vm", id)
+
         if OpenNebula.is_error?(resource)
-            return [404, nil]
-        else
-            if !ONE_LOCATION
-                vm_log_file = LOG_LOCATION + "/#{id}.log"
-            else
-                vm_log_file = LOG_LOCATION + "/vms/#{id}/vm.log"
-            end
-
-            begin
-                log = File.read(vm_log_file)
-            rescue Exception => e
-                msg = "Log for VM #{id} not available"
-                return [200, {:vm_log => msg}.to_json]
-            end
-
-            return [200, {:vm_log => log}.to_json]
+          return [404, nil]
         end
+
+        use_vms_location = begin
+            $conf[:locals][:oned_conf]["LOG"]["USE_VMS_LOCATION"]
+        rescue
+            "NO"
+        end
+
+        if !ONE_LOCATION && use_vms_location != "YES"
+            vm_log_file = LOG_LOCATION + "/#{id}.log"
+        else
+            vm_log_file = VMS_LOCATION + "/#{id}/vm.log"
+        end
+
+        begin
+            log = File.read(vm_log_file)
+        rescue Exception => e
+            msg = "Log for VM #{id} not available"
+            return [200, {:vm_log => msg}.to_json]
+        end
+
+        return [200, {:vm_log => log}.to_json]
     end
 
     ########################################################################
@@ -341,27 +348,27 @@ class SunstoneServer < CloudServer
     # VMRC
     ########################################################################
     def startvmrc(id, vmrc, _client=nil)
-        resource = retrieve_resource("vm", id)
-        if OpenNebula.is_error?(resource)
-            return [404, resource.to_json]
-        end
-        vm_pool = VirtualMachinePool.new(@client, -1)
-        user_pool = UserPool.new(@client)
+      resource = retrieve_resource("vm", id)
+      if OpenNebula.is_error?(resource)
+          return [404, resource.to_json]
+      end
+      vm_pool = VirtualMachinePool.new(@client, -1)
+      user_pool = UserPool.new(@client)
 
-        rc = user_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
+      rc = user_pool.info
+      if OpenNebula.is_error?(rc)
+        puts rc.message
+        exit -1
+      end
 
-        rc = vm_pool.info
-        if OpenNebula.is_error?(rc)
-          puts rc.message
-          exit -1
-        end
+      rc = vm_pool.info
+      if OpenNebula.is_error?(rc)
+        puts rc.message
+        exit -1
+      end
 
-        client = _client.nil? ? @client : _client
-        return vmrc.proxy(resource, client)
+      client = _client.nil? ? @client : _client
+      return vmrc.proxy(resource, client)
     end
 
     ########################################################################

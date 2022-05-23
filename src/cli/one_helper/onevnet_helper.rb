@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -138,6 +138,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         'onevnet.yaml'
     end
 
+    def self.state_to_str(id)
+        id = id.to_i
+        state_str = VirtualNetwork::VN_STATES[id]
+        VirtualNetwork::SHORT_VN_STATES[state_str]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -170,12 +176,18 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d['BRIDGE']
             end
 
+            column :STATE, 'State of the Virtual Network', :left,
+                   :size=>6 do |d|
+                OneVNetHelper.state_to_str(d['STATE'])
+            end
+
             column :LEASES, "Number of this Virtual Network's given leases",
                    :size=>6 do |d|
                 d['USED_LEASES']
             end
 
-            default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :STATE,
+                    :LEASES
         end
     end
 
@@ -315,6 +327,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                         vn.retrieve_elements('CLUSTERS/ID')
                     ))
         puts format(str, 'BRIDGE', vn['BRIDGE'])
+        puts format(str, 'STATE', vn.state_str)
         puts format(str, 'VN_MAD', vn['VN_MAD']) unless vn['VN_MAD'].empty?
         puts format(str, 'PHYSICAL DEVICE',
                     vn['PHYDEV']) unless vn['PHYDEV'].empty?

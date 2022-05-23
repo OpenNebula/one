@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,7 +16,13 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { styled, FormControl, FormControlLabel, FormHelperText, Checkbox } from '@mui/material'
+import {
+  styled,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Checkbox,
+} from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
@@ -26,7 +32,7 @@ import { generateKey } from 'client/utils'
 const Label = styled('span')({
   display: 'flex',
   alignItems: 'center',
-  gap: '0.5em'
+  gap: '0.5em',
 })
 
 const CheckboxController = memo(
@@ -36,22 +42,24 @@ const CheckboxController = memo(
     name = '',
     label = '',
     tooltip,
-    fieldProps = {}
+    fieldProps = {},
+    readOnly = false,
   }) => {
     const {
       field: { value = false, onChange },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     return (
-      <FormControl fullWidth error={Boolean(error)} margin='dense'>
+      <FormControl error={Boolean(error)} margin="dense">
         <FormControlLabel
           control={
             <Checkbox
-              onChange={e => onChange(e.target.checked)}
+              onChange={(e) => onChange(e.target.checked)}
               name={name}
+              readOnly={readOnly}
               checked={Boolean(value)}
-              color='secondary'
+              color="secondary"
               inputProps={{ 'data-cy': cy }}
               {...fieldProps}
             />
@@ -62,7 +70,7 @@ const CheckboxController = memo(
               {tooltip && <Tooltip title={tooltip} />}
             </Label>
           }
-          labelPlacement='end'
+          labelPlacement="end"
         />
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>
@@ -71,8 +79,7 @@ const CheckboxController = memo(
         )}
       </FormControl>
     )
-  },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  }
 )
 
 CheckboxController.propTypes = {
@@ -81,7 +88,8 @@ CheckboxController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
   tooltip: PropTypes.any,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 CheckboxController.displayName = 'CheckboxController'

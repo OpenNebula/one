@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,114 +13,98 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
+import { Server, ModernTv } from 'iconoir-react'
 import { Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { HardDrive as HostIcon } from 'iconoir-react'
 
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+import {
+  StatusCircle,
+  StatusChip,
+  LinearProgressWithLabel,
+} from 'client/components/Status'
+import { rowStyles } from 'client/components/Tables/styles'
+import { Tr } from 'client/components/HOC'
 
-import * as HostModel from 'client/models/Host'
-
-const useStyles = makeStyles({
-  title: {
-    display: 'flex',
-    gap: '0.5rem'
-  },
-  content: {
-    padding: '2em',
-    display: 'flex',
-    flexFlow: 'column',
-    gap: '1em'
-  }
-})
+import { getAllocatedInfo, getState } from 'client/models/Host'
+import { T, Host, HOST_THRESHOLD } from 'client/constants'
 
 const HostCard = memo(
-  ({ value, isSelected, handleClick, actions }) => {
-    const classes = useStyles()
+  /**
+   * @param {object} props - Props
+   * @param {Host} props.host - Host resource
+   * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} props.actions - Actions
+   * @returns {ReactElement} - Card
+   */
+  ({ host, rootProps, actions }) => {
+    const classes = rowStyles()
+    const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER } = host
 
-    const { ID, NAME, IM_MAD, VM_MAD } = value
+    const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
+      getAllocatedInfo(host)
 
-    const {
-      percentCpuUsed,
-      percentCpuLabel,
-      percentMemUsed,
-      percentMemLabel
-    } = HostModel.getAllocatedInfo(value)
+    const runningVms = HOST_SHARE?.RUNNING_VMS || 0
+    const totalVms = [host?.VMS?.ID ?? []].flat().length || 0
+    const { color: stateColor, name: stateName } = getState(host)
 
-    const state = HostModel.getState(value)
-
-    const mad = IM_MAD === VM_MAD ? IM_MAD : `${IM_MAD}/${VM_MAD}`
+    const labels = [...new Set([IM_MAD, VM_MAD])]
 
     return (
-      <SelectCard
-        action={actions?.map(action =>
-          <Action key={action?.cy} {...action} />
-        )}
-        icon={
-          <StatusBadge title={state?.name} stateColor={state.color}>
-            <HostIcon />
-          </StatusBadge>
-        }
-        title={
-          <span className={classes.title}>
-            <Typography title={NAME} noWrap component='span'>
+      <div {...rootProps} data-cy={`host-${ID}`}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <StatusCircle color={stateColor} tooltip={stateName} />
+            <Typography noWrap component="span">
               {NAME}
             </Typography>
-            <StatusChip text={mad} />
-          </span>
-        }
-        subheader={`#${ID}`}
-        isSelected={isSelected}
-        handleClick={handleClick}
-      >
-        <div className={classes.content}>
-          <LinearProgressWithLabel value={percentCpuUsed} label={percentCpuLabel} />
-          <LinearProgressWithLabel value={percentMemUsed} label={percentMemLabel} />
+            <span className={classes.labels}>
+              {labels.map((label) => (
+                <StatusChip key={label} text={label} />
+              ))}
+            </span>
+          </div>
+          <div className={classes.caption}>
+            <span>{`#${ID}`}</span>
+            <span data-cy="cluster" title={`Cluster: ${CLUSTER}`}>
+              <Server />
+              <span>{` ${CLUSTER}`}</span>
+            </span>
+            <span title={`Running VMs: ${runningVms} / ${totalVms}`}>
+              <ModernTv />
+              <span>{` ${runningVms} / ${totalVms}`}</span>
+            </span>
+          </div>
         </div>
-      </SelectCard>
+        <div className={classes.secondary}>
+          <LinearProgressWithLabel
+            value={percentCpuUsed}
+            high={HOST_THRESHOLD.CPU.high}
+            low={HOST_THRESHOLD.CPU.low}
+            label={percentCpuLabel}
+            title={`${Tr(T.AllocatedCpu)}`}
+          />
+          <LinearProgressWithLabel
+            value={percentMemUsed}
+            high={HOST_THRESHOLD.MEMORY.high}
+            low={HOST_THRESHOLD.MEMORY.low}
+            label={percentMemLabel}
+            title={`${Tr(T.AllocatedMemory)}`}
+          />
+        </div>
+        {actions && <div className={classes.actions}>{actions}</div>}
+      </div>
     )
-  },
-  (prev, next) => (
-    prev.isSelected === next.isSelected &&
-    prev.value?.STATE === next.value?.STATE
-  )
+  }
 )
 
 HostCard.propTypes = {
-  value: PropTypes.shape({
-    ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired,
-    TYPE: PropTypes.string,
-    STATE: PropTypes.string,
-    IM_MAD: PropTypes.string,
-    VM_MAD: PropTypes.string,
-    HOST_SHARE: PropTypes.shape({
-      CPU_USAGE: PropTypes.string,
-      TOTAL_CPU: PropTypes.string,
-      MEM_USAGE: PropTypes.string,
-      TOTAL_MEM: PropTypes.string
-    })
+  host: PropTypes.object,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
   }),
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
-    })
-  )
-}
-
-HostCard.defaultProps = {
-  value: {},
-  isSelected: false,
-  handleClick: undefined,
-  actions: undefined
+  actions: PropTypes.any,
 }
 
 HostCard.displayName = 'HostCard'

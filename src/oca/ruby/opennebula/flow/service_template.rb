@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -72,6 +72,10 @@ module OpenNebula
                     :type => :integer,
                     :required => false,
                     :minimum => 0
+                },
+                'on_hold' => {
+                    :type => :boolean,
+                    :required => false
                 },
                 'elasticity_policies' => {
                     :type => :array,
@@ -220,6 +224,10 @@ module OpenNebula
                         :properties => {}
                     },
                     :required => false
+                },
+                'on_hold' => {
+                    :type => :boolean,
+                    :required => false
                 }
             }
         }
@@ -315,6 +323,12 @@ module OpenNebula
                 end
             else
                 IMMUTABLE_ATTRS.each do |attr|
+                    # Allows updating the template without
+                    # specifying the immutable attributes
+                    if template[attr].nil?
+                        template[attr] = @body[attr]
+                    end
+
                     next if template[attr] == @body[attr]
 
                     return [false, "service_template/#{attr}"]
@@ -399,9 +413,6 @@ module OpenNebula
 
                 return rc
             end
-
-            # add registration time, as the template is new
-            body['registration_time'] = Integer(Time.now)
 
             # update the template with the new body
             doc.update(body.to_json)

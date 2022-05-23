@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -37,6 +37,7 @@
   </div>
   <div class="row nameContainer">
     <div class="medium-4 columns">
+      {{#isTabActionEnabled "vms-tab" "VM.instantiate_name"}}
       <label for="vm_name">
         {{tr "VM name"}}
         <span class="tip">
@@ -44,6 +45,7 @@
         </span>
       </label>
       <input type="text" name="vm_name" id="vm_name" />
+      {{/isTabActionEnabled}}
     </div>
     <div class="medium-4 columns">
       <label for="vm_n_times">

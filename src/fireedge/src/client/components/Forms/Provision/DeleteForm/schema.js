@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { INPUT_TYPES } from 'client/constants'
+import { object, boolean } from 'yup'
+import { T, INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
 const CLEANUP = {
   name: 'cleanup',
-  label: 'Cleanup',
+  label: T.Cleanup,
   type: INPUT_TYPES.SWITCH,
-  tooltip: `
-    Force to terminate VMs running on provisioned Hosts
-    and delete all images in the datastores.`,
-  validation: yup.boolean().notRequired().default(() => false)
+  tooltip: T.CleanupConcept,
+  validation: boolean()
+    .notRequired()
+    .default(() => false),
 }
 
-export const FIELDS = [
-  CLEANUP
-]
+const FORCE = {
+  name: 'force',
+  label: T.Force,
+  type: INPUT_TYPES.SWITCH,
+  tooltip: T.ForceConcept,
+  validation: boolean()
+    .notRequired()
+    .default(() => false),
+}
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const FIELDS = [CLEANUP, FORCE]
+
+export const SCHEMA = object(getValidationFromFields(FIELDS))

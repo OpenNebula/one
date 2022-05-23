@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,40 +20,40 @@ import Message from 'client/components/DebugLog/message'
 import { getMessageInfo } from 'client/components/DebugLog/utils'
 
 const MessageList = ({ log = {}, filters = {} }) =>
-  Object.entries(log)?.map(([command, entries]) => (
-  // filter by command
-    (!filters.command || filters.command.includes(command)) && (
-      Object.entries(entries)?.map(([commandId, messages]) =>
-        Array.isArray(messages) && messages?.map((data, index) => {
-          const { severity, ...messageInfo } = getMessageInfo(data)
+  Object.entries(log)?.map(
+    ([command, entries]) =>
+      // filter by command
+      (!filters.command || filters.command.includes(command)) &&
+      Object.entries(entries)?.map(
+        ([commandId, messages]) =>
+          Array.isArray(messages) &&
+          messages?.map((data, index) => {
+            const { severity, ...messageInfo } = getMessageInfo(data)
 
-          // filter by severity
-          if (filters.severity && filters.severity !== severity) return null
+            // filter by severity
+            if (filters.severity && filters.severity !== severity) return null
 
-          const key = `${index}-${command}-${commandId}`
+            const key = `${index}-${command}-${commandId}`
 
-          return (
-            <Message key={key} severity={severity} {...messageInfo} />
-          )
-        })
+            return <Message key={key} severity={severity} {...messageInfo} />
+          })
       )
-    )
-  ))
+  )
 
 MessageList.propTypes = {
   filters: PropTypes.shape({
     command: PropTypes.string,
-    severity: PropTypes.string
+    severity: PropTypes.string,
   }).isRequired,
-  log: PropTypes.object
+  log: PropTypes.object,
 }
 
 MessageList.defaultProps = {
   filters: {
     command: undefined,
-    severity: undefined
+    severity: undefined,
   },
-  log: undefined
+  log: undefined,
 }
 
 MessageList.displayName = 'MessageList'

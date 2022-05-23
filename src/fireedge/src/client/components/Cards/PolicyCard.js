@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -28,33 +28,36 @@ const useStyles = makeStyles(() => ({
     height: '100%',
     minHeight: 140,
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   content: {
-    minHeight: 260
-  }
+    minHeight: 260,
+  },
 }))
 
-const PolicyCard = memo(
-  ({ id, cy, fields, handleRemove, cardProps }) => {
-    const classes = useStyles()
+const PolicyCard = memo(({ id, cy, fields, handleRemove, cardProps }) => {
+  const classes = useStyles()
 
-    return (
-      <Card variant="outlined" className={classes.root} {...cardProps}>
-        <CardContent className={classes.content}>
-          <FormWithSchema id={id} cy={cy} fields={fields} />
-        </CardContent>
-        <CardActions>
-          {handleRemove && (
-            <Button variant="contained" size="small" onClick={handleRemove} disableElevation>
-              {Tr(T.Remove)}
-            </Button>
-          )}
-        </CardActions>
-      </Card>
-    )
-  }
-)
+  return (
+    <Card variant="outlined" className={classes.root} {...cardProps}>
+      <CardContent className={classes.content}>
+        <FormWithSchema id={id} cy={cy} fields={fields} />
+      </CardContent>
+      <CardActions>
+        {handleRemove && (
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleRemove}
+            disableElevation
+          >
+            {Tr(T.Remove)}
+          </Button>
+        )}
+      </CardActions>
+    </Card>
+  )
+})
 
 PolicyCard.propTypes = {
   id: PropTypes.string,
@@ -63,7 +66,7 @@ PolicyCard.propTypes = {
   handleEdit: PropTypes.func,
   handleClone: PropTypes.func,
   handleRemove: PropTypes.func,
-  cardProps: PropTypes.object
+  cardProps: PropTypes.object,
 }
 
 PolicyCard.defaultProps = {
@@ -73,7 +76,7 @@ PolicyCard.defaultProps = {
   handleEdit: undefined,
   handleClone: undefined,
   handleRemove: undefined,
-  cardProps: undefined
+  cardProps: undefined,
 }
 
 PolicyCard.displayName = 'PolicyCard'

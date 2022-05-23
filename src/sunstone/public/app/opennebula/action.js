@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -297,7 +297,7 @@ define(function(require) {
       });
     },
 
-    "show": function(params, resource, subresource, path) {
+    "show": function(params, resource, subresource, path, async = true) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
@@ -314,6 +314,7 @@ define(function(require) {
         type: "GET",
         dataType: "json",
         data: data,
+        async: async,
         success: function(response) {
           return callback ? callback(request, response) : null;
         },

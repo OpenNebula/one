@@ -1,0 +1,2 @@
+# enables and configure systemd-networkd
+- src: stackhpc.systemd_networkd

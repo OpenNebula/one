@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -24,13 +24,11 @@ resource_name: "VM"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: true
   migrate: true
   migrate_live: true
-  migrate_poff: false
-  migrate_poff_hard: false
   hold: true
   release: true
   suspend: true
@@ -53,19 +51,22 @@ actions:
   lock: true
   unlock: true
   vmrc: true
-  spice: true
   vnc: true
   ssh: true
   rdp: true
-  save_rdp: true
-  save_virt_viewer: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
   state: true
-
+  owner: true
+  group: true
+  type: true
+  locked: true
+  ips: true
+  hostname: true
 
 # Info Tabs - Which info tabs are used to show extended information
 
@@ -89,24 +90,25 @@ info-tabs:
     vcenter_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     lxc_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
     monitoring_panel:
       enabled: true
       actions:
-        add: false
-        edit: false
-        delete: false
+        copy: true
     attributes_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true
@@ -125,6 +127,7 @@ info-tabs:
           - firecracker
       detach_disk: true
       snapshot_disk_create: true
+      snapshot_disk_rename: true
       snapshot_disk_revert: true
       snapshot_disk_delete: true
       resize_disk: true
@@ -139,6 +142,8 @@ info-tabs:
     actions:
       attach_nic: true
       detach_nic: true
+      attach_secgroup: true
+      detach_secgroup: true
 
   snapshot:
     enabled: true
@@ -147,7 +152,7 @@ info-tabs:
       snapshot_revert: true
       snapshot_delete: true
 
-  placement:
+  history:
     enabled: true
 
   sched_actions:
@@ -160,5 +165,3 @@ info-tabs:
 
   configuration:
     enabled: true
-    actions:
-      update_configuration: true

@@ -1,6 +1,6 @@
 name: 'aws-frankfurt'
 
-description: 'Edge cluster in AWS Frankfurt'
+description: 'Provision cluster in AWS Frankfurt'
 provider: 'aws'
 
 connection:
@@ -10,11 +10,12 @@ connection:
 
 inputs:
    - name: 'aws_ami_image'
-     type: 'list'
-     options:
-       - 'ami-04c21037b3f953d37'
+     type: 'text'
+     default: 'default'
+     description: 'AWS AMI image (default = Ubuntu Focal)'
    - name: 'aws_instance_type'
      type: 'list'
+     default: 'c5.metal'
      options:
        - 'c5.metal'
        - 'i3.metal'

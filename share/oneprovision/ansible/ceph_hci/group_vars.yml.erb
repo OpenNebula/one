@@ -1,0 +1,26 @@
+---
+# Ceph basics
+ceph_origin: repository
+ceph_repository: community
+ceph_rhcs_version: 6
+ceph_stable_release: pacific
+ceph_stable_release_num: 16
+dashboard_enabled: false
+configure_firewall: false
+
+# OSD
+osd_objectstore: bluestore
+osd_scenario: collocated
+is_hci: true
+
+# OpenNebula specifics
+ceph_opennebula_mon_pools:
+    - name: one
+      pg_num: 128
+      type: replicated
+      set:
+          - name: size
+            value: 2
+
+# ceph default vars
+<%= vars %>

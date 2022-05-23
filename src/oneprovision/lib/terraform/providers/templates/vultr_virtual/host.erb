@@ -14,11 +14,11 @@ resource "vultr_instance" "device_<%= obj['ID'] %>" {
     private_network_ids = [vultr_private_network.device_<%= c['ID'] %>.id]
 }
 
-output "ip_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_ip" {
     value = vultr_instance.device_<%= obj['ID'] %>.main_ip
 }
 
-output "device_id_<%= obj['ID'] %>" {
+output "device_<%= obj['ID'] %>_id" {
     value = vultr_instance.device_<%= obj['ID'] %>.id
 }
 

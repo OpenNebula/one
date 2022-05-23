@@ -1,6 +1,6 @@
 # rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -70,6 +70,7 @@ require 'CloudServer'
 
 require 'models'
 require 'log'
+require 'syslog/logger'
 
 require 'LifeCycleManager'
 require 'EventManager'
@@ -87,7 +88,12 @@ rescue StandardError => e
     exit 1
 end
 
-conf[:debug_level]         ||= 2
+if conf[:log]
+    conf[:debug_level] = conf[:log][:level] || 2
+else
+    conf[:debug_level] ||= 2
+end
+
 conf[:autoscaler_interval] ||= 90
 conf[:default_cooldown]    ||= 300
 conf[:shutdown_action]     ||= 'terminate'
@@ -107,7 +113,13 @@ set :config, conf
 include CloudLogger
 # rubocop:enable Style/MixinUsage
 
-logger = enable_logging ONEFLOW_LOG, conf[:debug_level].to_i
+if conf[:log] && conf[:log][:system] == 'syslog'
+    logger   = Syslog::Logger.new('oneflow')
+    Log.type = 'syslog'
+else
+    logger   = enable_logging ONEFLOW_LOG, conf[:debug_level].to_i
+    Log.type = 'file'
+end
 
 use Rack::Session::Pool, :key => 'oneflow'
 
@@ -294,6 +306,9 @@ post '/service/:id/action' do
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a name')
         end
+    when 'release'
+        rc = lcm.release_action(@client, params[:id])
+
     when *Role::SCHEDULE_ACTIONS
         # Use defaults only if one of the options is supplied
         opts['period'] ||= conf[:action_period]
@@ -512,9 +527,13 @@ get '/service_template/:id' do
 end
 
 delete '/service_template/:id' do
-    delete_type      = JSON.parse(request.body.read)['delete_type']
     service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
                                                                @client)
+    begin
+        delete_type = JSON.parse(request.body.read)['delete_type']
+    rescue StandardError
+        delete_type = 'none'
+    end
 
     rc = service_template.delete(delete_type)
 
@@ -697,7 +716,7 @@ post '/service_template/:id/action' do
             return internal_error(service.message, GENERAL_EC)
         else
             # Starts service deployment async
-            rc = lcm.deploy_action(@client, service.id)
+            rc = lcm.deploy_nets_action(@client, service.id)
 
             if OpenNebula.is_error?(rc)
                 return internal_error(rc.message, one_error_to_http(rc.errno))

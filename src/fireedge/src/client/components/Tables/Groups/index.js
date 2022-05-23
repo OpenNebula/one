@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,48 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useGroup, useGroupApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const GroupsTable = props => {
-  const { view, getResourceView, filterPool } = useAuth()
+const DEFAULT_DATA_CY = 'groups'
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('GROUP')?.filters,
-    columns: GroupColumns
-  }), [view])
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Groups table
+ */
+const GroupsTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const groups = useGroup()
-  const { getGroups } = useGroupApi()
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useGetGroupsQuery()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getGroups)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (groups?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.GROUP)?.filters,
+        columns: GroupColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={groups}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={GroupRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+GroupsTable.propTypes = { ...EnhancedTable.propTypes }
+GroupsTable.displayName = 'GroupsTable'
 
 export default GroupsTable

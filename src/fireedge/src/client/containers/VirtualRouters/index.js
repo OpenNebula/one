@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,23 +15,10 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 
-import { Container, Box } from '@mui/material'
-
 import { VRoutersTable } from 'client/components/Tables'
 
-function VirtualRouters () {
-  return (
-    <Box
-      height={1}
-      py={2}
-      overflow='auto'
-      display='flex'
-      flexDirection='column'
-      component={Container}
-    >
-      <VRoutersTable />
-    </Box>
-  )
+function VirtualRouters() {
+  return <VRoutersTable />
 }
 
 export default VirtualRouters

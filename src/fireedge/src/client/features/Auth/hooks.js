@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,72 +14,142 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
-import { unwrapResult } from '@reduxjs/toolkit'
 
-import * as actions from 'client/features/Auth/actions'
-import * as provisionActions from 'client/features/Auth/provision'
-import * as sunstoneActions from 'client/features/Auth/sunstone'
-import { name as authSlice } from 'client/features/Auth/slice'
-import { name as oneSlice, RESOURCES } from 'client/features/One/slice'
+import { name as generalSlice } from 'client/features/General/slice'
+import { name as authSlice, actions } from 'client/features/Auth/slice'
+import groupApi from 'client/features/OneApi/group'
+import systemApi from 'client/features/OneApi/system'
+import { ResourceView } from 'client/apps/sunstone/routes'
+import {
+  _APPS,
+  RESOURCE_NAMES,
+  ONEADMIN_ID,
+  DEFAULT_SCHEME,
+  DEFAULT_LANGUAGE,
+} from 'client/constants'
+
+const APPS_WITH_VIEWS = [_APPS.sunstone].map((app) => app.toLowerCase())
+
+const appNeedViews = () => {
+  const { appTitle } = useSelector((state) => state[generalSlice], shallowEqual)
+
+  return useMemo(() => APPS_WITH_VIEWS.includes(appTitle), [appTitle])
+}
+
+// --------------------------------------------------------------
+// Authenticate Hooks
+// --------------------------------------------------------------
 
 export const useAuth = () => {
-  const auth = useSelector(state => state[authSlice], shallowEqual)
-  const groups = useSelector(state => state[oneSlice][RESOURCES.group], shallowEqual)
+  const auth = useSelector((state) => state[authSlice], shallowEqual)
+  const { jwt, user, view, isLoginInProgress } = auth
 
-  const { user, jwt, view, views, isLoginInProgress } = auth
+  const waitViewToLogin = appNeedViews() ? !!view : true
 
-  const userGroups = [user?.GROUPS?.ID]
-    .flat()
-    .map(id => groups.find(({ ID }) => ID === id))
-    .filter(Boolean)
-
-  const isLogged = !!jwt && !!userGroups?.length && !isLoginInProgress
-
-  /**
-   * Looking for resource view of user authenticated.
-   *
-   * @param {string} resourceName - Name of resource: VM, HOST, IMAGE, etc
-   * @returns {{
-   * resource_name: string,
-   * actions: object[],
-   * filters: object[],
-   * info-tabs: object[],
-   * dialogs: object[]
-   * }} Returns view of resource
-   */
-  const getResourceView = useCallback(
-    resourceName => views?.[view]
-      ?.find(({ resource_name: name }) => name === resourceName),
-    [view]
+  const { data: authGroups } = groupApi.endpoints.getGroups.useQueryState(
+    undefined,
+    {
+      skip: !jwt || !user?.GROUPS?.ID,
+      selectFromResult: ({ data: groups = [] }) => ({
+        data: [user?.GROUPS?.ID]
+          .flat()
+          .map((id) => groups.find(({ ID }) => ID === id))
+          .filter(Boolean),
+      }),
+    }
   )
 
-  return { ...auth, groups: userGroups, isLogged, getResourceView }
+  return useMemo(
+    () => ({
+      ...auth,
+      user,
+      isOneAdmin: user?.ID === ONEADMIN_ID,
+      groups: authGroups,
+      // Merge user settings with the defaults
+      settings: {
+        SCHEME: DEFAULT_SCHEME,
+        LANG: DEFAULT_LANGUAGE,
+        DISABLE_ANIMATIONS: 'NO',
+        ...(user?.TEMPLATE ?? {}),
+        ...(user?.TEMPLATE?.FIREEDGE ?? {}),
+      },
+      isLogged:
+        !!jwt &&
+        !!user &&
+        !!authGroups?.length &&
+        !isLoginInProgress &&
+        waitViewToLogin,
+    }),
+    [user, jwt, isLoginInProgress, authGroups, auth, waitViewToLogin]
+  )
 }
 
 export const useAuthApi = () => {
   const dispatch = useDispatch()
 
-  const unwrapDispatch = useCallback(
-    action => dispatch(action).then(unwrapResult)
-    , [dispatch]
+  return {
+    stopFirstRender: () => dispatch(actions.stopFirstRender()),
+    logout: () => dispatch(actions.logout()),
+    changeView: (view) => dispatch(actions.changeView(view)),
+    changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
+    changeAuthUser: (user) => dispatch(actions.changeAuthUser({ user })),
+  }
+}
+
+// --------------------------------------------------------------
+// View Hooks
+// --------------------------------------------------------------
+
+export const useViews = () => {
+  const { jwt, view } = useSelector((state) => state[authSlice], shallowEqual)
+
+  const { data: views } = systemApi.endpoints.getSunstoneViews.useQueryState(
+    undefined,
+    { skip: !jwt }
   )
 
-  return {
-    login: user => unwrapDispatch(actions.login(user)),
-    getAuthUser: () => dispatch(actions.getUser()),
-    changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
-    logout: () => dispatch(actions.logout()),
+  /**
+   * Looking for resource view of user authenticated.
+   *
+   * @param {RESOURCE_NAMES} resourceName - Name of resource
+   * @returns {ResourceView} Returns view of resource
+   */
+  const getResourceView = useCallback(
+    (resourceName) =>
+      views?.[view]?.find(
+        ({ resource_name: name }) =>
+          `${name}`.toLowerCase() === `${resourceName}`.toLowerCase()
+      ),
+    [view]
+  )
 
-    getProviderConfig: () =>
-      unwrapDispatch(provisionActions.getProviderConfig()),
+  /**
+   * Check if user has a view for a resource.
+   *
+   * @param {RESOURCE_NAMES} resourceName - Name of resource
+   * @returns {boolean} Returns true if user has a view for a resource
+   */
+  const hasAccessToResource = useCallback(
+    (resourceName) => !!getResourceView(resourceName),
+    [view]
+  )
 
-    getSunstoneViews: () =>
-      unwrapDispatch(sunstoneActions.getSunstoneViews()),
-    getSunstoneConfig: () =>
-      unwrapDispatch(sunstoneActions.getSunstoneConfig()),
-    changeView: data =>
-      dispatch(sunstoneActions.changeView(data))
-  }
+  return useMemo(
+    () => ({
+      ...Object.values(RESOURCE_NAMES).reduce(
+        (listOfResourceViews, resourceName) => ({
+          ...listOfResourceViews,
+          [resourceName]: getResourceView(resourceName),
+        }),
+        {}
+      ),
+      hasAccessToResource,
+      getResourceView,
+      views,
+      view,
+    }),
+    [view]
+  )
 }

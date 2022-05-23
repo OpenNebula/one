@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -194,7 +194,7 @@ define(function(require){
           if (disk.SIZE != undefined){
             // Range from original size to size + 500GB
             var min = parseInt(disk.SIZE);
-            var max = min + Humanize.sizeToMB("1024GB");
+            var max = min + Humanize.sizeToMB("1TB");
 
             attr = UserInputs.parse(
               "SIZE",

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,48 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useUser, useUserApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
-import { createColumns } from 'client/components/Tables/Enhanced/Utils'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const UsersTable = props => {
-  const { view, getResourceView, filterPool } = useAuth()
+const DEFAULT_DATA_CY = 'users'
 
-  const columns = useMemo(() => createColumns({
-    filters: getResourceView('USER')?.filters,
-    columns: UserColumns
-  }), [view])
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Users table
+ */
+const UsersTable = (props) => {
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const users = useUser()
-  const { getUsers } = useUserApi()
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useGetUsersQuery()
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getUsers)
-  const { INIT, PENDING } = STATUS
-
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (users?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.USER)?.filters,
+        columns: UserColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={users}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={UserRow}
-      {...props}
+      {...rest}
     />
   )
 }
+
+UsersTable.propTypes = { ...EnhancedTable.propTypes }
+UsersTable.displayName = 'UsersTable'
 
 export default UsersTable

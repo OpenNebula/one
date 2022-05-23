@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,10 +15,22 @@
  * ------------------------------------------------------------------------- */
 import * as ACTIONS from 'client/constants/actions'
 
+/**
+ * @typedef Cluster
+ * @property {string} ID - Id
+ * @property {string} NAME - Name
+ * @property {{ ID: string|string[] }} HOSTS - Hosts
+ * @property {{ ID: string|string[] }} DATASTORES - Datastores
+ * @property {{ ID: string|string[] }} VNETS - Virtual networks
+ * @property {object} TEMPLATE - Template
+ * @property {string} [TEMPLATE.RESERVED_MEM] - Reserved memory
+ * @property {string} [TEMPLATE.RESERVED_CPU] - Reserved CPU
+ */
+
 /** @enum {string} Cluster actions */
 export const CLUSTER_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   DELETE: 'delete',
 
-  RENAME: ACTIONS.RENAME
+  RENAME: ACTIONS.RENAME,
 }

@@ -21,9 +21,9 @@
     "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f",
     "guacamole-common-js": "https://github.com/OpenNebula/sunstone-deps.git#fe6e35b885",
     "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz",
-    "wmks": "https://github.com/OpenNebula/sunstone-deps.git#cb0251c",
+    "wmks": "https://github.com/OpenNebula/sunstone-deps.git#e742205",
     "socket.io-client": "4.1.2",
-    "ace-builds": "https://github.com/OpenNebula/sunstone-deps.git#01ae12a" 
+    "ace-builds": "https://github.com/OpenNebula/sunstone-deps.git#01ae12a"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

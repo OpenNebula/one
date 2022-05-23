@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -226,8 +226,8 @@ define(function(require) {
           if (data && data.ID === id) {
             var ready = "";
             var check = "<span class=\"has-tip\" title=\""+Locale.tr("The VM is ready")+"\"><i class=\"fas fa-check\"/></span>";
-            if (ready_status_gate && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY){
-                ready = (data.VM.USER_TEMPLATE.READY.trim().toUpperCase() === "YES")
+            if (ready_status_gate && data.USER_TEMPLATE && data.USER_TEMPLATE.READY){
+                ready = (data.USER_TEMPLATE.READY.trim().toUpperCase() === "YES")
                 ? check
                 : "<span class=\"has-tip\" title=\""+
                   Locale.tr("Waiting for the VM to be ready")+"\"><i class=\"fas fa-clock\"/></span>";

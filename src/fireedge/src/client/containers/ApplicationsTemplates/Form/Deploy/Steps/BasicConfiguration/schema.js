@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -25,7 +25,7 @@ const NAME = {
   validation: yup
     .string()
     .trim()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 const INSTANCES = {
@@ -38,11 +38,9 @@ const INSTANCES = {
     .min(1, 'Instances minimum is 1')
     .integer('Instances should be an integer number')
     .required('Instances field is required')
-    .default(1)
+    .default(1),
 }
 
 export const FORM_FIELDS = [NAME, INSTANCES]
 
-export const STEP_FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-)
+export const STEP_FORM_SCHEMA = yup.object(getValidationFromFields(FORM_FIELDS))

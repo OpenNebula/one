@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -614,6 +614,9 @@ module SGIPTables
         end
         remove_chains_6.each {|c| commands.add :ip6tables, "-F #{c}" }
         remove_chains_6.each {|c| commands.add :ip6tables, "-X #{c}" }
+
+        # delay to allow kernel to clean up
+        commands.add 'sleep', '0.1'
 
         ipset_list.lines.each do |line|
             if line.match(/^#{chain}(-|$)/)

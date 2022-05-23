@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -232,8 +232,11 @@ function qcow_dir_cmd
     local DST_FILE
 
     DST_FILE=$(basename "$DST_PATH")
+    DST_DIR=$(dirname "$DST_PATH")
 
     echo "set -e -o pipefail"
+    echo "pushd ${DST_DIR}"
+
     echo "rm -rf ${DST_PATH}.snap"
     echo "mkdir -p ${DST_PATH}.snap"
 
@@ -248,5 +251,6 @@ function qcow_dir_cmd
     echo "rm -f $DST_PATH"
     echo "cd ${DST_PATH}.snap"
     echo "ln -sf . ${DST_FILE}.snap"
-    echo "ln -sf ${DST_PATH}.snap/0 $DST_PATH"
+    echo "ln -sf ${DST_FILE}.snap/0 $DST_PATH"
+    echo "popd"
 }

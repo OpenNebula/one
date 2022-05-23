@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,47 +14,35 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { Box } from '@mui/material'
 
-import { Container, Box } from '@mui/material'
-
-import { useFetch } from 'client/hooks'
-import { useApplication, useApplicationApi } from 'client/features/One'
-
+import { useGetServicesQuery } from 'client/features/OneApi/service'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
-import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
+import { ListHeader, ListCards } from 'client/components/List'
 import { ApplicationCard } from 'client/components/Cards'
-
 import { T } from 'client/constants'
 
-function ApplicationsInstances () {
+function ApplicationsInstances() {
   const [showDialog, setShowDialog] = useState(false)
 
-  const applications = useApplication()
-  const { getApplications } = useApplicationApi()
-
-  const { error, fetchRequest, loading, reloading } = useFetch(getApplications)
-
-  useEffect(() => { fetchRequest() }, [])
-
-  // const list = useMemo(() => (
-  //   applications.length > 0
-  //     ? applications?.filter(({ TEMPLATE: { BODY: { state } } }) =>
-  //       APPLICATION_STATES[state]?.name !== DONE
-  //     )
-  //     : applications
-  // ), [applications])
+  const {
+    data: applications = [],
+    refetch,
+    error,
+    isLoading,
+  } = useGetServicesQuery()
 
   return (
-    <Container disableGutters>
+    <>
       <ListHeader
         title={T.ApplicationsInstances}
         hasReloadButton
         reloadButtonProps={{
           'data-cy': 'refresh-application-list',
-          onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
-          isSubmitting: Boolean(loading || reloading)
+          onClick: () => refetch(),
+          isSubmitting: isLoading,
         }}
       />
       <Box p={3}>
@@ -63,11 +51,10 @@ function ApplicationsInstances () {
         ) : (
           <ListCards
             list={applications}
-            isLoading={applications.length === 0 && loading}
             gridProps={{ 'data-cy': 'applications' }}
             CardComponent={ApplicationCard}
             cardsProps={({ value }) => ({
-              handleShow: () => setShowDialog(value)
+              handleShow: () => setShowDialog(value),
             })}
           />
         )}
@@ -78,7 +65,7 @@ function ApplicationsInstances () {
           handleClose={() => setShowDialog(false)}
         />
       )}
-    </Container>
+    </>
   )
 }
 

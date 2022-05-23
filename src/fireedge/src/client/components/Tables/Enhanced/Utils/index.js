@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,21 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
-import GlobalActions, { Action, ActionPropTypes } from 'client/components/Tables/Enhanced/Utils/GlobalActions'
+import GlobalActions from 'client/components/Tables/Enhanced/Utils/GlobalActions'
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
+import GlobalSearch from 'client/components/Tables/Enhanced/Utils/GlobalSearch'
 import GlobalSelectedRows from 'client/components/Tables/Enhanced/Utils/GlobalSelectedRows'
 import GlobalSort from 'client/components/Tables/Enhanced/Utils/GlobalSort'
-import LabelFilter from 'client/components/Tables/Enhanced/Utils/LabelFilter'
+import TimeFilter from 'client/components/Tables/Enhanced/Utils/TimeFilter'
 
+export * from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
 export * from 'client/components/Tables/Enhanced/Utils/utils'
 
 export {
-  Action,
-  ActionPropTypes,
   CategoryFilter,
   GlobalActions,
   GlobalFilter,
+  GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
-  LabelFilter
+  TimeFilter,
 }

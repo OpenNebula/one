@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -19,6 +19,7 @@ module.exports = {
   Previous: 'Previous',
   Next: 'Next',
   SortBy: 'Sort by',
+  FilterBy: 'Filter by',
   Filter: 'Filter',
   Filters: 'Filters',
   All: 'All',
@@ -31,7 +32,9 @@ module.exports = {
   /* actions */
   Accept: 'Accept',
   Active: 'Active',
+  Add: 'Add',
   AddAction: 'Add action',
+  Append: 'Append',
   Attach: 'Attach',
   AttachDisk: 'Attach disk',
   AttachImage: 'Attach image disk',
@@ -41,43 +44,62 @@ module.exports = {
   Cancel: 'Cancel',
   Change: 'Change',
   ChangeGroup: 'Change group',
-  CurrentGroup: 'Current group: %s',
   ChangeOwner: 'Change owner',
-  CurrentOwner: 'Current owner: %s',
   Clear: 'Clear',
+  ClickToCopy: 'Click to copy',
   Clone: 'Clone',
   CloneSeveralTemplates: 'Clone several Templates',
   CloneTemplate: 'Clone Template',
   Close: 'Close',
   Collapse: 'Collapse',
   Configuration: 'Configuration',
+  CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
+  CreateHost: 'Create Host',
   CreateMarketApp: 'Create Marketplace App',
+  CreateProvider: 'Create Provider',
+  CreateProvision: 'Create Provision',
+  CreateVmTemplate: 'Create VM Template',
+  CurrentGroup: 'Current group: %s',
+  CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
-  DeleteScheduledAction: 'Delete scheduled action: %s',
+  DeleteAllImages: 'Delete all images',
+  DeleteDb: 'Delete database',
+  DeleteScheduleAction: 'Delete schedule action: %s',
+  DeleteSeveralTemplates: 'Delete several Templates',
   DeleteSomething: 'Delete: %s',
+  DeleteTemplate: 'Delete Template',
   Deploy: 'Deploy',
   Detach: 'Detach',
   DetachSomething: 'Detach: %s',
+  Disable: 'Disable',
+  Dismiss: 'Dismiss',
   Done: 'Done',
   Edit: 'Edit',
   EditSomething: 'Edit: %s',
+  Enable: 'Enable',
+  Failure: 'Failure',
   Finish: 'Finish',
   Hold: 'Hold',
   Import: 'Import',
   Info: 'Info',
   Instantiate: 'Instantiate',
+  InstantiateVmTemplate: 'Instantiate VM Template',
+  LocateOnTable: 'Locate on table',
   Lock: 'Lock',
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
+  Offline: 'Offline',
   Pin: 'Pin',
   Poweroff: 'Poweroff',
   PoweroffHard: 'Poweroff hard',
+  PressEscapeToCancel: 'Press Escape to cancel',
   Reboot: 'Reboot',
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
-  RecoverSomething: 'Recover: %s',
   RecoverSeveralVMs: 'Recover several VMs',
+  RecoverSomething: 'Recover: %s',
+  Recreate: 'Recreate',
   Refresh: 'Refresh',
   Release: 'Release',
   Remove: 'Remove',
@@ -88,6 +110,7 @@ module.exports = {
   ResizeCapacity: 'Resize capacity',
   ResizeSomething: 'Resize: %s',
   Resume: 'Resume',
+  Retry: 'Retry',
   Revert: 'Revert',
   RevertSomething: 'Revert: %s',
   Save: 'Save',
@@ -96,10 +119,21 @@ module.exports = {
   SaveAsTemplate: 'Save as Template',
   Search: 'Search',
   Select: 'Select',
-  SelectHost: 'Select a host',
+  SelectCluster: 'Select Cluster',
+  SelectDatastore: 'Select a Datastore to store the resource',
+  SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
+  SelectHost: 'Select a host',
+  SelectMarketplace: 'Select Marketplace',
+  SelectNetwork: 'Select a network',
+  SelectNewCluster: 'Select a new Cluster',
   SelectRequest: 'Select request',
+  SelectTheNewDatastore: 'Select the new datastore',
+  SelectTheNewGroup: 'Select the new group',
+  SelectTheNewOwner: 'Select the new owner',
+  SelectTheNewSecurityGroup: 'Select the new security group',
   SelectVmTemplate: 'Select a VM Template',
+  SelectYourActiveGroup: 'Select your active group',
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
@@ -107,6 +141,7 @@ module.exports = {
   SignOut: 'Sign Out',
   Stop: 'Stop',
   Submit: 'Submit',
+  Success: 'Success',
   Suspend: 'Suspend',
   Take: 'Take',
   TakeSnapshot: 'Take snapshot',
@@ -120,7 +155,9 @@ module.exports = {
   UnReschedule: 'Un-Reschedule',
   Unshare: 'Unshare',
   Update: 'Update',
-  UpdateScheduledAction: 'Update scheduled action: %s',
+  UpdateProvider: 'Update Provider',
+  UpdateScheduleAction: 'Update schedule action: %s',
+  UpdateVmTemplate: 'Update VM Template',
 
   /* questions */
   Yes: 'Yes',
@@ -128,8 +165,14 @@ module.exports = {
   DoYouWantProceed: 'Do you want proceed?',
 
   /* Scheduling */
-  ScheduledAction: 'Scheduled action',
+  Action: 'Action',
+  ScheduleAction: 'Schedule action',
   Charter: 'Charter',
+  PunctualAction: 'Punctual action',
+  RelativeAction: 'Relative action',
+  DoneAgo: 'Done %s',
+  NextInTime: 'Next in %s',
+  FirstTime: 'First time %s',
   Mon: 'Mon',
   Monday: 'Monday',
   Tue: 'Tue',
@@ -147,8 +190,28 @@ module.exports = {
   Weekly: 'Weekly',
   Monthly: 'Monthly',
   Yearly: 'Yearly',
+  Hourly: 'Hourly',
   EachHours: 'Each %s hours',
   AfterTimes: 'After %s times',
+  Today: 'Today',
+  Periodic: 'Periodic',
+  Time: 'Time',
+  TimeAfterTheVmIsInstantiated: 'Time after the VM is instantiated',
+  PeriodType: 'Period type',
+  GranularityOfAction: 'Granularity of the action',
+  DayOfWeek: 'Day of week',
+  DayOfMonth: 'Day of month',
+  DayOfYear: 'Day of year',
+  EachXHours: "Each 'x' hours",
+  EndType: 'End type',
+  DaysBetween0_6: 'Days should be between 0 (Sunday) and 6 (Saturday)',
+  DaysBetween1_31: 'Days should be between 1 and 31',
+  DaysBetween0_365: 'Days should be between 0 and 365',
+  HoursBetween0_168: 'Hours should be between 0 and 168',
+  WhenYouWantThatTheActionFinishes: 'When you want that the action finishes',
+
+  /* footer */
+  MadeWith: 'Made with',
 
   /* dashboard */
   InTotal: 'In Total',
@@ -162,19 +225,24 @@ module.exports = {
   Credentials: 'Credentials',
   SwitchView: 'Switch view',
   SwitchGroup: 'Switch group',
+  TakeMeToTheAppGui: 'Take me to the %s GUI',
 
   /* errors */
   SessionExpired: 'Sorry, your session has expired',
+  OnlyForOneadminGroup:
+    'Only members of the oneadmin group can access OneProvision functionality',
   SomethingWrong: 'Something go wrong',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
-  ErrorOneProvisionGUI: 'FireEdge is not correctly configured to operate the OneProvision GUI',
+  ErrorOneProvisionGUI:
+    'FireEdge is not correctly configured to operate the OneProvision GUI',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   Timeout: 'Timeout',
   None: 'None',
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',
+  ErrorsOcurred: '%s error(s) occurred',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',
@@ -195,6 +263,13 @@ module.exports = {
   ProviderTemplate: 'Provider template',
   ProvisionTemplate: 'Provision template',
   ConfigureInputs: 'Configure inputs',
+  Log: 'Log',
+  AddIP: 'Add IP',
+  AddHost: 'Add Host',
+  Cleanup: 'Cleanup',
+  CleanupConcept: 'Delete all vms and images first, then delete the resources',
+  Force: 'Force',
+  ForceConcept: 'Force configure to execute',
 
   /* sections */
   Dashboard: 'Dashboard',
@@ -207,6 +282,12 @@ module.exports = {
   System: 'System',
   Language: 'Language',
   DisableDashboardAnimations: 'Disable dashboard animations',
+  ConfigurationUI: 'Configuration UI',
+  Authentication: 'Authentication',
+  SshPrivateKey: 'SSH private key',
+  AddUserSshPrivateKey: 'Add user SSH private key',
+  SshPassphraseKey: 'SSH private key passphrase',
+  AddUserSshPassphraseKey: 'Add user SSH private key passphrase',
 
   /* sections - system */
   User: 'User',
@@ -219,18 +300,21 @@ module.exports = {
   ACLs: 'ACLs',
 
   /* sections - infrastructure */
-  Zone: 'Zone',
-  Zones: 'Zones',
   Cluster: 'Cluster',
   Clusters: 'Clusters',
   Host: 'Host',
   Hosts: 'Hosts',
+  Infrastructure: 'Infrastructure',
+  Zone: 'Zone',
+  Zones: 'Zones',
 
   /* sections - network */
   Network: 'Network',
   Networks: 'Networks',
   VirtualNetwork: 'Virtual network',
   VirtualNetworks: 'Virtual networks',
+  NetworkTemplate: 'Network Template',
+  NetworkTemplates: 'Network Templates',
   NetworkTopology: 'Network topology',
   NetworksTopologies: 'Networks topologies',
   SecurityGroup: 'Security group',
@@ -249,12 +333,14 @@ module.exports = {
   Apps: 'Apps',
 
   /* sections - templates & instances */
+  Instances: 'Instances',
   VM: 'VM',
   VMs: 'VMs',
-  VirtualRouter: 'VirtualRouter',
-  VirtualRouters: 'VirtualRouters',
+  VirtualRouter: 'Virtual Router',
+  VirtualRouters: 'Virtual Routers',
   VMGroup: 'VM Group',
   VMGroups: 'VM Groups',
+  Templates: 'Templates',
   VMTemplate: 'VM Template',
   VMTemplates: 'VM Templates',
 
@@ -271,6 +357,7 @@ module.exports = {
   Provisions: 'Provisions',
 
   /* tabs */
+  Drivers: 'Drivers',
   General: 'General',
   Information: 'Information',
   Placement: 'Placement',
@@ -279,12 +366,25 @@ module.exports = {
   ID: 'ID',
   Name: 'Name',
   State: 'State',
+  Size: 'Size',
+  SizeOnUnits: 'Size on %s',
   Description: 'Description',
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
+  Started: 'Started',
+  StartedOnTime: 'Started on %s',
+  Total: 'Total',
+  Prolog: 'Prolog',
   EndTime: 'End time',
   Locked: 'Locked',
   Attributes: 'Attributes',
+  Type: 'Type',
+  Data: 'Data',
+  Validate: 'Validate',
+  Format: 'Format',
+  Prefix: 'Prefix',
+  More: 'More',
+  UsedOfTotal: 'Used / Total',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -300,11 +400,11 @@ module.exports = {
   Secondary: 'Secondary',
 
   /* instances schema */
-  IP: 'IP',
   DeployID: 'Deploy ID',
   vCenterDeployment: 'vCenter Deployment',
   Deployment: 'Deployment',
   Monitoring: 'Monitoring',
+  EdgeCluster: 'Edge Cluster',
 
   /* flow schema */
   Strategy: 'Strategy',
@@ -312,11 +412,30 @@ module.exports = {
   ReadyStatusGate: 'Ready status gate',
 
   /* VM schema */
+  /* VM schema - remote access */
+  Vnc: 'VNC',
+  Ssh: 'SSH',
+  Rdp: 'RDP',
+  SshConnection: 'SSH connection',
+  RdpConnection: 'RDP connection',
+  Vmrc: 'VMRC',
+  Sdl: 'SDL',
+  Spice: 'SPICE',
+  CtrlAltDel: 'Ctrl-Alt-Del',
+  Reconnect: 'Reconnect',
+  FullScreen: 'Full screen',
+  Screenshot: 'Screenshot',
+  LastConnection: 'Last connection',
+  VmIsNotOnVCenter: '%s is not located on vCenter Host',
+  PartOf: 'Part of',
+  GuacamoleState: 'Guacamole State',
+  VMRCState: 'VMRC State',
   /* VM schema - info */
+  VmName: 'VM name',
   UserTemplate: 'User Template',
   Template: 'Template',
   WhereIsRunning:
-  'VM %1$s is currently running on Host %2$s and Datastore %3$s',
+    'VM %1$s is currently running on Host %2$s and Datastore %3$s',
   /* VM schema - capacity */
   Capacity: 'Capacity',
   PhysicalCpu: 'Physical CPU',
@@ -325,8 +444,13 @@ module.exports = {
   Cores: 'Cores',
   Sockets: 'Sockets',
   Memory: 'Memory',
+  Cost: 'Cost',
+  CostEachMonth: '%s / month',
   CostCpu: 'Cost / CPU',
-  CostMByte: 'Cost / MByte',
+  CostCpuConcept: 'Cost of each CPU per hour',
+  CostMemory: 'Cost / Memory',
+  CostMemoryConcept: 'Cost of each memory MB per hour',
+  CostDiskConcept: 'Cost of each disk GB per hour',
   /* VM schema - storage */
   Storage: 'Storage',
   Disk: 'Disk',
@@ -334,20 +458,98 @@ module.exports = {
   Volatile: 'Volatile',
   VolatileDisk: 'Volatile disk',
   Snapshot: 'Snapshot',
+  SnapshotName: 'Snapshot name',
   DiskSnapshot: 'Disk snapshot',
+  NewImageName: 'New Image name',
+  NewImageNameConcept: 'Name for the new Image where the disk will be saved',
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',
+  AsAnAlias: 'Attach as an alias',
+  External: 'External',
+  ExternalConcept: 'The NIC will be attached as an external alias of the VM',
+  OverrideNetworkValuesIPv4: 'Override Network Values IPv4',
+  OverrideNetworkValuesIPv6: 'Override Network Values IPv6',
+  OverrideNetworkInboundTrafficQos: 'Override Network Inbound Traffic QoS',
+  OverrideNetworkOutboundTrafficQos: 'Override Network Outbound Traffic QoS',
+  AttachSecurityGroup: 'Attach Security Group',
+  DetachSecurityGroup: 'Detach Security Group',
+  DetachSecurityGroupFromNic: 'Detach Security Group %1$s from NIC %2$s',
+  PortForwarding: 'Port forwarding',
+  HostnamePortsForwardedToVmPorts: '%1$s ports %2$s forwarded to VM ports %3$s',
+  /* VM schema - snapshot */
+  VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
+  /* VM schema - actions */
+  EnforceCapacityChecks: 'Enforce capacity checks',
+  EnforceCapacityChecksConcept: `
+    If it is set to true, the host capacity will be checked.
+    This will only affect oneadmin requests, regular users
+    resize requests will always be enforced`,
+  RecoverDescription: `
+    Recovers a stuck VM that is waiting for a driver operation.
+    The recovery may be done by failing, succeeding or retrying the
+    current operation. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST,
+    to decide if the operation was successful or not, or if it can be retried`,
+  Operation: 'Operation',
+  OperationConceptFailure: 'Recover a VM by failing the pending action',
+  OperationConceptSuccess: 'Recover a VM by succeeding the pending action',
+  OperationConceptRetry: 'Recover a VM by retrying the last failed action',
+  OperationConceptDelete: 'No recover action possible, delete the VM',
+  OperationConceptRecreate:
+    'No recover action possible, delete and recreate the VM',
+  OperationConceptDeleteDb: `
+    No recover action possible, delete the VM from the DB.
+    It does not trigger any action on the hypervisor`,
+  /* VM schema - history */
+  RequestId: 'Request ID',
+  TimeWhenTheStateChanged: 'Time when the state changed',
+  TotalTimeInThisState: 'Total time in this state',
+  PrologTimeForThisState: 'Prolog time for this state',
 
   /* VM Template schema */
-  /* VM schema - general */
-  Logo: 'Logo',
+  /* VM Template schema - general */
+  CustomHypervisor: 'Custom',
+  CustomVariables: 'Custom Variables',
   Hypervisor: 'Hypervisor',
+  Logo: 'Logo',
+  MakeNewImagePersistent: 'Make the new images persistent',
+  TemplateName: 'Template name',
+  Virtualization: 'Virtualization',
+  CustomInformation: 'Custom information',
+  CustomVirtualization: 'Custom virtualization',
+  VmTemplateNameHelper: `
+    Defaults to 'template name-<vmid>' when empty.
+    When creating several VMs, the wildcard %%idx will be
+    replaced with a number starting from 0`,
+  NumberOfInstances: 'Number of instances',
+  VmOnHoldState: 'Start VM on hold state',
+  VmOnHoldStateConcept: `
+    Sets the new VM to hold state, instead of pending.
+    The scheduler will not deploy VMs in this state.
+    It can be released later, or deployed manually`,
+  InstantiateAsPersistent: 'Instantiate as persistent',
+  InstantiateAsPersistentConcept: `
+    Creates a private persistent copy of the template
+    plus any image defined in DISK, and instantiates that copy`,
   /* VM schema - ownership */
   InstantiateAsUser: 'Instantiate as different User',
   InstantiateAsGroup: 'Instantiate as different Group',
+  /* VM Template schema - storage */
+  StorageOptions: 'Storage Options',
+  DeployMode: 'Deploy Mode',
+  DeployModeConcept: 'Set an alternative mode to deploy VM disks to the hosts',
+  /* VM Template schema - network */
+  NetworkDefaults: 'Network Defaults',
+  NetworkDefaultsConcept: `
+    Values that will be copied to each new NIC.
+    Final users may not be aware of this`,
+  DefaultNicModel: 'Default hardware model to emulate for all NICs',
+  DefaultNicFilter: 'Default network filtering rule for all NICs',
   /* VM Template schema - capacity */
   MaxMemory: 'Max memory',
+  MaxMemoryConcept: `
+    This value sets the maximum value of the MEMORY allowed to be modified
+    after instantiation, through the Capacity Resize options of instantiated VMs`,
   MemoryModification: 'Memory modification',
   AllowUsersToModifyMemory:
     "Allow users to modify this template's default memory on instantiate",
@@ -356,16 +558,20 @@ module.exports = {
     Percentage of CPU divided by 100 required for the
     Virtual Machine. Half a processor is written 0.5`,
   MaxVirtualCpu: 'Max Virtual CPU',
+  MaxVirtualCpuConcept: `
+    This value sets the maximum value of the VCPU allowed to be modified
+    after instantiation, through the Capacity Resize options of instantiated VMs`,
+  CpuModification: 'CPU modification',
+  AllowUsersToModifyCpu:
+    "Allow users to modify this template's default CPU on instantiate",
   VirtualCpuConcept: `
     Number of virtual cpus. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
-  AllowUsersToModifyCpu:
-    "Allow users to modify this template's default CPU on instantiate",
   VirtualCpuModification: 'Virtual CPU modification',
   AllowUsersToModifyVirtualCpu:
     "Allow users to modify this template's default Virtual CPU on instantiate",
   EnableHotResize: 'Enable hot resize',
-  /* VM schema - VM Group */
+  /* VM Template schema - VM Group */
   AssociateToVMGroup: 'Associate VM to a VM Group',
   Role: 'Role',
   /* VM Template schema - vCenter */
@@ -374,11 +580,11 @@ module.exports = {
   vCenterInstanceId: 'vCenter instance ID',
   vCenterVmFolder: 'vCenter VM folder',
   vCenterVmFolderConcept: `
-  If specified, the the VMs and Template folder path where
-  the VM will be created inside the data center.
-  The path is delimited by slashes (e.g /Management/VMs).
-  If no path is set the VM will be placed in the same folder where
-  the template is located.
+    If specified, the VMs and Template folder path where
+    the VM will be created inside the data center.
+    The path is delimited by slashes (e.g /Management/VMs).
+    If no path is set the VM will be placed in the same folder where
+    the template is located.
   `,
   /* VM Template schema - placement */
   HostReqExpression: 'Host requirements expression',
@@ -416,7 +622,7 @@ module.exports = {
     Could be used to force ID for licensing purposes`,
   Firmware: 'Firmware',
   FirmwareConcept:
-  'This attribute allows to define the type of firmware used to boot the VM',
+    'This attribute allows to define the type of firmware used to boot the VM',
   FirmwareSecure: 'Firmware secure',
   CpuModel: 'CPU Model',
   CustomPath: 'Customize with path',
@@ -443,42 +649,89 @@ module.exports = {
   LocaltimeConcept:
     'The guest clock will be synchronized to the hosts configured timezone when booted',
   GuestAgent: 'QEMU Guest Agent',
-  GuestAgentConcept:
-    `Enables the QEMU Guest Agent communication.
+  GuestAgentConcept: `Enables the QEMU Guest Agent communication.
     This does not start the Guest Agent inside the VM`,
   VirtioQueues: 'Virtio-scsi Queues',
-  VirtioQueuesConcept:
-    `Number of vCPU queues to use in the virtio-scsi controller.
+  VirtioQueuesConcept: `Number of vCPU queues to use in the virtio-scsi controller.
     Leave blank to use the default value`,
   IoThreads: 'Iothreads',
-  IoThreadsConcept:
-    `Number of iothreads for virtio disks.
+  IoThreadsConcept: `
+    Number of iothreads for virtio disks.
     By default threads will be assign to disk by round robin algorithm.
     Disk thread id can be forced by disk IOTHREAD attribute`,
+  RawData: 'Raw data',
+  RawDataConcept: 'Raw data to be passed directly to the hypervisor',
+  RawValidateConcept: `
+    Disable validation of the RAW data.
+    By default, the data will be checked against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
+  SshPublicKey: 'SSH public key',
+  AddUserSshPublicKey: 'Add user SSH public key',
+  AddNetworkContextualization: 'Add Network contextualization',
+  AddNetworkContextualizationConcept: `
+    Add network contextualization parameters. For each NIC defined in
+    the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be
+    included in the CONTEXT section and will be available in the Virtual Machine`,
+  AddOneGateToken: 'Add OneGate token',
+  AddOneGateTokenConcept: `
+    Add a file (token.txt) to the context containing the token to push
+    custom metrics to the Virtual Machine through OneGate`,
+  ReportReadyToOneGate: 'Report Ready to OneGate',
+  ReportReadyToOneGateConcept: 'Sends READY=YES to OneGate, useful for OneFlow',
+  StartScript: 'Start script',
+  StartScriptConcept: `
+  Text of the script executed when the machine starts up. It can contain
+  shebang in case it is not shell script`,
+  EncodeScriptInBase64: 'Encode script in Base64',
+  ContextFiles: 'Files Datastores',
+  ContextFilesConcept: 'List of File images to include in context device',
+  InitScripts: 'Init scripts',
+  InitScriptsConcept: `
+    The contextualization package executes an init.sh file if it exists.
+    If more than one script file is added, this list contains the scripts
+    to run and their order`,
+  ContextCustomVariables: 'Context Custom Variables',
+  ContextCustomVariablesConcept:
+    'Context information will be send to the VM at boot time',
+  ContextCustomVarErrorExists: 'Context Custom Variable already exists',
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
+  Inputs: 'Inputs',
+  PciDevices: 'PCI Devices',
+  DeviceName: 'Device name',
+  Device: 'Device',
+  Vendor: 'Vendor',
+  Class: 'Class',
   /* VM Template schema - Input/Output - graphics */
   Graphics: 'Graphics',
-  VMRC: 'VMRC',
-  VNC: 'VNC',
-  SDL: 'SDL',
-  SPICE: 'SPICE',
-  Type: 'Type',
   ListenOnIp: 'Listen on IP',
   ServerPort: 'Server port',
   ServerPortConcept: 'Port for the VNC/SPICE server',
   Keymap: 'Keymap',
   GenerateRandomPassword: 'Generate random password',
   Command: 'Command',
+  Bus: 'BUS',
   /* VM Template schema - NUMA */
+  NumaTopology: 'NUMA Topology',
+  NumaTopologyConcept:
+    'These settings will help you to fine tune the performance of VMs',
   PinPolicy: 'Pin Policy',
+  NumaNodeItem: 'Node #%s',
+  NumaNodeTitle: 'Cores & CPUS',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
   NumaSocketsConcept: 'Number of sockets or NUMA nodes',
   NumaCoresConcept: 'Number of cores per node',
+  NumaNodeMemory: 'Memory',
+  NumaCore: 'Core %s',
+  NumaNodeCPUItem: 'CPU #%s',
   Threads: 'Threads',
   ThreadsConcept: 'Number of threads per core',
+  HugepageNode: 'Hugepage',
+  HugepageNodeFree: 'Free',
+  HugepageNodePages: 'Pages',
+  HugepageNodeSize: 'Size',
+  HugepageNodeUsage: 'Usage',
   HugepagesSize: 'Hugepages size',
   HugepagesSizeConcept:
     'Size of hugepages (MB). If not defined no hugepages will be used',
@@ -488,6 +741,74 @@ module.exports = {
   VirtualCpuSelectedConcept: `
     Number of virtual CPUs. This value is optional, the default
     hypervisor behavior is used, usually one virtual CPU`,
+  /* VM Template schema - actions */
+  DeleteAllImagesConcept:
+    'Enable to delete the template plus any image defined in DISK',
+  CopyOf: 'Copy of ',
+  PrefixMultipleConcept:
+    'Several templates are selected, please choose prefix to name the new copies',
+  NewTemplateNameConcept: 'New Image name',
+  CloneWithImages: 'Clone with images',
+  CloneWithImagesConcept: `
+    You can also clone any Image referenced inside this Template.
+    They will be cloned to a new Image, and made persistent`,
+  ShareVmTemplateDescription: `
+    The VM Template(s), along with any image referenced by it, will
+    be shared with the group's users. Permission changed: GROUP USE`,
+  UnshareVmTemplateDescription: `
+    The VM Template(s), along with any image referenced by it, will
+    be unshared with the group's users. Permission changed: GROUP USE`,
+
+  /* Virtual Network schema - network */
+  Driver: 'Driver',
+  IP: 'IP',
+  IPv4Concept: 'First IP in the range in dot notation',
+  IPv6Concept: 'First IP6 (full 128 bits) in the range',
+  MAC: 'MAC',
+  MACConcept: `
+    First MAC, if not provided it will be generated
+    using the IP and the MAC_PREFIX in oned.conf`,
+  NetworkAddress: 'Network address',
+  NetworkMask: 'Network mask',
+  Gateway: 'Gateway',
+  GatewayConcept: 'Default gateway for the network',
+  Gateway6Concept: 'IPv6 router for this network',
+  SearchDomainForDNSResolution: 'Search domains for DNS resolution',
+  NetworkMethod: 'Network method',
+  NetworkMethod4Concept: 'Sets IPv4 guest conf. method for NIC in this network',
+  NetworkMethod6Concept: 'Sets IPv6 guest conf. method for NIC in this network',
+  DNS: 'DNS',
+  DNSConcept: 'DNS servers, a space separated list of servers',
+  AverageBandwidth: 'Average bandwidth (KBytes/s)',
+  PeakBandwidth: 'Peak bandwidth (KBytes/s)',
+  PeakBurst: 'Peak burst (KBytes)',
+  InboundAverageBandwidthConcept:
+    'Average bitrate for the interface in kilobytes/second for inbound traffic',
+  InboundPeakBandwidthConcept:
+    'Maximum bitrate for the interface in kilobytes/second for inbound traffic',
+  OutboundAverageBandwidthConcept:
+    'Average bitrate for the interface in kilobytes/second for outbound traffic',
+  OutboundPeakBandwidthConcept:
+    'Maximum bitrate for the interface in kilobytes/second for outbound traffic',
+  PeakBurstConcept: 'Data that can be transmitted at peak speed in kilobytes',
+  Hardware: 'Hardware',
+  HardwareModelToEmulate: 'Hardware model to emulate',
+  TransmissionQueue: 'Transmission queue',
+  OnlySupportedForVirtioDriver: 'Only supported for virtio driver',
+  GuestOptions: 'Guest options',
+  GuestMTU: 'GuestMTU',
+  GuestMTUConcept: 'Sets the MTU for the NICs in this network',
+  UsedLeases: 'Used leases',
+  TotalLeases: 'Total leases',
+  TotalClusters: 'Total clusters',
+  RecoverNetworkDescription: `
+    Recovers a Virtual Network in ERROR state or waiting for a driver operation to complete.
+    The recovery may be done by failing, succeeding or retrying the current operation.
+    YOU NEED TO MANUALLY CHECK THE VN STATUS, to decide if the operation was successful or not, or if it can be retried.
+
+    States for success/failure recovers: LOCK_CREATE, LOCK_DELETE state.
+    States for a retry recover: LOCK_CREATE, LOCK_DELETE state.
+    States for delete: Any but READY.`,
 
   /* security group schema */
   TCP: 'TCP',
@@ -497,6 +818,9 @@ module.exports = {
   IPSEC: 'IPsec',
   Outbound: 'Outbound',
   Inbound: 'Inbound',
+  Any: 'Any',
+  Protocol: 'Protocol',
+  IcmpType: 'ICMP Type',
 
   /* Host schema */
   IM_MAD: 'IM MAD',
@@ -504,23 +828,110 @@ module.exports = {
   Wilds: 'Wilds',
   Zombies: 'Zombies',
   Numa: 'NUMA',
+  Hostname: 'Hostname',
   /* Host schema - capacity */
   AllocatedMemory: 'Allocated Memory',
   AllocatedCpu: 'Allocated CPU',
   RealMemory: 'Real Memory',
   RealCpu: 'Real CPU',
   Overcommitment: 'Overcommitment',
+  /* Host schema - template */
+  ISOLCPUS: 'Isolated CPUS',
+  TemplateToIsolateCpus:
+    'Comma separated list of CPU IDs that will be isolated from the NUMA scheduler',
 
   /* Cluster schema */
   /* Cluster schema - capacity */
   ReservedMemory: 'Allocated Memory',
   ReservedCpu: 'Allocated CPU',
 
+  /* Marketplace App schema */
+  /* Marketplace App - general */
+  RegisteredAt: 'Registered %s',
+  Version: 'Version',
+  AppTemplate: 'App Template',
+  TemplatesForTheApp: 'Templates for the App',
+  TemplatesForTheAppConcept: `
+    VM Template to be created. A DISK element pointing to the App Image will be
+    automatically added when the App is exported`,
+  ImportIntoDatastore: 'Import into Datastore',
+  DownloadAppToOpenNebula: 'Download App to OpenNebula',
+  DownloadApp: 'Download App',
+  ExportAppNameConcept:
+    'Name that the resource will get for description purposes',
+  ExportTemplateNameConcept: `
+    The following template will be created in OpenNebula
+    and the previous images will be referenced in the disks`,
+  ExportAssociateApp: 'Export associated VM templates/images',
+  ImportAssociateApp: 'Import associated VM templates/images',
+  SelectResourceToCreateTheApp: 'Select the resource to create the App',
+  SelectImageToCreateTheApp: 'Select the Image to create the App',
+  SelectVmToCreateTheApp: 'Select the VM to create the App',
+  SelectVmTemplateToCreateTheApp: 'Select the VM Template to create the App',
+
+  /* Image schema */
+  /* Image - general */
+  Limit: 'Limit',
+  BasePath: 'Base path',
+  FileSystemType: 'Filesystem type',
+  Persistent: 'Persistent',
+  RunningVMs: 'Running VMs',
+  /* Disk - general */
+  DiskType: 'Disk type',
+  SizeOnInstantiate: 'Size on instantiate',
+  SizeOnInstantiateConcept: `
+    The size of the disk will be modified to match
+    this size when the template is instantiated`,
+  TargetDevice: 'Target device',
+  TargetDeviceConcept: `
+    Device to map image disk.
+    If set, it will overwrite the default device mapping`,
+  ReadOnly: 'Read-only',
+  BusAdapterController: 'Bus adapter controller',
+  DiskProvisioningType: 'Disk provisioning type',
+  Cache: 'Cache',
+  IoPolicy: 'IO Policy',
+  Discard: 'Discard',
+  IopsSize: 'Size of IOPS per second',
+  ThrottlingBytes: 'Throttling (Bytes/s)',
+  ThrottlingIOPS: 'Throttling (IOPS)',
+  TotalValue: 'Total value',
+  TotalMaximum: 'Total maximum',
+  TotalMaximumLength: 'Total maximum length',
+  ReadValue: 'Read value',
+  ReadMaximum: 'Read maximum',
+  ReadMaximumLength: 'Read maximum length',
+  WriteValue: 'Write value',
+  WriteMaximum: 'Write maximum',
+  WriteMaximumLength: 'Write maximum length',
+  SnapshotFrequency: 'Snapshot Frequency in seconds',
+  IoThreadId: 'IOTHREAD id',
+  IoThreadIdConcept: `
+    Iothread id used by this disk. Default is round robin.
+    Can be used only if IOTHREADS > 0. If this input is disabled
+    please first configure IOTHREADS value on OS & CPU -> Features`,
+
+  /* Provision schema */
+  /* Provision - general */
+  ProvisionId: 'Provision ID',
+
   /* User inputs */
+  UserInputs: 'User Inputs',
+  UserInputsConcept: `
+    These attributes must be provided by the user when a new VM is instantiated.
+    They will be included in the VM context`,
   Fixed: 'Fixed',
   Range: 'Range',
   List: 'List',
   AnyValue: 'Any value',
+  Options: 'Options',
+  UIOptionsConcept:
+    'Comma-separated list of options for the drop-down select input',
+  Min: 'Min',
+  Max: 'Max',
+  DefaultValue: 'Default value',
+  Mandatory: 'Mandatory',
+  PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
 
   /* Validation */
   /* Validation - mixed */
@@ -565,7 +976,7 @@ module.exports = {
   /* Validation - object  */
   'validation.object.noUnknown': 'Has unspecified keys: %s',
   /* Validation - array  */
-  'validation.array.min': 'Must have at least %s items',
-  'validation.array.max': 'Must have less than or equal to %s items',
-  'validation.array.length': 'Must have %s items'
+  'validation.array.min': 'Must have at least %s item(s) to act as a default',
+  'validation.array.max': 'Must have less than or equal to %s item(s)',
+  'validation.array.length': 'Must have %s item(s)',
 }

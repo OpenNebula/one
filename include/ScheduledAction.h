@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -99,7 +99,13 @@ public:
     int parse(std::string& error, bool clean);
 
     /**
-     *  @param stime time when the time was started for relative time specs
+     *  @param stime time when the VM was started for relative time specs
+     *  @return action execution time. Returns -1 on error
+     */
+    time_t get_time(time_t stime);
+
+    /**
+     *  @param stime time when the VM was started for relative time specs
      *  @return true if the action needs to be executed.
      */
     bool is_due(time_t stime);

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,78 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createSlice } from '@reduxjs/toolkit'
+import { createAction, createSlice } from '@reduxjs/toolkit'
 
-import { login, getUser, logout, changeFilter, changeGroup } from 'client/features/Auth/actions'
-import { getProviderConfig } from 'client/features/Auth/provision'
-import { getSunstoneViews, getSunstoneConfig, changeView } from 'client/features/Auth/sunstone'
-import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
-import { isBackend } from 'client/utils'
+import { removeStoreData } from 'client/utils'
+import { JWT_NAME, FILTER_POOL } from 'client/constants'
+
+export const logout = createAction('logout')
 
 const initial = () => ({
-  jwt: !isBackend()
-    ? window.localStorage.getItem(JWT_NAME) ??
-      window.sessionStorage.getItem(JWT_NAME) ??
-      null
-    : null,
+  jwt: null,
   user: null,
-  error: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
-  settings: {
-    scheme: DEFAULT_SCHEME,
-    lang: DEFAULT_LANGUAGE,
-    disableAnimations: 'NO'
-  },
   isLoginInProgress: false,
-  isLoading: false
 })
 
-const { name, actions, reducer } = createSlice({
+const slice = createSlice({
   name: 'auth',
-  initialState: ({ ...initial(), firstRender: true }),
-  extraReducers: builder => {
-    builder
-      .addMatcher(
-        ({ type }) => type === logout.type,
-        (_, { error }) => ({ ...initial(), error })
-      )
-      .addMatcher(
-        ({ type }) => {
-          return [
-            changeFilter.type,
-            login.fulfilled.type,
-            getUser.fulfilled.type,
-            changeGroup.fulfilled.type,
-            // provision
-            getProviderConfig.fulfilled.type,
-            // sunstone
-            getSunstoneViews.fulfilled.type,
-            getSunstoneConfig.fulfilled.type,
-            changeView.type
-          ].includes(type)
-        },
-        (state, { payload }) => ({ ...state, ...payload })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/pending'),
-        state => ({ ...state, isLoading: true, error: null })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/fulfilled'),
-        state => ({ ...state, isLoading: false, firstRender: false })
-      )
-      .addMatcher(
-        ({ type }) => type.startsWith('auth/') && type.endsWith('/rejected'),
-        (state, { payload }) => ({
-          ...state,
-          ...payload,
-          isLoginInProgress: false,
-          isLoading: false,
-          firstRender: false,
-          jwt: null
-        })
-      )
-  }
+  initialState: { ...initial(), firstRender: true },
+  reducers: {
+    changeAuthUser: (state, { payload }) => ({
+      ...state,
+      ...payload,
+    }),
+    changeJwt: (state, { payload }) => {
+      state.jwt = payload
+    },
+    changeFilterPool: (state, { payload: filterPool }) => {
+      state.filterPool = filterPool
+      state.isLoginInProgress = false
+    },
+    changeView: (state, { payload }) => {
+      state.view = payload
+    },
+    stopFirstRender: (state) => {
+      state.firstRender = false
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(logout, (_, { payload }) => {
+      removeStoreData([JWT_NAME])
+
+      return { ...initial(), error: payload }
+    })
+  },
 })
 
-export { name, actions, reducer }
+export const { name, reducer } = slice
+
+const actions = { ...slice.actions, logout }
+export { actions }

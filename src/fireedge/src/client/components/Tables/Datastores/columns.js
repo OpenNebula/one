@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -25,44 +25,52 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => DatastoreModel.getState(row)?.name,
+    accessor: (row) => DatastoreModel.getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => DatastoreModel.getType(row)
+    accessor: (row) => DatastoreModel.getType(row),
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'Type',
+      }),
+    filter: 'includesValue',
   },
   {
     Header: 'Clusters IDs',
     id: 'CLUSTERS',
-    accessor: row => [row?.CLUSTERS?.ID ?? []].flat(),
-    sortType: 'length'
+    accessor: (row) => [row?.CLUSTERS?.ID ?? []].flat(),
+    sortType: 'length',
   },
   {
     Header: 'Allocated CPU',
     accessor: 'ALLOCATED_CPU',
-    sortType: 'number'
+    sortType: 'number',
   },
   {
     Header: 'Total Capacity',
     accessor: 'TOTAL_MB',
-    sortType: 'number'
+    sortType: 'number',
   },
   {
     Header: 'Free Capacity',
     accessor: 'USED_MB',
-    sortType: 'number'
+    sortType: 'number',
   },
   {
     Header: 'Provision ID',
     id: 'PROVISION_ID',
-    accessor: 'PROVISION.ID'
-  }
+    accessor: 'PROVISION.ID',
+  },
 ]

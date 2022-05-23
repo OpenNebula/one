@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,6 +29,7 @@ class HostPool;
 class VirtualMachinePool;
 class VirtualRouterPool;
 class UserPool;
+class SecurityGroupPool;
 class VirtualMachine;
 class VirtualMachineTemplate;
 
@@ -426,6 +427,34 @@ public:
     int live_updateconf(std::unique_ptr<VirtualMachine> vm,
             const RequestAttributes& ra, std::string& error_str);
 
+    /**
+     * Attach a new SG to a VM NIC
+     *
+     *  @param vid the VM id
+     *  @param nicid the id of the VM NIC
+     *  @param sgid the SG id
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int attach_sg(int vid, int nicid, int sgid,
+            const RequestAttributes& ra, std::string& error_str);
+
+    /**
+     * Detach a SG from VM NIC
+     *
+     *  @param vid the VM id
+     *  @param nicid the id of the VM NIC
+     *  @param sgid the SG id
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int detach_sg(int vid, int nicid, int sgid,
+            const RequestAttributes& ra, std::string& error_str);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------
@@ -462,6 +491,11 @@ private:
      *  Pointer to the Cluster Pool
      */
     ClusterPool *           clpool = nullptr;
+
+    /**
+     * Pointer to Security Group Pool
+     */
+    SecurityGroupPool *     sgpool = nullptr;
 
     /**
      *  Pointer to the Virtual Router Pool

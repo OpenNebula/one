@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,37 +13,71 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
 import { List } from 'client/components/Tabs/Common'
+import { useRenameTemplateMutation } from 'client/features/OneApi/vmTemplate'
 
-import * as Helper from 'client/models/Helper'
-import { T, VM_TEMPLATE_ACTIONS } from 'client/constants'
+import Image from 'client/components/Image'
+import { timeToString, levelLockToString } from 'client/models/Helper'
+import {
+  T,
+  VM_TEMPLATE_ACTIONS,
+  STATIC_FILES_URL,
+  VmTemplate,
+} from 'client/constants'
 
-const InformationPanel = ({ template = {}, handleRename, actions }) => {
-  const { ID, NAME, REGTIME, LOCK } = template
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {VmTemplate} props.template - Template
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
+ */
+const InformationPanel = ({ template = {}, actions }) => {
+  const [renameTemplate] = useRenameTemplateMutation()
+
+  const { ID, NAME, REGTIME, LOCK, TEMPLATE = {} } = template
+  const { LOGO } = TEMPLATE
+
+  const handleRename = async (_, newName) => {
+    await renameTemplate({ id: ID, name: newName })
+  }
 
   const info = [
-    { name: T.ID, value: ID },
+    { name: T.ID, value: ID, dataCy: 'id' },
     {
       name: T.Name,
       value: NAME,
       canEdit: actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME),
-      handleEdit: handleRename
+      handleEdit: handleRename,
+      dataCy: 'name',
     },
     {
       name: T.StartTime,
-      value: Helper.timeToString(REGTIME)
+      value: timeToString(REGTIME),
+      dataCy: 'starttime',
     },
     {
       name: T.Locked,
-      value: Helper.levelLockToString(LOCK?.LOCKED)
-    }
-  ]
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
+    },
+    LOGO && {
+      name: T.Logo,
+      value: <Image alt="logo" src={`${STATIC_FILES_URL}/${LOGO}`} />,
+      dataCy: 'logo',
+    },
+  ].filter(Boolean)
 
   return (
-    <List title={T.Information} list={info} />
+    <List
+      title={T.Information}
+      list={info}
+      containerProps={{ sx: { gridRow: 'span 3' } }}
+    />
   )
 }
 
@@ -51,8 +85,7 @@ InformationPanel.displayName = 'InformationPanel'
 
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
-  handleRename: PropTypes.func,
-  template: PropTypes.object
+  template: PropTypes.object,
 }
 
 export default InformationPanel

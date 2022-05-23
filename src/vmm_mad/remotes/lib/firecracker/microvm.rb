@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,6 +26,8 @@ require 'scripts_common'
 
 # This class interacts with Firecracker
 class MicroVM
+
+    CGROUP_DEFAULT_SHARES = 1024
 
     # rubocop:disable Naming/AccessorMethodName
     # rubocop:disable Layout/LineLength
@@ -236,7 +238,7 @@ class MicroVM
         if @one.fcrc[:cgroup_cpu_shares] == true
             cpu_val = @one.cpu_shares
         else
-            cpu_val = OpenNebulaVM::CGROUP_DEFAULT_SHARES
+            cpu_val = CGROUP_DEFAULT_SHARES
         end
 
         params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\

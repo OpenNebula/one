@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,13 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const privateRoutes = []
+const { Actions, Commands } = require('server/routes/api/support/routes')
+const {
+  checkSupport,
+  versionSupport,
+} = require('server/routes/api/support/functions')
 
-const publicRoutes = []
+const { SUPPORT_CHECK, SUPPORT_VERSION } = Actions
 
-const functionRoutes = {
-  private: privateRoutes,
-  public: publicRoutes
-}
-
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[SUPPORT_CHECK],
+    action: checkSupport,
+  },
+  {
+    ...Commands[SUPPORT_VERSION],
+    action: versionSupport,
+  },
+]

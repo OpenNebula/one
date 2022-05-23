@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,12 +15,17 @@
  * ------------------------------------------------------------------------- */
 
 // INFORMATION
+export const REFRESH = 'refresh'
 export const RENAME = 'rename'
 
 // ATTRIBUTES
+export const COPY_ATTRIBUTE = 'copy'
 export const ADD_ATTRIBUTE = 'add'
 export const EDIT_ATTRIBUTE = 'edit'
 export const DELETE_ATTRIBUTE = 'delete'
+
+// LABELS
+export const EDIT_LABELS = 'edit_labels'
 
 // PERMISSION
 export const CHANGE_MODE = 'chmod'

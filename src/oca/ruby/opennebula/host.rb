@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 
 require 'opennebula/pool_element'
 require 'base64'
@@ -217,10 +216,12 @@ module OpenNebula
         # Imports a wild VM from the host and puts it in running state
         #
         # @param name [String] Name of the VM to import
+        # @param ipv4 [Array]  Array with IP4s to set
+        # @param ipv6 [Array]  Array with IP6s to set
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def import_wild(name)
+        def import_wild(name, ipv4 = nil, ipv6 = nil)
             vms = importable_wilds.select {|vm| vm['VM_NAME'] == name }
 
             if vms.length == 0
@@ -247,8 +248,15 @@ module OpenNebula
                 vi_client = VCenterDriver::VIClient.new_from_host(self["ID"])
                 importer  = VCenterDriver::VmmImporter.new(@client, vi_client)
 
-                return importer.import({wild: wild, template: template,
-                                        one_item: vm, host: self['ID']})
+                return importer.import(
+                    { :wild     => wild,
+                      :template => template,
+                      :one_item => vm,
+                      :host     => self['ID'],
+                      :ipv4     => ipv4,
+                      :ipv6     => ipv6
+                    }
+                )
             else
                 rc = vm.allocate(template)
 

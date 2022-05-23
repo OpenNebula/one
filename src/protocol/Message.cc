@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -86,6 +86,8 @@ const EString<IPAMManagerMessages> ipam_msg_t::_type_str({
     {"GET_ADDRESS", IPAMManagerMessages::GET_ADDRESS},
     {"ALLOCATE_ADDRESS", IPAMManagerMessages::ALLOCATE_ADDRESS},
     {"FREE_ADDRESS", IPAMManagerMessages::FREE_ADDRESS},
+    {"VNET_CREATE", IPAMManagerMessages::VNET_CREATE},
+    {"VNET_DELETE", IPAMManagerMessages::VNET_DELETE},
     {"LOG", IPAMManagerMessages::LOG},
 });
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -54,7 +54,9 @@ module OpenNebula
             :unlock         => "vm.unlock",
             :schedadd       => "vm.schedadd",
             :scheddelete    => "vm.scheddelete",
-            :schedupdate    => "vm.schedupdate"
+            :schedupdate    => "vm.schedupdate",
+            :attachsg       => "vm.attachsg",
+            :detachsg       => "vm.detachsg"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -460,6 +462,25 @@ module OpenNebula
             return call(VM_METHODS[:detachnic], @pe_id, nic_id)
         end
 
+        # Attaches a Security Groupt to a running VM
+        #
+        # @param nic_id [Integer] Id of the NIC, where to attach SG
+        # @param sg_id [Integer] Id of the SG to be attached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sg_attach(nic_id, sg_id)
+            return call(VM_METHODS[:attachsg], @pe_id, nic_id, sg_id)
+        end
+
+        # Detaches a Security Group from a running VM
+        #
+        # @param sg_id [Integer] Id of the SG to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sg_detach(nic_id, sg_id)
+            return call(VM_METHODS[:detachsg], @pe_id, nic_id, sg_id)
+        end
+
         # Sets the re-scheduling flag for the VM
         def resched
             action('resched')
@@ -802,6 +823,10 @@ module OpenNebula
         # Returns the deploy_id of the VirtualMachine (numeric value)
         def deploy_id
             self['DEPLOY_ID']
+        end
+
+        def get_history_record(seq)
+            retrieve_xmlelements('//HISTORY')[seq].to_xml
         end
 
         def wait_state(state, timeout=120)

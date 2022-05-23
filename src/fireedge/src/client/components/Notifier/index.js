@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -22,9 +22,10 @@ import { IconButton } from '@mui/material'
 import { Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
+import { Translate } from 'client/components/HOC'
 
 const CloseButton = ({ handleClick }) => (
-  <IconButton onClick={handleClick} component='span'>
+  <IconButton onClick={handleClick} component="span">
     <CloseIcon />
   </IconButton>
 )
@@ -37,12 +38,12 @@ const Notifier = () => {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const storeDisplayed = id => {
+  const storeDisplayed = (id) => {
     displayed = [...displayed, id]
   }
 
-  const removeDisplayed = id => {
-    displayed = [...displayed.filter(key => id !== key)]
+  const removeDisplayed = (id) => {
+    displayed = [...displayed.filter((key) => id !== key)]
   }
 
   useEffect(() => {
@@ -50,19 +51,20 @@ const Notifier = () => {
       ({ key, message, options = {}, dismissed = false }) => {
         if (dismissed) {
           closeSnackbar(key)
+
           return
         }
 
         if (displayed.includes(key)) return
 
-        enqueueSnackbar(message, {
+        enqueueSnackbar(<Translate word={message} />, {
           key,
           ...options,
           action: CloseButton({ handleClick: () => closeSnackbar(key) }),
           onExited: (_, myKey) => {
             deleteSnackbar(myKey)
             removeDisplayed(myKey)
-          }
+          },
         })
 
         // keep track of snackBars that we've displayed
@@ -75,11 +77,11 @@ const Notifier = () => {
 }
 
 CloseButton.propTypes = {
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
 }
 
 CloseButton.defaultProps = {
-  handleClick: undefined
+  handleClick: undefined,
 }
 
 export default Notifier

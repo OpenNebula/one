@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,6 +21,7 @@ import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import { Store } from 'redux'
 
+import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
@@ -36,35 +37,36 @@ buildTranslationLocale()
  * @param {object} props - Props
  * @param {Store} props.store - Redux store
  * @param {string|object} props.location - The URL the server received
- * @param {object} props.context - Context object contains the results of the render
  * @returns {JSXElementConstructor} Sunstone App
  */
-const Sunstone = ({ store = {}, location = '', context = {} }) => (
-  <ReduxProvider store={store}>
-    <TranslateProvider>
-      <MuiProvider theme={theme}>
-        <NotistackProvider>
-          {location && context ? (
-          // server build
-            <StaticRouter location={location} context={context}>
-              <App />
-            </StaticRouter>
-          ) : (
-          // browser build
-            <BrowserRouter basename={`${APP_URL}/${SunstoneAppName}`}>
-              <App />
-            </BrowserRouter>
-          )}
-        </NotistackProvider>
-      </MuiProvider>
-    </TranslateProvider>
-  </ReduxProvider>
+const Sunstone = ({ store = {}, location = '' }) => (
+  <PreloadConfigProvider>
+    <ReduxProvider store={store}>
+      <TranslateProvider>
+        <MuiProvider theme={theme}>
+          <NotistackProvider>
+            {location ? (
+              // server build
+              <StaticRouter location={location}>
+                <App />
+              </StaticRouter>
+            ) : (
+              // browser build
+              <BrowserRouter basename={`${APP_URL}/${SunstoneAppName}`}>
+                <App />
+              </BrowserRouter>
+            )}
+          </NotistackProvider>
+        </MuiProvider>
+      </TranslateProvider>
+    </ReduxProvider>
+  </PreloadConfigProvider>
 )
 
 Sunstone.propTypes = {
   location: PropTypes.string,
-  context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+  context: PropTypes.object,
+  store: PropTypes.object,
 }
 
 Sunstone.displayName = 'SunstoneApp'

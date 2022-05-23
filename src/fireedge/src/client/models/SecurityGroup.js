@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,40 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { T, PROTOCOL_STRING, RULE_TYPE_STRING, ICMP_STRING, ICMP_V6_STRING } from 'client/constants'
-
-/**
- * @typedef {object} SecurityGroupRule
- * @property {number|string} SECURITY_GROUP_ID - ID
- * @property {string} SECURITY_GROUP_NAME - Name
- * @property {string} PROTOCOL - Protocol
- * @property {string} RULE_TYPE - Rule type
- * @property {number|string} ICMP_TYPE - ICMP type
- * @property {number|string} [ICMPv6_TYPE] - ICMP v6 type
- * @property {number|string} [RANGE] - Range
- * @property {number|string} [NETWORK_ID] - Network id
- * @property {number|string} [SIZE] - Network size
- * @property {string} [IP] - Network IP
- * @property {string} [MAC] - Network MAC
- */
+import {
+  T,
+  PROTOCOL_STRING,
+  RULE_TYPE_STRING,
+  ICMP_STRING,
+  ICMP_V6_STRING,
+  SecurityGroupRule,
+  PrettySecurityGroupRule,
+} from 'client/constants'
 
 /**
  * Converts a security group attributes into a readable format.
  *
  * @param {SecurityGroupRule} securityGroup - Security group
- * @returns {{
- * SECURITY_GROUP_ID: number|string,
- * SECURITY_GROUP_NAME: string,
- * PROTOCOL: PROTOCOL_STRING,
- * RULE_TYPE: RULE_TYPE_STRING,
- * ICMP_TYPE: ICMP_STRING,
- * ICMPv6_TYPE: ICMP_V6_STRING,
- * RANGE: string,
- * NETWORK_ID: number|string,
- * SIZE: number|string,
- * IP: string,
- * MAC: string
- * }} Readable attributes
+ * @returns {PrettySecurityGroupRule} Readable attributes
  */
 export const prettySecurityGroup = ({
   SECURITY_GROUP_ID: ID,
@@ -56,6 +37,7 @@ export const prettySecurityGroup = ({
   ICMP_TYPE: icmpType,
   ICMPv6_TYPE: icmpv6Type,
   RANGE: range,
+  NETWORK_ID: networkId,
   ...rest
 }) => ({
   ID,
@@ -65,7 +47,8 @@ export const prettySecurityGroup = ({
   ICMP_TYPE: ICMP_STRING[+icmpType] ?? '',
   ICMPv6_TYPE: ICMP_V6_STRING[+icmpv6Type] ?? '',
   RANGE: range || T.All,
-  ...rest
+  NETWORK_ID: networkId ?? T.Any,
+  ...rest,
 })
 
 /**
@@ -80,7 +63,9 @@ export const getSecurityGroupsFromResource = (resource, securityGroups) => {
 
   const groups = Array.isArray(securityGroups)
     ? securityGroups
-    : securityGroups.split(',')
+    : securityGroups?.split(',')
 
-  return rules.filter(({ SECURITY_GROUP_ID }) => groups.includes?.(SECURITY_GROUP_ID))
+  return rules.filter(({ SECURITY_GROUP_ID }) =>
+    groups?.includes?.(SECURITY_GROUP_ID)
+  )
 }

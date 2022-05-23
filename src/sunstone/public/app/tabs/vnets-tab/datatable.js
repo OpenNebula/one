@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,8 +37,8 @@ define(function(require) {
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 10;
-  var SEARCH_COLUMN = 11;
+  var LABELS_COLUMN = 11;
+  var SEARCH_COLUMN = 12;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -71,6 +71,7 @@ define(function(require) {
       Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
+      Locale.tr("Status"),
       Locale.tr("Reservation"),
       Locale.tr("Cluster"),
       Locale.tr("Bridge"),
@@ -155,6 +156,7 @@ define(function(require) {
       element.NAME,
       element.UNAME,
       element.GNAME,
+      OpenNebulaNetwork.stateStr(element.STATE),
       element.PARENT_NETWORK_ID.length ? Locale.tr("Yes") : Locale.tr("No"),
       clusters,
       element.BRIDGE,

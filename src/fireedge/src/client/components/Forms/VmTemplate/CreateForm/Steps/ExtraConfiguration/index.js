@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,26 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+// eslint-disable-next-line no-unused-vars
+import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+// eslint-disable-next-line no-unused-vars
+import { useFormContext, FieldErrors } from 'react-hook-form'
 
-import { useFormContext } from 'react-hook-form'
-import { useTheme } from '@mui/material'
-import {
-  WarningCircledOutline as WarningIcon,
-  Db as DatastoreIcon,
-  ServerConnection as NetworkIcon,
-  SystemShut as OsIcon,
-  DataTransferBoth as IOIcon,
-  Calendar as ActionIcon,
-  NetworkAlt as PlacementIcon,
-  Folder as ContextIcon,
-  ElectronicsChip as NumaIcon
-} from 'iconoir-react'
-
-import { useAuth } from 'client/features/Auth'
-import { Tr, Translate } from 'client/components/HOC'
+import { useViews } from 'client/features/Auth'
+import { Translate } from 'client/components/HOC'
 
 import Tabs from 'client/components/Tabs'
 import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
@@ -47,65 +35,94 @@ import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfi
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
+
+/**
+ * @typedef {object} TabType
+ * @property {string} id - Id will be to use in view yaml to hide/display the tab
+ * @property {string} name - Label of tab
+ * @property {ReactElement} Content - Content tab
+ * @property {object} [icon] - Icon of tab
+ * @property {function(FieldErrors):boolean} [getError] - Returns `true` if the tab contains an error in form
+ */
 
 export const STEP_ID = 'extra'
 
-export const STEP_SECTION = [
-  { id: 'storage', name: T.Storage, icon: DatastoreIcon, Content: Storage },
-  { id: 'network', name: T.Network, icon: NetworkIcon, Content: Networking },
-  { id: 'booting', name: T.OSBooting, icon: OsIcon, Content: Booting },
-  { id: 'input_output', name: T.InputOrOutput, icon: IOIcon, Content: InputOutput },
-  { id: 'context', name: T.Context, icon: ContextIcon, Content: Context },
-  { id: 'sched_action', name: T.ScheduledAction, icon: ActionIcon, Content: ScheduleAction },
-  { id: 'placement', name: T.Placement, icon: PlacementIcon, Content: Placement },
-  { id: 'numa', name: T.Numa, icon: NumaIcon, Content: Numa }
+/** @type {TabType[]} */
+export const TABS = [
+  Storage,
+  Networking,
+  Booting,
+  InputOutput,
+  Context,
+  ScheduleAction,
+  Placement,
+  Numa,
 ]
 
 const Content = ({ data, setFormData }) => {
-  const theme = useTheme()
-  const { watch, formState: { errors }, control } = useFormContext()
-  const { view, getResourceView } = useAuth()
+  const {
+    watch,
+    formState: { errors },
+    control,
+  } = useFormContext()
+  const { view, getResourceView } = useViews()
 
-  const tabs = useMemo(() => {
-    const hypervisor = watch(`${GENERAL_ID}.HYPERVISOR`)
-    const dialog = getResourceView('VM-TEMPLATE')?.dialogs?.create_dialog
-    const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
+  const hypervisor = useMemo(() => watch(`${GENERAL_ID}.HYPERVISOR`), [])
 
-    return STEP_SECTION
-      .filter(({ id }) => sectionsAvailable.includes(id))
-      .map(({ Content, name, icon, ...section }, idx) => ({
-        ...section,
-        name,
-        label: <Translate word={name} />,
-        renderContent: <Content {...{ data, setFormData, hypervisor, control }} />,
-        icon: errors[STEP_ID]?.[idx] ? (
-          <WarningIcon color={theme.palette.error.main} />
-        ) : icon
-      }))
-  }, [errors[STEP_ID], view, control])
+  const sectionsAvailable = useMemo(() => {
+    const resource = RESOURCE_NAMES.VM_TEMPLATE
+    const dialog = getResourceView(resource)?.dialogs?.create_dialog
 
-  return tabs.length > 0 ? (
-    <Tabs tabs={tabs} />
-  ) : (
-    <span>{Tr(T.Empty)}</span>
+    return getSectionsAvailable(dialog, hypervisor)
+  }, [view])
+
+  const totalErrors = Object.keys(errors[STEP_ID] ?? {}).length
+
+  const tabs = useMemo(
+    () =>
+      TABS.filter(({ id }) => sectionsAvailable.includes(id)).map(
+        ({ Content: TabContent, name, getError, ...section }) => ({
+          ...section,
+          name,
+          label: <Translate word={name} />,
+          renderContent: () => (
+            <TabContent {...{ data, setFormData, hypervisor, control }} />
+          ),
+          error: getError?.(errors[STEP_ID]),
+        })
+      ),
+    [totalErrors, view, control]
   )
+
+  return <Tabs tabs={tabs} />
 }
 
-const ExtraConfiguration = () => ({
-  id: STEP_ID,
-  label: T.AdvancedOptions,
-  resolver: formData => {
-    const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR
-    return SCHEMA(hypervisor)
-  },
-  optionsValidate: { abortEarly: false },
-  content: Content
-})
+/**
+ * Optional configuration about VM Template.
+ *
+ * @param {VmTemplate} vmTemplate - VM Template
+ * @returns {object} Optional configuration step
+ */
+const ExtraConfiguration = (vmTemplate) => {
+  const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+
+  return {
+    id: STEP_ID,
+    label: T.AdvancedOptions,
+    resolver: (formData) => {
+      const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR ?? initialHypervisor
+
+      return SCHEMA(hypervisor)
+    },
+    optionsValidate: { abortEarly: false },
+    content: Content,
+  }
+}
 
 Content.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 export default ExtraConfiguration

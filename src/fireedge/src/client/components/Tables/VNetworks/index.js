@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,44 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
 
-import { useFetch } from 'client/hooks'
-import { useVNetwork, useVNetworkApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 
-import { SkeletonTable, EnhancedTable, EnhancedTableProps } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VNetworkColumns from 'client/components/Tables/VNetworks/columns'
 import VNetworkRow from 'client/components/Tables/VNetworks/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const VNetworksTable = props => {
-  const columns = useMemo(() => VNetworkColumns, [])
+const DEFAULT_DATA_CY = 'vnets'
 
-  const vNetworks = useVNetwork()
-  const { getVNetworks } = useVNetworkApi()
+/**
+ * @param {object} props - Props
+ * @returns {ReactElement} Virtual networks table
+ */
+const VNetworksTable = (props) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetVNetworksQuery,
+    ...rest
+  } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVNetworks)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useQuery()
 
-  useEffect(() => { fetchRequest() }, [])
-
-  if (vNetworks?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.VNET)?.filters,
+        columns: VNetworkColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={vNetworks}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={VNetworkRow}
-      {...props}
+      {...rest}
     />
   )
 }
 
-VNetworksTable.propTypes = EnhancedTableProps
-VNetworksTable.displayName = 'VNetworksTable'
+VNetworksTable.propTypes = { ...EnhancedTable.propTypes }
+VNetworksTable.displayName = 'VirtualNetworksTable'
 
 export default VNetworksTable

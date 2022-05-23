@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -24,11 +24,11 @@ resource_name: "VM-TEMPLATE"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  refresh: true
   create_dialog: true
   import_dialog: false
   update_dialog: true
   instantiate_dialog: true
+  create_app_dialog: false # reference to create_dialog in marketplace-app-tab.yaml
   clone: true
   delete: true
   chown: false
@@ -37,11 +37,16 @@ actions:
   unlock: true
   share: true
   unshare: true
+  edit_labels: false
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  owner: true
+  group: true
+  locked: true
+  vrouter: true
 
 
 # Info Tabs - Which info tabs are used to show extended information
@@ -87,9 +92,9 @@ dialogs:
     sched_action: true
     booting: true
   create_dialog:
-    information: true
-    capacity: true
     ownership: true
+    capacity: true
+    showback: true
     vm_group: true
     vcenter:
       enabled: true
@@ -106,6 +111,6 @@ dialogs:
     booting: true
     numa:
       enabled: true
-      no_on:
+      not_on:
         - vcenter
         - kvm

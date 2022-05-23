@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 
 import { styled, Link, Typography } from '@mui/material'
 
-import { useFetch } from 'client/hooks'
-import { useSystem, useSystemApi } from 'client/features/One'
+import { useGetOneVersionQuery } from 'client/features/OneApi/system'
 import { StatusChip } from 'client/components/Status'
-import { BY } from 'client/constants'
+import { Translate } from 'client/components/HOC'
+import { BY, T } from 'client/constants'
 
 const FooterBox = styled('footer')(({ theme }) => ({
   color: theme.palette.primary.contrastText,
@@ -32,36 +32,35 @@ const FooterBox = styled('footer')(({ theme }) => ({
   right: 0,
   zIndex: theme.zIndex.appBar,
   textAlign: 'center',
-  padding: theme.spacing(0.6)
+  padding: theme.spacing(0.6),
 }))
 
 const HeartIcon = styled('span')(({ theme }) => ({
   margin: theme.spacing(0, 1),
   color: theme.palette.error.dark,
   '&:before': {
-    content: "'❤️'"
-  }
+    content: "'❤️'",
+  },
 }))
 
 const Footer = memo(() => {
-  const { version } = useSystem()
-  const { getOneVersion } = useSystemApi()
-  const { fetchRequest } = useFetch(getOneVersion)
-
-  useEffect(() => {
-    !version && fetchRequest()
-  }, [])
+  const { data: version } = useGetOneVersionQuery()
 
   return (
     <FooterBox>
-      <Typography variant='body2'>
-        {'Made with'}
-        <HeartIcon role='img' aria-label='heart-emoji' />
-        <Link href={BY.url} color='primary.contrastText'>
+      <Typography variant="body2">
+        <Translate word={T.MadeWith} />
+        <HeartIcon role="img" aria-label="heart-emoji" />
+        <Link href={BY.url} color="primary.contrastText">
           {BY.text}
         </Link>
         {version && (
-          <StatusChip stateColor='secondary' text={version} mx={1} />
+          <StatusChip
+            forceWhiteColor
+            stateColor="secondary"
+            text={version}
+            mx={1}
+          />
         )}
       </Typography>
     </FooterBox>

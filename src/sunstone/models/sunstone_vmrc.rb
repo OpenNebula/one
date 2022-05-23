@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,14 +26,6 @@ require 'openssl'
 require 'vcenter_driver'
 require 'fileutils'
 require 'sunstone_remotes'
-
-if !ONE_LOCATION
-    VMRC_TICKETS = '/var/lib/one/sunstone_vmrc_tokens/'
-else
-    VMRC_TICKETS = ONE_LOCATION + '/var/sunstone_vmrc_tokens/'
-end
-
-FileUtils.mkdir_p VMRC_TICKETS
 
 # Class for necessary VMRC ticket creation
 class SunstoneVMRC < SunstoneRemoteConnections
@@ -63,39 +55,10 @@ class SunstoneVMRC < SunstoneRemoteConnections
             return error(400, error_message)
         end
 
-        vm_id  = vm_resource['ID']
-        one_vm = VCenterDriver::VIHelper.one_item(
-            OpenNebula::VirtualMachine,
-            vm_id
-        )
-        vm_ref = one_vm['DEPLOY_ID']
-
-        host_id = one_vm['HISTORY_RECORDS/HISTORY[last()]/HID'].to_i
-
-        vi_client = VCenterDriver::VIClient.new_from_host(host_id, client)
-
-        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
-
-        parameters = vm.html_console_parameters
-
-        data = {
-            :host   => parameters[:host],
-            :port   => parameters[:port],
-            :ticket => parameters[:ticket]
-        }
-
-        file = File.open(
-            VMRC_TICKETS +
-            VCenterDriver::FileHelper.sanitize(data[:ticket]),
-            'w'
-        )
-        file.write('https://' + data[:host] + ':' + data[:port].to_s)
-        file.close
-
         info = SunstoneVMHelper.get_remote_info(vm_resource)
         encode_info = Base64.encode64(info.to_json)
 
-        [200, { :data => data, :info => encode_info }.to_json]
+        [200, { :info => encode_info }.to_json]
     end
 
 end

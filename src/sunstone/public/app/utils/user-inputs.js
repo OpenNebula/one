@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -866,9 +866,10 @@ define(function(require) {
         break;
       case "number":
       case "number-float":
+        var step = !attr.visor && attr.step? "step='"+attr.step+"'" : "";
         var min = attr.min != undefined ? "min='"+attr.min+"'" : "";
         var max = attr.max != undefined ? "max='"+attr.max+"'" : "";
-        input = "<input class='uinput-slider-val "+clss+"' type='number' step='"+attr.step+"' "+min+" "+max+" value='"+value+"' "+wizard_field+" "+required+"/>";
+        input = "<input class='uinput-slider-val "+clss+"' type='number' "+step+" "+min+" "+max+" value='"+value+"' "+wizard_field+" "+required+"/>";
         break;
       case "range":
       case "range-float":
@@ -903,7 +904,8 @@ define(function(require) {
       break;
     }
     if(attr.visor){
-      input += "<input type=\"number\" class=\"visor\" value=\""+value+"\" required>";
+      var step = attr.step? "step='"+attr.step+"'" : "";
+      input += "<input type='number' class='visor' "+step+" value='"+value+"' required>";
     }
     return input;
   }

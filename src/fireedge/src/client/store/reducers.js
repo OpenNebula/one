@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { combineReducers } = require('redux')
+const { combineReducers } = require('@reduxjs/toolkit')
 const Auth = require('client/features/Auth/slice')
 const General = require('client/features/General/slice')
-const One = require('client/features/One/slice')
+const { authApi } = require('client/features/AuthApi')
+const { oneApi } = require('client/features/OneApi')
 
 const rootReducer = combineReducers({
   general: General.reducer,
   auth: Auth.reducer,
-  one: One.reducer
+  [authApi.reducerPath]: authApi.reducer,
+  [oneApi.reducerPath]: oneApi.reducer,
 })
 
 module.exports = rootReducer

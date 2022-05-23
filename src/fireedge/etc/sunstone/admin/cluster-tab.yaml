@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 ---
-# This file describes the information and actions available in the HOST tab
+# This file describes the information and actions available in the CLUSTER tab
 
 # Resource
 
@@ -24,14 +24,14 @@ resource_name: "CLUSTER"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  rename: true
+  create_dialog: true
+  update_dialog: true
   delete: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
-
 
 # Info Tabs - Which info tabs are used to show extended information
 
@@ -40,9 +40,17 @@ info-tabs:
     enabled: true
     information_panel:
       enabled: true
+      actions:
+        rename: true
+    overcommitment:
+      enabled: true
+      actions:
+        update_cpu: true
+        update_memory: true
     attributes_panel:
       enabled: true
       actions:
+        copy: true
         add: true
         edit: true
         delete: true

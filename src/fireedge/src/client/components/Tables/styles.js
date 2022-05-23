@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -26,54 +26,53 @@ export const rowStyles = makeStyles(
       borderRadius: 6,
       display: 'flex',
       gap: 8,
-      boxShadow: shadows[1],
       [breakpoints.down('md')]: {
-        flexWrap: 'wrap'
-      }
+        flexWrap: 'wrap',
+      },
     },
     figure: {
-      flexBasis: '20%',
-      paddingTop: '12.5%',
-      overflow: 'hidden',
-      position: 'relative'
+      flexBasis: '10%',
+      aspectRatio: '16/9',
     },
     image: {
-      top: 0,
-      left: 0,
       width: '100%',
       height: '100%',
       objectFit: 'contain',
-      position: 'absolute',
-      userSelect: 'none'
+      userSelect: 'none',
     },
     main: {
       flex: 'auto',
       overflow: 'hidden',
-      alignSelf: 'start'
+      alignSelf: 'center',
     },
     title: {
       color: palette.text.primary,
       display: 'flex',
       gap: 6,
       alignItems: 'center',
-      flexWrap: 'wrap',
-      marginBottom: 8
     },
     labels: {
       display: 'inline-flex',
-      gap: 6
+      alignItems: 'center',
+      gap: 6,
     },
     caption: {
       ...typography.caption,
       color: palette.text.secondary,
       marginTop: 4,
       display: 'flex',
-      gap: '0.5em',
+      gap: '1em',
+      alignItems: 'center',
       flexWrap: 'wrap',
       wordWrap: 'break-word',
       '& > .full-width': {
-        flexBasis: '100%'
-      }
+        flexBasis: '100%',
+      },
+      '& > span': {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5em',
+      },
     },
     secondary: {
       width: '25%',
@@ -81,15 +80,15 @@ export const rowStyles = makeStyles(
       whiteSpace: 'nowrap',
       textAlign: 'right',
       [breakpoints.down('sm')]: {
-        display: 'none'
+        display: 'none',
       },
       '& > *': {
         flexShrink: 0,
-        whiteSpace: 'nowrap'
-      }
+        whiteSpace: 'nowrap',
+      },
     },
     actions: {
-      flexShrink: 0
-    }
+      flexShrink: 0,
+    },
   })
 )

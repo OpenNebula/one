@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -140,6 +140,15 @@ public:
     const std::string& payload() const
     {
         return _payload;
+    }
+
+    std::string payload64() const
+    {
+        std::string buffer;
+
+        ssl_util::base64_decode(_payload, buffer);
+
+        return buffer;
     }
 
     void payload(const std::string& p)

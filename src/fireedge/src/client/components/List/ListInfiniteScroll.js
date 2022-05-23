@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -24,14 +24,14 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
   const gridRef = createRef()
   const { loading, shortList, finish, reset, setLength } = useList({
     list,
-    initLength: 50
+    initLength: 50,
   })
 
   const loaderRef = useRef()
   const { isNearScreen } = useNearScreen({
     distance: '100px',
     externalRef: loading ? null : loaderRef,
-    once: false
+    once: false,
   })
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
   }, [list])
 
   const debounceHandleNextPage = useCallback(
-    debounce(() => setLength(prevLength => prevLength + 20), 200),
+    debounce(() => setLength((prevLength) => prevLength + 20), 200),
     [setLength]
   )
 
@@ -55,7 +55,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gridGap: 4
+          gridGap: 4,
         }}
       >
         {shortList?.map(renderResult)}
@@ -63,8 +63,8 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
       {!finish && (
         <LinearProgress
           ref={loaderRef}
-          color='secondary'
-          style={{ width: '100%', marginTop: 10 }}
+          color="secondary"
+          sx={{ width: '100%', marginTop: 10 }}
         />
       )}
     </div>
@@ -73,12 +73,12 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
 
 ListInfiniteScroll.propTypes = {
   list: PropTypes.arrayOf(PropTypes.any),
-  renderResult: PropTypes.func
+  renderResult: PropTypes.func,
 }
 
 ListInfiniteScroll.defaultProps = {
   list: [],
-  renderResult: () => null
+  renderResult: () => null,
 }
 
 export default ListInfiniteScroll

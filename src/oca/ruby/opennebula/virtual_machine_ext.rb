@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -92,6 +92,35 @@ module OpenNebula::VirtualMachineExt
                     rc = poweroff
 
                     raise rc.message if OpenNebula.is_error?(rc)
+                end
+
+                # --------------------------------------------------------------
+                # Ask if source VM is linked clone
+                # --------------------------------------------------------------
+                use_linked_clones = self['USER_TEMPLATE/VCENTER_LINKED_CLONES']
+
+                if use_linked_clones && use_linked_clones.downcase == 'yes'
+                    # Delay the require until it is strictly needed
+                    # This way we can avoid the vcenter driver dependency
+                    # in no vCenter deployments
+                    require 'vcenter_driver'
+
+                    deploy_id = self['DEPLOY_ID']
+                    vm_id = self['ID']
+                    host_id = self['HISTORY_RECORDS/HISTORY[last()]/HID']
+                    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+                    vm = VCenterDriver::VirtualMachine.new(
+                        vi_client,
+                        deploy_id,
+                        vm_id
+                    )
+
+                    error, vm_template_ref = vm.save_as_linked_clones(name)
+
+                    raise error unless error.nil?
+
+                    return vm_template_ref
                 end
 
                 # --------------------------------------------------------------
@@ -271,7 +300,7 @@ module OpenNebula::VirtualMachineExt
 
                 raise rc.message if OpenNebula.is_error?(rc)
 
-                binfo.merge!(backup_info) do |key, old_val, new_val|
+                binfo.merge!(backup_info) do |_key, old_val, new_val|
                     new_val.nil? ? old_val : new_val
                 end
 
@@ -472,7 +501,7 @@ module OpenNebula::VirtualMachineExt
                 end
 
                 binfo[:apps].each do |id|
-                    logger.info "Deleting applicance #{id}" if logger
+                    logger.info "Deleting appliance #{id}" if logger
 
                     papp = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
 

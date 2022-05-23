@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,8 +29,6 @@
 #include <math.h>
 
 using namespace std;
-
-const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
 const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
 
@@ -464,6 +462,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     int       num;
 
+    int     cgversion;
+
     string  vcpu;
     string  vcpu_max;
     float   cpu;
@@ -602,6 +602,8 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_slot   = "";
     string vm_func   = "";
 
+    string uuid = "";
+
     bool pae                = false;
     bool acpi               = false;
     bool apic               = false;
@@ -627,10 +629,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     std::string sd_bus;
     std::string disk_bus;
-
-    bool pm_defaults = true;
-    std::string pm_suspend_to_disk = "yes";
-    std::string pm_suspend_to_mem  = "yes";
 
     string  vm_xml;
 
@@ -703,15 +701,40 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
     }
 
-    //Every process gets 1024 shares by default (cgroups), scale this with CPU
+    // Defaults to cgroups version 1 scaling for shares/weight
+    // cpu.weight/cpu.shares are scaled based on CPU value and defaults share
     cpu = 1;
     vm->get_template_attribute("CPU", cpu);
 
     topology = vm->get_template_attribute("TOPOLOGY");
     vm->get_template_attribute("NUMA_NODE", nodes);
 
+    get_attribute(nullptr, host, nullptr, "CGROUPS_VERSION", cgversion);
+
+    int  base = 1024;
+    int  min  = 2;
+    long max  = 262144;
+
+    if (cgversion == 2)
+    {
+        base = 100;
+        min  = 1;
+        max  = 10000;
+    }
+
+    long shares = ceil(base * cpu);
+
+    if (shares < min)
+    {
+        shares = min;
+    }
+    else if (shares > max)
+    {
+        shares = max;
+    }
+
     file << "\t<cputune>\n";
-    file << "\t\t<shares>"<< ceil(cpu * CGROUP_BASE_CPU_SHARES) << "</shares>\n";
+    file << "\t\t<shares>"<< shares << "</shares>\n";
 
     pin_cpu(file, topology, nodes);
 
@@ -720,24 +743,21 @@ int LibVirtDriver::deployment_description_kvm(
     // Memory must be expressed in Kb
     if (vm->get_template_attribute("MEMORY",memory))
     {
-        file << "\t<memory>" << memory * 1024 << "</memory>" << endl;
+        bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
+        has_memory_max = has_memory_max && memory < memory_max;
+
+        if (!has_memory_max)
+        {
+            memory_max = memory;
+        }
+
+        file << "\t<memory>" << memory_max * 1024 << "</memory>" << endl;
+        file << "\t<currentMemory>" << memory * 1024 << "</currentMemory>" << endl;
     }
     else
     {
         vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
         return -1;
-    }
-
-    bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
-    has_memory_max = has_memory_max && memory < memory_max;
-
-    if (!topology && has_memory_max)
-    {
-        int slots = 0;
-        get_attribute(vm, host, cluster, "MEMORY_SLOTS", slots);
-
-        file << "\t<maxMemory slots='" << slots
-             << "'>" << memory_max * 1024 << "</maxMemory>" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -799,17 +819,18 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     bool boot_secure = false;
-
     string firmware;
-  
+
     get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
-  
-    if ( !firmware.empty() && !one_util::icasecmp(firmware, "BIOS") )
+
+    bool is_uefi = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS");
+
+    if ( is_uefi )
     {
         string firmware_secure = "no";
-      
-        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE", boot_secure) && 
-             boot_secure)
+
+        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE",
+                    boot_secure) && boot_secure)
         {
             firmware_secure = "yes";
         }
@@ -821,12 +842,6 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t<nvram>"
              << vm->get_system_dir() << "/" << vm->get_name() << "_VARS.fd"
              << "</nvram>\n";
-
-        // Suspend to mem and disk disabled to avoid boot problems with UEFI
-        // firmware
-        pm_defaults = false;
-        pm_suspend_to_disk = "no";
-        pm_suspend_to_mem  = "no";
     }
 
     file << "\t</os>" << endl;
@@ -834,13 +849,13 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // POWER MANAGEMENT SECTION
     // ------------------------------------------------------------------------
-    if (!pm_defaults)
+    if ( is_uefi && arch != "aarch64" )
     {
+        // Suspend to mem and disk disabled to avoid boot problems with UEFI
+        // firmware in x86 arch
         file << "\t<pm>\n"
-             << "\t\t<suspend-to-disk enabled=\"" << pm_suspend_to_disk
-             << "\"/>\n"
-             << "\t\t<suspend-to-mem enabled=\"" << pm_suspend_to_mem
-             << "\"/>\n"
+             << "\t\t<suspend-to-disk enabled=\"no\"/>\n"
+             << "\t\t<suspend-to-mem enabled=\"no\"/>\n"
              << "\t</pm>\n";
     }
 
@@ -858,7 +873,7 @@ int LibVirtDriver::deployment_description_kvm(
         cpu_mode = "custom";
     }
 
-    if ( !cpu_model.empty() || topology != 0 || has_memory_max )
+    if ( !cpu_model.empty() || topology != 0 )
     {
         file << "\t<cpu";
 
@@ -875,19 +890,6 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << ">\n";
-        }
-
-        if (nodes.empty() && has_memory_max)
-        {
-            int cpus = to_i(vcpu) - 1;
-            if (cpus < 0)
-            {
-                cpus = 0;
-            }
-
-            file << "\t\t<numa>\n\t\t\t<cell id='0' cpus='0-" << cpus
-                << "' memory=" << one_util::escape_xml_attr(memory * 1024)
-                << " unit='KiB'/>\n\t\t</numa>" << endl;
         }
 
         vtopol(file, topology, nodes, numa_tune, mbacking);
@@ -1797,6 +1799,8 @@ int LibVirtDriver::deployment_description_kvm(
         vm_slot    = pci[i]->vector_value("VM_SLOT");
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
 
+        uuid = pci[i]->vector_value("UUID");
+
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
             vm->log("VMM", Log::WARNING,
@@ -1805,26 +1809,38 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
-
-        file << "\t\t\t<source>\n";
-        file << "\t\t\t\t<address "
-                 << " domain="   << one_util::escape_xml_attr("0x" + domain)
-                 << " bus="      << one_util::escape_xml_attr("0x" + bus)
-                 << " slot="     << one_util::escape_xml_attr("0x" + slot)
-                 << " function=" << one_util::escape_xml_attr("0x" + func)
-             << "/>\n";
-        file << "\t\t\t</source>\n";
-
-        if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
-                !vm_func.empty() )
+        if ( !uuid.empty() )
         {
-            file << "\t\t\t\t<address type='pci'"
-                     << " domain="   << one_util::escape_xml_attr(vm_domain)
-                     << " bus="      << one_util::escape_xml_attr(vm_bus)
-                     << " slot="     << one_util::escape_xml_attr(vm_slot)
-                     << " function=" << one_util::escape_xml_attr(vm_func)
-                 << "/>\n";
+            file << "\t\t<hostdev mode='subsystem' type='mdev' model='vfio-pci'>\n";
+            file << "\t\t\t<source>\n";
+            file << "\t\t\t\t<address "
+                    << " uuid="   << one_util::escape_xml_attr(uuid)
+                << "/>\n";
+            file << "\t\t\t</source>\n";
+        }
+        else
+        {
+            file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
+
+            file << "\t\t\t<source>\n";
+            file << "\t\t\t\t<address "
+                    << " domain="   << one_util::escape_xml_attr("0x" + domain)
+                    << " bus="      << one_util::escape_xml_attr("0x" + bus)
+                    << " slot="     << one_util::escape_xml_attr("0x" + slot)
+                    << " function=" << one_util::escape_xml_attr("0x" + func)
+                << "/>\n";
+            file << "\t\t\t</source>\n";
+
+            if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
+                    !vm_func.empty() )
+            {
+                file << "\t\t\t\t<address type='pci'"
+                        << " domain="   << one_util::escape_xml_attr(vm_domain)
+                        << " bus="      << one_util::escape_xml_attr(vm_bus)
+                        << " slot="     << one_util::escape_xml_attr(vm_slot)
+                        << " function=" << one_util::escape_xml_attr(vm_func)
+                    << "/>\n";
+            }
         }
 
         file << "\t\t</hostdev>" << endl;
@@ -1852,7 +1868,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<pae/>" << endl;
         }
 
-        if ( acpi )
+        if ( acpi && (arch != "aarch64" || is_uefi ))
         {
             file << "\t\t<acpi/>" << endl;
         }

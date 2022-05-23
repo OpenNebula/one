@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -130,6 +130,10 @@ module OpenNebulaJSON
                 sched_action_update(action_hash['params'])
             when 'sched_action_delete'
                 sched_action_delete(action_hash['params'])
+            when 'sg_attach'
+                sg_attach(action_hash['params'])
+            when 'sg_detach'
+                sg_detach(action_hash['params'])
             else
                 error_msg = "#{action_hash['perform']} action not " \
                             ' available for this resource'
@@ -287,6 +291,14 @@ module OpenNebulaJSON
 
         def sched_action_delete(params = {})
             super(params['sched_id'])
+        end
+
+        def sg_attach(params = {})
+            super(params['nic_id'], params['sg_id'])
+        end
+
+        def sg_detach(params = {})
+            super(params['nic_id'], params['sg_id'])
         end
 
     end

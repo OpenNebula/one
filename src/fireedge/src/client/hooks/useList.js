@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -60,13 +60,13 @@ const useList = ({ list, initLength }) => {
 
     fakeDelay(500)
       .then(() =>
-        setShortList(prev => prev.concat(fullList.slice(prev.length, length)))
+        setShortList((prev) => prev.concat(fullList.slice(prev.length, length)))
       )
       .then(() => setLoadingNextPage(false))
       .then(() => setFinish(shortList.length >= fullList.length))
   }, [length, setLength])
 
-  const reset = newList => {
+  const reset = (newList) => {
     /* RESET VALUES */
     setLength(initLength)
     setFullList(newList)
@@ -79,12 +79,12 @@ const useList = ({ list, initLength }) => {
 
 useList.propTypes = {
   list: PropTypes.arrayOf(PropTypes.object).isRequired,
-  initLength: PropTypes.string
+  initLength: PropTypes.string,
 }
 
 useList.defaultProps = {
   list: [],
-  initLength: 50
+  initLength: 50,
 }
 
 export default useList

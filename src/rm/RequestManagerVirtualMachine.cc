@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@
 #include "DatastorePool.h"
 #include "HostPool.h"
 #include "ImagePool.h"
+#include "SecurityGroupPool.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
 
@@ -654,7 +655,7 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
 
         if ( rc != 0 )
         {
-            att.resp_msg = "Requested VNC port already assgined to a VM";
+            att.resp_msg = "Requested VNC port already assigned to a VM";
         }
     }
     else
@@ -1519,7 +1520,7 @@ void VirtualMachineDiskSaveas::request_execute(
         ds_check     = ds->get_avail_mb(avail);
         ds_disk_type = ds->get_disk_type();
         ds_mad       = ds->get_ds_mad();
-        ds_mad       = ds->get_tm_mad();
+        tm_mad       = ds->get_tm_mad();
     }
     else
     {
@@ -2261,11 +2262,15 @@ void VirtualMachineSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
+    PoolObjectAuth   vm_perms;
+
     int     rc;
     int     snap_id;
 
     int     id   = xmlrpc_c::value_int(paramList.getInt(1));
     string  name = xmlrpc_c::value_string(paramList.getString(2));
+
+    VectorAttribute* snap = nullptr;
 
     // -------------------------------------------------------------------------
     // Authorize the operation
@@ -2287,9 +2292,30 @@ void VirtualMachineSnapshotCreate::request_execute(
 
             return;
         }
+
+        // get quota deltas
+        snap = vm->new_snapshot(name, snap_id);
+        snap = snap->clone();
+
+        vm->get_permissions(vm_perms);
     }
     else
     {
+        return;
+    }
+
+    Template quota_tmpl;
+
+    quota_tmpl.set(snap);
+    quota_tmpl.add("MEMORY", 0);
+    quota_tmpl.add("CPU", 0);
+    quota_tmpl.add("VMS", 0);
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg) )
+    {
+        failure_response(AUTHORIZATION, att_quota);
         return;
     }
 
@@ -2297,6 +2323,7 @@ void VirtualMachineSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
+        quota_rollback(&quota_tmpl, Quotas::VM, att);
         failure_response(ACTION, att);
     }
     else
@@ -3548,4 +3575,151 @@ void VirtualMachineDiskResize::request_execute(
     }
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttachSG::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
+
+    unique_ptr<VirtualMachineNic> nic_tmpl;
+
+    PoolObjectAuth vm_perms;
+
+    // Get VM attributes to authorize operation
+    if (auto vm = get_vm_ro(vm_id, att))
+    {
+        // Check if we can add the SG
+        auto nic = vm->get_nic(nic_id);
+
+        if (!nic)
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " doesn't have NIC id " << nic_id;
+            att.resp_msg = oss.str();
+
+            failure_response(Request::INTERNAL, att);
+            return;
+        }
+
+        // Copy VM attributes
+        nic_tmpl.reset(new VirtualMachineNic(nic->vector_attribute()->clone(), nic_id));
+        nic_tmpl->add_security_group(sg_id);
+
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        return;
+    }
+
+    // Authorize the operation
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    nic_tmpl->authorize(att.uid, &ar, true);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(Request::AUTHORIZATION, att);
+        return;
+    }
+
+    int rc = dm->attach_sg(vm_id, nic_id, sg_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDetachSG::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    auto& nd    = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
+
+    PoolObjectAuth   vm_perms;
+
+    if (auto vm = get_vm_ro(vm_id, att))
+    {
+        auto nic = vm->get_nic(nic_id);
+
+        if (!nic)
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " doesn't have NIC id " << nic_id;
+            att.resp_msg = oss.str();
+
+            failure_response(Request::INTERNAL, att);
+            return;
+        }
+
+        set<int> sgs;
+        nic->get_security_groups(sgs);
+
+        if (sgs.find(sg_id) == sgs.end())
+        {
+            ostringstream oss;
+            oss << "VM " << vm_id << " NIC " << nic_id
+                << " doesn't contain SG " << sg_id;
+            att.resp_msg = oss.str();
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        return;
+    }
+
+    // Authorize the operation
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(Request::AUTHORIZATION, att);
+        return;
+    }
+
+    auto rc = dm->detach_sg(vm_id, nic_id, sg_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(vm_id, att);
+    }
 }

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,9 +15,10 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
-import * as MarketplaceModel from 'client/models/Datastore'
+import { getState } from 'client/models/Datastore'
 
-const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
+const getTotalOfResources = (resources) =>
+  [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
@@ -27,22 +28,34 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => MarketplaceModel.getState(row)?.name,
+    accessor: (row) => getState(row)?.name,
     disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'State',
+      }),
+    filter: 'includesValue',
   },
-  { Header: 'Market', accessor: 'MARKET_MAD' },
+  {
+    Header: 'Market',
+    accessor: 'MARKET_MAD',
+    disableFilters: false,
+    Filter: ({ column }) =>
+      CategoryFilter({
+        column,
+        multiple: true,
+        title: 'Market mad',
+      }),
+    filter: 'includesValue',
+  },
   { Header: 'Total Capacity', accessor: 'TOTAL_MB' },
   { Header: 'Free Capacity', accessor: 'USED_MB' },
   { Header: 'Zone ID', accessor: 'ZONE_ID' },
   {
     Header: 'Total Apps',
     id: 'TOTAL_APPS',
-    accessor: row => getTotalOfResources(row?.MARKETPLACEAPPS)
-  }
+    accessor: (row) => getTotalOfResources(row?.MARKETPLACEAPPS),
+  },
 ]

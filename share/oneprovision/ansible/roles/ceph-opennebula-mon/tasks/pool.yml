@@ -1,0 +1,29 @@
+---
+
+# Create replicated pools
+- name: Create Ceph replicated pools
+  command: ceph osd pool create {{ item.name }} {{ item.pg_num }} {{ item.type | default('replicated') }}
+  with_items: "{{ ceph_opennebula_mon_pools }}"
+  when: ( item.type | default('replicated') ) == 'replicated'
+  changed_when: false
+
+# Create EC pools
+- name: Create Ceph EC profiles
+  command: ceph osd erasure-code-profile set ec-profile-{{ item.name }} k={{ item.ec_k }} m={{ item.ec_m }}
+  with_items: "{{ ceph_opennebula_mon_pools }}"
+  when: ( item.type | default('replicated') ) == 'erasure'
+  changed_when: false
+
+- name: Create Ceph EC pools
+  command: ceph osd pool create {{ item.name }} {{ item.pg_num }} {{ item.pg_num }} {{ item.type | default('replicated') }} ec-profile-{{ item.name }}
+  with_items: "{{ ceph_opennebula_mon_pools }}"
+  when: ( item.type | default('replicated') ) == 'erasure'
+  changed_when: false
+
+# Configure pools
+- name: Set Ceph pool params
+  command: ceph osd pool set {{ item.0.name }} {{ item.1.name }} {{ item.1.value }}
+  with_subelements:
+    - "{{ ceph_opennebula_mon_pools }}"
+    - set
+    - { skip_missing: true }

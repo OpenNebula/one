@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,42 +13,65 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo, useEffect } from 'react'
+import { useMemo, ReactElement } from 'react'
+import PropTypes from 'prop-types'
 
-import { useAuth } from 'client/features/Auth'
-import { useFetch } from 'client/hooks'
-import { useMarketplace, useMarketplaceApi } from 'client/features/One'
+import { useViews } from 'client/features/Auth'
+import { useGetMarketplacesQuery } from 'client/features/OneApi/marketplace'
 
-import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const MarketplacesTable = () => {
-  const columns = useMemo(() => MarketplaceColumns, [])
+const DEFAULT_DATA_CY = 'marketplaces'
 
-  const marketplaces = useMarketplace()
-  const { getMarketplaces } = useMarketplaceApi()
-  const { filterPool } = useAuth()
+/**
+ * @param {object} props - Props
+ * @param {function():Array} [props.filter] - Function to filter the data
+ * @returns {ReactElement} Marketplaces table
+ */
+const MarketplacesTable = ({ filter, ...props }) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetMarketplacesQuery,
+    ...rest
+  } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaces)
-  const { INIT, PENDING } = STATUS
+  const { view, getResourceView } = useViews()
+  const { data = [], isFetching, refetch } = useQuery()
 
-  useEffect(() => { fetchRequest() }, [filterPool])
-
-  if (marketplaces?.length === 0 && [INIT, PENDING].includes(status)) {
-    return <SkeletonTable />
-  }
+  const columns = useMemo(
+    () =>
+      createColumns({
+        filters: getResourceView(RESOURCE_NAMES.MARKETPLACE)?.filters,
+        columns: MarketplaceColumns,
+      }),
+    [view]
+  )
 
   return (
     <EnhancedTable
       columns={columns}
-      data={marketplaces}
-      isLoading={loading || reloading}
-      getRowId={row => String(row.ID)}
+      data={useMemo(() => data, [data])}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
       RowComponent={MarketplaceRow}
+      {...rest}
     />
   )
 }
+
+MarketplacesTable.propTypes = {
+  filter: PropTypes.func,
+  ...EnhancedTable.propTypes,
+}
+MarketplacesTable.displayName = 'MarketplacesTable'
 
 export default MarketplacesTable

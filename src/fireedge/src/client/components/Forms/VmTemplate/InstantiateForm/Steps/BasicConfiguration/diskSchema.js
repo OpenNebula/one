@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable react/prop-types */
 import { object, array, number } from 'yup'
 
 import { StatusCircle, StatusChip } from 'client/components/Status'
@@ -22,11 +22,14 @@ import { Translate } from 'client/components/HOC'
 import { getState } from 'client/models/Image'
 import { stringToBoolean } from 'client/models/Helper'
 import { T, INPUT_TYPES } from 'client/constants'
+import { Field } from 'client/utils'
 
 export const PARENT = 'DISK'
 
-const addParentToField = ({ name, ...field }, idx) =>
-  ({ ...field, name: [`${PARENT}[${idx}]`, name].join('.') })
+const addParentToField = ({ name, ...field }, idx) => ({
+  ...field,
+  name: [`${PARENT}[${idx}]`, name].join('.'),
+})
 
 const SIZE_FIELD = ({
   DISK_ID,
@@ -34,7 +37,7 @@ const SIZE_FIELD = ({
   IMAGE_ID,
   IMAGE_STATE,
   SIZE,
-  PERSISTENT
+  PERSISTENT,
 } = {}) => {
   const isVolatile = !IMAGE && !IMAGE_ID
   const isPersistent = stringToBoolean(PERSISTENT)
@@ -51,7 +54,7 @@ const SIZE_FIELD = ({
       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
         <StatusCircle color={state?.color} tooltip={state?.name} />
         {`DISK ${DISK_ID}: ${IMAGE}`}
-        {isPersistent && <StatusChip text='PERSISTENT' />}
+        {isPersistent && <StatusChip text="PERSISTENT" />}
       </span>
     ),
     type: INPUT_TYPES.TEXT,
@@ -68,18 +71,24 @@ const SIZE_FIELD = ({
       .required('Disk size field is required')
       .default(() => +SIZE),
     grid: { md: 12 },
-    fieldProps: { disabled: isPersistent }
+    fieldProps: { disabled: isPersistent },
   }
 }
 
-export const FIELDS = vmTemplate => {
+/**
+ * @param {object} [vmTemplate] - VM Template
+ * @returns {Field[]} Section fields
+ */
+export const FIELDS = (vmTemplate) => {
   const disks = [vmTemplate?.TEMPLATE?.DISK ?? []].flat()
 
   return disks?.map(SIZE_FIELD).map(addParentToField)
 }
 
 export const SCHEMA = object({
-  [PARENT]: array(object({
-    [SIZE_FIELD().name]: SIZE_FIELD().validation
-  })).ensure()
+  [PARENT]: array(
+    object({
+      [SIZE_FIELD().name]: SIZE_FIELD().validation,
+    })
+  ).ensure(),
 })

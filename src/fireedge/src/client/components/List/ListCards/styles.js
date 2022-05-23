@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,22 +20,22 @@ export default makeStyles({
     height: '100%',
     minHeight: 140,
     display: 'flex',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   loading: {
     width: '100%',
-    marginBottom: '1em'
+    marginBottom: '1em',
   },
   item: {
     '&-enter': { opacity: 0 },
     '&-enter-active': {
       opacity: 1,
-      transition: 'opacity 400ms ease-in'
+      transition: 'opacity 400ms ease-in',
     },
     '&-exit': { opacity: 1 },
     '&-exit-active': {
       opacity: 0,
-      transition: 'opacity 400ms ease-in'
-    }
-  }
+      transition: 'opacity 400ms ease-in',
+    },
+  },
 })

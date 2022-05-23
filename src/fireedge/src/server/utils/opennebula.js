@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,25 +14,27 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const upcast = require('upcast')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
-const parser = require('fast-xml-parser')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const { global } = require('window-or-global')
-const httpCodes = require('./constants/http-codes')
-const commandsParams = require('./constants/commands')
+const {
+  httpCodes,
+  opennebulaCommands,
+  defaults,
+} = require('server/utils/constants')
 const {
   from,
   defaultEmptyFunction,
-  defaultConfigParseXML,
   defaultNamespace,
-  defaultMessageProblemOpennebula
-} = require('./constants/defaults')
+  defaultMessageProblemOpennebula,
+  hookObjectNames,
+} = defaults
 
-const { getFireedgeConfig } = require('./yml')
+const { getFireedgeConfig } = require('server/utils/yml')
+const { xml2json } = require('server/utils/general')
 
 // regex for separate the commands .info
 const regexInfoAction = /^(\w+).info$/
@@ -44,9 +46,11 @@ const regexRemoveBlanks = /\s+/gi
 // eslint-disable-next-line no-control-regex
 const regexANSIColor = /\u001b\[.*?m/gi
 // regex string with CSV format
-const csvFormat = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/
+const csvFormat =
+  /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/
 // regex sanitize string CSV formated
-const csvSanitize = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g
+const csvSanitize =
+  /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g
 // regex single quote
 const singleQuote = /\\'/g
 // regex double quote
@@ -59,35 +63,26 @@ const stringWrappedBrakets = /^\[.*\]$/g
 const brakets = /(^\[)|(\]$)/g
 
 /**
- * Parse xml to JSON.
- *
- * @param {string} xml - xml data in  string
- * @param {Function} callback - callback data
- */
-const xml2json = (xml = '', callback = defaultEmptyFunction) => {
-  let rtn = []
-  try {
-    const jsonObj = parser.parse(xml, defaultConfigParseXML)
-    rtn = [null, jsonObj]
-  } catch (error) {
-    rtn = [error]
-  }
-
-  // eslint-disable-next-line standard/no-callback-literal
-  callback(...rtn)
-}
-
-/**
  * Authorizes if the user has access to the resource, for their connection to the HOOK.
  *
  * @param {string} username - username
  * @param {string} action - action (only valid i the action terminate in .info)
  * @param {Array} parameters - parameters of xmlrpc. If parameters[0] >=0 is a id of resource
  */
-const fillResourceforHookConnection = (username = '', action = '', parameters = '') => {
+const fillResourceforHookConnection = (
+  username = '',
+  action = '',
+  parameters = ''
+) => {
   let match
   // parameters[0] is the resource ID
-  if (username && action && (match = action.match(regexInfoAction)) && match[1] && parameters[0] >= 0) {
+  if (
+    username &&
+    action &&
+    (match = action.match(regexInfoAction)) &&
+    match[1] &&
+    parameters[0] >= 0
+  ) {
     if (global && !global.users) {
       global.users = {}
     }
@@ -97,7 +92,11 @@ const fillResourceforHookConnection = (username = '', action = '', parameters = 
     if (!global.users[username].resourcesHooks) {
       global.users[username].resourcesHooks = {}
     }
-    global.users[username].resourcesHooks[match[1]] = parameters[0]
+
+    const resourceName = match[1]
+    const ensuredName = hookObjectNames[resourceName] || resourceName
+
+    global.users[username].resourcesHooks[ensuredName] = parameters[0]
   }
 }
 
@@ -121,7 +120,13 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
       xmlClient = rpc.createClient(zoneURL)
     }
     if (xmlClient && xmlClient.methodCall) {
-      rtn = (action = '', parameters = [], callback = () => undefined, fillHookResource = true) => {
+      rtn = ({
+        action = '',
+        parameters = [],
+        callback = defaultEmptyFunction,
+        fillHookResource = true,
+        parseXML = true,
+      }) => {
         if (action && parameters && Array.isArray(parameters) && callback) {
           // user config
           const appConfig = getFireedgeConfig()
@@ -131,33 +136,42 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
             `${namespace}.${action}`,
             xmlParameters,
             (err, value) => {
+              const success = (data) => {
+                fillHookResource &&
+                  fillResourceforHookConnection(username, action, parameters)
+                callback(undefined, data)
+              }
+
               if (err && err.body) {
-                xml2json(err.body, (error, result) => {
-                  if (error) {
-                    callback(error, undefined) // error parse xml
-                    return
-                  }
-                  if (
-                    result &&
-                    result.methodResponse &&
-                    result.methodResponse.fault &&
-                    result.methodResponse.fault.value &&
-                    result.methodResponse.fault.value.struct &&
-                    result.methodResponse.fault.value.struct.member &&
-                    Array.isArray(
-                      result.methodResponse.fault.value.struct.member
-                    )
-                  ) {
-                    const errorData = result.methodResponse.fault.value.struct.member.find(
-                      element => element.value && element.value.string
-                    )
-                    if (errorData) {
-                      // success
-                      fillHookResource && fillResourceforHookConnection(username, action, parameters)
-                      callback(undefined, errorData.value.string)
-                    }
-                  }
-                })
+                parseXML
+                  ? xml2json(err.body, (error, result) => {
+                      if (error) {
+                        callback(error, undefined) // error parse xml
+
+                        return
+                      }
+                      if (
+                        result &&
+                        result.methodResponse &&
+                        result.methodResponse.fault &&
+                        result.methodResponse.fault.value &&
+                        result.methodResponse.fault.value.struct &&
+                        result.methodResponse.fault.value.struct.member &&
+                        Array.isArray(
+                          result.methodResponse.fault.value.struct.member
+                        )
+                      ) {
+                        const errorData =
+                          result.methodResponse.fault.value.struct.member.find(
+                            (element) => element.value && element.value.string
+                          )
+                        if (errorData) {
+                          success(errorData.value.string)
+                        }
+                      }
+                    })
+                  : success(err.body)
+
                 return
               } else if (value && value[0] && value[1]) {
                 let messageCall
@@ -167,18 +181,21 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                   messageCall = value
                 }
                 if (typeof messageCall === 'string' && messageCall.length > 0) {
-                  xml2json(messageCall, (error, result) => {
-                    if (error) {
-                      callback(error, undefined) // error parse xml
-                      return
-                    }
-                    // success
-                    fillHookResource && fillResourceforHookConnection(username, action, parameters)
-                    callback(
-                      undefined,
-                      error === null && !String(result) ? JSON.stringify(messageCall) : result
-                    )
-                  })
+                  parseXML
+                    ? xml2json(messageCall, (error, result) => {
+                        if (error) {
+                          callback(error, undefined) // error parse xml
+
+                          return
+                        }
+                        success(
+                          error === null && !String(result)
+                            ? JSON.stringify(messageCall)
+                            : result
+                        )
+                      })
+                    : success(messageCall)
+
                   return
                 }
               }
@@ -189,6 +206,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
       }
     }
   }
+
   return rtn
 }
 
@@ -220,9 +238,9 @@ const responseOpennebula = (res, err, value, response, next) => {
  */
 const getMethodForOpennebulaCommand = () => {
   const rtn = []
-  if (commandsParams) {
-    const commands = Object.keys(commandsParams)
-    commands.forEach(command => {
+  if (opennebulaCommands) {
+    const commands = Object.keys(opennebulaCommands)
+    commands.forEach((command) => {
       if (command && command.length) {
         const commandString = command.split('.')
         if (!rtn.includes(commandString[1])) {
@@ -231,34 +249,8 @@ const getMethodForOpennebulaCommand = () => {
       }
     })
   }
+
   return rtn
-}
-
-/**
- * Get a command to XMLRPC.
- *
- * @param {string} resource - resource
- * @param {string} method - method
- * @param {string} defaultMethod - default method
- * @returns {string} command to XMLRPC
- */
-const commandXMLRPC = (resource = '', method = '', defaultMethod = '') => {
-  let command = ''
-  const allowedActions = getMethodForOpennebulaCommand()
-  if (resource && resource.length) {
-    command = `${resource}`
-  }
-  const commandWithDefault = defaultMethod
-    ? `${command}.${defaultMethod}`
-    : command
-
-  if (method) {
-    command = allowedActions.includes(method)
-      ? `${command}.${method}`
-      : commandWithDefault
-  }
-
-  return command
 }
 
 /**
@@ -268,14 +260,14 @@ const commandXMLRPC = (resource = '', method = '', defaultMethod = '') => {
  */
 const getAllowedQueryParams = () => {
   const rtn = []
-  const allowedQuerys = Object.keys(commandsParams)
+  const allowedQuerys = Object.keys(opennebulaCommands)
   if (from && from.query) {
     const { query } = from
-    allowedQuerys.forEach(allowedQuery => {
-      const command = commandsParams[allowedQuery]
+    allowedQuerys.forEach((allowedQuery) => {
+      const command = opennebulaCommands[allowedQuery]
       if (command && command.params) {
         const internalParams = Object.keys(command.params)
-        internalParams.forEach(internalParam => {
+        internalParams.forEach((internalParam) => {
           if (
             command.params[internalParam] &&
             command.params[internalParam].from &&
@@ -288,6 +280,7 @@ const getAllowedQueryParams = () => {
       }
     })
   }
+
   return rtn
 }
 
@@ -298,9 +291,9 @@ const getAllowedQueryParams = () => {
  */
 const getRouteForOpennebulaCommand = () => {
   const rtn = []
-  if (commandsParams) {
-    const commands = Object.keys(commandsParams)
-    commands.forEach(command => {
+  if (opennebulaCommands) {
+    const commands = Object.keys(opennebulaCommands)
+    commands.forEach((command) => {
       if (command && command.length) {
         let commandString = command.split('.')
         commandString = commandString[0]
@@ -311,7 +304,7 @@ const getRouteForOpennebulaCommand = () => {
          * @param {object} rtnCommand - command to validate
          * @returns {string} - command
          */
-        const finderCommand = rtnCommand =>
+        const finderCommand = (rtnCommand) =>
           rtnCommand &&
           rtnCommand.endpoint &&
           rtnCommand.endpoint === commandString
@@ -321,6 +314,7 @@ const getRouteForOpennebulaCommand = () => {
       }
     })
   }
+
   return rtn
 }
 
@@ -330,16 +324,17 @@ const getRouteForOpennebulaCommand = () => {
  * @param {object} dataSource - source data
  * @returns {boolean} check if exists
  */
-const checkPositionInDataSource = dataSource => {
+const checkPositionInDataSource = (dataSource) => {
   let rtn = true
   if (dataSource && from) {
     const fromKeys = Object.values(from)
-    fromKeys.forEach(key => {
+    fromKeys.forEach((key) => {
       if (!(key && dataSource && key in dataSource)) {
         rtn = false
       }
     })
   }
+
   return rtn
 }
 /**
@@ -347,59 +342,18 @@ const checkPositionInDataSource = dataSource => {
  *
  * @param {string} command - openenbula command
  * @param {string} method - method of opennebula command
- * @param {boolean} commandParams - commands
- * @returns {object} command opennebula
+ * @returns {object|false} command opennebula
  */
-const checkOpennebulaCommand = (
-  command = '',
-  method = '',
-  commandParams = true
-) => {
-  let rtn = false
-  if (command && method && commandsParams && from) {
-    if (
-      commandsParams &&
-      commandsParams[command] &&
-      commandsParams[command].params &&
-      commandsParams[command].httpMethod &&
-      commandsParams[command].httpMethod === method
-    ) {
-      rtn = commandParams
-        ? dataSource => {
-          let rtnParams = false
-          if (dataSource && checkPositionInDataSource(dataSource)) {
-            const { params: paramsForCommand } = commandsParams[command]
-            const internalParams = []
-            Object.keys(paramsForCommand).forEach(param => {
-              const parameter = paramsForCommand[param]
-              if (
-                'default' in parameter &&
-                  'from' in parameter &&
-                  parameter.from in dataSource &&
-                  param in dataSource[parameter.from] &&
-                  dataSource[parameter.from][param]
-              ) {
-                internalParams.push(
-                  upcast.to(
-                    dataSource[parameter.from][param],
-                    upcast.type(parameter.default)
-                  )
-                )
-              } else {
-                internalParams.push(parameter.default)
-              }
-            })
-            if (internalParams) {
-              rtnParams = internalParams
-            }
-          }
-          return rtnParams
-        }
-        : commandsParams[command]
-    }
-  }
-  return rtn
-}
+const checkOpennebulaCommand = (command = '', method = '') =>
+  command &&
+  method &&
+  opennebulaCommands &&
+  opennebulaCommands[command] &&
+  opennebulaCommands[command].params &&
+  opennebulaCommands[command].httpMethod &&
+  opennebulaCommands[command].httpMethod === method
+    ? opennebulaCommands[command]
+    : false
 
 /**
  * Get default params of opennebula command.
@@ -414,7 +368,7 @@ const getDefaultParamsOfOpennebulaCommand = (command = '', httpCode = '') => {
     const getDefaultValues = checkOpennebulaCommand(command, httpCode, false)
     if (getDefaultValues && getDefaultValues.params) {
       const defaultParams = Object.keys(getDefaultValues.params)
-      defaultParams.forEach(defaultParam => {
+      defaultParams.forEach((defaultParam) => {
         if (
           getDefaultValues.params &&
           defaultParam &&
@@ -426,6 +380,7 @@ const getDefaultParamsOfOpennebulaCommand = (command = '', httpCode = '') => {
       })
     }
   }
+
   return rtn
 }
 
@@ -445,15 +400,17 @@ const generateNewResourceTemplate = (
   wrapper = 'SUNSTONE=[%1$s]'
 ) => {
   const positions = Object.entries({ ...current, ...addPositions })
-    .filter(position => {
+    .filter((position) => {
       let element = position
       if (Array.isArray(position)) {
         element = position[0]
       }
+
       return element && !removedPositions.includes(element)
     })
     .map(([position, value]) => `${position}=${value}`)
     .join(', ')
+
   return sprintf(wrapper, positions)
 }
 
@@ -465,31 +422,30 @@ const generateNewResourceTemplate = (
  * @returns {string} new console string
  */
 const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
-  const rtn = []
-  if (stringConsole) {
-    console.log('all -->', JSON.stringify(stringConsole))
-    const lines = stringConsole.split(regexLine)
-    lines.forEach(line => {
-      let test = ''
-      for (const c of line) {
-        test += c.charCodeAt(0) + ' '
-      }
-      console.log('-->', test)
-
-      let pass = true
-      if (Array.isArray(excludeRegexs)) {
-        excludeRegexs.forEach(rex => {
-          if (rex.test(line)) {
-            pass = false
-          }
-        })
-      }
-      line = line.replace(regexRemoveBlanks, ' ').replace(regexANSIColor, '').trim()
-      if (line && pass) {
-        rtn.push(line)
-      }
-    })
+  if (!stringConsole) {
+    return
   }
+
+  const rtn = []
+  stringConsole.split(regexLine).forEach((line) => {
+    let pass = true
+    if (Array.isArray(excludeRegexs)) {
+      excludeRegexs.forEach((rex) => {
+        if (rex.test(line)) {
+          pass = false
+        }
+      })
+    }
+    const cleanLine = line
+      .replace(regexRemoveBlanks, ' ')
+      .replace(regexANSIColor, '')
+      .trim()
+
+    if (cleanLine && pass) {
+      rtn.push(cleanLine)
+    }
+  })
+
   return rtn
 }
 
@@ -498,25 +454,36 @@ const consoleParseToString = (stringConsole = '', excludeRegexs = []) => {
  *
  * @param {Array} arrayConsole - result of consoleParseToString function
  * @param {string} regexHeader - regex for find header
- * @returns {string} new console string
+ * @returns {any[]} console string JSON parsed
  */
 const consoleParseToJSON = (arrayConsole = [], regexHeader = '') => {
-  let rtn = []
-  if (regexHeader && Array.isArray(arrayConsole) && arrayConsole[0] && regexHeader.test(arrayConsole[0])) {
-    const header = arrayConsole[0].split(',')
-    arrayConsole.forEach((row = '', i = 0) => {
-      if (row && i > 0) {
-        const explodeRow = CSVtoArray(row)
-        rtn.push(
-          explodeRow.map((value, index) => {
-            return { [header[index]]: stringWrappedBrakets.test(value) ? CSVtoArray(value.replace(brakets, '')) : value }
-          })
-        )
-      }
-    })
-  } else {
-    rtn = arrayConsole
+  const rtn = []
+  if (
+    !(
+      regexHeader &&
+      Array.isArray(arrayConsole) &&
+      arrayConsole[0] &&
+      regexHeader.test(arrayConsole[0])
+    )
+  ) {
+    return rtn
   }
+  const header = arrayConsole[0].split(',')
+  arrayConsole.forEach((row = '', i = 0) => {
+    if (row && i > 0) {
+      const explodeRow = CSVtoArray(row)
+      if (Array.isArray(explodeRow)) {
+        const newLine = {}
+        explodeRow.forEach((value, index) => {
+          newLine[header[index]] = stringWrappedBrakets.test(value)
+            ? CSVtoArray(value.replace(brakets, ''))
+            : value
+        })
+        rtn.push(newLine)
+      }
+    }
+  })
+
   return rtn
 }
 
@@ -528,58 +495,37 @@ const consoleParseToJSON = (arrayConsole = [], regexHeader = '') => {
  */
 const CSVtoArray = (text = '') => {
   const rtn = []
-  if (csvFormat.test(text)) { // if input string is not well formed CSV string.
-    text.replace(csvSanitize,
-      (m0, m1, m2, m3) => {
-        if (m1 !== undefined) {
-          rtn.push(m1.replace(singleQuote, "'"))
-        } else if (m2 !== undefined) {
-          rtn.push(m2.replace(doubleQuote, '"'))
-        } else if (m3 !== undefined) {
-          rtn.push(m3)
-        }
-        return ''
-      })
+  if (csvFormat.test(text)) {
+    // if input string is not well formed CSV string.
+    text.replace(csvSanitize, (m0, m1, m2, m3) => {
+      if (m1 !== undefined) {
+        rtn.push(m1.replace(singleQuote, "'"))
+      } else if (m2 !== undefined) {
+        rtn.push(m2.replace(doubleQuote, '"'))
+      } else if (m3 !== undefined) {
+        rtn.push(m3)
+      }
+
+      return ''
+    })
     if (lastValueRegexCsv.test(text)) {
       rtn.push('')
     }
   }
-  return rtn
-}
 
-/**
- * Remove config sensitive data.
- *
- * @param {object} config - config data
- * @param {Array} keys - key for remove
- * @returns {object} config without sensitive data
- */
-const sensitiveDataRemoverConfig = (config = {}, keys = []) => {
-  const rtn = config
-  if (Array.isArray(keys)) {
-    keys.forEach(key => {
-      if (Object.hasOwnProperty.call(config, key)) {
-        delete rtn[key]
-      }
-    })
-  }
-  return config
+  return rtn
 }
 
 module.exports = {
   opennebulaConnect,
   responseOpennebula,
   getMethodForOpennebulaCommand,
-  commandXMLRPC,
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkPositionInDataSource,
-  checkOpennebulaCommand,
   getDefaultParamsOfOpennebulaCommand,
   generateNewResourceTemplate,
   fillResourceforHookConnection,
-  xml2json,
   consoleParseToString,
   consoleParseToJSON,
-  sensitiveDataRemoverConfig
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -159,7 +159,7 @@ CommandParser::CmdParser.new(ARGV) do
           - new persistent image, OS type and qcow2 format:
 
             oneimage create -d 1 --name ubuntu --path /tmp/ubuntu.qcow2 \\
-                            --prefix sd --type OS --driver qcow2 \\
+                            --prefix sd --type OS --format qcow2 \\
                             --description "A OS plain installation" \\
                             --persistent
 
@@ -363,7 +363,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :chmod, chmod_desc, [:range, :imageid_list], :octet do
         helper.perform_actions(args[0], options,
                                'Permissions changed') do |image|
-            image.chmod_octet(args[1])
+            image.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
         end
     end
 
@@ -436,8 +436,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM, show and
-        monitoring never will be locked.
+        Locks an Image to prevent certain actions defined by different levels.
+        The show action will never be locked.
         Valid states are: All.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -464,7 +464,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks an Image.
         Valid states are: All.
     EOT
 

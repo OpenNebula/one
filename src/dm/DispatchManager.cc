@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,6 +50,7 @@ void DispatchManager::init_managers()
     clpool      = nd.get_clpool();
     vrouterpool = nd.get_vrouterpool();
     upool       = nd.get_upool();
+    sgpool      = nd.get_secgrouppool();
 }
 
 /* -------------------------------------------------------------------------- */

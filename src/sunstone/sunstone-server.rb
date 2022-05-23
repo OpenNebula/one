@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,6 +36,8 @@ else
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
     SUNSTONE_LOCATION ||= ONE_LOCATION + '/lib/sunstone'
 end
+
+VMS_LOCATION = VAR_LOCATION + "/vms"
 
 SUNSTONE_AUTH             = VAR_LOCATION + '/.one/sunstone_auth'
 SUNSTONE_LOG              = LOG_LOCATION + '/sunstone.log'
@@ -107,7 +109,8 @@ ONED_CONF_OPTS = {
         'MARKET_MAD_CONF',
         'VM_MAD',
         'IM_MAD',
-        'AUTH_MAD'
+        'AUTH_MAD',
+        'LOG'
     ],
     # Generate an array if there is only 1 element
     'ARRAY_KEYS' => [
@@ -132,6 +135,7 @@ require 'base64'
 require 'rexml/document'
 require 'uri'
 require 'open3'
+require 'syslog/logger'
 
 require "sunstone_qr_code"
 require "sunstone_optp"
@@ -168,7 +172,6 @@ if $conf[:one_xmlrpc_timeout]
     ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
 end
 
-$conf[:debug_level] ||= 3
 $conf[:webauthn_avail] = webauthn_avail
 
 # Set Sunstone Session Timeout
@@ -211,7 +214,8 @@ end
 
 case $conf[:sessions]
 when 'memory', nil
-    use Rack::Session::Pool, :key => 'sunstone'
+    use Rack::Session::Pool, :key => 'sunstone',
+                            :expire_after => $conf['session_expire_time']
 when 'memcache'
     memcache_server=$conf[:memcache_host]+':'<<
         $conf[:memcache_port].to_s
@@ -231,7 +235,7 @@ when 'memcache-dalli'
     use Rack::Session::Dalli,
       :memcache_server => memcache_server,
       :namespace => $conf[:memcache_namespace],
-      :cache => Dalli::Client.new
+      :cache => Dalli::Client.new(memcache_server, {:namespace => $conf[:memcache_namespace]})
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
@@ -242,7 +246,18 @@ use Rack::Deflater
 # Enable logger
 
 include CloudLogger
-logger=enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
+
+if $conf[:log]
+    $conf[:debug_level] = $conf[:log][:level] || 3
+else
+    $conf[:debug_level] ||= 3
+end
+
+if $conf[:log] && $conf[:log][:system] == 'syslog'
+    logger = Syslog::Logger.new('onegate')
+else
+    logger = enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
+end
 
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
@@ -303,7 +318,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "https://opennebula.io/support/",
     :account => "https://opennebula.io/buy-support",
-    :docs => "https://docs.opennebula.io/6.2/",
+    :docs => "https://docs.opennebula.io/6.3/",
     :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
@@ -1213,9 +1228,9 @@ end
 # Start VMRC Session for a target VM
 ##############################################################################
 post '/vm/:id/startvmrc' do
-    vm_id = params[:id]
-    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-    @SunstoneServer.startvmrc(vm_id, $vmrc, serveradmin_client)
+  vm_id = params[:id]
+  serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+  @SunstoneServer.startvmrc(vm_id, $vmrc, serveradmin_client)
 end
 
 ##############################################################################

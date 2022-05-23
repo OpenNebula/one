@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -70,6 +70,15 @@ public:
         int *                       oid,
         const std::set<int>         &cluster_ids,
         std::string&                error_str);
+
+    /**
+     *  Updates a Virtual Network in the data base. It also updates the previous state
+     *  after executing the hooks.
+     *    @param objsql a pointer to the Host
+     *
+     *    @return 0 on success.
+     */
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Drops a Virtual Network and the associated VLAN_ID if needed
@@ -276,6 +285,8 @@ public:
 
     int reserve_addr_by_mac(int pid, int rid, unsigned int rsize,
             unsigned int ar_id, const std::string& mac, std::string& err);
+
+    void delete_success(std::unique_ptr<VirtualNetwork> vn);
 
 private:
     /**

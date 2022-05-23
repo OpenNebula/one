@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,12 +15,5 @@
  * ------------------------------------------------------------------------- */
 import TotalProviders from 'client/components/Widgets/TotalProviders'
 import TotalProvisionsByState from 'client/components/Widgets/TotalProvisionsByState'
-import TotalProvisionInfrastructures from 'client/components/Widgets/TotalProvisionInfrastructures'
-import TotalSunstoneResources from 'client/components/Widgets/TotalSunstoneResources'
 
-export {
-  TotalProviders,
-  TotalProvisionInfrastructures,
-  TotalProvisionsByState,
-  TotalSunstoneResources
-}
+export { TotalProviders, TotalProvisionsByState }

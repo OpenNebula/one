@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,18 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { T } from 'client/constants'
 import { DateTime } from 'luxon'
-import { j2xParser as Parser } from 'fast-xml-parser'
+import {
+  parse as ParserToJson,
+  X2jOptions,
+  j2xParser as ParserToXml,
+  J2xOptions,
+} from 'fast-xml-parser'
+
+import { camelCase } from 'client/utils'
+import {
+  T,
+  UserInputObject,
+  USER_INPUT_TYPES,
+  SERVER_CONFIG,
+} from 'client/constants'
 
 /**
  * @param {object} json - JSON
- * @param {boolean} [addRoot] - Add ROOT element as parent
+ * @param {J2xOptions} [options] - Options to parser
+ * @param {boolean} [options.addRoot] - Add ROOT element as parent
  * @returns {string} Xml in string format
  */
-export const jsonToXml = (json, addRoot = true) => {
-  const parser = new Parser()
+export const jsonToXml = (json, { addRoot = true, ...options } = {}) => {
+  const parser = new ParserToXml(options)
+
   return parser.parse(addRoot ? { ROOT: json } : json)
+}
+
+/**
+ * @param {string} xml - XML in string format
+ * @param {X2jOptions} [options] - Options to parser
+ * @returns {object} JSON
+ */
+export const xmlToJson = (xml, options = {}) => {
+  const { ROOT, ...jsonWithoutROOT } = ParserToJson(xml, {
+    attributeNamePrefix: '',
+    attrNodeName: '',
+    ignoreAttributes: false,
+    ignoreNameSpace: true,
+    allowBooleanAttributes: false,
+    parseNodeValue: false,
+    parseAttributeValue: true,
+    trimValues: true,
+    ...options,
+  })
+
+  return ROOT ?? jsonWithoutROOT
 }
 
 /**
@@ -33,7 +68,7 @@ export const jsonToXml = (json, addRoot = true) => {
  * @param {boolean} bool - Boolean value.
  * @returns {'Yes'|'No'} - If true return 'Yes', in other cases, return 'No'.
  */
-export const booleanToString = bool => bool ? T.Yes : T.No
+export const booleanToString = (bool) => (bool ? T.Yes : T.No)
 
 /**
  * Converts the string value into a boolean.
@@ -42,8 +77,53 @@ export const booleanToString = bool => bool ? T.Yes : T.No
  * @returns {boolean} - If str is "yes" or 1 then returns true,
  * in other cases, return false.
  */
-export const stringToBoolean = str =>
+export const stringToBoolean = (str) =>
   String(str).toLowerCase() === 'yes' || +str === 1
+
+/**
+ * Formats a number into a string according to the currency configuration.
+ *
+ * @param {number|bigint} number - Number to format
+ * @param {Intl.NumberFormatOptions} options - Options to format the number
+ * @returns {string} - Number in string format with the currency symbol
+ */
+export const formatNumberByCurrency = (number, options) => {
+  try {
+    const currency = SERVER_CONFIG?.currency ?? 'EUR'
+    const locale = SERVER_CONFIG?.lang?.replace('_', '-') ?? undefined
+
+    return Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'narrowSymbol',
+      notation: 'compact',
+      compactDisplay: 'long',
+      maximumFractionDigits: 2,
+      ...options,
+    }).format(number)
+  } catch {
+    return number.toString()
+  }
+}
+
+/**
+ * Returns `true` if the given value is an instance of Date.
+ *
+ * @param {*} value - The value to check
+ * @returns {boolean} true if the given value is a date
+ * @example
+ * const result = isDate(new Date()) //=> true
+ * @example
+ * const result = isDate(new Date(NaN)) //=> true
+ * @example
+ * const result = isDate('2014-02-31') //=> false
+ * @example
+ * const result = isDate({}) //=> false
+ */
+export const isDate = (value) =>
+  value instanceof Date ||
+  (typeof value === 'object' &&
+    Object.prototype.toString.call(value) === '[object Date]')
 
 /**
  * Converts the time values into "mm/dd/yyyy, hh:mm:ss" format.
@@ -52,7 +132,7 @@ export const stringToBoolean = str =>
  * @returns {string} - Time string.
  * @example 02521251251 =>  "4/23/1981, 11:04:41 AM"
  */
-export const timeToString = time =>
+export const timeToString = (time) =>
   +time ? new Date(+time * 1000).toLocaleString() : '-'
 
 /**
@@ -61,26 +141,25 @@ export const timeToString = time =>
  * @param {number|string} time - Time to convert
  * @returns {DateTime} - DateTime object.
  */
-export const timeFromMilliseconds = time =>
-  DateTime.fromMillis(+time * 1000)
+export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
 
 /**
  * Returns the epoch milliseconds of the date.
  *
- * @param {number|string} date - Date
+ * @param {number|string} date - JS Date
  * @returns {number} - Total milliseconds.
  */
-export const dateToMilliseconds = date =>
-  DateTime.fromJSDate(date).toMillis() / 1000
+export const dateToMilliseconds = (date) =>
+  Math.trunc(DateTime.fromJSDate(date).toMillis() / 1000)
 
 /**
  * Returns the epoch milliseconds of the date.
  *
- * @param {number|string} date - Date
+ * @param {number|string} date - Date on ISO format
  * @returns {number} - Total milliseconds.
  */
-export const isoDateToMilliseconds = date =>
-  DateTime.fromISO(date).toMillis() / 1000
+export const isoDateToMilliseconds = (date) =>
+  Math.trunc(DateTime.fromISO(date).toMillis() / 1000)
 
 /**
  * Get the diff from two times and it converts them
@@ -116,13 +195,28 @@ export const timeDiff = (start, end) => {
  * @param {number} level - Level code number.
  * @returns {string} - Lock level text.
  */
-export const levelLockToString = level => ({
-  0: T.None,
-  1: T.Use,
-  2: T.Manage,
-  3: T.Admin,
-  4: T.All
-}[level] || '-')
+export const levelLockToString = (level) =>
+  ({
+    0: T.None,
+    1: T.Use,
+    2: T.Manage,
+    3: T.Admin,
+    4: T.All,
+  }[level] || '-')
+
+/**
+ * Returns the permission numeric code.
+ *
+ * @param {string[]} category - Array with Use, Manage and Access permissions.
+ * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
+ * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
+ * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
+ * @returns {number} Permission code number.
+ */
+const getCategoryValue = ([u, m, a]) =>
+  (stringToBoolean(u) ? 4 : 0) +
+  (stringToBoolean(m) ? 2 : 0) +
+  (stringToBoolean(a) ? 1 : 0)
 
 /**
  * Transform the permission from OpenNebula template to octal format.
@@ -139,33 +233,26 @@ export const levelLockToString = level => ({
  * @param {('YES'|'NO')} permissions.OTHER_A - Other access permission.
  * @returns {string} - Permissions in octal format.
  */
-export const permissionsToOctal = permissions => {
+export const permissionsToOctal = (permissions) => {
   const {
-    OWNER_U, OWNER_M, OWNER_A,
-    GROUP_U, GROUP_M, GROUP_A,
-    OTHER_U, OTHER_M, OTHER_A
+    OWNER_U,
+    OWNER_M,
+    OWNER_A,
+    GROUP_U,
+    GROUP_M,
+    GROUP_A,
+    OTHER_U,
+    OTHER_M,
+    OTHER_A,
   } = permissions
-
-  /**
-   * Returns the permission numeric code.
-   *
-   * @param {string[]} category - Array with Use, Manage and Access permissions.
-   * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
-   * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
-   * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
-   * @returns {number} Permission code number.
-   */
-  const getCategoryValue = ([u, m, a]) => (
-    (stringToBoolean(u) ? 4 : 0) +
-    (stringToBoolean(m) ? 2 : 0) +
-    (stringToBoolean(a) ? 1 : 0)
-  )
 
   return [
     [OWNER_U, OWNER_M, OWNER_A],
     [GROUP_U, GROUP_M, GROUP_A],
-    [OTHER_U, OTHER_M, OTHER_A]
-  ].map(getCategoryValue).join('')
+    [OTHER_U, OTHER_M, OTHER_A],
+  ]
+    .map(getCategoryValue)
+    .join('')
 }
 
 /**
@@ -187,6 +274,35 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
     .map(([actionName, _]) => actionName)
 
 /**
+ * Returns the resource info tabs.
+ *
+ * @param {object} infoTabs - Info tabs from view yaml
+ * @param {Function} getTabComponent - Function to get tab component
+ * @param {string} id - Resource id
+ * @returns {{
+ * id: string,
+ * name: string,
+ * renderContent: Function
+ * }[]} - List of available info tabs for the resource
+ */
+export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
+  Object.entries(infoTabs)
+    ?.filter(([_, { enabled } = {}]) => !!enabled)
+    ?.map(([tabName, tabProps]) => {
+      const camelName = camelCase(tabName)
+      const TabContent = getTabComponent?.(camelName)
+
+      return (
+        TabContent && {
+          name: camelName,
+          id: tabName,
+          renderContent: () => <TabContent tabProps={tabProps} id={id} />,
+        }
+      )
+    })
+    ?.filter(Boolean)
+
+/**
  *
  * @param {object} list - List of attributes
  * @param {object} options - Filter options
@@ -201,21 +317,229 @@ export const filterAttributes = (list = {}, options = {}) => {
   const addAttributeToList = (listName, [attributeName, attributeValue]) => {
     response[listName] = {
       ...response[listName],
-      [attributeName]: attributeValue
+      [attributeName]: attributeValue,
     }
   }
 
   Object.entries(list)
-    .filter(attribute => {
-      const [filterName] = Object.entries(extra)
-        .find(([_, regexp]) => attribute[0].match(regexp)) ?? []
+    .filter((attribute) => {
+      const [filterName] =
+        Object.entries(extra).find(([_, regexp]) =>
+          attribute[0].match(regexp)
+        ) ?? []
 
       return filterName ? addAttributeToList(filterName, attribute) : true
     })
-    .forEach(attribute => {
-      !attribute[0].match(hidden) &&
-        addAttributeToList('attributes', attribute)
+    .forEach((attribute) => {
+      !attribute[0].match(hidden) && addAttributeToList('attributes', attribute)
     })
 
   return response
+}
+
+// ----------------------------------------------------------
+// User inputs
+// ----------------------------------------------------------
+
+const PARAMS_SEPARATOR = '|'
+const RANGE_SEPARATOR = '..'
+const LIST_SEPARATOR = ','
+const OPTIONS_DEFAULT = ' '
+const MANDATORY = 'M'
+const OPTIONAL = 'O'
+
+/**
+ * Get object attributes from user input as string.
+ *
+ * @param {string} userInputString - User input as string with format:
+ * mandatory | type | description | options | defaultValue
+ * @returns {UserInputObject} User input object
+ */
+export const getUserInputParams = (userInputString) => {
+  if (!userInputString) return {}
+
+  const params = String(userInputString).split(PARAMS_SEPARATOR)
+
+  const options = [
+    USER_INPUT_TYPES.range,
+    USER_INPUT_TYPES.rangeFloat,
+  ].includes(params[1])
+    ? params[3]?.split(RANGE_SEPARATOR)
+    : params[3]?.split(LIST_SEPARATOR)
+
+  return {
+    mandatory: params[0] === MANDATORY,
+    type: params[1],
+    description: params[2],
+    options: options,
+    default: params?.[4],
+    min: options?.[0],
+    max: options?.[1],
+  }
+}
+
+/**
+ * @param {UserInputObject} userInput - User input object
+ * @returns {string} User input in string format
+ */
+export const getUserInputString = (userInput) => {
+  const {
+    mandatory,
+    mandatoryString = mandatory ? MANDATORY : OPTIONAL,
+    type,
+    description,
+    min,
+    max,
+    range = [min, max].filter(Boolean).join(RANGE_SEPARATOR),
+    options,
+    default: defaultValue,
+  } = userInput
+
+  // mandatory|type|description|range/options/' '|defaultValue
+  const uiString = [mandatoryString, type, description]
+
+  ;[USER_INPUT_TYPES.range, USER_INPUT_TYPES.rangeFloat].includes(type)
+    ? uiString.push(range)
+    : options?.length > 0
+    ? uiString.push(options.join(LIST_SEPARATOR))
+    : uiString.push(OPTIONS_DEFAULT)
+
+  return uiString.concat(defaultValue).join(PARAMS_SEPARATOR)
+}
+
+/**
+ * Get list of user inputs defined in OpenNebula template.
+ *
+ * @param {object} userInputs - List of user inputs in string format
+ * @param {object} [options] - Options to filter user inputs
+ * @param {boolean} [options.filterCapacityInputs]
+ * - If false, will not filter capacity inputs: MEMORY, CPU, VCPU. By default `true`
+ * @param {string} [options.order] - List separated by comma of input names
+ * @example
+ * const userInputs = {
+ *   "INPUT-1": "O|text|Description1| |text1",
+ *   "INPUT-2": "M|text|Description2| |text2"
+ * }
+ *
+ * const order = "INPUT-2,INPUT-1"
+ *
+ * => userInputsToArray(userInputs, { order }) => [{
+ *   name: 'INPUT-1',
+ *   mandatory: false,
+ *   type: 'text',
+ *   description: 'Description1',
+ *   default: 'text1',
+ * },
+ * {
+ *   name: 'INPUT-2',
+ *   mandatory: true,
+ *   type: 'text',
+ *   description: 'Description2',
+ *   default: 'text2',
+ * }]
+ * @returns {UserInputObject[]} User input object
+ */
+export const userInputsToArray = (
+  userInputs = {},
+  { filterCapacityInputs = true, order } = {}
+) => {
+  const orderedList = order?.split(',') ?? []
+  const userInputsArray = Object.entries(userInputs)
+
+  let list = userInputsArray.map(([name, ui]) => ({
+    name: `${name}`.toUpperCase(),
+    ...(typeof ui === 'string' ? getUserInputParams(ui) : ui),
+  }))
+
+  if (filterCapacityInputs) {
+    const capacityInputs = ['MEMORY', 'CPU', 'VCPU']
+    list = list.filter((ui) => !capacityInputs.includes(ui.name))
+  }
+
+  if (orderedList.length) {
+    list = list.sort((a, b) => {
+      const upperAName = a.name?.toUpperCase?.()
+      const upperBName = b.name?.toUpperCase?.()
+
+      return orderedList.indexOf(upperAName) - orderedList.indexOf(upperBName)
+    })
+  }
+
+  return list
+}
+
+/**
+ * Get list of user inputs in format valid to forms.
+ *
+ * @param {UserInputObject[]} userInputs - List of user inputs in object format
+ * @returns {object} User input object
+ */
+export const userInputsToObject = (userInputs) =>
+  userInputs.reduce(
+    (res, { name, ...userInput }) => ({
+      ...res,
+      [String(name).toUpperCase()]: getUserInputString(userInput),
+    }),
+    {}
+  )
+
+/**
+ * Get list of unique labels from resource.
+ *
+ * @param {string} labels - List of labels separated by comma
+ * @returns {string[]} List of unique labels
+ */
+export const getUniqueLabels = (labels) =>
+  labels
+    ?.split(',')
+    ?.filter(
+      (label, _, list) =>
+        label !== '' && !list.some((element) => element.startsWith(`${label}/`))
+    )
+    ?.sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, ignorePunctuation: true })
+    ) ?? []
+
+// The number 16,777,215 is the total possible combinations
+// of RGB(255,255,255) which is 32 bit color
+const SEED = 16_777_215
+const FACTOR = 49979693
+
+/**
+ * Generate a random color from a string.
+ *
+ * @param {string} text - Text to generate a color from
+ * @param {object} [options] - Options to generate color
+ * @param {object} [options.caseSensitive] - If true, will not convert to lowercase
+ * @returns {string} Hexadecimal color
+ */
+export const getColorFromString = (text, options = {}) => {
+  const { caseSensitive = false } = options
+
+  let ensuredText = String(text)
+  !caseSensitive && (ensuredText = ensuredText.toLowerCase())
+
+  const base = ensuredText.split('').reduce((total, char) => {
+    const currentIndex = char.charCodeAt(0)
+    const digit = currentIndex > 0 ? currentIndex : 0
+    const range = parseInt(SEED / digit) * FACTOR
+
+    return (total + currentIndex * range) % SEED
+  }, 1)
+
+  const hex = ((base * ensuredText.length) % SEED).toString(16)
+
+  return `#${hex.padEnd(6, hex)}`
+}
+
+/**
+ * @param {object} resource - OpenNebula resource
+ * @returns {string} Error message from resource
+ */
+export const getErrorMessage = (resource) => {
+  const { USER_TEMPLATE, TEMPLATE } = resource ?? {}
+  const { ERROR, SCHED_MESSAGE } = USER_TEMPLATE ?? {}
+  const { ERROR: templateError } = TEMPLATE ?? {}
+
+  return [ERROR, SCHED_MESSAGE, templateError].filter(Boolean)[0]
 }

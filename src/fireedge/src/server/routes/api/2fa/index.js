@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,48 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
-const { routes: tfaRoutes } = require('./tfa')
-const { TFA } = require('./string-routes')
+const { Actions, Commands } = require('server/routes/api/2fa/routes')
+const { setup, qr, del } = require('server/routes/api/2fa/functions')
 
-const { defaultEmptyFunction } = require('server/utils/constants/defaults')
+const { TFA_SETUP, TFA_QR, TFA_DELETE } = Actions
 
-const privateRoutes = []
-const publicRoutes = []
-
-/**
- * Set private routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPrivateRoutes = (routes = {}, path = '', action = defaultEmptyFunction) => {
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      privateRoutes.push(
-        setFunctionRoute(route, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
-          })
-      )
-    })
-  }
-}
-
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePrivateRoutes = () => {
-  setPrivateRoutes(tfaRoutes, TFA, addFunctionAsRoute)
-  return privateRoutes
-}
-
-const functionRoutes = {
-  private: generatePrivateRoutes(),
-  public: publicRoutes
-}
-
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[TFA_SETUP],
+    action: setup,
+  },
+  {
+    ...Commands[TFA_QR],
+    action: qr,
+  },
+  {
+    ...Commands[TFA_DELETE],
+    action: del,
+  },
+]

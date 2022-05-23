@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,43 +14,50 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useMemo, useState } from 'react'
+/* import { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { CircularProgress, Backdrop } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { useFetchAll } from 'client/hooks'
-import { useApplicationTemplateApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
+import {  } from 'client/features/OneApi/serviceTemplate'
 
 import { DialogForm } from 'client/components/Dialogs'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Deploy/Steps'
-import { parseApplicationToForm, parseFormToDeployApplication } from 'client/utils'
+import {
+  parseApplicationToForm,
+  parseFormToDeployApplication,
+} from 'client/utils'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.appBar,
-    color: theme.palette.common.white
-  }
-}))
+    color: theme.palette.common.white,
+  },
+})) */
 
-const DeployForm = ({ applicationTemplate, handleCancel }) => {
-  const classes = useStyles()
+const DeployForm = () => (
+  // const DeployForm = ({ applicationTemplate, handleCancel }) => (
+
+  /* const classes = useStyles()
   const [vmTemplates, setVmTemplates] = useState([])
 
   const { enqueueInfo } = useGeneralApi()
-  const { getApplicationsTemplates, instantiateApplicationTemplate } = useApplicationTemplateApi()
+  const { getApplicationsTemplates, instantiateApplicationTemplate } =
+    useApplicationTemplateApi()
   const { data, fetchRequestAll, loading } = useFetchAll()
 
-  const applicationParsed = useMemo(() =>
-    parseApplicationToForm(applicationTemplate)
-  , [])
+  const applicationParsed = useMemo(
+    () => parseApplicationToForm(applicationTemplate),
+    []
+  )
 
   const { steps, resolvers } = Steps({
     applicationTemplate: applicationParsed,
-    vmTemplates
+    vmTemplates,
   })
 
   useEffect(() => {
@@ -58,28 +65,31 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
 
     const fetchTemplates = tiers
       ?.map(({ template: { id } }) => id)
-      ?.reduce((list, templateId) =>
-        list.includes(templateId) ? list : [...list, templateId]
-      , [])
-      ?.map(templateId =>
-        getApplicationsTemplates(templateId).then(vmTemplate =>
-          setVmTemplates(prev => [...prev, vmTemplate])
+      ?.reduce(
+        (list, templateId) =>
+          list.includes(templateId) ? list : [...list, templateId],
+        []
+      )
+      ?.map((templateId) =>
+        getApplicationsTemplates(templateId).then((vmTemplate) =>
+          setVmTemplates((prev) => [...prev, vmTemplate])
         )
       )
 
     fetchRequestAll(fetchTemplates)
   }, [applicationParsed])
 
-  const handleSubmit = values => {
-    const {
-      instances,
-      ...application
-    } = parseFormToDeployApplication(values, applicationParsed)
+  const handleSubmit = (values) => {
+    const { instances, ...application } = parseFormToDeployApplication(
+      values,
+      applicationParsed
+    )
 
-    return Promise
-      .all([...new Array(instances)]
-        .map(() => instantiateApplicationTemplate(applicationTemplate.ID, application))
+    return Promise.all(
+      [...new Array(instances)].map(() =>
+        instantiateApplicationTemplate(applicationTemplate.ID, application)
       )
+    )
       .then(() => handleCancel())
       .then(() => enqueueInfo(`Template instantiate - x${instances}`))
   }
@@ -87,7 +97,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
   if ((applicationTemplate && !data) || loading) {
     return (
       <Backdrop open onClick={handleCancel} className={classes.backdrop}>
-        <CircularProgress color='inherit' />
+        <CircularProgress color="inherit" />
       </Backdrop>
     )
   }
@@ -100,23 +110,21 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
       values={resolvers().cast(applicationParsed)}
       onCancel={handleCancel}
     >
-      <FormStepper
-        steps={steps}
-        schema={resolvers}
-        onSubmit={handleSubmit}
-      />
+      <FormStepper steps={steps} schema={resolvers} onSubmit={handleSubmit} />
     </DialogForm>
-  )
-}
+  ) */
 
-DeployForm.propTypes = {
+  <>{'Deploy service template form WIP'}</>
+)
+
+/* DeployForm.propTypes = {
   applicationTemplate: PropTypes.object.isRequired,
-  handleCancel: PropTypes.func
+  handleCancel: PropTypes.func,
 }
 
 DeployForm.defaultProps = {
   applicationTemplate: undefined,
-  handleCancel: undefined
-}
+  handleCancel: undefined,
+} */
 
 export default DeployForm

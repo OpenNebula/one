@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,30 +17,27 @@ import { boolean, string, object } from 'yup'
 
 import { DatastoresTable } from 'client/components/Tables'
 import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const ENFORCE = {
   name: 'enforce',
-  label: 'Enforce capacity checks',
-  tooltip: `
-    If it is set to true, the host capacity will be checked.
-    This will only affect oneadmin requests, regular users
-    resize requests will always be enforced.`,
+  label: T.EnforceCapacityChecks,
+  tooltip: T.EnforceCapacityChecksConcept,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 const DATASTORE = {
   name: 'datastore',
-  label: 'Select the new datastore',
+  label: T.SelectTheNewDatastore,
   type: INPUT_TYPES.TABLE,
-  Table: DatastoresTable,
+  Table: () => DatastoresTable,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 export const FIELDS = [ENFORCE, DATASTORE]

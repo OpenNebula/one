@@ -75,6 +75,8 @@
                           <xs:element name="HID" type="xs:integer"/>
                           <xs:element name="CID" type="xs:integer"/>
                           <xs:element name="DS_ID" type="xs:integer"/>
+                          <xs:element name="VM_MAD" type="xs:string"/>
+                          <xs:element name="TM_MAD" type="xs:string"/>
                           <xs:element name="ACTION" type="xs:integer"/>
                         </xs:sequence>
                       </xs:complexType>

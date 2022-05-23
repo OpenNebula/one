@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -195,6 +195,7 @@
     </fieldset>
   </div>
 </div>
+{{/isFeatureEnabled}}
 <div class="row hypervisor not_vcenter">
   <div class="medium-12 columns">
     <fieldset>
@@ -216,7 +217,6 @@
     </fieldset>
   </div>
 </div>
-{{/isFeatureEnabled}}
 <div class="row">
   <div class="large-6 columns">
     <input type="checkbox" id="sunstone_network_select"/>

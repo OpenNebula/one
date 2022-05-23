@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -832,17 +832,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     user_obj_template->erase("MEMORY");
     obj_template->add("MEMORY", memory);
 
-    // Check optional MEMORY_MAX and MEMORY_SLOTS attribute
+    // Check optional MEMORY_MAX attribute
     if ( user_obj_template->get("MEMORY_MAX", ivalue) && ivalue > 0 )
     {
         user_obj_template->erase("MEMORY_MAX");
         obj_template->add("MEMORY_MAX", ivalue);
-    }
-
-    if ( user_obj_template->get("MEMORY_SLOTS", ivalue) && ivalue > 0 )
-    {
-        user_obj_template->erase("MEMORY_SLOTS");
-        obj_template->add("MEMORY_SLOTS", ivalue);
     }
 
     if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )
@@ -2962,7 +2956,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
             obj_template->remove(context_new);
             obj_template->set(context_bck);
 
-            context_bck->merge(context_new, false);
+            context_bck->merge(context_new, true);
 
             delete context_new;
         }
@@ -2985,6 +2979,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         NebulaLog::log("ONE",Log::ERROR, err);
         return -1;
     }
+
+    encrypt();
 
     return 0;
 }

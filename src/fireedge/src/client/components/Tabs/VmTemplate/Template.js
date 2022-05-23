@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,27 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useContext } from 'react'
-import { Accordion, AccordionDetails } from '@mui/material'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { Box, Accordion, AccordionDetails } from '@mui/material'
 
-import { TabContext } from 'client/components/Tabs/TabProvider'
+import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 
-const TemplateTab = () => {
-  const { data: template = {} } = useContext(TabContext)
-  const { TEMPLATE } = template
+/**
+ * Renders template tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Template id
+ * @returns {ReactElement} Template tab
+ */
+const TemplateTab = ({ id }) => {
+  const { data: vmTemplate = {} } = useGetTemplateQuery({ id })
 
   return (
-    <Accordion expanded TransitionProps={{ unmountOnExit: true }}>
+    <Accordion variant="outlined" expanded>
       <AccordionDetails>
-        <pre>
-          <code style={{ whiteSpace: 'break-spaces' }}>
-            {JSON.stringify(TEMPLATE, null, 2)}
-          </code>
-        </pre>
+        <Box component="pre">
+          <Box
+            component="code"
+            sx={{ whiteSpace: 'break-spaces', wordBreak: 'break-all' }}
+          >
+            {JSON.stringify(vmTemplate?.TEMPLATE ?? {}, null, 2)}
+          </Box>
+        </Box>
       </AccordionDetails>
     </Accordion>
   )
+}
+
+TemplateTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
 TemplateTab.displayName = 'TemplateTab'

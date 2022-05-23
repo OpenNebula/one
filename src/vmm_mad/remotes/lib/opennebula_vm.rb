@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,7 +22,41 @@ class OpenNebulaVM
 
     attr_reader :vm_id, :vm_name, :sysds_path
 
-    CGROUP_DEFAULT_SHARES = 1024
+    # share values default for cgroup versions
+    DEFAULT_SHARES = {
+        1 => {
+            :base => 1024,
+            :min  => 2,
+            :max  => 262144
+        },
+        2 => {
+            :base => 100,
+            :min  => 1,
+            :max  => 10000
+        }
+    }
+
+    CGROUP_NAMES ={
+        'cgroup' => {
+            :cpu        => 'shares',
+            :cores      => 'cpus',
+            :nodes      => 'mems',
+            :memory_max => 'limit_in_bytes',
+            :memory_low => 'soft_limit_in_bytes',
+            :swap       => 'memsw.limit_in_bytes',
+            :oom        => 'oom_control'
+        },
+        'cgroup2' => {
+            :cpu        => 'weight',
+            :cores      => 'cpus',
+            :nodes      => 'mems',
+            :memory_max => 'max',
+            :memory_low => 'low',
+            :swap       => 'swap.max',
+            :oom        => 'oom.group'
+
+        }
+    }
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -60,6 +94,14 @@ class OpenNebulaVM
         !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
     end
 
+    # Returns cgroup version
+    def get_cgroup_version
+        return 1 unless `mount | grep "type cgroup ("`.empty?
+        return 2 unless `mount | grep "type cgroup2 ("`.empty?
+
+        0
+    end
+
     def wild?
         @vm_name && !@vm_name.include?('one-')
     end
@@ -79,6 +121,18 @@ class OpenNebulaVM
 
     def get_disks
         @xml.elements('//TEMPLATE/DISK')
+    end
+
+    def get_numa_nodes
+        @xml.elements('//TEMPLATE/NUMA_NODE')
+    end
+
+    def swap_limitable?
+        if File.exist?('/sys/fs/cgroup/memory/memory.memsw.limit_in_bytes')
+            return true
+        end
+
+        OpenNebula.log_warning('swap limiting via cgroups not supported')
     end
 
     def location
@@ -136,20 +190,30 @@ class OpenNebulaVM
     # tasks in a cgroup where cpu.shares is set to 100. The value specified in
     # the cpu.shares file must be 2 or higher.
     # (https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu)
-    def cpu_shares
+    def cpu_shares(version = 1)
         cpu = get_cpu
 
-        return CGROUP_DEFAULT_SHARES if cpu.nil? || cpu == ''
+        b_shares = DEFAULT_SHARES[version][:base]
 
-        shares_val = (cpu * CGROUP_DEFAULT_SHARES).round
+        min_shares = DEFAULT_SHARES[version][:min]
+        max_shares = DEFAULT_SHARES[version][:max]
 
-        # The value specified in the cpu.shares file must be 2 or higher.
-        shares_val = 2 if shares_val < 2
+        return b_shares if cpu.nil? || cpu == ''
+
+        shares_val = (cpu * b_shares).round
+
+        # Keep shares in range
+        shares_val = min_shares if shares_val < min_shares
+        shares_val = max_shares if shares_val > max_shares
 
         shares_val
     end
 
-    # Return the value for memmory.limit_in_bytes cgroup based on the value of
+    def get_memory
+        @xml['//TEMPLATE/MEMORY']
+    end
+
+    # Return the value for memory.limit_in_bytes cgroup based on the value of
     # MEMORY.
     #
     # memory.limit_in_bytes
@@ -158,10 +222,15 @@ class OpenNebulaVM
     # is possible to use suffixes to represent larger units - k or K for
     # kilobytes, m or M for megabytes, and g or G for gigabytes.
     # (https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory)
-    def memmory_limit_in_bytes
-        default_units = 'M' # MEMORY units are in MB
+    def limits_memory
+        "#{get_memory}M"
+    end
 
-        "#{@xml['//TEMPLATE/MEMORY']}#{default_units}"
+    def limits_memory_swap(hypervisor_attr)
+        memory = get_memory.to_i
+        swap = @xml["/VM/USER_TEMPLATE/#{hypervisor_attr}"].to_i
+
+        "#{swap + memory}M"
     end
 
     private

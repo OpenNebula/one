@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -22,27 +22,31 @@ const Header = ({ useTableProps }) => {
   /** @type {UseTableInstanceProps} */
   const { headerGroups } = useTableProps
 
-  const renderHeaderColumn = useCallback(column => (
-    <div {...column.getHeaderProps()}>
-      {column.render('Header')}
-    </div>
-  ), [])
+  const renderHeaderColumn = useCallback(
+    (column) => (
+      <div {...column.getHeaderProps()}>{column.render('Header')}</div>
+    ),
+    []
+  )
 
-  const renderHeaderGroup = useCallback(headerGroup => (
-    <div {...headerGroup.getHeaderGroupProps()}>
-      {headerGroup.headers.map(renderHeaderColumn)}
-    </div>
-  ), [])
+  const renderHeaderGroup = useCallback(
+    (headerGroup) => (
+      <div {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map(renderHeaderColumn)}
+      </div>
+    ),
+    []
+  )
 
   return headerGroups.map(renderHeaderGroup)
 }
 
 Header.propTypes = {
-  useTableProps: PropTypes.object
+  useTableProps: PropTypes.object,
 }
 
 Header.defaultProps = {
-  useTableProps: {}
+  useTableProps: {},
 }
 
 export default Header

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,46 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { addFunctionAsRoute, setFunctionRoute } = require('server/utils/server')
-const { routes: authRoutes } = require('./auth')
-const { AUTH } = require('./string-routes')
+const { Actions, Commands } = require('server/routes/api/auth/routes')
+const { auth } = require('server/routes/api/auth/functions')
 
-const privateRoutes = []
-const publicRoutes = []
+const { AUTHENTICATION } = Actions
 
-/**
- * Set private routes.
- *
- * @param {object} routes - object of routes
- * @param {string} path - principal route
- * @param {Function} action - function of route
- */
-const setPublicRoutes = (routes = {}, path = '', action = () => undefined) => {
-  if (Object.keys(routes).length > 0 && routes.constructor === Object) {
-    Object.keys(routes).forEach((route) => {
-      publicRoutes.push(
-        setFunctionRoute(route, path,
-          (req, res, next, connection, userId, user) => {
-            action(req, res, next, routes[route], user, connection)
-          })
-      )
-    })
-  }
-}
-
-/**
- * Add routes.
- *
- * @returns {Array} routes
- */
-const generatePublicRoutes = () => {
-  setPublicRoutes(authRoutes, AUTH, addFunctionAsRoute)
-  return publicRoutes
-}
-
-const functionRoutes = {
-  private: privateRoutes,
-  public: generatePublicRoutes()
-}
-
-module.exports = functionRoutes
+module.exports = [
+  {
+    ...Commands[AUTHENTICATION],
+    action: auth,
+  },
+]

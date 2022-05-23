@@ -31,6 +31,12 @@
   :left: true
   :expand: true
 
+:STATE:
+  :desc: State of the Virtual Network
+  :size: 6
+  :left: true
+  :expand: true
+
 :LEASES:
   :desc: Number of this Virtual Networks given leases
   :size: 6
@@ -42,4 +48,5 @@
 - :NAME
 - :CLUSTERS
 - :BRIDGE
+- :STATE
 - :LEASES

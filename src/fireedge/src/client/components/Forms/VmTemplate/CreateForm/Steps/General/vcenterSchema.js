@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -28,32 +28,32 @@ const commonAttributes = {
     .trim()
     .required()
     .default(() => undefined),
-  grid: { md: 12 }
+  grid: { md: 12 },
 }
 
 /** @type {Field} vCenter template reference field */
-const VCENTER_TEMPLATE_FIELD = {
+export const VCENTER_TEMPLATE_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_TEMPLATE_REF',
-  label: T.vCenterTemplateRef
+  label: T.vCenterTemplateRef,
 }
 
 /** @type {Field} vCenter cluster reference field */
-const VCENTER_CCR_FIELD = {
+export const VCENTER_CCR_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_CCR_REF',
-  label: T.vCenterClusterRef
+  label: T.vCenterClusterRef,
 }
 
 /** @type {Field} vCenter instance id field */
-const VCENTER_INSTANCE_ID = {
+export const VCENTER_INSTANCE_ID = {
   ...commonAttributes,
   name: 'VCENTER_INSTANCE_ID',
-  label: T.vCenterInstanceId
+  label: T.vCenterInstanceId,
 }
 
 /** @type {Field} vCenter VM folder field */
-const VCENTER_FOLDER_FIELD = {
+export const VCENTER_FOLDER_FIELD = {
   ...commonAttributes,
   name: 'VCENTER_VM_FOLDER',
   label: T.vCenterVmFolder,
@@ -61,7 +61,7 @@ const VCENTER_FOLDER_FIELD = {
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined)
+    .default(() => undefined),
 }
 
 /** @type {Field[]} List of vCenter fields */
@@ -69,5 +69,5 @@ export const FIELDS = [
   VCENTER_TEMPLATE_FIELD,
   VCENTER_CCR_FIELD,
   VCENTER_INSTANCE_ID,
-  VCENTER_FOLDER_FIELD
+  VCENTER_FOLDER_FIELD,
 ]

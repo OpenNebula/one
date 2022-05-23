@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,6 +22,9 @@
 AllCops:
   Exclude:
     - src/sunstone/public/node_modules/**/*
+    - src/vnm_mad/remotes/vcenter/vnet_create
+    - src/vnm_mad/remotes/vcenter/vnet_delete
+    - src/vnm_mad/remotes/vcenter/virtual_network_xml.rb
     - src/tm_mad
     - share/onegate/onegate
     - share/scons/get_xmlrpc_config
@@ -347,7 +350,6 @@ AllCops:
     - src/oca/ruby/opennebula/template.rb
     - src/oca/ruby/opennebula/group.rb
     - src/oca/ruby/opennebula/virtual_network.rb
-    - src/oca/ruby/opennebula/virtual_machine_ext.rb
     - src/oca/ruby/opennebula/security_group_pool.rb
     - src/oca/ruby/opennebula/pool_element.rb
     - src/oca/ruby/opennebula/document_pool.rb
@@ -561,6 +563,9 @@ Layout/LineEndStringConcatenationIndentation:
 # STYLE
 #######
 
+Style/OpenStructUse:
+    Enabled: false
+
 Style/OptionalBooleanParameter:
     Enabled: false
 
@@ -574,7 +579,9 @@ Style/SignalException:
     EnforcedStyle: only_raise
 
 Style/ConditionalAssignment:
-    EnforcedStyle: assign_inside_condition
+    Enabled: false
+#    EnforcedStyle: assign_inside_condition
+#    EnforcedStyle: assign_to_condition
 
 # No parentheses with no argument
 Style/DefWithParentheses:
@@ -755,6 +762,21 @@ Style/MixinUsage:
   Enabled: false
 
 Style/SelectByRegexp:
+  Enabled: false
+
+Style/FileWrite:
+  Enabled: false
+
+Style/FileRead:
+  Enabled: false
+
+Style/FetchEnvVar:
+  Enabled: false
+
+Style/SlicingWithRange:
+  Enabled: false
+
+Style/RedundantCondition:
   Enabled: false
 
 ######

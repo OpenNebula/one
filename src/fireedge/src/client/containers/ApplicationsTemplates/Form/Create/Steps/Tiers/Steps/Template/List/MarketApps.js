@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,22 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useMarketplaceApp, useMarketplaceAppApi } from 'client/features/One'
+import { useGetMarketplaceAppsQuery } from 'client/features/OneApi/marketplaceApp'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
-  const apps = useMarketplaceApp()
-  const { getMarketplaceApps } = useMarketplaceAppApi()
-
-  useEffect(() => {
-    getMarketplaceApps()
-  }, [])
+  const { data: apps = [] } = useGetMarketplaceAppsQuery()
 
   return (
     <Search
@@ -39,19 +33,21 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
       renderResult={({ ID, NAME }) => {
         const isSelected = ID === String(currentValue)
 
-        return <SelectCard
-          key={`app-${ID}`}
-          title={`📦 ${NAME}`}
-          isSelected={isSelected}
-          handleClick={() => handleSetData(!isSelected && ID)}
-        />
+        return (
+          <SelectCard
+            key={`app-${ID}`}
+            title={`📦 ${NAME}`}
+            isSelected={isSelected}
+            handleClick={() => handleSetData(!isSelected && ID)}
+          />
+        )
       }}
       searchBoxProps={{
-        style: {
+        sx: {
           display: 'flex',
           padding: '1rem 0',
-          gap: 10
-        }
+          gap: 10,
+        },
       }}
     />
   )
@@ -60,13 +56,13 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
 ListMarketApp.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  handleSetData: PropTypes.func
+  handleSetData: PropTypes.func,
 }
 
 ListMarketApp.defaultProps = {
   backButton: null,
   currentValue: undefined,
-  handleSetData: () => undefined
+  handleSetData: () => undefined,
 }
 
 export default ListMarketApp

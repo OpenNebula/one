@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,18 +17,16 @@
 export const TYPES_POLICY = [
   { text: 'Change', value: 'CHANGE', min: false },
   { text: 'Cardinality', value: 'CARDINALITY', min: false },
-  { text: 'Percentege change', value: 'PERCENTAGE_CHANGE' }
+  { text: 'Percentege change', value: 'PERCENTAGE_CHANGE' },
 ]
 
 export const TIME_FORMATS = [
   { text: 'Recurrence', value: 'recurrence' },
-  { text: 'Start time', value: 'start_time', date: true }
+  { text: 'Start time', value: 'start_time', date: true },
 ]
 
-export const hasMinValue = type => TYPES_POLICY.some(
-  ({ value, min }) => value === type && min === false
-)
+export const hasMinValue = (type) =>
+  TYPES_POLICY.some(({ value, min }) => value === type && min === false)
 
-export const isDateFormat = format => TIME_FORMATS.some(
-  ({ value, date }) => value === format && date === true
-)
+export const isDateFormat = (format) =>
+  TIME_FORMATS.some(({ value, date }) => value === format && date === true)

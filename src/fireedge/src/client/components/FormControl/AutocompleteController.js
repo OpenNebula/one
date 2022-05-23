@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -20,7 +20,7 @@ import { TextField, Chip, Autocomplete } from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr, labelCanBeTranslated } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
 const AutocompleteController = memo(
@@ -29,13 +29,15 @@ const AutocompleteController = memo(
     cy = `autocomplete-${generateKey()}`,
     name = '',
     label = '',
+    tooltip = '',
     multiple = false,
     values = [],
-    fieldProps = {}
+    fieldProps: { separators, ...fieldProps } = {},
+    readOnly = false,
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
-      fieldState: { error }
+      fieldState: { error },
     } = useController({ name, control })
 
     const selected = multiple
@@ -45,13 +47,13 @@ const AutocompleteController = memo(
     return (
       <Autocomplete
         fullWidth
-        color='secondary'
+        color="secondary"
         onBlur={onBlur}
         onChange={(_, newValue) => {
           const newValueToChange = multiple
-            ? newValue?.map(value =>
-              typeof value === 'string' ? value : ({ text: value, value })
-            )
+            ? newValue?.map((value) =>
+                typeof value === 'string' ? value : { text: value, value }
+              )
             : newValue?.value
 
           return onChange(newValueToChange ?? '')
@@ -64,42 +66,64 @@ const AutocompleteController = memo(
           tags.map((tag, index) => (
             <Chip
               key={tag}
-              size='small'
-              variant='outlined'
+              size="small"
+              variant="outlined"
               label={tag}
               {...getTagProps({ index })}
             />
           ))
         }
-        getOptionLabel={option => option.text}
-        isOptionEqualToValue={option => option.value === renderValue}
+        getOptionLabel={(option) => option.text}
+        isOptionEqualToValue={(option) => option.value === renderValue}
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField
-            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            label={<Translate word={label} />}
             inputProps={{ ...inputProps, 'data-cy': cy }}
+            InputProps={{ readOnly }}
             error={Boolean(error)}
-            helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
+            helperText={
+              Boolean(error) && (
+                <ErrorHelper label={error?.message ?? error[0]?.message}>
+                  {tooltip &&
+                    inputProps?.value?.length > 0 &&
+                    `. ${Tr(tooltip)}`}
+                </ErrorHelper>
+              )
+            }
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
             {...inputParams}
           />
         )}
+        {...(tooltip && {
+          loading: true,
+          loadingText: <Translate word={tooltip} />,
+        })}
+        {...(Array.isArray(separators) && {
+          autoSelect: true,
+          onInputChange: (event, newInputValue) => {
+            if (separators.includes([...newInputValue].at(-1))) {
+              event.target.blur()
+              event.target.focus()
+            }
+          },
+        })}
         {...fieldProps}
       />
     )
   },
-  (prevProps, nextProps) => (
-    prevProps.error === nextProps.error &&
-    prevProps.values === nextProps.values
-  ))
+  (prevProps, nextProps) => prevProps.values === nextProps.values
+)
 
 AutocompleteController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
+  tooltip: PropTypes.any,
   multiple: PropTypes.bool,
-  values: PropTypes.arrayOf(PropTypes.object).isRequired,
-  fieldProps: PropTypes.object
+  values: PropTypes.arrayOf(PropTypes.object),
+  fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,7 +25,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
 
-  var TemplateFlowsList = require("hbs!./list");
+  var TemplateFlowsList = require("hbs!./html/list");
 
   var _accordionId = 0;
 
@@ -492,7 +492,7 @@ define(function(require) {
     context.on("click", ".provision_change_cardinality_button", function() {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
       var role_name = $(this).attr("role_id");
-      var cardinality = $(".cardinality_slider_div", context).val();
+      var cardinality = $(".cardinality_slider_div input.visor", context).val();
 
       OpenNebula.Role.scale({
         data : {
@@ -686,6 +686,22 @@ define(function(require) {
       case OpenNebula.Service.STATES.DONE:
         state_color = "off";
         state_str = Locale.tr("DONE");
+        break;
+      case OpenNebula.Service.STATES.DEPLOYING_NETS:
+        state_color = "deploying";
+        state_str = Locale.tr("DEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.UNDEPLOYING_NETS:
+        state_color = "deploying";
+        state_str = Locale.tr("UNDEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.FAILED_DEPLOYING_NETS:
+        state_color = "error";
+        state_str = Locale.tr("FAILED DEPLOYING NETS");
+        break;
+      case OpenNebula.Service.STATES.FAILED_UNDEPLOYING_NETS:
+        state_color = "error";
+        state_str = Locale.tr("FAILED UNDEPLOYING NETS");
         break;
       default:
         state_color = "powering_off";

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,6 +34,9 @@ type DiskKeys string
 const (
 	DiskVec      string   = "DISK"
 	DevPrefix    DiskKeys = "DEV_PREFIX"
+	Cache        DiskKeys = "CACHE"
+	Discard      DiskKeys = "DISCARD"
+	IO           DiskKeys = "IO"
 	DiskID       DiskKeys = "DISK_ID"
 	Datastore    DiskKeys = "DATASTORE"
 	DatastoreID  DiskKeys = "DATASTORE_ID"

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -29,12 +29,13 @@ const Steps = () => {
 
   const steps = [basic, clusters, networking, tiers]
 
-  const resolvers = () => yup.object({
-    [basic.id]: basic.resolver,
-    [clusters.id]: clusters.resolver,
-    [networking.id]: networking.resolver,
-    [tiers.id]: tiers.resolver
-  })
+  const resolvers = () =>
+    yup.object({
+      [basic.id]: basic.resolver,
+      [clusters.id]: clusters.resolver,
+      [networking.id]: networking.resolver,
+      [tiers.id]: tiers.resolver,
+    })
 
   const defaultValues = resolvers().default()
 

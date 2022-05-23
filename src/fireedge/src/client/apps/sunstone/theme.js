@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -18,12 +18,6 @@ import { ThemeOptions } from '@mui/material'
 /** @type {ThemeOptions} Sunstone theme */
 export default {
   palette: {
-    primary: {
-      light: '#2a2d3d',
-      main: '#222431',
-      dark: '#191924',
-      contrastText: '#ffffff'
-    },
     secondary: {
       100: '#dff2f8',
       200: '#bfe6f0',
@@ -37,7 +31,7 @@ export default {
       light: '#bfe6f0',
       main: '#40b3da',
       dark: '#0099c3',
-      contrastText: '#fff'
-    }
-  }
+      contrastText: '#fff',
+    },
+  },
 }

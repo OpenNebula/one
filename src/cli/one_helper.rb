@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,7 +30,7 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2021, OpenNebula Project, OpenNebula Systems
+Copyright 2002-2022, OpenNebula Project, OpenNebula Systems
 EOT
 
     if ONE_LOCATION
@@ -2301,6 +2301,48 @@ EOT
 
                     ds.notitle
                 end
+            end
+        end
+    end
+
+    # Convert u=rwx,g=rx,o=r to octet
+    #
+    # @param perm [String] Permissions in human readbale format
+    #
+    # @return [String] Permissions in octet format
+    def OpenNebulaHelper.to_octet(perm)
+        begin
+            Integer(perm).to_s
+        rescue StandardError
+            perm = perm.split(',')
+            ret  = 0
+
+            perm.each do |p|
+                p = p.split('=')
+
+                next unless p.size == 2
+
+                r = p[1].count('r')
+                w = p[1].count('w')
+                x = p[1].count('x')
+
+                rwx = (2 ** 0) * x + (2 ** 1) * w + (2 ** 2) * r
+
+                case p[0]
+                when 'u'
+                    ret += rwx * 100
+                when 'g'
+                    ret += rwx * 10
+                else
+                    ret += rwx * 1
+                end
+            end
+
+            if ret == 0
+                STDERR.puts 'Error in permissions format'
+                exit(-1)
+            else
+                ret.to_s
             end
         end
     end

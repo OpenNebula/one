@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -33,11 +33,11 @@
       <form id="support_credentials_form">
         <div class="large-12 columns">
           <label for="support_email">Email</label>
-          <input id="support_email" type="text"></input>
+          <input id="support_email" autocomplete="email" type="text"></input>
         </div>
         <div class="large-12 columns">
           <label for="support_password">Password</label>
-          <input id="support_password" type="password"></input>
+          <input id="support_password"  autocomplete="current-password" type="password"></input>
         </div>
         <div class="large-12 columns">
           <button class="button right radius success submit_support_credentials_button" type="submit">Sign in</button>

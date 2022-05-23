@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,6 +14,36 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { T } from 'client/constants'
+
+/**
+ * @typedef SecurityGroupRule
+ * @property {number|string} SECURITY_GROUP_ID - ID
+ * @property {string} SECURITY_GROUP_NAME - Name
+ * @property {string} PROTOCOL - Protocol
+ * @property {string} RULE_TYPE - Rule type
+ * @property {number|string} ICMP_TYPE - ICMP type
+ * @property {number|string} [ICMPv6_TYPE] - ICMP v6 type
+ * @property {number|string} [RANGE] - Range
+ * @property {number|string} [NETWORK_ID] - Network id
+ * @property {number|string} [SIZE] - Network size
+ * @property {string} [IP] - Network IP
+ * @property {string} [MAC] - Network MAC
+ */
+
+/**
+ * @typedef PrettySecurityGroupRule
+ * @property {string} ID - ID
+ * @property {string} NAME - Name
+ * @property {PROTOCOL_STRING} PROTOCOL - Protocol
+ * @property {RULE_TYPE_STRING} RULE_TYPE - Rule type
+ * @property {ICMP_STRING} ICMP_TYPE - ICMP type
+ * @property {ICMP_V6_STRING} [ICMPv6_TYPE] - ICMP v6 type
+ * @property {string|'All'} [RANGE] - Range
+ * @property {string} [NETWORK_ID] - Network id
+ * @property {string} [SIZE] - Network size
+ * @property {string} [IP] - Network IP
+ * @property {string} [MAC] - Network MAC
+ */
 
 /**
  * ICMP Codes for each ICMP type as in:
@@ -52,7 +82,7 @@ export const ICMP_STRING = {
   40: '40: Photuris',
   41: '41: ICMP messages utilized by experimental mobility protocols such as Seamoby',
   253: '253: RFC3692-style Experiment 1',
-  254: '254: RFC3692-style Experiment 2'
+  254: '254: RFC3692-style Experiment 2',
 }
 
 /**
@@ -68,7 +98,7 @@ export const ICMP_V6_STRING = {
   3: '3: Time exceeded',
   4: '4: Parameter problem',
   128: '128/0: Echo request',
-  129: '129/0: Echo reply'
+  129: '129/0: Echo reply',
 }
 
 /** @enum {string} Security group protocol */
@@ -78,11 +108,11 @@ export const PROTOCOL_STRING = {
   ICMP: T.ICMP,
   ICMPV6: T.ICMPV6,
   IPSEC: T.IPSEC,
-  ALL: T.All
+  ALL: T.All,
 }
 
 /** @enum {string} Security group rule type */
 export const RULE_TYPE_STRING = {
   OUTBOUND: T.Outbound,
-  INBOUND: T.Inbound
+  INBOUND: T.Inbound,
 }

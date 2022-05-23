@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,9 @@ const (
 	PersistentType Template = "PERSISTENT_TYPE"
 	Size           Template = "SIZE"
 	DevPrefix      Template = "DEV_PREFIX"
+	Cache          Template = "CACHE"
+	Discard        Template = "DISCARD"
+	IO             Template = "IO"
 	Target         Template = "TARGET"
 	Driver         Template = "DRIVER"
 	Path           Template = "PATH"

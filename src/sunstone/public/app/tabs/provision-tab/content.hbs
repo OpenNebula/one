@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,7 +17,7 @@
 <div id="provision_dashboard" class="section_content"></div>
 {{!provision_user_info}}
 
-{{> tabs/provision-tab/vms/create}}
+{{> tabs/provision-tab/vms/html/create}}
 <div class="provision_vms_list_section section_content" hidden></div>
 
 {{#isProvisionTabEnabled "provision-tab" "templates"}}
@@ -25,6 +25,6 @@
 {{/isProvisionTabEnabled}}
 
 {{#isProvisionTabEnabled "provision-tab" "flows"}}
-{{> tabs/provision-tab/flows/create}}
+{{> tabs/provision-tab/flows/html/create}}
 <div class="provision_flows_list_section section_content" hidden></div>
 {{/isProvisionTabEnabled}}

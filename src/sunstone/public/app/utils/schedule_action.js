@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,21 +18,25 @@ define(function (require) {
   /*
     IMPORTS
   */
+  var Actions = require("opennebula/action");
   var Config = require("sunstone-config");
   var Humanize = require("utils/humanize");
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
+  var OpenNebulaVM = require("opennebula/vm");
+  var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
   var Tips = require("utils/tips");
-  var Sunstone = require("sunstone");
-  var OpenNebulaVM = require('opennebula/vm');
 
   /*
     TEMPLATES
   */
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
+  var TemplatePerformHTML = require("hbs!./schedule_action/perform-action");
   var TemplateTableRowHTML = require("hbs!./schedule_action/table-row");
+  var TemplateCharterTableHTML = require("hbs!./schedule_action/charter-table");
+  var TemplateCharterTableRowHTML = require("hbs!./schedule_action/charter-table-row");
 
   /*
     GLOBAL VARIABLES
@@ -75,12 +79,12 @@ define(function (require) {
   ];
 
   var actionsWithARGS = [
-    'snapshot-create',
-    'snapshot-revert',
-    'snapshot-delete',
-    'disk-snapshot-create',
-    'disk-snapshot-revert',
-    'disk-snapshot-delete'
+    "snapshot-create",
+    "snapshot-revert",
+    "snapshot-delete",
+    "disk-snapshot-create",
+    "disk-snapshot-revert",
+    "disk-snapshot-delete"
   ];
 
   var clearEmptySpaces = function(e){
@@ -93,7 +97,7 @@ define(function (require) {
     minDate: currentDate,
     showOptions: { direction: "down" }
   };
-  
+
   var options_hour_picker = {
     title: Locale.tr("Hour"),
     twentyFour: "true",
@@ -108,10 +112,10 @@ define(function (require) {
 
   /**
    * This functions returns the HTML string for the Schedule Action Table.
-   * 
+   *
    * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
    * @param {boolean} leases - Can add leases?
-   * @param {boolean} header - Should generate the table header? 
+   * @param {boolean} header - Should generate the table header?
    * @param {string} body - Body HTML string.
    * @param {boolean} isVM - is it the VM view?
    * @param {boolean} canAdd - Can add schedule actions?
@@ -128,34 +132,124 @@ define(function (require) {
     });
   }
 
-  function formatDate( date, type = 'full') {
+  function _htmlPerformAction(resource, optionsRoles){
+    var optionsActions = defaultActions.map(function(ac){
+      return "<option value='"+ac+"'>"+ac+"</option>";
+    }).join("");
+
+    return TemplatePerformHTML({
+      res: resource,
+      actions: optionsActions,
+      roles: optionsRoles
+    });
+  }
+  
+  function _setupPerformAction(resource, service_id){
+    $("select#select_new_action").off("change").on("change",function(){
+      var snap_name = $("#snapname");
+      var snap_id = $("#snapid");
+      var disk_id = $("#diskid");
+      switch ($(this).val()) {
+        case "snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+        break;
+        case "snapshot-revert":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide").val("");
+        break;
+        case "snapshot-delete":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.addClass("hide").val("");
+        break;
+        case "disk-snapshot-create":
+          snap_name.removeClass("hide");
+          snap_id.addClass("hide").val("");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-revert":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        case "disk-snapshot-delete":
+          snap_name.addClass("hide").val("");
+          snap_id.removeClass("hide");
+          disk_id.removeClass("hide");
+        break;
+        default:
+          snap_name.addClass("hide").val("");
+          snap_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+        break;
+      }
+    });
+
+    $("#perform_"+resource+"_action_json").off("click").on("click", function(){
+      var new_action = $("select#select_new_action").val();
+      var role = $("select#role_name").val();
+      var snap_name = $("#snapname").val();
+      var snap_id = $("#snapid").val();
+      var disk_id = $("#diskid").val();
+      if(new_action){
+        var actionJSON = {};
+        actionJSON.error = function(e){
+          Notifier.notifyError((e && e.error && e.error.message) || Locale.tr("Error"));
+        };
+        actionJSON.success = function(e){
+          Notifier.notifyMessage(Locale.tr("Bulk Action Created"));
+        };
+        actionJSON.data = {};
+        actionJSON.data.id = service_id;
+        actionJSON.data.action = {perform: new_action};
+        actionJSON.data.action.params = {};
+        if(defaultActions.includes(new_action)){
+          var rawData = [disk_id,snap_id,snap_name];
+          var args = rawData.filter(function (e) {return e;}).join();
+          if(args){
+            actionJSON.data.action.params.args = args;
+          }
+        }
+        if(role!=="" && role!==undefined){
+          actionJSON.data.roleName = role;
+        }
+        Actions.addFlowAction(actionJSON,resource);
+      }
+      return false;
+    });
+  }
+
+  function formatDate( date, type = "full") {
     var d = date? new Date(date): new Date();
-    var month = '' + (d.getMonth() + 1);
-    var day = '' + d.getDate();
+    var month = "" + (d.getMonth() + 1);
+    var day = "" + d.getDate();
     var year = d.getFullYear();
     var hour = d.getHours();
     var minutes = d.getMinutes();
     if (hour.length < 2)
-        hour = '0' + hour;
+        hour = "0" + hour;
     if (minutes.length < 2)
-        minutes = '0' + minutes;
+        minutes = "0" + minutes;
     if (month.length < 2)
-        month = '0' + month;
+        month = "0" + month;
     if (day.length < 2)
-        day = '0' + day;
+        day = "0" + day;
     var date = [];
     switch (type) {
-      case 'hour':
+      case "hour":
         date = [hour+":"+minutes];
       break;
-      case 'date':
+      case "date":
         date = [year, month, day];
       break;
       default:
         date = [year, month, day, hour+":"+minutes];
       break;
     }
-    return date.join('-');
+    return date.join("-");
   }
 
   function addPickers(schedule,context){
@@ -309,7 +403,7 @@ define(function (require) {
                     <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"4\"><label for=\"thu\">" + Locale.tr("Th") + "</label>\
                     <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"5\"><label for=\"fri\">" + Locale.tr("Fr") + "</label>\
                     <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"6\"><label for=\"sat\">" + Locale.tr("Sa") + "</label>\
-                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"7\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
+                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"0\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
                 </div>";
           break;
         case "month":
@@ -384,8 +478,8 @@ define(function (require) {
         var relative = true;
 
         Object.keys(dataJSON).forEach(function(key){
-          valuesForRelative = ['ACTION','ID','TIME'];
-          if(key!=='ARGS' && !valuesForRelative.includes(key)){
+          valuesForRelative = ["ACTION","ID","TIME"];
+          if(key!=="ARGS" && !valuesForRelative.includes(key)){
             relative = false;
           }
         });
@@ -445,7 +539,7 @@ define(function (require) {
         }
         //relative check
         if(relative){
-          $('#relative_time').prop('checked', true);
+          $("#relative_time").prop("checked", true);
           $("#relative_time_form").removeClass("hide");
           $("#no_relative_time_form").addClass("hide");
           if(dataJSON.TIME){
@@ -456,25 +550,25 @@ define(function (require) {
                 $("#time_number").val(relativeDate[0]);
               }
               if(relativeDate[1]){
-                $('#time_unit').val(relativeDate[1].toLowerCase());
+                $("#time_unit").val(relativeDate[1].toLowerCase());
               }
             }
           }
         }else{
-          $('#relative_time').prop('checked', false);
+          $("#relative_time").prop("checked", false);
           $("#relative_time_form").addClass("hide");
           $("#no_relative_time_form").removeClass("hide");
           //periodic check
           if(dataJSON.DAYS || dataJSON.REPEAT){
-            $('#schedule_type').click().attr('checked', true);
+            $("#schedule_type").click().attr("checked", true);
           }
           if(dataJSON.TIME && dataJSON.TIME > 1){
             var end_value = parseInt(dataJSON.TIME,10) * 1000;
             $("#date_input").val(
-              formatDate(end_value,'date')
+              formatDate(end_value,"date")
             );
             $("#time_input").val(
-              formatDate(end_value, 'hour')
+              formatDate(end_value, "hour")
             );
           }else{
             _resetInputs();
@@ -482,8 +576,8 @@ define(function (require) {
           if(dataJSON.REPEAT && dataJSON.REPEAT.length){
             _resetRepeatValues();
             switch (dataJSON.REPEAT) {
-              case '0':
-                $("#repeat").val('week').change();
+              case "0":
+                $("#repeat").val("week").change();
                 if(dataJSON.DAYS && dataJSON.DAYS.length){
                   var days = $("#days_week_value input[name=days]");
                   var dataDays = dataJSON.DAYS.split(",");
@@ -494,20 +588,20 @@ define(function (require) {
                   });
                 }
               break;
-              case '1':
-                $("#repeat").val('month').change();
+              case "1":
+                $("#repeat").val("month").change();
                 if(dataJSON.DAYS && dataJSON.DAYS.length){
                   $("#days_month_value").val(dataJSON.DAYS);
                 }
               break;
-              case '2':
-                $("#repeat").val('year').change();
+              case "2":
+                $("#repeat").val("year").change();
                 if(dataJSON.DAYS && dataJSON.DAYS.length){
                   $("#days_year_value").val(dataJSON.DAYS);
                 }
               break;
-              case '3':
-                $("#repeat").val('hour').change();
+              case "3":
+                $("#repeat").val("hour").change();
                 if(dataJSON.DAYS && dataJSON.DAYS.length){
                   $("#days_hour_value").val(dataJSON.DAYS);
                 }
@@ -534,7 +628,7 @@ define(function (require) {
                 if(dataJSON.END_VALUE && dataJSON.END_VALUE.length){
                   var end_value = parseInt(dataJSON.END_VALUE,10) * 1000;
                   $("#end_value_date").val(
-                    formatDate(end_value,'date')
+                    formatDate(end_value,"date")
                   );
                 }
               break;
@@ -572,12 +666,12 @@ define(function (require) {
   }
 
   function _resetRepeat(){
-    $("#repeat").val('week').change();
+    $("#repeat").val("week").change();
   }
 
   function _resetInputs(){
     $("#date_input").val(
-      formatDate(false, 'date')
+      formatDate(false, "date")
     );
     $("#time_input").val(defaultHour);
   }
@@ -595,12 +689,12 @@ define(function (require) {
           actionJSON.ID = String(index);
         }
       }
-      if (!$.isEmptyObject(actionJSON)) { 
-        var sched_action = isService ? 
+      if (!$.isEmptyObject(actionJSON)) {
+        var sched_action = isService ?
           { SCHED_ACTION: actionJSON}
         :
           actionJSON;
-        
+
         actionsJSON.push(sched_action);
       };
     });
@@ -662,7 +756,7 @@ define(function (require) {
       }
       end_type = 2;
       var timeCal = date_input_value + " " + time_input_value;
-      var time = dateToEpoch(new Date(timeCal))
+      var time = dateToEpoch(new Date(timeCal));
       sched_action.END_TYPE = end_type;
       sched_action.END_VALUE = time;
       sched_action.TIME = time;
@@ -706,7 +800,7 @@ define(function (require) {
             return false;
           }
           var time_value = end_date + " 12:00";
-          end_value = dateToEpoch(new Date(time_value))
+          end_value = dateToEpoch(new Date(time_value));
         }
         sched_action.DAYS = String(days);
         sched_action.REPEAT = String(rep);
@@ -739,22 +833,22 @@ define(function (require) {
 
   function validateScheduleInputsEmpty(action, snap_name, snap_id, disk_id){
     switch (action) {
-      case 'snapshot-create':
+      case "snapshot-create":
         rtn = snap_name.length<=0;
       break;
-      case 'snapshot-revert':
+      case "snapshot-revert":
         rtn = snap_id.length<=0;
       break;
-      case 'snapshot-delete':
+      case "snapshot-delete":
         rtn = snap_id.length<=0;
       break;
-      case 'disk-snapshot-create':
+      case "disk-snapshot-create":
         rtn = snap_name.length<=0 || disk_id.length<=0;
       break;
-      case 'disk-snapshot-revert':
+      case "disk-snapshot-revert":
         rtn = snap_id.length<=0 || disk_id.length<=0;
       break;
-      case 'disk-snapshot-delete':
+      case "disk-snapshot-delete":
         rtn = snap_id.length<=0 || disk_id.length<=0;
       break;
       default:
@@ -764,7 +858,7 @@ define(function (require) {
     return rtn;
   }
 
-  function _fromJSONtoActionsTable(actions_array, canEdit=true, canDelete=true) {
+  function _fromJSONtoActionsTable(actions_array, canEdit=true, canDelete=true, template={}) {
     currentSchedID = 0;
     var str = "";
 
@@ -783,7 +877,7 @@ define(function (require) {
     }
 
     $.each(actions_array, function (_, schedule_action) {
-      str += _fromJSONtoActionRow(schedule_action, canEdit, canDelete);
+      str += _fromJSONtoActionRow(schedule_action, canEdit, canDelete, parseInt(template.STIME,10));
     });
 
     return str;
@@ -825,91 +919,90 @@ define(function (require) {
       }
     }
   }
- 
+
   /**
    * This functions creates the HTML for the schedule actions rows.
-   * 
+   *
    * @param {object} schedule_action - Schedule action object.
    * @param {boolean} canEdit - Is edit allowed?
    * @param {bool ean} canDelete - Is delete allowed?
    * @returns {string} - Row HTML for the given schedule action.
    */
-  function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true) {
+  function _fromJSONtoActionRow(schedule_action, canEdit=true, canDelete=true, stime=0) {
     var sched_obj = {};
-    var time_str = Humanize.prettyTime(schedule_action.TIME);
+    if(schedule_action){
+      var time_str = Humanize.prettyTime(schedule_action.TIME);
 
-    switch (schedule_action.REPEAT) {
-      case "0":
-        sched_obj.rep_str = Locale.tr("Weekly") +
-          " " +
-          Humanize.week_days(schedule_action.DAYS);
-        break;
-      case "1":
-        sched_obj.rep_str = Locale.tr("Monthly") +
-          " " +
-          schedule_action.DAYS;
-        break;
-      case "2":
-        sched_obj.rep_str = Locale.tr("Yearly") +
-          " " +
-          Humanize.week_days(schedule_action.DAYS);
-        break;
-      case "3":
-        sched_obj.rep_str = Locale.tr("Each") +
-          " " +
-          schedule_action.DAYS +
-          " " +
-          Locale.tr("hours");
-        break;
-      default:
-        break;
+      switch (schedule_action.REPEAT) {
+        case "0":
+          sched_obj.rep_str = Locale.tr("Weekly") +
+            " " +
+            Humanize.week_days(schedule_action.DAYS);
+          break;
+        case "1":
+          sched_obj.rep_str = Locale.tr("Monthly") +
+            " " +
+            schedule_action.DAYS;
+          break;
+        case "2":
+          sched_obj.rep_str = Locale.tr("Yearly") +
+            " " +
+            Humanize.week_days(schedule_action.DAYS);
+          break;
+        case "3":
+          sched_obj.rep_str = Locale.tr("Each") +
+            " " +
+            schedule_action.DAYS +
+            " " +
+            Locale.tr("hours");
+          break;
+        default:
+          break;
+      }
+
+      switch (schedule_action.END_TYPE) {
+        case "0":
+          sched_obj.end_str = Locale.tr("None");
+          break;
+        case "1":
+          sched_obj.end_str = Locale.tr("After") + 
+            " " +
+            schedule_action.END_VALUE +
+            " " +
+            Locale.tr("times");
+          break;
+        case "2":
+          sched_obj.end_str = Locale.tr("On") + 
+            " " +
+            Humanize.prettyTime(schedule_action.END_VALUE);
+          break;
+        default:
+          break;
+      }
+
+      if (schedule_action.ID){
+        sched_obj.id = schedule_action.ID;
+      } else{
+        sched_obj.id = currentSchedID.toString();
+      }
+      currentSchedID++;
+
+      var time = String(schedule_action.TIME);
+      sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
+      sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
+      sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
+      sched_obj.action = JSON.stringify(schedule_action);
+      sched_obj.name = schedule_action.ACTION;
+      sched_obj.canEdit = canEdit && sched_obj.id;
+      sched_obj.canDelete = canDelete && sched_obj.id;
+      sched_obj.canEditOrDelete = (canEdit || canDelete) && sched_obj.id;
     }
-
-    switch (schedule_action.END_TYPE) {
-      case "0":
-        sched_obj.end_str = Locale.tr("None");
-        break;
-      case "1":
-        sched_obj.end_str = Locale.tr("After") + 
-          " " +
-          schedule_action.END_VALUE +
-          " " +
-          Locale.tr("times");
-        break;
-      case "2":
-        sched_obj.end_str = Locale.tr("On") + 
-          " " +
-          Humanize.prettyTime(schedule_action.END_VALUE);
-        break;
-      default:
-        break;
-    }
-
-    if (schedule_action.ID){
-      sched_obj.id = schedule_action.ID;
-    } else{
-      sched_obj.id = currentSchedID.toString();
-    }
-    currentSchedID++;
-
-    var time = String(schedule_action.TIME);
-    sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
-    sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
-    sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
-
-    sched_obj.action = JSON.stringify(schedule_action);
-    sched_obj.name = schedule_action.ACTION;
-    
-    sched_obj.canEdit = canEdit && sched_obj.id;
-    sched_obj.canDelete = canDelete && sched_obj.id;
-    sched_obj.canEditOrDelete = (canEdit || canDelete) && sched_obj.id; 
-    
     return TemplateTableRowHTML(sched_obj);
   }
 
   /**
-   * This function gets the function 
-   * 
+   * This function gets the function
+   *
    * @param {object} data - Schedule action information.
    * @returns {string} - Schedule action string.
    */
@@ -919,7 +1012,7 @@ define(function (require) {
 
   /**
    * This function send the schedule action to each role.
-   * 
+   *
    * @param {Array} roles - Service Roles.
    * @param {string} action - Action name.
    * @param {object} sched_obj -  Schedule action object.
@@ -939,7 +1032,7 @@ define(function (require) {
             case "VM.sched_action_add":
             case "VM.sched_action_update":
               Sunstone.runAction(action, node.vm_info.VM.ID , sched_obj, callback);
-              break
+              break;
             case "VM.sched_action_delete":
               Sunstone.runAction(action, node.vm_info.VM.ID, sched_id, callback);
               break;
@@ -947,14 +1040,14 @@ define(function (require) {
               break;
           }
         }
-      })
+      });
     });
   }
 
   /**
    * This function updates the Service datatable with the services information
-   * of the first service vm. 
-   * 
+   * of the first service vm.
+   *
    * @param {object} that - Service object.
    * @param {string} selector - JQuery selector text.
    * @param {Function} htmlFunction - Function to execute to get the HTML.
@@ -983,7 +1076,7 @@ define(function (require) {
 
   /**
    * This function setup the buttons in the Actions view.
-   * 
+   *
    * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
    * @param {object} context - Context object.
    * @param {object} that - Object.
@@ -1019,8 +1112,8 @@ define(function (require) {
     context.on("click" , "#add_"+resource+"_action_json", function(e) {
       e.preventDefault();
       var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
-      
-      if (sched_action['SCHED_ACTION'] == false) {
+
+      if (sched_action["SCHED_ACTION"] == false) {
         return false;
       }
 
@@ -1034,7 +1127,7 @@ define(function (require) {
         case "service_create":
         case "temp":
           validateAndInitVariables(resource);
-          scheduleActionsArray.push(sched_action['SCHED_ACTION']);
+          scheduleActionsArray.push(sched_action["SCHED_ACTION"]);
           $("#sched_" + resource + "_actions_body").html(
             _getScheduleActionTableContent(scheduleActionsArray)
           );
@@ -1045,8 +1138,8 @@ define(function (require) {
             callback: function() {
               var selector = "#sched_" + resource + "_actions_body";
               _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
-            } 
-          }
+            }
+          };
           sendSchedActionToServiceRoles(roles, "VM.sched_action_add", sched_template, extraParams);
           break;
         default:
@@ -1069,19 +1162,19 @@ define(function (require) {
     });
 
     // Edit Schedule action
-    context.off("click" , "#edit_"+ resource +"_action_json")
+    context.off("click" , "#edit_"+ resource +"_action_json");
     context.on("click" , "#edit_"+ resource +"_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length){
         $(".wickedpicker").hide();
         var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
-        if (sched_action['SCHED_ACTION'] != false) {
+        if (sched_action["SCHED_ACTION"] != false) {
           sched_action.SCHED_ACTION.ID = id;
           var obj = {
             "sched_id" : id,
             "sched_template" : TemplateUtils.templateToString(sched_action)
-          }
+          };
           switch (resource) {
             case "vms":
               Sunstone.runAction("VM.sched_action_update", that.element.ID, obj);
@@ -1092,7 +1185,7 @@ define(function (require) {
             case "temp":
               validateAndInitVariables(resource);
               delete sched_action.SCHED_ACTION.ID;
-              scheduleActionsArray[id] = sched_action['SCHED_ACTION'];
+              scheduleActionsArray[id] = sched_action["SCHED_ACTION"];
               $("#sched_" + resource + "_actions_body").html(
                 _getScheduleActionTableContent(scheduleActionsArray)
               );
@@ -1103,8 +1196,8 @@ define(function (require) {
                 callback: function() {
                   var selector = "#sched_" + resource + "_actions_body";
                   _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
-                } 
-              }
+                }
+              };
               sendSchedActionToServiceRoles(roles, "VM.sched_action_update", obj, extraParams);
               break;
             default:
@@ -1123,7 +1216,7 @@ define(function (require) {
       var id = $(this).attr("data_id");
       switch (resource) {
         case "vms":
-          Sunstone.runAction("VM.sched_action_delete", that.element.ID, id); 
+          Sunstone.runAction("VM.sched_action_delete", that.element.ID, id);
           break;
         case "inst":
         case "inst_flow":
@@ -1142,9 +1235,9 @@ define(function (require) {
             callback: function() {
               var selector = "#sched_" + resource + "_actions_body";
               _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
-            } 
-          }
-          sendSchedActionToServiceRoles(roles, "VM.sched_action_delete", null, extraParams);  
+            }
+          };
+          sendSchedActionToServiceRoles(roles, "VM.sched_action_delete", null, extraParams);
           break;
         default:
           break;
@@ -1154,13 +1247,13 @@ define(function (require) {
     context.off("click", "#leases_btn");
     context.on("click", "#leases_btn", function(e) {
       var confLeases = config.system_config.leases;
-      displayAlertCreateLeases(resource, that, confLeases);  
+      displayAlertCreateLeases(resource, that, confLeases);
     });
   }
 
   /**
    * Returns an HTML string with the json keys and values
-   * 
+   *
    * @param {Object[]} actions_array - Schedule action array.
    * @returns {string} - HTML string with the json keys and values
    */
@@ -1175,7 +1268,7 @@ define(function (require) {
     if (!actions_array) {
       return empty;
     }
-    
+
     if (!sched_actions.length) {
       return empty;
     }
@@ -1186,7 +1279,7 @@ define(function (require) {
       template.USER_TEMPLATE.SERVICE_ID
     );
 
-    return _fromJSONtoActionsTable(sched_actions, canEditOrDelete, canEditOrDelete);
+    return _fromJSONtoActionsTable(sched_actions, canEditOrDelete, canEditOrDelete, template);
   }
 
   /*
@@ -1198,7 +1291,7 @@ define(function (require) {
 
   /**
    * This function adds the leases to an instantiated VM.
-   * 
+   *
    * @param {object[]} leasesArray - Array with all the actions to be added.
    * @param {string} vm_id - ID from the VM to send the action.
    */
@@ -1211,7 +1304,7 @@ define(function (require) {
 
   /**
    * This function adds the leases to an instantiated Service.
-   * 
+   *
    * @param {Object[]} leassesArray - Array with all the actions to be added.
    * @param {Object[]} roles - Service roles.
    */
@@ -1221,8 +1314,8 @@ define(function (require) {
       var extraParams = {
         callback: function() {
           Sunstone.runAction("Service.refresh");
-        } 
-      }
+        }
+      };
       sendSchedActionToServiceRoles(
         roles,
         "VM.sched_action_add",
@@ -1234,7 +1327,7 @@ define(function (require) {
 
   /**
    * This function converts the given date to epoch.
-   *  
+   *
    * @returns - Current date and hour in epoch format.
    */
   function dateToEpoch(date){
@@ -1242,31 +1335,29 @@ define(function (require) {
   };
 
   function _leasesToScheduleActions(confLeases, now){
-    var last = 0; 
     var newSchedActions =[];
-    var confLeasesKeys = Object.keys(confLeases);
-    confLeasesKeys.forEach(function(schedAction){
-      if(confLeases[schedAction].time){
-        var schedActionTime = parseInt(confLeases[schedAction].time,10);
-        var startTime = Math.round(now) + schedActionTime;
-        var newAction = {
-          SCHED_ACTION : {
-            TIME: "+"+ (startTime+last).toString(),
-            ACTION: schedAction
-          }
-        };
-
-        newSchedActions.push(newAction);
-        
-        last = schedActionTime;
-      }
-    });
+    if(confLeases){
+      var confLeasesKeys = Object.keys(confLeases);
+      confLeasesKeys.forEach(function(schedAction){
+        if(confLeases[schedAction].time){
+          var schedActionTime = parseInt(confLeases[schedAction].time,10);
+          var startTime = Math.round(now) + schedActionTime;
+          var newAction = {
+            SCHED_ACTION : {
+              TIME: "+"+ startTime.toString(),
+              ACTION: schedAction
+            }
+          };
+          newSchedActions.push(newAction);
+        }
+      });
+    }
     return newSchedActions;
   }
 
   function addSchedActionTable(leasesArray, resource){
     $.each(leasesArray, function(_, sched_action){
-      scheduleActionsArray.push(sched_action['SCHED_ACTION']);
+      scheduleActionsArray.push(sched_action["SCHED_ACTION"]);
     });
 
     $("#sched_" + resource + "_actions_body").html(
@@ -1276,13 +1367,20 @@ define(function (require) {
 
   /**
    * This function shows the modal to confirm the leases creation.
-   * 
+   *
    * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
    * @param {object} template - Resource template.
    */
    function displayAlertCreateLeases(resource, that, confLeases){
     var template = that.element;
-    var now = template && template.STIME? dateToEpoch(new Date()) - parseInt(template.STIME,10) : 0;
+    var now = 0;
+    var stime = 0;
+    var confLeasesCopy = JSON.parse(JSON.stringify(confLeases));
+    if (template && template.STIME){
+      stime = parseInt(template.STIME,10);
+      date = new Date();
+      now = dateToEpoch(date) - stime;
+    }
     if (resource === "inst" ||
       resource === "inst_flow" ||
       resource === "service_create" ||
@@ -1290,26 +1388,34 @@ define(function (require) {
     ){
       validateAndInitVariables(resource);
       addSchedActionTable(
-        _leasesToScheduleActions(confLeases, now),
+        _leasesToScheduleActions(confLeasesCopy, now),
         resource
       );
     }
     else{
       Sunstone.getDialog(CONFIRM_DIALOG_LEASES).setParams({
         header: Locale.tr("Scheduled actions to add"),
-        body : renderLeasesForModal(now, confLeases),
+        body : renderLeasesForModal(now, confLeases, stime),
         submit : function(params) {
+          $(".charter_action").each(function(){
+            var actionName = $(this).find(".action_name").text();
+            var actionDate = $(this).find(".action_date").val();
+            var actionHour = $(this).find(".action_hour").val();
+            var date = new Date(actionDate + "T" + actionHour);
+            var epochDate = dateToEpoch(date);
+            confLeasesCopy[actionName].time = "+" + (epochDate - stime);
+          });
           switch (resource) {
-            case 'vms':
+            case "vms":
               addLeasesToVM(
-                _leasesToScheduleActions(confLeases, now),
+                _leasesToScheduleActions(confLeasesCopy, now),
                 template.ID
               );
               break;
-            case 'flow':
+            case "flow":
               var roles = Array.isArray(that.data)? that.data : [that.data];
               addLeasesToService(
-                _leasesToScheduleActions(confLeases, now),
+                _leasesToScheduleActions(confLeasesCopy, now),
                 roles
               );
               break;
@@ -1326,43 +1432,58 @@ define(function (require) {
 
   /**
    * This function generates the content for the confirm dialog body.
-   * 
+   *
    * @param {number} now - Now time.
    * @param {Object} confLeases - Object with the configured leases.
+   * @param {number} stime - Template start time.
    * @returns - HTML content for the modal.
    */
-   function renderLeasesForModal(now, confLeases) {
-    var rtn = "";
+   function renderLeasesForModal(now, confLeases, stime) {
+    var body = "";
     var last = 0;
-    var confLeasesKeys = Object.keys(confLeases);
+    if(confLeases){
+      var confLeasesKeys = Object.keys(confLeases);
 
-    if(confLeasesKeys && Array.isArray(confLeasesKeys)){
-      rtn = $("<table/>");
-      confLeasesKeys.forEach(function(actionName){
-        if(confLeases[actionName] && confLeases[actionName].time){
-          var schedActionTime = parseInt(confLeases[actionName].time,10);
-          var startTime = Math.round(now) + schedActionTime;
-          var time =  "+"+(last === 0? startTime.toString() : startTime+last);
-          rtn = rtn.append(
-            $("<tr/>").append(
-              $("<td/>").text(actionName).add(
-                $("<td/>").text(_time(time))
-              )
-            )
-          );
-          last = schedActionTime;
-        }
-      });
-      rtn = rtn.prop("outerHTML");
+      if(confLeasesKeys && Array.isArray(confLeasesKeys)){
+        confLeasesKeys.forEach(function(actionName){
+          if(confLeases[actionName] && confLeases[actionName].time){
+            var schedActionTime = parseInt(confLeases[actionName].time,10);
+            var startTime = Math.round(now) + schedActionTime;
+            var time = startTime + last;
+            // Pretty time return an string with the following format:
+            // HH:MM:SS DD/MM/YYYY
+            var datetime = Humanize.prettyTime(time + stime);
+            // This variable have [Hours, Minutes, Seconds]
+            var hour = (datetime.split(" ")[0]).split(":");
+            // This variable have [Day, Month, Year]
+            var date = (datetime.split(" ")[1]).split("/");
+
+            var dateValue = date[2] + "-" + date[1] + "-" + date[0];
+            var hourValue = hour[0] + ":" + hour[1];
+
+            body += TemplateCharterTableRowHTML({
+              "actionName": actionName,
+              "dateValue": dateValue,
+              "hourValue": hourValue
+            });
+
+            last = schedActionTime;
+          }
+        });
+      }
     }
+    
 
-    return rtn;
+    return TemplateCharterTableHTML({
+      "res": resource,
+      "body": body
+    });
   }
 
   /**
    * This functions initializes the global variables with the current
    * schedule actions.
-   * 
+   *
    * @param {('vms'|'inst'|'temp'|'flow'|'service_create')} resource - Resource.
    */
   function validateAndInitVariables(resource){
@@ -1395,5 +1516,7 @@ define(function (require) {
     "updateServiceHTMLTable": _updateServiceHTMLTable,
     "getScheduleActionTableContent": _getScheduleActionTableContent,
     "sendSchedActionToServiceRoles": sendSchedActionToServiceRoles,
+    "htmlPerformAction": _htmlPerformAction,
+    "setupPerformAction": _setupPerformAction
   };
 });

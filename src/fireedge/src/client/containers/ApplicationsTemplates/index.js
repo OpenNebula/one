@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,45 +14,42 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useEffect, useState } from 'react'
-
+import { useState } from 'react'
 import { useHistory, generatePath } from 'react-router-dom'
-import { Container, Box } from '@mui/material'
+import { Box } from '@mui/material'
 
 import { PATH } from 'client/apps/sunstone/routesFlow'
-import { useFetch } from 'client/hooks'
-import { useApplicationTemplate, useApplicationTemplateApi } from 'client/features/One'
-
+import { useGetServiceTemplatesQuery } from 'client/features/OneApi/serviceTemplate'
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
-import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
+import { ListHeader, ListCards } from 'client/components/List'
 import { ApplicationTemplateCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-function ApplicationsTemplates () {
+function ApplicationsTemplates() {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
-  const applicationsTemplates = useApplicationTemplate()
-  const { getApplicationsTemplates } = useApplicationTemplateApi()
-
-  const { error, fetchRequest, loading, reloading } = useFetch(getApplicationsTemplates)
-
-  useEffect(() => { fetchRequest() }, [])
+  const {
+    data: applicationsTemplates = [],
+    refetch,
+    error,
+    isLoading,
+  } = useGetServiceTemplatesQuery()
 
   return (
-    <Container disableGutters>
+    <>
       <ListHeader
         title={T.ApplicationsTemplates}
         hasReloadButton
         reloadButtonProps={{
           'data-cy': 'refresh-application-template-list',
-          onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
-          isSubmitting: Boolean(loading || reloading)
+          onClick: () => refetch(),
+          isSubmitting: isLoading,
         }}
         addButtonProps={{
           'data-cy': 'create-application-template',
-          onClick: () => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)
+          onClick: () => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE),
         }}
       />
       <Box p={3}>
@@ -61,14 +58,17 @@ function ApplicationsTemplates () {
         ) : (
           <ListCards
             list={applicationsTemplates}
-            isLoading={applicationsTemplates?.length === 0 && loading}
             gridProps={{ 'data-cy': 'applications-templates' }}
             CardComponent={ApplicationTemplateCard}
             cardsProps={({ value }) => ({
               handleEdit: () =>
-                history.push(generatePath(PATH.APPLICATIONS_TEMPLATES.EDIT, { id: value?.ID })),
+                history.push(
+                  generatePath(PATH.APPLICATIONS_TEMPLATES.EDIT, {
+                    id: value?.ID,
+                  })
+                ),
               handleDeploy: () => setShowDialog(value),
-              handleRemove: undefined // TODO
+              handleRemove: undefined, // TODO
             })}
           />
         )}
@@ -79,7 +79,7 @@ function ApplicationsTemplates () {
           handleCancel={() => setShowDialog(false)}
         />
       )}
-    </Container>
+    </>
   )
 }
 

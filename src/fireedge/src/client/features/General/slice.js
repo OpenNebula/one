@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,45 +15,55 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 
-import { logout } from 'client/features/Auth/actions'
+import { actions as authActions } from 'client/features/Auth/slice'
 import * as actions from 'client/features/General/actions'
 import { generateKey } from 'client/utils'
-import { APPS_IN_BETA } from 'client/constants'
+import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 
 const initial = {
   zone: 0,
-  title: null,
   appTitle: null,
   isBeta: false,
+  withGroupSwitcher: false,
   isLoading: false,
   isFixMenu: false,
-
-  notifications: []
+  notifications: [],
 }
 
 const { name, reducer } = createSlice({
   name: 'general',
   initialState: initial,
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      /* UI ACTIONS */
-      .addCase(actions.fixMenu, (state, { payload }) => {
-        return { ...state, isFixMenu: !!payload }
-      })
-      .addCase(actions.changeLoading, (state, { payload }) => {
-        return { ...state, isLoading: !!payload }
-      })
-      .addCase(actions.changeTitle, (state, { payload }) => {
-        return { ...state, title: payload }
-      })
-      .addCase(actions.changeAppTitle, (state, { payload }) => {
-        const isBeta = APPS_IN_BETA?.includes(String(payload).toLowerCase())
+      /* LOGOUT ACTION */
+      .addCase(authActions.logout, (state) => ({
+        ...initial,
+        // persistent app state
+        appTitle: state.appTitle,
+        isBeta: state.isBeta,
+        withGroupSwitcher: state.withGroupSwitcher,
+      }))
 
-        return { ...state, appTitle: payload, isBeta }
+      /* UI ACTIONS */
+      .addCase(actions.fixMenu, (state, { payload }) => ({
+        ...state,
+        isFixMenu: !!payload,
+      }))
+      .addCase(actions.changeLoading, (state, { payload }) => ({
+        ...state,
+        isLoading: !!payload,
+      }))
+      .addCase(actions.changeAppTitle, (state, { payload: appTitle }) => {
+        const lowerAppTitle = String(appTitle).toLowerCase()
+        const isBeta = APPS_IN_BETA?.includes(lowerAppTitle)
+        const withGroupSwitcher = APPS_WITH_SWITCHER?.includes(lowerAppTitle)
+
+        return { ...state, appTitle, isBeta, withGroupSwitcher }
       })
-      .addCase(actions.changeZone, (state, { payload }) => {
-        return { ...state, zone: payload }
-      })
+      .addCase(actions.changeZone, (state, { payload }) => ({
+        ...state,
+        zone: payload,
+      }))
 
       /* NOTIFICATION ACTIONS */
       .addCase(actions.enqueueSnackbar, (state, { payload }) => {
@@ -61,10 +71,7 @@ const { name, reducer } = createSlice({
 
         return {
           ...state,
-          notifications: [
-            ...state.notifications,
-            { key, options, message }
-          ]
+          notifications: [...state.notifications, { key, options, message }],
         }
       })
       .addCase(actions.dismissSnackbar, (state, { payload }) => {
@@ -72,11 +79,11 @@ const { name, reducer } = createSlice({
 
         return {
           ...state,
-          notifications: state.notifications.map(notification =>
+          notifications: state.notifications.map((notification) =>
             dismissAll || notification.key !== key
               ? { ...notification, dismissed: true }
               : { ...notification }
-          )
+          ),
         }
       })
       .addCase(actions.deleteSnackbar, (state, { payload }) => {
@@ -85,38 +92,39 @@ const { name, reducer } = createSlice({
         return {
           ...state,
           notifications: state.notifications.filter(
-            notification => notification.key !== key
-          )
+            (notification) => notification.key !== key
+          ),
         }
       })
 
       /*  REQUESTS API MATCHES */
-      .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
         ({ type }) => type.endsWith('/pending') && !type.includes('auth'),
-        state => ({ ...state, isLoading: true })
+        (state) => ({ ...state, isLoading: true })
       )
       .addMatcher(
         ({ type }) => type.endsWith('/fulfilled') && !type.includes('auth'),
-        state => ({ ...state, isLoading: false })
+        (state) => ({ ...state, isLoading: false })
       )
       .addMatcher(
         ({ type, meta }) =>
-          !meta?.aborted && type.endsWith('/rejected') && !type.includes('auth'),
+          !meta?.aborted &&
+          type.endsWith('/rejected') &&
+          !type.includes('auth'),
         (state, { payload }) => ({
           ...state,
           isLoading: false,
           notifications: [
             ...state.notifications,
-            (payload?.length > 0 && {
+            payload?.length > 0 && {
               key: generateKey(),
               message: payload,
-              options: { variant: 'error' }
-            })
-          ].filter(Boolean)
+              options: { variant: 'error' },
+            },
+          ].filter(Boolean),
         })
       )
-  }
+  },
 })
 
 export { name, reducer }

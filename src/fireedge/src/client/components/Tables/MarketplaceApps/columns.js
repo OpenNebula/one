@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,51 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
-import * as MarketplaceAppModel from 'client/models/MarketplaceApp'
+import { Column } from 'react-table'
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
-  { Header: 'Owner', accessor: 'UNAME' },
-  { Header: 'Group', accessor: 'GNAME' },
-  {
-    Header: 'State',
-    id: 'STATE',
-    accessor: row => MarketplaceAppModel.getState(row)?.name,
-    disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
-  },
-  {
-    Header: 'Type',
-    id: 'TYPE',
-    accessor: row => MarketplaceAppModel.getType(row),
-    disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'Type'
-    }),
-    filter: 'includesValue'
-  },
-  { Header: 'Size', accessor: 'SIZE' },
-  { Header: 'Registration Time', accessor: 'REGTIME' },
-  {
-    Header: 'Marketplace',
-    accessor: 'MARKETPLACE',
-    disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'Marketplace'
-    }),
-    filter: 'includesValue'
-  },
-  { Header: 'Zone ID', accessor: 'ZONE_ID' }
+import { getState, getType } from 'client/models/MarketplaceApp'
+import { T } from 'client/constants'
+
+/** @type {Column[]} Marketplace Apps columns */
+const COLUMNS = [
+  { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: T.Name, id: 'name', accessor: 'NAME' },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
+  { Header: T.State, id: 'state', accessor: (row) => getState(row)?.name },
+  { Header: T.Type, id: 'type', accessor: getType },
+  { Header: T.Size, id: 'size', accessor: 'SIZE' },
+  { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
+  { Header: T.Marketplace, id: 'marketplace', accessor: 'MARKETPLACE' },
+  { Header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'time', 'size']
+
+export default COLUMNS

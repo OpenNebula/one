@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, { STEP_ID as BASIC_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration'
-import AdvancedOptions, { STEP_ID as ADVANCED_ID } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
+import BasicConfiguration, {
+  STEP_ID as BASIC_ID,
+} from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/BasicConfiguration'
+import AdvancedOptions, {
+  STEP_ID as ADVANCED_ID,
+} from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
 import { mapUserInputs, createSteps } from 'client/utils'
 
-const Steps = createSteps(
-  [BasicConfiguration, AdvancedOptions],
-  {
-    transformInitialValue: (disk = {}, schema) => ({
-      ...schema.cast({
+const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
+  transformInitialValue: (disk = {}, schema) => ({
+    ...schema.cast(
+      {
         [BASIC_ID]: disk,
-        [ADVANCED_ID]: disk
-      }, { stripUnknown: true })
-    }),
-    transformBeforeSubmit: formData => {
-      const {
-        [BASIC_ID]: configuration = {},
-        [ADVANCED_ID]: advanced = {}
-      } = formData ?? {}
+        [ADVANCED_ID]: disk,
+      },
+      { stripUnknown: true }
+    ),
+  }),
+  transformBeforeSubmit: (formData) => {
+    const { [BASIC_ID]: configuration = {}, [ADVANCED_ID]: advanced = {} } =
+      formData ?? {}
 
-      return { ...mapUserInputs(advanced), ...mapUserInputs(configuration) }
-    }
-  }
-)
+    return { ...mapUserInputs(advanced), ...mapUserInputs(configuration) }
+  },
+})
 
 export default Steps

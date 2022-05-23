@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import * as yup from 'yup'
-import { INPUT_TYPES } from 'client/constants'
+import { number, object } from 'yup'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
 const SIZE = {
   name: 'SIZE',
-  label: 'New size',
+  label: [T.SizeOnUnits, 'MB'],
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: 'The new size string',
-  validation: yup
-    .number()
-    .typeError('Size value must be a number')
-    .required('Size field is required')
+  validation: number()
+    .required()
     .positive()
-    .default(undefined)
+    .default(() => undefined),
 }
 
-export const FIELDS = [
-  SIZE
-]
+export const FIELDS = [SIZE]
 
-export const SCHEMA = yup.object(getValidationFromFields(FIELDS))
+export const SCHEMA = object(getValidationFromFields(FIELDS))

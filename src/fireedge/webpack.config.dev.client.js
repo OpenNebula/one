@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,29 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+const path = require('path')
+const webpack = require('webpack')
+const {
+  defaultWebpackMode,
+  defaultApps,
+  defaultAppName,
+} = require('./src/server/utils/constants/defaults')
+
+const HOT_MIDDLEWARE_SCRIPT =
+  'webpack-hot-middleware/client?path=/__webpack_hmr'
+
+const APP_ENTRIES = Object.keys(defaultApps).reduce(
+  (entries, app) => ({
+    ...entries,
+    [app]: [
+      path.resolve(__dirname, `src/client/${app}.js`),
+      // Include the hot middleware with each entrypoint
+      HOT_MIDDLEWARE_SCRIPT,
+    ],
+  }),
+  {}
+)
 
 const getDevConfiguration = () => {
   try {
-    const path = require('path')
-    const webpack = require('webpack')
     const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
     const TimeFixPlugin = require('time-fix-plugin')
-
-    const { defaultWebpackMode, defaultAppName } = require('./src/server/utils/constants/defaults')
 
     const appName = defaultAppName ? `/${defaultAppName}` : ''
 
     /** @type {webpack.Configuration} */
     return {
       mode: defaultWebpackMode,
-      entry: [
-        'webpack-hot-middleware/client',
-        path.resolve(__dirname, 'src/client/dev/index.js')
-      ],
+      entry: { ...APP_ENTRIES },
       output: {
-        filename: 'bundle.dev.js',
+        filename: 'bundle.[name].js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: `${appName}/client`
+        publicPath: `${appName}/client`,
       },
       module: {
         rules: [
@@ -47,43 +62,46 @@ const getDevConfiguration = () => {
                 loader: 'babel-loader',
                 options: {
                   babelrc: true,
-                  plugins: ['react-refresh/babel']
-                }
-              }
-            ]
+                  plugins: ['react-refresh/babel'],
+                },
+              },
+            ],
           },
           {
             test: /\.css$/i,
-            use: ['style-loader', 'css-loader']
-          }
-        ]
+            use: ['style-loader', 'css-loader'],
+          },
+        ],
       },
       resolve: {
         extensions: ['.js'],
         alias: {
-          process: 'process/browser'
-        }
+          process: 'process/browser',
+        },
       },
       plugins: [
         new TimeFixPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        ReactRefreshPlugin && new ReactRefreshPlugin({
-          overlay: {
-            sockIntegration: 'whm'
-          }
-        }),
+        ReactRefreshPlugin &&
+          new ReactRefreshPlugin({
+            overlay: {
+              sockIntegration: 'whm',
+            },
+          }),
         new webpack.DefinePlugin({
           'process.env': {
-            NODE_ENV: JSON.stringify(defaultWebpackMode)
-          }
+            NODE_ENV: JSON.stringify(defaultWebpackMode),
+          },
         }),
         new webpack.ProvidePlugin({
-          process: 'process/browser'
-        })
+          process: 'process/browser',
+        }),
       ],
-      devtool: 'inline-source-map'
+      devtool: 'inline-source-map',
     }
-  } catch (e) { console.log('Error in webpack dev configuration: ', e) }
+  } catch (e) {
+    console.log('Error in webpack dev configuration: ', e)
+  }
 }
 
 module.exports = getDevConfiguration()

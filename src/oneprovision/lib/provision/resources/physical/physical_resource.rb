@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -54,15 +54,21 @@ module OneProvision
 
         # Deletes the resource
         #
-        # @param tf [Hash] Terraform :conf and :state
+        # @param force     [Boolean]   Force object deletion
+        # @param provision [Provision] Provision information
+        # @param tf        [Hash]      Terraform :conf and :state
         #
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def delete(tf = nil)
-            state, conf = destroy(tf) if tf && !tf.empty?
+        def delete(force, provision, tf = nil)
+            state, conf = destroy(provision, tf) if tf && !tf.empty?
 
-            Utils.exception(@one.delete)
+            if force
+                @one.delete
+            else
+                Utils.exception(@one.delete)
+            end
 
             if state && conf
                 [state, conf]

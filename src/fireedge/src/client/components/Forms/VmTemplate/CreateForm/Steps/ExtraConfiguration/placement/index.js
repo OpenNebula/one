@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,48 +13,54 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { NetworkAlt as PlacementIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { STEP_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import {
-  PLACEMENT_HOST_FIELDS,
-  PLACEMENT_DS_FIELDS
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  SECTIONS,
+  FIELDS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
 
-const Placement = () => {
+const Placement = () => (
   // TODO - Host requirements: add button to select HOST in list => ID="<id>"
   // TODO - Host policy options: Packing|Stripping|Load-aware
 
   // TODO - DS requirements: add button to select DATASTORE in list => ID="<id>"
   // TODO - DS policy options: Packing|Stripping
 
-  return (
-    <>
+  <>
+    {SECTIONS.map(({ id, ...section }) => (
       <FormWithSchema
-        cy='create-vm-template-extra.host-placement'
-        fields={PLACEMENT_HOST_FIELDS}
-        legend={T.Host}
-        id={STEP_ID}
+        key={id}
+        id={EXTRA_ID}
+        cy={`${EXTRA_ID}-${id}`}
+        {...section}
       />
-      <FormWithSchema
-        cy='create-vm-template-extra.ds-placement'
-        fields={PLACEMENT_DS_FIELDS}
-        legend={T.Datastore}
-        id={STEP_ID}
-      />
-    </>
-  )
-}
+    ))}
+  </>
+)
 
 Placement.propTypes = {
   data: PropTypes.any,
-  setFormData: PropTypes.func
+  setFormData: PropTypes.func,
 }
 
 Placement.displayName = 'Placement'
 
-export default Placement
+/** @type {TabType} */
+const TAB = {
+  id: 'placement',
+  name: T.Placement,
+  icon: PlacementIcon,
+  Content: Placement,
+  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
+}
+
+export default TAB

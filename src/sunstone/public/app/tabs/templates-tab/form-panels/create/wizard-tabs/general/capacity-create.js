@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
   var UserInputs = require("utils/user-inputs");
   var WizardFields = require("utils/wizard-fields");
+  var Config = require("sunstone-config");
 
   /*
     TEMPLATES
@@ -113,46 +114,50 @@ define(function(require) {
   }
 
   function _calculatedRealMemory(context){
-    var memory_cost = $("#MEMORY_COST").val() || 0;
-    var type_cost   = $("#MEMORY_UNIT_COST").val() || 0;
-    var memory = $("#MEMORY").val();
-
-    if (type_cost == "GB"){
-      memory = (memory / 1024) * memory_cost * 24 * 30;
-    } else {
-      memory = memory * memory_cost * 24 * 30;
+    if (Config.isFeatureEnabled("showback")){
+      var memory_cost = $("#MEMORY_COST").val() || 0;
+      var type_cost   = $("#MEMORY_UNIT_COST").val() || 0;
+      var memory = $("#MEMORY").val();
+      
+      if (type_cost == "GB"){
+        memory = (memory / 1024) * memory_cost * 24 * 30;
+      } else {
+        memory = memory * memory_cost * 24 * 30;
+      }
+      
+      var realMemory = document.getElementById("real_memory_cost");
+      var totalMemory = document.getElementById("total_value_memory");
+      
+      if (realMemory && totalMemory) {
+        realMemory.value = memory;
+        totalMemory.textContent = convertCostNumber(memory);
+      }
+      
+      if (memory_cost != "") {
+        $(".total_memory_cost", context).show();
+      }
+      _totalCost();
     }
-
-    var realMemory = document.getElementById("real_memory_cost");
-    var totalMemory = document.getElementById("total_value_memory");
-
-    if (realMemory && totalMemory) {
-      realMemory.value = memory;
-      totalMemory.textContent = convertCostNumber(memory);
-    }
-
-    if (memory_cost != "") {
-      $(".total_memory_cost", context).show();
-    }
-    _totalCost();
   }
 
   function _calculatedRealCpu(context){
-    var cpu_cost = $("#CPU_COST").val() || 0;
-    var cpu      = $("#CPU").val() || 0;
-    var totalValueCpu = document.getElementById("real_cpu_cost");
-    var totalCPU = document.getElementById("total_value_cpu");
-    cpu = cpu * cpu_cost * 24 * 30;
-    totalValueCpu.value = cpu;
-    if(totalValueCpu){
-      var convValue = convertCostNumber(cpu);
-      totalCPU.textContent = convValue;
-      totalValueCpu.textContent = convValue;
-    }
-    if (cpu_cost != ""){
-      $(".total_cpu_cost", context).show();
-    }
-    _totalCost();
+    if (Config.isFeatureEnabled("showback")){
+      var cpu_cost = $("#CPU_COST").val() || 0;
+      var cpu      = $("#CPU").val() || 0;
+      var totalValueCpu = document.getElementById("real_cpu_cost");
+      var totalCPU = document.getElementById("total_value_cpu");
+      cpu = cpu * cpu_cost * 24 * 30;
+      totalValueCpu.value = cpu;
+      if(totalValueCpu){
+        var convValue = convertCostNumber(cpu);
+        totalCPU.textContent = convValue;
+        totalValueCpu.textContent = convValue;
+      }
+      if (cpu_cost != ""){
+        $(".total_cpu_cost", context).show();
+      }
+      _totalCost();
+    } 
   }
 
   function _setup(context) {
@@ -254,6 +259,8 @@ define(function(require) {
 
     $("#MEMORY_HOT_ADD_ENABLED", context).on("change", function(){
       if (this.value == "NO"){
+        $("#MEMORY_MAX", context).val("");
+        $("#MEMORY_MAX_GB", context).val("");
         $("#memory_max_group", context).hide();
       }
       else{
@@ -263,6 +270,7 @@ define(function(require) {
 
     $("#CPU_HOT_ADD_ENABLED", context).on("change", function(){
       if (this.value == "NO"){
+        $("#VCPU_MAX", context).val("");
         $("#vcpu_max_group", context).hide();
       }
       else{

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
+import { makeStyles } from '@mui/styles'
 import {
-  RefreshDouble,
   AddSquare,
   PlayOutline,
   SaveFloppyDisk,
@@ -27,38 +26,72 @@ import {
   Group,
   Trash,
   Lock,
-  Cart
+  Cart,
 } from 'iconoir-react'
 
-import { useAuth } from 'client/features/Auth'
-import { useDatastore, useVmApi } from 'client/features/One'
-import { Translate } from 'client/components/HOC'
+import { useViews } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import {
+  useLockVmMutation,
+  useUnlockVmMutation,
+  useSaveAsTemplateMutation,
+  useDeployMutation,
+  useActionVmMutation,
+  useMigrateMutation,
+  useChangeVmOwnershipMutation,
+  useRecoverMutation,
+} from 'client/features/OneApi/vm'
 
-import { RecoverForm, ChangeUserForm, ChangeGroupForm, MigrateForm } from 'client/components/Forms/Vm'
-import { createActions } from 'client/components/Tables/Enhanced/Utils'
+import {
+  RecoverForm,
+  ChangeUserForm,
+  ChangeGroupForm,
+  MigrateForm,
+  SaveAsTemplateForm,
+} from 'client/components/Forms/Vm'
+import {
+  createActions,
+  GlobalAction,
+} from 'client/components/Tables/Enhanced/Utils'
+import VmTemplatesTable from 'client/components/Tables/VmTemplates'
+
+import { Translate } from 'client/components/HOC'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
-import { T, VM_ACTIONS, MARKETPLACE_APP_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
-const isDisabled = action => rows =>
-  isAvailableAction(action)(rows, ({ values }) => values?.STATE)
+const useTableStyles = makeStyles({
+  body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
+})
+
+const isDisabled = (action) => (rows) =>
+  !isAvailableAction(
+    action,
+    rows.map(({ original }) => original)
+  )
 
 const ListVmNames = ({ rows = [] }) => {
-  const datastores = useDatastore()
+  const { data: datastores = [] } = useGetDatastoresQuery()
 
   return rows?.map?.(({ id, original }) => {
     const { ID, NAME } = original
     const { HID = '', HOSTNAME = '--', DS_ID = '' } = getLastHistory(original)
-    const DS_NAME = datastores?.find(ds => ds?.ID === DS_ID)?.NAME ?? '--'
+    const DS_NAME = datastores?.find((ds) => ds?.ID === DS_ID)?.NAME ?? '--'
 
     return (
-      <Typography key={`vm-${id}`} variant='inherit'>
+      <Typography
+        key={`vm-${id}`}
+        variant="inherit"
+        component="span"
+        display="block"
+      >
         <Translate
           word={T.WhereIsRunning}
           values={[
             `#${ID} ${NAME}`,
             `#${HID} ${HOSTNAME}`,
-            `#${DS_ID} ${DS_NAME}`
+            `#${DS_ID} ${DS_NAME}`,
           ]}
         />
       </Typography>
@@ -66,449 +99,543 @@ const ListVmNames = ({ rows = [] }) => {
   })
 }
 
-const SubHeader = rows => <ListVmNames rows={rows} />
+const SubHeader = (rows) => <ListVmNames rows={rows} />
 
-const MessageToConfirmAction = rows => (
+const MessageToConfirmAction = (rows) => (
   <>
     <ListVmNames rows={rows} />
     <Translate word={T.DoYouWantProceed} />
   </>
 )
 
+/**
+ * Generates the actions to operate resources on VM table.
+ *
+ * @returns {GlobalAction} - Actions
+ */
 const Actions = () => {
   const history = useHistory()
-  const { view, getResourceView } = useAuth()
-  const {
-    getVm,
-    getVms,
-    terminate,
-    terminateHard,
-    undeploy,
-    undeployHard,
-    poweroff,
-    poweroffHard,
-    reboot,
-    rebootHard,
-    hold,
-    release,
-    stop,
-    suspend,
-    resume,
-    resched,
-    unresched,
-    recover,
-    changeOwnership,
-    deploy,
-    migrate,
-    migrateLive,
-    lock,
-    unlock
-  } = useVmApi()
+  const { view, getResourceView } = useViews()
+  const { enqueueSuccess } = useGeneralApi()
 
-  const vmActions = useMemo(() => createActions({
-    filters: getResourceView('VM')?.actions,
-    actions: [
-      {
-        accessor: VM_ACTIONS.REFRESH,
-        tooltip: T.Refresh,
-        icon: RefreshDouble,
-        action: async () => {
-          await getVms({ state: -1 })
-        }
-      },
-      {
-        accessor: VM_ACTIONS.CREATE_DIALOG,
-        tooltip: T.Create,
-        icon: AddSquare,
-        action: () => {
-          const path = PATH.TEMPLATE.VMS.INSTANTIATE
+  const [saveAsTemplate] = useSaveAsTemplateMutation()
+  const [actionVm] = useActionVmMutation()
+  const [recover] = useRecoverMutation()
+  const [changeOwnership] = useChangeVmOwnershipMutation()
+  const [deploy] = useDeployMutation()
+  const [migrate] = useMigrateMutation()
+  const [lock] = useLockVmMutation()
+  const [unlock] = useUnlockVmMutation()
 
-          history.push(path)
-        }
-      },
-      {
-        accessor: VM_ACTIONS.RESUME,
-        disabled: isDisabled(VM_ACTIONS.RESUME),
-        tooltip: T.Resume,
-        selected: true,
-        icon: PlayOutline,
-        action: async rows => {
-          const ids = rows?.map?.(({ original }) => original?.ID)
-          await Promise.all(ids.map(id => resume(id)))
-          ids?.length > 1 && (await Promise.all(ids.map(id => getVm(id))))
-        }
-      },
-      {
-        accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
-        disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
-        tooltip: T.SaveAsTemplate,
-        selected: { max: 1 },
-        icon: SaveFloppyDisk,
-        action: () => {}
-      },
-      {
-        tooltip: T.Manage,
-        icon: SystemShut,
-        selected: true,
-        color: 'secondary',
-        options: [{
-          accessor: VM_ACTIONS.SUSPEND,
-          disabled: isDisabled(VM_ACTIONS.SUSPEND),
-          name: T.Suspend,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Suspend,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => suspend(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.STOP,
-          disabled: isDisabled(VM_ACTIONS.STOP),
-          name: T.Stop,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Stop,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => stop(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.POWEROFF,
-          disabled: isDisabled(VM_ACTIONS.POWEROFF),
-          name: T.Poweroff,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Poweroff,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => poweroff(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.POWEROFF_HARD,
-          disabled: isDisabled(VM_ACTIONS.POWEROFF_HARD),
-          name: T.PoweroffHard,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.PoweroffHard,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => poweroffHard(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.REBOOT,
-          disabled: isDisabled(VM_ACTIONS.REBOOT),
-          name: T.Reboot,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Reboot,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => reboot(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.REBOOT_HARD,
-          disabled: isDisabled(VM_ACTIONS.REBOOT_HARD),
-          name: T.RebootHard,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.RebootHard,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => rebootHard(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.UNDEPLOY,
-          disabled: isDisabled(VM_ACTIONS.UNDEPLOY),
-          name: T.Undeploy,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Undeploy,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => undeploy(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.UNDEPLOY_HARD,
-          disabled: isDisabled(VM_ACTIONS.UNDEPLOY_HARD),
-          name: T.UndeployHard,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.UndeployHard,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => undeployHard(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }]
-      },
-      {
-        tooltip: T.Host,
-        icon: TransitionRight,
-        selected: true,
-        color: 'secondary',
-        options: [{
-          accessor: VM_ACTIONS.DEPLOY,
-          disabled: isDisabled(VM_ACTIONS.DEPLOY),
-          name: T.Deploy,
-          form: MigrateForm,
-          dialogProps: {
-            title: T.Deploy,
-            subheader: SubHeader
-          },
-          onSubmit: async (formData, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => deploy(id, formData)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.MIGRATE,
-          disabled: isDisabled(VM_ACTIONS.MIGRATE),
-          name: T.Migrate,
-          form: MigrateForm,
-          dialogProps: {
-            title: T.Migrate,
-            subheader: SubHeader
-          },
-          onSubmit: async (formData, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => migrate(id, formData)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.MIGRATE_LIVE,
-          disabled: isDisabled(VM_ACTIONS.MIGRATE_LIVE),
-          name: T.MigrateLive,
-          form: MigrateForm,
-          dialogProps: {
-            title: T.Migrate,
-            subheader: SubHeader
-          },
-          onSubmit: async (formData, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => migrateLive(id, formData)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.HOLD,
-          disabled: isDisabled(VM_ACTIONS.HOLD),
-          name: T.Hold,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Hold,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => hold(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.RELEASE,
-          disabled: isDisabled(VM_ACTIONS.RELEASE),
-          name: T.Release,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Release,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => release(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.RESCHED,
-          disabled: isDisabled(VM_ACTIONS.RESCHED),
-          name: T.Reschedule,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Reschedule,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => resched(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.UNRESCHED,
-          disabled: isDisabled(VM_ACTIONS.UNRESCHED),
-          name: T.UnReschedule,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.UnReschedule,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => unresched(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.RECOVER,
-          disabled: isDisabled(VM_ACTIONS.RECOVER),
-          name: T.Recover,
-          dialogProps: {
-            title: T.Recover,
-            subheader: SubHeader
-          },
-          form: RecoverForm,
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => recover(id)))
-            ids?.length > 1 && await Promise.all(ids.map(id => getVm(id)))
-          }
-        }]
-      },
-      {
-        tooltip: T.Ownership,
-        icon: Group,
-        selected: true,
-        color: 'secondary',
-        options: [{
-          accessor: VM_ACTIONS.CHANGE_OWNER,
-          disabled: isDisabled(VM_ACTIONS.CHANGE_OWNER),
-          name: T.ChangeOwner,
-          dialogProps: {
-            title: T.ChangeOwner,
-            subheader: SubHeader
-          },
-          form: ChangeUserForm,
-          onSubmit: async (newOwnership, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => changeOwnership(id, newOwnership)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.CHANGE_GROUP,
-          disabled: isDisabled(VM_ACTIONS.CHANGE_GROUP),
-          name: T.ChangeGroup,
-          dialogProps: {
-            title: T.ChangeGroup,
-            subheader: SubHeader
-          },
-          form: ChangeGroupForm,
-          onSubmit: async (newOwnership, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => changeOwnership(id, newOwnership)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }]
-      },
-      {
-        tooltip: T.Lock,
-        icon: Lock,
-        selected: true,
-        color: 'secondary',
-        options: [{
-          accessor: VM_ACTIONS.LOCK,
-          disabled: isDisabled(VM_ACTIONS.LOCK),
-          name: T.Lock,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Lock,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => lock(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.UNLOCK,
-          disabled: isDisabled(VM_ACTIONS.UNLOCK),
-          name: T.Unlock,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Unlock,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => unlock(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }]
-      },
-      {
-        tooltip: T.Terminate,
-        icon: Trash,
-        color: 'error',
-        selected: true,
-        options: [{
-          accessor: VM_ACTIONS.TERMINATE,
-          disabled: isDisabled(VM_ACTIONS.TERMINATE),
-          name: T.Terminate,
-          isConfirmDialog: true,
-          dialogProps: {
-            title: T.Terminate,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => terminate(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }, {
-          accessor: VM_ACTIONS.TERMINATE_HARD,
-          name: T.TerminateHard,
-          isConfirmDialog: true,
-          disabled: isDisabled(VM_ACTIONS.TERMINATE_HARD),
-          dialogProps: {
-            title: T.TerminateHard,
-            children: MessageToConfirmAction
-          },
-          onSubmit: async (_, rows) => {
-            const ids = rows?.map?.(({ original }) => original?.ID)
-            await Promise.all(ids.map(id => terminateHard(id)))
-            await Promise.all(ids.map(id => getVm(id)))
-          }
-        }]
-      }
-    ]
-  }), [view])
+  const vmActions = useMemo(
+    () =>
+      createActions({
+        filters: getResourceView(RESOURCE_NAMES.VM)?.actions,
+        actions: [
+          {
+            accessor: VM_ACTIONS.CREATE_DIALOG,
+            dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
+            tooltip: T.Create,
+            icon: AddSquare,
+            options: [
+              {
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Instantiate,
+                  children: () => {
+                    const classes = useTableStyles()
 
-  const marketplaceAppActions = useMemo(() => createActions({
-    filters: getResourceView('MARKETPLACE-APP')?.actions,
-    actions: [
-      {
-        accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
-        tooltip: T.CreateMarketApp,
-        icon: Cart,
-        selected: { max: 1 },
-        disabled: true,
-        action: rows => {
-          // TODO: go to Marketplace App CREATE form
-        }
-      }
-    ]
-  }), [view])
+                    const redirectToInstantiate = (template) =>
+                      history.push(PATH.TEMPLATE.VMS.INSTANTIATE, template)
 
-  return [...vmActions, ...marketplaceAppActions]
+                    return (
+                      <VmTemplatesTable
+                        disableGlobalSort
+                        disableRowSelect
+                        classes={classes}
+                        onRowClick={redirectToInstantiate}
+                      />
+                    )
+                  },
+                  fixedWidth: true,
+                  fixedHeight: true,
+                  handleAccept: undefined,
+                  dataCy: `modal-${VM_ACTIONS.CREATE_DIALOG}`,
+                },
+              },
+            ],
+          },
+          {
+            accessor: VM_ACTIONS.RESUME,
+            dataCy: `vm_${VM_ACTIONS.RESUME}`,
+            disabled: isDisabled(VM_ACTIONS.RESUME),
+            tooltip: T.Resume,
+            selected: true,
+            icon: PlayOutline,
+            action: async (rows) => {
+              const ids = rows?.map?.(({ original }) => original?.ID)
+              await Promise.all(
+                ids.map((id) => actionVm({ id, action: 'resume' }))
+              )
+            },
+          },
+          {
+            accessor: VM_ACTIONS.CREATE_APP_DIALOG,
+            dataCy: `vm_${VM_ACTIONS.CREATE_APP_DIALOG}`,
+            disabled: isDisabled(VM_ACTIONS.CREATE_APP_DIALOG),
+            tooltip: T.CreateMarketApp,
+            selected: { max: 1 },
+            icon: Cart,
+            action: (rows) => {
+              const vm = rows?.[0]?.original ?? {}
+              const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
+
+              history.push(path, [RESOURCE_NAMES.VM, vm])
+            },
+          },
+          {
+            accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
+            dataCy: `vm_${VM_ACTIONS.SAVE_AS_TEMPLATE}`,
+            disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
+            tooltip: T.SaveAsTemplate,
+            selected: { max: 1 },
+            icon: SaveFloppyDisk,
+            options: [
+              {
+                dialogProps: {
+                  title: T.SaveAsTemplate,
+                  subheader: SubHeader,
+                },
+                form: SaveAsTemplateForm,
+                onSubmit: (rows) => async (formData) => {
+                  const data = { id: rows?.[0]?.original?.ID, ...formData }
+                  const response = await saveAsTemplate(data)
+                  enqueueSuccess(response)
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.Manage,
+            icon: SystemShut,
+            selected: true,
+            color: 'secondary',
+            dataCy: 'vm-manage',
+            options: [
+              {
+                accessor: VM_ACTIONS.SUSPEND,
+                disabled: isDisabled(VM_ACTIONS.SUSPEND),
+                name: T.Suspend,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Suspend,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.SUSPEND}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'suspend' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.STOP,
+                disabled: isDisabled(VM_ACTIONS.STOP),
+                name: T.Stop,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Stop,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.STOP}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'stop' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.POWEROFF,
+                disabled: isDisabled(VM_ACTIONS.POWEROFF),
+                name: T.Poweroff,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Poweroff,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.POWEROFF}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'poweroff' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.POWEROFF_HARD,
+                disabled: isDisabled(VM_ACTIONS.POWEROFF_HARD),
+                name: T.PoweroffHard,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.PoweroffHard,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.POWEROFF_HARD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'poweroff-hard' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.REBOOT,
+                disabled: isDisabled(VM_ACTIONS.REBOOT),
+                name: T.Reboot,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Reboot,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.REBOOT}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'reboot' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.REBOOT_HARD,
+                disabled: isDisabled(VM_ACTIONS.REBOOT_HARD),
+                name: T.RebootHard,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.RebootHard,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.REBOOT_HARD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'reboot-hard' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.UNDEPLOY,
+                disabled: isDisabled(VM_ACTIONS.UNDEPLOY),
+                name: T.Undeploy,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Undeploy,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNDEPLOY}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'undeploy' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.UNDEPLOY_HARD,
+                disabled: isDisabled(VM_ACTIONS.UNDEPLOY_HARD),
+                name: T.UndeployHard,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.UndeployHard,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNDEPLOY_HARD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'undeploy-hard' }))
+                  )
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.Host,
+            icon: TransitionRight,
+            selected: true,
+            color: 'secondary',
+            dataCy: 'vm-host',
+            options: [
+              {
+                accessor: VM_ACTIONS.DEPLOY,
+                disabled: isDisabled(VM_ACTIONS.DEPLOY),
+                name: T.Deploy,
+                form: MigrateForm,
+                dialogProps: {
+                  title: T.Deploy,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.DEPLOY}`,
+                },
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => deploy({ id, ...formData }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.MIGRATE,
+                disabled: isDisabled(VM_ACTIONS.MIGRATE),
+                name: T.Migrate,
+                form: MigrateForm,
+                dialogProps: {
+                  title: T.Migrate,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.MIGRATE}`,
+                },
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => migrate({ id, ...formData }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.MIGRATE_LIVE,
+                disabled: isDisabled(VM_ACTIONS.MIGRATE_LIVE),
+                name: T.MigrateLive,
+                form: MigrateForm,
+                dialogProps: {
+                  title: T.Migrate,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.MIGRATE_LIVE}`,
+                },
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => migrate({ id, ...formData, live: true }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.HOLD,
+                disabled: isDisabled(VM_ACTIONS.HOLD),
+                name: T.Hold,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Hold,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.HOLD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'hold' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.RELEASE,
+                disabled: isDisabled(VM_ACTIONS.RELEASE),
+                name: T.Release,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Release,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.RELEASE}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'release' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.RESCHED,
+                disabled: isDisabled(VM_ACTIONS.RESCHED),
+                name: T.Reschedule,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Reschedule,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.RESCHED}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'resched' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.UNRESCHED,
+                disabled: isDisabled(VM_ACTIONS.UNRESCHED),
+                name: T.UnReschedule,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.UnReschedule,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNRESCHED}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'unresched' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.RECOVER,
+                disabled: isDisabled(VM_ACTIONS.RECOVER),
+                name: T.Recover,
+                dialogProps: {
+                  title: T.Recover,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.RECOVER}`,
+                },
+                form: RecoverForm,
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => recover({ id, ...formData }))
+                  )
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.Ownership,
+            icon: Group,
+            selected: true,
+            color: 'secondary',
+            dataCy: 'vm-ownership',
+            options: [
+              {
+                accessor: VM_ACTIONS.CHANGE_OWNER,
+                disabled: isDisabled(VM_ACTIONS.CHANGE_OWNER),
+                name: T.ChangeOwner,
+                dialogProps: {
+                  title: T.ChangeOwner,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.CHANGE_OWNER}`,
+                },
+                form: ChangeUserForm,
+                onSubmit: (rows) => async (newOwnership) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => changeOwnership({ id, ...newOwnership }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.CHANGE_GROUP,
+                disabled: isDisabled(VM_ACTIONS.CHANGE_GROUP),
+                name: T.ChangeGroup,
+                dialogProps: {
+                  title: T.ChangeGroup,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.CHANGE_GROUP}`,
+                },
+                form: ChangeGroupForm,
+                onSubmit: (rows) => async (newOwnership) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => changeOwnership({ id, ...newOwnership }))
+                  )
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.Lock,
+            icon: Lock,
+            selected: true,
+            color: 'secondary',
+            dataCy: 'vm-lock',
+            options: [
+              {
+                accessor: VM_ACTIONS.LOCK,
+                disabled: isDisabled(VM_ACTIONS.LOCK),
+                name: T.Lock,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Lock,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.LOCK}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => lock({ id })))
+                },
+              },
+              {
+                accessor: VM_ACTIONS.UNLOCK,
+                disabled: isDisabled(VM_ACTIONS.UNLOCK),
+                name: T.Unlock,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Unlock,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.UNLOCK}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => unlock({ id })))
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.Terminate,
+            icon: Trash,
+            color: 'error',
+            selected: true,
+            dataCy: 'vm-terminate',
+            options: [
+              {
+                accessor: VM_ACTIONS.TERMINATE,
+                disabled: isDisabled(VM_ACTIONS.TERMINATE),
+                name: T.Terminate,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Terminate,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.TERMINATE}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'terminate' }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.TERMINATE_HARD,
+                name: T.TerminateHard,
+                isConfirmDialog: true,
+                disabled: isDisabled(VM_ACTIONS.TERMINATE_HARD),
+                dialogProps: {
+                  title: T.TerminateHard,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.TERMINATE_HARD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'terminate-hard' }))
+                  )
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    [view]
+  )
+
+  return vmActions
 }
 
 export default Actions

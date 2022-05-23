@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -450,6 +450,10 @@ module OpenNebula
         private
 
         def build_accounting(filter_flag, options, &block)
+
+            options[:start_time] = -1 if options[:start_time].nil?
+            options[:end_time]   = -1 if options[:end_time].nil?
+
             xml_str = @client.call(VM_POOL_METHODS[:accounting],
                         filter_flag,
                         options[:start_time],

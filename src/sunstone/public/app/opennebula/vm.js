@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,7 +22,9 @@ define(function(require) {
     OpenNebulaDS = require("./datastore"),
     Locale = require("utils/locale"),
     Config = require("sunstone-config"),
-    Navigation = require("utils/navigation");
+    Navigation = require("utils/navigation"),
+    OpenNebulaHost = require("opennebula/host");
+
 
   var RESOURCE = "VM";
   var VM_MONITORING_CACHE_NAME = "VM.MONITORING";
@@ -403,19 +405,12 @@ define(function(require) {
     "VROUTER_IP6_ULA",
   ];
 
-  var EXTERNAL_NETWORK_ATTRIBUTES = [
-    "GUEST_IP",
-    "GUEST_IP_ADDRESSES",
-    "AWS_IP_ADDRESS",
+  var EXTERNAL_NETWORK_ATTRS = EXTERNAL_IP_ATTRS.concat([
     "AWS_DNS_NAME",
-    "AWS_PUBLIC_IP_ADDRESS",
     "AWS_PUBLIC_DNS_NAME",
-    "AWS_PRIVATE_IP_ADDRESS",
     "AWS_PRIVATE_DNS_NAME",
-    "AWS_SECURITY_GROUPS",
-    "AZ_IPADDRESS",
-    "SL_PRIMARYIPADDRESS"
-  ];
+    "AWS_SECURITY_GROUPS"
+  ]);
 
   var MIGRATE_ACTION_STR = [
     "none",                // NONE_ACTION            = 0
@@ -634,16 +629,30 @@ define(function(require) {
     "vmrc" : function(params) {
       var callback = params.success;
       var callback_error = params.error;
-      var id = params.data.id;
+      var vm_id = params.data.id;
       var resource = RESOURCE;
 
       var request = OpenNebulaHelper.request(resource, null, params.data);
       $.ajax({
-        url: "vm/" + id + "/startvmrc",
+        url: "vm/" + vm_id + "/startvmrc",
         type: "POST",
-        dataType: "json",
-        success: function(response) {
-          return callback ? callback(request, response) : null;
+        dataType: "JSON",
+        success: function(vminfo) {
+
+          $.ajax({
+            url: Config.publicFireedgeEndpoint + "/fireedge/api/vcenter/token/" + vm_id,
+            type: "GET",
+            headers: {"Authorization": fireedge_token},
+            success: function(token) {
+              token.info = vminfo.info;
+              return callback ? callback(request, token) : null;
+            },
+            error: function(response) {
+              return callback_error ?
+                  callback_error(request, OpenNebulaError(response)) : null;
+            }
+          });
+
         },
         error: function(response) {
           return callback_error ?
@@ -775,10 +784,10 @@ define(function(require) {
       }
     },
     "hostnameStr": function(element) {
-      return hostnameStr(element)
+      return hostnameStr(element);
     },
     "hostnameStrLink": function(element) {
-      return hostnameStr(element, true)
+      return hostnameStr(element, true);
     },
     "clusterStr": function(element) {
       var state = element.STATE;
@@ -838,6 +847,14 @@ define(function(require) {
     "sched_action_delete" : function(params) {
       var action_obj = { "sched_id" : params.data.extra_param };
       OpenNebulaAction.simple_action(params, RESOURCE, "sched_action_delete", action_obj);
+    },
+    "attachsg" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "sg_attach", action_obj);
+    },
+    "detachsg" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "sg_detach", action_obj);
     }
   };
 
@@ -864,17 +881,17 @@ define(function(require) {
     })[0];
 
     if (nic) {
-      var ip = '<b>' + hostnameStr(vm, navigationLink) + '</b>';
-      var externalPortRange = '<b>' + nic.EXTERNAL_PORT_RANGE + '</b>';
-      var internalPortRange = '<b>' + nic.INTERNAL_PORT_RANGE.split('/')[0].replace('-', ':') + '</b>'
+      var ip = "<b>" + hostnameStr(vm, navigationLink) + "</b>";
+      var externalPortRange = "<b>" + nic.EXTERNAL_PORT_RANGE + "</b>";
+      var internalPortRange = "<b>" + nic.INTERNAL_PORT_RANGE.split("/")[0].replace("-", ":") + "</b>";
 
-      return ip + ' ports ' + externalPortRange + ' forwarded to VM ports ' + internalPortRange;
+      return ip + " ports " + externalPortRange + " forwarded to VM ports " + internalPortRange;
     }
   }
 
   function _promiseGetVm(options = {}) {
     options = $.extend({
-      id: '',
+      id: "",
       async: true
     }, options);
 
@@ -952,27 +969,20 @@ define(function(require) {
   }
 
   function retrieveExternalIPs(element) {
-    var monitoring = element.MONITORING;
-    var ips = {};
-    var externalIP;
-
-    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = monitoring[IPAttr];
-      if (externalIP) {
-        ips[IPAttr] = externalIP;
-      }
-    });
-
-    return ips;
+    return retrieveExternalAttr(element, EXTERNAL_IP_ATTRS);
   }
 
   function retrieveExternalNetworkAttrs(element) {
+    return retrieveExternalAttr(element, EXTERNAL_NETWORK_ATTRS);
+  }
+
+  function retrieveExternalAttr(element, attr_array) {
     var ips = {};
     var externalAttr;
-
     var monitoring = element.MONITORING;
+
     if (monitoring) {
-      $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+      $.each(attr_array, function(_, attr) {
         externalAttr = monitoring[attr];
         if (externalAttr) {
           ips[attr] = externalAttr;
@@ -1040,8 +1050,9 @@ define(function(require) {
 
     var nics = getNICs(element);
     var nicsFromMonitoring = getNicsFromMonitoring(element);
+    var nicExternal = retrieveExternalIPs(element);
 
-    nics = nics.concat(nicsFromMonitoring);
+    nics = nics.concat(nicsFromMonitoring, nicExternal);
 
     // infoextended: alias will be group by nic
     if (Config.isExtendedVmInfo || options.forceGroup) {
@@ -1070,7 +1081,7 @@ define(function(require) {
     else if (ips.length === 1)
       return "<p style=\"white-space:nowrap;margin-bottom:0;\">"+ips[0]+"</p>";
 
-    var sshWithPortForwarding = getSshWithPortForwarding(element) || '';
+    var sshWithPortForwarding = getSshWithPortForwarding(element) || "";
     var firstIP = ipsHtml.split("<end_first_ip>")[0];
     ipsHtml = ipsHtml.split("<end_first_ip>")[1];
     ipsHtml =
@@ -1130,7 +1141,7 @@ define(function(require) {
           var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           nic_and_ip = nic.NIC_ID + ": " + ip;
           if (nic.EXTERNAL_IP)
-            nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>"
+            nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>";
           column.append(nic_and_ip + "<end_first_ip>");
           first=false;
         }
@@ -1166,9 +1177,9 @@ define(function(require) {
                 var alias_ip;
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP
+                    alias_ip = identation + "> " + alias.IP;
                 else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6
+                    alias_ip = identation + "> " + alias.IP6;
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                     alias_ip = alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
 
@@ -1227,9 +1238,9 @@ define(function(require) {
                 var alias_ip;
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP
+                    alias_ip = identation + "> " + alias.IP;
                 else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6
+                    alias_ip = identation + "> " + alias.IP6;
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                     alias_ip = alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
 
@@ -1260,6 +1271,10 @@ define(function(require) {
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
+  function isKvmVm(history){
+    return history && history.VM_MAD && String(history.VM_MAD).toLowerCase() === "kvm";
+  }
+
   function isVMRCSupported(element = {}) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.startvmrc");
     var vmrcSupported = graphicSupported(element, "vnc");
@@ -1279,8 +1294,9 @@ define(function(require) {
     var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
     var vncSupported = graphicSupported(element, "vnc");
     var spiceSupported = graphicSupported(element, "spice");
+    var isKVM = isKvmVm(history);
 
-    return (actionEnabled && history && (vncSupported || spiceSupported))
+    return (actionEnabled && history && (vncSupported || spiceSupported) && isKVM)
       ? {
         hostname: history.HOSTNAME,
         type: element.TEMPLATE.GRAPHICS.TYPE.toLowerCase(),

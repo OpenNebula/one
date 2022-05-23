@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as yup from 'yup'
+import { array, object, ArraySchema } from 'yup'
 
-export const SCHEMA = yup
-  .array(yup.object())
-  .min(1, 'Select network')
-  .max(1, 'Max. one network selected')
-  .required('Network field is required')
+/** @type {ArraySchema} Virtual Network table schema */
+export const SCHEMA = array(object())
+  .min(1)
+  .max(1)
+  .required()
   .ensure()
   .default(() => [])

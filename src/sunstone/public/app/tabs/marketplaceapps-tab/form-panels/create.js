@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -436,7 +436,7 @@ define(function(require) {
       
                   var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) });
       
-                  Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
+                  Sunstone.runAction("MarketPlaceApp.import_vm_template", 0, newTemplate);
                 },
                 error: function(request, response) {
                   Sunstone.hideFormPanelLoading(TAB_ID);
@@ -460,7 +460,7 @@ define(function(require) {
         marketPlaceJSON['IMPORT_ALL'] = marketPlaceJSON['IMPORT_ALL'] === 'on'
         marketPlaceJSON['MARKETPLACE_ID'] = marketplaceIdSelected;
     
-        Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, marketPlaceJSON);
+        Sunstone.runAction("MarketPlaceApp.import_vm_template", 0, marketPlaceJSON);
 
         break;
       
@@ -471,7 +471,7 @@ define(function(require) {
         marketPlaceJSON['MARKETPLACE_ID'] = marketplaceIdSelected;
         marketPlaceJSON['MARKETPLACE_SERVICE_ID'] = this.marketPlacesServiceTable.idInput().val();
     
-        Sunstone.runAction("MarketPlaceApp.import_service_template", marketplaceIdSelected, marketPlaceJSON);
+        Sunstone.runAction("MarketPlaceApp.import_service_template", 0, marketPlaceJSON);
         
         break;
     

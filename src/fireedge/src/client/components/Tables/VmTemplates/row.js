@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,77 +13,60 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock } from 'iconoir-react'
-import { Typography } from '@mui/material'
+import vmTemplateApi, {
+  useUpdateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
+import { VmTemplateCard } from 'client/components/Cards'
+import { jsonToXml } from 'client/models/Helper'
 
-import { StatusChip } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-import Image from 'client/components/Image'
+const Row = memo(
+  ({ original, value, ...props }) => {
+    const [update] = useUpdateTemplateMutation()
 
-import * as Helper from 'client/models/Helper'
-import { isExternalURL } from 'client/utils'
-import { LOGO_IMAGES_URL } from 'client/constants'
+    const state = vmTemplateApi.endpoints.getTemplates.useQueryState(
+      undefined,
+      {
+        selectFromResult: ({ data = [] }) =>
+          data.find((template) => +template.ID === +original.ID),
+      }
+    )
 
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, REGTIME, LOCK, VROUTER, LOGO = '' } = value
+    const memoTemplate = useMemo(() => state ?? original, [state, original])
 
-  const [logoSource] = useMemo(() => {
-    const external = isExternalURL(LOGO)
-    const cleanLogoAttribute = String(LOGO).split('/').at(-1)
-    const src = external ? LOGO : `${LOGO_IMAGES_URL}/${cleanLogoAttribute}`
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoTemplate.TEMPLATE?.LABELS?.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newUserTemplate = { ...memoTemplate.TEMPLATE, LABELS: newLabels }
+        const templateXml = jsonToXml(newUserTemplate)
 
-    return [src, external]
-  }, [LOGO])
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoTemplate.TEMPLATE?.LABELS, update]
+    )
 
-  const time = Helper.timeFromMilliseconds(+REGTIME)
-  const timeAgo = `registered ${time.toRelative()}`
-
-  return (
-    <div {...props}>
-      <div className={classes.figure}>
-        <Image
-          src={logoSource}
-          imgProps={{ className: classes.image }}
-        />
-      </div>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography component='span'>
-            {NAME}
-          </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock />}
-            {VROUTER && <StatusChip text={VROUTER} />}
-          </span>
-        </div>
-        <div className={classes.caption}>
-          <span title={time.toFormat('ff')} className='full-width'>
-            {`#${ID} ${timeAgo}`}
-          </span>
-          <span title={`Owner: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`Group: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
+    return (
+      <VmTemplateCard
+        template={memoTemplate}
+        rootProps={props}
+        onDeleteLabel={handleDeleteLabel}
+      />
+    )
+  },
+  (prev, next) => prev.className === next.className
+)
 
 Row.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  className: PropTypes.string,
+  handleClick: PropTypes.func,
 }
+
+Row.displayName = 'VmTemplateRow'
 
 export default Row

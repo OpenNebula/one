@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,105 +13,120 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { Folder as DatastoreIcon } from 'iconoir-react'
+import {
+  User,
+  Group,
+  Lock,
+  Cloud,
+  Server,
+  WarningCircledOutline as WarningIcon,
+} from 'iconoir-react'
+import { Box, Typography, Tooltip } from '@mui/material'
 
-import SelectCard, { Action } from 'client/components/Cards/SelectCard'
-import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+import {
+  StatusCircle,
+  StatusChip,
+  LinearProgressWithLabel,
+} from 'client/components/Status'
+import { Tr } from 'client/components/HOC'
+import { rowStyles } from 'client/components/Tables/styles'
 
-import * as DatastoreModel from 'client/models/Datastore'
-
-const useStyles = makeStyles(({
-  title: {
-    display: 'flex',
-    gap: '0.5rem'
-  },
-  content: {
-    padding: '2em',
-    display: 'flex',
-    flexFlow: 'column',
-    gap: '1em'
-  }
-}))
+import { getState, getType, getCapacityInfo } from 'client/models/Datastore'
+import { getErrorMessage } from 'client/models/Helper'
+import { T, Datastore, DS_THRESHOLD } from 'client/constants'
 
 const DatastoreCard = memo(
-  ({ value, isSelected, handleClick, actions }) => {
-    const classes = useStyles()
+  /**
+   * @param {object} props - Props
+   * @param {Datastore} props.datastore - Datastore resource
+   * @param {object} props.rootProps - Props to root component
+   * @param {ReactElement} props.actions - Actions
+   * @returns {ReactElement} - Card
+   */
+  ({ datastore: ds, rootProps, actions }) => {
+    const classes = rowStyles()
 
-    const { ID, NAME } = value
+    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = ds
 
-    const type = DatastoreModel.getType(value)
-    const state = DatastoreModel.getState(value)
+    const type = getType(ds)
+    const { color: stateColor, name: stateName } = getState(ds)
+    const error = useMemo(() => getErrorMessage(ds), [ds])
+    const capacity = useMemo(() => getCapacityInfo(ds), [ds])
+    const { percentOfUsed, percentLabel } = capacity
 
-    const {
-      percentOfUsed,
-      percentLabel
-    } = DatastoreModel.getCapacityInfo(value)
+    const clusters = useMemo(
+      () => [CLUSTERS?.ID ?? []].flat().join(),
+      [CLUSTERS?.ID]
+    )
 
     return (
-      <SelectCard
-        action={actions?.map(action =>
-          <Action key={action?.cy} {...action} />
-        )}
-        icon={
-          <StatusBadge stateColor={state.color}>
-            <DatastoreIcon />
-          </StatusBadge>
-        }
-        title={
-          <span className={classes.title}>
-            <Typography title={NAME} noWrap component='span'>
-              {NAME}
-            </Typography>
-            <StatusChip text={type.name} />
-          </span>
-        }
-        subheader={`#${ID}`}
-        isSelected={isSelected}
-        handleClick={handleClick}
-      >
-        <div className={classes.content}>
-          <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+      <div {...rootProps} data-cy={`datastore-${ID}`}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <StatusCircle color={stateColor} tooltip={stateName} />
+            <Typography component="span">{NAME}</Typography>
+            {error && (
+              <Tooltip
+                arrow
+                placement="bottom"
+                title={<Typography variant="subtitle2">{error}</Typography>}
+              >
+                <Box color="error.dark" component="span">
+                  <WarningIcon />
+                </Box>
+              </Tooltip>
+            )}
+            <span className={classes.labels}>
+              {LOCK && <Lock />}
+              <StatusChip text={type} />
+            </span>
+          </div>
+          <div className={classes.caption}>
+            <span>{`#${ID}`}</span>
+            <span title={`${Tr(T.Owner)}: ${UNAME}`}>
+              <User />
+              <span>{` ${UNAME}`}</span>
+            </span>
+            <span title={`${Tr(T.Group)}: ${GNAME}`}>
+              <Group />
+              <span>{` ${GNAME}`}</span>
+            </span>
+            {PROVISION_ID && (
+              <span title={`${Tr(T.ProvisionId)}: #${PROVISION_ID}`}>
+                <Cloud />
+                <span>{` ${PROVISION_ID}`}</span>
+              </span>
+            )}
+            <span title={`${Tr(T.Clusters)}: ${clusters}`}>
+              <Server />
+              <span>{` ${clusters}`}</span>
+            </span>
+          </div>
         </div>
-      </SelectCard>
+        <div className={classes.secondary}>
+          <LinearProgressWithLabel
+            value={percentOfUsed}
+            label={percentLabel}
+            high={DS_THRESHOLD.CAPACITY.high}
+            low={DS_THRESHOLD.CAPACITY.low}
+            title={Tr(T.UsedOfTotal)}
+          />
+        </div>
+        {actions && <div className={classes.actions}>{actions}</div>}
+      </div>
     )
-  },
-  (prev, next) => (
-    prev.isSelected === next.isSelected &&
-    prev.value?.STATE === next.value?.STATE
-  )
+  }
 )
 
 DatastoreCard.propTypes = {
-  value: PropTypes.shape({
-    ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired,
-    TYPE: PropTypes.string,
-    STATE: PropTypes.string,
-    TOTAL_MB: PropTypes.string,
-    FREE_MB: PropTypes.string,
-    USED_MB: PropTypes.string
+  datastore: PropTypes.object,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
   }),
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.node.isRequired,
-      cy: PropTypes.string
-    })
-  )
-}
-
-DatastoreCard.defaultProps = {
-  value: {},
-  isSelected: false,
-  handleClick: undefined,
-  actions: undefined
+  actions: PropTypes.any,
 }
 
 DatastoreCard.displayName = 'DatastoreCard'

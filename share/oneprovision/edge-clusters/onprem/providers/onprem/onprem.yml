@@ -1,4 +1,0 @@
-name: 'onprem'
-
-description: 'On Premises datacenter infrastructure'
-provider: 'dummy'

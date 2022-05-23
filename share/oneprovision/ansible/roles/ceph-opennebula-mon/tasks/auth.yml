@@ -1,0 +1,19 @@
+---
+- name: Set Ceph auth command init
+  set_fact: ceph_opennebula_mon_pools_auth=[]
+
+- name: Set Ceph auth command pools
+  set_fact: ceph_opennebula_mon_pools_auth="{{ ceph_opennebula_mon_pools_auth }} + [ 'profile rbd pool={{ item.name }}' ]"
+  with_items: "{{ ceph_opennebula_mon_pools }}"
+
+- name: Create oneadmin keys for Ceph Luminous+
+  command: ceph auth get-or-create client.oneadmin mon 'profile rbd' osd '{{ ceph_opennebula_mon_pools_auth | join(",") }}'
+  changed_when: false
+
+- name: get oneadmin key
+  shell: ceph auth get-key client.oneadmin
+  register: ceph_oneadmin_key
+
+- name: get oneadmin keyring
+  shell: ceph auth export client.oneadmin
+  register: ceph_oneadmin_keyring

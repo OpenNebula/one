@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,6 +18,7 @@ require 'erb'
 require 'ostruct'
 require 'yaml'
 require 'zlib'
+require 'json'
 
 if !ONE_LOCATION
     PROVIDERS_LOCATION = '/usr/lib/one/oneprovision/lib/terraform/providers'
@@ -116,7 +117,11 @@ module OneProvision
                 raise OneProvisionLoopException, "Unknown provider: #{p_name}"
             end
 
-            @@providers[p_name].new(provider, tf[:state], tf[:conf])
+            if tf
+                @@providers[p_name].new(provider, tf[:state], tf[:conf])
+            else
+                @@providers[p_name].new(provider)
+            end
         end
 
         # Check connection attributes of a provider template
@@ -128,7 +133,7 @@ module OneProvision
         def self.check_connection(provider)
             p_name = provider['provider']
 
-            return true if p_name == 'dummy'
+            return true if p_name == 'onprem'
 
             unless exist?(p_name)
                 raise OneProvisionLoopException, "Unknown provider: #{p_name}"
@@ -228,22 +233,17 @@ module OneProvision
             # Get IP information and deploy IDs
             info = output(tempdir)
 
-            info.gsub!(' ', '')
-            info = info.split("\n")
-            info.map! {|val| val.split('=')[1] }
+            # Filter ids
+            hash_ids = info.select do |key, _value|
+                key.to_s.match(/^device_[0-9]*_id/)
+            end
+            ids = hash_ids.values.map {|h| h['value'] }
 
-            # rubocop:disable Style/StringLiterals
-            info.map! {|val| val.gsub("\"", '') }
-            # rubocop:enable Style/StringLiterals
-
-            # rubocop:disable Style/StringLiterals
-            info.map! {|val| val.gsub("\"", '') }
-            # rubocop:enable Style/StringLiterals
-
-            # From 0 to (size / 2) - 1 -> deploy IDS
-            # From (size / 2) until the end -> IPs
-            ids = info[0..(info.size / 2) - 1]
-            ips = info[(info.size / 2)..-1]
+            # Filter ips
+            hash_ips = info.select do |key, _value|
+                key.to_s.match(/^device_[0-9]*_ip/)
+            end
+            ips = hash_ips.values.map {|h| h['value'] }
 
             conf  = Base64.encode64(Zlib::Deflate.deflate(@conf))
             state = Base64.encode64(Zlib::Deflate.deflate(@state))
@@ -251,6 +251,19 @@ module OneProvision
             [ips, ids, state, conf]
         ensure
             FileUtils.rm_r(tempdir) if tempdir && File.exist?(tempdir)
+        end
+
+        # Provisions and configures new hosts
+        #
+        # @param provision [OpenNebula::Provision] Provision information
+        def add_hosts(provision)
+            @conf  = Zlib::Inflate.inflate(Base64.decode64(@conf))
+            @state = Zlib::Inflate.inflate(Base64.decode64(@state))
+
+            # Generate hosts Terraform configuration
+            host_info(provision)
+
+            deploy(provision)
         end
 
         # Get polling information from a host
@@ -313,30 +326,34 @@ module OneProvision
 
         # Destroys a cluster
         #
-        # @param id [String] Host ID
-        def destroy_cluster(id)
-            destroy_resource(self.class::TYPES[:cluster], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Host ID
+        def destroy_cluster(provision, id)
+            destroy_resource(self.class::TYPES[:cluster], provision, id)
         end
 
         # Destroys a host
         #
-        # @param id [String] Host ID
-        def destroy_host(id)
-            destroy_resource(self.class::TYPES[:host], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Host ID
+        def destroy_host(provision, id)
+            destroy_resource(self.class::TYPES[:host], provision, id)
         end
 
         # Destroys a datastore
         #
-        # @param id [String] Datastore ID
-        def destroy_datastore(id)
-            destroy_resource(self.class::TYPES[:datastore], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Datastore ID
+        def destroy_datastore(provision, id)
+            destroy_resource(self.class::TYPES[:datastore], provision, id)
         end
 
         # Destriys a network
         #
-        # @param id [String] Network ID
-        def destroy_network(id)
-            destroy_resource(self.class::TYPES[:network], id)
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String] Network ID
+        def destroy_network(provision, id)
+            destroy_resource(self.class::TYPES[:network], provision, id)
         end
 
         private
@@ -395,6 +412,8 @@ module OneProvision
 
                 next if !p || p.empty?
 
+                next if p['DEPLOY_ID'] # Already configured host
+
                 p = p.merge(@provider.connection)
 
                 yield(obj) if block_given?
@@ -408,7 +427,8 @@ module OneProvision
                 c = ERBVal.render_from_hash(c,
                                             :c         => cluster,
                                             :obj       => obj,
-                                            :provision => p)
+                                            :provision => p,
+                                            :ceph_vars => provision.ceph_vars)
 
                 @conf << c
             end
@@ -494,13 +514,21 @@ module OneProvision
         # @param tempdir  [String] Path to temporal directory
         # @param variable [String] Variable to check
         #
-        # @return [String] Variable value
+        # @return [Hash] Variable value
+        #
+        #                example:
+        #                { "device_51_id" => {
+        #                     "sensitive" => false,
+        #                     "type"      => "string",
+        #                     "value"     => "i-02a4d0f8012392d83"
+        #                }
+
         def output(tempdir, variable = nil)
             ret = nil
 
             Driver.retry_loop "Driver action 'tf output' failed" do
                 ret, e, s = Driver.run(
-                    "cd #{tempdir}; terraform output #{variable}"
+                    "cd #{tempdir}; terraform output -json #{variable}"
                 )
 
                 unless s && s.success?
@@ -508,15 +536,16 @@ module OneProvision
                 end
             end
 
-            ret
+            JSON.parse(ret)
         end
 
         # Destroys an specific resource
         #
-        # @param type [String] Resource type
-        # @param id   [String] Resource ID
-        def destroy_resource(type, id)
-            destroy("-target=#{type}.device_#{id}")
+        # @param type      [String]                Resource type
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param id        [String]                Resource ID
+        def destroy_resource(type, provision, id)
+            destroy(provision, "-target=#{type}.device_#{id}")
         end
 
     end

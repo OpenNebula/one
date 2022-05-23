@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
-import { sidebar, toolbar, footer } from 'client/theme/defaults'
+import { toolbar, footer } from 'client/theme/defaults'
 
-export default makeStyles(theme => ({
+export default makeStyles((theme) => ({
   root: {
     flex: '1 1 auto',
     display: 'flex',
@@ -25,16 +25,8 @@ export default makeStyles(theme => ({
     flexDirection: 'column',
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.enteringScreen,
     }),
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.minified
-    }
-  },
-  isDrawerFixed: {
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: sidebar.fixed
-    }
   },
   main: {
     height: '100vh',
@@ -42,47 +34,38 @@ export default makeStyles(theme => ({
     paddingBottom: footer.regular,
     paddingTop: toolbar.regular,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
-      paddingTop: toolbar.xs
+      paddingTop: toolbar.xs,
     },
     [theme.breakpoints.up('sm')]: {
-      paddingTop: toolbar.sm
-    }
+      paddingTop: toolbar.sm,
+    },
   },
   scrollable: {
-    backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     height: '100%',
     overflow: 'auto',
-    '&::-webkit-scrollbar': {
-      width: 14
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundClip: 'content-box',
-      border: '4px solid transparent',
-      borderRadius: 7,
-      boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.secondary.light
-    }
+    display: 'flex',
+    flexDirection: 'column',
   },
   /* ROUTES TRANSITIONS */
   appear: {},
   appearActive: {},
   enter: {
-    opacity: 0
+    opacity: 0,
   },
   enterActive: {
     opacity: 1,
-    transition: 'opacity 300ms'
+    transition: 'opacity 300ms',
   },
   exit: {
     opacity: 1,
-    transform: 'scale(1)'
+    transform: 'scale(1)',
   },
   exitActive: {
     opacity: 0,
-    transition: 'opacity 300ms'
+    transition: 'opacity 300ms',
   },
   enterDone: {},
-  exitDone: {}
+  exitDone: {},
 }))

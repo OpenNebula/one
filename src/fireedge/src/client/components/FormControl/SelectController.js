@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
@@ -33,19 +33,35 @@ const SelectController = memo(
     values = [],
     renderValue,
     tooltip,
-    fieldProps = {}
+    fieldProps = {},
+    readOnly = false,
   }) => {
-    const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
+    const firstValue = values?.[0]?.value ?? ''
+    const defaultValue = multiple ? [firstValue] : firstValue
 
     const {
-      field: { ref, value: optionSelected = defaultValue, onChange, ...inputProps },
-      fieldState: { error }
-    } = useController({ name, control })
+      field: { ref, value: optionSelected, onChange, ...inputProps },
+      fieldState: { error },
+    } = useController({ name, control, defaultValue })
 
     const needShrink = useMemo(
-      () => values.find(v => v.value === optionSelected)?.text !== '',
+      () =>
+        multiple || values.find((v) => v.value === optionSelected)?.text !== '',
       [optionSelected]
     )
+
+    useEffect(() => {
+      if (!optionSelected && !optionSelected.length) return
+
+      if (multiple) {
+        const exists = values.some((v) => optionSelected.includes(v.value))
+        !exists && onChange([firstValue])
+      } else {
+        const exists = values.some((v) => `${v.value}` === `${optionSelected}`)
+
+        !exists && onChange(firstValue)
+      }
+    }, [multiple])
 
     return (
       <TextField
@@ -53,16 +69,20 @@ const SelectController = memo(
         inputRef={ref}
         value={optionSelected}
         onChange={
-          multiple
-            ? event => {
-              const { options = [] } = event.target
-              const newValue = options
-                .filter(option => option.selected)
-                .map(option => option.value)
+          !multiple
+            ? onChange
+            : (evt) => {
+                const {
+                  target: { options },
+                } = evt
+                const newValue = []
 
-              onChange(newValue)
-            }
-            : onChange
+                for (const option of options) {
+                  option.selected && newValue.push(option.value)
+                }
+
+                onChange(newValue)
+              }
         }
         select
         fullWidth
@@ -70,9 +90,10 @@ const SelectController = memo(
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputLabelProps={{ shrink: needShrink }}
         InputProps={{
+          readOnly,
           startAdornment:
             (optionSelected && renderValue?.(optionSelected)) ||
-            (tooltip && <Tooltip title={tooltip} position='start' />)
+            (tooltip && <Tooltip title={tooltip} position="start" />),
         }}
         inputProps={{ 'data-cy': cy }}
         error={Boolean(error)}
@@ -80,19 +101,20 @@ const SelectController = memo(
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
       >
-        {values?.map(({ text, value = '' }) =>
+        {values?.map(({ text, value = '' }) => (
           <option key={`${name}-${value}`} value={value}>
             {text}
           </option>
-        )}
+        ))}
       </TextField>
     )
   },
-  (prevProps, nextProps) =>
-    prevProps.error === nextProps.error &&
-    prevProps.values.length === nextProps.values.length &&
-    prevProps.label === nextProps.label &&
-    prevProps.tooltip === nextProps.tooltip
+  (prev, next) =>
+    prev.error === next.error &&
+    prev.values.length === next.values.length &&
+    prev.label === next.label &&
+    prev.tooltip === next.tooltip &&
+    prev.multiple === next.multiple
 )
 
 SelectController.propTypes = {
@@ -104,7 +126,8 @@ SelectController.propTypes = {
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
-  fieldProps: PropTypes.object
+  fieldProps: PropTypes.object,
+  readOnly: PropTypes.bool,
 }
 
 SelectController.displayName = 'SelectController'

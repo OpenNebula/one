@@ -14,6 +14,10 @@ module Sqlite2MySQL
             @db.transaction do
                 i=0
                 sqlite_db[table].each do |row|
+                    if table.to_s == 'logdb'
+                        row[:fed_index] = 2**64-1 if row[:fed_index] >= 2**64
+                    end
+
                     @db[table].insert(row)
 
                     i+=1

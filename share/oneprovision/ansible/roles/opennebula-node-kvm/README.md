@@ -10,7 +10,7 @@ No special requirements.
 
 ## Variables
 
-All of the variables in this role are documented in the [defaults](defaults/main.yml) file.
+All of the variables in this role are documented in the [defaults](defaults/main.yaml) file.
 
 ## Todo list
 

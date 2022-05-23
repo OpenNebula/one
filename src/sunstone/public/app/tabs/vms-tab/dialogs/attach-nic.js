@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -42,7 +42,7 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.nicTab = new NicTab(DIALOG_ID + "NickTab");
+    this.nicTab = new NicTab(DIALOG_ID + "NicTab");
 
     BaseDialog.call(this);
   };
@@ -96,10 +96,6 @@ define(function(require) {
 
       if($("#cb_attach_alias", context).prop("checked")) {
         templateJSON.PARENT = $("#parent").val();
-
-        if ($('#cb_external').is(':checked')) {
-          templateJSON.EXTERNAL = 'YES'
-        }
         
         var obj = {
             "NIC_ALIAS": templateJSON

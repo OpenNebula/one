@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2021, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,51 +14,60 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { Grow, Menu, MenuItem, Typography, ListItemIcon } from '@mui/material'
 import { NavArrowDown } from 'iconoir-react'
 
 import { useDialog } from 'client/hooks'
-import { DialogConfirmation, DialogForm, DialogPropTypes } from 'client/components/Dialogs'
+import {
+  DialogConfirmation,
+  DialogForm,
+  DialogPropTypes,
+} from 'client/components/Dialogs'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import SubmitButton, { SubmitButtonPropTypes } from 'client/components/FormControl/SubmitButton'
+import SubmitButton, {
+  SubmitButtonPropTypes,
+} from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
+import { isDevelopment } from 'client/utils'
 
-const ButtonToTriggerForm = ({
-  buttonProps = {},
-  options = []
-}) => {
+const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button'
-  const isGroupButton = options.length > 1
+  const moreThanOneOption = options.length > 1
 
   const [anchorEl, setAnchorEl] = useState(() => null)
   const open = Boolean(anchorEl)
 
   const { display, show, hide, values: Form } = useDialog()
-  const { onSubmit: handleSubmit, form, isConfirmDialog = false, dialogProps = {} } = Form ?? {}
+  const {
+    onSubmit: handleSubmit,
+    form: FormConfig,
+    isConfirmDialog = false,
+    dialogProps = {},
+  } = Form ?? {}
 
-  const formConfig = useMemo(() => form?.() ?? {}, [form])
-  const { steps, defaultValues, resolver, description, fields, transformBeforeSubmit } = formConfig
+  const openDialogForm = (formParams) => {
+    const formConfig = formParams?.form?.()
 
-  const handleTriggerSubmit = async formData => {
+    show({ ...formParams, form: formConfig })
+    handleClose()
+  }
+
+  const handleToggle = (evt) => setAnchorEl(evt.currentTarget)
+  const handleClose = () => setAnchorEl(null)
+
+  const handleTriggerSubmit = async (formData) => {
     try {
-      const data = transformBeforeSubmit?.(formData) ?? formData
-      await handleSubmit?.(data)
+      await handleSubmit?.(formData)
+    } catch (error) {
+      isDevelopment() && console.error(error)
     } finally {
       hide()
     }
   }
-
-  const openDialogForm = formParams => {
-    show(formParams)
-    handleClose()
-  }
-
-  const handleToggle = evt => setAnchorEl(evt.currentTarget)
-  const handleClose = () => setAnchorEl(null)
 
   return (
     <>
@@ -67,18 +76,16 @@ const ButtonToTriggerForm = ({
         aria-describedby={buttonId}
         aria-controls={open ? `${buttonId}-button` : undefined}
         aria-expanded={open ? 'true' : undefined}
-        aria-haspopup={isGroupButton ? 'true' : false}
+        aria-haspopup={moreThanOneOption ? 'true' : false}
         disabled={!options.length}
-        disableElevation
-        endicon={isGroupButton ? <NavArrowDown /> : undefined}
-        onClick={evt => !isGroupButton
-          ? openDialogForm(options[0])
-          : handleToggle(evt)
+        endicon={moreThanOneOption ? <NavArrowDown /> : undefined}
+        onClick={(evt) =>
+          moreThanOneOption ? handleToggle(evt) : openDialogForm(options[0])
         }
         {...buttonProps}
       />
 
-      {isGroupButton && (
+      {moreThanOneOption && !buttonProps.disabled && (
         <Menu
           id={`${buttonId}-menu`}
           anchorEl={anchorEl}
@@ -100,7 +107,7 @@ const ButtonToTriggerForm = ({
                   <Icon />
                 </ListItemIcon>
               )}
-              <Typography variant='inherit' noWrap>
+              <Typography variant="inherit" noWrap>
                 <Translate word={name} />
               </Typography>
             </MenuItem>
@@ -108,35 +115,47 @@ const ButtonToTriggerForm = ({
         </Menu>
       )}
 
-      {display && (
-        isConfirmDialog ? (
+      {display &&
+        (isConfirmDialog ? (
           <DialogConfirmation
             handleAccept={handleTriggerSubmit}
             handleCancel={hide}
             {...dialogProps}
           />
         ) : (
-          <DialogForm
-            resolver={resolver}
-            values={defaultValues}
-            handleSubmit={!steps ? handleTriggerSubmit : undefined}
-            dialogProps={{ handleCancel: hide, ...dialogProps }}
-          >
-            {steps ? (
-              <FormStepper
-                steps={steps}
-                schema={resolver}
-                onSubmit={handleTriggerSubmit}
-              />
-            ) : (
-              <>
-                {description}
-                <FormWithSchema cy='form-dg' fields={fields} />
-              </>
-            )}
-          </DialogForm>
-        )
-      )}
+          <FormConfig onSubmit={handleTriggerSubmit}>
+            {({
+              steps,
+              defaultValues,
+              resolver,
+              description,
+              fields,
+              onSubmit,
+            }) =>
+              resolver && (
+                <DialogForm
+                  resolver={resolver}
+                  values={defaultValues}
+                  handleSubmit={!steps ? onSubmit : undefined}
+                  dialogProps={{ handleCancel: hide, ...dialogProps }}
+                >
+                  {steps ? (
+                    <FormStepper
+                      steps={steps}
+                      schema={resolver}
+                      onSubmit={onSubmit}
+                    />
+                  ) : (
+                    <>
+                      {description}
+                      <FormWithSchema cy="form-dg" fields={fields} />
+                    </>
+                  )}
+                </DialogForm>
+              )
+            }
+          </FormConfig>
+        ))}
     </>
   )
 }
@@ -151,9 +170,9 @@ export const ButtonToTriggerFormPropTypes = {
       name: PropTypes.string,
       icon: PropTypes.any,
       form: PropTypes.func,
-      onSubmit: PropTypes.func
+      onSubmit: PropTypes.func,
     })
-  )
+  ),
 }
 
 ButtonToTriggerForm.propTypes = ButtonToTriggerFormPropTypes

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -150,7 +150,7 @@ public:
      */
     static std::string code_version()
     {
-        return "6.2.0"; // bump version
+        return "6.99.80"; // bump version
     }
 
     /**
@@ -159,7 +159,7 @@ public:
      */
     static std::string shared_db_version()
     {
-        return "6.2.0";
+        return "7.0.0";
     }
 
     /**
@@ -168,7 +168,7 @@ public:
      */
     static std::string local_db_version()
     {
-        return "6.2.0";
+        return "7.0.0";
     }
 
     /**

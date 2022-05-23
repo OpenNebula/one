@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -72,6 +72,7 @@
         </table>
       </div>
     </div>
+    {{#isTabActionEnabled "settings-tab" "Settings.ssh_key"}}
     <div class="row">
       <div class="large-12 columns">
         <table class="dataTable" cellpadding="0" cellspacing="0" border="0">
@@ -150,5 +151,6 @@
         </td>
       </div>
     </div>
+    {{/isTabActionEnabled}}
   </div>
 </div>
