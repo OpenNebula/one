@@ -21,26 +21,26 @@ import { requestConfig, generateKey } from 'client/utils'
 import http from 'client/utils/rest'
 
 const ONE_RESOURCES = {
-  ACL: 'Acl',
-  APP: 'App',
-  CLUSTER: 'Cluster',
-  DATASTORE: 'Datastore',
-  FILE: 'File',
-  GROUP: 'Group',
-  HOST: 'Host',
-  IMAGE: 'Image',
-  MARKETPLACE: 'Marketplace',
-  SECURITYGROUP: 'SecurityGroup',
-  SYSTEM: 'System',
-  TEMPLATE: 'Template',
-  USER: 'User',
-  VDC: 'Vdc',
-  VM: 'Vm',
-  VMGROUP: 'VmGroup',
-  VNET: 'VNetwork',
-  VNTEMPLATE: 'NetworkTemplate',
-  VROUTER: 'VirtualRouter',
-  ZONE: 'Zone',
+  ACL: 'ACL',
+  APP: 'APP',
+  CLUSTER: 'CLUSTER',
+  DATASTORE: 'DATASTORE',
+  FILE: 'FILE',
+  GROUP: 'GROUP',
+  HOST: 'HOST',
+  IMAGE: 'IMAGE',
+  MARKETPLACE: 'MARKET',
+  SECURITYGROUP: 'SECGROUP',
+  SYSTEM: 'SYSTEM',
+  TEMPLATE: 'TEMPLATE',
+  USER: 'USER',
+  VDC: 'VDC',
+  VM: 'VM',
+  VMGROUP: 'VMGROUP',
+  VNET: 'VNET',
+  VNTEMPLATE: 'VNTEMPLATE',
+  VROUTER: 'VROUTER',
+  ZONE: 'ZONE',
 }
 
 const ONE_RESOURCES_POOL = Object.entries(ONE_RESOURCES).reduce(
@@ -49,10 +49,10 @@ const ONE_RESOURCES_POOL = Object.entries(ONE_RESOURCES).reduce(
 )
 
 const DOCUMENT = {
-  SERVICE: 'applicationService',
-  SERVICE_TEMPLATE: 'applicationServiceTemplate',
-  PROVISION: 'provision',
-  PROVIDER: 'provider',
+  SERVICE: 'SERVICE',
+  SERVICE_TEMPLATE: 'SERVICE_TEMPLATE',
+  PROVISION: 'PROVISION',
+  PROVIDER: 'PROVIDER',
 }
 
 const DOCUMENT_POOL = Object.entries(DOCUMENT).reduce(
@@ -61,19 +61,19 @@ const DOCUMENT_POOL = Object.entries(DOCUMENT).reduce(
 )
 
 const PROVISION_CONFIG = {
-  PROVISION_DEFAULTS: 'provisionDefaults',
-  PROVIDER_CONFIG: 'providerConfig',
+  PROVISION_DEFAULTS: 'PROVISION_DEFAULTS',
+  PROVIDER_CONFIG: 'PROVIDER_CONFIG',
 }
 
 const PROVISION_RESOURCES = {
-  CLUSTER: 'provisionCluster',
-  DATASTORE: 'provisionDatastore',
-  HOST: 'provisionHost',
-  TEMPLATE: 'provisionVmTemplate',
-  IMAGE: 'provisionImage',
-  NETWORK: 'provisionVNetwork',
-  VNTEMPLATE: 'provisionNetworkTemplate',
-  FLOWTEMPLATE: 'provisionFlowTemplate',
+  CLUSTER: 'PROVISION_CLUSTER',
+  DATASTORE: 'PROVISION_DATASTORE',
+  HOST: 'PROVISION_HOST',
+  TEMPLATE: 'PROVISION_VMTEMPLATE',
+  IMAGE: 'PROVISION_IMAGE',
+  NETWORK: 'PROVISION_VNET',
+  VNTEMPLATE: 'PROVISION_VNTEMPLATE',
+  FLOWTEMPLATE: 'PROVISION_FLOWTEMPLATE',
 }
 
 const oneApi = createApi({

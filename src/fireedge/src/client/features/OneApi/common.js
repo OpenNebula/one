@@ -21,6 +21,16 @@ import { LockLevel, Permission, User, Group } from 'client/constants'
 import { xmlToJson } from 'client/models/Helper'
 
 /**
+ * Checks if the parameters are valid to update the pool store.
+ *
+ * @param {Draft} draft - The draft to check
+ * @param {string} resourceId - The resource ID
+ * @returns {boolean} - True if the parameters are valid, false otherwise
+ */
+const isUpdateOnPool = (draft, resourceId) =>
+  Array.isArray(draft) && resourceId !== undefined
+
+/**
  * Update the pool of resources with the new data.
  *
  * @param {string} params - The parameters from query
@@ -31,7 +41,7 @@ import { xmlToJson } from 'client/models/Helper'
 export const updateResourceOnPool =
   ({ id: resourceId, resourceFromQuery }) =>
   (draft) => {
-    if (resourceId !== undefined && Array.isArray(draft)) return
+    if (!isUpdateOnPool(draft, resourceId)) return
 
     const index = draft.findIndex(({ ID }) => +ID === +resourceId)
     index !== -1 && (draft[index] = resourceFromQuery)
@@ -47,7 +57,7 @@ export const updateResourceOnPool =
 export const removeResourceOnPool =
   ({ id: resourceId }) =>
   (draft) => {
-    if (resourceId !== undefined && Array.isArray(draft)) return
+    if (!isUpdateOnPool(draft, resourceId)) return
 
     draft.filter(({ ID }) => +ID !== +resourceId)
   }
@@ -63,13 +73,13 @@ export const removeResourceOnPool =
 export const updateNameOnResource =
   ({ id: resourceId, name: newName }) =>
   (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
 
     const resource = updatePool
       ? draft.find(({ ID }) => +ID === +resourceId)
       : draft
 
-    if ((updatePool && !resource) || newName !== undefined) return
+    if ((updatePool && !resource) || newName === undefined) return
 
     resource.NAME = newName
   }
@@ -79,13 +89,13 @@ export const updateNameOnResource =
  *
  * @param {string} params - The parameters from query
  * @param {string} [params.id] - The id of the resource
- * @param {LockLevel} [params.level] - The new lock level
+ * @param {LockLevel} [params.level] - The new lock level. By default, the lock level is 4.
  * @returns {function(Draft):ThunkAction} - Dispatches the action
  */
 export const updateLockLevelOnResource =
   ({ id: resourceId, level = '4' }) =>
   (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
 
     const resource = updatePool
       ? draft.find(({ ID }) => +ID === +resourceId)
@@ -107,7 +117,7 @@ export const updateLockLevelOnResource =
 export const removeLockLevelOnResource =
   ({ id: resourceId }) =>
   (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
 
     const resource = updatePool
       ? draft.find(({ ID }) => +ID === +resourceId)
@@ -137,7 +147,7 @@ export const removeLockLevelOnResource =
 export const updatePermissionOnResource =
   ({ id: resourceId, ...permissions }) =>
   (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
 
     const resource = updatePool
       ? draft.find(({ ID }) => +ID === +resourceId)
@@ -206,7 +216,7 @@ export const updateOwnershipOnResource = (
   const { user, group } = selectOwnershipFromState(state, { userId, groupId })
 
   return (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
 
     const resource = updatePool
       ? draft.find(({ ID }) => +ID === +resourceId)
@@ -232,6 +242,9 @@ export const updateOwnershipOnResource = (
  * - Update type:
  * ``0``: Replace the whole template.
  * ``1``: Merge new template with the existing one.
+ * @param {boolean} [params.append]
+ * - ``true``: Merge new template with the existing one.
+ * - ``false``: Replace the whole template.
  * @param {string} [userTemplateAttribute] - The attribute name of the user template. By default is `USER_TEMPLATE`.
  * @returns {function(Draft):ThunkAction} - Dispatches the action
  */
@@ -241,7 +254,7 @@ export const updateUserTemplateOnResource =
     userTemplateAttribute = 'USER_TEMPLATE'
   ) =>
   (draft) => {
-    const updatePool = resourceId !== undefined && Array.isArray(draft)
+    const updatePool = isUpdateOnPool(draft, resourceId)
     const newTemplateJson = xmlToJson(xml)
 
     const resource = updatePool
@@ -254,4 +267,33 @@ export const updateUserTemplateOnResource =
       +replace === 0
         ? newTemplateJson
         : { ...resource[userTemplateAttribute], ...newTemplateJson }
+  }
+
+/**
+ * Update the template body of a document in the store.
+ *
+ * @param {object} params - Request params
+ * @param {number|string} params.id -  The id of the resource
+ * @param {object} params.template - The new template contents on JSON format
+ * @param {boolean} [params.append]
+ * - ``true``: Merge new template with the existing one.
+ * - ``false``: Replace the whole template.
+ *
+ * By default, ``true``.
+ * @returns {function(Draft):ThunkAction} - Dispatches the action
+ */
+export const updateTemplateOnDocument =
+  ({ id: resourceId, template, append = true }) =>
+  (draft) => {
+    const updatePool = isUpdateOnPool(draft, resourceId)
+
+    const resource = updatePool
+      ? draft.find(({ ID }) => +ID === +resourceId)
+      : draft
+
+    if (updatePool && !resource) return
+
+    resource.TEMPLATE.BODY = append
+      ? { ...resource.TEMPLATE.BODY, ...template }
+      : template
   }

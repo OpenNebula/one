@@ -14,13 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { prettyBytes } from 'client/utils'
-import { DATASTORE_STATES, DATASTORE_TYPES, STATES } from 'client/constants'
+import {
+  Datastore,
+  DATASTORE_STATES,
+  DATASTORE_TYPES,
+  STATES,
+} from 'client/constants'
 
 /**
  * Returns the datastore type name.
  *
- * @param {object} datastore - Datastore
- * @param {number} datastore.TYPE - Datastore type
+ * @param {Datastore} datastore - Datastore
  * @returns {DATASTORE_TYPES} - Datastore type object
  */
 export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
@@ -28,8 +32,7 @@ export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
 /**
  * Returns information about datastore state.
  *
- * @param {object} datastore - Datastore
- * @param {number} datastore.STATE - Datastore state ID
+ * @param {Datastore} datastore - Datastore
  * @returns {STATES.StateInfo} - Datastore state object
  */
 export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
@@ -37,7 +40,7 @@ export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 /**
  * Return the TM_MAD_SYSTEM attribute.
  *
- * @param {object} datastore - Datastore
+ * @param {Datastore} datastore - Datastore
  * @returns {string[]} - The list of deploy modes available
  */
 export const getDeployMode = (datastore = {}) => {
@@ -52,9 +55,7 @@ export const getDeployMode = (datastore = {}) => {
 /**
  * Returns information about datastore capacity.
  *
- * @param {object} datastore - Datastore
- * @param {number} datastore.TOTAL_MB - Total capacity in MB
- * @param {number} datastore.USED_MB - Used capacity in MB
+ * @param {Datastore} datastore - Datastore
  * @returns {{
  * percentOfUsed: number,
  * percentLabel: string
@@ -74,8 +75,7 @@ export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
 /**
  * Returns `true` if Datastore allows to export to Marketplace.
  *
- * @param {object} props - Datastore ob
- * @param {object} props.NAME - Name
+ * @param {Datastore} datastore - Datastore
  * @param {object} oneConfig - One config from redux
  * @returns {boolean} - Datastore supports to export
  */

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { role, service, action } = require('server/routes/api/oneflow/schemas')
+const { role, service } = require('server/routes/api/oneflow/schemas')
 const {
   oneFlowConnection,
   returnSchemaError,
@@ -262,32 +262,22 @@ const serviceTemplateAction = (
   userData = {}
 ) => {
   const { user, password } = userData
-  if (params && params.id && params.template && user && password) {
-    const v = new Validator()
-    const template = parsePostData(params.template)
-    const valSchema = v.validate(template, action)
-    if (valSchema.valid) {
-      const config = {
-        method: POST,
-        path: '/service_template/{0}/action',
-        user,
-        password,
-        request: params.id,
-        post: template,
-      }
-      oneFlowConnection(
-        config,
-        (data) => success(next, res, data),
-        (data) => error(next, res, data)
-      )
-    } else {
-      res.locals.httpCode = httpResponse(
-        internalServerError,
-        '',
-        `invalid schema ${returnSchemaError(valSchema.errors)}`
-      )
-      next()
+
+  if (params && params.id && params.action && user && password) {
+    const config = {
+      method: POST,
+      path: '/service_template/{0}/action',
+      user,
+      password,
+      request: params.id,
+      post: { action: parsePostData(params.action) },
     }
+
+    oneFlowConnection(
+      config,
+      (data) => success(next, res, data),
+      (data) => error(next, res, data)
+    )
   } else {
     res.locals.httpCode = httpResponse(
       methodNotAllowed,

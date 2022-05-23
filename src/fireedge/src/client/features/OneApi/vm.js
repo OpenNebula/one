@@ -108,7 +108,7 @@ const vmApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.VM ?? {},
       providesTags: (_, __, { id }) => [{ type: VM, id }],
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
           const { data: resourceFromQuery } = await queryFulfilled
 

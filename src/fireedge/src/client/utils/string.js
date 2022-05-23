@@ -48,9 +48,21 @@ export const sentenceCase = (input) => {
  *
  * @param {string} input - String to transform
  * @returns {string} string
- * @example //=> "testString"
+ * @example // "test-string" => "testString"
+ * @example // "test_string" => "testString"
  */
 export const camelCase = (input) =>
   input
     .toLowerCase()
     .replace(/([-_\s][a-z])/gi, ($1) => $1.toUpperCase().replace(/[-_\s]/g, ''))
+
+/**
+ * Transform into a snake case string.
+ *
+ * @param {string} input - String to transform
+ * @returns {string} string
+ * @example // "test-string" => "test_string"
+ * @example // "testString" => "test_string"
+ * @example // "TESTString" => "test_string"
+ */
+export const toSnakeCase = (input) => sentenceCase(input).replace(/\s/g, '_')

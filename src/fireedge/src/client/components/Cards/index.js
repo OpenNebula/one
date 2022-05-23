@@ -32,6 +32,8 @@ import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard
 import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
 import SecurityGroupCard from 'client/components/Cards/SecurityGroupCard'
 import SelectCard from 'client/components/Cards/SelectCard'
+import ServiceCard from 'client/components/Cards/ServiceCard'
+import ServiceTemplateCard from 'client/components/Cards/ServiceTemplateCard'
 import SnapshotCard from 'client/components/Cards/SnapshotCard'
 import TierCard from 'client/components/Cards/TierCard'
 import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
@@ -58,6 +60,8 @@ export {
   ScheduleActionCard,
   SecurityGroupCard,
   SelectCard,
+  ServiceCard,
+  ServiceTemplateCard,
   SnapshotCard,
   TierCard,
   VirtualMachineCard,

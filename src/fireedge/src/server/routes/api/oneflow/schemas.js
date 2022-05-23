@@ -14,31 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const action = {
-  id: '/Action',
-  type: 'object',
-  properties: {
-    action: {
-      type: 'object',
-      properties: {
-        perform: {
-          type: 'string',
-          required: true,
-        },
-        params: {
-          type: 'object',
-          properties: {
-            merge_template: {
-              type: 'object',
-              required: false,
-            },
-          },
-        },
-      },
-    },
-  },
-}
-
 const role = {
   id: '/Role',
   type: 'object',
@@ -216,10 +191,6 @@ const service = {
   },
 }
 
-const schemas = {
-  action,
-  role,
-  service,
-}
+const schemas = { role, service }
 
 module.exports = schemas

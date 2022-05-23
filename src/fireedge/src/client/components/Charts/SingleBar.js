@@ -16,7 +16,7 @@
 import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Tooltip } from '@mui/material'
+import { Box, Tooltip } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { TypographyWithPoint } from 'client/components/Typography'
@@ -77,10 +77,6 @@ const SingleBar = ({ legend, data, total = 0 }) => {
         {data?.map((value, idx) => {
           const label = legend[idx]?.name
           const color = legend[idx]?.color
-          const style = {
-            backgroundColor: color,
-            '&:hover': { backgroundColor: addOpacityToColor(color, 0.6) },
-          }
 
           return (
             <Tooltip
@@ -89,7 +85,12 @@ const SingleBar = ({ legend, data, total = 0 }) => {
               placement="top"
               title={`${label}: ${value}`}
             >
-              <div style={style}></div>
+              <Box
+                sx={{
+                  bgcolor: color,
+                  '&:hover': { bgcolor: addOpacityToColor(color, 0.6) },
+                }}
+              />
             </Tooltip>
           )
         })}

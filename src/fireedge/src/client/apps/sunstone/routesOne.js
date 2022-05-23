@@ -18,7 +18,9 @@ import {
   ModernTv as VmsIcons,
   Shuffle as VRoutersIcons,
   Archive as TemplatesIcon,
-  GoogleDocs as TemplateIcon,
+  EmptyPage as TemplateIcon,
+  Packages as ServicesIcon,
+  MultiplePagesEmpty as ServiceTemplateIcon,
   Box as StorageIcon,
   Db as DatastoreIcon,
   BoxIso as ImageIcon,
@@ -52,6 +54,14 @@ const VirtualRouters = loadable(
   { ssr: false }
 )
 
+const Services = loadable(() => import('client/containers/Services'), {
+  ssr: false,
+})
+const ServiceDetail = loadable(
+  () => import('client/containers/Services/Detail'),
+  { ssr: false }
+)
+
 const VmTemplates = loadable(() => import('client/containers/VmTemplates'), {
   ssr: false,
 })
@@ -69,6 +79,17 @@ const VMTemplateDetail = loadable(
 )
 // const VrTemplates = loadable(() => import('client/containers/VrTemplates'), { ssr: false })
 // const VmGroups = loadable(() => import('client/containers/VmGroups'), { ssr: false })
+
+const ServiceTemplates = loadable(
+  () => import('client/containers/ServiceTemplates'),
+  { ssr: false }
+)
+// const DeployServiceTemplates = loadable(() => import('client/containers/ServiceTemplates/Instantiate'), { ssr: false })
+// const CreateServiceTemplates = loadable(() => import('client/containers/ServiceTemplates/Create'), { ssr: false })
+const ServiceTemplateDetail = loadable(
+  () => import('client/containers/ServiceTemplates/Detail'),
+  { ssr: false }
+)
 
 const Datastores = loadable(() => import('client/containers/Datastores'), {
   ssr: false,
@@ -137,6 +158,10 @@ export const PATH = {
     VROUTERS: {
       LIST: `/${RESOURCE_NAMES.V_ROUTER}`,
     },
+    SERVICES: {
+      LIST: `/${RESOURCE_NAMES.SERVICE}`,
+      DETAIL: `/${RESOURCE_NAMES.SERVICE}/:id`,
+    },
   },
   TEMPLATE: {
     VMS: {
@@ -144,6 +169,12 @@ export const PATH = {
       INSTANTIATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/instantiate`,
       CREATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/create`,
       DETAIL: `/${RESOURCE_NAMES.VM_TEMPLATE}/:id`,
+    },
+    SERVICES: {
+      LIST: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}`,
+      DETAIL: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/:id`,
+      DEPLOY: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/deploy/`,
+      CREATE: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/create`,
     },
   },
   STORAGE: {
@@ -231,6 +262,19 @@ const ENDPOINTS = [
         icon: VRoutersIcons,
         Component: VirtualRouters,
       },
+      {
+        title: T.Services,
+        path: PATH.INSTANCE.SERVICES.LIST,
+        sidebar: true,
+        icon: ServicesIcon,
+        Component: Services,
+      },
+      {
+        title: T.Service,
+        description: (params) => `#${params?.id}`,
+        path: PATH.INSTANCE.SERVICES.DETAIL,
+        Component: ServiceDetail,
+      },
     ],
   },
   {
@@ -264,6 +308,36 @@ const ENDPOINTS = [
         description: (params) => `#${params?.id}`,
         path: PATH.TEMPLATE.VMS.DETAIL,
         Component: VMTemplateDetail,
+      },
+      {
+        title: T.ServiceTemplates,
+        path: PATH.TEMPLATE.SERVICES.LIST,
+        sidebar: true,
+        icon: ServiceTemplateIcon,
+        Component: ServiceTemplates,
+      },
+      /* {
+        title: T.DeployServiceTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.SERVICES.DEPLOY,
+        Component: DeployServiceTemplates,
+      },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined
+            ? T.UpdateServiceTemplate
+            : T.CreateServiceTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.SERVICES.CREATE,
+        Component: CreateServiceTemplates,
+      }, */
+      {
+        title: T.ServiceTemplate,
+        description: (params) => `#${params?.id}`,
+        path: PATH.TEMPLATE.SERVICES.DETAIL,
+        Component: ServiceTemplateDetail,
       },
     ],
   },
