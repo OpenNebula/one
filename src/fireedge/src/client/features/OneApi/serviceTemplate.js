@@ -14,7 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/routes/api/oneflow/template/routes'
+
 import { oneApi, DOCUMENT, DOCUMENT_POOL } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateOwnershipOnResource,
+  updateTemplateOnDocument,
+} from 'client/features/OneApi/common'
 import { ServiceTemplate } from 'client/constants'
 
 const { SERVICE_TEMPLATE } = DOCUMENT
@@ -39,7 +47,7 @@ const serviceTemplateApi = oneApi.injectEndpoints({
       providesTags: (serviceTemplates) =>
         serviceTemplates
           ? [
-              serviceTemplates.map(({ ID }) => ({
+              ...serviceTemplates.map(({ ID }) => ({
                 type: SERVICE_TEMPLATE_POOL,
                 id: `${ID}`,
               })),
@@ -64,21 +72,27 @@ const serviceTemplateApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.DOCUMENT ?? {},
       providesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
-      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryService } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
             serviceTemplateApi.util.updateQueryData(
               'getServiceTemplates',
               undefined,
-              (draft) => {
-                const index = draft.findIndex(({ ID }) => +ID === +id)
-                index !== -1 && (draft[index] = queryService)
-              }
+              updateResourceOnPool({ id, resourceFromQuery })
             )
           )
-        } catch {}
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplates',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
       },
     }),
     createServiceTemplate: builder.mutation({
@@ -96,7 +110,7 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE_TEMPLATE_POOL],
+      invalidatesTags: [SERVICE_TEMPLATE_POOL],
     }),
     updateServiceTemplate: builder.mutation({
       /**
@@ -104,17 +118,51 @@ const serviceTemplateApi = oneApi.injectEndpoints({
        *
        * @param {object} params - Request params
        * @param {string} params.id - Service template id
-       * @param {object} [params.template] - Service template data
+       * @param {object} params.template - The new template contents
+       * @param {boolean} [params.append]
+       * - ``true``: Merge new template with the existing one.
+       * - ``false``: Replace the whole template.
+       *
+       * By default, ``true``.
        * @returns {number} Service template id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
-        const name = Actions.SERVICE_TEMPLATE_UPDATE
+      query: ({ template = {}, append = true, ...params }) => {
+        params.action = {
+          perform: 'update',
+          params: { template_json: JSON.stringify(template), append },
+        }
+
+        const name = Actions.SERVICE_TEMPLATE_ACTION
         const command = { name, ...Commands[name] }
 
         return { params, command }
       },
-      providesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVmTemplate = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplates',
+              { id: params.id },
+              updateTemplateOnDocument(params)
+            )
+          )
+
+          const patchVmTemplates = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplates',
+              undefined,
+              updateTemplateOnDocument(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVmTemplate.undo()
+            patchVmTemplates.undo()
+          })
+        } catch {}
+      },
     }),
     removeServiceTemplate: builder.mutation({
       /**
@@ -131,9 +179,9 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE_TEMPLATE_POOL],
+      invalidatesTags: [SERVICE_TEMPLATE_POOL],
     }),
-    instantiateServiceTemplate: builder.mutation({
+    deployServiceTemplate: builder.mutation({
       /**
        * Perform instantiate action on the service template.
        *
@@ -159,7 +207,121 @@ const serviceTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: [SERVICE_POOL],
+      invalidatesTags: [SERVICE_POOL],
+    }),
+    changeServiceTemplatePermissions: builder.mutation({
+      /**
+       * Changes the permission bits of a Service template.
+       * If set any permission to -1, it's not changed.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Service Template id
+       * @param {string} params.octet - Permissions in octal format
+       * @returns {number} Service Template id
+       * @throws Fails when response isn't code 200
+       */
+      query: ({ octet, ...params }) => {
+        params.action = { perform: 'chmod', params: { octet } }
+
+        const name = Actions.SERVICE_TEMPLATE_ACTION
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
+    }),
+    changeServiceTemplateOwnership: builder.mutation({
+      /**
+       * Changes the ownership bits of a Service template.
+       * If set to `-1`, the user or group aren't changed.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Service Template id
+       * @param {number|'-1'} params.user - The user id
+       * @param {number|'-1'} params.group - The group id
+       * @returns {number} Service Template id
+       * @throws Fails when response isn't code 200
+       */
+      query: ({ user = '-1', group = '-1', ...params }) => {
+        params.action = {
+          perform: 'chown',
+          params: { owner_id: user, group_id: group },
+        }
+
+        const name = Actions.SERVICE_TEMPLATE_ACTION
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchServiceTemplate = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplate',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          const patchServiceTemplates = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplates',
+              undefined,
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchServiceTemplate.undo()
+            patchServiceTemplates.undo()
+          })
+        } catch {}
+      },
+    }),
+    renameServiceTemplate: builder.mutation({
+      /**
+       * Renames a Service template.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Service Template id
+       * @param {string} params.name - The new name
+       * @returns {number} Service Template id
+       * @throws Fails when response isn't code 200
+       */
+      query: ({ name, ...params }) => {
+        params.action = { perform: 'rename', params: { name } }
+
+        const cName = Actions.SERVICE_TEMPLATE_ACTION
+        const command = { name: cName, ...Commands[cName] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: SERVICE_TEMPLATE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchServiceTemplate = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplate',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchServiceTemplates = dispatch(
+            serviceTemplateApi.util.updateQueryData(
+              'getServiceTemplates',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchServiceTemplate.undo()
+            patchServiceTemplates.undo()
+          })
+        } catch {}
+      },
     }),
   }),
 })
@@ -175,7 +337,10 @@ export const {
   useCreateServiceTemplateMutation,
   useUpdateServiceTemplateMutation,
   useRemoveServiceTemplateMutation,
-  useInstantiateServiceTemplateMutation,
+  useDeployServiceTemplateMutation,
+  useChangeServiceTemplatePermissionsMutation,
+  useChangeServiceTemplateOwnershipMutation,
+  useRenameServiceTemplateMutation,
 } = serviceTemplateApi
 
 export default serviceTemplateApi

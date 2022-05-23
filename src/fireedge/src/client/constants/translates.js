@@ -60,6 +60,7 @@ module.exports = {
   CreateProvider: 'Create Provider',
   CreateProvision: 'Create Provision',
   CreateVmTemplate: 'Create VM Template',
+  CreateServiceTemplate: 'Create Service Template',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -70,6 +71,7 @@ module.exports = {
   DeleteSomething: 'Delete: %s',
   DeleteTemplate: 'Delete Template',
   Deploy: 'Deploy',
+  DeployServiceTemplate: 'Deploy Service Template',
   Detach: 'Detach',
   DetachSomething: 'Detach: %s',
   Disable: 'Disable',
@@ -158,6 +160,7 @@ module.exports = {
   UpdateProvider: 'Update Provider',
   UpdateScheduleAction: 'Update schedule action: %s',
   UpdateVmTemplate: 'Update VM Template',
+  UpdateServiceTemplate: 'Update Service Template',
 
   /* questions */
   Yes: 'Yes',
@@ -343,6 +346,10 @@ module.exports = {
   Templates: 'Templates',
   VMTemplate: 'VM Template',
   VMTemplates: 'VM Templates',
+  Service: 'Service',
+  Services: 'Services',
+  ServiceTemplate: 'Service Template',
+  ServiceTemplates: 'Service Templates',
 
   /* sections - flow */
   ApplicationsTemplates: 'Applications templates',
@@ -405,11 +412,6 @@ module.exports = {
   Deployment: 'Deployment',
   Monitoring: 'Monitoring',
   EdgeCluster: 'Edge Cluster',
-
-  /* flow schema */
-  Strategy: 'Strategy',
-  ShutdownAction: 'Shutdown action',
-  ReadyStatusGate: 'Ready status gate',
 
   /* VM schema */
   /* VM schema - remote access */
@@ -573,7 +575,6 @@ module.exports = {
   EnableHotResize: 'Enable hot resize',
   /* VM Template schema - VM Group */
   AssociateToVMGroup: 'Associate VM to a VM Group',
-  Role: 'Role',
   /* VM Template schema - vCenter */
   vCenterTemplateRef: 'vCenter Template reference',
   vCenterClusterRef: 'vCenter Cluster reference',
@@ -758,6 +759,17 @@ module.exports = {
   UnshareVmTemplateDescription: `
     The VM Template(s), along with any image referenced by it, will
     be unshared with the group's users. Permission changed: GROUP USE`,
+
+  /* Service Template schema */
+  /* Service Template schema - general */
+  Strategy: 'Strategy',
+  ShutdownAction: 'Shutdown action',
+  ReadyStatusGate: 'Ready status gate',
+  AutomaticDeletion: 'Automatic deletion',
+  Role: 'Role',
+  Roles: 'Roles',
+  Cardinality: 'Cardinality',
+  Parents: 'Parents',
 
   /* Virtual Network schema - network */
   Driver: 'Driver',

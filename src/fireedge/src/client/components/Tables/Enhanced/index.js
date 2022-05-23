@@ -67,6 +67,7 @@ const EnhancedTable = ({
   classes = {},
   rootProps = {},
   searchProps = {},
+  noDataMessage,
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -208,12 +209,15 @@ const EnhancedTable = ({
 
       <div className={clsx(styles.body, classes.body)}>
         {/* NO DATA MESSAGE */}
-        {!isLoading && !isUninitialized && page?.length === 0 && (
-          <span className={styles.noDataMessage}>
-            <InfoEmpty />
-            <Translate word={T.NoDataAvailable} />
-          </span>
-        )}
+        {!isLoading &&
+          !isUninitialized &&
+          page?.length === 0 &&
+          (noDataMessage || (
+            <span className={styles.noDataMessage}>
+              <InfoEmpty />
+              <Translate word={T.NoDataAvailable} />
+            </span>
+          ))}
 
         {/* DATALIST PER PAGE */}
         {page.map((row) => {
@@ -282,6 +286,11 @@ EnhancedTable.propTypes = {
   RowComponent: PropTypes.any,
   showPageCount: PropTypes.bool,
   singleSelect: PropTypes.bool,
+  noDataMessage: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.bool,
+  ]),
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

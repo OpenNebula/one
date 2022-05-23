@@ -58,7 +58,7 @@ module.exports = {
         id: {
           from: resource,
         },
-        template: {
+        action: {
           from: postBody,
         },
       },

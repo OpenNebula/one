@@ -24,6 +24,7 @@ import {
 import { camelCase } from 'client/utils'
 import {
   T,
+  Permission,
   UserInputObject,
   USER_INPUT_TYPES,
   SERVER_CONFIG,
@@ -208,9 +209,9 @@ export const levelLockToString = (level) =>
  * Returns the permission numeric code.
  *
  * @param {string[]} category - Array with Use, Manage and Access permissions.
- * @param {('YES'|'NO')} category.0 - `true` if use permission is allowed
- * @param {('YES'|'NO')} category.1 - `true` if manage permission is allowed
- * @param {('YES'|'NO')} category.2 - `true` if access permission is allowed
+ * @param {Permission} category.0 - `true` or `1` if use permission is allowed
+ * @param {Permission} category.1 - `true` or `1` if manage permission is allowed
+ * @param {Permission} category.2 - `true` or `1` if access permission is allowed
  * @returns {number} Permission code number.
  */
 const getCategoryValue = ([u, m, a]) =>
@@ -222,15 +223,15 @@ const getCategoryValue = ([u, m, a]) =>
  * Transform the permission from OpenNebula template to octal format.
  *
  * @param {object} permissions - Permissions object.
- * @param {('YES'|'NO')} permissions.OWNER_U - Owner use permission.
- * @param {('YES'|'NO')} permissions.OWNER_M - Owner manage permission.
- * @param {('YES'|'NO')} permissions.OWNER_A - Owner access permission.
- * @param {('YES'|'NO')} permissions.GROUP_U - Group use permission.
- * @param {('YES'|'NO')} permissions.GROUP_M - Group manage permission.
- * @param {('YES'|'NO')} permissions.GROUP_A - Group access permission.
- * @param {('YES'|'NO')} permissions.OTHER_U - Other use permission.
- * @param {('YES'|'NO')} permissions.OTHER_M - Other manage permission.
- * @param {('YES'|'NO')} permissions.OTHER_A - Other access permission.
+ * @param {Permission} permissions.OWNER_U - Owner use
+ * @param {Permission} permissions.OWNER_M - Owner manage
+ * @param {Permission} permissions.OWNER_A - Owner access
+ * @param {Permission} permissions.GROUP_U - Group use
+ * @param {Permission} permissions.GROUP_M - Group manage
+ * @param {Permission} permissions.GROUP_A - Group access
+ * @param {Permission} permissions.OTHER_U - Other use
+ * @param {Permission} permissions.OTHER_M - Other manage
+ * @param {Permission} permissions.OTHER_A - Other access
  * @returns {string} - Permissions in octal format.
  */
 export const permissionsToOctal = (permissions) => {

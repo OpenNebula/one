@@ -14,7 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/routes/api/oneflow/service/routes'
+
 import { oneApi, DOCUMENT, DOCUMENT_POOL } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+} from 'client/features/OneApi/common'
 import { Service } from 'client/constants'
 
 const { SERVICE } = DOCUMENT
@@ -39,7 +44,10 @@ const serviceApi = oneApi.injectEndpoints({
       providesTags: (services) =>
         services
           ? [
-              services.map(({ ID }) => ({ type: SERVICE_POOL, id: `${ID}` })),
+              ...services.map(({ ID }) => ({
+                type: SERVICE_POOL,
+                id: `${ID}`,
+              })),
               SERVICE_POOL,
             ]
           : [SERVICE_POOL],
@@ -61,21 +69,27 @@ const serviceApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.DOCUMENT ?? {},
       providesTags: (_, __, { id }) => [{ type: SERVICE, id }],
-      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryService } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
             serviceApi.util.updateQueryData(
               'getServices',
               undefined,
-              (draft) => {
-                const index = draft.findIndex(({ ID }) => +ID === +id)
-                index !== -1 && (draft[index] = queryService)
-              }
+              updateResourceOnPool({ id, resourceFromQuery })
             )
           )
-        } catch {}
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            serviceApi.util.updateQueryData(
+              'getServices',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
       },
     }),
   }),

@@ -162,6 +162,8 @@ export const RESOURCE_NAMES = {
   VM: 'vm',
   VN_TEMPLATE: 'network-template',
   VNET: 'virtual-network',
+  SERVICE: 'service',
+  SERVICE_TEMPLATE: 'service-template',
   ZONE: 'zone',
 }
 

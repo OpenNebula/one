@@ -62,6 +62,7 @@ const oneFlowConnection = (
   const optionMethod = method || GET
   const optionPath = path || '/'
   const optionAuth = btoa(`${user || ''}:${password || ''}`)
+
   const options = {
     method: optionMethod,
     baseURL: appConfig.oneflow_server || defaultOneFlowServer,
@@ -69,39 +70,25 @@ const oneFlowConnection = (
     headers: {
       Authorization: `Basic ${optionAuth}`,
     },
-    validateStatus: (status) => status,
+    validateStatus: (status) => status >= 200 && status < 400,
   }
 
-  if (post) {
-    options.data = post
-  }
+  if (post) options.data = post
+
   axios(options)
     .then((response) => {
-      if (response && response.statusText) {
-        if (response.status >= 200 && response.status < 400) {
-          if (response.data) {
-            return response.data
-          }
-          if (
-            response.config.method &&
-            response.config.method.toUpperCase() === DELETE
-          ) {
-            return Array.isArray(request)
-              ? parseToNumber(request[0])
-              : parseToNumber(request)
-          }
-        } else if (response.data) {
-          throw Error(response.data)
-        }
+      if (!response.statusText) throw Error(response.statusText)
+
+      if (`${response.config.method}`.toUpperCase() === DELETE) {
+        return Array.isArray(request)
+          ? parseToNumber(request[0])
+          : parseToNumber(request)
       }
-      throw Error(response.statusText)
+
+      return response.data
     })
-    .then((data) => {
-      success(data)
-    })
-    .catch((e) => {
-      error(e)
-    })
+    .then(success)
+    .catch(error)
 }
 
 const functionRoutes = {
