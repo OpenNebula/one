@@ -1,12 +1,12 @@
-name: 'equinix-ewr1'
+name: 'equinix-amsterdam'
 
-description: 'Provision cluster in Equinix Parsippany, USA, NJ'
+description: 'Provision cluster in Equinix Amsterdam'
 provider: 'equinix'
 
 connection:
   token: 'Equinix token'
   project: 'Equinix project'
-  facility: 'ewr1'
+  facility: 'am6'
 
 inputs:
    - name: 'equinix_os'
@@ -19,7 +19,6 @@ inputs:
      default: 'c3.small'
      options:
        - 'c3.small'
-       - 'c2.medium'
        - 'c3.medium'
        - 's3.xlarge'
        - 'm2.xlarge'
