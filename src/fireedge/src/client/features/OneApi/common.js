@@ -242,9 +242,6 @@ export const updateOwnershipOnResource = (
  * - Update type:
  * ``0``: Replace the whole template.
  * ``1``: Merge new template with the existing one.
- * @param {boolean} [params.append]
- * - ``true``: Merge new template with the existing one.
- * - ``false``: Replace the whole template.
  * @param {string} [userTemplateAttribute] - The attribute name of the user template. By default is `USER_TEMPLATE`.
  * @returns {function(Draft):ThunkAction} - Dispatches the action
  */
