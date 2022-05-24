@@ -64,8 +64,7 @@ const VmTemplateCard = memo(
       GNAME,
       REGTIME,
       LOCK,
-      VROUTER,
-      TEMPLATE: { HYPERVISOR, LABELS, LOGO = '' } = {},
+      TEMPLATE: { VROUTER, HYPERVISOR, LABELS, LOGO = '' } = {},
     } = template
 
     const isExternalImage = useMemo(() => isExternalURL(LOGO), [LOGO])
@@ -104,7 +103,7 @@ const VmTemplateCard = memo(
             <span className={classes.labels}>
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock />}
-              {VROUTER && <StatusChip text={VROUTER} />}
+              {VROUTER && <StatusChip text={'VROUTER'} />}
               <MultipleTags tags={labels} />
             </span>
           </div>

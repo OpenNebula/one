@@ -18,6 +18,7 @@ import { BaseSchema } from 'yup'
 import {
   FIELDS as INFORMATION_FIELDS,
   HYPERVISOR_FIELD,
+  VROUTER_FIELD,
 } from './informationSchema'
 import {
   MEMORY_FIELDS,
@@ -52,7 +53,7 @@ const SECTIONS = (hypervisor, isUpdate) => [
     id: 'hypervisor',
     legend: T.Hypervisor,
     required: true,
-    fields: [HYPERVISOR_FIELD],
+    fields: [HYPERVISOR_FIELD, VROUTER_FIELD],
   },
   {
     id: 'capacity',

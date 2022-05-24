@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string } from 'yup'
+import { string, boolean } from 'yup'
 
 import Image from 'client/components/Image'
 import { Field, arrayToOptions } from 'client/utils'
@@ -96,6 +96,15 @@ export const LOGO = {
     .trim()
     .notRequired()
     .default(() => DEFAULT_TEMPLATE_LOGO),
+  grid: { md: 12 },
+}
+
+/** @type {Field} Virtual Router field */
+export const VROUTER_FIELD = {
+  name: 'VROUTER',
+  label: T.MakeTemplateAvailableForVROnly,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
 
