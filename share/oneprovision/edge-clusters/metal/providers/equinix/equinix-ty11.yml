@@ -1,12 +1,12 @@
-name: 'equinix-sjc1'
+name: 'equinix-tokyo'
 
-description: 'Provision cluster in Equinix, USA, CA'
+description: 'Provision cluster in Equinix Tokyo, Japan'
 provider: 'equinix'
 
 connection:
   token: 'Equinix token'
   project: 'Equinix project'
-  facility: 'sjc1'
+  facility: 'ty11'
 
 inputs:
    - name: 'equinix_os'
@@ -16,12 +16,7 @@ inputs:
        - 'ubuntu_20_04'
    - name: 'equinix_plan'
      type: 'list'
-     default: 'c3.small'
+     default: 'c2.medium'
      options:
-       - 'c3.small'
        - 'c2.medium'
-       - 'c3.medium'
-       - 's3.xlarge'
        - 'm2.xlarge'
-       - 'm3.large'
-       - 'n2.xlarge'
