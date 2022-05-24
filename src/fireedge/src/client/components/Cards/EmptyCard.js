@@ -16,46 +16,26 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Card, CardHeader, Fade } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
-import { Tr } from 'client/components/HOC'
+import { styled, Card, CardHeader, Fade } from '@mui/material'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: '100%',
-  },
-  content: {
-    height: '100%',
-    minHeight: 140,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-  },
+const Title = styled(CardHeader)(({ theme }) => ({
+  height: '100%',
+  minHeight: 140,
+  padding: theme.spacing(1),
+  textAlign: 'center',
 }))
 
-const EmptyCard = memo(({ title }) => {
-  const classes = useStyles()
+const EmptyCard = memo(({ title }) => (
+  <Fade in unmountOnExit>
+    <Card variant="outlined">
+      <Title subheader={<Translate word={title ?? T.Empty} />} />
+    </Card>
+  </Fade>
+))
 
-  return (
-    <Fade in unmountOnExit>
-      <Card className={classes.root} variant="outlined">
-        <CardHeader
-          subheader={Tr(title ?? T.Empty)}
-          className={classes.content}
-        />
-      </Card>
-    </Fade>
-  )
-})
-
-EmptyCard.propTypes = {
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-}
-
-EmptyCard.defaultProps = {
-  title: undefined,
-}
-
+EmptyCard.propTypes = { title: PropTypes.string }
 EmptyCard.displayName = 'EmptyCard'
 
 export default EmptyCard
