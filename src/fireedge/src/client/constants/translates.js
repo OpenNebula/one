@@ -524,6 +524,8 @@ module.exports = {
     When creating several VMs, the wildcard %%idx will be
     replaced with a number starting from 0`,
   NumberOfInstances: 'Number of instances',
+  MakeTemplateAvailableForVROnly:
+    'Make this template available for Virtual Router machines only',
   VmOnHoldState: 'Start VM on hold state',
   VmOnHoldStateConcept: `
     Sets the new VM to hold state, instead of pending.

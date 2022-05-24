@@ -154,7 +154,7 @@ const RES_TABLE = {
         },
       },
       [TYPES.VM]: {
-        initialState: { filters: [{ id: 'STATE', value: STATES.POWEROFF }] },
+        initialState: { filters: [{ id: 'state', value: STATES.POWEROFF }] },
       },
       [TYPES.VM_TEMPLATE]: { classes },
     }[type]
