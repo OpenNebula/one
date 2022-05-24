@@ -20,7 +20,7 @@ import { TextField, Chip, Autocomplete } from '@mui/material'
 import { useController } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { generateKey } from 'client/utils'
 
 const AutocompleteController = memo(
@@ -86,7 +86,7 @@ const AutocompleteController = memo(
                 <ErrorHelper label={error?.message ?? error[0]?.message}>
                   {tooltip &&
                     inputProps?.value?.length > 0 &&
-                    `. ${Tr(tooltip)}`}
+                    `. ${(<Translate word={tooltip} />)}`}
                 </ErrorHelper>
               )
             }
