@@ -31,7 +31,7 @@ import { VmsTable } from 'client/components/Tables'
  * @returns {ReactElement} Information tab
  */
 const VmsInfoTab = ({ id }) => {
-  const { data: host = {} } = useGetHostQuery(id)
+  const { data: host = {} } = useGetHostQuery({ id })
   const path = PATH.INSTANCE.VMS.DETAIL
   const history = useHistory()
 

@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ThunkDispatch } from 'redux-thunk'
+import { ThunkDispatch, ThunkAction } from 'redux-thunk'
 import socketIO, { Socket } from 'socket.io-client'
 import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 
 /**
- * @typedef {object} HookStateData - Event data from hook event STATE
+ * @typedef {'VM'|'HOST'|'IMAGE'|'VNET'} HookObjectName
+ * - Hook object name to update from socket
+ */
+
+/**
+ * @typedef HookStateData - Event data from hook event STATE
  * @property {HookStateMessage} HOOK_MESSAGE - Hook message from OpenNebula API
  */
 
 /**
- * @typedef {object} HookStateMessage - Hook message from OpenNebula API
+ * @typedef HookStateMessage - Hook message from OpenNebula API
  * @property {'STATE'} HOOK_TYPE - Type of event API
- * @property {('VM'|'HOST'|'IMAGE'|'NET')} HOOK_OBJECT - Type name of the resource
+ * @property {HookObjectName} HOOK_OBJECT - Type name of the resource
  * @property {string} STATE - The state that triggers the hook.
  * @property {string} [LCM_STATE]
  * - The LCM state that triggers the hook (Only for VM hooks)
@@ -58,30 +63,22 @@ const createWebsocket = (path, query) =>
 
 /**
  * @param {HookStateData} data - Event data from hook event STATE
- * @returns {{name: ('vm'|'host'|'image'|'net'), value: object}}
- * - Name and new value of resource
+ * @returns {object} - New value of resource from socket
  */
-const getResourceFromEventState = (data) => {
-  const { HOOK_OBJECT: name } = data?.HOOK_MESSAGE ?? {}
+const getResourceValueFromEventState = (data) => {
+  const { HOOK_OBJECT: name, [name]: value } = data?.HOOK_MESSAGE ?? {}
 
-  const ensuredValue =
-    data?.HOOK_MESSAGE?.[name] ??
-    data?.HOOK_MESSAGE?.VM ??
-    data?.HOOK_MESSAGE?.HOST ??
-    data?.HOOK_MESSAGE?.IMAGE ??
-    data?.HOOK_MESSAGE?.VNET
-
-  return { name: String(name).toLowerCase(), value: ensuredValue }
+  return value
 }
 
 /**
  * Creates a function to update the data from socket.
  *
  * @param {object} params - Parameters
- * @param {Function(Function)} params.updateQueryData - Api
- * @param {string} params.resource - Resource name
+ * @param {function(Function):ThunkAction} params.updateQueryData - Api
+ * @param {HookObjectName} params.resource - Resource name to subscribe
  * @returns {function(
- * string,
+ * { id: string },
  * { dispatch: ThunkDispatch }
  * ):Promise} Function to update data from socket
  */
@@ -94,14 +91,15 @@ const UpdateFromSocket =
     const { zone } = getState().general
     const { jwt: token } = getState().auth
 
-    const query = { token, zone, resource: resource.toLowerCase(), id }
+    const query = { token, zone, resource, id }
     const socket = createWebsocket(SOCKETS.HOOKS, query)
 
     try {
       await cacheDataLoaded
 
       const listener = ({ data } = {}) => {
-        const { value } = getResourceFromEventState(data)
+        const value = getResourceValueFromEventState(data)
+
         if (!value) return
 
         dispatch(

@@ -30,7 +30,7 @@ import ZombiesTable from 'client/components/Tables/Zombies'
  * @returns {ReactElement} - Zombies information tab
  */
 const ZombiesInfoTab = ({ id }) => {
-  const { data: host = {} } = useGetHostQuery(id)
+  const { data: host = {} } = useGetHostQuery({ id })
   const zombies = getHostZombies(host)
 
   return (

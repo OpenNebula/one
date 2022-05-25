@@ -14,11 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/host'
+
 import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import { Host } from 'client/constants'
 
@@ -53,34 +60,45 @@ const hostApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for the host.
        *
-       * @param {string} id - Host id
+       * @param {object} params - Request params
+       * @param {string} params.id - Host id
        * @returns {Host} Get host identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.HOST_INFO
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       transformResponse: (data) => data?.HOST ?? {},
-      providesTags: (_, __, id) => [{ type: HOST, id }],
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      providesTags: (_, __, { id }) => [{ type: HOST, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryVm } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
-            hostApi.util.updateQueryData('getHosts', undefined, (draft) => {
-              const index = draft.findIndex(({ ID }) => +ID === +id)
-              index !== -1 && (draft[index] = queryVm)
-            })
+            hostApi.util.updateQueryData(
+              'getHosts',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
           )
-        } catch {}
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            hostApi.util.updateQueryData(
+              'getHosts',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
       },
       onCacheEntryAdded: UpdateFromSocket({
         updateQueryData: (updateFn) =>
           hostApi.util.updateQueryData('getHosts', undefined, updateFn),
-        resource: HOST.toLowerCase(),
+        resource: 'HOST',
       }),
     }),
     allocateHost: builder.mutation({
@@ -105,7 +123,6 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [HOST_POOL],
     }),
     updateHost: builder.mutation({
       /**
@@ -128,6 +145,30 @@ const hostApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: HOST, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchHost = dispatch(
+            hostApi.util.updateQueryData(
+              'getHost',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchHosts = dispatch(
+            hostApi.util.updateQueryData(
+              'getHosts',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchHost.undo()
+            patchHosts.undo()
+          })
+        } catch {}
+      },
     }),
     removeHost: builder.mutation({
       /**
@@ -211,16 +252,28 @@ const hostApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: HOST, id }],
-      async onQueryStarted({ id, name }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-
-          dispatch(
-            hostApi.util.updateQueryData('getHosts', undefined, (draft) => {
-              const host = draft.find(({ ID }) => +ID === +id)
-              host && (host.NAME = name)
-            })
+          const patchHost = dispatch(
+            hostApi.util.updateQueryData(
+              'getHost',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
           )
+
+          const patchHosts = dispatch(
+            hostApi.util.updateQueryData(
+              'getHosts',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchHost.undo()
+            patchHosts.undo()
+          })
         } catch {}
       },
     }),

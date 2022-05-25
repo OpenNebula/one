@@ -33,7 +33,7 @@ import UpdateIsolatedCPUSForm from 'client/components/Tabs/Host/Numa/UpdateIsola
  * @returns {ReactElement} Information tab
  */
 const NumaInfoTab = ({ id }) => {
-  const { data: host = {} } = useGetHostQuery(id)
+  const { data: host = {} } = useGetHostQuery({ id })
   const numa = getHostNuma(host)
 
   return (

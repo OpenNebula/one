@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import { useRenameVNTemplateMutation } from 'client/features/OneApi/networkTemplate'
+import { useRenameVNetMutation } from 'client/features/OneApi/network'
 
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
@@ -33,7 +33,7 @@ import { T, VNetwork, VN_ACTIONS } from 'client/constants'
  * @returns {ReactElement} Information tab
  */
 const InformationPanel = ({ vnet = {}, actions }) => {
-  const [rename] = useRenameVNTemplateMutation()
+  const [rename] = useRenameVNetMutation()
   const { ID, NAME } = vnet
 
   const { name: stateName, color: stateColor } = getState(vnet)

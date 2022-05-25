@@ -60,7 +60,7 @@ const MarketplaceAppInfoTab = ({ tabProps = {}, id }) => {
   const [changeOwnership] = useChangeAppOwnershipMutation()
   const [changePermissions] = useChangeAppPermissionsMutation()
   const [updateTemplate] = useUpdateAppMutation()
-  const { data: app = {} } = useGetMarketplaceAppQuery(id)
+  const { data: app = {} } = useGetMarketplaceAppQuery({ id })
   const { UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = app
 
   const handleChangeOwnership = async (newOwnership) => {

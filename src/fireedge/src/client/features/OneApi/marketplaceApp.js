@@ -24,8 +24,23 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateLockLevelOnResource,
+  removeLockLevelOnResource,
+  updatePermissionOnResource,
+  updateOwnershipOnResource,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
 import { requestConfig } from 'client/utils'
-import { FilterFlag, Permission, MarketplaceApp } from 'client/constants'
+import {
+  LockLevel,
+  FilterFlag,
+  Permission,
+  MarketplaceApp,
+} from 'client/constants'
 
 const { APP } = ONE_RESOURCES
 const { APP_POOL } = ONE_RESOURCES_POOL
@@ -64,18 +79,41 @@ const marketAppApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for the marketplace app.
        *
-       * @param {string} id - Marketplace apps id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Marketplace apps id
        * @returns {MarketplaceApp} Get marketplace app identified by id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.MARKETAPP_INFO
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       transformResponse: (data) => data?.MARKETPLACEAPP ?? {},
-      providesTags: (_, __, id) => [{ type: APP, id }],
+      providesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     getDockerHubTags: builder.query({
       /**
@@ -110,7 +148,6 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [APP_POOL],
     }),
     updateApp: builder.mutation({
       /**
@@ -133,6 +170,30 @@ const marketAppApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     removeApp: builder.mutation({
       /**
@@ -208,6 +269,30 @@ const marketAppApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              updatePermissionOnResource(params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updatePermissionOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     changeAppOwnership: builder.mutation({
       /**
@@ -216,8 +301,8 @@ const marketAppApi = oneApi.injectEndpoints({
        *
        * @param {object} params - Request parameters
        * @param {string} params.id - Marketplace app id
-       * @param {string|'-1'} [params.userId] - User id
-       * @param {string|'-1'} [params.groupId] - Group id
+       * @param {number} params.user - The user id
+       * @param {number} params.group - The group id
        * @returns {number} Marketplace app id
        * @throws Fails when response isn't code 200
        */
@@ -227,7 +312,31 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     renameApp: builder.mutation({
       /**
@@ -245,19 +354,39 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     lockApp: builder.mutation({
       /**
        * Locks a MarketPlaceApp. Lock certain actions depending on blocking level.
-       * - `USE` (1): locks Admin, Manage and Use actions.
-       * - `MANAGE` (2): locks Manage and Use actions.
-       * - `ADMIN` (3): locks only Admin actions.
-       * - `ALL` (4): locks all actions.
        *
        * @param {object} params - Request parameters
        * @param {string} params.id - Marketplace app id
-       * @param {'1'|'2'|'3'|'4'} params.lock - Lock level
+       * @param {LockLevel} params.lock - Lock level
        * @returns {number} Marketplace app id
        * @throws Fails when response isn't code 200
        */
@@ -267,23 +396,72 @@ const marketAppApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: APP, id }, APP_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              updateLockLevelOnResource(params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              updateLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     unlockApp: builder.mutation({
       /**
        * Unlocks a MarketPlaceApp.
        *
-       * @param {string} id - Marketplace app id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Marketplace app id
        * @returns {number} Marketplace app id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.MARKETAPP_UNLOCK
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
-      invalidatesTags: (_, __, id) => [{ type: APP, id }, APP_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchApp = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApp',
+              { id: params.id },
+              removeLockLevelOnResource(params)
+            )
+          )
+
+          const patchApps = dispatch(
+            marketAppApi.util.updateQueryData(
+              'getMarketplaceApps',
+              undefined,
+              removeLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchApp.undo()
+            patchApps.undo()
+          })
+        } catch {}
+      },
     }),
     importApp: builder.mutation({
       /**

@@ -55,7 +55,7 @@ const HostInfoTab = ({ tabProps = {}, id }) => {
   } = tabProps
 
   const [updateUserTemplate] = useUpdateHostMutation()
-  const { data: host = {} } = useGetHostQuery(id)
+  const { data: host = {} } = useGetHostQuery({ id })
   const { TEMPLATE } = host
 
   const handleAttributeInXml = async (path, newValue) => {

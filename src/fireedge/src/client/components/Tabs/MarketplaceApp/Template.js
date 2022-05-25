@@ -31,7 +31,7 @@ import { T } from 'client/constants'
  * @returns {ReactElement} App Template tab
  */
 const AppTemplateTab = ({ id }) => {
-  const { data: marketplaceApp = {} } = useGetMarketplaceAppQuery(id)
+  const { data: marketplaceApp = {} } = useGetMarketplaceAppQuery({ id })
   const { APPTEMPLATE64, VMTEMPLATE64 } = marketplaceApp?.TEMPLATE
 
   const appTemplate = useMemo(

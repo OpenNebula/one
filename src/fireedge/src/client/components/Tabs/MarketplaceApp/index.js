@@ -34,7 +34,10 @@ const getTabComponent = (tabName) =>
 
 const MarketplaceAppTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetMarketplaceAppQuery(id)
+  const { isLoading, isError, error } = useGetMarketplaceAppQuery(
+    { id },
+    { refetchOnMountOrArgChange: 10 }
+  )
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.APP

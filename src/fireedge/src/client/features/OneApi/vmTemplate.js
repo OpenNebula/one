@@ -28,7 +28,7 @@ import {
   removeLockLevelOnResource,
   updatePermissionOnResource,
   updateOwnershipOnResource,
-  updateUserTemplateOnResource,
+  updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { LockLevel, FilterFlag, Permission, VmTemplate } from 'client/constants'
 
@@ -211,7 +211,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
             vmTemplateApi.util.updateQueryData(
               'getTemplate',
               { id: params.id },
-              updateUserTemplateOnResource(params, 'TEMPLATE')
+              updateTemplateOnResource(params)
             )
           )
 
@@ -219,7 +219,7 @@ const vmTemplateApi = oneApi.injectEndpoints({
             vmTemplateApi.util.updateQueryData(
               'getTemplates',
               undefined,
-              updateUserTemplateOnResource(params, 'TEMPLATE')
+              updateTemplateOnResource(params)
             )
           )
 
@@ -289,8 +289,8 @@ const vmTemplateApi = oneApi.injectEndpoints({
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - VM Template id
-       * @param {number|'-1'} params.user - The user id
-       * @param {number|'-1'} params.group - The group id
+       * @param {number} params.user - The user id
+       * @param {number} params.group - The group id
        * @returns {number} VM Template id
        * @throws Fails when response isn't code 200
        */
