@@ -19,13 +19,14 @@ import { BookmarkEmpty } from 'iconoir-react'
 import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
+import marketAppApi from 'client/features/OneApi/marketplaceApp'
 import { MarketplaceAppsTable } from 'client/components/Tables'
 import MarketplaceAppActions from 'client/components/Tables/MarketplaceApps/actions'
 import MarketplaceAppsTabs from 'client/components/Tabs/MarketplaceApp'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 import { Tr } from 'client/components/HOC'
-import { T, MarketplaceApp } from 'client/constants'
+import { T } from 'client/constants'
 
 /**
  * Displays a list of Marketplace Apps with a split pane between the list and selected row(s).
@@ -38,12 +39,11 @@ function MarketplaceApps() {
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
-  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
 
   return (
-    <SplitPane gridTemplateRows={gridTemplateRows}>
+    <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...getGridProps()}>
+        <Box {...(hasSelectedRows && getGridProps())}>
           <MarketplaceAppsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
@@ -56,7 +56,7 @@ function MarketplaceApps() {
                 <GroupedTags tags={selectedRows} />
               ) : (
                 <InfoTabs
-                  app={selectedRows[0]?.original}
+                  id={selectedRows[0]?.original?.ID}
                   gotoPage={selectedRows[0]?.gotoPage}
                 />
               )}
@@ -71,28 +71,38 @@ function MarketplaceApps() {
 /**
  * Displays details of a Marketplace App.
  *
- * @param {MarketplaceApp} app - Marketplace App to display
+ * @param {string} id - Marketplace App id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Marketplace App
  * @returns {ReactElement} Marketplace App details
  */
-const InfoTabs = memo(({ app, gotoPage }) => (
-  <Stack overflow="auto">
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Typography color="text.primary" noWrap>
-        {`#${app.ID} | ${app.NAME}`}
-      </Typography>
-      {gotoPage && (
-        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-          <BookmarkEmpty />
-        </IconButton>
-      )}
+const InfoTabs = memo(({ id, gotoPage }) => {
+  const app = marketAppApi.endpoints.getMarketplaceApps.useQueryState(
+    undefined,
+    {
+      selectFromResult: ({ data = [] }) =>
+        data.find((item) => +item.ID === +id),
+    }
+  )
+
+  return (
+    <Stack overflow="auto">
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Typography color="text.primary" noWrap>
+          {`#${id} | ${app.NAME}`}
+        </Typography>
+        {gotoPage && (
+          <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+            <BookmarkEmpty />
+          </IconButton>
+        )}
+      </Stack>
+      <MarketplaceAppsTabs id={id} />
     </Stack>
-    <MarketplaceAppsTabs id={app.ID} />
-  </Stack>
-))
+  )
+})
 
 InfoTabs.propTypes = {
-  app: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
   gotoPage: PropTypes.func,
 }
 
