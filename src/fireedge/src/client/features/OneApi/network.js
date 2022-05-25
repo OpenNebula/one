@@ -20,6 +20,16 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateLockLevelOnResource,
+  removeLockLevelOnResource,
+  updatePermissionOnResource,
+  updateOwnershipOnResource,
+  updateUserTemplateOnResource,
+} from 'client/features/OneApi/common'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import {
   LockLevel,
@@ -79,38 +89,31 @@ const vNetworkApi = oneApi.injectEndpoints({
       providesTags: (_, __, { id }) => [{ type: VNET, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryVNet } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
           dispatch(
             vNetworkApi.util.updateQueryData(
               'getVNetworks',
               undefined,
-              (draft) => {
-                const index = draft.findIndex(({ ID }) => +ID === +id)
-                index !== -1 && (draft[index] = queryVNet)
-              }
+              updateResourceOnPool({ id, resourceFromQuery })
             )
           )
         } catch {
+          // if the query fails, we want to remove the resource from the pool
           dispatch(
             vNetworkApi.util.updateQueryData(
               'getVNetworks',
               undefined,
-              (draft) => draft.filter(({ ID }) => +ID !== +id)
+              removeResourceOnPool({ id })
             )
           )
         }
       },
-      onCacheEntryAdded: ({ id }, baseQueryApi) =>
-        UpdateFromSocket({
-          updateQueryData: (updateFn) =>
-            vNetworkApi.util.updateQueryData(
-              'getVNetworks',
-              undefined,
-              updateFn
-            ),
-          resource: 'net',
-        })(id, baseQueryApi),
+      onCacheEntryAdded: UpdateFromSocket({
+        updateQueryData: (updateFn) =>
+          vNetworkApi.util.updateQueryData('getVNetworks', undefined, updateFn),
+        resource: 'VNET',
+      }),
     }),
     allocateVnet: builder.mutation({
       /**
@@ -128,21 +131,21 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VNET_POOL],
     }),
     removeVNet: builder.mutation({
       /**
        * Deletes the given virtual network from the pool.
        *
-       * @param {number|string} id - Virtual network id
+       * @param {object} params - Request params
+       * @param {string} params.id - Virtual network id
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.VN_DELETE
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: [VNET_POOL],
     }),
@@ -151,7 +154,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Adds address ranges to a virtual network.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - Template of the address ranges to add on syntax XML
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -169,7 +172,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Removes an address range from a virtual network.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {number|string} params.address - ID of the address range to remove
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -187,7 +190,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Updates the attributes of an address range.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - Template of the address ranges to update on syntax XML
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -205,7 +208,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Reserve network addresses.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - The third parameter must be
        * an OpenNebula ATTRIBUTE=VALUE template, with these values:
        * - `SIZE`: Size of the reservation (**Mandatory**)
@@ -231,7 +234,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Frees a reserved address range from a virtual network.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.range - ID of the address range to free
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -249,7 +252,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Holds a virtual network Lease as used.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - Template of the lease to hold, e.g. `LEASES=[IP=192.168.0.5]`
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -267,7 +270,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Releases a virtual network Lease on hold.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - Template of the lease to hold, e.g. `LEASES=[IP=192.168.0.5]`
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -285,7 +288,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * Replaces the virtual network template contents.
        *
        * @param {object} params - Request params
-       * @param {number|string} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.template - The new template contents
        * @param {0|1} params.replace
        * - Update type:
@@ -301,6 +304,30 @@ const vNetworkApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              updateUserTemplateOnResource(params)
+            )
+          )
+
+          const patchVNets = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              updateUserTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVNet.undo()
+            patchVNets.undo()
+          })
+        } catch {}
+      },
     }),
     changeVNetPermissions: builder.mutation({
       /**
@@ -308,7 +335,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * If set any permission to -1, it's not changed.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {Permission|'-1'} params.ownerUse - User use
        * @param {Permission|'-1'} params.ownerManage - User manage
        * @param {Permission|'-1'} params.ownerAdmin - User administrator
@@ -328,6 +355,19 @@ const vNetworkApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              updatePermissionOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(patchVNet.undo)
+        } catch {}
+      },
     }),
     changeVNetOwnership: builder.mutation({
       /**
@@ -335,9 +375,9 @@ const vNetworkApi = oneApi.injectEndpoints({
        * If set to `-1`, the user or group aren't changed.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual network id
-       * @param {number|'-1'} params.user - The user id
-       * @param {number|'-1'} params.group - The group id
+       * @param {string} params.id - Virtual network id
+       * @param {number} params.user - The user id
+       * @param {number} params.group - The group id
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
        */
@@ -347,14 +387,27 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(patchVNet.undo)
+        } catch {}
+      },
     }),
     renameVNet: builder.mutation({
       /**
        * Renames a virtual network.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {string} params.name - The new name
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
@@ -365,14 +418,38 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchVNets = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVNet.undo()
+            patchVNets.undo()
+          })
+        } catch {}
+      },
     }),
     lockVNet: builder.mutation({
       /**
        * Locks a virtual network.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual network id
+       * @param {string} params.id - Virtual network id
        * @param {LockLevel} params.lock - Lock level
        * @param {boolean} params.test - Checks if the object is already locked to return an error
        * @returns {number} Virtual network id
@@ -384,23 +461,72 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              updateLockLevelOnResource(params)
+            )
+          )
+
+          const patchVNets = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              updateLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVNet.undo()
+            patchVNets.undo()
+          })
+        } catch {}
+      },
     }),
     unlockVNet: builder.mutation({
       /**
        * Unlocks a virtual network.
        *
-       * @param {string|number} id - Virtual network id
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual network id
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.VN_UNLOCK
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetwork',
+              { id: params.id },
+              removeLockLevelOnResource(params)
+            )
+          )
+
+          const patchVNets = dispatch(
+            vNetworkApi.util.updateQueryData(
+              'getVNetworks',
+              undefined,
+              removeLockLevelOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVNet.undo()
+            patchVNets.undo()
+          })
+        } catch {}
+      },
     }),
     recoverVNet: builder.mutation({
       /**
@@ -421,7 +547,7 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }, VNET_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
     }),
   }),
 })
