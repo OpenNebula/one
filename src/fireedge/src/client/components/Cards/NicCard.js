@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { Network } from 'iconoir-react'
 import {
   useMediaQuery,
   Typography,
@@ -37,6 +38,16 @@ import { groupBy } from 'client/utils'
 import { T, Nic, NicAlias, PrettySecurityGroupRule } from 'client/constants'
 
 const NicCard = memo(
+  /**
+   * @param {object} props - Props
+   * @param {Nic|NicAlias} props.nic - NIC
+   * @param {ReactElement} [props.actions] - Actions
+   * @param {function({ alias: NicAlias }):ReactElement} [props.aliasActions] - Alias actions
+   * @param {function({ securityGroupId: string }):ReactElement} [props.securityGroupActions] - Security group actions
+   * @param {boolean} [props.showParents] -
+   * @param {boolean} [props.clipboardOnTags] -
+   * @returns {ReactElement} - Card
+   */
   ({
     nic = {},
     actions,
@@ -48,7 +59,6 @@ const NicCard = memo(
     const classes = rowStyles()
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
-    /** @type {Nic|NicAlias} */
     const {
       NIC_ID,
       NETWORK = '-',
@@ -65,24 +75,32 @@ const NicCard = memo(
 
     const isAlias = !!PARENT?.length
     const isPciDevice = PCI_ID !== undefined
-    const isAdditionalIp = NIC_ID !== undefined || NETWORK === 'Additional IP'
+    const isAdditionalIp = NIC_ID === undefined || NETWORK === 'Additional IP'
 
     const dataCy = isAlias ? 'alias' : 'nic'
 
-    const noClipboardTags = [
-      { text: stringToBoolean(RDP) && 'RDP', dataCy: `${dataCy}-rdp` },
-      { text: stringToBoolean(SSH) && 'SSH', dataCy: `${dataCy}-ssh` },
-      showParents && {
-        text: isAlias ? `PARENT: ${PARENT}` : false,
-        dataCy: `${dataCy}-parent`,
-      },
-    ].filter(({ text } = {}) => Boolean(text))
+    const noClipboardTags = useMemo(
+      () =>
+        [
+          { text: stringToBoolean(RDP) && 'RDP', dataCy: `${dataCy}-rdp` },
+          { text: stringToBoolean(SSH) && 'SSH', dataCy: `${dataCy}-ssh` },
+          showParents && {
+            text: isAlias ? `PARENT: ${PARENT}` : false,
+            dataCy: `${dataCy}-parent`,
+          },
+        ].filter(({ text } = {}) => Boolean(text)),
+      [RDP, SSH, showParents, PARENT]
+    )
 
-    const tags = [
-      { text: IP, dataCy: `${dataCy}-ip` },
-      { text: MAC, dataCy: `${dataCy}-mac` },
-      { text: ADDRESS, dataCy: `${dataCy}-address` },
-    ].filter(({ text } = {}) => Boolean(text))
+    const tags = useMemo(
+      () =>
+        [
+          { text: IP, dataCy: `${dataCy}-ip` },
+          { text: MAC, dataCy: `${dataCy}-mac` },
+          { text: ADDRESS, dataCy: `${dataCy}-address` },
+        ].filter(({ text } = {}) => Boolean(text)),
+      [IP, MAC, ADDRESS]
+    )
 
     return (
       <Paper
@@ -96,13 +114,8 @@ const NicCard = memo(
           {...(!isAlias && !showParents && { pl: '1em' })}
         >
           <div className={classes.title}>
-            <Typography
-              noWrap
-              component="span"
-              fontWeight="bold"
-              data-cy={`${dataCy}-name`}
-            >
-              {`${NIC_ID} | ${NETWORK}`}
+            <Typography noWrap component="span" data-cy={`${dataCy}-name`}>
+              {NETWORK}
             </Typography>
             <span className={classes.labels}>
               {isAlias && <StatusChip stateColor="info" text={'ALIAS'} />}
@@ -113,11 +126,24 @@ const NicCard = memo(
                   dataCy={tag.dataCy}
                 />
               ))}
-              <MultipleTags
-                clipboard={clipboardOnTags}
-                limitTags={isMobile ? 1 : 3}
-                tags={tags}
-              />
+            </span>
+          </div>
+          <div className={classes.caption}>
+            {`#${NIC_ID}`}
+            <span>
+              <Network />
+              <Stack
+                direction="row"
+                justifyContent="end"
+                alignItems="center"
+                gap="0.5em"
+              >
+                <MultipleTags
+                  tags={tags}
+                  clipboard={clipboardOnTags}
+                  limitTags={isMobile ? 1 : 3}
+                />
+              </Stack>
             </span>
           </div>
         </Box>

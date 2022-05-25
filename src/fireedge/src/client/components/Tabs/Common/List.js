@@ -120,7 +120,11 @@ const AttributeList = ({
         {/* TITLE */}
         {title && (
           <TitleElement>
-            <Typography noWrap>{Tr(title)}</Typography>
+            {typeof title === 'string' ? (
+              <Typography noWrap>{Tr(title)}</Typography>
+            ) : (
+              title
+            )}
           </TitleElement>
         )}
         <DetailsElement>
