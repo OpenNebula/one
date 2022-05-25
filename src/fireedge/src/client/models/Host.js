@@ -133,12 +133,15 @@ export const getKvmMachines = (hosts = []) => {
  * @param {Host} host - Host
  * @returns {object[]} - List of zombies from host
  */
-export const getHostZombies = (host = {}) =>
-  [
-    host?.TEMPLATE?.ZOMBIES?.split(', ')?.map((zombie) => ({
-      ZOMBIE_VM: zombie,
-    })) ?? [],
-  ].flat()
+export const getHostZombies = (host = {}) => {
+  const zombies = host?.TEMPLATE?.ZOMBIES?.split(', ') ?? []
+
+  const vms = [host?.TEMPLATE?.VM ?? []]
+    .flat()
+    .filter((vm) => vm.VCENTER_TEMPLATE === 'YES')
+
+  return vms.filter((vm) => vm?.VM_NAME && zombies.includes(vm?.VM_NAME))
+}
 
 /**
  * Returns list of Wilds available from the host.
@@ -146,10 +149,15 @@ export const getHostZombies = (host = {}) =>
  * @param {Host} host - Host
  * @returns {object[]} - List of wilds from host
  */
-export const getHostWilds = (host = {}) =>
-  [host?.TEMPLATE?.VM ?? []]
+export const getHostWilds = (host = {}) => {
+  const wilds = host?.TEMPLATE?.WILDS?.split(', ') ?? []
+
+  const vms = [host?.TEMPLATE?.VM ?? []]
     .flat()
     .filter((vm) => vm.VCENTER_TEMPLATE === 'YES')
+
+  return vms.filter((vm) => vm?.VM_NAME && wilds.includes(vm?.VM_NAME))
+}
 /**
  * Returns list of Numa available from the host.
  *
