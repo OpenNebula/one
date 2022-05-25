@@ -45,7 +45,7 @@ ANSIBLE_VERSION     = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
 ANSIBLE_ARGS        = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 CEPH_ANSIBLE_URL    = 'https://github.com/ceph/ceph-ansible.git'
-CEPH_ANSIBLE_BRANCH = 'stable-6.0'
+CEPH_ANSIBLE_BRANCH = 'v6.0.26'  #'stable-6.0'
 CEPH_ANSIBLE_DIR    = '/var/lib/one/.ansible/ceph-6.0'
 
 module OneProvision
