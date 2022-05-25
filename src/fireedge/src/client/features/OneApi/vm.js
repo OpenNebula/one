@@ -32,7 +32,7 @@ import {
   removeLockLevelOnResource,
   updatePermissionOnResource,
   updateOwnershipOnResource,
-  updateUserTemplateOnResource,
+  updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
@@ -133,7 +133,7 @@ const vmApi = oneApi.injectEndpoints({
       onCacheEntryAdded: UpdateFromSocket({
         updateQueryData: (updateFn) =>
           vmApi.util.updateQueryData('getVms', undefined, updateFn),
-        resource: VM.toLowerCase(),
+        resource: 'VM',
       }),
     }),
     getGuacamoleSession: builder.query({
@@ -641,6 +641,7 @@ const vmApi = oneApi.injectEndpoints({
     changeVmOwnership: builder.mutation({
       /**
        * Changes the ownership bits of a virtual machine.
+       * If set to `-1`, the user or group aren't changed.
        *
        * @param {object} params - Request parameters
        * @param {string} params.id - Virtual machine id
@@ -666,7 +667,7 @@ const vmApi = oneApi.injectEndpoints({
             )
           )
 
-          queryFulfilled.catch(patchVm.undo())
+          queryFulfilled.catch(patchVm.undo)
         } catch {}
       },
     }),
@@ -812,7 +813,7 @@ const vmApi = oneApi.injectEndpoints({
             vmApi.util.updateQueryData(
               'getVm',
               { id: params.id },
-              updateUserTemplateOnResource(params)
+              updateTemplateOnResource(params, 'USER_TEMPLATE')
             )
           )
 
@@ -820,7 +821,7 @@ const vmApi = oneApi.injectEndpoints({
             vmApi.util.updateQueryData(
               'getVms',
               undefined,
-              updateUserTemplateOnResource(params)
+              updateTemplateOnResource(params, 'USER_TEMPLATE')
             )
           )
 

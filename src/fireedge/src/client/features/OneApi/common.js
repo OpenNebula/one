@@ -233,7 +233,7 @@ export const updateOwnershipOnResource = (
 }
 
 /**
- * Update the template or user template of a resource in the store.
+ * Update the resource template in the store.
  *
  * @param {object} params - Request params
  * @param {number|string} params.id -  The id of the resource
@@ -242,13 +242,13 @@ export const updateOwnershipOnResource = (
  * - Update type:
  * ``0``: Replace the whole template.
  * ``1``: Merge new template with the existing one.
- * @param {string} [userTemplateAttribute] - The attribute name of the user template. By default is `USER_TEMPLATE`.
+ * @param {string} [templateAttribute] - The attribute name of the resource template. By default is `TEMPLATE`.
  * @returns {function(Draft):ThunkAction} - Dispatches the action
  */
-export const updateUserTemplateOnResource =
+export const updateTemplateOnResource =
   (
     { id: resourceId, template: xml, replace = 0 },
-    userTemplateAttribute = 'USER_TEMPLATE'
+    templateAttribute = 'TEMPLATE'
   ) =>
   (draft) => {
     const updatePool = isUpdateOnPool(draft, resourceId)
@@ -260,10 +260,10 @@ export const updateUserTemplateOnResource =
 
     if (updatePool && !resource) return
 
-    resource[userTemplateAttribute] =
+    resource[templateAttribute] =
       +replace === 0
         ? newTemplateJson
-        : { ...resource[userTemplateAttribute], ...newTemplateJson }
+        : { ...resource[templateAttribute], ...newTemplateJson }
   }
 
 /**

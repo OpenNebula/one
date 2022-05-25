@@ -30,7 +30,7 @@ import WildsTable from 'client/components/Tables/Wilds'
  * @returns {ReactElement} - Wild information tab
  */
 const WildsInfoTab = ({ id }) => {
-  const { data: host = {} } = useGetHostQuery(id)
+  const { data: host = {} } = useGetHostQuery({ id })
   const wilds = getHostWilds(host)
 
   return (

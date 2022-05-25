@@ -40,7 +40,10 @@ const getTabComponent = (tabName) =>
 
 const HostTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetHostQuery(id)
+  const { isLoading, isError, error } = useGetHostQuery(
+    { id },
+    { refetchOnMountOrArgChange: 10 }
+  )
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.HOST

@@ -76,12 +76,11 @@ const imageApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.IMAGE ?? {},
       providesTags: (_, __, { id }) => [{ type: IMAGE, id }],
-      onCacheEntryAdded: ({ id }, endpointProps) =>
-        UpdateFromSocket({
-          updateQueryData: (updateFn) =>
-            imageApi.util.updateQueryData('getImages', undefined, updateFn),
-          resource: IMAGE.toLowerCase(),
-        })(id, endpointProps),
+      onCacheEntryAdded: UpdateFromSocket({
+        updateQueryData: (updateFn) =>
+          imageApi.util.updateQueryData('getImages', undefined, updateFn),
+        resource: 'IMAGE',
+      }),
     }),
     allocateImage: builder.mutation({
       /**
