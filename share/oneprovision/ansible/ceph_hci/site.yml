@@ -242,6 +242,9 @@
         name: ceph-client
 
     - import_role:
+        name: ceph-opennebula-facts
+
+    - import_role:
         name: ceph-opennebula-osd
       vars:
         ceph_opennebula_osd_libvirt_enabled: "{% if oneprovision_hypervisor == 'lxc' %}False{% else %}True{% endif %}"
