@@ -140,7 +140,7 @@ module OpenNebula::WaitExt
     WAIT = {
         OpenNebula::VirtualNetwork  => {
             :event => lambda {|o, s1, _s2|
-                "EVENT STATE NET/#{s1}//#{o['ID']}"
+                "EVENT STATE VNET/#{s1}//#{o['ID']}"
             },
 
             :in_state => lambda {|o, s1, _s2|
