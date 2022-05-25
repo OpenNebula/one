@@ -38,7 +38,7 @@ const ZombiesTable = (props) => {
       data={useMemo(() => zombies, [zombies])}
       rootProps={rootProps}
       searchProps={searchProps}
-      getRowId={(row) => String(row.ZOMBIE_VM)}
+      getRowId={(row) => String(row.DEPLOY_ID)}
       RowComponent={ZombieRow}
       {...rest}
     />
