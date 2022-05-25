@@ -36,12 +36,11 @@ function Marketplaces() {
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
-  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
 
   return (
-    <SplitPane gridTemplateRows={gridTemplateRows}>
+    <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...getGridProps()}>
+        <Box {...(hasSelectedRows && getGridProps())}>
           <MarketplacesTable onSelectedRowsChange={onSelectedRowsChange} />
 
           {hasSelectedRows && (

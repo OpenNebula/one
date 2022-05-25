@@ -19,13 +19,14 @@ import { BookmarkEmpty } from 'iconoir-react'
 import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
+import hostApi from 'client/features/OneApi/host'
 import { HostsTable } from 'client/components/Tables'
 import HostTabs from 'client/components/Tabs/Host'
 import HostActions from 'client/components/Tables/Hosts/actions'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 import { Tr } from 'client/components/HOC'
-import { T, Host } from 'client/constants'
+import { T } from 'client/constants'
 
 /**
  * Displays a list of Hosts with a split pane between the list and selected row(s).
@@ -38,12 +39,11 @@ function Hosts() {
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
-  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
 
   return (
-    <SplitPane gridTemplateRows={gridTemplateRows}>
+    <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...getGridProps()}>
+        <Box {...(hasSelectedRows && getGridProps())}>
           <HostsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
@@ -56,7 +56,7 @@ function Hosts() {
                 <GroupedTags tags={selectedRows} />
               ) : (
                 <InfoTabs
-                  host={selectedRows[0]?.original}
+                  id={selectedRows[0]?.original?.ID}
                   gotoPage={selectedRows[0]?.gotoPage}
                 />
               )}
@@ -71,28 +71,34 @@ function Hosts() {
 /**
  * Displays details of a Host.
  *
- * @param {Host} host - Host to display
+ * @param {string} id - Host id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Host
  * @returns {ReactElement} Host details
  */
-const InfoTabs = memo(({ host, gotoPage }) => (
-  <Stack overflow="auto">
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Typography color="text.primary" noWrap>
-        {`#${host.ID} | ${host.NAME}`}
-      </Typography>
-      {gotoPage && (
-        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-          <BookmarkEmpty />
-        </IconButton>
-      )}
+const InfoTabs = memo(({ id, gotoPage }) => {
+  const host = hostApi.endpoints.getHosts.useQueryState(undefined, {
+    selectFromResult: ({ data = [] }) => data.find((item) => +item.ID === +id),
+  })
+
+  return (
+    <Stack overflow="auto">
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Typography color="text.primary" noWrap>
+          {`#${id} | ${host.NAME}`}
+        </Typography>
+        {gotoPage && (
+          <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+            <BookmarkEmpty />
+          </IconButton>
+        )}
+      </Stack>
+      <HostTabs id={id} />
     </Stack>
-    <HostTabs id={host.ID} />
-  </Stack>
-))
+  )
+})
 
 InfoTabs.propTypes = {
-  host: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
   gotoPage: PropTypes.func,
 }
 

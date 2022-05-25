@@ -19,13 +19,14 @@ import { BookmarkEmpty } from 'iconoir-react'
 import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
+import vmTemplateApi from 'client/features/OneApi/vmTemplate'
 import { VmTemplatesTable } from 'client/components/Tables'
 import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
 import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 import { Tr } from 'client/components/HOC'
-import { T, VmTemplate } from 'client/constants'
+import { T } from 'client/constants'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).
@@ -38,12 +39,11 @@ function VmTemplates() {
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
-  const gridTemplateRows = hasSelectedRows ? '1fr auto 1fr' : '1fr'
 
   return (
-    <SplitPane gridTemplateRows={gridTemplateRows}>
+    <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...getGridProps()}>
+        <Box {...(hasSelectedRows && getGridProps())}>
           <VmTemplatesTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
@@ -56,7 +56,7 @@ function VmTemplates() {
                 <GroupedTags tags={selectedRows} />
               ) : (
                 <InfoTabs
-                  vmTemplate={selectedRows[0]?.original}
+                  id={selectedRows[0]?.original?.ID}
                   gotoPage={selectedRows[0]?.gotoPage}
                 />
               )}
@@ -71,28 +71,38 @@ function VmTemplates() {
 /**
  * Displays details of a VM Template.
  *
- * @param {VmTemplate} vmTemplate - VM Template to display
+ * @param {string} id - VM Template id to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VM Template
  * @returns {ReactElement} VM Template details
  */
-const InfoTabs = memo(({ vmTemplate, gotoPage }) => (
-  <Stack overflow="auto">
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Typography color="text.primary" noWrap>
-        {`#${vmTemplate.ID} | ${vmTemplate.NAME}`}
-      </Typography>
-      {gotoPage && (
-        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-          <BookmarkEmpty />
-        </IconButton>
-      )}
+const InfoTabs = memo(({ id, gotoPage }) => {
+  const vmTemplate = vmTemplateApi.endpoints.getTemplates.useQueryState(
+    undefined,
+    {
+      selectFromResult: ({ data = [] }) =>
+        data.find((item) => +item.ID === +id),
+    }
+  )
+
+  return (
+    <Stack overflow="auto">
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Typography color="text.primary" noWrap>
+          {`#${id} | ${vmTemplate.NAME}`}
+        </Typography>
+        {gotoPage && (
+          <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
+            <BookmarkEmpty />
+          </IconButton>
+        )}
+      </Stack>
+      <VmTemplateTabs id={id} />
     </Stack>
-    <VmTemplateTabs id={vmTemplate.ID} />
-  </Stack>
-))
+  )
+})
 
 InfoTabs.propTypes = {
-  vmTemplate: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
   gotoPage: PropTypes.func,
 }
 
