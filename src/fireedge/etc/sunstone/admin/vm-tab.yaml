@@ -87,6 +87,10 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
+    capacity_panel:
+      enabled: true
+      actions:
+        resize_capacity: true
     vcenter_panel:
       enabled: true
       actions:
@@ -112,11 +116,6 @@ info-tabs:
         add: true
         edit: true
         delete: true
-
-  capacity:
-    enabled: true
-    actions:
-      resize_capacity: true
 
   storage:
     enabled: true

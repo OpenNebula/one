@@ -23,7 +23,6 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
-import Capacity from 'client/components/Tabs/Vm/Capacity'
 import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
 import Network from 'client/components/Tabs/Vm/Network'
@@ -34,7 +33,6 @@ import Storage from 'client/components/Tabs/Vm/Storage'
 
 const getTabComponent = (tabName) =>
   ({
-    capacity: Capacity,
     configuration: Configuration,
     info: Info,
     network: Network,

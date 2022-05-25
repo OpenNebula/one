@@ -30,6 +30,7 @@ import {
   AttributePanel,
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
+import Capacity from 'client/components/Tabs/Vm/Info/capacity'
 import { SubmitButton } from 'client/components/FormControl'
 
 import { Tr, Translate } from 'client/components/HOC'
@@ -60,6 +61,7 @@ const HIDDEN_MONITORING_REG =
 const VmInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
+    capacity_panel: capacityPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
     vcenter_panel: vcenterPanel,
@@ -179,6 +181,9 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
           groupId={GID}
           groupName={GNAME}
         />
+      )}
+      {capacityPanel?.enabled && (
+        <Capacity actions={getActions(capacityPanel?.actions)} vm={vm} />
       )}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
