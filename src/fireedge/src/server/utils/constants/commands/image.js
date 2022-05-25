@@ -330,7 +330,7 @@ module.exports = {
       params: {
         filter: {
           from: query,
-          default: -1,
+          default: -2,
         },
         start: {
           from: query,
