@@ -101,8 +101,7 @@ end
 
 group :packethost do
     gem 'minitest', minitest
-    gem 'faraday', '~> 0.15'
-    gem 'faraday_middleware', '~> 0.12'
+    gem 'faraday_middleware', '~> 1.2.0'
     gem 'activesupport', '~> 4.2'
     gem 'i18n', '~> 0.9'
 end
