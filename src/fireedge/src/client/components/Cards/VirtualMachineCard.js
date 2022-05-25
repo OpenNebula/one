@@ -66,7 +66,7 @@ const VirtualMachineCard = memo(
       ETIME,
       LOCK,
       USER_TEMPLATE: { LABELS } = {},
-      TEMPLATE: { CPU, MEMORY } = {},
+      TEMPLATE: { VCPU = '-', MEMORY } = {},
     } = vm
 
     const { HOSTNAME = '--', VM_MAD: hypervisor } = useMemo(
@@ -74,10 +74,11 @@ const VirtualMachineCard = memo(
       [vm.HISTORY_RECORDS]
     )
 
-    const time = useMemo(
-      () => timeFromMilliseconds(+ETIME || +STIME),
-      [ETIME, STIME]
-    )
+    const [time, timeFormat] = useMemo(() => {
+      const fromMill = timeFromMilliseconds(+ETIME || +STIME)
+
+      return [fromMill, fromMill.toFormat('ff')]
+    }, [ETIME, STIME])
 
     const { color: stateColor, name: stateName } = getState(vm)
     const error = useMemo(() => getErrorMessage(vm), [vm])
@@ -121,27 +122,24 @@ const VirtualMachineCard = memo(
           </div>
           <div className={classes.caption}>
             <span data-cy="id">{`#${ID}`}</span>
-            <span title={useMemo(() => time.toFormat('ff'), [ETIME, STIME])}>
+            <span title={timeFormat}>
               {`${+ETIME ? T.Done : T.Started} `}
               <Timer initial={time} />
             </span>
-            <span title={`${Tr(T.PhysicalCpu)}: ${CPU}`}>
+            <span title={`${Tr(T.VirtualCpu)}: ${VCPU}`}>
               <Cpu />
-              <span data-cy="cpu">{CPU}</span>
+              <span data-cy="vcpu">{VCPU}</span>
             </span>
             <span title={`${Tr(T.Memory)}: ${memValue}`}>
               <MemoryIcon width={20} height={20} />
               <span data-cy="memory">{memValue}</span>
             </span>
-            <span
-              className={classes.captionItem}
-              title={`${Tr(T.Hostname)}: ${HOSTNAME}`}
-            >
+            <span title={`${Tr(T.Hostname)}: ${HOSTNAME}`}>
               <HardDrive />
               <span data-cy="hostname">{HOSTNAME}</span>
             </span>
             {!!ips?.length && (
-              <span className={classes.captionItem}>
+              <span title={`${Tr(T.IP)}`}>
                 <Network />
                 <Stack direction="row" justifyContent="end" alignItems="center">
                   <MultipleTags tags={ips} clipboard />

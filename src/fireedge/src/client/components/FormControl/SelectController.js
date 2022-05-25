@@ -90,6 +90,7 @@ const SelectController = memo(
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputLabelProps={{ shrink: needShrink }}
         InputProps={{
+          ...(multiple && { sx: { paddingTop: '0.5em' } }),
           readOnly,
           startAdornment:
             (optionSelected && renderValue?.(optionSelected)) ||

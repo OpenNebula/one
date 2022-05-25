@@ -462,6 +462,7 @@ module.exports = {
   Snapshot: 'Snapshot',
   SnapshotName: 'Snapshot name',
   DiskSnapshot: 'Disk snapshot',
+  DiskSize: 'Disk size',
   NewImageName: 'New Image name',
   NewImageNameConcept: 'Name for the new Image where the disk will be saved',
   /* VM schema - network */
