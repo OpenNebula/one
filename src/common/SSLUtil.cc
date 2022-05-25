@@ -16,7 +16,6 @@
 
 #include "SSLUtil.h"
 
-#include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -29,33 +28,22 @@ namespace ssl_util
 
     void base64_decode(const std::string& in, std::string& out)
     {
-        BIO * bio_64  = BIO_new(BIO_f_base64());
-
-        BIO * bio_mem_in  = BIO_new(BIO_s_mem());
-        BIO * bio_mem_out = BIO_new(BIO_s_mem());
-
-        bio_64 = BIO_push(bio_64, bio_mem_in);
-
-        BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-        BIO_write(bio_mem_in, in.c_str(), in.length());
-
-        char inbuf[512];
-        int  inlen;
-
-        while ((inlen = BIO_read(bio_64, inbuf, 512)) > 0)
+        const int max_size = 3 * in.length()/4 + 1;
+        auto output        = new unsigned char[max_size];
+        
+        int size = EVP_DecodeBlock(output, reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
+        
+        if (size <= 0)
         {
-            BIO_write(bio_mem_out, inbuf, inlen);
+            out.clear();
+            return;
         }
 
-        char * decoded_c;
+        while (output[size-1] == '\0') { --size; } // Trim trailling 0
 
-        long int size = BIO_get_mem_data(bio_mem_out, &decoded_c);
+        out.assign(reinterpret_cast<char*>(output), size);
 
-        out.assign(decoded_c, size);
-
-        BIO_free_all(bio_64);
-        BIO_free_all(bio_mem_out);
+        delete[] output;
     }
 
     /* -------------------------------------------------------------------------- */
@@ -63,28 +51,22 @@ namespace ssl_util
 
     int base64_encode(const std::string& in, std::string &out)
     {
-        BIO * bio_64  = BIO_new(BIO_f_base64());
-        BIO * bio_mem = BIO_new(BIO_s_mem());
+        const int max_size = 4*((in.length()+2)/3) + 1;
+        auto output        = new char[max_size];
+        
+        const int size = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(output),
+            reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
 
-        BIO_push(bio_64, bio_mem);
-
-        BIO_set_flags(bio_64, BIO_FLAGS_BASE64_NO_NL);
-
-        BIO_write(bio_64, in.c_str(), in.length());
-
-        if (BIO_flush(bio_64) != 1)
+        if (size <= 0)
         {
+            out.clear();
             return -1;
         }
 
-        char * encoded_c;
+        out.assign(output, size);
 
-        long int size = BIO_get_mem_data(bio_mem, &encoded_c);
-
-        out.assign(encoded_c, size);
-
-        BIO_free_all(bio_64);
-
+        delete[] output;
+        
         return 0;
     }
 
