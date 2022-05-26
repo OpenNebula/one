@@ -98,4 +98,55 @@ CommandParser::CmdParser.new(ARGV) do
 
         system("#{pager} #{options[:pager_opts]} /var/log/one/#{file}")
     end
+
+    vm_desc = <<-EOT.unindent
+        Gets VM log
+    EOT
+
+    command :'get-vm', vm_desc, :id, :options => [PAGER, PAGER_OPTS] do
+        pager = options[:pager] || DEFAULT_PAGER
+
+        begin
+            Integer(args[0])
+
+            file = "/var/log/one/#{args[0]}.log"
+
+            unless File.exist?(file)
+                STDERR.puts "No LOG file found for '#{args[0]}' VM"
+                exit 1
+            end
+
+            system("#{pager} #{options[:pager_opts]} #{file}")
+        rescue StandardError
+            STDERR.puts 'Only ID is supported'
+            exit 1
+        end
+    end
+
+    service_desc = <<-EOT.unindent
+        Gets Service log
+    EOT
+
+    command :'get-service',
+            service_desc,
+            :id,
+            :options => [PAGER, PAGER_OPTS] do
+        pager = options[:pager] || DEFAULT_PAGER
+
+        begin
+            Integer(args[0])
+
+            file = "/var/log/one/oneflow/#{args[0]}.log"
+
+            unless File.exist?(file)
+                STDERR.puts "No LOG file found for '#{args[0]}' service"
+                exit 1
+            end
+
+            system("#{pager} #{options[:pager_opts]} #{file}")
+        rescue StandardError
+            STDERR.puts 'Only ID is supported'
+            exit 1
+        end
+    end
 end
