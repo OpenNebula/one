@@ -78,12 +78,21 @@ const PROVISION_RESOURCES = {
 
 const oneApi = createApi({
   reducerPath: 'oneApi',
-  baseQuery: async ({ params, command }, { dispatch, signal }) => {
+  baseQuery: async (
+    { params = {}, command, needStateInMeta = false },
+    { getState, dispatch, signal }
+  ) => {
     try {
+      // set filter flag if filter is present in command params
+      if (command?.params?.filter) {
+        params.filter = getState().auth?.filterPool
+      }
+
       const config = requestConfig(params, command)
       const response = await http.request({ ...config, signal })
+      const state = needStateInMeta ? getState() : {}
 
-      return { data: response.data ?? {} }
+      return { data: response.data ?? {}, meta: { state } }
     } catch (axiosError) {
       const { message, data = {}, status, statusText } = axiosError
       const { message: messageFromServer, data: errorFromOned } = data

@@ -16,7 +16,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { Status } from 'guacamole-common-js'
 
-import { actions as authActions } from 'client/features/Auth/slice'
+import { logout } from 'client/features/Auth/slice'
 import { GUACAMOLE_STATES_STR } from 'client/constants'
 
 const {
@@ -119,7 +119,8 @@ const slice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(authActions.logout, () => ({}))
+    /* LOGOUT ACTION */
+    builder.addCase(logout, () => ({}))
   },
 })
 

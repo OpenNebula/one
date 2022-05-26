@@ -31,10 +31,13 @@ const slice = createSlice({
   name: 'auth',
   initialState: { ...initial(), firstRender: true },
   reducers: {
-    changeAuthUser: (state, { payload }) => ({
-      ...state,
-      ...payload,
-    }),
+    changeAuthUser: (state, { payload: { isLoginInProgress, ...user } }) => {
+      state.user = { ...state.user, ...user }
+
+      if (isLoginInProgress !== undefined) {
+        state.isLoginInProgress = isLoginInProgress
+      }
+    },
     changeJwt: (state, { payload }) => {
       state.jwt = payload
     },
@@ -58,7 +61,4 @@ const slice = createSlice({
   },
 })
 
-export const { name, reducer } = slice
-
-const actions = { ...slice.actions, logout }
-export { actions }
+export const { name, reducer, actions } = slice
