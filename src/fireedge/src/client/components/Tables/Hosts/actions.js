@@ -91,6 +91,7 @@ const Actions = () => {
               {
                 dialogProps: {
                   title: T.SelectCluster,
+                  dataCy: 'modal-select-cluster',
                 },
                 form: (rows) => ChangeClusterForm(),
                 onSubmit: (rows) => async (formData) => {
