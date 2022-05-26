@@ -2312,7 +2312,8 @@ EOT
     # @return [String] Permissions in octet format
     def OpenNebulaHelper.to_octet(perm)
         begin
-            Integer(perm).to_s
+            Integer(perm)
+            perm
         rescue StandardError
             perm = perm.split(',')
             ret  = 0
@@ -2342,7 +2343,15 @@ EOT
                 STDERR.puts 'Error in permissions format'
                 exit(-1)
             else
-                ret.to_s
+                ret = ret.to_s
+
+                if ret.size == 1
+                    "00#{ret}"
+                elsif ret.size == 2
+                    "0#{ret}"
+                else
+                    ret
+                end
             end
         end
     end
