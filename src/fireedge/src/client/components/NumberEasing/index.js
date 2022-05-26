@@ -27,7 +27,7 @@ const TOTAL_PROGRESS = 1
  * @param {number} [props.duration] - Duration of animation effect in ms
  * @returns {string} Returns a count number
  */
-const NumberEasing = ({ value = 0, start = 0, duration = 2000 }) => {
+const NumberEasing = ({ value = 0, start = 0, duration = 1500 }) => {
   const [count, setCount] = useState(start)
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const NumberEasing = ({ value = 0, start = 0, duration = 2000 }) => {
     animation = window.requestAnimationFrame(step)
 
     return () => window.cancelAnimationFrame(animation)
-  }, [])
+  }, [value])
 
   return count
 }

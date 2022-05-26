@@ -99,13 +99,13 @@ function SunstoneDashboard() {
 }
 
 const ResourceWidget = memo(({ query, ...props }) => {
-  const { data = [], isLoading } = query()
+  const { data = [], isFetching } = query()
 
   return (
     <Grid item xs={12} sm={6} md={3}>
       <WavesCard
         value={
-          isLoading ? (
+          isFetching ? (
             <CircularProgress size={20} />
           ) : (
             <NumberEasing value={data?.length} />

@@ -14,8 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+import { ReactElement, useState, useMemo } from 'react'
 import {
   Box,
   Container,
@@ -27,7 +26,7 @@ import {
 import {
   useLoginMutation,
   useChangeAuthGroupMutation,
-} from 'client/features/AuthApi'
+} from 'client/features/OneApi/auth'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useGeneral } from 'client/features/General'
 
@@ -54,8 +53,6 @@ function Login() {
 
   const { logout } = useAuthApi()
   const { error: authError, isLoginInProgress: needGroupToContinue } = useAuth()
-
-  const { appTitle } = useGeneral()
 
   const [changeAuthGroup, changeAuthGroupState] = useChangeAuthGroupMutation()
   const [login, loginState] = useLoginMutation()
@@ -173,22 +170,29 @@ function Login() {
           )}
         </Box>
 
-        {APPS?.filter((app) => app !== `${appTitle}`.toLowerCase())?.map(
-          (app) => (
-            <AppLink key={app} app={app} />
-          )
-        )}
+        {useMemo(() => STEPS.USER_FORM === step && <AppLinks />, [step])}
       </Box>
     </Container>
   )
 }
 
-const AppLink = memo(({ app }) => {
-  const name = APPS_WITH_ONE_PREFIX.includes(app)
-    ? `One${sentenceCase(app)}`
-    : sentenceCase(app)
+const AppLinks = () => {
+  const { appTitle } = useGeneral()
 
-  return (
+  const isNotCurrentApp = (app) => app !== `${appTitle}`.toLowerCase()
+
+  const transformAppTitle = (app) =>
+    APPS_WITH_ONE_PREFIX.includes(app)
+      ? `One${sentenceCase(app)}`
+      : sentenceCase(app)
+
+  const otherApps = APPS.filter(isNotCurrentApp).map(transformAppTitle)
+
+  if (otherApps?.length === 0) {
+    return null
+  }
+
+  return otherApps.map((app) => (
     <Link
       key={app}
       href={`${APP_URL}/${app}`}
@@ -198,10 +202,7 @@ const AppLink = memo(({ app }) => {
     >
       <Translate word={T.TakeMeToTheAppGui} values={name} />
     </Link>
-  )
-})
-
-AppLink.displayName = 'AppLink'
-AppLink.propTypes = { app: PropTypes.string.isRequired }
+  ))
+}
 
 export default Login
