@@ -138,7 +138,7 @@ export const getHostZombies = (host = {}) => {
 
   const vms = [host?.TEMPLATE?.VM ?? []]
     .flat()
-    .filter((vm) => vm.VCENTER_TEMPLATE === 'YES')
+    .filter((vm) => vm?.IMPORT_TEMPLATE)
 
   return vms.filter((vm) => vm?.VM_NAME && zombies.includes(vm?.VM_NAME))
 }
@@ -154,10 +154,11 @@ export const getHostWilds = (host = {}) => {
 
   const vms = [host?.TEMPLATE?.VM ?? []]
     .flat()
-    .filter((vm) => vm.VCENTER_TEMPLATE === 'YES')
+    .filter((vm) => vm?.IMPORT_TEMPLATE)
 
   return vms.filter((vm) => vm?.VM_NAME && wilds.includes(vm?.VM_NAME))
 }
+
 /**
  * Returns list of Numa available from the host.
  *
