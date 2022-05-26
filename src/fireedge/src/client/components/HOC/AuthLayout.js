@@ -18,8 +18,8 @@ import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
-import { authApi } from 'client/features/AuthApi'
 import { oneApi } from 'client/features/OneApi'
+import authApi from 'client/features/OneApi/auth'
 import groupApi from 'client/features/OneApi/group'
 import FullscreenProgress from 'client/components/LoadingScreen'
 import { findStorageData, findExternalToken, storage } from 'client/utils'
@@ -47,7 +47,6 @@ const AuthLayout = ({ subscriptions = [], children }) => {
 
     return () => {
       authSubscription.unsubscribe()
-      dispatch(authApi.util.resetApiState())
       dispatch(oneApi.util.resetApiState())
     }
   }, [dispatch, jwt])

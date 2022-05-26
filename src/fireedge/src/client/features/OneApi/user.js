@@ -14,12 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/user'
+
 import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
-import { authApi } from 'client/features/AuthApi'
+import authApi from 'client/features/OneApi/auth'
 import { User } from 'client/constants'
 
 const { USER } = ONE_RESOURCES

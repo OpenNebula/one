@@ -13,37 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createApi } from '@reduxjs/toolkit/query/react'
-
 import { Actions, Commands } from 'server/routes/api/auth/routes'
+
+import { actions as authActions } from 'client/features/Auth/slice'
 import { dismissSnackbar } from 'client/features/General/actions'
-import { actions } from 'client/features/Auth/slice'
+import { oneApi, ONE_RESOURCES_POOL } from 'client/features/OneApi'
 import userApi from 'client/features/OneApi/user'
 
-import http from 'client/utils/rest'
-import { requestConfig, storage } from 'client/utils'
+import { storage } from 'client/utils'
 import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
 
+const { GROUP_POOL, ...restOfPool } = ONE_RESOURCES_POOL
 const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
-const authApi = createApi({
-  reducerPath: 'authApi',
-  baseQuery: async ({ params, command, needState }, { getState, signal }) => {
-    try {
-      const config = requestConfig(params, command)
-      const response = await http.request({ ...config, signal })
-      const state = needState ? getState() : {}
-
-      return { data: response.data ?? {}, meta: { state } }
-    } catch (axiosError) {
-      const { message, data = {}, status, statusText } = axiosError
-      const { message: messageFromServer, data: errorFromOned } = data
-
-      const error = message ?? errorFromOned ?? messageFromServer ?? statusText
-
-      return { error: { status: status, data: error } }
-    }
-  },
+const authApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
     getAuthUser: builder.query({
       /**
@@ -55,7 +38,7 @@ const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data: user } = await queryFulfilled
-          dispatch(actions.changeAuthUser({ user }))
+          dispatch(authActions.changeAuthUser(user))
         } catch {}
       },
     }),
@@ -91,13 +74,15 @@ const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data: queryData } = await queryFulfilled
+          const { jwt, ...user } = queryData
 
-          if (queryData?.jwt) {
-            storage(JWT_NAME, queryData?.jwt)
+          if (jwt) {
+            storage(JWT_NAME, jwt)
             dispatch(dismissSnackbar({ dismissAll: true }))
           }
 
-          dispatch(actions.changeAuthUser(queryData))
+          dispatch(authActions.changeJwt(queryData))
+          dispatch(authActions.changeAuthUser(user))
         } catch {}
       },
     }),
@@ -111,35 +96,39 @@ const authApi = createApi({
       queryFn: async ({ group } = {}, { getState, dispatch }) => {
         try {
           if (group === ALL_RESOURCES) {
-            dispatch(actions.changeFilterPool(ALL_RESOURCES))
+            dispatch(authActions.changeFilterPool(ALL_RESOURCES))
 
             return { data: '' }
           }
 
           const authUser = getState().auth.user
-          const queryData = { id: authUser.ID, group: group }
+          const queryData = { id: authUser.ID, group }
 
-          const response = await dispatch(
+          const newGroup = await dispatch(
             userApi.endpoints.changeGroup.initiate(queryData)
           ).unwrap()
 
-          dispatch(actions.changeFilterPool(PRIMARY_GROUP_RESOURCES))
+          dispatch(authActions.changeFilterPool(PRIMARY_GROUP_RESOURCES))
+          dispatch(authActions.changeAuthUser({ GID: `${group}` }))
 
-          return { data: response }
+          return { data: newGroup }
         } catch (error) {
           return { error }
         }
       },
+      invalidatesTags: [...Object.values(restOfPool)],
     }),
   }),
 })
 
 export const {
+  // Queries
   useGetAuthUserQuery,
   useLazyGetAuthUserQuery,
 
+  // Mutations
   useLoginMutation,
   useChangeAuthGroupMutation,
 } = authApi
 
-export { authApi }
+export default authApi

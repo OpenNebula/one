@@ -16,11 +16,11 @@
 import { useMemo, memo, JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, Stack, CircularProgress } from '@mui/material'
-import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
+import { Stack, Button, Typography, CircularProgress } from '@mui/material'
+import { Group as GroupIcon, VerifiedUser, Check } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
-import { useChangeAuthGroupMutation } from 'client/features/AuthApi'
+import { useChangeAuthGroupMutation } from 'client/features/OneApi/auth'
 import Search from 'client/components/Search'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Tr, Translate } from 'client/components/HOC'
@@ -33,25 +33,32 @@ const ButtonGroup = memo(
     const { user, filterPool } = useAuth()
     const { ID, NAME } = group
 
+    const isPrimaryGroup = user?.GID === ID
+
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
-      (filterPool === PRIMARY_GROUP_RESOURCES && user?.GID === ID)
+      (filterPool === PRIMARY_GROUP_RESOURCES && isPrimaryGroup)
 
     return (
       <Button
         fullWidth
         disabled={disabled}
-        color="debug"
-        variant="outlined"
+        variant={isSelected ? 'contained' : 'outlined'}
+        color="secondary"
         onClick={handleClick}
         sx={{
-          color: (theme) => theme.palette.text.primary,
+          boxShadow: 'none !important',
           justifyContent: 'start',
           '& svg:first-of-type': { my: 0, mx: 2 },
         }}
       >
-        {NAME}
-        {isSelected && <SelectIcon />}
+        <Stack component="span" direction="row" alignItems="center" gap=".5em">
+          {isSelected && <Check style={{ margin: 0 }} />}
+          <Typography component="span" noWrap variant="subtitle2">
+            {NAME}
+          </Typography>
+          {isPrimaryGroup && <VerifiedUser />}
+        </Stack>
       </Button>
     )
   },
@@ -88,7 +95,7 @@ const Group = () => {
       headerTitle={
         <Stack direction="row" alignItems="center" gap="1em" component="span">
           <Translate word={T.SwitchGroup} />
-          {isLoading && <CircularProgress size={20} />}
+          {isLoading && <CircularProgress size={20} color="secondary" />}
         </Stack>
       }
     >

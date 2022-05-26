@@ -21,7 +21,6 @@ import { isDevelopment } from 'client/utils'
 import * as Auth from 'client/features/Auth/slice'
 import * as General from 'client/features/General/slice'
 import * as Guacamole from 'client/features/Guacamole/slice'
-import { authApi } from 'client/features/AuthApi'
 import { oneApi } from 'client/features/OneApi'
 import { unauthenticatedMiddleware } from 'client/features/middleware'
 
@@ -37,7 +36,6 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
       [Auth.name]: Auth.reducer,
       [General.name]: General.reducer,
       [Guacamole.name]: Guacamole.reducer,
-      [authApi.reducerPath]: authApi.reducer,
       [oneApi.reducerPath]: oneApi.reducer,
     },
     devTools: isDevelopment(),
@@ -47,7 +45,6 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
       }).concat([
         ...extraMiddleware,
         unauthenticatedMiddleware,
-        authApi.middleware,
         oneApi.middleware,
       ]),
     preloadedState: initState,
