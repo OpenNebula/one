@@ -28,7 +28,7 @@ import {
   removeLockLevelOnResource,
   updatePermissionOnResource,
   updateOwnershipOnResource,
-  updateUserTemplateOnResource,
+  updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 import {
@@ -310,7 +310,7 @@ const vNetworkApi = oneApi.injectEndpoints({
             vNetworkApi.util.updateQueryData(
               'getVNetwork',
               { id: params.id },
-              updateUserTemplateOnResource(params)
+              updateTemplateOnResource(params)
             )
           )
 
@@ -318,7 +318,7 @@ const vNetworkApi = oneApi.injectEndpoints({
             vNetworkApi.util.updateQueryData(
               'getVNetworks',
               undefined,
-              updateUserTemplateOnResource(params)
+              updateTemplateOnResource(params)
             )
           )
 
