@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { generatePath } from 'react-router-dom'
 
+import { useViews } from 'client/features/Auth'
 import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { List } from 'client/components/Tabs/Common'
-import { T, SERVERADMIN_ID, ACTIONS } from 'client/constants'
+import { T, SERVERADMIN_ID, ACTIONS, RESOURCE_NAMES } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
+
+const { USER, GROUP } = RESOURCE_NAMES
 
 const Ownership = memo(
   ({ actions, groupId, groupName, handleEdit, userId, userName }) => {
     const { data: users = [] } = useGetUsersQuery()
     const { data: groups = [] } = useGetGroupsQuery()
+
+    const { view, hasAccessToResource } = useViews()
+    const userAccess = useMemo(() => hasAccessToResource(USER), [view])
+    const groupAccess = useMemo(() => hasAccessToResource(GROUP), [view])
 
     const getUserOptions = () =>
       users
@@ -44,7 +51,8 @@ const Ownership = memo(
         name: T.Owner,
         value: userName,
         valueInOptionList: userId,
-        link: generatePath(PATH.SYSTEM.USERS.DETAIL, { id: userId }),
+        link:
+          userAccess && generatePath(PATH.SYSTEM.USERS.DETAIL, { id: userId }),
         canEdit: actions?.includes?.(ACTIONS.CHANGE_OWNER),
         handleGetOptionList: getUserOptions,
         handleEdit: (_, user) => handleEdit?.({ user }),
@@ -54,7 +62,9 @@ const Ownership = memo(
         name: T.Group,
         value: groupName,
         valueInOptionList: groupId,
-        link: generatePath(PATH.SYSTEM.GROUPS.DETAIL, { id: groupId }),
+        link:
+          groupAccess &&
+          generatePath(PATH.SYSTEM.GROUPS.DETAIL, { id: groupId }),
         canEdit: actions?.includes?.(ACTIONS.CHANGE_GROUP),
         handleGetOptionList: getGroupOptions,
         handleEdit: (_, group) => handleEdit?.({ group }),
