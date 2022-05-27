@@ -48,6 +48,7 @@ const Attribute = memo(
     handleEdit,
     handleGetOptionList,
     link,
+    icon,
     name,
     path = name,
     showActionsOnHover = false,
@@ -98,10 +99,16 @@ const Attribute = memo(
             variant="body2"
             title={typeof name === 'string' ? name : undefined}
             flexGrow={1}
-            sx={
-              numberOfParents > 0 ? { pl: `${numberOfParents}em` } : undefined
-            }
+            sx={{
+              ...(numberOfParents > 0 && { pl: `${numberOfParents}em` }),
+              ...(icon && {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5em',
+              }),
+            }}
           >
+            {icon}
             {name}
           </Typography>
           <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
@@ -180,6 +187,7 @@ export const AttributePropTypes = {
   handleEdit: PropTypes.func,
   handleGetOptionList: PropTypes.func,
   link: PropTypes.string,
+  icon: PropTypes.any,
   name: PropTypes.string.isRequired,
   path: PropTypes.string,
   showActionsOnHover: PropTypes.bool,
