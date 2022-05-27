@@ -15,16 +15,17 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Edit as EditIcon } from 'iconoir-react'
+import { Edit, Server, Cpu } from 'iconoir-react'
 import { Stack, Typography } from '@mui/material'
 
 import { useResizeMutation } from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { ResizeCapacityForm } from 'client/components/Forms/Vm'
 import { List } from 'client/components/Tabs/Common'
+import { MemoryIcon } from 'client/components/Icons'
 import { Tr, Translate } from 'client/components/HOC'
 
-import { isVCenter, isAvailableAction } from 'client/models/VirtualMachine'
+import { isAvailableAction } from 'client/models/VirtualMachine'
 import { formatNumberByCurrency, jsonToXml } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { T, VM, VM_ACTIONS } from 'client/constants'
@@ -44,7 +45,7 @@ const CapacityPanel = ({ vm = {}, actions }) => {
     MEMORY,
     CPU_COST,
     MEMORY_COST,
-    TOPOLOGY: { CORES = '-', SOCKETS = '-' } = {},
+    TOPOLOGY: { CORES, SOCKETS } = {},
   } = vm?.TEMPLATE || {}
 
   const memoryCost = useMemo(() => {
@@ -63,27 +64,30 @@ const CapacityPanel = ({ vm = {}, actions }) => {
 
   const info = [
     {
+      icon: <Server />,
       name: T.PhysicalCpu,
       value: CPU,
       dataCy: 'cpu',
     },
     {
+      icon: <Cpu />,
       name: T.VirtualCpu,
       value: VCPU,
       dataCy: 'vcpu',
     },
-    isVCenter(vm) && {
+    {
+      icon: <MemoryIcon />,
+      name: T.Memory,
+      value: prettyBytes(+MEMORY, 'MB'),
+      dataCy: 'memory',
+    },
+    ![CORES, SOCKETS].includes(undefined) && {
       name: T.VirtualCores,
       value: [
         `${Tr(T.Cores)} x ${CORES}`,
         `${Tr(T.Sockets)} x ${SOCKETS}`,
       ].join(' | '),
       dataCy: 'virtualcores',
-    },
-    {
-      name: T.Memory,
-      value: prettyBytes(+MEMORY, 'MB'),
-      dataCy: 'memory',
     },
     {
       name: T.CostCpu,
@@ -147,7 +151,7 @@ const PanelHeader = ({ vm = {}, actions = [] }) => {
         <ButtonToTriggerForm
           buttonProps={{
             'data-cy': 'resize-capacity',
-            icon: <EditIcon />,
+            icon: <Edit />,
             tooltip: <Translate word={T.Resize} />,
           }}
           options={[
