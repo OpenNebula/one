@@ -39,9 +39,10 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var TEMPLATE_TAB_ID = require("tabs/templates-tab/tabId");
   var WIZARD_TABS = [
-    require('tabs/templates-tab/form-panels/create/wizard-tabs/os'),
-    require('tabs/templates-tab/form-panels/create/wizard-tabs/context'),
-    require('tabs/templates-tab/form-panels/create/wizard-tabs/other')
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/os"),
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/io"),
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/context"),
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/other")
   ];
 
   /*
@@ -80,11 +81,11 @@ define(function(require) {
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
   FormPanel.prototype.htmlWizard = _htmlWizard;
-  FormPanel.prototype.htmlAdvanced = config.user_config.default_view === 'cloud' ? undefined : _htmlAdvanced;
+  FormPanel.prototype.htmlAdvanced = config.user_config.default_view === "cloud" ? undefined : _htmlAdvanced;
   FormPanel.prototype.setup = _setup;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.submitWizard = _submitWizard;
-  FormPanel.prototype.submitAdvanced = config.user_config.default_view === 'cloud' ? undefined : _submitAdvanced;
+  FormPanel.prototype.submitAdvanced = config.user_config.default_view === "cloud" ? undefined : _submitAdvanced;
   FormPanel.prototype.fill = _fill;
 
   return FormPanel;
