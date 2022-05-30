@@ -20,9 +20,31 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
@@ -33,13 +55,13 @@ DEFAULT_PAGER = 'less'
 # List of OpenNebula services and the logs files
 SERVICES = {
     'fireedge' => { :log => 'fireedge.log', :error => 'fireedge.error' },
-    'monitor'  => 'monitor.log',
-    'novnc'    => 'novnc.log',
-    'oned'     => 'oned.log',
+    'monitor'  => { :log => 'monitor.log' },
+    'novnc'    => { :log => 'novnc.log' },
+    'oned'     => { :log => 'oned.log' },
     'onehem'   => { :log => 'onehem.log', :error => 'onehem.error' },
-    'sched'    => 'sched.log',
+    'sched'    => { :log => 'sched.log' },
     'sunstone' => { :log => 'sunstone.log', :error => 'sunstone.error' },
-    'vcenter'  => 'vcenter_monitor.log'
+    'vcenter'  => { :log => 'vcenter_monitor.log' }
 }
 
 require 'command_parser'
@@ -77,26 +99,22 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :get, get_desc, :service, :options => [TYPE, PAGER, PAGER_OPTS] do
-        unless SERVICES[args[0]]
+        logs  = SERVICES[args[0]]
+        pager = options[:pager] || DEFAULT_PAGER
+
+        unless logs
             STDERR.puts "Service '#{args[0]}' not found"
             exit 1
         end
 
-        if options[:type] && !SERVICES[args[0]][options[:type].to_sym]
+        if options[:type] && !logs[options[:type].to_sym]
             STDERR.puts "Log file type '#{options[:type]}' not found"
             exit 1
         end
 
-        if (SERVICES[args[0]].is_a? Hash) && !options[:type]
-            options[:type] = :log
-        end
+        options[:type].nil? ? f = logs[:log] : f = logs[options[:type].to_sym]
 
-        type  = options[:type].to_sym
-        pager = options[:pager] || DEFAULT_PAGER
-
-        type.nil? ? file = SERVICES[args[0]] : file = SERVICES[args[0]][type]
-
-        system("#{pager} #{options[:pager_opts]} /var/log/one/#{file}")
+        system("#{pager} #{options[:pager_opts]} /var/log/one/#{f}")
     end
 
     vm_desc = <<-EOT.unindent
