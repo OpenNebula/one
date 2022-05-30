@@ -33,7 +33,15 @@ const NumaCore = ({ core }) => {
   )
 
   return (
-    <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={3}
+      display="flex"
+      justifyContent="center"
+      data-cy={`numa-core-${core.ID}`}
+    >
       <Box width="200px">
         <Typography gutterBottom variant="body1" component="div" align="center">
           <Translate word={T.NumaCore} values={core.ID} />
