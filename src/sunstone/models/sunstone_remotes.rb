@@ -115,7 +115,6 @@ class SunstoneRemoteConnections
 
     def error(code, msg)
         @logger.error(msg)
-        return [code, msg] unless @options[:json_error]
 
         [code, OpenNebula::Error.new(msg).to_json]
     end

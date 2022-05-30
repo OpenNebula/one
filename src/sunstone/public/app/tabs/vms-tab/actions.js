@@ -260,7 +260,11 @@ define(function(require) {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
           Sunstone.runAction("VM.startvnc_action", elem);
         });
-      }
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+      notify: true
     },
     "VM.startvnc_action" : {
       type: "single",
@@ -290,7 +294,11 @@ define(function(require) {
             var vm_name = OpenNebulaVM.getName(elem);
             Sunstone.runAction("VM.startvmrc_action", elem, vm_name);
         });
-      }
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+      notify: true
     },
     "VM.startvmrc_action" : {
       type: "single",
@@ -318,7 +326,11 @@ define(function(require) {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
           Sunstone.runAction("VM.startspice_action", elem);
         });
-      }
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+      notify: true
     },
     "VM.startspice_action" : {
       type: "single",
