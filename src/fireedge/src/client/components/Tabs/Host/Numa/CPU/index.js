@@ -29,13 +29,24 @@ import { T, CPU_STATUS } from 'client/constants'
  */
 const NumaCoreCPU = ({ core, cpus }) => (
   <Grid item xs={6}>
-    <Paper sx={{ pt: '0.3rem', pb: '0.1rem' }}>
+    <Paper
+      variant="outlined"
+      sx={{
+        color: 'text.primary',
+        bgcolor:
+          CPU_STATUS[cpus[core]] === CPU_STATUS['-2']
+            ? 'action.disabled'
+            : 'action.disabledBackground',
+        pt: '0.3rem',
+        pb: '0.1rem',
+      }}
+    >
       <Box sx={{ flexGrow: 1 }}>
         <Typography gutterBottom variant="body2" component="div" align="center">
           <Translate word={T.NumaNodeCPUItem} values={core} />
         </Typography>
         <Typography gutterBottom variant="body2" component="div" align="center">
-          {CPU_STATUS[String(cpus[core])]}
+          {CPU_STATUS[cpus[core]]}
         </Typography>
       </Box>
     </Paper>
