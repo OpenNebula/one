@@ -45,7 +45,13 @@ const NumaCoreCPU = ({ core, cpus }) => (
         <Typography gutterBottom variant="body2" component="div" align="center">
           <Translate word={T.NumaNodeCPUItem} values={core} />
         </Typography>
-        <Typography gutterBottom variant="body2" component="div" align="center">
+        <Typography
+          gutterBottom
+          variant="body2"
+          component="div"
+          align="center"
+          data-cy={`cpu-${core}`}
+        >
           {CPU_STATUS[cpus[core]]}
         </Typography>
       </Box>

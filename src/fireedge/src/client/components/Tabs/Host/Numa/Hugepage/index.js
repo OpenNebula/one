@@ -55,11 +55,24 @@ const NumaHugepage = ({ hugepage }) => {
           </ListItem>
           {hugepage.length > 0 &&
             hugepage.map(({ FREE, PAGES, SIZE, USAGE }, index) => (
-              <ListItem key={index} className={classes.item} dense>
-                <Typography noWrap>{prettyBytes(SIZE)}</Typography>
-                <Typography noWrap>{FREE}</Typography>
-                <Typography noWrap>{PAGES}</Typography>
-                <Typography noWrap>{USAGE}</Typography>
+              <ListItem
+                key={index}
+                className={classes.item}
+                dense
+                data-cy={`hugepage-${index}`}
+              >
+                <Typography data-cy="size" noWrap>
+                  {prettyBytes(SIZE)}
+                </Typography>
+                <Typography data-cy="free" noWrap>
+                  {FREE}
+                </Typography>
+                <Typography data-cy="pages" noWrap>
+                  {PAGES}
+                </Typography>
+                <Typography data-cy="usage" noWrap>
+                  {USAGE}
+                </Typography>
               </ListItem>
             ))}
         </List>

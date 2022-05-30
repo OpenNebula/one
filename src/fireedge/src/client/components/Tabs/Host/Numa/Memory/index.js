@@ -37,7 +37,7 @@ const NumaMemory = ({ node }) => {
       <Typography gutterBottom variant="subtitle1" component="h3">
         <Translate word={T.NumaNodeMemory} />
       </Typography>
-      <Paper variant="outlined" sx={{ p: '1.25rem' }}>
+      <Paper variant="outlined" sx={{ p: '1.25rem' }} data-cy="memory">
         <LinearProgressWithLabel
           value={percentMemUsed}
           label={percentMemLabel}
