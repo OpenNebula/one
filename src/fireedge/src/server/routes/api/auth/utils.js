@@ -358,9 +358,9 @@ const setZones = () => {
   if (global && !global.zones) {
     const oneConnect = connectOpennebula()
     oneConnect({
-      action: ActionZones.ZONEPOOL_INFO,
+      action: ActionZones.ZONE_POOL_INFO,
       parameters: getDefaultParamsOfOpennebulaCommand(
-        ActionZones.ZONEPOOL_INFO,
+        ActionZones.ZONE_POOL_INFO,
         GET
       ),
       callback: (err, value) => {
