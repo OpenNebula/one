@@ -81,7 +81,7 @@ const authApi = oneApi.injectEndpoints({
             dispatch(dismissSnackbar({ dismissAll: true }))
           }
 
-          dispatch(authActions.changeJwt(queryData))
+          dispatch(authActions.changeJwt(jwt))
           dispatch(authActions.changeAuthUser(user))
         } catch {}
       },
