@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement, useCallback, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, FormControl, Divider, Button, IconButton } from '@mui/material'
 import List from '@mui/material/List'
@@ -26,109 +26,131 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { FormWithSchema, Legend } from 'client/components/Forms'
 import { Translate } from 'client/components/HOC'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { INPUT_SCHEMA, deviceTypeIcons, busTypeIcons } from './schema'
-import { T } from 'client/constants'
+import {
+  INPUTS_FIELDS,
+  INPUT_SCHEMA,
+  deviceTypeIcons,
+  busTypeIcons,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
+import { T, HYPERVISORS } from 'client/constants'
 
 export const SECTION_ID = 'INPUT'
 
-/**
- * @param {object} props - Props
- * @param {Array} props.fields - Fields
- * @returns {JSXElementConstructor} - Inputs section
- */
-const InputsSection = ({ fields }) => {
-  const {
-    fields: inputs,
-    append,
-    remove,
-  } = useFieldArray({
-    name: `${EXTRA_ID}.${SECTION_ID}`,
-  })
+const InputsSection = memo(
+  /**
+   * @param {object} props - Props
+   * @param {string} [props.stepId] - ID of the step the section belongs to
+   * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+   * @returns {ReactElement} - Inputs section
+   */
+  ({ stepId, hypervisor }) => {
+    const fields = useMemo(() => INPUTS_FIELDS(hypervisor), [hypervisor])
 
-  const methods = useForm({
-    defaultValues: INPUT_SCHEMA.default(),
-    resolver: yupResolver(INPUT_SCHEMA),
-  })
+    const {
+      fields: inputs,
+      append,
+      remove,
+    } = useFieldArray({
+      name: useMemo(
+        () => [stepId, SECTION_ID].filter(Boolean).join('.'),
+        [stepId]
+      ),
+    })
 
-  const onSubmit = (newInput) => {
-    append(newInput)
-    methods.reset()
-  }
+    const getCyPath = useCallback(
+      (cy) => [stepId, cy].filter(Boolean).join('-'),
+      [stepId]
+    )
 
-  return (
-    <FormControl component="fieldset" sx={{ width: '100%' }}>
-      <Legend title={T.Inputs} />
-      <FormProvider {...methods}>
-        <Stack
-          direction="row"
-          alignItems="flex-start"
-          gap="0.5rem"
-          component="form"
-          onSubmit={methods.handleSubmit(onSubmit)}
-        >
-          <FormWithSchema
-            cy={`${EXTRA_ID}-io-inputs`}
-            fields={fields}
-            rootProps={{ sx: { m: 0 } }}
-          />
-          <Button
-            variant="contained"
-            type="submit"
-            color="secondary"
-            startIcon={<AddCircledOutline />}
-            sx={{ mt: '1em' }}
-            data-cy={`${EXTRA_ID}-add-io-inputs`}
+    const methods = useForm({
+      defaultValues: INPUT_SCHEMA.default(),
+      resolver: yupResolver(INPUT_SCHEMA),
+    })
+
+    const onSubmit = (newInput) => {
+      append(newInput)
+      methods.reset()
+    }
+
+    if (fields.length === 0) {
+      return null
+    }
+
+    return (
+      <FormControl component="fieldset" sx={{ width: '100%' }}>
+        <Legend title={T.Inputs} />
+        <FormProvider {...methods}>
+          <Stack
+            direction="row"
+            alignItems="flex-start"
+            gap="0.5rem"
+            component="form"
+            onSubmit={methods.handleSubmit(onSubmit)}
           >
-            <Translate word={T.Add} />
-          </Button>
-        </Stack>
-      </FormProvider>
-      <Divider />
-      <List>
-        {inputs?.map(({ id, TYPE, BUS }, index) => {
-          const deviceIcon = deviceTypeIcons[TYPE]
-          const deviceInfo = `${TYPE}`
-          const busIcon = busTypeIcons[BUS]
-          const busInfo = `${BUS}`
-
-          return (
-            <ListItem
-              key={id}
-              secondaryAction={
-                <IconButton onClick={() => remove(index)}>
-                  <DeleteCircledOutline />
-                </IconButton>
-              }
-              sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+            <FormWithSchema
+              cy={getCyPath('io-inputs')}
+              fields={fields}
+              rootProps={{ sx: { m: 0 } }}
+            />
+            <Button
+              variant="contained"
+              type="submit"
+              color="secondary"
+              startIcon={<AddCircledOutline />}
+              data-cy={getCyPath('add-io-inputs')}
+              sx={{ mt: '1em' }}
             >
-              <ListItemText
-                primary={
-                  <Stack
-                    component="span"
-                    direction="row"
-                    spacing={2}
-                    sx={{ '& > *': { width: 36 } }}
-                  >
-                    {deviceIcon}
-                    <span>{deviceInfo}</span>
-                    <Divider orientation="vertical" flexItem />
-                    {busIcon}
-                    <span>{busInfo}</span>
-                  </Stack>
+              <Translate word={T.Add} />
+            </Button>
+          </Stack>
+        </FormProvider>
+        <Divider />
+        <List>
+          {inputs?.map(({ id, TYPE, BUS }, index) => {
+            const deviceIcon = deviceTypeIcons[TYPE]
+            const deviceInfo = `${TYPE}`
+            const busIcon = busTypeIcons[BUS]
+            const busInfo = `${BUS}`
+
+            return (
+              <ListItem
+                key={id}
+                secondaryAction={
+                  <IconButton onClick={() => remove(index)}>
+                    <DeleteCircledOutline />
+                  </IconButton>
                 }
-                primaryTypographyProps={{ variant: 'body1' }}
-              />
-            </ListItem>
-          )
-        })}
-      </List>
-    </FormControl>
-  )
-}
+                sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+              >
+                <ListItemText
+                  primary={
+                    <Stack
+                      component="span"
+                      direction="row"
+                      spacing={2}
+                      sx={{ '& > *': { width: 36 } }}
+                    >
+                      {deviceIcon}
+                      <span>{deviceInfo}</span>
+                      <Divider orientation="vertical" flexItem />
+                      {busIcon}
+                      <span>{busInfo}</span>
+                    </Stack>
+                  }
+                  primaryTypographyProps={{ variant: 'body1' }}
+                />
+              </ListItem>
+            )
+          })}
+        </List>
+      </FormControl>
+    )
+  }
+)
 
 InputsSection.propTypes = {
-  fields: PropTypes.array,
+  stepId: PropTypes.string,
+  hypervisor: PropTypes.string,
 }
 
 InputsSection.displayName = 'InputsSection'

@@ -13,47 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
 
-import {
-  TabType,
-  STEP_ID as EXTRA_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, {
-  SECTION_ID as USER_INPUTS_ID,
-} from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
-import ContextVarsSection from './contextVarsSection'
+import ConfigurationSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/configurationSection'
+import FilesSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/filesSection'
+import ContextVarsSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/contextVarsSection'
 
-import { T } from 'client/constants'
+import { HYPERVISORS } from 'client/constants'
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = (props) => (
+/**
+ * @param {object} props - Component props
+ * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @returns {ReactElement} Context section component
+ */
+const ContextSection = ({ hypervisor }) => (
   <>
-    <ConfigurationSection stepId={EXTRA_ID} />
-    <UserInputsSection />
-    <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} {...props} />
+    <ConfigurationSection hypervisor={hypervisor} />
+    <FilesSection hypervisor={hypervisor} />
+    <ContextVarsSection hypervisor={hypervisor} />
   </>
 )
 
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
-}
+ContextSection.propTypes = { hypervisor: PropTypes.string }
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: (error) => TAB_ID.some((id) => error?.[id]),
-}
-
-export default TAB
+export default ContextSection

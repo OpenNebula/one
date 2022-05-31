@@ -163,13 +163,13 @@ export const FIRMWARE = {
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
   notOnHypervisors: [firecracker, lxc],
-  type: ([_, custom] = []) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
+  type: ([, , custom] = []) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
-  dependOf: ['$general.HYPERVISOR', FEATURE_CUSTOM_ENABLED.name],
-  values: ([hypervisor] = []) => {
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR', FEATURE_CUSTOM_ENABLED.name],
+  values: ([templateHyperv, hypervisor = templateHyperv] = []) => {
     const types =
       {
         [vcenter]: VCENTER_FIRMWARE_TYPES,

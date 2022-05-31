@@ -13,47 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
 
-import {
-  TabType,
-  STEP_ID as EXTRA_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, {
-  SECTION_ID as USER_INPUTS_ID,
-} from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
-import ContextVarsSection from './contextVarsSection'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { SECTIONS } from 'client/components/Forms/Vm/UpdateConfigurationForm/booting/schema'
+import { HYPERVISORS } from 'client/constants'
 
-import { T } from 'client/constants'
+/**
+ * @param {object} props - Component props
+ * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @returns {ReactElement} OS section component
+ */
+const OsSection = ({ hypervisor }) => {
+  const sections = useMemo(() => SECTIONS(hypervisor), [hypervisor])
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = (props) => (
-  <>
-    <ConfigurationSection stepId={EXTRA_ID} />
-    <UserInputsSection />
-    <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} {...props} />
-  </>
-)
-
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
+  return (
+    <>
+      {sections.map(({ id, ...section }) => (
+        <FormWithSchema key={id} cy={id} {...section} />
+      ))}
+    </>
+  )
 }
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: (error) => TAB_ID.some((id) => error?.[id]),
-}
+OsSection.propTypes = { hypervisor: PropTypes.string }
 
-export default TAB
+export default OsSection

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 import { DataTransferBoth as IOIcon } from 'iconoir-react'
@@ -26,34 +25,27 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
 import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
-import { GRAPHICS_FIELDS, INPUTS_FIELDS, PCI_FIELDS } from './schema'
+import { GRAPHICS_FIELDS } from './schema'
 import { T } from 'client/constants'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID]
 
-const InputOutput = ({ hypervisor }) => {
-  const inputsFields = useMemo(() => INPUTS_FIELDS(hypervisor), [hypervisor])
-  const pciDevicesFields = useMemo(() => PCI_FIELDS(hypervisor), [hypervisor])
-
-  return (
-    <Stack
-      display="grid"
-      gap="1em"
-      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-    >
-      <FormWithSchema
-        cy={`${EXTRA_ID}-io-graphics`}
-        fields={GRAPHICS_FIELDS(hypervisor)}
-        legend={T.Graphics}
-        id={EXTRA_ID}
-      />
-      {inputsFields.length > 0 && <InputsSection fields={inputsFields} />}
-      {pciDevicesFields.length > 0 && (
-        <PciDevicesSection fields={pciDevicesFields} />
-      )}
-    </Stack>
-  )
-}
+const InputOutput = ({ hypervisor }) => (
+  <Stack
+    display="grid"
+    gap="1em"
+    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+  >
+    <FormWithSchema
+      cy={`${EXTRA_ID}-io-graphics`}
+      fields={GRAPHICS_FIELDS(hypervisor)}
+      legend={T.Graphics}
+      id={EXTRA_ID}
+    />
+    <InputsSection stepId={EXTRA_ID} hypervisor={hypervisor} />
+    <PciDevicesSection stepId={EXTRA_ID} hypervisor={hypervisor} />
+  </Stack>
+)
 
 InputOutput.propTypes = {
   data: PropTypes.any,

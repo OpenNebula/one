@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor, useMemo } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, FormControl, Divider, Button, IconButton } from '@mui/material'
 import List from '@mui/material/List'
@@ -28,18 +28,23 @@ import { FormWithSchema, Legend } from 'client/components/Forms'
 import { Translate } from 'client/components/HOC'
 import { getPciDevices } from 'client/models/Host'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { PCI_SCHEMA } from './schema'
-import { T } from 'client/constants'
+import {
+  PCI_FIELDS,
+  PCI_SCHEMA,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
+import { T, HYPERVISORS } from 'client/constants'
 
 export const SECTION_ID = 'PCI'
 
 /**
  * @param {object} props - Props
- * @param {Array} props.fields - Fields
- * @returns {JSXElementConstructor} - Inputs section
+ * @param {string} [props.stepId] - ID of the step the section belongs to
+ * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @returns {ReactElement} - Inputs section
  */
-const PciDevicesSection = ({ fields }) => {
+const PciDevicesSection = ({ stepId, hypervisor }) => {
+  const fields = useMemo(() => PCI_FIELDS(hypervisor))
+
   const { data: hosts = [] } = useGetHostsQuery()
   const pciDevicesAvailable = useMemo(
     () => hosts.map(getPciDevices).flat(),
@@ -51,7 +56,7 @@ const PciDevicesSection = ({ fields }) => {
     append,
     remove,
   } = useFieldArray({
-    name: `${EXTRA_ID}.${SECTION_ID}`,
+    name: [stepId, SECTION_ID].filter(Boolean).join('.'),
   })
 
   const methods = useForm({
@@ -79,7 +84,7 @@ const PciDevicesSection = ({ fields }) => {
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormWithSchema
-            cy={`${EXTRA_ID}-io-pci-devices`}
+            cy={[stepId, 'io-pci-devices'].filter(Boolean).join('.')}
             fields={fields}
             rootProps={{ sx: { m: 0 } }}
           />
@@ -130,7 +135,8 @@ const PciDevicesSection = ({ fields }) => {
 }
 
 PciDevicesSection.propTypes = {
-  fields: PropTypes.array,
+  stepId: PropTypes.string,
+  hypervisor: PropTypes.string,
 }
 
 PciDevicesSection.displayName = 'PciDevicesSection'

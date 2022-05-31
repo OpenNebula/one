@@ -19,9 +19,7 @@ import { reach } from 'yup'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Accordion, AccordionSummary, Box } from '@mui/material'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-
 import { useGeneralApi } from 'client/features/General'
 
 import { Legend } from 'client/components/Forms'
@@ -32,16 +30,19 @@ import { T } from 'client/constants'
 export const SECTION_ID = 'CONTEXT'
 
 /**
- * Renders the context section of the extra configuration form.
+ * Renders the context section to VM Template form.
  *
  * @param {object} props - Props passed to the component
+ * @param {string} [props.stepId] - ID of the step the section belongs to
  * @param {string} props.hypervisor - VM hypervisor
  * @returns {ReactElement} - Context vars section
  */
-const ContextVarsSection = ({ hypervisor }) => {
+const ContextVarsSection = ({ stepId, hypervisor }) => {
   const { enqueueError } = useGeneralApi()
   const { setValue } = useFormContext()
-  const customVars = useWatch({ name: `${EXTRA_ID}.${SECTION_ID}` })
+  const customVars = useWatch({
+    name: [stepId, SECTION_ID].filter(Boolean).join('.'),
+  })
 
   const unknownVars = useMemo(() => {
     const knownVars = CONTEXT_SCHEMA(hypervisor).cast(
@@ -57,7 +58,7 @@ const ContextVarsSection = ({ hypervisor }) => {
   const handleChangeAttribute = useCallback(
     (path, newValue) => {
       const contextPath = `${SECTION_ID}.${path}`
-      const formPath = `${EXTRA_ID}.${contextPath}`
+      const formPath = [stepId, contextPath].filter(Boolean).join('.')
 
       try {
         // retrieve the schema for the given path
@@ -100,10 +101,8 @@ const ContextVarsSection = ({ hypervisor }) => {
 }
 
 ContextVarsSection.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
+  stepId: PropTypes.string,
   hypervisor: PropTypes.string,
-  control: PropTypes.object,
 }
 
 export default ContextVarsSection
