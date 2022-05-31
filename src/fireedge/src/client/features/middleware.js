@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { isRejectedWithValue, Middleware, Dispatch } from '@reduxjs/toolkit'
 
+import authApi from 'client/features/OneApi/auth'
 import { name as authName, logout } from 'client/features/Auth/slice'
 import { T, ONEADMIN_GROUP_ID } from 'client/constants'
 
@@ -26,7 +27,10 @@ export const unauthenticatedMiddleware =
   ({ dispatch }) =>
   (next) =>
   (action) => {
-    if (isRejectedWithValue(action) && action.payload.status === 401) {
+    if (
+      authApi.endpoints.getAuthUser.matchRejected(action) ||
+      (isRejectedWithValue(action) && action.payload.status === 401)
+    ) {
       dispatch(logout(T.SessionExpired))
     }
 
