@@ -186,7 +186,7 @@ export const AttributePropTypes = {
   handleDelete: PropTypes.func,
   handleEdit: PropTypes.func,
   handleGetOptionList: PropTypes.func,
-  link: PropTypes.string,
+  link: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   icon: PropTypes.any,
   name: PropTypes.string.isRequired,
   path: PropTypes.string,
