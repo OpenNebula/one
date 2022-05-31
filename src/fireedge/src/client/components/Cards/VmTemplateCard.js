@@ -31,6 +31,7 @@ import {
   timeFromMilliseconds,
   getUniqueLabels,
   getColorFromString,
+  stringToBoolean,
 } from 'client/models/Helper'
 import { isExternalURL } from 'client/utils'
 import {
@@ -69,6 +70,7 @@ const VmTemplateCard = memo(
 
     const isExternalImage = useMemo(() => isExternalURL(LOGO), [LOGO])
     const time = useMemo(() => timeFromMilliseconds(+REGTIME), [REGTIME])
+    const isVR = useMemo(() => stringToBoolean(VROUTER), [VROUTER])
 
     const logoSource = useMemo(() => {
       if (!LOGO) return `${STATIC_FILES_URL}/${DEFAULT_TEMPLATE_LOGO}`
@@ -103,7 +105,7 @@ const VmTemplateCard = memo(
             <span className={classes.labels}>
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock />}
-              {VROUTER && <StatusChip text={'VROUTER'} />}
+              {isVR && <StatusChip text={'VROUTER'} />}
               <MultipleTags tags={labels} />
             </span>
           </div>
