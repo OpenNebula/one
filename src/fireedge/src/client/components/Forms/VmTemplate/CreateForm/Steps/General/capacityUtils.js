@@ -78,12 +78,15 @@ const modificationTypeInput = (fieldName, { type: typeId }) => ({
     getText: (type) => sentenceCase(type),
   }),
   validation: lazy((_, { context }) =>
-    string().default(() => {
-      const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
-      const { type } = getUserInputParams(capacityUserInput)
+    string()
+      .default(() => {
+        const capacityUserInput = context.extra?.USER_INPUTS?.[fieldName]
+        const { type } = getUserInputParams(capacityUserInput)
 
-      return type
-    })
+        return type
+      })
+      // Modification type is not required in template
+      .afterSubmit(() => undefined)
   ),
   grid: { md: 3 },
 })

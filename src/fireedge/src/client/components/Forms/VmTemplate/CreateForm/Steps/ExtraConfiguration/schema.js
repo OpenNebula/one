@@ -19,7 +19,7 @@ import { HYPERVISORS } from 'client/constants'
 import { getObjectSchemaFromFields } from 'client/utils'
 import { FIELDS as PLACEMENT_FIELDS } from './placement/schema'
 import { FIELDS as OS_FIELDS, BOOT_ORDER_FIELD } from './booting/schema'
-import { FIELDS as NUMA_FIELDS } from './numa/schema'
+import { SCHEMA as NUMA_SCHEMA, FIELDS as NUMA_FIELDS } from './numa/schema'
 import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
 import { SCHEMA as STORAGE_SCHEMA } from './storage/schema'
@@ -57,12 +57,9 @@ export const SCHEMA = (hypervisor) =>
     .concat(CONTEXT_SCHEMA(hypervisor))
     .concat(IO_SCHEMA(hypervisor))
     .concat(
-      getObjectSchemaFromFields([
-        ...PLACEMENT_FIELDS,
-        ...OS_FIELDS(hypervisor),
-        ...NUMA_FIELDS(hypervisor),
-      ])
+      getObjectSchemaFromFields([...PLACEMENT_FIELDS, ...OS_FIELDS(hypervisor)])
     )
+    .concat(NUMA_SCHEMA(hypervisor))
 
 export {
   mapNameByIndex,
