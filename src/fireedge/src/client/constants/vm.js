@@ -1151,3 +1151,22 @@ export const EXTERNAL_IP_ATTRS = [
   'AZ_IPADDRESS',
   'SL_PRIMARYIPADDRESS',
 ]
+
+/** @enum {string[]} Supported configuration attributes in the VM */
+export const ATTR_CONF_CAN_BE_UPDATED = {
+  OS: [
+    'ARCH',
+    'MACHINE',
+    'KERNEL',
+    'INITRD',
+    'BOOTLOADER',
+    'BOOT',
+    'SD_DISK_BUS',
+    'UUID',
+  ],
+  FEATURES: ['ACPI', 'PAE', 'APIC', 'LOCALTIME', 'HYPERV', 'GUEST_AGENT'],
+  INPUT: ['TYPE', 'BUS'],
+  GRAPHICS: ['TYPE', 'LISTEN', 'PASSWD', 'KEYMAP'],
+  RAW: ['DATA', 'DATA_VMX', 'TYPE'],
+  CONTEXT: '*',
+}

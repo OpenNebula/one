@@ -61,9 +61,7 @@ const DISABLE_ANIMATIONS_FIELD = {
   name: 'DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
   type: INPUT_TYPES.CHECKBOX,
-  validation: boolean()
-    .yesOrNo()
-    .default(() => false),
+  validation: boolean(),
   grid: { md: 12 },
 }
 

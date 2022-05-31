@@ -26,11 +26,11 @@ import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 const { vcenter, lxc, kvm } = HYPERVISORS
 
 /** @type {Field} Type field */
-const TYPE = {
+export const TYPE = {
   name: 'GRAPHICS.TYPE',
   type: INPUT_TYPES.TOGGLE,
-  dependOf: '$general.HYPERVISOR',
-  values: (hypervisor = kvm) => {
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
+  values: ([templateHyperv = kvm, hypervisor = templateHyperv] = []) => {
     const types = {
       [vcenter]: [T.Vmrc],
       [lxc]: [T.Vnc],
@@ -41,12 +41,13 @@ const TYPE = {
   validation: string()
     .trim()
     .notRequired()
+    .uppercase()
     .default(() => undefined),
   grid: { md: 12 },
 }
 
 /** @type {Field} Listen field */
-const LISTEN = {
+export const LISTEN = {
   name: 'GRAPHICS.LISTEN',
   label: T.ListenOnIp,
   type: INPUT_TYPES.TEXT,
@@ -61,7 +62,7 @@ const LISTEN = {
 }
 
 /** @type {Field} Port field */
-const PORT = {
+export const PORT = {
   name: 'GRAPHICS.PORT',
   label: T.ServerPort,
   tooltip: T.ServerPortConcept,
@@ -75,7 +76,7 @@ const PORT = {
 }
 
 /** @type {Field} Keymap field */
-const KEYMAP = {
+export const KEYMAP = {
   name: 'GRAPHICS.KEYMAP',
   label: T.Keymap,
   type: INPUT_TYPES.TEXT,
@@ -89,7 +90,7 @@ const KEYMAP = {
 }
 
 /** @type {Field} Password random field  */
-const RANDOM_PASSWD = {
+export const RANDOM_PASSWD = {
   name: 'GRAPHICS.RANDOM_PASSWD',
   label: T.GenerateRandomPassword,
   type: INPUT_TYPES.CHECKBOX,
@@ -100,7 +101,7 @@ const RANDOM_PASSWD = {
 }
 
 /** @type {Field} Password field */
-const PASSWD = {
+export const PASSWD = {
   name: 'GRAPHICS.PASSWD',
   label: T.Password,
   type: INPUT_TYPES.PASSWORD,
@@ -115,7 +116,7 @@ const PASSWD = {
 }
 
 /** @type {Field} Command field */
-const COMMAND = {
+export const COMMAND = {
   name: 'GRAPHICS.COMMAND',
   label: T.Command,
   notOnHypervisors: [lxc],
@@ -139,6 +140,6 @@ export const GRAPHICS_FIELDS = (hypervisor) =>
     hypervisor
   )
 
-/** @type {ObjectSchema} Context Files schema */
+/** @type {ObjectSchema} Graphics schema */
 export const GRAPHICS_SCHEMA = (hypervisor) =>
   getObjectSchemaFromFields(GRAPHICS_FIELDS(hypervisor))

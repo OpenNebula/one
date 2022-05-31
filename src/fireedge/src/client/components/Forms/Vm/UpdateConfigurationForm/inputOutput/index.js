@@ -13,47 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
+import { Stack } from '@mui/material'
 
-import {
-  TabType,
-  STEP_ID as EXTRA_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, {
-  SECTION_ID as USER_INPUTS_ID,
-} from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
-import ContextVarsSection from './contextVarsSection'
+import { FormWithSchema } from 'client/components/Forms'
 
-import { T } from 'client/constants'
+import InputsSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/inputsSection'
+import { GRAPHICS_FIELDS } from 'client/components/Forms/Vm/UpdateConfigurationForm/inputOutput/schema'
+import { T, HYPERVISORS } from 'client/constants'
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = (props) => (
-  <>
-    <ConfigurationSection stepId={EXTRA_ID} />
-    <UserInputsSection />
-    <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} {...props} />
-  </>
+/**
+ * @param {object} props - Component props
+ * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @returns {ReactElement} IO section component
+ */
+const InputOutput = ({ hypervisor }) => (
+  <Stack
+    display="grid"
+    gap="1em"
+    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+  >
+    <FormWithSchema
+      cy={'io-graphics'}
+      fields={useMemo(() => GRAPHICS_FIELDS({ hypervisor }), [hypervisor])}
+      legend={T.Graphics}
+    />
+    <InputsSection hypervisor={hypervisor} />
+  </Stack>
 )
 
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
-}
+InputOutput.propTypes = { hypervisor: PropTypes.string }
+InputOutput.displayName = 'InputOutput'
 
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: (error) => TAB_ID.some((id) => error?.[id]),
-}
-
-export default TAB
+export default InputOutput

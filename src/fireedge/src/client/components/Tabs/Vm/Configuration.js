@@ -13,52 +13,147 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
+import {
+  useGetVmQuery,
+  useUpdateConfigurationMutation,
+} from 'client/features/OneApi/vm'
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { UpdateConfigurationForm } from 'client/components/Forms/Vm'
+import { List } from 'client/components/Tabs/Common'
+
+import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
+import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
+import { T, VM_ACTIONS, ATTR_CONF_CAN_BE_UPDATED } from 'client/constants'
+
+const { UPDATE_CONF } = VM_ACTIONS
 
 /**
  * Renders configuration tab.
  *
  * @param {object} props - Props
+ * @param {object|boolean} props.tabProps - Tab properties
+ * @param {object} [props.tabProps.actions] - Actions from tab view yaml
  * @param {string} props.id - Virtual machine id
  * @returns {ReactElement} Configuration tab
  */
-const VmConfigurationTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
-  const { TEMPLATE, USER_TEMPLATE } = vm
+const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
+  const [updateConf] = useUpdateConfigurationMutation()
+  const { data: vm = {}, isFetching } = useGetVmQuery({ id })
+  const { TEMPLATE } = vm
+
+  const hypervisor = useMemo(() => getHypervisor(vm), [vm])
+
+  const isUpdateConfEnabled = useMemo(() => {
+    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
+    const actionsByState = actionsByHypervisor.filter((action) =>
+      isAvailableAction(action, vm)
+    )
+
+    return actionsByState.includes?.(UPDATE_CONF)
+  }, [vm])
+
+  const [
+    osAttributes,
+    featuresAttributes,
+    inputAttributes,
+    graphicsAttributes,
+    rawAttributes,
+    contextAttributes,
+  ] = useMemo(() => {
+    const filterSection = (section) => {
+      const supported = ATTR_CONF_CAN_BE_UPDATED[section] || '*'
+      const attributes = TEMPLATE[section] || {}
+      const sectionAttributes = []
+
+      const getAttrFromEntry = (key, value, idx) => {
+        const isSupported = supported === '*' || supported.includes(key)
+        const hasValue = typeof value === 'string' && value !== ''
+
+        if (isSupported && hasValue) {
+          const name = idx ? `${idx}.${key}` : key
+          sectionAttributes.push({ name, value, dataCy: name })
+        }
+      }
+
+      const addAttrFromAttributes = (attrs, keyAsIndex) => {
+        for (const [key, value] of Object.entries(attrs)) {
+          typeof value === 'object'
+            ? addAttrFromAttributes(value, key)
+            : getAttrFromEntry(key, value, keyAsIndex)
+        }
+      }
+
+      addAttrFromAttributes(attributes)
+
+      return sectionAttributes
+    }
+
+    return Object.keys(ATTR_CONF_CAN_BE_UPDATED).map(filterSection)
+  }, [TEMPLATE])
+
+  const handleUpdateConf = async (newConfiguration) => {
+    const xml = jsonToXml(newConfiguration)
+    await updateConf({ id, template: xml })
+  }
 
   return (
-    <div>
-      <Accordion variant="outlined">
-        <AccordionSummary>
-          <Translate word={T.UserTemplate} />
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code style={{ whiteSpace: 'break-spaces' }}>
-              {JSON.stringify(USER_TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion variant="outlined">
-        <AccordionSummary>
-          <Translate word={T.Template} />
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>
-            <code style={{ whiteSpace: 'break-spaces' }}>
-              {JSON.stringify(TEMPLATE, null, 2)}
-            </code>
-          </pre>
-        </AccordionDetails>
-      </Accordion>
-    </div>
+    <Box>
+      {isUpdateConfEnabled && (
+        <ButtonToTriggerForm
+          buttonProps={{
+            color: 'secondary',
+            'data-cy': 'update-conf',
+            label: T.UpdateVmConfiguration,
+            variant: 'outlined',
+            disabled: isFetching,
+          }}
+          options={[
+            {
+              dialogProps: {
+                title: T.UpdateVmConfiguration,
+                dataCy: 'modal-update-conf',
+              },
+              form: () =>
+                UpdateConfigurationForm({
+                  stepProps: { hypervisor },
+                  initialValues: vm,
+                }),
+              onSubmit: handleUpdateConf,
+            },
+          ]}
+        />
+      )}
+
+      <Stack
+        display="grid"
+        gap="1em"
+        gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+        marginTop="0.5em"
+      >
+        {osAttributes?.length > 0 && (
+          <List title={T.OSAndCpu} list={osAttributes} />
+        )}
+        {featuresAttributes?.length > 0 && (
+          <List title={T.Features} list={featuresAttributes} />
+        )}
+        {inputAttributes?.length > 0 && (
+          <List title={T.Input} list={inputAttributes} />
+        )}
+        {graphicsAttributes?.length > 0 && (
+          <List title={T.Graphics} list={graphicsAttributes} />
+        )}
+        {rawAttributes?.length > 0 && (
+          <List title={T.Raw} list={rawAttributes} />
+        )}
+        {contextAttributes?.length > 0 && (
+          <List title={T.Context} list={contextAttributes} />
+        )}
+      </Stack>
+    </Box>
   )
 }
 

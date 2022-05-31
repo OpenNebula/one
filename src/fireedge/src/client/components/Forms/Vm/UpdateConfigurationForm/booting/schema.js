@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { ObjectSchema } from 'yup'
 
-import { BaseSchema, string } from 'yup'
-
-import { BOOT_FIELDS } from './bootSchema'
-import { KERNEL_FIELDS } from './kernelSchema'
-import { RAMDISK_FIELDS } from './ramdiskSchema'
-import { FEATURES_FIELDS } from './featuresSchema'
-import { RAW_FIELDS } from './rawSchema'
+import * as bootingSchema from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
 
 import {
   Field,
@@ -28,32 +23,31 @@ import {
   getObjectSchemaFromFields,
   filterFieldsByHypervisor,
 } from 'client/utils'
-import { T, HYPERVISORS } from 'client/constants'
+import { T, HYPERVISORS, ATTR_CONF_CAN_BE_UPDATED } from 'client/constants'
+
+const getFields = (section) =>
+  section.map((attr) => bootingSchema[attr]).filter(Boolean)
+
+// Supported fields
+const OS_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.OS)
+const FEATURES_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.FEATURES)
+const RAW_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.RAW)
 
 /**
- * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @param {object} [formProps] - Form props
+ * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
  * @returns {Section[]} Sections
  */
-const SECTIONS = (hypervisor) => [
+const SECTIONS = ({ hypervisor }) => [
   {
     id: 'os-boot',
     legend: T.Boot,
-    fields: filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
+    fields: filterFieldsByHypervisor(OS_FIELDS, hypervisor),
   },
   {
     id: 'os-features',
     legend: T.Features,
     fields: filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
-  },
-  {
-    id: 'os-kernel',
-    legend: T.Kernel,
-    fields: filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor),
-  },
-  {
-    id: 'os-ramdisk',
-    legend: T.Ramdisk,
-    fields: filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
   },
   {
     id: 'os-raw',
@@ -63,35 +57,23 @@ const SECTIONS = (hypervisor) => [
   },
 ]
 
-/** @type {Field} Boot order field */
-const BOOT_ORDER_FIELD = {
-  name: 'OS.BOOT',
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => ''),
-}
-
 /**
- * @param {string} [hypervisor] - VM hypervisor
- * @returns {Field[]} All 'OS & CPU' fields
+ * @param {object} [formProps] - Form props
+ * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
+ * @returns {Field[]} OS fields
  */
-const FIELDS = (hypervisor) => [
-  BOOT_ORDER_FIELD,
-  ...SECTIONS(hypervisor)
+const FIELDS = ({ hypervisor }) => [
+  ...SECTIONS({ hypervisor })
     .map(({ fields }) => fields)
     .flat(),
 ]
 
 /**
- * @param {HYPERVISORS} [hypervisor] - VM hypervisor
- * @returns {BaseSchema} Step schema
+ * @param {object} [formProps] - Form props
+ * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
+ * @returns {ObjectSchema} Step schema
  */
-const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
+const SCHEMA = ({ hypervisor }) =>
+  getObjectSchemaFromFields(FIELDS({ hypervisor }))
 
-export { SECTIONS, FIELDS, BOOT_ORDER_FIELD, SCHEMA }
-export * from './bootSchema'
-export * from './kernelSchema'
-export * from './ramdiskSchema'
-export * from './featuresSchema'
-export * from './rawSchema'
+export { SECTIONS, FIELDS, SCHEMA }

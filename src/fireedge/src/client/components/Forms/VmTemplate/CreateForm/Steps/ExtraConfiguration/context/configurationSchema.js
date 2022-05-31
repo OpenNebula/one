@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, ref, ObjectSchema } from 'yup'
+import { string, boolean, lazy, ObjectSchema } from 'yup'
 
 import { T, INPUT_TYPES } from 'client/constants'
 import { Field, getObjectSchemaFromFields, decodeBase64 } from 'client/utils'
@@ -64,9 +64,9 @@ export const ENCODE_START_SCRIPT = {
   name: 'CONTEXT.ENCODE_START_SCRIPT',
   label: T.EncodeScriptInBase64,
   ...switchField,
-  validation: boolean()
-    .transform((value) => Boolean(value))
-    .default(() => ref('$extra.CONTEXT.START_SCRIPT_BASE64')),
+  validation: lazy((_, { context }) =>
+    boolean().default(() => !!context?.CONTEXT?.START_SCRIPT_BASE64)
+  ),
 }
 
 /** @type {Field} Start script field */
@@ -76,13 +76,21 @@ export const START_SCRIPT = {
   tooltip: T.StartScriptConcept,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: string()
-    .trim()
-    .notRequired()
-    .ensure()
-    .when('$extra.CONTEXT.START_SCRIPT_BASE64', (scriptEncoded, schema) =>
-      scriptEncoded ? schema.default(() => decodeBase64(scriptEncoded)) : schema
-    ),
+  validation: lazy((value, { context }) =>
+    string()
+      .trim()
+      .notRequired()
+      .ensure()
+      .default(() => {
+        try {
+          const base64 = context?.CONTEXT?.START_SCRIPT_BASE64
+
+          return value ?? decodeBase64(base64 ?? '')
+        } catch {
+          return value
+        }
+      })
+  ),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
 }

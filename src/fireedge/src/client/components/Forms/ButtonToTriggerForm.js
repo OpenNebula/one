@@ -27,9 +27,7 @@ import {
   DialogPropTypes,
 } from 'client/components/Dialogs'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import SubmitButton, {
-  SubmitButtonPropTypes,
-} from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
@@ -130,6 +128,7 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
               resolver,
               description,
               fields,
+              ContentForm,
               onSubmit,
             }) =>
               resolver && (
@@ -145,6 +144,8 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
                       schema={resolver}
                       onSubmit={onSubmit}
                     />
+                  ) : ContentForm ? (
+                    <ContentForm />
                   ) : (
                     <>
                       {description}
@@ -161,7 +162,7 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
 }
 
 export const ButtonToTriggerFormPropTypes = {
-  buttonProps: PropTypes.shape(SubmitButtonPropTypes),
+  buttonProps: PropTypes.shape({ ...SubmitButton.propTypes }),
   options: PropTypes.arrayOf(
     PropTypes.shape({
       cy: PropTypes.string,
@@ -176,7 +177,6 @@ export const ButtonToTriggerFormPropTypes = {
 }
 
 ButtonToTriggerForm.propTypes = ButtonToTriggerFormPropTypes
-
 ButtonToTriggerForm.displayName = 'ButtonToTriggerForm'
 
 export default ButtonToTriggerForm

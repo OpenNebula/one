@@ -33,6 +33,30 @@ import {
   getUnknownAttributes,
 } from 'client/utils'
 
+/**
+ * Encodes the start script value to base64 if it is not already encoded.
+ *
+ * @param {object} template - VM template
+ * @returns {object} Context with the start script value encoded
+ */
+export const ensureContextWithScript = (template = {}) => {
+  template.CONTEXT = ((context = {}) => {
+    const { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext } = context
+
+    if (!START_SCRIPT) return { ...restOfContext }
+    if (!ENCODE_START_SCRIPT) return { ...restOfContext, START_SCRIPT }
+
+    // encode the script if it is not already encoded
+    const encodedScript = isBase64(START_SCRIPT)
+      ? START_SCRIPT
+      : encodeBase64(START_SCRIPT)
+
+    return { ...restOfContext, START_SCRIPT_BASE64: encodedScript }
+  })(template.CONTEXT)
+
+  return { ...template }
+}
+
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   transformInitialValue: (vmTemplate, schema) => {
     const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
@@ -44,7 +68,10 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
         [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
         [EXTRA_ID]: { ...vmTemplate?.TEMPLATE, USER_INPUTS: userInputs },
       },
-      { stripUnknown: true, context: { [EXTRA_ID]: vmTemplate.TEMPLATE } }
+      {
+        stripUnknown: true,
+        context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
+      }
     )
 
     const knownAttributes = {
@@ -61,15 +88,18 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     // Get the custom vars from the context
     const knownContext = reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
       vmTemplate?.TEMPLATE?.CONTEXT,
-      { stripUnknown: true, context: { extra: vmTemplate.TEMPLATE } }
+      {
+        stripUnknown: true,
+        context: {
+          ...vmTemplate,
+          [EXTRA_ID]: vmTemplate.TEMPLATE,
+        },
+      }
     )
 
     // Merge known and unknown context custom vars
     knownTemplate[EXTRA_ID].CONTEXT = {
-      ...reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
-        vmTemplate?.TEMPLATE?.CONTEXT,
-        { stripUnknown: true, context: { extra: vmTemplate.TEMPLATE } }
-      ),
+      ...knownContext,
       ...getUnknownAttributes(vmTemplate?.TEMPLATE?.CONTEXT, knownContext),
     }
 
@@ -77,38 +107,25 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   },
   transformBeforeSubmit: (formData) => {
     const {
-      [GENERAL_ID]: { MODIFICATION: _, ...general } = {},
+      [GENERAL_ID]: general = {},
       [CUSTOM_ID]: customVariables = {},
-      [EXTRA_ID]: {
-        CONTEXT: { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext },
-        TOPOLOGY: { ENABLE_NUMA, ...restOfTopology },
-        ...extraTemplate
-      } = {},
+      [EXTRA_ID]: extraTemplate = {},
     } = formData ?? {}
 
-    const context = {
-      ...restOfContext,
-      // transform start script to base64 if needed
-      [ENCODE_START_SCRIPT ? 'START_SCRIPT_BASE64' : 'START_SCRIPT']:
-        ENCODE_START_SCRIPT && !isBase64(START_SCRIPT)
-          ? encodeBase64(START_SCRIPT)
-          : START_SCRIPT,
-    }
-    const topology = ENABLE_NUMA ? { TOPOLOGY: restOfTopology } : {}
+    ensureContextWithScript(extraTemplate)
 
     // add user inputs to context
     Object.keys(extraTemplate?.USER_INPUTS ?? {}).forEach((name) => {
       const isCapacity = ['MEMORY', 'CPU', 'VCPU'].includes(name)
       const upperName = String(name).toUpperCase()
-      !isCapacity && (context[upperName] = `$${upperName}`)
+
+      !isCapacity && (extraTemplate.CONTEXT[upperName] = `$${upperName}`)
     })
 
     return jsonToXml({
       ...customVariables,
       ...extraTemplate,
       ...general,
-      ...topology,
-      CONTEXT: context,
     })
   },
 })

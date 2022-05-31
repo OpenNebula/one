@@ -157,6 +157,7 @@ module.exports = {
   UnReschedule: 'Un-Reschedule',
   Unshare: 'Unshare',
   Update: 'Update',
+  UpdateVmConfiguration: 'Update VM Configuration',
   UpdateProvider: 'Update Provider',
   UpdateScheduleAction: 'Update schedule action: %s',
   UpdateVmTemplate: 'Update VM Template',
@@ -663,6 +664,7 @@ module.exports = {
     Number of iothreads for virtio disks.
     By default threads will be assign to disk by round robin algorithm.
     Disk thread id can be forced by disk IOTHREAD attribute`,
+  Raw: 'Raw',
   RawData: 'Raw data',
   RawDataConcept: 'Raw data to be passed directly to the hypervisor',
   RawValidateConcept: `
@@ -701,6 +703,7 @@ module.exports = {
   ContextCustomVarErrorExists: 'Context Custom Variable already exists',
   /* VM Template schema - Input/Output */
   InputOrOutput: 'Input / Output',
+  Input: 'Input',
   Inputs: 'Inputs',
   PciDevices: 'PCI Devices',
   DeviceName: 'Device name',

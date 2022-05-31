@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { FormWithSchema } from 'client/components/Forms'
 
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { FILES_FIELDS } from './schema'
 import { T } from 'client/constants'
 
@@ -26,24 +25,26 @@ export const SECTION_ID = 'CONTEXT'
 
 /**
  * @param {object} props - Props
+ * @param {string} [props.stepId] - ID of the step the section belongs to
  * @param {string} props.hypervisor - VM hypervisor
- * @returns {JSXElementConstructor} - Files section
+ * @returns {ReactElement} - Files section
  */
-const FilesSection = ({ hypervisor }) => (
+const FilesSection = ({ stepId, hypervisor }) => (
   <FormWithSchema
     accordion
-    cy={`${EXTRA_ID}-context-files`}
     legend={T.Files}
-    fields={() => FILES_FIELDS(hypervisor)}
-    id={EXTRA_ID}
+    id={stepId}
+    cy={useMemo(
+      () => [stepId, 'context-files'].filter(Boolean).join('-'),
+      [stepId]
+    )}
+    fields={useMemo(() => FILES_FIELDS(hypervisor), [hypervisor])}
   />
 )
 
 FilesSection.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
+  stepId: PropTypes.string,
   hypervisor: PropTypes.string,
-  control: PropTypes.object,
 }
 
 export default FilesSection

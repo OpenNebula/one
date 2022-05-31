@@ -31,6 +31,8 @@ import History from 'client/components/Tabs/Vm/History'
 import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
+import Configuration from 'client/components/Tabs/Vm/Configuration'
+import Template from 'client/components/Tabs/Vm/Template'
 
 const getTabComponent = (tabName) =>
   ({
@@ -42,6 +44,8 @@ const getTabComponent = (tabName) =>
     schedActions: SchedActions,
     snapshot: Snapshot,
     storage: Storage,
+    configuration: Configuration,
+    template: Template,
   }[tabName])
 
 const VmTabs = memo(({ id }) => {

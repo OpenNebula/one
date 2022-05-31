@@ -13,47 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { Folder as ContextIcon } from 'iconoir-react'
+import { object, ObjectSchema } from 'yup'
 
-import {
-  TabType,
-  STEP_ID as EXTRA_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import UserInputsSection, {
-  SECTION_ID as USER_INPUTS_ID,
-} from './userInputsSection'
-import ConfigurationSection from './configurationSection'
-import FilesSection from './filesSection'
-import ContextVarsSection from './contextVarsSection'
+import { HYPERVISORS } from 'client/constants'
+import { SCHEMA as OS_SCHEMA } from './booting/schema'
+import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
+import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
 
-import { T } from 'client/constants'
+/**
+ * @param {object} [formProps] - Form props
+ * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
+ * @returns {ObjectSchema} Configuration schema
+ */
+export const SCHEMA = ({ hypervisor }) =>
+  object()
+    .concat(IO_SCHEMA({ hypervisor }))
+    .concat(OS_SCHEMA({ hypervisor }))
+    .concat(CONTEXT_SCHEMA({ hypervisor }))
 
-export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
-
-const Context = (props) => (
-  <>
-    <ConfigurationSection stepId={EXTRA_ID} />
-    <UserInputsSection />
-    <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} {...props} />
-  </>
-)
-
-Context.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  hypervisor: PropTypes.string,
-  control: PropTypes.object,
-}
-
-/** @type {TabType} */
-const TAB = {
-  id: 'context',
-  name: T.Context,
-  icon: ContextIcon,
-  Content: Context,
-  getError: (error) => TAB_ID.some((id) => error?.[id]),
-}
-
-export default TAB
+export { IO_SCHEMA, OS_SCHEMA, CONTEXT_SCHEMA }

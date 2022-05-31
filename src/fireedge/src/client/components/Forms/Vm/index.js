@@ -149,6 +149,13 @@ const CreateRelativeCharterForm = (configProps) =>
     configProps
   )
 
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const UpdateConfigurationForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/UpdateConfigurationForm' }, configProps)
+
 export {
   AttachNicForm,
   AttachSecGroupForm,
@@ -167,5 +174,6 @@ export {
   ResizeDiskForm,
   SaveAsDiskForm,
   SaveAsTemplateForm,
+  UpdateConfigurationForm,
   VolatileSteps,
 }
