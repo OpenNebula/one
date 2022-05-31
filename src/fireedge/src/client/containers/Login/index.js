@@ -200,7 +200,7 @@ const AppLinks = () => {
       color="text.secondary"
       padding={1}
     >
-      <Translate word={T.TakeMeToTheAppGui} values={name} />
+      <Translate word={T.TakeMeToTheAppGui} values={app} />
     </Link>
   ))
 }
