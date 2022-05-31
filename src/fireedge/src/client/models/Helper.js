@@ -79,7 +79,7 @@ export const booleanToString = (bool) => (bool ? T.Yes : T.No)
  * in other cases, return false.
  */
 export const stringToBoolean = (str) =>
-  String(str).toLowerCase() === 'yes' || +str === 1
+  ['yes', 'true'].includes(String(str).toLowerCase()) || +str === 1
 
 /**
  * Formats a number into a string according to the currency configuration.
