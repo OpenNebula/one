@@ -24,7 +24,6 @@ import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
-import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Info from 'client/components/Tabs/Vm/Info'
 import Network from 'client/components/Tabs/Vm/Network'
 import History from 'client/components/Tabs/Vm/History'
@@ -37,7 +36,6 @@ import Template from 'client/components/Tabs/Vm/Template'
 const getTabComponent = (tabName) =>
   ({
     capacity: Capacity,
-    configuration: Configuration,
     info: Info,
     network: Network,
     history: History,
