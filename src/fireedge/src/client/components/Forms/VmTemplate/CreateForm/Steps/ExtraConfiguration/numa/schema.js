@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, number, boolean, lazy } from 'yup'
+import { string, number, boolean, lazy, ObjectSchema } from 'yup'
 
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getHugepageSizes } from 'client/models/Host'
@@ -31,11 +31,10 @@ import {
   sentenceCase,
   prettyBytes,
   arrayToOptions,
+  getObjectSchemaFromFields,
 } from 'client/utils'
 
 const { vcenter, firecracker } = HYPERVISORS
-
-const threadsValidation = number().nullable().notRequired().integer()
 
 const ENABLE_NUMA = {
   name: 'TOPOLOGY.ENABLE_NUMA',
@@ -48,104 +47,105 @@ const ENABLE_NUMA = {
   grid: { md: 12 },
 }
 
-/**
- * @param {HYPERVISORS} hypervisor - VM hypervisor
- * @returns {Field} Pin policy field
- */
-const PIN_POLICY = (hypervisor) => {
-  const isVCenter = hypervisor === vcenter
-  const isFirecracker = hypervisor === firecracker
-
-  return {
-    name: 'TOPOLOGY.PIN_POLICY',
-    label: T.PinPolicy,
-    tooltip: [T.PinPolicyConcept, NUMA_PIN_POLICIES.join(', ')],
-    type: INPUT_TYPES.SELECT,
-    values: arrayToOptions(NUMA_PIN_POLICIES, {
-      addEmpty: false,
-      getText: sentenceCase,
-    }),
-    validation: string()
+/** @type {Field} Pin policy field */
+const PIN_POLICY = {
+  name: 'TOPOLOGY.PIN_POLICY',
+  label: T.PinPolicy,
+  tooltip: [T.PinPolicyConcept, NUMA_PIN_POLICIES.join(', ')],
+  type: INPUT_TYPES.SELECT,
+  values: arrayToOptions(NUMA_PIN_POLICIES, {
+    addEmpty: false,
+    getText: sentenceCase,
+  }),
+  dependOf: '$general.HYPERVISOR',
+  validation: lazy((_, { context }) =>
+    string()
       .trim()
       .notRequired()
       .default(
         () =>
-          isFirecracker
+          context?.general?.HYPERVISOR === firecracker
             ? NUMA_PIN_POLICIES[2] // SHARED
             : NUMA_PIN_POLICIES[0] // NONE
-      ),
-    fieldProps: { disabled: isVCenter || isFirecracker },
-  }
+      )
+  ),
+  fieldProps: (hypervisor) => ({
+    disabled: [vcenter, firecracker].includes(hypervisor),
+  }),
 }
 
-/**
- * @param {HYPERVISORS} hypervisor - VM hypervisor
- * @returns {Field} Cores field
- */
-const CORES = (hypervisor) => ({
+/** @type {Field} Cores field */
+const CORES = {
   name: 'TOPOLOGY.CORES',
   label: T.Cores,
   tooltip: T.NumaCoresConcept,
-  dependOf: '$general.VCPU',
-  type: hypervisor === vcenter ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT,
+  dependOf: ['$general.VCPU', '$general.HYPERVISOR'],
+  type: ([, hypervisor] = []) =>
+    hypervisor === vcenter ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT,
   htmlType: 'number',
-  values: (vcpu) => arrayToOptions(getFactorsOfNumber(vcpu ?? 0)),
+  values: ([vcpu] = []) => arrayToOptions(getFactorsOfNumber(vcpu ?? 0)),
   validation: number()
     .notRequired()
     .integer()
     .default(() => undefined),
-})
+}
 
-/**
- * @param {HYPERVISORS} hypervisor - VM hypervisor
- * @returns {Field} Sockets field
- */
-const SOCKETS = (hypervisor) => ({
+/** @type {Field} Sockets field */
+const SOCKETS = {
   name: 'TOPOLOGY.SOCKETS',
   label: T.Sockets,
   tooltip: T.NumaSocketsConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
+  dependOf: ['$general.HYPERVISOR', '$general.VCPU', 'TOPOLOGY.CORES'],
   validation: number()
     .notRequired()
     .integer()
     .default(() => 1),
-  fieldProps: {
-    disabled: hypervisor === firecracker,
-  },
-  ...(hypervisor === vcenter && {
-    fieldProps: { disabled: true },
-    dependOf: ['$general.VCPU', 'TOPOLOGY.CORES'],
-    watcher: ([vcpu, cores] = []) => {
-      if (!isNaN(+vcpu) && !isNaN(+cores) && +cores !== 0) {
-        return vcpu / cores
-      }
-    },
+  fieldProps: (hypervisor) => ({
+    disabled: [vcenter, firecracker].includes(hypervisor),
   }),
-})
+  watcher: ([hypervisor, vcpu, cores] = []) => {
+    if (hypervisor === vcenter) return
 
-/**
- * @param {HYPERVISORS} hypervisor - VM hypervisor
- * @returns {Field} Threads field
- */
-const THREADS = (hypervisor) => ({
+    if (!isNaN(+vcpu) && !isNaN(+cores) && +cores !== 0) {
+      return vcpu / cores
+    }
+  },
+}
+
+const emptyStringToNull = (value, originalValue) =>
+  originalValue === '' ? null : value
+
+const threadsValidation = number()
+  .nullable()
+  .integer()
+  .transform(emptyStringToNull)
+
+/** @type {Field} Threads field */
+const THREADS = {
   name: 'TOPOLOGY.THREADS',
   label: T.Threads,
   tooltip: T.ThreadsConcept,
-  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  validation: threadsValidation,
-  ...(hypervisor === firecracker && {
-    type: INPUT_TYPES.SELECT,
-    values: arrayToOptions([1, 2]),
-    validation: threadsValidation.min(1).max(2),
-  }),
-  ...(hypervisor === vcenter && {
-    type: INPUT_TYPES.SELECT,
-    values: arrayToOptions([1]),
-    validation: threadsValidation.min(1).max(1),
-  }),
-})
+  dependOf: '$general.HYPERVISOR',
+  type: (hypervisor) =>
+    [firecracker, vcenter].includes(hypervisor)
+      ? INPUT_TYPES.SELECT
+      : INPUT_TYPES.TEXT,
+  values: (hypervisor) =>
+    ({
+      [firecracker]: arrayToOptions([1, 2]),
+      [vcenter]: arrayToOptions([1]),
+    }[hypervisor]),
+  validation: lazy(
+    (_, { context }) =>
+      ({
+        [firecracker]: threadsValidation.min(1).max(2),
+        [vcenter]: threadsValidation.min(1).max(1),
+      }[context?.general?.HYPERVISOR] || threadsValidation)
+  ),
+}
 
 /** @type {Field} Hugepage size field */
 const HUGEPAGES = {
@@ -200,4 +200,23 @@ const NUMA_FIELDS = (hypervisor) =>
  */
 const SCHEMA_FIELDS = (hypervisor) => [ENABLE_NUMA, ...NUMA_FIELDS(hypervisor)]
 
-export { NUMA_FIELDS, SCHEMA_FIELDS as FIELDS, ENABLE_NUMA }
+/**
+ * @param {string} [hypervisor] - VM hypervisor
+ * @returns {ObjectSchema} Schema for NUMA fields
+ */
+const NUMA_SCHEMA = (hypervisor) =>
+  getObjectSchemaFromFields(SCHEMA_FIELDS(hypervisor)).afterSubmit((result) => {
+    const { TOPOLOGY, ...ensuredResult } = result
+    const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
+
+    isEnabled && (ensuredResult.TOPOLOGY = { ...restOfTopology })
+
+    return { ...ensuredResult }
+  })
+
+export {
+  NUMA_FIELDS,
+  SCHEMA_FIELDS as FIELDS,
+  NUMA_SCHEMA as SCHEMA,
+  ENABLE_NUMA,
+}

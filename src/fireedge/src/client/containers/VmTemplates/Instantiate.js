@@ -53,8 +53,7 @@ function InstantiateVmTemplate() {
 
   const onSubmit = async (templates) => {
     try {
-      const promises = await Promise.all(templates.map(instantiate))
-      promises.map((res) => res.unwrap?.())
+      await Promise.all(templates.map((t) => instantiate(t).unwrap()))
 
       history.push(PATH.INSTANCE.VMS.LIST)
 

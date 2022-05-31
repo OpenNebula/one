@@ -174,28 +174,23 @@ const Actions = () => {
                   },
                 },
                 form: (rows) => {
-                  const vmTemplates = rows?.map(({ original }) => original)
-                  const stepProps = { isMultiple: vmTemplates.length > 1 }
-                  const initialValues = {
-                    name: `Copy of ${vmTemplates?.[0]?.NAME}`,
-                  }
+                  const names = rows?.map(({ original }) => original?.NAME)
+                  const stepProps = { isMultiple: names.length > 1 }
+                  const initialValues = { name: `Copy of ${names?.[0]}` }
 
                   return CloneForm({ stepProps, initialValues })
                 },
-                onSubmit: (rows) => async (formData) => {
-                  const { prefix, ...restOfData } = formData
+                onSubmit:
+                  (rows) =>
+                  async ({ prefix, name } = {}) => {
+                    const vmTemplates = rows?.map?.(
+                      ({ original: { ID, NAME } = {} }) =>
+                        // overwrite all names with prefix+NAME
+                        ({ id: ID, name: prefix ? `${prefix} ${NAME}` : name })
+                    )
 
-                  const vmTemplates = rows?.map?.(
-                    ({ original: { ID, NAME } = {} }) => {
-                      // overwrite all names with prefix+NAME
-                      const name = prefix ? `${prefix} ${NAME}` : NAME
-
-                      return { id: ID, ...restOfData, name }
-                    }
-                  )
-
-                  await Promise.all(vmTemplates.map(clone))
-                },
+                    await Promise.all(vmTemplates.map(clone))
+                  },
               },
             ],
           },

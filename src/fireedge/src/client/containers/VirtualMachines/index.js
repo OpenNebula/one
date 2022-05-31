@@ -15,18 +15,19 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { BookmarkEmpty } from 'iconoir-react'
+import { Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
 import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
 import { Row } from 'react-table'
 
-import vmApi from 'client/features/OneApi/vm'
+import { useLazyGetVmQuery } from 'client/features/OneApi/vm'
 import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'
 import VmTabs from 'client/components/Tabs/Vm'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { T, VM } from 'client/constants'
 
 /**
  * Displays a list of VMs with a split pane between the list and selected row(s).
@@ -56,7 +57,7 @@ function VirtualMachines() {
                 <GroupedTags tags={selectedRows} />
               ) : (
                 <InfoTabs
-                  id={selectedRows[0]?.original?.ID}
+                  vm={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
                 />
               )}
@@ -71,34 +72,39 @@ function VirtualMachines() {
 /**
  * Displays details of a VM.
  *
- * @param {string} id - VM id to display
+ * @param {VM} vm - VM to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VM
  * @returns {ReactElement} VM details
  */
-const InfoTabs = memo(({ id, gotoPage }) => {
-  const vm = vmApi.endpoints.getVms.useQueryState(undefined, {
-    selectFromResult: ({ data = [] }) => data.find((item) => +item.ID === +id),
-  })
+const InfoTabs = memo(({ vm, gotoPage }) => {
+  const [getVm, { isFetching }] = useLazyGetVmQuery()
 
   return (
     <Stack overflow="auto">
       <Stack direction="row" alignItems="center" gap={1} mb={1}>
-        <Typography color="text.primary" noWrap>
-          {`#${id} | ${vm.NAME}`}
-        </Typography>
+        <SubmitButton
+          data-cy="detail-refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isFetching}
+          onClick={() => getVm({ id: vm.ID })}
+        />
         {gotoPage && (
           <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-            <BookmarkEmpty />
+            <GotoIcon />
           </IconButton>
         )}
+        <Typography color="text.primary" noWrap>
+          {`#${vm.ID} | ${vm.NAME}`}
+        </Typography>
       </Stack>
-      <VmTabs id={id} />
+      <VmTabs id={vm.ID} />
     </Stack>
   )
 })
 
 InfoTabs.propTypes = {
-  id: PropTypes.string.isRequired,
+  vm: PropTypes.object.isRequired,
   gotoPage: PropTypes.func,
 }
 
