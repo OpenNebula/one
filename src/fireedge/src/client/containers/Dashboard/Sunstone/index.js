@@ -49,17 +49,15 @@ function SunstoneDashboard() {
   const imageAccess = useMemo(() => hasAccessToResource(IMAGE), [view])
   const vnetAccess = useMemo(() => hasAccessToResource(VNET), [view])
 
+  const styles = useMemo(() => {
+    if (stringToBoolean(DISABLE_ANIMATIONS))
+      return {
+        '& *, & *::before, & *::after': { animation: 'none !important' },
+      }
+  }, [DISABLE_ANIMATIONS])
+
   return (
-    <Box
-      py={3}
-      {...(stringToBoolean(DISABLE_ANIMATIONS) && {
-        sx: {
-          '& *, & *::before, & *::after': {
-            animation: 'none !important',
-          },
-        },
-      })}
-    >
+    <Box py={3} sx={styles}>
       <Grid
         container
         data-cy="dashboard-widget-total-sunstone-resources"
@@ -98,20 +96,25 @@ function SunstoneDashboard() {
   )
 }
 
-const ResourceWidget = memo(({ query, ...props }) => {
+const ResourceWidget = memo((props) => {
+  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { query, onClick, text, bgColor, icon } = props
   const { data = [], isFetching } = query()
+
+  const NumberElement = useMemo(() => {
+    if (stringToBoolean(DISABLE_ANIMATIONS)) return data?.length
+
+    return <NumberEasing value={data?.length} />
+  }, [DISABLE_ANIMATIONS, data?.length])
 
   return (
     <Grid item xs={12} sm={6} md={3}>
       <WavesCard
-        value={
-          isFetching ? (
-            <CircularProgress size={20} />
-          ) : (
-            <NumberEasing value={data?.length} />
-          )
-        }
-        {...props}
+        bgColor={bgColor}
+        icon={icon}
+        text={text}
+        value={isFetching ? <CircularProgress size={20} /> : NumberElement}
+        onClick={onClick || undefined}
       />
     </Grid>
   )
@@ -124,6 +127,7 @@ ResourceWidget.propTypes = {
   text: PropTypes.string,
   bgColor: PropTypes.string,
   icon: PropTypes.any,
+  onClick: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 }
 
 export default SunstoneDashboard
