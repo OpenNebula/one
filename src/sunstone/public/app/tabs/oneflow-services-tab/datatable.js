@@ -205,8 +205,15 @@ define(function(require) {
               !isNaN(parseInt(leases[action.ACTION].time)) &&
               leases[action.ACTION].color
             ){
-              if(checkTime(startTime, action.TIME)){
-                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:action.TIME, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+              if(action.TIME.startsWith("+")){
+                endTime = action.TIME;
+              } else {
+                endTime = action.TIME - startTime;
+                endTime = endTime.toString();
+              }
+
+              if(checkTime(startTime, endTime)){
+                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:endTime, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
                 if(
                   leases[action.ACTION].warning &&
                   leases[action.ACTION].warning.time &&
