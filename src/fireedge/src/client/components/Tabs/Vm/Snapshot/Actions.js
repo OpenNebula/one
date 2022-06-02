@@ -45,7 +45,10 @@ const CreateAction = memo(({ vmId }) => {
       }}
       options={[
         {
-          dialogProps: { title: T.TakeSnapshot },
+          dialogProps: {
+            title: T.TakeSnapshot,
+            dataCy: 'modal-create-snapshot',
+          },
           form: CreateSnapshotForm,
           onSubmit: handleCreate,
         },
@@ -79,6 +82,7 @@ const RevertAction = memo(({ vmId, snapshot }) => {
                 values={`#${SNAPSHOT_ID} - ${NAME}`}
               />
             ),
+            dataCy: 'modal-revert-snapshot',
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
           onSubmit: handleRevert,
@@ -113,6 +117,7 @@ const DeleteAction = memo(({ vmId, snapshot }) => {
                 values={`#${SNAPSHOT_ID} - ${NAME}`}
               />
             ),
+            dataCy: 'modal-delete-snapshot',
             children: <p>{Tr(T.DoYouWantProceed)}</p>,
           },
           onSubmit: handleDelete,

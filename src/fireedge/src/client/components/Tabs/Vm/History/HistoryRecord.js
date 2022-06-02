@@ -85,10 +85,14 @@ const HistoryRecordCard = memo(
     })
 
     return (
-      <Paper variant="outlined" className={classes.root}>
+      <Paper
+        variant="outlined"
+        className={classes.root}
+        data-cy={`record-${SEQ}`}
+      >
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography noWrap component="span">
+            <Typography noWrap component="span" data-cy="record-data">
               {`#${SEQ} | #${HID} ${HOSTNAME} | ${Tr(T.Action)}: ${action}`}
             </Typography>
           </div>

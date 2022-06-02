@@ -63,7 +63,7 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
         <CreateAction vmId={id} />
       )}
 
-      <Stack gap="1em" py="0.8em">
+      <Stack gap="1em" py="0.8em" data-cy="snapshots">
         {snapshots.map((snapshot) => (
           <SnapshotCard
             snapshot={snapshot}
