@@ -17,11 +17,11 @@ import { memo, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
-import { useController } from 'react-hook-form'
+import { useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
-import { generateKey } from 'client/utils'
+import { generateKey, findClosestValue } from 'client/utils'
 
 const SelectController = memo(
   ({
@@ -33,9 +33,17 @@ const SelectController = memo(
     values = [],
     renderValue,
     tooltip,
+    watcher,
+    dependencies,
     fieldProps = {},
     readOnly = false,
   }) => {
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
+
     const firstValue = values?.[0]?.value ?? ''
     const defaultValue = multiple ? [firstValue] : firstValue
 
@@ -46,7 +54,7 @@ const SelectController = memo(
 
     const needShrink = useMemo(
       () =>
-        multiple || values.find((v) => v.value === optionSelected)?.text !== '',
+        multiple || values.find((o) => o.value === optionSelected)?.text !== '',
       [optionSelected]
     )
 
@@ -54,14 +62,28 @@ const SelectController = memo(
       if (!optionSelected && !optionSelected.length) return
 
       if (multiple) {
-        const exists = values.some((v) => optionSelected.includes(v.value))
+        const exists = values.some((o) => optionSelected.includes(o.value))
         !exists && onChange([firstValue])
       } else {
-        const exists = values.some((v) => `${v.value}` === `${optionSelected}`)
+        const exists = values.some((o) => `${o.value}` === `${optionSelected}`)
 
         !exists && onChange(firstValue)
       }
     }, [multiple])
+
+    useEffect(() => {
+      if (!watcher || !dependencies) return
+      if (!watch) return onChange(defaultValue)
+
+      const watcherValue = watcher(watch)
+      const optionValues = values.map((o) => o.value)
+
+      const ensuredWatcherValue = isNaN(watcherValue)
+        ? optionValues.find((o) => `${o}` === `${watcherValue}`)
+        : findClosestValue(watcherValue, optionValues)
+
+      onChange(ensuredWatcherValue ?? defaultValue)
+    }, [watch, watcher, dependencies])
 
     return (
       <TextField
@@ -86,12 +108,12 @@ const SelectController = memo(
         }
         select
         fullWidth
+        disabled={readOnly}
         SelectProps={{ native: true, multiple }}
         label={labelCanBeTranslated(label) ? Tr(label) : label}
         InputLabelProps={{ shrink: needShrink }}
         InputProps={{
           ...(multiple && { sx: { paddingTop: '0.5em' } }),
-          readOnly,
           startAdornment:
             (optionSelected && renderValue?.(optionSelected)) ||
             (tooltip && <Tooltip title={tooltip} position="start" />),
@@ -115,7 +137,8 @@ const SelectController = memo(
     prev.values.length === next.values.length &&
     prev.label === next.label &&
     prev.tooltip === next.tooltip &&
-    prev.multiple === next.multiple
+    prev.multiple === next.multiple &&
+    prev.readOnly === next.readOnly
 )
 
 SelectController.propTypes = {
@@ -127,6 +150,11 @@ SelectController.propTypes = {
   multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   renderValue: PropTypes.func,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
 }

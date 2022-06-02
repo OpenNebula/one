@@ -35,62 +35,64 @@ import {
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
 } from 'client/utils'
-import { T, HYPERVISORS } from 'client/constants'
+import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @param {boolean} [isUpdate] - If `true`, the form is being updated
+ * @param {VmTemplateFeatures} [features] - Features
  * @returns {Section[]} Fields
  */
-const SECTIONS = (hypervisor, isUpdate) => [
-  {
-    id: 'information',
-    legend: T.Information,
-    required: true,
-    fields: INFORMATION_FIELDS(isUpdate),
-  },
-  {
-    id: 'hypervisor',
-    legend: T.Hypervisor,
-    required: true,
-    fields: [HYPERVISOR_FIELD, VROUTER_FIELD],
-  },
-  {
-    id: 'capacity',
-    legend: T.Memory,
-    fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
-  },
-  {
-    id: 'capacity',
-    legend: T.PhysicalCpu,
-    fields: filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
-  },
-  {
-    id: 'capacity',
-    legend: T.VirtualCpu,
-    fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
-  },
-  {
-    id: 'showback',
-    legend: T.Cost,
-    fields: filterFieldsByHypervisor(SHOWBACK_FIELDS, hypervisor),
-  },
-  {
-    id: 'ownership',
-    legend: T.Ownership,
-    fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
-  },
-  {
-    id: 'vm_group',
-    legend: T.VMGroup,
-    fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
-  },
-  {
-    id: 'vcenter',
-    legend: T.vCenterDeployment,
-    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
-  },
-]
+const SECTIONS = (hypervisor, isUpdate, features) =>
+  [
+    {
+      id: 'information',
+      legend: T.Information,
+      required: true,
+      fields: INFORMATION_FIELDS(isUpdate),
+    },
+    {
+      id: 'hypervisor',
+      legend: T.Hypervisor,
+      required: true,
+      fields: [HYPERVISOR_FIELD, VROUTER_FIELD],
+    },
+    {
+      id: 'capacity',
+      legend: T.Memory,
+      fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+    },
+    !features?.hide_cpu && {
+      id: 'capacity',
+      legend: T.PhysicalCpu,
+      fields: filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
+    },
+    {
+      id: 'capacity',
+      legend: T.VirtualCpu,
+      fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
+    },
+    {
+      id: 'showback',
+      legend: T.Cost,
+      fields: filterFieldsByHypervisor(SHOWBACK_FIELDS(features), hypervisor),
+    },
+    {
+      id: 'ownership',
+      legend: T.Ownership,
+      fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+    },
+    {
+      id: 'vm_group',
+      legend: T.VMGroup,
+      fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+    },
+    {
+      id: 'vcenter',
+      legend: T.vCenterDeployment,
+      fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+    },
+  ].filter(Boolean)
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor

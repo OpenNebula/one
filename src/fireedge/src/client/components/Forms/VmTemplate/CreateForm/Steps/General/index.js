@@ -38,11 +38,12 @@ const Content = ({ isUpdate }) => {
 
   const sections = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
-    const dialog = getResourceView(resource)?.dialogs?.create_dialog
+    const { features, dialogs } = getResourceView(resource)
+    const dialog = dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
     return (
-      SECTIONS(hypervisor, isUpdate)
+      SECTIONS(hypervisor, isUpdate, features)
         .filter(
           ({ id, required }) => required || sectionsAvailable.includes(id)
         )
@@ -57,8 +58,8 @@ const Content = ({ isUpdate }) => {
         <FormWithSchema
           key={key}
           id={STEP_ID}
-          className={classes[id]}
           cy={`${STEP_ID}-${id}`}
+          rootProps={{ className: classes[id] }}
           {...section}
         />
       ))}

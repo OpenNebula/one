@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import {
+  ReactElement,
   Fragment,
   createElement,
+  memo,
   useMemo,
   useCallback,
   isValidElement,
 } from 'react'
 import PropTypes from 'prop-types'
 
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { FormControl, Accordion, AccordionSummary, Grid } from '@mui/material'
 
 import * as FC from 'client/components/FormControl'
 import Legend from 'client/components/Forms/Legend'
+import { Field } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
 
 const NOT_DEPEND_ATTRIBUTES = [
@@ -51,19 +53,28 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TOGGLE]: FC.ToggleController,
 }
 
+/**
+ * Renders a form with a schema and a legend for each section.
+ *
+ * @param {object} props - Component props
+ * @param {boolean} [props.accordion] - If true, the accordion will be rendered
+ * @param {string} [props.id] - The form id to be used as a prefix for the field name
+ * @param {string} [props.cy] - The id to be used on testing purposes
+ * @param {function():Field[]|Field[]} [props.fields] - The fields to be rendered
+ * @param {object} props.rootProps - The props to be passed to the root element
+ * @param {*} props.legend - The legend
+ * @param {string} props.legendTooltip - The legend tooltip
+ * @returns {ReactElement} - The form component
+ */
 const FormWithSchema = ({
   accordion = false,
   id,
   cy,
   fields,
   rootProps,
-  className,
   legend,
   legendTooltip,
 }) => {
-  const formContext = useFormContext()
-  const { control, watch } = formContext
-
   const { sx: sxRoot, ...restOfRootProps } = rootProps ?? {}
 
   const RootWrapper = useMemo(
@@ -88,25 +99,14 @@ const FormWithSchema = ({
 
   const getFields = useMemo(
     () => (typeof fields === 'function' ? fields() : fields),
-    [fields?.length]
+    [fields]
   )
 
   if (!getFields || getFields?.length === 0) return null
 
-  const addIdToName = useCallback(
-    (name) =>
-      name.startsWith('$')
-        ? name.slice(1) // removes character '$' and returns
-        : id
-        ? `${id}.${name}` // concat form ID if exists
-        : name,
-    [id]
-  )
-
   return (
     <FormControl
       component="fieldset"
-      className={className}
       sx={{ width: '100%', ...sxRoot }}
       {...restOfRootProps}
     >
@@ -122,56 +122,9 @@ const FormWithSchema = ({
           )}
         </LegendWrapper>
         <Grid container spacing={1} alignContent="flex-start">
-          {getFields?.map?.(({ dependOf, ...attributes }) => {
-            let valueOfDependField = null
-            let nameOfDependField = null
-
-            if (dependOf) {
-              nameOfDependField = Array.isArray(dependOf)
-                ? dependOf.map(addIdToName)
-                : addIdToName(dependOf)
-
-              valueOfDependField = watch(nameOfDependField)
-            }
-
-            const { name, type, htmlType, grid, ...fieldProps } =
-              Object.entries(attributes).reduce((field, attribute) => {
-                const [key, value] = attribute
-                const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
-
-                const finalValue =
-                  typeof value === 'function' &&
-                  !isNotDependAttribute &&
-                  !isValidElement(value())
-                    ? value(valueOfDependField, formContext)
-                    : value
-
-                return { ...field, [key]: finalValue }
-              }, {})
-
-            const dataCy = `${cy}-${name}`.replaceAll('.', '-')
-            const inputName = addIdToName(name)
-
-            const isHidden = htmlType === INPUT_TYPES.HIDDEN
-
-            if (isHidden) return null
-
-            return (
-              INPUT_CONTROLLER[type] && (
-                <Grid key={dataCy} item xs={12} md={6} {...grid}>
-                  {createElement(INPUT_CONTROLLER[type], {
-                    control,
-                    cy: dataCy,
-                    formContext,
-                    dependencies: nameOfDependField,
-                    name: inputName,
-                    type: htmlType === false ? undefined : htmlType,
-                    ...fieldProps,
-                  })}
-                </Grid>
-              )
-            )
-          })}
+          {getFields?.map?.((field) => (
+            <FieldComponent key={field?.name} cy={cy} id={id} {...field} />
+          ))}
         </Grid>
       </RootWrapper>
     </FormControl>
@@ -189,7 +142,89 @@ FormWithSchema.propTypes = {
   legend: PropTypes.any,
   legendTooltip: PropTypes.string,
   rootProps: PropTypes.object,
-  className: PropTypes.string,
 }
+
+const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
+  const formContext = useFormContext()
+
+  const addIdToName = useCallback(
+    (n) => {
+      // removes character '$' and returns
+      if (n.startsWith('$')) return n.slice(1)
+
+      // concat form ID if exists
+      return id ? `${id}.${n}` : n
+    },
+    [id]
+  )
+
+  const nameOfDependField = useMemo(() => {
+    if (!dependOf) return null
+
+    return Array.isArray(dependOf)
+      ? dependOf.map(addIdToName)
+      : addIdToName(dependOf)
+  }, [dependOf, addIdToName])
+
+  const valueOfDependField = useWatch({
+    name: nameOfDependField,
+    disabled: dependOf === undefined,
+    defaultValue: Array.isArray(dependOf) ? [] : undefined,
+  })
+
+  /*   const valueOfDependField = useMemo(() => {
+    if (!dependOf) return null
+
+    return watch(nameOfDependField)
+  }, [dependOf, watch, nameOfDependField]) */
+
+  const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
+    attributes
+  ).reduce((field, attribute) => {
+    const [key, value] = attribute
+    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+
+    const finalValue =
+      typeof value === 'function' &&
+      !isNotDependAttribute &&
+      !isValidElement(value())
+        ? value(valueOfDependField, formContext)
+        : value
+
+    return { ...field, [key]: finalValue }
+  }, {})
+
+  const dataCy = useMemo(() => `${cy}-${name ?? ''}`.replaceAll('.', '-'), [cy])
+  const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
+  const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
+
+  if (isHidden) return null
+
+  return (
+    INPUT_CONTROLLER[type] && (
+      <Grid item xs={12} md={6} {...grid}>
+        {createElement(INPUT_CONTROLLER[type], {
+          control: formContext.control,
+          cy: dataCy,
+          dependencies: nameOfDependField,
+          name: inputName,
+          type: htmlType === false ? undefined : htmlType,
+          ...fieldProps,
+        })}
+      </Grid>
+    )
+  )
+})
+
+FieldComponent.propTypes = {
+  id: PropTypes.string,
+  cy: PropTypes.string,
+  dependOf: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
+}
+
+FieldComponent.displayName = 'FieldComponent'
 
 export default FormWithSchema

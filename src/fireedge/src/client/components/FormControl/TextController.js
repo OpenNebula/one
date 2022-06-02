@@ -37,13 +37,11 @@ const TextController = memo(
     fieldProps = {},
     readOnly = false,
   }) => {
-    const watch =
-      dependencies &&
-      useWatch({
-        control,
-        name: dependencies,
-        disabled: dependencies === null,
-      })
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
 
     const {
       field: { ref, value = '', onChange, ...inputProps },
@@ -51,11 +49,11 @@ const TextController = memo(
     } = useController({ name, control })
 
     useEffect(() => {
-      if (watch && watcher) {
-        const watcherValue = watcher(watch)
-        watcherValue && onChange(watcherValue)
-      }
-    }, [watch])
+      if (!watcher || !dependencies || !watch) return
+
+      const watcherValue = watcher(watch)
+      watcherValue !== undefined && onChange(watcherValue)
+    }, [watch, watcher, dependencies])
 
     return (
       <TextField
@@ -94,7 +92,8 @@ const TextController = memo(
     prevProps.label === nextProps.label &&
     prevProps.tooltip === nextProps.tooltip &&
     prevProps.fieldProps?.value === nextProps.fieldProps?.value &&
-    prevProps.fieldProps?.helperText === nextProps.fieldProps?.helperText
+    prevProps.fieldProps?.helperText === nextProps.fieldProps?.helperText &&
+    prevProps.readOnly === nextProps.readOnly
 )
 
 TextController.propTypes = {

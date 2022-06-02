@@ -80,6 +80,7 @@ export const ENDPOINTS = [
  *
  * @typedef {object} ResourceView - Resource view file selected in redux (auth-reducer)
  * @property {string} resource_name - Resource view name
+ * @property {object} features - Features about the resources
  * @property {object} actions - Bulk actions, including dialogs
  * Which buttons are visible to operate over the resources
  * @property {object} filters - List of criteria to filter the resources

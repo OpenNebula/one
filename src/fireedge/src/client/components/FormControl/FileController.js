@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { styled, FormControl, FormHelperText } from '@mui/material'
 import { Check as CheckIcon, Page as FileIcon } from 'iconoir-react'
-import { useController } from 'react-hook-form'
+import { useFormContext, useController } from 'react-hook-form'
 
 import {
   ErrorHelper,
@@ -50,9 +50,8 @@ const FileController = memo(
     transform,
     fieldProps = {},
     readOnly = false,
-    formContext = {},
   }) => {
-    const { setValue, setError, clearErrors, watch } = formContext
+    const { setValue, setError, clearErrors, watch } = useFormContext()
 
     const {
       field: { ref, value, onChange, ...inputProps },
@@ -166,13 +165,6 @@ FileController.propTypes = {
   transform: PropTypes.func,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
-  formContext: PropTypes.shape({
-    setValue: PropTypes.func,
-    setError: PropTypes.func,
-    clearErrors: PropTypes.func,
-    watch: PropTypes.func,
-    register: PropTypes.func,
-  }),
 }
 
 FileController.displayName = 'FileController'

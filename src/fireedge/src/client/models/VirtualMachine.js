@@ -330,3 +330,18 @@ export const nicsIncludesTheConnectionType = (vm, type) => {
 
   return getNics(vm).some((nic) => stringToBoolean(nic[ensuredConnection]))
 }
+
+/**
+ * Scales the VCPU value by CPU factor to get the real CPU value.
+ *
+ * @param {number} [vcpu] - VCPU value
+ * @param {number} cpuFactor - Factor CPU
+ * @returns {number|undefined} Real CPU value
+ */
+export const scaleVcpuByCpuFactor = (vcpu, cpuFactor) => {
+  if (!cpuFactor || isNaN(+vcpu) || +vcpu === 0) return
+  if (+cpuFactor === 1) return vcpu
+
+  // round 2 decimals to avoid floating point errors
+  return Math.round(+vcpu * +cpuFactor * 100) / 100
+}

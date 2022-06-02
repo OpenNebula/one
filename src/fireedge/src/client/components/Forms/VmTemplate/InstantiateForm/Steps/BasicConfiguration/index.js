@@ -36,11 +36,12 @@ const Content = ({ vmTemplate }) => {
   const sections = useMemo(() => {
     const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
     const resource = RESOURCE_NAMES.VM_TEMPLATE
-    const dialog = getResourceView(resource)?.dialogs?.instantiate_dialog
+    const { features, dialogs } = getResourceView(resource)
+    const dialog = dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
 
-    return SECTIONS(vmTemplate).filter(({ id }) =>
-      sectionsAvailable.includes(id)
+    return SECTIONS(vmTemplate, features).filter(
+      ({ id, required }) => required || sectionsAvailable.includes(id)
     )
   }, [view])
 
@@ -49,8 +50,8 @@ const Content = ({ vmTemplate }) => {
       {sections.map(({ id, legend, fields }) => (
         <FormWithSchema
           key={id}
-          className={classes[id]}
           cy={id}
+          rootProps={{ className: classes[id] }}
           fields={fields}
           legend={legend}
           id={STEP_ID}
