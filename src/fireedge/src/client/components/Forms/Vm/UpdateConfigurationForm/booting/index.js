@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Stack } from '@mui/material'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { SECTIONS } from 'client/components/Forms/Vm/UpdateConfigurationForm/booting/schema'
@@ -26,14 +27,18 @@ import { HYPERVISORS } from 'client/constants'
  * @returns {ReactElement} OS section component
  */
 const OsSection = ({ hypervisor }) => {
-  const sections = useMemo(() => SECTIONS(hypervisor), [hypervisor])
+  const sections = useMemo(() => SECTIONS({ hypervisor }), [hypervisor])
 
   return (
-    <>
+    <Stack
+      display="grid"
+      gap="1em"
+      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+    >
       {sections.map(({ id, ...section }) => (
         <FormWithSchema key={id} cy={id} {...section} />
       ))}
-    </>
+    </Stack>
   )
 }
 
