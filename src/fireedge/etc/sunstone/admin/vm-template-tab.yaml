@@ -21,6 +21,18 @@
 
 resource_name: "VM-TEMPLATE"
 
+# Features - 
+
+features:
+  # True to hide the CPU setting in the dialogs
+  hide_cpu: false
+
+  # False to not scale the CPU.
+  # An integer value would be used as a multiplier as follows:
+  #     CPU = cpu_factor * VCPU
+  # Set it to 1 to tie CPU and vCPU.
+  cpu_factor: false
+
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
@@ -52,7 +64,6 @@ filters:
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
-
   info:
     enabled: true
     information_panel:
