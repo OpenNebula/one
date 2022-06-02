@@ -747,12 +747,9 @@ EOT
                     ppid = start_pager
                 end
 
-                puts "<#{pname}>"
-
                 puts page
 
                 if elements < size
-                    puts "</#{pname}>"
                     return 0
                 end
 
