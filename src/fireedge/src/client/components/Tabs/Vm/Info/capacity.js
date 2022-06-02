@@ -156,7 +156,10 @@ const PanelHeader = ({ vm = {}, actions = [] }) => {
           }}
           options={[
             {
-              dialogProps: { title: T.ResizeCapacity },
+              dialogProps: {
+                title: T.ResizeCapacity,
+                dataCy: 'modal-resize-capacity',
+              },
               form: () => ResizeCapacityForm({ initialValues: vm.TEMPLATE }),
               onSubmit: handleResizeCapacity,
             },

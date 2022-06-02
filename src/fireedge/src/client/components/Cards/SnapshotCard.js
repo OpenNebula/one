@@ -32,15 +32,19 @@ const SnapshotCard = memo(
     const timeAgo = `created ${time.toRelative()}`
 
     return (
-      <Paper variant="outlined" className={classes.root}>
+      <Paper
+        variant="outlined"
+        className={classes.root}
+        data-cy={`snapshot-${SNAPSHOT_ID}`}
+      >
         <div className={classes.main}>
           <div className={classes.title}>
-            <Typography noWrap component="span">
+            <Typography noWrap component="span" data-cy="snapshot-name">
               {NAME}
             </Typography>
           </div>
           <div className={classes.caption}>
-            <span title={time.toFormat('ff')}>
+            <span title={time.toFormat('ff')} data-cy="snapshot-id">
               {`#${SNAPSHOT_ID} ${timeAgo}`}
             </span>
           </div>
