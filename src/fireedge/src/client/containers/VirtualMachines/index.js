@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
-import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
+import { Pin as GotoIcon, RefreshDouble, Cancel } from 'iconoir-react'
+import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
 import { useLazyGetVmQuery } from 'client/features/OneApi/vm'
@@ -59,6 +59,7 @@ function VirtualMachines() {
                 <InfoTabs
                   vm={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
+                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />
               )}
             </>
@@ -74,9 +75,10 @@ function VirtualMachines() {
  *
  * @param {VM} vm - VM to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a VM
+ * @param {Function} [unselect] - Function to unselect a VM
  * @returns {ReactElement} VM details
  */
-const InfoTabs = memo(({ vm, gotoPage }) => {
+const InfoTabs = memo(({ vm, gotoPage, unselect }) => {
   const [getVm, { isFetching }] = useLazyGetVmQuery()
 
   return (
@@ -87,25 +89,37 @@ const InfoTabs = memo(({ vm, gotoPage }) => {
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => getVm({ id: vm.ID })}
+          onClick={() => getVm({ id: vm?.ID })}
         />
-        {gotoPage && (
-          <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-            <GotoIcon />
-          </IconButton>
+        {typeof gotoPage === 'function' && (
+          <SubmitButton
+            data-cy="locate-on-table"
+            icon={<GotoIcon />}
+            tooltip={Tr(T.LocateOnTable)}
+            onClick={() => gotoPage()}
+          />
+        )}
+        {typeof unselect === 'function' && (
+          <SubmitButton
+            data-cy="unselect"
+            icon={<Cancel />}
+            tooltip={Tr(T.Close)}
+            onClick={() => unselect()}
+          />
         )}
         <Typography color="text.primary" noWrap>
-          {`#${vm.ID} | ${vm.NAME}`}
+          {`#${vm?.ID} | ${vm?.NAME}`}
         </Typography>
       </Stack>
-      <VmTabs id={vm.ID} />
+      <VmTabs id={vm?.ID} />
     </Stack>
   )
 })
 
 InfoTabs.propTypes = {
-  vm: PropTypes.object.isRequired,
+  vm: PropTypes.object,
   gotoPage: PropTypes.func,
+  unselect: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'
