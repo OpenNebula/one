@@ -455,6 +455,9 @@ module OpenNebula
             extra_template << "\nSERVICE_ID = #{@service.id}"
             extra_template << "\nROLE_NAME = \"#{@body['name']}\""
 
+            # Evaluate attributes with parent roles
+            evaluate(extra_template)
+
             n_nodes.times do
                 vm_name = @@vm_name_template
                           .gsub('$SERVICE_ID', @service.id.to_s)
@@ -1166,6 +1169,49 @@ module OpenNebula
             end
 
             new_cardinality
+        end
+
+        # Evaluate rules that references to parent roles
+        #
+        # @param template [String] Role template with $ to replace
+        def evaluate(template)
+            client = service.client
+
+            template.scan(/\$\{(.*?)\}/).flatten.each do |value|
+                s_value = value.split('.') # 0 -> parent, 1..N -> XPATH
+
+                # If parent not found, instead of error, replace it by blank
+                unless parents.include?(s_value[0])
+                    template.gsub!("${#{value}}", '')
+                    next
+                end
+
+                found   = false
+                p_nodes = service.roles[s_value[0]].nodes
+                xpath   = "//#{s_value[1..-1].join('/').upcase}"
+
+                # Iterate over parent nodes to find the XPATH on their template
+                p_nodes.each do |node|
+                    id = node['deploy_id']
+                    vm = OpenNebula::VirtualMachine.new_with_id(id, client)
+
+                    # If error continue searching in other nodes
+                    next if OpenNebula.is_error?(vm.info)
+
+                    next unless vm[xpath]
+
+                    template.gsub!("${#{value}}", vm[xpath])
+
+                    # If found, continue with next expression
+                    found = true
+                    break
+                end
+
+                next if found
+
+                # If value not found, replace it by blank to avoid issues
+                template.gsub!("${#{value}}", '')
+            end
         end
 
     end
