@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AddSquare, Trash } from 'iconoir-react'
+import { AddCircledOutline, Trash } from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
 import { useAddHostToClusterMutation } from 'client/features/OneApi/cluster'
@@ -77,7 +77,7 @@ const Actions = () => {
             accessor: HOST_ACTIONS.CREATE_DIALOG,
             dataCy: `host_${HOST_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddSquare,
+            icon: AddCircledOutline,
             action: () => history.push(PATH.INFRASTRUCTURE.HOSTS.CREATE),
           },
           {

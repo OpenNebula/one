@@ -18,7 +18,7 @@ import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import {
-  AddSquare,
+  AddCircledOutline,
   PlayOutline,
   SaveFloppyDisk,
   TransitionRight,
@@ -136,7 +136,7 @@ const Actions = () => {
             accessor: VM_ACTIONS.CREATE_DIALOG,
             dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddSquare,
+            icon: AddCircledOutline,
             options: [
               {
                 isConfirmDialog: true,

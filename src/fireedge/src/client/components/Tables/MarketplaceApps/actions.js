@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AddSquare, CloudDownload, DownloadCircledOutline } from 'iconoir-react'
+import {
+  AddCircledOutline,
+  CloudDownload,
+  DownloadCircledOutline,
+} from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
@@ -27,7 +30,11 @@ import {
 } from 'client/features/OneApi/marketplaceApp'
 
 import { ExportForm } from 'client/components/Forms/MarketplaceApp'
-import { createActions } from 'client/components/Tables/Enhanced/Utils'
+import {
+  createActions,
+  GlobalAction,
+} from 'client/components/Tables/Enhanced/Utils'
+
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, RESOURCE_NAMES, MARKETPLACE_APP_ACTIONS } from 'client/constants'
 
@@ -49,6 +56,11 @@ const MessageToConfirmAction = (rows) => {
 
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 
+/**
+ * Generates the actions to operate resources on Host table.
+ *
+ * @returns {GlobalAction} - Actions
+ */
 const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
@@ -64,7 +76,7 @@ const Actions = () => {
           {
             accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
             tooltip: T.CreateMarketApp,
-            icon: AddSquare,
+            icon: AddCircledOutline,
             action: () => {
               history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
             },
