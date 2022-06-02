@@ -1228,11 +1228,11 @@ function send_to_monitor {
         mon_conf=$ONE_LOCATION/etc/monitord.conf
     fi
 
-    mon_config=$(augtool -L -l $mon_conf ls /files/$mon_conf/NETWORK)
-    mon_address=$(echo "$mon_config" | grep MONITOR_ADDRESS | awk '{print $3}')
-    mon_port=$(echo "$mon_config" | grep PORT | awk '{print $3}')
-    mon_key=$(echo "$mon_config" | grep PUBKEY | awk '{print $3}' | \
-        sed 's/^"\(.*\)"$/\1/')
+    mon_address=$(cat "$mon_conf" | grep MONITOR_ADDRESS | cut -d , -f1 | \
+        awk '{print $3}' | sed 's/^"\(.*\)"$/\1/')
+    mon_port=$(cat "$mon_config" | grep PORT | cut -d , -f1 | awk '{print $3}')
+    mon_key=$(cat $mon_conf | grep PUBKEY | cut -d , -f1 | awk '{print $3}' | \
+         sed 's/^"\(.*\)"$/\1/')
 
     if [[ $mon_address == *"auto"* ]]; then
         mon_address="127.0.0.1"
