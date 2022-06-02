@@ -59,15 +59,15 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
 
   useEffect(() => {
     // force expanded
-    isFixMenu && !expanded && hasRouteSelected && setExpanded(true)
-  }, [isFixMenu, expanded, hasRouteSelected])
+    !expanded && hasRouteSelected && setExpanded(true)
+  }, [expanded, hasRouteSelected])
 
   return (
     <>
       <ListItemButton
         className={classes.parentSubItem}
         onClick={handleExpand}
-        selected={(!isFixMenu || !expanded) && hasRouteSelected}
+        selected={hasRouteSelected}
       >
         {Icon && (
           <ListItemIcon>

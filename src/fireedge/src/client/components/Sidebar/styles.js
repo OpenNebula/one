@@ -44,14 +44,6 @@ export default makeStyles((theme) => ({
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
         }),
-        '& $parentSubItem': {
-          '&.Mui-selected': {
-            backgroundColor: alpha(theme.palette.secondary.main, 0.2),
-          },
-          '&.Mui-selected:hover': {
-            backgroundColor: alpha(theme.palette.secondary.main, 0.3),
-          },
-        },
         '& #logo__text': {
           visibility: 'visible',
         },
@@ -119,6 +111,13 @@ export default makeStyles((theme) => ({
     textTransform: 'capitalize',
     transition: 'color 0.3s',
   },
-  parentSubItem: {},
+  parentSubItem: {
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.secondary.main, 0.2),
+    },
+    '&.Mui-selected:hover': {
+      backgroundColor: alpha(theme.palette.secondary.main, 0.3),
+    },
+  },
   subItemWrapper: {},
 }))

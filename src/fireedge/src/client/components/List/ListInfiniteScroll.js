@@ -16,8 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { useRef, useEffect, useCallback, createRef } from 'react'
 import PropTypes from 'prop-types'
+import { debounce, Box, LinearProgress } from '@mui/material'
 
-import { debounce, LinearProgress } from '@mui/material'
 import { useList, useNearScreen } from 'client/hooks'
 
 const ListInfiniteScroll = ({ list, renderResult }) => {
@@ -49,17 +49,17 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
   }, [isNearScreen, finish, debounceHandleNextPage])
 
   return (
-    <div style={{ overflowY: 'auto', padding: 10 }}>
-      <div
+    <Box sx={{ overflowY: 'auto' }}>
+      <Box
         ref={gridRef}
-        style={{
+        sx={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gridGap: 4,
         }}
       >
         {shortList?.map(renderResult)}
-      </div>
+      </Box>
       {!finish && (
         <LinearProgress
           ref={loaderRef}
@@ -67,7 +67,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
           sx={{ width: '100%', marginTop: 10 }}
         />
       )}
-    </div>
+    </Box>
   )
 }
 

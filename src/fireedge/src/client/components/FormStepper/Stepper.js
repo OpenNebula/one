@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { alpha, Box, Button, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
@@ -35,7 +35,6 @@ const StepperStyled = styled(Stepper)(({ theme }) => ({
   position: 'sticky',
   top: -15,
   minHeight: 100,
-  background: alpha(theme.palette.background.paper, 0.95),
   zIndex: theme.zIndex.mobileStepper,
 }))
 

@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import {
-  AddSquare,
+  AddCircledOutline,
   // Import,
   Trash,
   PlayOutline,
@@ -99,7 +99,7 @@ const Actions = () => {
           {
             accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddSquare,
+            icon: AddCircledOutline,
             action: () => history.push(PATH.TEMPLATE.VMS.CREATE),
           },
           {
