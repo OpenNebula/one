@@ -2323,7 +2323,7 @@ void VirtualMachineSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
-        quota_rollback(&quota_tmpl, Quotas::VM, att);
+        quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
         failure_response(ACTION, att);
     }
     else
