@@ -24,7 +24,7 @@ import {
 import { Translate } from 'client/components/HOC'
 import { formatNumberByCurrency } from 'client/models/Helper'
 import { Field } from 'client/utils'
-import { T, HYPERVISORS } from 'client/constants'
+import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
 
 const commonValidation = number()
   .positive()
@@ -186,5 +186,9 @@ export const DISK_COST = generateCostCapacityInput({
   },
 })
 
-/** @type {Field[]} List of showback fields */
-export const SHOWBACK_FIELDS = [MEMORY_COST, CPU_COST, DISK_COST]
+/**
+ * @param {VmTemplateFeatures} features - Features of the template
+ * @returns {Field[]} List of showback fields
+ */
+export const SHOWBACK_FIELDS = (features) =>
+  [MEMORY_COST, !features?.hide_cpu && CPU_COST, DISK_COST].filter(Boolean)

@@ -52,7 +52,9 @@ const AutocompleteController = memo(
         onChange={(_, newValue) => {
           const newValueToChange = multiple
             ? newValue?.map((value) =>
-                typeof value === 'string' ? value : { text: value, value }
+                ['string', 'number'].includes(typeof value)
+                  ? value
+                  : { text: value, value }
               )
             : newValue?.value
 

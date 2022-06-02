@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { memo, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useController } from 'react-hook-form'
+import { useFormContext, useController } from 'react-hook-form'
 
 import Legend from 'client/components/Forms/Legend'
 import { ErrorHelper } from 'client/components/FormControl'
@@ -42,11 +42,10 @@ const TableController = memo(
     Table,
     singleSelect = true,
     getRowId = defaultGetRowId,
-    formContext = {},
     readOnly = false,
     fieldProps: { initialState, ...fieldProps } = {},
   }) => {
-    const { clearErrors } = formContext
+    const { clearErrors } = useFormContext()
 
     const {
       field: { value, onChange },
@@ -107,13 +106,6 @@ TableController.propTypes = {
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
-  formContext: PropTypes.shape({
-    setValue: PropTypes.func,
-    setError: PropTypes.func,
-    clearErrors: PropTypes.func,
-    watch: PropTypes.func,
-    register: PropTypes.func,
-  }),
 }
 
 TableController.displayName = 'TableController'

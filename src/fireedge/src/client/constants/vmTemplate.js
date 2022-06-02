@@ -18,7 +18,7 @@ import * as ACTIONS from 'client/constants/actions'
 import { Permissions, LockInfo } from 'client/constants/common'
 
 /**
- * @typedef {object} VmTemplate
+ * @typedef VmTemplate
  * @property {string|number} ID - Id
  * @property {string} NAME - Name
  * @property {string|number} UID - User id
@@ -33,6 +33,15 @@ import { Permissions, LockInfo } from 'client/constants/common'
  * @property {string} [TEMPLATE.VCENTER_CCR_REF] - vCenter information
  * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
  * @property {string} [TEMPLATE.VCENTER_TEMPLATE_REF] - vCenter information
+ */
+
+/**
+ * @typedef VmTemplateFeatures
+ * @property {boolean} hide_cpu - If `true`, the CPU fields is hidden
+ * @property {false|number} cpu_factor - Scales CPU by VCPU
+ * - ``1``: Set it to 1 to tie CPU and vCPU
+ * - ``{number}``: CPU = cpu_factor * VCPU
+ * - ``{false}``: False to not scale the CPU
  */
 
 export const VM_TEMPLATE_ACTIONS = {

@@ -224,7 +224,7 @@ const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
   options?.split(separator)
 
 const getOptionsFromList = (options = []) =>
-  arrayToOptions([...new Set(options)])
+  arrayToOptions([...new Set(options)], { addEmpty: false })
 
 const parseUserInputValue = (value) => {
   if (value === true) {

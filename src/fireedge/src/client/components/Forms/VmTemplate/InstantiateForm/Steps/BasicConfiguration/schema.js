@@ -30,13 +30,14 @@ import {
   Field,
   Section,
 } from 'client/utils'
-import { T, VmTemplate } from 'client/constants'
+import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
+ * @param {VmTemplateFeatures} [features] - Features
  * @returns {Section[]} Sections
  */
-const SECTIONS = (vmTemplate) => {
+const SECTIONS = (vmTemplate, features) => {
   const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return [
@@ -48,7 +49,10 @@ const SECTIONS = (vmTemplate) => {
     {
       id: 'capacity',
       legend: T.Capacity,
-      fields: filterFieldsByHypervisor(CAPACITY_FIELDS(vmTemplate), hypervisor),
+      fields: filterFieldsByHypervisor(
+        CAPACITY_FIELDS(vmTemplate, features),
+        hypervisor
+      ),
     },
     {
       id: 'ownership',
@@ -70,17 +74,20 @@ const SECTIONS = (vmTemplate) => {
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
+ * @param {boolean} [hideCpu] - If `true`, the CPU fields is hidden
  * @returns {Field[]} Basic configuration fields
  */
-const FIELDS = (vmTemplate) =>
-  SECTIONS(vmTemplate)
+const FIELDS = (vmTemplate, hideCpu) =>
+  SECTIONS(vmTemplate, hideCpu)
     .map(({ fields }) => fields)
     .flat()
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
+ * @param {boolean} [hideCpu] - If `true`, the CPU fields is hidden
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (vmTemplate) => getObjectSchemaFromFields(FIELDS(vmTemplate))
+const SCHEMA = (vmTemplate, hideCpu) =>
+  getObjectSchemaFromFields(FIELDS(vmTemplate, hideCpu))
 
 export { SECTIONS, FIELDS, SCHEMA }

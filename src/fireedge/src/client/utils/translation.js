@@ -26,7 +26,7 @@ import {
 } from 'yup'
 
 import { T } from 'client/constants'
-import { isDivisibleBy, isBase64 } from 'client/utils/helpers'
+import { isDivisibleBy, isBase64 } from 'client/utils/number'
 
 const buildMethods = () => {
   ;[number, string, boolean, object, array, date].forEach((schemaType) => {

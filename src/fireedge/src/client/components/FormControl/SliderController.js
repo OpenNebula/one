@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField, Slider, FormHelperText, Stack } from '@mui/material'
-import { useController } from 'react-hook-form'
+import { useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
@@ -30,9 +30,17 @@ const SliderController = memo(
     name = '',
     label = '',
     tooltip,
+    watcher,
+    dependencies,
     fieldProps = {},
     readOnly = false,
   }) => {
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
+
     const { min, max, step } = fieldProps ?? {}
 
     const {
@@ -40,12 +48,33 @@ const SliderController = memo(
       fieldState: { error },
     } = useController({ name, control })
 
+    const handleEnsuredChange = useCallback(
+      (newValue) => {
+        if (min && newValue < min) return onChange(min)
+        if (max && newValue > max) return onChange(max)
+      },
+      [onChange, min, max]
+    )
+
+    useEffect(() => {
+      if (!watcher || !dependencies || !watch) return
+
+      const watcherValue = watcher(watch)
+      watcherValue !== undefined && handleEnsuredChange(watcherValue)
+    }, [watch, watcher, dependencies])
+
     const sliderId = `${cy}-slider`
     const inputId = `${cy}-input`
 
     return (
       <>
-        <Stack direction="row" mt="0.5rem" spacing={2} alignItems="center">
+        <Stack
+          direction="row"
+          pl="1em"
+          mt="0.5rem"
+          spacing={2}
+          alignItems="center"
+        >
           <Slider
             color="secondary"
             value={typeof value === 'number' ? value : 0}
@@ -75,15 +104,11 @@ const SliderController = memo(
               step,
             }}
             onChange={(evt) =>
-              onChange(!evt.target.value ? '0' : Number(evt.target.value))
+              handleEnsuredChange(
+                !evt.target.value ? '0' : Number(evt.target.value)
+              )
             }
-            onBlur={() => {
-              if (min && value < min) {
-                onChange(min)
-              } else if (max && value > max) {
-                onChange(max)
-              }
-            }}
+            onBlur={() => handleEnsuredChange(value)}
           />
         </Stack>
         {Boolean(error) && (
@@ -102,6 +127,11 @@ SliderController.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.any,
   tooltip: PropTypes.any,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
 }

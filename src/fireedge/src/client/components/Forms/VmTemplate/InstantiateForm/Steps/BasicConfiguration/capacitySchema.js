@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { NumberSchema } from 'yup'
+
+import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 import { getUserInputParams } from 'client/models/Helper'
 import {
   Field,
@@ -21,7 +23,13 @@ import {
   prettyBytes,
   isDivisibleBy,
 } from 'client/utils'
-import { T, HYPERVISORS, USER_INPUT_TYPES, VmTemplate } from 'client/constants'
+import {
+  T,
+  HYPERVISORS,
+  USER_INPUT_TYPES,
+  VmTemplate,
+  VmTemplateFeatures,
+} from 'client/constants'
 
 const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
 
@@ -35,9 +43,13 @@ const valueLabelFormat = (value) => prettyBytes(value, 'MB')
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
+ * @param {VmTemplateFeatures} [features] - Features
  * @returns {Field[]} Basic configuration fields
  */
-export const FIELDS = (vmTemplate) => {
+export const FIELDS = (
+  vmTemplate,
+  { hide_cpu: hideCpu, cpu_factor: cpuFactor } = {}
+) => {
   const {
     HYPERVISOR,
     USER_INPUTS = {},
@@ -52,18 +64,21 @@ export const FIELDS = (vmTemplate) => {
     VCPU: vcpuInput = `O|${number}|| |${VCPU}`,
   } = USER_INPUTS
 
-  return [
+  const fields = [
     { name: 'MEMORY', ...getUserInputParams(memoryInput) },
-    { name: 'CPU', ...getUserInputParams(cpuInput) },
+    !hideCpu && { name: 'CPU', ...getUserInputParams(cpuInput) },
     { name: 'VCPU', ...getUserInputParams(vcpuInput) },
-  ].map(({ name, options, ...userInput }) => {
+  ].filter(Boolean)
+
+  return fields.map(({ name, options, ...userInput }) => {
     const isMemory = name === 'MEMORY'
+    const isCPU = name === 'CPU'
     const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
     const divisibleBy4 = isVCenter && isMemory
     const isRange = [range, rangeFloat].includes(userInput.type)
 
     // set default type to number
-    userInput.type ??= name === 'CPU' ? numberFloat : number
+    userInput.type ??= isCPU ? numberFloat : number
 
     const ensuredOptions = divisibleBy4
       ? options?.filter((value) => isDivisibleBy(+value, 4))
@@ -83,6 +98,12 @@ export const FIELDS = (vmTemplate) => {
     if (isNumber && divisibleBy4) {
       schemaUi.validation &&= schemaUi.validation.isDivisibleBy(4)
       schemaUi.fieldProps = { ...schemaUi.fieldProps, step: 4 }
+    }
+
+    if (cpuFactor && isCPU) {
+      schemaUi.readOnly = true
+      schemaUi.dependOf = 'VCPU'
+      schemaUi.watcher = (vcpu) => scaleVcpuByCpuFactor(vcpu, cpuFactor)
     }
 
     return { ...TRANSLATES[name], ...schemaUi, grid: { md: 12 } }

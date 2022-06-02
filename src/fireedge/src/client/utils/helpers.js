@@ -421,47 +421,6 @@ export const cleanEmpty = (variable) =>
     : cleanEmptyObject(variable)
 
 /**
- * Check if value is in base64.
- *
- * @param {string} stringToValidate - String to check
- * @param {object} options - Options
- * @param {boolean} options.exact - Only match and exact string
- * @returns {boolean} Returns `true` if string is a base64
- */
-export const isBase64 = (stringToValidate, options = {}) => {
-  if (stringToValidate === '') return false
-
-  const { exact = true } = options
-
-  const BASE64_REG =
-    /(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g
-  const EXACT_BASE64_REG =
-    /(?:^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$)/
-
-  const regex = exact ? EXACT_BASE64_REG : BASE64_REG
-
-  return regex.test(stringToValidate)
-}
-
-/**
- * Check if value is divisible by another number.
- *
- * @param {string|number} number - Value to check
- * @param {string|number} divisor - Divisor number
- * @returns {boolean} Returns `true` if value is divisible by another
- */
-export const isDivisibleBy = (number, divisor) => !(number % divisor)
-
-/**
- * Returns factors of a number.
- *
- * @param {number} value - Number
- * @returns {number[]} Returns list of numbers
- */
-export const getFactorsOfNumber = (value) =>
-  [...Array(+value + 1).keys()].filter((idx) => value % idx === 0)
-
-/**
  * Returns an array with the separator interspersed between elements of the given array.
  *
  * @param {any} arr - Array
