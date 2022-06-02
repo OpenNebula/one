@@ -44,7 +44,7 @@ export const GRAPHICS_FIELDS = ({ hypervisor }) =>
  * @returns {ObjectSchema} Graphics schema
  */
 export const GRAPHICS_SCHEMA = ({ hypervisor }) =>
-  getObjectSchemaFromFields(GRAPHICS_FIELDS(hypervisor))
+  getObjectSchemaFromFields(GRAPHICS_FIELDS({ hypervisor }))
 
 /**
  * @param {object} [formProps] - Form props

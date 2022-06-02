@@ -21,8 +21,9 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
 
 /**
- * @param {string} [hypervisor] - VM hypervisor
+ * @param {object} [formProps] - Form props
+ * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
  * @returns {ObjectSchema} Context schema
  */
-export const SCHEMA = (hypervisor) =>
+export const SCHEMA = ({ hypervisor }) =>
   object().concat(CONFIGURATION_SCHEMA).concat(FILES_SCHEMA(hypervisor))

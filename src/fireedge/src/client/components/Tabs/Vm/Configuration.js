@@ -56,14 +56,7 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
     return actionsByState.includes?.(UPDATE_CONF)
   }, [vm])
 
-  const [
-    osAttributes,
-    featuresAttributes,
-    inputAttributes,
-    graphicsAttributes,
-    rawAttributes,
-    contextAttributes,
-  ] = useMemo(() => {
+  const sections = useMemo(() => {
     const filterSection = (section) => {
       const supported = ATTR_CONF_CAN_BE_UPDATED[section] || '*'
       const attributes = TEMPLATE[section] || {}
@@ -100,8 +93,17 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
     await updateConf({ id, template: xml })
   }
 
+  const [
+    osAttributes,
+    featuresAttributes,
+    inputAttributes,
+    graphicsAttributes,
+    rawAttributes,
+    contextAttributes,
+  ] = sections
+
   return (
-    <Box>
+    <Box padding={{ sm: '0.8em' }}>
       {isUpdateConfEnabled && (
         <ButtonToTriggerForm
           buttonProps={{
@@ -132,7 +134,7 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
         display="grid"
         gap="1em"
         gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
-        marginTop="0.5em"
+        marginTop="1em"
       >
         {osAttributes?.length > 0 && (
           <List title={T.OSAndCpu} list={osAttributes} />
@@ -150,7 +152,16 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
           <List title={T.Raw} list={rawAttributes} />
         )}
         {contextAttributes?.length > 0 && (
-          <List title={T.Context} list={contextAttributes} />
+          <List
+            title={T.Context}
+            list={contextAttributes}
+            containerProps={{
+              sx: {
+                gridColumnStart: '2',
+                gridRow: `1 / ${sections.length}`,
+              },
+            }}
+          />
         )}
       </Stack>
     </Box>

@@ -34,7 +34,7 @@ import {
   getObjectSchemaFromFields,
 } from 'client/utils'
 
-const { vcenter, firecracker } = HYPERVISORS
+const { kvm, vcenter, firecracker } = HYPERVISORS
 
 const ENABLE_NUMA = {
   name: 'TOPOLOGY.ENABLE_NUMA',
@@ -42,7 +42,7 @@ const ENABLE_NUMA = {
   type: INPUT_TYPES.CHECKBOX,
   tooltip: T.NumaTopologyConcept,
   validation: lazy((_, { context }) =>
-    boolean().default(() => !!context?.extra?.TOPOLOGY)
+    boolean().default(() => !!context?.TEMPLATE?.TOPOLOGY)
   ),
   grid: { md: 12 },
 }
@@ -205,14 +205,19 @@ const SCHEMA_FIELDS = (hypervisor) => [ENABLE_NUMA, ...NUMA_FIELDS(hypervisor)]
  * @returns {ObjectSchema} Schema for NUMA fields
  */
 const NUMA_SCHEMA = (hypervisor) =>
-  getObjectSchemaFromFields(SCHEMA_FIELDS(hypervisor)).afterSubmit((result) => {
-    const { TOPOLOGY, ...ensuredResult } = result
-    const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
+  getObjectSchemaFromFields(SCHEMA_FIELDS(hypervisor)).afterSubmit(
+    (result, { context }) => {
+      const { TOPOLOGY, ...ensuredResult } = result
+      const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
+      const hyperv = context?.general?.HYPERVISOR
 
-    isEnabled && (ensuredResult.TOPOLOGY = { ...restOfTopology })
+      ![vcenter, kvm].includes(hyperv) &&
+        isEnabled &&
+        (ensuredResult.TOPOLOGY = { ...restOfTopology })
 
-    return { ...ensuredResult }
-  })
+      return { ...ensuredResult }
+    }
+  )
 
 export {
   NUMA_FIELDS,
