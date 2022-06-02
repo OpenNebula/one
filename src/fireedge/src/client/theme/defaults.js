@@ -423,6 +423,11 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             backgroundColor: background.paper,
             borderRadius: `8px 8px 0 0`,
             border: `thin solid ${secondary.main}`,
+            paddingInline: '1rem',
+          },
+          flexContainer: {
+            height: '100%',
+            paddingBlock: '0.5em',
           },
         },
       },
@@ -432,8 +437,18 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             color: 'text.secondary',
             textTransform: 'capitalize',
             fontSize: '1rem',
+            padding: '0 1rem',
+            minHeight: '100%',
+            border: 0,
+            borderRadius: 6,
+            '&:hover': {
+              background: defaultTheme.palette.action.selected,
+              transition: 'background .12s ease-in-out',
+            },
             '&.Mui-selected': {
-              color: isDarkMode ? secondary.main : 'text.primary',
+              color: isDarkMode
+                ? secondary.main
+                : defaultTheme.palette.text.primary,
             },
           },
         },
