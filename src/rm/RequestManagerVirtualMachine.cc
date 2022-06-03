@@ -100,32 +100,6 @@ bool RequestManagerVirtualMachine::vm_authorization(
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerVirtualMachine::quota_resize_authorization(
-        int                 oid,
-        Template *          deltas,
-        RequestAttributes&  att)
-{
-    PoolObjectAuth      vm_perms;
-    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get_ro(oid);
-
-    if (vm == nullptr)
-    {
-        att.resp_obj = PoolObjectSQL::VM;
-        att.resp_id  = oid;
-        failure_response(NO_EXISTS, att);
-        return false;
-    }
-
-    vm->get_permissions(vm_perms);
-
-    vm->unlock();
-
-    return quota_resize_authorization(deltas, att, vm_perms);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool RequestManagerVirtualMachine::quota_resize_authorization(
         Template *          deltas,
         RequestAttributes&  att,
         PoolObjectAuth&     vm_perms)
@@ -156,8 +130,6 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
 
                 att.resp_msg = oss.str();
 
-                failure_response(AUTHORIZATION, att);
-
                 user->unlock();
 
                 return false;
@@ -186,8 +158,6 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
                     << att.resp_msg;
 
                 att.resp_msg = oss.str();
-
-                failure_response(AUTHORIZATION, att);
 
                 group->unlock();
 
@@ -1904,6 +1874,7 @@ void VirtualMachineAttach::request_execute(
     {
         failure_response(ec, att);
     }
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1914,19 +1885,37 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 {
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
+    VirtualMachinePool * vmpool = nd.get_vmpool();
 
     PoolObjectAuth         vm_perms;
 
-    VirtualMachine *     vm;
-
-    int    rc;
     bool   volatile_disk;
 
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    if (vm_authorization(id, 0, &tmpl, att, 0, 0, 0) == false)
+    if (auto vm = vmpool->get_ro(id))
     {
+        vm->get_permissions(vm_perms);
+
+        vm->unlock();
+    }
+    else
+    {
+        att.resp_id  = id;
+        att.resp_obj = PoolObjectSQL::VM;
+        return NO_EXISTS;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
         return AUTHORIZATION;
     }
 
@@ -1941,16 +1930,18 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
         }
     }
 
-    if ((vm = get_vm(id, att)) == nullptr)
+    if ( auto vm = vmpool->get(id) )
     {
+        volatile_disk = set_volatile_disk_info(vm, vm->get_ds_id(), tmpl);
+
+        vm->unlock();
+    }
+    else
+    {
+        att.resp_id  = id;
+        att.resp_obj = PoolObjectSQL::VM;
         return NO_EXISTS;
     }
-
-    vm->get_permissions(vm_perms);
-
-    volatile_disk = set_volatile_disk_info(vm, vm->get_ds_id(), tmpl);
-
-    vm->unlock();
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
@@ -1959,23 +1950,22 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 
     deltas.add("VMS", 0);
 
-    if (quota_resize_authorization(id, &deltas, att_quota) == false)
+    if (quota_resize_authorization(&deltas, att_quota, vm_perms) == false)
     {
+        att.resp_msg = std::move(att_quota.resp_msg);
         return AUTHORIZATION;
     }
 
     if (volatile_disk == false)
     {
-        if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota) == false )
+        if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota, att.resp_msg) == false )
         {
             quota_rollback(&deltas, Quotas::VM, att_quota);
             return AUTHORIZATION;
         }
     }
 
-    rc = dm->attach(id, &tmpl, att, att.resp_msg);
-
-    if ( rc != 0 )
+    if ( dm->attach(id, &tmpl, att, att.resp_msg) != 0 )
     {
         quota_rollback(&deltas, Quotas::VM, att_quota);
 
@@ -2232,6 +2222,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (quota_resize_authorization(&deltas, att, vm_perms) == false)
     {
+        failure_response(AUTHORIZATION, att);
         return;
     }
 
@@ -2896,7 +2887,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     if ( !vm_deltas.empty() )
     {
-        if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
+        if (!quota_resize_authorization(&vm_deltas, vm_att_quota, vm_perms))
         {
             if ( img_ds_quota )
             {
@@ -2908,6 +2899,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
+            failure_response(AUTHORIZATION, vm_att_quota);
             return;
         }
     }
@@ -3408,7 +3400,7 @@ void VirtualMachineDiskResize::request_execute(
 
     if ( !vm_deltas.empty() )
     {
-        if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
+        if (!quota_resize_authorization(&vm_deltas, vm_att_quota, vm_perms))
         {
             if ( img_ds_quota )
             {
@@ -3420,6 +3412,7 @@ void VirtualMachineDiskResize::request_execute(
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
+            failure_response(AUTHORIZATION, vm_att_quota);
             return;
         }
     }
