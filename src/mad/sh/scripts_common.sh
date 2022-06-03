@@ -1228,9 +1228,9 @@ function send_to_monitor {
         mon_conf=$ONE_LOCATION/etc/monitord.conf
     fi
 
-    mon_address=$(cat "$mon_conf" | grep MONITOR_ADDRESS | cut -d , -f1 | \
+    mon_address=$(cat $mon_conf | grep MONITOR_ADDRESS | cut -d , -f1 | \
         awk '{print $3}' | sed 's/^"\(.*\)"$/\1/')
-    mon_port=$(cat "$mon_config" | grep PORT | cut -d , -f1 | awk '{print $3}')
+    mon_port=$(cat $mon_conf | grep PORT | cut -d , -f1 | awk '{print $3}')
     mon_key=$(cat $mon_conf | grep PUBKEY | cut -d , -f1 | awk '{print $3}' | \
          sed 's/^"\(.*\)"$/\1/')
 
