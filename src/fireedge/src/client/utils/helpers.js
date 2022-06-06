@@ -445,8 +445,9 @@ export const intersperse = (arr, sep) => {
  * @param {string[]|object} knownAttributes - Attributes to check
  * @returns {object} Returns object with unknown properties
  */
-export const getUnknownAttributes = (obj, knownAttributes) => {
+export const getUnknownAttributes = (obj = {}, knownAttributes) => {
   const unknown = {}
+
   const entries = Object.entries(obj)
 
   const attributes = Array.isArray(knownAttributes)

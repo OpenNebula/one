@@ -172,6 +172,7 @@ const Actions = () => {
                       .filter(Boolean)
                       .join(' - ')
                   },
+                  dataCy: 'modal-clone',
                 },
                 form: (rows) => {
                   const names = rows?.map(({ original }) => original?.NAME)
@@ -199,6 +200,7 @@ const Actions = () => {
             icon: Group,
             selected: true,
             color: 'secondary',
+            dataCy: 'template-ownership',
             options: [
               {
                 accessor: VM_TEMPLATE_ACTIONS.CHANGE_OWNER,
@@ -243,6 +245,7 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Share,
+                  dataCy: `modal-${VM_TEMPLATE_ACTIONS.SHARE}`,
                   children: (rows) =>
                     MessageToConfirmAction(rows, T.ShareVmTemplateDescription),
                 },
@@ -258,6 +261,7 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Unshare,
+                  dataCy: `modal-${VM_TEMPLATE_ACTIONS.UNSHARE}`,
                   children: (rows) =>
                     MessageToConfirmAction(
                       rows,
@@ -277,6 +281,7 @@ const Actions = () => {
             icon: Lock,
             selected: true,
             color: 'secondary',
+            dataCy: 'template-lock',
             options: [
               {
                 accessor: VM_TEMPLATE_ACTIONS.LOCK,
@@ -284,6 +289,7 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Lock,
+                  dataCy: `modal-${VM_TEMPLATE_ACTIONS.LOCK}`,
                   children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
@@ -297,6 +303,7 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Unlock,
+                  dataCy: `modal-${VM_TEMPLATE_ACTIONS.UNLOCK}`,
                   children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
@@ -315,6 +322,7 @@ const Actions = () => {
             options: [
               {
                 dialogProps: {
+                  dataCy: `modal-${VM_TEMPLATE_ACTIONS.DELETE}`,
                   title: (rows) => {
                     const isMultiple = rows?.length > 1
                     const { ID, NAME } = rows?.[0]?.original ?? {}
