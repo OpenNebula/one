@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
 import { MenuItem, MenuList, Stack } from '@mui/material'
 import {
-  TableInstance,
+  UseTableInstanceProps,
   UseSortByInstanceProps,
   UseSortByState,
 } from 'react-table'
@@ -33,7 +33,7 @@ import { T } from 'client/constants'
  *
  * @param {object} props - Props
  * @param {string} [props.className] - Class name for the container
- * @param {TableInstance} props.useTableProps - Table props
+ * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {ReactElement} Component JSX
  */
 const GlobalSort = ({ className, useTableProps }) => {
@@ -75,7 +75,8 @@ const GlobalSort = ({ className, useTableProps }) => {
         buttonLabel={T.SortBy}
         buttonProps={{
           'data-cy': 'sort-by-button',
-          variant: 'outlined',
+          disableElevation: true,
+          variant: sortBy?.length > 0 ? 'contained' : 'outlined',
           color: 'secondary',
         }}
         popperProps={{ placement: 'bottom-end' }}

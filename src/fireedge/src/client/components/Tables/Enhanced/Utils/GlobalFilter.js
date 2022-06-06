@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { Stack, Button } from '@mui/material'
 import { Filter } from 'iconoir-react'
-import { TableInstance, UseTableInstanceProps } from 'react-table'
+import { UseTableInstanceProps, UseFiltersState } from 'react-table'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
@@ -29,19 +29,25 @@ import { T } from 'client/constants'
  *
  * @param {object} props - Props
  * @param {string} [props.className] - Class name for the container
- * @param {TableInstance} props.useTableProps - Table props
+ * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {ReactElement} Component JSX
  */
 const GlobalFilter = ({ className, useTableProps }) => {
-  /** @type {UseTableInstanceProps} */
-  const { rows, columns, setAllFilters } = useTableProps
+  const { rows, columns, setAllFilters, state } = useTableProps
+
+  /** @type {UseFiltersState} */
+  const { filters } = state
 
   const columnsCanFilter = useMemo(
     () => columns.filter(({ canFilter }) => canFilter),
     [columns]
   )
 
-  return !columnsCanFilter.length ? null : (
+  if (columnsCanFilter.length === 0) {
+    return null
+  }
+
+  return (
     <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
       <HeaderPopover
         id="filter-by-button"
@@ -49,7 +55,8 @@ const GlobalFilter = ({ className, useTableProps }) => {
         buttonLabel={T.FilterBy}
         buttonProps={{
           'data-cy': 'filter-by-button',
-          variant: 'outlined',
+          disableElevation: true,
+          variant: filters?.length > 0 ? 'contained' : 'outlined',
           color: 'secondary',
           disabled: rows?.length === 0,
         }}
