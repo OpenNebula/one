@@ -19,28 +19,28 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var Config = require('sunstone-config');
-  var DatastoresTable = require('tabs/datastores-tab/datatable');
-  var HostsTable = require('tabs/hosts-tab/datatable');
-  var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaVM = require('opennebula/vm');
-  var Sunstone = require('sunstone');
-  var Tips = require('utils/tips');
-  
+  var BaseDialog = require("utils/dialogs/dialog");
+  var Config = require("sunstone-config");
+  var DatastoresTable = require("tabs/datastores-tab/datatable");
+  var HostsTable = require("tabs/hosts-tab/datatable");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaVM = require("opennebula/vm");
+  var Sunstone = require("sunstone");
+  var Tips = require("utils/tips");
+
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./migrate/html');
+  var TemplateHTML = require("hbs!./migrate/html");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./migrate/dialogId');
-  var TAB_ID = require('../tabId');
+  var DIALOG_ID = require("./migrate/dialogId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -49,11 +49,11 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.hostsTable = new HostsTable('migrate_vm', {'select': true});
-    this.datastoresTable = new DatastoresTable('migrate_vm_ds', {
-      'select': true,
-      'selectOptions': {
-        'filter_fn': function(ds) { return ds.TYPE == 1; } // Show system DS only
+    this.hostsTable = new HostsTable("migrate_vm", {"select": true});
+    this.datastoresTable = new DatastoresTable("migrate_vm_ds", {
+      "select": true,
+      "selectOptions": {
+        "filter_fn": function(ds) { return ds.TYPE == 1; } // Show system DS only
       }
     });
 
@@ -77,9 +77,9 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'dialogId': this.dialogId,
-      'hostsTableHTML': this.hostsTable.dataTableHTML,
-      'datastoresTableHTML': this.datastoresTable.dataTableHTML
+      "dialogId": this.dialogId,
+      "hostsTableHTML": this.hostsTable.dataTableHTML,
+      "datastoresTableHTML": this.datastoresTable.dataTableHTML
     });
   }
 
@@ -93,18 +93,18 @@ define(function(require) {
 
     $("#enforce", context).attr("checked", Config.isFeatureEnabled("migrate_enforce"));
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+    $("#" + DIALOG_ID + "Form", context).submit(function() {
       var extra_info = {};
 
       if ($("#selected_resource_id_migrate_vm", context).val()) {
-          extra_info['host_id'] = $("#selected_resource_id_migrate_vm", context).val();
+          extra_info["host_id"] = $("#selected_resource_id_migrate_vm", context).val();
       } else {
           Notifier.notifyError(Locale.tr("You have not selected a host"));
           return false;
       }
 
-      extra_info['ds_id'] = $("#selected_resource_id_migrate_vm_ds", context).val() || -1;
-      extra_info['enforce'] = $("#enforce", context).is(":checked");
+      extra_info["ds_id"] = $("#selected_resource_id_migrate_vm_ds", context).val() || -1;
+      extra_info["enforce"] = $("#enforce", context).is(":checked");
 
       $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
         if (that.live) {
@@ -130,25 +130,26 @@ define(function(require) {
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
     var vmTemplate = Sunstone.getElementRightInfo(TAB_ID);
-    var migrateWithDsSelection = true
+    var migrateWithDsSelection = true;
+    var vmHypervisor = OpenNebulaVM.getHypervisor(vmTemplate);
 
     if (
       this.live &&
-      vmTemplate &&
-      vmTemplate.USER_TEMPLATE &&
-      vmTemplate.USER_TEMPLATE.HYPERVISOR &&
-      Config && Config.onedConf && Config.onedConf.VM_MAD && Array.isArray(Config.onedConf.VM_MAD)
+      Config &&
+      Config.onedConf &&
+      Config.onedConf.VM_MAD &&
+      Array.isArray(Config.onedConf.VM_MAD)
     ) {
       var hypervisor = $.grep(Config.onedConf.VM_MAD, function(n,i) {
-        return n.NAME && n.NAME === vmTemplate.USER_TEMPLATE.HYPERVISOR;
-      })
-      
+        return n.NAME && n.NAME === vmHypervisor;
+      });
+
       if (
         !hypervisor[0] ||
         !hypervisor[0].DS_LIVE_MIGRATION ||
         hypervisor[0].DS_LIVE_MIGRATION !== "yes"
       ) {
-        migrateWithDsSelection = false
+        migrateWithDsSelection = false;
         $(".migrate_vm_ds_selection", context).hide();
       }
     }
@@ -166,19 +167,19 @@ define(function(require) {
           var hostname = OpenNebulaVM.hostnameStr(element);
           var datastore = OpenNebulaVM.datastoreStr(element);
 
-          var hostnameHtml = $('<span/>').css('font-weight', '600').text(hostname)
-          var datastoreHtml = $('<span/>').css('font-weight', '600').text(datastore)
+          var hostnameHtml = $("<span/>").css("font-weight", "600").text(hostname);
+          var datastoreHtml = $("<span/>").css("font-weight", "600").text(datastore);
 
-          var label = $('<span>', { class: 'radius secondary label' })
-            .append(Locale.tr("VM") + ' ' + element.ID + ' ' + element.NAME + ' ' +
-                    Locale.tr("is currently running on Host") + ' ')
-            .append(hostnameHtml)
+          var label = $("<span>", { class: "radius secondary label" })
+            .append(Locale.tr("VM") + " " + element.ID + " " + element.NAME + " " +
+                    Locale.tr("is currently running on Host") + " ")
+            .append(hostnameHtml);
 
           migrateWithDsSelection && label
-            .append(' ' + Locale.tr("and Datastore") + ' ')
-            .append(datastoreHtml)
+            .append(" " + Locale.tr("and Datastore") + " ")
+            .append(datastoreHtml);
 
-          $('.confirm-resources-header', context).append(label)
+          $(".confirm-resources-header", context).append(label);
         }
       });
     });

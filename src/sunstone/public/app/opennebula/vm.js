@@ -855,7 +855,8 @@ define(function(require) {
     "detachsg" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "sg_detach", action_obj);
-    }
+    },
+    "getHypervisor": getHypervisor,
   };
 
   function hostnameStr(element, navigationLink = false) {
@@ -1360,6 +1361,26 @@ define(function(require) {
         $.inArray(state, VNC_STATES) !== -1;
     }
     return rtn;
+  }
+
+  /**
+   * This functions gets the VM hypervisor based on the VM history.
+   *
+   * @param {Object} template: VM template
+   * @returns {String} VM hypervisor based on HISTORY.
+   */
+  function getHypervisor(template) {
+    var history = template.HISTORY_RECORDS && template.HISTORY_RECORDS.HISTORY;
+
+    if (!Array.isArray(history)){
+      history = [history];
+    }
+
+    currentHistory = history.reduce(function(prev, current) {
+      return (prev.SEQ > current.SEQ) ? prev : current;
+    });
+
+    return currentHistory.VM_MAD;
   }
 
   return VM;
