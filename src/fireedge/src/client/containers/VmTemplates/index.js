@@ -108,7 +108,7 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
           />
         )}
         <Typography color="text.primary" noWrap>
-          {`#${template?.ID} | ${template?.NAME}`}
+          {`#${template?.ID || ''} | ${template?.NAME || ''}`}
         </Typography>
       </Stack>
       <VmTemplateTabs id={template?.ID} />
