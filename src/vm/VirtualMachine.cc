@@ -758,6 +758,9 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     vector<Template *> quotas;
     ostringstream oss;
 
+    //Decrypt attributes before parsing them
+    decrypt();
+
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
