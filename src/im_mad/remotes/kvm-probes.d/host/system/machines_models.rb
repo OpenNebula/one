@@ -98,6 +98,20 @@ begin
         end
     end
 
+    # Filter out the unsupported CPU models
+    cmd = 'virsh -c qemu:///system domcapabilities kvm'
+    domcapabilities, e, s = Open3.capture3(cmd)
+    if s.success?
+        domcap_xml = REXML::Document.new(domcapabilities)
+        domcap_xml = domcap_xml.root
+        cpu_mode_custom_elem = domcap_xml.elements["cpu/mode[@name='custom',@supported='yes']"]
+        if cpu_mode_custom_elem
+            cpu_mode_custom_elem.elements.each("model[@usable='no']") { |m|
+                models.delete(m.text)
+            }
+        end
+    end
+
     machines.uniq!
     models.uniq!
 
