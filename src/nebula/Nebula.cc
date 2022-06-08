@@ -241,7 +241,7 @@ void Nebula::start(bool bootstrap_only)
         NebulaLog::log("ONE",Log::INFO,os);
 
         os.str("");
-        os << "Log level:" << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
+        os << "Log level:" << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG,4=DDEBUG,5=DDDEBUG]";
 
         NebulaLog::log("ONE",Log::INFO,os);
 

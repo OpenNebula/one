@@ -40,7 +40,7 @@ public:
         DDDEBUG = 5
     };
 
-    static const char error_names[];
+    static const std::string error_names[];
 
     Log(const MessageType _level = WARNING):log_level(_level){};
 
