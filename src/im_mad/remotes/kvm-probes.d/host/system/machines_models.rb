@@ -28,7 +28,7 @@ begin
     models   = []
 
     cmd = 'virsh -r -c qemu:///system capabilities'
-    capabilities, e, s = Open3.capture3(cmd)
+    capabilities, _e, s = Open3.capture3(cmd)
     exit(-1) unless s.success?
 
     cap_xml = REXML::Document.new(capabilities)
@@ -87,7 +87,8 @@ begin
         end
 
         cmd = "virsh -r -c qemu:///system cpu-models #{a}"
-        cpu_models, e, s = Open3.capture3(cmd)
+        cpu_models, _e, s = Open3.capture3(cmd)
+
         break unless s.success?
 
         cpu_models.each_line do |l|
@@ -96,6 +97,21 @@ begin
 
             models << l
         end
+    end
+
+    # Filter out the unsupported CPU models
+    cmd = 'virsh -c qemu:///system domcapabilities kvm'
+    domcapabilities, _e, s = Open3.capture3(cmd)
+
+    if s.success?
+        domcap_xml = REXML::Document.new(domcapabilities)
+        domcap_xml = domcap_xml.root
+
+        cpu_mode_custom_elem = domcap_xml.elements["cpu/mode[@name='custom',@supported='yes']"]
+
+        cpu_mode_custom_elem.elements.each("model[@usable='no']") do |m|
+            models.delete(m.text)
+        end if cpu_mode_custom_elem
     end
 
     machines.uniq!
