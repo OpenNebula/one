@@ -59,7 +59,6 @@ require 'tempfile'
 
 require 'command_parser'
 require 'opennebula/oneflow_client'
-require 'models'
 require 'cli_helper'
 require 'one_helper/oneflowtemplate_helper'
 
