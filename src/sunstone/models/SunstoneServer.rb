@@ -320,7 +320,7 @@ class SunstoneServer < CloudServer
     # Guacamole
     ########################################################################
     def startguac(id, type_connection, guac, client=nil)
-        resource = retrieve_resource("vm", id)
+        resource = retrieve_resource("vm", id, true)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
