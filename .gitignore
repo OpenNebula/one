@@ -1,5 +1,5 @@
 .gitignore
-*.lock
+src/fireedge/package-lock.json
 *.a
 *.o
 *.pyc
