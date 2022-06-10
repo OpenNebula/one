@@ -42,7 +42,7 @@ function ServiceTemplates() {
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...(hasSelectedRows && getGridProps())}>
+        <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <ServiceTemplatesTable onSelectedRowsChange={onSelectedRowsChange} />
 
           {hasSelectedRows && (
