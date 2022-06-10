@@ -44,7 +44,7 @@ function VirtualMachines() {
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...(hasSelectedRows && getGridProps())}>
+        <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <VmsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
@@ -79,7 +79,9 @@ function VirtualMachines() {
  * @returns {ReactElement} VM details
  */
 const InfoTabs = memo(({ vm, gotoPage, unselect }) => {
-  const [getVm, { isFetching }] = useLazyGetVmQuery()
+  const [getVm, { data: lazyData, isFetching }] = useLazyGetVmQuery()
+  const id = lazyData?.ID ?? vm.ID
+  const name = lazyData?.NAME ?? vm.NAME
 
   return (
     <Stack overflow="auto">
@@ -89,7 +91,7 @@ const InfoTabs = memo(({ vm, gotoPage, unselect }) => {
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => getVm({ id: vm?.ID })}
+          onClick={() => getVm({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -108,10 +110,10 @@ const InfoTabs = memo(({ vm, gotoPage, unselect }) => {
           />
         )}
         <Typography color="text.primary" noWrap>
-          {`#${vm?.ID} | ${vm?.NAME}`}
+          {`#${id} | ${name}`}
         </Typography>
       </Stack>
-      <VmTabs id={vm?.ID} />
+      <VmTabs id={id} />
     </Stack>
   )
 })
