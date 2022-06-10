@@ -88,7 +88,7 @@ const imageApi = oneApi.injectEndpoints({
        *
        * @param {object} params - Request params
        * @param {string} params.template - A string containing the template of the image on syntax XML
-       * @param {string} params.id - The datastore ID
+       * @param {string} params.datastore - The datastore ID
        * @param {boolean} [params.capacity] - `true` to avoid checking datastore capacity
        * @returns {number} Image id
        * @throws Fails when response isn't code 200
