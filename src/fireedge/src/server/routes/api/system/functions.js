@@ -35,6 +35,7 @@ const ALLOWED_KEYS_ONED_CONF = [
   'VN_MAD_CONF',
   'IM_MAD',
   'AUTH_MAD',
+  'FEDERATION',
 ]
 
 /**

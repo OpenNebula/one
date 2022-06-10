@@ -14,14 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { env } = require('process')
-const { resolve } = require('path')
 const { parse: yamlToJson } = require('yaml')
 const {
-  defaultConfigFile,
-  defaultWebpackMode,
-  defaultSunstoneConfig,
-  defaultProvisionConfig,
   protectedConfigData,
   defaultAppName,
   defaultApps,
@@ -31,22 +25,11 @@ const { existsFile, defaultError } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
 const { global } = require('window-or-global')
 
-const defaultPath =
-  env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../'] : ['../']
-
-const basePaths = [__dirname, ...defaultPath, 'etc']
-
 const getConfigPathByApp = (app) =>
   ({
-    [defaultAppName]:
-      global?.paths?.FIREEDGE_CONFIG ||
-      resolve(...basePaths, defaultConfigFile),
-    [defaultApps.sunstone.name]:
-      global?.paths?.SUNSTONE_CONFIG ||
-      resolve(...basePaths, 'sunstone', defaultSunstoneConfig),
-    [defaultApps.provision.name]:
-      global?.paths?.PROVISION_CONFIG ||
-      resolve(...basePaths, 'provision', defaultProvisionConfig),
+    [defaultAppName]: global?.paths?.FIREEDGE_CONFIG,
+    [defaultApps.sunstone.name]: global?.paths?.SUNSTONE_CONFIG,
+    [defaultApps.provision.name]: global?.paths?.PROVISION_CONFIG,
   }[app])
 
 const getProtectedKeysByApp = (app) => protectedConfigData[app] || []

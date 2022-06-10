@@ -25,7 +25,7 @@ const {
 const {
   MARKETAPP_EXPORT,
   MARKETAPP_DOWNLOAD,
-  MARKETAPP_VMIMPORT,
+  MARKETAPP_IMPORT,
   MARKETAPP_DOCKERTAGS,
 } = Actions
 
@@ -39,7 +39,7 @@ module.exports = [
     action: downloadApp,
   },
   {
-    ...Commands[MARKETAPP_VMIMPORT],
+    ...Commands[MARKETAPP_IMPORT],
     action: importMarket,
   },
   {

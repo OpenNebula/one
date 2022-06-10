@@ -48,10 +48,11 @@ const VmTemplateCard = memo(
    * @param {object} props - Props
    * @param {VM} props.template - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ template, rootProps, onDeleteLabel }) => {
+  ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM_TEMPLATE]: templateView } = useViews()
 
@@ -83,9 +84,10 @@ const VmTemplateCard = memo(
         getUniqueLabels(LABELS).map((label) => ({
           text: label,
           stateColor: getColorFromString(label),
+          onClick: onClickLabel,
           onDelete: enableEditLabels && onDeleteLabel,
         })),
-      [LABELS, enableEditLabels, onDeleteLabel]
+      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 
     return (
@@ -134,6 +136,7 @@ VmTemplateCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onClickLabel: PropTypes.func,
   onDeleteLabel: PropTypes.func,
 }
 

@@ -58,7 +58,7 @@ export const onedConfIncludesAction = (
   onedConf = {},
   action = 'monitor'
 ) => {
-  const isInZone = onedConf.FEDERATION?.ZONE_ID === marketplace.ZONE_ID
+  const isInZone = (onedConf.FEDERATION?.ZONE_ID ?? '0') === marketplace.ZONE_ID
   const includesAction = onedConf.MARKET_MAD_CONF?.some(
     ({ APP_ACTIONS, NAME }) =>
       APP_ACTIONS?.includes(action) &&

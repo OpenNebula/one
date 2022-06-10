@@ -51,10 +51,10 @@ import {
   validateServerIsSecure,
 } from './utils/server'
 
-const appConfig = getFireedgeConfig()
-
 // set paths
 genPathResources()
+
+const appConfig = getFireedgeConfig()
 
 // set fireedge_key
 genFireedgeKey()

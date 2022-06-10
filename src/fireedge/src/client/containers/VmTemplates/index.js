@@ -44,7 +44,7 @@ function VmTemplates() {
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
-        <Box {...(hasSelectedRows && getGridProps())}>
+        <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <VmTemplatesTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
@@ -79,7 +79,9 @@ function VmTemplates() {
  * @returns {ReactElement} VM Template details
  */
 const InfoTabs = memo(({ template, gotoPage, unselect }) => {
-  const [getTemplate, { isFetching }] = useLazyGetTemplateQuery()
+  const [getTemplate, { data, isFetching }] = useLazyGetTemplateQuery()
+  const id = data?.ID ?? template.ID
+  const name = data?.NAME ?? template.NAME
 
   return (
     <Stack overflow="auto">
@@ -89,7 +91,7 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => getTemplate({ id: template?.ID })}
+          onClick={() => getTemplate({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -108,10 +110,10 @@ const InfoTabs = memo(({ template, gotoPage, unselect }) => {
           />
         )}
         <Typography color="text.primary" noWrap>
-          {`#${template?.ID || ''} | ${template?.NAME || ''}`}
+          {`#${id} | ${name}`}
         </Typography>
       </Stack>
-      <VmTemplateTabs id={template?.ID} />
+      <VmTemplateTabs id={id} />
     </Stack>
   )
 })

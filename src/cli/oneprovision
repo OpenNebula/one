@@ -273,7 +273,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.resources_operation(args, operation, options, 'HOSTS')
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -288,7 +288,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES] do
         operation = { :operation => 'configure', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOSTS')
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -303,7 +303,7 @@ CommandParser::CmdParser.new(ARGV) do
             [:command, nil] do
         operation = { :operation => 'ssh', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOSTS')
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###

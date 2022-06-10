@@ -146,7 +146,7 @@ define(function(require) {
       CapacityCreate.calculatedRealMemory(context);
     });
 
-     context.on("change", "#CPU_COST", function() {
+    context.on("change", "#CPU_COST", function() {
       CapacityCreate.calculatedRealCpu(context);
     });
 
@@ -237,12 +237,12 @@ define(function(require) {
         cpu_input = "1";
         // [NUMA]
         $("#numa-pin-policy", formContext)
-          .prop('disabled', false)
+          .prop("disabled", false)
           .val("SHARED")
-          .prop('disabled', true);
+          .prop("disabled", true);
         $("#numa-sockets", formContext).val("1");
         $("#numa-threads", formContext)
-          .prop('disabled', false)
+          .prop("disabled", false)
           .prop("max", NUMA_THREADS_MAX)
           .val(NUMA_THREADS_MIN)
           .keyup(function(){
@@ -251,7 +251,7 @@ define(function(require) {
             else if (this.value < NUMA_THREADS_MIN)
               this.value = NUMA_THREADS_MIN;
           });
-          
+
 
         $(".disabled_firecracker", formContext).prop("disabled", true);
         $(".not_firecracker", formContext).hide();
@@ -377,7 +377,7 @@ define(function(require) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context));
       }
     }
-    
+
     if (templateJSON["HYPERVISOR"] == "lxc"){
       templateJSON["LXC_UNPRIVILEGED"] = $("#lxc_security_unprivileged", context).val().toUpperCase();
     }
@@ -423,7 +423,7 @@ define(function(require) {
     $.extend(true, templateJSON, CapacityCreate.retrieve($("div.capacityCreate", context)));
 
     if (templateJSON["MEMORY_COST"] && templateJSON["MEMORY_UNIT_COST"] && templateJSON["MEMORY_UNIT_COST"] == "GB") {
-      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] / 1024;
+      templateJSON["MEMORY_COST"] = (templateJSON["MEMORY_COST"] / 1024).toString();
     }
     if (templateJSON["DISK_COST"]) {
       templateJSON["DISK_COST"] = (templateJSON["DISK_COST"] / 1024).toString();

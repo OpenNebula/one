@@ -576,7 +576,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             return [-1, rc.message] if OpenNebula.is_error?(rc)
 
             case type
-            when 'HOSTS'
+            when 'HOST', 'HOSTS'
                 host_operation(obj, operation, args[1])
             else
                 msg = "Deleting #{type} #{obj['ID']}"
@@ -700,7 +700,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @returns [OpenNebula::Helper] Helper
     def helper(type)
         case type
-        when 'HOSTS'         then helper = OneHostHelper.new
+        when 'HOST', 'HOSTS' then helper = OneHostHelper.new
         when 'DATASTORES'    then helper = OneDatastoreHelper.new
         when 'NETWORKS'      then helper = OneVNetHelper.new
         when 'CLUSTERS'      then helper = OneClusterHelper.new

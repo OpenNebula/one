@@ -32,14 +32,16 @@ import {
   UseRowSelectRowProps,
 } from 'react-table'
 
-import Pagination from 'client/components/Tables/Enhanced/pagination'
 import {
   GlobalActions,
   GlobalSearch,
   GlobalFilter,
+  GlobalLabel,
   GlobalSort,
   GlobalSelectedRows,
+  LABEL_COLUMN_ID,
 } from 'client/components/Tables/Enhanced/Utils'
+import Pagination from 'client/components/Tables/Enhanced/pagination'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
 import { Translate } from 'client/components/HOC'
@@ -57,6 +59,7 @@ const EnhancedTable = ({
   isLoading,
   displaySelectedRows,
   disableRowSelect,
+  disableGlobalLabel,
   disableGlobalSort,
   onSelectedRowsChange,
   pageSize = 10,
@@ -125,11 +128,12 @@ const EnhancedTable = ({
     page,
     gotoPage,
     pageCount,
-    state: { pageIndex, selectedRowIds, ...state },
+    setFilter,
+    state,
   } = useTableProps
 
   const gotoRowPage = async (row) => {
-    const pageIdx = Math.floor(row.index / state.pageSize)
+    const pageIdx = Math.floor(row.index / pageSize)
 
     await gotoPage(pageIdx)
 
@@ -141,11 +145,11 @@ const EnhancedTable = ({
 
   useMountedLayoutEffect(() => {
     const selectedRows = preFilteredRows
-      .filter((row) => !!selectedRowIds[row.id])
+      .filter((row) => !!state.selectedRowIds[row.id])
       .map((row) => ({ ...row, gotoPage: () => gotoRowPage(row) }))
 
     onSelectedRowsChange?.(selectedRows)
-  }, [selectedRowIds])
+  }, [state.selectedRowIds])
 
   const handleChangePage = (newPage) => {
     gotoPage(newPage)
@@ -153,7 +157,7 @@ const EnhancedTable = ({
     const canNextPage =
       pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
 
-    newPage > pageIndex && !canNextPage && fetchMore?.()
+    newPage > state.pageIndex && !canNextPage && fetchMore?.()
   }
 
   return (
@@ -192,8 +196,9 @@ const EnhancedTable = ({
 
         {/* FILTERS */}
         <div className={styles.filters}>
-          <GlobalFilter useTableProps={useTableProps} />
-          {!disableGlobalSort && <GlobalSort useTableProps={useTableProps} />}
+          {!disableGlobalLabel && <GlobalLabel {...useTableProps} />}
+          <GlobalFilter {...useTableProps} />
+          {!disableGlobalSort && <GlobalSort {...useTableProps} />}
         </div>
 
         {/* SELECTED ROWS */}
@@ -240,6 +245,15 @@ const EnhancedTable = ({
               original={original}
               value={values}
               className={isSelected ? 'selected' : ''}
+              onClickLabel={(label) => {
+                const currentFilter =
+                  state.filters
+                    ?.filter(({ id }) => id === LABEL_COLUMN_ID)
+                    ?.map(({ value }) => value) || []
+
+                const nextFilter = [...new Set([...currentFilter, label])]
+                setFilter(LABEL_COLUMN_ID, nextFilter)
+              }}
               onClick={() => {
                 typeof onRowClick === 'function' && onRowClick(original)
 
@@ -277,6 +291,7 @@ EnhancedTable.propTypes = {
   }),
   refetch: PropTypes.func,
   isLoading: PropTypes.bool,
+  disableGlobalLabel: PropTypes.bool,
   disableGlobalSort: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
   displaySelectedRows: PropTypes.bool,
