@@ -48,11 +48,12 @@ const VirtualMachineCard = memo(
    * @param {object} props - Props
    * @param {VM} props.vm - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
    * @returns {ReactElement} - Card
    */
-  ({ vm, rootProps, actions, onDeleteLabel }) => {
+  ({ vm, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
@@ -90,9 +91,10 @@ const VirtualMachineCard = memo(
         getUniqueLabels(LABELS).map((label) => ({
           text: label,
           stateColor: getColorFromString(label),
+          onClick: onClickLabel,
           onDelete: enableEditLabels && onDeleteLabel,
         })),
-      [LABELS, enableEditLabels, onDeleteLabel]
+      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 
     return (
@@ -159,6 +161,7 @@ VirtualMachineCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onClickLabel: PropTypes.func,
   onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
 }

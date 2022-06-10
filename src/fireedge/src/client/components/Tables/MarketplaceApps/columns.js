@@ -27,11 +27,17 @@ const COLUMNS = [
   { Header: T.State, id: 'state', accessor: (row) => getState(row)?.name },
   { Header: T.Type, id: 'type', accessor: getType },
   { Header: T.Size, id: 'size', accessor: 'SIZE' },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
   { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
   { Header: T.Marketplace, id: 'marketplace', accessor: 'MARKETPLACE' },
   { Header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name', 'time', 'size']
+COLUMNS.noFilterIds = ['id', 'name', 'time', 'size', 'label']
 
 export default COLUMNS

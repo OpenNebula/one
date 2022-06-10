@@ -36,6 +36,12 @@ const COLUMNS = [
   { Header: T.Group, id: 'group', accessor: 'GNAME' },
   { Header: T.StartTime, id: 'time', accessor: 'STIME' },
   { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'USER_TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
   { Header: T.Type, id: 'type', accessor: getType },
   {
     Header: T.IP,
@@ -50,6 +56,6 @@ const COLUMNS = [
   },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name', 'ips', 'time']
+COLUMNS.noFilterIds = ['id', 'name', 'ips', 'time', 'label']
 
 export default COLUMNS

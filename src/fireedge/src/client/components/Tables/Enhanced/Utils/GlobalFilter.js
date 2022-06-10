@@ -13,78 +13,89 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Fragment, useMemo, ReactElement } from 'react'
+import { ReactElement, Fragment, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Stack, Button } from '@mui/material'
 import { Filter } from 'iconoir-react'
-import { UseTableInstanceProps, UseFiltersState } from 'react-table'
+import { UseFiltersInstanceProps, UseFiltersState } from 'react-table'
 
+import { LABEL_COLUMN_ID } from 'client/components/Tables/Enhanced/Utils/GlobalLabel'
 import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 /**
- * Render all selected sorters.
+ * Render all selected filters.
  *
- * @param {object} props - Props
- * @param {string} [props.className] - Class name for the container
- * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @returns {ReactElement} Component JSX
  */
-const GlobalFilter = ({ className, useTableProps }) => {
-  const { rows, columns, setAllFilters, state } = useTableProps
+const GlobalFilter = memo(
+  (tableProps) => {
+    /** @type {UseFiltersInstanceProps} */
+    const { rows, columns, setAllFilters, state } = tableProps
 
-  /** @type {UseFiltersState} */
-  const { filters } = state
+    /** @type {UseFiltersState} */
+    const { filters } = state
 
-  const columnsCanFilter = useMemo(
-    () => columns.filter(({ canFilter }) => canFilter),
-    [columns]
-  )
+    const columnsCanFilter = useMemo(
+      () => columns.filter(({ canFilter }) => canFilter),
+      []
+    )
 
-  if (columnsCanFilter.length === 0) {
-    return null
-  }
+    if (columnsCanFilter.length === 0) {
+      return null
+    }
 
-  return (
-    <Stack className={className} direction="row" gap="0.5em" flexWrap="wrap">
-      <HeaderPopover
-        id="filter-by-button"
-        icon={<Filter />}
-        buttonLabel={T.FilterBy}
-        buttonProps={{
-          'data-cy': 'filter-by-button',
-          disableElevation: true,
-          variant: filters?.length > 0 ? 'contained' : 'outlined',
-          color: 'secondary',
-          disabled: rows?.length === 0,
-        }}
-        popperProps={{ placement: 'bottom-end' }}
-      >
-        {() => (
-          <Stack sx={{ width: { xs: '100%', md: 500 }, p: 2 }}>
-            {columnsCanFilter.map((column, idx) => (
-              <Fragment key={idx}>{column.render('Filter')}</Fragment>
-            ))}
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => setAllFilters([])}
-              sx={{ mt: 2, alignSelf: 'flex-end' }}
-            >
-              <Translate word={T.Clear} />
-            </Button>
-          </Stack>
-        )}
-      </HeaderPopover>
-    </Stack>
-  )
-}
+    const filtersAreNotLabel = useMemo(
+      () => filters?.filter(({ id }) => id !== LABEL_COLUMN_ID),
+      [filters]
+    )
+
+    return (
+      <Stack direction="row" gap="0.5em" flexWrap="wrap">
+        <HeaderPopover
+          id="filter-by-button"
+          icon={<Filter />}
+          headerTitle={T.FilterBy}
+          buttonLabel={T.Filter}
+          buttonProps={{
+            'data-cy': 'filter-by-button',
+            disableElevation: true,
+            variant: filtersAreNotLabel.length > 0 ? 'contained' : 'outlined',
+            color: 'secondary',
+            disabled: rows?.length === 0,
+          }}
+          popperProps={{ placement: 'bottom-end' }}
+        >
+          {() => (
+            <Stack sx={{ width: { xs: '100%', md: 500 }, p: 2 }}>
+              {columnsCanFilter.map((column, idx) => (
+                <Fragment key={idx}>{column.render('Filter')}</Fragment>
+              ))}
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => setAllFilters([])}
+                sx={{ mt: 2, alignSelf: 'flex-end' }}
+              >
+                <Translate word={T.Clear} />
+              </Button>
+            </Stack>
+          )}
+        </HeaderPopover>
+      </Stack>
+    )
+  },
+  (next, prev) =>
+    next.rows === prev.rows && next.state.filters === prev.state.filters
+)
 
 GlobalFilter.propTypes = {
-  className: PropTypes.string,
-  useTableProps: PropTypes.object.isRequired,
+  preFilteredRows: PropTypes.array,
+  state: PropTypes.object,
 }
+
+GlobalFilter.displayName = 'GlobalFilter'
 
 export default GlobalFilter
