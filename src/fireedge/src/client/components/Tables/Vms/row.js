@@ -26,7 +26,7 @@ const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
 const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, onClickLabel, ...props }) => {
     const [update] = useUpdateUserTemplateMutation()
 
     const state = vmApi.endpoints.getVms.useQueryState(undefined, {
@@ -52,6 +52,7 @@ const Row = memo(
       <VirtualMachineCard
         vm={memoVm}
         rootProps={props}
+        onClickLabel={onClickLabel}
         onDeleteLabel={handleDeleteLabel}
         actions={
           <>
@@ -75,7 +76,8 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   className: PropTypes.string,
-  handleClick: PropTypes.func,
+  onClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 Row.displayName = 'VirtualMachineRow'

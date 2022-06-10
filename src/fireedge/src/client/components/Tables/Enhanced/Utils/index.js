@@ -15,6 +15,9 @@
  * ------------------------------------------------------------------------- */
 import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import GlobalActions from 'client/components/Tables/Enhanced/Utils/GlobalActions'
+import GlobalLabel, {
+  LABEL_COLUMN_ID,
+} from 'client/components/Tables/Enhanced/Utils/GlobalLabel'
 import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 import GlobalSearch from 'client/components/Tables/Enhanced/Utils/GlobalSearch'
 import GlobalSelectedRows from 'client/components/Tables/Enhanced/Utils/GlobalSelectedRows'
@@ -25,11 +28,15 @@ export * from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
 export * from 'client/components/Tables/Enhanced/Utils/utils'
 
 export {
+  // Components
   CategoryFilter,
   GlobalActions,
+  GlobalLabel,
   GlobalFilter,
   GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
   TimeFilter,
+  // Constants
+  LABEL_COLUMN_ID,
 }

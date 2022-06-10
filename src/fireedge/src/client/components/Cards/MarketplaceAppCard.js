@@ -19,25 +19,44 @@ import PropTypes from 'prop-types'
 import { Lock, User, Group, Cart } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
+import { useViews } from 'client/features/Auth'
+import MultipleTags from 'client/components/MultipleTags'
 import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import { getState, getType } from 'client/models/MarketplaceApp'
-import { timeFromMilliseconds } from 'client/models/Helper'
+import {
+  timeFromMilliseconds,
+  getUniqueLabels,
+  getColorFromString,
+} from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
-import { T, MarketplaceApp } from 'client/constants'
+import {
+  T,
+  MarketplaceApp,
+  MARKETPLACE_APP_ACTIONS,
+  RESOURCE_NAMES,
+} from 'client/constants'
 
 const MarketplaceAppCard = memo(
   /**
    * @param {object} props - Props
    * @param {MarketplaceApp} props.app - Marketplace App resource
    * @param {object} props.rootProps - Props to root component
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
+   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ app, rootProps }) => {
+  ({ app, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { [RESOURCE_NAMES.VM]: vmView } = useViews()
+
+    const enableEditLabels =
+      vmView?.actions?.[MARKETPLACE_APP_ACTIONS.EDIT_LABELS] === true &&
+      !!onDeleteLabel
+
     const {
       ID,
       NAME,
@@ -48,6 +67,7 @@ const MarketplaceAppCard = memo(
       MARKETPLACE,
       ZONE_ID,
       SIZE,
+      TEMPLATE: { LABELS } = {},
     } = app
 
     const state = useMemo(() => getState(app), [app?.STATE])
@@ -55,6 +75,17 @@ const MarketplaceAppCard = memo(
 
     const time = useMemo(() => timeFromMilliseconds(+REGTIME), [REGTIME])
     const type = useMemo(() => getType(app), [app?.TYPE])
+
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+          onDelete: enableEditLabels && onDeleteLabel,
+        })),
+      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
+    )
 
     return (
       <div {...rootProps} data-cy={`app-${ID}`}>
@@ -67,6 +98,7 @@ const MarketplaceAppCard = memo(
             {LOCK && <Lock />}
             <span className={classes.labels}>
               <StatusChip text={type} />
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>
@@ -104,6 +136,8 @@ MarketplaceAppCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onClickLabel: PropTypes.func,
+  onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
 }
 

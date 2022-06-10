@@ -23,7 +23,7 @@ import { VmTemplateCard } from 'client/components/Cards'
 import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, onClickLabel, ...props }) => {
     const [update] = useUpdateTemplateMutation()
 
     const state = vmTemplateApi.endpoints.getTemplates.useQueryState(
@@ -52,6 +52,7 @@ const Row = memo(
       <VmTemplateCard
         template={memoTemplate}
         rootProps={props}
+        onClickLabel={onClickLabel}
         onDeleteLabel={handleDeleteLabel}
       />
     )
@@ -64,7 +65,8 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   className: PropTypes.string,
-  handleClick: PropTypes.func,
+  onClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 Row.displayName = 'VmTemplateRow'
