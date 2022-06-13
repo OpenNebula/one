@@ -82,7 +82,7 @@ module Migrator
             end
         end
 
-        @db.run 'DROP TABLE IF EXISTS old_documentpool;'
+        @db.run 'DROP TABLE IF EXISTS old_document_pool;'
     end
 
     def feature_3859
