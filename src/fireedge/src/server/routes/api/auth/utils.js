@@ -252,17 +252,13 @@ const updaterResponse = (code) => {
  */
 const validate2faAuthentication = (informationUser) => {
   let rtn = false
-  if (
-    informationUser.TEMPLATE &&
-    informationUser.TEMPLATE.SUNSTONE &&
-    informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
-  ) {
+  if (informationUser?.TEMPLATE?.SUNSTONE?.[default2FAOpennebulaVar]) {
     /*********************************************************
      * Validate 2FA
      *********************************************************/
 
     if (tfatoken.length <= 0) {
-      updaterResponse(httpResponse(accepted))
+      updaterResponse(httpResponse(accepted, { id: informationUser?.ID }))
     } else {
       const secret = informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
       if (!check2Fa(secret, tfatoken)) {
