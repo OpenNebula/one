@@ -60,7 +60,7 @@ const loginUser = (
   if (value && value.USER && !err) {
     success(value)
   } else {
-    error()
+    error(err)
   }
 }
 
@@ -103,11 +103,14 @@ const auth = (
     }
 
     /**
-     * Run if no have information.
+     * Catch error login.
+     *
+     * @param {string} err - error.
      */
-    const error = () => {
-      updaterResponse(new Map(unauthorized).toObject())
-      writeInLogger(unauthorized)
+    const error = (err) => {
+      const httpCodeError = err ? internalServerError : unauthorized
+      updaterResponse(new Map(httpCodeError).toObject())
+      writeInLogger(httpCodeError)
       next()
     }
 
