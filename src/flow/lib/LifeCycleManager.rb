@@ -1031,7 +1031,9 @@ class ServiceLCM
                 @event_manager.cancel_action(service_id)
 
                 service.set_state(Service::STATE['FAILED_DEPLOYING'])
-                service.roles[role_name].set_state(Role::STATE['FAILED_DEPLOYING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_DEPLOYING']
+                )
 
                 service.update
             end
