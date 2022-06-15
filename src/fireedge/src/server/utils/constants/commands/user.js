@@ -61,7 +61,7 @@ module.exports = {
       params: {
         username: {
           from: postBody,
-          default: 0,
+          default: '',
         },
         password: {
           from: postBody,
