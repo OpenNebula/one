@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line prettier/prettier, no-unused-vars
 import { VmQuota, NetworkQuota, DatastoreQuota, ImageQuota } from 'client/constants/quota'
-import * as ACTIONS from 'client/constants/actions'
 
 /**
  * @typedef Group
@@ -37,7 +36,6 @@ import * as ACTIONS from 'client/constants/actions'
  */
 
 export const GROUP_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   UPDATE_DIALOG: 'update_dialog',
   QUOTAS_DIALOG: 'quotas_dialog',

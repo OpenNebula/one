@@ -50,7 +50,6 @@ import * as ACTIONS from 'client/constants/actions'
  */
 
 export const USER_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   QUOTAS_DIALOG: 'quotas_dialog',
   GROUPS_DIALOG: 'groups_dialog',

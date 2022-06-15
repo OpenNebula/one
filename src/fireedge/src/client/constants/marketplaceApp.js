@@ -49,9 +49,17 @@ import * as ACTIONS from 'client/constants/actions'
 
 /** @enum {string} Marketplace App actions */
 export const MARKETPLACE_APP_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
-  RENAME: ACTIONS.RENAME,
   EXPORT: 'export',
   DOWNLOAD: 'download',
+  ENABLE: 'enable',
+  DISABLE: 'disable',
+  DELETE: 'delete',
+  EDIT_LABELS: 'edit_labels',
+
+  // INFORMATION
+  RENAME: ACTIONS.RENAME,
+  CHANGE_MODE: ACTIONS.CHANGE_MODE,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
