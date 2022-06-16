@@ -205,10 +205,10 @@ define(function(require) {
               !isNaN(parseInt(leases[action.ACTION].time)) &&
               leases[action.ACTION].color
             ){
-              var endTime = action.TIME.startsWith("+")? action.TIME : action.TIME - startTime;
+              var endTime = (action.TIME.startsWith("+")? action.TIME : action.TIME - startTime).toString();
 
               if(checkTime(startTime, endTime)){
-                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:endTime.toString(), data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:endTime, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
                 if(
                   leases[action.ACTION].warning &&
                   leases[action.ACTION].warning.time &&
