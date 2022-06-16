@@ -16,14 +16,14 @@
 
 define(function(require) {
 
-  var Humanize = require('utils/humanize');
-  var LabelsUtils = require('utils/labels/utils');
-  var Locale = require('utils/locale');
-  var OpenNebulaVM = require('opennebula/vm');
+  var Humanize = require("utils/humanize");
+  var LabelsUtils = require("utils/labels/utils");
+  var Locale = require("utils/locale");
+  var OpenNebulaVM = require("opennebula/vm");
   var ScheduleActions = require("utils/schedule_action");
-  var Status = require('utils/status');
-  var TemplateUtils = require('utils/template-utils');
-  var VMRemoteActions = require('utils/remote-actions');
+  var Status = require("utils/status");
+  var TemplateUtils = require("utils/template-utils");
+  var VMRemoteActions = require("utils/remote-actions");
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -57,7 +57,7 @@ define(function(require) {
     var rtn = false;
 
     if (startTime && addedEndTime) {
-      var regexNumber = new RegExp('[0-9]*$','gm');
+      var regexNumber = new RegExp("[0-9]*$","gm");
       var date = parseInt(startTime,10);
       var added = parseInt(addedEndTime.match(regexNumber)[0],10);
 
@@ -114,7 +114,7 @@ define(function(require) {
       "padding":"8px",
       "z-index":"1",
       "min-width":"8rem",
-      "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
+      "font-family": "\"Lato\",\"Helvetica Neue\",Helvetica,Roboto,Arial,sans-serif",
       "color":"#000",
       "font-weight": "bold"
     };
@@ -173,15 +173,10 @@ define(function(require) {
           !isNaN(parseInt(leases[action.ACTION].time)) &&
           leases[action.ACTION].color
         ){
-          if(action.TIME.startsWith("+")){
-            endTime = action.TIME;
-          } else {
-            endTime = action.TIME - element.STIME;
-            endTime = endTime.toString();
-          }
+          var endTime = action.TIME.startsWith("+")? action.TIME : action.TIME - startTime;
 
           if(checkTime(element.STIME, endTime)){
-            rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:endTime, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+            rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:endTime.toString(), data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
             if(
               leases[action.ACTION].warning &&
               leases[action.ACTION].warning.time &&
