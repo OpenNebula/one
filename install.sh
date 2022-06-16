@@ -758,6 +758,7 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
+    PRE_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -2363,6 +2364,8 @@ INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
+
+PRE_CLEANUP_SHARE_FILE="share/pkgs/services/systemd/pre_cleanup"
 
 BACKUP_VMS_SHARE_FILE="share/scripts/backup_vms"
 

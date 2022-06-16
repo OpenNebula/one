@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+if [[ ! -f /var/run/one/oned.pid && -f /var/lock/one/one ]]; then
+    rm /var/lock/one/one
+fi
