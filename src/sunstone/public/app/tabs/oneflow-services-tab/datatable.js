@@ -184,7 +184,7 @@ define(function(require) {
 
   function leasesClock(element){
     var rtn = "";
-    // The charter info is pulled from the schedule action of the first VM of the first role 
+    // The charter info is pulled from the schedule action of the first VM of the first role
     // (element.TEMPLATE.BODY.roles[0].vm_template_contents.SCHED_ACTION)
     if(element && element.TEMPLATE && element.TEMPLATE.BODY && element.TEMPLATE.BODY.start_time && element.TEMPLATE.BODY.roles){
       var startTime = element.TEMPLATE.BODY.start_time;
@@ -205,15 +205,10 @@ define(function(require) {
               !isNaN(parseInt(leases[action.ACTION].time)) &&
               leases[action.ACTION].color
             ){
-              if(action.TIME.startsWith("+")){
-                endTime = action.TIME;
-              } else {
-                endTime = action.TIME - startTime;
-                endTime = endTime.toString();
-              }
+              var endTime = action.TIME.startsWith("+")? action.TIME : action.TIME - startTime;
 
               if(checkTime(startTime, endTime)){
-                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:endTime, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:endTime.toString(), data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
                 if(
                   leases[action.ACTION].warning &&
                   leases[action.ACTION].warning.time &&
