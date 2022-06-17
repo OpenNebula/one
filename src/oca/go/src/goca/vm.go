@@ -609,7 +609,7 @@ func (vc *VMController) TerminateHard() error {
 }
 
 func (vc *VMController) TerminateHardContext(ctx context.Context) error {
-	return vc.Action("terminate-hard")
+	return vc.ActionContext(ctx, "terminate-hard")
 }
 
 // Terminate action on the VM
@@ -618,7 +618,7 @@ func (vc *VMController) Terminate() error {
 }
 
 func (vc *VMController) TerminateContext(ctx context.Context) error {
-	return vc.Action("terminate")
+	return vc.ActionContext(ctx, "terminate")
 }
 
 // UndeployHard action on the VM
@@ -627,7 +627,7 @@ func (vc *VMController) UndeployHard() error {
 }
 
 func (vc *VMController) UndeployHardContext(ctx context.Context) error {
-	return vc.Action("undeploy-hard")
+	return vc.ActionContext(ctx, "undeploy-hard")
 }
 
 // Undeploy action on the VM
@@ -636,7 +636,7 @@ func (vc *VMController) Undeploy() error {
 }
 
 func (vc *VMController) UndeployContext(ctx context.Context) error {
-	return vc.Action("undeploy")
+	return vc.ActionContext(ctx, "undeploy")
 }
 
 // PoweroffHard action on the VM
@@ -645,7 +645,7 @@ func (vc *VMController) PoweroffHard() error {
 }
 
 func (vc *VMController) PoweroffHardContext(ctx context.Context) error {
-	return vc.Action("poweroff-hard")
+	return vc.ActionContext(ctx, "poweroff-hard")
 }
 
 // Poweroff action on the VM
@@ -654,7 +654,7 @@ func (vc *VMController) Poweroff() error {
 }
 
 func (vc *VMController) PoweroffContext(ctx context.Context) error {
-	return vc.Action("poweroff")
+	return vc.ActionContext(ctx, "poweroff")
 }
 
 // RebootHard action on the VM
@@ -663,7 +663,7 @@ func (vc *VMController) RebootHard() error {
 }
 
 func (vc *VMController) RebootHardContext(ctx context.Context) error {
-	return vc.Action("reboot-hard")
+	return vc.ActionContext(ctx, "reboot-hard")
 }
 
 // Reboot action on the VM
@@ -672,7 +672,7 @@ func (vc *VMController) Reboot() error {
 }
 
 func (vc *VMController) RebootContext(ctx context.Context) error {
-	return vc.Action("reboot")
+	return vc.ActionContext(ctx, "reboot")
 }
 
 // Hold action on the VM
@@ -681,7 +681,7 @@ func (vc *VMController) Hold() error {
 }
 
 func (vc *VMController) HoldContext(ctx context.Context) error {
-	return vc.Action("hold")
+	return vc.ActionContext(ctx, "hold")
 }
 
 // Release action on the VM
@@ -690,7 +690,7 @@ func (vc *VMController) Release() error {
 }
 
 func (vc *VMController) ReleaseContext(ctx context.Context) error {
-	return vc.Action("release")
+	return vc.ActionContext(ctx, "release")
 }
 
 // Stop action on the VM
@@ -699,7 +699,7 @@ func (vc *VMController) Stop() error {
 }
 
 func (vc *VMController) StopContext(ctx context.Context) error {
-	return vc.Action("stop")
+	return vc.ActionContext(ctx, "stop")
 }
 
 // Suspend action on the VM
@@ -708,7 +708,7 @@ func (vc *VMController) Suspend() error {
 }
 
 func (vc *VMController) SuspendContext(ctx context.Context) error {
-	return vc.Action("suspend")
+	return vc.ActionContext(ctx, "suspend")
 }
 
 // Resume action on the VM
@@ -717,7 +717,7 @@ func (vc *VMController) Resume() error {
 }
 
 func (vc *VMController) ResumeContext(ctx context.Context) error {
-	return vc.Action("resume")
+	return vc.ActionContext(ctx, "resume")
 }
 
 // Resched action on the VM
@@ -726,7 +726,7 @@ func (vc *VMController) Resched() error {
 }
 
 func (vc *VMController) ReschedContext(ctx context.Context) error {
-	return vc.Action("resched")
+	return vc.ActionContext(ctx, "resched")
 }
 
 // Unresched action on the VM
@@ -735,7 +735,7 @@ func (vc *VMController) Unresched() error {
 }
 
 func (vc *VMController) UnreschedContext(ctx context.Context) error {
-	return vc.Action("unresched")
+	return vc.ActionContext(ctx, "unresched")
 }
 
 // End actions
@@ -852,13 +852,21 @@ func (vc *VMController) DeleteSchedActionContext(ctx context.Context, actionId i
 
 // AttachSG attaches new Security Group to Virtual Machine NIC
 func (vc *VMController) AttachSG(nicID int, sgID int) error {
-	_, err := vc.c.Client.Call("one.vm.attachsg", vc.ID, nicID, sgID)
+	return vc.AttachSGContext(context.Background(), nicID, sgID)
+}
+
+func (vc *VMController) AttachSGContext(ctx context.Context, nicID int, sgID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.attachsg", vc.ID, nicID, sgID)
 	return err
 }
 
 // DetachSG detaches a Security Group from Virtual Machine NIC
 func (vc *VMController) DetachSG(nicID int, sgID int) error {
-	_, err := vc.c.Client.Call("one.vm.detachsg", vc.ID, nicID, sgID)
+	return vc.DetachSGContext(context.Background(), nicID, sgID)
+}
+
+func (vc *VMController) DetachSGContext(ctx context.Context, nicID int, sgID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.detachsg", vc.ID, nicID, sgID)
 	return err
 }
 

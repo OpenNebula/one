@@ -307,7 +307,11 @@ func (vc *VirtualNetworkController) UnlockContext(ctx context.Context) error {
 // Recover recovers a stuck Virtual Network
 // * op: (0) failure, (1) success, (2) retry, (3) delete
 func (vc *VirtualNetworkController) Recover(op int) error {
-	_, err := vc.c.Client.Call("one.vn.recover", vc.ID, op)
+	return vc.RecoverContext(context.Background(), op)
+}
+
+func (vc *VirtualNetworkController) RecoverContext(ctx context.Context, op int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vn.recover", vc.ID, op)
 	return err
 }
 
