@@ -20,7 +20,15 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
-import authApi from 'client/features/OneApi/auth'
+import { actions as authActions } from 'client/features/Auth/slice'
+
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateUserGroups,
+  updateTemplateOnResource,
+  updateOwnershipOnResource,
+} from 'client/features/OneApi/common'
 import { User } from 'client/constants'
 
 const { USER } = ONE_RESOURCES
@@ -67,6 +75,28 @@ const userApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.USER ?? {},
       providesTags: (_, __, { id }) => [{ type: USER, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     allocateUser: builder.mutation({
       /**
@@ -75,9 +105,9 @@ const userApi = oneApi.injectEndpoints({
        * @param {object} params - Request parameters
        * @param {string} params.username - Username for the new user
        * @param {string} params.password - Password for the new user
-       * @param {string} params.driver - Authentication driver for the new user.
+       * @param {string} [params.driver] - Authentication driver for the new user.
        * If it is an empty string, then the default 'core' is used
-       * @param {string[]} params.group - array of Group IDs.
+       * @param {string[]} [params.group] - array of Group IDs.
        * **The first ID will be used as the main group.**
        * This array can be empty, in which case the default group will be used
        * @returns {number} The allocated User id
@@ -89,7 +119,6 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [USER_POOL],
     }),
     updateUser: builder.mutation({
       /**
@@ -112,17 +141,37 @@ const userApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: USER, id }],
-      async onQueryStarted({ id }, { queryFulfilled, dispatch, getState }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled, getState }) {
         try {
-          await queryFulfilled
-
-          if (+id === +getState().auth.user.ID) {
-            await dispatch(
-              authApi.endpoints.getAuthUser.initiate(undefined, {
-                forceRefetch: true,
-              })
+          const patchUser = dispatch(
+            userApi.util.updateQueryData(
+              'getUser',
+              { id: params.id },
+              updateTemplateOnResource(params)
             )
+          )
+
+          const patchUsers = dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const authUser = getState().auth.user
+
+          if (+authUser?.ID === +params.id) {
+            // optimistic update of the auth user
+            const cloneAuthUser = { ...authUser }
+            updateTemplateOnResource(params)(cloneAuthUser)
+            dispatch(authActions.changeAuthUser({ ...cloneAuthUser }))
           }
+
+          queryFulfilled.catch(() => {
+            patchUser.undo()
+            patchUsers.undo()
+          })
         } catch {}
       },
     }),
@@ -141,7 +190,7 @@ const userApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
+      invalidatesTags: [USER_POOL],
     }),
     changePassword: builder.mutation({
       /**
@@ -183,7 +232,7 @@ const userApi = oneApi.injectEndpoints({
     }),
     changeGroup: builder.mutation({
       /**
-       * Changes the group of the given user.
+       * Changes the User's primary group of the given user.
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - User id
@@ -198,26 +247,32 @@ const userApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: USER, id }],
-      async onQueryStarted({ id, group }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-
-          dispatch(
-            userApi.util.updateQueryData('getUsers', undefined, (draft) => {
-              const user = draft.find(({ ID }) => +ID === +id)
-              user && (user.GID = group)
-            })
+          const patchUser = dispatch(
+            userApi.util.updateQueryData(
+              'getUser',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
           )
 
-          dispatch(
-            userApi.util.updateQueryData('getUser', id, (draftUser) => {
-              draftUser.GID = group
-            })
+          const patchUsers = dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateOwnershipOnResource(getState(), params)
+            )
           )
+
+          queryFulfilled.catch(() => {
+            patchUser.undo()
+            patchUsers.undo()
+          })
         } catch {}
       },
     }),
-    addToGroup: builder.mutation({
+    addGroup: builder.mutation({
       /**
        * Adds the User to a secondary group.
        *
@@ -234,6 +289,39 @@ const userApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchUser = dispatch(
+            userApi.util.updateQueryData(
+              'getUser',
+              { id: params.id },
+              updateUserGroups(params)
+            )
+          )
+
+          const patchUsers = dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateUserGroups(params)
+            )
+          )
+
+          const authUser = getState().auth.user
+
+          if (+authUser?.ID === +params.id) {
+            // optimistic update of the auth user
+            const cloneAuthUser = { ...authUser }
+            updateUserGroups(params)(cloneAuthUser)
+            dispatch(authActions.changeAuthUser({ ...cloneAuthUser }))
+          }
+
+          queryFulfilled.catch(() => {
+            patchUser.undo()
+            patchUsers.undo()
+          })
+        } catch {}
+      },
     }),
     removeFromGroup: builder.mutation({
       /**
@@ -252,6 +340,39 @@ const userApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: USER, id }, USER_POOL],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchUser = dispatch(
+            userApi.util.updateQueryData(
+              'getUser',
+              { id: params.id },
+              updateUserGroups(params, true)
+            )
+          )
+
+          const patchUsers = dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateUserGroups(params, true)
+            )
+          )
+
+          const authUser = getState().auth.user
+
+          if (+authUser?.ID === +params.id) {
+            // optimistic update of the auth user
+            const cloneAuthUser = { ...authUser }
+            updateUserGroups(params, true)(cloneAuthUser)
+            dispatch(authActions.changeAuthUser({ ...cloneAuthUser }))
+          }
+
+          queryFulfilled.catch(() => {
+            patchUser.undo()
+            patchUsers.undo()
+          })
+        } catch {}
+      },
     }),
     enableUser: builder.mutation({
       /**
@@ -352,7 +473,7 @@ export const {
   useChangePasswordMutation,
   useChangeAuthDriverMutation,
   useChangeGroupMutation,
-  useAddToGroupMutation,
+  useAddGroupMutation,
   useRemoveFromGroupMutation,
   useEnableUserMutation,
   useDisableUserMutation,

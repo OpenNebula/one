@@ -25,6 +25,7 @@ module.exports = {
   FilterBy: 'Filter by',
   FilterLabels: 'Filter labels',
   FilterByLabel: 'Filter by label',
+  ApplyLabels: 'Apply labels',
   Label: 'Label',
   NoLabels: 'NoLabels',
   All: 'All',
@@ -297,6 +298,9 @@ module.exports = {
   AddUserSshPrivateKey: 'Add user SSH private key',
   SshPassphraseKey: 'SSH private key passphrase',
   AddUserSshPassphraseKey: 'Add user SSH private key passphrase',
+  Labels: 'Labels',
+  NewLabelOrSearch: 'New label or search',
+  LabelAlreadyExists: 'Label already exists',
 
   /* sections - system */
   User: 'User',
