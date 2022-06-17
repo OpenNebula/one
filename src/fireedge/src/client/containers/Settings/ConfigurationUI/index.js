@@ -79,7 +79,7 @@ const Settings = () => {
       component="form"
       onSubmit={handleSubmit(handleUpdateUser)}
       variant="outlined"
-      sx={{ p: '1em', maxWidth: { sm: 'auto', md: 550 } }}
+      sx={{ p: '1em' }}
     >
       <FormProvider {...methods}>
         <FormWithSchema

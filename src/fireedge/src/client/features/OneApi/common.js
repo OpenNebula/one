@@ -294,3 +294,30 @@ export const updateTemplateOnDocument =
       ? { ...resource.TEMPLATE.BODY, ...template }
       : template
   }
+
+/**
+ * Updates the current user groups in the store.
+ *
+ * @param {object} params - Request params
+ * @param {string|number} params.id - The id of the user
+ * @param {string|number} params.group - The group id to update
+ * @param {boolean} [remove] - Remove the group from the user
+ * @returns {function(Draft):ThunkAction} - Dispatches the action
+ */
+export const updateUserGroups =
+  ({ id: userId, group: groupId }, remove = false) =>
+  (draft) => {
+    const updatePool = isUpdateOnPool(draft, userId)
+
+    const resource = updatePool
+      ? draft.find(({ ID }) => +ID === +userId)
+      : draft
+
+    if ((updatePool && !resource) || groupId === undefined) return
+
+    const currentGroups = [resource.GROUPS.ID].flat()
+
+    resource.GROUPS.ID = remove
+      ? currentGroups.filter((id) => +id !== +groupId)
+      : currentGroups.concat(groupId)
+  }
