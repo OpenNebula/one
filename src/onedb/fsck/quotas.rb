@@ -309,6 +309,16 @@ module OneDBFsck
                     end
                 end
             end
+
+            vmdoc.root.xpath('TEMPLATE/SNAPSHOT').each do |e|
+                size = 0
+
+                size_e = e.at_xpath('SYSTEM_DISK_SIZE')
+
+                size = size_e.text.to_i unless size_e.nil?
+
+                sys_used += size
+            end
         end
 
         vm_elem.xpath('SYSTEM_DISK_SIZE_USED').each do |e|

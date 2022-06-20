@@ -248,9 +248,13 @@ void VirtualMachine::delete_active_snapshot()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::delete_snapshots()
+void VirtualMachine::delete_snapshots(Template& snapshots)
 {
-    obj_template->erase("SNAPSHOT");
+    vector<VectorAttribute*> attrs;
+    obj_template->remove("SNAPSHOT", attrs);
+
+    snapshots.set(attrs);
+    snapshots.add("VMS", 0);
 }
 
 /* -------------------------------------------------------------------------- */

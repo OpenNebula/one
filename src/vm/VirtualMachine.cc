@@ -3787,17 +3787,30 @@ void VirtualMachine::decrypt()
 void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
         bool only_running)
 {
-    std::string memory, cpu;
-
-    get_template_attribute("MEMORY", memory);
-    get_template_attribute("CPU", cpu);
-
-    if ((state == VirtualMachine::ACTIVE) ||
-        (state == VirtualMachine::PENDING) ||
+    if ((state == VirtualMachine::PENDING) ||
         (state == VirtualMachine::CLONING) ||
         (state == VirtualMachine::CLONING_FAILURE) ||
-        (state == VirtualMachine::HOLD) )
+        (state == VirtualMachine::HOLD) ||
+        ((state == VirtualMachine::ACTIVE &&
+         (lcm_state != VirtualMachine::HOTPLUG_SAVEAS_POWEROFF &&
+          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED &&
+          lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
+          lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
+          lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
+          lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
+          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
+          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED ))))
     {
+        std::string memory, cpu;
+
+        get_template_attribute("MEMORY", memory);
+        get_template_attribute("CPU", cpu);
+
         quota_tmpl.add("RUNNING_MEMORY", memory);
         quota_tmpl.add("RUNNING_CPU", cpu);
         quota_tmpl.add("RUNNING_VMS", 1);

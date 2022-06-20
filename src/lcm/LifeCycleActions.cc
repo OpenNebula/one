@@ -225,6 +225,7 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
 
     trigger([this, vid, uid, gid, req_id, vm_action] {
         HostShareCapacity sr;
+        Template quota_tmpl;
 
         time_t the_time = time(0);
 
@@ -313,7 +314,7 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_action(VMActions::MIGRATE_ACTION, uid, gid, req_id);
@@ -344,6 +345,13 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
         else
         {
             vm->log("LCM", Log::ERROR, "migrate_action, VM in a wrong state.");
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -846,6 +854,7 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
 
     trigger([this, vid, uid, gid, req_id] {
         int image_id = -1;
+        Template quota_tmpl;
 
         if ( auto vm = vmpool->get(vid) )
         {
@@ -867,7 +876,7 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
                 break;
 
                 default:
-                    clean_up_vm(vm.get(), true, image_id, uid, gid, req_id);
+                    clean_up_vm(vm.get(), true, image_id, uid, gid, req_id, quota_tmpl);
                     dm->trigger_done(vid);
                 break;
             }
@@ -886,6 +895,11 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
                 ipool->update(image.get());
             }
         }
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
+        }
     });
 }
 
@@ -900,7 +914,7 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
     int req_id = ra.req_id;
 
     trigger([this, vid, uid, gid, req_id] {
-        Template * vm_quotas_snp = nullptr;
+        Template vm_quotas_snp;
 
         vector<Template *> ds_quotas_snp;
 
@@ -931,9 +945,9 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
                     vm_uid = vm->get_uid();
                     vm_gid = vm->get_gid();
 
-                    clean_up_vm(vm.get(), false, image_id, uid, gid, req_id);
+                    clean_up_vm(vm.get(), false, image_id, uid, gid, req_id, vm_quotas_snp);
 
-                    vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
+                    vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
                             ds_quotas_snp);
 
                     vmpool->update(vm.get());
@@ -960,11 +974,9 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
             Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
         }
 
-        if ( vm_quotas_snp != nullptr )
+        if ( !vm_quotas_snp.empty())
         {
-            Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
-
-            delete vm_quotas_snp;
+            Quotas::vm_del(vm_uid, vm_gid, &vm_quotas_snp);
         }
     });
 }
@@ -973,7 +985,7 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
 /* -------------------------------------------------------------------------- */
 
 void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
-        int& image_id, int uid, int gid, int req_id)
+        int& image_id, int uid, int gid, int req_id, Template& quota_tmpl)
 {
     HostShareCapacity sr;
 
@@ -999,7 +1011,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
     {
-        vm->delete_snapshots();
+        vm->delete_snapshots(quota_tmpl);
     }
 
     if (vm->get_etime() == 0)

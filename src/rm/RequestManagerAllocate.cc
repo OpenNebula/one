@@ -291,6 +291,15 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     if ( rc < 0 )
     {
         vector<unique_ptr<Template>> ds_quotas;
+        std::string memory, cpu;
+
+        tmpl_back.get("MEMORY", memory);
+        tmpl_back.get("CPU", cpu);
+
+        tmpl_back.add("RUNNING_MEMORY", memory);
+        tmpl_back.add("RUNNING_CPU", cpu);
+        tmpl_back.add("RUNNING_VMS", 1);
+        tmpl_back.add("VMS", 1);
 
         quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
 
