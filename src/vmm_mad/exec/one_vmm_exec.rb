@@ -1057,7 +1057,14 @@ class ExecDriver < VirtualMachineDriver
         steps << {
             :driver     => :vmm,
             :action     => :prereconfigure,
-            :parameters => [:deploy_id, target_device]
+            :parameters => [:deploy_id, target_device],
+            :fail_actions => [
+                {
+                    :driver     => :vmm,
+                    :action     => :detach_nic,
+                    :parameters => [:deploy_id, mac]
+                }
+            ]
         }
 
         if tm_command && !tm_command.empty?
