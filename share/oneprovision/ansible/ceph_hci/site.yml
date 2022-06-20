@@ -17,7 +17,7 @@
           - Name: "{{ monitor_interface }}"
         - Network:
           - DHCP: "no"
-          - Address: "{{ (eth1_ip + '/' + ansible_default_ipv4.netmask) | ipaddr('host/prefix') }}"
+          - Address: "{{ (eth1_ip + '/' + ansible_default_ipv4.netmask) | ansible.utils.ipaddr('host/prefix') }}"
     when: setup_eth1 | default('false') | bool
 
 - hosts:
