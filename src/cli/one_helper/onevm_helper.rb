@@ -297,7 +297,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         vm.info
         ids = vm.retrieve_elements("/VM/SNAPSHOTS/SNAPSHOT[NAME='#{id}']/ID")
 
-        return [-1, "#{id} not found or duplicated"] \
+        return [-1, "Snapshot #{id} not found or duplicated"] \
                 if ids.nil? || ids.size > 1
 
         [0, ids[0].to_i]
