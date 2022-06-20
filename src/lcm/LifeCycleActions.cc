@@ -950,6 +950,8 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
                     vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
                             ds_quotas_snp);
 
+                    vm->delete_snapshots(vm_quotas_snp);
+
                     vmpool->update(vm.get());
                 break;
             }
