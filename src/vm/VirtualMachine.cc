@@ -2085,14 +2085,20 @@ string VirtualMachine::get_import_state() const
 
 bool VirtualMachine::is_imported_action_supported(VMActions::Action action) const
 {
-    if (!hasHistory())
+    string vmm_mad;
+  
+    if (hasHistory())
     {
-        return false;
+        vmm_mad = get_vmm_mad();
+    }
+    else
+    {
+        user_obj_template->get("HYPERVISOR", vmm_mad);
     }
 
     VirtualMachineManager * vmm = Nebula::instance().get_vmm();
 
-    return vmm->is_imported_action_supported(get_vmm_mad(), action);
+    return vmm->is_imported_action_supported(vmm_mad, action);
 }
 
 /* -------------------------------------------------------------------------- */
