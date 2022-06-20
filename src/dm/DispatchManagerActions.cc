@@ -320,6 +320,13 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 
     vm->set_exit_time(time(0));
 
+    if (vm->hasHistory() && vm->get_etime() == 0)
+    {
+        vm->set_etime(time(0));
+
+        vmpool->update_history(vm.get());
+    }
+
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
     if ( graphics != nullptr && graphics->vector_value("PORT", port) == 0
