@@ -1467,7 +1467,7 @@ int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string&
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
+void VirtualMachineDisks::delete_non_persistent_snapshots(Template &vm_quotas,
         vector<Template *> &ds_quotas)
 {
     long long system_disk = 0;
@@ -1520,15 +1520,13 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
 
     if ( system_disk > 0 )
     {
-        *vm_quotas = new Template();
-
         VectorAttribute * delta_disk = new VectorAttribute("DISK");
 
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", system_disk);
 
-        (*vm_quotas)->add("VMS", 0);
-        (*vm_quotas)->set(delta_disk);
+        vm_quotas.add("VMS", 0);
+        vm_quotas.set(delta_disk);
     }
 }
 

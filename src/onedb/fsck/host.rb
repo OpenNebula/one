@@ -40,11 +40,11 @@ module OneDBFsck
                           'but it does not exist')
 
                 doc.root.xpath('CLUSTER_ID').each do |e|
-                    e.text = '-1'
+                    e.content = '-1'
                 end
 
                 doc.root.xpath('CLUSTER').each do |e|
-                    e.text = ''
+                    e.content = ''
                 end
 
                 hosts_fix[row[:oid]] = { :body => doc.root.to_s, :cid => -1 }
@@ -57,7 +57,7 @@ module OneDBFsck
                               "It will be changed to #{new_cluster}")
 
                     doc.root.xpath('CLUSTER').each do |e|
-                        e.text = new_cluster
+                        e.content = new_cluster
                     end
 
                     hosts_fix[row[:oid]] = { :body => doc.root.to_s,

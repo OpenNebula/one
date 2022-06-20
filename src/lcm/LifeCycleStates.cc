@@ -40,11 +40,6 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
     vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
-    if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
-    {
-        vm->delete_snapshots();
-    }
-
     vm->set_previous_etime(the_time);
 
     vm->set_previous_running_etime(the_time);
@@ -54,8 +49,6 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
     vm->set_prolog_stime(the_time);
 
     vmpool->update_history(vm);
-
-    vmpool->update(vm);
 
     vm->get_capacity(sr);
 
@@ -147,8 +140,17 @@ void LifeCycleManager::trigger_save_success(int vid)
             return;
         }
 
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
+
         if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
         {
+            if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+            {
+                vm->delete_snapshots(quota_tmpl);
+            }
+
             start_prolog_migrate(vm.get());
         }
         else if (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
@@ -159,7 +161,7 @@ void LifeCycleManager::trigger_save_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
 
                 vmpool->update(vm.get());
             }
@@ -180,7 +182,7 @@ void LifeCycleManager::trigger_save_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_epilog_stime(the_time);
@@ -198,6 +200,13 @@ void LifeCycleManager::trigger_save_success(int vid)
         else
         {
             vm->log("LCM",Log::ERROR,"save_success_action, VM in a wrong state");
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -257,6 +266,10 @@ void LifeCycleManager::trigger_deploy_success(int vid)
             return;
         }
 
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
+
         //----------------------------------------------------
         //                 RUNNING STATE
         //----------------------------------------------------
@@ -285,7 +298,7 @@ void LifeCycleManager::trigger_deploy_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->release_previous_vnc_port();
@@ -319,6 +332,13 @@ void LifeCycleManager::trigger_deploy_success(int vid)
         else if ( vm->get_lcm_state() != VirtualMachine::RUNNING)
         {
             vm->log("LCM",Log::ERROR,"deploy_success_action, VM in a wrong state");
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -447,6 +467,10 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
             return;
         }
 
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
+
         if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN )
         {
             //----------------------------------------------------
@@ -456,7 +480,7 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_epilog_stime(the_time);
@@ -479,7 +503,7 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
 
                 vmpool->update(vm.get());
             }
@@ -498,7 +522,7 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_epilog_stime(the_time);
@@ -515,11 +539,23 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
         }
         else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
         {
+            if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+            {
+                vm->delete_snapshots(quota_tmpl);
+            }
+
             start_prolog_migrate(vm.get());
         }
         else
         {
             vm->log("LCM",Log::ERROR,"shutdown_success_action, VM in a wrong state");
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -582,6 +618,10 @@ void LifeCycleManager::trigger_prolog_success(int vid)
         {
             return;
         }
+
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
 
         VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
@@ -658,7 +698,7 @@ void LifeCycleManager::trigger_prolog_success(int vid)
             case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE: //recover success
                 if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
                 {
-                    vm->delete_snapshots();
+                    vm->delete_snapshots(quota_tmpl);
                 }
 
                 vm->set_prolog_etime(the_time);
@@ -681,6 +721,13 @@ void LifeCycleManager::trigger_prolog_success(int vid)
             default:
                 vm->log("LCM",Log::ERROR,"prolog_success_action, VM in a wrong state");
                 break;
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -982,6 +1029,10 @@ void LifeCycleManager::trigger_monitor_suspend(int vid)
             return;
         }
 
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
+
         if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
             vm->get_lcm_state() == VirtualMachine::UNKNOWN )
         {
@@ -997,7 +1048,7 @@ void LifeCycleManager::trigger_monitor_suspend(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_internal_action(VMActions::MONITOR_ACTION);
@@ -1013,6 +1064,13 @@ void LifeCycleManager::trigger_monitor_suspend(int vid)
         else
         {
             vm->log("LCM",Log::ERROR,"monitor_suspend_action, VM in a wrong state");
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -1061,6 +1119,10 @@ void LifeCycleManager::trigger_monitor_poweroff(int vid)
             return;
         }
 
+        Template quota_tmpl;
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
+
         if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
                 vm->get_lcm_state() == VirtualMachine::UNKNOWN )
         {
@@ -1072,7 +1134,7 @@ void LifeCycleManager::trigger_monitor_poweroff(int vid)
 
             if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
             {
-                vm->delete_snapshots();
+                vm->delete_snapshots(quota_tmpl);
             }
 
             vm->set_resched(false);
@@ -1097,6 +1159,13 @@ void LifeCycleManager::trigger_monitor_poweroff(int vid)
             vm->log("LCM", Log::INFO, "VM reported SHUTDOWN by the drivers");
 
             trigger_shutdown_success(vid);
+        }
+
+        vm.reset();
+
+        if (!quota_tmpl.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
     });
 }
@@ -1429,9 +1498,11 @@ void LifeCycleManager::trigger_snapshot_create_failure(int vid)
         if (snap)
         {
             Template quota_tmpl;
-            quota_tmpl.set(snap);
 
-            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
+            quota_tmpl.set(snap);
+            quota_tmpl.replace("VMS", 0);
+
+            Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }
@@ -1516,9 +1587,11 @@ void LifeCycleManager::trigger_snapshot_delete_success(int vid)
         if (snap)
         {
             Template quota_tmpl;
-            quota_tmpl.set(snap);
 
-            Quotas::vm_del(vm_uid, vm_gid, &quota_tmpl);
+            quota_tmpl.set(snap);
+            quota_tmpl.replace("VMS", 0);
+
+            Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
         }
     });
 }
@@ -2516,6 +2589,16 @@ void LifeCycleManager::trigger_resize_failure(int vid)
                 deltas.add("MEMORY", nmem - omem);
                 deltas.add("CPU", ncpu - ocpu);
                 deltas.add("VMS", 0);
+
+                auto state = vm->get_state();
+
+                if (state == VirtualMachine::PENDING || state == VirtualMachine::HOLD ||
+                    (state == VirtualMachine::ACTIVE &&
+                        vm->get_lcm_state() == VirtualMachine::RUNNING))
+                {
+                    deltas.add("RUNNING_MEMORY", nmem - omem);
+                    deltas.add("RUNNING_CPU", ncpu - ocpu);
+                }
 
                 vm->resize(ocpu, omem, ovcpu, error);
             }
