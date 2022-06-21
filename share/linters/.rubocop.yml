@@ -680,9 +680,6 @@ Style/RedundantBegin:
 Style/ExponentialNotation:
     Enabled: true
 
-Style/SlicingWithRange:
-    Enabled: true
-
 Style/AccessorGrouping:
   Enabled: False
 
