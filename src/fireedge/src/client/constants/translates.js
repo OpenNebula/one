@@ -34,6 +34,7 @@ module.exports = {
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
   ClearSelection: 'Clear selection',
+  ResetFilters: 'Clear current search query, filters, and sorts',
 
   /* actions */
   Accept: 'Accept',
@@ -301,6 +302,8 @@ module.exports = {
   Labels: 'Labels',
   NewLabelOrSearch: 'New label or search',
   LabelAlreadyExists: 'Label already exists',
+  PressToCreateLabel: 'Press enter to create a new label',
+  SavesInTheUserTemplate: "Saved in the User's template",
 
   /* sections - system */
   User: 'User',

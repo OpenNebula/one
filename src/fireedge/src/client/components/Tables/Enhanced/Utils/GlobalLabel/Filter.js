@@ -13,144 +13,137 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, SyntheticEvent } from 'react'
+import { memo, ReactElement, MouseEvent } from 'react'
 import PropTypes from 'prop-types'
 
 import CheckIcon from 'iconoir-react/dist/Check'
-import CancelIcon from 'iconoir-react/dist/Cancel'
-import { styled, Box, InputBase, Typography } from '@mui/material'
-import Autocomplete, {
-  autocompleteClasses,
-  AutocompleteChangeDetails,
-  AutocompleteChangeReason,
-  AutocompleteCloseReason,
-} from '@mui/material/Autocomplete'
+import LockIcon from 'iconoir-react/dist/Lock'
+import { Box, Typography, Autocomplete } from '@mui/material'
 
+import { useAddLabelMutation } from 'client/features/OneApi/auth'
+
+import {
+  PopperComponent,
+  StyledInput,
+} from 'client/components/Tables/Enhanced/Utils/GlobalLabel/styles'
+import { SubmitButton } from 'client/components/FormControl'
 import { StatusCircle } from 'client/components/Status'
 import { getColorFromString } from 'client/models/Helper'
 import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const StyledInput = styled(InputBase)(
-  ({ theme: { shape, palette, transitions } }) => ({
-    padding: 10,
-    width: '100%',
-    '& input': {
-      padding: 6,
-      transition: transitions.create(['border-color', 'box-shadow']),
-      border: `1px solid ${palette.divider}`,
-      borderRadius: shape.borderRadius / 2,
-      fontSize: 14,
-      '&:focus': {
-        boxShadow: `0px 0px 0px 3px ${palette.secondary[palette.mode]}`,
-      },
-    },
-  })
-)
+const Label = memo(({ label, selected, unknown, ...props }) => {
+  const [addLabel, { isLoading }] = useAddLabelMutation()
 
-const StyledAutocompletePopper = styled('div')(({ theme }) => ({
-  [`& .${autocompleteClasses.paper}`]: {
-    boxShadow: 'none',
-    margin: 0,
-    color: 'inherit',
-    fontSize: 13,
-  },
-  [`& .${autocompleteClasses.listbox}`]: {
-    padding: 0,
-    [`& .${autocompleteClasses.option}`]: {
-      minHeight: 'auto',
-      alignItems: 'flex-start',
-      padding: 8,
-      borderBottom: `1px solid  ${theme.palette.divider}`,
-      '&[aria-selected="true"]': {
-        backgroundColor: theme.palette.action.hover,
-      },
-      [`&.${autocompleteClasses.focused}, &.${autocompleteClasses.focused}[aria-selected="true"]`]:
-        {
-          backgroundColor: theme.palette.action.hover,
-        },
-    },
-  },
-  [`&.${autocompleteClasses.popperDisablePortal}`]: {
-    position: 'relative',
-  },
-}))
+  /**
+   * Adds the label to user labels.
+   *
+   * @param {MouseEvent<HTMLLIElement, MouseEvent>} evt - The click event
+   */
+  const handleLockLabel = async (evt) => {
+    evt.stopPropagation()
+    await addLabel({ newLabel: label }).unwrap()
+  }
 
-const PopperComponent = ({ disablePortal, anchorEl, open, ...other }) => (
-  <StyledAutocompletePopper {...other} />
-)
+  return (
+    <Box component="li" gap="0.5em" {...props}>
+      <CheckIcon
+        style={{
+          minWidth: 'fit-content',
+          visibility: selected ? 'visible' : 'hidden',
+        }}
+      />
+      <StatusCircle color={getColorFromString(label)} size={18} />
+      <Typography noWrap variant="body2" sx={{ flexGrow: 1 }}>
+        {label}
+      </Typography>
+      <SubmitButton
+        onClick={unknown ? handleLockLabel : undefined}
+        isSubmitting={isLoading}
+        title={Tr(T.SavesInTheUserTemplate)}
+        icon={<LockIcon />}
+        sx={{ p: 0, visibility: unknown ? 'visible' : 'hidden' }}
+      />
+    </Box>
+  )
+})
 
-PopperComponent.propTypes = {
-  anchorEl: PropTypes.any,
-  disablePortal: PropTypes.bool,
-  open: PropTypes.bool,
+Label.propTypes = {
+  label: PropTypes.any,
+  selected: PropTypes.bool,
+  unknown: PropTypes.bool,
 }
+
+Label.displayName = 'Label'
 
 /**
  * AutoComplete to filter rows by label.
  *
  * @param {object} props - Component props
- * @param {string[]} props.currentValue - The current value of the filter
- * @param {function(SyntheticEvent, AutocompleteChangeReason, AutocompleteChangeDetails)} props.handleChange - Handle change event
- * @param {function(SyntheticEvent, AutocompleteCloseReason)} props.handleClose - Handle close event
+ * @param {function(any)} props.handleChange - Handle change event
+ * @param {string[]} props.pendingValue - The current value of the filter
+ * @param {function()} props.handleClose - Handle close event
  * @param {string[]} props.labels - The list of labels to filter
- * @param {string[]} props.filters - The current filters
+ * @param {string[]} props.unknownLabels - The list of labels not in the user labels
  * @returns {ReactElement} Filter component
  */
 const FilterByLabel = ({
-  currentValue = [],
-  filters = [],
   labels = [],
+  unknownLabels = [],
+  pendingValue = [],
   handleChange,
   handleClose,
 }) => (
   <Autocomplete
     open
     multiple
-    onClose={handleClose}
-    value={currentValue}
-    onChange={handleChange}
+    value={pendingValue}
+    onClose={(event, reason) => {
+      reason === 'escape' && handleClose()
+    }}
+    onChange={(event, newValue, reason) => {
+      if (
+        event.type === 'keydown' &&
+        event.key === 'Backspace' &&
+        reason === 'removeOption'
+      ) {
+        return
+      }
+
+      handleChange(newValue)
+    }}
     disableCloseOnSelect
     PopperComponent={PopperComponent}
     renderTags={() => null}
     noOptionsText={<Translate word={T.NoLabels} />}
     renderOption={(props, option, { selected }) => (
-      <Box component="li" gap="0.5em" {...props}>
-        <CheckIcon style={{ visibility: selected ? 'visible' : 'hidden' }} />
-        <StatusCircle color={getColorFromString(option)} size={18} />
-        <Typography noWrap variant="body2" sx={{ flexGrow: 1 }}>
-          {option}
-        </Typography>
-        <CancelIcon style={{ visibility: selected ? 'visible' : 'hidden' }} />
-      </Box>
+      <Label
+        {...props}
+        key={option}
+        label={option}
+        selected={selected}
+        unknown={unknownLabels.includes(option)}
+      />
     )}
     isOptionEqualToValue={(option, value) =>
       Array.isArray(value) ? value.includes(option) : value === option
     }
-    options={[...labels].sort((a, b) => {
-      // Display the selected labels first.
-      let ai = filters.indexOf(a)
-      ai = ai === -1 ? filters.length + labels.indexOf(a) : ai
-      let bi = filters.indexOf(b)
-      bi = bi === -1 ? filters.length + labels.indexOf(b) : bi
-
-      return ai - bi
-    })}
+    options={labels}
     renderInput={(params) => (
       <StyledInput
         ref={params.InputProps.ref}
         inputProps={params.inputProps}
         autoFocus
-        placeholder={Tr(T.FilterLabels)}
+        placeholder={Tr(T.Search)}
       />
     )}
   />
 )
 
 FilterByLabel.propTypes = {
-  currentValue: PropTypes.array,
-  filters: PropTypes.array,
   labels: PropTypes.array,
+  unknownLabels: PropTypes.array,
+  pendingValue: PropTypes.array,
   handleChange: PropTypes.func,
   handleClose: PropTypes.func,
 }

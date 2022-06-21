@@ -34,7 +34,7 @@ const Settings = () => (
 
     <Box
       display="grid"
-      gridTemplateColumns={{ sm: '1fr', md: '1fr 1fr' }}
+      gridTemplateColumns={{ sm: '1fr', md: 'repeat(2, minmax(49%, 1fr))' }}
       gridTemplateRows="minmax(0, 18em)"
       gap="1em"
     >
