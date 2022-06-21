@@ -220,7 +220,7 @@ const provisionApi = oneApi.injectEndpoints({
        * @returns {object} Object of document deleted
        * @throws Fails when response isn't code 200
        */
-      query: ({ provision: _, ...params }) => {
+      query: (params) => {
         const name = Actions.PROVISION_DELETE_RESOURCE
         const command = { name, ...Commands[name] }
 

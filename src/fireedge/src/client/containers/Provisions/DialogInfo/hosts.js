@@ -40,7 +40,7 @@ import { T } from 'client/constants'
 
 const Hosts = memo(({ id }) => {
   const [amount, setAmount] = useState(() => 1)
-  const { enqueueSuccess, enqueueInfo } = useGeneralApi()
+  const { enqueueInfo } = useGeneralApi()
 
   const [addHost, { isLoading: loadingAddHost }] =
     useAddHostToProvisionMutation()
@@ -77,7 +77,7 @@ const Hosts = memo(({ id }) => {
             isSubmitting={loadingAddHost}
             onClick={async () => {
               addHost({ id, amount })
-              enqueueSuccess(`Host added ${amount}x`)
+              enqueueInfo(`Adding ${amount} Host${amount > 1 ? 's' : ''}`)
             }}
           />
         </Stack>
@@ -125,7 +125,7 @@ const Hosts = memo(({ id }) => {
                       id: host.ID,
                       resource: 'host',
                     })
-                    enqueueSuccess(`Host deleted - ID: ${host.ID}`)
+                    enqueueInfo(`Deleting Host - ID:${host.ID}`)
                   }}
                 />
               </>
