@@ -257,7 +257,8 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES,
                          OneProvisionHelper::AMOUNT,
                          OneProvisionHelper::HOSTNAMES,
-                         OneProvisionHelper::HOST_PARAMS] do
+                         OneProvisionHelper::HOST_PARAMS] +
+                            [OpenNebulaHelper::FORMAT] do
         helper.add_hosts(args[0], options)
     end
 
@@ -270,7 +271,8 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :delete],
             host_delete_desc,
             [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES] do
+            :options => [OneProvisionHelper::MODES] +
+                [OpenNebulaHelper::FORMAT] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
         helper.resources_operation(args, operation, options, 'HOST')
@@ -285,7 +287,8 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :configure],
             host_configure_desc,
             [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES] do
+            :options => [OneProvisionHelper::MODES] +
+                [OpenNebulaHelper::FORMAT] do
         operation = { :operation => 'configure', :message => 'enabled' }
 
         helper.resources_operation(args, operation, options, 'HOST')
