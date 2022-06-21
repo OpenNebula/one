@@ -64,10 +64,15 @@ export const concatNewMessageToLog = (log, message = {}) => {
 
   const { data, command, commandId } = message
 
-  return {
-    ...log,
-    [command]: {
+  if (log?.[command]?.[commandId] !== undefined) {
+    log[command][commandId]?.push(data)
+  } else if (log?.[command] !== undefined) {
+    log[command][commandId] = [data]
+  } else {
+    log[command] = {
       [commandId]: [...(log?.[command]?.[commandId] ?? []), data],
-    },
+    }
   }
+
+  return { ...log }
 }

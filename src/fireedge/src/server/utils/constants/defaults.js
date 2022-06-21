@@ -57,6 +57,7 @@ const defaults = {
   defaultRegexID: /^ID: (?<id>\d+)/,
   defaultRegexpEndJSON: /}$/,
   defaultRegexpSplitLine: /\r|\n/,
+  defaultSizeRotate: '100k',
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { Trash as DeleteIcon } from 'iconoir-react'
@@ -33,14 +33,25 @@ const Datastores = memo(
   ({ id }) => {
     const { enqueueSuccess } = useGeneralApi()
 
-    const [removeResource, { isLoading: loadingRemove }] =
-      useRemoveResourceMutation()
+    const [
+      removeResource,
+      {
+        isLoading: loadingRemove,
+        isSuccess: successRemove,
+        originalArgs: { id: deletedDatastoreId } = {},
+      },
+    ] = useRemoveResourceMutation()
     const { data } = useGetProvisionQuery(id)
 
     const provisionDatastores =
       data?.TEMPLATE?.BODY?.provision?.infrastructure?.datastores?.map(
         (datastore) => +datastore.id
       ) ?? []
+
+    useEffect(() => {
+      successRemove &&
+        enqueueSuccess(`Datastore deleted - ID: ${deletedDatastoreId}`)
+    }, [successRemove])
 
     return (
       <DatastoresTable
@@ -76,7 +87,6 @@ const Datastores = memo(
                     id: datastore.ID,
                     resource: 'datastore',
                   })
-                  enqueueSuccess(`Datastore deleted - ID: ${datastore.ID}`)
                 }}
               />
             }

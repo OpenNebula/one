@@ -49,8 +49,14 @@ function Providers() {
 
   const { enqueueSuccess } = useGeneralApi()
   const { data: providerConfig } = useGetProviderConfigQuery()
-  const [deleteProvider, { isLoading: isDeleting }] =
-    useDeleteProviderMutation()
+  const [
+    deleteProvider,
+    {
+      isLoading: isDeleting,
+      isSuccess: successDelete,
+      originalArgs: { id: deletedProviderId } = {},
+    },
+  ] = useDeleteProviderMutation()
 
   const {
     refetch,
@@ -68,9 +74,13 @@ function Providers() {
     try {
       hide()
       await deleteProvider({ id })
-      enqueueSuccess(`Provider deleted - ID: ${id}`)
     } catch {}
   }
+
+  useEffect(() => {
+    successDelete &&
+      enqueueSuccess(`Provider deleted - ID: ${deletedProviderId}`)
+  }, [successDelete])
 
   return (
     <>

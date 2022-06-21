@@ -36,14 +36,17 @@ const {
   readdirSync,
   statSync,
   removeSync,
+  moveSync,
+  ensureFileSync,
 } = require('fs-extra')
 const { spawnSync, spawn } = require('child_process')
 const events = require('events')
+const { DateTime } = require('luxon')
+const { request: axios } = require('axios')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const { writeInLogger } = require('server/utils/logger')
-const { request: axios } = require('axios')
 
 const eventsEmitter = new events.EventEmitter()
 const {
@@ -302,6 +305,48 @@ const decrypt = (data = '', decryptKey = '', iv = '') => {
   }
 
   return rtn
+}
+
+const getSize = (limit) => {
+  const size = limit?.toLowerCase?.()?.match(/^((?:0\.)?\d+)([kmg])$/)
+  const limitNumber = parseInt(limit, 10)
+  if (size) {
+    switch (size[2]) {
+      case 'k':
+        return size[1] * 1024
+      case 'm':
+        return size[1] * 1024 ** 2
+      case 'g':
+        return size[1] * 1024 ** 3
+    }
+  } else if (Number.isInteger(limitNumber)) {
+    return limitNumber
+  }
+}
+
+/**
+ * Rotate file by size.
+ *
+ *
+ * @param {string} filepath - file path
+ * @param {number} limit - size to rotate
+ */
+const rotateBySize = (filepath = '', limit) => {
+  try {
+    const fileStats = statSync(filepath)
+    if (fileStats.size >= getSize(limit)) {
+      moveSync(filepath, `${filepath}.${DateTime.now().toSeconds()}`)
+      ensureFileSync(filepath)
+    }
+  } catch (error) {
+    const errorData = (error && error.message) || ''
+    writeInLogger(errorData)
+    messageTerminal({
+      color: 'red',
+      message: 'Error: %s',
+      error: errorData,
+    })
+  }
 }
 
 /**
@@ -1005,4 +1050,5 @@ module.exports = {
   publish,
   subscriber,
   executeRequest,
+  rotateBySize,
 }
