@@ -59,35 +59,36 @@ const executeWorker = ({
   next,
   res,
 }) => {
-  if (user && password && rpc && command && paramsCommand) {
-    const worker = useWorker()
-    worker.onmessage = function (result) {
-      worker.terminate()
-      const err = result && result.data && result.data.err
-      const value = result && result.data && result.data.value
-      writeInLogger([command, paramsCommand, JSON.stringify(value)], {
-        format: 'worker: %s, [%s]: %s',
-        level: 2,
-      })
-      if (!err) {
-        fillResourceforHookConnection(user, command, paramsCommand)
-        res.locals.httpCode = parseReturnWorker(value)
-      }
-      next()
-    }
-
-    worker.postMessage({
-      type: 'xmlrpc',
-      config: {
-        globalState: (global && global.paths) || {},
-        user,
-        password,
-        rpc,
-        command,
-        paramsCommand,
-      },
-    })
+  if (!(user && password && rpc && command && paramsCommand)) {
+    return
   }
+  const worker = useWorker()
+  worker.onmessage = function (result) {
+    worker.terminate()
+    const err = result && result.data && result.data.err
+    const value = result && result.data && result.data.value
+    writeInLogger([command, paramsCommand, JSON.stringify(value)], {
+      format: 'worker: %s, [%s]: %s',
+      level: 2,
+    })
+    if (!err) {
+      fillResourceforHookConnection(user, command, paramsCommand)
+      res.locals.httpCode = parseReturnWorker(value)
+    }
+    next()
+  }
+
+  worker.postMessage({
+    type: 'xmlrpc',
+    config: {
+      globalState: (global && global.paths) || {},
+      user,
+      password,
+      rpc,
+      command,
+      paramsCommand,
+    },
+  })
 }
 
 /**
@@ -100,22 +101,33 @@ const executeWorker = ({
  */
 const getCommandParams = (config) => {
   const { params, serverDataSource } = config
-  if (params && serverDataSource) {
-    return Object.entries(params).map(([key, value]) => {
-      if (key && value && value.from && typeof value.default !== 'undefined') {
-        // `value == null` checks against undefined and null
-        return serverDataSource[value.from] &&
-          serverDataSource[value.from][key] != null
-          ? upcast.to(
-              serverDataSource[value.from][key],
-              upcast.type(value.default)
-            )
-          : value.default
-      }
-
-      return ''
-    })
+  if (!(params && serverDataSource)) {
+    return
   }
+
+  return Object.entries(params).map(([key, value]) => {
+    if (!(key && value && value.from && typeof value.default !== 'undefined')) {
+      return ''
+    }
+    // `value == null` checks against undefined and null
+    if (
+      serverDataSource[value.from] &&
+      serverDataSource[value.from][key] != null
+    ) {
+      const upcastedData = upcast.to(
+        serverDataSource[value.from][key],
+        upcast.type(value.default)
+      )
+
+      return value.arrayDefault !== undefined && Array.isArray(upcastedData)
+        ? upcastedData.map((internalValue) =>
+            upcast.to(internalValue, upcast.type(value.arrayDefault))
+          )
+        : upcastedData
+    } else {
+      return value.default
+    }
+  })
 }
 
 /**
