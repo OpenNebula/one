@@ -24,7 +24,7 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
   },
   toolbar: {
     ...typography.body1,
-    marginBottom: 16,
+    marginBottom: '1em',
     display: 'grid',
     gridTemplateRows: 'auto auto',
     gridTemplateAreas: `
@@ -54,6 +54,16 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     alignItems: 'center',
     justifySelf: 'end',
     gap: '1em',
+  },
+  resetFilters: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5em',
+    cursor: 'pointer',
+    marginBottom: '1em',
+    '&:hover': {
+      color: palette.secondary.dark,
+    },
   },
   body: {
     overflow: 'auto',

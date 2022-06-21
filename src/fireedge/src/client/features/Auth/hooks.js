@@ -22,6 +22,7 @@ import { name as authSlice, actions, logout } from 'client/features/Auth/slice'
 import groupApi from 'client/features/OneApi/group'
 import systemApi from 'client/features/OneApi/system'
 import { ResourceView } from 'client/apps/sunstone/routes'
+import { areStringEqual } from 'client/models/Helper'
 import {
   _APPS,
   RESOURCE_NAMES,
@@ -61,6 +62,15 @@ export const useAuth = () => {
     }
   )
 
+  const userLabels = useMemo(() => {
+    const labels = user?.TEMPLATE?.LABELS?.split(',') ?? []
+
+    return labels
+      .filter(Boolean)
+      .map((label) => label.toUpperCase())
+      .sort(areStringEqual({ numeric: true, ignorePunctuation: true }))
+  }, [user?.TEMPLATE?.LABELS])
+
   return useMemo(
     () => ({
       ...auth,
@@ -75,6 +85,7 @@ export const useAuth = () => {
         ...(user?.TEMPLATE ?? {}),
         ...(user?.TEMPLATE?.FIREEDGE ?? {}),
       },
+      labels: userLabels ?? [],
       isLogged:
         !!jwt &&
         !!user &&

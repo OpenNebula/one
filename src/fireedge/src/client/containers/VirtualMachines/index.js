@@ -15,11 +15,16 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { Pin as GotoIcon, RefreshDouble, Cancel } from 'iconoir-react'
+import GotoIcon from 'iconoir-react/dist/Pin'
+import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import Cancel from 'iconoir-react/dist/Cancel'
 import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import { useLazyGetVmQuery } from 'client/features/OneApi/vm'
+import {
+  useLazyGetVmQuery,
+  useUpdateUserTemplateMutation,
+} from 'client/features/OneApi/vm'
 import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'
 import VmTabs from 'client/components/Tabs/Vm'
@@ -48,6 +53,7 @@ function VirtualMachines() {
           <VmsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
+            useUpdateMutation={useUpdateUserTemplateMutation}
           />
 
           {hasSelectedRows && (

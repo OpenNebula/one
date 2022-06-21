@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor, useState, useCallback } from 'react'
+import { ReactElement, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -68,7 +68,7 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
  * @param {string} [props.className] - Class name for the container
  * @param {object} props.searchProps - Props for search input
  * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
- * @returns {JSXElementConstructor} Component JSX
+ * @returns {ReactElement} Component JSX
  */
 const GlobalSearch = ({ className, useTableProps, searchProps }) => {
   const classes = useStyles()

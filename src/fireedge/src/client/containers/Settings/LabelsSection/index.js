@@ -13,24 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, useCallback } from 'react'
+import { ReactElement, useEffect, useCallback } from 'react'
 import TrashIcon from 'iconoir-react/dist/Trash'
-import { Paper, Stack, Box, Typography, TextField } from '@mui/material'
+import { styled, Paper, Stack, Box, Typography, TextField } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useForm } from 'react-hook-form'
 
+import {
+  useAddLabelMutation,
+  useRemoveLabelMutation,
+} from 'client/features/OneApi/auth'
 import { useAuth } from 'client/features/Auth'
-import { useUpdateUserMutation } from 'client/features/OneApi/user'
 import { useGeneralApi } from 'client/features/General'
 import { useSearch } from 'client/hooks'
 
 import { StatusChip } from 'client/components/Status'
 import { SubmitButton } from 'client/components/FormControl'
-import { jsonToXml, getColorFromString } from 'client/models/Helper'
+import { getColorFromString } from 'client/models/Helper'
 import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const NEW_LABEL_ID = 'new-label'
+
+const LabelWrapper = styled(Box)(({ theme, ownerState }) => ({
+  display: 'flex',
+  direction: 'row',
+  alignItems: 'center',
+  paddingInline: '0.5rem',
+  borderRadius: theme.shape.borderRadius * 2,
+  animation: ownerState.highlight ? 'highlight 2s ease-in-out' : undefined,
+  '@keyframes highlight': {
+    from: { backgroundColor: 'yellow' },
+    to: { backgroundColor: 'transparent' },
+  },
+}))
 
 /**
  * Section to change labels.
@@ -38,36 +54,37 @@ const NEW_LABEL_ID = 'new-label'
  * @returns {ReactElement} Settings configuration UI
  */
 const Settings = () => {
-  const { user, settings } = useAuth()
+  const { labels } = useAuth()
   const { enqueueError } = useGeneralApi()
-  const [updateUser, { isLoading }] = useUpdateUserMutation()
-
-  const currentLabels = useMemo(
-    () => settings?.LABELS?.split(',').filter(Boolean) ?? [],
-    [settings?.LABELS]
-  )
+  const [removeLabel, { isLoading: removeLoading }] = useRemoveLabelMutation()
+  const [addLabel, { isLoading, data, isSuccess }] = useAddLabelMutation()
 
   const { handleSubmit, register, reset, setFocus } = useForm({
     reValidateMode: 'onSubmit',
   })
 
   const { result, handleChange } = useSearch({
-    list: currentLabels,
-    listOptions: { distance: 50 },
-    wait: 500,
+    list: labels,
+    listOptions: { threshold: 0.2 },
+    wait: 400,
     condition: !isLoading,
   })
 
+  useEffect(() => {
+    if (!isSuccess) return
+
+    setTimeout(() => {
+      // scroll to the new label (if it exists)
+      document
+        ?.querySelector(`[data-cy='${data}']`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 450)
+  }, [isSuccess])
+
   const handleAddLabel = useCallback(
-    async (newLabel) => {
+    async (formData) => {
       try {
-        const exists = currentLabels.some((label) => label === newLabel)
-
-        if (exists) throw new Error(T.LabelAlreadyExists)
-
-        const newLabels = currentLabels.concat(newLabel).join()
-        const template = jsonToXml({ LABELS: newLabels })
-        await updateUser({ id: user.ID, template, replace: 1 })
+        await addLabel({ newLabel: formData[NEW_LABEL_ID] }).unwrap()
       } catch (error) {
         enqueueError(error.message ?? T.SomethingWrong)
       } finally {
@@ -77,42 +94,22 @@ const Settings = () => {
         setFocus(NEW_LABEL_ID)
       }
     },
-    [updateUser, currentLabels, handleChange, reset]
+    [addLabel, handleChange, reset]
   )
 
   const handleDeleteLabel = useCallback(
     async (label) => {
       try {
-        const newLabels = currentLabels.filter((l) => l !== label).join()
-        const template = jsonToXml({ LABELS: newLabels })
-        await updateUser({ id: user.ID, template, replace: 1 })
-
-        // Reset the search after deleting the label
-        handleChange()
-      } catch {
-        enqueueError(T.SomethingWrong)
+        await removeLabel({ label }).unwrap()
+      } catch (error) {
+        enqueueError(error.message ?? T.SomethingWrong)
       }
     },
-    [updateUser, currentLabels, handleChange]
+    [removeLabel, handleChange]
   )
 
   const handleKeyDown = useCallback(
-    (evt) => {
-      if (evt.key !== 'Enter') return
-
-      handleSubmit(async (formData) => {
-        const newLabel = formData[NEW_LABEL_ID]
-
-        if (newLabel) await handleAddLabel(newLabel)
-
-        // scroll to the new label (if it exists)
-        setTimeout(() => {
-          document
-            ?.querySelector(`[data-cy='${newLabel}']`)
-            ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 500)
-      })(evt)
-    },
+    (evt) => evt.key === 'Enter' && handleSubmit(handleAddLabel)(evt),
     [handleAddLabel, handleSubmit]
   )
 
@@ -123,11 +120,16 @@ const Settings = () => {
           <Translate word={T.Labels} />
         </Typography>
       </Box>
-      <Stack height={1} gap="0.5rem" p="0.5rem 1rem" overflow="auto">
+      <Stack height={1} gap="0.5rem" p="0.5rem" overflow="auto">
         {result?.map((label) => (
-          <Stack key={label} direction="row" alignItems="center">
-            <Box flexGrow={1}>
+          <LabelWrapper
+            key={label}
+            // highlight the label when it is added
+            ownerState={{ highlight: data === label }}
+          >
+            <Box display="inline-flex" flexGrow={1} width="80%">
               <StatusChip
+                noWrap
                 dataCy={label}
                 text={label}
                 stateColor={getColorFromString(label)}
@@ -135,11 +137,11 @@ const Settings = () => {
             </Box>
             <SubmitButton
               data-cy={`delete-label-${label}`}
-              disabled={isLoading}
+              disabled={removeLoading}
               onClick={() => handleDeleteLabel(label)}
               icon={<TrashIcon />}
             />
-          </Stack>
+          </LabelWrapper>
         ))}
       </Stack>
       <TextField
@@ -154,7 +156,7 @@ const Settings = () => {
           ) : undefined,
         }}
         {...register(NEW_LABEL_ID, { onChange: handleChange })}
-        helperText={'Press enter to create a new label'}
+        helperText={Tr(T.PressToCreateLabel)}
       />
     </Paper>
   )

@@ -20,6 +20,7 @@ import { dismissSnackbar } from 'client/features/General/actions'
 import { oneApi, ONE_RESOURCES_POOL } from 'client/features/OneApi'
 import userApi from 'client/features/OneApi/user'
 
+import { jsonToXml } from 'client/models/Helper'
 import { storage } from 'client/utils'
 import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
 
@@ -88,8 +89,8 @@ const authApi = oneApi.injectEndpoints({
     }),
     changeAuthGroup: builder.mutation({
       /**
-       * @param {object} data - User credentials
-       * @param {string} data.group - Group id
+       * @param {object} params - Request parameters
+       * @param {string} params.group - Group id
        * @returns {Promise} Response data from request
        * @throws Fails when response isn't code 200
        */
@@ -118,6 +119,67 @@ const authApi = oneApi.injectEndpoints({
       },
       invalidatesTags: [...Object.values(restOfPool)],
     }),
+    addLabel: builder.mutation({
+      /**
+       * @param {object} params - Request parameters
+       * @param {string} params.newLabel - Label to add
+       * @returns {Promise} Response data from request
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: async ({ newLabel } = {}, { getState, dispatch }) => {
+        try {
+          if (!newLabel) return { data: '' }
+
+          const authUser = getState().auth.user
+          const currentLabels = authUser?.TEMPLATE?.LABELS?.split(',') ?? []
+          const upperCaseLabels = currentLabels.map((l) => l.toUpperCase())
+          const upperCaseNewLabel = newLabel.toUpperCase()
+
+          const exists = upperCaseLabels.some((l) => l === upperCaseNewLabel)
+          if (exists) return { data: upperCaseNewLabel }
+
+          const newLabels = currentLabels.concat(upperCaseNewLabel).join()
+          const template = jsonToXml({ LABELS: newLabels })
+          const queryData = { id: authUser.ID, template, replace: 1 }
+
+          await dispatch(
+            userApi.endpoints.updateUser.initiate(queryData)
+          ).unwrap()
+
+          return { data: upperCaseNewLabel }
+        } catch (error) {
+          return { error }
+        }
+      },
+    }),
+    removeLabel: builder.mutation({
+      /**
+       * @param {object} params - Request parameters
+       * @param {string} params.label - Label to remove
+       * @returns {Promise} Response data from request
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: async ({ label } = {}, { getState, dispatch }) => {
+        try {
+          if (!label) return { data: '' }
+
+          const authUser = getState().auth.user
+          const currentLabels = authUser?.TEMPLATE?.LABELS?.split(',') ?? []
+
+          const newLabels = currentLabels.filter((l) => l !== label).join()
+          const template = jsonToXml({ LABELS: newLabels })
+          const queryData = { id: authUser.ID, template, replace: 1 }
+
+          await dispatch(
+            userApi.endpoints.updateUser.initiate(queryData)
+          ).unwrap()
+
+          return { data: label }
+        } catch (error) {
+          return { error }
+        }
+      },
+    }),
   }),
 })
 
@@ -129,6 +191,8 @@ export const {
   // Mutations
   useLoginMutation,
   useChangeAuthGroupMutation,
+  useAddLabelMutation,
+  useRemoveLabelMutation,
 } = authApi
 
 export default authApi

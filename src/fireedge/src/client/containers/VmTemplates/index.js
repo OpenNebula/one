@@ -19,7 +19,10 @@ import { Pin as GotoIcon, RefreshDouble, Cancel } from 'iconoir-react'
 import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import { useLazyGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
+import {
+  useLazyGetTemplateQuery,
+  useUpdateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
 import { VmTemplatesTable } from 'client/components/Tables'
 import VmTemplateActions from 'client/components/Tables/VmTemplates/actions'
 import VmTemplateTabs from 'client/components/Tabs/VmTemplate'
@@ -48,6 +51,7 @@ function VmTemplates() {
           <VmTemplatesTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
+            useUpdateMutation={useUpdateTemplateMutation}
           />
 
           {hasSelectedRows && (

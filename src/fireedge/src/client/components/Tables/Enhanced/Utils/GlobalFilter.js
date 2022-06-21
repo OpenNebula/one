@@ -16,7 +16,7 @@
 import { ReactElement, Fragment, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Stack, Button } from '@mui/material'
+import { Stack } from '@mui/material'
 import { Filter } from 'iconoir-react'
 import { UseFiltersInstanceProps, UseFiltersState } from 'react-table'
 
@@ -33,7 +33,7 @@ import { T } from 'client/constants'
 const GlobalFilter = memo(
   (tableProps) => {
     /** @type {UseFiltersInstanceProps} */
-    const { rows, columns, setAllFilters, state } = tableProps
+    const { rows, columns, state } = tableProps
 
     /** @type {UseFiltersState} */
     const { filters } = state
@@ -57,8 +57,8 @@ const GlobalFilter = memo(
         <HeaderPopover
           id="filter-by-button"
           icon={<Filter />}
-          headerTitle={T.FilterBy}
-          buttonLabel={T.Filter}
+          headerTitle={<Translate word={T.FilterBy} />}
+          buttonLabel={<Translate word={T.Filter} />}
           buttonProps={{
             'data-cy': 'filter-by-button',
             disableElevation: true,
@@ -69,18 +69,10 @@ const GlobalFilter = memo(
           popperProps={{ placement: 'bottom-end' }}
         >
           {() => (
-            <Stack sx={{ width: { xs: '100%', md: 500 }, p: 2 }}>
+            <Stack sx={{ width: { xs: '100%', md: 500 } }}>
               {columnsCanFilter.map((column, idx) => (
                 <Fragment key={idx}>{column.render('Filter')}</Fragment>
               ))}
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => setAllFilters([])}
-                sx={{ mt: 2, alignSelf: 'flex-end' }}
-              >
-                <Translate word={T.Clear} />
-              </Button>
             </Stack>
           )}
         </HeaderPopover>
