@@ -281,6 +281,7 @@ module.exports = {
   CleanupConcept: 'Delete all vms and images first, then delete the resources',
   Force: 'Force',
   ForceConcept: 'Force configure to execute',
+  ConfigureProvision: 'Configure provision %s',
 
   /* sections */
   Dashboard: 'Dashboard',
