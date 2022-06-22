@@ -978,12 +978,13 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
     }
 
     iss.str(ip);
+    iss >> skipws;
 
     i_ip = 0;
 
     for (int i=0;i<4;i++)
     {
-        iss >> dec >> tmp >> ws;
+        iss >> dec >> tmp;
 
         if ( tmp > 255 || iss.fail() )
         {
