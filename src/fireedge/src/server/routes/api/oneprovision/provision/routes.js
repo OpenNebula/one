@@ -127,6 +127,9 @@ module.exports = {
         id: {
           from: resource,
         },
+        force: {
+          from: postBody,
+        },
       },
     },
     [PROVISION_GET_RESOURCE]: {

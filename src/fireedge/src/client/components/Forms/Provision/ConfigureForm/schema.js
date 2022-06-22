@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+import { object, boolean } from 'yup'
+import { T, INPUT_TYPES } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/CreateForm' }, configProps)
+const FORCE = {
+  name: 'force',
+  label: T.Force,
+  type: INPUT_TYPES.SWITCH,
+  tooltip: T.ForceConcept,
+  validation: boolean()
+    .notRequired()
+    .default(() => false),
+}
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const DeleteForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/DeleteForm' }, configProps)
+export const FIELDS = [FORCE]
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ConfigureForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/ConfigureForm' }, configProps)
-
-export { CreateForm, DeleteForm, ConfigureForm }
+export const SCHEMA = object(getValidationFromFields(FIELDS))

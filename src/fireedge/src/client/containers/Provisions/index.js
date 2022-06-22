@@ -28,7 +28,7 @@ import {
 import { useSearch, useDialog } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
 
-import { DeleteForm } from 'client/components/Forms/Provision'
+import { DeleteForm, ConfigureForm } from 'client/components/Forms/Provision'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
@@ -104,16 +104,33 @@ function Provisions() {
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => handleClickfn(ID, NAME),
-              actions: [
-                {
-                  handleClick: async () => {
-                    await configureProvision({ id: ID })
-                    enqueueInfo(`Configuring provision - ID: ${ID}`)
-                  },
+              configureAction: {
+                buttonProps: {
+                  'data-cy': 'provision-configure',
                   icon: <EditIcon />,
-                  cy: 'provision-configure',
                 },
-              ],
+                options: [
+                  {
+                    dialogProps: {
+                      title: (
+                        <Translate
+                          word={T.ConfigureProvision}
+                          values={`#${ID} ${NAME}`}
+                        />
+                      ),
+                    },
+                    form: ConfigureForm,
+                    onSubmit: async (formData) => {
+                      try {
+                        await configureProvision({ id: ID, ...formData })
+                        enqueueInfo(`Configuring provision - ID: ${ID}`)
+                      } finally {
+                        hide()
+                      }
+                    },
+                  },
+                ],
+              },
               deleteAction: {
                 buttonProps: {
                   'data-cy': 'provision-delete',

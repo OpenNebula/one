@@ -13,29 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+import { createForm } from 'client/utils'
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Provision/ConfigureForm/schema'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/CreateForm' }, configProps)
+const ConfigureForm = createForm(SCHEMA, FIELDS)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const DeleteForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/DeleteForm' }, configProps)
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ConfigureForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Provision/ConfigureForm' }, configProps)
-
-export { CreateForm, DeleteForm, ConfigureForm }
+export default ConfigureForm
