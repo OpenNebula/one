@@ -186,7 +186,7 @@ function create_signature {
     serviceKey=$(hmac_sha256 hexkey:"${regionKey}" "s3")
     signingKey=$(hmac_sha256 hexkey:"${serviceKey}" "aws4_request")
 
-    printf "${stringToSign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signingKey}" | sed 's/(stdin)= //'
+    printf "${stringToSign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signingKey}" | sed 's/.*(stdin)= //'
 }
 
 function s3_curl_args

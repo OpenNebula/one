@@ -1083,6 +1083,12 @@ int LibVirtDriver::deployment_description_kvm(
             }
         }
 
+        if (vm->get_disk(disk_id)->is_volatile()) {
+            // For volatile disk the type attribute is used to define if it is SWAP or FS,
+            // For non-volatile disk it is set as subtype of disk_type (check Image::disk_attribute method)
+            type = disk_type;
+        }
+
         // ---- Disk type and source for the image ----
 
         if ( type == "BLOCK" || type == "BLOCK_CDROM" )

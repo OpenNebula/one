@@ -67,6 +67,7 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 
     ostringstream oss;
     istringstream is(info);
+    is >> skipws;
 
     auto image = ipool->get(msg->oid());
 
@@ -74,7 +75,7 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
     {
         if (msg->status() == "SUCCESS")
         {
-            is >> source >> ws;
+            is >> source;
 
             if (!source.empty())
             {
@@ -95,14 +96,14 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
        goto error;
     }
 
-    is >> source >> ws;
+    is >> source;
 
     if (is.fail())
     {
         goto error;
     }
 
-    is >> format >> ws;
+    is >> format;
 
     if (is.fail() || format.empty())
     {

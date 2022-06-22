@@ -566,11 +566,11 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 //Valid disk types for System DS
                 case Image::FILE:
                 case Image::RBD:
+                case Image::BLOCK:
                     break;
 
                 case Image::GLUSTER:
                 case Image::SHEEPDOG:
-                case Image::BLOCK:
                 case Image::ISCSI:
                 case Image::CD_ROM:
                 case Image::RBD_CDROM:
