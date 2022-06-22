@@ -205,7 +205,7 @@ function create_base() {
     cd $DST_PATH.snap
     ln -f -s . $DST_FILE.snap ||:
     $COPY $SRC_PATH base
-    qemu-img create -b $DST_FILE.snap/base -f qcow2 base.1
+    qemu-img create -b $DST_FILE.snap/base -F qcow2 -f qcow2 base.1
     ln -f -s $DST_FILE.snap/base.1 $DST_PATH
     cd -
 }
