@@ -195,7 +195,7 @@ const AppLinks = () => {
   return otherApps.map((app) => (
     <Link
       key={app}
-      href={`${APP_URL}/${app}`}
+      href={`${APP_URL}/${app}`.toLowerCase()}
       variant="caption"
       color="text.secondary"
       padding={1}
