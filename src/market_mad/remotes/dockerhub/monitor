@@ -112,6 +112,12 @@ class DockerHubMarket
                 regt = Time.new(time[0], time[1], time[2]).to_i
             end
 
+            if app['description']
+                desc = app['description'].delete('\\"')
+            else
+                desc = ''
+            end
+
             data = {
                 'NAME'        => app['name'],
                 'SOURCE'      => app_url(app),
@@ -125,7 +131,7 @@ class DockerHubMarket
                 'TAGS'        => '',
                 'REGTIME'     => regt,
                 'SIZE'        => @options[:sizemb],
-                'DESCRIPTION' => app['description'].delete('\\"'),
+                'DESCRIPTION' => desc,
                 'LINK'        => "https://hub.docker.com/_/#{app['name']}"
             }
 
