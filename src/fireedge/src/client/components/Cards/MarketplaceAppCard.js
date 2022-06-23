@@ -80,6 +80,7 @@ const MarketplaceAppCard = memo(
       () =>
         getUniqueLabels(LABELS).map((label) => ({
           text: label,
+          dataCy: `label-${label}`,
           stateColor: getColorFromString(label),
           onClick: onClickLabel,
           onDelete: enableEditLabels && onDeleteLabel,
