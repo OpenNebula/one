@@ -47,6 +47,36 @@ module VCenterDriver
             vm         = selected[:one_item]   || build
             template   = selected[:template]   || import_tmplt
             template = "DEPLOY_ID = #{vm_ref}\n" + template
+
+            # Index where start GRAPHICS block
+            graphics_index = template.index('GRAPHICS = [')
+            unless graphics_index.nil?
+                # Index where finish GRAPHICS block
+                end_of_graphics = template[graphics_index..-1].index(']') + 1
+
+                # GRAPHICS block
+                graphics_sub_string =
+                    template[graphics_index, end_of_graphics]
+
+                # GRAPHICS block with PORT removed
+                # OpenNebula will asing a new not used PORT
+                graphics_sub_string =
+                    graphics_sub_string.gsub(/PORT(.*?),[\r\n]/, '')
+
+                # Index where graphics block finish
+                before_graphics = template[0, graphics_index]
+
+                # Block after graphics block
+                after_graphics =
+                    template[graphics_index..-1][end_of_graphics..-1]
+
+                # Template with out PORT inside GRAPHICS
+                template =
+                    before_graphics +
+                    graphics_sub_string +
+                    after_graphics
+            end
+
             host_id    = selected[:host] || @list.keys[0]
 
             vc_uuid    = @vi_client.vim.serviceContent.about.instanceUuid
@@ -55,6 +85,9 @@ module VCenterDriver
 
             vc_vm = VCenterDriver::VirtualMachine.new_without_id(@vi_client,
                                                                  vm_ref)
+
+            # clear OpenNebula attributes
+            vc_vm.clear_tags
 
             # Importing Wild VMs with snapshots is not supported
             # https://github.com/OpenNebula/one/issues/1268

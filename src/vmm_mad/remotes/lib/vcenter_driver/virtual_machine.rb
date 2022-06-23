@@ -1695,6 +1695,34 @@ end
             info_nics
         end
 
+        # Clear extraconfig tags from a vCenter VM
+        #
+        def clear_tags
+            keys_to_remove = extra_config_keys
+
+            spec_hash =
+                keys_to_remove.map {|key| { :key => key, :value => '' } }
+
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+                :extraConfig => spec_hash
+            )
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+
+        # Get extraconfig tags from a vCenter VM
+        #
+        def extra_config_keys
+            keys_to_remove = []
+            @item['config.extraConfig'].each do |extraconfig|
+                next unless extraconfig.key.include?('opennebula.disk') ||
+                extraconfig.key.include?('opennebula.vm') ||
+                extraconfig.key.downcase.include?('remotedisplay')
+
+                keys_to_remove << extraconfig.key
+            end
+            keys_to_remove
+        end
+
         # Get required parameters to use VMware HTML Console SDK
         # To be used with the following SDK:
         # https://code.vmware.com/web/sdk/2.1.0/html-console
