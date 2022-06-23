@@ -121,9 +121,15 @@ const Settings = () => {
         </Typography>
       </Box>
       <Stack height={1} gap="0.5rem" p="0.5rem" overflow="auto">
+        {labels.length === 0 && (
+          <Typography variant="subtitle2">
+            <Translate word={T.NoLabels} />
+          </Typography>
+        )}
         {result?.map((label) => (
           <LabelWrapper
             key={label}
+            data-cy={`wrapper-${label}`}
             // highlight the label when it is added
             ownerState={{ highlight: data === label }}
           >

@@ -111,6 +111,7 @@ const EnhancedTable = ({
       autoResetSelectedRows: false,
       autoResetSortBy: false,
       autoResetPage: false,
+      autoResetGlobalFilter: false,
       // -------------------------------------
       initialState: { pageSize, ...initialState },
     },
@@ -125,7 +126,7 @@ const EnhancedTable = ({
     getTableProps,
     prepareRow,
     toggleAllRowsSelected,
-    preFilteredRows,
+    preGlobalFilteredRowsById,
     rows,
     page,
     gotoPage,
@@ -148,10 +149,11 @@ const EnhancedTable = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  const selectedRows = useMemo(
-    () => preFilteredRows.filter((row) => !!state.selectedRowIds[row.id]),
-    [data, state.selectedRowIds]
-  )
+  const selectedRows = useMemo(() => {
+    const selectedIds = Object.keys(state.selectedRowIds ?? {})
+
+    return selectedIds.map((id) => preGlobalFilteredRowsById[id])
+  }, [state.selectedRowIds])
 
   useMountedLayoutEffect(() => {
     onSelectedRowsChange?.(
