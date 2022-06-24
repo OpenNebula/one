@@ -120,6 +120,7 @@ function Providers() {
                   handleClick: () =>
                     show({
                       id: ID,
+                      delete: true,
                       title: (
                         <Translate
                           word={T.DeleteSomething}
@@ -138,13 +139,21 @@ function Providers() {
           />
         )}
       </Box>
-      {display && dialogProps?.id && (
-        <DialogProvider
-          hide={hide}
-          id={dialogProps.id}
-          dialogProps={dialogProps}
-        />
-      )}
+      {display &&
+        dialogProps?.id &&
+        (!dialogProps?.delete ? (
+          <DialogProvider
+            hide={hide}
+            id={dialogProps.id}
+            dialogProps={dialogProps}
+          />
+        ) : (
+          <DialogConfirmation handleCancel={hide} {...dialogProps}>
+            <p>
+              <Translate word={T.DoYouWantProceed} />
+            </p>
+          </DialogConfirmation>
+        ))}
     </>
   )
 }
