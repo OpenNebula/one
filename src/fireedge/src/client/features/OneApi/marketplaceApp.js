@@ -484,6 +484,23 @@ const marketAppApi = oneApi.injectEndpoints({
       },
       invalidatesTags: [APP_POOL],
     }),
+    deleteApp: builder.mutation({
+      /**
+       * Delete Marketplaceapp.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Marketplaceapp ID
+       * @returns {number} Marketplace app id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.MARKETAPP_DELETE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: APP, id }],
+    }),
     downloadApp: builder.mutation({
       /**
        * Download a MarketPlaceApp.
@@ -559,6 +576,7 @@ export const {
   useImportAppMutation,
   useExportAppMutation,
   useDownloadAppMutation,
+  useDeleteAppMutation,
 } = marketAppApi
 
 export default marketAppApi

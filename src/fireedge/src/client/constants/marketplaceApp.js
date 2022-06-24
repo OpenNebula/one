@@ -56,6 +56,8 @@ export const MARKETPLACE_APP_ACTIONS = {
   DISABLE: 'disable',
   DELETE: 'delete',
   EDIT_LABELS: 'edit_labels',
+  LOCK: 'lock',
+  UNLOCK: 'unlock',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,
