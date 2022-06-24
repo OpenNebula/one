@@ -152,7 +152,9 @@ const EnhancedTable = ({
   const selectedRows = useMemo(() => {
     const selectedIds = Object.keys(state.selectedRowIds ?? {})
 
-    return selectedIds.map((id) => preGlobalFilteredRowsById[id])
+    return selectedIds
+      .map((id) => preGlobalFilteredRowsById[id])
+      .filter(Boolean)
   }, [state.selectedRowIds])
 
   useMountedLayoutEffect(() => {
