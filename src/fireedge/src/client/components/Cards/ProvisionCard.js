@@ -65,7 +65,7 @@ const ProvisionCard = memo(
     return (
       <SelectCard
         action={
-          (actions?.length > 0 || deleteAction) && (
+          (actions?.length > 0 || deleteAction || configureAction) && (
             <>
               {actions?.map((action) => (
                 <Action key={action?.cy} {...action} />
