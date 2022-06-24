@@ -25,6 +25,7 @@ module.exports = {
   FilterBy: 'Filter by',
   FilterLabels: 'Filter labels',
   FilterByLabel: 'Filter by label',
+  ApplyLabels: 'Apply labels',
   Label: 'Label',
   NoLabels: 'NoLabels',
   All: 'All',
@@ -33,6 +34,7 @@ module.exports = {
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
   ClearSelection: 'Clear selection',
+  ResetFilters: 'Clear current search query, filters, and sorts',
 
   /* actions */
   Accept: 'Accept',
@@ -279,6 +281,7 @@ module.exports = {
   CleanupConcept: 'Delete all vms and images first, then delete the resources',
   Force: 'Force',
   ForceConcept: 'Force configure to execute',
+  ConfigureProvision: 'Configure provision %s',
 
   /* sections */
   Dashboard: 'Dashboard',
@@ -297,6 +300,11 @@ module.exports = {
   AddUserSshPrivateKey: 'Add user SSH private key',
   SshPassphraseKey: 'SSH private key passphrase',
   AddUserSshPassphraseKey: 'Add user SSH private key passphrase',
+  Labels: 'Labels',
+  NewLabelOrSearch: 'New label or search',
+  LabelAlreadyExists: 'Label already exists',
+  PressToCreateLabel: 'Press enter to create a new label',
+  SavesInTheUserTemplate: "Saved in the User's template",
 
   /* sections - system */
   User: 'User',

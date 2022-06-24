@@ -59,10 +59,11 @@ class ServiceLCM
         :release_cb
     ]
 
-    def initialize(client, concurrency, cloud_auth)
+    def initialize(client, concurrency, cloud_auth, retries)
         @cloud_auth = cloud_auth
         @am         = ActionManager.new(concurrency, true)
         @srv_pool   = ServicePool.new(@cloud_auth, nil)
+        @retries    = retries
 
         em_conf = {
             :cloud_auth  => @cloud_auth,
@@ -672,6 +673,34 @@ class ServiceLCM
 
     private
 
+    # Retry on authentication error
+    #
+    # @param client [OpenNebula::Client] Client to perform operation
+    # @param &block Code block to execute
+    def retry_op(client, &block)
+        finished = false
+        retries  = 0
+        rc       = nil
+
+        until finished
+            rc = block.call(client)
+
+            if OpenNebula.is_error?(rc) && rc.errno != 256
+                # There is an error different from authentication
+                finished = true
+            elsif !OpenNebula.is_error?(rc) || retries > @retries
+                # There is no error or the retries limit has been reached
+                finished = true
+            else
+                # Error is 256, reset the client to renew the token
+                client   = nil
+                retries += 1
+            end
+        end
+
+        rc
+    end
+
     ############################################################################
     # Callbacks
     ############################################################################
@@ -679,38 +708,40 @@ class ServiceLCM
     def deploy_cb(client, service_id, role_name, nodes)
         undeploy = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
-                    service.roles[role_name].cardinality -= 1
+                service.roles[role_name].nodes.delete_if do |node|
+                    if nodes[node] && service.roles[role_name].cardinalitty > 0
+                        service.roles[role_name].cardinality -= 1
+                    end
+
+                    nodes[node]
                 end
 
-                nodes[node]
+                # If the role has 0 nodes, deleteƒ role
+                undeploy = service.check_role(service.roles[role_name])
+
+                if service.all_roles_running?
+                    service.set_state(Service::STATE['RUNNING'])
+                elsif service.strategy == 'straight'
+                    set_deploy_strategy(service)
+
+                    deploy_roles(c,
+                                 service.roles_deploy,
+                                 'DEPLOYING',
+                                 'FAILED_DEPLOYING',
+                                 :wait_deploy_action,
+                                 service.report_ready?)
+                end
+
+                rc = service.update
+
+                return rc if OpenNebula.is_error?(rc)
+
+                @wd.add_service(service) if service.all_roles_running?
             end
-
-            # If the role has 0 nodes, deleteƒ role
-            undeploy = service.check_role(service.roles[role_name])
-
-            if service.all_roles_running?
-                service.set_state(Service::STATE['RUNNING'])
-            elsif service.strategy == 'straight'
-                set_deploy_strategy(service)
-
-                deploy_roles(client,
-                             service.roles_deploy,
-                             'DEPLOYING',
-                             'FAILED_DEPLOYING',
-                             :wait_deploy_action,
-                             service.report_ready?)
-            end
-
-            rc = service.update
-
-            return rc if OpenNebula.is_error?(rc)
-
-            @wd.add_service(service) if service.all_roles_running?
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -723,14 +754,18 @@ class ServiceLCM
     end
 
     def deploy_failure_cb(client, service_id, role_name)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_DEPLOYING'])
-            service.roles[role_name].set_state(Role::STATE['FAILED_DEPLOYING'])
+                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_DEPLOYING']
+                )
 
-            service.update
+                service.update
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -741,12 +776,14 @@ class ServiceLCM
     end
 
     def deploy_nets_failure_cb(client, service_id)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_DEPLOYING_NETS'])
-            service.update
+                service.set_state(Service::STATE['FAILED_DEPLOYING_NETS'])
+                service.update
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -755,36 +792,38 @@ class ServiceLCM
     def undeploy_cb(client, service_id, role_name, nodes)
         undeploy_nets = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].set_state(Role::STATE['DONE'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.roles[role_name].set_state(Role::STATE['DONE'])
 
-            service.roles[role_name].nodes.delete_if do |node|
-                !nodes[:failure].include?(node['deploy_id']) &&
-                    nodes[:successful].include?(node['deploy_id'])
-            end
-
-            if service.all_roles_done?
-                rc = service.delete_networks
-
-                if rc && !rc.empty?
-                    Log.info LOG_COMP, 'Error trying to delete '\
-                                       "Virtual Networks #{rc}"
+                service.roles[role_name].nodes.delete_if do |node|
+                    !nodes[:failure].include?(node['deploy_id']) &&
+                        nodes[:successful].include?(node['deploy_id'])
                 end
 
-                undeploy_nets = true
+                if service.all_roles_done?
+                    rc = service.delete_networks
 
-                break
-            elsif service.strategy == 'straight'
-                set_deploy_strategy(service)
+                    if rc && !rc.empty?
+                        Log.info LOG_COMP, 'Error trying to delete '\
+                                        "Virtual Networks #{rc}"
+                    end
 
-                undeploy_roles(client,
-                               service.roles_shutdown,
-                               'UNDEPLOYING',
-                               'FAILED_UNDEPLOYING',
-                               :wait_undeploy_action)
+                    undeploy_nets = true
+
+                    break
+                elsif service.strategy == 'straight'
+                    set_deploy_strategy(service)
+
+                    undeploy_roles(c,
+                                   service.roles_shutdown,
+                                   'UNDEPLOYING',
+                                   'FAILED_UNDEPLOYING',
+                                   :wait_undeploy_action)
+                end
+
+                service.update
             end
-
-            service.update
         end
 
         undeploy_nets_action(client, service_id) if undeploy_nets
@@ -793,128 +832,149 @@ class ServiceLCM
     end
 
     def undeploy_nets_cb(client, service_id)
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.delete
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.delete
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def undeploy_nets_failure_cb(client, service_id)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING_NETS'])
-            service.update
+                service.set_state(Service::STATE['FAILED_UNDEPLOYING_NETS'])
+                service.update
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def undeploy_failure_cb(client, service_id, role_name, nodes)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
-            service.roles[role_name]
-                   .set_state(Role::STATE['FAILED_UNDEPLOYING'])
+                service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_UNDEPLOYING']
+                )
 
-            service.roles[role_name].nodes.delete_if do |node|
-                !nodes[:failure].include?(node['deploy_id']) &&
-                    nodes[:successful].include?(node['deploy_id'])
+                service.roles[role_name].nodes.delete_if do |node|
+                    !nodes[:failure].include?(node['deploy_id']) &&
+                        nodes[:successful].include?(node['deploy_id'])
+                end
+
+                service.update
             end
-
-            service.update
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def scaleup_cb(client, service_id, role_name, nodes)
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
-                    service.roles[role_name].cardinality -= 1
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.roles[role_name].nodes.delete_if do |node|
+                    if nodes[node] && service.roles[role_name].cardinalitty > 0
+                        service.roles[role_name].cardinality -= 1
+                    end
+
+                    nodes[node]
                 end
 
-                nodes[node]
+                service.set_state(Service::STATE['COOLDOWN'])
+                service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
+
+                @event_manager.trigger_action(
+                    :wait_cooldown_action,
+                    service.id,
+                    c,
+                    service.id,
+                    role_name,
+                    service.roles[role_name].cooldown
+                )
+
+                service.roles[role_name].clean_scale_way
+
+                service.update
             end
-
-            service.set_state(Service::STATE['COOLDOWN'])
-            service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
-
-            @event_manager.trigger_action(:wait_cooldown_action,
-                                          service.id,
-                                          client,
-                                          service.id,
-                                          role_name,
-                                          service.roles[role_name].cooldown)
-
-            service.roles[role_name].clean_scale_way
-
-            service.update
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def scaledown_cb(client, service_id, role_name, nodes)
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.set_state(Service::STATE['COOLDOWN'])
-            service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.set_state(Service::STATE['COOLDOWN'])
+                service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
 
-            service.roles[role_name].nodes.delete_if do |node|
-                !nodes[:failure].include?(node['deploy_id']) &&
-                    nodes[:successful].include?(node['deploy_id'])
+                service.roles[role_name].nodes.delete_if do |node|
+                    !nodes[:failure].include?(node['deploy_id']) &&
+                        nodes[:successful].include?(node['deploy_id'])
+                end
+
+                @event_manager.trigger_action(
+                    :wait_cooldown_action,
+                    service.id,
+                    c,
+                    service.id,
+                    role_name,
+                    service.roles[role_name].cooldown
+                )
+
+                service.roles[role_name].clean_scale_way
+
+                service.update
             end
-
-            @event_manager.trigger_action(:wait_cooldown_action,
-                                          service.id,
-                                          client,
-                                          service.id,
-                                          role_name,
-                                          service.roles[role_name].cooldown)
-
-            service.roles[role_name].clean_scale_way
-
-            service.update
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def scaleup_failure_cb(client, service_id, role_name)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_SCALING'])
-            service.roles[role_name].set_state(Role::STATE['FAILED_SCALING'])
+                service.set_state(Service::STATE['FAILED_SCALING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_SCALING']
+                )
 
-            service.update
+                service.update
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def scaledown_failure_cb(client, service_id, role_name, nodes)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            role = service.roles[role_name]
+                role = service.roles[role_name]
 
-            service.set_state(Service::STATE['FAILED_SCALING'])
-            role.set_state(Role::STATE['FAILED_SCALING'])
+                service.set_state(Service::STATE['FAILED_SCALING'])
+                role.set_state(Role::STATE['FAILED_SCALING'])
 
-            role.nodes.delete_if do |node|
-                !nodes[:failure].include?(node['deploy_id']) &&
-                    nodes[:successful].include?(node['deploy_id'])
+                role.nodes.delete_if do |node|
+                    !nodes[:failure].include?(node['deploy_id']) &&
+                        nodes[:successful].include?(node['deploy_id'])
+                end
+
+                service.update
             end
-
-            service.update
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -923,16 +983,18 @@ class ServiceLCM
     def cooldown_cb(client, service_id, role_name)
         undeploy = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.set_state(Service::STATE['RUNNING'])
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.set_state(Service::STATE['RUNNING'])
+                service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            service.update
+                service.update
 
-            # If the role has 0 nodes, delete role
-            undeploy = service.check_role(service.roles[role_name])
+                # If the role has 0 nodes, delete role
+                undeploy = service.check_role(service.roles[role_name])
 
-            @wd.add_service(service)
+                @wd.add_service(service)
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -945,49 +1007,10 @@ class ServiceLCM
     end
 
     def add_cb(client, service_id, role_name, _)
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            service.set_state(Service::STATE['RUNNING'])
-
-            rc = service.update
-
-            return rc if OpenNebula.is_error?(rc)
-
-            @wd.add_service(service) if service.all_roles_running?
-        end
-
-        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
-    end
-
-    def add_failure_cb(client, service_id, role_name)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
-
-            service.set_state(Service::STATE['FAILED_DEPLOYING'])
-            service.roles[role_name].set_state(Role::STATE['FAILED_DEPLOYING'])
-
-            service.update
-        end
-
-        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
-    end
-
-    def remove_cb(client, service_id, role_name, _)
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.remove_role(role_name)
-
-            if service.all_roles_done?
-                rc = service.delete_networks
-
-                if rc && !rc.empty?
-                    Log.info LOG_COMP, 'Error trying to delete '\
-                                       "Virtual Networks #{rc}"
-                end
-
-                service.delete
-            else
                 service.set_state(Service::STATE['RUNNING'])
 
                 rc = service.update
@@ -1001,49 +1024,103 @@ class ServiceLCM
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
-    def remove_failure_cb(client, service_id, role_name, nodes)
-        rc = @srv_pool.get(service_id, client) do |service|
-            # stop actions for the service if deploy fails
-            @event_manager.cancel_action(service_id)
+    def add_failure_cb(client, service_id, role_name)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
-            service.roles[role_name]
-                   .set_state(Role::STATE['FAILED_UNDEPLOYING'])
+                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_DEPLOYING']
+                )
 
-            service.roles[role_name].nodes.delete_if do |node|
-                !nodes[:failure].include?(node['deploy_id']) &&
-                    nodes[:successful].include?(node['deploy_id'])
+                service.update
             end
+        end
 
-            service.update
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def remove_cb(client, service_id, role_name, _)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.remove_role(role_name)
+
+                if service.all_roles_done?
+                    rc = service.delete_networks
+
+                    if rc && !rc.empty?
+                        Log.info LOG_COMP, 'Error trying to delete '\
+                                        "Virtual Networks #{rc}"
+                    end
+
+                    service.delete
+                else
+                    service.set_state(Service::STATE['RUNNING'])
+
+                    rc = service.update
+
+                    return rc if OpenNebula.is_error?(rc)
+
+                    @wd.add_service(service) if service.all_roles_running?
+                end
+            end
+        end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+    end
+
+    def remove_failure_cb(client, service_id, role_name, nodes)
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                # stop actions for the service if deploy fails
+                @event_manager.cancel_action(service_id)
+
+                service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
+                service.roles[role_name].set_state(
+                    Role::STATE['FAILED_UNDEPLOYING']
+                )
+
+                service.roles[role_name].nodes.delete_if do |node|
+                    !nodes[:failure].include?(node['deploy_id']) &&
+                        nodes[:successful].include?(node['deploy_id'])
+                end
+
+                service.update
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
     def hold_cb(client, service_id, role_name)
-        rc = @srv_pool.get(service_id, client) do |service|
-            if service.roles[role_name].state != Role::STATE['HOLD']
-                service.roles[role_name].set_state(Role::STATE['HOLD'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                if service.roles[role_name].state != Role::STATE['HOLD']
+                    service.roles[role_name].set_state(Role::STATE['HOLD'])
+                end
+
+                if service.all_roles_hold? &&
+                    service.state != Service::STATE['HOLD']
+                    service.set_state(Service::STATE['HOLD'])
+                elsif service.strategy == 'straight'
+                    set_deploy_strategy(service)
+
+                    deploy_roles(
+                        c,
+                        service.roles_hold,
+                        'DEPLOYING',
+                        'FAILED_DEPLOYING',
+                        :wait_deploy_action,
+                        service.report_ready?
+                    )
+                end
+
+                rc = service.update
+
+                return rc if OpenNebula.is_error?(rc)
             end
-
-            if service.all_roles_hold? &&
-                service.state != Service::STATE['HOLD']
-                service.set_state(Service::STATE['HOLD'])
-            elsif service.strategy == 'straight'
-                set_deploy_strategy(service)
-
-                deploy_roles(client,
-                             service.roles_hold,
-                             'DEPLOYING',
-                             'FAILED_DEPLOYING',
-                             :wait_deploy_action,
-                             service.report_ready?)
-            end
-
-            rc = service.update
-
-            return rc if OpenNebula.is_error?(rc)
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
@@ -1052,38 +1129,42 @@ class ServiceLCM
     def release_cb(client, service_id, role_name, nodes)
         undeploy = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
-                    service.roles[role_name].cardinality -= 1
+                service.roles[role_name].nodes.delete_if do |node|
+                    if nodes[node] && service.roles[role_name].cardinalitty > 0
+                        service.roles[role_name].cardinality -= 1
+                    end
+
+                    nodes[node]
                 end
 
-                nodes[node]
+                # If the role has 0 nodes, delete role
+                undeploy = service.check_role(service.roles[role_name])
+
+                if service.all_roles_running?
+                    service.set_state(Service::STATE['RUNNING'])
+                elsif service.strategy == 'straight'
+                    set_deploy_strategy(service)
+
+                    release_roles(
+                        c,
+                        service.roles_release,
+                        'DEPLOYING',
+                        'FAILED_DEPLOYING',
+                        :wait_deploy_action,
+                        service.report_ready?
+                    )
+                end
+
+                rc = service.update
+
+                return rc if OpenNebula.is_error?(rc)
+
+                @wd.add_service(service) if service.all_roles_running?
             end
-
-            # If the role has 0 nodes, delete role
-            undeploy = service.check_role(service.roles[role_name])
-
-            if service.all_roles_running?
-                service.set_state(Service::STATE['RUNNING'])
-            elsif service.strategy == 'straight'
-                set_deploy_strategy(service)
-
-                release_roles(client,
-                              service.roles_release,
-                              'DEPLOYING',
-                              'FAILED_DEPLOYING',
-                              :wait_deploy_action,
-                              service.report_ready?)
-            end
-
-            rc = service.update
-
-            return rc if OpenNebula.is_error?(rc)
-
-            @wd.add_service(service) if service.all_roles_running?
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -1100,16 +1181,18 @@ class ServiceLCM
     ############################################################################
 
     def error_wd_cb(client, service_id, role_name, _node)
-        rc = @srv_pool.get(service_id, client) do |service|
-            if service.state != Service::STATE['WARNING']
-                service.set_state(Service::STATE['WARNING'])
-            end
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                if service.state != Service::STATE['WARNING']
+                    service.set_state(Service::STATE['WARNING'])
+                end
 
-            if service.roles[role_name].state != Role::STATE['WARNING']
-                service.roles[role_name].set_state(Role::STATE['WARNING'])
-            end
+                if service.roles[role_name].state != Role::STATE['WARNING']
+                    service.roles[role_name].set_state(Role::STATE['WARNING'])
+                end
 
-            service.update
+                service.update
+            end
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
@@ -1118,29 +1201,31 @@ class ServiceLCM
     def done_wd_cb(client, service_id, role_name, node)
         undeploy = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            role = service.roles[role_name]
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                role = service.roles[role_name]
 
-            next unless role
+                next unless role
 
-            cardinality = role.cardinality - 1
+                cardinality = role.cardinality - 1
 
-            next unless role.nodes.find {|n| n['deploy_id'] == node }
+                next unless role.nodes.find {|n| n['deploy_id'] == node }
 
-            # just update if the cardinality is positive
-            set_cardinality(role, cardinality, true) if cardinality >= 0
+                # just update if the cardinality is positive
+                set_cardinality(role, cardinality, true) if cardinality >= 0
 
-            role.nodes.delete_if {|n| n['deploy_id'] == node }
+                role.nodes.delete_if {|n| n['deploy_id'] == node }
 
-            # If the role has 0 nodes, delete role
-            undeploy = service.check_role(role)
+                # If the role has 0 nodes, delete role
+                undeploy = service.check_role(role)
 
-            service.update
+                service.update
 
-            Log.info 'WD',
-                     "Node #{node} is done, " \
-                     "updating service #{service_id}:#{role_name} " \
-                     "cardinality to #{cardinality}"
+                Log.info 'WD',
+                         "Node #{node} is done, " \
+                         "updating service #{service_id}:#{role_name} " \
+                         "cardinality to #{cardinality}"
+            end
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
@@ -1155,22 +1240,24 @@ class ServiceLCM
     def running_wd_cb(client, service_id, role_name, _node)
         undeploy = false
 
-        rc = @srv_pool.get(service_id, client) do |service|
-            role = service.roles[role_name]
+        rc = retry_op(client) do |c|
+            @srv_pool.get(service_id, c) do |service|
+                role = service.roles[role_name]
 
-            if service.roles[role_name].state != Role::STATE['RUNNING']
-                service.roles[role_name].set_state(Role::STATE['RUNNING'])
+                if service.roles[role_name].state != Role::STATE['RUNNING']
+                    service.roles[role_name].set_state(Role::STATE['RUNNING'])
+                end
+
+                if service.all_roles_running? &&
+                service.state != Service::STATE['RUNNING']
+                    service.set_state(Service::STATE['RUNNING'])
+                end
+
+                # If the role has 0 nodes, delete role
+                undeploy = service.check_role(role)
+
+                service.update
             end
-
-            if service.all_roles_running? &&
-               service.state != Service::STATE['RUNNING']
-                service.set_state(Service::STATE['RUNNING'])
-            end
-
-            # If the role has 0 nodes, delete role
-            undeploy = service.check_role(role)
-
-            service.update
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)

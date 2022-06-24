@@ -108,7 +108,12 @@ module OneProvision
                                CEPH_ANSIBLE_DIR.to_s)
                 end
 
-                Driver.run('ansible-galaxy install -r ' <<
+                # with current ansible version we need both commands
+                Driver.run('ansible-galaxy role install -r ' <<
+                           '/usr/share/one/oneprovision/ansible/' <<
+                           'hci-requirements.yml')
+
+                Driver.run('ansible-galaxy collection install -r ' <<
                            '/usr/share/one/oneprovision/ansible/' <<
                            'hci-requirements.yml')
             end

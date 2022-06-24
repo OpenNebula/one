@@ -31,4 +31,11 @@ const CreateForm = (configProps) =>
 const DeleteForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Provision/DeleteForm' }, configProps)
 
-export { CreateForm, DeleteForm }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ConfigureForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Provision/ConfigureForm' }, configProps)
+
+export { CreateForm, DeleteForm, ConfigureForm }

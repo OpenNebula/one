@@ -45,7 +45,6 @@ import { Permissions, LockInfo } from 'client/constants/common'
  */
 
 export const VM_TEMPLATE_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   IMPORT_DIALOG: 'import_dialog',
   UPDATE_DIALOG: 'update_dialog',

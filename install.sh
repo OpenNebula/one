@@ -758,6 +758,7 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
+    PRE_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -2364,6 +2365,8 @@ ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
 
+PRE_CLEANUP_SHARE_FILE="share/pkgs/services/systemd/pre_cleanup"
+
 BACKUP_VMS_SHARE_FILE="share/scripts/backup_vms"
 
 #-------------------------------------------------------------------------------
@@ -2899,12 +2902,13 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/host-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vm-template-tab.yaml"
+                                src/fireedge/etc/sunstone/admin/host-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/user/vm-template-tab.yaml"
+                                src/fireedge/etc/sunstone/user/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/user/marketplace-app-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files

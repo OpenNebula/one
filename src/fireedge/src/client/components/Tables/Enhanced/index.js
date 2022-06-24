@@ -18,7 +18,8 @@ import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { InfoEmpty } from 'iconoir-react'
+import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
+import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
 import { Box } from '@mui/material'
 import {
   useGlobalFilter,
@@ -57,6 +58,7 @@ const EnhancedTable = ({
   initialState,
   refetch,
   isLoading,
+  useUpdateMutation,
   displaySelectedRows,
   disableRowSelect,
   disableGlobalLabel,
@@ -109,6 +111,7 @@ const EnhancedTable = ({
       autoResetSelectedRows: false,
       autoResetSortBy: false,
       autoResetPage: false,
+      autoResetGlobalFilter: false,
       // -------------------------------------
       initialState: { pageSize, ...initialState },
     },
@@ -123,12 +126,15 @@ const EnhancedTable = ({
     getTableProps,
     prepareRow,
     toggleAllRowsSelected,
-    preFilteredRows,
+    preGlobalFilteredRowsById,
     rows,
     page,
     gotoPage,
     pageCount,
     setFilter,
+    setAllFilters,
+    setSortBy,
+    setGlobalFilter,
     state,
   } = useTableProps
 
@@ -143,12 +149,18 @@ const EnhancedTable = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  useMountedLayoutEffect(() => {
-    const selectedRows = preFilteredRows
-      .filter((row) => !!state.selectedRowIds[row.id])
-      .map((row) => ({ ...row, gotoPage: () => gotoRowPage(row) }))
+  const selectedRows = useMemo(() => {
+    const selectedIds = Object.keys(state.selectedRowIds ?? {})
 
-    onSelectedRowsChange?.(selectedRows)
+    return selectedIds
+      .map((id) => preGlobalFilteredRowsById[id])
+      .filter(Boolean)
+  }, [state.selectedRowIds])
+
+  useMountedLayoutEffect(() => {
+    onSelectedRowsChange?.(
+      selectedRows.map((row) => ({ ...row, gotoPage: () => gotoRowPage(row) }))
+    )
   }, [state.selectedRowIds])
 
   const handleChangePage = (newPage) => {
@@ -159,6 +171,18 @@ const EnhancedTable = ({
 
     newPage > state.pageIndex && !canNextPage && fetchMore?.()
   }
+
+  const handleResetFilters = () => {
+    setGlobalFilter()
+    setAllFilters([])
+    setSortBy([])
+  }
+
+  const cannotFilterByLabel = useMemo(
+    () =>
+      disableGlobalLabel || !columns.some((col) => col.id === LABEL_COLUMN_ID),
+    [disableGlobalLabel]
+  )
 
   return (
     <Box
@@ -196,7 +220,13 @@ const EnhancedTable = ({
 
         {/* FILTERS */}
         <div className={styles.filters}>
-          {!disableGlobalLabel && <GlobalLabel {...useTableProps} />}
+          {!cannotFilterByLabel && (
+            <GlobalLabel
+              {...useTableProps}
+              selectedRows={selectedRows}
+              useUpdateMutation={useUpdateMutation}
+            />
+          )}
           <GlobalFilter {...useTableProps} />
           {!disableGlobalSort && <GlobalSort {...useTableProps} />}
         </div>
@@ -211,6 +241,20 @@ const EnhancedTable = ({
           </div>
         )}
       </div>
+
+      {/* RESET FILTERS */}
+      <Box
+        visibility={
+          state.filters?.length > 0 || state.sortBy?.length > 0
+            ? 'visible'
+            : 'hidden'
+        }
+      >
+        <span className={styles.resetFilters} onClick={handleResetFilters}>
+          <RemoveIcon />
+          <Translate word={T.ResetFilters} />
+        </span>
+      </Box>
 
       <div className={clsx(styles.body, classes.body)}>
         {/* NO DATA MESSAGE */}
@@ -245,15 +289,18 @@ const EnhancedTable = ({
               original={original}
               value={values}
               className={isSelected ? 'selected' : ''}
-              onClickLabel={(label) => {
-                const currentFilter =
-                  state.filters
-                    ?.filter(({ id }) => id === LABEL_COLUMN_ID)
-                    ?.map(({ value }) => value) || []
+              {...(!cannotFilterByLabel && {
+                onClickLabel: (label) => {
+                  const currentFilter =
+                    state.filters
+                      ?.filter(({ id }) => id === LABEL_COLUMN_ID)
+                      ?.map(({ value }) => value)
+                      ?.flat() || []
 
-                const nextFilter = [...new Set([...currentFilter, label])]
-                setFilter(LABEL_COLUMN_ID, nextFilter)
-              }}
+                  const nextFilter = [...new Set([...currentFilter, label])]
+                  setFilter(LABEL_COLUMN_ID, nextFilter)
+                },
+              })}
               onClick={() => {
                 typeof onRowClick === 'function' && onRowClick(original)
 
@@ -295,6 +342,7 @@ EnhancedTable.propTypes = {
   disableGlobalSort: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
   displaySelectedRows: PropTypes.bool,
+  useUpdateMutation: PropTypes.func,
   onSelectedRowsChange: PropTypes.func,
   onRowClick: PropTypes.func,
   pageSize: PropTypes.number,

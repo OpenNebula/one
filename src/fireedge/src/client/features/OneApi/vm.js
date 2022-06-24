@@ -315,7 +315,7 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: [VM_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
     }),
     actionVm: builder.mutation({
       /**

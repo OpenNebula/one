@@ -61,7 +61,7 @@ module.exports = {
       params: {
         username: {
           from: postBody,
-          default: 0,
+          default: '',
         },
         password: {
           from: postBody,
@@ -74,6 +74,7 @@ module.exports = {
         group: {
           from: postBody,
           default: [],
+          arrayDefault: 0, // this is for the upcast of the internal values of the array
         },
       },
     },

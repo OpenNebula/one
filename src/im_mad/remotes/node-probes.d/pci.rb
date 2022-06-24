@@ -147,6 +147,14 @@ devices.each do |dev|
         # name, in this way Sunstone shows a better name
         values << pval('DEVICE_NAME',
                        "#{dev[:vendor_name]} #{dev[:device_name]}")
+
+        # Get profiles
+        addr     = "0000:#{dev[:bus]}:#{dev[:slot]}.#{dev[:function]}"
+        profiles = `ls /sys/class/mdev_bus/#{addr}/mdev_supported_types`
+        profiles = profiles.split("\n")
+
+        # Comma separated value with different profiles
+        values << pval('PROFILES', profiles.join(','))
     else
         values << pval('DEVICE_NAME', dev[:device_name])
     end

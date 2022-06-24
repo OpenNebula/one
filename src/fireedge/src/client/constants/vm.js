@@ -713,7 +713,6 @@ export const VM_LCM_STATES = [
 
 /** @enum {string} Virtual machine actions */
 export const VM_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   CREATE_APP_DIALOG: 'create_app_dialog',
   DEPLOY: 'deploy',

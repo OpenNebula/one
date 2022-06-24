@@ -68,6 +68,8 @@ module OpenNebula::TemplateExt
 
                     image = image_lookup(disk)
 
+                    next unless image
+
                     if OpenNebula.is_error?(image)
                         logger.fatal image.message if logger
 
@@ -317,6 +319,9 @@ module OpenNebula::TemplateExt
                     name  = disk['IMAGE']
                     uname = disk['IMAGE_UNAME']
                     uname ||= self['UNAME']
+
+                    # Volatile disk
+                    return unless name
 
                     name.gsub!('"', '')
                     image = @image_lookup_cache.find do |v|

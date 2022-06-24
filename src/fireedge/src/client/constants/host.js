@@ -174,7 +174,6 @@ export const HOST_STATES = [
 
 /** @enum {string} Host actions */
 export const HOST_ACTIONS = {
-  REFRESH: ACTIONS.REFRESH,
   CREATE_DIALOG: 'create_dialog',
   RENAME: ACTIONS.RENAME,
   CHANGE_CLUSTER: 'change_cluster',

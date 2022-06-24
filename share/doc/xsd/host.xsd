@@ -71,6 +71,9 @@
                           <xs:element name="VENDOR" type="xs:string"/>
                           <xs:element name="VENDOR_NAME" type="xs:string"/>
                           <xs:element name="VMID" type="xs:integer"/>
+                          <xs:element name="UUID" type="xs:string"/>
+                          <xs:element name="DEVICE_NAME" type="xs:string"/>
+                          <xs:element name="PROFILES" type="xs:string"/>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>

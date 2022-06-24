@@ -41,6 +41,7 @@ const ProvisionCard = memo(
     isProvider,
     actions,
     deleteAction,
+    configureAction,
   }) => {
     const {
       ID,
@@ -64,11 +65,12 @@ const ProvisionCard = memo(
     return (
       <SelectCard
         action={
-          (actions?.length > 0 || deleteAction) && (
+          (actions?.length > 0 || deleteAction || configureAction) && (
             <>
               {actions?.map((action) => (
                 <Action key={action?.cy} {...action} />
               ))}
+              {configureAction && <ButtonToTriggerForm {...configureAction} />}
               {deleteAction && <ButtonToTriggerForm {...deleteAction} />}
             </>
           )
@@ -127,6 +129,7 @@ ProvisionCard.propTypes = {
   isProvider: PropTypes.bool,
   image: PropTypes.string,
   deleteAction: PropTypes.object,
+  configureAction: PropTypes.object,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
@@ -143,6 +146,7 @@ ProvisionCard.defaultProps = {
   isSelected: undefined,
   image: undefined,
   deleteAction: undefined,
+  confifureAction: undefined,
   value: {},
 }
 

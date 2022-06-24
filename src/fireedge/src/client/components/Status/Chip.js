@@ -26,41 +26,39 @@ const callAll =
   (...args) =>
     fns.forEach((fn) => fn && fn?.(...args))
 
-const Chip = styled(Typography)(
-  ({ theme: { palette }, state = 'debug', ownerState }) => {
-    const { dark = state } = palette[state] ?? {}
+const Chip = styled(Typography)(({ theme: { palette }, ownerState }) => {
+  const { dark = ownerState.state } = palette[ownerState.state] ?? {}
 
-    const isWhite = ownerState.forceWhiteColor
-    const bgColor = alpha(dark, palette.mode === SCHEMES.DARK ? 0.5 : 0.2)
-    const color = isWhite ? palette.common.white : palette.text.primary
-    const iconColor = isWhite ? palette.getContrastText(color) : dark
+  const isWhite = ownerState.forceWhiteColor
+  const bgColor = alpha(dark, palette.mode === SCHEMES.DARK ? 0.5 : 0.2)
+  const color = isWhite ? palette.common.white : palette.text.primary
+  const iconColor = isWhite ? palette.getContrastText(color) : dark
 
-    return {
-      color,
-      backgroundColor: bgColor,
-      padding: ownerState.hasIcon ? '0.1rem 0.5rem' : '0.25rem 0.5rem',
-      cursor: 'default',
-      userSelect: 'none',
-      ...(ownerState.hasIcon && {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.5em',
-        '& > .icon': {
-          cursor: 'pointer',
-          color,
-          '&:hover': { color: iconColor },
-        },
-      }),
-      ...(ownerState.clickable && {
-        WebkitTapHighlightColor: 'transparent',
+  return {
+    color,
+    backgroundColor: bgColor,
+    padding: ownerState.hasIcon ? '0.1rem 0.5rem' : '0.25rem 0.5rem',
+    cursor: 'default',
+    userSelect: 'none',
+    ...(ownerState.hasIcon && {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.5em',
+      '& > .icon': {
         cursor: 'pointer',
-        '&:hover, &:focus': {
-          backgroundColor: alpha(bgColor, 0.3),
-        },
-      }),
-    }
+        color,
+        '&:hover': { color: iconColor },
+      },
+    }),
+    ...(ownerState.clickable && {
+      WebkitTapHighlightColor: 'transparent',
+      cursor: 'pointer',
+      '&:hover, &:focus': {
+        backgroundColor: alpha(bgColor, 0.3),
+      },
+    }),
   }
-)
+})
 
 const StatusChip = memo(
   ({
@@ -79,6 +77,7 @@ const StatusChip = memo(
       forceWhiteColor,
       hasIcon: clipboard || onDelete ? 'true' : undefined,
       clickable: !!onClick,
+      state: stateColor || 'debug',
     }
 
     const handleCopy = useCallback(
@@ -113,7 +112,6 @@ const StatusChip = memo(
         variant="overline"
         lineHeight="normal"
         borderRadius="0.5em"
-        state={stateColor}
         ownerState={ownerState}
         onClick={callAll(handleClick, clipboard && handleCopy)}
         data-cy={dataCy}

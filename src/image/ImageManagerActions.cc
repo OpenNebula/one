@@ -1228,13 +1228,6 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    if (snaps.get_active_id() == sid)
-    {
-        error = "Snapshot is already the active one";
-
-        return -1;
-    }
-
     /* ---------------------------------------------------------------------- */
     /*  Format message and send action to driver                              */
     /* ---------------------------------------------------------------------- */

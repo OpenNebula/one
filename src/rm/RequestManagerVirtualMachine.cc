@@ -2013,6 +2013,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     float ncpu, ocpu, dcpu;
     long  nmemory, omemory, dmemory;
     int   nvcpu, ovcpu;
+    bool  update_running_quota;
 
     Template deltas;
 
@@ -2112,6 +2113,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         {
             ncpu = nvcpu;
         }
+
+        auto state = vm->get_state();
+
+        update_running_quota = state == VirtualMachine::PENDING ||
+            state == VirtualMachine::HOLD || (state == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::RUNNING);
     }
     else
     {
@@ -2141,6 +2148,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     deltas.add("MEMORY", dmemory);
     deltas.add("CPU", dcpu);
     deltas.add("VMS", 0);
+
+    if (update_running_quota)
+    {
+        deltas.add("RUNNING_MEMORY", dmemory);
+        deltas.add("RUNNING_CPU", dcpu);
+    }
 
     if (quota_resize_authorization(&deltas, att, vm_perms) == false)
     {

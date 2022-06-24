@@ -127,6 +127,9 @@ module.exports = {
         id: {
           from: resource,
         },
+        force: {
+          from: postBody,
+        },
       },
     },
     [PROVISION_GET_RESOURCE]: {
@@ -140,7 +143,7 @@ module.exports = {
       },
     },
     [PROVISION_DELETE_RESOURCE]: {
-      path: `${basepath}/resource/:resource/:id`,
+      path: `${basepath}/resource/:resource/:id/:provision`,
       httpMethod: DELETE,
       auth: true,
       params: {
@@ -148,6 +151,9 @@ module.exports = {
           from: resource,
         },
         id: {
+          from: resource,
+        },
+        provision: {
           from: resource,
         },
       },

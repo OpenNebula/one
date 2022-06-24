@@ -27,7 +27,8 @@ import {
   Permission,
   UserInputObject,
   USER_INPUT_TYPES,
-  SERVER_CONFIG,
+  CURRENCY,
+  LOCALE,
 } from 'client/constants'
 
 /**
@@ -90,12 +91,9 @@ export const stringToBoolean = (str) =>
  */
 export const formatNumberByCurrency = (number, options) => {
   try {
-    const currency = SERVER_CONFIG?.currency ?? 'EUR'
-    const locale = SERVER_CONFIG?.lang?.replace('_', '-') ?? undefined
-
-    return Intl.NumberFormat(locale, {
+    return Intl.NumberFormat(LOCALE, {
       style: 'currency',
-      currency,
+      currency: CURRENCY,
       currencyDisplay: 'narrowSymbol',
       notation: 'compact',
       compactDisplay: 'long',
@@ -104,6 +102,28 @@ export const formatNumberByCurrency = (number, options) => {
     }).format(number)
   } catch {
     return number.toString()
+  }
+}
+
+/**
+ * Function to compare two values.
+ *
+ * @param {Intl.CollatorOptions} options - Options to compare the values
+ * @returns {function(string, string)} - Function to compare two strings
+ * Negative when the referenceStr occurs before compareString
+ * Positive when the referenceStr occurs after compareString
+ * Returns 0 if they are equivalent
+ */
+export const areStringEqual = (options) => (a, b) => {
+  try {
+    const collator = new Intl.Collator(LOCALE, {
+      sensitivity: 'base',
+      ...options,
+    })
+
+    return collator.compare(a, b)
+  } catch {
+    return -1
   }
 }
 

@@ -30,16 +30,27 @@ namespace ssl_util
     {
         const int max_size = 3 * in.length()/4 + 1;
         auto output        = new unsigned char[max_size];
-        
+
         int size = EVP_DecodeBlock(output, reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
-        
+
         if (size <= 0)
         {
             out.clear();
             return;
         }
 
-        while (output[size-1] == '\0') { --size; } // Trim trailling 0
+        /* Subtract padding bytes from |size|. Any more than 2 is malformed. */
+        size_t inlen = in.length();
+        int i = 0;
+        while (in[--inlen] == '=')
+        {
+            --size;
+            if (++i > 2)
+            {
+                out.clear();
+                return;
+            }
+        }
 
         out.assign(reinterpret_cast<char*>(output), size);
 
@@ -53,7 +64,7 @@ namespace ssl_util
     {
         const int max_size = 4*((in.length()+2)/3) + 1;
         auto output        = new char[max_size];
-        
+
         const int size = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(output),
             reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
 
@@ -66,7 +77,7 @@ namespace ssl_util
         out.assign(output, size);
 
         delete[] output;
-        
+
         return 0;
     }
 

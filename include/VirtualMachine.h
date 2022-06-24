@@ -1539,7 +1539,7 @@ public:
      *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
-    void delete_non_persistent_disk_snapshots(Template **vm_quotas,
+    void delete_non_persistent_disk_snapshots(Template& vm_quotas,
         std::vector<Template *>& ds_quotas)
     {
         disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
@@ -1630,8 +1630,9 @@ public:
 
     /**
      * Deletes all SNAPSHOT attributes
+     * @param snapshots Returns template with deleted snapshots
      */
-    void delete_snapshots();
+    void delete_snapshots(Template& snapshots);
 
     /**
      * Returns size acquired on system DS by VM snapshots

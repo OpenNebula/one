@@ -574,20 +574,21 @@ static int parse_auth_msg(
     // <driver> <username> <passwd> [gid...]
     //--------------------------------------------------------------------------
     is.str(ar.message);
+    is >> skipws;
 
     if ( is.good() )
     {
-        is >> driver_name >> ws;
+        is >> driver_name;
     }
 
     if ( !is.fail() )
     {
-        is >> mad_name >> ws;
+        is >> mad_name;
     }
 
     if ( !is.fail() )
     {
-        is >> mad_pass >> ws;
+        is >> mad_pass;
     }
 
     while ( is.good() )
@@ -603,7 +604,7 @@ static int parse_auth_msg(
             gr_admin = true;
         }
 
-        is >> tmp_gid >> ws;
+        is >> tmp_gid;
 
         if ( is.fail() )
         {

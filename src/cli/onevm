@@ -472,7 +472,13 @@ CommandParser::CmdParser.new(ARGV) do
             verbose = "disk #{disk_id} prepared to be saved in " \
                       "the image #{image_name}"
         else
-            snapshot_id = snapshot_id.to_i
+            err, snapshot_id = helper.retrieve_disk_snapshot_id(args[0],
+                                                                snapshot_id)
+
+            if err == -1
+                STDERR.puts snapshot_id
+                exit(-1)
+            end
 
             verbose = "disk #{disk_id} snapshot #{snapshot_id} prepared to " \
                       "be saved in the image #{image_name}"

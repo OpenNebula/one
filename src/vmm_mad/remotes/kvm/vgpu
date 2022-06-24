@@ -40,6 +40,7 @@ function get_mdev_path() {
     bus=$(get_xpath_val "$pci" "/PCI/BUS")
     slot=$(get_xpath_val "$pci" "/PCI/SLOT")
     func=$(get_xpath_val "$pci" "/PCI/FUNCTION")
+    profile=$(get_xpath_val "$pci" "/PCI/PROFILE")
 
     # Generate mdev path
     mdev="/sys/class/mdev_bus/$domain:$bus:$slot.$func"
@@ -50,10 +51,12 @@ function get_mdev_path() {
         exit 1
     fi
 
-    # TODO: give the user the ability to choose this
-    device="$(ls "$mdev/mdev_supported_types" | head -n1)"
+    if [ -z "$profile" ]
+    then
+        profile="$(ls "$mdev/mdev_supported_types" | head -n1)"
+    fi
 
-    echo "$mdev/mdev_supported_types/$device/"
+    echo "$mdev/mdev_supported_types/$profile/"
 }
 
 # ------------------------------------------------------------------------------

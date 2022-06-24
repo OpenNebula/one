@@ -320,6 +320,13 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 
     vm->set_exit_time(time(0));
 
+    if (vm->hasHistory() && vm->get_etime() == 0)
+    {
+        vm->set_etime(time(0));
+
+        vmpool->update_history(vm.get());
+    }
+
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
     if ( graphics != nullptr && graphics->vector_value("PORT", port) == 0
@@ -1161,7 +1168,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
     int rc = 0;
 
-    Template * vm_quotas_snp = nullptr;
+    Template vm_quotas_snp;
 
     VirtualMachineTemplate quota_tmpl;
     bool do_quotas = false;
@@ -1195,7 +1202,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
-            vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
+            vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
                     ds_quotas_snp);
 
             do_quotas = true;
@@ -1239,11 +1246,9 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
         Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
     }
 
-    if ( vm_quotas_snp != nullptr )
+    if ( !vm_quotas_snp.empty() )
     {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
-
-        delete vm_quotas_snp;
+        Quotas::vm_del(vm_uid, vm_gid, &vm_quotas_snp);
     }
 
     if ( do_quotas )
@@ -2011,7 +2016,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
     if (vm->set_snapshot_disk(did, snap_id) == -1)
     {
         oss << "Disk id (" << did << ") or snapshot id ("
-            << snap_id << ") is not invalid.";
+            << snap_id << ") is not valid.";
 
         error_str = oss.str();
 

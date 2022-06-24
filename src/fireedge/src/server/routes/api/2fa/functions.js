@@ -90,27 +90,30 @@ const setup = (
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
+  const { user, password } = userData
+  if (!(user && password)) {
+    next()
+
+    return
+  }
+
   const { token } = params
-  const oneConnect = oneConnection()
-  getUserInfoAuthenticated(oneConnect, next, (user) => {
+  const oneConnect = oneConnection(user, password)
+  getUserInfoAuthenticated(oneConnect, next, (data) => {
     if (
-      user &&
-      user.USER &&
-      user.USER.ID &&
-      user.USER.TEMPLATE &&
-      user.USER.TEMPLATE.SUNSTONE &&
-      user.USER.TEMPLATE.SUNSTONE[default2FAOpennebulaTmpVar] &&
+      Number.isInteger(parseInt(data?.USER?.ID, 10)) &&
+      data?.USER?.TEMPLATE?.SUNSTONE?.[default2FAOpennebulaTmpVar] &&
       token
     ) {
-      const sunstone = user.USER.TEMPLATE.SUNSTONE
+      const sunstone = data.USER.TEMPLATE.SUNSTONE
       const secret = sunstone[default2FAOpennebulaTmpVar]
       if (check2Fa(secret, token)) {
         oneConnect({
           action: Actions.USER_UPDATE,
           parameters: [
-            parseInt(user.USER.ID, 10),
+            parseInt(data.USER.ID, 10),
             generateNewResourceTemplate(
-              user.USER.TEMPLATE.SUNSTONE || {},
+              data.USER.TEMPLATE.SUNSTONE || {},
               { [default2FAOpennebulaVar]: secret },
               [default2FAOpennebulaTmpVar]
             ),
@@ -157,6 +160,13 @@ const qr = (
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
+  const { user, password } = userData
+  if (!(user && password)) {
+    next()
+
+    return
+  }
+
   const secret = speakeasy.generateSecret({
     length: 10,
     name: twoFactorAuthIssuer,
@@ -168,15 +178,15 @@ const qr = (
         res.locals.httpCode = httpResponse(internalServerError)
         next()
       } else {
-        const oneConnect = oneConnection()
-        getUserInfoAuthenticated(oneConnect, next, (user) => {
-          if (user && user.USER && user.USER.ID && user.USER.TEMPLATE) {
+        const oneConnect = oneConnection(user, password)
+        getUserInfoAuthenticated(oneConnect, next, (data) => {
+          if (data?.USER?.ID && data?.USER?.TEMPLATE) {
             oneConnect({
               action: Actions.USER_UPDATE,
               parameters: [
-                parseInt(user.USER.ID, 10),
+                parseInt(data.USER.ID, 10),
                 generateNewResourceTemplate(
-                  user.USER.TEMPLATE.SUNSTONE || {},
+                  data.USER.TEMPLATE.SUNSTONE || {},
                   { [default2FAOpennebulaTmpVar]: base32 },
                   [default2FAOpennebulaVar]
                 ),
@@ -228,20 +238,21 @@ const del = (
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
-  const oneConnect = oneConnection()
-  getUserInfoAuthenticated(oneConnect, next, (user) => {
-    if (
-      user &&
-      user.USER &&
-      user.USER.ID &&
-      user.USER.TEMPLATE &&
-      user.USER.TEMPLATE.SUNSTONE
-    ) {
+  const { user, password } = userData
+  if (!(user && password)) {
+    next()
+
+    return
+  }
+
+  const oneConnect = oneConnection(user, password)
+  getUserInfoAuthenticated(oneConnect, next, (data) => {
+    if (data?.USER?.TEMPLATE?.SUNSTONE) {
       oneConnect({
         action: Actions.USER_UPDATE,
         parameters: [
-          parseInt(user.USER.ID, 10),
-          generateNewResourceTemplate(user.USER.TEMPLATE.SUNSTONE || {}, {}, [
+          parseInt(data.USER.ID, 10),
+          generateNewResourceTemplate(data.USER.TEMPLATE.SUNSTONE || {}, {}, [
             default2FAOpennebulaTmpVar,
             default2FAOpennebulaVar,
           ]),

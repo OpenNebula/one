@@ -409,7 +409,42 @@ CommandParser::CmdParser.new(ARGV) do
 
         begin
             print '.'
-            vm, keys = helper.clear_tags(vmid)
+
+            client = Client.new
+
+            vm_pool   = VirtualMachinePool.new(client, -1)
+            host_pool = HostPool.new(client)
+            deploy_id = -1
+            host_id   = -1
+            hostname  = ''
+
+            rc = vm_pool.info
+            raise rc.message if OpenNebula.is_error?(rc)
+
+            rc = host_pool.info
+            raise rc.message if OpenNebula.is_error?(rc)
+
+            vm_pool.each do |vm|
+                next if vm.id.to_s != vmid
+
+                deploy_id  = vm.deploy_id
+                vm_history = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY']
+                hostname   = vm_history['HOSTNAME']
+                break
+            end
+
+            host_pool.each do |host|
+                if host.name == hostname
+                    host_id = host.id
+                end
+            end
+
+            vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+            vm        = VCenterDriver::VirtualMachine
+                        .new(vi_client, deploy_id, vmid)
+
+            keys = vm.extra_config_keys
+
             print '.'
 
             if keys.empty?
@@ -422,7 +457,7 @@ CommandParser::CmdParser.new(ARGV) do
             puts 'The following keys will be removed:'
             keys.each {|key| puts "\t- #{key}" }
 
-            helper.remove_keys(vm, keys)
+            vm.clear_tags
         rescue StandardError => e
             STDERR.puts "Couldn't clear VM tags. Reason: #{e.message}"
             exit 1

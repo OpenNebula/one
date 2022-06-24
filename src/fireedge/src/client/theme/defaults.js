@@ -286,6 +286,22 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           fieldset: { border: 'none' },
         },
       },
+      MuiTypography: {
+        variants: [
+          {
+            props: { variant: 'underline' },
+            style: {
+              padding: '0 1em 0.2em 0.5em',
+              borderBottom: `2px solid ${secondary.main}`,
+              // subtitle1 variant is used for the underline
+              fontSize: defaultTheme.typography.pxToRem(18),
+              lineHeight: 24 / 18,
+              letterSpacing: 0,
+              fontWeight: 500,
+            },
+          },
+        ],
+      },
       MuiPaper: {
         defaultProps: {
           elevation: 0,
