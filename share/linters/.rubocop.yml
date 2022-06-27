@@ -559,6 +559,12 @@ Layout/MultilineOperationIndentation:
 Layout/LineEndStringConcatenationIndentation:
     Enabled: false
 
+Layout/LineContinuationSpacing:
+    Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+     Enabled: false
+
 #######
 # STYLE
 #######
@@ -912,6 +918,9 @@ Lint/UnmodifiedReduceAccumulator:
   Enabled: true
 
 Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
+Lint/NonAtomicFileOperation:
   Enabled: false
 
 #########
