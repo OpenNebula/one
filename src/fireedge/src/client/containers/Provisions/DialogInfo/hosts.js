@@ -38,7 +38,7 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Hosts = memo(({ id }) => {
+const Hosts = memo(({ id, setTab, logTabId }) => {
   const [amount, setAmount] = useState(() => 1)
   const { enqueueInfo } = useGeneralApi()
 
@@ -113,6 +113,7 @@ const Hosts = memo(({ id }) => {
                   onClick={async () => {
                     configureHost({ provision: id, id: host.ID })
                     enqueueInfo(`Configuring host - ID: ${host.ID}`)
+                    setTab(logTabId)
                   }}
                 />
                 <SubmitButton
@@ -137,7 +138,11 @@ const Hosts = memo(({ id }) => {
   )
 })
 
-Hosts.propTypes = { id: PropTypes.string.isRequired }
+Hosts.propTypes = {
+  id: PropTypes.string.isRequired,
+  setTab: PropTypes.func,
+  logTabId: PropTypes.number,
+}
 Hosts.displayName = 'Hosts'
 
 export default Hosts
