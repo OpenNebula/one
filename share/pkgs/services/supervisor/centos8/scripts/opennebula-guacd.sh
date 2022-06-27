@@ -30,4 +30,4 @@ LD_LIBRARY_PATH=/usr/share/one/guacd/lib
 export LD_LIBRARY_PATH
 
 msg "Service started!"
-exec /usr/share/one/guacd/sbin/guacd -f $OPTS
+exec /usr/share/one/guacd/sbin/guacd -b 0.0.0.0 -f $OPTS
