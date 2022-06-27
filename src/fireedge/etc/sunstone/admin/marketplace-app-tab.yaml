@@ -33,6 +33,8 @@ actions:
   disable: true
   delete: true
   edit_labels: true
+  lock: true
+  unlock: true
 
 # Filters - List of criteria to filter the resources
 
