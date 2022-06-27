@@ -65,15 +65,14 @@
                           <xs:element name="DOMAIN" type="xs:string"/>
                           <xs:element name="FUNCTION" type="xs:string"/>
                           <xs:element name="NUMA_NODE" type="xs:string"/>
+                          <xs:element name="PROFILES" type="xs:string" minOccurs="0"/>
                           <xs:element name="SHORT_ADDRESS" type="xs:string"/>
                           <xs:element name="SLOT" type="xs:string"/>
                           <xs:element name="TYPE" type="xs:string"/>
+                          <xs:element name="UUID" type="xs:string" minOccurs="0"/>
                           <xs:element name="VENDOR" type="xs:string"/>
                           <xs:element name="VENDOR_NAME" type="xs:string"/>
                           <xs:element name="VMID" type="xs:integer"/>
-                          <xs:element name="UUID" type="xs:string"/>
-                          <xs:element name="DEVICE_NAME" type="xs:string"/>
-                          <xs:element name="PROFILES" type="xs:string"/>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
