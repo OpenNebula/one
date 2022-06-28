@@ -123,7 +123,7 @@ const Settings = () => {
       <Stack height={1} gap="0.5rem" p="0.5rem" overflow="auto">
         {labels.length === 0 && (
           <Typography variant="subtitle2">
-            <Translate word={T.NoLabels} />
+            <Translate word={T.NoLabelsOnList} />
           </Typography>
         )}
         {result?.map((label) => (

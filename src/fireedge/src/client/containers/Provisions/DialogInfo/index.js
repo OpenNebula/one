@@ -63,7 +63,9 @@ const DialogInfo = ({ id }) => {
         name: 'hosts',
         label: T.Hosts,
         icon: HostIcon,
-        renderContent: () => <HostsTab id={id} />,
+        renderContent: ({ setTab, logTabId }) => (
+          <HostsTab id={id} setTab={setTab} logTabId={logTabId} />
+        ),
       },
       {
         name: 'log',

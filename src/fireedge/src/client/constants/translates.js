@@ -305,6 +305,7 @@ module.exports = {
   LabelAlreadyExists: 'Label already exists',
   PressToCreateLabel: 'Press enter to create a new label',
   SavesInTheUserTemplate: "Saved in the User's template",
+  NoLabelsOnList: 'You have not defined any labels, list is empty',
 
   /* sections - system */
   User: 'User',

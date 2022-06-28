@@ -2269,6 +2269,7 @@ ONEVMDUMP_LIB_RESTORERS_FILES="src/onevmdump/lib/restorers/base.rb"
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
+           share/etc/guacd \
            src/tm_mad/tmrc \
            src/scheduler/etc/sched.conf \
            src/monitor/etc/monitord.conf "
