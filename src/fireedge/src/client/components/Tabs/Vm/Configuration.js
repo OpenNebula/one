@@ -68,7 +68,13 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
 
         if (isSupported && hasValue) {
           const name = idx ? `${idx}.${key}` : key
-          sectionAttributes.push({ name, value, dataCy: name })
+          sectionAttributes.push({
+            name,
+            value,
+            dataCy: name,
+            canCopy: true,
+            showActionsOnHover: true,
+          })
         }
       }
 
