@@ -288,9 +288,18 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
     .filter(([_, action]) => {
       if (typeof action === 'boolean') return action
 
-      const { enabled = false, not_on: notOn = [] } = action || {}
+      const {
+        enabled = false,
+        not_on: notOn = [],
+        only_on: onlyOn = [],
+      } = action || {}
 
-      return !!enabled && !notOn?.includes?.(hypervisor)
+      return (
+        !!enabled &&
+        ((!notOn && !onlyOn) ||
+          (notOn && !notOn?.includes?.(hypervisor)) ||
+          onlyOn?.includes?.(hypervisor))
+      )
     })
     .map(([actionName, _]) => actionName)
 
