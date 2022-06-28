@@ -49,8 +49,7 @@ export const createColumns = ({ filters = {}, columns = [] }) => {
       ...((filterById || filterByAccessor) &&
         (
           {
-            // TODO: Add label to filters
-            // label: createLabelFilter,
+            // TODO: Implements time filter component
             time: createTimeFilter,
           }[`${id}`.toLowerCase()] ?? createCategoryFilter
         )(column)),

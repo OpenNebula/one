@@ -60,7 +60,7 @@ const Content = ({ hypervisor }) => {
 const AdvancedOptions = ({ hypervisor } = {}) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
-  resolver: () => SCHEMA(hypervisor),
+  resolver: SCHEMA(hypervisor),
   optionsValidate: { abortEarly: false },
   content: () => Content({ hypervisor }),
 })
