@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { env } = require('process')
+const { DateTime } = require('luxon')
 const { httpCodes, defaults } = require('server/utils/constants')
 const { getFireedgeConfig } = require('server/utils/yml')
 const { defaultWebpackMode, defaultEmptyFunction, defaultOpennebulaZones } =
@@ -33,16 +34,16 @@ let passOpennebula = ''
  * @returns {boolean} user valid data
  */
 const userValidation = (user = '', token = '') => {
+  const nowUnix = DateTime.local().toSeconds()
   let rtn = false
   if (
     user &&
     token &&
-    global &&
-    global.users &&
-    global.users[user] &&
-    global.users[user].tokens &&
-    Array.isArray(global.users[user].tokens) &&
-    global.users[user].tokens.some((x) => x && x.token === token)
+    Array.isArray(global?.users?.[user]?.tokens) &&
+    global?.users?.[user]?.tokens?.some?.(
+      ({ token: internalToken, time }) =>
+        time > nowUnix && internalToken === token
+    )
   ) {
     rtn = true
   }
