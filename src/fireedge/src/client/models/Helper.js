@@ -315,7 +315,7 @@ export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
 
       return (
         TabContent && {
-          name: camelName,
+          label: camelName,
           id: tabName,
           renderContent: () => <TabContent tabProps={tabProps} id={id} />,
         }
