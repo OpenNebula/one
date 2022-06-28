@@ -374,7 +374,6 @@ const Actions = () => {
                 form: MigrateForm,
                 dialogProps: {
                   title: T.Deploy,
-                  subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.DEPLOY}`,
                 },
                 onSubmit: (rows) => async (formData) => {
