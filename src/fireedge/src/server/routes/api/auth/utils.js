@@ -45,10 +45,6 @@ const {
 
 const { ok, unauthorized, accepted, internalServerError } = httpCodes
 
-const appConfig = getFireedgeConfig()
-
-const namespace = appConfig.namespace || defaultNamespace
-
 const { GET } = httpMethod
 
 let user = ''
@@ -200,6 +196,7 @@ const setRes = (newRes = {}) => {
  * Set dates.
  */
 const setDates = () => {
+  const appConfig = getFireedgeConfig()
   limitToken = remember
     ? appConfig.session_remember_expiration || defaultRememberSessionExpiration
     : appConfig.session_expiration || defaultSessionExpiration
@@ -314,13 +311,7 @@ const genJWT = (token, informationUser) => {
  * @returns {object} - user token
  */
 const getCreatedTokenOpennebula = (username = '') => {
-  if (
-    global &&
-    global.users &&
-    username &&
-    global.users[username] &&
-    global.users[username].tokens
-  ) {
+  if (username && global?.users?.[username]?.tokens) {
     let acc = { token: '', time: 0 }
     global.users[username].tokens.forEach((curr = {}, index = 0) => {
       const currentTime = parseInt(curr.time, 10)
@@ -550,6 +541,8 @@ const getServerAdminAndWrapUser = (userData = {}) => {
 const login = (userData) => {
   let rtn = false
   if (userData) {
+    const appConfig = getFireedgeConfig()
+    const namespace = appConfig.namespace || defaultNamespace
     const findTextError = `[${namespace}.${ActionUsers.USER_INFO}]`
     if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
       updaterResponse(httpResponse(unauthorized))
