@@ -175,6 +175,12 @@ else
     fi
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
+
+    if [ -z $FORMAT ]; then
+        rm -rf $DST
+        log_error "Unknown image format src=$SRC"
+        exit -1
+    fi
 fi
 
 [[ "$FORMAT" = "luks" ]] && FORMAT="raw"
