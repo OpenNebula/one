@@ -103,6 +103,8 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
         goto error;
     }
 
+    image->set_source(source);
+
     is >> format;
 
     if (is.fail() || format.empty())
@@ -110,8 +112,6 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
         oss << "CP operation succeeded but image FORMAT was not returned.";
         goto error_common;
     }
-
-    image->set_source(source);
 
     image->set_format(format);
 
