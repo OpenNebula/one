@@ -50,8 +50,8 @@ module OpenNebulaJSON
                  when "hold"        then self.hold(action_hash['params'])
                  when "release"     then self.release(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
-                 when "lock"        then self.lock(action_hash['params'])
-                 when "unlock"      then self.unlock(action_hash['params'])
+                 when "lock"        then lock(action_hash['params']['level'].to_i)
+                 when "unlock"      then unlock()
                  when "instantiate" then self.instantiate(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<

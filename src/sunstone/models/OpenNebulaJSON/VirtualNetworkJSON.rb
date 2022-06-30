@@ -59,8 +59,8 @@ module OpenNebulaJSON
                  when "add_ar"    then self.add_ar(action_hash['params'])
                  when "update_ar" then self.update_ar(action_hash['params'])
                  when "reserve"   then self.reserve(action_hash['params'])
-                 when "lock"         then self.lock(action_hash['params'])
-                 when "unlock"       then self.unlock(action_hash['params'])
+                 when "lock"         then lock(action_hash['params']['level'].to_i)
+                 when "unlock"       then unlock()
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -117,14 +117,6 @@ module OpenNebulaJSON
         def reserve(params=Hash.new)
             super(params['name'], params['size'], params['ar_id'],
                 params['addr'], params['vnet'])
-        end
-
-        def lock(params=Hash.new)
-            super(params['level'].to_i)
-        end
-
-        def unlock(params=Hash.new)
-            super()
         end
     end
 end
