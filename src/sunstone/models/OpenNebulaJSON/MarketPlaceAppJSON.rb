@@ -57,8 +57,8 @@ module OpenNebulaJSON
                  when "rename"                  then self.rename(action_hash['params'])
                  when "disable"                 then self.disable
                  when "enable"                  then self.enable
-                 when "lock"                    then self.lock(action_hash['params'])
-                 when "unlock"                  then self.unlock(action_hash['params'])
+                 when "lock"                    then lock(action_hash['params']['level'].to_i)
+                 when "unlock"                  then unlock()
                  when "vm.import"               then self.app_vm_import(action_hash['params'])
                  when "vm-template.import"      then self.app_vm_import(action_hash['params'])
                  when "service_template.import" then self.app_service_import(action_hash['params'])
@@ -233,14 +233,6 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
-        end
-
-        def lock(params=Hash.new)
-            super(params['level'].to_i)
-        end
-
-        def unlock(params=Hash.new)
-            super()
         end
     end
 end
