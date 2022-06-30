@@ -7,6 +7,8 @@ module OneDBFsck
         @db.fetch("SELECT oid,body FROM vrouter_pool") do |row|
             vrouter_doc = nokogiri_doc(row[:body])
 
+            check_ugid(vrouter_doc)
+
             # DATA: VNets used by this Virtual Router
             vrouter_doc.root.xpath("TEMPLATE/NIC").each do |nic|
                 net_id = nil

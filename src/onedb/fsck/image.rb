@@ -35,8 +35,9 @@ module OneDBFsck
         @db.transaction do
             @db[:image_pool].each do |row|
                 doc = nokogiri_doc(row[:body], 'image_pool')
-
                 oid = row[:oid]
+
+                check_ugid(doc)
 
                 persistent = ( doc.root.xpath('PERSISTENT').text == "1" )
                 current_state = doc.root.xpath('STATE').text.to_i

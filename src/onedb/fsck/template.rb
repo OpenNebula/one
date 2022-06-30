@@ -4,11 +4,11 @@ module OneDBFsck
         templates_fix = @fixes_template = {}
 
         @db[:template_pool].each do |row|
-            doc = nokogiri_doc(row[:body], 'template_pool')
-
+            doc  = nokogiri_doc(row[:body], 'template_pool')
             boot = doc.root.at_xpath("TEMPLATE/OS/BOOT")
+            uid  = doc.root.at_xpath('UID').content
 
-            uid = doc.root.at_xpath('UID').content
+            check_ugid(doc)
 
             if boot.nil? || boot.text.downcase.match(/fd|hd|cdrom|network/).nil?
                 next

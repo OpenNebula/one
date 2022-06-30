@@ -19,6 +19,8 @@ module OneDBFsck
             market_id = row[:oid]
             doc = nokogiri_doc(row[:body], 'marketplace_pool')
 
+            check_ugid(doc)
+
             apps_elem = doc.root.at_xpath("MARKETPLACEAPPS")
             apps_elem.remove if !apps_elem.nil?
 

@@ -23,6 +23,8 @@ module OneDBFsck
                 images_elem     = doc.root.xpath('IMAGES').remove
                 images_new_elem = doc.create_element('IMAGES')
 
+                check_ugid(doc)
+
                 doc.root.add_child(images_new_elem)
 
                 datastore[ds_id][:images].each do |id|
