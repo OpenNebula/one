@@ -59,7 +59,6 @@ export const SCHEMES = Setting.SCHEMES
 export const DEFAULT_SCHEME = Setting.SCHEMES.SYSTEM
 
 export const CURRENCY = SERVER_CONFIG?.currency ?? 'EUR'
-export const LOCALE = SERVER_CONFIG?.lang?.replace('_', '-') ?? undefined
 export const DEFAULT_LANGUAGE = SERVER_CONFIG?.default_lang ?? 'en'
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 export const LANGUAGES = SERVER_CONFIG.langs ?? {
