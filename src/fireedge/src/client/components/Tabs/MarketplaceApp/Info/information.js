@@ -82,8 +82,13 @@ const InformationPanel = ({ app = {}, actions }) => {
     {
       name: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />,
+      dataCy: 'state',
     },
-    { name: T.Locked, value: levelLockToString(LOCK?.LOCKED) },
+    {
+      name: T.Locked,
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
+    },
     { name: T.Format, value: FORMAT },
     { name: T.Version, value: VERSION },
   ]
