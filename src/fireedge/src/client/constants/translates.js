@@ -573,7 +573,7 @@ module.exports = {
   MemoryModification: 'Memory modification',
   AllowUsersToModifyMemory:
     "Allow users to modify this template's default memory on instantiate",
-  MemoryConcept: 'Amount of RAM required for the VM',
+  MemoryConcept: 'Amount of RAM required for the VM, in Megabytes',
   CpuConcept: `
     Percentage of CPU divided by 100 required for the
     Virtual Machine. Half a processor is written 0.5`,

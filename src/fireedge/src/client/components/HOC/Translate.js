@@ -24,6 +24,7 @@ import {
 } from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
+import { Settings } from 'luxon'
 import { sprintf } from 'sprintf-js'
 
 import { useAuth } from 'client/features/Auth'
@@ -93,6 +94,7 @@ const TranslateProvider = ({ children = [] }) => {
     if (!lang || !LANGUAGES[lang]) return
 
     try {
+      Settings.defaultLocale = lang.replace('_', '-')
       const script = root.document.createElement('script', {})
 
       script.src = `${LANGUAGES_URL}/${lang}.js`
