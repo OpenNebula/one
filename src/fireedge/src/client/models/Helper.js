@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 import {
   parse as ParserToJson,
   X2jOptions,
@@ -28,7 +28,6 @@ import {
   UserInputObject,
   USER_INPUT_TYPES,
   CURRENCY,
-  LOCALE,
 } from 'client/constants'
 
 /**
@@ -91,7 +90,7 @@ export const stringToBoolean = (str) =>
  */
 export const formatNumberByCurrency = (number, options) => {
   try {
-    return Intl.NumberFormat(LOCALE, {
+    return Intl.NumberFormat(Settings.defaultLocale, {
       style: 'currency',
       currency: CURRENCY,
       currencyDisplay: 'narrowSymbol',
@@ -116,7 +115,7 @@ export const formatNumberByCurrency = (number, options) => {
  */
 export const areStringEqual = (options) => (a, b) => {
   try {
-    const collator = new Intl.Collator(LOCALE, {
+    const collator = new Intl.Collator(Settings.defaultLocale, {
       sensitivity: 'base',
       ...options,
     })
