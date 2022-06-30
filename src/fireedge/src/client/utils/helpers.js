@@ -236,7 +236,10 @@ export const filterFieldsByHypervisor = (
   fields
     .map((field) => (typeof field === 'function' ? field(hypervisor) : field))
     .filter(
-      ({ notOnHypervisors } = {}) => !notOnHypervisors?.includes?.(hypervisor)
+      ({ notOnHypervisors, onlyOnHypervisors } = {}) =>
+        (!notOnHypervisors && !onlyOnHypervisors) ||
+        (notOnHypervisors && !notOnHypervisors.includes?.(hypervisor)) ||
+        onlyOnHypervisors?.includes?.(hypervisor)
     )
 
 /**

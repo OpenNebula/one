@@ -63,7 +63,7 @@ if [ -n "$BRIDGE_LIST" ]; then
         "Error deleting $SRC in $DST_HOST"
 else
     BASENAME_SRC=`basename "${SRC##$REMOTE_RM_CMD}"`
-    if [ -f "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n "$BASENAME_SRC" ]
+    if [ -e "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n "$BASENAME_SRC" ]
     then
         log "Removing $SRC from the image repository"
 

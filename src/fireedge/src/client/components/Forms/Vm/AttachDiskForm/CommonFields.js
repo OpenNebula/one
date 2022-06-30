@@ -16,7 +16,7 @@
 import { string, number } from 'yup'
 import { INPUT_TYPES, T, HYPERVISORS, Field } from 'client/constants'
 
-const { kvm, vcenter, firecracker, lxc } = HYPERVISORS
+const { vcenter, firecracker, lxc } = HYPERVISORS
 
 /** @type {Field[]} List of general fields */
 export const GENERAL_FIELDS = [
@@ -126,7 +126,7 @@ export const VCENTER_FIELDS = [
   {
     name: 'VCENTER_ADAPTER_TYPE',
     label: T.BusAdapterController,
-    notOnHypervisors: [kvm, firecracker],
+    onlyOnHypervisors: [vcenter],
     type: INPUT_TYPES.SELECT,
     values: [
       { text: '', value: '' },
@@ -140,7 +140,7 @@ export const VCENTER_FIELDS = [
   {
     name: 'VCENTER_DISK_TYPE',
     label: T.DiskProvisioningType,
-    notOnHypervisors: [kvm, firecracker],
+    onlyOnHypervisors: [vcenter],
     type: INPUT_TYPES.SELECT,
     values: [
       { text: '', value: '' },

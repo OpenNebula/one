@@ -42,7 +42,7 @@ const Content = ({ hypervisor }) => {
 const BasicConfiguration = ({ hypervisor } = {}) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: () => SCHEMA(hypervisor),
+  resolver: SCHEMA(hypervisor),
   optionsValidate: { abortEarly: false },
   content: () => Content({ hypervisor }),
 })

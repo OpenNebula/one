@@ -760,14 +760,14 @@ class OneDB
         shared_upgrade = Gem::Version.new(shared) < Gem::Version.new(source)
         local_upgrade  = Gem::Version.new(local)  < Gem::Version.new(source_local)
 
-        # Both need to be lower than current version as sometimes the DB schema
+        # One needs to be lower than current version as sometimes the DB schema
         # have been increased only for local or shared.
-        return [true, 2] if shared_upgrade && local_upgrade
+        return [true, 2] if shared_upgrade || local_upgrade
 
         shared_new = Gem::Version.new(shared) > Gem::Version.new(source)
         local_new  = Gem::Version.new(local)  > Gem::Version.new(source_local)
 
-        # Both version should be lower or equal than source.
+        # Both version should be higher than source.
         return [true, 3] if shared_new || local_new
 
         [false, 0]

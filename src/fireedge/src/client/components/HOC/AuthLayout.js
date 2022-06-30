@@ -69,7 +69,7 @@ const AuthLayout = ({ subscriptions = [], children }) => {
 
   useEffect(() => {
     if (!jwt) {
-      const token = findStorageData(JWT_NAME) || findExternalToken()
+      const token = findExternalToken() || findStorageData(JWT_NAME)
       token && changeJwt(token) && storage(JWT_NAME, token)
     }
 
