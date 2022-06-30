@@ -28,6 +28,7 @@ import * as T from 'client/constants/translates'
  * @property {string} DOMAIN - Address domain
  * @property {string} FUNCTION - Address function
  * @property {string} NUMA_NODE - Numa node
+ * @property {string} PROFILES - PCI device available profiles
  * @property {string} SHORT_ADDRESS - Short address
  * @property {string} SLOT - Address slot
  * @property {string} TYPE - Type

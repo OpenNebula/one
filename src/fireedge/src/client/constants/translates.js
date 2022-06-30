@@ -720,6 +720,7 @@ module.exports = {
   Input: 'Input',
   Inputs: 'Inputs',
   PciDevices: 'PCI Devices',
+  Profile: 'Profile',
   DeviceName: 'Device name',
   Device: 'Device',
   Vendor: 'Vendor',
