@@ -200,8 +200,6 @@ void DispatchManager::trigger_poweroff_success(int vid)
             return;
         }
 
-        VirtualMachine::LcmState prev_state = vm->get_lcm_state();
-
         if ((vm->get_state() == VirtualMachine::ACTIVE) &&
             (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
             vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF ||
@@ -235,9 +233,7 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
             vm.reset();
 
-            if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
-                prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
-                prev_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF)
+            if (!quota_tmpl.empty())
             {
                 Quotas::vm_del(uid, gid, &quota_tmpl);
             }
