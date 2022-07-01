@@ -2767,7 +2767,7 @@ SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/we
                 src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.woff2"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
-                        src/sunstone/public/images/favicon.ico \
+                        src/sunstone/public/images/favicon.svg \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \
