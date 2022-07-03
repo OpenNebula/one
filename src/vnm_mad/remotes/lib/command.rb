@@ -37,6 +37,16 @@ module VNMMAD
             :ipset    => 'sudo -n ipset'
         }
 
+        # Adjust :ip[6]tables commands to work with legacy version
+        stdout = Open3.capture3('iptables --version')[0]
+        regex = /.*v(?<version>\d+.\d+.\d+)/
+        iptables_version = Gem::Version.new(stdout.match(regex)[:version])
+
+        if Gem::Version.new('1.6.1') > iptables_version
+            COMMANDS[:iptables]  = 'sudo -n iptables -w 3'
+            COMMANDS[:ip6tables] = 'sudo -n ip6tables -w 3'
+        end
+
         # Represents an Array of commands to be executed by the networking
         # drivers # The commands
         class Commands < Array
