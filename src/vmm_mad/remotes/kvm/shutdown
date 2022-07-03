@@ -73,8 +73,8 @@ retry $TIMEOUT monitor
 force_shutdown "$deploy_id" \
     "virsh --connect $LIBVIRT_URI destroy $deploy_id"
 
-# Destroy vGPU
-sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
+# Destroy vGPU. Only if supported by node
+(sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then

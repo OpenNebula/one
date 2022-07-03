@@ -32,8 +32,8 @@ function destroy_and_monitor
 
     virsh --connect $LIBVIRT_URI destroy $deploy_id
 
-    # Destroy vGPU
-    sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
+    # Destroy vGPU (only if suported by node)
+    (sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "DELETE" "$DATASTORE/vm.xml"
 
     virsh --connect $LIBVIRT_URI --readonly dominfo $deploy_id > /dev/null 2>&1
     [ "x$?" != "x0" ]
