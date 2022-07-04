@@ -18,6 +18,7 @@ require 'open3'
 
 module VNMMAD
 
+    # Network related commands for VN drivers
     module VNMNetwork
 
         # Command configuration for common network commands. This CAN be adjust
