@@ -15,8 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import HintIcon from 'iconoir-react/dist/QuestionMarkCircle'
-import { Stack, Tooltip } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
 import {
@@ -25,7 +24,6 @@ import {
   DeleteAction,
 } from 'client/components/Tabs/Vm/Snapshot/Actions'
 import SnapshotCard from 'client/components/Cards/SnapshotCard'
-import { T, VM_ACTIONS } from 'client/constants'
 
 import {
   getSnapshotList,
@@ -61,14 +59,9 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
 
   return (
     <div>
-      <Stack direction="row" gap="1em" alignItems="center">
-        {actionsAvailable?.includes(SNAPSHOT_CREATE) && (
-          <CreateAction vmId={id} />
-        )}
-        <Tooltip arrow title={Tr(T.VmSnapshotHint)}>
-          <HintIcon />
-        </Tooltip>
-      </Stack>
+      {actionsAvailable?.includes(SNAPSHOT_CREATE) && (
+        <CreateAction vmId={id} />
+      )}
 
       <Stack gap="1em" py="0.8em" data-cy="snapshots">
         {snapshots.map((snapshot) => (

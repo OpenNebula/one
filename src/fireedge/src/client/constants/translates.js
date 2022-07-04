@@ -497,9 +497,6 @@ module.exports = {
   HostnamePortsForwardedToVmPorts: '%1$s ports %2$s forwarded to VM ports %3$s',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
-  VmSnapshotHint: `
-    Snapshots in this tab refer to System Snapshots, which includes all disks and
-    the memory state of the VM. For disk snapshots, see the Storage tab`,
   /* VM schema - actions */
   EnforceCapacityChecks: 'Enforce capacity checks',
   EnforceCapacityChecksConcept: `
