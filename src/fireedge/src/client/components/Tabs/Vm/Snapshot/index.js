@@ -25,7 +25,7 @@ import {
   DeleteAction,
 } from 'client/components/Tabs/Vm/Snapshot/Actions'
 import SnapshotCard from 'client/components/Cards/SnapshotCard'
-import { T, VM_ACTIONS } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 import {
   getSnapshotList,
@@ -33,7 +33,7 @@ import {
   isAvailableAction,
 } from 'client/models/VirtualMachine'
 import { getActionsAvailable } from 'client/models/Helper'
-import { VM_ACTIONS } from 'client/constants'
+import { T, VM_ACTIONS } from 'client/constants'
 
 const { SNAPSHOT_CREATE, SNAPSHOT_REVERT, SNAPSHOT_DELETE } = VM_ACTIONS
 
