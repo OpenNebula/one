@@ -50,7 +50,7 @@ source $(dirname $0)/../../scripts_common.sh
 if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
     # Compact memory
     if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
-        sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
+        (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
     fi
 
     # Add memory to VM
@@ -58,7 +58,7 @@ if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
 
     # Compact memory
     if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
-        sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+        (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
     fi
 fi
 
