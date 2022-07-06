@@ -24,14 +24,14 @@ resource_name: "VIRTUAL-NETWORK"
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  create_dialog: true
-  import_dialog: true
+  create_dialog: false
+  import_dialog: false
   instantiate_dialog: true
   reserve_dialog: true
   update_dialog: true
-  change_cluster: true
-  chown: true
-  chgrp: true
+  change_cluster: false
+  chown: false
+  chgrp: false
   lock: true
   unlock: true
   delete: true
@@ -62,8 +62,8 @@ info-tabs:
     ownership_panel:
       enabled: true
       actions:
-        chown: true
-        chgrp: true
+        chown: false
+        chgrp: false
     qos_panel:
       enabled: true
     attributes_panel:
@@ -77,7 +77,7 @@ info-tabs:
   address:
     enabled: true
     actions:
-      add_ar: true
+      add_ar: false
       update_ar: true
       delete_ar: true
 
