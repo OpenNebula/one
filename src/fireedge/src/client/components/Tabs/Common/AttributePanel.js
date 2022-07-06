@@ -93,6 +93,7 @@ const AttributePanel = memo(
     actions = allActionsEnabled ? ALL_ACTIONS : [],
     filtersSpecialAttributes = true,
     collapse = false,
+    askToDelete = true,
   }) => {
     const classes = useStyles()
 
@@ -114,6 +115,7 @@ const AttributePanel = memo(
         canDelete: canUseAction(name, DELETE),
         handleEdit,
         handleDelete,
+        askToDelete,
       })
     )
 
@@ -137,10 +139,11 @@ AttributePanel.propTypes = {
   handleAdd: PropTypes.func,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
-  title: PropTypes.string,
+  title: PropTypes.any,
   filtersSpecialAttributes: PropTypes.bool,
   allActionsEnabled: PropTypes.bool,
   collapse: PropTypes.bool,
+  askToDelete: PropTypes.bool,
 }
 
 AttributePanel.displayName = 'AttributePanel'

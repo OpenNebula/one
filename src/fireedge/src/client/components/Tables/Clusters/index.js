@@ -30,12 +30,17 @@ const DEFAULT_DATA_CY = 'clusters'
  * @returns {ReactElement} Clusters table
  */
 const ClustersTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetClustersQuery,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetClustersQuery()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>

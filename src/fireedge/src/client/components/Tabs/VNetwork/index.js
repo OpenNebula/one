@@ -24,10 +24,20 @@ import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/VNetwork/Info'
+import Address from 'client/components/Tabs/VNetwork/Address'
+import Lease from 'client/components/Tabs/VNetwork/Leases'
+import Security from 'client/components/Tabs/VNetwork/Security'
+import VRouters from 'client/components/Tabs/VNetwork/VRouters'
+import Clusters from 'client/components/Tabs/VNetwork/Clusters'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    address: Address,
+    lease: Lease,
+    security: Security,
+    virtual_router: VRouters,
+    cluster: Clusters,
   }[tabName])
 
 const VNetworkTabs = memo(({ id }) => {

@@ -216,12 +216,6 @@ const Actions = () => {
                     changeOwnership({ id: original?.ID, ...newOwnership })
                   )
                 },
-                // onSubmit: (rows) => async (newOwnership) => {
-                //   const ids = rows?.map?.(({ original }) => original?.ID)
-                //   await Promise.all(
-                //     ids.map((id) => changeOwnership({ id, ...newOwnership }))
-                //   )
-                // },
               },
               {
                 accessor: VM_TEMPLATE_ACTIONS.CHANGE_GROUP,

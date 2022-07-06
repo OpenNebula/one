@@ -199,6 +199,7 @@ const EnhancedTable = ({
           singleSelect={singleSelect}
           disableRowSelect={disableRowSelect}
           globalActions={globalActions}
+          selectedRows={selectedRows}
           useTableProps={useTableProps}
         />
 

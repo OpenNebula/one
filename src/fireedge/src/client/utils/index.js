@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 export * from 'client/utils/environments'
 export * from 'client/utils/helpers'
+export * from 'client/utils/ip'
 export * from 'client/utils/merge'
 export * from 'client/utils/parser'
 export * from 'client/utils/request'

@@ -14,5 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+export * from 'client/components/Buttons/AddressRangeActions'
 export * from 'client/components/Buttons/ScheduleAction'
 export * from 'client/components/Buttons/ConsoleAction'

@@ -15,14 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ChangeClusterForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Host/ChangeClusterForm' }, configProps)
+import { CreateStepsCallback } from 'client/utils/schema'
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
@@ -31,4 +24,4 @@ const ChangeClusterForm = (configProps) =>
 const CreateForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Host/CreateForm' }, configProps)
 
-export { ChangeClusterForm, CreateForm }
+export { CreateForm }

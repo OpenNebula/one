@@ -35,6 +35,8 @@ import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 import VRoutersTable from 'client/components/Tables/VRouters'
 import ZonesTable from 'client/components/Tables/Zones'
 
+export * from 'client/components/Tables/Enhanced/Utils'
+
 export {
   SkeletonTable,
   EnhancedTable,

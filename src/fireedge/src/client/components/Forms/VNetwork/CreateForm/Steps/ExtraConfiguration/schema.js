@@ -13,12 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createForm } from 'client/utils'
-import {
-  SCHEMA,
-  FIELDS,
-} from 'client/components/Forms/Host/ChangeClusterForm/schema'
+import { array, object, ObjectSchema } from 'yup'
 
-const ChangeClusterForm = createForm(SCHEMA, FIELDS)
+import { SCHEMA as QOS_SCHEMA } from 'client/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/qos/schema'
+import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/context/schema'
 
-export default ChangeClusterForm
+/**
+ * Map name attribute if not exists.
+ *
+ * @param {string} prefixName - Prefix to add in name
+ * @returns {object[]} Resource object
+ */
+const mapNameByIndex = (prefixName) => (resource, idx) => ({
+  ...resource,
+  NAME:
+    resource?.NAME?.startsWith(prefixName) || !resource?.NAME
+      ? `${prefixName}${idx}`
+      : resource?.NAME,
+})
+
+const AR_SCHEMA = object({
+  AR: array()
+    .ensure()
+    .transform((actions) => actions.map(mapNameByIndex('AR'))),
+})
+
+/**
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @returns {ObjectSchema} Extra configuration schema
+ */
+export const SCHEMA = (isUpdate) => {
+  const schema = object({ SECURITY_GROUPS: array().ensure() })
+    .concat(CONTEXT_SCHEMA)
+    .concat(QOS_SCHEMA)
+
+  !isUpdate && schema.concat(AR_SCHEMA)
+
+  return schema
+}
+
+export { mapNameByIndex, AR_SCHEMA }

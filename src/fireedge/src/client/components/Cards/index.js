@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import AddressRangeCard from 'client/components/Cards/AddressRangeCard'
 import ApplicationCard from 'client/components/Cards/ApplicationCard'
 import ApplicationNetworkCard from 'client/components/Cards/ApplicationNetworkCard'
 import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplateCard'
@@ -41,6 +42,7 @@ import VmTemplateCard from 'client/components/Cards/VmTemplateCard'
 import WavesCard from 'client/components/Cards/WavesCard'
 
 export {
+  AddressRangeCard,
   ApplicationCard,
   ApplicationNetworkCard,
   ApplicationTemplateCard,
