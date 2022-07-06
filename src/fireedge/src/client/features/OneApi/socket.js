@@ -15,10 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { ThunkDispatch, ThunkAction } from 'redux-thunk'
 import socketIO, { Socket } from 'socket.io-client'
+
+import { updateResourceOnPool } from 'client/features/OneApi/common'
 import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 
 /**
- * @typedef {'VM'|'HOST'|'IMAGE'|'VNET'} HookObjectName
+ * @typedef {'VM'|'HOST'|'IMAGE'|'NET'} HookObjectName
  * - Hook object name to update from socket
  */
 
@@ -42,7 +44,7 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
  * @property {object} [VM] - New data of the VM
  * @property {object} [HOST] - New data of the HOST
  * @property {object} [IMAGE] - New data of the IMAGE
- * @property {object} [VNET] - New data of the VNET
+ * @property {object} [NET] - New data of the VNET
  */
 
 /**
@@ -66,9 +68,19 @@ const createWebsocket = (path, query) =>
  * @returns {object} - New value of resource from socket
  */
 const getResourceValueFromEventState = (data) => {
-  const { HOOK_OBJECT: name, [name]: value } = data?.HOOK_MESSAGE ?? {}
+  const hookMessage = data?.HOOK_MESSAGE || {}
 
-  return value
+  const {
+    HOOK_OBJECT: name,
+    [name]: valueFromObjectName,
+    /**
+     * Virtual Network object Type is NET,
+     * but in the `HOOK_OBJECT` (object XML) is VNET
+     */
+    NET,
+  } = hookMessage
+
+  return valueFromObjectName ?? NET
 }
 
 /**
@@ -102,12 +114,8 @@ const UpdateFromSocket =
 
         if (!value) return
 
-        dispatch(
-          updateQueryData((draft) => {
-            const index = draft.findIndex(({ ID }) => +ID === +id)
-            index !== -1 ? (draft[index] = value) : draft.push(value)
-          })
-        )
+        const update = updateResourceOnPool({ id, resourceFromQuery: value })
+        dispatch(updateQueryData(update))
 
         updateCachedData((draft) => {
           Object.assign(draft, value)

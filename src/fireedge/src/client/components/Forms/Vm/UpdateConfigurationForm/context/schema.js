@@ -19,6 +19,7 @@ import {
   CONFIGURATION_SCHEMA,
   FILES_SCHEMA,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
+import { HYPERVISORS } from 'client/constants'
 
 /**
  * @param {object} [formProps] - Form props

@@ -25,17 +25,16 @@ resource_name: "VIRTUAL-NETWORK"
 
 actions:
   create_dialog: true
-  instantiate_dialog: true
   import_dialog: true
-  update_dialog: true
+  instantiate_dialog: true
   reserve_dialog: true
+  update_dialog: true
   change_cluster: true
   chown: true
   chgrp: true
-  delete: true
   lock: true
   unlock: true
-  recover: true
+  delete: true
 
 # Filters - List of criteria to filter the resources
 
@@ -88,13 +87,13 @@ info-tabs:
       hold_lease: true
       release_lease: true
 
-  sec-group:
+  security:
     enabled: true
     actions:
       add_secgroup: true
-      remove_secgroup: true
+      delete_secgroup: true
 
-  virtual-router:
+  virtual_router:
     enabled: true
 
   cluster:

@@ -47,7 +47,7 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
         reset()
       } catch {}
     },
-    [handleAdd]
+    [handleAdd, formState.isSubmitting, nameInputKey, valueInputKey]
   )
 
   const handleKeyDown = (evt) => {
@@ -95,10 +95,7 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
   )
 })
 
-AttributeCreateForm.propTypes = {
-  handleAdd: PropTypes.func,
-}
-
+AttributeCreateForm.propTypes = { handleAdd: PropTypes.func }
 AttributeCreateForm.displayName = 'AttributeCreateForm'
 
 export default AttributeCreateForm

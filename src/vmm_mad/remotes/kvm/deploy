@@ -27,7 +27,7 @@ cat > $DEP_FILE
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
-    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
+    (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
 fi
 
 # Create non-volatile memory to store firmware variables if needed
@@ -37,7 +37,8 @@ if [ -n "${nvram}" ]; then
 fi
 
 # Create vGPU following NVIDIA official guide: https://docs.nvidia.com/grid/latest/pdf/grid-vgpu-user-guide.pdf
-sudo /var/tmp/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
+# Only if supported by node
+(sudo -l | grep -q vgpu) && sudo /var/tmp/one/vgpu "CREATE" "$DEP_FILE_LOCATION/vm.xml"
 
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 

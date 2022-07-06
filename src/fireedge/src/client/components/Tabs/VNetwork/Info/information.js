@@ -15,14 +15,25 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { generatePath } from 'react-router-dom'
+import { Stack } from '@mui/material'
 
-import { useRenameVNetMutation } from 'client/features/OneApi/network'
+import {
+  useGetVNetworkQuery,
+  useRenameVNetMutation,
+} from 'client/features/OneApi/network'
 
-import { StatusChip } from 'client/components/Status'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
+import {
+  levelLockToString,
+  stringToBoolean,
+  booleanToString,
+} from 'client/models/Helper'
 import { getState } from 'client/models/VirtualNetwork'
 import { T, VNetwork, VN_ACTIONS } from 'client/constants'
+import { PATH } from 'client/apps/sunstone/routesOne'
 
 /**
  * Renders mainly information tab.
@@ -34,7 +45,21 @@ import { T, VNetwork, VN_ACTIONS } from 'client/constants'
  */
 const InformationPanel = ({ vnet = {}, actions }) => {
   const [rename] = useRenameVNetMutation()
-  const { ID, NAME } = vnet
+  const {
+    ID,
+    NAME,
+    PARENT_NETWORK_ID: parentId,
+    LOCK,
+    VLAN_ID,
+    VLAN_ID_AUTOMATIC,
+    OUTER_VLAN_ID,
+    OUTER_VLAN_ID_AUTOMATIC,
+  } = vnet
+
+  const { data: parent } = useGetVNetworkQuery(
+    { id: parentId },
+    { skip: !parentId }
+  )
 
   const { name: stateName, color: stateColor } = getState(vnet)
 
@@ -51,13 +76,49 @@ const InformationPanel = ({ vnet = {}, actions }) => {
       canEdit: actions?.includes?.(VN_ACTIONS.RENAME),
       handleEdit: handleRename,
     },
+    parentId && {
+      name: T.ReservationParent,
+      value: `#${parentId} ${parent?.NAME ?? '--'}`,
+      link:
+        !Number.isNaN(+parentId) &&
+        generatePath(PATH.NETWORK.VNETS.DETAIL, { id: parentId }),
+      dataCy: 'parent',
+    },
     {
       name: T.State,
       value: (
-        <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+        <Stack direction="row" alignItems="center" gap={1}>
+          <StatusCircle color={stateColor} />
+          <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+        </Stack>
       ),
     },
-  ]
+    {
+      name: T.Locked,
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
+    },
+    {
+      name: T.VlanId,
+      value: VLAN_ID || '-',
+      dataCy: 'vlan-id',
+    },
+    {
+      name: T.AutomaticVlanId,
+      value: booleanToString(stringToBoolean(VLAN_ID_AUTOMATIC)),
+      dataCy: 'vlan-id-automatic',
+    },
+    {
+      name: T.OuterVlanId,
+      value: OUTER_VLAN_ID || '-',
+      dataCy: 'outer-vlan-id',
+    },
+    {
+      name: T.AutomaticOuterVlanId,
+      value: booleanToString(stringToBoolean(OUTER_VLAN_ID_AUTOMATIC)),
+      dataCy: 'outer-vlan-id-automatic',
+    },
+  ].filter(Boolean)
 
   return (
     <>

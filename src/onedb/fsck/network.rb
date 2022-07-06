@@ -36,6 +36,8 @@ module OneDBFsck
             doc = nokogiri_doc(row[:body])
             oid = row[:oid]
 
+            check_ugid(doc)
+
             used_leases   = doc.root.at_xpath('USED_LEASES').text.to_i
             counter_no_ar = counters[:vnet][row[:oid]][:no_ar_leases]
             ar_leases     = counters[:vnet][row[:oid]][:ar_leases]

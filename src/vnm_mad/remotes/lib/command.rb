@@ -18,6 +18,7 @@ require 'open3'
 
 module VNMMAD
 
+    # Network related commands for VN drivers
     module VNMNetwork
 
         # Command configuration for common network commands. This CAN be adjust
@@ -36,6 +37,19 @@ module VNMMAD
             :lsmod    => 'lsmod',
             :ipset    => 'sudo -n ipset'
         }
+
+        # Adjust :ip[6]tables commands to work with legacy versions
+        begin
+            stdout = Open3.capture3('sudo iptables --version')[0]
+            regex = /.*v(?<version>\d+.\d+.\d+)/
+            iptables_version = Gem::Version.new(stdout.match(regex)[:version])
+
+            if Gem::Version.new('1.6.1') > iptables_version
+                COMMANDS[:iptables]  = 'sudo -n iptables -w 3'
+                COMMANDS[:ip6tables] = 'sudo -n ip6tables -w 3'
+            end
+        rescue StandardError
+        end
 
         # Represents an Array of commands to be executed by the networking
         # drivers # The commands

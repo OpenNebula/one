@@ -47,6 +47,7 @@ const Attribute = memo(
     handleDelete,
     handleEdit,
     handleGetOptionList,
+    askToDelete = true,
     link,
     icon,
     name,
@@ -157,7 +158,12 @@ const Attribute = memo(
                     handleClick={handleActiveEditForm}
                   />
                 )}
-                {canDelete && <Actions.Delete name={name} handleClick={show} />}
+                {canDelete && (
+                  <Actions.Delete
+                    name={name}
+                    handleClick={askToDelete ? show : handleDeleteAttribute}
+                  />
+                )}
               </ActionWrapper>
             </>
           )}
@@ -186,6 +192,7 @@ export const AttributePropTypes = {
   handleDelete: PropTypes.func,
   handleEdit: PropTypes.func,
   handleGetOptionList: PropTypes.func,
+  askToDelete: PropTypes.bool,
   link: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   icon: PropTypes.any,
   name: PropTypes.string.isRequired,

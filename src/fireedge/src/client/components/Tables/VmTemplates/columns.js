@@ -25,16 +25,8 @@ const COLUMNS = [
   { Header: T.Group, id: 'group', accessor: 'GNAME' },
   { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
   { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
-  {
-    Header: T.Logo,
-    id: 'logo',
-    accessor: 'TEMPLATE.LOGO',
-  },
-  {
-    Header: T.VirtualRouter,
-    id: 'vrouter',
-    accessor: 'TEMPLATE.VROUTER',
-  },
+  { Header: T.Logo, id: 'logo', accessor: 'TEMPLATE.LOGO' },
+  { Header: T.VirtualRouter, id: 'vrouter', accessor: 'TEMPLATE.VROUTER' },
 ]
 
 COLUMNS.noFilterIds = ['id', 'name', 'time', 'logo']

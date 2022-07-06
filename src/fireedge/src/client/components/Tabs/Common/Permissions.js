@@ -58,7 +58,7 @@ const Permissions = memo(({ handleEdit, actions, ...permissions }) => {
   const getIcon = (checked) => (+checked ? <CheckIcon /> : <BlankSquareIcon />)
 
   return (
-    <Paper variant="outlined">
+    <Paper variant="outlined" sx={{ height: 'fit-content' }}>
       <List className={classes.list}>
         <ListItem className={classes.title}>
           <Typography noWrap>{Tr(T.Permissions)}</Typography>

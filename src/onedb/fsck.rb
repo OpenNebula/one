@@ -150,6 +150,26 @@ EOT
         true
     end
 
+    # Check if object UID/GID exist
+    #
+    # @param doc [XML] XML document
+    def check_ugid(doc)
+        obj = doc.root.name
+        id  = doc.root.at_xpath('ID').text
+        uid = Integer(doc.root.at_xpath('UID').text)
+        gid = Integer(doc.root.at_xpath('GID').text)
+
+        return if @users.include?(uid) && @groups.include?(gid)
+
+        if !@users.include?(uid)
+            log_error("#{obj} ID=#{id}, UID=#{uid} doesn't exist", false)
+        end
+
+        if !@groups.include?(gid)
+            log_error("#{obj} ID=#{id}, GID=#{uid} doesn't exist", false)
+        end
+    end
+
     ########################################################################
     # Acl
     ########################################################################
@@ -241,6 +261,15 @@ EOT
     end
 
     def fsck
+        # ----------------------------------------------------------------------
+        # Read existing UIDs and GIDs
+        # ----------------------------------------------------------------------
+        @users  = []
+        @groups = []
+
+        @db.fetch('SELECT oid FROM user_pool') do |r| @users << r[:oid] end
+        @db.fetch('SELECT oid FROM group_pool') do |r| @groups << r[:oid] end
+
         init_log_time()
 
         @errors = 0

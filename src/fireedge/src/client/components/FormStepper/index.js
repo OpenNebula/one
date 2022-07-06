@@ -50,7 +50,11 @@ const DefaultFormStepper = ({
   })
 
   return (
-    <FormProvider {...methods} initialValues={initialValues}>
+    <FormProvider
+      {...methods}
+      initialValues={initialValues}
+      getResolver={() => resolver(methods.watch())}
+    >
       <FormStepper steps={steps} schema={resolver} onSubmit={onSubmit} />
     </FormProvider>
   )

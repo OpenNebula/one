@@ -603,6 +603,7 @@ module OpenNebula::MarketPlaceAppExt
                 #   :names      = [name_a, name_b, ...]
                 exported = {}
                 idx      = 0
+                idy      = 0
 
                 # Store IDs of created resources
                 images    = []
@@ -627,9 +628,25 @@ module OpenNebula::MarketPlaceAppExt
 
                     obj.extend(MarketPlaceAppExt)
 
+                    # Fix name if duplcates exist
+                    imgp = OpenNebula::ImagePool.new(@client)
+                    imgp.info
+                    img_names = imgp.retrieve_elements('/IMAGE_POOL/IMAGE/NAME')
+
+                    opt_name = options[:name]
+
+                    if img_names.include? "#{opt_name}-#{obj_name}-#{idx}"
+                        idy = 0
+                        while img_names.include? \
+                            "#{opt_name}_#{idy}-#{obj_name}-#{idx}"
+                            idy += 1
+                        end
+                        opt_name = "#{opt_name}_#{idy}"
+                    end
+
                     rc = obj.export(
                         :dsid       => options[:dsid],
-                        :name       => "#{options[:name]}-#{obj_name}-#{idx}",
+                        :name       => "#{opt_name}-#{obj_name}-#{idx}",
                         :notemplate => options[:notemplate]
                     )
 

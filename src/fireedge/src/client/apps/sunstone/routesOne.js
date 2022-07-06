@@ -113,6 +113,10 @@ const VirtualNetworks = loadable(
   () => import('client/containers/VirtualNetworks'),
   { ssr: false }
 )
+const CreateVirtualNetwork = loadable(
+  () => import('client/containers/VirtualNetworks/Create'),
+  { ssr: false }
+)
 const VNetworkTemplates = loadable(
   () => import('client/containers/VNetworkTemplates'),
   { ssr: false }
@@ -156,7 +160,7 @@ export const PATH = {
       DETAIL: `/${RESOURCE_NAMES.VM}/:id`,
     },
     VROUTERS: {
-      LIST: `/${RESOURCE_NAMES.V_ROUTER}`,
+      LIST: `/${RESOURCE_NAMES.VROUTER}`,
     },
     SERVICES: {
       LIST: `/${RESOURCE_NAMES.SERVICE}`,
@@ -200,6 +204,7 @@ export const PATH = {
     VNETS: {
       LIST: `/${RESOURCE_NAMES.VNET}`,
       DETAIL: `/${RESOURCE_NAMES.VNET}/:id`,
+      CREATE: `/${RESOURCE_NAMES.VNET}/create`,
     },
     VN_TEMPLATES: {
       LIST: `/${RESOURCE_NAMES.VN_TEMPLATE}`,
@@ -397,6 +402,16 @@ const ENDPOINTS = [
         sidebar: true,
         icon: NetworkTemplateIcon,
         Component: VNetworkTemplates,
+      },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined
+            ? T.UpdateVirtualNetwork
+            : T.CreateVirtualNetwork,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.NETWORK.VNETS.CREATE,
+        Component: CreateVirtualNetwork,
       },
     ],
   },

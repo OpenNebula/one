@@ -13,6 +13,8 @@ module OneDBFsck
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
             vm_doc = nokogiri_doc(row[:body])
 
+            check_ugid(vm_doc)
+
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i
 

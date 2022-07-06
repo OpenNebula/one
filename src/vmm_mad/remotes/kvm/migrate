@@ -117,7 +117,7 @@ done
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
-    ssh_exec_and_log "$DEST_HOST" "sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null" \
+    ssh_exec_and_log "$DEST_HOST" "(sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null || true" \
         "Failed compact memory on $DEST_HOST"
 fi
 
@@ -285,6 +285,6 @@ fi
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
-    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+    (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
 fi
 

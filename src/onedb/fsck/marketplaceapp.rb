@@ -24,6 +24,8 @@ module OneDBFsck
         @db.fetch("SELECT oid,body FROM marketplaceapp_pool") do |row|
             doc = nokogiri_doc(row[:body], 'marketplaceapp_pool')
 
+            check_ugid(doc)
+
             market_id   = doc.root.xpath('MARKETPLACE_ID').text.to_i
             market_name = doc.root.xpath('MARKETPLACE').text
 

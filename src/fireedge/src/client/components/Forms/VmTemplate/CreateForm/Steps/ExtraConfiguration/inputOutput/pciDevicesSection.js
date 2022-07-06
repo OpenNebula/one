@@ -65,6 +65,7 @@ const PciDevicesSection = ({ stepId, hypervisor }) => {
   })
 
   const onSubmit = (newInput) => {
+    delete newInput.DEVICE_NAME
     append(newInput)
     methods.reset()
   }
@@ -101,34 +102,42 @@ const PciDevicesSection = ({ stepId, hypervisor }) => {
       </FormProvider>
       <Divider />
       <List>
-        {pciDevices?.map(({ id, DEVICE, VENDOR, CLASS }, index) => {
-          const { DEVICE_NAME, VENDOR_NAME } =
-            pciDevicesAvailable.find(
-              (pciDevice) => pciDevice?.DEVICE === DEVICE
-            ) ?? {}
+        {pciDevices?.map(
+          ({ id, DEVICE, VENDOR, CLASS, PROFILE = '-' }, index) => {
+            const { DEVICE_NAME, VENDOR_NAME } =
+              pciDevicesAvailable.find(
+                (pciDevice) => pciDevice?.DEVICE === DEVICE
+              ) ?? {}
 
-          return (
-            <ListItem
-              key={id}
-              secondaryAction={
-                <IconButton onClick={() => remove(index)}>
-                  <DeleteCircledOutline />
-                </IconButton>
-              }
-              sx={{ '&:hover': { bgcolor: 'action.hover' } }}
-            >
-              <ListItemText
-                primary={DEVICE_NAME}
-                primaryTypographyProps={{ variant: 'body1' }}
-                secondary={[
-                  `#${DEVICE}`,
-                  `Vendor: ${VENDOR_NAME}(${VENDOR})`,
-                  `Class: ${CLASS}`,
-                ].join(' | ')}
-              />
-            </ListItem>
-          )
-        })}
+            const secondaryFields = [
+              `#${DEVICE}`,
+              `${T.Vendor}: ${VENDOR_NAME}(${VENDOR})`,
+              `${T.Class}: ${CLASS}`,
+            ]
+
+            if (PROFILE !== '' && PROFILE !== '-') {
+              secondaryFields.push(`${T.Profile}: ${PROFILE}`)
+            }
+
+            return (
+              <ListItem
+                key={id}
+                secondaryAction={
+                  <IconButton onClick={() => remove(index)}>
+                    <DeleteCircledOutline />
+                  </IconButton>
+                }
+                sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+              >
+                <ListItemText
+                  primary={DEVICE_NAME}
+                  primaryTypographyProps={{ variant: 'body1' }}
+                  secondary={secondaryFields.join(' | ')}
+                />
+              </ListItem>
+            )
+          }
+        )}
       </List>
     </FormControl>
   )

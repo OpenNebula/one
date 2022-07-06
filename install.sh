@@ -2767,7 +2767,7 @@ SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/we
                 src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.woff2"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
-                        src/sunstone/public/images/favicon.ico \
+                        src/sunstone/public/images/favicon.svg \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \
@@ -2905,11 +2905,13 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vm-template-tab.yaml \
-                                src/fireedge/etc/sunstone/user/marketplace-app-tab.yaml"
+                                src/fireedge/etc/sunstone/user/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/user/vnet-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files

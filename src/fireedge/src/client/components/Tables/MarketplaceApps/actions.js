@@ -228,7 +228,7 @@ const Actions = () => {
             icon: Group,
             selected: true,
             color: 'secondary',
-            dataCy: 'vm-ownership',
+            dataCy: 'marketapp-ownership',
             options: [
               {
                 accessor: MARKETPLACE_APP_ACTIONS.CHANGE_OWNER,

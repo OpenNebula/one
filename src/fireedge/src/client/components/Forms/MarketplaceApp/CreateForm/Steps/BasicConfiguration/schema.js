@@ -61,7 +61,7 @@ const TYPE = {
 
 /** @type {Field} App name field */
 const NAME = {
-  name: 'name',
+  name: 'vmname',
   label: T.Name,
   type: INPUT_TYPES.TEXT,
   validation: string()

@@ -21,7 +21,7 @@ import {
   J2xOptions,
 } from 'fast-xml-parser'
 
-import { camelCase } from 'client/utils'
+import { sentenceCase } from 'client/utils'
 import {
   T,
   Permission,
@@ -318,12 +318,11 @@ export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
   Object.entries(infoTabs)
     ?.filter(([_, { enabled } = {}]) => !!enabled)
     ?.map(([tabName, tabProps]) => {
-      const camelName = camelCase(tabName)
-      const TabContent = getTabComponent?.(camelName)
+      const TabContent = getTabComponent?.(tabName)
 
       return (
         TabContent && {
-          label: camelName,
+          label: TabContent?.label ?? sentenceCase(tabName),
           id: tabName,
           renderContent: () => <TabContent tabProps={tabProps} id={id} />,
         }

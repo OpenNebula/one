@@ -78,7 +78,7 @@ multiline_exec_and_log "$RECALCULATE_CMD" \
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
-    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
+    (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
 fi
 
 ### Restore with retry
