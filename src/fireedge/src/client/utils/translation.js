@@ -42,7 +42,8 @@ const buildMethods = () => {
       let result = resolvedSchema._cast(value, options)
 
       if (options.isSubmit) {
-        result = this.submit?.(result, options) ?? result
+        const needChangeAfterSubmit = typeof this.submit === 'function'
+        needChangeAfterSubmit && (result = this.submit(result, options))
       }
 
       return result

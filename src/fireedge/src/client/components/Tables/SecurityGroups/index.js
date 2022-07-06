@@ -30,12 +30,17 @@ const DEFAULT_DATA_CY = 'secgroup'
  * @returns {ReactElement} Security Groups table
  */
 const SecurityGroupsTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetSecGroupsQuery,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetSecGroupsQuery()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>

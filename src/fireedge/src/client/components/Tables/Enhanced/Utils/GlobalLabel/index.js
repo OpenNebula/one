@@ -57,7 +57,7 @@ const sortByFilteredFirst = (labels, filters) =>
  * Button to filter rows by label or assign labels to selected rows.
  *
  * @param {UseFiltersInstanceProps} props - Component props
- * @param {object} props.selectedRows - Selected rows
+ * @param {object[]} props.selectedRows - Selected rows
  * @param {Function} props.useUpdateMutation - Callback to update row labels
  * @returns {ReactElement} Button component
  */

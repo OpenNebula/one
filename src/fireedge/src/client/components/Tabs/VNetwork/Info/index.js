@@ -29,6 +29,7 @@ import {
   AttributePanel,
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/VNetwork/Info/information'
+import QOS from 'client/components/Tabs/VNetwork/Info/qos'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -57,6 +58,7 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
+    qos_panel: qosPanel,
     attributes_panel: attributesPanel,
     vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
@@ -146,9 +148,11 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
           groupName={GNAME}
         />
       )}
+      {qosPanel?.enabled && <QOS vnet={vnet} />}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
@@ -157,6 +161,7 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
       {vcenterPanel?.enabled && vcenterAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(vcenterPanel?.actions)}
           attributes={vcenterAttributes}
           title={`vCenter ${Tr(T.Information)}`}
@@ -165,6 +170,7 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
       {lxcPanel?.enabled && lxcAttributes && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
+          collapse
           actions={getActions(lxcPanel?.actions)}
           attributes={lxcAttributes}
           title={`LXC ${Tr(T.Information)}`}

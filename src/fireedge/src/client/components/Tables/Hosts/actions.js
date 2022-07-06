@@ -27,7 +27,7 @@ import {
 } from 'client/features/OneApi/host'
 import { Translate } from 'client/components/HOC'
 
-import { ChangeClusterForm } from 'client/components/Forms/Host'
+import { ChangeClusterForm } from 'client/components/Forms/Cluster'
 import {
   createActions,
   GlobalAction,

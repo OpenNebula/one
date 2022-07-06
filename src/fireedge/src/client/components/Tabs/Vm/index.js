@@ -37,7 +37,7 @@ const getTabComponent = (tabName) =>
     info: Info,
     network: Network,
     history: History,
-    schedActions: SchedActions,
+    sched_actions: SchedActions,
     snapshot: Snapshot,
     storage: Storage,
     configuration: Configuration,

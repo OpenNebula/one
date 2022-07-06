@@ -30,17 +30,22 @@ const DEFAULT_DATA_CY = 'vrouters'
  * @returns {ReactElement} Virtual Routers table
  */
 const VRoutersTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    useQuery = useGetVRoutersQuery,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetVRoutersQuery()
+  const { data = [], isFetching, refetch } = useQuery()
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView(RESOURCE_NAMES.V_ROUTER)?.filters,
+        filters: getResourceView(RESOURCE_NAMES.VROUTER)?.filters,
         columns: VRouterColumns,
       }),
     [view]

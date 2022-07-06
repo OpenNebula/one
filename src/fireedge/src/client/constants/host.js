@@ -17,23 +17,25 @@ import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
 import * as STATES from 'client/constants/states'
 import * as T from 'client/constants/translates'
+
 /**
  * @typedef {object} PciDevice - PCI device
  * @property {string} ADDRESS - Address, bus, slot and function
  * @property {string} BUS - Address bus
  * @property {string} CLASS - Id of PCI device class
- * @property {string} [CLASS_NAME] - Name of PCI device class
+ * @property {string} CLASS_NAME - Name of PCI device class
  * @property {string} DEVICE - Id of PCI device
- * @property {string} [DEVICE_NAME] - Name of PCI device
+ * @property {string} DEVICE_NAME - Name of PCI device
  * @property {string} DOMAIN - Address domain
  * @property {string} FUNCTION - Address function
  * @property {string} NUMA_NODE - Numa node
- * @property {string} PROFILES - PCI device available profiles
+ * @property {string} PROFILES - Available vGPU Profiles
  * @property {string} SHORT_ADDRESS - Short address
  * @property {string} SLOT - Address slot
+ * @property {string} [UUID] - UUID
  * @property {string} TYPE - Type
  * @property {string} VENDOR - Id of PCI device vendor
- * @property {string} [VENDOR_NAME] - Name of PCI device vendor
+ * @property {string} VENDOR_NAME - Name of PCI device vendor
  * @property {string|number} VMID - Id using this device, -1 if free
  */
 

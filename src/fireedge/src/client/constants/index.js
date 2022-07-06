@@ -157,7 +157,7 @@ export const RESOURCE_NAMES = {
   MARKETPLACE: 'marketplace',
   SEC_GROUP: 'security-group',
   USER: 'user',
-  V_ROUTER: 'virtual-router',
+  VROUTER: 'virtual-router',
   VM_TEMPLATE: 'vm-template',
   VM: 'vm',
   VN_TEMPLATE: 'network-template',

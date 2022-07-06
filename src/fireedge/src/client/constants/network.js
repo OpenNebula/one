@@ -40,8 +40,9 @@ import * as ACTIONS from 'client/constants/actions'
  * @property {string} SIZE - Size
  * @property {AR_TYPES} TYPE - Type
  * @property {string} USED_LEASES - Used leases
+ * @property {string} [IPAM_MAD] - IPAM driver
  * @property {{ LEASE: ARLease|ARLease[] }} [LEASES] - Leases information
- * @property {string} [GLOBAL_PREFIX] -Global prefix
+ * @property {string} [GLOBAL_PREFIX] - Global prefix
  * @property {string} [PARENT_NETWORK_AR_ID] - Parent address range id
  * @property {string} [ULA_PREFIX] - ULA prefix
  * @property {string} [VN_MAD] - Virtual network manager
@@ -144,15 +145,33 @@ export const VN_STATES = [
 /** @enum {string} Virtual network actions */
 export const VN_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
+  IMPORT_DIALOG: 'import_dialog',
+  UPDATE_DIALOG: 'update_dialog',
+  INSTANTIATE_DIALOG: 'instantiate_dialog',
+  RESERVE_DIALOG: 'reserve_dialog',
+  CHANGE_CLUSTER: 'change_cluster',
+  LOCK: 'lock',
+  UNLOCK: 'unlock',
   DELETE: 'delete',
-  RECOVER: 'recover',
-  UPDATE: 'update',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,
   CHANGE_MODE: ACTIONS.CHANGE_MODE,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+
+  // ADDRESS RANGE
+  ADD_AR: 'add_ar',
+  UPDATE_AR: 'update_ar',
+  DELETE_AR: 'delete_ar',
+
+  // LEASES
+  HOLD_LEASE: 'hold_lease',
+  RELEASE_LEASE: 'release_lease',
+
+  // SECURITY GROUPS
+  ADD_SECGROUP: 'add_secgroup',
+  DELETE_SECGROUP: 'delete_secgroup',
 }
 
 /** @enum {string} Virtual network actions by state */
@@ -187,17 +206,42 @@ export const AR_TYPES = {
 
 /** @enum {string} Virtual Network Drivers */
 export const VN_DRIVERS = {
-  dummy: 'dummy',
-  dot1Q: '802.1Q',
-  ebtables: 'ebtables',
-  fw: 'fw',
-  ovswitch: 'ovswitch',
-  vxlan: 'vxlan',
-  vcenter: 'vcenter',
-  ovswitch_vxlan: 'ovswitch_vxlan',
   bridge: 'bridge',
+  fw: 'fw',
+  ebtables: 'ebtables',
+  dot1Q: '802.1Q',
+  vxlan: 'vxlan',
+  ovswitch: 'ovswitch',
+  ovswitch_vxlan: 'ovswitch_vxlan',
+  vcenter: 'vcenter',
   elastic: 'elastic',
   nodeport: 'nodeport',
+}
+
+export const VNET_METHODS = {
+  static: 'static (Based on context)',
+  dhcp: 'dhcp (DHCPv4)',
+  skip: 'skip (Do not configure IPv4)',
+}
+
+export const VNET_METHODS6 = {
+  static: 'static (Based on context)',
+  auto: 'auto (SLAAC)',
+  dhcp: 'dhcp (SLAAC & DHCPv6)',
+  disable: 'disable (Do not use IPv6)',
+  skip: 'skip (Do not configure IPv6)',
+}
+
+/** @enum {string} Virtual Network Drivers names */
+export const VN_DRIVERS_STR = {
+  [VN_DRIVERS.bridge]: 'Bridged',
+  [VN_DRIVERS.fw]: 'Bridged & Security Groups',
+  [VN_DRIVERS.ebtables]: 'Bridged & ebtables VLAN',
+  [VN_DRIVERS.dot1Q]: '802.1Q',
+  [VN_DRIVERS.vxlan]: 'VXLAN',
+  [VN_DRIVERS.ovswitch]: 'Open vSwitch',
+  [VN_DRIVERS.ovswitch_vxlan]: 'Open vSwitch - VXLAN',
+  [VN_DRIVERS.vcenter]: 'vCenter',
 }
 
 /**
