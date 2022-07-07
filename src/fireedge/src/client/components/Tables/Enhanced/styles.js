@@ -55,16 +55,6 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     justifySelf: 'end',
     gap: '1em',
   },
-  resetFilters: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5em',
-    cursor: 'pointer',
-    marginBottom: '1em',
-    '&:hover': {
-      color: palette.secondary.dark,
-    },
-  },
   body: {
     overflow: 'auto',
     display: 'grid',

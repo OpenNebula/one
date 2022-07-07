@@ -15,15 +15,18 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { BookmarkEmpty } from 'iconoir-react'
-import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
+import GotoIcon from 'iconoir-react/dist/Pin'
+import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import Cancel from 'iconoir-react/dist/Cancel'
+import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import serviceTemplateApi from 'client/features/OneApi/serviceTemplate'
+import { useLazyGetServiceTemplateQuery } from 'client/features/OneApi/serviceTemplate'
 import { ServiceTemplatesTable } from 'client/components/Tables'
 import ServiceTemplateTabs from 'client/components/Tabs/ServiceTemplate'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -54,6 +57,7 @@ function ServiceTemplates() {
                 <InfoTabs
                   id={selectedRows[0]?.original?.ID}
                   gotoPage={selectedRows[0]?.gotoPage}
+                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />
               )}
             </>
@@ -67,28 +71,48 @@ function ServiceTemplates() {
 /**
  * Displays details of a Service Template.
  *
- * @param {string} id - Service Template id to display
+ * @param {object} template - Service Template to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Service Template
+ * @param {Function} [unselect] - Function to unselect a Service Template
  * @returns {ReactElement} Service Template details
  */
-const InfoTabs = memo(({ id, gotoPage }) => {
-  const template =
-    serviceTemplateApi.endpoints.getServiceTemplates.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((item) => +item.ID === +id),
-    })
+const InfoTabs = memo(({ template, gotoPage, unselect }) => {
+  const [get, { data: lazyData, isFetching }] = useLazyGetServiceTemplateQuery()
+  const id = lazyData?.ID ?? template.ID
+  const name = lazyData?.NAME ?? template.NAME
 
   return (
     <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mb={1}>
-        <Typography color="text.primary" noWrap>
-          {`#${id} | ${template.NAME}`}
+      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
         </Typography>
-        {gotoPage && (
-          <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-            <BookmarkEmpty />
-          </IconButton>
+
+        {/* -- ACTIONS -- */}
+        <SubmitButton
+          data-cy="detail-refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isFetching}
+          onClick={() => get({ id })}
+        />
+        {typeof gotoPage === 'function' && (
+          <SubmitButton
+            data-cy="locate-on-table"
+            icon={<GotoIcon />}
+            tooltip={Tr(T.LocateOnTable)}
+            onClick={() => gotoPage()}
+          />
         )}
+        {typeof unselect === 'function' && (
+          <SubmitButton
+            data-cy="unselect"
+            icon={<Cancel />}
+            tooltip={Tr(T.Close)}
+            onClick={() => unselect()}
+          />
+        )}
+        {/* -- END ACTIONS -- */}
       </Stack>
       <ServiceTemplateTabs id={id} />
     </Stack>
@@ -96,8 +120,9 @@ const InfoTabs = memo(({ id, gotoPage }) => {
 })
 
 InfoTabs.propTypes = {
-  id: PropTypes.string.isRequired,
+  template: PropTypes.object,
   gotoPage: PropTypes.func,
+  unselect: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'

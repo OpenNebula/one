@@ -85,7 +85,7 @@ function MarketplaceApps() {
  * @returns {ReactElement} Marketplace App details
  */
 const InfoTabs = memo(({ app, gotoPage, unselect }) => {
-  const [getApp, queryState] = useLazyGetMarketplaceAppQuery()
+  const [get, queryState] = useLazyGetMarketplaceAppQuery()
   const { data: lazyData, isFetching } = queryState
 
   const id = lazyData?.ID ?? app.ID
@@ -93,13 +93,18 @@ const InfoTabs = memo(({ app, gotoPage, unselect }) => {
 
   return (
     <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
+        </Typography>
+
+        {/* -- ACTIONS -- */}
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => getApp({ id })}
+          onClick={() => get({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -117,9 +122,7 @@ const InfoTabs = memo(({ app, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
-        <Typography color="text.primary" noWrap>
-          {`#${id} | ${name}`}
-        </Typography>
+        {/* -- END ACTIONS -- */}
       </Stack>
       <MarketplaceAppsTabs id={id} />
     </Stack>

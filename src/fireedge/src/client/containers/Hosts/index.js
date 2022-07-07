@@ -91,7 +91,12 @@ const InfoTabs = memo(({ host, gotoPage, unselect }) => {
 
   return (
     <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
+        </Typography>
+
+        {/* -- ACTIONS -- */}
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
@@ -115,9 +120,7 @@ const InfoTabs = memo(({ host, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
-        <Typography color="text.primary" noWrap>
-          {`#${id} | ${name}`}
-        </Typography>
+        {/* -- END ACTIONS -- */}
       </Stack>
       <HostTabs id={id} />
     </Stack>

@@ -15,14 +15,21 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { BookmarkEmpty } from 'iconoir-react'
-import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
+import GotoIcon from 'iconoir-react/dist/Pin'
+import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import Cancel from 'iconoir-react/dist/Cancel'
+import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
+import {
+  useLazyGetZoneQuery,
+  useUpdateZoneMutation,
+} from 'client/features/OneApi/zone'
 import { ZonesTable } from 'client/components/Tables'
 import ZoneTabs from 'client/components/Tabs/Zone'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T, Zone } from 'client/constants'
 
@@ -41,7 +48,10 @@ function Zones() {
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ZonesTable onSelectedRowsChange={onSelectedRowsChange} />
+          <ZonesTable
+            onSelectedRowsChange={onSelectedRowsChange}
+            useUpdateMutation={useUpdateZoneMutation}
+          />
 
           {hasSelectedRows && (
             <>
@@ -52,6 +62,7 @@ function Zones() {
                 <InfoTabs
                   zone={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
+                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />
               )}
             </>
@@ -67,27 +78,56 @@ function Zones() {
  *
  * @param {Zone} zone - Zone to display
  * @param {Function} [gotoPage] - Function to navigate to a page of a Zone
+ * @param {Function} [unselect] - Function to unselect
  * @returns {ReactElement} Zone details
  */
-const InfoTabs = memo(({ zone, gotoPage }) => (
-  <Stack overflow="auto">
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Typography color="text.primary" noWrap>
-        {`#${zone.ID} | ${zone.NAME}`}
-      </Typography>
-      {gotoPage && (
-        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-          <BookmarkEmpty />
-        </IconButton>
-      )}
+const InfoTabs = memo(({ zone, gotoPage, unselect }) => {
+  const [get, { data: lazyData, isFetching }] = useLazyGetZoneQuery()
+  const id = lazyData?.ID ?? zone.ID
+  const name = lazyData?.NAME ?? zone.NAME
+
+  return (
+    <Stack overflow="auto">
+      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
+        </Typography>
+
+        {/* -- ACTIONS -- */}
+        <SubmitButton
+          data-cy="detail-refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isFetching}
+          onClick={() => get({ id })}
+        />
+        {typeof gotoPage === 'function' && (
+          <SubmitButton
+            data-cy="locate-on-table"
+            icon={<GotoIcon />}
+            tooltip={Tr(T.LocateOnTable)}
+            onClick={() => gotoPage()}
+          />
+        )}
+        {typeof unselect === 'function' && (
+          <SubmitButton
+            data-cy="unselect"
+            icon={<Cancel />}
+            tooltip={Tr(T.Close)}
+            onClick={() => unselect()}
+          />
+        )}
+        {/* -- END ACTIONS -- */}
+      </Stack>
+      <ZoneTabs id={id} />
     </Stack>
-    <ZoneTabs id={zone.ID} />
-  </Stack>
-))
+  )
+})
 
 InfoTabs.propTypes = {
-  zone: PropTypes.object.isRequired,
+  zone: PropTypes.object,
   gotoPage: PropTypes.func,
+  unselect: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'
