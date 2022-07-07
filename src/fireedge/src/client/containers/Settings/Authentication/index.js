@@ -93,6 +93,7 @@ const FieldComponent = memo(
         variant="outlined"
         onKeyDown={handleKeyDown}
         helperText={<Translate word={T.PressEscapeToCancel} />}
+        inputProps={{ 'data-cy': `settings-ui-text-${name}` }}
         {...register(name, { onBlur: handleBlur, shouldUnregister: true })}
       />
     )
@@ -206,6 +207,7 @@ const Settings = () => {
               component="fieldset"
               key={'settings-authentication-field-' + field.name}
               sx={{ minInlineSize: 'auto' }}
+              data-cy={`settings-ui-${field.name}`}
             >
               <Legend title={field.label} />
               {isEnabled[field.name] ? (
