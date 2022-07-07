@@ -16,14 +16,12 @@
 import { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  Trash,
-  Edit,
-  UndoAction,
-  SaveActionFloppy,
-  Camera,
-  Expand,
-} from 'iconoir-react'
+import Trash from 'iconoir-react/dist/Trash'
+import Edit from 'iconoir-react/dist/Edit'
+import UndoAction from 'iconoir-react/dist/UndoAction'
+import SaveActionFloppy from 'iconoir-react/dist/SaveActionFloppy'
+import Camera from 'iconoir-react/dist/Camera'
+import Expand from 'iconoir-react/dist/ExpandLines'
 
 import {
   useAttachDiskMutation,

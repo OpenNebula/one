@@ -37,7 +37,7 @@ const commonValidation = number()
 /** @type {Field} Memory field */
 export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
-  label: T.Memory,
+  label: [T.MemoryWithUnit, '(MB)'],
   tooltip: T.MemoryConcept,
   validation: commonValidation
     .integer()
@@ -70,7 +70,7 @@ export const MEMORY_FIELDS = [MEMORY, ...HR_MEMORY_FIELDS, ...MOD_MEMORY_FIELDS]
 /** @type {Field} Physical CPU field */
 export const PHYSICAL_CPU = generateCapacityInput({
   name: 'CPU',
-  label: T.PhysicalCpu,
+  label: T.PhysicalCpuWithPercent,
   tooltip: T.CpuConcept,
   validation: commonValidation.required(),
 })
@@ -88,7 +88,7 @@ export const CPU_FIELDS = [PHYSICAL_CPU, ...MOD_CPU_FIELDS]
 /** @type {Field} Virtual CPU field */
 export const VIRTUAL_CPU = generateCapacityInput({
   name: 'VCPU',
-  label: T.VirtualCpu,
+  label: T.VirtualCpuWithPercent,
   tooltip: T.VirtualCpuConcept,
   validation: commonValidation,
 })

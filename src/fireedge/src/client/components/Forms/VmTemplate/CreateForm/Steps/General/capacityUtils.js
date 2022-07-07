@@ -267,6 +267,7 @@ export const generateCapacityInput = ({ validation, ...field }) => ({
         modificationType === list ? schema.oneOf(options) : schema
     ),
   grid: { md: 3 },
+  fieldProps: { min: 0 },
 })
 
 /**
