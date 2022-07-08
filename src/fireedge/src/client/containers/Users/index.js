@@ -15,14 +15,21 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useState, memo } from 'react'
 import PropTypes from 'prop-types'
-import { BookmarkEmpty } from 'iconoir-react'
-import { Typography, Box, Stack, Chip, IconButton } from '@mui/material'
+import GotoIcon from 'iconoir-react/dist/Pin'
+import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import Cancel from 'iconoir-react/dist/Cancel'
+import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
+import {
+  useLazyGetUserQuery,
+  useUpdateUserMutation,
+} from 'client/features/OneApi/user'
 import { UsersTable } from 'client/components/Tables'
 import UserTabs from 'client/components/Tabs/User'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T, User } from 'client/constants'
 
@@ -41,7 +48,10 @@ function Users() {
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <UsersTable onSelectedRowsChange={onSelectedRowsChange} />
+          <UsersTable
+            onSelectedRowsChange={onSelectedRowsChange}
+            useUpdateMutation={useUpdateUserMutation}
+          />
 
           {hasSelectedRows && (
             <>
@@ -52,6 +62,7 @@ function Users() {
                 <InfoTabs
                   user={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
+                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />
               )}
             </>
@@ -67,27 +78,56 @@ function Users() {
  *
  * @param {User} user - User to display
  * @param {Function} [gotoPage] - Function to navigate to a page of an User
+ * @param {Function} [unselect] - Function to unselect a User
  * @returns {ReactElement} User details
  */
-const InfoTabs = memo(({ user, gotoPage }) => (
-  <Stack overflow="auto">
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Typography color="text.primary" noWrap>
-        {`#${user.ID} | ${user.NAME}`}
-      </Typography>
-      {gotoPage && (
-        <IconButton title={Tr(T.LocateOnTable)} onClick={gotoPage}>
-          <BookmarkEmpty />
-        </IconButton>
-      )}
+const InfoTabs = memo(({ user, gotoPage, unselect }) => {
+  const [get, { data: lazyData, isFetching }] = useLazyGetUserQuery()
+  const id = lazyData?.ID ?? user.ID
+  const name = lazyData?.NAME ?? user.NAME
+
+  return (
+    <Stack overflow="auto">
+      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
+        </Typography>
+
+        {/* -- ACTIONS -- */}
+        <SubmitButton
+          data-cy="detail-refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isFetching}
+          onClick={() => get({ id })}
+        />
+        {typeof gotoPage === 'function' && (
+          <SubmitButton
+            data-cy="locate-on-table"
+            icon={<GotoIcon />}
+            tooltip={Tr(T.LocateOnTable)}
+            onClick={() => gotoPage()}
+          />
+        )}
+        {typeof unselect === 'function' && (
+          <SubmitButton
+            data-cy="unselect"
+            icon={<Cancel />}
+            tooltip={Tr(T.Close)}
+            onClick={() => unselect()}
+          />
+        )}
+        {/* -- END ACTIONS -- */}
+      </Stack>
+      <UserTabs id={id} />
     </Stack>
-    <UserTabs id={user.ID} />
-  </Stack>
-))
+  )
+})
 
 InfoTabs.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
   gotoPage: PropTypes.func,
+  unselect: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'

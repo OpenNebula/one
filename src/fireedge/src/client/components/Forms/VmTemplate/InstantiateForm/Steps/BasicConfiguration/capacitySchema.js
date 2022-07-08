@@ -34,9 +34,17 @@ import {
 const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
 
 const TRANSLATES = {
-  MEMORY: { name: 'MEMORY', label: T.Memory, tooltip: T.MemoryConcept },
-  CPU: { name: 'CPU', label: T.PhysicalCpu, tooltip: T.CpuConcept },
-  VCPU: { name: 'VCPU', label: T.VirtualCpu, tooltip: T.VirtualCpuConcept },
+  MEMORY: {
+    name: 'MEMORY',
+    label: [T.MemoryWithUnit, '(MB)'],
+    tooltip: T.MemoryConcept,
+  },
+  CPU: { name: 'CPU', label: T.PhysicalCpuWithPercent, tooltip: T.CpuConcept },
+  VCPU: {
+    name: 'VCPU',
+    label: T.VirtualCpuWithPercent,
+    tooltip: T.VirtualCpuConcept,
+  },
 }
 
 const valueLabelFormat = (value) => prettyBytes(value, 'MB')

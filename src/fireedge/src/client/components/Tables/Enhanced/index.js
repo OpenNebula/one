@@ -20,7 +20,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
-import { Box } from '@mui/material'
+import { Box, Chip } from '@mui/material'
 import {
   useGlobalFilter,
   useFilters,
@@ -184,6 +184,8 @@ const EnhancedTable = ({
     [disableGlobalLabel]
   )
 
+  const canResetFilter = state.filters?.length > 0 || state.sortBy?.length > 0
+
   return (
     <Box
       {...getTableProps()}
@@ -244,18 +246,17 @@ const EnhancedTable = ({
       </div>
 
       {/* RESET FILTERS */}
-      <Box
-        visibility={
-          state.filters?.length > 0 || state.sortBy?.length > 0
-            ? 'visible'
-            : 'hidden'
-        }
-      >
-        <span className={styles.resetFilters} onClick={handleResetFilters}>
-          <RemoveIcon />
-          <Translate word={T.ResetFilters} />
-        </span>
-      </Box>
+      <Chip
+        label={<Translate word={T.ResetFilters} />}
+        onClick={canResetFilter ? handleResetFilters : undefined}
+        icon={<RemoveIcon />}
+        sx={{
+          visibility: canResetFilter ? 'visible' : 'hidden',
+          width: 'fit-content',
+          padding: '0.75em',
+          marginBottom: '0.5em',
+        }}
+      />
 
       <div className={clsx(styles.body, classes.body)}>
         {/* NO DATA MESSAGE */}

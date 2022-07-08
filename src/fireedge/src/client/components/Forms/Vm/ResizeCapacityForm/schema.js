@@ -28,10 +28,10 @@ const ENFORCE = {
 
 const MEMORY = {
   name: 'MEMORY',
-  label: T.Memory,
+  label: [T.MemoryWithUnit, '(MB)'],
+  tooltip: T.MemoryConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: T.MemoryConcept,
   validation: number()
     .required()
     .positive()
@@ -40,10 +40,10 @@ const MEMORY = {
 
 const PHYSICAL_CPU = {
   name: 'CPU',
-  label: T.PhysicalCpu,
+  label: T.PhysicalCpuWithPercent,
+  tooltip: T.CpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: T.CpuConcept,
   validation: number()
     .required()
     .positive()
@@ -52,10 +52,10 @@ const PHYSICAL_CPU = {
 
 const VIRTUAL_CPU = {
   name: 'VCPU',
-  label: T.VirtualCpu,
+  label: T.VirtualCpuWithPercent,
+  tooltip: T.VirtualCpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
-  tooltip: T.VirtualCpuConcept,
   validation: number().default(() => undefined),
 }
 
