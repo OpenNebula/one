@@ -629,9 +629,11 @@ module OpenNebula::MarketPlaceAppExt
 
                     obj.extend(MarketPlaceAppExt)
 
-                    # Fix name if duplcates exist
+                    # Fix name if duplicates exist
                     imgp = OpenNebula::ImagePool.new(@client)
-                    imgp.info
+                    rc = imgp.info
+                    break rc if OpenNebula.is_error?(rc)
+
                     img_names = imgp.retrieve_elements('/IMAGE_POOL/IMAGE/NAME')
 
                     opt_name = options[:name]
@@ -653,9 +655,9 @@ module OpenNebula::MarketPlaceAppExt
                     )
 
                     image      = rc[:image].first if rc[:image]
-                    vmtemplate = rc[:vmtemplate].first if rc[:vmtemplate]
-
                     break image if OpenNebula.is_error?(image)
+
+                    vmtemplate = rc[:vmtemplate].first if rc[:vmtemplate]
                     break vmtemplate if OpenNebula.is_error?(vmtemplate)
 
                     idx += 1
