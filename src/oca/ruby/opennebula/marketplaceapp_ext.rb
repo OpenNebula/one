@@ -654,7 +654,7 @@ module OpenNebula::MarketPlaceAppExt
                         :notemplate => options[:notemplate]
                     )
 
-                    image      = rc[:image].first if rc[:image]
+                    image = rc[:image].first if rc[:image]
                     break image if OpenNebula.is_error?(image)
 
                     vmtemplate = rc[:vmtemplate].first if rc[:vmtemplate]
