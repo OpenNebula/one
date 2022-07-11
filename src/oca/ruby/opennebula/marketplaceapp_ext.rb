@@ -604,6 +604,7 @@ module OpenNebula::MarketPlaceAppExt
                 exported = {}
                 idx      = 0
                 idy      = 0
+                opt_name = ''
 
                 # Store IDs of created resources
                 images    = []
@@ -634,8 +635,9 @@ module OpenNebula::MarketPlaceAppExt
                     img_names = imgp.retrieve_elements('/IMAGE_POOL/IMAGE/NAME')
 
                     opt_name = options[:name]
+                    t_short = "#{opt_name}-#{obj_name}-#{idx}"
 
-                    if img_names.include? "#{opt_name}-#{obj_name}-#{idx}"
+                    if !img_names.nil? && img_names.include?(t_short)
                         idy = 0
                         while img_names.include? \
                             "#{opt_name}_#{idy}-#{obj_name}-#{idx}"
