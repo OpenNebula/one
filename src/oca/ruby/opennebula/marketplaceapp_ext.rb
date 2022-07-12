@@ -604,6 +604,7 @@ module OpenNebula::MarketPlaceAppExt
                 exported = {}
                 idx      = 0
                 idy      = 0
+                opt_name = ''
 
                 # Store IDs of created resources
                 images    = []
@@ -628,14 +629,17 @@ module OpenNebula::MarketPlaceAppExt
 
                     obj.extend(MarketPlaceAppExt)
 
-                    # Fix name if duplcates exist
+                    # Fix name if duplicates exist
                     imgp = OpenNebula::ImagePool.new(@client)
-                    imgp.info
+                    rc = imgp.info
+                    break rc if OpenNebula.is_error?(rc)
+
                     img_names = imgp.retrieve_elements('/IMAGE_POOL/IMAGE/NAME')
 
                     opt_name = options[:name]
+                    t_short = "#{opt_name}-#{obj_name}-#{idx}"
 
-                    if img_names.include? "#{opt_name}-#{obj_name}-#{idx}"
+                    if !img_names.nil? && img_names.include?(t_short)
                         idy = 0
                         while img_names.include? \
                             "#{opt_name}_#{idy}-#{obj_name}-#{idx}"
@@ -650,10 +654,10 @@ module OpenNebula::MarketPlaceAppExt
                         :notemplate => options[:notemplate]
                     )
 
-                    image      = rc[:image].first if rc[:image]
-                    vmtemplate = rc[:vmtemplate].first if rc[:vmtemplate]
-
+                    image = rc[:image].first if rc[:image]
                     break image if OpenNebula.is_error?(image)
+
+                    vmtemplate = rc[:vmtemplate].first if rc[:vmtemplate]
                     break vmtemplate if OpenNebula.is_error?(vmtemplate)
 
                     idx += 1
