@@ -265,7 +265,30 @@ const getRdpSettings = (vmInfo) => {
   config.port = vmInfo.TEMPLATE?.CONTEXT?.RDP_PORT ?? '3389'
   config.username = vmInfo.TEMPLATE?.CONTEXT?.USERNAME
   config.password = vmInfo.TEMPLATE?.CONTEXT?.PASSWORD
-  config['resize-method'] = 'display-update'
+  config['server-layout'] = nicWithRdp?.RDP_SERVER_LAYOUT
+  config['resize-method'] = nicWithRdp?.RDP_RESIZE_METHOD ?? 'display-update'
+  config['disable-audio'] =
+    nicWithRdp?.RDP_DISABLE_AUDIO?.toLowerCase() === 'yes'
+  config['enable-audio-input'] =
+    nicWithRdp?.RDP_ENABLE_AUDIO_INPUT?.toLowerCase() === 'yes'
+  config['enable-wallpaper'] =
+    nicWithRdp?.RDP_ENABLE_WALLPAPER?.toLowerCase() === 'yes'
+  config['enable-theming'] =
+    nicWithRdp?.RDP_ENABLE_THEMING?.toLowerCase() === 'yes'
+  config['enable-font-smoothing'] =
+    nicWithRdp?.RDP_ENABLE_FONT_SMOOTHING?.toLowerCase() === 'yes'
+  config['enable-full-window-drag'] =
+    nicWithRdp?.RDP_ENABLE_FULL_WINDOW_DRAG?.toLowerCase() === 'yes'
+  config['enable-desktop-composition'] =
+    nicWithRdp?.RDP_ENABLE_DESKTOP_COMPOSITION?.toLowerCase() === 'yes'
+  config['enable-menu-animations'] =
+    nicWithRdp?.RDP_ENABLE_MENU_ANIMATIONS?.toLowerCase() === 'yes'
+  config['disable-bitmap-caching'] =
+    nicWithRdp?.RDP_DISABLE_BITMAP_CACHING?.toLowerCase() === 'yes'
+  config['disable-offscreen-caching'] =
+    nicWithRdp?.RDP_DISABLE_OFFSCREEN_CACHING?.toLowerCase() === 'yes'
+  config['disable-glyph-caching'] =
+    nicWithRdp?.RDP_DISABLE_GLYPH_CACHING?.toLowerCase() === 'yes'
 
   if (config.username && config.password) config.security = 'nla'
 
