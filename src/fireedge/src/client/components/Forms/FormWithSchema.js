@@ -172,12 +172,6 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
     defaultValue: Array.isArray(dependOf) ? [] : undefined,
   })
 
-  /*   const valueOfDependField = useMemo(() => {
-    if (!dependOf) return null
-
-    return watch(nameOfDependField)
-  }, [dependOf, watch, nameOfDependField]) */
-
   const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
     attributes
   ).reduce((field, attribute) => {
