@@ -87,6 +87,7 @@ export const DRIVER_FIELD = {
     .required()
     .default(() => drivers[0]),
   grid: { md: 12 },
+  notNull: true,
 }
 
 /**
