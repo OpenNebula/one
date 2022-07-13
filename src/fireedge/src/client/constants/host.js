@@ -201,7 +201,7 @@ export const PIN_POLICY = {
 /** @enum {string} Custom Hypervisor */
 export const CUSTOM_HOST_HYPERVISOR = {
   NAME: 'Custom',
-  SUNSTONE_NAME: T.CustomHypervisor,
+  SUNSTONE_NAME: T.Custom,
 }
 
 /**
