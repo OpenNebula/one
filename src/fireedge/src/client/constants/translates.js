@@ -69,7 +69,7 @@ module.exports = {
   CreateProvider: 'Create Provider',
   CreateProvision: 'Create Provision',
   CreateServiceTemplate: 'Create Service Template',
-  CreateVirtualNetwork: 'Create VM Template',
+  CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
