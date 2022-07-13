@@ -234,10 +234,7 @@ CommandParser::CmdParser.new(ARGV) do
         Instantiate a Service Template
     EOT
 
-    command :instantiate,
-            instantiate_desc,
-            :templateid,
-            [:file, nil],
+    command :instantiate, instantiate_desc, :templateid, [:file, nil],
             :options => [MULTIPLE, Service::JSON_FORMAT, Service::TOP] do
         number = options[:multiple] || 1
         params = {}
@@ -248,9 +245,12 @@ CommandParser::CmdParser.new(ARGV) do
             params['merge_template'] = JSON.parse(File.read(args[1])) if args[1]
 
             unless params['merge_template']
-                service_template = OpenNebula::ServiceTemplate
-                                   .new_with_id(args[0],
-                                                OpenNebula::Client.new)
+                secret = "#{options[:username]}:#{options[:password]}"
+                one_client = OpenNebula::Client.new(secret)
+
+                service_template = OpenNebula::ServiceTemplate.new_with_id(
+                    args[0], one_client
+                )
                 service_template.info
 
                 body = JSON.parse(service_template['/DOCUMENT/TEMPLATE/BODY'])
