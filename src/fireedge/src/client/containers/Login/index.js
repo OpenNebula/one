@@ -178,15 +178,7 @@ function Login() {
 
 const AppLinks = () => {
   const { appTitle } = useGeneral()
-
-  const isNotCurrentApp = (app) => app !== `${appTitle}`.toLowerCase()
-
-  const transformAppTitle = (app) =>
-    APPS_WITH_ONE_PREFIX.includes(app)
-      ? `One${sentenceCase(app)}`
-      : sentenceCase(app)
-
-  const otherApps = APPS.filter(isNotCurrentApp).map(transformAppTitle)
+  const otherApps = APPS.filter((app) => app !== `${appTitle}`.toLowerCase())
 
   if (otherApps?.length === 0) {
     return null
@@ -195,12 +187,20 @@ const AppLinks = () => {
   return otherApps.map((app) => (
     <Link
       key={app}
+      data-cy={`goto-${app}`.toLowerCase()}
       href={`${APP_URL}/${app}`.toLowerCase()}
       variant="caption"
       color="text.secondary"
       padding={1}
     >
-      <Translate word={T.TakeMeToTheAppGui} values={app} />
+      <Translate
+        word={T.TakeMeToTheAppGui}
+        values={
+          APPS_WITH_ONE_PREFIX.includes(app)
+            ? `One${sentenceCase(app)}`
+            : sentenceCase(app)
+        }
+      />
     </Link>
   ))
 }
