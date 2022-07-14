@@ -147,83 +147,68 @@ define(function(require) {
 
   function _fill(context, templateJSON){
     var userInputsJSON = templateJSON["USER_INPUTS"];
-    if(!templateJSON["INPUTS_ORDER"]){
-      var inputsOrderString = "";
-      $.each(userInputsJSON, function(key, value){
-        inputsOrderString += key + ",";
-      });
-      templateJSON["INPUTS_ORDER"] = inputsOrderString.slice(0,-1);
-    }
-
-    var order = templateJSON["INPUTS_ORDER"];
-    var orderJSON = order.split(",");
 
     if(userInputsJSON){
-      $.each(orderJSON, function(key, value){
-        var nameOrder = value;
-        $.each(userInputsJSON, function(key, value) {
-          if(nameOrder == key){
-            $(".add_user_input_attr", context).trigger("click");
+      $.each(userInputsJSON, function(key, value) {
+        $(".add_user_input_attr", context).trigger("click");
 
-            var trcontext = $(".user_input_attrs tbody tr", context).last();
+        var trcontext = $(".user_input_attrs tbody tr", context).last();
 
-            $(".user_input_name", trcontext).val(key);
+        $(".user_input_name", trcontext).val(key);
 
-            var attr = _unmarshall(value);
+        var attr = _unmarshall(value);
 
-            if (templateJSON[key] != undefined){
-              attr.initial = templateJSON[key];
+        if (templateJSON[key] != undefined){
+          attr.initial = templateJSON[key];
+        }
+        $(".user_input_type", trcontext).val(attr.type).change();
+        $(".user_input_description", trcontext).val(attr.description);
+
+        if (attr.mandatory){
+          $(".user_input_mandatory", trcontext).attr("checked", "checked");
+        } else {
+          $(".user_input_mandatory", trcontext).removeAttr("checked");
+        }
+
+        switch(attr.type){
+          case "text":
+          case "text64":
+          case "number":
+          case "number-float":
+          case "fixed":
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+            break;
+          case "boolean":
+            if(attr.initial == "YES"){
+              $("input#radio_yes", trcontext).attr("checked", "checked");
+              $("input#radio_no", trcontext).removeAttr("checked");
             }
-            $(".user_input_type", trcontext).val(attr.type).change();
-            $(".user_input_description", trcontext).val(attr.description);
+            else {
+              $("input#radio_yes", trcontext).removeAttr("checked");
+              $("input#radio_no", trcontext).attr("checked", "checked");
+            }
+            break;
+          case "range":
+          case "range-float":
+            var values = attr.params.split("..");  // "2..8"
 
-            if (attr.mandatory){
-              $(".user_input_mandatory", trcontext).attr("checked", "checked");
+            if (values.length == 2){
+              $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
+              $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
             } else {
-              $(".user_input_mandatory", trcontext).removeAttr("checked");
+              console.error("Wrong user input parameters for \""+key+"\". Expected \"MIN..MAX\", received \""+attr.params+"\"");
             }
 
-            switch(attr.type){
-              case "text":
-              case "text64":
-              case "number":
-              case "number-float":
-              case "fixed":
-                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
-                break;
-              case "boolean":
-                if(attr.initial == "YES"){
-                  $("input#radio_yes", trcontext).attr("checked", "checked");
-                  $("input#radio_no", trcontext).removeAttr("checked");
-                }
-                else {
-                  $("input#radio_yes", trcontext).removeAttr("checked");
-                  $("input#radio_no", trcontext).attr("checked", "checked");
-                }
-                break;
-              case "range":
-              case "range-float":
-                var values = attr.params.split("..");  // "2..8"
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
 
-                if (values.length == 2){
-                  $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
-                  $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
-                } else {
-                  console.error("Wrong user input parameters for \""+key+"\". Expected \"MIN..MAX\", received \""+attr.params+"\"");
-                }
+            break;
 
-                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
-
-                break;
-
-              case "list":
-              case "list-multiple":
-                $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
-                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
-                break;
-            }
-          }
-        });
+          case "list":
+          case "list-multiple":
+            $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+            break;
+        }
       });
     }
   }
@@ -502,51 +487,23 @@ define(function(require) {
       html += "</fieldset>";
       div.append(html);
       html = "";
-      if(opts.defaults && opts.defaults.INPUTS_ORDER){
-        var order = opts.defaults.INPUTS_ORDER;
-        var orderJSON = order.split(",");
-        $.each(orderJSON, function(key, value){
-          var orderValue = value;
-          $.each(custom_attrs, function(index, custom_attr) {
-            if (custom_attr.name == orderValue){
-              var tooltip = "";
-              if (custom_attr.type === "list-multiple"){
-                tooltip = " <span class=\"tip\">" + Locale.tr("Use ctrl key for multiple selection") + "</span>";
-              }
-              $("."+custom_attr_class, div).append(
-                "<div class=\"row\">" +
-                  "<div class=\"large-12 large-centered columns\">" +
-                    "<label>" +
-                      TemplateUtils.htmlEncode(custom_attr.description) +
-                      tooltip +
-                      _attributeInput(custom_attr) +
-                    "</label>" +
-                  "</div>" +
-                "</div>");
-            }
-          });
-        });
-      } else {
-        $.each(custom_attrs, function(index, custom_attr) {
-          var tooltip = "";
-          if(custom_attr && custom_attr.description){
-            if (custom_attr.type === "list-multiple"){
-              tooltip = " <span class=\"tip\">" + Locale.tr("Use ctrl key for multiple selection") + "</span>";
-            }
-            $("."+custom_attr_class, div).append(
-              "<div class=\"row\">" +
-                "<div class=\"large-12 large-centered columns\">" +
-                  "<label>" +
-                    TemplateUtils.htmlEncode(custom_attr.description) +
-                    tooltip +
-                    _attributeInput(custom_attr) +
-                  "</label>" +
-                "</div>" +
-              "</div>"
-            );
-          }
-        });
-      }
+
+      $.each(custom_attrs, function(_, custom_attr) {
+        var tooltip = "";
+        if (custom_attr.type === "list-multiple"){
+          tooltip = " <span class=\"tip\">" + Locale.tr("Use ctrl key for multiple selection") + "</span>";
+        }
+        $("."+custom_attr_class, div).append(
+          "<div class=\"row\">" +
+            "<div class=\"large-12 large-centered columns\">" +
+              "<label>" +
+                TemplateUtils.htmlEncode(custom_attr.description) +
+                tooltip +
+                _attributeInput(custom_attr) +
+              "</label>" +
+            "</div>" +
+          "</div>");
+      });
     }
 
     //render Vmgroups_attr_values
