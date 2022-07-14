@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, ObjectSchema } from 'yup'
+import { string, boolean, ObjectSchema, lazy } from 'yup'
 
 import {
   Field,
@@ -24,6 +24,44 @@ import {
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, kvm } = HYPERVISORS
+const CUSTOM_KEYMAP_VALUE = 'custom'
+const KEYMAP_VALUES = {
+  ar: T.Arabic,
+  hr: T.Croatian,
+  cz: T.Czech,
+  da: T.Danish,
+  nl: T.Dutch,
+  'en-gb': T.EnglishGB,
+  'en-us': T.EnglishUS,
+  et: T.Estonian,
+  fo: T.Faroese,
+  fi: T.Finnish,
+  fr: T.French,
+  'fr-be': T.FrenchBe,
+  'fr-ca': T.FrenchCa,
+  bepo: T.FrenchBEPO,
+  'fr-ch': T.FrenchSw,
+  de: T.German,
+  'de-ch': T.GermanSw,
+  hu: T.Hungarian,
+  is: T.Icelandic,
+  it: T.Italian,
+  ja: T.Japanese,
+  lv: T.Latvian,
+  lt: T.Lithuanian,
+  mk: T.Macedonian,
+  no: T.Norwegian,
+  pl: T.Polish,
+  pt: T.Portuguese,
+  'pt-br': T.PortugueseBr,
+  ru: T.Russian,
+  sl: T.Slovenian,
+  es: T.SpanishEs,
+  sv: T.Swedish,
+  th: T.Thai,
+  tr: T.Turkish,
+  custom: T.Custom,
+}
 
 /** @type {Field} Type field */
 export const TYPE = {
@@ -79,14 +117,57 @@ export const PORT = {
 export const KEYMAP = {
   name: 'GRAPHICS.KEYMAP',
   label: T.Keymap,
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: TYPE.name,
+  values: arrayToOptions(Object.entries(KEYMAP_VALUES), {
+    addEmpty: false,
+    getText: ([_, label]) => label,
+    getValue: ([keymap]) => keymap,
+  }),
   htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined),
-  fieldProps: { placeholder: 'en-us' },
+    .transform((value) =>
+      value && KEYMAP_VALUES[value] ? value : CUSTOM_KEYMAP_VALUE
+    )
+    .default(() => undefined)
+    .afterSubmit((value, { context }) =>
+      value === CUSTOM_KEYMAP_VALUE
+        ? context.extra.GRAPHICS.CUSTOM_KEYMAP
+        : value
+    ),
+}
+
+/** @type {Field} Custom keymap field */
+export const CUSTOM_KEYMAP = {
+  name: 'GRAPHICS.CUSTOM_KEYMAP',
+  label: T.Keymap,
+  type: INPUT_TYPES.TEXT,
+  dependOf: KEYMAP.name,
+  htmlType: (selectedKeymap) =>
+    (!selectedKeymap ||
+      selectedKeymap?.toLowerCase() !== CUSTOM_KEYMAP_VALUE) &&
+    INPUT_TYPES.HIDDEN,
+  validation: lazy((_, { context }) =>
+    string()
+      .trim()
+      .when(`$extra.${KEYMAP.name}`, (keymap, schema) =>
+        keymap === CUSTOM_KEYMAP_VALUE
+          ? schema.required()
+          : schema.notRequired()
+      )
+      .default(() => {
+        const keymapFromTemplate = context.extra?.GRAPHICS?.KEYMAP
+
+        return KEYMAP_VALUES[keymapFromTemplate]
+          ? undefined
+          : keymapFromTemplate
+      })
+      // Modification type is not required in template
+      .afterSubmit(() => undefined)
+  ),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Password random field  */
@@ -136,7 +217,7 @@ export const COMMAND = {
  */
 export const GRAPHICS_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
-    [TYPE, LISTEN, PORT, KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
+    [TYPE, LISTEN, PORT, KEYMAP, CUSTOM_KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
     hypervisor
   )
 

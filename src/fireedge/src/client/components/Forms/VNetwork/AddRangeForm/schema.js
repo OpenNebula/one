@@ -21,16 +21,24 @@ import {
   OPTION_SORTERS,
   arrayToOptions,
   REG_V4,
+  REG_V6,
   REG_MAC,
 } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 
-const AR_TYPES = { IP4: 'IP4', IP4_6: 'IP4_6', IP6: 'IP6', ETHER: 'ETHER' }
+const AR_TYPES = {
+  IP4: 'IP4',
+  IP4_6: 'IP4_6',
+  IP6: 'IP6',
+  IP6_STATIC: 'IP6_STATIC',
+  ETHER: 'ETHER',
+}
 
 const AR_TYPES_STR = {
   [AR_TYPES.IP4]: 'IPv4',
-  [AR_TYPES.IP4_6]: 'IPv4/6',
   [AR_TYPES.IP6]: 'IPv6',
+  [AR_TYPES.IP6_STATIC]: 'IPv6 (no-SLAAC)',
+  [AR_TYPES.IP4_6]: 'IPv4/6',
   [AR_TYPES.ETHER]: 'Ethernet',
 }
 
@@ -58,15 +66,55 @@ const IP_FIELD = {
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE_FIELD.name,
   htmlType: (arType) =>
-    [AR_TYPES.IP6, AR_TYPES.ETHER].includes(arType) && INPUT_TYPES.HIDDEN,
+    [AR_TYPES.IP6, AR_TYPES.IP6_STATIC, AR_TYPES.ETHER].includes(arType) &&
+    INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .default(() => undefined)
     .when(TYPE_FIELD.name, {
-      is: (arType) => [AR_TYPES.IP6, AR_TYPES.ETHER].includes(arType),
+      is: (arType) =>
+        [AR_TYPES.IP6, AR_TYPES.IP6_STATIC, AR_TYPES.ETHER].includes(arType),
       then: (schema) => schema.strip().notRequired(),
       otherwise: (schema) =>
         schema.required().matches(REG_V4, { message: T.InvalidIPv4 }),
+    }),
+}
+
+/** @type {Field} IPv6 field */
+const IP6_FIELD = {
+  name: 'IP6',
+  label: T.FirstIPv6Address,
+  type: INPUT_TYPES.TEXT,
+  dependOf: TYPE_FIELD.name,
+  htmlType: (arType) =>
+    ![AR_TYPES.IP6_STATIC, AR_TYPES.IP4_6].includes(arType) &&
+    INPUT_TYPES.HIDDEN,
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .when(TYPE_FIELD.name, {
+      is: (arType) => ![AR_TYPES.IP6_STATIC, AR_TYPES.IP4_6].includes(arType),
+      then: (schema) => schema.strip(),
+      otherwise: (schema) =>
+        schema.required().matches(REG_V6, { message: T.InvalidIPv6 }),
+    }),
+}
+
+/** @type {Field} Prefix length field */
+const PREFIX_LENGTH_FIELD = {
+  name: 'PREFIX_LENGTH',
+  label: T.PrefixLength,
+  tooltip: T.PrefixLengthConcept,
+  type: INPUT_TYPES.TEXT,
+  dependOf: TYPE_FIELD.name,
+  htmlType: (arType) => AR_TYPES.IP6_STATIC !== arType && INPUT_TYPES.HIDDEN,
+  validation: string()
+    .trim()
+    .default(() => undefined)
+    .when(TYPE_FIELD.name, {
+      is: (arType) => AR_TYPES.IP6_STATIC !== arType,
+      then: (schema) => schema.strip(),
+      otherwise: (schema) => schema.required(),
     }),
 }
 
@@ -137,8 +185,10 @@ const FIELDS = [
   TYPE_FIELD,
   IP_FIELD,
   MAC_FIELD,
+  IP6_FIELD,
   SIZE_FIELD,
   GLOBAL_PREFIX_FIELD,
+  PREFIX_LENGTH_FIELD,
   ULA_PREFIX_FIELD,
 ]
 

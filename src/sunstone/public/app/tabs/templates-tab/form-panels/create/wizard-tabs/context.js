@@ -244,8 +244,6 @@ define(function(require) {
         contextJSON[key] = "$" + name;
       });
 
-      var userInputsOrder = UserInputs.retrieveOrder();
-
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));
       if (start_script != "") {
         if ($(".ENCODE_START_SCRIPT", context).is(":checked")) {
@@ -257,7 +255,6 @@ define(function(require) {
 
       if (!$.isEmptyObject(contextJSON)) { templateJSON["CONTEXT"] = contextJSON; };
       if (!$.isEmptyObject(userInputsJSON)) { templateJSON["USER_INPUTS"] = userInputsJSON; };
-      templateJSON["INPUTS_ORDER"] = userInputsOrder;
     }
 
     return templateJSON;
@@ -305,7 +302,6 @@ define(function(require) {
       }
 
       delete templateJSON["USER_INPUTS"];
-      delete templateJSON["INPUTS_ORDER"];
     }
 
     if (contextJSON) {

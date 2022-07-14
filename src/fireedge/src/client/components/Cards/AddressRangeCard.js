@@ -98,6 +98,7 @@ const AddressRangeCard = memo(
 
     return (
       <Box
+        data-cy="ar"
         className={classes.root}
         sx={{
           '&:hover': { bgcolor: 'action.hover' },
