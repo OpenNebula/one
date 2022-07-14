@@ -60,7 +60,7 @@ const MarketplaceCard = memo(
     )
 
     return (
-      <div {...rootProps} data-cy={`datastore-${ID}`}>
+      <div {...rootProps} data-cy={`marketplace-${ID}`}>
         <div className={classes.main}>
           <div className={classes.title}>
             <StatusCircle color={stateColor} tooltip={stateName} />
