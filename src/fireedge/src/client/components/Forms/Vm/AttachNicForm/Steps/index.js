@@ -22,7 +22,7 @@ import AdvancedOptions, {
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps([NetworksTable, AdvancedOptions], {
-  transformInitialValue: (nic) => {
+  transformInitialValue: (nic, schema) => {
     const {
       NETWORK,
       NETWORK_ID: ID,
@@ -31,6 +31,11 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
       SECURITY_GROUPS,
       ...rest
     } = nic ?? {}
+
+    const castedValue = schema.cast(
+      { [ADVANCED_ID]: rest },
+      { stripUnknown: true }
+    )
 
     return {
       [NETWORK_ID]: [
@@ -43,7 +48,7 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
           SECURITY_GROUPS,
         },
       ],
-      [ADVANCED_ID]: rest,
+      [ADVANCED_ID]: castedValue[ADVANCED_ID],
     }
   },
   transformBeforeSubmit: (formData) => {
