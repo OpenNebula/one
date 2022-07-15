@@ -23,6 +23,7 @@ import {
   getObjectSchemaFromFields,
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from 'client/constants'
+import { Console } from 'winston/lib/winston/transports'
 
 const { firecracker } = HYPERVISORS
 const { ovswitch, vcenter } = VN_DRIVERS
@@ -41,7 +42,7 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
       name: 'RDP',
       label: T.RdpConnection,
       type: INPUT_TYPES.SWITCH,
-      validation: boolean().yesOrNo(),
+      validation: boolean().default(() => false).yesOrNo(),
       grid: { md: 12 },
     },
     {
