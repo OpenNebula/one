@@ -165,6 +165,13 @@ export const IMAGE_STATES = [
 export const IMAGE_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   DELETE: 'delete',
+  LOCK: 'lock',
+  UNLOCK: 'unlock',
+  CLONE: 'clone',
+  ENABLE: 'enable',
+  DISABLE: 'disable',
+  PERSISTENT: 'persistent',
+  NON_PERSISTENT: 'nonpersistent',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,
@@ -172,4 +179,7 @@ export const IMAGE_ACTIONS = {
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
   CHANGE_TYPE: 'chtype',
   CHANGE_PERS: 'persistent',
+  SNAPSHOT_FLATTEN: 'flatten',
+  SNAPSHOT_REVERT: 'revert',
+  SNAPSHOT_DELETE: 'delete',
 }

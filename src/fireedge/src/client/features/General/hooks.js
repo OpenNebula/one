@@ -32,6 +32,8 @@ export const useGeneralApi = () => {
     changeAppTitle: (appTitle) => dispatch(actions.changeAppTitle(appTitle)),
     changeZone: (zone) => dispatch(actions.changeZone(zone)),
 
+    uploadSnackbar: (percent) => dispatch(actions.setUploadSnackbar(percent)),
+
     // dismiss all if no key has been defined
     dismissSnackbar: (key) =>
       dispatch(actions.dismissSnackbar({ key, dismissAll: !key })),

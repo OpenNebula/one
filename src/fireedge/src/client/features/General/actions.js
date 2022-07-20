@@ -22,6 +22,7 @@ export const changeAppTitle = createAction('Change App title')
 
 export const dismissSnackbar = createAction('Dismiss snackbar')
 export const deleteSnackbar = createAction('Delete snackbar')
+export const setUploadSnackbar = createAction('Change upload snackbar')
 
 export const enqueueSnackbar = createAction(
   'Enqueue snackbar',

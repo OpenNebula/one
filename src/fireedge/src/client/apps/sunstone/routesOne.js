@@ -97,6 +97,15 @@ const Datastores = loadable(() => import('client/containers/Datastores'), {
 const Images = loadable(() => import('client/containers/Images'), {
   ssr: false,
 })
+const CreateImages = loadable(() => import('client/containers/Images/Create'), {
+  ssr: false,
+})
+const CreateDockerfile = loadable(
+  () => import('client/containers/Images/Dockerfile'),
+  {
+    ssr: false,
+  }
+)
 const Marketplaces = loadable(() => import('client/containers/Marketplaces'), {
   ssr: false,
 })
@@ -189,6 +198,8 @@ export const PATH = {
     IMAGES: {
       LIST: `/${RESOURCE_NAMES.IMAGE}`,
       DETAIL: `/${RESOURCE_NAMES.IMAGE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.IMAGE}/create`,
+      DOCKERFILE: `/${RESOURCE_NAMES.IMAGE}/dockerfile`,
     },
     MARKETPLACES: {
       LIST: `/${RESOURCE_NAMES.MARKETPLACE}`,
@@ -363,6 +374,16 @@ const ENDPOINTS = [
         sidebar: true,
         icon: ImageIcon,
         Component: Images,
+      },
+      {
+        title: T.CreateImage,
+        path: PATH.STORAGE.IMAGES.CREATE,
+        Component: CreateImages,
+      },
+      {
+        title: T.CreateDockerfile,
+        path: PATH.STORAGE.IMAGES.DOCKERFILE,
+        Component: CreateDockerfile,
       },
       {
         title: T.Marketplaces,

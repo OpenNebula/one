@@ -35,9 +35,9 @@ const WrapperToLoadMode = ({ children, mode }) => {
 
     return () => {
       // remove all styles when component will be unmounted
-      document
-        .querySelectorAll('[id^=ace]')
-        .forEach((child) => child.parentNode.removeChild(child))
+      document.querySelectorAll('[id^=ace-]').forEach((child) => {
+        child.parentNode.removeChild(child)
+      })
     }
   }, [])
 
