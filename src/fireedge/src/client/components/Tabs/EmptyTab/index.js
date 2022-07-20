@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 import { InfoEmpty } from 'iconoir-react'
 
@@ -24,19 +25,23 @@ import { T } from 'client/constants'
 /**
  * Renders default empty tab.
  *
+ * @param {object} props - Props
+ * @param {string} props.label - label string
  * @returns {ReactElement} Empty tab
  */
-const EmptyTab = () => {
+const EmptyTab = ({ label = T.NoDataAvailable }) => {
   const classes = useStyles()
 
   return (
     <span className={classes.noDataMessage}>
       <InfoEmpty />
-      <Translate word={T.NoDataAvailable} />
+      <Translate word={label} />
     </span>
   )
 }
-
+EmptyTab.propTypes = {
+  label: PropTypes.string,
+}
 EmptyTab.displayName = 'EmptyTab'
 
 export default EmptyTab

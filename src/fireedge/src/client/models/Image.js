@@ -19,6 +19,7 @@ import {
   IMAGE_STATES,
   STATES,
   Image,
+  DiskSnapshot,
 } from 'client/constants'
 import { prettyBytes } from 'client/utils'
 
@@ -59,4 +60,16 @@ export const getDiskName = ({ IMAGE, SIZE, TYPE, FORMAT } = {}) => {
   const type = String(TYPE).toLowerCase()
 
   return IMAGE ?? { fs: `${FORMAT} - ${size}`, swap: size }[type]
+}
+
+/**
+ * @param {Image} image - Image
+ * @returns {DiskSnapshot[]} List of snapshots from resource
+ */
+export const getSnapshots = (image) => {
+  const {
+    SNAPSHOTS: { SNAPSHOT },
+  } = image ?? {}
+
+  return [SNAPSHOT].flat().filter(Boolean)
 }

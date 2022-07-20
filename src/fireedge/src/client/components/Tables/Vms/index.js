@@ -21,7 +21,7 @@ import { useGetVmsQuery } from 'client/features/OneApi/vm'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, VM_STATES, STATES } from 'client/constants'
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -55,7 +55,7 @@ const VmsTable = (props) => {
           ?.filter((vm) =>
             host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
           )
-          ?.filter(({ STATE }) => STATE !== '6') ?? [],
+          ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
     }),
   })
 

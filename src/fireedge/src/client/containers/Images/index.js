@@ -21,11 +21,9 @@ import Cancel from 'iconoir-react/dist/Cancel'
 import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import {
-  useLazyGetImageQuery,
-  useUpdateImageMutation,
-} from 'client/features/OneApi/image'
+import { useLazyGetImageQuery } from 'client/features/OneApi/image'
 import { ImagesTable } from 'client/components/Tables'
+import ImageActions from 'client/components/Tables/Images/actions'
 import ImageTabs from 'client/components/Tabs/Image'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
@@ -40,6 +38,7 @@ import { T, Image } from 'client/constants'
  */
 function Images() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const actions = ImageActions()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -50,7 +49,7 @@ function Images() {
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <ImagesTable
             onSelectedRowsChange={onSelectedRowsChange}
-            useUpdateMutation={useUpdateImageMutation}
+            globalActions={actions}
           />
 
           {hasSelectedRows && (
@@ -82,24 +81,19 @@ function Images() {
  * @returns {ReactElement} Image details
  */
 const InfoTabs = memo(({ image, gotoPage, unselect }) => {
-  const [get, { data: lazyData, isFetching }] = useLazyGetImageQuery()
+  const [getImage, { data: lazyData, isFetching }] = useLazyGetImageQuery()
   const id = lazyData?.ID ?? image.ID
   const name = lazyData?.NAME ?? image.NAME
 
   return (
     <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-        <Typography color="text.primary" noWrap flexGrow={1}>
-          {`#${id} | ${name}`}
-        </Typography>
-
-        {/* -- ACTIONS -- */}
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => get({ id })}
+          onClick={() => getImage({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -117,9 +111,11 @@ const InfoTabs = memo(({ image, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
-        {/* -- END ACTIONS -- */}
+        <Typography color="text.primary" noWrap>
+          {`#${id} | ${name}`}
+        </Typography>
       </Stack>
-      <ImageTabs id={id} />
+      <ImageTabs id={image.ID} />
     </Stack>
   )
 })

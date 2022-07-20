@@ -128,6 +128,7 @@ export const INPUT_TYPES = {
   TEXT: 'text',
   TABLE: 'table',
   TOGGLE: 'toggle',
+  DOCKERFILE: 'dockerfile',
 }
 
 export const DEBUG_LEVEL = {

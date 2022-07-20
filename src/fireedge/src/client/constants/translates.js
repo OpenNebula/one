@@ -71,6 +71,8 @@ module.exports = {
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
+  CreateImage: 'Create Image',
+  CreateDockerfile: 'Create Dockerfile',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -83,6 +85,7 @@ module.exports = {
   DeleteAddressRange: 'Delete Address Range',
   DeleteTemplate: 'Delete Template',
   DeleteVirtualNetwork: 'Delete Virtual Network',
+  DeleteOtherSnapshots: 'This will delete all the other image snapshots',
   Deploy: 'Deploy',
   DeployServiceTemplate: 'Deploy Service Template',
   Detach: 'Detach',
@@ -95,6 +98,8 @@ module.exports = {
   Enable: 'Enable',
   Failure: 'Failure',
   Finish: 'Finish',
+  Flatten: 'Flatten',
+  FlattenSnapshot: 'Flatten %s',
   Hold: 'Hold',
   Import: 'Import',
   Info: 'Info',
@@ -138,6 +143,7 @@ module.exports = {
   Select: 'Select',
   SelectCluster: 'Select Cluster',
   SelectDatastore: 'Select a Datastore to store the resource',
+  SelectDatastoreImage: 'Select a Datastore',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
@@ -358,6 +364,21 @@ module.exports = {
   Marketplaces: 'Marketplaces',
   App: 'App',
   Apps: 'Apps',
+  Os: 'Operating system image',
+  Cdrom: 'Readonly CD-ROM',
+  Datablock: 'Generic storage datablock',
+  Path: 'Path/URL',
+  ImagePath: 'Path in OpenNebula server or URL',
+  Upload: 'Upload',
+  EmptyDisk: 'Empty disk image',
+  ImageSize: 'Image size, in Megabytes',
+  Vd: 'Virtio',
+  Sd: 'SCSI/SATA',
+  Hd: 'Parallel ATA (IDE)',
+  CustomBus: 'Custom bus',
+  Fs: 'Fs',
+  CustomFormat: 'Custom Format',
+  Dockerfile: 'Dockerfile',
 
   /* sections - templates & instances */
   Instances: 'Instances',
@@ -560,6 +581,7 @@ module.exports = {
   CustomAttributes: 'Custom Attributes',
   Hypervisor: 'Hypervisor',
   Logo: 'Logo',
+  MakePersistent: 'Make Persistent',
   MakeNewImagePersistent: 'Make the new images persistent',
   TemplateName: 'Template name',
   Virtualization: 'Virtualization',
@@ -1039,6 +1061,7 @@ module.exports = {
   BasePath: 'Base path',
   FileSystemType: 'Filesystem type',
   Persistent: 'Persistent',
+  NonPersistyent: 'Non Persistent',
   RunningVMs: 'Running VMs',
   /* Disk - general */
   DiskType: 'Disk type',
@@ -1074,6 +1097,7 @@ module.exports = {
     Iothread id used by this disk. Default is round robin.
     Can be used only if IOTHREADS > 0. If this input is disabled
     please first configure IOTHREADS value on OS & CPU -> Features`,
+  ImageLocation: 'Image Location',
 
   /* Provision schema */
   /* Provision - general */
@@ -1096,6 +1120,11 @@ module.exports = {
   DefaultValue: 'Default value',
   Mandatory: 'Mandatory',
   PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
+
+  /** Image */
+  NotVmsCurrenty: 'There are currently no VMs associated with this image',
+  NotSnapshotCurrenty:
+    'There are currently no snapshots associated with this image',
 
   /* Validation */
   /* Validation - mixed */
