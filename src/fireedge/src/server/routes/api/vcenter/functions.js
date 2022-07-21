@@ -526,7 +526,11 @@ const getToken = (
   const serverAdmin = getSunstoneAuth() ?? {}
   const { token: authToken } = createTokenServerAdmin(serverAdmin) ?? {}
 
-  !authToken && responser()
+  if (!authToken) {
+    responser()
+
+    return
+  }
 
   const { username } = serverAdmin
   const oneClient = xmlrpc(`${username}:${username}`, authToken)
@@ -537,6 +541,8 @@ const getToken = (
     callback: (vmInfoErr, { VM } = {}) => {
       if (vmInfoErr || !VM) {
         responser(vmInfoErr, unauthorized)
+
+        return
       }
 
       if (!VM?.MONITORING?.VCENTER_ESX_HOST) {
@@ -544,6 +550,8 @@ const getToken = (
           Could not determine the vCenter ESX host where
           the VM is running. Wait till the VCENTER_ESX_HOST attribute is
           retrieved once the host has been monitored`)
+
+        return
       }
 
       const history = VM?.HISTORY_RECORDS?.HISTORY
@@ -558,80 +566,104 @@ const getToken = (
 
       if (String(hostHypervisor).toLowerCase() !== 'vcenter') {
         responser('VMRC Connection is only for vCenter hypervisor')
+
+        return
       }
 
       if (!VM?.DEPLOY_ID || isNaN(hostId)) {
         responser('VM is not deployed')
+
+        return
+      }
+
+      const responseError = (error) =>
+        responser(error && error.message, internalServerError)
+
+      const responseToken = (ticketData) => {
+        const { ticket } = ticketData
+        const { protocol, hostname, port, path } = parse(ticket)
+
+        const httpProtocol = protocol === 'wss:' ? 'https' : 'http'
+        const esxUrl = `${httpProtocol}://${hostname}:${port}`
+        const token = path.replace('/ticket/', '')
+        global.vcenterToken = { [token]: esxUrl }
+
+        responser(token, ok)
+      }
+
+      /**
+       * Get the vcenter token of vm.
+       *
+       * @param {string} sessionId - session id
+       * @param {string} vcenterHost - host ip
+       */
+      const getVcenterToken = (sessionId, vcenterHost) => {
+        const vmIdFromDeployId = VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
+
+        executeRequest(
+          {
+            params: {
+              url: `https://${vcenterHost}/api/vcenter/vm/vm-${vmIdFromDeployId}/console/tickets`,
+              headers: {
+                'Content-Type': 'application/json',
+                'vmware-api-session-id': sessionId,
+              },
+              data: JSON.stringify({ type: 'WEBMKS' }),
+            },
+            agent: 'https',
+          },
+          {
+            success: responseToken,
+            error: responseError,
+          }
+        )
+      }
+
+      /**
+       * Get vmware-api-session-id.
+       *
+       * @param {string} hostInfoError - error when get info host.
+       * @param {object} hostData - host data
+       * @param {object} hostData.HOST - data host
+       */
+      const getSession = (hostInfoError, { HOST } = {}) => {
+        const { VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD } =
+          HOST?.TEMPLATE ?? {}
+
+        if (
+          hostInfoError ||
+          !VCENTER_HOST ||
+          !VCENTER_USER ||
+          !VCENTER_PASSWORD
+        ) {
+          responser(hostInfoError, unauthorized)
+
+          return
+        }
+
+        executeRequest(
+          {
+            params: {
+              url: `https://${VCENTER_HOST}/api/session`,
+              headers: {
+                Authorization: `Basic ${btoa(
+                  `${VCENTER_USER}:${VCENTER_PASSWORD}`
+                )}`,
+              },
+            },
+            agent: 'https',
+          },
+          {
+            success: (sessionId) => getVcenterToken(sessionId, VCENTER_HOST),
+            error: responseError,
+          }
+        )
       }
 
       oneClient({
         action: ActionHost.HOST_INFO,
         parameters: [parseInt(hostId, 10), true],
-        callback: (hostInfoError, { HOST } = {}) => {
-          const { VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD } =
-            HOST?.TEMPLATE ?? {}
-
-          if (
-            hostInfoError ||
-            !VCENTER_HOST ||
-            !VCENTER_USER ||
-            !VCENTER_PASSWORD
-          ) {
-            responser(hostInfoError, unauthorized)
-          }
-
-          executeRequest(
-            {
-              params: {
-                url: `https://${VCENTER_HOST}/api/session`,
-                headers: {
-                  Authorization: `Basic ${btoa(
-                    `${VCENTER_USER}:${VCENTER_PASSWORD}`
-                  )}`,
-                },
-              },
-              agent: 'https',
-            },
-            {
-              success: (sessionId) => {
-                const vmIdFromDeployId =
-                  VM.DEPLOY_ID.match(regexGetVcenterId).groups.id
-
-                executeRequest(
-                  {
-                    params: {
-                      url: `https://${VCENTER_HOST}/api/vcenter/vm/vm-${vmIdFromDeployId}/console/tickets`,
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'vmware-api-session-id': sessionId,
-                      },
-                      data: JSON.stringify({ type: 'WEBMKS' }),
-                    },
-                    agent: 'https',
-                  },
-                  {
-                    success: (ticketData) => {
-                      const { ticket } = ticketData
-                      const { protocol, hostname, port, path } = parse(ticket)
-
-                      const httpProtocol =
-                        protocol === 'wss:' ? 'https' : 'http'
-                      const esxUrl = `${httpProtocol}://${hostname}:${port}`
-                      const token = path.replace('/ticket/', '')
-                      global.vcenterToken = { [token]: esxUrl }
-
-                      responser(token, ok)
-                    },
-                    error: (error) =>
-                      responser(error && error.message, internalServerError),
-                  }
-                )
-              },
-              error: (error) =>
-                responser(error && error.message, internalServerError),
-            }
-          )
-        },
+        callback: getSession,
       })
     },
   })
