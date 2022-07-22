@@ -239,21 +239,21 @@ CommandParser::CmdParser.new(ARGV) do
         number = options[:multiple] || 1
         params = {}
         rc     = 0
+        client = helper.client(options)
 
         number.times do
             params['merge_template'] = nil
             params['merge_template'] = JSON.parse(File.read(args[1])) if args[1]
 
             unless params['merge_template']
-                secret = "#{options[:username]}:#{options[:password]}"
-                one_client = OpenNebula::Client.new(secret)
+                response = client.get("#{RESOURCE_PATH}/#{args[0]}")
 
-                service_template = OpenNebula::ServiceTemplate.new_with_id(
-                    args[0], one_client
-                )
-                service_template.info
+                if CloudClient.is_error?(response)
+                    rc = [response.code.to_i, response.to_s]
+                    break
+                end
 
-                body = JSON.parse(service_template['/DOCUMENT/TEMPLATE/BODY'])
+                body = JSON.parse(response.body)['DOCUMENT']['TEMPLATE']['BODY']
 
                 params['merge_template'] = helper.custom_attrs(
                     body['custom_attrs']
@@ -266,7 +266,6 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             json     = Service.build_json_action('instantiate', params)
-            client   = helper.client(options)
             response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json)
 
             if CloudClient.is_error?(response)
