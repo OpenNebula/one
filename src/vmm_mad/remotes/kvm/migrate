@@ -180,6 +180,11 @@ else
         fi
     done
 
+    # copy vm.xml and ds.xml from the $VM_DIR
+    if ls $VM_DIR/*.xml > /dev/null; then
+        multiline_exec_and_log "tar -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            "Failed to copy xml files to $DEST_HOST"
+    fi
 
     # freeze/suspend domain and rsync raw disks again
     if [ -n "$RAW_DISKS" ]; then
@@ -287,4 +292,3 @@ fi
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
     (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
 fi
-
