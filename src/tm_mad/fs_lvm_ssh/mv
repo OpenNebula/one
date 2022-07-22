@@ -122,11 +122,23 @@ EOF
 )
 
         LOCK="tm-fs_lvm-${DST_DS_SYS_ID}.lock"
-        exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${CREATE_CMD}" \
+        exclusive "${LOCK}" 120 ssh_exec_and_log "${DST_HOST}" "${CREATE_CMD}" \
                 "Error creating LV named ${LV_NAME}"
 
+        # activate src volume (on DST)
+        CMD=$(cat <<EOF
+            set -ex -o pipefail
+            ${SYNC}
+            ${SUDO} ${LVSCAN}
+            ${SUDO} ${LVCHANGE} -ay "${SRC_DEV}"
+EOF
+)
+        LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 120 ssh_exec_and_log "${DST_HOST}" "${CMD}" \
+            "Error deactivating disk ${SRC_PATH}"
+
         # copy volume data
-        ssh_exec_and_log "$SRC_HOST" \
+        ssh_exec_and_log "$DST_HOST" \
             "${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k}" \
             "Error copying ${SRC} to ${DST}"
 
@@ -144,21 +156,20 @@ EOF
         LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
         exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${DELETE_CMD}" \
             "Error deleting old LV ${SRC_DEV}"
-    fi
+    else
+        # activate
+        CMD=$(cat <<EOF
+            set -ex -o pipefail
+            ${SYNC}
+            ${SUDO} ${LVSCAN}
+            ${SUDO} ${LVCHANGE} -ay "${DST_DEV}"
 
-    # activate
-    CMD=$(cat <<EOF
-        set -ex -o pipefail
-        ${SYNC}
-        ${SUDO} ${LVSCAN}
-        ${SUDO} ${LVCHANGE} -ay "${DST_DEV}"
-
-        hostname -f >"${DST_DIR}/.host" || :
+            hostname -f >"${DST_DIR}/.host" || :
 EOF
 )
-    ssh_exec_and_log "$DST_HOST" "$CMD" \
-        "Error activating disk $DST_PATH"
-
+        ssh_exec_and_log "$DST_HOST" "$CMD" \
+            "Error activating disk $DST_PATH"
+    fi
 fi
 
 # After managing LV de/activation on different hosts, transfer normal files
