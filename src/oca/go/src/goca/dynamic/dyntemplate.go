@@ -17,6 +17,7 @@
 package dynamic
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"strconv"
@@ -74,7 +75,19 @@ func (t *Template) String() string {
 
 // String prints a Pair in OpenNebula syntax
 func (p *Pair) String() string {
-	return fmt.Sprintf("%s=%s", p.XMLName.Local, strconv.Quote(p.Value))
+
+	if strconv.CanBackquote(p.Value) {
+		return fmt.Sprintf("%s=%s", p.XMLName.Local, strconv.Quote(p.Value))
+	} else {
+		buf := bytes.NewBufferString(p.XMLName.Local)
+		buf.WriteString("=\"")
+		buf.WriteString(strings.ReplaceAll(p.Value, `"`, `\"`))
+		buf.WriteString(strings.ReplaceAll(p.Value, `\`, `\\`))
+		buf.WriteByte('"')
+
+		return buf.String()
+
+	}
 }
 
 func (v *Vector) String() string {
@@ -350,6 +363,13 @@ func (t *Template) GetStrFromVec(vecKey, key string) (string, error) {
 // NewTemplate returns a new Template object
 func NewTemplate() *Template {
 	return &Template{}
+}
+
+// NewTemplate returns a new Template object
+func NewVector(name string) *Vector {
+	return &Vector{
+		XMLName: xml.Name{Local: name},
+	}
 }
 
 // AddVector creates a new vector in the template
