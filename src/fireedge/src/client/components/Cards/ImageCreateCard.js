@@ -66,7 +66,7 @@ const ImageCreateCard = memo(
     const classes = useStyles()
 
     return (
-      <Grid item xs={12} md={6} onClick={onClick}>
+      <Grid item xs={12} md={6} onClick={onClick} data-cy="create">
         <Paper variant="outlined" className={classes.root}>
           {Icon && (
             <Box className={classes.figure}>
