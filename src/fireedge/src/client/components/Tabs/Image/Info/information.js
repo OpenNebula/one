@@ -26,7 +26,11 @@ import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getType, getState } from 'client/models/Image'
-import { timeToString, booleanToString } from 'client/models/Helper'
+import {
+  timeToString,
+  booleanToString,
+  levelLockToString,
+} from 'client/models/Helper'
 import { arrayToOptions, prettyBytes } from 'client/utils'
 import { T, Image, IMAGE_ACTIONS, IMAGE_TYPES } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
@@ -49,6 +53,7 @@ const InformationPanel = ({ image = {}, actions }) => {
     NAME,
     SIZE,
     PERSISTENT,
+    LOCK,
     REGTIME,
     DATASTORE_ID,
     DATASTORE = '--',
@@ -111,6 +116,11 @@ const InformationPanel = ({ image = {}, actions }) => {
       dataCy: 'type',
     },
     {
+      name: T.Locked,
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
+    },
+    {
       name: T.Persistent,
       value: booleanToString(+PERSISTENT),
       valueInOptionList: PERSISTENT,
@@ -127,6 +137,7 @@ const InformationPanel = ({ image = {}, actions }) => {
     {
       name: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />,
+      dataCy: 'state',
     },
     {
       name: T.RunningVMs,

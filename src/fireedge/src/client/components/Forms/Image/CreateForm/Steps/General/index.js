@@ -24,7 +24,9 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'general'
 
-const Content = () => <FormWithSchema id={STEP_ID} fields={FIELDS} />
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
 
 /**
  * General configuration about VM Template.

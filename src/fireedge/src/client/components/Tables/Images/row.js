@@ -36,7 +36,7 @@ const Row = ({ original, value, ...props }) => {
     TYPE,
     DISK_TYPE,
     PERSISTENT,
-    LOCK,
+    locked,
     DATASTORE,
     TOTAL_VMS,
     RUNNING_VMS,
@@ -59,7 +59,7 @@ const Row = ({ original, value, ...props }) => {
           <Typography noWrap component="span" data-cy="name">
             {NAME}
           </Typography>
-          {LOCK && <Lock />}
+          {locked && <Lock />}
           <span className={classes.labels}>
             {labels.map((label) => (
               <StatusChip key={label} text={label} />

@@ -23,7 +23,9 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
-const Content = () => <FormWithSchema id={STEP_ID} fields={FIELDS} />
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
 
 /**
  * Advanced options create image.
