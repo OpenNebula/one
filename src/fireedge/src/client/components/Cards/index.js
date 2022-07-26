@@ -23,6 +23,8 @@ import DiskCard from 'client/components/Cards/DiskCard'
 import DiskSnapshotCard from 'client/components/Cards/DiskSnapshotCard'
 import EmptyCard from 'client/components/Cards/EmptyCard'
 import HostCard from 'client/components/Cards/HostCard'
+import ImageCreateCard from 'client/components/Cards/ImageCreateCard'
+import ImageSnapshotCard from 'client/components/Cards/ImageSnapshotCard'
 import MarketplaceAppCard from 'client/components/Cards/MarketplaceAppCard'
 import MarketplaceCard from 'client/components/Cards/MarketplaceCard'
 import NetworkCard from 'client/components/Cards/NetworkCard'
@@ -52,6 +54,8 @@ export {
   DiskSnapshotCard,
   EmptyCard,
   HostCard,
+  ImageCreateCard,
+  ImageSnapshotCard,
   MarketplaceAppCard,
   MarketplaceCard,
   NetworkCard,

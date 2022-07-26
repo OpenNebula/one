@@ -25,23 +25,25 @@ resource_name: "IMAGE"
 
 actions:
   create_dialog: true
-  clone_dialog: true
   import_dialog: true
-  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
-  chown: true
-  chgrp: true
-  enable: true
-  disable: true
-  persistent: true
-  nonpersistent: true
-  delete: true
+  dockerfile_dialog: false
+  clone: true
   lock: true
   unlock: true
+  disable: true
+  enable: true
+  persistent: true
+  nonpersistent: true
+  chown: true
+  chgrp: true
+  delete: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  state: true
+
 
 # Info Tabs - Which info tabs are used to show extended information
 
@@ -52,8 +54,6 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-        chtype: true
-        persistent: true
     permissions_panel:
       enabled: true
       actions:
@@ -70,10 +70,8 @@ info-tabs:
         add: true
         edit: true
         delete: true
-
-  vm:
+  vms:
     enabled: true
-
   snapshot:
     enabled: true
     actions:

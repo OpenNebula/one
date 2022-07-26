@@ -54,7 +54,10 @@ public:
 
     ~Driver()
     {
-        stream_thr.join();
+        if (stream_thr.joinable())
+        {
+            stream_thr.join();
+        }
     }
 
     /**

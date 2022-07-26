@@ -70,6 +70,39 @@ const std::vector<ContextVariable> NETWORK6_CONTEXT = {
     {"EXTERNAL", "EXTERNAL", "", false},
 };
 
+bool is_restricted(const string& path,
+                   const set<string>& restricted,
+                   const set<string>& safe)
+{
+    auto canonical_c = realpath(path.c_str(), nullptr);
+
+    if (canonical_c == nullptr)
+    {
+        return false;
+    }
+
+    string canonical_str(canonical_c);
+    free(canonical_c);
+
+    for (auto& s : safe)
+    {
+        if (canonical_str.find(s) == 0)
+        {
+            return false;
+        }
+    }
+
+    for (auto& r : restricted)
+    {
+        if (canonical_str.find(r) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /*   CONTEXT - Public Interface                                               */
@@ -129,6 +162,33 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     files    = context->vector_value("FILES");
+
+    auto& nd = Nebula::instance();
+    string restricted_dirs, safe_dirs;
+    nd.get_configuration_attribute("CONTEXT_RESTRICTED_DIRS", restricted_dirs);
+    nd.get_configuration_attribute("CONTEXT_SAFE_DIRS", safe_dirs);
+
+    set<string> restricted, safe;
+
+    one_util::split_unique(restricted_dirs, ' ', restricted);
+    one_util::split_unique(safe_dirs, ' ', safe);
+
+    set<string> files_set;
+    one_util::split_unique(files, ' ', files_set);
+    for (auto& f : files_set)
+    {
+        if (is_restricted(f, restricted, safe))
+        {
+            string error = "CONTEXT/FILES cannot use " + f
+                           + ", it's in restricted directories";
+
+            log("VM", Log::ERROR, error);
+            set_template_error_message(error);
+
+            return -1;
+        }
+    }
+
     files_ds = context->vector_value("FILES_DS");
 
     if (!files_ds.empty())

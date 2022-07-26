@@ -20,12 +20,14 @@ import {
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
+import http from 'client/utils/rest'
 import {
   FilterFlag,
   Image,
   Permission,
   IMAGE_TYPES_STR,
 } from 'client/constants'
+import { getType } from 'client/models/Image'
 
 const { IMAGE } = ONE_RESOURCES
 const { IMAGE_POOL } = ONE_RESOURCES_POOL
@@ -49,7 +51,19 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      transformResponse: (data) => [data?.IMAGE_POOL?.IMAGE ?? []].flat(),
+      transformResponse: (data) => {
+        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) => {
+          const type = getType(image)
+
+          return (
+            type === IMAGE_TYPES_STR.OS ||
+            type === IMAGE_TYPES_STR.CDROM ||
+            type === IMAGE_TYPES_STR.DATABLOCK
+          )
+        })
+
+        return [images ?? []].flat()
+      },
       providesTags: (images) =>
         images
           ? [
@@ -100,6 +114,35 @@ const imageApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: [IMAGE_POOL],
+    }),
+    uploadImage: builder.mutation({
+      /**
+       * Upload image.
+       *
+       * @param {object} params - request params
+       * @param {object} params.file - image file
+       * @param {Function} params.uploadProcess - upload process function
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: async ({ file, uploadProcess }) => {
+        try {
+          const data = new FormData()
+          data.append('files', file)
+          const response = await http.request({
+            url: '/api/image/upload',
+            method: 'POST',
+            data,
+            onUploadProgress: uploadProcess,
+          })
+
+          return { data: response.data }
+        } catch (axiosError) {
+          const { response } = axiosError
+
+          return { error: { status: response?.status, data: response?.data } }
+        }
+      },
     }),
     cloneImage: builder.mutation({
       /**
@@ -408,4 +451,5 @@ export const {
   useFlattenImageSnapshotMutation,
   useLockImageMutation,
   useUnlockImageMutation,
+  useUploadImageMutation,
 } = imageApi

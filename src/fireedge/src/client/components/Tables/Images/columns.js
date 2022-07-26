@@ -25,6 +25,7 @@ export default [
   { Header: 'Name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
+  { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
   {
     Header: 'State',
     id: 'STATE',

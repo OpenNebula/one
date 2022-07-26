@@ -27,6 +27,7 @@ const initial = {
   withGroupSwitcher: false,
   isLoading: false,
   isFixMenu: false,
+  upload: 0,
   notifications: [],
 }
 
@@ -64,7 +65,11 @@ const slice = createSlice({
         ...state,
         zone: payload,
       }))
-
+      /* UPLOAD NOTIFICATION */
+      .addCase(actions.setUploadSnackbar, (state, { payload }) => ({
+        ...state,
+        upload: payload,
+      }))
       /* NOTIFICATION ACTIONS */
       .addCase(actions.enqueueSnackbar, (state, { payload }) => {
         const { key, options, message } = payload

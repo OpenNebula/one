@@ -157,59 +157,60 @@ const upload = (
   const { app, files, public: publicFile } = params
   const { id, user, password } = userData
   if (
-    global.paths.CPI &&
-    app &&
-    checkValidApp(app) &&
-    files &&
-    id &&
-    user &&
-    password
-  ) {
-    const oneConnect = oneConnection(user, password)
-    checkUserAdmin(
-      oneConnect,
-      id,
-      (admin = false) => {
-        const pathUserData =
-          publicFile && admin ? `${app}` : `${app}${sep}${id}`
-        const pathUser = `${global.paths.CPI}${sep}${pathUserData}`
-        if (!existsSync(pathUser)) {
-          mkdirsSync(pathUser)
-        }
-        let method = ok
-        let message = ''
-        const data = []
-        for (const file of files) {
-          if (file && file.originalname && file.path && file.filename) {
-            const extFile = extname(file.originalname)
-            try {
-              const filenameApi = `${pathUserData}${sep}${file.filename}${extFile}`
-              const filename = `${pathUser}${sep}${file.filename}${extFile}`
-              moveSync(file.path, filename)
-              data.push(filenameApi)
-            } catch (error) {
-              method = internalServerError
-              message = error && error.message
-              break
-            }
-          }
-        }
-        res.locals.httpCode = httpResponse(
-          method,
-          data.length ? data : '',
-          message
-        )
-        next()
-      },
-      () => {
-        res.locals.httpCode = internalServerError
-        next()
-      }
+    !(
+      global.paths.CPI &&
+      app &&
+      checkValidApp(app) &&
+      files &&
+      id &&
+      user &&
+      password
     )
-  } else {
+  ) {
     res.locals.httpCode = httpBadRequest
     next()
   }
+
+  const oneConnect = oneConnection(user, password)
+  checkUserAdmin(
+    oneConnect,
+    id,
+    (admin = false) => {
+      const pathUserData = publicFile && admin ? `${app}` : `${app}${sep}${id}`
+      const pathUser = `${global.paths.CPI}${sep}${pathUserData}`
+      if (!existsSync(pathUser)) {
+        mkdirsSync(pathUser)
+      }
+      let method = ok
+      let message = ''
+      const data = []
+      for (const file of files) {
+        if (file && file.originalname && file.path && file.filename) {
+          const extFile = extname(file.originalname)
+          try {
+            const filenameApi = `${pathUserData}${sep}${file.filename}${extFile}`
+            const filename = `${pathUser}${sep}${file.filename}${extFile}`
+            moveSync(file.path, filename)
+            data.push(filenameApi)
+          } catch (error) {
+            method = internalServerError
+            message = error && error.message
+            break
+          }
+        }
+      }
+      res.locals.httpCode = httpResponse(
+        method,
+        data.length ? data : '',
+        message
+      )
+      next()
+    },
+    () => {
+      res.locals.httpCode = internalServerError
+      next()
+    }
+  )
 }
 
 /**

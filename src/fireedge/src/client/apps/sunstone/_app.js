@@ -29,6 +29,7 @@ import { useGeneralApi } from 'client/features/General'
 import systemApi from 'client/features/OneApi/system'
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
+import NotifierUpload from 'client/components/Notifier/upload'
 import { AuthLayout } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 import { _APPS } from 'client/constants'
@@ -73,6 +74,7 @@ const SunstoneApp = () => {
         <>
           <Sidebar endpoints={endpoints} />
           <Notifier />
+          <NotifierUpload />
         </>
       )}
       <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />

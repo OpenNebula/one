@@ -36,6 +36,7 @@ const routes = [
   '2fa',
   'auth',
   'files',
+  'image',
   'marketapp',
   'oneflow',
   'vcenter',

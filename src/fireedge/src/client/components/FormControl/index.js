@@ -29,6 +29,7 @@ import SubmitButton, {
   SubmitButtonPropTypes,
 } from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
+import DockerfileController from 'client/components/FormControl/DockerfileController'
 import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import Tooltip from 'client/components/FormControl/Tooltip'
 
@@ -47,6 +48,7 @@ export {
   SubmitButton,
   SubmitButtonPropTypes,
   InputCode,
+  DockerfileController,
   ErrorHelper,
   Tooltip,
 }

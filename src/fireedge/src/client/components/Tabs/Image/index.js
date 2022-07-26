@@ -24,10 +24,14 @@ import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Image/Info'
+import Vms from 'client/components/Tabs/Image/Vms'
+import Snapshots from 'client/components/Tabs/Image/Snapshots'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    vms: Vms,
+    snapshot: Snapshots,
   }[tabName])
 
 const ImageTabs = memo(({ id }) => {
