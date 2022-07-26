@@ -28,6 +28,8 @@
         </xs:element>
 
         <xs:element name="CLUSTER_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="CONTEXT_RESTRICTED_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="CONTEXT_SAFE_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="DATASTORE_CAPACITY_CHECK" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="DATASTORE_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="DATASTORE_LOCATION" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

@@ -333,6 +333,9 @@ static int do_context_command(VirtualMachine * vm, const string& password,
 
     if ( rc == -1 )
     {
+        auto vmpool = Nebula::instance().get_vmpool();
+        vmpool->update(vm);
+
         return -1;
     }
     else if ( rc == 1 )
