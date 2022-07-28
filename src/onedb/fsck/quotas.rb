@@ -487,18 +487,20 @@ module OneDBFsck
             end
         end
 
-        net_quota = nil
-        doc.root.xpath('NETWORK_QUOTA').each {|e| net_quota = e }
+        net_quota = doc.root.xpath('NETWORK_QUOTA').remove
 
-        if net_quota.nil?
-            net_quota = doc.root.add_child(doc.create_element('NETWORK_QUOTA'))
-        end
+        new_net_quota = doc.root.add_child(doc.create_element('NETWORK_QUOTA'))
+
+        net_quota = new_net_quota if net_quota.nil?
 
         net_quota.xpath('NETWORK').each do |net_elem|
-            # The ID should exists, just in case it's missing it doesn't make
-            # sense to check this LEASES
-            next unless net_elem.at_xpath('ID')
+            # Check ID exists
+            unless net_elem.at_xpath('ID')
+                log_error("#{resource} #{oid} quotas: NETWORK doesn't have ID")
+                next
+            end
 
+            # Check leases
             vnet_id = net_elem.at_xpath('ID').text
 
             leases_used = vnet_usage.delete(vnet_id)
@@ -513,6 +515,8 @@ module OneDBFsck
                           "\tis\t#{leases_used}")
                 e.content = leases_used.to_s
             end
+
+            new_net_quota.add_child(net_elem)
         end
 
         vnet_usage.each do |vnet_id, leases_used|
