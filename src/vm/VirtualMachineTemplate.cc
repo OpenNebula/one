@@ -235,6 +235,7 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
     {"RAW",
         { "TYPE",
           "DATA",
+          "VALIDATE",
           "DATA_VMX"}
     },
     {"CPU_MODEL",

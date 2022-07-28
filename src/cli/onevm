@@ -1350,7 +1350,7 @@ CommandParser::CmdParser.new(ARGV) do
         FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "IOTHREADS"]
         INPUT     = ["TYPE", "BUS"]
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
-        RAW       = ["DATA", "DATA_VMX", "TYPE"]
+        RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
