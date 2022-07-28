@@ -155,6 +155,7 @@ export const RESOURCE_NAMES = {
   GROUP: 'group',
   HOST: 'host',
   IMAGE: 'image',
+  FILE: 'file',
   MARKETPLACE: 'marketplace',
   SEC_GROUP: 'security-group',
   USER: 'user',

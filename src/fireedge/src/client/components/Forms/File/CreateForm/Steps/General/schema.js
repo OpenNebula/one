@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, number, object, ObjectSchema, mixed } from 'yup'
+import { string, object, ObjectSchema, mixed } from 'yup'
 import {
   Field,
   arrayToOptions,
@@ -24,19 +24,17 @@ import {
   T,
   INPUT_TYPES,
   IMAGE_TYPES_STR,
-  IMAGE_TYPES_FOR_IMAGES,
+  IMAGE_TYPES_FOR_FILES,
 } from 'client/constants'
 
 export const IMAGE_LOCATION_TYPES = {
   PATH: 'path',
   UPLOAD: 'upload',
-  EMPTY: 'empty',
 }
 
 const IMAGE_LOCATION = {
   [IMAGE_LOCATION_TYPES.PATH]: T.Path,
   [IMAGE_LOCATION_TYPES.UPLOAD]: T.Upload,
-  [IMAGE_LOCATION_TYPES.EMPTY]: T.EmptyDisk,
 }
 
 const htmlType = (opt, inputNumber) => (location) => {
@@ -71,7 +69,7 @@ export const TYPE = {
   name: 'TYPE',
   label: T.Type,
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(Object.values(IMAGE_TYPES_FOR_IMAGES), {
+  values: arrayToOptions(Object.values(IMAGE_TYPES_FOR_FILES), {
     addEmpty: false,
     getText: (type) => {
       switch (type) {
@@ -90,16 +88,7 @@ export const TYPE = {
   validation: string()
     .trim()
     .default(() => IMAGE_TYPES_STR.OS),
-  grid: { xs: 12, md: 6 },
-}
-
-/** @type {Field} Persistent field */
-export const PERSISTENT = {
-  name: 'PERSISTENT',
-  label: T.MakePersistent,
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean().yesOrNo(),
-  grid: { xs: 12, md: 6 },
+  grid: { md: 12 },
 }
 
 /** @type {Field} Toggle select type image */
@@ -118,6 +107,7 @@ export const IMAGE_LOCATION_FIELD = {
   grid: { md: 12 },
   notNull: true,
 }
+
 /** @type {Field} path field */
 export const PATH_FIELD = {
   name: 'PATH',
@@ -150,25 +140,6 @@ export const UPLOAD_FIELD = {
   grid: { md: 12 },
 }
 
-/** @type {Field} size field */
-export const SIZE = {
-  name: 'SIZE',
-  dependOf: IMAGE_LOCATION_FIELD.name,
-  htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY, true),
-  label: T.Size,
-  type: INPUT_TYPES.TEXT,
-  tooltip: T.ImageSize,
-  validation: number()
-    .positive()
-    .default(() => undefined)
-    .when(IMAGE_LOCATION_FIELD.name, {
-      is: (location) => location === IMAGE_LOCATION_TYPES.EMPTY,
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.strip(),
-    }),
-  grid: { md: 12 },
-}
-
 /**
  * @returns {Field[]} Fields
  */
@@ -176,11 +147,9 @@ export const FIELDS = [
   NAME,
   DESCRIPTION,
   TYPE,
-  PERSISTENT,
   IMAGE_LOCATION_FIELD,
   PATH_FIELD,
   UPLOAD_FIELD,
-  SIZE,
 ]
 
 /**
