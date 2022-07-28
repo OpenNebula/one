@@ -72,6 +72,7 @@ module.exports = {
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
   CreateImage: 'Create Image',
+  CreateFile: 'Create File',
   CreateDockerfile: 'Create Dockerfile',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',

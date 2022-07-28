@@ -75,6 +75,20 @@ export const IMAGE_TYPES = [
   IMAGE_TYPES_STR.CONTEXT,
 ]
 
+/** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab files */
+export const IMAGE_TYPES_FOR_FILES = [
+  IMAGE_TYPES_STR.KERNEL,
+  IMAGE_TYPES_STR.RAMDISK,
+  IMAGE_TYPES_STR.CONTEXT,
+]
+
+/** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab images */
+export const IMAGE_TYPES_FOR_IMAGES = [
+  IMAGE_TYPES_STR.OS,
+  IMAGE_TYPES_STR.CDROM,
+  IMAGE_TYPES_STR.DATABLOCK,
+]
+
 /** @enum {string} Disk type */
 export const DISK_TYPES_STR = {
   FILE: 'FILE',

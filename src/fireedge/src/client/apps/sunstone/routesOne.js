@@ -24,6 +24,7 @@ import {
   Box as StorageIcon,
   Db as DatastoreIcon,
   BoxIso as ImageIcon,
+  Folder as FileIcon,
   SimpleCart as MarketplaceIcon,
   CloudDownload as MarketplaceAppIcon,
   ServerConnection as NetworksIcon,
@@ -95,6 +96,12 @@ const Datastores = loadable(() => import('client/containers/Datastores'), {
   ssr: false,
 })
 const Images = loadable(() => import('client/containers/Images'), {
+  ssr: false,
+})
+const Files = loadable(() => import('client/containers/Files'), {
+  ssr: false,
+})
+const CreateFiles = loadable(() => import('client/containers/Files/Create'), {
   ssr: false,
 })
 const CreateImages = loadable(() => import('client/containers/Images/Create'), {
@@ -200,6 +207,11 @@ export const PATH = {
       DETAIL: `/${RESOURCE_NAMES.IMAGE}/:id`,
       CREATE: `/${RESOURCE_NAMES.IMAGE}/create`,
       DOCKERFILE: `/${RESOURCE_NAMES.IMAGE}/dockerfile`,
+    },
+    FILES: {
+      LIST: `/${RESOURCE_NAMES.FILE}`,
+      DETAIL: `/${RESOURCE_NAMES.FILE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.FILE}/create`,
     },
     MARKETPLACES: {
       LIST: `/${RESOURCE_NAMES.MARKETPLACE}`,
@@ -379,6 +391,18 @@ const ENDPOINTS = [
         title: T.CreateImage,
         path: PATH.STORAGE.IMAGES.CREATE,
         Component: CreateImages,
+      },
+      {
+        title: T.Files,
+        path: PATH.STORAGE.FILES.LIST,
+        sidebar: true,
+        icon: FileIcon,
+        Component: Files,
+      },
+      {
+        title: T.CreateFile,
+        path: PATH.STORAGE.FILES.CREATE,
+        Component: CreateFiles,
       },
       {
         title: T.CreateDockerfile,
