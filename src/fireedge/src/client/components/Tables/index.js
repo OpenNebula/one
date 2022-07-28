@@ -20,6 +20,7 @@ import EnhancedTable from 'client/components/Tables/Enhanced'
 import GroupsTable from 'client/components/Tables/Groups'
 import HostsTable from 'client/components/Tables/Hosts'
 import ImagesTable from 'client/components/Tables/Images'
+import FilesTable from 'client/components/Tables/Files'
 import MarketplaceAppsTable from 'client/components/Tables/MarketplaceApps'
 import MarketplacesTable from 'client/components/Tables/Marketplaces'
 import SecurityGroupsTable from 'client/components/Tables/SecurityGroups'
@@ -40,6 +41,7 @@ export * from 'client/components/Tables/Enhanced/Utils'
 export {
   SkeletonTable,
   EnhancedTable,
+  FilesTable,
   VirtualizedTable,
   ClustersTable,
   DatastoresTable,

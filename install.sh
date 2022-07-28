@@ -2907,11 +2907,14 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/image-tab.yaml\
+                                src/fireedge/etc/sunstone/admin/file-tab.yaml\
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/user/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/user/image-tab.yaml\
+                                src/fireedge/etc/sunstone/user/file-tab.yaml\
                                 src/fireedge/etc/sunstone/user/vnet-tab.yaml"
 
 #-----------------------------------------------------------------------------

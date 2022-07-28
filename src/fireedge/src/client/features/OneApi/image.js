@@ -26,6 +26,8 @@ import {
   Image,
   Permission,
   IMAGE_TYPES_STR,
+  IMAGE_TYPES_FOR_FILES,
+  IMAGE_TYPES_FOR_IMAGES,
 } from 'client/constants'
 import { getType } from 'client/models/Image'
 
@@ -52,15 +54,41 @@ const imageApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => {
-        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) => {
-          const type = getType(image)
+        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
+          IMAGE_TYPES_FOR_IMAGES.some(() => getType(image))
+        )
 
-          return (
-            type === IMAGE_TYPES_STR.OS ||
-            type === IMAGE_TYPES_STR.CDROM ||
-            type === IMAGE_TYPES_STR.DATABLOCK
-          )
-        })
+        return [images ?? []].flat()
+      },
+      providesTags: (images) =>
+        images
+          ? [
+              ...images.map(({ ID }) => ({ type: IMAGE_POOL, id: `${ID}` })),
+              IMAGE_POOL,
+            ]
+          : [IMAGE_POOL],
+    }),
+    getFiles: builder.query({
+      /**
+       * Retrieves information for all or part of the images in the pool.
+       *
+       * @param {object} params - Request params
+       * @param {FilterFlag} [params.filter] - Filter flag
+       * @param {number} [params.start] - Range start ID
+       * @param {number} [params.end] - Range end ID
+       * @returns {Image[]} List of images
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.IMAGE_POOL_INFO
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => {
+        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
+          IMAGE_TYPES_FOR_FILES.some(() => getType(image))
+        )
 
         return [images ?? []].flat()
       },
@@ -433,6 +461,8 @@ export const {
   useLazyGetImageQuery,
   useGetImagesQuery,
   useLazyGetImagesQuery,
+  useGetFilesQuery,
+  useLazyGetFilesQuery,
 
   // Mutations
   useAllocateImageMutation,

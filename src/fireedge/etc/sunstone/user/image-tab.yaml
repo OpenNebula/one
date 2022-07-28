@@ -1,0 +1,80 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+---
+# This file describes the information and actions available in the IMAGE tab
+
+# Resource
+
+resource_name: "IMAGE"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  import_dialog: true
+  dockerfile_dialog: false
+  clone: true
+  lock: true
+  unlock: true
+  disable: true
+  enable: true
+  persistent: true
+  nonpersistent: true
+  chown: true
+  chgrp: true
+  delete: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  state: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+  vms:
+    enabled: true
+  snapshot:
+    enabled: true
+    actions:
+      snapshot_flatten: true
+      snapshot_revert: true
+      snapshot_delete: true
