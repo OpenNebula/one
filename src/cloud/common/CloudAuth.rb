@@ -19,9 +19,7 @@ require 'thread'
 class CloudAuth
     # These are the authentication methods for the user requests
     AUTH_MODULES = {
-        "occi"       => 'OCCICloudAuth',
         "sunstone"   => 'SunstoneCloudAuth' ,
-        "ec2"        => 'EC2CloudAuth',
         "x509"       => 'X509CloudAuth',
         "remote"     => 'RemoteCloudAuth',
         "opennebula" => 'OpenNebulaCloudAuth',
