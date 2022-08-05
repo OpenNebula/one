@@ -17,18 +17,41 @@ clean() {
     rm -rf ./dist ./node_modules
 }
 
+openssl_legacy() {
+    cat > /tmp/openssl.conf <<EOF
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+
+[provider_sect]
+default = default_sect
+legacy = legacy_sect
+
+[default_sect]
+activate = 1
+
+[legacy_sect]
+activate = 1
+EOF
+
+    export OPENSSL_CONF="/tmp/openssl.conf"
+}
+
 dependencies() {
     npm i --production
 }
 
 install() {
     clean
+    openssl_legacy
     dependencies
     npm run build
 }
 
 install_enterprise() {
     clean
+    openssl_legacy
     dependencies
     # npm run build-enterprise
     npm run build
@@ -77,3 +100,4 @@ if [ "$ENTERPRISE" = "yes" ]; then
 fi
 
 install
+
