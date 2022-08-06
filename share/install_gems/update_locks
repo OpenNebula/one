@@ -83,6 +83,7 @@ elif command -v rpm >/dev/null; then
     if command -v dnf >/dev/null; then
         dnf -q -y install 'dnf-command(config-manager)'
         dnf config-manager --set-enabled powertools || /bin/true
+        dnf config-manager --set-enabled crb || /bin/true         # alma9
     fi
 
     yum -q -y install rubygems findutils
