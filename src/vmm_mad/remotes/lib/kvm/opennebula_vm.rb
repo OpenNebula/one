@@ -16,6 +16,9 @@
 require_relative '../lib/xmlparser'
 require_relative '../lib/opennebula_vm'
 
+# rubocop:disable Style/ClassAndModuleChildren
+# rubocop:disable Style/ClassVars
+
 # This module includes related KVM/Libvirt functions
 module VirtualMachineManagerKVM
 

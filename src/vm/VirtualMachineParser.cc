@@ -351,12 +351,6 @@ int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_st
         return -1;
     }
 
-    if ( HostSharePCI::set_pci_address(pci, default_bus, true) != 0 )
-    {
-        error_str = "Wrong BUS in PCI attribute";
-        return -1;
-    }
-
     return 0;
 }
 
