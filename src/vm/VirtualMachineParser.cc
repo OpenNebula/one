@@ -316,22 +316,19 @@ int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 
 static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
-    string& error_str)
+        string& error_str)
 {
-    static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
-    static int num_attrs  = 3;
-
-    string bus;
+    static std::vector<std::string> attrs = {"VENDOR", "DEVICE", "CLASS"};
     bool   found = false;
 
-    for (int i = 0; i < num_attrs; i++)
+    for (const auto& attr: attrs)
     {
         unsigned int val;
-        int rc = HostSharePCI::get_pci_value(attrs[i].c_str(), pci, val);
+        int rc = HostSharePCI::get_pci_value(attr.c_str(), pci, val);
 
         if (rc == -1)
         {
-            error_str = "Wrong Hex value for PCI attribute " + attrs[i];
+            error_str = "Wrong Hex value for PCI attribute " + attr;
             return -1;
         }
         else if ( rc != 0 )
@@ -340,13 +337,22 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
         }
     }
 
-    if (!found)
+    string saddr;
+
+    pci->vector_value("SHORT_ADDRESS", saddr);
+
+    if (saddr.empty() && !found)
     {
-        error_str = "DEVICE, VENDOR or CLASS must be defined for PCI.";
+        error_str = "SHORT_ADDRESS, DEVICE, VENDOR or CLASS must be defined for PCI.";
+        return -1;
+    }
+    else if (!saddr.empty() && found)
+    {
+        error_str = "SHORT_ADDRESS cannot be set with DEVICE, VENDOR or CLASS";
         return -1;
     }
 
-    if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
+    if ( HostSharePCI::set_pci_address(pci, default_bus, true) != 0 )
     {
         error_str = "Wrong BUS in PCI attribute";
         return -1;
@@ -375,7 +381,7 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 
     nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
 
-    for (auto attr : array_pci)
+    for (auto& attr : array_pci)
     {
         if ( check_pci_attributes(attr, default_bus, error_str) != 0 )
         {

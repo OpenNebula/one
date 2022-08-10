@@ -41,6 +41,8 @@ module VNMMAD
                 @nics       = VNMNetwork::Nics.new(hypervisor)
                 @nics_alias = VNMNetwork::Nics.new(hypervisor)
 
+                @pcis       = VNMNetwork::Nics.new(hypervisor)
+
                 return if xpath_filter.nil?
 
                 @vm_root.elements.each(xpath_filter) do |nic_element|
@@ -63,6 +65,16 @@ module VNMMAD
 
                     @nics_alias << nic
                 end
+
+                pci_xpath_filter = xpath_filter.gsub(/\/NIC/,'/PCI')
+
+                @vm_root.elements.each(pci_xpath_filter) do |ne|
+                    nic = @pcis.new_nic
+
+                    nic_build_hash(ne, nic)
+
+                    @pcis << nic
+                end
             end
 
             # Iterator on each NIC of the VM
@@ -79,6 +91,15 @@ module VNMMAD
                 return if @nics_alias.nil?
 
                 @nics_alias.each do |the_nic|
+                    block.call(the_nic)
+                end
+            end
+
+            # Iterator on each PCI of the VM
+            def each_pci(&block)
+                return if @pcis.nil?
+
+                @pcis.each do |the_nic|
                     block.call(the_nic)
                 end
             end

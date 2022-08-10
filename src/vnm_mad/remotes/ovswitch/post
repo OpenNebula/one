@@ -26,4 +26,7 @@ deploy_id    = ARGV[0]
 xpath_filter = OpenvSwitchVLAN::XPATH_FILTER
 
 ovs = OpenvSwitchVLAN.from_base64(template64, xpath_filter, deploy_id)
+
+ovs.activate_vf(ovs.vm)
+
 ovs.run_hooks(ARGV, template64) if ovs.activate == 0

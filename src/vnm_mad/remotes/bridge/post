@@ -24,4 +24,7 @@ require 'vnmmad'
 template64 = STDIN.read
 
 hm = VNMMAD::VNMDriver.from_base64(template64)
+
+hm.activate_vf(hm.vm)
+
 exit hm.run_hooks(ARGV, template64)

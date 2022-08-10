@@ -17,6 +17,8 @@
 require 'shellwords'
 require 'open3'
 
+require_relative 'vf'
+
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom
 # virtual network drivers. The VNMAD module includes:
@@ -32,6 +34,8 @@ module VNMMAD
     class VNMDriver
 
         attr_reader :vm
+
+        include VirtualFunction
 
         # Creates new driver using:
         #   @param vm_tpl [String] XML String from oned

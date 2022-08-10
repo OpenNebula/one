@@ -21,6 +21,7 @@
 #include "HookStateVM.h"
 #include "HookManager.h"
 #include "ImageManager.h"
+#include "HostPool.h"
 
 #include <sstream>
 
@@ -1061,19 +1062,13 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 
 void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 {
-    VirtualMachineNic * nic, * p_nic;
-
-    int uid;
-    int gid;
-    int oid;
-
     set<int> pre, post;
 
     Template tmpl;
 
     vm->get_security_groups(pre);
 
-    nic = vm->delete_attach_nic();
+    VirtualMachineNic * nic = vm->delete_attach_nic();
 
     if ( nic == nullptr )
     {
@@ -1082,7 +1077,10 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
         return;
     }
 
-    int nic_id = nic->get_nic_id();
+    int hid  = vm->get_hid();
+    int vmid = vm->get_oid();
+
+    int nic_id  = nic->get_nic_id();
 
     if (!nic->is_alias())
     {
@@ -1097,7 +1095,7 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 
         vm->clear_nic_alias_context(parent_id, alias_id);
 
-        p_nic = vm->get_nic(parent_id);
+        VirtualMachineNic * p_nic = vm->get_nic(parent_id);
 
         // As NIC is an alias, parent ALIAS_IDS array should be updated
         // to remove the alias_id
@@ -1110,9 +1108,9 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
         p_nic->replace("ALIAS_IDS", one_util::join(p_a_ids, ','));
     }
 
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-    oid  = vm->get_oid();
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
+    int oid = vm->get_oid();
 
     vm->get_security_groups(post);
 
@@ -1151,6 +1149,24 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 
     vm.reset();
 
+    //Check if PCI and delete capacity from host
+    if (nic->is_pci() && hid != -1)
+    {
+        HostPool * hpool = Nebula::instance().get_hpool();
+
+        HostShareCapacity sr;
+
+        sr.vmid = vmid;
+        sr.pci.push_back(nic->vector_attribute());
+
+        if (auto host = hpool->get(hid))
+        {
+            host->del_pci(sr);
+            hpool->update(host.get());
+        }
+    }
+
+    //Adjust quotas
     tmpl.set(nic->vector_attribute());
 
     Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);

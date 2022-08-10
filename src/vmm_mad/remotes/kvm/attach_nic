@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
@@ -15,93 +15,75 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
-
-DOMAIN=$1
-
-get_nic_information "ATTACH='YES'"
-
-# defaults
-MODEL=${MODEL:-${DEFAULT_ATTACH_NIC_MODEL}}
-FILTER=${FILTER:-${DEFAULT_ATTACH_NIC_FILTER}}
-
-# interface XML
-DEVICE=''
-
-if [ -z "${BRIDGE}" ]; then
-    DEVICE+="<interface type='ethernet'>"
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
-    DEVICE+="<interface type='bridge'>"
-    if [[ "${BRIDGE_TYPE}" = openvswitch* ]]; then
-        DEVICE+=" <virtualport type='openvswitch'/>"
-    fi
-    DEVICE+=" <source bridge='$(xml_esc "${BRIDGE}")'/>"
-fi
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-[ -n "${MAC}" ] && DEVICE+=" <mac address='$(xml_esc "${MAC}")'/>"
-[ -n "${NIC_TARGET}" ] && DEVICE+=" <target dev='$(xml_esc "${NIC_TARGET}")'/>"
-[ -n "${ORDER}" ] && DEVICE+=" <boot order='$(xml_esc "${ORDER}")'/>"
-[ -n "${SCRIPT}" ] && DEVICE+=" <script path='$(xml_esc "${SCRIPT}")'/>"
-[ -n "${MODEL}" ] && DEVICE+=" <model type='$(xml_esc "${MODEL}")'/>"
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
 
-if [ -n "${VIRTIO_QUEUES}" ] && [ "${MODEL}" = "virtio" ]; then
-    DEVICE+=" <driver name='vhost' queues='$(xml_esc "${VIRTIO_QUEUES}")'/>"
-fi
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
-if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
-    DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
-    DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
-    [ -n "${VROUTER_IP}" ] && DEVICE+=" <parameter name='IP' value='$(xml_esc "${VROUTER_IP}")'/>"
-    DEVICE+=" </filterref>"
-fi
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ] || \
-   [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ];
-then
-    DEVICE+=" <bandwidth>"
+require_relative './opennebula_vm'
+require_relative '../lib/command'
 
-    if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ]; then
-        DEVICE+=" <inbound"
+include VirtualMachineManagerKVM
 
-        [ -n "${INBOUND_AVG_BW}" ] && \
-            DEVICE+=" average='$(xml_esc "${INBOUND_AVG_BW}")'"
-        [ -n "${INBOUND_PEAK_BW}" ] && \
-            DEVICE+=" peak='$(xml_esc "${INBOUND_PEAK_BW}")'"
-        [ -n "${INBOUND_PEAK_KB}" ] && \
-            DEVICE+=" burst='$(xml_esc "${INBOUND_PEAK_KB}")'"
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+#load_env("#{__dir__}/../../etc/vmm/kvm/kvmrc")
+load_local_env
 
-        DEVICE+=" />"
-    fi
+domain = ARGV[0]
 
-    if [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ]; then
-        DEVICE+=" <outbound"
+vm = KvmVM.new(STDIN.read)
 
-        [ -n "${OUTBOUND_AVG_BW}" ] && \
-            DEVICE+=" average='$(xml_esc "${OUTBOUND_AVG_BW}")'"
-        [ -n "${OUTBOUND_PEAK_BW}" ] && \
-            DEVICE+=" peak='$(xml_esc "${OUTBOUND_PEAK_BW}")'"
-        [ -n "${OUTBOUND_PEAK_KB}" ] && \
-            DEVICE+=" burst='$(xml_esc "${OUTBOUND_PEAK_KB}")'"
+if vm.pci_attach?
+    dev_xml = vm.hostdev_xml
+else
+    dev_xml = vm.interface_xml
+end
 
-        DEVICE+=" />"
-    fi
-
-    DEVICE+=" </bandwidth>"
-fi
-
-DEVICE+=" </interface>"
-
-# device attach
-ATTACH_CMD=$(cat <<EOF
-virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
+script =<<~EOS
+#{virsh} attach-device #{domain} <(
 cat <<EOT
-$DEVICE
+#{dev_xml}
 EOT
 )
-EOF
-)
+EOS
 
-multiline_exec_and_log "$ATTACH_CMD" \
-    "Could not attach NIC ${NIC_ID} ($MAC) to $DOMAIN"
+rc, _out, err = Command.execute("bash -s", false, 0, :stdin_data => script)
+
+if rc != 0
+    STDERR.puts "Could not attach NIC to #{domain}: #{err}"
+    exit(1)
+end
+
+exit 0

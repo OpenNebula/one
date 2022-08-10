@@ -29,6 +29,9 @@ begin
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
                                                     xpath_filter,
                                                     deploy_id)
+
+    filter_driver.activate_vf(filter_driver.vm)
+
     filter_driver.run_hooks(ARGV, template64) if filter_driver.activate == 0
 rescue Exception => e
     OpenNebula.log_error(e.message)

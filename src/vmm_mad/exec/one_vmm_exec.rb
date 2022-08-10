@@ -211,7 +211,7 @@ class VmmAction
             end
         end
 
-        %w[NIC NIC_ALIAS].each do |r|
+        %w[NIC NIC_ALIAS PCI].each do |r|
             vm_template_xml.elements.each("TEMPLATE/#{r}") do |element|
                 vn_mad = element.get_text('VN_MAD').to_s
 
@@ -979,6 +979,8 @@ class ExecDriver < VirtualMachineDriver
 
         if xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']"]
             base_tmpl = "VM/TEMPLATE/NIC[ATTACH='YES']"
+        elsif xml_data.elements["VM/TEMPLATE/PCI[ATTACH='YES']"]
+            base_tmpl = "VM/TEMPLATE/PCI[ATTACH='YES']"
         else
             base_tmpl = "VM/TEMPLATE/NIC_ALIAS[ATTACH='YES']"
             nic_alias = true
@@ -1104,6 +1106,8 @@ class ExecDriver < VirtualMachineDriver
 
         if xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']"]
             base_tmpl = "VM/TEMPLATE/NIC[ATTACH='YES']"
+        elsif xml_data.elements["VM/TEMPLATE/PCI[ATTACH='YES']"]
+            base_tmpl = "VM/TEMPLATE/PCI[ATTACH='YES']"
         else
             base_tmpl = "VM/TEMPLATE/NIC_ALIAS[ATTACH='YES']"
             nic_alias = true

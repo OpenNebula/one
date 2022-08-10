@@ -65,11 +65,22 @@ public:
      */
     void add(HostShareCapacity &sr);
 
+    bool add_pci(HostShareCapacity &sr)
+    {
+        // NOTE THIS FUNCTION DOES NOT PERFORM ANY ROLLBACK
+        return pci.add(sr.pci, sr.vmid);
+    }
+
     /**
      *  Delete VM capacity from this share
      *    @param sr requested capacity by the VM
      */
     void del(HostShareCapacity &sr);
+
+    void del_pci(HostShareCapacity &sr)
+    {
+        pci.del(sr.pci, sr.vmid);
+    }
 
     /**
      *  Revert changes in PCI Devices

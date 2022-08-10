@@ -78,8 +78,12 @@ public:
      *    @param devs list of requested PCI devices, will include address of
      *    assigned devices.
      *    @param vmid of the VM
+     *    
+     *    @return true if the devices where added
+     *
+     *    NOTE THIS FUNCTION DOES NOT PERFORM ANY ROLLBACK
      */
-    void add(std::vector<VectorAttribute *> &devs, int vmid);
+    bool add(std::vector<VectorAttribute *> &devs, int vmid);
 
     /**
      *  Remove the VM assignment from the PCI device list
@@ -87,7 +91,8 @@ public:
     void del(const std::vector<VectorAttribute *> &devs, int vmid);
 
     /**
-     *  Revert the VM assignment from the PCI device list
+     *  Revert the VM assignment from the PCI device list. It copies
+     *  back the attributes from the previous PCI device
      */
     void revert(std::vector<VectorAttribute *> &devs);
 
@@ -125,19 +130,21 @@ public:
      *    - VM_SLOT: PCI_ID + 1
      *    - VM_FUNCTION: 0
      *    - VM_ADDRESS: BUS:SLOT.0
+     *
+     *  Cleans internal attributes:
+     *    - NUMA_NODE
+     *    - UUID
+     *    - BUS, SLOT, FUNCITION
+     *    - ADDRESS, PREV_ADDRESS
      *  @param pci_device to set the address in
      *  @param default_bus if not set in PCI attribute (PCI_PASSTHROUGH_BUS
      *   in oned.conf)
      *  @return -1 if wrong bus 0 on success
      */
-    static int set_pci_address(VectorAttribute * pci_device, const std::string& dbus);
+    static int set_pci_address(VectorAttribute * pci_device, const std::string& dbus,
+            bool clean);
 
 private:
-    /**
-     *  Sets the internal class structures from the template
-     */
-    void init();
-
     /**
      *  Internal structure to represent PCI devices for fast look up and
      *  update
@@ -162,6 +169,58 @@ private:
     };
 
     std::map<std::string, PCIDevice *> pci_devices;
+
+    /**
+     *  Sets the internal class structures from the template
+     */
+    void init();
+
+    /**
+     *  Test if there is a suitable PCI device for the VM request. The test
+     *  is done using the VENDOR/DEVICE/CLASS attributes
+     *
+     *  @param dev VM attribute that represents the decive request
+     *  @param addrs PCI addresses that should be considered in use
+     *
+     *  @return true if the device can be allocated to this host
+     */
+    bool test_by_name(const VectorAttribute *dev, std::set<std::string>& addrs) const;
+
+    /**
+     *  Test if there is a suitable PCI device for the VM request. The test
+     *  is done using the a specific address
+     *
+     *  @param device VM attribute that represents the decive request
+     *  @param addr the requested address
+     *
+     *  @return PCI_ID of the tested device or -1 if no PCI found
+     */
+    bool test_by_addr(const VectorAttribute *dev, const std::string& addr) const;
+
+    /**
+     *  Allocates the given VM device using the VENDOR/DEVICE/CLASS attributes
+     *  @param device VM attribute that represents the decive request
+     *  @param vmid of the VM
+     */
+    bool add_by_name(VectorAttribute *device, int vmid);
+
+    /**
+     *  Allocates the given VM device using the SHORT_ADDRESS attribute
+     *  @param device VM attribute that represents the decive request
+     *  @param vmid of the VM
+     *
+     *  @return pci_id of the allocated device or -1 if not allocated
+     */
+    bool add_by_addr(VectorAttribute *device, const std::string& addr, int vmid);
+
+    /**
+     *  Adds PCI attributes of the selected PCI to the VM PCI device
+     *
+     *  @param device VM attribute
+     *  @param pci Host device
+     *  @param sp if true set the "PREVIOUS_ADDRESS" attribute
+     */
+    void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp);
 };
 
 #endif /*HOST_SHARE_PCI_H_*/

@@ -121,6 +121,14 @@ public:
         return name() == "NIC_ALIAS";
     }
 
+    /**
+     * Check is a nic is a PCI
+     */
+    bool is_pci() const
+    {
+        return name() == "PCI";
+    }
+
     /*
      * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
      */

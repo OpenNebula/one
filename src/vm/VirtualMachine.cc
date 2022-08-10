@@ -3375,23 +3375,74 @@ int VirtualMachine::get_network_leases(string& estr)
 
 int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err)
 {
+    bool is_pci = false;
+
     // -------------------------------------------------------------------------
     // Get the new NIC attribute from the template
     // -------------------------------------------------------------------------
     VectorAttribute * new_nic = tmpl->get("NIC");
 
-    if ( new_nic == 0 )
+    if (new_nic == nullptr)
     {
         new_nic = tmpl->get("NIC_ALIAS");
 
-        if ( new_nic == 0 )
+        if (new_nic == nullptr)
         {
-            err = "Wrong format or missing NIC/NIC_ALIAS attribute";
-            return -1;
+            new_nic = tmpl->get("PCI");
+
+            if ( new_nic != nullptr && new_nic->vector_value("TYPE") != "NIC" )
+            {
+                new_nic = nullptr;
+            }
+
+            is_pci = true;
         }
     }
 
-    new_nic = new_nic->clone();
+    if ( new_nic == nullptr )
+    {
+        err = "Wrong format or missing NIC/NIC_ALIAS/PCI attribute";
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Setup PCI attribute
+    // -------------------------------------------------------------------------
+    std::unique_ptr<VectorAttribute> _new_nic(new_nic->clone());
+
+    if ( is_pci )
+    {
+        Nebula& nd = Nebula::instance();
+        string default_bus;
+
+        std::vector<const VectorAttribute*> pcis;
+
+        int max_pci_id = -1;
+
+        obj_template->get("PCI", pcis);
+
+        for (const auto& pci: pcis)
+        {
+            int pci_id;
+
+            pci->vector_value("PCI_ID", pci_id, -1);
+
+            if (pci_id > max_pci_id)
+            {
+               max_pci_id = pci_id;
+            }
+        }
+
+        _new_nic->replace("PCI_ID", max_pci_id + 1);
+
+        nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+
+        if ( HostSharePCI::set_pci_address(_new_nic.get(), default_bus, false) != 0 )
+        {
+            err = "Wrong BUS in PCI attribute";
+            return -1;
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Setup nic for attachment
@@ -3400,12 +3451,11 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
 
-    int rc = nics.set_up_attach_nic(oid, uid, get_cid(), new_nic, nic_default,
-                sgs, err);
+    int rc = nics.set_up_attach_nic(oid, uid, get_cid(), _new_nic.get(),
+            nic_default, sgs, err);
 
     if ( rc != 0 )
     {
-        delete new_nic;
         return -1;
     }
 
@@ -3414,7 +3464,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
     // -------------------------------------------------------------------------
     set_vm_info();
 
-    obj_template->set(new_nic);
+    obj_template->set(_new_nic.release());
 
     for (auto vattr : sgs)
     {

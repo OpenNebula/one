@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
@@ -16,31 +16,112 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+ONE_LOCATION = ENV['ONE_LOCATION']
 
-DOMAIN=$1
-MAC=$2
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-DETACH_ARGS="--domain $DOMAIN --type bridge --mac $MAC"
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
 
-function is_attached
-{
-    virsh --connect $LIBVIRT_URI domiflist $DOMAIN | grep $MAC > /dev/null 2>&1
-}
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
-function detach_nic
-{
-    exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
-        "Could not detach NIC ($MAC) from $DOMAIN" || return 1
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-    if is_attached; then
-        return 1
-    else
-        return 0
-    fi
-}
+require_relative './opennebula_vm'
+require_relative '../lib/command'
 
-if ! retry ${VIRSH_RETRIES:-3} detach_nic; then
-    exit 1
-fi
+include VirtualMachineManagerKVM
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+def attached?(dom, mac)
+    cmd = "#{virsh} domiflist #{dom} | grep #{mac} > /dev/null 2>&1"
+    rc, _o, _e  = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+
+    rc == 0
+end
+
+def detach_interface(dom, mac)
+    cmd = "#{virsh} detach-interface --domain #{dom} --type bridge --mac #{mac}"
+    rc, _o, e  = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+
+    STDERR.puts "Error detaching interface (#{mac}): #{e}" if rc != 0
+
+    rc == 0
+end
+
+def detach_nic(dom, mac)
+    tries = ENV['VIRSH_RETRIES']
+    tries ||= 3
+
+    rc = tries.to_i.times do
+        detach_interface(dom, mac)
+
+        break 0 unless attached?(dom, mac)
+    end
+
+    rc
+end
+
+def detach_pci(dom, vm)
+    dev_xml = vm.hostdev_xml(true)
+
+    cmd =<<~EOS
+      #{virsh} detach-device #{dom} <(
+      cat <<EOT
+      #{dev_xml}
+      EOT
+      )
+    EOS
+
+    rc, _o, e = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+
+    if rc != 0
+        STDERR.puts "Could not attach NIC to #{dom}: #{e}"
+    end
+
+    rc
+end
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+#load_env("#{__dir__}/../../etc/vmm/kvm/kvmrc")
+load_local_env
+
+domain = ARGV[0]
+mac    = ARGV[1]
+
+vm = KvmVM.new(STDIN.read)
+
+if vm.pci_attach?
+    rc = detach_pci(domain, vm)
+else
+    rc = detach_nic(domain, mac)
+end
+
+exit(rc)

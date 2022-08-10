@@ -20,6 +20,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iomanip>
+#include <set>
 
 #include <math.h>
 
@@ -75,47 +76,106 @@ void HostSharePCI::init()
     }
 }
 
-/* ------------------------------------------------------------------------*/
-/* ------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------- */
+/*  Function to test PCI availability at the host                             */
+/* -------------------------------------------------------------------------- */
 
-bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
+bool HostSharePCI::test_by_addr(const VectorAttribute *dev, const string& short_addr) const
 {
-    std::set<string> assigned;
-
-    unsigned int vendor_id, device_id, class_id;
-    int vendor_rc, device_rc, class_rc;
-    bool found;
-
-    for (auto device : devs)
+    for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
     {
-        vendor_rc = get_pci_value("VENDOR", device, vendor_id);
-        device_rc = get_pci_value("DEVICE", device, device_id);
-        class_rc  = get_pci_value("CLASS" , device, class_id);
+        PCIDevice * pci = jt->second;
 
-        if (vendor_rc <= 0 && device_rc <= 0 && class_rc <= 0)
+        if (pci->attrs->vector_value("SHORT_ADDRESS") != short_addr)
+        {
+            continue;
+        }
+
+        if (pci->vmid != -1)
         {
             return false;
         }
 
-        found = false;
-        for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+        return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::test_by_name(const VectorAttribute *device, std::set<string>& assigned) const
+{
+    unsigned int vendor_id, device_id, class_id;
+
+    int vendor_rc = get_pci_value("VENDOR", device, vendor_id);
+    int device_rc = get_pci_value("DEVICE", device, device_id);
+    int class_rc  = get_pci_value("CLASS" , device, class_id);
+
+    if (vendor_rc <= 0 && device_rc <= 0 && class_rc <= 0)
+    {
+        return false;
+    }
+
+    for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+    {
+        PCIDevice * pci = jt->second;
+
+        string short_addr = pci->attrs->vector_value("SHORT_ADDRESS");
+
+        if ((class_rc  == 0 || pci->class_id  == class_id)  &&
+            (vendor_rc == 0 || pci->vendor_id == vendor_id) &&
+            (device_rc == 0 || pci->device_id == device_id) &&
+            pci->vmid  == -1 &&
+            assigned.find(short_addr) == assigned.end())
         {
-            PCIDevice * dev = jt->second;
+            assigned.insert(short_addr);
 
-            if ((class_rc  == 0 || dev->class_id  == class_id)  &&
-                (vendor_rc == 0 || dev->vendor_id == vendor_id) &&
-                (device_rc == 0 || dev->device_id == device_id) &&
-                dev->vmid  == -1 &&
-                assigned.find(dev->address) == assigned.end())
-            {
-                assigned.insert(dev->address);
-                found = true;
+            return true;
+        }
+    }
 
-                break;
-            }
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
+{
+    std::set<string> assigned;
+    std::set<const VectorAttribute *> tested;
+
+    // Test for "SHORT_ADDRESS" PCI selectio
+    // and pre-allocated these first
+    for (const auto& device : devs)
+    {
+        string short_addr = device->vector_value("SHORT_ADDRESS");
+
+        if (short_addr.empty())
+        {
+            continue;
         }
 
-        if (!found)
+        if (!test_by_addr(device, short_addr))
+        {
+            return false;
+        }
+
+        tested.insert(device);
+
+        assigned.insert(short_addr);
+    }
+
+    // Test for "VENDOR/DEVICE/CLASS" PCI selection
+    // use any remaining free device
+    for (const auto& device : devs)
+    {
+        if (tested.find(device) != tested.end())
+        {
+            continue;
+        }
+
+        if (!test_by_name(device, assigned))
         {
             return false;
         }
@@ -124,65 +184,155 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
     return true;
 }
 
-/* ------------------------------------------------------------------------*/
-/* ------------------------------------------------------------------------*/
-
-void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
+/* -------------------------------------------------------------------------- */
+/*  Function to assign host PCI devices to a VM                               */
+/* -------------------------------------------------------------------------- */
+void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
+        bool set_prev)
 {
-    unsigned int vendor_id, device_id, class_id;
-    string address, uuid;
-    int vendor_rc, device_rc, class_rc, addr_rc;
+    static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
+        "ADDRESS", "SHORT_ADDRESS"};
 
-    for (auto device : devs)
+    static vector<string> cp_check_attr = {"NUMA_NODE", "UUID"};
+
+    //Save previous address for migrations, clear on revert - failed migration
+    if (set_prev)
     {
-        vendor_rc = get_pci_value("VENDOR", device, vendor_id);
-        device_rc = get_pci_value("DEVICE", device, device_id);
-        class_rc  = get_pci_value("CLASS" , device, class_id);
+        string address = device->vector_value("ADDRESS");
 
-        addr_rc = device->vector_value("ADDRESS", address);
-
-        for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+        if (!address.empty())
         {
-            PCIDevice * dev = jt->second;
-
-            if ((class_rc  == 0 || dev->class_id  == class_id)  &&
-                (vendor_rc == 0 || dev->vendor_id == vendor_id) &&
-                (device_rc == 0 || dev->device_id == device_id) &&
-                dev->vmid  == -1 )
-            {
-                int node = -1;
-
-                dev->vmid = vmid;
-                dev->attrs->replace("VMID", vmid);
-
-                device->replace("DOMAIN", dev->attrs->vector_value("DOMAIN"));
-                device->replace("BUS", dev->attrs->vector_value("BUS"));
-                device->replace("SLOT", dev->attrs->vector_value("SLOT"));
-                device->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
-
-                device->replace("ADDRESS", dev->attrs->vector_value("ADDRESS"));
-
-                if (addr_rc != -1 && !address.empty())
-                {
-                    device->replace("PREV_ADDRESS", address);
-                }
-
-                if (dev->attrs->vector_value("NUMA_NODE", node)==0 && node !=-1)
-                {
-                    device->replace("NUMA_NODE", node);
-                }
-
-                uuid = dev->attrs->vector_value("UUID");
-
-                if ( !uuid.empty() )
-                {
-                    device->replace("UUID", uuid);
-                }
-
-                break;
-            }
+            device->replace("PREV_ADDRESS", address);
         }
     }
+    else
+    {
+        device->remove("PREV_ADDRESS");
+    }
+
+    //Set PCI device attributes
+    for (const auto& attr : cp_attr)
+    {
+        device->replace(attr, pci->attrs->vector_value(attr));
+    }
+
+    //Set Optional PCI attributes
+    for (const auto& attr : cp_check_attr)
+    {
+        string vvalue = pci->attrs->vector_value(attr);
+
+        if (!vvalue.empty())
+        {
+            device->replace(attr, vvalue);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr,
+        int vmid)
+{
+    for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+    {
+        PCIDevice * pci = jt->second;
+
+        if (pci->attrs->vector_value("SHORT_ADDRESS") != short_addr)
+        {
+            continue;
+        }
+
+        if ( pci->vmid != -1 )
+        {
+            return false;
+        }
+
+        pci->vmid = vmid;
+
+        pci->attrs->replace("VMID", vmid);
+
+        pci_attribute(device, pci, true);
+
+        return true;
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
+{
+    unsigned int vendor_id, device_id, class_id;
+
+    int vendor_rc = get_pci_value("VENDOR", device, vendor_id);
+    int device_rc = get_pci_value("DEVICE", device, device_id);
+    int class_rc  = get_pci_value("CLASS" , device, class_id);
+
+    if (vendor_rc <= 0 && device_rc <= 0 && class_rc <= 0)
+    {
+        return false;
+    }
+
+    for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
+    {
+        PCIDevice * pci = jt->second;
+
+        if ((class_rc  == 0 || pci->class_id  == class_id)  &&
+            (vendor_rc == 0 || pci->vendor_id == vendor_id) &&
+            (device_rc == 0 || pci->device_id == device_id) &&
+            pci->vmid  == -1 )
+        {
+            pci->vmid = vmid;
+
+            pci->attrs->replace("VMID", vmid);
+
+            pci_attribute(device, pci, true);
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
+{
+    std::set<VectorAttribute *> added;
+
+    for (auto& device : devs)
+    {
+        string short_addr = device->vector_value("SHORT_ADDRESS");
+
+        if (short_addr.empty())
+        {
+            continue;
+        }
+
+        if (!add_by_addr(device, short_addr, vmid))
+        {
+            return false;
+        }
+
+        added.insert(device);
+    }
+
+    for (auto& device : devs)
+    {
+        if (added.find(device) != added.end())
+        {
+            continue;
+        }
+
+        if (!add_by_name(device, vmid))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /* ------------------------------------------------------------------------*/
@@ -228,30 +378,19 @@ void HostSharePCI::revert(vector<VectorAttribute *> &devs)
     {
         device->vector_value("PREV_ADDRESS", address);
 
-        if (!address.empty())
+        if (address.empty())
         {
-            auto dev = pci_devices[address];
-
-            if (!dev)
-            {
-                continue;
-            }
-
-            device->replace("DOMAIN", dev->attrs->vector_value("DOMAIN"));
-            device->replace("BUS", dev->attrs->vector_value("BUS"));
-            device->replace("SLOT", dev->attrs->vector_value("SLOT"));
-            device->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
-            device->replace("ADDRESS", address);
-            device->remove("PREV_ADDRESS");
-
-            int node = -1;
-            if (dev->attrs->vector_value("NUMA_NODE", node)==0 && node !=-1)
-            {
-                device->replace("NUMA_NODE", node);
-            }
-
-            break;
+            continue;
         }
+
+        auto pci = pci_devices[address];
+
+        if (!pci)
+        {
+            continue;
+        }
+
+        pci_attribute(device, pci, false);
     }
 }
 
@@ -366,12 +505,24 @@ int HostSharePCI::get_pci_value(const char * name,
 /* ------------------------------------------------------------------------*/
 
 int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
-        const string& dbus)
+        const string& dbus, bool clean)
 {
     string        bus;
     ostringstream oss;
 
     unsigned int ibus, slot;
+
+    // ------------------- Remove well-known attributes -----------------------
+    static vector<string> rm_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
+        "ADDRESS", "PREV_ADDRESS", "NUMA_NODE", "UUID"};
+
+    if (clean)
+    {
+        for (const auto& attr : rm_attr)
+        {
+            pci_device->remove(attr);
+        }
+    }
 
     // ------------------- DOMAIN & FUNCTION -------------------------
     pci_device->replace("VM_DOMAIN", "0x0000");

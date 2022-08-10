@@ -2534,12 +2534,14 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 {
     Nebula& nd = Nebula::instance();
 
-    DispatchManager *   dm     = nd.get_dm();
+    HostPool * hpool    = nd.get_hpool();
+    DispatchManager* dm = nd.get_dm();
+
     VirtualMachinePool* vmpool = nd.get_vmpool();
 
-    PoolObjectAuth   vm_perms;
+    PoolObjectAuth vm_perms;
 
-    int    rc;
+    int hid = -1;
 
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
@@ -2547,6 +2549,11 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     if (auto vm = vmpool->get_ro(id))
     {
         vm->get_permissions(vm_perms);
+
+        if (vm->hasHistory())
+        {
+            hid = vm->get_hid();
+        }
     }
     else
     {
@@ -2587,13 +2594,66 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     }
 
     // -------------------------------------------------------------------------
+    // PCI test and set
+    // -------------------------------------------------------------------------
+
+    VectorAttribute * pci = tmpl.get("PCI");
+    HostShareCapacity sr;
+
+    if ( pci != nullptr && hid != -1 )
+    {
+        if ( pci->vector_value("TYPE") != "NIC" )
+        {
+            att.resp_msg = "PCI device is not of type NIC";
+
+            quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+            return ACTION;
+        }
+
+        sr.vmid = id;
+        sr.pci.push_back(pci);
+
+        auto host = hpool->get(hid);
+
+        if ( host == nullptr )
+        {
+            att.resp_id  = id;
+            att.resp_obj = PoolObjectSQL::HOST;
+
+            quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+            return NO_EXISTS;
+        }
+
+        if (!host->add_pci(sr))
+        {
+            att.resp_msg = "Cannot assign PCI device in host. Check address "
+                "and free devices";
+
+            quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+            return ACTION;
+        }
+
+        hpool->update(host.get());
+    }
+
+    // -------------------------------------------------------------------------
     // Perform the attach
     // -------------------------------------------------------------------------
-    rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
+    int rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
         quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+
+        if ( pci != nullptr && hid != -1 )
+        {
+            if (auto host = hpool->get(hid))
+            {
+                host->del_pci(sr);
+                hpool->update(host.get());
+            }
+        }
+
         return ACTION;
     }
 
@@ -2606,8 +2666,8 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 void VirtualMachineDetachNic::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    int id      = xmlrpc_c::value_int(paramList.getInt(1));
-    int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
 
     // -------------------------------------------------------------------------
     // Check if the VM is a Virtual Router

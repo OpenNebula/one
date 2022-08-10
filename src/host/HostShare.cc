@@ -326,22 +326,18 @@ bool HostShare::test_compute(int cpu, long long mem, std::string &error) const
 
 bool HostShare::test_pci(vector<VectorAttribute *>& pci_devs, string& error) const
 {
-    bool fits = pci.test(pci_devs);
-
     error = "Unavailable PCI device.";
 
-    return fits;
+    return pci.test(pci_devs);
 }
 
 /* -------------------------------------------------------------------------- */
 
 bool HostShare::test_numa(HostShareCapacity &sr, string& error) const
 {
-    bool fits = numa.test(sr);
-
     error = "Cannot allocate NUMA topology";
 
-    return fits;
+    return numa.test(sr);
 }
 
 /* -------------------------------------------------------------------------- */

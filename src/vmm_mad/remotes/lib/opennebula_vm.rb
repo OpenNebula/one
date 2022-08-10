@@ -76,7 +76,7 @@ class OpenNebulaVM
 
         return if wild?
 
-        # Sets the DISK ID of the root filesystem
+        # Sets the DISK ID of the root filesystem (LXC & Firecraker)
         disk = @xml.element('//TEMPLATE/DISK')
 
         return unless disk

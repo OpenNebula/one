@@ -25,23 +25,24 @@ module VNMMAD
         # to local installations. Any modification requires to sync the hosts
         # with onehost sync command.
         COMMANDS = {
-            :ebtables => 'sudo -n ebtables --concurrent',
-            :iptables => 'sudo -n iptables -w 3 -W 20000',
-            :ip6tables=> 'sudo -n ip6tables -w 3 -W 20000',
-            :ip       => 'sudo -n ip',
-            :ip_unpriv=> 'ip',
-            :virsh    => 'virsh -c qemu:///system',
-            :ovs_vsctl=> 'sudo -n ovs-vsctl',
-            :ovs_ofctl=> 'sudo -n ovs-ofctl',
-            :ovs_appctl=> 'sudo -n ovs-appctl',
-            :lsmod    => 'lsmod',
-            :ipset    => 'sudo -n ipset'
+            :ebtables   => 'sudo -n ebtables --concurrent',
+            :iptables   => 'sudo -n iptables -w 3 -W 20000',
+            :ip6tables  => 'sudo -n ip6tables -w 3 -W 20000',
+            :ip         => 'sudo -n ip',
+            :ip_unpriv  => 'ip',
+            :virsh      => 'virsh -c qemu:///system',
+            :ovs_vsctl  => 'sudo -n ovs-vsctl',
+            :ovs_ofctl  => 'sudo -n ovs-ofctl',
+            :ovs_appctl => 'sudo -n ovs-appctl',
+            :lsmod      => 'lsmod',
+            :ipset      => 'sudo -n ipset'
         }
 
         # Adjust :ip[6]tables commands to work with legacy versions
         begin
             stdout = Open3.capture3('sudo iptables --version')[0]
-            regex = /.*v(?<version>\d+.\d+.\d+)/
+            regex  = /.*v(?<version>\d+.\d+.\d+)/
+
             iptables_version = Gem::Version.new(stdout.match(regex)[:version])
 
             if Gem::Version.new('1.6.1') > iptables_version

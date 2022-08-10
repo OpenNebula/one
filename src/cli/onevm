@@ -249,6 +249,34 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'VNC client to use'
     }
 
+    PCI = {
+        :name => 'pci',
+        :large => '--pci short_address',
+        :format => String,
+        :description => 'Select PCI device by its short address'
+    }
+
+    PCI_DEVICE = {
+        :name => 'pci_device',
+        :large => '--pci_device device ID',
+        :format => String,
+        :description => 'Select PCI device by its device ID'
+    }
+
+    PCI_VENDOR = {
+        :name => 'pci_vendor',
+        :large => '--pci_vendor vendor ID',
+        :format => String,
+        :description => 'Select PCI device by its vendor ID'
+    }
+
+    PCI_CLASS = {
+        :name => 'pci_class',
+        :large => '--pci_class class ID',
+        :format => String,
+        :description => 'Select PCI device by its class ID'
+    }
+
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
         %w[as_gid as_uid].include?(v[:name])
     end
@@ -853,8 +881,11 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     nic_attach_desc = <<-EOT.unindent
-        Attaches a NIC to a running VM. When using --file add only one
-        NIC instance.
+        Attaches a NIC to a VM. When using --file add only one NIC instance.
+
+        To hotplug a PCI device and use it as a NIC interface in the VM select
+        it with --pci (short_address) or --pci_device (device ID),
+        --pci_class (class ID) and/or --pci_vendor (vendor ID).
 
         To attach a nic alias, use --file or --alias option.
 
@@ -866,7 +897,11 @@ CommandParser::CmdParser.new(ARGV) do
                          OneVMHelper::NETWORK,
                          OneVMHelper::IP,
                          OneVMHelper::ALIAS,
-                         OneVMHelper::NIC_NAME] do
+                         OneVMHelper::NIC_NAME,
+                         PCI,
+                         PCI_CLASS,
+                         PCI_VENDOR,
+                         PCI_DEVICE] do
         if options[:file].nil? && options[:network].nil?
             STDERR.puts 'Provide a template file or a network:'
             STDERR.puts "\t--file    <file>"
@@ -878,36 +913,36 @@ CommandParser::CmdParser.new(ARGV) do
             template = File.read(options[:file])
         else
             network_id = options[:network]
-            ip = options[:ip]
-            nic_alias = options[:alias]
-            nic_name = options[:nic_name]
+            ip         = options[:ip]
+            nic_alias  = options[:alias]
+            nic_name   = options[:nic_name]
 
-            if ip
-                if !nic_alias && !nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id}, \
-                                IP = #{ip} ]"
-                elsif !nic_alias && nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id},
-                                        IP = #{ip},
-                                        NAME = #{nic_name} ]"
-                else
-                    template = "NIC_ALIAS = \
-                                [ NETWORK_ID = #{network_id},\
-                                  IP = #{ip},\
-                                  PARENT = #{nic_alias} ]"
-                end
+            is_pci = [:pci, :pci_device, :pci_vendor, :pci_class].any? { |o|
+                !options[o].nil?
+            }
+
+            if is_pci
+                pcia = options[:pci]
+                pcid = options[:pci_device]
+                pcic = options[:pci_class]
+                pciv = options[:pci_vendor]
+
+                template  = "PCI = [ TYPE = NIC"
+                template << ", NETWORK_ID    = #{network_id}"
+                template << ", SHORT_ADDRESS = \"#{pcia}\"" if pcia
+                template << ", DEVICE        = \"#{pcid}\"" if pcid
+                template << ", CLASS         = \"#{pcic}\"" if pcic
+                template << ", VENDOR        = \"#{pciv}\"" if pciv
+            elsif nic_alias
+                template  = "NIC_ALIAS = [ PARENT = #{nic_alias}"
+                template << ", NETWORK_ID = #{network_id}"
             else
-                if !nic_alias && !nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id} ]"
-                elsif !nic_alias && nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id},
-                                        NAME = #{nic_name} ]"
-                else
-                    template = "NIC_ALIAS = \
-                                [ NETWORK_ID = #{network_id},\
-                                  PARENT = #{nic_alias} ]"
-                end
+                template = "NIC = [ NETWORK_ID = #{network_id}"
             end
+
+            template << ", IP   = #{ip}" if ip
+            template << ", NAME = #{nic_name}" if nic_name
+            template << "]"
         end
 
         helper.perform_action(args[0], options, 'Attaching NIC') do |vm|

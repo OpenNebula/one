@@ -52,6 +52,10 @@ class XMLElement
         element
     end
 
+    def exist?(key)
+        !@xml.elements[key.to_s].nil?
+    end
+
     # Get elements by xpath. This function returns an Array of XMLElements
     def elements(key)
         collection = []

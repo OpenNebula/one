@@ -680,6 +680,7 @@ INSTALL_FILES=(
     VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
     VMM_EXEC_LIB:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_EXEC_KVM_LIB:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXC_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxc
@@ -1277,6 +1278,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/resize \
                     src/vmm_mad/remotes/kvm/resize_disk"
 
+VMM_EXEC_KVM_LIB="src/vmm_mad/remotes/lib/kvm/opennebula_vm.rb"
+
 #-------------------------------------------------------------------------------
 # VMM configuration KVM scripts, to be installed under $REMOTES_LOCATION/etc/vmm/kvm
 #-------------------------------------------------------------------------------
@@ -1730,6 +1733,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/address.rb \
                src/vnm_mad/remotes/lib/command.rb \
                src/vnm_mad/remotes/lib/vm.rb \
+               src/vnm_mad/remotes/lib/vf.rb \
                src/vnm_mad/remotes/lib/vlan.rb \
                src/vnm_mad/remotes/lib/no_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \

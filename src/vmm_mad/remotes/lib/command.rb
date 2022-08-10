@@ -22,7 +22,7 @@ require 'open3'
 # locking capabilites using flock
 module Command
 
-    def self.execute(cmd, block, verbose = 0)
+    def self.execute(cmd, block, verbose = 0, opts = {})
         stdout = ''
         stderr = ''
 
@@ -31,7 +31,7 @@ module Command
 
             STDERR.puts "Running command #{cmd}" if verbose >= 1
 
-            stdout, stderr, s = Open3.capture3(cmd)
+            stdout, stderr, s = Open3.capture3(cmd, opts)
         ensure
             unlock(fd) if block
         end

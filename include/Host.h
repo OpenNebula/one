@@ -251,6 +251,11 @@ public:
         }
     };
 
+    bool add_pci(HostShareCapacity &sr)
+    {
+        return host_share.add_pci(sr);
+    }
+
     /**
      *  Deletes a new VM to the host share by incrementing usage counters
      *    @param sr the capacity request of the VM
@@ -270,6 +275,11 @@ public:
             NebulaLog::log("ONE", Log::ERROR, oss);
         }
     };
+
+    void del_pci(HostShareCapacity& sr)
+    {
+        host_share.del_pci(sr);
+    }
 
     /**
      *  Revert changes in PCI Devices after migrate failure
