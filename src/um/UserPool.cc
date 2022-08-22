@@ -589,12 +589,17 @@ static int parse_auth_msg(
         int  tmp_gid;
         bool gr_admin = false;
 
-        char c = is.peek();
+        char c;
+
+        is >> c;
 
         if ( c == '*' )
         {
-            is.get(c);
             gr_admin = true;
+        }
+        else
+        {
+            is.unget();
         }
 
         is >> tmp_gid;
