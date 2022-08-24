@@ -250,7 +250,6 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/examples/network_hooks \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
-            $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision \
             $SHARE_LOCATION/dockerhub \
             $SHARE_LOCATION/dockerhub/dockerfiles \
@@ -754,7 +753,6 @@ INSTALL_FILES=(
     LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
-    ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
