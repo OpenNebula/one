@@ -202,7 +202,7 @@ class OpenNebula::LdapAuth
             ldap_groups = [@user['memberOf']].flatten
         else
             group_base = @options[:group_base] ? @options[:group_base] : @options[:base]
-            filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
+            filter = Net::LDAP::Filter.ex(@options[:group_field], @user[@options[:user_group_field]].first)
             ldap_groups = @ldap.search(
                 :base       => group_base,
                 :attributes => [ "dn" ],
