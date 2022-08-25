@@ -339,7 +339,7 @@ CommandParser::CmdParser.new(ARGV) do
         rescue StandardError => e
             STDERR.puts e
         end
-        helper.perform_actions(args[0], options, 'flush') do |host|
+        helper.perform_actions(args[0], options, 'flushing') do |host|
             host.flush action
         end
     end
