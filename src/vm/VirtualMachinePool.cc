@@ -998,18 +998,27 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 
     update(vm.get());
 
-    vm.reset();
-
     if ( disk == nullptr )
     {
         return;
     }
 
+    // skip image release if there is other disk using the same image
+    int      image_id;
+    set<int> image_ids;
+
+    disk->vector_value("IMAGE_ID", image_id);
+
+    vm->get_disks().get_image_ids(image_ids, uid);
+
+    bool do_image_release = image_ids.count(image_id) == 0;
+
+    vm.reset();
+
     Nebula&       nd     = Nebula::instance();
     ImageManager* imagem = nd.get_imagem();
 
     Template tmpl;
-    int      image_id;
 
     tmpl.set(disk->vector_attribute());
     tmpl.add("VMS", 0);
@@ -1020,8 +1029,6 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
     }
     else
     {
-        disk->vector_value("IMAGE_ID", image_id);
-
         Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
 
         if (!disk->is_persistent())
@@ -1040,7 +1047,10 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
             imagem->clear_image_snapshots(image_id);
         }
 
-        imagem->release_image(oid, image_id, false);
+        if (do_image_release)
+        {
+            imagem->release_image(oid, image_id, false);
+        }
     }
 
     delete disk;
