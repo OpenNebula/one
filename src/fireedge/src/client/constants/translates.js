@@ -824,6 +824,15 @@ module.exports = {
   Swedish: 'Swedish',
   Thai: 'Thai',
   Turkish: 'Turkish',
+  /* VM graphs */
+  DiskReadBytes: 'Disk read bytes',
+  DiskWriteBytes: 'Disk write bytes',
+  DiskReadIOPS: 'Disk read IOPS',
+  DiskWriteIOPS: 'Disk write bytes',
+  NetRX: 'Net RX',
+  NetTX: 'Net TX',
+  NetDownloadSpeed: 'Net download speed',
+  NetUploadSpeed: 'Net upload speed',
   /* VM Template schema - Input/Output - graphics - Remote connections */
   DisplayUpdate: 'Display update',
   /* VM Template schema - NUMA */

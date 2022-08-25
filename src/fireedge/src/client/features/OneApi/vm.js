@@ -173,6 +173,8 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
+      transformResponse: (data) =>
+        [data?.MONITORING_DATA?.MONITORING ?? []].flat(),
     }),
     getMonitoringPool: builder.query({
       /**

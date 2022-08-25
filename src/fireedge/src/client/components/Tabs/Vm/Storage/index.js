@@ -29,6 +29,7 @@ import {
   SnapshotRenameAction,
   SnapshotDeleteAction,
 } from 'client/components/Tabs/Vm/Storage/Actions'
+import Graphs from 'client/components/Tabs/Vm/Storage/Graphs'
 
 import {
   getDisks,
@@ -134,6 +135,7 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
           )
         })}
       </Stack>
+      <Graphs id={id} />
     </div>
   )
 }

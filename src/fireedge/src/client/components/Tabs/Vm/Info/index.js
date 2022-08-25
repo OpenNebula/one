@@ -31,6 +31,7 @@ import {
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 import Capacity from 'client/components/Tabs/Vm/Info/capacity'
+import Graphs from 'client/components/Tabs/Vm/Info/graphs'
 import { SubmitButton } from 'client/components/FormControl'
 
 import { Tr, Translate } from 'client/components/HOC'
@@ -183,7 +184,10 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
         />
       )}
       {capacityPanel?.enabled && (
-        <Capacity actions={getActions(capacityPanel?.actions)} vm={vm} />
+        <>
+          <Capacity actions={getActions(capacityPanel?.actions)} vm={vm} />
+          <Graphs id={id} />
+        </>
       )}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel
