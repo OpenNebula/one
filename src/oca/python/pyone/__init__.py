@@ -187,13 +187,15 @@ class OneServer(xmlrpc.client.ServerProxy):
     Slightly tuned ServerProxy
     """
 
-    def __init__(self, uri, session, timeout=None, **options):
+    def __init__(self, uri, session, timeout=None, https_verify=True,
+                 **options):
         """
         Override the constructor to take the authentication or session
         Will also configure the socket timeout
         :param uri: OpenNebula endpoint
         :param session: OpenNebula authentication session
         :param timeout: Socket timetout
+        :param https_verify: if https cert should be verified
         :param options: additional options for ServerProxy
         """
 
@@ -209,6 +211,7 @@ class OneServer(xmlrpc.client.ServerProxy):
 
         transport = RequestsTransport()
         transport.set_https(uri.startswith('https'))
+        transport.set_https_verify(https_verify)
 
         xmlrpc.client.ServerProxy.__init__(
             self,
@@ -309,6 +312,9 @@ class RequestsTransport(xmlrpc.client.Transport):
     def set_https(self, https=False):
         self.use_https = https
 
+    def set_https_verify(self, https_verify):
+        self.https_verify = https_verify
+
     def request(self, host, handler, request_body, verbose=False):
         """
         Make an xmlrpc request.
@@ -320,7 +326,7 @@ class RequestsTransport(xmlrpc.client.Transport):
 
         url = self._build_url(host, handler)
 
-        kwargs = {'verify': True}
+        kwargs = {'verify': self.https_verify }
 
         resp = requests.post(url, data=request_body, headers=headers,
                              **kwargs)
