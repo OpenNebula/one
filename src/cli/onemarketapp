@@ -284,7 +284,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :export, export_desc, :appid, :name, :options => EXPORT_OPTIONS do
-        helper.perform_action(args[0], options, 'exported') do |obj|
+        helper.perform_action(args[0], options, 'exporting') do |obj|
             tag ="tag=#{options[:tag]}" if options[:tag]
 
             obj.extend(MarketPlaceAppExt)
@@ -325,7 +325,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :download, download_desc, :appid, :path,
             :options => [OpenNebulaHelper::FORCE] do
-        helper.perform_action(args[0], options, 'downloaded') do
+        helper.perform_action(args[0], options, 'downloading') do
             download_args = [:marketplaceapp, args[0], args[1], options[:force]]
             OpenNebulaHelper.download_resource_sunstone(*download_args)
         end

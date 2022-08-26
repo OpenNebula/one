@@ -60,7 +60,6 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
 {
     int one_uid    = -1;
     int server_uid = -1;
-    int i;
 
     ostringstream oss;
 
@@ -72,10 +71,15 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
     set<int> gids;
     set<int> agids;
 
-    string        filenames[5];
-    string        error_str;
+    string error_str;
 
     Nebula& nd   = Nebula::instance();
+
+    vector<string> filenames = {
+        nd.get_var_location() + "/.one/sunstone_auth",
+        nd.get_var_location() + "/.one/onegate_auth",
+        nd.get_var_location() + "/.one/oneflow_auth"
+    };
 
     _session_expiration_time = __session_expiration_time;
 
@@ -126,32 +130,31 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
 
     random = one_util::random_password();
 
-    filenames[0] = nd.get_var_location() + "/.one/sunstone_auth";
-    filenames[1] = nd.get_var_location() + "/.one/occi_auth";
-    filenames[2] = nd.get_var_location() + "/.one/ec2_auth";
-    filenames[3] = nd.get_var_location() + "/.one/onegate_auth";
-    filenames[4] = nd.get_var_location() + "/.one/oneflow_auth";
 
     mkdir(string(nd.get_var_location() + "/.one").c_str(), S_IRWXU);
 
-    for (i=0 ; i < 5; i++)
+    for (const auto& file : filenames)
     {
         struct stat file_stat;
 
-        if ( stat(filenames[i].c_str(), &file_stat) == 0 )
+        if ( stat(file.c_str(), &file_stat) == 0 )
         {
-            goto error_exists;
+            oss << "Password file " << file << " already exists "
+                << "but OpenNebula is boostraping the database. Check your "
+                << "database configuration in oned.conf.";
+            goto error_common;
         }
 
-        int cfile = creat(filenames[i].c_str(), S_IRUSR | S_IWUSR);
+        int cfile = creat(file.c_str(), S_IRUSR | S_IWUSR);
         close(cfile);
 
         ofstream ofile;
-        ofile.open(filenames[i].c_str(), ios::out | ios::trunc);
+        ofile.open(file.c_str(), ios::out | ios::trunc);
 
         if ( !ofile.is_open() )
         {
-            goto error_no_open;
+            oss << "Could not create configuration file "<< file;
+            goto error_common;
         }
 
         ofile << SERVER_NAME << ":" << random << endl;
@@ -202,16 +205,6 @@ error_token:
 
 error_one_name:
     oss << "The name '" << SERVER_NAME << "' is reserved";
-    goto error_common;
-
-error_no_open:
-    oss << "Could not create configuration file "<< filenames[i];
-    goto error_common;
-
-error_exists:
-    oss << "Password file " << filenames[i] << " already exists "
-        << "but OpenNebula is boostraping the database. Check your "
-        << "database configuration in oned.conf.";
     goto error_common;
 
 error_oneadmin:
@@ -596,12 +589,17 @@ static int parse_auth_msg(
         int  tmp_gid;
         bool gr_admin = false;
 
-        char c = is.peek();
+        char c;
+
+        is >> c;
 
         if ( c == '*' )
         {
-            is.get(c);
             gr_admin = true;
+        }
+        else
+        {
+            is.unget();
         }
 
         is >> tmp_gid;

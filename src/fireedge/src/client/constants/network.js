@@ -95,11 +95,6 @@ import * as ACTIONS from 'client/constants/actions'
  * @property {string} [TEMPLATE.NETWORK_ADDRESS] - Network address
  * @property {string} [TEMPLATE.NETWORK_MASK] - Network mask
  * @property {string} [TEMPLATE.SEARCH_DOMAIN] - Domain
- * @property {string} [TEMPLATE.VCENTER_FROM_WILD] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_NET_REF] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_PORTGROUP_TYPE] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_TEMPLATE_REF] - vCenter information
  */
 
 /** @type {STATES.StateInfo[]} Virtual Network states */
@@ -208,12 +203,10 @@ export const AR_TYPES = {
 export const VN_DRIVERS = {
   bridge: 'bridge',
   fw: 'fw',
-  ebtables: 'ebtables',
   dot1Q: '802.1Q',
   vxlan: 'vxlan',
   ovswitch: 'ovswitch',
   ovswitch_vxlan: 'ovswitch_vxlan',
-  vcenter: 'vcenter',
   elastic: 'elastic',
   nodeport: 'nodeport',
 }
@@ -236,12 +229,10 @@ export const VNET_METHODS6 = {
 export const VN_DRIVERS_STR = {
   [VN_DRIVERS.bridge]: 'Bridged',
   [VN_DRIVERS.fw]: 'Bridged & Security Groups',
-  [VN_DRIVERS.ebtables]: 'Bridged & ebtables VLAN',
   [VN_DRIVERS.dot1Q]: '802.1Q',
   [VN_DRIVERS.vxlan]: 'VXLAN',
   [VN_DRIVERS.ovswitch]: 'Open vSwitch',
   [VN_DRIVERS.ovswitch_vxlan]: 'Open vSwitch - VXLAN',
-  [VN_DRIVERS.vcenter]: 'vCenter',
 }
 
 /**

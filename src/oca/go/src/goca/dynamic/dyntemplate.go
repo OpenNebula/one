@@ -81,8 +81,9 @@ func (p *Pair) String() string {
 	} else {
 		buf := bytes.NewBufferString(p.XMLName.Local)
 		buf.WriteString("=\"")
-		buf.WriteString(strings.ReplaceAll(p.Value, `"`, `\"`))
-		buf.WriteString(strings.ReplaceAll(p.Value, `\`, `\\`))
+		newValue := strings.ReplaceAll(p.Value, `"`, `\"`)
+		newValue = strings.ReplaceAll(newValue, `\`, `\\`)
+		buf.WriteString(newValue)
 		buf.WriteByte('"')
 
 		return buf.String()

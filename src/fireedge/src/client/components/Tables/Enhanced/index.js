@@ -303,11 +303,13 @@ const EnhancedTable = ({
                   setFilter(LABEL_COLUMN_ID, nextFilter)
                 },
               })}
-              onClick={() => {
+              onClick={(e) => {
                 typeof onRowClick === 'function' && onRowClick(original)
 
                 if (!disableRowSelect) {
-                  singleSelect && toggleAllRowsSelected?.(false)
+                  singleSelect ||
+                    (!(e.ctrlKey || e.metaKey) &&
+                      toggleAllRowsSelected?.(false))
                   toggleRowSelected?.(!isSelected)
                 }
               }}

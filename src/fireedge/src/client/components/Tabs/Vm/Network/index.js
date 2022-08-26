@@ -25,7 +25,7 @@ import {
   AttachSecGroupAction,
   DetachSecGroupAction,
 } from 'client/components/Tabs/Vm/Network/Actions'
-
+import Graphs from 'client/components/Tabs/Vm/Network/Graphs'
 import {
   getNics,
   getHypervisor,
@@ -106,6 +106,7 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
           )
         })}
       </Stack>
+      <Graphs id={id} />
     </div>
   )
 }

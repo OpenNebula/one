@@ -176,7 +176,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :vnetid_list] do
-        helper.perform_actions(args[0], options, 'deleted') do |vn|
+        helper.perform_actions(args[0], options, 'deleting') do |vn|
             vn.delete
         end
     end
@@ -187,7 +187,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :addar, addar_desc, :vnetid, [:file, nil],
             :options => STD_OPTIONS + OneVNetHelper::ADDAR_OPTIONS do
-        helper.perform_action(args[0], options, 'lease added') do |vn|
+        helper.perform_action(args[0], options, 'address range added') do |vn|
             if args[1]
                 ar = File.read(args[1])
             else

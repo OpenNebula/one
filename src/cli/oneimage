@@ -234,7 +234,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :clone, clone_desc, :imageid, :name,
             :options => [OneDatastoreHelper::DATASTORE] do
-        helper.perform_action(args[0], options, 'cloned') do |image|
+        helper.perform_action(args[0], options, 'cloning') do |image|
             ds_id = options[:datastore] || -1 # -1 clones to self
             res   = image.clone(args[1], ds_id)
 
@@ -252,7 +252,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :imageid_list] do
-        helper.perform_actions(args[0], options, 'deleted') do |image|
+        helper.perform_actions(args[0], options, 'deleting') do |image|
             image.delete
         end
     end
@@ -382,7 +382,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :'snapshot-delete', snapshot_delete_desc, :imageid, :snapshot_id do
-        helper.perform_action(args[0], options, 'snapshot deleted') do |o|
+        helper.perform_action(args[0], options, 'deleting snapshot') do |o|
             o.snapshot_delete(args[1].to_i)
         end
     end
@@ -392,7 +392,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :'snapshot-revert', snapshot_revert_desc, :imageid, :snapshot_id do
-        helper.perform_action(args[0], options, 'image state reverted') do |o|
+        helper.perform_action(args[0], options, 'reverting image state') do |o|
             o.snapshot_revert(args[1].to_i)
         end
     end
@@ -405,7 +405,7 @@ CommandParser::CmdParser.new(ARGV) do
             snapshot_flatten_desc,
             :imageid,
             :snapshot_id do
-        helper.perform_action(args[0], options, 'snapshot flattened') do |o|
+        helper.perform_action(args[0], options, 'flattening snapshot') do |o|
             o.snapshot_flatten(args[1].to_i)
         end
     end

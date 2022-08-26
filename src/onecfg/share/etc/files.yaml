@@ -215,6 +215,12 @@
   group: oneadmin
   mode: '0640'
 
+- name: /etc/one/guacd
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
 - name: /etc/one/vcenter_driver.conf
   class: Yaml
   owner: root
