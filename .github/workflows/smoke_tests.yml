@@ -3,6 +3,9 @@ name: OpenNebula Smoke Tests
 # Controls when the action will run.
 on: [push, pull_request, workflow_dispatch]
 
+permissions:
+  contents: read
+
 jobs:
   smoke-tests:
     runs-on: ubuntu-latest
