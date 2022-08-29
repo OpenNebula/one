@@ -25,7 +25,6 @@ module OneGateCloudAuth
     #
     def initialize_auth
         @conf[:use_user_pool_cache] = false
-        @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
     end
 
     def do_auth(env, params={})
@@ -96,21 +95,25 @@ module OneGateCloudAuth
     private
 
     def encrypt(data, token_password)
-        @cipher.encrypt
-        @cipher.key = token_password
+        cipher = OpenSSL::Cipher.new(CIPHER)
 
-        rc = @cipher.update(data)
-        rc << @cipher.final
+        cipher.encrypt
+        cipher.key = token_password
+
+        rc = cipher.update(data)
+        rc << cipher.final
 
         return rc
     end
 
     def decrypt(token_password, data)
-        @cipher.decrypt
-        @cipher.key = token_password[0..31]
+        cipher = OpenSSL::Cipher.new(CIPHER)
 
-        rc = @cipher.update(Base64::decode64(data))
-        rc << @cipher.final
+        cipher.decrypt
+        cipher.key = token_password[0..31]
+
+        rc = cipher.update(Base64::decode64(data))
+        rc << cipher.final
 
         return rc
     end
