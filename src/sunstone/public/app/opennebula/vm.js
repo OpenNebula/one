@@ -638,9 +638,9 @@ define(function(require) {
         type: "POST",
         dataType: "JSON",
         success: function(vminfo) {
-
+          var fireege_route = Config.publicFireedgeEndpoint.endsWith('/fireedge') ? '' : '/fireedge'
           $.ajax({
-            url: Config.publicFireedgeEndpoint + "/fireedge/api/vcenter/token/" + vm_id,
+            url: Config.publicFireedgeEndpoint + fireege_route + "/api/vcenter/token/" + vm_id,
             type: "GET",
             headers: {"Authorization": fireedge_token},
             success: function(token) {

@@ -301,6 +301,7 @@ define(function(require) {
     options = $.extend({
       host: undefined,
       port: undefined,
+      protocol: "http:",
       connnection_type: "",
       extra_path: "",
       extra_params: []
@@ -314,7 +315,7 @@ define(function(require) {
     ]).filter(Boolean);
 
     var endpoint = new URL(window.location.href);
-    var websocketProtocol = endpoint.protocol === "https:" ? "wss:" : "ws:";
+    var websocketProtocol = options.protocol === "https:" ? "wss:" : "ws:";
 
     var websocket = websocketProtocol + "//";
 
@@ -322,7 +323,9 @@ define(function(require) {
       websocket += options.host + ":" + options.port;
     else if (options.port)
       websocket += endpoint.hostname + ":" + options.port;
-    else
+    else if (options.host)
+      websocket += options.host;
+    else 
       websocket += endpoint.host;
 
     websocket += options.extra_path + "?" + params.join("&");
