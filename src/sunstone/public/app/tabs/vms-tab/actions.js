@@ -272,6 +272,7 @@ define(function(require) {
       callback: function(request, response) {
         var link = RemoteActions.getLink(response,{
             port: Config.vncProxyPort,
+            protocol: Config.vncWSS === "yes" ? "https:" : "http:",
             connnection_type: "vnc",
             extra_params: [
               "port=" + Config.vncProxyPort,
@@ -309,6 +310,7 @@ define(function(require) {
         var link = RemoteActions.getLink(response,{
           host: fireedge_endpoint.hostname,
           port: fireedge_endpoint.port,
+          protocol: fireedge_endpoint.protocol,
           connnection_type: "vmrc",
           extra_path: "/fireedge/vmrc/" + response.data,
         });
@@ -338,6 +340,7 @@ define(function(require) {
       callback: function(request, response) {
         var link = RemoteActions.getLink(response, {
           port: Config.vncProxyPort,
+          protocol: Config.vncWSS === "yes" ? "https:" : "http:",
           connnection_type: "spice",
           extra_params: [
             "password=" + response.password,
