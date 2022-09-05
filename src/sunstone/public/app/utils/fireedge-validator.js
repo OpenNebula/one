@@ -52,7 +52,7 @@ define(function (require) {
          */
         if (sunstone_fireedge_active && fireedge_token == "" && fireedge_endpoint) {
             $.ajax({
-                url: "/fireedge",
+                url: "/auth_fireedge",
                 type: "GET",
                 success: function(data) {
                     set_fireedge_token(data.token);
