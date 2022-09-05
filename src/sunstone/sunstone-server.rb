@@ -564,7 +564,7 @@ helpers do
         session[:mode] = $conf[:mode]
 
         if RUBY_VERSION > '2.0.0'
-          auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
+          auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>(\w|\W)+)/)
           session[:auth] = auth[:pass]
         else
           auth = request.env['HTTP_AUTHORIZATION'].split(" ")
@@ -1014,7 +1014,7 @@ end
 ##############################################################################
 # GET FireEdge token
 ##############################################################################
-get '/fireedge' do
+get '/auth_fireedge' do
     if !session[:fireedge_token].empty?
       response = {:token => session[:fireedge_token]}
       [200,  response.to_json]
