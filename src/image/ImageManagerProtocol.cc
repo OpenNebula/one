@@ -155,10 +155,18 @@ error_common:
 
 void ImageManager::_clone(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_clone: " + msg->payload());
+    const auto& info = msg->payload();
 
     int     cloning_id;
     int     ds_id = -1;
+    string  source, format;
+
+    ostringstream oss;
+    istringstream is(info);
+    
+    NebulaLog::dddebug("ImM", "_clone: " + info);
+    
+    is >> skipws;
 
     auto image = ipool->get(msg->oid());
 
@@ -166,12 +174,12 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
     {
         if (msg->status() == "SUCCESS")
         {
-            ostringstream oss;
+            is >> source;
 
-            if (!msg->payload().empty())
+            if (!source.empty())
             {
                 oss << "CLONE operation succeeded but image no longer exists."
-                    << " Source image: " << msg->payload()
+                    << " Source image: " << source
                     << ", may be left in datastore";
 
                 NebulaLog::log("ImM", Log::ERROR, oss);
@@ -189,7 +197,21 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
        goto error;
     }
 
-    image->set_source(msg->payload());
+    is >> source;
+
+    if (is.fail())
+    {
+        goto error;
+    }
+
+    image->set_source(source);
+
+    is >> format;
+
+    if (!format.empty())
+    {
+        image->set_format(format);
+    }
 
     image->set_state_unlock();
 
@@ -208,11 +230,7 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
     return;
 
 error:
-    ostringstream oss;
-
     oss << "Error cloning from Image " << cloning_id;
-
-    const auto& info = msg->payload();
 
     if (!info.empty() && (info[0] != '-'))
     {
