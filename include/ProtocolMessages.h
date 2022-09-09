@@ -59,6 +59,7 @@ enum class ImageManagerMessages : unsigned short int
     SNAP_DELETE,
     SNAP_REVERT,
     SNAP_FLATTEN,
+    RESTORE,
     LOG,
     ENUM_MAX
 };
@@ -173,6 +174,7 @@ enum class VMManagerMessages : unsigned short int
     DRIVER_CANCEL,
     LOG,
     RESIZE,
+    BACKUP,
     ENUM_MAX
 };
 

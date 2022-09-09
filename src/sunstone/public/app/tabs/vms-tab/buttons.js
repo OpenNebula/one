@@ -278,7 +278,13 @@ define(function(require) {
       type: "action",
       text: Locale.tr("Unlock"),
       layout: "lock_buttons"
-    }
+    },
+    "VM.backup_dialog" : {
+      type: "action",
+      text: Locale.tr("Backup"),
+      layout: "vmsplanification_buttons",
+      custom_classes : "state-dependent"
+    },
   }
   return Buttons;
 })

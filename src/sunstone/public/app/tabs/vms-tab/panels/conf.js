@@ -57,8 +57,11 @@ define(function(require) {
       info[XML_ROOT]
     );
 
-
     var conf = {};
+    if (this.element["BACKUPS"] != undefined) {
+      conf["BACKUPS"] = this.element["BACKUPS"]["BACKUP_CONFIG"];
+    }
+
     var template = this.element.TEMPLATE;
 
     $.each(["OS", "FEATURES", "INPUT", "GRAPHICS", "RAW", "CONTEXT", "CPU_MODEL"], function(){

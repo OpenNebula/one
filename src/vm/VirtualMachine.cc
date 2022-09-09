@@ -296,6 +296,10 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = HOTPLUG_SAVEAS_UNDEPLOYED;
     } else if ( st == "HOTPLUG_SAVEAS_STOPPED" ) {
         state = HOTPLUG_SAVEAS_STOPPED;
+    } else if ( st == "BACKUP" ) {
+        state = BACKUP;
+    } else if ( st == "BACKUP_POWEROFF" ) {
+        state = BACKUP_POWEROFF;
     } else {
         return -1;
     }
@@ -441,9 +445,13 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "HOTPLUG_SAVEAS_UNDEPLOYED"; break;
         case HOTPLUG_SAVEAS_STOPPED:
             st = "HOTPLUG_SAVEAS_STOPPED"; break;
+        case BACKUP:
+            st = "BACKUP"; break;
+        case BACKUP_POWEROFF:
+            st = "BACKUP_POWEROFF"; break;
     }
 
-        return st;
+    return st;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -964,6 +972,16 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse the backup attribute
+    // ------------------------------------------------------------------------
+    rc = _backups.parse(error_str, user_obj_template.get());
+
+    if ( rc != 0 )
+    {
+        goto error_backup;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
     rc = get_network_leases(error_str);
@@ -1153,6 +1171,7 @@ error_os:
 error_pci:
 error_defaults:
 error_vrouter:
+error_backup:
 error_public:
 error_name:
 error_common:
@@ -2086,7 +2105,7 @@ string VirtualMachine::get_import_state() const
 bool VirtualMachine::is_imported_action_supported(VMActions::Action action) const
 {
     string vmm_mad;
-  
+
     if (hasHistory())
     {
         vmm_mad = get_vmm_mad();
@@ -2193,6 +2212,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string history_xml;
     string perm_xml;
     string snap_xml;
+    string bck_xml;
     string lock_str;
 
     ostringstream oss;
@@ -2254,6 +2274,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
             oss << snapshots->to_xml(snap_xml);
         }
     }
+
+    oss << _backups.to_xml(bck_xml);
 
     oss << "</VM>";
 
@@ -2563,6 +2585,8 @@ int VirtualMachine::from_xml(const string &xml_str)
         content.clear();
     }
 
+    rc += _backups.from_xml(this);
+
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
     if (rc != 0)
@@ -2817,6 +2841,8 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         bool append)
 {
+    bool context_changed = false;
+
     switch (state)
     {
         case PENDING:
@@ -2918,25 +2944,42 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         // Remove equal values from the new context
         map<string, string> equal_values;
-        for (auto in = context_new->value().cbegin(),
-             ib = context_bck->value().cbegin(),
-             endn = context_new->value().cend(),
-             endb = context_bck->value().cend();
-             in != endn && ib != endb;)
+
+        auto in = context_new->value().cbegin();
+        auto ib = context_bck->value().cbegin();
+
+        for ( ; in != context_new->value().cend() &&
+                    ib != context_bck->value().cend() ; )
         {
             if (in->first < ib->first)
+            {
+                context_changed = true;
                 ++in;
+            }
             else if (ib->first < in->first)
+            {
+                context_changed = context_changed || !append;
                 ++ib;
+            }
             else
             {
                 if (in->second == ib->second)
                 {
                     equal_values.insert(make_pair(in->first, in->second));
                 }
+                else
+                {
+                    context_changed = true;
+                }
+
                 ++in;
                 ++ib;
             }
+        }
+
+        if ( in != context_new->value().cend() )
+        {
+            context_changed = true;
         }
 
         for (const auto& attr : equal_values)
@@ -2989,9 +3032,23 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         return -1;
     }
 
+    // -------------------------------------------------------------------------
+    // Parse backup configuration
+    // -------------------------------------------------------------------------
+    if ( _backups.parse(err, tmpl) != 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR, err);
+        return -1;
+    }
+
     encrypt();
 
-    return 0;
+    if ( context_changed )
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 /* -------------------------------------------------------------------------- */

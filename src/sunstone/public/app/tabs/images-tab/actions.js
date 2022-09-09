@@ -137,6 +137,26 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
+    },
+    "Image.restore" : {
+      type: "single",
+      call: OpenNebulaResource.restore,
+      callback: function(request, response) {
+        OpenNebulaAction.clear_cache("IMAGE");
+        ids = response.split(' ')
+        idTemplate = ids.shift()
+        Notifier.notifyCustom(Locale.tr("Template restored"),
+          Navigation.link(" ID: " + idTemplate, TEMPLATES_TAB_ID, idTemplate),
+          false);
+        ids.forEach(id => {
+          Notifier.notifyCustom(Locale.tr("Disk restored"),
+          Navigation.link(" ID: " + id, TAB_ID, id),
+          false);
+        });
+        
+      },
+      error: Notifier.onError,
+      notify: true
     }
   };
 

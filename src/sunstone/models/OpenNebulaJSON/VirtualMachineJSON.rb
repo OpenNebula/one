@@ -134,6 +134,8 @@ module OpenNebulaJSON
                 sg_attach(action_hash['params'])
             when 'sg_detach'
                 sg_detach(action_hash['params'])
+            when 'backup'
+                backup(action_hash['params']['dst_id'].to_i)
             else
                 error_msg = "#{action_hash['perform']} action not " \
                             ' available for this resource'

@@ -163,8 +163,8 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void pin_cpu(ofstream& file, const VectorAttribute * topology,
-        std::vector<const VectorAttribute *> &nodes)
+static void pin_cpu(ofstream& file, std::string& emulator_cpus,
+        const VectorAttribute * topology, std::vector<const VectorAttribute *> &nodes)
 {
     HostShare::PinPolicy pp = HostShare::PP_NONE;
     unsigned int vcpu_id = 0;
@@ -181,6 +181,11 @@ static void pin_cpu(ofstream& file, const VectorAttribute * topology,
 
     if ( pp == HostShare::PP_NONE )
     {
+        if (!emulator_cpus.empty())
+        {
+            file << "\t\t<emulatorpin cpuset=" << emulator_cpus << "/>\n";
+        }
+
         return;
     }
 
@@ -222,7 +227,16 @@ static void pin_cpu(ofstream& file, const VectorAttribute * topology,
         oss << cpus;
     }
 
-    file << "\t\t<emulatorpin cpuset='" << oss.str() << "'/>\n";
+    file << "\t\t<emulatorpin cpuset=";
+
+    if (emulator_cpus.empty())
+    {
+        file << "'" << oss.str() << "'/>\n";
+    }
+    else
+    {
+        file << emulator_cpus << "/>\n";
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -736,7 +750,16 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<cputune>\n";
     file << "\t\t<shares>"<< shares << "</shares>\n";
 
-    pin_cpu(file, topology, nodes);
+    string emulator_cpus;
+
+    get_attribute(nullptr, host, cluster, "EMULATOR_CPUS", emulator_cpus);
+
+    if (!emulator_cpus.empty())
+    {
+        emulator_cpus = one_util::escape_xml_attr(emulator_cpus);
+    }
+
+    pin_cpu(file, emulator_cpus, topology, nodes);
 
     file << "\t</cputune>\n";
 

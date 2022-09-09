@@ -63,6 +63,7 @@ const EString<ImageManagerMessages> image_msg_t::_type_str({
     {"SNAP_DELETE", ImageManagerMessages::SNAP_DELETE},
     {"SNAP_REVERT", ImageManagerMessages::SNAP_REVERT},
     {"SNAP_FLATTEN", ImageManagerMessages::SNAP_FLATTEN},
+    {"RESTORE", ImageManagerMessages::RESTORE},
     {"LOG", ImageManagerMessages::LOG},
 });
 
@@ -142,6 +143,7 @@ const EString<VMManagerMessages> vm_msg_t::_type_str({
     {"DRIVER_CANCEL", VMManagerMessages::DRIVER_CANCEL},
     {"LOG", VMManagerMessages::LOG},
     {"RESIZE", VMManagerMessages::RESIZE},
+    {"BACKUP", VMManagerMessages::BACKUP},
 });
 
 template<>

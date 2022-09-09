@@ -348,18 +348,24 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % 'IMAGE TEMPLATE', false)
         puts image.template_str
 
-        puts
-        CLIHelper.print_header('VIRTUAL MACHINES', false)
-        puts
-
         vms=image.retrieve_elements('VMS/ID')
 
         return unless vms
 
-        vms.map! {|e| e.to_i }
-        onevm_helper=OneVMHelper.new
-        onevm_helper.client=@client
-        onevm_helper.list_pool({ :ids=>vms, :no_pager => true }, false)
+        if image.type_str.casecmp('backup').zero?
+            puts format(str, 'BACKUP OF VM', vms[0])
+        else
+            puts
+            CLIHelper.print_header('VIRTUAL MACHINES', false)
+            puts
+
+            vms.map! {|e| e.to_i }
+            onevm_helper=OneVMHelper.new
+            onevm_helper.client=@client
+            onevm_helper.list_pool({ :ids=>vms, :no_pager => true },
+                                   false)
+
+        end
     end
 
     def format_snapshots(image)

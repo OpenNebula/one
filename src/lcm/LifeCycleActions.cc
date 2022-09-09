@@ -1055,6 +1055,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
+        case VirtualMachine::BACKUP:
             vm->set_running_etime(the_time);
 
             vmm->trigger_driver_cancel(vid);
@@ -1131,6 +1132,11 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vm->clear_snapshot_disk();
 
             tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
+            break;
+
+        case VirtualMachine::BACKUP_POWEROFF:
+            vmm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
         break;
 
@@ -1375,6 +1381,18 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             else
             {
                 trigger_deploy_failure(vim);
+            }
+        break;
+
+        case VirtualMachine::BACKUP:
+        case VirtualMachine::BACKUP_POWEROFF:
+            if (success)
+            {
+                trigger_backup_success(vim);
+            }
+            else
+            {
+                trigger_backup_failure(vim);
             }
         break;
 
@@ -1729,6 +1747,8 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
+        case VirtualMachine::BACKUP:
+        case VirtualMachine::BACKUP_POWEROFF:
             break;
     }
 
@@ -1846,6 +1866,7 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
                         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
                         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+                        case VirtualMachine::BACKUP_POWEROFF:
                             is_tmpl = true;
                             break;
 
@@ -1858,6 +1879,7 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::DISK_SNAPSHOT:
                         case VirtualMachine::DISK_SNAPSHOT_DELETE:
                         case VirtualMachine::DISK_RESIZE:
+                        case VirtualMachine::BACKUP:
                             is_update = true;
                             break;
                     }

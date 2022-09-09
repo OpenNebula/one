@@ -94,6 +94,18 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Do not add context when building from Dockerfile'
     }
 
+    NO_IP = {
+        :name => 'no_ip',
+        :large => '--no_ip',
+        :description => 'Do not keep NIC addresses (MAC, IP and IP6)'
+    }
+
+    NO_NIC = {
+        :name => 'no_nic',
+        :large => '--no_nic',
+        :description => 'Do not keep network mappings'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -407,6 +419,41 @@ CommandParser::CmdParser.new(ARGV) do
             :snapshot_id do
         helper.perform_action(args[0], options, 'flattening snapshot') do |o|
             o.snapshot_flatten(args[1].to_i)
+        end
+    end
+
+    restore_desc = <<-EOT.unindent
+        Restore a backup image. It will restore the associated VM template to the VM template pool and
+        the disk images to the selected image datastore.
+    EOT
+
+    command :restore,
+            restore_desc,
+            :imageid,
+            :options => [OneDatastoreHelper::DATASTORE, NO_NIC, NO_IP] do
+        helper.perform_action(args[0], options, 'vm backup restored') do |o|
+            if options[:datastore].nil?
+                STDERR.puts 'Datastore to restore the backup is mandatory: '
+                STDERR.puts "\t -d datastore_id | name"
+                exit(-1)
+            end
+
+            restore_opts = ''
+
+            restore_opts << "NO_NIC=\"YES\"\n" if options[:no_nic]
+            restore_opts << "NO_IP=\"YES\"\n" if options[:no_ip]
+
+            rc = o.restore(options[:datastore].to_i, restore_opts)
+
+            if !OpenNebula.is_error?(rc)
+                ids = rc.split(' ')
+
+                puts "VM Template: #{ids[0]}" if ids[0]
+                puts "Images: #{ids[1..-1].join(' ')}" if ids.length > 1
+            else
+                puts rc.message
+                exit(-1)
+            end
         end
     end
 

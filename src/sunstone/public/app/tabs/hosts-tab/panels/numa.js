@@ -40,6 +40,8 @@ define(function(require) {
   var SELECT_ID = "numa-pinned-host";
   var ISOLCPUSINPUT = "numa-isolcpus";
   var ISOLCPUS = "isolcpus";
+  var EMULATORCPUSINPUT = "numa-emulatorcpus";
+  var EMULATORCPUS = "emulatorcpus";
 
   /*
     CONSTRUCTOR
@@ -84,6 +86,15 @@ define(function(require) {
       if(that.element && that.element.ID && that.element.TEMPLATE){
         var template = $.extend({}, that.element.TEMPLATE);
         template.ISOLCPUS = $("#"+ISOLCPUS).val();
+        template_str  = TemplateUtils.templateToString(template);
+        Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
+      }
+    });
+
+    $("#"+EMULATORCPUSINPUT).click(function(e){
+      if(that.element && that.element.ID && that.element.TEMPLATE){
+        var template = $.extend({}, that.element.TEMPLATE);
+        template.EMULATOR_CPUS = $("#"+EMULATORCPUS).val();
         template_str  = TemplateUtils.templateToString(template);
         Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, template_str);
       }
@@ -155,8 +166,33 @@ define(function(require) {
       );
       isolcpusTable.find("td").append(isolcpusInfo);
 
+      var emulatorCpusTable = $("<table/>");
+      emulatorCpusTable.append(
+        $("<thead/>").append(
+          $("<tr>").append(
+            $("<th/>").text("Emulator CPUS").append(
+              $("<span>",{"class":"tip"}).text("Pin emulator threads to specific host CPUs. It does not require VM CPU pinning").css({"margin-left":".5rem"})
+            )
+          )
+        )
+      );
+      emulatorCpusTable.append($("<tbody>").append($("<tr>").append($("<td/>"))));
+      var valueEmulatorCpus = (that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.EMULATOR_CPUS) || "";
+      var emulatorCpusInfo = $("<div>",{"class":"row"}).append(
+        $("<div/>",{"class":'columns small-10'}).append(
+          $("<input/>",{'id': EMULATORCPUS, 'type': 'text'}).val(valueEmulatorCpus)
+        )
+        .add(
+          $("<div/>",{"class":'columns small-2 text-center'}).append(
+            $("<button/>",{"class": "button", "id": EMULATORCPUSINPUT }).text("Update")
+          )
+        )
+      );
+      emulatorCpusTable.find("td").append(emulatorCpusInfo);
+
       $("#placeNumaInfo").append(selectTable);
       $("#placeNumaInfo").append(isolcpusTable);
+      $("#placeNumaInfo").append(emulatorCpusTable);
 
       numaNodes.map(function(node,i){
         var displaySubtitle = true;

@@ -219,6 +219,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:resize], result, id)
     end
 
+    def backup(id, drv_message)
+        result = retrieve_result("backup")
+
+        send_message(ACTION[:backup], result, id, 'dummy-backup-id')
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 

@@ -236,6 +236,13 @@ public:
                   std::vector<xmlNodePtr>& content) const;
 
     /**
+     *  Count number of nodes matching a given xpath_expr
+     *    @param xpath_expr the Xpath for the elements
+     *    @return the number of nodes found
+     */
+    int count_nodes(const std::string& xpath_expr) const;
+
+    /**
      * Adds a copy of the node as a child of the node in the xpath expression.
      * The source node must be cleaned by the caller.
      *

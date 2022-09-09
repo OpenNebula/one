@@ -279,7 +279,7 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
 
             if (!source.empty())
             {
-                oss << "MkFS operation succeeded but image no longer exists."
+                oss << "MKFS operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
                 NebulaLog::log("ImM", Log::ERROR, oss);
@@ -443,16 +443,43 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
 
     ostringstream oss;
 
+    int backup_vm_id = -1;
+
     if ( auto image = ipool->get(msg->oid()) )
     {
         ds_id  = image->get_ds_id();
         source = image->get_source();
+
+        if ( image->get_type() == Image::BACKUP )
+        {
+            auto ids  = image->get_running_ids();
+            auto first = ids.cbegin();
+
+            if (first != ids.cend())
+            {
+                backup_vm_id = *first;
+            }
+        }
 
         rc = ipool->drop(image.get(), tmp_error);
     }
     else
     {
         return;
+    }
+
+    if ( backup_vm_id != -1 )
+    {
+        VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
+
+        if ( auto vm = vmpool->get(backup_vm_id) )
+        {
+            vm->backups().del(msg->oid());
+
+            vmpool->update(vm.get());
+        }
+
+        // TODO BACKUP QUOTA ROLLBACK
     }
 
     if (msg->status() != "SUCCESS")
@@ -762,6 +789,32 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
         quotas.add("IMAGES", 0);
 
         Quotas::ds_del(uid, gid, &quotas);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::_restore(unique_ptr<image_msg_t> msg)
+{
+    NebulaLog::dddebug("ImM", "_restore: " + msg->payload());
+
+    if (msg->status() == "SUCCESS")
+    {
+        if (msg->payload().empty())
+        {
+            notify_request(msg->oid(), false,
+                    "Cannot get info about restored disk images");
+            return;
+        }
+
+        NebulaLog::log("ImM", Log::INFO, "Backup successfully restored: "
+                + msg->payload());
+
+        notify_request(msg->oid(), true, msg->payload());
+    }
+    else
+    {
+        notify_request(msg->oid(), false, msg->payload());
     }
 }
 

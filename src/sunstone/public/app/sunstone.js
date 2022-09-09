@@ -56,6 +56,7 @@ define(function(require) {
     "datastores-tab",
     "images-tab",
     "files-tab",
+    "backups-tab",
     "marketplaces-tab",
     "marketplaceapps-tab",
     "network-top-tab",

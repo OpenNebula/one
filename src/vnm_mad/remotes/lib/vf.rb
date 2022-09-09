@@ -117,5 +117,6 @@ module VNMMAD::VirtualFunction
             "off"
         end
     end
+
 end
 # rubocop:enable Style/ClassAndModuleChildren

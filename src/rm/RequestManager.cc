@@ -345,6 +345,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_sched_update(new RequestManagerSchedUpdate());
     xmlrpc_c::methodPtr vm_attachsg(new VirtualMachineAttachSG());
     xmlrpc_c::methodPtr vm_detachsg(new VirtualMachineDetachSG());
+    xmlrpc_c::methodPtr vm_backup(new VirtualMachineBackup());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -477,6 +478,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_snap_delete(new ImageSnapshotDelete());
     xmlrpc_c::methodPtr image_snap_revert(new ImageSnapshotRevert());
     xmlrpc_c::methodPtr image_snap_flatten(new ImageSnapshotFlatten());
+    xmlrpc_c::methodPtr image_restore(new ImageRestore());
 
     // Datastore Methods
     xmlrpc_c::methodPtr datastore_enable(new DatastoreEnable());
@@ -582,6 +584,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.schedupdate", vm_sched_update);
     RequestManagerRegistry.addMethod("one.vm.attachsg", vm_attachsg);
     RequestManagerRegistry.addMethod("one.vm.detachsg", vm_detachsg);
+    RequestManagerRegistry.addMethod("one.vm.backup", vm_backup);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);
@@ -796,6 +799,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
     RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
     RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
+    RequestManagerRegistry.addMethod("one.image.restore", image_restore);
     RequestManagerRegistry.addMethod("one.image.lock", image_lock);
     RequestManagerRegistry.addMethod("one.image.unlock", image_unlock);
 

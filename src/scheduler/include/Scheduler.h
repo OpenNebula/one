@@ -229,6 +229,16 @@ private:
     bool diff_vnets;
 
     /**
+     * Max number of active backups
+     */
+    int max_backups;
+
+    /**
+     * Max number of active backups per host
+     */
+    int max_backups_host;
+
+    /**
      * oned runtime configuration values
      */
     Template oned_conf;

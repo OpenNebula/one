@@ -75,7 +75,8 @@ define(function (require) {
     "snapshot-revert",
     "disk-snapshot-create",
     "disk-snapshot-delete",
-    "disk-snapshot-revert"
+    "disk-snapshot-revert",
+    "backup"
   ];
 
   var actionsWithARGS = [
@@ -84,7 +85,8 @@ define(function (require) {
     "snapshot-delete",
     "disk-snapshot-create",
     "disk-snapshot-revert",
-    "disk-snapshot-delete"
+    "disk-snapshot-delete",
+    "backup"
   ];
 
   var clearEmptySpaces = function(e){
@@ -149,42 +151,57 @@ define(function (require) {
       var snap_name = $("#snapname");
       var snap_id = $("#snapid");
       var disk_id = $("#diskid");
+      var ds_id = $("#dsid");
       switch ($(this).val()) {
         case "snapshot-create":
           snap_name.removeClass("hide");
           snap_id.addClass("hide").val("");
           disk_id.addClass("hide").val("");
+          ds_id.addClass("hide").val("");
         break;
         case "snapshot-revert":
           snap_name.addClass("hide").val("");
           snap_id.removeClass("hide");
           disk_id.addClass("hide").val("");
+          ds_id.addClass("hide").val("");
         break;
         case "snapshot-delete":
           snap_name.addClass("hide").val("");
           snap_id.removeClass("hide");
           disk_id.addClass("hide").val("");
-        break;
+          ds_id.addClass("hide").val("");
+          break;
         case "disk-snapshot-create":
           snap_name.removeClass("hide");
           snap_id.addClass("hide").val("");
           disk_id.removeClass("hide");
-        break;
+          ds_id.addClass("hide").val("");
+          break;
         case "disk-snapshot-revert":
           snap_name.addClass("hide").val("");
           snap_id.removeClass("hide");
           disk_id.removeClass("hide");
-        break;
+          ds_id.addClass("hide").val("");
+          break;
         case "disk-snapshot-delete":
           snap_name.addClass("hide").val("");
           snap_id.removeClass("hide");
           disk_id.removeClass("hide");
-        break;
+          ds_id.addClass("hide").val("");
+          break;
+        case "backup":
+          snap_name.addClass("hide").val("");
+          snap_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+          disk_id.addClass("hide").val("");
+          ds_id.removeClass("hide");
+          break;
         default:
           snap_name.addClass("hide").val("");
           snap_id.addClass("hide").val("");
           disk_id.addClass("hide").val("");
-        break;
+          ds_id.addClass("hide").val("");
+          break;
       }
     });
 
@@ -194,6 +211,7 @@ define(function (require) {
       var snap_name = $("#snapname").val();
       var snap_id = $("#snapid").val();
       var disk_id = $("#diskid").val();
+      var ds_id = $("#dsid").val();
       if(new_action){
         var actionJSON = {};
         actionJSON.error = function(e){
@@ -207,7 +225,7 @@ define(function (require) {
         actionJSON.data.action = {perform: new_action};
         actionJSON.data.action.params = {};
         if(defaultActions.includes(new_action)){
-          var rawData = [disk_id,snap_id,snap_name];
+          var rawData = [disk_id,snap_id,snap_name,ds_id];
           var args = rawData.filter(function (e) {return e;}).join();
           if(args){
             actionJSON.data.action.params.args = args;
@@ -337,42 +355,56 @@ define(function (require) {
       var snap_name = $("#snapname",context);
       var snap_id = $("#snapid",context);
       var disk_id = $("#diskid",context);
+      var ds_id = $("#dsid", context);
 
       switch ($(this).val()) {
         case "snapshot-create":
           snap_name.removeClass("hide");
           snap_id.addClass("hide");
           disk_id.addClass("hide");
+          ds_id.addClass("hide");
         break;
         case "snapshot-revert":
           snap_name.addClass("hide");
           snap_id.removeClass("hide");
           disk_id.addClass("hide");
+          ds_id.addClass("hide");
         break;
         case "snapshot-delete":
           snap_name.addClass("hide");
           snap_id.removeClass("hide");
           disk_id.addClass("hide");
+          ds_id.addClass("hide");
         break;
         case "disk-snapshot-create":
           snap_name.removeClass("hide");
           snap_id.addClass("hide");
           disk_id.removeClass("hide");
+          ds_id.addClass("hide");
         break;
         case "disk-snapshot-revert":
           snap_name.addClass("hide");
           snap_id.removeClass("hide");
           disk_id.removeClass("hide");
+          ds_id.addClass("hide");
         break;
         case "disk-snapshot-delete":
           snap_name.addClass("hide");
           snap_id.removeClass("hide");
           disk_id.removeClass("hide");
+          ds_id.addClass("hide");
+        break;
+        case "backup":
+          snap_name.addClass("hide");
+          snap_id.addClass("hide");
+          disk_id.addClass("hide");
+          ds_id.removeClass("hide");
         break;
         default:
           snap_name.addClass("hide");
           snap_id.addClass("hide");
           disk_id.addClass("hide");
+          ds_id.addClass("hide");
         break;
       }
     });
@@ -492,48 +524,63 @@ define(function (require) {
             var disk_id = $("#diskid",context);
             var snap_id = $("#snapid",context);
             var snap_name = $("#snapname",context);
+            var ds_id = $("#dsid", context);
             if(args && Array.isArray(args)){
               switch (dataJSON.ACTION) {
                 case "snapshot-create":
                   disk_id.val("");
                   snap_id.val("");
                   snap_name.val(args[0]||"");
+                  ds_id.val("");
                 break;
                 case "snapshot-revert":
                   disk_id.val("");
                   snap_id.val(args[0]||"");
                   snap_name.val("");
+                  ds_id.val("");
                 break;
                 case "snapshot-delete":
                   disk_id.val("");
                   snap_id.val(args[0]||"");
                   snap_name.val("");
+                  ds_id.val("");
                 break;
                 case "disk-snapshot-create":
                   disk_id.val(args[0]||"");
                   snap_id.val("");
                   snap_name.val(args[1]||"");
+                  ds_id.val("");
                 break;
                 case "disk-snapshot-revert":
                   disk_id.val(args[0]||"");
                   snap_id.val(args[1]||"");
                   snap_name.val("");
+                  ds_id.val("");
                 break;
                 case "disk-snapshot-delete":
                   disk_id.val(args[0]||"");
                   snap_id.val(args[1]||"");
                   snap_name.val("");
+                  ds_id.val("");
+                break;
+                case "backup":
+                  ds_id.val(args[0]||"");
+                  snap_name.val("");
+                  snap_id.val("");
+                  disk_id.val("");
                 break;
                 default:
                   snap_name.val("");
                   snap_id.val("");
                   disk_id.val("");
+                  ds_id.val("");
                 break;
               }
             }else{
               snap_name.val("");
               snap_id.val("");
               disk_id.val("");
+              ds_id.val("");
             }
           }
         }
@@ -735,7 +782,6 @@ define(function (require) {
         default:
           Notifier.notifyError("Error in unit time");
           return false;
-          break;
       }
       sched_action.TIME = "+" + send_time;
     } else {
@@ -813,14 +859,16 @@ define(function (require) {
       var snap_name = $("#snapname",context);
       var snap_id = $("#snapid",context);
       var disk_id = $("#diskid",context);
+      var ds_id = $("#dsid",context);
       var snap_name_val = snap_name.val();
       var snap_id_val = snap_id.val();
       var disk_id_val = disk_id.val();
-      if(validateScheduleInputsEmpty(sched_action.ACTION, snap_name_val, snap_id_val, disk_id)){
+      var ds_id_val = ds_id.val();
+      if(validateScheduleInputsEmpty(sched_action.ACTION, snap_name_val, snap_id_val, disk_id_val, ds_id_val)){
         Notifier.notifyError("Check arguments for schedule action");
         return false;
       }
-      var rawData = [disk_id_val,snap_id_val,snap_name_val];
+      var rawData = [disk_id_val,snap_id_val,snap_name_val,ds_id_val];
       sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
     }
     $("#sched_" + this.res + "_actions_table .create", context).remove();
@@ -831,7 +879,7 @@ define(function (require) {
     return sched_action;
   }
 
-  function validateScheduleInputsEmpty(action, snap_name, snap_id, disk_id){
+  function validateScheduleInputsEmpty(action, snap_name, snap_id, disk_id, ds_id){
     switch (action) {
       case "snapshot-create":
         rtn = snap_name.length<=0;
@@ -850,6 +898,9 @@ define(function (require) {
       break;
       case "disk-snapshot-delete":
         rtn = snap_id.length<=0 || disk_id.length<=0;
+      break;
+      case "backup":
+        rtn = ds_id.length<=0;
       break;
       default:
         rtn = false;

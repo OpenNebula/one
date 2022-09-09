@@ -16,9 +16,6 @@
 require_relative '../lib/xmlparser'
 require_relative '../lib/opennebula_vm'
 
-# rubocop:disable Style/ClassAndModuleChildren
-# rubocop:disable Style/ClassVars
-
 # This module includes related KVM/Libvirt functions
 module VirtualMachineManagerKVM
 
@@ -119,7 +116,7 @@ module VirtualMachineManagerKVM
                     dev  << '<virtualport type="openvswitch"/>'
                 end
 
-                dev << xputs("<source bridge=%s/>", 'BRIDGE')
+                dev << xputs('<source bridge=%s/>', 'BRIDGE')
             else
                 dev = '<interface type="ethernet">'
             end

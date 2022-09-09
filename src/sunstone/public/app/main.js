@@ -135,6 +135,7 @@ require.config({
         "tabs/datastores-tab",
         "tabs/images-tab",
         "tabs/files-tab",
+        "tabs/backups-tab",
         "tabs/marketplaces-tab",
         "tabs/marketplaceapps-tab",
         "tabs/network-top-tab",

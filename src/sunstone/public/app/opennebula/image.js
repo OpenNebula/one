@@ -39,7 +39,8 @@ define(function(require) {
     Locale.tr("DATABLOCK"),
     Locale.tr("KERNEL"),
     Locale.tr("RAMDISK"),
-    Locale.tr("CONTEXT")
+    Locale.tr("CONTEXT"),
+    Locale.tr("BACKUP")
   ];
 
   var STATES_COLOR = [
@@ -76,7 +77,8 @@ define(function(require) {
     DATABLOCK : 2,
     KERNEL    : 3,
     RAMDISK   : 4,
-    CONTEXT   : 5
+    CONTEXT   : 5,
+    BACKUP    : 6
   };
 
   var Image = {
@@ -170,6 +172,10 @@ define(function(require) {
     },
     "unlock" : function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
+    },
+    "restore" : function(params) {
+      var action_obj = params.data.extra_param ? params.data.extra_param : {};
+      OpenNebulaAction.simple_action(params, RESOURCE, "restore", action_obj)
     }
   }
 

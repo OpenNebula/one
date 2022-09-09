@@ -68,7 +68,8 @@ define(function(require) {
 
     if (element.TYPE == OpenNebulaImage.TYPES.KERNEL ||
         element.TYPE == OpenNebulaImage.TYPES.RAMDISK ||
-        element.TYPE == OpenNebulaImage.TYPES.CONTEXT) {
+        element.TYPE == OpenNebulaImage.TYPES.CONTEXT ||
+        element.TYPE == OpenNebulaImage.TYPES.BACKUP) {
       return false;
     }
 

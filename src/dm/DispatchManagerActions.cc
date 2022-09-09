@@ -1933,37 +1933,28 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
+
+            tm->trigger_snapshot_create(vid);
             break;
 
         case VirtualMachine::SUSPENDED:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_SUSPENDED);
+
+            tm->trigger_snapshot_create(vid);
             break;
 
         case VirtualMachine::ACTIVE:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_SNAPSHOT);
-            break;
-
-        default: break;
-    }
-
-    close_cp_history(vmpool, vm.get(), VMActions::DISK_SNAPSHOT_CREATE_ACTION, ra);
-
-    switch (state)
-    {
-        case VirtualMachine::POWEROFF:
-        case VirtualMachine::SUSPENDED:
-            tm->trigger_snapshot_create(vid);
-            break;
-
-        case VirtualMachine::ACTIVE:
 
             vmm->trigger_disk_snapshot_create(vid);
             break;
 
         default: break;
     }
+
+    close_cp_history(vmpool, vm.get(), VMActions::DISK_SNAPSHOT_CREATE_ACTION, ra);
 
     vmpool->update(vm.get());
 
@@ -2187,36 +2178,28 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         case VirtualMachine::POWEROFF:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_RESIZE_POWEROFF);
+
+            tm->trigger_resize(vid);
             break;
 
         case VirtualMachine::UNDEPLOYED:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_RESIZE_UNDEPLOYED);
+
+            tm->trigger_resize(vid);
             break;
 
         case VirtualMachine::ACTIVE:
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::DISK_RESIZE);
+
+            vmm->trigger_disk_resize(vid);
             break;
 
         default: break;
     }
 
     close_cp_history(vmpool, vm.get(), VMActions::DISK_RESIZE_ACTION, ra);
-
-    switch (state)
-    {
-        case VirtualMachine::POWEROFF:
-        case VirtualMachine::UNDEPLOYED:
-            tm->trigger_resize(vid);
-            break;
-
-        case VirtualMachine::ACTIVE:
-            vmm->trigger_disk_resize(vid);
-            break;
-
-        default: break;
-    }
 
     vmpool->update(vm.get());
     vmpool->update_search(vm.get());
@@ -2530,6 +2513,73 @@ int DispatchManager::detach_sg(int vid, int nicid, int sgid,
 
         sgpool->update(sg.get());
     }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::backup(int vid, int backup_ds_id,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        oss << "Could not create a new backup for VM " << vid
+            << ", VM does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Set BACKUP state
+    // -------------------------------------------------------------------------
+    VirtualMachine::VmState state = vm->get_state();
+
+    switch (state)
+    {
+        case VirtualMachine::ACTIVE:
+            if (vm->get_lcm_state() != VirtualMachine::RUNNING)
+            {
+                oss << "Could not create a new backup for VM " << vid
+                    << ", wrong state " << vm->state_str() << ".";
+                error_str = oss.str();
+
+                return -1;
+            }
+
+            vm->set_state(VirtualMachine::BACKUP);
+            break;
+
+        case VirtualMachine::POWEROFF:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::BACKUP_POWEROFF);
+            break;
+
+        default:
+            oss << "Could not create a new backup for VM " << vid
+                << ", wrong state " << vm->state_str() << ".";
+
+            error_str = oss.str();
+            return -1;
+    }
+
+    vm->backups().last_datastore_id(backup_ds_id);
+
+    vmm->trigger_backup(vid);
+
+    vm->set_resched(false);
+
+    close_cp_history(vmpool, vm.get(), VMActions::BACKUP_ACTION, ra);
+
+    vmpool->update(vm.get());
+
+    vm.reset();
 
     return 0;
 }

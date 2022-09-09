@@ -48,6 +48,11 @@ public:
 
     virtual ~SchedAction(){};
 
+    int action_id()
+    {
+        return get_id();
+    }
+
     /**
      *  Returns the REPEAT value of the SCHED_ACTION
      *    @param r repeat WEEKLY, MONTHLY, YEARLY or HOURLY

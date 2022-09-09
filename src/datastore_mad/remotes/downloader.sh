@@ -162,6 +162,102 @@ function s3_env
     CURRENT_DATE_ISO8601="${CURRENT_DATE_DAY}T$(date -u '+%H%M%S')Z"
 }
 
+# Get restic repo information from datastore template
+# It generates the repo url as: sftp:SFTP_USER@SFTP_SERVER:DATASTORE_PATH
+# Sets the following environment variables
+#  - RESTIC_REPOSITORY (replaces -r in restic command)
+#  - RESTIC_PASSWORD (password to access the repo)
+function restic_env
+{
+    XPATH="$DRIVER_PATH/xpath.rb --stdin"
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+            XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x --decrypt $1 | $XPATH \
+                        /DATASTORE/TEMPLATE/RESTIC_SFTP_SERVER \
+                        /DATASTORE/TEMPLATE/RESTIC_SFTP_USER \
+                        /DATASTORE/BASE_PATH \
+                        /DATASTORE/TEMPLATE/RESTIC_PASSWORD \
+                        /DATASTORE/TEMPLATE/RESTIC_IONICE \
+                        /DATASTORE/TEMPLATE/RESTIC_NICE \
+                        /DATASTORE/TEMPLATE/RESTIC_BWLIMIT \
+                        /DATASTORE/TEMPLATE/RESTIC_CONNECTIONS)
+
+    SFTP_SERVER="${XPATH_ELEMENTS[j++]}"
+    SFTP_USER="${XPATH_ELEMENTS[j++]:-oneadmin}"
+    BASE_PATH="${XPATH_ELEMENTS[j++]}"
+    PASSWORD="${XPATH_ELEMENTS[j++]}"
+    IONICE="${XPATH_ELEMENTS[j++]}"
+    NICE="${XPATH_ELEMENTS[j++]}"
+    BWLIMIT="${XPATH_ELEMENTS[j++]}"
+    CONNECTIONS="${XPATH_ELEMENTS[j++]}"
+
+    export RESTIC_REPOSITORY="sftp:${SFTP_USER}@${SFTP_SERVER}:${BASE_PATH}"
+    export RESTIC_PASSWORD="${PASSWORD}"
+
+    RESTIC_ONE_PRECMD=""
+
+    if [ -n "${NICE}" ]; then
+        RESTIC_ONE_PRECMD="nice -n ${NICE} "
+    fi
+
+    if [ -n "${IONICE}" ]; then
+        RESTIC_ONE_PRECMD="${RESTIC_ONE_PRECMD}ionice -c2 -n ${IONICE} "
+    fi
+
+    if [ -x "/var/lib/one/remotes/datastore/restic/restic" ]; then
+        RESTIC_ONE_PATH="/var/lib/one/remotes/datastore/restic/restic"
+    elif [ -x "/var/tmp/one/datastore/restic/restic" ]; then
+        RESTIC_ONE_PATH="/var/tmp/one/datastore/restic/restic"
+    else
+        RESTIC_ONE_PATH="restic"
+    fi
+
+    RESTIC_ONE_CMD="${RESTIC_ONE_PRECMD}${RESTIC_ONE_PATH}"
+
+    if [ -n "${BWLIMIT}" ]; then
+        RESTIC_ONE_CMD="${RESTIC_ONE_CMD} --limit-upload ${BWLIMIT} --limit-download ${BWLIMIT}"
+    fi
+
+    if [ -n "${CONNECTIONS}" ]; then
+        RESTIC_ONE_CMD="${RESTIC_ONE_CMD} --option sftp.connections=${CONNECTIONS}"
+    fi
+
+    export RESTIC_ONE_CMD
+}
+
+# Get rsync repo information from DS template
+# Sets the following variables:
+#  - RSYNC_CMD = rsync -a user@host:/base/path
+function rsync_env
+{
+    XPATH="$DRIVER_PATH/xpath.rb --stdin"
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+            XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x --decrypt $1 | $XPATH \
+                        /DATASTORE/TEMPLATE/RSYNC_HOST \
+                        /DATASTORE/TEMPLATE/RSYNC_USER \
+                        /DATASTORE/BASE_PATH)
+
+    RSYNC_HOST="${XPATH_ELEMENTS[j++]}"
+    RSYNC_USER="${XPATH_ELEMENTS[j++]}"
+    BASE_PATH="${XPATH_ELEMENTS[j++]}"
+
+    if [ -z "${RSYNC_HOST}" -o -z "${RSYNC_USER}" ]; then
+        echo "RSYNC_HOST and RSYNC_USER are required" >&2
+        exit -1
+    fi
+
+    RSYNC_CMD="ssh ${RSYNC_USER}@${RSYNC_HOST} 'cat ${BASE_PATH}"
+
+    export RSYNC_CMD
+}
+
 # Create an SHA-256 hash in hexadecimal.
 # Usage:
 #   hash_sha256 <string>
@@ -434,6 +530,34 @@ lxd://*)
 docker://*|dockerfile://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
+    ;;
+restic://*)
+    #pseudo restic url restic://<datastore_id>/<snapshot_id>/<file_name>
+    restic_path=${FROM#restic://}
+    d_id=`echo ${restic_path} | cut -d'/' -f1`
+    s_id=`echo ${restic_path} | cut -d'/' -f2`
+    file=`echo ${restic_path} | cut -d'/' -f3-`
+
+    restic_env $d_id
+
+    if [ -z "$RESTIC_REPOSITORY" -o -z "$RESTIC_PASSWORD" ]; then
+        echo "RESTIC_REPOSITORY and RESTIC_PASSWORD are required" >&2
+        exit -1
+    fi
+
+    command="${RESTIC_ONE_CMD} dump -q ${s_id} /${file}"
+    ;;
+rsync://*)
+    # rsync://<ds_id>/<vm_id>/<backup_id>/<file>
+    rsync_path=${FROM#rsync://}
+    d_id=`echo ${rsync_path} | cut -d'/' -f1`
+    vmid=`echo ${rsync_path} | cut -d'/' -f2`
+    b_id=`echo ${rsync_path} | cut -d'/' -f3`
+    file=`echo ${rsync_path} | cut -d'/' -f4-`
+
+    rsync_env $d_id
+
+    command="${RSYNC_CMD}/${vmid}/${b_id}/${file}'"
     ;;
 *)
     if [ ! -r $FROM ]; then

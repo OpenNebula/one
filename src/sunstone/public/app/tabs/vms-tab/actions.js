@@ -30,6 +30,7 @@ define(function(require) {
   var MARKETPLACEAPPS_TAB_ID = require("tabs/marketplaceapps-tab/tabId");
   var MIGRATE_DIALOG_ID = require("./dialogs/migrate/dialogId");
   var SAVE_AS_TEMPLATE_DIALOG_ID = require("./dialogs/saveas-template/dialogId");
+  var BACKUP_DIALOG_ID = require('./dialogs/backup/dialogId');
   var TAB_ID = require("./tabId");
   var UPDATECONF_FORM_ID = require("./form-panels/updateconf/formPanelId");
 
@@ -480,8 +481,24 @@ define(function(require) {
           }
         });
       }
-    }
-
+    },
+    "VM.backup_dialog": {
+      type: "custom",
+      call: function(){
+        Sunstone.getDialog(BACKUP_DIALOG_ID).show();
+      }
+    },
+    "VM.backup": {
+      type: "single",
+      call: OpenNebulaVM.backup,
+      callback: function (req, resp) {
+        Sunstone.runAction("VM.refresh");
+      },
+      error: function(error){
+        Notifier.onError("VM: " +error);
+      },
+      notify: true
+    },
   };
 
   return _actions;

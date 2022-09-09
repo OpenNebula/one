@@ -18,16 +18,18 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
   var Config = require('sunstone-config');
   var OpenNebulaHelper = require('./helper');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "DATASTORE";
   var STATES_STR = [
-    "ON",
-    "OFF"];
+    Locale.tr("ON"),
+    Locale.tr("OFF")];
 
   var TYPES_STR = [
-    "IMAGE",
-    "SYSTEM",
-    "FILE"
+    Locale.tr("IMAGE"),
+    Locale.tr("SYSTEM"),
+    Locale.tr("FILE"),
+    Locale.tr("BACKUP")
   ];
 
   var STATES = {
@@ -38,7 +40,8 @@ define(function(require) {
   var TYPES = {
     IMAGE_DS  : 0,
     SYSTEM_DS : 1,
-    FILE_DS   : 2
+    FILE_DS   : 2,
+    BACKUP_DS : 3
   };
 
   var dsMadIndex = {};

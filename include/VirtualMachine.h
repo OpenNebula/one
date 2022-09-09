@@ -25,6 +25,7 @@
 #include "History.h"
 #include "Image.h"
 #include "NebulaLog.h"
+#include "Backups.h"
 
 #include <time.h>
 #include <set>
@@ -138,7 +139,9 @@ public:
         HOTPLUG_NIC_POWEROFF   = 65,
         HOTPLUG_RESIZE         = 66,
         HOTPLUG_SAVEAS_UNDEPLOYED = 67,
-        HOTPLUG_SAVEAS_STOPPED    = 68
+        HOTPLUG_SAVEAS_STOPPED    = 68,
+        BACKUP            = 69,
+        BACKUP_POWEROFF   = 70
     };
 
     /**
@@ -1190,7 +1193,7 @@ public:
      *    @param err description if any
      *    @param append true append, false replace
      *
-     *    @return 0 on success
+     *    @return -1 (error), 0 (context change), 1 (no context changed)
      */
     int updateconf(VirtualMachineTemplate* tmpl, std::string &err, bool append);
 
@@ -1726,6 +1729,23 @@ public:
                             const std::string& sched_template,
                             std::string& error);
 
+    // ------------------------------------------------------------------------
+    // Backup related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     *
+     */
+    void max_backup_size(Template &ds_quota)
+    {
+        disks.backup_size(ds_quota, _backups.do_volatile());
+    }
+
+    Backups& backups()
+    {
+        return _backups;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -1854,6 +1874,11 @@ private:
      *  For the syslog it will use the predefined /var/log/ locations
      */
     Log * _log;
+
+    /**
+     *
+     */
+    Backups _backups;
 
     // *************************************************************************
     // DataBase implementation (Private)

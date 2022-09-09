@@ -872,3 +872,45 @@ void VirtualMachineManager::_log(unique_ptr<vm_msg_t> msg)
 }
 
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::_backup(unique_ptr<vm_msg_t> msg)
+{
+    log_message(msg.get());
+
+    int id = msg->oid();
+
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (msg->status() == "SUCCESS")
+    {
+        string backup_id;
+        string backup_size;
+
+        istringstream is(msg->payload());
+
+        is >> backup_id;
+
+        is >> backup_size;
+
+        if ( auto vm = vmpool->get(id) )
+        {
+            vm->backups().last_backup_id(backup_id);
+
+            vm->backups().last_backup_size(backup_size);
+
+            vmpool->update(vm.get());
+
+            vm->log("VMM", Log::INFO, "VM backup successfully created.");
+
+            lcm->trigger_backup_success(id);
+        }
+    }
+    else
+    {
+        log_error(msg->oid(), msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::BACKUP));
+
+        lcm->trigger_backup_failure(id);
+    }
+}
+

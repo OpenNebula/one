@@ -22,95 +22,6 @@
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
-/**
- * Parses value from string to given type
- *
- * @param val_s string value
- * @param val parsed value
- *
- * @return 0 on success, -1 otherwise
- */
-/* -------------------------------------------------------------------------- */
-template<typename T>
-static int from_str(const string& val_s, T& val)
-{
-    if (val_s.empty())
-    {
-        return -1;
-    }
-
-    istringstream iss(val_s);
-
-    iss >> val;
-
-    if (iss.fail() || !iss.eof())
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-template<>
-int from_str(const string& val_s, string& val)
-{
-    if (val_s.empty())
-    {
-        return -1;
-    }
-
-    val = val_s;
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/**
- * Parses tokens to scpecific value with given type
- *
- * @param tokens values to parse
- * @param value given type to parse it
- *
- * @return 0 on success, -1 otherwise
- */
-/* -------------------------------------------------------------------------- */
-template<typename T>
-static int parse_args(queue<string>& tokens, T& value)
-{
-    if (tokens.empty())
-    {
-        return -1;
-    }
-
-    int rc = from_str(tokens.front(), value);
-
-    tokens.pop();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-template<typename T, typename... Args>
-static int parse_args(queue<string>& tokens, T& value, Args&... args)
-{
-    if (tokens.empty())
-    {
-        return -1;
-    }
-
-    int rc = from_str(tokens.front(), value);
-
-    tokens.pop();
-
-    if ( rc != 0 )
-    {
-        return -1;
-    }
-
-    return parse_args(tokens, args...);
-}
-
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachinePoolXML::set_up()
@@ -362,7 +273,19 @@ int VirtualMachineActionsPoolXML::set_up()
             oss << " " << it->first;
         }
 
-        NebulaLog::log("VM",Log::DEBUG,oss);
+        oss << "\nActive backup operations. Total: " << _active_backups << "\n";
+
+        oss << right << setw(8)  << "Host ID" << " "
+            << right << setw(8)  << "Backups" << " "
+            << endl  << setw(18) << setfill('-') << "-" << setfill(' ') << endl;
+
+        for (auto i: backups_host)
+        {
+            oss << right << setw(8)  << i.first  << " "
+                << right << setw(8)  << i.second << "\n";
+        }
+
+        NebulaLog::log("VM", Log::DEBUG, oss);
     }
 
     return rc;
@@ -371,162 +294,46 @@ int VirtualMachineActionsPoolXML::set_up()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineActionsPoolXML::action(
-        int             vid,
-        const string&   action,
-        const string&   args,
-        string&         error_msg) const
+int VirtualMachineActionsPoolXML::get_suitable_nodes(
+        std::vector<xmlNodePtr>& content) const
 {
-    xmlrpc_c::value result;
-    bool            success;
+    std::vector<xmlNodePtr> nodes;
 
-    queue<string>  sargs;
-    string         tmp_arg;
+    _active_backups = get_nodes("/VM_POOL/VM[LCM_STATE=69 or LCM_STATE=70]", nodes);
 
-    stringstream    ss(args);
+    backups_host.clear();
 
-    while (getline(ss, tmp_arg, ','))
+    for ( auto& node: nodes)
     {
-        sargs.push(tmp_arg);
+        int hid = -1;
+
+        if ( node == 0 || node->children == 0 || node->children->next==0 )
+        {
+            continue;
+        }
+
+        ObjectXML vmxml(node);
+
+        vmxml.xpath(hid, "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
+
+        if ( hid == -1 )
+        {
+            continue;
+        }
+
+        backups_host[hid]++;
     }
 
-    try
-    {
-        if (action == "snapshot-create")
-        {
-            string name = "";
+    free_nodes(nodes);
 
-            int rc = parse_args(sargs, name);
+    std::ostringstream oss;
 
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: snapshot-create."
-                    " Format: snapshot-name";
-                return -1;
-            }
+    oss << "/VM_POOL/VM/TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
+        << " and (not(DONE > 0) or boolean(REPEAT))) or "
+        << "( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
-            client->call("one.vm.snapshotcreate",
-                         "is",
-                         &result,
-                         vid,
-                         name.c_str());
-        }
-        else if (action == "snapshot-revert")
-        {
-            int snapid = 0;
-
-            int rc = parse_args(sargs, snapid);
-
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: snapshot-revert."
-                    " Format: snapshot-id";
-                return -1;
-            }
-
-            client->call("one.vm.snapshotrevert", "ii", &result, vid, snapid);
-        }
-        else if (action == "snapshot-delete")
-        {
-            int snapid = 0;
-
-            int rc = parse_args(sargs, snapid);
-
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: snapshot-delete."
-                    " Format: snapshot-id";
-                return -1;
-            }
-
-            client->call("one.vm.snapshotdelete", "ii", &result, vid, snapid);
-        }
-        else if (action == "disk-snapshot-create")
-        {
-            int diskid  = 0;
-            string name = "";
-
-            int rc = parse_args(sargs, diskid, name);
-
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: disk-snapshot-create."
-                    " Format: disk-id, snapshot-name";
-                return -1;
-            }
-
-            client->call("one.vm.disksnapshotcreate",
-                         "iis",
-                         &result,
-                         vid,
-                         diskid,
-                         name.c_str());
-        }
-        else if (action == "disk-snapshot-revert")
-        {
-            int diskid = 0, snapid = 0;
-
-            int rc = parse_args(sargs, diskid, snapid);
-
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: disk-snapshot-revert."
-                    " Format: disk-id, snapshot-id";
-                return -1;
-            }
-
-            client->call("one.vm.disksnapshotrevert",
-                         "iii",
-                         &result,
-                         vid,
-                         diskid,
-                         snapid);
-        }
-        else if (action == "disk-snapshot-delete")
-        {
-            int diskid = 0, snapid = 0;
-
-            int rc = parse_args(sargs, diskid, snapid);
-
-            if (rc != 0)
-            {
-                error_msg = "Missing or malformed ARGS for: disk-snapshot-delete."
-                    " Format: disk-id, snapshot-id";
-                return -1;
-            }
-
-            client->call("one.vm.disksnapshotdelete",
-                         "iii",
-                         &result,
-                         vid,
-                         diskid,
-                         snapid);
-        }
-        else
-        {
-            client->call("one.vm.action", "si", &result, action.c_str(), vid);
-        }
-    }
-    catch (exception const& e)
-    {
-        return -1;
-    }
-
-    vector<xmlrpc_c::value> values =
-            xmlrpc_c::value_array(result).vectorValueValue();
-
-    success = xmlrpc_c::value_boolean(values[0]);
-
-    if (!success)
-    {
-        error_msg = xmlrpc_c::value_string(  values[1] );
-
-        return -1;
-    }
-
-    return 0;
+    return get_nodes(oss.str().c_str(), content);
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

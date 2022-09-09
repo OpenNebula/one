@@ -151,6 +151,11 @@ int Image::insert(SqlDB *db, string& error_str)
             persistent_img = false;
             erase_template_attribute("DEV_PREFIX", dev_prefix);
         break;
+
+        case BACKUP:
+            persistent_img = true;
+            erase_template_attribute("DEV_PREFIX", dev_prefix);
+        break;
     }
 
     // ------------ SIZE --------------------
@@ -180,23 +185,37 @@ int Image::insert(SqlDB *db, string& error_str)
     }
     else if (get_cloning_id() == -1) // !is_saving() && !is_cloning
     {
-        if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
+        if (!source.empty())
         {
-            goto error_no_path;
+            if (!path.empty())
+            {
+                error_str = "PATH and SOURCE cannot be both set.";
+                goto error_common;
+            }
+            else if (format.empty())
+            {
+                error_str = "SOURCE needs FORMAT to be set.";
+                goto error_common;
+            }
         }
-        else if ( !source.empty() && !path.empty() )
+        else if (type == Image::BACKUP)
         {
-            goto error_path_and_source;
+            error_str = "SOURCE cannot be empty for BACKUP images";
+            goto error_common;
         }
-
-        /* MKFS image, FORMAT is mandatory, precedence:
-         *   1. TM_MAD_CONF/DRIVER in oned.conf
-         *   2. DRIVER in DS Template
-         *   3. IMAGE template
-         *   4. "raw" Default
-         */
-        if ( path.empty() && (type == Image::DATABLOCK || type == Image::OS))
+        else if (!path.empty())
         {
+            // It's filled by the driver (cp) based on type of file.
+            format = "";
+        }
+        else if (type == Image::DATABLOCK || type == Image::OS)
+        {
+            /* MKFS image, FORMAT is mandatory, precedence:
+             *   1. TM_MAD_CONF/DRIVER in oned.conf
+             *   2. DRIVER in DS Template
+             *   3. IMAGE template
+             *   4. "raw" Default
+             */
             DatastorePool * ds_pool = Nebula::instance().get_dspool();
 
             string ds_driver = ds_pool->get_ds_driver(ds_id);
@@ -214,14 +233,33 @@ int Image::insert(SqlDB *db, string& error_str)
             }
             // else format in the IMAGE template
         }
-        else
+        else //CDROM, KERNEL, RAMDISK, CONTEXT
         {
-            // It's filled by the driver depending on the type of file.
-            format = "";
+            error_str = "No PATH nor SOURCE in template.";
+            goto error_common;
         }
     }
 
-    state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
+    // -------------------------------------------------------------------------
+    // State is LOCKED till the ImageManager copies it to the Repository.
+    // Backup Images set to READY as it is already in the repo
+    // -------------------------------------------------------------------------
+    state = LOCKED;
+
+    if (type == Image::BACKUP)
+    {
+        int vm_id;
+
+        if  ( erase_template_attribute("VM_ID", vm_id) == 0 )
+        {
+            error_str = "No associated VM ID for BACKUP image.";
+            goto error_common;
+        }
+
+        state = READY;
+
+        inc_running(vm_id);
+    }
 
     encrypt();
 
@@ -232,14 +270,6 @@ int Image::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
-
-error_no_path:
-    error_str = "No PATH nor SOURCE in template.";
-    goto error_common;
-
-error_path_and_source:
-    error_str = "Template malformed, PATH and SOURCE are mutually exclusive.";
-    goto error_common;
 
 error_common:
     NebulaLog::log("IMG", Log::ERROR, error_str);
@@ -760,6 +790,10 @@ int Image::set_type(string& _type, string& error)
     {
         type = CONTEXT;
     }
+    else if ( _type == "BACKUP" )
+    {
+        type = BACKUP;
+    }
     else
     {
         error = "Unknown type " + type;
@@ -833,6 +867,10 @@ Image::ImageType Image::str_to_type(string& str_type)
     else if ( str_type == "CONTEXT" )
     {
         it = CONTEXT;
+    }
+    else if ( str_type == "BACKUP" )
+    {
+        it = BACKUP;
     }
 
     return it;
@@ -953,6 +991,11 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
 
 void Image::set_state(ImageState _state)
 {
+    if ( type == Image::BACKUP ) //Backups in READY state at creation
+    {
+        return;
+    }
+
     if (_state == ERROR && (state == LOCKED_USED || state == LOCKED_USED_PERS))
     {
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
@@ -981,6 +1024,11 @@ void Image::set_state(ImageState _state)
 
 void Image::set_state_unlock()
 {
+    if ( type == Image::BACKUP ) //Backups in READY state at creation
+    {
+        return;
+    }
+
     LifeCycleManager* lcm = Nebula::instance().get_lcm();
 
     bool vms_notify = false;

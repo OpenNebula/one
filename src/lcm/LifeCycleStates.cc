@@ -13,6 +13,8 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+#include <time.h>
+#include <stdio.h>
 
 #include "LifeCycleManager.h"
 #include "TransferManager.h"
@@ -23,10 +25,10 @@
 #include "ClusterPool.h"
 #include "HostPool.h"
 #include "ImagePool.h"
+#include "DatastorePool.h"
 #include "VirtualMachinePool.h"
 
 using namespace std;
-
 
 void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 {
@@ -2633,3 +2635,232 @@ void LifeCycleManager::trigger_resize_failure(int vid)
         Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &deltas);
     });
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+void LifeCycleManager::trigger_backup_success(int vid)
+{
+    trigger([this, vid] {
+        auto vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        time_t the_time;
+        char   tbuffer[80];
+
+        ostringstream oss;
+
+        string ds_name, ds_mad, ds_data;
+        Datastore::DatastoreType ds_type;
+        Image::DiskType ds_dtype;
+
+        int i_id;
+        string error_str;
+
+        // Store quota values
+        Template  ds_deltas;
+        long long backup_size = 0;
+
+        int vm_uid = vm->get_uid();
+        int vm_gid = vm->get_gid();
+
+        auto& backups = vm->backups();
+
+        vm->max_backup_size(ds_deltas);
+
+        ds_deltas.add("DATASTORE", backups.last_datastore_id());
+
+        one_util::str_cast(backups.last_backup_size(), backup_size);
+
+        switch(vm->get_lcm_state())
+        {
+            case VirtualMachine::BACKUP:
+                vm->set_state(VirtualMachine::RUNNING);
+                break;
+
+            case VirtualMachine::BACKUP_POWEROFF:
+                vm->set_state(VirtualMachine::POWEROFF);
+                vm->set_state(VirtualMachine::LCM_INIT);
+                break;
+
+            default:
+                vm->log("LCM",Log::ERROR,"backup_success, VM in a wrong state");
+
+                vm.reset();
+
+                Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+
+                return;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* Get datastore backup information                                   */
+        /* ------------------------------------------------------------------ */
+        int ds_id = backups.last_datastore_id();
+
+        if (auto ds = dspool->get_ro(ds_id))
+        {
+            ds_name  = ds->get_name();
+            ds_dtype = ds->get_disk_type();
+            ds_type  = ds->get_type();
+            ds_mad   = ds->get_ds_mad();
+
+            ds->to_xml(ds_data);
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "backup_success, "
+                    "backup datastore does not exist");
+
+            vmpool->update(vm.get());
+
+            vm.reset();
+
+            Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+
+            return;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* Create Image for the backup snapshot, add it to the VM             */
+        /* ------------------------------------------------------------------ */
+        time(&the_time);
+        struct tm * tinfo = localtime(&the_time);
+
+        strftime (tbuffer, 80, "%d-%b %H.%M.%S", tinfo); //18-Jun 08.30.15
+
+        oss << vm->get_oid() << " " << tbuffer;
+
+        auto itmp = make_unique<ImageTemplate>();
+
+        itmp->add("NAME", oss.str());
+        itmp->add("SOURCE", backups.last_backup_id());
+        itmp->add("SIZE", backups.last_backup_size());
+        itmp->add("FORMAT", "raw");
+        itmp->add("VM_ID", vm->get_oid());
+        itmp->add("TYPE", Image::type_to_str(Image::BACKUP));
+
+        int rc = ipool->allocate( vm->get_uid(), vm->get_gid(), vm->get_uname(),
+                vm->get_gname(), 0177, move(itmp), ds_id, ds_name, ds_dtype,
+                ds_data, ds_type, ds_mad, "-", "", -1, &i_id, error_str);
+
+        if ( rc < 0 )
+        {
+            vm->log("LCM",Log::ERROR,"backup_success, "
+                    "backup image allocate error: " + error_str);
+
+            vmpool->update(vm.get());
+
+            vm.reset();
+
+            Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+
+            return;
+        }
+
+        std::set<int> iids;
+
+        backups.add(i_id);
+
+        backups.remove_last(iids);
+
+        backups.last_backup_clear();
+
+        vmpool->update(vm.get());
+
+        if ( iids.size() > 0 )
+        {
+            oss.str("");
+
+            oss << "Removing backup snapshots:";
+
+            for (int i : iids)
+            {
+                oss << " " << i;
+            }
+
+            vm->log("LCM", Log::INFO, oss.str());
+        }
+
+        vm.reset();
+
+        /* ------------------------------------------------------------------ */
+        /* Add image to the datastore and forget keep_last backups            */
+        /* ------------------------------------------------------------------ */
+        if ( auto ds = dspool->get(ds_id) )
+        {
+            ds->add_image(i_id);
+            dspool->update(ds.get());
+        }
+
+        for (int i : iids)
+        {
+            if ( imagem->delete_image(i, error_str) != 0 )
+            {
+                oss.str("");
+                oss << "backup_success, cannot remove VM backup " << i
+                    << " : " << error_str;
+
+                NebulaLog::error("LCM", oss.str());
+            }
+        }
+
+        // Update quotas, count real size of the backup
+        long long reserved_size{0};
+
+        ds_deltas.get("SIZE", reserved_size);
+        ds_deltas.replace("SIZE", reserved_size - backup_size);
+        ds_deltas.add("IMAGES", 0);
+
+        Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_backup_failure(int vid)
+{
+    trigger([this, vid] {
+        int vm_uid{0}, vm_gid{0};
+        Template ds_deltas;
+
+        if ( auto vm = vmpool->get(vid) )
+        {
+            switch(vm->get_lcm_state())
+            {
+                case VirtualMachine::BACKUP:
+                    vm->set_state(VirtualMachine::RUNNING);
+                    break;
+
+                case VirtualMachine::BACKUP_POWEROFF:
+                    vm->set_state(VirtualMachine::POWEROFF);
+                    vm->set_state(VirtualMachine::LCM_INIT);
+                    break;
+
+                default:
+                    vm->log("LCM", Log::ERROR, "backup_failure, VM in a wrong state");
+                    break;
+            }
+
+            vm_uid = vm->get_uid();
+            vm_gid = vm->get_gid();
+
+            vm->max_backup_size(ds_deltas);
+            ds_deltas.add("DATASTORE", vm->backups().last_datastore_id());
+
+            vm->backups().last_backup_clear();
+
+            vmpool->update(vm.get());
+        }
+
+        // Quota rollback
+        Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

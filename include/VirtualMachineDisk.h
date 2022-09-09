@@ -780,6 +780,15 @@ public:
     void delete_non_persistent_snapshots(Template &vm_quotas,
                                          std::vector<Template *> &ds_quotas);
 
+    /* ---------------------------------------------------------------------- */
+    /* BACKUP interface                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    /** Returns upper limit of the disk size needed to do a VM backup
+     *  @param ds_quota The Datastore quota
+     */
+    void backup_size(Template &ds_quota, bool do_volatile);
+
     /**
      *  Marshall disks in XML format with just essential information
      *    @param xml string to write the disk XML description

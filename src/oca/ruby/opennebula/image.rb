@@ -26,20 +26,21 @@ module OpenNebula
         #######################################################################
 
         IMAGE_METHODS = {
-            :info        => "image.info",
-            :allocate    => "image.allocate",
-            :update      => "image.update",
-            :enable      => "image.enable",
-            :persistent  => "image.persistent",
-            :delete      => "image.delete",
-            :chown       => "image.chown",
-            :chmod       => "image.chmod",
-            :chtype      => "image.chtype",
-            :clone       => "image.clone",
-            :rename      => "image.rename",
-            :snapshotdelete => "image.snapshotdelete",
-            :snapshotrevert => "image.snapshotrevert",
-            :snapshotflatten=> "image.snapshotflatten",
+            :info       => "image.info",
+            :allocate   => "image.allocate",
+            :update     => "image.update",
+            :enable     => "image.enable",
+            :persistent => "image.persistent",
+            :delete     => "image.delete",
+            :chown      => "image.chown",
+            :chmod      => "image.chmod",
+            :chtype     => "image.chtype",
+            :clone      => "image.clone",
+            :rename     => "image.rename",
+            :snapshotdelete  => "image.snapshotdelete",
+            :snapshotrevert  => "image.snapshotrevert",
+            :snapshotflatten => "image.snapshotflatten",
+            :restore    => "image.restore",
             :lock       => "image.lock",
             :unlock     => "image.unlock"
         }
@@ -61,7 +62,7 @@ module OpenNebula
             "LOCKED_USED_PERS" => "lock"
         }
 
-        IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT}
+        IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT BACKUP}
 
         SHORT_IMAGE_TYPES={
             "OS"        => "OS",
@@ -69,7 +70,8 @@ module OpenNebula
             "DATABLOCK" => "DB",
             "KERNEL"    => "KL",
             "RAMDISK"   => "RD",
-            "CONTEXT"   => "CX"
+            "CONTEXT"   => "CX",
+            "BACKUP"    => "BK"
         }
 
         DISK_TYPES=%w{FILE CD_ROM BLOCK RBD}
@@ -229,7 +231,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(IMAGE_METHODS[:rename], @pe_id, name)
+            call(IMAGE_METHODS[:rename], @pe_id, name)
         end
 
         # Deletes Image from snapshot
@@ -238,7 +240,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_delete(snap_id)
-            return call(IMAGE_METHODS[:snapshotdelete], @pe_id, snap_id)
+            call(IMAGE_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
         # Reverts Image state to a previous snapshot
@@ -247,7 +249,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_revert(snap_id)
-            return call(IMAGE_METHODS[:snapshotrevert], @pe_id, snap_id)
+            call(IMAGE_METHODS[:snapshotrevert], @pe_id, snap_id)
         end
 
         # Flattens an image snapshot
@@ -256,7 +258,15 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_flatten(snap_id)
-            return call(IMAGE_METHODS[:snapshotflatten], @pe_id, snap_id)
+            call(IMAGE_METHODS[:snapshotflatten], @pe_id, snap_id)
+        end
+
+        # Restore the VM backup stored by the image
+        #
+        # @param dst_id [Integer] Datastore destination ID
+        # @param restore_opts [String] Template with additional restore options
+        def restore(dst_id, restore_opts)
+            @client.call(IMAGE_METHODS[:restore], @pe_id, dst_id, restore_opts)
         end
 
         #######################################################################

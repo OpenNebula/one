@@ -14,43 +14,45 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'nokogiri'
+require 'DriverExecHelper'
 
-require 'lib/exporters/file'
-require 'lib/exporters/rbd'
-require 'lib/exporters/lv'
+#####
+#  TODO COMMENTS
+####
+# This module provides an abstraction to generate an execution context for
+# datastore operations
+class DatastoreExecDriver
 
-require 'lib/restorers/base'
+    include DriverExecHelper
 
-# OneVMDump module
-#
-# Module for exporting VM content into a bundle file
-module OneVMDump
+    # Inits the driver
+    def initialize
+        initialize_helper('datastore', {})
 
-    def self.get_exporter(vm, config)
-        # Get TM_MAD from last history record
-        begin
-            last_hist_rec = Nokogiri.XML(vm.get_history_record(-1))
-            tm_mad = last_hist_rec.xpath('//TM_MAD').text
-        rescue StandardError
-            raise 'Cannot retrieve TM_MAD. The last history record' \
-                  ' might be corrupted or it might not exists.'
-        end
-
-        case tm_mad
-        when 'ceph'
-            self::RBDExporter.new(vm, config)
-        when 'ssh', 'shared', 'qcow2'
-            self::FileExporter.new(vm, config)
-        when 'fs_lvm', 'fs_lvm_ssh'
-            self::LVExporter.new(vm, config)
-        else
-            raise "Unsopported TM_MAD: '#{tm_mad}'"
+        @drivers = Dir["#{@local_scripts_path}/*/"].map do |d|
+            d.split('/')[-1]
         end
     end
 
-    def self.get_restorer(bundle_path, options)
-        BaseRestorer.new(bundle_path, options)
+    #####
+    #  TODO COMMENTS
+    ####
+    def do_datastore_action(id, command, stdin = nil)
+        cmd  = command[0].downcase
+        ds   = command[1]
+        args = command[2..-1].map {|e| Shellwords.escape(e) }.join(' ')
+
+        if !@drivers.include?(ds)
+            return RESULT[:failure], "Datastore Driver '#{ds}' not available"
+        end
+
+        path = File.join(@local_scripts_path, ds, cmd)
+
+        rc = LocalCommand.run("#{path} #{args}", log_method(id), stdin)
+
+        result, info = get_info_from_execution(rc)
+
+        [result, info]
     end
 
 end

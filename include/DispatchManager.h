@@ -455,6 +455,19 @@ public:
     int detach_sg(int vid, int nicid, int sgid,
             const RequestAttributes& ra, std::string& error_str);
 
+    /**
+     * Backup a VM
+     *
+     *  @param vid the VM id
+     *  @param bck_ds_is the ID of the datastore to save the backup
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int backup(int vid, int bck_ds_id,
+            const RequestAttributes& ra, std::string& error_str);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------

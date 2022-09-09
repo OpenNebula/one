@@ -2251,6 +2251,70 @@ void TransferManager::trigger_resize(int vid)
     });
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int TransferManager::backup_transfer_commands(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    // -------------------------------------------------------------------------
+    // Setup & Transfer script
+    // -------------------------------------------------------------------------
+    VirtualMachineDisks& disks = vm->get_disks();
+
+    if (!vm->hasHistory())
+    {
+        return -1;
+    }
+
+    string vm_tm_mad = vm->get_tm_mad();
+    string tm_mad_system;
+
+    /*string tsys = disk->vector_value("TM_MAD_SYSTEM");
+    if (!tsys.empty())
+    {
+        tm_mad_system = "." + tsys;
+    }*/
+
+    bool do_volatile = vm->backups().do_volatile();
+
+    // -------------------------------------------------------------------------
+    // Image Transfer Commands
+    // -------------------------------------------------------------------------
+    ostringstream disk_str;
+
+    for (auto disk : disks)
+    {
+        string type = disk->vector_value("TYPE");
+
+        one_util::toupper(type);
+
+        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
+        {
+            continue;
+        }
+
+        disk_str << disk->get_disk_id() << ":";
+    }
+
+    //BACKUP(.tm_mad_system) tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+    xfr << "BACKUP" << tm_mad_system
+        << " " << vm_tm_mad << " "
+        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
+        << disk_str.str() << " "
+        << vm->get_deploy_id() << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 /* ************************************************************************** */
 /* MAD Loading                                                                */
 /* ************************************************************************** */

@@ -1,0 +1,166 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'rexml/document'
+
+require_relative '../lib/tm_action'
+require_relative '../lib/kvm'
+
+# TODO: fsfreeze for each hypervisor based on VM_MAD
+include TransferManager::KVM
+
+#-------------------------------------------------------------------------------
+# Helper functions
+#-------------------------------------------------------------------------------
+def rbd_append(str, disk, name, opt)
+    opt_val = disk.elements[name].text
+    "#{str} #{opt} #{opt_val}" unless opt_val.empty?
+rescue StandardError
+    str
+end
+
+#-------------------------------------------------------------------------------
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+#-------------------------------------------------------------------------------
+vm_xml = STDIN.read
+
+dir       = ARGV[0].split ':'
+disks     = ARGV[1].split ':'
+deploy_id = ARGV[2]
+vmid      = ARGV[3]
+_dsid     = ARGV[4]
+
+rhost     = dir[0]
+rdir      = dir[1]
+
+xml_doc = REXML::Document.new(vm_xml)
+vm      = xml_doc.root
+
+bck_dir = "#{rdir}/backup"
+
+snap_cmd = ''
+expo_cmd = ''
+conv_cmd = ''
+clup_cmd = ''
+
+# TODO: Make compression configurable. Does it intefere with deduplication?
+vm.elements.each 'TEMPLATE/DISK' do |d|
+    did = d.elements['DISK_ID'].text
+    next unless disks.include? did
+
+    src  = d.elements['SOURCE'].text
+    clon = d.elements['CLONE'].text
+
+    rbd_src = if clon == 'NO'
+                  src
+              else
+                  "#{src}-#{vmid}-#{did}"
+              end
+
+    cmd = rbd_append('rbd', d, 'CEPH_USER', '--id')
+    cmd = rbd_append(cmd, d, 'CEPH_KEY', '--keyfile')
+    cmd = rbd_append(cmd, d, 'CEPH_CONF', '--conf')
+
+    draw = "#{bck_dir}/disk.#{did}.raw"
+    ddst = "#{bck_dir}/disk.#{did}"
+
+    snap_cmd << "#{cmd} snap create #{rbd_src}@backup\n"
+    expo_cmd << "#{cmd} export #{rbd_src}@backup #{draw}\n"
+
+    conv_cmd << "qemu-img convert -O qcow2 #{draw} #{ddst}\n"
+
+    clup_cmd << "#{cmd} snap rm #{rbd_src}@backup\n"
+    clup_cmd << "rm -f #{draw}\n"
+
+rescue StandardError => e
+    STDERR.puts "Missing configuration attributes in DISK: #{e.message}"
+    exit(1)
+end
+
+freeze, thaw = fsfreeze(vm, deploy_id)
+
+script = <<~EOS
+    set -ex -o pipefail
+
+    # ----------------------
+    # Prepare backup folder
+    # ----------------------
+    [ -d #{bck_dir} ] && rm -rf #{bck_dir}
+
+    mkdir -p #{bck_dir}
+
+    echo "#{Base64.encode64(vm_xml)}" > #{bck_dir}/vm.xml
+
+    # --------------------------------
+    # Create Ceph snapshots for disks
+    # --------------------------------
+    #{freeze}
+
+    #{snap_cmd}
+
+    #{thaw}
+
+    # --------------------------
+    # export, convert & cleanup
+    # --------------------------
+    #{expo_cmd}
+
+    #{conv_cmd}
+
+    #{clup_cmd}
+EOS
+
+rc = TransferManager::Action.ssh('prebackup_live', :host => rhost,
+                                 :cmds => script)
+
+exit(rc)

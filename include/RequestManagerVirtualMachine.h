@@ -625,4 +625,23 @@ protected:
             RequestAttributes& ra) override;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineBackup : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineBackup():
+        RequestManagerVirtualMachine("one.vm.backup",
+                           "Creates a new backup image for the virtual machine",
+                           "A:sii")
+    {
+        vm_action = VMActions::BACKUP_ACTION;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
 #endif

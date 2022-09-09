@@ -45,7 +45,6 @@ define(function(require) {
       data : {},
       timeout: true,
       success: function (request, pciDevices){
-        console.log(opts)
         var tr = opts.tr;
 
         var html = "<select>";

@@ -73,6 +73,7 @@ define(function(require) {
     "Host": Host,
     "Image": Image,
     "File": Image,
+    "Backup": Image,
     "Network": Network,
     "VNTemplate": VNTemplate,
     "Role": Role,

@@ -34,12 +34,13 @@ module OpenNebula
             :enable     => "datastore.enable"
         }
 
-        DATASTORE_TYPES=%w{IMAGE SYSTEM FILE}
+        DATASTORE_TYPES=%w{IMAGE SYSTEM FILE BACKUP}
 
         SHORT_DATASTORE_TYPES = {
             "IMAGE" => "img",
             "SYSTEM"=> "sys",
-            "FILE"  => "fil"
+            "FILE"  => "fil",
+            "BACKUP"=> "bck"
         }
 
         DATASTORE_STATES=%w{READY DISABLED}

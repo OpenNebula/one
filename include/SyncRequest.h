@@ -71,9 +71,9 @@ public:
     /**
      *  Wait for the AuthRequest to be completed
      */
-    void wait()
+    void wait(time_t tout = 90)
     {
-        time_out = time(0) + 90;//Requests will expire in 1.5 minutes
+        time_out = time(0) + tout;//Requests will expire in 1.5 minutes
 
         loop();
     }

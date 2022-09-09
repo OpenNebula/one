@@ -117,7 +117,21 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :large => '--schedule TIME',
         :description => 'Schedules this action to be executed after' \
         'the given time. For example: onevm resume 0 --schedule "09/23 14:15"',
-        :format => Time
+        :format => String,
+        :proc => lambda {|o, options|
+            if o[0] == '+'
+                options[:schedule] = o
+            elsif o == 'now'
+                options[:schedule] = Time.now.to_i
+            else
+                begin
+                    options[:schedule] = Time.new(o).to_i
+                rescue StandardError
+                    STDERR.puts "Error parsing time spec: #{o}"
+                    exit(-1)
+                end
+            end
+        }
     }
 
     WEEKLY = {
@@ -408,10 +422,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         # Verbose by default
         options[:verbose] = true
 
-        perform_actions(
-            ids, options,
-            "#{action} scheduled at #{options[:schedule]}"
-        ) do |vm|
+        message = if options[:schedule].class == Integer
+                      "#{action} scheduled at #{Time.at(options[:schedule])}"
+                  else
+                      "#{action} scheduled after #{options[:schedule]}s from start"
+                  end
+
+        perform_actions( ids, options, message) do |vm|
 
             str_periodic = ''
 
@@ -440,20 +457,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 str_periodic << ', END_TYPE = 0'
             end
 
-            sched = options[:schedule]
-
-            # If the action is set to be executed from VM start to an specific
-            # amount of time later, we should preserve the + symbol
-            if ((sched.is_a? String) && !sched.include?('+')) ||
-                !(sched.is_a? String)
-                sched = sched.to_i
-            end
-
             tmp_str = "SCHED_ACTION = ["
             tmp_str << "ACTION = #{action}, "
             tmp_str << "WARNING = #{warning}," if warning
             tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
-            tmp_str << "TIME = #{sched}"
+            tmp_str << "TIME = #{options[:schedule]}"
             tmp_str << str_periodic << ']'
 
             vm.sched_action_add(tmp_str)
@@ -1342,42 +1350,31 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                     str_end unless d.nil?
                 end
-
-                column :DONE, '', :adjust => true do |d|
-                    OpenNebulaHelper.time_to_str(d['DONE'], false) \
-                        unless d.nil?
-                end
-
-                column :MESSAGE, '', :size => 35 do |d|
-                    d['MESSAGE'] ? d['MESSAGE'] : '-'
-                end
-
-                column :CHARTER, '', :left, :adjust, :size => 15 do |d|
-                    t1 = Time.now
-                    t2 = d['TIME'].to_i
-                    t2 += vm['STIME'].to_i unless d['TIME'] =~ /^[0-9].*/
-
-                    t2 = Time.at(t2)
-
-                    days    = ((t2 - t1) / (24 * 3600)).round(2)
-                    hours   = ((t2 - t1) / 3600).round(2)
-                    minutes = ((t2 - t1) / 60).round(2)
-
-                    if days > 1
-                        show = "In #{days} days"
-                    elsif days <= 1 && hours > 1
-                        show = "In #{hours} hours"
-                    elsif minutes > 0
-                        show = "In #{minutes} minutes"
+                column :STATUS, '', :left, :size => 50  do |d|
+                    if d['DONE'] && !d['REPEAT']
+                        "Done on #{OpenNebulaHelper.time_to_str(d['DONE'], false)}"
+                    elsif d['MESSAGE']
+                        "Error! #{d['MESSAGE']}"
                     else
-                        show = 'Already done'
-                    end
+                        t1 = Time.now
+                        t2 = d['TIME'].to_i
+                        t2 += vm['STIME'].to_i unless d['TIME'] =~ /^[0-9].*/
 
-                    wrn = d['WARNING']
-                    if !wrn.nil? && (t1 - vm['STIME'].to_i).to_i > wrn.to_i
-                        "#{show} *"
-                    else
-                        show
+                        t2 = Time.at(t2)
+
+                        days    = ((t2 - t1) / (24 * 3600)).round(2)
+                        hours   = ((t2 - t1) / 3600).round(2)
+                        minutes = ((t2 - t1) / 60).round(2)
+
+                        if days > 1
+                            "Next in #{days} days"
+                        elsif days <= 1 && hours > 1
+                            "Next in #{hours} hours"
+                        elsif minutes > 0
+                            "Next in #{minutes} minutes"
+                        else
+                            "Overdue!"
+                        end
                     end
                 end
             end.show([vm_hash['VM']['TEMPLATE']['SCHED_ACTION']].flatten,
@@ -1387,6 +1384,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         if !options[:all]
             vm.delete_element('/VM/TEMPLATE/SCHED_ACTION')
         end
+
+        print_backups(vm, vm_hash)
 
         if vm.has_elements?('/VM/USER_TEMPLATE')
             puts
@@ -1419,6 +1418,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts
         CLIHelper.print_header(str_h1 % 'VIRTUAL MACHINE TEMPLATE', false)
         puts vm.template_str
+    end
+
+    def print_backups(vm, vm_hash)
+        if vm.has_elements?('/VM/BACKUPS/BACKUP_CONFIG')
+            puts
+            CLIHelper.print_header('%-80s' % 'BACKUP CONFIGURATION', false)
+            puts vm.template_like_str('BACKUPS/BACKUP_CONFIG')
+        end
+
+        if vm.has_elements?('/VM/BACKUPS/BACKUP_IDS')
+            puts
+            CLIHelper.print_header('%-80s' % 'VM BACKUPS', false)
+
+            ids = [vm_hash['VM']['BACKUPS']['BACKUP_IDS']['ID']].flatten
+
+            puts format('IMAGE IDS: %s', ids.join(','))
+        end
     end
 
     def print_numa_nodes(numa_nodes)

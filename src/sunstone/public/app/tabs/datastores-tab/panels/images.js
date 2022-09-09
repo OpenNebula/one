@@ -23,6 +23,7 @@ define(function(require){
   var OpenNebulaDatastore = require('opennebula/datastore');
   var ImagesTable = require('tabs/images-tab/datatable');
   var FilesTable = require('tabs/files-tab/datatable');
+  var BackupsTable = require('tabs/backups-tab/datatable');
 
   /*
     CONSTANTS
@@ -81,6 +82,8 @@ define(function(require){
 
     if (this.element.TYPE == OpenNebulaDatastore.TYPES.FILE_DS){
       this.imagesDataTable = new FilesTable(IMAGES_TABLE_ID, opts);
+    } else if (this.element.TYPE == OpenNebulaDatastore.TYPES.BACKUP_DS){
+      this.imagesDataTable = new BackupsTable(IMAGES_TABLE_ID, opts);
     } else {
       this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, opts);
     }

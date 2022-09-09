@@ -199,6 +199,10 @@ int VMActions::set_auth_ops(const string& ops_str,
         {
             ops_set.set(DISK_SAVEAS_ACTION);
         }
+        else if ( the_op == "backup" )
+        {
+            ops_set.set(BACKUP_ACTION);
+        }
         else
         {
             error = "Unknown vm operation: " + the_op;
@@ -355,6 +359,9 @@ string VMActions::action_to_str(Action action)
         break;
         case MONITOR_ACTION:
             st = "monitor";
+        break;
+        case BACKUP_ACTION:
+            st = "backup";
         break;
         case NONE_ACTION:
             st = "none";
@@ -541,6 +548,10 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "monitor")
     {
         action = MONITOR_ACTION;
+    }
+    else if ( st == "backup")
+    {
+        action = BACKUP_ACTION;
     }
     else
     {

@@ -33,6 +33,7 @@
         <option ds="fs" tm="fs_lvm" value="lvm">{{tr "LVM"}}</option>
         <option ds="dev" tm="dev" value="raw">{{tr "Raw Device Mapping"}}</option>
         <option ds="iscsi_libvirt" tm="iscsi_libvirt" value="iscsi_libvirt">{{tr "iSCSI - Libvirt initiator "}}</option>
+        <option ds="restic" tm="-" value="restic">{{tr "Backup - Restic"}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -53,6 +54,7 @@
             <option value="dev">{{tr "Devices"}}</option>
             <option value="iscsi_libvirt">{{tr "iSCSI/Libvirt"}}</option>
             <option value="vcenter">{{tr "vCenter"}}</option>
+            <option value="restic">{{tr "Backup - Restic"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
@@ -92,6 +94,8 @@
           <label for="system_ds_type">{{tr "System"}}</label>
           <input id="file_ds_type" type="radio" name="ds_type" value="FILE_DS" />
           <label for="file_ds_type">{{tr "Files"}}</label>
+          <input id="backup_ds_type" type="radio" name="ds_type" value="BACKUP_DS" />
+          <label for="backup_ds_type">{{tr "Backup"}}</label>
         </div>
       </fieldset>
     </div>
@@ -233,13 +237,86 @@
       <input type="text" name="iscsi_usage" id="iscsi_usage" />
     </div>
     <div class="medium-6 columns">
-      <label for="vceter_cluster">
+      <label for="vcenter_cluster">
         {{tr "vCenter cluster"}}
         <span class="tip">
           {{tr "The vCenter Cluster that has access to this datastore."}}
         </span>
         <div id="vcenter_cluster_wrapper"></div>
       </label>
+    </div>
+    <div class="medium-6 columns">
+      <label for="restic_password">
+        {{tr "Restic Password"}}
+        {{!-- <span class="tip">
+          {{tr ""}}
+        </span> --}}
+      </label>
+      <input type="text" name="restic_password" id="restic_password" />
+    </div>
+    <div class="medium-6 columns">
+      <label for="restic_sftp_server">
+        {{tr "Restic SFTP Server"}}
+        {{!-- <span class="tip">
+          {{tr ""}}
+        </span> --}}
+      </label>
+      <input type="text" name="restic_sftp_server" id="restic_sftp_server" />
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_ionice">
+        {{tr "Backup I/O Priority"}}
+        <span class="tip">
+          {{tr "Run restic operations under a given ionice priority using the best-effort I/O scheduler"}}
+        </span>
+      </label>
+      <input type="number" name="restic_ionice" id="restic_ionice" min="0" max="7" />
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_nice">
+        {{tr "Backup CPU Priority"}}
+        <span class="tip">
+          {{tr "Run restic operations with a given scheduler priority (nice)"}}
+        </span>
+      </label>
+      <input type="number" name="restic_nice" id="restic_nice" min="1" max="19" />
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_bwlimit">
+        {{tr "Bandwidth Limit"}}
+        <span class="tip">
+          {{tr "limit download and upload to a  maximum rate in KiB/s"}}
+        </span>
+      </label>
+      <input type="number" name="restic_bwlimit" id="restic_bwlimit"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_compression">
+        {{tr "Compression level"}}
+        <span class="tip">
+          {{tr "Compress backups in the datastore, it needs a Restic repository with format version 2"}}
+        </span>
+      </label>
+      <select name="restic_compression" id="restic_compression">
+        <option value="-">-</option>
+        <option value="OFF">{{tr "Off"}}</option>
+        <option value="AUTO">{{tr "Auto"}}</option>
+        <option value="MAX">{{tr "Max"}}</option>
+      </select>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_connections">
+        {{tr "Number of concurrent connections"}}
+        <span class="tip">
+          {{tr "Set the number of concurrent connections to the backup backend (default is 5)"}}
+        </span>
+      </label>
+      <input type="number" name="restic_connections" id="restic_connections"/>
     </div>
   </div>
   <div class="ceph_advanced">

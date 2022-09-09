@@ -322,11 +322,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/config/type \
           $LIB_LOCATION/onecfg/lib/config/type/augeas \
           $LIB_LOCATION/onecfg/lib/config/type/yaml \
-          $LIB_LOCATION/onecfg/lib/patch \
-          $LIB_LOCATION/ruby/onevmdump \
-          $LIB_LOCATION/ruby/onevmdump/lib \
-          $LIB_LOCATION/ruby/onevmdump/lib/exporters \
-          $LIB_LOCATION/ruby/onevmdump/lib/restorers"
+          $LIB_LOCATION/onecfg/lib/patch"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -477,6 +473,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/hooks/clean \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
+          $VAR_LOCATION/remotes/tm/lib \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/fs_lvm \
           $VAR_LOCATION/remotes/tm/fs_lvm_ssh \
@@ -496,6 +493,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/datastore/vcenter \
+          $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
+          $VAR_LOCATION/remotes/datastore/rsync \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
@@ -505,7 +504,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/turnkeylinux \
           $VAR_LOCATION/remotes/market/dockerhub \
           $VAR_LOCATION/remotes/market/docker_registry \
-          $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -699,6 +697,7 @@ INSTALL_FILES=(
     VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
     VMM_EXEC_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/vmm/equinix
     TM_FILES:$VAR_LOCATION/remotes/tm
+    TM_LIB_FILES:$VAR_LOCATION/remotes/tm/lib
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
@@ -720,6 +719,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
+    DATASTORE_DRIVER_RSYNC_SCRIPTS:$VAR_LOCATION/remotes/datastore/rsync
     DATASTORE_DRIVER_ETC_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ETC_HTTP_SCRIPTS:$VAR_LOCATION/remotes/etc/market/http
@@ -757,8 +757,6 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
-    PRE_CLEANUP_SHARE_FILE:$SHARE_LOCATION
-    BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_AUTOSTART_FILES:$VAR_LOCATION/remotes/hooks/autostart
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
@@ -778,10 +776,6 @@ INSTALL_FILES=(
     CONTEXT_SHARE:$SHARE_LOCATION/context
     DOCKERFILE_TEMPLATE:$SHARE_LOCATION/dockerhub
     DOCKERFILES_TEMPLATES:$SHARE_LOCATION/dockerhub/dockerfiles
-    ONEVMDUMP_FILES:$LIB_LOCATION/ruby/onevmdump
-    ONEVMDUMP_LIB_FILES:$LIB_LOCATION/ruby/onevmdump/lib
-    ONEVMDUMP_LIB_EXPORTERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/exporters
-    ONEVMDUMP_LIB_RESTORERS_FILES:$LIB_LOCATION/ruby/onevmdump/lib/restorers
 )
 
 INSTALL_CLIENT_FILES=(
@@ -994,7 +988,6 @@ BIN_FILES="src/nebula/oned \
            src/cli/onelog \
            src/cli/oneirb \
            src/onedb/onedb \
-           src/onevmdump/onevmdump \
            share/scripts/qemu-kvm-one-gen \
            share/scripts/one"
 
@@ -1083,6 +1076,7 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/authm_mad/one_auth_mad.rb \
               src/authm_mad/one_auth_mad \
               src/datastore_mad/one_datastore.rb \
+              src/datastore_mad/one_datastore_exec.rb \
               src/datastore_mad/one_datastore \
               src/market_mad/one_market.rb \
               src/market_mad/one_market \
@@ -1888,6 +1882,10 @@ IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
 
 TM_FILES="src/tm_mad/tm_common.sh"
 
+TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
+              src/tm_mad/lib/tm_action.rb \
+              src/tm_mad/lib/backup.rb"
+
 TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/clone.ssh \
                  src/tm_mad/shared/delete \
@@ -1914,7 +1912,13 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_revert.ssh \
                  src/tm_mad/shared/cpds \
                  src/tm_mad/shared/cpds.ssh \
-                 src/tm_mad/shared/resize"
+                 src/tm_mad/shared/resize \
+                 src/tm_mad/shared/prebackup_live \
+                 src/tm_mad/shared/prebackup \
+                 src/tm_mad/shared/postbackup_live \
+                 src/tm_mad/shared/postbackup"
+
+TM_QCOW2_FILES="${TM_SHARED_FILES}"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/clone \
@@ -1934,7 +1938,11 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/snap_revert \
                  src/tm_mad/fs_lvm/failmigrate \
                  src/tm_mad/fs_lvm/delete \
-                 src/tm_mad/fs_lvm/resize"
+                 src/tm_mad/fs_lvm/resize \
+                 src/tm_mad/fs_lvm/prebackup_live \
+                 src/tm_mad/fs_lvm/prebackup \
+                 src/tm_mad/fs_lvm/postbackup_live \
+                 src/tm_mad/fs_lvm/postbackup"
 
 TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
 
@@ -1956,35 +1964,11 @@ TM_FS_LVM_SSH_FILES="src/tm_mad/fs_lvm_ssh/activate \
                      src/tm_mad/fs_lvm_ssh/snap_revert \
                      src/tm_mad/fs_lvm_ssh/failmigrate \
                      src/tm_mad/fs_lvm_ssh/delete \
-                     src/tm_mad/fs_lvm_ssh/resize"
-
-TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
-                 src/tm_mad/qcow2/clone.ssh \
-                 src/tm_mad/qcow2/delete \
-                 src/tm_mad/qcow2/ln \
-                 src/tm_mad/qcow2/ln.ssh \
-                 src/tm_mad/qcow2/monitor \
-                 src/tm_mad/qcow2/mkswap \
-                 src/tm_mad/qcow2/mkimage \
-                 src/tm_mad/qcow2/mv \
-                 src/tm_mad/qcow2/mv.ssh \
-                 src/tm_mad/qcow2/context \
-                 src/tm_mad/qcow2/premigrate \
-                 src/tm_mad/qcow2/postmigrate \
-                 src/tm_mad/qcow2/failmigrate \
-                 src/tm_mad/qcow2/mvds \
-                 src/tm_mad/qcow2/mvds.ssh \
-                 src/tm_mad/qcow2/snap_create \
-                 src/tm_mad/qcow2/snap_create.ssh \
-                 src/tm_mad/qcow2/snap_create_live \
-                 src/tm_mad/qcow2/snap_create_live.ssh \
-                 src/tm_mad/qcow2/snap_delete \
-                 src/tm_mad/qcow2/snap_delete.ssh \
-                 src/tm_mad/qcow2/snap_revert \
-                 src/tm_mad/qcow2/snap_revert.ssh \
-                 src/tm_mad/qcow2/cpds \
-                 src/tm_mad/qcow2/cpds.ssh \
-                 src/tm_mad/qcow2/resize"
+                     src/tm_mad/fs_lvm_ssh/resize \
+                     src/tm_mad/fs_lvm_ssh/prebackup_live \
+                     src/tm_mad/fs_lvm_ssh/prebackup \
+                     src/tm_mad/fs_lvm_ssh/postbackup_live \
+                     src/tm_mad/fs_lvm_ssh/postbackup"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/clone.replica \
@@ -2008,7 +1992,11 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/cpds \
               src/tm_mad/ssh/resize \
               src/tm_mad/ssh/ssh_utils.sh \
-              src/tm_mad/ssh/recovery_snap_create_live"
+              src/tm_mad/ssh/recovery_snap_create_live \
+              src/tm_mad/ssh/prebackup_live \
+              src/tm_mad/ssh/prebackup \
+              src/tm_mad/ssh/postbackup_live \
+              src/tm_mad/ssh/postbackup"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 
@@ -2054,7 +2042,11 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/monitor \
                  src/tm_mad/ceph/mkswap \
                  src/tm_mad/ceph/resize \
-                 src/tm_mad/ceph/resize.ssh"
+                 src/tm_mad/ceph/resize.ssh \
+                 src/tm_mad/ceph/prebackup_live \
+                 src/tm_mad/ceph/prebackup \
+                 src/tm_mad/ceph/postbackup_live \
+                 src/tm_mad/ceph/postbackup"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
@@ -2189,6 +2181,19 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
                          src/datastore_mad/remotes/iscsi_libvirt/snap_flatten \
                          src/datastore_mad/remotes/iscsi_libvirt/clone"
 
+DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
+                         src/datastore_mad/remotes/rsync/mkfs \
+                         src/datastore_mad/remotes/rsync/stat \
+                         src/datastore_mad/remotes/rsync/clone \
+                         src/datastore_mad/remotes/rsync/monitor \
+                         src/datastore_mad/remotes/rsync/snap_delete \
+                         src/datastore_mad/remotes/rsync/snap_revert \
+                         src/datastore_mad/remotes/rsync/snap_flatten \
+                         src/datastore_mad/remotes/rsync/rm \
+                         src/datastore_mad/remotes/rsync/backup \
+                         src/datastore_mad/remotes/rsync/restore \
+                         src/datastore_mad/remotes/rsync/export"
+
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 
 #-------------------------------------------------------------------------------
@@ -2248,22 +2253,6 @@ ONEDB_FILES="src/onedb/fsck.rb \
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
-
-#-------------------------------------------------------------------------------
-# onevmdump command, to be installed under $LIB_LOCATION
-#-------------------------------------------------------------------------------
-
-ONEVMDUMP_FILES="src/onevmdump/onevmdump.rb"
-
-ONEVMDUMP_LIB_FILES="src/onevmdump/lib/command.rb \
-                     src/onevmdump/lib/commons.rb"
-
-ONEVMDUMP_LIB_EXPORTERS_FILES="src/onevmdump/lib/exporters/base.rb \
-                               src/onevmdump/lib/exporters/file.rb \
-                               src/onevmdump/lib/exporters/lv.rb \
-                               src/onevmdump/lib/exporters/rbd.rb"
-
-ONEVMDUMP_LIB_RESTORERS_FILES="src/onevmdump/lib/restorers/base.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -2367,10 +2356,6 @@ INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
-
-PRE_CLEANUP_SHARE_FILE="share/pkgs/services/systemd/pre_cleanup"
-
-BACKUP_VMS_SHARE_FILE="share/scripts/backup_vms"
 
 #-------------------------------------------------------------------------------
 # Start script files, to be installed under $SHARE_LOCATION/start-scripts

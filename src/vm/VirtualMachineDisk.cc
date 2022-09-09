@@ -1533,6 +1533,34 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template &vm_quotas,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineDisks::backup_size(Template &ds_quotas, bool do_volatile)
+{
+    long long size = 0;
+
+    for (const auto disk : *this)
+    {
+        long long disk_size = 0;
+
+        string type = disk->vector_value("TYPE");
+
+        one_util::toupper(type);
+
+        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
+        {
+            continue;
+        }
+
+        disk->vector_value("SIZE", disk_size);
+
+        size += disk_size;
+    }
+
+    ds_quotas.add("SIZE", size);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineDisks::set_saveas(int disk_id, int snap_id, int &iid,
         long long &size, string& err_str)
 {

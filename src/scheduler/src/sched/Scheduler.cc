@@ -34,7 +34,9 @@
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
 #include "NebulaUtil.h"
-#include "ScheduledAction.h"
+#include "ScheduledActionXML.h"
+
+#include "VirtualMachine.h"
 
 using namespace std;
 
@@ -134,6 +136,10 @@ void Scheduler::start()
     conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
 
     conf.get("DIFFERENT_VNETS", diff_vnets);
+
+    conf.get("MAX_BACKUPS", max_backups);
+
+    conf.get("MAX_BACKUPS_HOST", max_backups_host);
 
     // -----------------------------------------------------------
     // Log system & Configuration File
@@ -1689,101 +1695,35 @@ void Scheduler::dispatch()
 
 int Scheduler::do_scheduled_actions()
 {
-    VirtualMachineXML* vm;
+    BackupActions backups(max_backups, max_backups_host);
 
-    const map<int, ObjectXML*>  vms = vmapool->get_objects();
+    const map<int, ObjectXML*> vms = vmapool->get_objects();
 
     for (auto vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
     {
-        vm = static_cast<VirtualMachineXML *>(vm_it->second);
+        VirtualMachineXML* vm = static_cast<VirtualMachineXML *>(vm_it->second);
 
-        SchedActions sas = vm->get_actions();
+        /* -------------- Check VM scheduled actions ------------------------ */
 
-        SchedAction* first_action = nullptr;
+        SchedActionsXML sactions(vm->get_template());
 
-        for (auto action : sas)
-        {
-            auto stime = vm->get_stime();
-            if (!action->is_due(stime))
-            {
-                continue;
-            }
+        sactions.do_actions(vm->get_oid(), vm->get_stime());
 
-            if (!first_action ||
-                first_action->get_time(stime) > action->get_time(stime))
-            {
-                // Only first is_due action with lower time will be executed
-                first_action = action;
-            }
-        }
+        /* ---------------- Get VM scheduled backups ------------------------ */
 
-        if (!first_action)
+        int state  = static_cast<VirtualMachine::VmState>(vm->get_state());
+        int lstate = static_cast<VirtualMachine::LcmState>(vm->get_lcm_state());
+
+        if ((state != VirtualMachine::ACTIVE || lstate != VirtualMachine::RUNNING)
+            && (state != VirtualMachine::POWEROFF))
         {
             continue;
         }
 
-        ostringstream oss;
-
-        string error_msg;
-
-        string action_st = first_action->vector_value("ACTION");
-
-        int rc = VirtualMachineXML::parse_action_name(action_st);
-
-        oss << "Executing action '" << action_st << "' for VM "
-            << vm->get_oid() << " : ";
-
-        if ( rc != 0 )
-        {
-            error_msg = "This action is not supported.";
-        }
-        else
-        {
-            string args_st = first_action->vector_value("ARGS");
-
-            rc = vmapool->action(vm->get_oid(), action_st, args_st, error_msg);
-
-            if (rc == 0)
-            {
-                time_t done_time = time(0);
-                time_t next_time;
-
-                first_action->remove("MESSAGE");
-
-                first_action->replace("DONE", done_time);
-
-                do
-                {
-                    next_time = first_action->next_action();
-                } while ( next_time < done_time && next_time != -1 );
-
-                oss << "Success.";
-            }
-        }
-
-        if ( rc != 0 )
-        {
-            ostringstream oss_aux;
-
-            string time_str = one_util::log_time(time(0));
-
-            oss_aux << time_str << " : " << error_msg;
-
-            first_action->replace("MESSAGE", oss_aux.str());
-
-            oss << "Failure. " << error_msg;
-        }
-
-        if (!vm->update_sched_action(first_action))
-        {
-            ostringstream oss;
-            first_action->to_xml(oss);
-            NebulaLog::warn("SCHED", string("Unable to update sched action: ")
-                + oss.str());
-        }
-
-        NebulaLog::log("VM", Log::INFO, oss);
+        backups.add(vm->get_oid(), vm->get_hid(), vm->get_stime(), sactions);
     }
+
+    backups.dispatch(vmapool);
 
     return 0;
 }

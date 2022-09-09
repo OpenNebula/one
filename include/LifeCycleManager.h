@@ -28,6 +28,7 @@ class ImageManager;
 class ClusterPool;
 class HostPool;
 class ImagePool;
+class DatastorePool;
 class SecurityGroupPool;
 class VirtualMachinePool;
 class VirtualMachine;
@@ -145,6 +146,8 @@ public:
     void trigger_resize_success(int vid);
     void trigger_resize_failure(int vid);
 
+    void trigger_backup_success(int vid);
+    void trigger_backup_failure(int vid);
     // -------------------------------------------------------------------------
     // External Actions, triggered by user requests
     // -------------------------------------------------------------------------
@@ -201,6 +204,11 @@ private:
      *  Pointer to the Image Pool, to access images
      */
     ImagePool *             ipool = nullptr;
+
+    /**
+     *  Pointer to the Datastore Pool, to access images
+     */
+    DatastorePool *         dspool = nullptr;
 
     /**
      *  Pointer to the SecurityGroup Pool

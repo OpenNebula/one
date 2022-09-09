@@ -40,7 +40,8 @@ public:
         DATABLOCK = 2, /** < User persistent data device */
         KERNEL    = 3, /** < Kernel files */
         RAMDISK   = 4, /** < Initrd files */
-        CONTEXT   = 5  /** < Context files */
+        CONTEXT   = 5, /** < Context files */
+        BACKUP    = 6, /** < VM Backup reference */
     };
 
     /**
@@ -58,6 +59,7 @@ public:
             case KERNEL:    return "KERNEL" ; break;
             case RAMDISK:   return "RAMDISK" ; break;
             case CONTEXT:   return "CONTEXT" ; break;
+            case BACKUP:    return "BACKUP" ; break;
             default:        return "";
         }
     };

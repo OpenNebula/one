@@ -160,7 +160,10 @@ public:
     void finalize()
     {
         trigger([&] {
-            NebulaLog::info("Lis", "Stopping " + name);
+            if (!name.empty())
+            {
+                NebulaLog::info("Lis", "Stopping " + name);
+            }
 
             finalize_action();
 

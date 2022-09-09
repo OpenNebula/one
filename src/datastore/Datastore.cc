@@ -286,6 +286,10 @@ Datastore::DatastoreType Datastore::str_to_type(string& str_type)
     {
         dst = FILE_DS;
     }
+    else if ( str_type == "BACKUP_DS" )
+    {
+        dst = BACKUP_DS;
+    }
 
     return dst;
 }
@@ -382,6 +386,12 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
     string orph;
 
+    if (tm_mad.empty())
+    {
+        error_str = "No TM_MAD in template.";
+        return -1;
+    }
+
     if ( Nebula::instance().get_tm_conf_attribute(tm_mad, vatt) != 0 )
     {
         goto error_conf;
@@ -423,7 +433,7 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         remove_template_attribute("LN_TARGET");
         remove_template_attribute("CLONE_TARGET");
     }
-    else
+    else if (type != BACKUP_DS)
     {
         string st = vatt->vector_value("TM_MAD_SYSTEM");
 
@@ -497,12 +507,15 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         remove_template_attribute("SHARED");
     }
 
-    if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
+    if ( type != BACKUP_DS )
     {
-        orph = "NO";
-    }
+        if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
+        {
+            orph = "NO";
+        }
 
-    replace_template_attribute("ALLOW_ORPHANS", orph);
+        replace_template_attribute("ALLOW_ORPHANS", orph);
+    }
 
     return 0;
 
@@ -586,6 +599,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
             break;
 
         case FILE_DS:
+        case BACKUP_DS:
             disk_type = Image::FILE;
             break;
     }
@@ -597,6 +611,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
             add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
             break;
         case FILE_DS:
+        case BACKUP_DS:
             break;
     }
 
@@ -648,14 +663,16 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("TM_MAD", tm_mad);
 
-    if ( tm_mad.empty() == true )
+    if ( type != BACKUP_DS )
     {
-        goto error_empty_tm;
+        if (set_tm_mad(tm_mad, error_str) != 0)
+        {
+            goto error_common;
+        }
     }
-
-    if (set_tm_mad(tm_mad, error_str) != 0)
+    else
     {
-        goto error_common;
+        tm_mad = "-";
     }
 
     remove_template_attribute("BASE_PATH");
@@ -676,11 +693,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
     if (set_ds_disk_type(s_disk_type, error_str) == -1)
     {
         goto error_common;
-    }
-
-    if ( tm_mad.empty() == true )
-    {
-        goto error_empty_tm;
     }
 
     //--------------------------------------------------------------------------
@@ -709,10 +721,6 @@ error_exclusive:
 
 error_ds:
     error_str = "No DS_MAD in template.";
-    goto error_common;
-
-error_empty_tm:
-    error_str = "No TM_MAD in template.";
     goto error_common;
 
 error_common:
@@ -968,15 +976,11 @@ int Datastore::post_update_template(string& error_str)
         new_ds_type = type;
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* Set the TYPE of the Datastore (class & template)                       */
-    /* ---------------------------------------------------------------------- */
-
     if ( oid == DatastorePool::SYSTEM_DS_ID )
     {
         type = SYSTEM_DS;
     }
-    else
+    else if ( type != BACKUP_DS ) // Do not change BACKUP DS types
     {
         type = new_ds_type;
     }
@@ -1007,7 +1011,7 @@ int Datastore::post_update_template(string& error_str)
 
     get_template_attribute("TM_MAD", new_tm_mad);
 
-    if ( !new_tm_mad.empty() )
+    if (!new_tm_mad.empty() && (type != BACKUP_DS))
     {
         // System DS are monitored by the TM mad, reset information
         if ( type == SYSTEM_DS && new_tm_mad != tm_mad )

@@ -42,7 +42,8 @@ define(function(require) {
     require("tabs/templates-tab/form-panels/create/wizard-tabs/os"),
     require("tabs/templates-tab/form-panels/create/wizard-tabs/io"),
     require("tabs/templates-tab/form-panels/create/wizard-tabs/context"),
-    require("tabs/templates-tab/form-panels/create/wizard-tabs/other")
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/other"),
+    require("tabs/templates-tab/form-panels/create/wizard-tabs/backup"),
   ];
 
   /*
@@ -154,8 +155,7 @@ define(function(require) {
     this.resourceId = element.ID;
     this.template = element.TEMPLATE;
 
-    var templateJSON = element.TEMPLATE;
-
+    var templateJSON = $.extend(true, element.TEMPLATE, element.BACKUPS);
     // Populates the Avanced mode Tab
     $("#template", context).val(
       TemplateUtils.templateToString(templateJSON));

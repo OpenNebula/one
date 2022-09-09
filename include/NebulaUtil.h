@@ -339,6 +339,28 @@ namespace one_util
      */
     std::string uuid();
 
+    /**
+     * Reads a generic value from string that supports operator >>.
+     *  @param str Input string
+     *  @param value Numeric value converted from the str, undefined if
+     *               the method fails
+     *  @return true on success, false otherwise
+     */
+    template <class T>
+    bool str_cast(const std::string str, T& value)
+    {
+        std::istringstream iss(str);
+
+        iss >> value;
+
+        if (iss.fail() || !iss.eof())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 } // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

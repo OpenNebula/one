@@ -119,8 +119,8 @@ protected:
     int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         // Pending or ((running or unknown) and resched))
-        return get_nodes("/VM_POOL/VM[STATE=1 or "
-            "((STATE=8 or (LCM_STATE=3 or LCM_STATE=16)) and RESCHED=1)]", content);
+        return get_nodes("/VM_POOL/VM[STATE=1 or ((STATE=8 or "
+                "(LCM_STATE=3 or LCM_STATE=16)) and RESCHED=1)]", content);
     }
 
     virtual void add_object(xmlNodePtr node);
@@ -163,32 +163,34 @@ public:
      */
     int set_up();
 
-    /**
-     * Calls one.vm.action
-     *
-     * @param vid The VM id
-     * @param action Action argument (terminate, hold, release...)
-     * @param args Action arguments
-     * @param error_msg Error reason, if any
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int action(int vid,
-               const std::string &action,
-               const std::string &args,
-               std::string &error_msg) const;
+    int active_backups()
+    {
+        return _active_backups;
+    }
+
+    int host_backups(int host_id)
+    {
+        return backups_host[host_id];
+    }
+
+    void add_backup(int host_id)
+    {
+        backups_host[host_id]++;
+        _active_backups++;
+    }
 
 protected:
+    /**
+     * Total backup operations in progress
+     */
+    mutable int _active_backups;
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
-    {
-        std::ostringstream oss;
+    /**
+     * Backup operations per host
+     */
+    mutable std::map<int, int> backups_host;
 
-        oss << "/VM_POOL/VM/TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
-            << " and (not(DONE > 0) or boolean(REPEAT))) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
-
-        return get_nodes(oss.str().c_str(), content);
-    }
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override;
 };
 
 /* -------------------------------------------------------------------------- */

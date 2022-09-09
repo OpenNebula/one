@@ -38,7 +38,8 @@ public:
     {
         IMAGE_DS  = 0, /** < Standard datastore for disk images */
         SYSTEM_DS = 1, /** < System datastore for disks of running VMs */
-        FILE_DS   = 2  /** < File datastore for context, kernel, initrd files */
+        FILE_DS   = 2, /** < File datastore for context, kernel, initrd files */
+        BACKUP_DS = 3  /** < Backup datastore for VMs */
     };
 
     /**
@@ -53,6 +54,7 @@ public:
             case IMAGE_DS:  return "IMAGE_DS" ; break;
             case SYSTEM_DS: return "SYSTEM_DS" ; break;
             case FILE_DS:   return "FILE_DS" ; break;
+            case BACKUP_DS: return "BACKUP_DS" ; break;
             default:        return "";
         }
     };

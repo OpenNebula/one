@@ -305,6 +305,11 @@ private:
     /**
      *
      */
+    void _backup(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
     void log_error(VirtualMachine* vm_id,
                    const std::string& payload,
                    const std::string& msg);
@@ -532,6 +537,13 @@ public:
      * @param vid the id of the VM.
      */
     void trigger_resize(int vid);
+
+  /**
+     * Create backup fot the VM
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_backup(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

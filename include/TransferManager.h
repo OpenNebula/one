@@ -162,6 +162,18 @@ public:
             VirtualMachine *           vm,
             const VirtualMachineDisk * disk,
             std::ostream&              xfr);
+
+    /**
+     *  Generate backup commands for each VM disk
+     *    @param vm
+     *    @param xfr stream to include the command.
+     *    @param os describing error if any
+     *
+     *    @return 0 on success
+     */
+    int backup_transfer_commands(
+            VirtualMachine *    vm,
+            std::ostream&       xfr);
 private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

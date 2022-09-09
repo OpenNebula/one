@@ -1506,6 +1506,7 @@ void VirtualMachineDiskSaveas::request_execute(
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
+        case Image::BACKUP:
             goto error_image_type;
     }
 
@@ -3393,8 +3394,10 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    if (vm->updateconf(uc_tmpl.get(), att.resp_msg,
-                       update_type == 1 ? true : false ) != 0 )
+    rc = vm->updateconf(uc_tmpl.get(), att.resp_msg, update_type == 1 ? true : false);
+
+    // rc = -1 (error), 0 (context changed), 1 (no context change)
+    if ( rc == -1 )
     {
         failure_response(INTERNAL, att);
 
@@ -3435,7 +3438,7 @@ void VirtualMachineUpdateConf::request_execute(
 
     // Apply the change for running VM
     if (state == VirtualMachine::VmState::ACTIVE &&
-        lcm_state == VirtualMachine::LcmState::RUNNING)
+        lcm_state == VirtualMachine::LcmState::RUNNING && rc == 0)
     {
         auto dm = Nebula::instance().get_dm();
 
@@ -3800,4 +3803,110 @@ void VirtualMachineDetachSG::request_execute(
     {
         success_response(vm_id, att);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineBackup::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+
+    Nebula&            nd = Nebula::instance();
+    DispatchManager *  dm = nd.get_dm();
+
+    DatastorePool *      dspool = nd.get_dspool();
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+    PoolObjectAuth vm_perms;
+    PoolObjectAuth ds_perms;
+    Template       quota_tmpl;
+
+    ostringstream oss;
+
+    // ------------------------------------------------------------------------
+    // Get request parameters
+    // ------------------------------------------------------------------------
+    int vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
+    int backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // ------------------------------------------------------------------------
+    // Get VM & Backup Information
+    // ------------------------------------------------------------------------
+    if ( auto vm = vmpool->get(vm_id) )
+    {
+        vm->get_permissions(vm_perms);
+
+        vm->max_backup_size(quota_tmpl);
+    }
+    else
+    {
+        att.resp_id  = vm_id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if ( auto ds = dspool->get_ro(backup_ds_id) )
+    {
+        if (ds->get_type() != Datastore::BACKUP_DS)
+        {
+            att.resp_msg = "Datastore needs to be of type BACKUP";
+
+            failure_response(ACTION, att);
+            return;
+        }
+
+        ds->get_permissions(ds_perms);
+    }
+    else
+    {
+        att.resp_obj = PoolObjectSQL::DATASTORE;
+        att.resp_id  = backup_ds_id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Authorize request (VM and Datastore access)
+    // ------------------------------------------------------------------------
+    bool auth = vm_authorization(vm_id, 0, 0, att, 0, &ds_perms, 0);
+
+    if (auth == false)
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Check backup datastore quotas (size or number of backups)
+    //
+    // Reserves maximal possible quota size for the backup, the value is updated
+    // after backup success notification from driver
+    // -------------------------------------------------------------------------
+    quota_tmpl.add("DATASTORE", backup_ds_id);
+    quota_tmpl.add("IMAGES", 1);
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    if ( !quota_authorization(&quota_tmpl, Quotas::DATASTORE, att_quota, att_quota.resp_msg) )
+    {
+        failure_response(AUTHORIZATION, att_quota);
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Create backup
+    // ------------------------------------------------------------------------
+    if (dm->backup(vm_id, backup_ds_id, att, att.resp_msg) < 0)
+    {
+        quota_rollback(&quota_tmpl, Quotas::DATASTORE, att_quota);
+
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(vm_id, att);
+
+    return;
 }

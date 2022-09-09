@@ -147,7 +147,10 @@ Request::ErrorCode ImagePersistent::request_execute(
         case Image::RAMDISK:
         case Image::CONTEXT:
             att.resp_msg = "KERNEL, RAMDISK and CONTEXT must be non-persistent";
+            return ACTION;
 
+        case Image::BACKUP:
+            att.resp_msg = "BACKUP images must be persistent";
             return ACTION;
     }
 
@@ -238,6 +241,11 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                 return;
             }
         break;
+        case Image::BACKUP:
+            att.resp_msg = "Cannot change type for BACKUP images.";
+            failure_response(ACTION, att);
+
+            return;
     }
 
     rc = image->set_type(type, att.resp_msg);
@@ -325,7 +333,8 @@ Request::ErrorCode ImageClone::request_execute(
             case Image::KERNEL:
             case Image::RAMDISK:
             case Image::CONTEXT:
-                att.resp_msg = "KERNEL, RAMDISK and CONTEXT cannot be cloned.";
+            case Image::BACKUP:
+                att.resp_msg = "KERNEL, RAMDISK, BACKUP and CONTEXT cannot be cloned.";
             return ACTION;
         }
 
@@ -592,5 +601,59 @@ void ImageSnapshotFlatten::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     success_response(snap_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageRestore::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int image_id   = xmlrpc_c::value_int(paramList.getInt(1));
+    int dst_ds_id  = xmlrpc_c::value_int(paramList.getInt(2));
+    string opt_tmp = xmlrpc_c::value_string(paramList.getString(3));
+
+    Nebula& nd = Nebula::instance();
+
+    DatastorePool * dspool = nd.get_dspool();
+    ImageManager *  imagem = nd.get_imagem();
+
+    if ( basic_authorization(image_id, att) == false )
+    {
+        return;
+    }
+
+    ErrorCode ec = basic_authorization(dspool, dst_ds_id,
+            PoolObjectSQL::DATASTORE, att);
+
+    if ( ec != SUCCESS)
+    {
+        failure_response(ec, att);
+        return;
+    }
+
+    Template tmpl;
+    string   txml;
+
+    int rc = tmpl.parse_str_or_xml(opt_tmp, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    tmpl.replace("USERNAME", att.uname);
+
+    rc = imagem->restore_image(image_id, dst_ds_id, tmpl.to_xml(txml),
+            att.resp_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
+    success_response(att.resp_msg, att);
 }
 

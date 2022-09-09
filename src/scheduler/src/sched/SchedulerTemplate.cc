@@ -46,6 +46,8 @@ void SchedulerTemplate::set_conf_default()
 #  LIVE_RESCHEDS
 #  COLD_MIGRATE_MODE
 #  LOG
+#  MAX_BACKUPS
+#  MAX_BACKUPS_HOST
 #-------------------------------------------------------------------------------
 */
     set_conf_single("MESSAGE_SIZE", "1073741824");
@@ -57,6 +59,9 @@ void SchedulerTemplate::set_conf_default()
     set_conf_single("MAX_HOST", "1");
     set_conf_single("LIVE_RESCHEDS", "0");
     set_conf_single("COLD_MIGRATE_MODE", "0");
+
+    set_conf_single("MAX_BACKUPS", "5");
+    set_conf_single("MAX_BACKUPS_HOST", "2");
 
     //DEFAULT_SCHED
     vvalue.clear();

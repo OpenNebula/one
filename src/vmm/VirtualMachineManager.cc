@@ -122,6 +122,9 @@ int VirtualMachineManager::start()
     register_action(VMManagerMessages::RESIZE,
             bind(&VirtualMachineManager::_resize, this, _1));
 
+    register_action(VMManagerMessages::BACKUP,
+            bind(&VirtualMachineManager::_backup, this, _1));
+
     register_action(VMManagerMessages::LOG,
             bind(&VirtualMachineManager::_log, this, _1));
 
@@ -219,6 +222,8 @@ string VirtualMachineManager::format_message(
 
     if ( auto ds = ds_pool->get_ro(ds_id) )
     {
+        ds->decrypt();
+
         ds->to_xml(ds_tmpl);
     }
 
@@ -2416,6 +2421,101 @@ void VirtualMachineManager::trigger_resize(int vid)
         error_common:
             vm->log("VMM", Log::ERROR, os);
             return;
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::trigger_backup(int vid)
+{
+    trigger([this, vid] {
+        const VirtualMachineManagerDriver * vmd;
+
+        ostringstream os, xfr;
+
+        string  vm_tmpl;
+        string  drv_msg;
+
+        Nebula&           nd = Nebula::instance();
+        TransferManager * tm = nd.get_tm();
+        int ds_backup_id;
+
+        // Get the VM from the pool
+        auto vm = vmpool->get(vid);
+
+        if (vm == nullptr)
+        {
+            return;
+        }
+
+        if (!vm->hasHistory())
+        {
+            goto error_history;
+        }
+
+        // Generate Backup commands for VM disks
+        if ( tm->backup_transfer_commands(vm.get(), xfr) == -1 )
+        {
+            return;
+        }
+
+        // Get the driver for this VM
+        vmd = get(vm->get_vmm_mad());
+
+        if ( vmd == nullptr )
+        {
+            goto error_driver;
+        }
+
+        ds_backup_id = vm->backups().last_datastore_id();
+
+        if ( ds_pool->exist(ds_backup_id) == -1 )
+        {
+            goto error_ds;
+        }
+
+        drv_msg = format_message(
+            vm->get_hostname(),
+            "",
+            vm->get_deploy_id(),
+            "",
+            "",
+            "",
+            xfr.str(),
+            "",
+            "",
+            vm->to_xml(vm_tmpl),
+            ds_backup_id,
+            -1);
+
+        vmd->backup(vid, drv_msg);
+
+        return;
+
+    error_history:
+        os.str("");
+        os << "backup_create_action, VM has no history";
+        goto error_common;
+
+    error_driver:
+        os.str("");
+        os << "backup_create_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
+
+    error_ds:
+        os.str("");
+        os << "backup_create_action, backup datastore " << ds_backup_id
+           << " does not exist";
+        goto error_common;
+
+    error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+
+        lcm->trigger_snapshot_create_failure(vid);
+
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 

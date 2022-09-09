@@ -288,6 +288,28 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="BACKUPS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="BACKUP_CONFIG" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="BACKUP_VOLATILE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="KEEP_LAST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="BACKUP_IDS" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>

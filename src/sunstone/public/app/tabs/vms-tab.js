@@ -35,7 +35,8 @@ define(function(require) {
     require("./vms-tab/dialogs/attach-sg"),
     require("./vms-tab/dialogs/snapshot"),
     require("./vms-tab/dialogs/revert"),
-    require("./vms-tab/dialogs/saveas-template")
+    require("./vms-tab/dialogs/saveas-template"),
+    require("./vms-tab/dialogs/backup")
   ];
 
   var _panelsHooks = [

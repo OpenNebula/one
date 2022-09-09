@@ -52,8 +52,10 @@ void VirtualMachineXML::init_attributes()
     xpath(uid, "/VM/UID", -1);
     xpath(gid, "/VM/GID", -1);
 
-    xpath(tmp, "/VM/STATE", -1);
-    active = tmp == 3;
+    xpath(state, "/VM/STATE",     0);
+    xpath(lcm_state, "/VM/LCM_STATE", 0);
+
+    active = state == 3;
 
     xpath(tmp, "/VM/RESCHED", 0);
     resched = tmp == 1;
@@ -670,6 +672,7 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "disk-snapshot-create"
         && action_st != "disk-snapshot-revert"
         && action_st != "disk-snapshot-delete"
+        && action_st != "backup"
 
         // Compatibility with 4.x
         && action_st != "shutdown"

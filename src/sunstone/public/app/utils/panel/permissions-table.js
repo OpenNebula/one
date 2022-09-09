@@ -30,6 +30,8 @@ define(function(require) {
   var TemplateOwner = require('hbs!./permissions-table/owner');
   var TemplatePermissions = require('hbs!./permissions-table/permissions');
   var TemplatePermissionsTable = require('hbs!./permissions-table/html');
+  var IMAGES_TAB_ID = require('tabs/images-tab/tabId');
+
 
   /**
    * Generate the tr HTML with the name of the resource and an edit icon
@@ -61,18 +63,26 @@ define(function(require) {
     // but it could be extended to another resources
     if (resourceType == "VM" && 
       element.USER_TEMPLATE && 
+      element.BACKUPS &&
+      element.BACKUPS.BACKUP_IDS &&
       (!element.USER_TEMPLATE.HYPERVISOR ||
       element.USER_TEMPLATE.HYPERVISOR && 
-      element.USER_TEMPLATE.HYPERVISOR != "vcenter")) {
-        var last_backup;
-        if (element.USER_TEMPLATE.BACKUP &&
-          element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME){
-            last_backup = Humanize.prettyTime(element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME);
-          }
-        backupHTML = TemplateBackup({
-          'element': element,
-          'last_backup': last_backup
-        })
+      element.USER_TEMPLATE.HYPERVISOR === "kvm")) {
+        var backupsIDs = ""
+        ids = Array.isArray(element.BACKUPS.BACKUP_IDS.ID) ? 
+          element.BACKUPS.BACKUP_IDS.ID :
+          [element.BACKUPS.BACKUP_IDS.ID]
+        if (ids && ids.length > 0){
+          ids.forEach( id => {
+            backupsIDs += Navigation.link(id, IMAGES_TAB_ID, id) 
+            backupsIDs += (id === ids[ids.length - 1] ? "" : ", ")
+          });
+        }
+        else {
+          backupsIDs = "-"
+        }
+
+        backupHTML = TemplateBackup({'ids': backupsIDs})
     }
 
     var permissionsTableHTML = TemplatePermissionsTable({

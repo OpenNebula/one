@@ -165,43 +165,59 @@ define(function(require) {
 
       switch (choice_str){
         case "fs_shared":
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectFilesystem(dialog);
           break;
         
         case "fs_ssh":
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectFilesystem(dialog);
           break;
         
         case "fs_qcow2":
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectFilesystem(dialog);
           break;
         
         case "ceph":
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectCeph(dialog);
           break;
         
         case "vcenter":
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectvCenter(dialog);
           break;
         
         case "lvm":
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectFsLvm(dialog);
           break;
         
         case "raw":
           $('input#system_ds_type', dialog).attr('disabled', 'disabled');
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectDevices(dialog);
           break;
         
         case "iscsi_libvirt":
           $('input#system_ds_type', dialog).attr('disabled', 'disabled');
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#backup_ds_type', dialog).attr('disabled', 'disabled');
           _selectISCSI(dialog);
+          break;
+
+        case "restic":
+          $('input#backup_ds_type', dialog).click()
+          $('input#system_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#image_ds_type', dialog).attr('disabled', 'disabled');
+          _selectRestic(dialog);
           break;
         
         case 'custom':
@@ -259,6 +275,13 @@ define(function(require) {
     var iscsi_usage     = $('#iscsi_usage', dialog).val();
     var vcenter_cluster = $('#vcenter_cluster', dialog).val();
     var compatible_sys_ds = $('#compatible_sys_ds', dialog).val();
+    var restic_password = $('#restic_password', dialog).val();
+    var restic_sftp_server = $('#restic_sftp_server', dialog).val();
+    var restic_ionice = $('#restic_ionice', dialog).val();
+    var restic_nice = $('#restic_nice', dialog).val();
+    var restic_bwlimit = $('#restic_bwlimit', dialog).val();
+    var restic_compression = $('#restic_compression', dialog).val();
+    var restic_connections = $('#restic_connections', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -347,6 +370,27 @@ define(function(require) {
     if (compatible_sys_ds)
         ds_obj.datastore.compatible_sys_ds = compatible_sys_ds;
 
+    if (restic_password)
+        ds_obj.datastore.restic_password = restic_password;
+
+    if (restic_sftp_server)
+        ds_obj.datastore.restic_sftp_server = restic_sftp_server;
+        
+    if (restic_ionice)
+        ds_obj.datastore.restic_ionice = restic_ionice;
+
+    if (restic_nice)
+        ds_obj.datastore.restic_nice = restic_nice;
+
+    if (restic_bwlimit)
+        ds_obj.datastore.restic_bwlimit = restic_bwlimit;
+
+    if (restic_compression)
+        ds_obj.datastore.restic_compression = restic_compression;
+
+    if (restic_connections)
+        ds_obj.datastore.restic_connections = restic_connections;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -395,6 +439,14 @@ define(function(require) {
     $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="restic_password"]', dialog).parent().hide();
+    $('label[for="restic_sftp_server"]', dialog).parent().hide();
+    $('label[for="restic_ionice"]', dialog).parent().hide();
+    $('label[for="restic_nice"]', dialog).parent().hide();
+    $('label[for="restic_bwlimit"]', dialog).parent().hide();
+    $('label[for="restic_compression"]', dialog).parent().hide();
+    $('label[for="restic_connections"]', dialog).parent().hide();
+    $('label[for="restic_sftp_server"]', dialog).parent().hide();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
@@ -424,6 +476,14 @@ define(function(require) {
     $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().show();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().show();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().show();
+    $('label[for="restic_password"]', dialog).parent().show();
+    $('label[for="restic_sftp_server"]', dialog).parent().show();
+    $('label[for="restic_ionice"]', dialog).parent().show();
+    $('label[for="restic_nice"]', dialog).parent().show();
+    $('label[for="restic_bwlimit"]', dialog).parent().show();
+    $('label[for="restic_compression"]', dialog).parent().show();
+    $('label[for="restic_connections"]', dialog).parent().show();
+    $('label[for="restic_sftp_server"]', dialog).parent().show();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
@@ -521,6 +581,25 @@ define(function(require) {
     $('input#limit_mb', dialog).attr('disabled', 'disabled');
     $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
     $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().fadeIn();
+  }
+
+  function _selectRestic(dialog) {
+    $('select#disk_type', dialog).val('block');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+    $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
+    $('label[for="restic_password"]', dialog).parent().fadeIn();
+    $('label[for="restic_sftp_server"]', dialog).parent().fadeIn();
+    $('label[for="restic_ionice"]', dialog).parent().fadeIn();
+    $('label[for="restic_nice"]', dialog).parent().fadeIn();
+    $('label[for="restic_bwlimit"]', dialog).parent().fadeIn();
+    $('label[for="restic_compression"]', dialog).parent().fadeIn();
+    $('label[for="restic_connections"]', dialog).parent().fadeIn();
+    $('label[for="restic_sftp_server"]', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {

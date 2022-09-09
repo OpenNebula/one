@@ -240,6 +240,13 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
     },
     {"CPU_MODEL",
         { "MODEL" }
+    },
+    {"BACKUP_CONFIG",
+        { "DATASTORE_ID",
+          "FS_FREEZE",
+          "KEEP_LAST",
+          "BACKUP_VOLATILE",
+          "FREQUENCY_SECONDS"}
     }
 };
 
@@ -300,6 +307,8 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
     copy_vector_values(this, conf_tmpl.get(), "RAW");
 
     copy_vector_values(this, conf_tmpl.get(), "CPU_MODEL");
+
+    copy_vector_values(this, conf_tmpl.get(), "BACKUP_CONFIG");
 
     const VectorAttribute * context = get("CONTEXT");
 

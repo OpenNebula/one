@@ -143,6 +143,13 @@ int ImagePool::allocate (
                 goto error_types_missmatch_image;
             }
         break;
+
+        case Image::BACKUP:
+            if ( ds_type != Datastore::BACKUP_DS  )
+            {
+                goto error_types_missmatch_backup;
+            }
+        break;
     }
 
     db_oid = exist(name, uid);
@@ -227,6 +234,11 @@ error_types_missmatch_file:
 error_types_missmatch_image:
     error_str = "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
                 " in an IMAGE_DS datastore";
+    goto error_common;
+
+error_types_missmatch_backup:
+    error_str = "IMAGES of type BACKUP can only be registered"
+                " in an BACKUP_DS datastore";
     goto error_common;
 
 error_duplicated:

@@ -571,6 +571,19 @@ private:
     }
 
     /**
+     *  Sends a backup create request to the MAD:
+     *  "BACKUP ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void backup(
+        const int          oid,
+        const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::BACKUP, oid, drv_msg);
+    }
+
+    /**
      *
      */
     void write_drv(VMManagerMessages type,

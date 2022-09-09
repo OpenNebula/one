@@ -128,6 +128,10 @@ public:
     //--------------------------------------------------------------------------
     // Get Methods for VirtualMachineXML class
     //--------------------------------------------------------------------------
+    int get_state() const { return state; };
+
+    int get_lcm_state() const { return lcm_state; };
+
     int get_oid() const { return oid; };
 
     int get_uid() const { return uid; };
@@ -399,6 +403,11 @@ public:
         return xml_str;
     }
 
+    VirtualMachineTemplate * get_template()
+    {
+        return vm_template.get();
+    }
+
     /**
      * Get scheduled actions of the VM
      *
@@ -488,6 +497,9 @@ protected:
 
     int hid;
     int dsid;
+
+    int state;
+    int lcm_state;
 
     bool resched;
     bool resume;

@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require_relative '../lib/tm_action'
+
+require 'rexml/document'
+
+#-------------------------------------------------------------------------------
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+#-------------------------------------------------------------------------------
+vm_xml = STDIN.read
+
+dir       = ARGV[0].split ':'
+disks     = ARGV[1].split ':'
+_deployid = ARGV[2]
+_vmid     = ARGV[3]
+_dsid     = ARGV[4]
+
+rhost     = dir[0]
+rdir      = dir[1]
+
+xml_doc = REXML::Document.new(vm_xml)
+vm      = xml_doc.root
+
+bck_dir = "#{rdir}/backup"
+
+convert = ''
+
+# TODO: Make compression configurable. Does it intefere with deduplication?
+vm.elements.each 'TEMPLATE/DISK' do |d|
+    did = d.elements['DISK_ID'].text
+
+    next unless disks.include? did
+
+    dsrc = "#{rdir}/disk.#{did}"
+    ddst = "#{bck_dir}/disk.#{did}"
+
+    convert << "qemu-img convert -O qcow2 #{dsrc} #{ddst}; "
+end
+
+pre_script = <<~EOS
+    set -ex -o pipefail
+
+    # ----------------------------------
+    # Prepare the tmp and backup folders
+    # ----------------------------------
+    [ -d #{bck_dir} ] && rm -rf #{bck_dir}
+
+    mkdir -p #{bck_dir}
+
+    echo "#{Base64.encode64(vm_xml)}" > #{bck_dir}/vm.xml
+
+    # -------------------
+    # Convert and flatten
+    # -------------------
+    #{convert}
+EOS
+
+rc = TransferManager::Action.ssh('prebackup', :host => rhost,
+                                 :cmds => pre_script)
+
+exit(rc)

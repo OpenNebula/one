@@ -195,32 +195,6 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
-    LOGGER = {
-        :name   => 'logger',
-        :large  => '--logger logger',
-        :format => String,
-        :description => 'Set logger to STDOUT or FILE'
-    }
-
-    KEEP = {
-        :name  => 'keep',
-        :large => '--keep-backup',
-        :description => 'Keep previous backup when creating a new one'
-    }
-
-    ONESHOT = {
-        :name  => 'oneshot',
-        :large => '--oneshot',
-        :description => 'Take an snapshot of the VM without saving backup info'
-    }
-
-    MARKET = {
-        :name   => 'market',
-        :large  => '--market market_id',
-        :format => Integer,
-        :description => 'Market to save oneshot'
-    }
-
     NIC_ID = {
         :name   => 'nic_id',
         :large  => '--nic-id nic_id',
@@ -1375,8 +1349,8 @@ CommandParser::CmdParser.new(ARGV) do
     updateconf_desc = <<-EOT.unindent
         Updates the configuration of a VM. Valid states are: running, pending,
         failure, poweroff, undeploy, hold or cloning.
-        In running state only changes in CONTEXT take effect immediately,
-        other values may need a VM restart.
+        In running state only changes in CONTEXT and BACKUP_CONFIG take effect
+        immediately, other values may need a VM restart.
 
         This command accepts a template file or opens an editor, the full list of
         configuration attributes are:
@@ -1387,6 +1361,7 @@ CommandParser::CmdParser.new(ARGV) do
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
+        BACKUP_CONFIG = ["FS_FREEZE", "DATASTORE_ID", "BACKUP_VOLATILE", "FREQUENCY_SECONDS"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 
@@ -1411,10 +1386,15 @@ CommandParser::CmdParser.new(ARGV) do
                     exit(-1)
                 end
 
+                backup   = vm.template_like_str('BACKUPS', true,
+                                                'BACKUP_CONFIG')
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
                                                 'GRAPHICS | RAW | CONTEXT | '\
                                                 'CPU_MODEL')
+
+                template << "\n" << backup
+
                 template = OpenNebulaHelper.editor_input(template)
             end
 
@@ -1532,108 +1512,40 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     backup_vm_desc = <<-EOT.unindent
-        Creates a VM backup and stores it in the marketplace
+        Creates a VM backup on the given datastore
+
+        States: RUNNING, POWEROFF
     EOT
 
     command :backup,
             backup_vm_desc,
             :vmid,
-            :options => [LOGGER, KEEP, ONESHOT, MARKET] do
-        require 'logger'
-
-        if options.key?(:oneshot) && !options.key?(:market)
-            STDERR.puts 'ERROR: no market given'
+            :options => [OneDatastoreHelper::DATASTORE,
+                         OneVMHelper::SCHEDULE,
+                         OneVMHelper::WEEKLY,
+                         OneVMHelper::MONTHLY,
+                         OneVMHelper::YEARLY,
+                         OneVMHelper::HOURLY,
+                         OneVMHelper::END_TIME] do
+        if options[:datastore].nil?
+            STDERR.puts 'Datastore to save the backup is mandatory: '
+            STDERR.puts "\t -d datastore_id | name"
             exit(-1)
         end
 
-        helper.perform_action(args[0], options, 'Backup') do |vm|
-            vm.extend(OpenNebula::VirtualMachineExt)
+        if !options[:schedule].nil?
+            options[:args] = options[:datastore]
 
-            # Read user options
-            if options[:verbose]
-                log_to = STDOUT
-            elsif !options[:logger].nil?
-                log_to = options[:logger]
-            end
+            helper.schedule_actions([args[0]], options, @comm_name)
+        else
 
-            keep = options.key?(:keep)
-
-            if log_to
-                logger = Logger.new(log_to)
-                format = '%Y-%m-%d %H:%M:%S'
-
-                logger.formatter = proc do |severity, datetime, _p, msg|
-                    "#{datetime.strftime(format)} " \
-                    "#{severity.ljust(5)} : #{msg}\n"
-                end
-            end
-
-            binfo          = {}
-            binfo[:market] = options[:market]
-
-            if options.key?(:oneshot)
-                binfo[:name] = "VM #{vm.id} BACKUP - " \
-                               "#{Time.now.strftime('%Y%m%d_%k%M')}"
-                binfo[:freq]   = 1
-                binfo[:last]   = Time.now.to_i - 100
-            end
-
-            begin
-                rc = vm.backup(keep, logger, binfo)
+            helper.perform_action(args[0], options, 'Backup') do |vm|
+                rc = vm.backup(options[:datastore])
 
                 if OpenNebula.is_error?(rc)
-                    STDERR.puts rc.message
+                    STDERR.puts "Error creating VM backup: #{rc.message}"
                     exit(-1)
-                else
-                    0
                 end
-            rescue StandardError => e
-                STDERR.puts e
-                exit(-1)
-            end
-        end
-    end
-
-    restore_vm_desc = <<-EOT.unindent
-        Restores a VM from a previous backup
-    EOT
-
-    command :restore,
-            restore_vm_desc,
-            :vmid,
-            :options => [OneDatastoreHelper::DATASTORE, LOGGER] do
-        require 'logger'
-
-        unless options[:datastore]
-            STDERR.puts 'ERROR: no datastore given'
-            exit(-1)
-        end
-
-        helper.perform_action(args[0], options, 'Restore') do |vm|
-            vm.extend(OpenNebula::VirtualMachineExt)
-
-            # If logger is specified use it, if not use STDOUT
-            options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
-            logger = Logger.new(log_to)
-            format = '%Y-%m-%d %H:%M:%S'
-
-            logger.formatter = proc do |severity, datetime, _p, msg|
-                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
-            end
-
-            begin
-                rc = vm.restore(options[:datastore], logger)
-
-                if OpenNebula.is_error?(rc)
-                    STDERR.puts rc.message
-                    exit(-1)
-                else
-                    puts "ID: #{rc}"
-                    0
-                end
-            rescue StandardError => e
-                STDERR.puts e
-                exit(-1)
             end
         end
     end

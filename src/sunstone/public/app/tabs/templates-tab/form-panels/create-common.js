@@ -51,6 +51,7 @@ define(function(require) {
   var vmgroup = require("./create/wizard-tabs/vmgroup")
   var other = require("./create/wizard-tabs/other")
   var numa = require("./create/wizard-tabs/numa")
+  var backup = require("./create/wizard-tabs/backup")
 
   var WIZARD_TABS = [
     general,
@@ -64,7 +65,8 @@ define(function(require) {
     hybrid,
     vmgroup,
     other,
-    numa
+    numa,
+    backup
   ];
 
   var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");

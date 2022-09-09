@@ -96,6 +96,9 @@ int ImageManager::start()
     register_action(ImageManagerMessages::SNAP_FLATTEN,
             bind(&ImageManager::_snap_flatten, this, _1));
 
+    register_action(ImageManagerMessages::RESTORE,
+            bind(&ImageManager::_restore, this, _1));
+
     register_action(ImageManagerMessages::LOG,
             &ImageManager::_log);
 
@@ -128,6 +131,8 @@ void ImageManager::timer_action()
         NebulaLog::log("ImM",Log::INFO,"--Mark--");
         mark = 0;
     }
+
+    check_time_outs_action();
 
     if ( tics < monitor_period )
     {
@@ -194,6 +199,8 @@ void ImageManager::monitor_datastore(int ds_id)
 
     if ( auto ds = dspool->get_ro(ds_id) )
     {
+        ds->decrypt();
+
         ds->to_xml(ds_data);
 
         shared  = ds->is_shared();
@@ -238,6 +245,7 @@ void ImageManager::monitor_datastore(int ds_id)
 
         case Datastore::FILE_DS:
         case Datastore::IMAGE_DS:
+        case Datastore::BACKUP_DS:
             break;
     }
 

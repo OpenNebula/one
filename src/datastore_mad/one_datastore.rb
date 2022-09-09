@@ -75,7 +75,8 @@ class DatastoreDriver < OpenNebulaDriver
         :monitor => "MONITOR",
         :snap_delete => "SNAP_DELETE",
         :snap_revert => "SNAP_REVERT",
-        :snap_flatten=> "SNAP_FLATTEN"
+        :snap_flatten=> "SNAP_FLATTEN",
+        :restore => "RESTORE"
     }
 
     # Default System datastores for OpenNebula, override in oned.conf
@@ -100,7 +101,8 @@ class DatastoreDriver < OpenNebulaDriver
                 ACTION[:monitor] => nil,
                 ACTION[:snap_delete] => nil,
                 ACTION[:snap_revert] => nil,
-                ACTION[:snap_flatten] => nil
+                ACTION[:snap_flatten] => nil,
+                ACTION[:restore] => nil
             }
         }.merge!(options)
 
@@ -135,6 +137,7 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:snap_delete].to_sym, method("snap_delete"))
         register_action(ACTION[:snap_revert].to_sym, method("snap_revert"))
         register_action(ACTION[:snap_flatten].to_sym, method("snap_flatten"))
+        register_action(ACTION[:restore].to_sym, method("restore"))
     end
 
     ############################################################################
@@ -142,27 +145,27 @@ class DatastoreDriver < OpenNebulaDriver
     ############################################################################
 
     def cp(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :cp, "#{drv_message} #{id}")
     end
 
     def rm(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :rm, "#{drv_message} #{id}")
     end
 
     def mkfs(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
     end
 
     def stat(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :stat, "#{drv_message} #{id}")
     end
 
     def clone(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :clone, "#{drv_message} #{id}")
     end
 
@@ -172,18 +175,23 @@ class DatastoreDriver < OpenNebulaDriver
     end
 
     def snap_delete(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_delete, "#{drv_message} #{id}")
     end
 
     def snap_revert(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_revert, "#{drv_message} #{id}")
     end
 
     def snap_flatten(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
+        ds, _sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_flatten, "#{drv_message} #{id}")
+    end
+
+    def restore(id, drv_message)
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :restore, "#{drv_message} #{id}")
     end
 
     private

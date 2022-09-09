@@ -226,6 +226,20 @@ public:
     int delete_image(int iid, std::string& error_str);
 
     /**
+     *  Restores a backup image restoring the associated disk images and VM
+     *  template.
+     *    @param iid id of the backup image
+     *    @param dst_ds_id destination ds where the images will be restored
+     *    @param opts XML encoded options for the restore operation
+     *
+     *    @param result string with objects ids or error reason
+     *
+     *    @return 0 on success
+     */
+    int restore_image(int iid, int dst_ds_id, const std::string& opts,
+                  std::string& result);
+
+    /**
      *  Gets the size of an image by calling the STAT action of the associated
      *  datastore driver.
      *
@@ -375,67 +389,35 @@ private:
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver
     // -------------------------------------------------------------------------
-    /**
-     *
-     */
     static void _undefined(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _stat(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _cp(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _clone(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _mkfs(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _rm(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _monitor(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _snap_delete(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _snap_revert(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
     void _snap_flatten(std::unique_ptr<image_msg_t> msg);
 
-    /**
-     *
-     */
+    void _restore(std::unique_ptr<image_msg_t> msg);
+
     static void _log(std::unique_ptr<image_msg_t> msg);
 
     /**
-     *  This function is executed periodically to monitor Datastores.
+     *  This function is executed periodically to monitor Datastores and
+     *  check sync actions
      */
     void timer_action();
-
-
 };
 
 #endif /*IMAGE_MANAGER_H*/

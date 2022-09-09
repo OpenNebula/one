@@ -396,14 +396,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     MarketPlacePool *     marketpool = nd.get_marketpool();
     MarketPlaceAppPool *  apppool    = nd.get_apppool();
 
-    Template        img_usage;
+    Template img_usage;
 
     Image::DiskType ds_disk_type;
 
-    int               app_id;
-    int               market_id;
+    int app_id;
+    int market_id;
 
-    long long       avail;
+    long long avail;
 
     bool ds_check;
     bool persistent_attr;
@@ -429,9 +429,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         ds_type = ds->get_type();
 
-        if ( ds_type == Datastore::SYSTEM_DS )
+        if ( ds_type == Datastore::SYSTEM_DS || ds_type == Datastore::BACKUP_DS)
         {
-            att.resp_msg = "New images cannot be allocated in a system datastore.";
+            att.resp_msg = "New images can only be allocated in a files or image datastore.";
             failure_response(ALLOCATE, att);
 
             return;
@@ -439,14 +439,17 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         ds->get_permissions(ds_perms);
 
-        ds_name            = ds->get_name();
+        ds_name  = ds->get_name();
+        ds_check = ds->get_avail_mb(avail) && check_capacity;
+        ds_mad   = ds->get_ds_mad();
+        tm_mad   = ds->get_tm_mad();
+
         ds_disk_type       = ds->get_disk_type();
-        ds_check           = ds->get_avail_mb(avail) && check_capacity;
         ds_persistent_only = ds->is_persistent_only();
-        ds_mad             = ds->get_ds_mad();
-        tm_mad             = ds->get_tm_mad();
 
         ds->get_template_attribute("DRIVER", ds_driver);
+
+        ds->decrypt();
 
         ds->to_xml(ds_data);
     }
@@ -462,7 +465,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // --------------- Get the SIZE for the Image, (DS driver) -----------------
 
-    if ( tmpl->get("FROM_APP", app_id ) )
+    if ( tmpl->get("FROM_APP", app_id) )
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
@@ -504,7 +507,30 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     }
     else
     {
-        rc = imagem->stat_image(tmpl.get(), ds_data, size_str);
+        if ( tmpl->get("FROM_BACKUP_DS", app_id) )
+        {
+            string bck_ds_data;
+
+            if ( auto ds = dspool->get_ro(app_id) )
+            {
+                ds->decrypt();
+
+                ds->to_xml(bck_ds_data);
+            }
+            else
+            {
+                att.resp_msg = "Could not get associated backup datastore.";
+                failure_response(INTERNAL, att);
+
+                return;
+            }
+
+            rc = imagem->stat_image(tmpl.get(), bck_ds_data, size_str);
+        }
+        else
+        {
+            rc = imagem->stat_image(tmpl.get(), ds_data, size_str);
+        }
 
         if ( rc == -1 )
         {
@@ -666,7 +692,7 @@ Request::ErrorCode TemplateAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool TemplateAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)

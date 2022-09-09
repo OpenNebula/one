@@ -68,7 +68,8 @@ define(function(require) {
 
     if (element.TYPE == OpenNebulaImage.TYPES.OS ||
         element.TYPE == OpenNebulaImage.TYPES.CDROM ||
-        element.TYPE == OpenNebulaImage.TYPES.DATABLOCK) {
+        element.TYPE == OpenNebulaImage.TYPES.DATABLOCK ||
+        element.TYPE == OpenNebulaImage.TYPES.BACKUP) {
       return false;
     }
 

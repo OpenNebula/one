@@ -104,6 +104,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
+        case Image::BACKUP:
             oss << "Image " << img->get_oid() << " (" << img->get_name() << ") "
                 << "of type " << Image::type_to_str(img->get_type())
                 << " cannot be used as DISK.";
@@ -242,8 +243,9 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
+        case Image::BACKUP:
             NebulaLog::log("ImM", Log::ERROR, "Trying to release a KERNEL, "
-                "RAMDISK or CONTEXT image");
+                "RAMDISK, BACKUP or CONTEXT image");
             return;
     }
 
@@ -345,8 +347,9 @@ void ImageManager::release_cloning_resource(
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
+        case Image::BACKUP:
             NebulaLog::log("ImM", Log::ERROR, "Trying to release a cloning "
-                "KERNEL, RAMDISK or CONTEXT image");
+                "KERNEL, RAMDISK, BACKUP or CONTEXT image");
             return;
     }
 
@@ -390,6 +393,12 @@ int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
 
     if (!img)
     {
+        return -1;
+    }
+
+    if ( img->get_type() == Image::BACKUP )
+    {
+        error_str = "Backup images cannot be enabled or disabled.";
         return -1;
     }
 
@@ -472,6 +481,8 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     if (auto ds = dspool->get_ro(ds_id))
     {
+        ds->decrypt();
+
         ds->to_xml(ds_data);
     }
     else
@@ -491,7 +502,7 @@ int ImageManager::delete_image(int iid, string& error_str)
     switch (img->get_state())
     {
         case Image::READY:
-            if ( img->get_running() != 0 )
+            if ( img->get_running() != 0 && img->get_type() != Image::BACKUP)
             {
                 oss << "There are " << img->get_running() << " VMs using it.";
                 error_str = oss.str();
@@ -505,7 +516,6 @@ int ImageManager::delete_image(int iid, string& error_str)
             error_str = oss.str();
 
             return -1; //Cannot remove images in use
-        break;
 
         case Image::USED:
         case Image::USED_PERS:
@@ -515,7 +525,6 @@ int ImageManager::delete_image(int iid, string& error_str)
             error_str = oss.str();
 
             return -1; //Cannot remove images in use
-        break;
 
         case Image::INIT:
         case Image::DISABLED:
@@ -640,6 +649,12 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
         return -1;
     }
 
+    if (img->get_type() == Image::BACKUP)
+    {
+        oss_error << "Cannoe clone backup images";
+        return -1;
+    }
+
     Image::ImageState state = img->get_state();
 
     switch(state)
@@ -679,6 +694,12 @@ int ImageManager::set_clone_state(
     if (!img)
     {
         error = "Cannot clone image, it does not exist";
+        return -1;
+    }
+
+    if (img->get_type() == Image::BACKUP)
+    {
+        error = "Cannoe clone backup images";
         return -1;
     }
 
@@ -786,10 +807,6 @@ int ImageManager::register_image(int iid,
 
     ostringstream oss;
 
-    string        path;
-    string        img_tmpl;
-
-
     if ( imd == nullptr )
     {
         error = "Could not get datastore driver";
@@ -801,14 +818,16 @@ int ImageManager::register_image(int iid,
 
     if (!img)
     {
-        error = "Image deleted during copy operation";
+        error = "Image deleted during register operation";
         return -1;
     }
 
-    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
-    path    = img->get_path();
+    string img_tmpl;
+    string path = img->get_path();
 
-    if ( path.empty() == true ) //NO PATH
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, extra_data));
+
+    if ( path.empty() ) //NO PATH
     {
         string source = img->get_source();
 
@@ -868,6 +887,16 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     switch (Image::str_to_type(type_att))
     {
+        case Image::BACKUP:
+            if ( img_tmpl->get("SIZE", res) )
+            {
+                return 0;
+            }
+
+            res = "";
+
+            return -1;
+
         case Image::CDROM:
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -903,6 +932,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
             break;
 
         case Image::OS:
+        case Image::DATABLOCK:
             img_tmpl->get("SOURCE", res);
 
             if (!res.empty()) //SOURCE in Image
@@ -920,7 +950,6 @@ int ImageManager::stat_image(Template*     img_tmpl,
                 return 0;
             }
 
-        case Image::DATABLOCK:
             img_tmpl->get("PATH", res);
 
             if (res.empty())//no PATH, created using mkfs
@@ -1011,6 +1040,7 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
         case Image::RAMDISK:
         case Image::CONTEXT:
         case Image::CDROM:
+        case Image::BACKUP:
             return;
     }
 
@@ -1063,6 +1093,7 @@ void ImageManager::set_image_size(int iid, long long size)
         case Image::RAMDISK:
         case Image::CONTEXT:
         case Image::CDROM:
+        case Image::BACKUP:
             return;
     }
 
@@ -1107,6 +1138,8 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     if (auto ds = dspool->get_ro(ds_id))
     {
+        ds->decrypt();
+
         ds->to_xml(ds_data);
     }
     else
@@ -1125,6 +1158,13 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     if ( img == nullptr )
     {
         error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
+    {
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
+                "have snapshots.";
         return -1;
     }
 
@@ -1191,6 +1231,8 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     if (auto ds = dspool->get_ro(ds_id))
     {
+        ds->decrypt();
+
         ds->to_xml(ds_data);
     }
     else
@@ -1210,6 +1252,13 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     if ( img == nullptr )
     {
         error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
+    {
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
+                "have snapshots.";
         return -1;
     }
 
@@ -1278,6 +1327,8 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 
     if (auto ds = dspool->get_ro(ds_id))
     {
+        ds->decrypt();
+
         ds->to_xml(ds_data);
     }
     else
@@ -1297,6 +1348,13 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     if ( img == nullptr )
     {
         error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::OS && img->get_type() != Image::DATABLOCK )
+    {
+        error = "IMAGES of type KERNEL, RAMDISK, BACKUP and CONTEXT does not "
+                "have snapshots.";
         return -1;
     }
 
@@ -1335,3 +1393,87 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::restore_image(int iid, int dst_ds_id, const std::string& txml,
+    std::string& result)
+{
+    const auto* imd = get();
+    std::string image_data, ds_data;
+
+    int ds_id;
+
+    if ( imd == nullptr )
+    {
+        result = "Could not get datastore driver";
+
+        NebulaLog::log("ImM", Log::ERROR, result);
+        return -1;
+    }
+
+    if (auto img = ipool->get_ro(iid))
+    {
+        img->to_xml(image_data);
+
+        if ( img->get_type() != Image::BACKUP )
+        {
+            result = "Can only restore images of type BACKUP";
+            return -1;
+        }
+
+        ds_id = img->get_ds_id();
+    }
+    else
+    {
+        result = "Image does not exist";
+        return -1;
+    }
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds->decrypt();
+
+        ds->to_xml(ds_data);
+    }
+    else
+    {
+       result = "Datastore does not exist";
+       return -1;
+    }
+
+    if (auto ds = dspool->get_ro(dst_ds_id))
+    {
+        if ( ds->get_type() != Datastore:: IMAGE_DS )
+        {
+            result = "Destination can be only an image datastore";
+            return -1;
+        }
+    }
+    else
+    {
+       result = "Destination datastore does not exist";
+       return -1;
+    }
+
+    ostringstream oss;
+
+    oss << "<DESTINATION_DS_ID>" << dst_ds_id << "</DESTINATION_DS_ID>"
+        << txml;
+
+    SyncRequest sr;
+
+    add_request(&sr);
+
+    string drv_msg(format_message(image_data, ds_data, oss.str()));
+
+    image_msg_t msg(ImageManagerMessages::RESTORE, "", sr.id, drv_msg);
+
+    imd->write(msg);
+
+    sr.wait(180);
+
+    result = sr.message;
+
+    return sr.result ? 0 : -1;
+}

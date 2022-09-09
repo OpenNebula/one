@@ -212,19 +212,22 @@ end
 # Executes commands in a remote machine ussing ssh. See documentation
 # for GenericCommand
 class SSHCommand < GenericCommand
-    attr_accessor :host
+
+    attr_accessor :host, :ssh_opts
 
     # Creates a command and runs it
-    def self.run(command, host, logger=nil, stdin=nil, timeout=nil)
-        cmd=self.new(command, host, logger, stdin, timeout)
+    def self.run(command, host, logger=nil, stdin=nil, timeout=nil, ssh_opts='')
+        cmd=self.new(command, host, logger, stdin, timeout, ssh_opts)
         cmd.run
         cmd
     end
 
     # This one takes another parameter. +host+ is the machine
     # where the command is going to be executed
-    def initialize(command, host, logger=nil, stdin=nil, timeout=nil)
+    def initialize(command, host, logger=nil, stdin=nil, timeout=nil, ssh_opts='')
         @host=host
+        @ssh_opts = ssh_opts
+
         super(command, logger, stdin, timeout)
     end
 
@@ -232,10 +235,10 @@ private
 
     def execute
         if @stdin
-            capture3_timeout("ssh #{@host} #{@command}",
+            capture3_timeout("ssh #{@ssh_opts} #{@host} #{@command}",
                             :pgroup => true, :stdin_data => @stdin)
         else
-            capture3_timeout("ssh -n #{@host} #{@command}",
+            capture3_timeout("ssh -n #{@ssh_opts} #{@host} #{@command}",
                             :pgroup => true)
         end
     end

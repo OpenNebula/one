@@ -58,6 +58,7 @@ $LOAD_PATH << MAD_LOCATION
 require 'VirtualMachineDriver'
 require 'one_vnm'
 require 'one_tm'
+require 'one_datastore_exec'
 require 'getoptlong'
 require 'ssh_stream'
 require 'rexml/document'
@@ -140,6 +141,8 @@ class VmmAction
         end
 
         @tm = TransferManagerDriver.new(nil)
+
+        @ds = DatastoreExecDriver.new
     end
 
     # Execute a set of steps defined with
@@ -275,6 +278,11 @@ class VmmAction
                                              :parameters => params)
             when :tm
                 result, info = @tm.do_transfer_action(
+                    @id, step[:parameters], step[:stdin]
+                )
+
+            when :ds
+                result, info = @ds.do_datastore_action(
                     @id, step[:parameters], step[:stdin]
                 )
 
@@ -1295,6 +1303,75 @@ class ExecDriver < VirtualMachineDriver
                   ACTION[:resize],
                   :script_name => 'resize',
                   :stdin => xml_data.to_s)
+    end
+
+    def backup(id, drv_message)
+        aname    = ACTION[:backup]
+        xml_data = decode(drv_message)
+
+        action   = VmmAction.new(self, id, :backup, drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, aname, 'TM_COMMAND') || return
+        bck_mad    = ensure_xpath(xml_data, id, aname,
+                                  'DATASTORE/DS_MAD') || return
+
+        pre_tm  = tm_command.split
+        post_tm = pre_tm.clone
+
+        pre_tm[0]  = "PRE#{pre_tm[0]}"
+        post_tm[0] = "POST#{post_tm[0]}"
+        pre_name   = :prebackup
+        post_name  = :postbackup
+
+        state = xml_data.elements['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE'].text
+
+        if state == '69'
+            pre_tm[0]  = "#{pre_tm[0]}_LIVE"
+            post_tm[0] = "#{post_tm[0]}_LIVE"
+
+            pre_name   = :prebackup_live
+            post_name  = :postbackup_live
+        end
+
+        ds_command = ['BACKUP', bck_mad].concat(pre_tm[2..-1])
+
+        vm_xml = xml_data.elements['/VMM_DRIVER_ACTION_DATA/VM']
+
+        # Backup operation steps
+        # TODO: failover steps
+        steps = [
+            # Generate backup files for VM disks
+            {
+                :driver     => :tm,
+                :action     => pre_name,
+                :parameters => pre_tm,
+                :stdin      => vm_xml
+            },
+            # Upload backup files to repo
+            {
+                :driver     => :ds,
+                :action     => :backup,
+                :parameters => ds_command,
+                :stdin      => xml_data.elements['DATASTORE'].to_s,
+                :fail_actions => [
+                    {
+                        :driver     => :tm,
+                        :action     => post_name,
+                        :parameters => post_tm,
+                        :stdin      => vm_xml
+                    }
+                ]
+            },
+            # Cleanup backup and tmp files
+            {
+                :driver     => :tm,
+                :action     => post_name,
+                :parameters => post_tm,
+                :stdin      => vm_xml
+            }
+        ]
+
+        action.run(steps)
     end
 
     private

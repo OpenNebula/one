@@ -56,7 +56,8 @@ module OpenNebula
             :scheddelete    => "vm.scheddelete",
             :schedupdate    => "vm.schedupdate",
             :attachsg       => "vm.attachsg",
-            :detachsg       => "vm.detachsg"
+            :detachsg       => "vm.detachsg",
+            :backup         => "vm.backup"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -132,6 +133,8 @@ module OpenNebula
             HOTPLUG_RESIZE
             HOTPLUG_SAVEAS_UNDEPLOYED
             HOTPLUG_SAVEAS_STOPPED
+            BACKUP
+            BACKUP_POWEROFF
         }
 
         SHORT_VM_STATES={
@@ -216,7 +219,9 @@ module OpenNebula
             "HOTPLUG_NIC_POWEROFF"   => "hotp",
             "HOTPLUG_RESIZE"         => "hotp",
             "HOTPLUG_SAVEAS_UNDEPLOYED"  => "hotp",
-            "HOTPLUG_SAVEAS_STOPPED"     => "hotp"
+            "HOTPLUG_SAVEAS_STOPPED"     => "hotp",
+            "BACKUP"            => "back",
+            "BACKUP_POWEROFF"   => "back",
         }
 
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
@@ -228,6 +233,7 @@ module OpenNebula
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
             disk-snapshot-revert recover retry monitor disk-snapshot-rename
             alias-attach alias-detach poweroff-migrate poweroff-hard-migrate
+            backup
             }
 
         EXTERNAL_IP_ATTRS = [
@@ -777,6 +783,15 @@ module OpenNebula
         def sched_action_update(sched_id, sched_template)
             return call(VM_METHODS[:schedupdate], @pe_id, sched_id.to_i,
                 sched_template)
+        end
+
+        # Generate a backup for the VM (backup config must be set)
+        #
+        # @param ds_id  [Integer] Id of the datastore to save the backup
+        # @return [Integer, OpenNebula::Error] ID of the resulting BACKUP image
+        # in case of success, Error otherwise.
+        def backup(ds_id)
+            return @client.call(VM_METHODS[:backup], @pe_id, ds_id)
         end
 
         ########################################################################

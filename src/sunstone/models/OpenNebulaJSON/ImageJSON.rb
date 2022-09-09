@@ -65,6 +65,7 @@ module OpenNebulaJSON
                  when "snapshot_delete"     then self.snapshot_delete(action_hash['params'])
                  when "lock"         then lock(action_hash['params']['level'].to_i)
                  when "unlock"       then unlock()
+                 when "restore"      then restore(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -136,6 +137,11 @@ module OpenNebulaJSON
 
         def snapshot_delete(params=Hash.new)
             super(params['snapshot_id'].to_i)
+        end
+
+        def restore(params=Hash.new)
+            restore_opts = params['restore_opts'] || ""
+            super(params['dst_id'].to_i, restore_opts)
         end
     end
 end

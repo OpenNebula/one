@@ -34,7 +34,8 @@ source_files=[
     'VirtualMachineContext.cc',
     'VirtualMachineMonitorInfo.cc',
     'VMActions.cc',
-    'Snapshots.cc'
+    'Snapshots.cc',
+    'Backups.cc'
 ]
 
 # Build library

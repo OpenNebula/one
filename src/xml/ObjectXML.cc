@@ -259,6 +259,32 @@ int ObjectXML::get_nodes(const string& xpath_expr,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::count_nodes(const string& xpath_expr) const
+{
+    xmlXPathObjectPtr obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
+
+    if (obj == 0)
+    {
+        return 0;
+    }
+
+    if (obj->nodesetval == 0)
+    {
+        xmlXPathFreeObject(obj);
+        return 0;
+    }
+
+    int num_nodes = obj->nodesetval->nodeNr;
+
+    xmlXPathFreeObject(obj);
+
+    return num_nodes;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::add_node(
         const char *    xpath_expr,
         xmlNodePtr      node,

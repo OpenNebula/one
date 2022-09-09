@@ -182,6 +182,27 @@ protected:
                          RequestAttributes& att) override;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageRestore : public RequestManagerImage
+{
+public:
+    ImageRestore():
+        RequestManagerImage("one.image.restore",
+                "Restores a VM backup", "A:siis")
+    {
+        auth_op = AuthRequest::USE;
+    };
+
+    ~ImageRestore(){};
+
+protected:
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
