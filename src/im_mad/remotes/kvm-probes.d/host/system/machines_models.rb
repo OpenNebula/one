@@ -107,7 +107,8 @@ begin
         domcap_xml = REXML::Document.new(domcapabilities)
         domcap_xml = domcap_xml.root
 
-        cpu_mode_custom_elem = domcap_xml.elements["cpu/mode[@name='custom',@supported='yes']"]
+        cpu_mode_xpath = "cpu/mode[@name='custom',@supported='yes']"
+        cpu_mode_custom_elem = domcap_xml.elements[cpu_mode_xpath]
 
         cpu_mode_custom_elem.elements.each("model[@usable='no']") do |m|
             models.delete(m.text)
