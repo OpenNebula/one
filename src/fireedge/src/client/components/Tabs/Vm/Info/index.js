@@ -31,7 +31,7 @@ import {
 } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Vm/Info/information'
 import Capacity from 'client/components/Tabs/Vm/Info/capacity'
-import Graphs from 'client/components/Tabs/Vm/Info/graphs'
+import Graphs from 'client/components/Tabs/Vm/Info/Graphs'
 import { SubmitButton } from 'client/components/FormControl'
 
 import { Tr, Translate } from 'client/components/HOC'
