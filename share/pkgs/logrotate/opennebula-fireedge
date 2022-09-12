@@ -3,6 +3,7 @@
     dateext
     dateformat -%Y%m%d-%s
     compress
+    maxsize 100M
     weekly
     rotate 52
     missingok

@@ -37,7 +37,6 @@ do_start()
     service opennebula-novnc start
     mkdir -p /var/run/one /var/lock/one /var/log/one
     chown oneadmin /var/run/one /var/lock/one /var/log/one
-    logrotate -f /etc/logrotate.d/opennebula-sunstone
     su oneadmin -s /bin/sh -c "$DAEMON start-sunstone"
 }
 
