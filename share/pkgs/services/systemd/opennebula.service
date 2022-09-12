@@ -14,7 +14,6 @@ Group=oneadmin
 User=oneadmin
 Environment="PATH=/usr/lib/one/sh/override:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 EnvironmentFile=-/var/run/one/ssh-agent.env
-ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/oned -f
 ExecStopPost=/usr/share/one/follower_cleanup
 PIDFile=/var/lock/one/one

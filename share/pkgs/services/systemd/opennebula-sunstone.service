@@ -10,7 +10,6 @@ Type=simple
 Group=oneadmin
 User=oneadmin
 AmbientCapabilities=CAP_NET_BIND_SERVICE
-ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-sunstone -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
 ReadWriteDirectories=/var/lib/one /var/log/one/
 ReadOnlyDirectories=-/var/lib/one/remotes

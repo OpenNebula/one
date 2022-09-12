@@ -38,7 +38,6 @@ do_start()
 {
     mkdir -p /var/run/one /var/lock/one
     chown oneadmin /var/run/one /var/lock/one
-    logrotate -f /etc/logrotate.d/opennebula /etc/logrotate.d/opennebula-scheduler
     su oneadmin -s /bin/sh -c 'one start'
     ONE_START=$?
 
@@ -66,7 +65,6 @@ do_stop()
 
 do_start_sched()
 {
-    logrotate -f /etc/logrotate.d/opennebula-scheduler
     su oneadmin -s /bin/sh -c 'one start-sched'
 }
 
