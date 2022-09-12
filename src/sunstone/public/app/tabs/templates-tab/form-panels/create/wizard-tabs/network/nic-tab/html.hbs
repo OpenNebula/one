@@ -325,9 +325,13 @@
     <div class="row">
       <div class="small-12 columns">
         <label>
-          <input type="checkbox" class="pci-type-nic"/>
-          {{tr "PCI passthrough"}}
+          {{tr "Virtual NIC hardware mode"}}
         </label>
+        <select class="pci-type-nic">
+          <option value="emulated">{{tr "Emulated"}}</option>
+          <option value="pci-auto">{{tr "PCI passthrough - Automatic"}}</option>
+          <option value="pci-manual">{{tr "PCI passthrough - Manual"}}</option>
+        </select>
       </div>
     </div>
     <div class="row nic-model-row">
@@ -360,6 +364,14 @@
           <tbody>
           </tbody>
         </table>
+      </div>
+    </div>
+    <div class="row pci-manual-row">
+      <div class="medium-6 columns not_lxc">
+        <label for="SHORT_ADDRESS">
+          {{tr "Short address"}}
+        </label>
+        <input type="text" wizard_field="SHORT_ADDRESS" id="SHORT_ADDRESS" name="SHORT_ADDRESS" />
       </div>
     </div>
   </fieldset>

@@ -313,29 +313,30 @@ define(function(require) {
         var is_pci = (nic.PCI_ID != undefined);
 
         var actions = "";
+
         // Attach / Detach
-        if (!is_pci){
-          if ( 
-            that.element.STATE == OpenNebulaVM.STATES.ACTIVE && (
-              that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ||
-              that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF
-            )
-          ) {
-            actions = Locale.tr("attach/detach in progress");
-          } else {
+        if ( 
+          that.element.STATE == OpenNebulaVM.STATES.ACTIVE && (
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF
+          )
+        ) {
+          actions = Locale.tr("attach/detach in progress");
+        } else {
 
-            if(Config.isTabActionEnabled("vms-tab", "VM.detachnic")){
-              var icon = $("<i/>",{class:"fas fa-times"});
-              var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
-              var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
-              actions +=  (validateAction(that,"VM.detachnic"))
-                ? (isFirecracker(that)
-                  ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
-                  : anchor.get(0).outerHTML
-                  )
-                : "";
-            }
+          if(Config.isTabActionEnabled("vms-tab", "VM.detachnic")){
+            var icon = $("<i/>",{class:"fas fa-times"});
+            var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
+            var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
+            actions +=  (validateAction(that,"VM.detachnic"))
+              ? (isFirecracker(that)
+                ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
+                : anchor.get(0).outerHTML
+                )
+              : "";
+          }
 
+          if (!is_pci){
             if(Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
               var icon = $("<i/>",{class:"fas fa-shield-alt"});
               var anchorAttributes = {class: "attachsg", style: "padding-left: 1em"};

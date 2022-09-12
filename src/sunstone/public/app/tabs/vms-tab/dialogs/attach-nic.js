@@ -94,16 +94,29 @@ define(function(require) {
         templateJSON.RDP = "YES";
       }
 
-      if($("#cb_attach_alias", context).prop("checked")) {
-        templateJSON.PARENT = $("#parent").val();
-        
-        var obj = {
-            "NIC_ALIAS": templateJSON
+      var obj = undefined
+
+      if (['pci-auto','pci-manual'].includes($("select.pci-type-nic", context).val())){
+        var pciObj = $.extend({
+          'TYPE': 'NIC',
+        }, templateJSON);
+
+        obj = {
+          "PCI": pciObj
         };
-      } else {
-        var obj = {
-            "NIC": templateJSON
-        };
+      }
+      else{
+        if($("#cb_attach_alias", context).prop("checked")) {
+          templateJSON.PARENT = $("#parent").val();
+          
+          obj = {
+              "NIC_ALIAS": templateJSON
+          };
+        } else {
+          obj = {
+              "NIC": templateJSON
+          };
+        }
       }
 
       if(selectedNetwork){

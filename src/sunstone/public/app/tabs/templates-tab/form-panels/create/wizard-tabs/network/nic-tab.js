@@ -113,9 +113,10 @@ define(function(require) {
     var that = this;
     that.context = context;
 
-    if (options != undefined && options.hide_pci == true){
-      $("input.pci-type-nic", context).attr('disabled', 'disabled');
-    }
+    //check
+    // if (options != undefined && options.hide_pci == true){
+    //   $("select.pci-type-nic", context).attr('disabled', 'disabled');
+    // }
 
     if (options != undefined && options.hide_auto == true){
       $(".only_create", context).hide();
@@ -223,29 +224,48 @@ define(function(require) {
       options.clustersTable.dataTable.children('tbody').on('click', 'tr', updateRowSelected)
     }
 
-    $("input.pci-type-nic", context).on("change", function(){
+    $("select.pci-type-nic", context).on("change", function(){
+      var option = $(this).val()
       var tbody = $(".pci-row tbody", context);
 
-      if ($(this).prop('checked')){
-        $("input[wizard_field=MODEL]", context).prop("disabled", true).prop('wizard_field_disabled', true);
-        $(".nic-model-row", context).hide();
-        $(".pci-row", context).show();
+      switch (option) {
+        case "emulated":
+          $("input[wizard_field=MODEL]", context).removeAttr('disabled').prop('wizard_field_disabled', false);
+          $("input[wizard_field=SHORT_ADDRESS]", context).prop("disabled", true).prop('wizard_field_disabled', true);
+          $(".nic-model-row", context).show();
+          $(".pci-row", context).hide();
+          $(".pci-manual-row", context).hide();
 
-        tbody.html( CreateUtils.pciRowHTML() );
+          tbody.html("");
+          break;
+        case "pci-auto":
+          $("input[wizard_field=MODEL]", context).prop("disabled", true).prop('wizard_field_disabled', true);
+          $("input[wizard_field=SHORT_ADDRESS]", context).prop("disabled", true).prop('wizard_field_disabled', true);
+          $(".nic-model-row", context).hide();
+          $(".pci-row", context).show();
+          $(".pci-manual-row", context).hide();
 
-        CreateUtils.fillPCIRow({tr: $('tr', tbody), remove: false});
-      } else {
-        $("input[wizard_field=MODEL]", context).removeAttr('disabled').prop('wizard_field_disabled', false);
-        $(".nic-model-row", context).show();
-        $(".pci-row", context).hide();
+          tbody.html( CreateUtils.pciRowHTML() );
 
-        tbody.html("");
+          CreateUtils.fillPCIRow({tr: $('tr', tbody), remove: false});
+          break;      
+        case "pci-manual":
+          $("input[wizard_field=MODEL]", context).prop("disabled", true).prop('wizard_field_disabled', true);
+          $("input[wizard_field=SHORT_ADDRESS]", context).removeAttr('disabled').prop('wizard_field_disabled', false);
+          $(".nic-model-row", context).hide();
+          $(".pci-row", context).hide();
+          $(".pci-manual-row", context).show();
+
+          tbody.html( CreateUtils.pciRowHTML() );
+
+          CreateUtils.fillPCIRow({tr: $('tr', tbody), remove: false});
+          break;
       }
     });
 
     CreateUtils.setupPCIRows($(".pci-row", context));
 
-    $("input.pci-type-nic", context).change();
+    $("select.pci-type-nic", context).change();
 
     if (!Config.isAdvancedEnabled("show_attach_nic_advanced")){
       $("#nic_values", context).hide();
@@ -404,7 +424,7 @@ define(function(require) {
       nicJSON["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
-    if ($("input.pci-type-nic", context).prop("checked")){
+    if (['pci-auto','pci-manual'].includes($("select.pci-type-nic", context).val())){
       nicJSON["NIC_PCI"] = true;
     }
 
@@ -497,7 +517,12 @@ define(function(require) {
     }
 
     if (templateJSON["TYPE"] == "NIC"){
-      $("input.pci-type-nic", context).click();
+      if (templateJSON["SHORT_ADDRESS"]){
+        $("select.pci-type-nic", context).val('pci-manual').change();
+      }
+      else {
+        $("select.pci-type-nic", context).val('pci-auto').change();
+      }
     }
 
     if ( templateJSON["NETWORK_MODE"] && templateJSON["NETWORK_MODE"] === "auto" ) {
