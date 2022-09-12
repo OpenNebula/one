@@ -58,7 +58,6 @@ include VirtualMachineManagerKVM
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-#load_env("#{__dir__}/../../etc/vmm/kvm/kvmrc")
 load_local_env
 
 domain = ARGV[0]
@@ -72,14 +71,14 @@ else
 end
 
 script =<<~EOS
-#{virsh} attach-device #{domain} <(
-cat <<EOT
-#{dev_xml}
-EOT
-)
+    #{virsh} attach-device #{domain} <(
+    cat <<EOT
+    #{dev_xml}
+    EOT
+    )
 EOS
 
-rc, _out, err = Command.execute("bash -s", false, 0, :stdin_data => script)
+rc, _out, err = Command.execute('bash -s', false, 0, :stdin_data => script)
 
 if rc != 0
     STDERR.puts "Could not attach NIC to #{domain}: #{err}"

@@ -61,14 +61,14 @@ include VirtualMachineManagerKVM
 # ------------------------------------------------------------------------------
 def attached?(dom, mac)
     cmd = "#{virsh} domiflist #{dom} | grep #{mac} > /dev/null 2>&1"
-    rc, _o, _e  = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+    rc, _o, _e = Command.execute('bash -s', false, 0, :stdin_data => cmd)
 
     rc == 0
 end
 
 def detach_interface(dom, mac)
     cmd = "#{virsh} detach-interface --domain #{dom} --type bridge --mac #{mac}"
-    rc, _o, e  = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+    rc, _o, e = Command.execute('bash -s', false, 0, :stdin_data => cmd)
 
     STDERR.puts "Error detaching interface (#{mac}): #{e}" if rc != 0
 
@@ -79,27 +79,25 @@ def detach_nic(dom, mac)
     tries = ENV['VIRSH_RETRIES']
     tries ||= 3
 
-    rc = tries.to_i.times do
+    tries.to_i.times do
         detach_interface(dom, mac)
 
         break 0 unless attached?(dom, mac)
     end
-
-    rc
 end
 
 def detach_pci(dom, vm)
     dev_xml = vm.hostdev_xml(true)
 
     cmd =<<~EOS
-      #{virsh} detach-device #{dom} <(
-      cat <<EOT
-      #{dev_xml}
-      EOT
-      )
+        #{virsh} detach-device #{dom} <(
+        cat <<EOT
+        #{dev_xml}
+        EOT
+        )
     EOS
 
-    rc, _o, e = Command.execute("bash -s", false, 0, :stdin_data => cmd)
+    rc, _o, e = Command.execute('bash -s', false, 0, :stdin_data => cmd)
 
     if rc != 0
         STDERR.puts "Could not attach NIC to #{dom}: #{e}"
@@ -110,7 +108,6 @@ end
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-#load_env("#{__dir__}/../../etc/vmm/kvm/kvmrc")
 load_local_env
 
 domain = ARGV[0]

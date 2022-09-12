@@ -62,11 +62,12 @@ module VNMMAD::VirtualFunction
             end
         end
 
+        # rubocop:disable Style/CombinableLoops
         vm.each_pci do |pci|
             next if pci[:short_address].nil?
             next if is_attach && pci[:attach] != 'YES'
 
-            #Look for the associated PF
+            # Look for the associated PF
             cmd = "find /sys/devices -type l -name 'virtfn*' -printf '%p#'"\
                 " -exec readlink -f '{}' \\;"
 
@@ -81,9 +82,12 @@ module VNMMAD::VirtualFunction
 
                 virtfn, _vf = line.split('#')
 
-                #Matched line is in the form:
-                #virtfn /sys/devices/pci0000:80/0000:80:03.2/0000:85:00.0/virtfn3
-                #_vf    /sys/devices/pci0000:80/0000:80:03.2/0000:85:02.3
+                # rubocop:disable Layout/LineLength
+                # Matched line is in the form:
+                # virtfn /sys/devices/pci0000:80/0000:80:03.2/0000:85:00.0/virtfn3
+                # _vf    /sys/devices/pci0000:80/0000:80:03.2/0000:85:02.3
+                # rubocop:enable Layout/LineLength
+
                 m = virtfn.match(/virtfn([0-9]+)/)
 
                 next if m.nil?
@@ -102,6 +106,8 @@ module VNMMAD::VirtualFunction
                 OpenNebula.exec_and_log(cmd)
             end
         end
+        # rubocop:enable Style/CombinableLoops
     end
+
 end
 # rubocop:enable Style/ClassAndModuleChildren

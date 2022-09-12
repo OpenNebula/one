@@ -917,9 +917,9 @@ CommandParser::CmdParser.new(ARGV) do
             nic_alias  = options[:alias]
             nic_name   = options[:nic_name]
 
-            is_pci = [:pci, :pci_device, :pci_vendor, :pci_class].any? { |o|
+            is_pci = [:pci, :pci_device, :pci_vendor, :pci_class].any? do |o|
                 !options[o].nil?
-            }
+            end
 
             if is_pci
                 pcia = options[:pci]
@@ -927,7 +927,7 @@ CommandParser::CmdParser.new(ARGV) do
                 pcic = options[:pci_class]
                 pciv = options[:pci_vendor]
 
-                template  = "PCI = [ TYPE = NIC"
+                template  = 'PCI = [ TYPE = NIC'
                 template << ", NETWORK_ID    = #{network_id}"
                 template << ", SHORT_ADDRESS = \"#{pcia}\"" if pcia
                 template << ", DEVICE        = \"#{pcid}\"" if pcid
@@ -942,7 +942,7 @@ CommandParser::CmdParser.new(ARGV) do
 
             template << ", IP   = #{ip}" if ip
             template << ", NAME = #{nic_name}" if nic_name
-            template << "]"
+            template << ']'
         end
 
         helper.perform_action(args[0], options, 'Attaching NIC') do |vm|
