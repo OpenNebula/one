@@ -16,17 +16,14 @@
 import { ReactElement } from 'react'
 import { Grid } from '@mui/material'
 import PropTypes from 'prop-types'
-import { DateTime } from 'luxon'
 
 import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
 import { Chartist } from 'client/components/Charts'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const interpolationHour = (value) =>
-  DateTime.fromMillis(value).toFormat('HH:mm')
 const interpolationBytesSeg = (value) => `${value}B/s`
-const interpolationY = (value) => `${value}B`
+const interpolationBytes = (value) => `${value}B`
 
 /**
  * Render Graphs Capacity.
@@ -40,42 +37,46 @@ const Graphs = ({ id }) => {
 
   return (
     <Grid container spacing={1}>
-      <Chartist
-        name={Tr(T.NetRX)}
-        filter={['NETRX']}
-        data={monitoring}
-        y="NETRX"
-        x="TIMESTAMP"
-        interpolationX={interpolationHour}
-        interpolationY={interpolationY}
-      />
-      <Chartist
-        name={Tr(T.NetTX)}
-        filter={['NETTX']}
-        data={monitoring}
-        y="NETTX"
-        x="TIMESTAMP"
-        interpolationY={interpolationY}
-        interpolationX={interpolationHour}
-      />
-      <Chartist
-        name={Tr(T.NetDownloadSpeed)}
-        filter={['NETRX']}
-        data={monitoring}
-        y="NETRX"
-        x="TIMESTAMP"
-        interpolationX={interpolationHour}
-        interpolationY={interpolationBytesSeg}
-      />
-      <Chartist
-        name={Tr(T.NetUploadSpeed)}
-        filter={['NETTX']}
-        data={monitoring}
-        y="NETTX"
-        x="TIMESTAMP"
-        interpolationX={interpolationHour}
-        interpolationY={interpolationBytesSeg}
-      />
+      <Grid item xs={12} sm={6}>
+        <Chartist
+          name={Tr(T.NetRX)}
+          filter={['NETRX']}
+          data={monitoring}
+          y="NETRX"
+          x="TIMESTAMP"
+          interpolationY={interpolationBytes}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Chartist
+          name={Tr(T.NetTX)}
+          filter={['NETTX']}
+          data={monitoring}
+          y="NETTX"
+          x="TIMESTAMP"
+          interpolationY={interpolationBytes}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Chartist
+          name={Tr(T.NetDownloadSpeed)}
+          filter={['NETRX']}
+          data={monitoring}
+          y="NETRX"
+          x="TIMESTAMP"
+          interpolationY={interpolationBytesSeg}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Chartist
+          name={Tr(T.NetUploadSpeed)}
+          filter={['NETTX']}
+          data={monitoring}
+          y="NETTX"
+          x="TIMESTAMP"
+          interpolationY={interpolationBytesSeg}
+        />
+      </Grid>
     </Grid>
   )
 }

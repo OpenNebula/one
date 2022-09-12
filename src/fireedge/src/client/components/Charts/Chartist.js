@@ -15,10 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { JSXElementConstructor, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import 'chartist/dist/chartist.min.css'
 
 import {
-  Grid,
   CircularProgress,
   Stack,
   Paper,
@@ -26,20 +24,21 @@ import {
   ListItem,
   Typography,
 } from '@mui/material'
-import ChartistGraph from 'react-chartist'
-import { FixedScaleAxis } from 'chartist'
+import {
+  Chart,
+  ArgumentAxis,
+  ValueAxis,
+  LineSeries,
+  ZoomAndPan,
+} from '@devexpress/dx-react-chart-material-ui'
+import { scaleTime } from 'd3-scale'
+import { ArgumentScale, ValueScale } from '@devexpress/dx-react-chart'
 import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles(({ palette, typography }) => ({
   graphStyle: {
-    '& .ct-series-a .ct-bar, .ct-series-a .ct-line, .ct-series-a .ct-point, .ct-series-a .ct-slice-donut':
-      { stroke: palette.secondary.main, strokeWidth: '1px' },
-    '& .ct-grid': {
-      stroke: 'rgba(150,150,150,.1)',
-      strokeDasharray: '1px',
-    },
     '&': {
-      width: '100%',
+      width: '100% !important',
     },
   },
   box: {
@@ -49,6 +48,11 @@ const useStyles = makeStyles(({ palette, typography }) => ({
     fontWeight: typography.fontWeightBold,
     borderBottom: `1px solid ${palette.divider}`,
   },
+  center: {
+    fontWeight: typography.fontWeightBold,
+    borderBottom: `1px solid ${palette.divider}`,
+    justifyContent: 'center',
+  },
 }))
 
 /**
@@ -56,87 +60,68 @@ const useStyles = makeStyles(({ palette, typography }) => ({
  *
  * @param {object} props - Props
  * @param {object[]} props.data - Chart data
- * @param {Function} props.interpolationX - Chartist interpolation X
- * @param {Function} props.interpolationY - Chartist interpolation Y
  * @param {string} props.name - Chartist name
  * @param {string} props.filter - Chartist filter
  * @param {string} props.x - Chartist X
  * @param {string} props.y - Chartist X
+ * @param {Function} props.interpolationY - Chartist interpolation Y
  * @returns {JSXElementConstructor} Chartist component
  */
 const Chartist = ({
   data = [],
-  interpolationX,
-  interpolationY,
   name = '',
   filter = [],
   x = '',
   y = '',
+  interpolationY = (value) => value,
 }) => {
   const classes = useStyles()
 
-  const chartOptions = {
-    fullWidth: true,
-    reverseData: true,
-    low: 0,
-    scaleMinSpace: 10,
-    axisX: {
-      type: FixedScaleAxis,
-      divisor: 10,
-    },
-    axisY: {
-      offset: 70,
-    },
-  }
-
-  const dataChart = {
-    name,
-  }
-
-  typeof interpolationX === 'function' &&
-    (chartOptions.axisX.labelInterpolationFnc = interpolationX)
-
-  typeof interpolationY === 'function' &&
-    (chartOptions.axisY.labelInterpolationFnc = interpolationY)
-
-  filter?.length &&
-    (dataChart.data = useMemo(
-      () =>
-        data
-          ?.filter((point) =>
-            Object.keys(point).find((key) => filter.includes(key))
-          )
-          .map((point) => ({
-            x: +point[x],
-            y: +point[y],
-          })),
-      [data]
-    ))
+  const dataChart = filter?.length
+    ? useMemo(
+        () =>
+          data
+            ?.filter(
+              (point) =>
+                !!Object.keys(point).find((key) => filter.includes(key))
+            )
+            .map((point, i) => ({
+              x: x === 'TIMESTAMP' ? new Date(+point[x] * 1000) : +point[x],
+              y: Math.round(+point[y]),
+            })),
+        [data]
+      )
+    : []
 
   return (
-    <Grid item xs={12} sm={6}>
-      {!data?.length ? (
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <CircularProgress color="secondary" />
-        </Stack>
-      ) : (
-        <Paper variant="outlined" sx={{ height: 'fit-content' }}>
-          <List className={classes.box}>
-            <ListItem className={classes.title}>
-              <Typography noWrap>{name}</Typography>
-            </ListItem>
-            <ListItem className={classes.title}>
-              <ChartistGraph
-                className={classes.graphStyle}
-                data={{ series: [dataChart] }}
-                options={chartOptions}
-                type="Line"
-              />
-            </ListItem>
-          </List>
-        </Paper>
-      )}
-    </Grid>
+    <Paper variant="outlined" sx={{ height: 'fit-content' }}>
+      <List className={classes.box}>
+        <ListItem className={classes.title}>
+          <Typography noWrap>{name}</Typography>
+        </ListItem>
+        <ListItem className={classes.center}>
+          {!data?.length ? (
+            <Stack direction="row" justifyContent="center" alignItems="center">
+              <CircularProgress color="secondary" />
+            </Stack>
+          ) : (
+            <Chart
+              data={dataChart}
+              height={300}
+              width={500}
+              className={classes.graphStyle}
+            >
+              <ArgumentScale factory={scaleTime} />
+              <ArgumentAxis showLine={true} />
+              <ValueScale />
+              <ValueAxis showLine={true} tickFormat={() => interpolationY} />
+              <LineSeries name={name} valueField="y" argumentField="x" />
+              <ZoomAndPan />
+            </Chart>
+          )}
+        </ListItem>
+      </List>
+    </Paper>
   )
 }
 
@@ -160,7 +145,6 @@ Chartist.propTypes = {
   ),
   x: PropTypes.string,
   y: PropTypes.string,
-  interpolationX: PropTypes.func,
   interpolationY: PropTypes.func,
 }
 

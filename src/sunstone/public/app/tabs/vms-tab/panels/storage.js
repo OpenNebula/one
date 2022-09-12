@@ -125,7 +125,7 @@ define(function(require) {
               </div>\
               <div class="medium-6 columns">\
                 <div class="row">\
-                  <span>' + Locale.tr("Disk write bytes") + '</span3>\
+                  <span>' + Locale.tr("Disk write bytes") + '</span>\
                 </div>\
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwb_graph" style="height: 100px;">\
