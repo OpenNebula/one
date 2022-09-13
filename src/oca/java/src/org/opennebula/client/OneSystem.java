@@ -101,7 +101,7 @@ public class OneSystem
             DocumentBuilder builder =
                 DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(
-                new ByteArrayInputStream(r.getMessage().getBytes()));
+                new ByteArrayInputStream(r.getMessage().getBytes("UTF-8")));
 
             xml = doc.getDocumentElement();
         }
@@ -140,7 +140,7 @@ public class OneSystem
             DocumentBuilder builder =
                 DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(
-                new ByteArrayInputStream(r.getMessage().getBytes()));
+                new ByteArrayInputStream(r.getMessage().getBytes("UTF-8")));
 
             xml = doc.getDocumentElement();
         }
@@ -190,7 +190,7 @@ public class OneSystem
             DocumentBuilder builder =
                 DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(
-                new ByteArrayInputStream(r.getMessage().getBytes()));
+                new ByteArrayInputStream(r.getMessage().getBytes("UTF-8")));
 
             xml = doc.getDocumentElement();
         }

@@ -190,7 +190,7 @@ public abstract class Pool{
 
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             doc = builder.parse(
-                new ByteArrayInputStream(info.getMessage().getBytes()));
+                new ByteArrayInputStream(info.getMessage().getBytes("UTF-8")));
             xml = doc.getDocumentElement();
 
             poolElements = (NodeList) xpath.evaluate(elementName, xml, XPathConstants.NODESET);

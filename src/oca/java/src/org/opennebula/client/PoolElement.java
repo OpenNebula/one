@@ -93,7 +93,7 @@ public abstract class PoolElement {
             DocumentBuilder builder =
                 DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(
-                new ByteArrayInputStream(info.getMessage().getBytes()));
+                new ByteArrayInputStream(info.getMessage().getBytes("UTF-8")));
 
             xml = doc.getDocumentElement();
         }
