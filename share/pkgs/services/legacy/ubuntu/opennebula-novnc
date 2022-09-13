@@ -35,7 +35,6 @@ do_start()
 {
     mkdir -p /var/lock/one /var/log/one
     chown oneadmin /var/lock/one /var/log/one
-    logrotate -f /etc/logrotate.d/opennebula-novnc
     su oneadmin -s /bin/sh -c "$DAEMON start"
 }
 
