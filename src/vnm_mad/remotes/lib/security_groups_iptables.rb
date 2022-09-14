@@ -696,7 +696,7 @@ module SGIPTables
             next if chain_in_jumps.empty?
 
             n = chain_in_jumps[-1].split[0].to_i + insert_shift
-            commands.add :iptables,
+            commands.add :ip6tables,
                          "-I #{GLOBAL_CHAIN} #{n+1} "\
                          "-d #{nic[ip6]} -j #{vars[:chain_in]}"
             insert_shift += 1
