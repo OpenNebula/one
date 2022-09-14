@@ -413,7 +413,11 @@ module SGIPTables
 
             [:ip6, :ip6_global, :ip6_ula].each do |ip6|
                 if !nic[ip6].nil?
-                    nri6s << "-I #{GLOBAL_CHAIN} -d #{nic[ip6]} -j #{chain_in}"
+                    ipv6 = nic[ip6]
+                    ipv6 += "/#{nic[:ip6_prefix_length]}"\
+                        if ip6 == :ip6 && !nic[:ip6_prefix_length].nil?\
+                            && !nic[:ip6_prefix_length].empty?
+                    nri6s << "-I #{GLOBAL_CHAIN} -d #{ipv6} -j #{chain_in}"
                 end
             end
 
@@ -425,7 +429,11 @@ module SGIPTables
 
                 [:ip6, :ip6_global, :ip6_ula].each do |ip6|
                     if !nic_alias[ip6].nil?
-                        nri6s << "-I #{GLOBAL_CHAIN} -d #{nic_alias[ip6]} "\
+                        ipv6 = nic_alias[ip6]
+                        ipv6 += "/#{nic_alias[:ip6_prefix_length]}"\
+                            if ip6 == :ip6 && !nic_alias[:ip6_prefix_length].nil?\
+                                && !nic_alias[:ip6_prefix_length].empty?
+                        nri6s << "-I #{GLOBAL_CHAIN} -d #{ipv6} "\
                                  "-j #{chain_in}"
                     end
                 end
@@ -510,17 +518,28 @@ module SGIPTables
             ipv6s = Array.new
 
             [:ip6, :ip6_global, :ip6_link, :ip6_ula, :vrouter_ip6, :vrouter_ip6_global, :vrouter_ip6_link, :vrouter_ip6_ula].each do |key|
-                ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
+                if !nic[key].nil? && !nic[key].empty?
+                    ipv6 = nic[key]
+                    ipv6 += "/#{nic[:ip6_prefix_length]}"\
+                            if key == :ip6 && !nic[:ip6_prefix_length].nil?\
+                                && !nic[:ip6_prefix_length].empty?
+                    ipv6s << ipv6
+                end
 
                 vars[:nics_alias].each do |nic_alias|
-                    ipv6s << nic_alias[key] \
-                        if !nic_alias[key].nil? && !nic_alias[key].empty?
+                    if !nic_alias[key].nil? && !nic_alias[key].empty?
+                        ipv6 = nic_alias[key]
+                        ipv6 += "/#{nic_alias[:ip6_prefix_length]}"\
+                            if key == :ip6 && !nic_alias[:ip6_prefix_length].nil?\
+                                && !nic_alias[:ip6_prefix_length].empty?
+                        ipv6s << ipv6
+                    end
                 end
             end
 
             set = "#{vars[:chain]}-ip6-spoofing"
 
-            commands.add :ipset, "create #{set} hash:ip family inet6"
+            commands.add :ipset, "create #{set} hash:net family inet6"
 
             ipv6s.each do |ip|
                 commands.add :ipset, "add -exist #{set} #{ip}"
@@ -644,8 +663,11 @@ module SGIPTables
         set = "#{chain}-ip6-spoofing"
         [:ip6, :ip6_global, :ip6_ula].each do |ip6|
             next if nic[ip6].nil?
-
-            commands.add :ipset, "-q add -exist #{set} #{nic[ip6]} | true"
+            ipv6 = nic[ip6]
+            ipv6 += "/#{nic[:ip6_prefix_length]}"\
+                    if ip6 == :ip6 && !nic[:ip6_prefix_length].nil?\
+                        && !nic[:ip6_prefix_length].empty?
+            commands.add :ipset, "-q add -exist #{set} #{ipv6} | true"
         end
 
         # Enable SG. Only needed for routed chain input jump since destination
@@ -680,10 +702,14 @@ module SGIPTables
 
         [:ip6, :ip6_global, :ip6_ula].each do |ip6|
             next if nic[ip6].nil?
+            ipv6 = nic[ip6]
+            ipv6 += "/#{nic[:ip6_prefix_length]}"\
+                    if ip6 == :ip6 && !nic[:ip6_prefix_length].nil?\
+                        && !nic[:ip6_prefix_length].empty?
 
             _, _, s = VNMNetwork::Command.run(:iptables,
                                               "-C #{GLOBAL_CHAIN} "\
-                                              "-d #{nic[ip6]} "\
+                                              "-d #{ipv6} "\
                                               "-j #{vars[:chain_in]}")
 
             next if s.success?
@@ -698,7 +724,7 @@ module SGIPTables
             n = chain_in_jumps[-1].split[0].to_i + insert_shift
             commands.add :ip6tables,
                          "-I #{GLOBAL_CHAIN} #{n+1} "\
-                         "-d #{nic[ip6]} -j #{vars[:chain_in]}"
+                         "-d #{ipv6} -j #{vars[:chain_in]}"
             insert_shift += 1
         end
 
@@ -723,7 +749,13 @@ module SGIPTables
         set = "#{chain}-ip6-spoofing"
         [:ip6, :ip6_global, :ip6_ula].each do |ip6|
             next if nic[ip6].nil?
+            ipv6 = nic[ip6]
+            ipv6 += "/#{nic[:ip6_prefix_length]}"\
+                    if ip6 == :ip6 && !nic[:ip6_prefix_length].nil?\
+                        && !nic[:ip6_prefix_length].empty?
 
+            commands.add :ipset, "-q del -exist #{set} #{ipv6} | true"
+            # Backward compatibility - clean ip6 only
             commands.add :ipset, "-q del -exist #{set} #{nic[ip6]} | true"
         end
 

@@ -265,7 +265,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         ipv6s = Array.new
 
         [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
-            ipv6s << @nic[key] if !@nic[key].nil? && !@nic[key].empty?
+            if !@nic[key].nil? && !@nic[key].empty?
+                ipv6 = @nic[key]
+                ipv6 += "/#{@nic[:ipv6_prefix_length]}"\
+                    if key == :ip6 && !@nic[:ipv6_prefix_length].nil? &&\
+                       !@nic[:ipv6_prefix_length].empty?
+                ipv6s << ipv6
+            end
         end
 
         if !ipv6s.empty?

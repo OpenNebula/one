@@ -197,6 +197,7 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
 {
     std::string ip      = vector_value("IP");
     std::string ip6     = vector_value("IP6");
+    std::string ip6_prefix_length     = vector_value("PREFIX_LENGTH");
     std::string ip6_ula = vector_value("IP6_ULA");
 
     std::string ip6_link    = vector_value("IP6_LINK");
@@ -222,6 +223,11 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
     if (!ip6.empty())
     {
         oss << "<IP6>" << one_util::escape_xml(ip6) << "</IP6>";
+    }
+
+    if (!ip6_prefix_length.empty())
+    {
+        oss << "<IP6_PREFIX_LENGTH>" << one_util::escape_xml(ip6_prefix_length) << "</IP6_PREFIX_LENGTH>";
     }
 
     if (!ip6_ula.empty())
