@@ -715,6 +715,10 @@ module SGIPTables
         set = "#{chain}-ip-spoofing"
         if !nic[:ip].nil?
             commands.add :ipset, "-q del -exist #{set} #{nic[:ip]} | true"
+
+            # Disable SG. Only needed for routed chain input jump.
+            commands.add :iptables, "-D #{GLOBAL_CHAIN} -d #{nic[:ip]} "\
+                                    "-j #{vars[:chain_in]} | true"
         end
         set = "#{chain}-ip6-spoofing"
         [:ip6, :ip6_global, :ip6_ula].each do |ip6|
@@ -722,10 +726,6 @@ module SGIPTables
 
             commands.add :ipset, "-q del -exist #{set} #{nic[ip6]} | true"
         end
-
-        # Disable SG. Only needed for routed chain input jump.
-        commands.add :iptables, "-D #{GLOBAL_CHAIN} -d #{nic[:ip]} "\
-                                "-j #{vars[:chain_in]} | true"
 
         commands.run!
     end
