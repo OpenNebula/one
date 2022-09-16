@@ -556,7 +556,6 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
     int req_id = ra.req_id;
 
     trigger([this, hard, vid, uid, gid, req_id] {
-        unsigned int port;
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -600,14 +599,6 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
                         req_id);
 
                 vmm->trigger_shutdown(vid);
-            }
-
-            VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
-
-            if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
-            {
-                graphics->remove("PORT");
-                clpool->release_vnc_port(vm->get_cid(), port);
             }
 
             vmpool->update_history(vm.get());
