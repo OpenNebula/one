@@ -46,7 +46,16 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    rules:
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+    rules_panel:
       enabled: true
     attributes_panel:
       enabled: true
@@ -56,5 +65,5 @@ info-tabs:
         edit: true
         delete: true
 
-  vm:
+  vms:
     enabled: true

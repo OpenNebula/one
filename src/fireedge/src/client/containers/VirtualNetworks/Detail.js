@@ -13,12 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
+import { ReactElement } from 'react'
+import { useParams, Redirect } from 'react-router-dom'
 
-export * from 'client/components/Tabs/Common/Attribute'
+import VNetworkTabs from 'client/components/Tabs/VNetwork'
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+/**
+ * Displays the detail information about a VM Template.
+ *
+ * @returns {ReactElement} VM Template detail component.
+ */
+function VNetworkDetail() {
+  const { id } = useParams()
+
+  if (Number.isNaN(+id)) {
+    return <Redirect to="/" />
+  }
+
+  return <VNetworkTabs id={id} />
+}
+
+export default VNetworkDetail

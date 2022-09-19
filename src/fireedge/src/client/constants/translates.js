@@ -56,9 +56,13 @@ module.exports = {
   ChangeOwner: 'Change owner',
   Clear: 'Clear',
   ClickToCopy: 'Click to copy',
+  Confirm: 'Confirm',
+  Commit: 'Commit',
   Clone: 'Clone',
   CloneSeveralTemplates: 'Clone several Templates',
   CloneTemplate: 'Clone Template',
+  CloneSecGroup: 'Clone Security Group',
+  CloneSecGroups: 'Clone Security Groups',
   Close: 'Close',
   Collapse: 'Collapse',
   Configuration: 'Configuration',
@@ -72,6 +76,7 @@ module.exports = {
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
   CreateImage: 'Create Image',
+  CreateSecurityGroup: 'Create Security Group',
   CreateFile: 'Create File',
   CreateDockerfile: 'Create Dockerfile',
   CurrentGroup: 'Current group: %s',
@@ -870,6 +875,8 @@ module.exports = {
   CopyOf: 'Copy of ',
   PrefixMultipleConcept:
     'Several templates are selected, please choose prefix to name the new copies',
+  PrefixSecGroupsMultipleConcept:
+    'Several security groups are selected, please choose a prefix to name the new copies Prefix',
   NewTemplateNameConcept: 'New Image name',
   CloneWithImages: 'Clone with images',
   CloneWithImagesConcept: `
@@ -1017,6 +1024,7 @@ module.exports = {
   Any: 'Any',
   Protocol: 'Protocol',
   IcmpType: 'ICMP Type',
+  IcmpTypeV6: 'ICMPv6 Type',
 
   /* Host schema */
   IM_MAD: 'IM MAD',
@@ -1130,9 +1138,25 @@ module.exports = {
   DefaultValue: 'Default value',
   Mandatory: 'Mandatory',
   PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
-
+  /** Security Groups */
+  Start: 'Start',
+  Rules: 'Rules',
+  PortRange: 'Port Range',
+  FirstIPIPv6Address: 'First IP/IPv6 address',
+  TargetNetwork: 'Target Network',
+  AnyNetwork: 'Any Network',
+  ManualNetwork: 'Manual Network',
+  OpennebulaVirtualNetwork: 'OpenNebula Virtual Network',
+  SelectNewNetwork: 'Please select a network from the list',
+  NotVmsCurrentySecGroups:
+    'There are currently no VMs associated with this Security Group',
+  CommitMessageSecGroups: `
+    Please note: each time the rules are edited, the commit operation is done automatically.
+    This action will force the propagation of security group changes to VMs. 
+    The operation takes time to iterate over all VMs in the security group, 
+    the progress can be checked in the "VMs" panel.`,
   /** Image */
-  NotVmsCurrenty: 'There are currently no VMs associated with this image',
+  NotVmsCurrentyImage: 'There are currently no VMs associated with this image',
   NotSnapshotCurrenty:
     'There are currently no snapshots associated with this image',
 

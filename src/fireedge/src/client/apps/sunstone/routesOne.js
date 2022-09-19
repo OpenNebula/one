@@ -37,6 +37,7 @@ import {
   Home as SystemIcon,
   User as UserIcon,
   Group as GroupIcon,
+  HistoricShield as SecurityGroupIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -104,6 +105,18 @@ const Files = loadable(() => import('client/containers/Files'), {
 const CreateFiles = loadable(() => import('client/containers/Files/Create'), {
   ssr: false,
 })
+const SecurityGroups = loadable(
+  () => import('client/containers/SecurityGroups'),
+  {
+    ssr: false,
+  }
+)
+const CreateSecurityGroups = loadable(
+  () => import('client/containers/SecurityGroups/Create'),
+  {
+    ssr: false,
+  }
+)
 const CreateImages = loadable(() => import('client/containers/Images/Create'), {
   ssr: false,
 })
@@ -129,6 +142,10 @@ const VirtualNetworks = loadable(
   () => import('client/containers/VirtualNetworks'),
   { ssr: false }
 )
+const VirtualNetworksDetail = loadable(
+  () => import('client/containers/VirtualNetworks/Detail'),
+  { ssr: false }
+)
 const CreateVirtualNetwork = loadable(
   () => import('client/containers/VirtualNetworks/Create'),
   { ssr: false }
@@ -138,7 +155,6 @@ const VNetworkTemplates = loadable(
   { ssr: false }
 )
 // const NetworkTopologies = loadable(() => import('client/containers/NetworkTopologies'), { ssr: false })
-// const SecurityGroups = loadable(() => import('client/containers/SecurityGroups'), { ssr: false })
 
 const Clusters = loadable(() => import('client/containers/Clusters'), {
   ssr: false,
@@ -236,6 +252,7 @@ export const PATH = {
     SEC_GROUPS: {
       LIST: `/${RESOURCE_NAMES.SEC_GROUP}`,
       DETAIL: `/${RESOURCE_NAMES.SEC_GROUP}/:id`,
+      CREATE: `/${RESOURCE_NAMES.SEC_GROUP}/create`,
     },
   },
   INFRASTRUCTURE: {
@@ -436,6 +453,12 @@ const ENDPOINTS = [
     routes: [
       {
         title: T.VirtualNetworks,
+        description: (params) => `#${params?.id}`,
+        path: PATH.NETWORK.VNETS.DETAIL,
+        Component: VirtualNetworksDetail,
+      },
+      {
+        title: T.VirtualNetworks,
         path: PATH.NETWORK.VNETS.LIST,
         sidebar: true,
         icon: NetworkIcon,
@@ -457,6 +480,18 @@ const ENDPOINTS = [
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.NETWORK.VNETS.CREATE,
         Component: CreateVirtualNetwork,
+      },
+      {
+        title: T.SecurityGroups,
+        path: PATH.NETWORK.SEC_GROUPS.LIST,
+        sidebar: true,
+        icon: SecurityGroupIcon,
+        Component: SecurityGroups,
+      },
+      {
+        title: T.CreateSecurityGroup,
+        path: PATH.NETWORK.SEC_GROUPS.CREATE,
+        Component: CreateSecurityGroups,
       },
     ],
   },

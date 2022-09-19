@@ -13,12 +13,47 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
+import { T } from 'client/constants'
+import EmptyTab from 'client/components/Tabs/EmptyTab'
+import { useHistory, generatePath } from 'react-router-dom'
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { useGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
+import { VmsTable } from 'client/components/Tables'
 
-export * from 'client/components/Tabs/Common/Attribute'
+/**
+ * Renders mainly Vms tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Image id
+ * @returns {ReactElement} vms tab
+ */
+const VmsTab = ({ id }) => {
+  const { data: secGroup = {} } = useGetSecGroupQuery({ id })
+  const path = PATH.INSTANCE.VMS.DETAIL
+  const history = useHistory()
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+  const handleRowClick = (rowId) => {
+    history.push(generatePath(path, { id: String(rowId) }))
+  }
+
+  return (
+    <VmsTable
+      disableGlobalSort
+      displaySelectedRows
+      host={secGroup}
+      onRowClick={(row) => handleRowClick(row.ID)}
+      noDataMessage={<EmptyTab label={T.NotVmsCurrentySecGroups} />}
+    />
+  )
+}
+
+VmsTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
+}
+
+VmsTab.displayName = 'VmsTab'
+
+export default VmsTab

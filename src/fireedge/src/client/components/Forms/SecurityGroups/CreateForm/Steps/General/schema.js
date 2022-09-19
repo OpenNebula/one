@@ -13,12 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
+import { string, object, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-export * from 'client/components/Tabs/Common/Attribute'
+export const IMAGE_LOCATION_TYPES = {
+  PATH: 'path',
+  UPLOAD: 'upload',
+}
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+/** @type {Field} name field */
+export const NAME = (isUpdate) => ({
+  name: 'NAME',
+  label: T.Name,
+  type: INPUT_TYPES.TEXT,
+  validation: string().trim().required(),
+  grid: { xs: 12, md: 6 },
+  ...(isUpdate && { fieldProps: { disabled: true } }),
+})
+
+/** @type {Field} Description field */
+export const DESCRIPTION = {
+  name: 'DESCRIPTION',
+  label: T.Description,
+  type: INPUT_TYPES.TEXT,
+  multiline: true,
+  validation: string().trim(),
+  grid: { xs: 12, md: 6 },
+}
+
+/**
+ * @param {boolean} isUpdate - is update.
+ * @returns {Field[]} Fields
+ */
+export const FIELDS = (isUpdate) => [NAME(isUpdate), DESCRIPTION]
+
+/**
+ * @param {boolean} isUpdate - is update.
+ * @returns {ObjectSchema} Schema
+ */
+export const SCHEMA = (isUpdate) =>
+  object(getValidationFromFields(FIELDS(isUpdate)))

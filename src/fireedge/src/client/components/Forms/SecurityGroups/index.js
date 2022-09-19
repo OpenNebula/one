@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateFormCallback } from 'client/utils/schema'
 
-export * from 'client/components/Tabs/Common/Attribute'
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CloneForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'SecurityGroups/CloneForm' }, configProps)
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'SecurityGroups/CreateForm' }, configProps)
+
+export { CloneForm, CreateForm }
