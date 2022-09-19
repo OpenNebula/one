@@ -15,45 +15,55 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { T } from 'client/constants'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { useGetImageQuery } from 'client/features/OneApi/image'
-import { VmsTable } from 'client/components/Tables'
+
+import { useRenameSecGroupMutation } from 'client/features/OneApi/securityGroup'
+import { List } from 'client/components/Tabs/Common'
+import { T, Image, SEC_GROUP_ACTIONS } from 'client/constants'
 
 /**
- * Renders mainly Vms tab.
+ * Renders mainly information tab.
  *
  * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
+ * @param {Image} props.securityGroup - Security Group resource
+ * @param {string[]} props.actions - Available actions to information tab
+ * @returns {ReactElement} Information tab
  */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+const InformationPanel = ({ securityGroup = {}, actions }) => {
+  const [rename] = useRenameSecGroupMutation()
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
+  const { ID, NAME } = securityGroup
+
+  const handleRename = async (_, newName) => {
+    await rename({ id: ID, name: newName })
   }
 
+  const info = [
+    { name: T.ID, value: ID, dataCy: 'id' },
+    {
+      name: T.Name,
+      value: NAME,
+      dataCy: 'name',
+      canEdit: actions?.includes?.(SEC_GROUP_ACTIONS.RENAME),
+      handleEdit: handleRename,
+    },
+  ]
+
   return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrentyImage} />}
-    />
+    <>
+      <List
+        title={T.Information}
+        list={info}
+        containerProps={{ sx: { gridRow: 'span 3' } }}
+      />
+    </>
   )
 }
 
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
+InformationPanel.propTypes = {
+  securityGroup: PropTypes.object,
+  actions: PropTypes.arrayOf(PropTypes.string),
 }
 
-VmsTab.displayName = 'VmsTab'
+InformationPanel.displayName = 'InformationPanel'
 
-export default VmsTab
+export default InformationPanel

@@ -13,12 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
-
-export * from 'client/components/Tabs/Common/Attribute'
-
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+export { default } from 'client/components/Forms/SecurityGroups/CreateForm/Steps'

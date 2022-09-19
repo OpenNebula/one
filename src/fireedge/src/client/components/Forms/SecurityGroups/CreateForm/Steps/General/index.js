@@ -13,12 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
 
-export * from 'client/components/Tabs/Common/Attribute'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/SecurityGroups/CreateForm/Steps/General/schema'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'general'
+
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
+
+/**
+ * General configuration about Security Groups.
+ *
+ * @param {object} securityGroupData - security group data
+ * @returns {object} Security Groups configuration step
+ */
+const General = (securityGroupData = {}) => {
+  const isUpdate = securityGroupData?.NAME
+
+  return {
+    id: STEP_ID,
+    label: T.Configuration,
+    resolver: (formdata) => SCHEMA(isUpdate),
+    optionsValidate: { abortEarly: false },
+    content: () => Content(securityGroupData),
+  }
+}
+
+export default General

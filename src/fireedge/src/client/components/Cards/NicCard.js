@@ -35,7 +35,8 @@ import MultipleTags from 'client/components/MultipleTags'
 import { Translate } from 'client/components/HOC'
 import { stringToBoolean } from 'client/models/Helper'
 import { groupBy } from 'client/utils'
-import { T, Nic, NicAlias, PrettySecurityGroupRule } from 'client/constants'
+import { T, Nic, NicAlias } from 'client/constants'
+import { SecurityGroupRules } from 'client/components/Tabs/Common/RulesSecGroups'
 
 const NicCard = memo(
   /**
@@ -209,93 +210,5 @@ NicCard.propTypes = {
 }
 
 NicCard.displayName = 'NicCard'
-
-const SecurityGroupRules = memo(({ parentKey, id, actions, rules }) => {
-  const classes = rowStyles()
-
-  const COLUMNS = useMemo(
-    () => [T.Protocol, T.Type, T.Range, T.Network, T.IcmpType],
-    []
-  )
-
-  const name = rules?.[0]?.NAME ?? 'default'
-
-  return (
-    <>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Typography
-          noWrap
-          component="span"
-          variant="subtitle1"
-          data-cy={`${parentKey}-rule-name`}
-        >
-          {`#${id} ${name}`}
-        </Typography>
-        {!!actions && <div className={classes.actions}>{actions}</div>}
-      </Stack>
-      <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap="0.5em">
-        {COLUMNS.map((col) => (
-          <Typography
-            key={`${parentKey}-${col}`}
-            noWrap
-            component="span"
-            variant="subtitle2"
-          >
-            <Translate word={col} />
-          </Typography>
-        ))}
-        {rules.map((rule) => (
-          <SecurityGroupRule
-            key={`${parentKey}-rule-${rule.RULE_TYPE}`}
-            data-cy={`${parentKey}-rule-${rule.RULE_TYPE}`}
-            rule={rule}
-          />
-        ))}
-      </Box>
-    </>
-  )
-})
-
-SecurityGroupRules.propTypes = {
-  parentKey: PropTypes.string,
-  id: PropTypes.string,
-  rules: PropTypes.array,
-  actions: PropTypes.node,
-}
-
-SecurityGroupRules.displayName = 'SecurityGroupRule'
-
-const SecurityGroupRule = memo(({ rule, 'data-cy': parentCy }) => {
-  /** @type {PrettySecurityGroupRule} */
-  const { PROTOCOL, RULE_TYPE, ICMP_TYPE, RANGE, NETWORK_ID } = rule
-
-  return (
-    <>
-      {[
-        { text: PROTOCOL, dataCy: 'protocol' },
-        { text: RULE_TYPE, dataCy: 'ruletype' },
-        { text: RANGE, dataCy: 'range' },
-        { text: NETWORK_ID, dataCy: 'networkid' },
-        { text: ICMP_TYPE, dataCy: 'icmp-type' },
-      ].map(({ text, dataCy }) => (
-        <Typography
-          noWrap
-          key={`${parentCy}-${dataCy}`}
-          data-cy={`${parentCy}-${dataCy}`.toLowerCase()}
-          variant="subtitle2"
-        >
-          {text}
-        </Typography>
-      ))}
-    </>
-  )
-})
-
-SecurityGroupRule.propTypes = {
-  rule: PropTypes.object,
-  'data-cy': PropTypes.string,
-}
-
-SecurityGroupRule.displayName = 'SecurityGroupRule'
 
 export default NicCard

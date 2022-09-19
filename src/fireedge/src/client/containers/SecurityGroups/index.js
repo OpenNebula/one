@@ -21,10 +21,10 @@ import Cancel from 'iconoir-react/dist/Cancel'
 import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import { useLazyGetImageQuery } from 'client/features/OneApi/image'
-import { ImagesTable } from 'client/components/Tables'
-import ImageActions from 'client/components/Tables/Images/actions'
-import ImageTabs from 'client/components/Tabs/Image'
+import { useLazyGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
+import { SecurityGroupsTable } from 'client/components/Tables'
+import SecurityGroupsActions from 'client/components/Tables/SecurityGroups/actions'
+import SecurityGroupsTabs from 'client/components/Tabs/SecurityGroup'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 import { SubmitButton } from 'client/components/FormControl'
@@ -32,13 +32,13 @@ import { Tr } from 'client/components/HOC'
 import { T, Image } from 'client/constants'
 
 /**
- * Displays a list of Images with a split pane between the list and selected row(s).
+ * Displays a list of Security Groups with a split pane between the list and selected row(s).
  *
- * @returns {ReactElement} Images list and selected row(s)
+ * @returns {ReactElement} Security Groups list and selected row(s)
  */
-function Images() {
+function SecurityGroups() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
-  const actions = ImageActions()
+  const actions = SecurityGroupsActions()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -47,7 +47,7 @@ function Images() {
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ImagesTable
+          <SecurityGroupsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
           />
@@ -59,7 +59,7 @@ function Images() {
                 <GroupedTags tags={selectedRows} />
               ) : (
                 <InfoTabs
-                  image={selectedRows[0]?.original}
+                  securityGroup={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
                   unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />
@@ -73,17 +73,18 @@ function Images() {
 }
 
 /**
- * Displays details of an Image.
+ * Displays details of Security Group.
  *
- * @param {Image} image - Image to display
- * @param {Function} [gotoPage] - Function to navigate to a page of an Image
- * @param {Function} [unselect] - Function to unselect a Image
- * @returns {ReactElement} Image details
+ * @param {Image} securityGroup - Security Group to display
+ * @param {Function} [gotoPage] - Function to navigate to a page of an Security Group
+ * @param {Function} [unselect] - Function to unselect a Security Group
+ * @returns {ReactElement} Security Group details
  */
-const InfoTabs = memo(({ image, gotoPage, unselect }) => {
-  const [getImage, { data: lazyData, isFetching }] = useLazyGetImageQuery()
-  const id = lazyData?.ID ?? image.ID
-  const name = lazyData?.NAME ?? image.NAME
+const InfoTabs = memo(({ securityGroup, gotoPage, unselect }) => {
+  const [getSecurityGroup, { data: lazyData, isFetching }] =
+    useLazyGetSecGroupQuery()
+  const id = lazyData?.ID ?? securityGroup.ID
+  const name = lazyData?.NAME ?? securityGroup.NAME
 
   return (
     <Stack overflow="auto">
@@ -96,7 +97,7 @@ const InfoTabs = memo(({ image, gotoPage, unselect }) => {
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => getImage({ id })}
+          onClick={() => getSecurityGroup({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -115,13 +116,13 @@ const InfoTabs = memo(({ image, gotoPage, unselect }) => {
           />
         )}
       </Stack>
-      <ImageTabs id={image.ID} />
+      <SecurityGroupsTabs id={securityGroup.ID} />
     </Stack>
   )
 })
 
 InfoTabs.propTypes = {
-  image: PropTypes.object.isRequired,
+  securityGroup: PropTypes.object.isRequired,
   gotoPage: PropTypes.func,
   unselect: PropTypes.func,
 }
@@ -153,4 +154,4 @@ const GroupedTags = memo(({ tags = [] }) => (
 GroupedTags.propTypes = { tags: PropTypes.array }
 GroupedTags.displayName = 'GroupedTags'
 
-export default Images
+export default SecurityGroups

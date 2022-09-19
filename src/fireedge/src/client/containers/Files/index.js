@@ -88,6 +88,9 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
   return (
     <Stack overflow="auto">
       <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Typography color="text.primary" noWrap flexGrow={1}>
+          {`#${id} | ${name}`}
+        </Typography>
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
@@ -111,9 +114,6 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
-        <Typography color="text.primary" noWrap>
-          {`#${id} | ${name}`}
-        </Typography>
       </Stack>
       <FileTabs id={file.ID} />
     </Stack>

@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { T } from 'client/constants'
+import * as ACTIONS from 'client/constants/actions'
 
 /**
  * @typedef SecurityGroupRule
@@ -115,4 +116,19 @@ export const PROTOCOL_STRING = {
 export const RULE_TYPE_STRING = {
   OUTBOUND: T.Outbound,
   INBOUND: T.Inbound,
+}
+
+/** @enum {string} Image actions */
+export const SEC_GROUP_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  UPDATE_DIALOG: 'update_dialog',
+  DELETE: 'delete',
+  COMMIT: 'commit',
+  CLONE: 'clone',
+
+  // INFORMATION
+  RENAME: ACTIONS.RENAME,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+  CHANGE_TYPE: 'chtype',
 }

@@ -13,12 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
+import Rules, {
+  STEP_ID as RULES_ID,
+} from 'client/components/Forms/SecurityGroups/CreateForm/Steps/Rules'
 
-export * from 'client/components/Tabs/Common/Attribute'
+import General, {
+  STEP_ID as GENERAL_ID,
+} from 'client/components/Forms/SecurityGroups/CreateForm/Steps/General'
 
-export { AttributePanel, List, Ownership, Permissions, RulesSecGroupsTable }
+import { createSteps } from 'client/utils'
+
+const Steps = createSteps([General, Rules], {
+  transformInitialValue: ({ TEMPLATE, ...secGroup } = {}, schema) =>
+    schema.cast(
+      {
+        [GENERAL_ID]: { ...TEMPLATE, ...secGroup },
+        [RULES_ID]: {
+          RULES: Array.isArray(TEMPLATE.RULE) ? TEMPLATE.RULE : [TEMPLATE.RULE],
+        },
+      },
+      { stripUnknown: true, context: secGroup }
+    ),
+  transformBeforeSubmit: (formData) => {
+    const { [GENERAL_ID]: general = {}, [RULES_ID]: rules = {} } =
+      formData ?? {}
+
+    const rtn = {
+      template: {
+        ...general,
+      },
+    }
+
+    if (rules?.RULES) rtn.template.RULE = rules.RULES
+
+    return rtn
+  },
+})
+
+export default Steps
