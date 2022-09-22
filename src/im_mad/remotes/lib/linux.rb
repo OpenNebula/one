@@ -44,7 +44,7 @@ class LinuxHost
         @net = {}
 
         cpuinfo.split(/\n/).each do |line|
-            if line =~ /^CPU\(s\)/
+            if line =~ /^CPU\(s\):/
                 @cpu[:total] = line.split(':')[1].strip.to_i * 100
             elsif line =~ /^CPU MHz:/
                 @cpu[:speed] = Float(line.split(':')[1].strip.split(' ')[0]).round
