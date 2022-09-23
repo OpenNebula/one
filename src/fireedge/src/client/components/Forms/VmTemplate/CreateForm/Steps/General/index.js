@@ -29,6 +29,8 @@ import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helpe
 import { generateKey } from 'client/utils'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
+let generalFeatures
+
 export const STEP_ID = 'general'
 
 const Content = ({ isUpdate }) => {
@@ -41,6 +43,8 @@ const Content = ({ isUpdate }) => {
     const { features, dialogs } = getResourceView(resource)
     const dialog = dialogs?.create_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
+
+    generalFeatures = features
 
     return (
       SECTIONS(hypervisor, isUpdate, features)
@@ -83,7 +87,7 @@ const General = (vmTemplate) => {
     resolver: (formData) => {
       const hypervisor = formData?.[STEP_ID]?.HYPERVISOR ?? initialHypervisor
 
-      return SCHEMA(hypervisor, isUpdate)
+      return SCHEMA(hypervisor, isUpdate, generalFeatures)
     },
     optionsValidate: { abortEarly: false },
     content: () => Content({ isUpdate }),
