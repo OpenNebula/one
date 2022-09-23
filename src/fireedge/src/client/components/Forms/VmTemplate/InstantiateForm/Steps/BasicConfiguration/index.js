@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useViews } from 'client/features/Auth'
+import { useFormContext } from 'react-hook-form'
+import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
-
 import {
   SCHEMA,
   SECTIONS,
@@ -27,23 +28,43 @@ import {
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
+let generalFeatures
+
 export const STEP_ID = 'configuration'
 
 const Content = ({ vmTemplate }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
+  const { getValues, setValue } = useFormContext()
+
+  const resource = RESOURCE_NAMES.VM_TEMPLATE
+  const { features, dialogs } = getResourceView(resource)
 
   const sections = useMemo(() => {
     const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
-    const resource = RESOURCE_NAMES.VM_TEMPLATE
-    const { features, dialogs } = getResourceView(resource)
     const dialog = dialogs?.instantiate_dialog
     const sectionsAvailable = getSectionsAvailable(dialog, hypervisor)
+
+    generalFeatures = features
 
     return SECTIONS(vmTemplate, features).filter(
       ({ id, required }) => required || sectionsAvailable.includes(id)
     )
   }, [view])
+
+  useEffect(() => {
+    if (vmTemplate?.TEMPLATE?.VCPU && features?.cpu_factor) {
+      const oldValues = {
+        ...getValues(),
+      }
+      oldValues.configuration.CPU = `${scaleVcpuByCpuFactor(
+        vmTemplate.TEMPLATE.VCPU,
+        features.cpu_factor
+      )}`
+
+      setValue(`${STEP_ID}`, oldValues)
+    }
+  }, [])
 
   return (
     <div className={classes.root}>
@@ -74,7 +95,7 @@ Content.propTypes = {
 const BasicConfiguration = (vmTemplate) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: () => SCHEMA(vmTemplate),
+  resolver: () => SCHEMA(vmTemplate, generalFeatures),
   optionsValidate: { abortEarly: false },
   content: (props) => Content({ ...props, vmTemplate }),
 })

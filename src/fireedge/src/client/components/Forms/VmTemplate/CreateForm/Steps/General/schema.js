@@ -96,11 +96,13 @@ const SECTIONS = (hypervisor, isUpdate, features) =>
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @param {boolean} [isUpdate] - If `true`, the form is being updated
+ * @param {VmTemplateFeatures} [features] - Features
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (hypervisor) =>
+const SCHEMA = (hypervisor, isUpdate, features) =>
   getObjectSchemaFromFields(
-    SECTIONS(hypervisor)
+    SECTIONS(hypervisor, isUpdate, features)
       .map(({ fields }) => fields)
       .flat()
   )
