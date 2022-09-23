@@ -21,9 +21,11 @@ ONE_LOCATION = ENV['ONE_LOCATION']
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
+    LOG_LOCATION      = '/var/log/one'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    LOG_LOCATION      = ONE_LOCATION + '/var'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
@@ -114,7 +116,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         options[:type].nil? ? f = logs[:log] : f = logs[options[:type].to_sym]
 
-        system("#{pager} #{options[:pager_opts]} /var/log/one/#{f}")
+        system("#{pager} #{options[:pager_opts]} #{LOG_LOCATION}/#{f}")
     end
 
     vm_desc = <<-EOT.unindent
@@ -127,7 +129,11 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             Integer(args[0])
 
-            file = "/var/log/one/#{args[0]}.log"
+            if !ONE_LOCATION
+                file = "#{LOG_LOCATION}/#{args[0]}.log"
+            else
+                file = "#{LOG_LOCATION}/vms/#{args[0]}/vm.log"
+            end
 
             unless File.exist?(file)
                 STDERR.puts "No LOG file found for '#{args[0]}' VM"
@@ -154,7 +160,7 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             Integer(args[0])
 
-            file = "/var/log/one/oneflow/#{args[0]}.log"
+            file = "#{LOG_LOCATION}/oneflow/#{args[0]}.log"
 
             unless File.exist?(file)
                 STDERR.puts "No LOG file found for '#{args[0]}' service"
