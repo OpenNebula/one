@@ -317,12 +317,13 @@ opts = GetoptLong.new(
     [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--proxy'                , GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--proxy'            '-p'    , GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 mp_type = nil
 threads = 15
 timeout = nil
+proxy   = nil
 
 begin
     opts.each do |opt, arg|
@@ -333,11 +334,17 @@ begin
                 mp_type = arg.split(',').map {|a| a.strip }
             when '--timeout'
                 timeout = arg.to_i
+            when '--proxy'
+                timeout = arg.to_i
         end
     end
 rescue Exception => e
     exit(-1)
 end
+
+#Export proxy ip:port as env var for curl
+
+ENV['http_proxy'] = File.read('/etc/one/oned.conf')[/(?<=--proxy\s)\S+/]
 
 mp_driver = MarketPlaceDriver.new(mp_type,
                                   :concurrency  => threads,
