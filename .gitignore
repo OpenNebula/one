@@ -70,7 +70,7 @@ share/esx-fw-vnc/*.rpm
 share/esx-fw-vnc/.vagrant*
 
 *.vscode
-
+*.code-workspace
 share/context/*
 !share/context/download_context.sh
 !share/context/SConstruct
