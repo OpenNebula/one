@@ -113,6 +113,7 @@ devices.each do |dev|
 
     # The main device cannot be used, skip it
     if CONF[:nvidia_vendors].include?(dev[:vendor]) &&
+       File.exist?('/sys/class/mdev_bus') &&
        `ls /sys/class/mdev_bus | grep #{dev[:short_address]}`.empty?
         next
     end
