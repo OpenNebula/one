@@ -317,7 +317,7 @@ opts = GetoptLong.new(
     [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--proxy'                , GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--proxy'            '-p', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 mp_type = nil
@@ -333,6 +333,8 @@ begin
                 mp_type = arg.split(',').map {|a| a.strip }
             when '--timeout'
                 timeout = arg.to_i
+	    when '--proxy'
+		ENV['http_proxy'] = arg 
         end
     end
 rescue Exception => e
