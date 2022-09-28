@@ -28,7 +28,7 @@ begin
         :filter         => '0:0',
         :short_address  => [],
         :device_name    => [],
-        :nvidia_vendors => ['10de']
+        :nvidia_vendors => []
     }.merge(YAML.load_file(NAME))
 rescue StandardError
     STDERR.puts "Invalid configuration #{NAME}"
