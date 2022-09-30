@@ -38,28 +38,28 @@ type PoolMonitoring struct {
 
 // VM represents an OpenNebula Virtual Machine
 type VM struct {
-	XMLName         xml.Name            `xml:"VM"`
-	ID              int                 `xml:"ID,omitempty"`
-	UID             int                 `xml:"UID,omitempty"`
-	GID             int                 `xml:"GID,omitempty"`
-	UName           string              `xml:"UNAME,omitempty"`
-	GName           string              `xml:"GNAME,omitempty"`
-	Name            string              `xml:"NAME,omitempty"`
-	Permissions     *shared.Permissions `xml:"PERMISSIONS,omitempty"`
-	LastPoll        int                 `xml:"LAST_POLL,omitempty"`
-	StateRaw        int                 `xml:"STATE,omitempty"`
-	LCMStateRaw     int                 `xml:"LCM_STATE,omitempty"`
-	PrevStateRaw    int                 `xml:"PREV_STATE,omitempty"`
-	PrevLCMStateRaw int                 `xml:"PREV_LCM_STATE,omitempty"`
-	ReschedValue    int                 `xml:"RESCHED,omitempty"`
-	STime           int                 `xml:"STIME,omitempty"`
-	ETime           int                 `xml:"ETIME,omitempty"`
-	DeployID        string              `xml:"DEPLOY_ID,omitempty"`
-	MonitoringInfos dyn.Template        `xml:"MONITORING,omitempty"`
-	Template        Template            `xml:"TEMPLATE,omitempty"`
-	UserTemplate    UserTemplate        `xml:"USER_TEMPLATE,omitempty"`
-	HistoryRecords  []HistoryRecord     `xml:"HISTORY_RECORDS>HISTORY,omitempty"`
-	Snapshots       shared.DiskSnapshot `xml:"SNAPSHOTS,omitempty"`
+	XMLName         xml.Name              `xml:"VM"`
+	ID              int                   `xml:"ID,omitempty"`
+	UID             int                   `xml:"UID,omitempty"`
+	GID             int                   `xml:"GID,omitempty"`
+	UName           string                `xml:"UNAME,omitempty"`
+	GName           string                `xml:"GNAME,omitempty"`
+	Name            string                `xml:"NAME,omitempty"`
+	Permissions     *shared.Permissions   `xml:"PERMISSIONS,omitempty"`
+	LastPoll        int                   `xml:"LAST_POLL,omitempty"`
+	StateRaw        int                   `xml:"STATE,omitempty"`
+	LCMStateRaw     int                   `xml:"LCM_STATE,omitempty"`
+	PrevStateRaw    int                   `xml:"PREV_STATE,omitempty"`
+	PrevLCMStateRaw int                   `xml:"PREV_LCM_STATE,omitempty"`
+	ReschedValue    int                   `xml:"RESCHED,omitempty"`
+	STime           int                   `xml:"STIME,omitempty"`
+	ETime           int                   `xml:"ETIME,omitempty"`
+	DeployID        string                `xml:"DEPLOY_ID,omitempty"`
+	MonitoringInfos dyn.Template          `xml:"MONITORING,omitempty"`
+	Template        Template              `xml:"TEMPLATE,omitempty"`
+	UserTemplate    UserTemplate          `xml:"USER_TEMPLATE,omitempty"`
+	HistoryRecords  []HistoryRecord       `xml:"HISTORY_RECORDS>HISTORY,omitempty"`
+	Snapshots       []shared.DiskSnapshot `xml:"SNAPSHOTS,omitempty"`
 
 	// Not filled with NewUserPool call
 	LockInfos *shared.Lock `xml:"LOCK"`
