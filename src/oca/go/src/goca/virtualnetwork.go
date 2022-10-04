@@ -74,7 +74,7 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 
 	switch len(args) {
 	case 0:
-		who = parameters.PoolWhoMine
+		who = parameters.PoolWhoAll
 		start = -1
 		end = -1
 	case 1:
