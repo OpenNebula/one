@@ -1414,6 +1414,12 @@ public:
     // ------------------------------------------------------------------------
     // NIC Hotplug related functions
     // ------------------------------------------------------------------------
+
+    /**
+     *  Checks the attributes of a PCI device
+     */
+    int check_pci_attributes(VectorAttribute * pci, std::string& err);
+
     /**
      * Generate and attach a new NIC attribute to the VM. This method check
      * that the NIC is compatible with the VM cluster allocation and fills SG

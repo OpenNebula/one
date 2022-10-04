@@ -144,14 +144,20 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 {
     std::set<string> assigned;
     std::set<const VectorAttribute *> tested;
+    unsigned int vendor_id, device_id, class_id;
 
-    // Test for "SHORT_ADDRESS" PCI selectio
+    // Test for "SHORT_ADDRESS" PCI selection
     // and pre-allocated these first
     for (const auto& device : devs)
     {
         string short_addr = device->vector_value("SHORT_ADDRESS");
 
-        if (short_addr.empty())
+        // Be aware of special case after migration, when
+        // !short_addr.empty() and at least one of vendor/device/class is set
+        if (short_addr.empty() ||
+            get_pci_value("VENDOR", device, vendor_id) > 0 ||
+            get_pci_value("DEVICE", device, device_id) > 0 ||
+            get_pci_value("CLASS" , device, class_id) > 0)
         {
             continue;
         }
@@ -301,12 +307,16 @@ bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
 bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
 {
     std::set<VectorAttribute *> added;
+    unsigned int vendor_id, device_id, class_id;
 
     for (auto& device : devs)
     {
         string short_addr = device->vector_value("SHORT_ADDRESS");
 
-        if (short_addr.empty())
+        if (short_addr.empty() ||
+            get_pci_value("VENDOR", device, vendor_id) > 0 ||
+            get_pci_value("DEVICE", device, device_id) > 0 ||
+            get_pci_value("CLASS" , device, class_id) > 0)
         {
             continue;
         }

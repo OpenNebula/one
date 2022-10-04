@@ -2546,6 +2546,8 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
+    VectorAttribute * pci = tmpl.get("PCI");
+
     if (auto vm = vmpool->get_ro(id))
     {
         vm->get_permissions(vm_perms);
@@ -2553,6 +2555,11 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
         if (vm->hasHistory())
         {
             hid = vm->get_hid();
+        }
+
+        if (pci != nullptr && vm->check_pci_attributes(pci,  att.resp_msg) != 0)
+        {
+            return ACTION;
         }
     }
     else
@@ -2596,8 +2603,6 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // -------------------------------------------------------------------------
     // PCI test and set
     // -------------------------------------------------------------------------
-
-    VectorAttribute * pci = tmpl.get("PCI");
     HostShareCapacity sr;
 
     if ( pci != nullptr && hid != -1 )

@@ -114,7 +114,7 @@ public:
     void to_xml_short(std::ostringstream& oss) const;
 
     /**
-     * Check is a nic is alias or not
+     * Check if a nic is alias or not
      */
     bool is_alias() const
     {
@@ -122,7 +122,7 @@ public:
     }
 
     /**
-     * Check is a nic is a PCI
+     * Check if a nic is a PCI
      */
     bool is_pci() const
     {

@@ -119,7 +119,7 @@ module VirtualMachineManagerKVM
                     dev  << '<virtualport type="openvswitch"/>'
                 end
 
-                dev << xputs('<source bridge=%s/>', 'BRIDGE')
+                dev << xputs("<source bridge=%s/>", 'BRIDGE')
             else
                 dev = '<interface type="ethernet">'
             end
@@ -144,10 +144,10 @@ module VirtualMachineManagerKVM
             end
 
             inb_keys = %w[INBOUND_AVG_BW INBOUND_PEAK_BW INBOUND_PEAK_KB]
-            inbound = inb_keys.any? {|e| exist? e }
+            inbound  = inb_keys.any? {|e| exist? e }
 
             outb_keys = %w[OUTBOUND_AVG_BW OUTBOUND_PEAK_BW OUTBOUND_PEAK_KB]
-            outbound = outb_keys.any? {|e| exist? e }
+            outbound  = outb_keys.any? {|e| exist? e }
 
             if inbound || outbound
                 dev << '<bandwidth>'
@@ -191,6 +191,18 @@ module VirtualMachineManagerKVM
             !out.match(regexp).nil?
         end
 
+        def dumpxml_regexp(domain, str_exp)
+            cmd = "#{virsh} dumpxml #{domain}"
+
+            out, _err, _rc = Open3.capture3(cmd)
+
+            return false if out.nil? || out.empty?
+
+            regexp = Regexp.new(str_exp)
+
+            !out.match(regexp).nil?
+        end
+
         #-----------------------------------------------------------------------
         # This function generates a XML document to attach a new device
         # to the VM. The specification supports the same OpenNebula attributes.
@@ -198,20 +210,24 @@ module VirtualMachineManagerKVM
         # Example:
         #
         # <hostdev mode='subsystem' type='pci' managed='yes'>
-        #  <source>
-        #    <address  domain='0x0000' bus='0x05' slot='0x02' function='0x0'/>
-        #  </source>
-        #  <address type='pci' domain='0x0' bus='0x01'
-        #           slot='0x01' function='0'/>
+        #   <source>
+        #     <address  domain='0x0000' bus='0x05' slot='0x02' function='0x0'/>
+        #   </source>
+        #   <address type='pci' domain='0x0' bus='0x01' slot='0x01' function='0'/>
         # </hostdev>
         #
         # NOTE: Libvirt/QEMU seems to have a race condition accesing vfio device
         # and the permission check/set that makes <hostdev> not work for VF.
         #
-        # NOTE: On detach (as we are managing MAC/VLAN through ip link vf)
-        # devices needs to use <hostdev> format
+        # NOTE: On detach (as we are manging MAC/VLAN through ip link vf) devices
+        # needs to use <hostdev> format
         #-----------------------------------------------------------------------
-        def hostdev_xml(force_hostdev = false)
+        def hostdev_xml(_opts = {})
+            opts = {
+                  :force_hostdev => false,
+                  :pci => false
+            }.merge(_opts)
+
             prefix_old    = @xpath_prefix
             @xpath_prefix = "TEMPLATE/PCI[ATTACH='YES']/"
 
@@ -220,7 +236,7 @@ module VirtualMachineManagerKVM
                 dev << xputs('<source><address uuid=%s/></source>', 'UUID')
                 dev << '</hostdev>'
             else
-                if force_hostdev
+                if opts[:force_hostdev]
                     is_vf = false
                 else
                     is_vf = vf?(@xml["#{@xpath_prefix}SHORT_ADDRESS"])
@@ -241,6 +257,22 @@ module VirtualMachineManagerKVM
                 dev << xputs(' slot=%s', 'SLOT', :hex => true)
                 dev << xputs(' function=%s', 'FUNCTION', :hex => true)
                 dev << '/></source>'
+
+                #Setting Bus address needs to check that a PCI contoller is
+                #present for Bus 1
+                vm_addr = %w[VM_DOMAIN VM_BUS VM_SLOT VM_FUNCTION].all? {|e|
+                    exist? e
+                }
+
+                if vm_addr && opts[:pci]
+                    dev << '<address type="pci"'
+                    dev << xputs(' domain=%s', 'VM_DOMAIN')
+                    dev << xputs(' bus=%s', 'VM_BUS')
+                    dev << xputs(' slot=%s', 'VM_SLOT')
+                    dev << xputs(' function=%s', 'VM_FUNCTION')
+                    dev << '/>'
+                end
+
                 dev << dev_end
             end
 

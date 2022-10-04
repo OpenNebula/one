@@ -315,8 +315,7 @@ int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
-        string& error_str)
+int VirtualMachine::check_pci_attributes(VectorAttribute * pci, string& error_str)
 {
     static std::vector<std::string> attrs = {"VENDOR", "DEVICE", "CLASS"};
     bool   found = false;
@@ -383,8 +382,14 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 
     for (auto& attr : array_pci)
     {
-        if ( check_pci_attributes(attr, default_bus, error_str) != 0 )
+        if ( check_pci_attributes(attr, error_str) != 0 )
         {
+            return -1;
+        }
+
+        if ( HostSharePCI::set_pci_address(attr, default_bus, true) != 0 )
+        {
+            error_str = "Wrong BUS in PCI attribute";
             return -1;
         }
     }

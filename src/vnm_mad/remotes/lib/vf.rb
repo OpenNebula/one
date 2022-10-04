@@ -87,7 +87,6 @@ module VNMMAD::VirtualFunction
                 # virtfn /sys/devices/pci0000:80/0000:80:03.2/0000:85:00.0/virtfn3
                 # _vf    /sys/devices/pci0000:80/0000:80:03.2/0000:85:02.3
                 # rubocop:enable Layout/LineLength
-
                 m = virtfn.match(/virtfn([0-9]+)/)
 
                 next if m.nil?
@@ -102,6 +101,8 @@ module VNMMAD::VirtualFunction
                 cmd = "#{command(:ip)} link set #{pf_dev} vf #{m[1]}"
                 cmd << " mac #{pci[:mac]}" if pci[:mac]
                 cmd << " vlan #{pci[:vlan_id]}" if pci[:vlan_id]
+                cmd << " spoofchk #{on_off(pci[:spoofchk])}" if pci[:spoofchk]
+                cmd << " trust #{on_off(pci[:trust])}" if pci[:trust]
 
                 OpenNebula.exec_and_log(cmd)
             end
@@ -109,5 +110,12 @@ module VNMMAD::VirtualFunction
         # rubocop:enable Style/CombinableLoops
     end
 
+    def on_off(option)
+        if option.match(/^yes$|^on$/i)
+            "on"
+        else
+            "off"
+        end
+    end
 end
 # rubocop:enable Style/ClassAndModuleChildren

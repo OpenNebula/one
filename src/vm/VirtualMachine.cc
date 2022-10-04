@@ -3413,7 +3413,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
     if ( is_pci )
     {
         Nebula& nd = Nebula::instance();
-        string default_bus;
+        string bus;
 
         std::vector<const VectorAttribute*> pcis;
 
@@ -3435,9 +3435,9 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
         _new_nic->replace("PCI_ID", max_pci_id + 1);
 
-        nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+        nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
 
-        if ( HostSharePCI::set_pci_address(_new_nic.get(), default_bus, false) != 0 )
+        if ( HostSharePCI::set_pci_address(_new_nic.get(), bus, false) != 0 )
         {
             err = "Wrong BUS in PCI attribute";
             return -1;

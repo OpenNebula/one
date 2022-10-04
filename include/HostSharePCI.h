@@ -78,7 +78,7 @@ public:
      *    @param devs list of requested PCI devices, will include address of
      *    assigned devices.
      *    @param vmid of the VM
-     *    
+     *
      *    @return true if the devices where added
      *
      *    NOTE THIS FUNCTION DOES NOT PERFORM ANY ROLLBACK
@@ -117,7 +117,7 @@ public:
     /**
      *  Gets a 4 hex digits value from attribute
      *    @param name of the attribute
-     *    @pci_device VectorAttribute representing the device
+     *    @param pci_device VectorAttribute representing the device
      *    @return the 0 if not found, -1 syntax error, >0 valid hex value
      */
     static int get_pci_value(const char * name,
