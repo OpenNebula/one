@@ -39,7 +39,7 @@ type VMFilter struct {
 // NewVMFilterDefault return a VM filter configured by default
 func NewVMFilterDefault() *VMFilter {
 	return &VMFilter{
-		Who:     param.PoolWhoMine,
+		Who:     param.PoolWhoAll,
 		StartID: -1,
 		EndID:   -1,
 		State:   -1,
@@ -86,7 +86,7 @@ func handleArgs(args []int) ([]interface{}, error) {
 
 	switch len(args) {
 	case 0:
-		who = parameters.PoolWhoMine
+		who = parameters.PoolWhoAll
 		start = -1
 		end = -1
 	case 1:
