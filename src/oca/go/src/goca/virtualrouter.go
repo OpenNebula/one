@@ -74,7 +74,7 @@ func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 
 	switch len(args) {
 	case 0:
-		who = parameters.PoolWhoMine
+		who = parameters.PoolWhoAll
 		start = -1
 		end = -1
 	case 3:
