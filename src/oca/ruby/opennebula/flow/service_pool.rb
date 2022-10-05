@@ -66,12 +66,16 @@ module OpenNebula
             super('DOCUMENT_POOL', 'DOCUMENT', @client)
         end
 
-        def client
+        def client(user_name = nil)
             # If there's a client defined use it
             return @client unless @client.nil?
 
             # If not, get one via cloud_auth
-            @cloud_auth.client
+            if user_name.nil?
+                @cloud_auth.client
+            else
+                @cloud_auth.client(user_name)
+            end
         end
 
         def info
@@ -129,14 +133,17 @@ module OpenNebula
         #   The mutex will be unlocked after the block execution.
         #
         # @return [Service, OpenNebula::Error] The Service in case of success
-        def get(service_id, external_client = nil, &block)
+        def get(service_id, external_user = nil, &block)
             service_id = service_id.to_i if service_id
             aux_client = nil
 
-            if external_client.nil?
+            # WARNING!!!
+            # No validation will be performed for external_user, the credentials
+            # for this user must be validated previously.
+            if external_user.nil?
                 aux_client = client
             else
-                aux_client = external_client
+                aux_client = client(external_user)
             end
 
             service = Service.new_with_id(service_id, aux_client)
@@ -172,7 +179,7 @@ module OpenNebula
                         return rc
                     end
 
-                    block.call(service)
+                    block.call(service, client)
                 end
 
                 @@mutex.synchronize do

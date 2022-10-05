@@ -37,7 +37,7 @@ class ServiceAutoScaler
         loop do
             @srv_pool.info
 
-            vm_pool = VirtualMachinePool.new(client)
+            vm_pool = VirtualMachinePool.new(@cloud_auth.client)
 
             # -2 to get all resources, 0 just to get last record
             monitoring = vm_pool.monitoring_xml(-2, 0)
@@ -68,12 +68,6 @@ class ServiceAutoScaler
 
     private
 
-    # Get OpenNebula client
-    def client
-        # If not, get one via cloud_auth
-        @cloud_auth.client
-    end
-
     # If a role needs to scale, its cardinality is updated, and its state is set
     # to SCALING. Only one role is set to scale.
     #
@@ -92,7 +86,7 @@ class ServiceAutoScaler
             # if diff is zero, cooldown doesn't matter
             cooldown_duration = nil if diff == 0
 
-            @lcm.update_role_policies(client,
+            @lcm.update_role_policies(nil,
                                       service.id,
                                       name,
                                       policies,
@@ -106,7 +100,7 @@ class ServiceAutoScaler
             Log.info LOG_COMP,
                      "Role #{name} needs to scale #{diff} nodes", service.id
 
-            @lcm.scale_action(client,
+            @lcm.scale_action(nil,
                               service.id,
                               name,
                               role.cardinality + diff,
