@@ -67,7 +67,7 @@ class ServiceWD
         service_pool.info_all
 
         # check that all nodes are in RUNNING state, if not, notify
-        check_roles_state(client, service_pool)
+        check_roles_state(service_pool)
 
         # subscribe to all nodes
         subscriber = gen_subscriber
@@ -117,7 +117,7 @@ class ServiceWD
             states[:state] = state
             states[:lcm]   = lcm_state
 
-            check_role_state(client, service_id, role_name, node, states)
+            check_role_state(service_id, role_name, node, states)
         end
     end
 
@@ -141,7 +141,7 @@ class ServiceWD
 
         service.roles.each do |name, role|
             role.nodes_ids.each do |node|
-                check_role_state(client, service.id, name, node)
+                check_role_state(service.id, name, node)
             end
         end
     end
@@ -156,12 +156,6 @@ class ServiceWD
     end
 
     private
-
-    # Get OpenNebula client
-    def client
-        # If not, get one via cloud_auth
-        @cloud_auth.client
-    end
 
     # Get ZMQ subscriber object
     def gen_subscriber
@@ -190,9 +184,8 @@ class ServiceWD
 
     # Check service roles state
     #
-    # @param client       [OpenNebula::Client] Client to make API calls
     # @param service_pool [ServicePool]        All services to check
-    def check_roles_state(client, service_pool)
+    def check_roles_state(service_pool)
         service_pool.each do |service|
             service.info
 
@@ -218,14 +211,14 @@ class ServiceWD
                     # If there are no VM, the role should be running
                     @lcm.trigger_action(:running_wd_cb,
                                         service.id,
-                                        client,
+                                        nil,
                                         service.id,
                                         name,
                                         [])
                 end
 
                 nodes_ids.each do |node|
-                    check_role_state(client, service.id, name, node)
+                    check_role_state(service.id, name, node)
                 end
             end
         end
@@ -237,15 +230,14 @@ class ServiceWD
 
     # Check role state
     #
-    # @param client     [OpenNebula::Client] Client to make API calls
     # @param service_id [Integer]            Service ID to check
     # @param role_name  [String]             Role to check
     # @param node       [Integer]            VM ID
     # @param states     [Hash]               node state and node lcm state
-    def check_role_state(client, service_id, role_name, node, states = nil)
+    def check_role_state(service_id, role_name, node, states = nil)
         # if don't have the state, query it by creating a VM object
         if states.nil?
-            vm = OpenNebula::VirtualMachine.new_with_id(node, client)
+            vm = OpenNebula::VirtualMachine.new_with_id(node, @cloud_auth.client)
             vm.info
 
             vm_state     = OpenNebula::VirtualMachine::VM_STATE[vm.state]
@@ -270,7 +262,7 @@ class ServiceWD
         # execute callback
         @lcm.trigger_action(action,
                             service_id,
-                            client,
+                            nil,
                             service_id,
                             role_name,
                             node)

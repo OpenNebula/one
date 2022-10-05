@@ -151,10 +151,9 @@ before do
     auth = Rack::Auth::Basic::Request.new(request.env)
 
     if auth.provided? && auth.basic?
-        username, password = auth.credentials
+        @username = cloud_auth.auth(request.env)
 
-        @client = OpenNebula::Client.new("#{username}:#{password}",
-                                         conf[:one_xmlrpc])
+        error 401, 'Invalid credentials' if @username.nil?
     else
         error 401, 'A username and password must be provided'
     end
@@ -211,7 +210,7 @@ GENERAL_EC    = 500 # general error
 ##############################################################################
 
 # TODO: make thread number configurable?
-lcm = ServiceLCM.new(@client, conf[:concurrency], cloud_auth, conf[:retries])
+lcm = ServiceLCM.new(conf[:concurrency], cloud_auth, conf[:retries])
 
 ##############################################################################
 # Service
@@ -219,7 +218,7 @@ lcm = ServiceLCM.new(@client, conf[:concurrency], cloud_auth, conf[:retries])
 
 get '/service' do
     # Read-only object
-    service_pool = OpenNebula::ServicePool.new(nil, @client)
+    service_pool = OpenNebula::ServicePool.new(nil, cloud_auth.client(@username))
 
     rc = service_pool.info
     if OpenNebula.is_error?(rc)
@@ -232,7 +231,7 @@ get '/service' do
 end
 
 get '/service/:id' do
-    service = Service.new_with_id(params[:id], @client)
+    service = Service.new_with_id(params[:id], cloud_auth.client(@username))
 
     rc = service.info
     if OpenNebula.is_error?(rc)
@@ -246,7 +245,7 @@ end
 
 delete '/service/:id' do
     # Read-only object
-    service = OpenNebula::Service.new_with_id(params[:id], @client)
+    service = OpenNebula::Service.new_with_id(params[:id], cloud_auth.client(@username))
 
     rc = service.info
     if OpenNebula.is_error?(rc)
@@ -254,7 +253,7 @@ delete '/service/:id' do
     end
 
     # Starts service undeploying async
-    rc = lcm.undeploy_action(@client, service.id)
+    rc = lcm.undeploy_action(@username, service.id)
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))
@@ -270,16 +269,16 @@ post '/service/:id/action' do
     case action['perform']
     when 'recover'
         if opts && opts['delete']
-            rc = lcm.recover_action(@client, params[:id], true)
+            rc = lcm.recover_action(@username, params[:id], true)
         else
-            rc = lcm.recover_action(@client, params[:id])
+            rc = lcm.recover_action(@username, params[:id])
         end
     when 'chown'
         if opts && opts['owner_id']
             u_id = opts['owner_id'].to_i
             g_id = (opts['group_id'] || -1).to_i
 
-            rc = lcm.chown_action(@client, params[:id], u_id, g_id)
+            rc = lcm.chown_action(@username, params[:id], u_id, g_id)
         else
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a UID')
@@ -288,34 +287,34 @@ post '/service/:id/action' do
         if opts && opts['group_id']
             g_id = opts['group_id'].to_i
 
-            rc = lcm.chown_action(@client, params[:id], -1, g_id)
+            rc = lcm.chown_action(@username, params[:id], -1, g_id)
         else
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a GID')
         end
     when 'chmod'
         if opts && opts['octet']
-            rc = lcm.chmod_action(@client, params[:id], opts['octet'])
+            rc = lcm.chmod_action(@username, params[:id], opts['octet'])
         else
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify an OCTET')
         end
     when 'rename'
         if opts && opts['name']
-            rc = lcm.rename_action(@client, params[:id], opts['name'])
+            rc = lcm.rename_action(@username, params[:id], opts['name'])
         else
             rc = OpenNebula::Error.new("Action #{action['perform']}: " \
                                        'You have to specify a name')
         end
     when 'release'
-        rc = lcm.release_action(@client, params[:id])
+        rc = lcm.release_action(@username, params[:id])
 
     when *Role::SCHEDULE_ACTIONS
         # Use defaults only if one of the options is supplied
         opts['period'] ||= conf[:action_period]
         opts['number'] ||= conf[:action_number]
 
-        rc = lcm.service_sched_action(@client,
+        rc = lcm.service_sched_action(@username,
                                       params[:id],
                                       action['perform'],
                                       opts['period'],
@@ -368,7 +367,7 @@ put '/service/:id' do
         return internal_error(e.message, VALIDATION_EC)
     end
 
-    rc = lcm.service_update(@client, params[:id], new_template, append)
+    rc = lcm.service_update(@username, params[:id], new_template, append)
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))
@@ -409,7 +408,7 @@ post '/service/:id/role/:role_name/action' do
     opts['period'] ||= conf[:action_period]
     opts['number'] ||= conf[:action_number]
 
-    rc = lcm.sched_action(@client,
+    rc = lcm.sched_action(@username,
                           params[:id],
                           params[:role_name],
                           action['perform'],
@@ -427,7 +426,7 @@ end
 post '/service/:id/scale' do
     call_body = JSON.parse(request.body.read)
 
-    rc = lcm.scale_action(@client,
+    rc = lcm.scale_action(@username,
                           params[:id],
                           call_body['role_name'],
                           call_body['cardinality'].to_i,
@@ -456,9 +455,9 @@ post '/service/:id/role_action' do
             return internal_error(e.message, VALIDATION_EC)
         end
 
-        rc = lcm.add_role_action(@client, params[:id], json_template)
+        rc = lcm.add_role_action(@username, params[:id], json_template)
     when 'remove_role'
-        rc = lcm.remove_role_action(@client, params[:id], opts['role'])
+        rc = lcm.remove_role_action(@username, params[:id], opts['role'])
     else
         rc = OpenNebula::Error.new(
             "Action #{action['perform']} not supported"
@@ -477,7 +476,7 @@ end
 ##############################################################################
 
 post '/service_pool/purge_done' do
-    service_pool = OpenNebula::ServicePool.new(nil, @client)
+    service_pool = OpenNebula::ServicePool.new(nil, cloud_auth.client(@username))
     rc           = service_pool.info
 
     if OpenNebula.is_error?(rc)
@@ -488,6 +487,7 @@ post '/service_pool/purge_done' do
         service_pool.each_page(conf[:page_size]) do |service|
             next unless service.state == Service::STATE['DONE']
 
+            # TODO: What if token expires in the middle?
             service.delete
         end
     end
@@ -500,8 +500,10 @@ end
 ##############################################################################
 
 get '/service_template' do
-    s_template_pool = OpenNebula::ServiceTemplatePool
-                      .new(@client, OpenNebula::Pool::INFO_ALL)
+    s_template_pool = OpenNebula::ServiceTemplatePool.new(
+        cloud_auth.client(@username),
+        OpenNebula::Pool::INFO_ALL
+    )
 
     rc = s_template_pool.info
     if OpenNebula.is_error?(rc)
@@ -514,8 +516,10 @@ get '/service_template' do
 end
 
 get '/service_template/:id' do
-    service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
-                                                               @client)
+    service_template = OpenNebula::ServiceTemplate.new_with_id(
+        params[:id],
+        cloud_auth.client(@username)
+    )
 
     rc = service_template.info
     if OpenNebula.is_error?(rc)
@@ -528,8 +532,10 @@ get '/service_template/:id' do
 end
 
 delete '/service_template/:id' do
-    service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
-                                                               @client)
+    service_template = OpenNebula::ServiceTemplate.new_with_id(
+        params[:id],
+        cloud_auth.client(@username)
+    )
     begin
         delete_type = JSON.parse(request.body.read)['delete_type']
     rescue StandardError
@@ -546,8 +552,11 @@ delete '/service_template/:id' do
 end
 
 put '/service_template/:id' do
-    service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
-                                                               @client)
+    service_template = OpenNebula::ServiceTemplate.new_with_id(
+        params[:id],
+        cloud_auth.client(@username)
+    )
+
     rc = nil
 
     begin
@@ -574,7 +583,8 @@ end
 
 post '/service_template' do
     xml        = OpenNebula::ServiceTemplate.build_xml
-    s_template = OpenNebula::ServiceTemplate.new(xml, @client)
+    s_template = OpenNebula::ServiceTemplate.new(xml,
+                                                 cloud_auth.client(@username))
 
     begin
         rc = s_template.allocate(request.body.read)
@@ -595,8 +605,11 @@ post '/service_template' do
 end
 
 post '/service_template/:id/action' do
-    service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
-                                                               @client)
+    service_template = OpenNebula::ServiceTemplate.new_with_id(
+        params[:id],
+        cloud_auth.client(@username)
+    )
+
     action = JSON.parse(request.body.read)['action']
     opts   = action['params']
     opts   = {} if opts.nil?
@@ -717,7 +730,7 @@ post '/service_template/:id/action' do
             return internal_error(service.message, GENERAL_EC)
         else
             # Starts service deployment async
-            rc = lcm.deploy_nets_action(@client, service.id)
+            rc = lcm.deploy_nets_action(@username, service.id)
 
             if OpenNebula.is_error?(rc)
                 return internal_error(rc.message, one_error_to_http(rc.errno))
@@ -790,9 +803,12 @@ post '/service_template/:id/action' do
             return internal_error(rc.message, GENERAL_EC)
         end
 
-        new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
+        new_stemplate = OpenNebula::ServiceTemplate.new_with_id(
+            rc,
+            cloud_auth.client(@username)
+        )
 
-        rc            = new_stemplate.info
+        rc = new_stemplate.info
 
         if OpenNebula.is_error?(rc)
             return internal_error(rc.message, GENERAL_EC)

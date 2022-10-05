@@ -101,7 +101,7 @@ class EventManager
     # @param [Service] service the service
     # @param [Role] the role which contains the VMs
     # @param [Node] nodes the list of nodes (VMs) to wait for
-    def wait_deploy_action(client, service_id, role_name, nodes, report)
+    def wait_deploy_action(external_user, service_id, role_name, nodes, report)
         if report
             Log.info LOG_COMP, "Waiting #{nodes} to report ready"
             rc = wait_report_ready(nodes)
@@ -113,14 +113,14 @@ class EventManager
         if rc[0]
             @lcm.trigger_action(:deploy_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:deploy_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name)
         end
@@ -128,10 +128,10 @@ class EventManager
 
     # Wait for networks to e ready
     #
-    # @param client     [OpenNebula::Client] Client to perform requests
-    # @param service_id [Integer]            Service ID
-    # @param networks   [Array]              Network IDs to wait until ready
-    def wait_deploy_nets_action(client, service_id, networks)
+    # @param external_user [String]  External user to impersonate for performing the action
+    # @param service_id    [Integer] Service ID
+    # @param networks      [Array]   Network IDs to wait until ready
+    def wait_deploy_nets_action(external_user, service_id, networks)
         Log.info LOG_COMP, "Waiting networks #{networks} to be (READY)"
         rc = wait_nets(networks, 'READY')
 
@@ -141,15 +141,15 @@ class EventManager
             action = :deploy_nets_failure_cb
         end
 
-        @lcm.trigger_action(action, service_id, client, service_id)
+        @lcm.trigger_action(action, service_id, external_user, service_id)
     end
 
     # Wait for networks to e ready
     #
-    # @param client     [OpenNebula::Client] Client to perform requests
+    # @param external_user [String]  External user to impersonate for performing the action
     # @param service_id [Integer]            Service ID
     # @param networks   [Array]              Network IDs to wait until ready
-    def wait_undeploy_nets_action(client, service_id, networks)
+    def wait_undeploy_nets_action(external_user, service_id, networks)
         Log.info LOG_COMP, "Waiting networks #{networks} to be (DONE)"
         rc = wait_nets(networks, 'DONE')
 
@@ -159,28 +159,29 @@ class EventManager
             action = :undeploy_nets_failure_cb
         end
 
-        @lcm.trigger_action(action, service_id, client, service_id)
+        @lcm.trigger_action(action, service_id, external_user, service_id)
     end
 
     # Wait for nodes to be in DONE
+    # @param [String]  External user to impersonate for performing the action
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_undeploy_action(client, service_id, role_name, nodes)
+    def wait_undeploy_action(external_user, service_id, role_name, nodes)
         Log.info LOG_COMP, "Waiting #{nodes} to be (DONE, LCM_INIT)"
         rc = wait(nodes, 'DONE', 'LCM_INIT')
 
         if rc[0]
             @lcm.trigger_action(:undeploy_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:undeploy_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
@@ -189,11 +190,12 @@ class EventManager
 
     # Wait for nodes to be in RUNNING if OneGate check required it will trigger
     # another action after VMs are RUNNING
+    # @param [String]  External user to impersonate for performing the action
     # @param [Service] service the service
     # @param [Role] the role which contains the VMs
     # @param [Node] nodes the list of nodes (VMs) to wait for
     # @param [Bool] up true if scalling up false otherwise
-    def wait_scaleup_action(client, service_id, role_name, nodes, report)
+    def wait_scaleup_action(external_user, service_id, role_name, nodes, report)
         if report
             Log.info LOG_COMP, "Waiting #{nodes} to report ready"
             rc = wait_report_ready(nodes)
@@ -205,20 +207,20 @@ class EventManager
         if rc[0]
             @lcm.trigger_action(:scaleup_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:scaleup_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name)
         end
     end
 
-    def wait_scaledown_action(client, service_id, role_name, nodes)
+    def wait_scaledown_action(external_user, service_id, role_name, nodes)
         Log.info LOG_COMP, "Waiting #{nodes} to be (DONE, LCM_INIT)"
 
         rc = wait(nodes, 'DONE', 'LCM_INIT')
@@ -226,21 +228,21 @@ class EventManager
         if rc[0]
             @lcm.trigger_action(:scaledown_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:scaledown_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         end
     end
 
-    def wait_add_action(client, service_id, role_name, nodes, report)
+    def wait_add_action(external_user, service_id, role_name, nodes, report)
         if report
             Log.info LOG_COMP, "Waiting #{nodes} to report ready"
             rc = wait_report_ready(nodes)
@@ -252,38 +254,39 @@ class EventManager
         if rc[0]
             @lcm.trigger_action(:add_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:add_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name)
         end
     end
 
     # Wait for nodes to be in DONE
+    # @param [String]  External user to impersonate for performing the action
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_remove_action(client, service_id, role_name, nodes)
+    def wait_remove_action(external_user, service_id, role_name, nodes)
         Log.info LOG_COMP, "Waiting #{nodes} to be (DONE, LCM_INIT)"
         rc = wait(nodes, 'DONE', 'LCM_INIT')
 
         if rc[0]
             @lcm.trigger_action(:remove_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:remove_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
@@ -291,10 +294,11 @@ class EventManager
     end
 
     # Wait for nodes to be in DONE
+    # @param [String]  External user to impersonate for performing the action
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_cooldown_action(client, service_id, role_name, cooldown_time)
+    def wait_cooldown_action(external_user, service_id, role_name, cooldown_time)
         Log.info LOG_COMP, "Waiting #{cooldown_time}s for cooldown for " \
                            "service #{service_id} and role #{role_name}."
 
@@ -302,32 +306,34 @@ class EventManager
 
         @lcm.trigger_action(:cooldown_cb,
                             service_id,
-                            client,
+                            external_user,
                             service_id,
                             role_name)
     end
 
     # Wait for nodes to be in HOLD
+    # @param [String]  External user to impersonate for performing the action
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
-    def wait_hold_action(client, service_id, role_name, nodes)
+    def wait_hold_action(external_user, service_id, role_name, nodes)
         Log.info LOG_COMP, "Waiting #{nodes} to be (HOLD, LCM_INIT)"
         wait(nodes, 'HOLD', 'LCM_INIT')
 
         @lcm.trigger_action(:hold_cb,
                             service_id,
-                            client,
+                            external_user,
                             service_id,
                             role_name)
     end
 
     # Wait for nodes to be in RUNNING if OneGate check required it will trigger
     # another action after VMs are RUNNING
+    # @param [String]  External user to impersonate for performing the action
     # @param [Service] service the service
     # @param [Role] the role which contains the VMs
     # @param [Node] nodes the list of nodes (VMs) to wait for
-    def wait_release_action(client, service_id, role_name, nodes, report)
+    def wait_release_action(external_user, service_id, role_name, nodes, report)
         if report
             Log.info LOG_COMP, "Waiting #{nodes} to report ready"
             rc = wait_report_ready(nodes)
@@ -339,14 +345,14 @@ class EventManager
         if rc[0]
             @lcm.trigger_action(:release_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name,
                                 rc[1])
         else
             @lcm.trigger_action(:deploy_failure_cb,
                                 service_id,
-                                client,
+                                external_user,
                                 service_id,
                                 role_name)
         end
