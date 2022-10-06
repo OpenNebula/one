@@ -91,6 +91,11 @@ def get_devices(filter = nil)
     end.flatten
 end
 
+def device_attr?(device, attribute)
+    addr = "0000:#{device[:bus]}:#{device[:slot]}.#{device[:function]}"
+    !`ls -l /sys/bus/pci/devices/#{addr}/ | grep #{attribute}`.empty?
+end
+
 filter = CONF[:filter]
 
 devices = get_devices(filter)
@@ -111,11 +116,9 @@ devices.each do |dev|
         next if matched != true
     end
 
-    # The main device cannot be used, skip it
-    if CONF[:nvidia_vendors].include?(dev[:vendor]) &&
-       `ls /sys/class/mdev_bus | grep #{dev[:short_address]}`.empty?
-        next
-    end
+    # Skip NVIDIA cards with virtual functions
+    next if CONF[:nvidia_vendors].include?(dev[:vendor]) &&
+        device_attr?(dev, 'virtfn')
 
     puts 'PCI = ['
     values = [
@@ -134,27 +137,29 @@ devices.each do |dev|
         pval('NUMA_NODE', dev[:numa_node])
     ]
 
-    # NVIDIA device
-    #
-    # The uuid is based on the address to get always the same
+    # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])
-        values << pval(
-            'UUID',
-            `uuidgen --name '#{dev[:address]}' --namespace '@x500' --sha1`.strip
-        )
-
-        # When having vGPU the name is always Device, so we merge it with vendor
-        # name, in this way Sunstone shows a better name
+        # When having NVIDIA GPU the name is always Device, so we merge
+        # it with vendor name, in this way Sunstone shows a better name
         values << pval('DEVICE_NAME',
                        "#{dev[:vendor_name]} #{dev[:device_name]}")
 
-        # Get profiles
-        addr     = "0000:#{dev[:bus]}:#{dev[:slot]}.#{dev[:function]}"
-        profiles = `ls /sys/class/mdev_bus/#{addr}/mdev_supported_types`
-        profiles = profiles.split("\n")
+        # For vGPU, the uuid is based on the address to get always the same
+        if device_attr?(dev, 'physfn')
+            values << pval(
+                'UUID',
+                `uuidgen --name '#{dev[:address]}' \
+                --namespace '@x500' --sha1`.strip
+            )
 
-        # Comma separated value with different profiles
-        values << pval('PROFILES', profiles.join(','))
+            # Get profiles
+            addr     = "0000:#{dev[:bus]}:#{dev[:slot]}.#{dev[:function]}"
+            profiles = `ls /sys/class/mdev_bus/#{addr}/mdev_supported_types`
+            profiles = profiles.split("\n")
+
+            # Comma separated value with different profiles
+            values << pval('PROFILES', profiles.join(','))
+        end
     else
         values << pval('DEVICE_NAME', dev[:device_name])
     end
