@@ -128,7 +128,7 @@ class EventManager
 
     # Wait for networks to e ready
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param networks      [Array]   Network IDs to wait until ready
     def wait_deploy_nets_action(external_user, service_id, networks)
@@ -146,7 +146,7 @@ class EventManager
 
     # Wait for networks to e ready
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id [Integer]            Service ID
     # @param networks   [Array]              Network IDs to wait until ready
     def wait_undeploy_nets_action(external_user, service_id, networks)
@@ -298,6 +298,7 @@ class EventManager
     # @param [service_id] the service id
     # @param [role_name] the role name of the role which contains the VMs
     # @param [nodes] the list of nodes (VMs) to wait for
+    # rubocop:disable Layout/LineLength
     def wait_cooldown_action(external_user, service_id, role_name, cooldown_time)
         Log.info LOG_COMP, "Waiting #{cooldown_time}s for cooldown for " \
                            "service #{service_id} and role #{role_name}."
@@ -310,6 +311,7 @@ class EventManager
                             service_id,
                             role_name)
     end
+    # rubocop:enable Layout/LineLength
 
     # Wait for nodes to be in HOLD
     # @param [String]  External user to impersonate for performing the action
