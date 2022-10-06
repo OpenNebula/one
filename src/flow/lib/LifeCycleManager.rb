@@ -95,7 +95,7 @@ class ServiceLCM
 
     # Change service ownership
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param u_id          [Integer] User ID
     # @param g_id          [Integer] Group ID
@@ -113,7 +113,7 @@ class ServiceLCM
 
     # Change service permissions
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param octet         [Integer] Permissions in octet format
     #
@@ -130,7 +130,7 @@ class ServiceLCM
 
     # Change service name
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param new_name      [String]  New service name
     #
@@ -147,7 +147,7 @@ class ServiceLCM
 
     # Add shced action to service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param action        [String]  Action to perform
     # @param period        [Integer] When to execute the action
@@ -156,6 +156,7 @@ class ServiceLCM
     #
     # @return [OpenNebula::Error] Error if any
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Layout/LineLength
     def service_sched_action(external_user, service_id, action, period, number, args)
         # rubocop:enable Metrics/ParameterLists
         rc = @srv_pool.get(service_id, external_user) do |service|
@@ -168,10 +169,11 @@ class ServiceLCM
 
         rc
     end
+    # rubocop:enable Layout/LineLength
 
     # Add shced action to service role
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     # @param role_name     [String]  Role to add action
     # @param action        [String]  Action to perform
@@ -206,7 +208,7 @@ class ServiceLCM
 
     # Release a service on hold state
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate
     # @param service_id    [Integer] Service ID
     #
     # @return [OpenNebula::Error] Error if any
@@ -247,7 +249,7 @@ class ServiceLCM
 
     # Deploy service networks
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     #
     # @return [OpenNebula::Error] Error if any
@@ -285,7 +287,7 @@ class ServiceLCM
 
     # Undeploy service networks
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     #
     # @return [OpenNebula::Error] Error if any
@@ -311,7 +313,7 @@ class ServiceLCM
 
     # Create new service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     #
     # @return [OpenNebula::Error] Error if any
@@ -361,7 +363,7 @@ class ServiceLCM
 
     # Delete service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param delete        [Boolean] Force flow delete
     #
@@ -412,7 +414,7 @@ class ServiceLCM
 
     # Scale service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param role_name     [String]  Role to scale
     # @param cardinality   [Integer] Number of VMs to scale
@@ -493,7 +495,7 @@ class ServiceLCM
 
     # Recover service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param delete        [Boolean] True to recover delete a service
     #
@@ -541,7 +543,7 @@ class ServiceLCM
 
     # Update service template
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param new_tempalte  [String]  New template
     # @param append        [Boolean] True to append template
@@ -577,13 +579,14 @@ class ServiceLCM
 
     # Update role elasticity/schedule policies
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param role_name     [String]  Role to update
     # @param policies      [Hash]    New policies values
     # @param cooldown      [Integer] New cooldown time
     #
     # @return [OpenNebula::Error] Error if any
+    # rubocop:disable Layout/LineLength
     def update_role_policies(external_user, service_id, role_name, policies, cooldown)
         rc = @srv_pool.get(service_id, external_user) do |service|
             role                = service.roles[role_name]
@@ -607,10 +610,11 @@ class ServiceLCM
 
         rc
     end
+    # rubocop:enable Layout/LineLength
 
     # Add role from running service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param role          [Hash]    Role information
     def add_role_action(external_user, service_id, role)
@@ -648,7 +652,7 @@ class ServiceLCM
 
     # Remove role from running service
     #
-    # @param external_user [String]  External user to impersonate for performing the action
+    # @param external_user [String]  External user to impersonate for performing
     # @param service_id    [Integer] Service ID
     # @param role          [Hash]    Role information
     def remove_role_action(external_user, service_id, role)
@@ -1155,9 +1159,9 @@ class ServiceLCM
             service.update
 
             Log.info 'WD',
-                        "Node #{node} is done, " \
-                        "updating service #{service_id}:#{role_name} " \
-                        "cardinality to #{cardinality}"
+                     "Node #{node} is done, " \
+                     "updating service #{service_id}:#{role_name} " \
+                     "cardinality to #{cardinality}"
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
@@ -1236,6 +1240,7 @@ class ServiceLCM
     # @param [Role::STATE] error_state new state of the role
     #                      if deployed unsuccessfuly
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Layout/LineLength
     def deploy_roles(external_user, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
         roles.each do |name, role|
@@ -1278,6 +1283,7 @@ class ServiceLCM
             end
         end
     end
+    # rubocop:enable Layout/LineLength
 
     def undeploy_roles(external_user, roles, success_state, error_state, action)
         roles.each do |name, role|
@@ -1304,6 +1310,7 @@ class ServiceLCM
     end
 
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Layout/LineLength
     def release_roles(external_user, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
         roles.each do |name, role|
@@ -1327,6 +1334,7 @@ class ServiceLCM
                                           report)
         end
     end
+    # rubocop:enable Layout/LineLength
 
     def set_cardinality(role, cardinality, force)
         tmpl_json = "{ \"cardinality\" : #{cardinality},\n" \

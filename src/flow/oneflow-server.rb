@@ -218,7 +218,8 @@ lcm = ServiceLCM.new(conf[:concurrency], cloud_auth, conf[:retries])
 
 get '/service' do
     # Read-only object
-    service_pool = OpenNebula::ServicePool.new(nil, cloud_auth.client(@username))
+    service_pool = OpenNebula::ServicePool.new(nil,
+                                               cloud_auth.client(@username))
 
     rc = service_pool.info
     if OpenNebula.is_error?(rc)
@@ -245,7 +246,8 @@ end
 
 delete '/service/:id' do
     # Read-only object
-    service = OpenNebula::Service.new_with_id(params[:id], cloud_auth.client(@username))
+    service = OpenNebula::Service.new_with_id(params[:id],
+                                              cloud_auth.client(@username))
 
     rc = service.info
     if OpenNebula.is_error?(rc)
@@ -476,7 +478,8 @@ end
 ##############################################################################
 
 post '/service_pool/purge_done' do
-    service_pool = OpenNebula::ServicePool.new(nil, cloud_auth.client(@username))
+    service_pool = OpenNebula::ServicePool.new(nil,
+                                               cloud_auth.client(@username))
     rc           = service_pool.info
 
     if OpenNebula.is_error?(rc)

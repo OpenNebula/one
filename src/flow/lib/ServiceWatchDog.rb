@@ -237,7 +237,8 @@ class ServiceWD
     def check_role_state(service_id, role_name, node, states = nil)
         # if don't have the state, query it by creating a VM object
         if states.nil?
-            vm = OpenNebula::VirtualMachine.new_with_id(node, @cloud_auth.client)
+            vm = OpenNebula::VirtualMachine.new_with_id(node,
+                                                        @cloud_auth.client)
             vm.info
 
             vm_state     = OpenNebula::VirtualMachine::VM_STATE[vm.state]
