@@ -516,7 +516,7 @@ AllCops:
 
 # Line Length config:
 Layout/LineLength:
-    Max: 80
+    Max: 100
 
 # Check indendation
 Layout/IndentationWidth:
