@@ -82,12 +82,12 @@ begin
     rc = x509_auth.authenticate(user, pass, token)
 rescue => e
     OpenNebula.error_message e.message
-    exit -1
+    exit(-1)
 end
 
 if rc == true
     exit 0
 else
     OpenNebula.error_message rc
-    exit -1
+    exit(-1)
 end
