@@ -29,9 +29,9 @@ class OpenNebula::X509Auth
     #Constants with paths to relevant files and defaults
     ###########################################################################
     if !ENV["ONE_LOCATION"]
-        ETC_LOCATION      = "/etc/one"
+        ETC_LOCATION = "/etc/one"
     else
-        ETC_LOCATION      = ENV["ONE_LOCATION"] + "/etc"
+        ETC_LOCATION = ENV["ONE_LOCATION"] + "/etc"
     end
 
     X509_AUTH_CONF_PATH = ETC_LOCATION + "/auth/x509_auth.conf"
@@ -173,8 +173,7 @@ private
         # Check start time and end time of certificates
         @cert_chain.each do |cert|
             if cert.not_before > now || cert.not_after < now
-                raise failed +  "Certificate not valid. Current time is " +
-                  now.localtime.to_s + "."
+                raise "Certificate not valid. Current time is #{now.localtime}"
             end
         end
 
@@ -187,16 +186,16 @@ private
             @cert_chain[1..-1].each do |cert|
                 if !((signee.issuer.to_s == cert.subject.to_s) &&
                      (signee.verify(cert.public_key)))
-                    raise  failed + signee.subject.to_s + " with issuer " +
-                           signee.issuer.to_s + " was not verified by " +
-                           cert.subject.to_s + "."
+                    raise "#{signee.subject} with issuer #{signee.issuer} " \
+                          "was not verified by #{cert.subject}"
                 end
+
                 signee = cert
             end
 
             # Validate the End Entity certificate
             if !@options[:ca_dir]
-                raise failed + "No certifcate authority directory was specified."
+                raise "No certifcate authority directory was specified."
             end
 
             begin
@@ -207,9 +206,8 @@ private
 
                 if !((signee.issuer.to_s == ca_cert.subject.to_s) &&
                      (signee.verify(ca_cert.public_key)))
-                    raise  failed + signee.subject.to_s + " with issuer " +
-                           signee.issuer.to_s + " was not verified by " +
-                           ca_cert.subject.to_s + "."
+                    raise "#{signee.subject} with issuer #{signee.issuer} " \
+                          "was not verified by #{ca_cert.subject}"
                 end
 
                 signee = ca_cert
@@ -229,7 +227,7 @@ private
 
         if !File.exist?(crl_path)
             if @options[:check_crl]
-                raise failed + "CRL file #{crl_path} does not exist"
+                raise "#{failed} CRL file #{crl_path} does not exist"
             else
                 return
             end
@@ -240,7 +238,7 @@ private
 
         # First verify the CRL itself with its signer
         unless crl_cert.verify( ca_cert.public_key ) then
-            raise failed + "CRL is not verified by its Signer"
+            raise "#{failed} CRL is not verified by its Signer"
         end
 
         # Extract the list of revoked certificates from the CRL
@@ -250,8 +248,8 @@ private
         # certificate
         rc_array.each do |e|
             if e.serial.eql?(signee.serial) then
-                raise failed + "#{signee.subject.to_s} is found in the "<<
-                    "CRL, i.e. it is revoked"
+                raise "#{failed} #{signee.subject} is found in the " \
+                      "CRL, i.e. it is revoked"
             end
         end
     end
