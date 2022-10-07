@@ -549,8 +549,7 @@ module OpenNebula
                 end
 
                 if role['elasticity_policies']
-                    role['elasticity_policies'].each_with_index do |policy,
-                                                                    index|
+                    role['elasticity_policies'].each_with_index do |policy, index|
                         exp = policy['expression']
 
                         if exp.empty?

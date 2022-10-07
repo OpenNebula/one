@@ -63,9 +63,7 @@ module OpenNebula::TemplateExt
                 #---------------------------------------------------------------
                 logger.info 'Processing VM disks' if logger
 
-                retrieve_xmlelements('TEMPLATE/DISK').each_with_index do
-                    |disk, idx|
-
+                retrieve_xmlelements('TEMPLATE/DISK').each_with_index do |disk, idx|
                     image = image_lookup(disk)
 
                     next unless image
