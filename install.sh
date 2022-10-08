@@ -3047,8 +3047,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
-        share/man/onevntemplate.1.gz \
-        share/man/onevmdump.1.gz"
+        share/man/onevntemplate.1.gz"
 
 #-----------------------------------------------------------------------------
 # Docs Files
