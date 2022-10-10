@@ -254,8 +254,9 @@ define(function(require) {
       });
 
       var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
-      if (disks.length > 0) {
-        tmp_json.DISK = diffValues(disks, original_tmpl.TEMPLATE.DISK);
+      var has_changes = diffValues(disks, original_tmpl.TEMPLATE.DISK).length > 0
+      if (disks.length > 0 && has_changes) {
+        tmp_json.DISK = disks;
       }
 
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id, context));
