@@ -112,9 +112,9 @@ module VNMMAD::VirtualFunction
 
     def on_off(option)
         if option.match(/^yes$|^on$/i)
-            "on"
+            'on'
         else
-            "off"
+            'off'
         end
     end
 

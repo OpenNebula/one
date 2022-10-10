@@ -222,11 +222,11 @@ module VirtualMachineManagerKVM
         # NOTE: On detach (as we are manging MAC/VLAN through ip link vf) devices
         # needs to use <hostdev> format
         #-----------------------------------------------------------------------
-        def hostdev_xml(_opts = {})
+        def hostdev_xml(defined_opts = {})
             opts = {
-                  :force_hostdev => false,
-                  :pci => false
-            }.merge(_opts)
+                :force_hostdev => false,
+                :pci => false
+            }.merge(defined_opts)
 
             prefix_old    = @xpath_prefix
             @xpath_prefix = "TEMPLATE/PCI[ATTACH='YES']/"
@@ -258,11 +258,9 @@ module VirtualMachineManagerKVM
                 dev << xputs(' function=%s', 'FUNCTION', :hex => true)
                 dev << '/></source>'
 
-                #Setting Bus address needs to check that a PCI contoller is
-                #present for Bus 1
-                vm_addr = %w[VM_DOMAIN VM_BUS VM_SLOT VM_FUNCTION].all? {|e|
-                    exist? e
-                }
+                # Setting Bus address needs to check that a PCI contoller is
+                # present for Bus 1
+                vm_addr = %w[VM_DOMAIN VM_BUS VM_SLOT VM_FUNCTION].all? {|e| exist? e }
 
                 if vm_addr && opts[:pci]
                     dev << '<address type="pci"'
