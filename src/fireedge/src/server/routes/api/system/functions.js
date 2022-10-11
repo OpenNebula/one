@@ -36,6 +36,7 @@ const ALLOWED_KEYS_ONED_CONF = [
   'IM_MAD',
   'AUTH_MAD',
   'FEDERATION',
+  'VM_RESTRICTED_ATTR',
 ]
 
 /**

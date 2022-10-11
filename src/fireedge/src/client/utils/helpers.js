@@ -302,6 +302,28 @@ export const get = (obj, path, defaultValue = undefined) => {
 }
 
 /**
+ * Deletes a given key from an object.
+ *
+ * @param {string[]} attr - Array with the path to be deleted
+ * @param {object} originalTemplate - Template to be modified
+ */
+export const deleteObjectKeys = (attr, originalTemplate = {}) => {
+  const keyToDelete = attr.pop()
+  let template = originalTemplate || {}
+  // TODO: Consider the case when restricted attributes is inside an array and goes deeper
+  attr.forEach((key) => {
+    if (Array.isArray(template?.[key])) {
+      template?.[key].forEach((element) => {
+        element && delete element[keyToDelete]
+      })
+    } else {
+      template = template[key]
+    }
+  })
+  template && delete template[keyToDelete]
+}
+
+/**
  * Set a value of property in object by his path.
  *
  * @param {object} obj - Object
