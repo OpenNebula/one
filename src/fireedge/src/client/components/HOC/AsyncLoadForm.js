@@ -17,8 +17,7 @@ import { useMemo, useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import loadable, { LoadableLibrary } from '@loadable/component'
 import { Backdrop, CircularProgress } from '@mui/material'
-import { useAuth } from 'client/features/Auth'
-import { useGetOneConfigQuery } from 'client/features/OneApi/system'
+import { useSystemData } from 'client/features/Auth'
 import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
 
 /**
@@ -98,13 +97,7 @@ const MemoizedForm = ({
     []
   )
 
-  const { data: oneConfig = {} } = useGetOneConfigQuery()
-
-  const { user } = useAuth()
-  const userGroup = Array.isArray(user?.GROUPS?.ID)
-    ? user?.GROUPS?.ID
-    : [user?.GROUPS?.ID]
-  const adminGroup = userGroup?.includes?.('0')
+  const { oneConfig, adminGroup } = useSystemData()
 
   const handleTriggerSubmit = useCallback(
     (data) =>

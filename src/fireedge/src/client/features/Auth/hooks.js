@@ -97,6 +97,26 @@ export const useAuth = () => {
   )
 }
 
+export const useSystemData = () => {
+  const { data: oneConfig = {} } = systemApi.useGetOneConfigQuery()
+
+  const { user } = useAuth()
+  const userGroup = Array.isArray(user?.GROUPS?.ID)
+    ? user?.GROUPS?.ID
+    : [user?.GROUPS?.ID]
+  const adminGroup = userGroup?.includes?.('0')
+
+  return { oneConfig, adminGroup }
+}
+
+export const useDisableInputByUserAndConfig = (input = '') => {
+  const { adminGroup, oneConfig } = useSystemData()
+
+  return {
+    disabled: !adminGroup && oneConfig.VM_RESTRICTED_ATTR?.includes?.(input),
+  }
+}
+
 export const useAuthApi = () => {
   const dispatch = useDispatch()
 

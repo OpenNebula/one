@@ -24,6 +24,8 @@ import {
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from 'client/constants'
 
+import { useDisableInputByUserAndConfig } from 'client/features/Auth'
+
 const { firecracker } = HYPERVISORS
 const { ovswitch, vcenter } = VN_DRIVERS
 
@@ -248,6 +250,7 @@ const OVERRIDE_IPV4_FIELDS = [
     label: T.MAC,
     tooltip: T.MACConcept,
     type: INPUT_TYPES.TEXT,
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/MAC'),
     validation: string()
       .trim()
       .notRequired()
@@ -353,6 +356,7 @@ const OVERRIDE_IN_QOS_FIELDS = [
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_AVG_BW'),
     validation: number()
       .notRequired()
       .default(() => undefined),
@@ -364,6 +368,7 @@ const OVERRIDE_IN_QOS_FIELDS = [
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_PEAK_BW'),
     validation: number()
       .notRequired()
       .default(() => undefined),
@@ -376,6 +381,7 @@ const OVERRIDE_IN_QOS_FIELDS = [
     notOnHypervisors: [firecracker],
     notOnDrivers: [vcenter],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_PEAK_KB'),
     validation: number()
       .notRequired()
       .default(() => undefined),
@@ -392,6 +398,7 @@ const OVERRIDE_OUT_QOS_FIELDS = [
     notOnHypervisors: [firecracker],
     notOnDrivers: [ovswitch],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_AVG_BW'),
     validation: number()
       .notRequired()
       .default(() => undefined),
@@ -404,6 +411,7 @@ const OVERRIDE_OUT_QOS_FIELDS = [
     notOnHypervisors: [firecracker],
     notOnDrivers: [ovswitch],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_PEAK_BW'),
     validation: number()
       .notRequired()
       .default(() => undefined),
@@ -416,6 +424,7 @@ const OVERRIDE_OUT_QOS_FIELDS = [
     notOnHypervisors: [firecracker],
     notOnDrivers: [ovswitch, vcenter],
     htmlType: 'number',
+    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_PEAK_KB'),
     validation: number()
       .notRequired()
       .default(() => undefined),
