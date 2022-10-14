@@ -158,3 +158,7 @@ group :vmware do
         gem 'rbvmomi', '~> 2.2.0'
     end
 end
+
+group :prometheus do
+    gem 'prometheus-client'
+end
