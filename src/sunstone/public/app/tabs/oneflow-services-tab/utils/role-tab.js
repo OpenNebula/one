@@ -309,12 +309,12 @@ define(function(require) {
 
     var min_vms = $('input[name="min_vms"]', context).val();
     if (min_vms) {
-      role['min_vms'] = min_vms;
+      role['min_vms'] = parseInt(min_vms,10);
     }
 
     var max_vms = $('input[name="max_vms"]', context).val();
     if (max_vms) {
-      role['max_vms'] = max_vms;
+      role['max_vms'] = parseInt(max_vms,10);
     }
 
     var cooldown = $('input[name="cooldown"]', context).val();
