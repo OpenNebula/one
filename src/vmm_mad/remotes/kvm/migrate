@@ -258,7 +258,7 @@ if [ "$SHARED" = "YES" ] && [ -n "$SNAP_CUR" ]; then
     DISK_PATH=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
     DISK_DIR=$(dirname $DISK_PATH)
 
-    for SNAPSHOT_MD_XML in $(ls ${DISK_DIR}/snap-*.xml 2>/dev/null); do
+    for SNAPSHOT_MD_XML in $(ls -v ${DISK_DIR}/snap-*.xml 2>/dev/null); do
         # replace uuid in the snapshot metadata xml
         sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML
 

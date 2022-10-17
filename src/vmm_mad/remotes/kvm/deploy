@@ -49,7 +49,7 @@ if [ "x$?" = "x0" ]; then
     echo $UUID
 
     # redefine potential snapshots
-    for SNAPSHOT_MD_XML in $(ls ${DEP_FILE_LOCATION}/snap-*.xml 2>/dev/null); do
+    for SNAPSHOT_MD_XML in $(ls -v ${DEP_FILE_LOCATION}/snap-*.xml 2>/dev/null); do
 
 
         # replace uuid in the snapshot metadata xml
