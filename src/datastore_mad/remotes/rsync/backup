@@ -58,7 +58,7 @@ require 'pathname'
 
 require_relative '../../tm/lib/tm_action'
 
-#BACKUP host:remote_dir DISK_ID:..:DISK_ID deploy_id vmid dsid
+# BACKUP host:remote_dir DISK_ID:..:DISK_ID deploy_id vmid dsid
 
 ds_xml = STDIN.read
 
@@ -73,26 +73,24 @@ vm_dir  = Pathname.new(dir[1]+'/backup/').cleanpath.to_s
 
 ds = REXML::Document.new(ds_xml).root
 
-rsync_user = ds.elements["TEMPLATE/RSYNC_USER"].text
-rsync_host = ds.elements["TEMPLATE/RSYNC_HOST"].text
-base = ds.elements["BASE_PATH"].text
+rsync_user = ds.elements['TEMPLATE/RSYNC_USER'].text
+rsync_host = ds.elements['TEMPLATE/RSYNC_HOST'].text
+base = ds.elements['BASE_PATH'].text
 
-if ds.elements["TEMPLATE/RSYNC_ARGS"].nil?
+if ds.elements['TEMPLATE/RSYNC_ARGS'].nil?
     args = '-aS'
 else
-    args = ds.elements["TEMPLATE/RSYNC_ARGS"].text
+    args = ds.elements['TEMPLATE/RSYNC_ARGS'].text
 end
 
 path = Pathname.new(base).cleanpath.to_s
 
-backup_id   = "#{vmid}/#{SecureRandom.hex[0,6]}"
+backup_id   = "#{vmid}/#{SecureRandom.hex[0, 6]}"
 backup_path = "#{path}/#{backup_id}/"
 
-#rc = TransferManager::Action.make_dst_path(rsync_host, backup_path)
 #-------------------------------------------------------------------------------
 # Compute backup total size
 #-------------------------------------------------------------------------------
-cmd = "mkdir -p #{backup_path}"
 
 rc = TransferManager::Action.ssh('backup_size',
                                  :host     => vm_host,
@@ -100,7 +98,7 @@ rc = TransferManager::Action.ssh('backup_size',
                                  :forward  => true,
                                  :nostdout => false)
 
-backup_size = rc.stdout.split()[0]
+backup_size = rc.stdout.split[0]
 
 if rc.code != 0
     exit rc.code

@@ -72,7 +72,7 @@ require_relative '../../tm/lib/tm_action'
 #   - vm.xml description
 #   - list of disks in the backup
 # ------------------------------------------------------------------------------
-drv_action  = Base64::decode64(ARGV[0])
+drv_action  = Base64.decode64(ARGV[0])
 _request_id = ARGV[1]
 
 rds = REXML::Document.new(drv_action).root
@@ -84,8 +84,8 @@ begin
     base = rds.elements['DATASTORE/BASE_PATH'].text
     rsync_host = rds.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
     rsync_user = rds.elements['DATASTORE/TEMPLATE/RSYNC_USER'].text
-rescue StandardError => se
-    STDERR.puts "Missing datastore or image attributes: #{se.message}"
+rescue StandardError => e
+    STDERR.puts "Missing datastore or image attributes: #{e.message}"
     exit(1)
 end
 
@@ -93,14 +93,14 @@ begin
     username  = rds.elements['TEMPLATE/USERNAME'].text
     dst_ds_id = rds.elements['DESTINATION_DS_ID'].text.to_i
 rescue StandardError
-    STDERR.puts "Cannot find USERNAME / DESTINATION_DS_ID"
+    STDERR.puts 'Cannot find USERNAME / DESTINATION_DS_ID'
     exit(1)
 end
 
 rc = TransferManager::Action.ssh('list_bkp_files',
-                                :host     => "#{rsync_user}@#{rsync_host}",
-                                :cmds     => "ls #{base}/#{buid}",
-                                :nostdout => false)
+                                 :host     => "#{rsync_user}@#{rsync_host}",
+                                 :cmds     => "ls #{base}/#{buid}",
+                                 :nostdout => false)
 if rc.code != 0
     STDERR.puts rc.stderr
     exit(1)
@@ -117,7 +117,7 @@ rc.stdout.each_line do |l|
 end
 
 if disks.empty? || vm_xml_path.empty?
-    STDERR.puts "Backup does not contain any disk or missing vm.xml"
+    STDERR.puts 'Backup does not contain any disk or missing vm.xml'
     exit(1)
 end
 
@@ -136,13 +136,13 @@ vm_xml = rc.stdout
 # Prepare an OpenNebula client to impersonate the target user
 # ------------------------------------------------------------------------------
 no_ip = begin
-    rds['TEMPLATE/NO_IP'] == "YES"
+    rds['TEMPLATE/NO_IP'] == 'YES'
 rescue StandardError
     false
 end
 
 no_nic = begin
-    rds['TEMPLATE/NO_NIC'] == "YES"
+    rds['TEMPLATE/NO_NIC'] == 'YES'
 rescue StandardError
     false
 end
@@ -164,17 +164,18 @@ restorer = TransferManager::BackupRestore.new(
     :image_id  => iid,
     :no_ip     => no_ip,
     :no_nic    => no_nic,
-    :proto     => 'rsync')
+    :proto     => 'rsync'
+)
 
 br_disks = restorer.disk_images(disks)
 
-one_error = ""
+one_error = ''
 images    = []
 
 # Create disk images
-br_disks.each do |id, disk|
+br_disks.each do |_id, disk|
     # Fix image name
-    disk[:template].gsub!(/(NAME = \"[0-9]+-)[0-9]+\//, '\1')
+    disk[:template].gsub!(%r{(NAME = "[0-9]+-)[0-9]+/}, '\1')
     image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
     rc    = image.allocate(disk[:template], dst_ds_id)
 
@@ -202,7 +203,7 @@ end
 vm_template = restorer.vm_template(br_disks)
 
 # Fix template name
-vm_template.gsub!(/(NAME= "[0-9]+-)[0-9]+\//, '\1')
+vm_template.gsub!(%r{(NAME= "[0-9]+-)[0-9]+/}, '\1')
 
 tmpl = OpenNebula::Template.new(OpenNebula::Template.build_xml, one_client)
 rc   = tmpl.allocate(vm_template)
