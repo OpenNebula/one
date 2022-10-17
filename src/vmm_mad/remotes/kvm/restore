@@ -116,7 +116,7 @@ rm "$FILE"
 rm "$FILE_XML"
 
 # redefine potential snapshots
-for SNAPSHOT_MD_XML in $(ls ${VM_DIR}/snap-*.xml 2>/dev/null); do
+for SNAPSHOT_MD_XML in $(ls -v ${VM_DIR}/snap-*.xml 2>/dev/null); do
 
 	# query UUID, but only once
 	UUID=${UUID:-$(virsh --connect $LIBVIRT_URI dominfo $DEPLOY_ID | grep UUID: | awk '{print $2}')}
