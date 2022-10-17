@@ -194,7 +194,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             # we need to support even older versions. We expand the
             # intervals into the list of values [x,x+1,...,y-1,y],
             # which should work for all.
-            cmd = "#{ovs_vsctl_cmd} trunks=#{expand_range(range)}"
+            cmd = "#{ovs_vsctl_cmd} trunks='#{expand_range(range)}'"
             run cmd
 
             cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
