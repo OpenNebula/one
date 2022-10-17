@@ -152,9 +152,9 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     end
 
     # Skip if VM AUTOSTART not enabled
-    autostart = vm['USER_TEMPLATE/AUTOSTART']
-    if !autostart ||
-       (autostart.downcase != 'true' && autostart.downcase != 'yes')
+    autostart = vm['USER_TEMPLATE/AUTOSTART'].to_s.downcase
+    if autostart.empty? ||
+       (autostart != 'true' && autostart != 'yes' && autostart != 'always')
         log "vm #{vm_id}: skip: autostart not enabled"
         next
     end
@@ -163,7 +163,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     # After the host comes back to ONLINE state if OpenNeubula monitor cannot
     # determine the state of active VMs, UNKNOWN state is kept.
     # Skip if LCM State is not UNKNOWN
-    if vm.lcm_state_str != 'UNKNOWN'
+    if vm.lcm_state_str != 'UNKNOWN' && autostart != 'always'
         log "vm #{vm_id}: skip: lcm_state (#{vm.lcm_state_str}) is not UNKNOWN"
         next
     end
@@ -184,17 +184,23 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     # Skip if action in last history record of guest is not 'none'
     last_action = vm["#{last_history_xpath}/ACTION"]
     last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
-    if !%w[none live-migrate].include?(last_action_str)
+
+    if !%w[none live-migrate].include?(last_action_str) && autostart != 'always'
         log "vm #{vm_id}: skip: last_action (#{last_action_str}) " \
             'is not none or live-migrate'
         next
     end
 
     # Autostart VM
-    log "vm #{vm_id}: resume"
-    rc = vm.resume
+    3.times do
+        log "vm #{vm_id}: resume"
+        rc = vm.resume
 
-    log_error "vm: #{vm_id}: #{rc.message}" if OpenNebula.is_error?(rc)
+        break unless OpenNebula.is_error?(rc)
+
+        log_error "vm: #{vm_id}: #{rc.message}"
+        sleep 5
+    end
 end
 
 exit 0
