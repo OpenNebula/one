@@ -445,17 +445,17 @@ define(function (require) {
     var fullName = parentName + folderName;
     if (persis) {
       var htmlStr =
-        "<span class=\"secondary one-label\" persis=\"true\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" persis=\"true\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
         "</span>";
     } else if (yaml) {
       var htmlStr =
-        "<span class=\"secondary one-label\" yaml=\"true\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" yaml=\"true\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
         "</span>";
     } else {
       var htmlStr =
-        "<span class=\"secondary one-label\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
         "</span>";
     }
