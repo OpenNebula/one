@@ -638,6 +638,19 @@ define(function(require) {
     var topTabs = $(".sunstone-menu-content ul li.topTab");
     var subTabs = $(".sunstone-menu-content ul li.subTab > a");
 
+    $(".sunstone-menu-content").resize(function(){
+      var menuWidth = $(this).outerWidth();
+      var maxWidth = $(this).parent().innerWidth();
+      if(maxWidth >= 1200){
+        if(menuWidth >= maxWidth){
+          $(this).outerWidth(maxWidth);
+          $(this).siblings(".sunstone-content").outerWidth(maxWidth);
+        }else{
+          $(this).siblings(".sunstone-content").outerWidth(Math.floor(maxWidth-menuWidth)-1);
+        }
+      }
+    });
+
     subTabs.on("click", function() {
       if ($(this).closest("li").hasClass("topTab")) {
         return false;

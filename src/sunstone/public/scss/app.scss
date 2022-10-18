@@ -328,6 +328,11 @@ ul.dropdown-menu-css {
   }
 }
 
+.sunstone-menu-content{
+  resize: horizontal;
+  overflow: auto;
+}
+
 @media screen and (min-width: 64em){
   .medium-hide {
       display: none !important;
