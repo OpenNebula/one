@@ -320,11 +320,27 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 
     vm->set_exit_time(time(0));
 
-    if (vm->hasHistory() && vm->get_etime() == 0)
+    if (vm->hasHistory())
     {
-        vm->set_etime(time(0));
+        bool update_history = false;
 
-        vmpool->update_history(vm.get());
+        if (vm->get_running_stime() != 0 && vm->get_running_etime() == 0)
+        {
+            update_history = true;
+            vm->set_running_etime(time(0));
+        }
+
+        if (vm->get_etime() == 0)
+        {
+            update_history = true;
+
+            vm->set_etime(time(0));
+        }
+
+        if (update_history)
+        {
+            vmpool->update_history(vm.get());
+        }
     }
 
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
