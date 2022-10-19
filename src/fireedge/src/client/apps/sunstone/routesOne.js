@@ -453,23 +453,10 @@ const ENDPOINTS = [
     routes: [
       {
         title: T.VirtualNetworks,
-        description: (params) => `#${params?.id}`,
-        path: PATH.NETWORK.VNETS.DETAIL,
-        Component: VirtualNetworksDetail,
-      },
-      {
-        title: T.VirtualNetworks,
         path: PATH.NETWORK.VNETS.LIST,
         sidebar: true,
         icon: NetworkIcon,
         Component: VirtualNetworks,
-      },
-      {
-        title: T.NetworkTemplates,
-        path: PATH.NETWORK.VN_TEMPLATES.LIST,
-        sidebar: true,
-        icon: NetworkTemplateIcon,
-        Component: VNetworkTemplates,
       },
       {
         title: (_, state) =>
@@ -480,6 +467,19 @@ const ENDPOINTS = [
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.NETWORK.VNETS.CREATE,
         Component: CreateVirtualNetwork,
+      },
+      {
+        title: T.VirtualNetworks,
+        description: (params) => `#${params?.id}`,
+        path: PATH.NETWORK.VNETS.DETAIL,
+        Component: VirtualNetworksDetail,
+      },
+      {
+        title: T.NetworkTemplates,
+        path: PATH.NETWORK.VN_TEMPLATES.LIST,
+        sidebar: true,
+        icon: NetworkTemplateIcon,
+        Component: VNetworkTemplates,
       },
       {
         title: T.SecurityGroups,
