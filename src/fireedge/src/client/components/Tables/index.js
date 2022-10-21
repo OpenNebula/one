@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import BackupsTable from 'client/components/Tables/Backups'
 import ClustersTable from 'client/components/Tables/Clusters'
 import DatastoresTable from 'client/components/Tables/Datastores'
 import DockerHubTagsTable from 'client/components/Tables/DockerHubTags'
@@ -41,6 +42,7 @@ export * from 'client/components/Tables/Enhanced/Utils'
 export {
   SkeletonTable,
   EnhancedTable,
+  BackupsTable,
   FilesTable,
   VirtualizedTable,
   ClustersTable,

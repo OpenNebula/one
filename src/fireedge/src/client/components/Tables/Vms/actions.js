@@ -41,9 +41,11 @@ import {
   useMigrateMutation,
   useChangeVmOwnershipMutation,
   useRecoverMutation,
+  useBackupMutation,
 } from 'client/features/OneApi/vm'
 
 import {
+  BackupForm,
   RecoverForm,
   ChangeUserForm,
   ChangeGroupForm,
@@ -121,6 +123,7 @@ const Actions = () => {
   const [saveAsTemplate] = useSaveAsTemplateMutation()
   const [actionVm] = useActionVmMutation()
   const [recover] = useRecoverMutation()
+  const [backup] = useBackupMutation()
   const [changeOwnership] = useChangeVmOwnershipMutation()
   const [deploy] = useDeployMutation()
   const [migrate] = useMigrateMutation()
@@ -499,6 +502,23 @@ const Actions = () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => recover({ id, ...formData }))
+                  )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.BACKUP,
+                disabled: isDisabled(VM_ACTIONS.BACKUP),
+                name: T.Backup,
+                dialogProps: {
+                  title: T.Backup,
+                  subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.BACKUP}`,
+                },
+                form: BackupForm,
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => backup({ id, ...formData }))
                   )
                 },
               },

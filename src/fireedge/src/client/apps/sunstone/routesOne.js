@@ -38,6 +38,7 @@ import {
   User as UserIcon,
   Group as GroupIcon,
   HistoricShield as SecurityGroupIcon,
+  RefreshDouble as BackupIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -117,6 +118,9 @@ const CreateSecurityGroups = loadable(
     ssr: false,
   }
 )
+const Backups = loadable(() => import('client/containers/Backups'), {
+  ssr: false,
+})
 const CreateImages = loadable(() => import('client/containers/Images/Create'), {
   ssr: false,
 })
@@ -228,6 +232,10 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.FILE}`,
       DETAIL: `/${RESOURCE_NAMES.FILE}/:id`,
       CREATE: `/${RESOURCE_NAMES.FILE}/create`,
+    },
+    BACKUPS: {
+      LIST: `/${RESOURCE_NAMES.BACKUP}`,
+      DETAIL: `/${RESOURCE_NAMES.BACKUP}/:id`,
     },
     MARKETPLACES: {
       LIST: `/${RESOURCE_NAMES.MARKETPLACE}`,
@@ -425,6 +433,13 @@ const ENDPOINTS = [
         title: T.CreateDockerfile,
         path: PATH.STORAGE.IMAGES.DOCKERFILE,
         Component: CreateDockerfile,
+      },
+      {
+        title: T.Backups,
+        path: PATH.STORAGE.BACKUPS.LIST,
+        sidebar: true,
+        icon: BackupIcon,
+        Component: Backups,
       },
       {
         title: T.Marketplaces,

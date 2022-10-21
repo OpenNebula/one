@@ -709,10 +709,23 @@ export const VM_LCM_STATES = [
     color: COLOR.info.main,
     meaning: '',
   },
+  {
+    // 69
+    name: STATES.BACKUP,
+    color: COLOR.info.main,
+    meaning: '',
+  },
+  {
+    // 70
+    name: STATES.BACKUP_POWEROFF,
+    color: COLOR.info.main,
+    meaning: '',
+  },
 ]
 
 /** @enum {string} Virtual machine actions */
 export const VM_ACTIONS = {
+  BACKUP: 'backup',
   CREATE_DIALOG: 'create_dialog',
   CREATE_APP_DIALOG: 'create_app_dialog',
   DEPLOY: 'deploy',
@@ -791,6 +804,7 @@ export const VM_ACTIONS = {
 
 /** @enum {string} Virtual machine actions by state */
 export const VM_ACTIONS_BY_STATE = {
+  [VM_ACTIONS.BACKUP]: [STATES.POWEROFF, STATES.RUNNING],
   [VM_ACTIONS.DEPLOY]: [
     STATES.PENDING,
     STATES.HOLD,
@@ -980,6 +994,7 @@ export const HYPERVISORS = {
 
 /** @type {string[]} Actions that can be scheduled */
 export const VM_ACTIONS_WITH_SCHEDULE = [
+  VM_ACTIONS.BACKUP,
   VM_ACTIONS.TERMINATE,
   VM_ACTIONS.TERMINATE_HARD,
   VM_ACTIONS.UNDEPLOY,
@@ -1069,7 +1084,8 @@ export const VM_ACTIONS_IN_CHARTER = [
  * 'alias-attach' |
  * 'alias-detach' |
  * 'poweroff-migrate' |
- * 'poweroff-hard-migrate'
+ * 'poweroff-hard-migrate' |
+ * 'backup'
  * )} History actions
  */
 export const HISTORY_ACTIONS = [
@@ -1123,6 +1139,7 @@ export const HISTORY_ACTIONS = [
   'alias-detach',
   'poweroff-migrate',
   'poweroff-hard-migrate',
+  'backup',
 ]
 
 /**

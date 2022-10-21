@@ -28,6 +28,7 @@ import {
   IMAGE_TYPES_STR,
   IMAGE_TYPES_FOR_FILES,
   IMAGE_TYPES_FOR_IMAGES,
+  IMAGE_TYPES_FOR_BACKUPS,
 } from 'client/constants'
 import { getType } from 'client/models/Image'
 
@@ -55,7 +56,9 @@ const imageApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => {
         const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
-          IMAGE_TYPES_FOR_IMAGES.some(() => getType(image))
+          IMAGE_TYPES_FOR_IMAGES.some(
+            (imageType) => imageType === getType(image)
+          )
         )
 
         return [images ?? []].flat()
@@ -87,7 +90,43 @@ const imageApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => {
         const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
-          IMAGE_TYPES_FOR_FILES.some(() => getType(image))
+          IMAGE_TYPES_FOR_FILES.some(
+            (imageType) => imageType === getType(image)
+          )
+        )
+
+        return [images ?? []].flat()
+      },
+      providesTags: (images) =>
+        images
+          ? [
+              ...images.map(({ ID }) => ({ type: IMAGE_POOL, id: `${ID}` })),
+              IMAGE_POOL,
+            ]
+          : [IMAGE_POOL],
+    }),
+    getBackups: builder.query({
+      /**
+       * Retrieves information for all or part of the images in the pool.
+       *
+       * @param {object} params - Request params
+       * @param {FilterFlag} [params.filter] - Filter flag
+       * @param {number} [params.start] - Range start ID
+       * @param {number} [params.end] - Range end ID
+       * @returns {Image[]} List of images
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.IMAGE_POOL_INFO
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      transformResponse: (data) => {
+        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
+          IMAGE_TYPES_FOR_BACKUPS.some(
+            (imageType) => imageType === getType(image)
+          )
         )
 
         return [images ?? []].flat()
@@ -452,6 +491,25 @@ const imageApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }, IMAGE_POOL],
     }),
+    restoreBackup: builder.mutation({
+      /**
+       * Restores an image.
+       *
+       * @param {number|string} params - Request params
+       * @param {string} params.id - Image id
+       * @param {number} params.datastore - New type for the Image
+       * @param {string} params.options - New type for the Image
+       * @returns {number} Image id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.IMAGE_RESTORE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, id) => [{ type: IMAGE, id }],
+    }),
   }),
 })
 
@@ -463,6 +521,8 @@ export const {
   useLazyGetImagesQuery,
   useGetFilesQuery,
   useLazyGetFilesQuery,
+  useGetBackupsQuery,
+  useLazyGetBackupsQuery,
 
   // Mutations
   useAllocateImageMutation,
@@ -482,4 +542,5 @@ export const {
   useLockImageMutation,
   useUnlockImageMutation,
   useUploadImageMutation,
+  useRestoreBackupMutation,
 } = imageApi

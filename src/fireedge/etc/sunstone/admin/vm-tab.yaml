@@ -55,6 +55,7 @@ actions:
   ssh: true
   rdp: true
   edit_labels: true
+  backup: true
 
 # Filters - List of criteria to filter the resources
 
@@ -71,7 +72,6 @@ filters:
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
-
   info:
     enabled: true
     information_panel:

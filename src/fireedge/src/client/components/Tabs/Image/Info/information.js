@@ -25,7 +25,7 @@ import {
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
-import { getType, getState } from 'client/models/Image'
+import { getDiskType, getType, getState } from 'client/models/Image'
 import {
   timeToString,
   booleanToString,
@@ -62,6 +62,7 @@ const InformationPanel = ({ image = {}, actions }) => {
 
   const { color: stateColor, name: stateName } = getState(image)
   const imageTypeName = getType(image)
+  const imageDiskTypeName = getDiskType(image)
 
   const handleRename = async (_, newName) => {
     await rename({ id: ID, name: newName })
@@ -114,6 +115,12 @@ const InformationPanel = ({ image = {}, actions }) => {
       handleGetOptionList: getTypeOptions,
       handleEdit: handleChangeType,
       dataCy: 'type',
+    },
+    {
+      name: T.DiskType,
+      value: imageDiskTypeName,
+      valueInOptionList: imageDiskTypeName,
+      dataCy: 'diskType',
     },
     {
       name: T.Locked,

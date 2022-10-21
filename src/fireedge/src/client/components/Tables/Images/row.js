@@ -16,11 +16,21 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { Lock, User, Group, Folder, ModernTv } from 'iconoir-react'
+import {
+  Lock,
+  User,
+  Group,
+  Db as DatastoreIcon,
+  ModernTv,
+  Pin as PersistentIcon,
+  Archive as DiskTypeIcon,
+} from 'iconoir-react'
 import { Typography } from '@mui/material'
 
+import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import { T } from 'client/constants'
 
 import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
@@ -42,14 +52,11 @@ const Row = ({ original, value, ...props }) => {
     RUNNING_VMS,
   } = value
 
-  const labels = [
-    ...new Set([PERSISTENT && 'PERSISTENT', TYPE, DISK_TYPE]),
-  ].filter(Boolean)
+  const labels = [...new Set([TYPE])].filter(Boolean)
 
   const { color: stateColor, name: stateName } = ImageModel.getState(original)
 
   const time = Helper.timeFromMilliseconds(+REGTIME)
-  const timeAgo = `registered ${time.toRelative()}`
 
   return (
     <div {...props} data-cy={`image-${ID}`}>
@@ -67,20 +74,43 @@ const Row = ({ original, value, ...props }) => {
           </span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
-          <span title={`Owner: ${UNAME}`}>
+          <span>{`${ID}`}</span>
+          <span title={time.toFormat('ff')}>
+            <Timer translateWord={T.RegisteredAt} initial={time} />
+          </span>
+          <span title={`${T.Owner}: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span title={`Group: ${GNAME}`}>
+          <span title={`${T.Group}: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span title={`Datastore: ${DATASTORE}`}>
-            <Folder />
+          <span title={`${T.Datastore}: ${DATASTORE}`}>
+            <DatastoreIcon />
             <span>{` ${DATASTORE}`}</span>
           </span>
-          <span title={`Running / Used VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
+          <span
+            title={
+              PERSISTENT
+                ? T.Persistent.toLowerCase()
+                : T.NonPersistent.toLowerCase()
+            }
+          >
+            <PersistentIcon />
+            <span>
+              {PERSISTENT
+                ? T.Persistent.toLowerCase()
+                : T.NonPersistent.toLowerCase()}
+            </span>
+          </span>
+          <span title={`${T.DiskType}: ${DISK_TYPE.toLowerCase()}`}>
+            <DiskTypeIcon />
+            <span>{` ${DISK_TYPE.toLowerCase()}`}</span>
+          </span>
+          <span
+            title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
+          >
             <ModernTv />
             <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
           </span>

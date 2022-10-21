@@ -50,6 +50,7 @@ module.exports = {
   AttachNic: 'Attach NIC',
   AttachVolatile: 'Attach volatile disk',
   BackToList: 'Back to %s list',
+  Backup: 'Backup',
   Cancel: 'Cancel',
   Change: 'Change',
   ChangeGroup: 'Change group',
@@ -139,6 +140,7 @@ module.exports = {
   ResizeSomething: 'Resize: %s',
   Resume: 'Resume',
   Retry: 'Retry',
+  Restore: 'Restore',
   Revert: 'Revert',
   RevertSomething: 'Revert: %s',
   Save: 'Save',
@@ -360,6 +362,9 @@ module.exports = {
   SecurityGroups: 'Security groups',
 
   /* sections - storage */
+  Backups: 'Backups',
+  BackupDatastore: 'Backup Datastore',
+  BackupRestored: 'Backup restored',
   Datastore: 'Datastore',
   Datastores: 'Datastores',
   Image: 'Image',
@@ -385,6 +390,9 @@ module.exports = {
   Fs: 'Fs',
   CustomFormat: 'Custom Format',
   Dockerfile: 'Dockerfile',
+  Running: 'Running',
+  DoNotRestoreNICAttributes: 'Do not restore NIC attributes',
+  DoNotRestoreIPAttributes: 'Do not restore IP attributes',
 
   /* sections - templates & instances */
   Instances: 'Instances',
@@ -1079,7 +1087,7 @@ module.exports = {
   BasePath: 'Base path',
   FileSystemType: 'Filesystem type',
   Persistent: 'Persistent',
-  NonPersistyent: 'Non Persistent',
+  NonPersistent: 'Non Persistent',
   RunningVMs: 'Running VMs',
   /* Disk - general */
   DiskType: 'Disk type',

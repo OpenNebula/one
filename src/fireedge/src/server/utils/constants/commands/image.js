@@ -35,6 +35,7 @@ const IMAGE_SNAPFLAT = 'image.snapshotflatten'
 const IMAGE_INFO = 'image.info'
 const IMAGE_LOCK = 'image.lock'
 const IMAGE_UNLOCK = 'image.unlock'
+const IMAGE_RESTORE = 'image.restore'
 const IMAGE_POOL_INFO = 'imagepool.info'
 
 const Actions = {
@@ -54,6 +55,7 @@ const Actions = {
   IMAGE_INFO,
   IMAGE_LOCK,
   IMAGE_UNLOCK,
+  IMAGE_RESTORE,
   IMAGE_POOL_INFO,
 }
 
@@ -321,6 +323,24 @@ module.exports = {
         id: {
           from: resource,
           default: 0,
+        },
+      },
+    },
+    [IMAGE_RESTORE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        datastore: {
+          from: postBody,
+          default: -1,
+        },
+        options: {
+          from: postBody,
+          default: '',
         },
       },
     },

@@ -19,8 +19,8 @@ import { useHistory } from 'react-router-dom'
 import { Box, CircularProgress, Grid } from '@mui/material'
 import {
   ModernTv as VmsIcons,
-  List as TemplatesIcon,
-  Archive as ImageIcon,
+  EmptyPage as TemplatesIcon,
+  BoxIso as ImageIcon,
   NetworkAlt as NetworkIcon,
 } from 'iconoir-react'
 

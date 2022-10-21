@@ -63,6 +63,7 @@ export const IMAGE_TYPES_STR = {
   KERNEL: 'KERNEL',
   RAMDISK: 'RAMDISK',
   CONTEXT: 'CONTEXT',
+  BACKUP: 'BACKUP',
 }
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type */
@@ -73,6 +74,7 @@ export const IMAGE_TYPES = [
   IMAGE_TYPES_STR.KERNEL,
   IMAGE_TYPES_STR.RAMDISK,
   IMAGE_TYPES_STR.CONTEXT,
+  IMAGE_TYPES_STR.BACKUP,
 ]
 
 /** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab files */
@@ -88,6 +90,9 @@ export const IMAGE_TYPES_FOR_IMAGES = [
   IMAGE_TYPES_STR.CDROM,
   IMAGE_TYPES_STR.DATABLOCK,
 ]
+
+/** @type {IMAGE_TYPES_STR[]} Return the string representation of an Image type for tab files */
+export const IMAGE_TYPES_FOR_BACKUPS = [IMAGE_TYPES_STR.BACKUP]
 
 /** @enum {string} Disk type */
 export const DISK_TYPES_STR = {
@@ -186,6 +191,7 @@ export const IMAGE_ACTIONS = {
   DISABLE: 'disable',
   PERSISTENT: 'persistent',
   NON_PERSISTENT: 'nonpersistent',
+  RESTORE: 'restore',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,

@@ -150,6 +150,7 @@ export const SOCKETS = {
 /** @enum {string} Names of resource */
 export const RESOURCE_NAMES = {
   APP: 'marketplace-app',
+  BACKUP: 'backup',
   CLUSTER: 'cluster',
   DATASTORE: 'datastore',
   GROUP: 'group',

@@ -875,6 +875,24 @@ const vmApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
     }),
+    backup: builder.mutation({
+      /**
+       * Backup the VM.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {number} params.dsId - Backup Datastore id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_BACKUP
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
     lockVm: builder.mutation({
       /**
        * Locks a Virtual Machine. Lock certain actions depending on blocking level.
@@ -1064,6 +1082,7 @@ export const {
   useUpdateUserTemplateMutation,
   useUpdateConfigurationMutation,
   useRecoverMutation,
+  useBackupMutation,
   useLockVmMutation,
   useUnlockVmMutation,
   useAddScheduledActionMutation,

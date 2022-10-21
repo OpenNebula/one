@@ -52,6 +52,7 @@ const VM_SEC_GROUP_DETACH = 'vm.detachsg'
 const VM_SCHED_ADD = 'vm.schedadd'
 const VM_SCHED_UPDATE = 'vm.schedupdate'
 const VM_SCHED_DELETE = 'vm.scheddelete'
+const VM_BACKUP = 'vm.backup'
 const VM_POOL_INFO = 'vmpool.info'
 const VM_POOL_INFO_EXTENDED = 'vmpool.infoextended'
 const VM_POOL_MONITORING = 'vmpool.monitoring'
@@ -93,6 +94,7 @@ const Actions = {
   VM_SCHED_ADD,
   VM_SCHED_UPDATE,
   VM_SCHED_DELETE,
+  VM_BACKUP,
   VM_POOL_INFO,
   VM_POOL_INFO_EXTENDED,
   VM_POOL_MONITORING,
@@ -670,6 +672,19 @@ module.exports = {
           default: 0,
         },
         schedId: {
+          from: postBody,
+          default: 0,
+        },
+      },
+    },
+    [VM_BACKUP]: {
+      httpMethod: POST,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        dsId: {
           from: postBody,
           default: 0,
         },

@@ -18,43 +18,26 @@ import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
+import { useGetImageQuery } from 'client/features/OneApi/image'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
-import Info from 'client/components/Tabs/Vm/Info'
-import Network from 'client/components/Tabs/Vm/Network'
-import History from 'client/components/Tabs/Vm/History'
-import SchedActions from 'client/components/Tabs/Vm/SchedActions'
-import Snapshot from 'client/components/Tabs/Vm/Snapshot'
-import Backup from 'client/components/Tabs/Vm/Backup'
-import Storage from 'client/components/Tabs/Vm/Storage'
-import Configuration from 'client/components/Tabs/Vm/Configuration'
-import Template from 'client/components/Tabs/Vm/Template'
+import Info from 'client/components/Tabs/Backup/Info'
+import Vms from 'client/components/Tabs/Backup/Vms'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
-    network: Network,
-    history: History,
-    sched_actions: SchedActions,
-    snapshot: Snapshot,
-    backup: Backup,
-    storage: Storage,
-    configuration: Configuration,
-    template: Template,
+    vms: Vms,
   }[tabName])
 
-const VmTabs = memo(({ id }) => {
+const BackupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetVmQuery(
-    { id },
-    { refetchOnMountOrArgChange: 10 }
-  )
+  const { isLoading, isError, error } = useGetImageQuery({ id })
 
   const tabsAvailable = useMemo(() => {
-    const resource = RESOURCE_NAMES.VM
+    const resource = RESOURCE_NAMES.IMAGE
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
@@ -71,11 +54,11 @@ const VmTabs = memo(({ id }) => {
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />
   ) : (
-    <Tabs addBorder tabs={tabsAvailable} />
+    <Tabs addBorder tabs={tabsAvailable ?? []} />
   )
 })
 
-VmTabs.propTypes = { id: PropTypes.string.isRequired }
-VmTabs.displayName = 'VmTabs'
+BackupTabs.propTypes = { id: PropTypes.string.isRequired }
+BackupTabs.displayName = 'BackupTabs'
 
-export default VmTabs
+export default BackupTabs

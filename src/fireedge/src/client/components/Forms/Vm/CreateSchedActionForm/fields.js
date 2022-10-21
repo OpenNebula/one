@@ -38,6 +38,7 @@ import {
   dateToMilliseconds,
 } from 'client/models/Helper'
 import { getSnapshotList, getDisks } from 'client/models/VirtualMachine'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 
 // --------------------------------------------------------
 // Constants
@@ -111,6 +112,26 @@ const ACTION_FIELD_FOR_CHARTERS = {
     addEmpty: false,
     getText: (action) => sentenceCase(action),
   }),
+}
+
+/**
+ * @returns {Field} Datastore id field
+ */
+const ARGS_DS_ID_FIELD = {
+  ...createArgField(ARGS_TYPES.DS_ID),
+  label: T.BackupDatastore,
+  type: INPUT_TYPES.SELECT,
+  values: () => {
+    const { data: datastores = [] } = useGetDatastoresQuery()
+
+    return arrayToOptions(
+      datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
+      {
+        getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
+        getValue: ({ ID } = {}) => ID,
+      }
+    )
+  },
 }
 
 /**
@@ -462,6 +483,7 @@ export const PUNCTUAL_FIELDS = {
   ARGS_NAME_FIELD,
   ARGS_DISK_ID_FIELD,
   ARGS_SNAPSHOT_ID_FIELD,
+  ARGS_DS_ID_FIELD,
   PERIODIC_FIELD,
   REPEAT_FIELD,
   WEEKLY_FIELD,

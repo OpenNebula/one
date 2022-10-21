@@ -66,6 +66,7 @@ export const ARGS_TYPES = {
   DISK_ID: 'DISK_ID',
   NAME: 'NAME',
   SNAPSHOT_ID: 'SNAPSHOT_ID',
+  DS_ID: 'DS_ID',
 }
 
 /** @enum {string} Period type */

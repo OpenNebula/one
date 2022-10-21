@@ -54,7 +54,7 @@ import { Permissions } from 'client/constants/common'
  */
 
 /** @type {string[]} Datastore type information */
-export const DATASTORE_TYPES = ['IMAGE', 'SYSTEM', 'FILE']
+export const DATASTORE_TYPES = ['IMAGE', 'SYSTEM', 'FILE', 'BACKUP']
 
 /** @type {STATES.StateInfo[]} Datastore states */
 export const DATASTORE_STATES = [
