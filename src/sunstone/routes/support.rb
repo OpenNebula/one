@@ -136,8 +136,7 @@ get '/support/request' do
     open_requests = 0
     pending_requests = 0
     one_zrequests = {
-        'REQUEST_POOL' => {
-        }
+        'REQUEST_POOL' => {}
     }
 
     if !zrequests.empty?

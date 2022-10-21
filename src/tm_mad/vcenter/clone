@@ -159,7 +159,7 @@ rescue StandardError => e
     message = "Error clone virtual disk #{src_path} in "\
               "datastore #{target_ds_name_vc}. "\
               "Reason: #{e.message}." \
-              "on attempt \##{retries}."
+              "on attempt #{retries}."
 
     if op_retry && (retries += 1) > CONFIG[:retries]
         message << "\nPlease check vCenter logs directly\n"

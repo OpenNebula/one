@@ -781,6 +781,9 @@ Style/SlicingWithRange:
 Style/RedundantCondition:
   Enabled: false
 
+Style/RedundantStringEscape:
+  Enabled: false
+
 ######
 # LINT
 ######

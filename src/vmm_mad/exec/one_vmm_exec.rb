@@ -63,8 +63,6 @@ require 'getoptlong'
 require 'ssh_stream'
 require 'rexml/document'
 
-require 'pp'
-
 # VmmAction
 class VmmAction
 

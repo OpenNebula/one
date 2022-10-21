@@ -361,7 +361,7 @@ module VCenterDriver
                             .rm_rf(
                                 temp_folder
                             )
-                            raise "Error \ removing tar for #{descriptor_name}")
+                            raise "Error removing tar for #{descriptor_name}")
                     end # rubocop:disable Style/Semicolon
                 end
             end
