@@ -85,7 +85,7 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
     dsrc = "#{rdir}/disk.#{did}"
     ddst = "#{bck_dir}/disk.#{did}"
 
-    convert << "qemu-img convert -O qcow2 #{dsrc} #{ddst}; "
+    convert << "qemu-img convert -m 4 -O qcow2 #{dsrc} #{ddst}; "
 end
 
 pre_script = <<~EOS

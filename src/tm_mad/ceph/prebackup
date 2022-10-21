@@ -112,7 +112,7 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
 
     expo_cmd << "#{cmd} export #{rbd_src} #{draw}\n"
 
-    conv_cmd << "qemu-img convert -O qcow2 #{draw} #{ddst}\n"
+    conv_cmd << "qemu-img convert -m 4 -O qcow2 #{draw} #{ddst}\n"
 
     clup_cmd << "#{cmd} snap rm #{rbd_src}@backup\n"
     clup_cmd << "rm -f #{draw}\n"
