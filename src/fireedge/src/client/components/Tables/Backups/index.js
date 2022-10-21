@@ -49,7 +49,9 @@ const BackupsTable = (props) => {
 
       return {
         ...result,
-        data: result?.data?.filter((backup) => backupsIds?.includes(backup.ID)),
+        data: result?.data?.filter((backup) =>
+          vm ? backupsIds?.includes(backup.ID) : true
+        ),
       }
     },
   })
