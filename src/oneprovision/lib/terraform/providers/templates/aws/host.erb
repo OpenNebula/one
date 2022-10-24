@@ -53,6 +53,8 @@ resource "aws_network_interface" "device_<%= obj['ID'] %>_ceph" {
     tags                   = {
         Name = "device_<%= obj['ID'] %>_ceph"
     }
+
+    depends_on = [ aws_instance.device_<%= obj['ID'] %> ]
 }
 
 <%# additional CEPH disk %>
