@@ -188,12 +188,6 @@ define(function(require) {
         $("#automatic_vlan_id option[value='NO']", context).hide();
         $("#phydev", context).attr("required", "");
         break;
-      case "ebtables":
-        $("div.mode_param.ebtables", context).show();
-        $("div.mode_param.ebtables [wizard_field]", context).prop("wizard_field_disabled", false);
-
-        $("input#bridge", context).removeAttr("required");
-        break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
         $("#vnetCreateSecurityTab-label").hide();
@@ -305,7 +299,6 @@ define(function(require) {
     } else if (config["mode"] === "vcenter"){
       $("#network_mode option[value=\"bridge\"]", context).hide();
       $("#network_mode option[value=\"fw\"]", context).hide();
-      $("#network_mode option[value=\"ebtables\"]", context).hide();
       $("#network_mode option[value=\"802.1Q\"]", context).hide();
       $("#network_mode option[value=\"vxlan\"]", context).hide();
       $("#network_mode option[value=\"ovswitch\"]", context).hide();
