@@ -138,6 +138,12 @@ pre_script = <<~EOS
 EOS
 
 rc = TransferManager::Action.ssh('prebackup_live', :host => rhost,
-                                 :cmds => pre_script)
+                                 :cmds => pre_script,
+                                 :nostdout => false,
+                                 :nostderr => false)
 
-exit(rc)
+if rc.code != 0
+    STDERR.puts "Error preparing disk files: #{rc.stdout} #{rc.stderr}"
+end
+
+exit(rc.code)

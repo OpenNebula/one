@@ -111,7 +111,15 @@ post_script = <<~EOS
     rm -rf #{bck_dir}
 EOS
 
-rc = TransferManager::Action.ssh('postbackup_live', :host => rhost,
-                                 :cmds => post_script)
+rc = TransferManager::Action.ssh('postbackup_live',
+                                 :host => rhost,
+                                 :cmds => post_script,
+                                 :nostdout => false,
+                                 :nostderr => false)
 
-exit(rc)
+if rc.code != 0
+    STDERR.puts "Error cleaning backup temporal files: #{rc.stdout} #{rc.stderr}"
+end
+
+# Error is logged, tmp files will be removed in next backup, or VM termination
+exit(0)

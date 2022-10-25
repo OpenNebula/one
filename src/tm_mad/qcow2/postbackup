@@ -70,7 +70,15 @@ rdir      = dir[1]
 
 bck_dir = "#{rdir}/backup"
 
-rc = TransferManager::Action.ssh('postbackp', :host => rhost,
-                                 :cmds => "rm -rf #{bck_dir}")
+rc = TransferManager::Action.ssh('postbackup',
+                                 :host => rhost,
+                                 :cmds => "rm -rf #{bck_dir}",
+                                 :nostdout => false,
+                                 :nostderr => false)
 
-exit(rc)
+if rc.code != 0
+    STDERR.puts "Error cleaning backup temporal files: #{rc.stdout} #{rc.stderr}"
+end
+
+# Error is logged, tmp files will be removed in next backup, or VM termination
+exit(0)
