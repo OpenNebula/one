@@ -143,7 +143,7 @@ define(function (require) {
       roles: optionsRoles
     });
   }
-  
+
   function _setupPerformAction(resource, service_id){
     $("select#select_new_action").off("change").on("change",function(){
       var snap_name = $("#snapname");
@@ -680,7 +680,7 @@ define(function (require) {
     $("#sched_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
 
-    $("#sched_" + this.res + "_actions_table tbody tr").each(function (index) {
+    $("#sched_" + this.res + "_actions_table tbody tr", context).each(function (index) {
       var first = $(this).children("td")[0];
       if (!$("select", first).html()) { //table header
         var actionJSON = {};
@@ -965,14 +965,14 @@ define(function (require) {
           sched_obj.end_str = Locale.tr("None");
           break;
         case "1":
-          sched_obj.end_str = Locale.tr("After") + 
+          sched_obj.end_str = Locale.tr("After") +
             " " +
             schedule_action.END_VALUE +
             " " +
             Locale.tr("times");
           break;
         case "2":
-          sched_obj.end_str = Locale.tr("On") + 
+          sched_obj.end_str = Locale.tr("On") +
             " " +
             Humanize.prettyTime(schedule_action.END_VALUE);
           break;
@@ -1042,6 +1042,39 @@ define(function (require) {
         }
       });
     });
+  }
+
+  /**
+   * This function updates the Service vm_template_contents with the scheduled
+   * actions of the first service vm.
+   *
+   * @param {object} service - Service object.
+   */
+  function _updateVmTemplateContents(service){
+    if (
+      service &&
+      service.data &&
+      service.data[0] &&
+      service.data[0].nodes &&
+      service.data[0].nodes[0] &&
+      service.data[0].nodes[0].deploy_id >= 0){
+        OpenNebulaVM.show({
+          data : {
+              id: service.data[0].nodes[0].deploy_id
+          },
+          success: function(_, vmTemplate){
+            var sched_action = { SCHED_ACTION: vmTemplate.VM.TEMPLATE.SCHED_ACTION };
+            var sched_template = TemplateUtils.templateToString(sched_action);
+            service.body.roles.forEach(role => {
+              role.vm_template_contents = sched_template;
+            });
+            Sunstone.runAction("Service.update",service.id, JSON.stringify(service.body));
+          },
+          error: function(error){
+            Notifier.onError("VM: " +error);
+          }
+        });
+    }
   }
 
   /**
@@ -1138,6 +1171,7 @@ define(function (require) {
             callback: function() {
               var selector = "#sched_" + resource + "_actions_body";
               _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+              _updateVmTemplateContents(that);
             }
           };
           sendSchedActionToServiceRoles(roles, "VM.sched_action_add", sched_template, extraParams);
@@ -1196,6 +1230,7 @@ define(function (require) {
                 callback: function() {
                   var selector = "#sched_" + resource + "_actions_body";
                   _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+                  _updateVmTemplateContents(that);
                 }
               };
               sendSchedActionToServiceRoles(roles, "VM.sched_action_update", obj, extraParams);
@@ -1235,6 +1270,7 @@ define(function (require) {
             callback: function() {
               var selector = "#sched_" + resource + "_actions_body";
               _updateServiceHTMLTable(that, selector, _getScheduleActionTableContent);
+              _updateVmTemplateContents(that);
             }
           };
           sendSchedActionToServiceRoles(roles, "VM.sched_action_delete", null, extraParams);
@@ -1472,7 +1508,7 @@ define(function (require) {
         });
       }
     }
-    
+
 
     return TemplateCharterTableHTML({
       "res": resource,
