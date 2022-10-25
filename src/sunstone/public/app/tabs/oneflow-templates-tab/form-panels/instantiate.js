@@ -291,7 +291,7 @@ define(function(require) {
       }
       if (that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles) {
         var charters = "";
-        var scheduleActionsList = ScheduleActions.retrieve(context, true)
+        var scheduleActionsList = ScheduleActions.retrieve(context, true);
 
         $.each(scheduleActionsList, function(_,sched_action){
           charters += TemplateUtils.templateToString(sched_action);
@@ -338,9 +338,7 @@ define(function(require) {
             }
           });
           if(charters.length){
-            (temp_role.vm_template_contents !== undefined)
-              ? temp_role.vm_template_contents += charters
-              : temp_role.vm_template_contents = charters;
+            temp_role.vm_template_contents = charters;
           }
           extra_info.merge_template.roles.push(temp_role);
         });
