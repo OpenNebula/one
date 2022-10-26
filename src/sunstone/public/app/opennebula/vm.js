@@ -367,7 +367,7 @@ define(function(require) {
     Locale.tr("HOTPLUG"),         // HOTPLUG_SAVEAS_UNDEPLOYED
     Locale.tr("HOTPLUG"),         // HOTPLUG_SAVEAS_STOPPED
     Locale.tr("BACKUP"),          // BACKUP
-    Locale.tr("BACKUP_POWEROFF"), // BACKUP_POWEROFF
+    Locale.tr("BACKUP"),          // BACKUP_POWEROFF
   ];
 
   var VNC_STATES = [
