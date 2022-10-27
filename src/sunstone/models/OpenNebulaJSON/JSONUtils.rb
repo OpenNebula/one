@@ -47,8 +47,7 @@ module OpenNebulaJSON
 
         def parse_json_sym(json_str, root_element)
             begin
-                parser = JSON.parser.new(json_str, {:symbolize_names => true})
-                hash = parser.parse
+                hash = JSON.parse(json_str, {:symbolize_names => true})
 
                 if hash.has_key?(root_element)
                     return hash[root_element]
