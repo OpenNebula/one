@@ -159,7 +159,7 @@ public:
      */
     static std::string shared_db_version()
     {
-        return "7.0.0";
+        return "6.6.0";
     }
 
     /**
@@ -168,7 +168,7 @@ public:
      */
     static std::string local_db_version()
     {
-        return "7.0.0";
+        return "6.6.0";
     }
 
     /**
