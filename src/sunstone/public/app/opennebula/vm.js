@@ -1122,7 +1122,7 @@ define(function(require) {
     var non_external_nics = [];
 
     nics.forEach(function(nic, index){
-     if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC){
+     if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.IP6_GLOBAL || nic.IP6_ULA || nic.MAC){
         var copy_nic = Object.assign({}, nic);
         if (nic.EXTERNAL_IP){
           external_nics.push(nic);
@@ -1150,8 +1150,35 @@ define(function(require) {
 
     return copy_nics.reduce(function(column, nic) {
       if (first){
-        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC) {
-          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.IP6_GLOBAL || nic.IP6_ULA || nic.MAC) {
+          var ip;
+          if (nic.EXTERNAL_IP) {
+	          ip = nic.EXTERNAL_IP
+          }
+          else {
+	          var ips = [];
+
+	          if (nic.IP)
+		          ips.push(nic.IP)
+
+	          if (nic.IP6)
+	          	  ips.push(nic.IP6)
+	          else if (nic.IP6_ULA && nic.IP6_GLOBAL)
+	          	  ips.push(nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL)
+	          else if (nic.IP6_GLOBAL)
+	          	  ips.push(nic.IP6_GLOBAL)
+
+	          if (ips.length == 0 && nic.MAC)
+	          	  ips.push(nic.MAC)
+
+              // show only first one
+	          ip = ips[0]
+	          if (ips.length > 1)
+	            // this ensure showing dropdown on the vms list datatable
+	          	ip += "&#10;&#13;"
+          }
+
+
           nic_and_ip = nic.NIC_ID + ": " + ip;
           if (nic.EXTERNAL_IP)
             nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>";
@@ -1160,7 +1187,7 @@ define(function(require) {
         }
       }
       else{
-        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC) {
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.IP6_GLOBAL || nic.IP6_ULA || nic.MAC) {
           var ip;
           var nicSection = $("<a/>").css("color", "gray");
 
@@ -1169,7 +1196,22 @@ define(function(require) {
             nicSection.css("font-weight", "bold");
           }
           else{
-            ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+            var ips = [];
+
+	        if (nic.IP)
+		        ips.push(nic.IP)
+
+	        if (nic.IP6)
+	        	ips.push(nic.IP6)
+	        else if (nic.IP6_ULA && nic.IP6_GLOBAL)
+	        	ips.push(nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL)
+	        else if (nic.IP6_GLOBAL)
+	        	ips.push(nic.IP6_GLOBAL)
+
+	        if (ips.length == 0 && nic.MAC)
+	        	ips.push(nic.MAC)
+
+	        ip = ips.join(", ")
           }
 
           nicSection.html(nic.NIC_ID + ": " + ip);
@@ -1187,14 +1229,20 @@ define(function(require) {
               });
 
               if (alias) {
-                var alias_ip;
+				var alias_ip;
+                var alias_ips = [];
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP;
-                else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6;
+                    alias_ips.push(alias.IP)
+
+                if (alias.IP6)
+                    alias_ips.push(alias.IP6)
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
-                    alias_ip = alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
+                    alias_ips.push(alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL)
+                else if (alias.IP6_GLOBAL)
+                    alias_ips.push(alias.IP6_GLOBAL)
+
+				alias_ip = alias_ips.join(", ")
 
                 if (alias_ip){
                   column.append($("<li/>").append($("<a/>").css({
@@ -1220,7 +1268,7 @@ define(function(require) {
     var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
     return all_nics.reduce(function(column, nic) {
-      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || nic.IP6_GLOBAL || nic.IP6_ULA) {
         var ip;
 
         var nicSection = $("<p/>")
@@ -1232,7 +1280,22 @@ define(function(require) {
           nicSection.css("font-weight","bold");
         }
         else {
-          ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
+          var ips = [];
+
+          if (nic.IP)
+	          ips.push(nic.IP)
+
+          if (nic.IP6)
+          	  ips.push(nic.IP6)
+          else if (nic.IP6_ULA && nic.IP6_GLOBAL)
+          	  ips.push(nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL)
+          else if (nic.IP6_GLOBAL)
+          	  ips.push(nic.IP6_GLOBAL)
+
+          if (ips.length == 0 && nic.MAC)
+          	  ips.push(nic.MAC)
+
+          ip = ips.join(", ")
         }
 
         nicSection.html(nic.NIC_ID + ": " + ip);
@@ -1248,14 +1311,20 @@ define(function(require) {
             var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
 
               if (alias) {
-                var alias_ip;
+	            var alias_ip;
+                var alias_ips = [];
 
                 if (alias.IP)
-                    alias_ip = identation + "> " + alias.IP;
-                else if (alias.IP6)
-                    alias_ip = identation + "> " + alias.IP6;
+                    alias_ips.push(alias.IP)
+
+                if (alias.IP6)
+                    alias_ips.push(alias.IP6)
                 else if (alias.IP6_ULA && alias.IP6_GLOBAL)
-                    alias_ip = alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
+                    alias_ips.push(alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL)
+                else if (alias.IP6_GLOBAL)
+                    alias_ips.push(alias.IP6_GLOBAL)
+
+				alias_ip = identation + "> " + alias_ips.join(", ")
 
                 if (alias_ip){
                   column.append($("<p/>").css({
