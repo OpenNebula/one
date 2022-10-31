@@ -72,6 +72,7 @@ filters:
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
@@ -150,6 +151,9 @@ info-tabs:
       snapshot_create: true
       snapshot_revert: true
       snapshot_delete: true
+
+  backup:
+    enabled: true
 
   history:
     enabled: true
