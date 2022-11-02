@@ -41,7 +41,7 @@ module OneCfg::Config::Type
         def load(name = @name)
             reset
 
-            @content = YAML.load_file(name, :aliases => true)
+            @content = YAML.load_file(name)
 
             @content
         end
