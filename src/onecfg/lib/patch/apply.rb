@@ -112,7 +112,7 @@ module OneCfg::Patch
                     patch_count   = rep.size
                     patch_success = 0
 
-                    rep.each.each do |r|
+                    rep.each do |r|
                         if r[:status]
                             patch_success += 1
                         else
