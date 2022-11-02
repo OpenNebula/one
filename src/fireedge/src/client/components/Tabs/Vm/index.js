@@ -15,13 +15,24 @@
  * ------------------------------------------------------------------------- */
 import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Alert, LinearProgress } from '@mui/material'
+import { Alert, LinearProgress, Fade } from '@mui/material'
+import { Cancel as CloseIcon } from 'iconoir-react'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useViews } from 'client/features/Auth'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
+import {
+  useGetVmQuery,
+  useUpdateUserTemplateMutation,
+} from 'client/features/OneApi/vm'
+import {
+  getAvailableInfoTabs,
+  jsonToXml,
+  getErrorMessage,
+} from 'client/models/Helper'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { Translate } from 'client/components/HOC'
 
+import { SubmitButton } from 'client/components/FormControl'
 import Tabs from 'client/components/Tabs'
 import Capacity from 'client/components/Tabs/Vm/Capacity'
 import Info from 'client/components/Tabs/Vm/Info'
@@ -32,6 +43,15 @@ import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
 import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Template from 'client/components/Tabs/Vm/Template'
+
+const useStyles = makeStyles(({ palette }) => ({
+  vmError: {
+    '&': {
+      marginBottom: '15px',
+      backgroundColor: palette.background.paper,
+    },
+  },
+}))
 
 const getTabComponent = (tabName) =>
   ({
@@ -47,11 +67,26 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const VmTabs = memo(({ id }) => {
+  const classes = useStyles()
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetVmQuery(
-    { id },
-    { refetchOnMountOrArgChange: 10 }
-  )
+  const {
+    isLoading,
+    isError,
+    error,
+    data: vm = {},
+  } = useGetVmQuery({ id }, { refetchOnMountOrArgChange: 10 })
+  const [dismissError] = useUpdateUserTemplateMutation()
+
+  const { USER_TEMPLATE } = vm
+
+  const handleDismissError = async () => {
+    const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
+    const xml = jsonToXml({ ...templateWithoutError })
+
+    await dismissError({ id, template: xml, replace: 0 })
+  }
+
+  const vmError = useMemo(() => getErrorMessage(vm), [vm])
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM
@@ -71,7 +106,26 @@ const VmTabs = memo(({ id }) => {
   return isLoading ? (
     <LinearProgress color="secondary" sx={{ width: '100%' }} />
   ) : (
-    <Tabs addBorder tabs={tabsAvailable} />
+    <>
+      <Fade in={!!vmError} unmountOnExit>
+        <Alert
+          variant="outlined"
+          severity="error"
+          className={classes.vmError}
+          sx={{ gridColumn: 'span 2' }}
+          action={
+            <SubmitButton
+              onClick={handleDismissError}
+              icon={<CloseIcon />}
+              tooltip={<Translate word={T.Dismiss} />}
+            />
+          }
+        >
+          {vmError}
+        </Alert>
+      </Fade>
+      <Tabs addBorder tabs={tabsAvailable} />
+    </>
   )
 })
 
