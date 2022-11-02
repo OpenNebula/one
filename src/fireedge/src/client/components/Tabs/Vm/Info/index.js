@@ -15,8 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, Alert, Fade } from '@mui/material'
-import { Cancel as CloseIcon } from 'iconoir-react'
+import { Stack } from '@mui/material'
 
 import {
   useGetVmQuery,
@@ -32,16 +31,14 @@ import {
 import Information from 'client/components/Tabs/Vm/Info/information'
 import Capacity from 'client/components/Tabs/Vm/Info/capacity'
 import Graphs from 'client/components/Tabs/Vm/Info/Graphs'
-import { SubmitButton } from 'client/components/FormControl'
 
-import { Tr, Translate } from 'client/components/HOC'
+import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import { getHypervisor } from 'client/models/VirtualMachine'
 import {
   getActionsAvailable,
   filterAttributes,
   jsonToXml,
-  getErrorMessage,
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
@@ -75,11 +72,9 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
   const [changeVmOwnership] = useChangeVmOwnershipMutation()
   const [changeVmPermissions] = useChangeVmPermissionsMutation()
   const [updateUserTemplate] = useUpdateUserTemplateMutation()
-  const [dismissError] = useUpdateUserTemplateMutation()
 
   const { UNAME, UID, GNAME, GID, PERMISSIONS, USER_TEMPLATE, MONITORING } = vm
 
-  const error = useMemo(() => getErrorMessage(vm), [vm])
   const hypervisor = useMemo(() => getHypervisor(vm), [vm])
 
   const {
@@ -114,13 +109,6 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
     await updateUserTemplate({ id, template: xml, replace: 0 })
   }
 
-  const handleDismissError = async () => {
-    const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
-    const xml = jsonToXml({ ...templateWithoutError })
-
-    await dismissError({ id, template: xml, replace: 0 })
-  }
-
   const getActions = useCallback(
     (actions) => getActionsAvailable(actions, hypervisor),
     [hypervisor]
@@ -139,22 +127,6 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
       padding={{ sm: '0.8em' }}
     >
-      <Fade in={!!error} unmountOnExit>
-        <Alert
-          variant="outlined"
-          severity="error"
-          sx={{ gridColumn: 'span 2' }}
-          action={
-            <SubmitButton
-              onClick={handleDismissError}
-              icon={<CloseIcon />}
-              tooltip={<Translate word={T.Dismiss} />}
-            />
-          }
-        >
-          {error}
-        </Alert>
-      </Fade>
       {informationPanel?.enabled && (
         <Information actions={getActions(informationPanel?.actions)} vm={vm} />
       )}
