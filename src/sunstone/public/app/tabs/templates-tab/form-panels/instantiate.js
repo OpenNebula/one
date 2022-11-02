@@ -190,21 +190,39 @@ define(function(require) {
     });
   }
 
-  function diffValues(newValues, oldValues){
-    var diff = [];
-    if(oldValues && newValues){
-      oldValues = Array.isArray(oldValues)? oldValues: [oldValues];
-      newValues = Array.isArray(newValues)? newValues: [newValues];
-      var oldValuesString = oldValues.map(function(internalValue){
-        return JSON.stringify(internalValue);
-      });
+  /**
+   * Retrieves the diference between two objects
+   * 
+   * @param {Object} newValues - New object values
+   * @param {Object} oldValues - Old object values
+   * @returns {Object} Difference between the two given objects
+   */
+  function diffValues(newValues, oldValues = {}){
+    var diff = {};
 
-      newValues.forEach(function (newValue){
-        if($.inArray(JSON.stringify(newValue),oldValuesString) === -1){
-          diff.push(newValue);
-        }
-      });
+    for (const [key, value] of Object.entries(newValues)) {
+      if (oldValues[key] && oldValues[key] !== value || oldValues[key] === undefined){
+        diff[key] = value;
+      }
     }
+
+    return diff;
+  }
+
+  /**
+   * Retrieves the diference between two objects arrays
+   * 
+   * @param {Object[]} newValues - Array with all the new object to be compared 
+   * @param {Object[]} oldValues - Array with all the old object to be compared 
+   * @returns {Object} Difference between the two given objects array
+   */
+  function diffValuesArray(newValues, oldValues = []){
+    var diff = [];
+
+    newValues.forEach(function (value, index){
+      diff.push(diffValues(value, oldValues[index]))
+    });
+
     return diff;
   }
 
@@ -254,8 +272,7 @@ define(function(require) {
       });
 
       var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
-      var has_changes = diffValues(disks, original_tmpl.TEMPLATE.DISK).length > 0
-      if (disks.length > 0 && has_changes) {
+      if (disks.length > 0) {
         tmp_json.DISK = disks;
       }
 
@@ -379,11 +396,11 @@ define(function(require) {
         if (capacityRetrieveValues.hasOwnProperty(key)) {
           var diff = diffValues(
             {[key]: capacityRetrieveValues[key]},
-            {[key]:original_tmpl.TEMPLATE[key]}
+            {[key]: original_tmpl.TEMPLATE[key]}
           );
 
-          if(diff[0] && typeof diff[0] === "object") {
-            $.extend(tmp_json, diff[0]);
+          if(Object.keys(diff).length > 0) {
+            $.extend(tmp_json, diff);
           }
         }
       }
