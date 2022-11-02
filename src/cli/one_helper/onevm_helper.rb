@@ -125,7 +125,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 options[:schedule] = Time.now.to_i
             else
                 begin
-                    options[:schedule] = Time.new(o).to_i
+                    options[:schedule] = Time.parse(o).to_i
                 rescue StandardError
                     STDERR.puts "Error parsing time spec: #{o}"
                     exit(-1)
