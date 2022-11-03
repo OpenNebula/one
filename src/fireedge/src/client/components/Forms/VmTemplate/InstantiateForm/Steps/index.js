@@ -81,6 +81,13 @@ const Steps = createSteps(
         })
       }
 
+      vmTemplate?.TEMPLATE?.OS &&
+        extraTemplate?.OS &&
+        (extraTemplate.OS = {
+          ...vmTemplate?.TEMPLATE?.OS,
+          ...extraTemplate?.OS,
+        })
+
       // merge with template disks to get TYPE attribute
       const templateXML = jsonToXml({
         ...userInputs,
