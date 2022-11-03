@@ -113,8 +113,8 @@ rc = TransferManager::Action.ssh('make_dst_path',
                                  :host => rsync_host,
                                  :cmds => "mkdir -p #{backup_path}")
 
-if rc.code != 0
-    exit rc.code
+if rc != 0
+    exit rc
 end
 
 cmd = "rsync #{args} #{vm_dir}/ #{rsync_user}@#{rsync_host}:#{backup_path}"

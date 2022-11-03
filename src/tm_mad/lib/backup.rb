@@ -120,7 +120,7 @@ module TransferManager
                     NAME = "#{name}"
                     TYPE = "#{type}"
 
-                    PATH = "#{@base_url}#{f}"
+                    PATH = "#{@base_url}/#{f}"
                     FROM_BACKUP_DS = "#{@ds_id}"
                 EOS
 
