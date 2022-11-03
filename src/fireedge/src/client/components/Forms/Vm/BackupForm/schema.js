@@ -28,6 +28,7 @@ const DS_ID = {
     return arrayToOptions(
       datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
       {
+        addEmpty: false,
         getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
         getValue: ({ ID } = {}) => ID,
       }

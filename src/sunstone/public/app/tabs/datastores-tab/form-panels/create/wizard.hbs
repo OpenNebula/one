@@ -33,7 +33,8 @@
         <option ds="fs" tm="fs_lvm" value="lvm">{{tr "LVM"}}</option>
         <option ds="dev" tm="dev" value="raw">{{tr "Raw Device Mapping"}}</option>
         <option ds="iscsi_libvirt" tm="iscsi_libvirt" value="iscsi_libvirt">{{tr "iSCSI - Libvirt initiator "}}</option>
-        <option ds="restic" tm="-" value="restic">{{tr "Backup - Restic"}}</option>
+        <option ds="restic" tm="-" value="restic">{{tr "Backup - Restic (EE Only)"}}</option>
+        <option ds="rsync" tm="-" value="rsync">{{tr "Backup - RSync"}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -245,21 +246,17 @@
         <div id="vcenter_cluster_wrapper"></div>
       </label>
     </div>
+
+    <!-- RESTIC ATTRIBUTES -->
     <div class="medium-6 columns">
       <label for="restic_password">
         {{tr "Restic Password"}}
-        {{!-- <span class="tip">
-          {{tr ""}}
-        </span> --}}
       </label>
       <input type="text" name="restic_password" id="restic_password" />
     </div>
     <div class="medium-6 columns">
       <label for="restic_sftp_server">
         {{tr "Restic SFTP Server"}}
-        {{!-- <span class="tip">
-          {{tr ""}}
-        </span> --}}
       </label>
       <input type="text" name="restic_sftp_server" id="restic_sftp_server" />
     </div>
@@ -318,6 +315,22 @@
       </label>
       <input type="number" name="restic_connections" id="restic_connections"/>
     </div>
+
+    <!-- RSYNC ATTRIBUTES -->
+    <div class="medium-6 columns">
+      <label for="rsync_host">
+        {{tr "RSync host"}}
+      </label>
+      <input type="text" name="rsync_host" id="rsync_host"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="rsync_user">
+        {{tr "RSync user"}}
+      </label>
+      <input type="text" name="rsync_user" id="rsync_user"/>
+    </div>
+
   </div>
   <div class="ceph_advanced">
     {{#advancedSection (tr "Advanced options") }}

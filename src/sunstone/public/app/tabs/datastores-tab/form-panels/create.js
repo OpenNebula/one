@@ -219,6 +219,14 @@ define(function(require) {
           $('input#image_ds_type', dialog).attr('disabled', 'disabled');
           _selectRestic(dialog);
           break;
+
+        case "rsync":
+          $('input#backup_ds_type', dialog).click()
+          $('input#system_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+          $('input#image_ds_type', dialog).attr('disabled', 'disabled');
+          _selectRsync(dialog);
+          break;
         
         case 'custom':
           _selectCustom(dialog);
@@ -282,6 +290,8 @@ define(function(require) {
     var restic_bwlimit = $('#restic_bwlimit', dialog).val();
     var restic_compression = $('#restic_compression', dialog).val();
     var restic_connections = $('#restic_connections', dialog).val();
+    var rsync_host = $('#rsync_host', dialog).val();
+    var rsync_user = $('#rsync_user', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -391,6 +401,12 @@ define(function(require) {
     if (restic_connections)
         ds_obj.datastore.restic_connections = restic_connections;
 
+    if (rsync_host)
+        ds_obj.datastore.rsync_host = rsync_host;
+
+    if (rsync_user)
+        ds_obj.datastore.rsync_user = rsync_user;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -447,6 +463,8 @@ define(function(require) {
     $('label[for="restic_compression"]', dialog).parent().hide();
     $('label[for="restic_connections"]', dialog).parent().hide();
     $('label[for="restic_sftp_server"]', dialog).parent().hide();
+    $('label[for="rsync_host"]', dialog).parent().hide();
+    $('label[for="rsync_user"]', dialog).parent().hide();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
@@ -484,6 +502,8 @@ define(function(require) {
     $('label[for="restic_compression"]', dialog).parent().show();
     $('label[for="restic_connections"]', dialog).parent().show();
     $('label[for="restic_sftp_server"]', dialog).parent().show();
+    $('label[for="rsync_host"]', dialog).parent().show();
+    $('label[for="rsync_user"]', dialog).parent().show();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
@@ -600,6 +620,19 @@ define(function(require) {
     $('label[for="restic_compression"]', dialog).parent().fadeIn();
     $('label[for="restic_connections"]', dialog).parent().fadeIn();
     $('label[for="restic_sftp_server"]', dialog).parent().fadeIn();
+  }
+
+  function _selectRsync(dialog) {
+    $('select#disk_type', dialog).val('block');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+    $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
+    $('label[for="rsync_host"]', dialog).parent().fadeIn();
+    $('label[for="rsync_user"]', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {

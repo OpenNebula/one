@@ -300,23 +300,23 @@ export const getScheduleActions = (vm) => {
  * @param {VM|VM[]} vms - Virtual machines
  * @returns {boolean} If `true`, the action is available for all VMs
  */
-export const isAvailableAction = (action, vms = []) => {
-  if (VM_ACTIONS_BY_STATE[action]?.length === 0) return true
-
-  return [vms].flat().every((vm) => {
+export const isAvailableAction = (action, vms = []) =>
+  [vms].flat().every((vm) => {
+    const hypervisor = getHypervisor(vm)
     const state = VM_STATES[vm.STATE]?.name
     const lcmState = VM_LCM_STATES[vm.LCM_STATE]?.name
+
+    if (VM_ACTIONS_BY_STATE[hypervisor]?.[action]?.length === 0) return true
 
     return (
       (state === STATES.ACTIVE &&
         // if action includes ACTIVE state,
         // it means that the action is available in all LCM states
-        (VM_ACTIONS_BY_STATE[action]?.includes(STATES.ACTIVE) ||
-          VM_ACTIONS_BY_STATE[action]?.includes(lcmState))) ||
-      VM_ACTIONS_BY_STATE[action]?.includes(state)
+        (VM_ACTIONS_BY_STATE[hypervisor]?.[action]?.includes(STATES.ACTIVE) ||
+          VM_ACTIONS_BY_STATE[hypervisor]?.[action]?.includes(lcmState))) ||
+      VM_ACTIONS_BY_STATE[hypervisor]?.[action]?.includes(state)
     )
   })
-}
 
 /**
  * @param {VM} vm - Virtual machine
