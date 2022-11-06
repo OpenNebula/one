@@ -16,9 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# rubocop:disable Style/ClassAndModuleChildren
 # rubocop:disable Style/ClassVars
-module TransferManager::KVM
+module TransferManager
+
+    module KVM
 
     KVMRC = '/var/lib/one/remotes/etc/vmm/kvm/kvmrc'
 
@@ -102,6 +103,7 @@ module TransferManager::KVM
         end
     end
 
+    end
 end
 # rubocop:enable Style/ClassAndModuleChildren
 # rubocop:enable Style/ClassVars

@@ -46,6 +46,14 @@ bool Backups::do_volatile() const
     return false;
 }
 
+Backups::Mode Backups::mode() const
+{
+    string mode_s;
+
+    config.get("MODE", mode_s);
+
+    return str_to_mode(mode_s);
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -109,7 +117,7 @@ int Backups::from_xml(const ObjectXML* xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Backups::parse(std::string& error_str, Template *tmpl)
+int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
 {
     vector<VectorAttribute *> cfg_a;
 
@@ -127,7 +135,13 @@ int Backups::parse(std::string& error_str, Template *tmpl)
     if ( cfg == 0 )
     {
         error_str = "Internal error parsing BACKUP_CONFIG attribute.";
-        goto error;
+
+        for (auto &i : cfg_a)
+        {
+            delete i;
+        }
+
+        return -1;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -135,6 +149,7 @@ int Backups::parse(std::string& error_str, Template *tmpl)
     /*  - KEEP_LAST                                                           */
     /*  - BACKUP_VOLATILE                                                     */
     /*  - FSFREEZE                                                            */
+    /*  - MODE                                                                */
     /* ---------------------------------------------------------------------- */
     if (cfg->vector_value("KEEP_LAST", iattr) == 0)
     {
@@ -175,19 +190,33 @@ int Backups::parse(std::string& error_str, Template *tmpl)
         config.replace("FS_FREEZE", "NONE");
     }
 
+    if (!can_increment) //Only FULL backups for this VM
+    {
+        config.replace("INCREMENTAL_BACKUP_ID", -1);
+        config.replace("LAST_INCREMENT_ID", -1);
+
+        config.replace("MODE", mode_to_str(FULL));
+    }
+    else
+    {
+        sattr = cfg->vector_value("MODE");
+
+        Mode new_mode = str_to_mode(sattr);
+
+        // Reset incremental backup pointers if mode changed to/from FULL
+        if (new_mode != INCREMENT || mode() != INCREMENT)
+        {
+            config.replace("INCREMENTAL_BACKUP_ID", -1);
+            config.replace("LAST_INCREMENT_ID", -1);
+        }
+
+        config.replace("MODE", mode_to_str(new_mode));
+    }
+
     for (auto &i : cfg_a)
     {
         delete i;
     }
 
     return 0;
-
-error:
-    for (auto &i : cfg_a)
-    {
-        delete i;
-    }
-
-    return -1;
 }
-

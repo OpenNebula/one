@@ -634,7 +634,7 @@ public:
     VirtualMachineBackup():
         RequestManagerVirtualMachine("one.vm.backup",
                            "Creates a new backup image for the virtual machine",
-                           "A:sii")
+                           "A:siib")
     {
         vm_action = VMActions::BACKUP_ACTION;
     }

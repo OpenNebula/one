@@ -390,14 +390,16 @@ int Image::bootstrap(SqlDB * db)
 
 string& Image::to_xml(string& xml) const
 {
-    string        template_xml;
-    string        perms_xml;
+    string vm_collection_xml;
+    string clone_collection_xml;
+    string app_clone_collection_xml;
+    string snapshots_xml;
+    string lock_str;
+    string template_xml;
+    string perms_xml;
+    string increments_xml;
+
     ostringstream oss;
-    string        vm_collection_xml;
-    string        clone_collection_xml;
-    string        app_clone_collection_xml;
-    string        snapshots_xml;
-    string        lock_str;
 
     oss <<
         "<IMAGE>" <<
@@ -431,6 +433,7 @@ string& Image::to_xml(string& xml) const
             app_clone_collection.to_xml(app_clone_collection_xml)     <<
             obj_template->to_xml(template_xml)                        <<
             snapshots.to_xml(snapshots_xml)                           <<
+            increments.to_xml(increments_xml)                         <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -520,6 +523,16 @@ int Image::from_xml(const string& xml)
     if (!content.empty())
     {
         rc += snapshots.from_xml_node(content[0]);
+
+        ObjectXML::free_nodes(content);
+        content.clear();
+    }
+
+    ObjectXML::get_nodes("/IMAGE/BACKUP_INCREMENTS", content);
+
+    if (!content.empty())
+    {
+        rc += increments.from_xml_node(content[0]);
 
         ObjectXML::free_nodes(content);
         content.clear();

@@ -246,7 +246,8 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
           "FS_FREEZE",
           "KEEP_LAST",
           "BACKUP_VOLATILE",
-          "FREQUENCY_SECONDS"}
+          "FREQUENCY_SECONDS",
+          "MODE"}
     }
 };
 

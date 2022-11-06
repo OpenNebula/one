@@ -27,7 +27,8 @@ source_files=[
     'ImageManagerProtocol.cc',
     'ImageManager.cc',
     'ImageManagerActions.cc',
-    'ImageTemplate.cc'
+    'ImageTemplate.cc',
+    'BackupIncrements.cc'
 ]
 
 # Build library

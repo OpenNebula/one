@@ -14,91 +14,117 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "ExtendedAttribute.h"
+#include "BackupIncrements.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ExtendedAttributeSet::~ExtendedAttributeSet()
+int BackupIncrements::from_xml_node(const xmlNodePtr node)
 {
-    for (auto it = a_set.begin(); it != a_set.end(); ++it)
+    int rc = _template.from_xml_node(node);
+
+    if (rc == -1)
     {
-        if ( dispose )
-        {
-            delete it->second->va;
-        }
-
-        delete it->second;
-    }
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-ExtendedAttribute * ExtendedAttributeSet::get_attribute(int id) const
-{
-    auto it = a_set.find(id);
-
-    if ( it == a_set.end() )
-    {
-        return nullptr;
+        return -1;
     }
 
-    return it->second;
-}
+    increments.init(&_template);
 
-ExtendedAttribute * ExtendedAttributeSet::last_attribute() const
-{
-    auto it = a_set.rbegin();
-
-    if ( it == a_set.rend() )
-    {
-        return nullptr;
-    }
-
-    return it->second;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
-        std::vector<VectorAttribute *>& vas)
+int BackupIncrements::add_increment(std::string source, long long size,
+        Increment::Type type)
 {
-    int id;
-    int auto_id = 0;
+    VectorAttribute * va = increments.new_increment(source, size, type);
 
-    for (auto it = vas.begin(); it != vas.end(); ++it, ++auto_id)
+    if (va == nullptr)
     {
-        if (id_name.empty())
-        {
-            id = auto_id;
-        }
-        else if ( (*it)->vector_value(id_name, id) != 0 )
-        {
-            continue;
-        }
-
-        ExtendedAttribute * a = attribute_factory(*it, id);
-
-        a_set.insert(std::make_pair(id, a));
-    }
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-ExtendedAttribute * ExtendedAttributeSet::delete_attribute(int id)
-{
-    auto it = a_set.find(id);
-
-    if ( it == a_set.end() )
-    {
-        return nullptr;
+        return -1;
     }
 
-    a_set.erase(it);
+    _template.set(va);
 
-    return it->second;
+    return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
+int BackupIncrements::last_increment_id()
+{
+    Increment * li = increments.last_increment();
+
+    if ( li == nullptr )
+    {
+        return -1;
+    }
+
+    return li->id();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * IncrementSet::new_increment(std::string source, long long sz,
+        Increment::Type type)
+{
+    Increment * li = last_increment();
+
+    int parent = -1;
+
+    if ( li == nullptr )
+    {
+        if ( type != Increment::FULL )
+        {
+            return nullptr;
+        }
+    }
+    else
+    {
+        parent = li->id();
+    }
+
+    int iid = parent + 1;
+
+    VectorAttribute * va = new VectorAttribute("INCREMENT");
+
+    switch (type)
+    {
+        case Increment::FULL:
+            va->replace("TYPE", "FULL");
+            break;
+        case Increment::INCREMENT:
+            va->replace("TYPE", "INCREMENT");
+            break;
+    }
+
+    va->replace("DATE", time(0));
+
+    va->replace("SOURCE", source);
+
+    va->replace("SIZE", sz);
+
+    va->replace("PARENT_ID", parent);
+
+    va->replace("ID", iid);
+
+    add_attribute(attribute_factory(va, iid), iid);
+
+    return va;
+}
+
+/* -------------------------------------------------------------------------- */
+
+long long IncrementSet::total_size()
+{
+    long long sz = 0;
+
+    for (inc_iterator i = begin(); i != end(); ++i)
+    {
+        sz += (*i)->size();
+    }
+
+    return sz;
+}

@@ -61,48 +61,29 @@ include TransferManager::KVM
 
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
 
-vm_xml = STDIN.read
+_vm_xml = STDIN.read
 
-dir       = ARGV[0].split ':'
-disks     = ARGV[1].split ':'
-deploy_id = ARGV[2]
-vmid      = ARGV[3]
-_dsid     = ARGV[4]
+dir        = ARGV[0].split ':'
+disks      = ARGV[1]
+_deploy_id = ARGV[2]
+_vmid      = ARGV[3]
+_dsid      = ARGV[4]
 
 rhost     = dir[0]
 rdir      = dir[1]
 
-xml_doc = REXML::Document.new(vm_xml)
-vm      = xml_doc.root
-
 tmp_dir = "#{rdir}/tmp"
 bck_dir = "#{rdir}/backup"
 
-cmds = ''
-
-# TODO: limit BW?
-
-vm.elements.each 'TEMPLATE/DISK' do |d|
-    did = d.elements['DISK_ID'].text
-
-    next unless disks.include? did
-
-    tgt  = d.elements['TARGET'].text
-    base = "#{rdir}/disk.#{did}"
-
-    cmds << "#{virsh} blockcommit #{deploy_id} #{tgt} --active --pivot"\
-            " --base #{base} --keep-relative\n"
-end
+qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
 
 post_script = <<~EOS
     set -ex -o pipefail
 
     # --------------------------------------------------------------------
-    # Commit changes since backup, pivot disks and delete libvirt snapshot
+    # Commit changes, pivot disks and delete libvirt snapshot (only full)
     # --------------------------------------------------------------------
-    #{cmds}
-
-    #{virsh} snapshot-delete #{deploy_id} --metadata one-#{vmid}-backup
+    #{qcow2_util} -s -l -d "#{disks}" -x #{bck_dir}/vm.xml -p #{rdir}
 
     # ----------------------
     # Cleanup backup folders

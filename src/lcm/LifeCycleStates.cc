@@ -16,6 +16,7 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "Nebula.h"
 #include "LifeCycleManager.h"
 #include "TransferManager.h"
 #include "DispatchManager.h"
@@ -1276,24 +1277,32 @@ void LifeCycleManager::trigger_attach_success(int vid)
             return;
         }
 
-        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-        {
-            vm->clear_attach_disk();
-
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
-        }
-        else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
+        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG ||
+             vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
         {
             vm->log("LCM", Log::INFO, "VM Disk successfully attached.");
 
             vm->clear_attach_disk();
+
+            // Reset incremental backup pointer. After attach a new full backup
+            // is needed.
+            if ( vm->backups().configured() )
+            {
+                vm->backups().last_increment_id(-1);
+                vm->backups().incremental_backup_id(-1);
+            }
+
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+            else
+            {
+                dm->trigger_poweroff_success(vid);
+            }
+
             vmpool->update(vm.get());
             vmpool->update_search(vm.get());
-
-            dm->trigger_poweroff_success(vid);
         }
         else
         {
@@ -2638,6 +2647,99 @@ void LifeCycleManager::trigger_resize_failure(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+static int create_backup_image(VirtualMachine * vm, string& msg)
+{
+    Nebula& nd = Nebula::instance();
+
+    auto ipool  = nd.get_ipool();
+    auto dspool = nd.get_dspool();
+
+    int i_id;
+    string error_str;
+
+    auto& backups = vm->backups();
+
+    /* ------------------------------------------------------------------ */
+    /* Get datastore backup information                                   */
+    /* ------------------------------------------------------------------ */
+    string ds_name, ds_mad, ds_data;
+
+    Datastore::DatastoreType ds_type;
+    Image::DiskType          ds_dtype;
+
+    int ds_id = backups.last_datastore_id();
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds_name  = ds->get_name();
+        ds_dtype = ds->get_disk_type();
+        ds_type  = ds->get_type();
+        ds_mad   = ds->get_ds_mad();
+
+        ds->to_xml(ds_data);
+    }
+    else
+    {
+        msg = "backup datastore does not exist";
+
+        return -1;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Create Image for the backup snapshot                               */
+    /* ------------------------------------------------------------------ */
+    time_t the_time;
+    char   tbuffer[80];
+
+    struct tm * tinfo;
+    ostringstream oss;
+
+    time(&the_time);
+    tinfo = localtime(&the_time);
+
+    strftime(tbuffer, 80, "%d-%b %H.%M.%S", tinfo); //18-Jun 08.30.15
+
+    oss << vm->get_oid() << " " << tbuffer;
+
+    auto itmp = make_unique<ImageTemplate>();
+
+    itmp->add("NAME",   oss.str());
+    itmp->add("SOURCE", backups.last_backup_id());
+    itmp->add("SIZE",   backups.last_backup_size());
+    itmp->add("FORMAT", "raw");
+    itmp->add("VM_ID",  vm->get_oid());
+    itmp->add("TYPE",   Image::type_to_str(Image::BACKUP));
+
+    int rc = ipool->allocate(vm->get_uid(),
+                             vm->get_gid(),
+                             vm->get_uname(),
+                             vm->get_gname(),
+                             0177,
+                             move(itmp),
+                             ds_id,
+                             ds_name,
+                             ds_dtype,
+                             ds_data,
+                             ds_type,
+                             ds_mad,
+                             "-",
+                             "",
+                             -1,
+                             &i_id,
+                             error_str);
+    if ( rc < 0 )
+    {
+        msg = "backup image allocate error: " + error_str;
+
+        return -1;
+    }
+
+    return i_id;
+}
+
+/* -------------------------------------------------------------------------- */
+
 void LifeCycleManager::trigger_backup_success(int vid)
 {
     trigger([this, vid] {
@@ -2648,32 +2750,34 @@ void LifeCycleManager::trigger_backup_success(int vid)
             return;
         }
 
-        time_t the_time;
-        char   tbuffer[80];
+        /* ------------------------------------------------------------------ */
+        /* State update and Quota values (worst case)                         */
+        /* ------------------------------------------------------------------ */
+        string error;
 
-        ostringstream oss;
-
-        string ds_name, ds_mad, ds_data;
-        Datastore::DatastoreType ds_type;
-        Image::DiskType ds_dtype;
-
-        int i_id;
-        string error_str;
-
-        // Store quota values
         Template  ds_deltas;
-        long long backup_size = 0;
 
         int vm_uid = vm->get_uid();
         int vm_gid = vm->get_gid();
 
         auto& backups = vm->backups();
 
-        vm->max_backup_size(ds_deltas);
+        int ds_id = backups.last_datastore_id();
+
+        int incremental_id = backups.incremental_backup_id();
+        Backups::Mode mode = backups.mode();
+
+        long long reserved_sz = vm->backup_size(ds_deltas);
+        long long real_sz     = 0;
+
+        one_util::str_cast(backups.last_backup_size(), real_sz);
 
         ds_deltas.add("DATASTORE", backups.last_datastore_id());
 
-        one_util::str_cast(backups.last_backup_size(), backup_size);
+        if (mode == Backups::FULL || incremental_id == -1)
+        {
+            ds_deltas.add("IMAGES", 1);
+        }
 
         switch(vm->get_lcm_state())
         {
@@ -2687,97 +2791,84 @@ void LifeCycleManager::trigger_backup_success(int vid)
                 break;
 
             default:
-                vm->log("LCM",Log::ERROR,"backup_success, VM in a wrong state");
-
+                vm->log("LCM", Log::ERROR, "backup_success, VM in wrong state");
                 vm.reset();
 
                 Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
-
                 return;
         }
 
         /* ------------------------------------------------------------------ */
-        /* Get datastore backup information                                   */
+        /* Create Backup image if needed                                      */
         /* ------------------------------------------------------------------ */
-        int ds_id = backups.last_datastore_id();
+        int image_id = -1;
 
-        if (auto ds = dspool->get_ro(ds_id))
+        std::set<int> delete_ids;
+
+        if (mode == Backups::FULL || incremental_id == -1)
         {
-            ds_name  = ds->get_name();
-            ds_dtype = ds->get_disk_type();
-            ds_type  = ds->get_type();
-            ds_mad   = ds->get_ds_mad();
+            image_id = create_backup_image(vm.get(), error);
 
-            ds->to_xml(ds_data);
-        }
-        else
-        {
-            vm->log("LCM", Log::ERROR, "backup_success, "
-                    "backup datastore does not exist");
+            if ( image_id == -1 )
+            {
+                goto error_image_create;
+            }
 
-            vmpool->update(vm.get());
+            backups.add(image_id);
 
-            vm.reset();
-
-            Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
-
-            return;
+            backups.remove_last(delete_ids);
         }
 
         /* ------------------------------------------------------------------ */
-        /* Create Image for the backup snapshot, add it to the VM             */
+        /* Update backup information for increments                           */
         /* ------------------------------------------------------------------ */
-        time(&the_time);
-        struct tm * tinfo = localtime(&the_time);
-
-        strftime (tbuffer, 80, "%d-%b %H.%M.%S", tinfo); //18-Jun 08.30.15
-
-        oss << vm->get_oid() << " " << tbuffer;
-
-        auto itmp = make_unique<ImageTemplate>();
-
-        itmp->add("NAME", oss.str());
-        itmp->add("SOURCE", backups.last_backup_id());
-        itmp->add("SIZE", backups.last_backup_size());
-        itmp->add("FORMAT", "raw");
-        itmp->add("VM_ID", vm->get_oid());
-        itmp->add("TYPE", Image::type_to_str(Image::BACKUP));
-
-        int rc = ipool->allocate( vm->get_uid(), vm->get_gid(), vm->get_uname(),
-                vm->get_gname(), 0177, move(itmp), ds_id, ds_name, ds_dtype,
-                ds_data, ds_type, ds_mad, "-", "", -1, &i_id, error_str);
-
-        if ( rc < 0 )
+        if (mode == Backups::INCREMENT)
         {
-            vm->log("LCM",Log::ERROR,"backup_success, "
-                    "backup image allocate error: " + error_str);
+            Increment::Type itype;
 
-            vmpool->update(vm.get());
+            if (incremental_id == -1)
+            {
+                backups.incremental_backup_id(image_id);
+                itype = Increment::FULL;
+            }
+            else
+            {
+                image_id = backups.incremental_backup_id();
+                itype = Increment::INCREMENT;
+            }
 
-            vm.reset();
+            if (auto image = ipool->get(image_id))
+            {
+                int rc = image->add_increment(backups.last_backup_id(), real_sz, itype);
 
-            Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+                if ( rc == -1)
+                {
+                    error = "cannot add increment to backup image";
+                    goto error_increment_update;
+                }
 
-            return;
+                backups.last_increment_id(image->last_increment_id());
+
+                ipool->update(image.get());
+            }
+            else
+            {
+                error = "backup image does not exists";
+                goto error_increment_update;
+            }
         }
-
-        std::set<int> iids;
-
-        backups.add(i_id);
-
-        backups.remove_last(iids);
 
         backups.last_backup_clear();
 
         vmpool->update(vm.get());
 
-        if ( iids.size() > 0 )
+        if ( delete_ids.size() > 0 )
         {
-            oss.str("");
+            ostringstream oss;
 
             oss << "Removing backup snapshots:";
 
-            for (int i : iids)
+            for (int i : delete_ids)
             {
                 oss << " " << i;
             }
@@ -2790,32 +2881,54 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Add image to the datastore and forget keep_last backups            */
         /* ------------------------------------------------------------------ */
-        if ( auto ds = dspool->get(ds_id) )
+        if (mode == Backups::FULL || incremental_id == -1)
         {
-            ds->add_image(i_id);
-            dspool->update(ds.get());
-        }
-
-        for (int i : iids)
-        {
-            if ( imagem->delete_image(i, error_str) != 0 )
+            if ( auto ds = dspool->get(ds_id) )
             {
-                oss.str("");
-                oss << "backup_success, cannot remove VM backup " << i
-                    << " : " << error_str;
+                ds->add_image(image_id);
 
-                NebulaLog::error("LCM", oss.str());
+                dspool->update(ds.get());
+            }
+
+            for (int i : delete_ids)
+            {
+                if ( imagem->delete_image(i, error) != 0 )
+                {
+                    ostringstream oss;
+
+                    oss << "backup_success, cannot remove VM backup " << i
+                        << " : " << error;
+
+                    NebulaLog::error("LCM", oss.str());
+                }
             }
         }
 
-        // Update quotas, count real size of the backup
-        long long reserved_size{0};
-
-        ds_deltas.get("SIZE", reserved_size);
-        ds_deltas.replace("SIZE", reserved_size - backup_size);
-        ds_deltas.add("IMAGES", 0);
+        /* ------------------------------------------------------------------ */
+        /* Update quotas, count real size of the backup                       */
+        /* ------------------------------------------------------------------ */
+        ds_deltas.replace("SIZE", reserved_sz - real_sz);
+        ds_deltas.replace("IMAGES", 0);
 
         Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+
+        return;
+
+        error_increment_update:
+            if (incremental_id == -1)
+            {
+                backups.incremental_backup_id(-1);
+                backups.del(image_id);
+            }
+
+        error_image_create:
+            vm->log("LCM", Log::ERROR, "backup_success, " + error);
+            vmpool->update(vm.get());
+
+            vm.reset();
+
+            Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
+            return;
     });
 }
 
@@ -2849,8 +2962,16 @@ void LifeCycleManager::trigger_backup_failure(int vid)
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
-            vm->max_backup_size(ds_deltas);
+            int incremental_id = vm->backups().incremental_backup_id();
+            Backups::Mode mode = vm->backups().mode();
+
+            vm->backup_size(ds_deltas);
             ds_deltas.add("DATASTORE", vm->backups().last_datastore_id());
+
+            if (mode == Backups::FULL || incremental_id == -1)
+            {
+                ds_deltas.add("IMAGES", 1);
+            }
 
             vm->backups().last_backup_clear();
 

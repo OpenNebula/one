@@ -64,44 +64,19 @@ include TransferManager::KVM
 #-------------------------------------------------------------------------------
 vm_xml = STDIN.read
 
-dir       = ARGV[0].split ':'
-disks     = ARGV[1].split ':'
-deploy_id = ARGV[2]
-vmid      = ARGV[3]
-_dsid     = ARGV[4]
+dir        = ARGV[0].split ':'
+disks      = ARGV[1]
+_deploy_id = ARGV[2]
+_vmid      = ARGV[3]
+_dsid      = ARGV[4]
 
 rhost     = dir[0]
 rdir      = dir[1]
 
-xml_doc = REXML::Document.new(vm_xml)
-vm      = xml_doc.root
-
 tmp_dir = "#{rdir}/tmp"
 bck_dir = "#{rdir}/backup"
 
-dskspec = ''
-touch   = ''
-convert = ''
-
-# TODO: Make compression configurable. Does it intefere with deduplication?
-vm.elements.each 'TEMPLATE/DISK' do |d|
-    did = d.elements['DISK_ID'].text
-
-    next unless disks.include? did
-
-    tgt  = d.elements['TARGET'].text
-    file = "#{tmp_dir}/overlay_#{did}.qcow2"
-
-    dskspec << "--diskspec #{tgt},file=#{file} "
-    touch   << "touch #{file}; "
-
-    dsrc = "#{rdir}/disk.#{did}"
-    ddst = "#{bck_dir}/disk.#{did}"
-
-    convert << "qemu-img convert -m 4 -O qcow2 #{dsrc} #{ddst}; "
-end
-
-freeze, thaw = fsfreeze(vm, deploy_id)
+qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
 
 pre_script = <<~EOS
     set -ex -o pipefail
@@ -119,25 +94,14 @@ pre_script = <<~EOS
 
     echo "#{Base64.encode64(vm_xml)}" > #{bck_dir}/vm.xml
 
-    #{touch}
-
     # --------------------------------------
-    # Create external snapshots for VM disks
+    # Create backup live
     # --------------------------------------
-    #{freeze}
-
-    #{virsh} snapshot-create-as --domain #{deploy_id} --name one-#{vmid}-backup \
-                                --disk-only --atomic #{dskspec}
-
-    #{thaw}
-
-    # -------------------
-    # Convert and flatten
-    # -------------------
-    #{convert}
+    #{qcow2_util} -l -d "#{disks}" -x #{bck_dir}/vm.xml -p #{rdir}
 EOS
 
-rc = TransferManager::Action.ssh('prebackup_live', :host => rhost,
+rc = TransferManager::Action.ssh('prebackup_live',
+                                 :host => rhost,
                                  :cmds => pre_script,
                                  :nostdout => false,
                                  :nostderr => false)

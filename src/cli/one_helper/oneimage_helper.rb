@@ -353,7 +353,19 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         return unless vms
 
         if image.type_str.casecmp('backup').zero?
-            puts format(str, 'BACKUP OF VM', vms[0])
+            CLIHelper.print_header(str_h1 % 'BACKUP INFORMATION', false)
+            puts format(str, 'VM', vms[0])
+
+            if image.has_elements?('/IMAGE/BACKUP_INCREMENTS/INCREMENT')
+                puts format(str, 'TYPE', 'INCREMENTAL')
+
+                puts
+
+                CLIHelper.print_header('BACKUP INCREMENTS', false)
+                format_backup_increments(image)
+            else
+                puts format(str, 'TYPE', 'FULL')
+            end
         else
             puts
             CLIHelper.print_header('VIRTUAL MACHINES', false)
@@ -416,6 +428,50 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         image_hash = image.to_hash
         image_snapshots = [image_hash['IMAGE']['SNAPSHOTS']['SNAPSHOT']].flatten
         table.show(image_snapshots)
+    end
+
+    def format_backup_increments(image)
+        table=CLIHelper::ShowTable.new(nil, self) do
+            column :ID, 'Increment ID', :size=>3 do |d|
+                d['ID']
+            end
+
+            column :PID, 'Parent increment ID', :size=>3 do |d|
+                d['PARENT_ID']
+            end
+
+            column :TYPE, 'T', :size=>1 do |d|
+                d['TYPE'][0]
+            end
+
+            column :SIZE, '', :left, :size=>8 do |d|
+                if d['SIZE']
+                    OpenNebulaHelper.unit_to_str(
+                        d['SIZE'].to_i,
+                        {},
+                        'M'
+                    )
+                else
+                    '-'
+                end
+            end
+
+            column :DATE, 'Creation date', :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['DATE'])
+            end
+
+            column :SOURCE, 'Backup source', :left, :size=>37 do |d|
+                d['SOURCE']
+            end
+
+
+            default :ID, :PID, :TYPE, :SIZE, :DATE, :SOURCE
+        end
+
+        ihash      = image.to_hash
+        increments = [ihash['IMAGE']['BACKUP_INCREMENTS']['INCREMENT']].flatten
+
+        table.show(increments)
     end
 
     class << self

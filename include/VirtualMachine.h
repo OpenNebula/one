@@ -1736,9 +1736,9 @@ public:
     /**
      *
      */
-    void max_backup_size(Template &ds_quota)
+    long long backup_size(Template &ds_quota)
     {
-        disks.backup_size(ds_quota, _backups.do_volatile());
+        return disks.backup_size(ds_quota, _backups.do_volatile());
     }
 
     Backups& backups()

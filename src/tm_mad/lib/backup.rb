@@ -20,6 +20,39 @@ require 'CommandManager'
 
 module TransferManager
 
+    # This class includes methods manage backup images
+    class BackupImage
+
+        def initialize(action_xml)
+            @action  = REXML::Document.new(action_xml).root
+            @increments = {}
+
+            prefix = '/DS_DRIVER_ACTION_DATA/IMAGE'
+
+            @action.each_element("#{prefix}/BACKUP_INCREMENTS/INCREMENT") do |inc|
+                id = inc.elements['ID'].text.to_i
+
+                @increments[id] = inc.elements['SOURCE'].text
+            end
+
+            if @increments.empty?
+                @increments[0] = @action.elements["#{prefix}/SOURCE"].text
+            end
+        end
+
+        def last
+            @increments[@increments.keys.last]
+        end
+
+        def snapshots
+            @increments.values
+        end
+
+        def chain
+            @increments.map {|k,v| "#{k}:#{v}"}.join(',')
+        end
+    end
+
     # This class includes methods to generate a recovery VM template based
     # on the XML stored in a Backup
     #
@@ -72,7 +105,7 @@ module TransferManager
             @vm = OpenNebula::VirtualMachine.new(xml, nil)
 
             @base_name = "#{@vm.id}-#{opts[:backup_id]}"
-            @base_url  = "#{opts[:proto]}://#{opts[:ds_id]}/#{opts[:backup_id]}"
+            @base_url  = "#{opts[:proto]}://#{opts[:ds_id]}/#{opts[:chain]}"
 
             @ds_id = opts[:ds_id]
 

@@ -3394,7 +3394,7 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    rc = vm->updateconf(uc_tmpl.get(), att.resp_msg, update_type == 1 ? true : false);
+    rc = vm->updateconf(uc_tmpl.get(), att.resp_msg, update_type == 1);
 
     // rc = -1 (error), 0 (context changed), 1 (no context change)
     if ( rc == -1 )
@@ -3822,13 +3822,22 @@ void VirtualMachineBackup::request_execute(
     PoolObjectAuth ds_perms;
     Template       quota_tmpl;
 
+    Backups::Mode mode;
+    int li_id;
+
     ostringstream oss;
 
     // ------------------------------------------------------------------------
     // Get request parameters
     // ------------------------------------------------------------------------
-    int vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
-    int backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int  vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
+    int  backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    bool reset        = false;
+
+    if ( paramList.size() > 3 )
+    {
+        reset = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
 
     // ------------------------------------------------------------------------
     // Get VM & Backup Information
@@ -3837,7 +3846,10 @@ void VirtualMachineBackup::request_execute(
     {
         vm->get_permissions(vm_perms);
 
-        vm->max_backup_size(quota_tmpl);
+        vm->backup_size(quota_tmpl);
+
+        mode  = vm->backups().mode();
+        li_id = vm->backups().last_increment_id();
     }
     else
     {
@@ -3885,7 +3897,11 @@ void VirtualMachineBackup::request_execute(
     // after backup success notification from driver
     // -------------------------------------------------------------------------
     quota_tmpl.add("DATASTORE", backup_ds_id);
-    quota_tmpl.add("IMAGES", 1);
+
+    if ( mode == Backups::FULL || li_id == -1 || reset )
+    {
+        quota_tmpl.add("IMAGES", 1);
+    }
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
@@ -3898,7 +3914,7 @@ void VirtualMachineBackup::request_execute(
     // ------------------------------------------------------------------------
     // Create backup
     // ------------------------------------------------------------------------
-    if (dm->backup(vm_id, backup_ds_id, att, att.resp_msg) < 0)
+    if (dm->backup(vm_id, backup_ds_id, reset, att, att.resp_msg) < 0)
     {
         quota_rollback(&quota_tmpl, Quotas::DATASTORE, att_quota);
 

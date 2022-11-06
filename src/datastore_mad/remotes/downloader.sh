@@ -183,7 +183,8 @@ function restic_env
                         /DATASTORE/TEMPLATE/RESTIC_IONICE \
                         /DATASTORE/TEMPLATE/RESTIC_NICE \
                         /DATASTORE/TEMPLATE/RESTIC_BWLIMIT \
-                        /DATASTORE/TEMPLATE/RESTIC_CONNECTIONS)
+                        /DATASTORE/TEMPLATE/RESTIC_CONNECTIONS \
+                        /DATASTORE/TEMPLATE/RESTIC_TMP_DIR)
 
     SFTP_SERVER="${XPATH_ELEMENTS[j++]}"
     SFTP_USER="${XPATH_ELEMENTS[j++]:-oneadmin}"
@@ -193,6 +194,7 @@ function restic_env
     NICE="${XPATH_ELEMENTS[j++]}"
     BWLIMIT="${XPATH_ELEMENTS[j++]}"
     CONNECTIONS="${XPATH_ELEMENTS[j++]}"
+    TMP_DIR="${XPATH_ELEMENTS[j++]}"
 
     export RESTIC_REPOSITORY="sftp:${SFTP_USER}@${SFTP_SERVER}:${BASE_PATH}"
     export RESTIC_PASSWORD="${PASSWORD}"
@@ -202,6 +204,12 @@ function restic_env
     if [ -n "${NICE}" ]; then
         RESTIC_ONE_PRECMD="nice -n ${NICE} "
     fi
+
+    if [ -z "${TMP_DIR}" ]; then
+        TMP_DIR="/var/tmp/"
+    fi
+
+    export RESTIC_TMP_DIR="${TMP_DIR}/`uuidgen`"
 
     if [ -n "${IONICE}" ]; then
         RESTIC_ONE_PRECMD="${RESTIC_ONE_PRECMD}ionice -c2 -n ${IONICE} "
@@ -532,7 +540,7 @@ docker://*|dockerfile://*)
     command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
     ;;
 restic://*)
-    #pseudo restic url restic://<datastore_id>/<snapshot_id>/<file_name>
+    #pseudo restic url restic://<datastore_id>/<id>:<snapshot_id>,.../<file_name>
     restic_path=${FROM#restic://}
     d_id=`echo ${restic_path} | cut -d'/' -f1`
     s_id=`echo ${restic_path} | cut -d'/' -f2`
@@ -545,7 +553,37 @@ restic://*)
         exit -1
     fi
 
-    command="${RESTIC_ONE_CMD} dump -q ${s_id} /${file}"
+    incs=(${s_id//,/ })
+
+    mkdir -p ${RESTIC_TMP_DIR}
+
+    pushd ${RESTIC_TMP_DIR}
+
+    for i in "${incs[@]}"; do
+        inc_id=`echo $i | cut -d':' -f1`
+        snap_id=`echo $i | cut -d':' -f2`
+
+        ${RESTIC_ONE_CMD} dump -q ${snap_id} /${file}.${inc_id} > disk.${inc_id}
+    done
+
+    for i in `ls disk* | sort -r`; do
+        id=`echo $i | cut -d'.' -f2`
+        pid=$((id - 1))
+
+        if [ -f "disk.${pid}" ]; then
+            qemu-img rebase -u -F qcow2 -b "disk.${pid}" "disk.${id}"
+        else
+            qemu-img rebase -u -b '' "disk.${id}"
+        fi
+    done
+
+    qemu-img convert -O qcow2 -m 4 `ls disk* | sort -r | head -1` disk.qcow2
+
+    command="cat `realpath disk.qcow2`"
+
+    clean_command="rm -rf ${RESTIC_TMP_DIR}"
+
+    popd
     ;;
 rsync://*)
     # rsync://<ds_id>/<vm_id>/<backup_id>/<file>
@@ -627,4 +665,9 @@ fi
 # Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
+fi
+
+# Perform any clean operation
+if [ -n "${clean_command}" ]; then
+    eval "$clean_command"
 fi

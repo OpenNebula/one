@@ -465,7 +465,7 @@ public:
      *
      *  @return 0 on success, -1 otherwise
      */
-    int backup(int vid, int bck_ds_id,
+    int backup(int vid, int bck_ds_id, bool reset,
             const RequestAttributes& ra, std::string& error_str);
 
     //--------------------------------------------------------------------------

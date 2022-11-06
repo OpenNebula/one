@@ -251,6 +251,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Select PCI device by its class ID'
     }
 
+    RESET_BACKUP = {
+        :name => 'reset',
+        :large => '--reset',
+        :description => 'Creates a new backup image, from a new full backup (only for incremental)'
+    }
+
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
         %w[as_gid as_uid].include?(v[:name])
     end
@@ -1520,7 +1526,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :backup,
             backup_vm_desc,
             :vmid,
-            :options => [OneDatastoreHelper::DATASTORE,
+            :options => [RESET_BACKUP,
+                         OneDatastoreHelper::DATASTORE,
                          OneVMHelper::SCHEDULE,
                          OneVMHelper::WEEKLY,
                          OneVMHelper::MONTHLY,
@@ -1533,6 +1540,8 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
+        reset = options[:reset] == true
+
         if !options[:schedule].nil?
             options[:args] = options[:datastore]
 
@@ -1540,7 +1549,7 @@ CommandParser::CmdParser.new(ARGV) do
         else
 
             helper.perform_action(args[0], options, 'Backup') do |vm|
-                rc = vm.backup(options[:datastore])
+                rc = vm.backup(options[:datastore], reset)
 
                 if OpenNebula.is_error?(rc)
                     STDERR.puts "Error creating VM backup: #{rc.message}"

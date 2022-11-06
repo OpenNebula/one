@@ -506,6 +506,19 @@ public:
      */
     void get_image_ids(std::set<int>& ids, int uid);
 
+    /**
+     *  Marshall disks in XML format with just essential information
+     *    @param xml string to write the disk XML description
+     */
+    std::string& to_xml_short(std::string& xml);
+
+    /**
+     *  Check if a tm_mad is valid for each Virtual Machine Disk and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad(const std::string& tm_mad, std::string& error);
+
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
     /* ---------------------------------------------------------------------- */
@@ -783,24 +796,20 @@ public:
     /* ---------------------------------------------------------------------- */
     /* BACKUP interface                                                       */
     /* ---------------------------------------------------------------------- */
-
-    /** Returns upper limit of the disk size needed to do a VM backup
+    /**
+     * Returns upper limit of the disk size needed to do a VM backup
      *  @param ds_quota The Datastore quota
+     *  @param do_volatile consider volatile disks to compute size
      */
-    void backup_size(Template &ds_quota, bool do_volatile);
+    long long backup_size(Template &ds_quota, bool do_volatile);
 
     /**
-     *  Marshall disks in XML format with just essential information
-     *    @param xml string to write the disk XML description
+     *  Returns true if all disks support incremental backups. This requires
+     *  QCOW2 format.
+     *
+     *  @param do_volatile consider volatile disks for incremental backups
      */
-    std::string& to_xml_short(std::string& xml);
-
-    /**
-     *  Check if a tm_mad is valid for each Virtual Machine Disk and set
-     *  clone_target and ln_target
-     *  @param tm_mad is the tm_mad for system datastore chosen
-     */
-    int check_tm_mad(const std::string& tm_mad, std::string& error);
+    bool backup_increment(bool do_volatile);
 
 protected:
 

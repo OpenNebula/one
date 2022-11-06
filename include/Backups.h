@@ -34,6 +34,7 @@ class ObjectXML;
  *     <KEEP_LAST> Just keep the last N backups
  *     <BACKUP_VOLATILE> Backup volatile disks or not
  *     <FS_FREEZE> FS freeze operation to perform on the VM
+ *     <MODE> Backup mode
  *     <LAST_DATASTORE_ID> The dastore ID used to store the active backups(*)
  *     <LAST_BACKUP_ID> ID of the active backup(*)
  *     <LAST_BACKUP_SIZE> SIZE of the active backup(*)
@@ -54,6 +55,43 @@ public:
     Backups();
 
     ~Backups() = default;
+
+    // *************************************************************************
+    // Backup modes
+    // *************************************************************************
+    enum Mode
+    {
+        FULL      = 0, /** < Full backups */
+        INCREMENT = 1, /** < Forward increments */
+    };
+
+    static std::string mode_to_str(Mode bm)
+    {
+        switch (bm)
+        {
+            case FULL:      return "FULL";
+            case INCREMENT: return "INCREMENT";
+            default:        return "";
+        }
+    };
+
+    static Mode str_to_mode(std::string& str_mode)
+    {
+        Mode mode = FULL;
+
+        one_util::toupper(str_mode);
+
+        if ( str_mode == "FULL" )
+        {
+            mode = FULL;
+        }
+        else if ( str_mode == "INCREMENT" )
+        {
+            mode = INCREMENT;
+        }
+
+        return mode;
+    };
 
     // *************************************************************************
     // Inititalization functions
@@ -78,19 +116,38 @@ public:
      *     - BACKUP_VOLATILE
      *     - KEEP_LAST
      *     - FS_FREEZE
+     *     - MODE
      *
      *  The following attributes are stored in the configuration and refers
      *  only to the active backup operation
      *     - LAST_DATASTORE_ID
      *     - LAST_BACKUP_ID
      *     - LAST_BACKUP_SIZE
+     *
+     *  Incremental backups include a reference to the last increment and full
+     *  backup:
+     *     - LAST_INCREMENT_ID
+     *     - INCREMENTAL_BACKUP_ID
      */
-    int parse(std::string& error_str, Template *tmpl);
+    int parse(Template *tmpl, bool can_increment, std::string& error_str);
+
+    /**
+     *  @return true if Backup includes configuration attributes
+     */
+    bool configured()
+    {
+        return config.empty();
+    }
 
     /**
      *  @return true if the backup needs to include volatile disks
      */
     bool do_volatile() const;
+
+    /**
+     *  @return true if the backup needs to include volatile disks
+     */
+    Mode mode() const;
 
     /**
      *  Set of functions to manipulate the LAST_* attributes referring to
@@ -109,6 +166,16 @@ public:
     void last_backup_size(const std::string& size)
     {
         config.replace("LAST_BACKUP_SIZE", size);
+    }
+
+    void last_increment_id(int id)
+    {
+        config.replace("LAST_INCREMENT_ID", id);
+    }
+
+    void incremental_backup_id(int id)
+    {
+        config.replace("INCREMENTAL_BACKUP_ID", id);
     }
 
     /* ---------------------------------------------------------------------- */
@@ -140,6 +207,23 @@ public:
         return sz;
     }
 
+    int last_increment_id() const
+    {
+        int id;
+
+        config.get("LAST_INCREMENT_ID", id);
+
+        return id;
+    }
+
+    int incremental_backup_id() const
+    {
+        int id;
+
+        config.get("INCREMENTAL_BACKUP_ID", id);
+
+        return id;
+    }
     /* ---------------------------------------------------------------------- */
 
     void last_backup_clear()

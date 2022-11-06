@@ -1533,7 +1533,7 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template &vm_quotas,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisks::backup_size(Template &ds_quotas, bool do_volatile)
+long long VirtualMachineDisks::backup_size(Template &ds_quotas, bool do_volatile)
 {
     long long size = 0;
 
@@ -1556,6 +1556,36 @@ void VirtualMachineDisks::backup_size(Template &ds_quotas, bool do_volatile)
     }
 
     ds_quotas.add("SIZE", size);
+
+    return size;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineDisks::backup_increment(bool do_volatile)
+{
+    for (const auto disk : *this)
+    {
+        string type = disk->vector_value("TYPE");
+
+        one_util::toupper(type);
+
+        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
+        {
+            continue;
+        }
+
+        string format = disk->vector_value("FORMAT");
+
+        one_util::toupper(format);
+
+        if (format != "QCOW2")
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */

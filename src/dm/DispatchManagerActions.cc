@@ -2536,7 +2536,7 @@ int DispatchManager::detach_sg(int vid, int nicid, int sgid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::backup(int vid, int backup_ds_id,
+int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
         const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
@@ -2586,6 +2586,12 @@ int DispatchManager::backup(int vid, int backup_ds_id,
     }
 
     vm->backups().last_datastore_id(backup_ds_id);
+
+    if (reset)
+    {
+        vm->backups().last_increment_id(-1);
+        vm->backups().incremental_backup_id(-1);
+    }
 
     vmm->trigger_backup(vid);
 

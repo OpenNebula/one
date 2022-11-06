@@ -972,16 +972,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
-    // Parse the backup attribute
-    // ------------------------------------------------------------------------
-    rc = _backups.parse(error_str, user_obj_template.get());
-
-    if ( rc != 0 )
-    {
-        goto error_backup;
-    }
-
-    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
     rc = get_network_leases(error_str);
@@ -1025,6 +1015,18 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     if ( rc != 0 )
     {
         goto error_boot_order;
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse the backup attribute. It assumes volatile disks will take part of
+    // the backups
+    // ------------------------------------------------------------------------
+    rc = _backups.parse(user_obj_template.get(), disks.backup_increment(true),
+            error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_backup;
     }
 
     // -------------------------------------------------------------------------
@@ -1117,20 +1119,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_update:
-    goto error_rollback;
-
 error_boot_order:
-    goto error_rollback;
-
 error_context:
-    goto error_rollback;
-
 error_requirements:
-    goto error_rollback;
-
 error_graphics:
-    goto error_rollback;
-
+error_backup:
 error_rollback:
     release_disk_images(quotas, true);
 
@@ -1171,7 +1164,6 @@ error_os:
 error_pci:
 error_defaults:
 error_vrouter:
-error_backup:
 error_public:
 error_name:
 error_common:
@@ -3033,12 +3025,18 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     }
 
     // -------------------------------------------------------------------------
-    // Parse backup configuration
+    // Parse backup configuration (if not doing a backup). Uses current value of
+    // BACKUP_VOLATILE attribute.
     // -------------------------------------------------------------------------
-    if ( _backups.parse(err, tmpl) != 0 )
+    if ( lcm_state != BACKUP && lcm_state != BACKUP_POWEROFF)
     {
-        NebulaLog::log("ONE",Log::ERROR, err);
-        return -1;
+        bool increment = disks.backup_increment(_backups.do_volatile());
+
+        if ( _backups.parse(tmpl, increment, err) != 0 )
+        {
+            NebulaLog::log("ONE",Log::ERROR, err);
+            return -1;
+        }
     }
 
     encrypt();

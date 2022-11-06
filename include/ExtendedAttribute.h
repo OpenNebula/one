@@ -171,9 +171,14 @@ protected:
     /* Method to access attributes                                            */
     /* ---------------------------------------------------------------------- */
     /**
-     *  @return attribute by id or 0 if not found
+     *  @return attribute by id or nullptr if not found
      */
     ExtendedAttribute * get_attribute(int id) const;
+
+    /**
+     *  @return last_attribute or nullptr if empty set
+     */
+    ExtendedAttribute * last_attribute() const;
 
     /* ---------------------------------------------------------------------- */
     /* Iterators                                                              */
