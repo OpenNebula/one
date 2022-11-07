@@ -24,26 +24,29 @@ require 'getoptlong'
 
 require_relative './kvm'
 
+# rubocop:disable Style/GlobalVars
+# rubocop:disable Style/ClassVars
 
 #---------------------------------------------------------------------------
 # Helper module to execute commands
 #---------------------------------------------------------------------------
 module Command
+
     def cmd(command, args, opts = {})
         opts.each do |key, value|
             if value.class == Array
-                value.each { |v| command << render_opt(key, v) }
+                value.each {|v| command << render_opt(key, v) }
             else
                 command << render_opt(key, value)
             end
         end
 
-        File.write($debug, "#{command} #{args}\n", mode: 'a') if $debug
+        File.write($debug, "#{command} #{args}\n", { mode => 'a' }) if $debug
 
         out, err, rc = Open3.capture3("#{command} #{args}")
 
         if rc.exitstatus != 0
-            raise StandardError.new "Error executing '#{command} #{args}':\n#{out} #{err}"
+            raise StandardError, "Error executing '#{command} #{args}':\n#{out} #{err}"
         end
 
         out
@@ -51,39 +54,41 @@ module Command
 
     def render_opt(name, value)
         if name.length == 1
-            opt = " -#{name.to_s.gsub('_','-')}"
+            opt = " -#{name.to_s.gsub('_', '-')}"
         else
-            opt = " --#{name.to_s.gsub('_','-')}"
+            opt = " --#{name.to_s.gsub('_', '-')}"
         end
 
         if value && !value.empty?
-            opt << " " if name[-1] != '='
-            opt << "#{value}"
+            opt << ' ' if name[-1] != '='
+            opt << value.to_s
         end
 
         opt
     end
+
 end
 
 #-------------------------------------------------------------------------------
 # Setup an NBD server to pull changes, an optional map can be provided
 #-------------------------------------------------------------------------------
 module Nbd
+
     @@server = nil
 
     def self.start_nbd(file, map = '')
-        return if @@server != nil
+        return unless @@server.nil?
 
         @@socket = "#{File.realpath(file)}.socket"
-        @@server = fork {
+        @@server = fork do
             args  = ['-r', '-k', @@socket, '-f', 'qcow2', '-t']
             args << '-B' << map unless map.empty?
             args  = file
 
             exec('qemu-nbd', *args)
-        }
+        end
 
-        sleep(1) #TODO inotify or poll for @@socket
+        sleep(1) # TODO: inotify or poll for @@socket
     end
 
     def self.stop_nbd
@@ -98,6 +103,7 @@ module Nbd
     def self.uri
         "nbd+unix:///?socket=#{@@socket}"
     end
+
 end
 
 # ------------------------------------------------------------------------------
@@ -105,6 +111,7 @@ end
 # disk images files
 # ------------------------------------------------------------------------------
 class QemuImg
+
     include Command
 
     def initialize(path)
@@ -174,7 +181,7 @@ class QemuImg
     end
 
     def data_extents(uri, map)
-        #TODO change for pattern include zero
+        # TODO: change for pattern include zero
         extents(uri, map, 'data')
     end
 
@@ -193,12 +200,14 @@ class QemuImg
         exts = []
 
         bmap.each do |e|
-          next if !e || e['description'] != description
-          exts << e
+            next if !e || e['description'] != description
+
+            exts << e
         end
 
         exts
     end
+
 end
 
 # ------------------------------------------------------------------------------
@@ -231,7 +240,7 @@ class KVMDomain
         mode = @vm.elements['BACKUPS/BACKUP_CONFIG/MODE']
 
         if mode
-            case(mode.text)
+            case mode.text
             when 'FULL'
                 @backup_id = 0
                 @parent_id = -1
@@ -286,7 +295,6 @@ class KVMDomain
         when 'SUSPEND'
             cmd("#{virsh} resume", @dom)
         end
-
     ensure
         @frozen = nil
     end
@@ -332,26 +340,27 @@ class KVMDomain
             did = d.elements['DISK_ID'].text
 
             next unless disks.include? did
+
             tgts << d.elements['TARGET'].text
         end
 
         return if tgts.empty?
 
         disks = '<disks>'
-        tgts.each { |tgt| disks << "<disk name='#{tgt}'/>" }
+        tgts.each {|tgt| disks << "<disk name='#{tgt}'/>" }
         disks << '</disks>'
 
         checkpoint_xml = <<~EOS
-           <domaincheckpoint>
-              <name>one-#{@vid}-#{@parent_id}</name>
-              <creationTime>#{Time.now.to_i}</creationTime>
-              #{disks}
+            <domaincheckpoint>
+                <name>one-#{@vid}-#{@parent_id}</name>
+                <creationTime>#{Time.now.to_i}</creationTime>
+                #{disks}
             </domaincheckpoint>
         EOS
 
         cpath = "#{@tmp_dir}/checkpoint.xml"
 
-        File.open(cpath, "w") { |f| f.write(checkpoint_xml) }
+        File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
         cmd("#{virsh} checkpoint-create", @dom,
             :xmlfile => cpath, :redefine => '')
@@ -368,7 +377,7 @@ class KVMDomain
 
         out.each_line do |l|
             m = l.match(/(one-[0-9]+)-([0-9]+)/)
-            next if (!m || (!all && m[2].to_i == @backup_id))
+            next if !m || (!all && m[2].to_i == @backup_id)
 
             cmd("#{virsh} checkpoint-delete", "#{@dom} #{m[1]}-#{m[2]}")
         end
@@ -405,7 +414,6 @@ class KVMDomain
 
             idisk.pull_changes(mkuri(tgt), map)
         end
-
     ensure
         fsthaw
         stop_backup
@@ -426,7 +434,7 @@ class KVMDomain
 
             overlay = "#{@tmp_dir}/overlay_#{did}.qcow2"
 
-            File.open(overlay, "w"){}
+            File.open(overlay, 'w') {}
 
             dspec << "#{tgt},file=#{overlay}"
 
@@ -445,15 +453,15 @@ class KVMDomain
         }
 
         checkpoint_xml = <<~EOS
-           <domaincheckpoint>
-              <name>one-#{@vid}-0</name>
-              #{disk_xml}
-            </domaincheckpoint>
+            <domaincheckpoint>
+               <name>one-#{@vid}-0</name>
+               #{disk_xml}
+             </domaincheckpoint>
         EOS
 
         cpath = "#{@tmp_dir}/checkpoint.xml"
 
-        File.open(cpath, "w") { |f| f.write(checkpoint_xml) }
+        File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
         fsfreeze
 
@@ -489,7 +497,7 @@ class KVMDomain
             cmd("#{virsh} blockcommit", "#{@dom} #{tgt}", opts)
         end
 
-        cmd("#{virsh} snapshot-delete", "#{@dom}",
+        cmd("#{virsh} snapshot-delete", @dom.to_s,
             :snapshotname => "one-#{@vid}-backup",
             :metadata     => '')
     end
@@ -526,7 +534,7 @@ class KVMDomain
             Nbd.stop_nbd
         end
 
-        #TODO Check if baking files needs bitmap
+        # TODO: Check if baking files needs bitmap
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
 
@@ -567,16 +575,16 @@ class KVMDomain
         parent_xml = "<incremental>#{parent}</incremental>" if pid != -1
 
         backup_xml = <<~EOS
-          <domainbackup mode='pull'>
-            #{parent_xml}
-            <server transport='unix' socket='#{@socket}'/>
-            <disks>
+            <domainbackup mode='pull'>
+              #{parent_xml}
+              <server transport='unix' socket='#{@socket}'/>
+              <disks>
         EOS
 
         checkpoint_xml = <<~EOS
-          <domaincheckpoint>
-            <name>#{bname}</name>
-            <disks>
+            <domaincheckpoint>
+              <name>#{bname}</name>
+              <disks>
         EOS
 
         @vm.elements.each 'TEMPLATE/DISK' do |d|
@@ -592,32 +600,32 @@ class KVMDomain
             simg.create("#{szm}M", :f => 'qcow2')
 
             backup_xml << <<~EOS
-              <disk name='#{tgt}' backup='yes' type='file'>
-                <scratch file='#{spath}'/>
-              </disk>
+                <disk name='#{tgt}' backup='yes' type='file'>
+                  <scratch file='#{spath}'/>
+                </disk>
             EOS
 
             checkpoint_xml << "<disk name='#{tgt}'/>"
         end
 
         checkpoint_xml << <<~EOS
-            </disks>
-          </domaincheckpoint>
+              </disks>
+            </domaincheckpoint>
         EOS
 
         backup_xml << <<~EOS
-            </disks>
-          </domainbackup>
+              </disks>
+            </domainbackup>
         EOS
 
         backup_path = "#{@tmp_dir}/backup.xml"
         check_path  = "#{@tmp_dir}/checkpoint.xml"
 
-        File.open(backup_path, "w") { |f| f.write(backup_xml) }
+        File.open(backup_path, 'w') {|f| f.write(backup_xml) }
 
-        File.open(check_path, "w") { |f| f.write(checkpoint_xml) }
+        File.open(check_path, 'w') {|f| f.write(checkpoint_xml) }
 
-        opts = { :reuse_external => '', :backupxml => backup_path}
+        opts = { :reuse_external => '', :backupxml => backup_path }
         opts[:checkpointxml] = check_path if checkpoint
 
         cmd("#{virsh} backup-begin", @dom, opts)
@@ -639,11 +647,11 @@ class KVMDomain
 end
 
 opts = GetoptLong.new(
-    ['--disks','-d', GetoptLong::REQUIRED_ARGUMENT],
-    ['--vmxml','-x', GetoptLong::REQUIRED_ARGUMENT],
+    ['--disks', '-d', GetoptLong::REQUIRED_ARGUMENT],
+    ['--vmxml', '-x', GetoptLong::REQUIRED_ARGUMENT],
     ['--path', '-p', GetoptLong::REQUIRED_ARGUMENT],
     ['--live', '-l', GetoptLong::NO_ARGUMENT],
-    ['--debug','-v', GetoptLong::NO_ARGUMENT],
+    ['--debug', '-v', GetoptLong::NO_ARGUMENT],
     ['--stop', '-s', GetoptLong::NO_ARGUMENT]
 )
 
@@ -710,8 +718,10 @@ begin
             vm.backup_nbd(disks)
         end
     end
-
 rescue StandardError => e
-  puts e.message
-  exit(-1)
+    puts e.message
+    exit(-1)
 end
+
+# rubocop:enable Style/GlobalVars
+# rubocop:enable Style/ClassVars

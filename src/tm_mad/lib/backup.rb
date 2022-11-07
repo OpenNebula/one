@@ -24,7 +24,7 @@ module TransferManager
     class BackupImage
 
         def initialize(action_xml)
-            @action  = REXML::Document.new(action_xml).root
+            @action = REXML::Document.new(action_xml).root
             @increments = {}
 
             prefix = '/DS_DRIVER_ACTION_DATA/IMAGE'
@@ -35,9 +35,7 @@ module TransferManager
                 @increments[id] = inc.elements['SOURCE'].text
             end
 
-            if @increments.empty?
-                @increments[0] = @action.elements["#{prefix}/SOURCE"].text
-            end
+            @increments[0] = @action.elements["#{prefix}/SOURCE"].text if @increments.empty?
         end
 
         def last
@@ -49,8 +47,9 @@ module TransferManager
         end
 
         def chain
-            @increments.map {|k,v| "#{k}:#{v}"}.join(',')
+            @increments.map {|k, v| "#{k}:#{v}" }.join(',')
         end
+
     end
 
     # This class includes methods to generate a recovery VM template based

@@ -464,7 +464,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d['SOURCE']
             end
 
-
             default :ID, :PID, :TYPE, :SIZE, :DATE, :SOURCE
         end
 
