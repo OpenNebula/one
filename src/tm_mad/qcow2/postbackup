@@ -51,8 +51,6 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'rexml/document'
-
 require_relative '../lib/tm_action'
 
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid

@@ -51,13 +51,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'rexml/document'
-
 require_relative '../lib/tm_action'
-require_relative '../lib/kvm'
-
-# TODO: fsfreeze for each hypervisor based on VM_MAD
-include TransferManager::KVM
 
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
 
