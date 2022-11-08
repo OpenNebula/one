@@ -154,9 +154,10 @@ class QemuImg
     #---------------------------------------------------------------------------
     def pull_changes(uri, map)
         exts = if !map || map.empty?
-                   data_extents(uri, '')
+                   #TODO change for pattern include zero
+                   extents(uri, '', 'data')
                else
-                   dirty_extents(uri, map)
+                   extents(uri, map, 'dirty')
                end
 
         rc, msg = create(:f => 'qcow2', :F => 'raw', :b => uri)
@@ -176,15 +177,6 @@ class QemuImg
     #---------------------------------------------------------------------------
     # Gets the dirty extent information from the given map using an NBD server
     #---------------------------------------------------------------------------
-    def dirty_extents(uri, map)
-        extents(uri, map, 'dirty')
-    end
-
-    def data_extents(uri, map)
-        # TODO: change for pattern include zero
-        extents(uri, map, 'data')
-    end
-
     def extents(uri, map, description)
         opts = { :json => '' }
 
@@ -553,7 +545,7 @@ class KVMDomain
             sdisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
             ddisk = "#{@bck_dir}/disk.#{did}.0"
 
-            sdisk.convert(ddisk, :m => 4, :O => 'qcow2')
+            sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
             sdisk.bitmap("one-#{@vid}-0", :add => '') if @checkpoint
         end
     end
