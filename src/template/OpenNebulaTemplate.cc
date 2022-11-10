@@ -384,6 +384,8 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("HOST_ENCRYPTED_ATTR", "NSX_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "ONE_PASSWORD");
     set_conf_single("SHOWBACK_ONLY_RUNNING", "NO");
+    set_conf_single("CONTEXT_RESTRICTED_DIRS", "/etc");
+    set_conf_single("CONTEXT_SAFE_DIRS", "");
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
