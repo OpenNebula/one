@@ -154,7 +154,7 @@ class QemuImg
     #---------------------------------------------------------------------------
     def pull_changes(uri, map)
         exts = if !map || map.empty?
-                   #TODO change for pattern include zero
+                   # TODO: change for pattern include zero
                    extents(uri, '', 'data')
                else
                    extents(uri, map, 'dirty')
