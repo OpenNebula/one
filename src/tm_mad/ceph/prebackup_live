@@ -93,7 +93,6 @@ expo_cmd = ''
 conv_cmd = ''
 clup_cmd = ''
 
-# TODO: Make compression configurable. Does it intefere with deduplication?
 vm.elements.each 'TEMPLATE/DISK' do |d|
     did = d.elements['DISK_ID'].text
     next unless disks.include? did

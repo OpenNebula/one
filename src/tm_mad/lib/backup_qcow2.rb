@@ -24,13 +24,35 @@ require 'getoptlong'
 
 require_relative './kvm'
 
-# rubocop:disable Style/GlobalVars
+#-------------------------------------------------------------------------------
+# CONFIGURATION CONSTANTS
+#   QEMU_IO_OPEN: options to open command for qemu-io
+#   -t <cache_mode>: none, writeback (recommended)
+#       wirteback = cache.writeback (fsync() after each write)
+#       none      = cache.writeback | cache.direct (use O_DIRECT)
+#   -i <io_mode>: io_uring, threads, native (requires cache_mode = none)
+#
+#   IO_ASYNC: if true issues aio_read commands instead of read
+#   OUTSTAND_OPS: number of aio_reads before issuing a aio_flush commnand
+#-------------------------------------------------------------------------------
+LOG_FILE     = nil
+QEMU_IO_OPEN = "-t none -i native -o driver=qcow2"
+IO_ASYNC     = false
+OUTSTAND_OPS = 8
+
+
 # rubocop:disable Style/ClassVars
 
 #---------------------------------------------------------------------------
 # Helper module to execute commands
 #---------------------------------------------------------------------------
 module Command
+
+    def log(message)
+      return unless LOG_FILE
+      File.write(LOG_FILE, "#{Time.now.strftime("%H:%M:%S.%L")} #{message}\n",
+                 mode: 'a' )
+    end
 
     def cmd(command, args, opts = {})
         opts.each do |key, value|
@@ -41,9 +63,12 @@ module Command
             end
         end
 
-        File.write($debug, "#{command} #{args}\n", { mode => 'a' }) if $debug
+        log("[CMD]: #{command} #{args}")
 
-        out, err, rc = Open3.capture3("#{command} #{args}")
+        out, err, rc = Open3.capture3("#{command} #{args}",
+                                      :stdin_data => opts[:stdin_data])
+
+        log("[CMD]: DONE")
 
         if rc.exitstatus != 0
             raise StandardError, "Error executing '#{command} #{args}':\n#{out} #{err}"
@@ -53,6 +78,8 @@ module Command
     end
 
     def render_opt(name, value)
+        return '' if name == :stdin_data
+
         if name.length == 1
             opt = " -#{name.to_s.gsub('_', '-')}"
         else
@@ -153,8 +180,11 @@ class QemuImg
     # Note: Increment files neeed rebase to reconstruct the increment chain
     #---------------------------------------------------------------------------
     def pull_changes(uri, map)
+        # ----------------------------------------------------------------------
+        # Get extents from NBD server
+        # ----------------------------------------------------------------------
         exts = if !map || map.empty?
-                   # TODO: change for pattern include zero
+                   # TODO change pattern to include zero
                    extents(uri, '', 'data')
                else
                    extents(uri, map, 'dirty')
@@ -164,12 +194,23 @@ class QemuImg
 
         return [false, msg] unless rc
 
-        exts.each do |e|
-            cmd('qemu-io', @path,
-                :C => '',
-                :c => "\"r #{e['offset']} #{e['length']}\"",
-                :f => 'qcow2')
+        # ----------------------------------------------------------------------
+        # Create a qemu-io script to pull changes
+        # ----------------------------------------------------------------------
+        io_script = "open -C #{QEMU_IO_OPEN} #{@path}\n"
+
+        exts.each_with_index do |e, i|
+            if IO_ASYNC
+                io_script << "aio_read -q #{e['offset']} #{e['length']}\n"
+                io_script << "aio_flush\n" if (i+1)%OUTSTAND_OPS == 0
+            else
+                io_script << "read -q #{e['offset']} #{e['length']}\n"
+            end
         end
+
+        io_script << "aio_flush\n" if IO_ASYNC
+
+        cmd('qemu-io', '', :stdin_data => io_script)
     end
 
     private
@@ -253,6 +294,8 @@ class KVMDomain
         @bck_dir = "#{opts[:vm_dir]}/backup"
 
         @socket  = "#{opts[:vm_dir]}/backup.socket"
+
+        # State variables for domain operations
         @ongoing = false
         @frozen  = nil
     end
@@ -381,6 +424,7 @@ class KVMDomain
     #   @param [Boolean] if true do not generate checkpoint
     #---------------------------------------------------------------------------
     def backup_nbd_live(disks_s)
+        init  = Time.now
         disks = disks_s.split ':'
 
         fsfreeze
@@ -406,12 +450,15 @@ class KVMDomain
 
             idisk.pull_changes(mkuri(tgt), map)
         end
+
+        log("[BCK]: Incremental backup done in #{Time.now - init}s")
     ensure
         fsthaw
         stop_backup
     end
 
     def backup_full_live(disks_s)
+        init  = Time.now
         disks = disks_s.split ':'
         dspec = []
         qdisk = {}
@@ -466,6 +513,8 @@ class KVMDomain
         qdisk.each do |did, disk|
             disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2')
         end
+
+        log("[BCK]: Full backup done in #{Time.now - init}s")
     ensure
         fsthaw
     end
@@ -498,6 +547,7 @@ class KVMDomain
     #  Make a backup for the VM. (see make_backup_live)
     #---------------------------------------------------------------------------
     def backup_nbd(disks_s)
+        init  = Time.now
         disks = disks_s.split ':'
 
         if @parent_id == -1
@@ -532,9 +582,12 @@ class KVMDomain
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
         end if @checkpoint
+
+        log("[BCK]: Incremental backup done in #{Time.now - init}s")
     end
 
     def backup_full(disks_s)
+        init  = Time.now
         disks = disks_s.split ':'
 
         @vm.elements.each 'TEMPLATE/DISK' do |d|
@@ -548,6 +601,8 @@ class KVMDomain
             sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
             sdisk.bitmap("one-#{@vid}-0", :add => '') if @checkpoint
         end
+
+        log("[BCK]: Full backup done in #{Time.now - init}s")
     end
 
     private
@@ -639,45 +694,40 @@ class KVMDomain
 end
 
 opts = GetoptLong.new(
-    ['--disks', '-d', GetoptLong::REQUIRED_ARGUMENT],
-    ['--vmxml', '-x', GetoptLong::REQUIRED_ARGUMENT],
+    ['--disk', '-d', GetoptLong::REQUIRED_ARGUMENT],
+    ['--vxml', '-x', GetoptLong::REQUIRED_ARGUMENT],
     ['--path', '-p', GetoptLong::REQUIRED_ARGUMENT],
     ['--live', '-l', GetoptLong::NO_ARGUMENT],
-    ['--debug', '-v', GetoptLong::NO_ARGUMENT],
     ['--stop', '-s', GetoptLong::NO_ARGUMENT]
 )
 
 begin
-    path = disks = vmxml = ''
+    path = disk = vxml = ''
     live = stop = false
-
-    $debug = nil
 
     opts.each do |opt, arg|
         case opt
-        when '--disks'
-            disks = arg
+        when '--disk'
+            disk = arg
         when '--path'
             path = arg
         when '--live'
             live = true
         when '--stop'
             stop = true
-        when '--vmxml'
-            vmxml = arg
-        when '--debug'
-            $debug = "/tmp/one.backup.#{Time.now.to_i}"
+        when '--vxml'
+            vxml = arg
         end
     end
 
-    vm = KVMDomain.new(Base64.decode64(File.read(vmxml)), :vm_dir => path)
+    vm = KVMDomain.new(Base64.decode64(File.read(vxml)), :vm_dir => path)
 
     #---------------------------------------------------------------------------
     #  Stop operation. Only for full backups in live mode. It blockcommits
     #  changes and cleans snapshot.
     #---------------------------------------------------------------------------
     if stop
-        vm.stop_backup_full_live(disks) if vm.parent_id == -1 && live
+        vm.stop_backup_full_live(disk) if vm.parent_id == -1 && live
         exit(0)
     end
 
@@ -695,19 +745,19 @@ begin
         if vm.parent_id == -1
             vm.clean_checkpoints(true)
 
-            vm.backup_full_live(disks)
+            vm.backup_full_live(disk)
         else
-            vm.define_checkpoint(disks)
+            vm.define_checkpoint(disk)
 
-            vm.backup_nbd_live(disks)
+            vm.backup_nbd_live(disk)
 
             vm.clean_checkpoints
         end
     else
         if vm.parent_id == -1
-            vm.backup_full(disks)
+            vm.backup_full(disk)
         else
-            vm.backup_nbd(disks)
+            vm.backup_nbd(disk)
         end
     end
 rescue StandardError => e
@@ -715,5 +765,4 @@ rescue StandardError => e
     exit(-1)
 end
 
-# rubocop:enable Style/GlobalVars
 # rubocop:enable Style/ClassVars
