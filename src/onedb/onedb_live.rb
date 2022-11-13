@@ -399,7 +399,7 @@ class OneDBLive
             raise 'A value or --delete should specified'
         end
 
-        rc = object.info_all
+        rc = object.info_search(state: VirtualMachinePool::INFO_ALL_VM)
         raise rc.message if OpenNebula.is_error?(rc)
 
         object.each do |o|
