@@ -435,6 +435,11 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
         {
             // Spice password must be 60 characters maximum
             graphics->replace("PASSWD", password.substr(0, 59));
+        } 
+        else if ( graphics->vector_value("TYPE") == "vnc" ) 
+        {
+            // Vnc password must be 8 characters maximum
+            graphics->replace("PASSWD", password.substr(0, 7));
         }
         else
         {
