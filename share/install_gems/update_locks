@@ -68,7 +68,7 @@ for DIR in $DIRS; do
 
     echo "--- Platform ${TARGET} (${DOCKER_IMAGE}:${DOCKER_TAG})"
 
-    cat - <<EOF | docker run --rm -it -v "${GIT_DIR}:/git:z" "${DOCKER_IMAGE}:${DOCKER_TAG}" bash -c "eval $(cat -)"
+    docker run --rm -v "${GIT_DIR}:/git:z" -i "${DOCKER_IMAGE}:${DOCKER_TAG}" bash -s <<EOF
 set -xe -o pipefail
 
 export LC_ALL=C

@@ -320,6 +320,12 @@
   group: oneadmin
   mode: '0640'
 
+- name: /var/lib/one/remotes/etc/onegate-proxy.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
 - name: /var/lib/one/remotes/etc/tm/fs_lvm/fs_lvm.conf
   class: Augeas::Shell
   owner: oneadmin

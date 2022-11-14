@@ -52,6 +52,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
+require 'HostSyncManager'
 require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'zlib'
@@ -76,6 +77,8 @@ class InformationManagerDriver < OpenNebulaDriver
         # register actions
         register_action(:START_MONITOR, method('start_monitor'))
         register_action(:STOP_MONITOR, method('stop_monitor'))
+
+        @sync_manager = HostSyncManager.new
     end
 
     def start_monitor(_not_used, _hostid, _timestamp, zaction64)
@@ -84,10 +87,16 @@ class InformationManagerDriver < OpenNebulaDriver
         return if rc == -1
 
         if !action_is_local?(:START_MONITOR)
-            rc = update_remotes(:START_MONITOR, input[:host_id],
-                                input[:hostname])
+            rc = @sync_manager.update_remotes(input[:hostname],
+                                              log_method(input[:host_id]))
 
-            return if rc == -1
+            if rc != 0
+                write_respond(:START_MONITOR,
+                              RESULT[:failure],
+                              input[:host_id],
+                              'Could not update remotes')
+                return
+            end
         end
 
         result, info = do_action(input[:im_mad],
@@ -148,41 +157,6 @@ class InformationManagerDriver < OpenNebulaDriver
                       e.message)
 
         [-1, {}]
-    end
-
-    def update_remotes(action, hostid, hostname)
-        # Recreate dir for remote scripts
-        mkdir_cmd = "mkdir -p #{@remote_scripts_base_path}"
-
-        cmd = SSHCommand.run(mkdir_cmd, hostname, log_method(hostid))
-
-        if cmd.code != 0
-            write_respond(action,
-                          RESULT[:failure],
-                          hostid,
-                          'Could not update remotes')
-            return -1
-        end
-
-        # Use SCP to sync:
-        #sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
-        #    "#{hostname}:#{@remote_scripts_base_path}"
-
-        # Use rsync to sync:
-        sync_cmd = "rsync -Laz --delete #{@local_scripts_base_path}/" \
-                   " #{hostname}:#{@remote_scripts_base_path}/"
-
-        cmd = LocalCommand.run(sync_cmd, log_method(hostid))
-
-        if cmd.code != 0
-            write_respond(action,
-                          RESULT[:failure],
-                          hostid,
-                          'Could not update remotes')
-            return -1
-        end
-
-        0
     end
 
     # Sends a log message to ONE. The +message+ can be multiline, it will

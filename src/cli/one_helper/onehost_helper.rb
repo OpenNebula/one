@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'HostSyncManager'
 require 'one_helper'
 require 'one_helper/onevm_helper'
 require 'rubygems'
@@ -268,12 +269,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         cluster_id = options[:cluster]
 
-        # Get remote_dir (implies oneadmin group)
         rc = OpenNebula::System.new(@client).get_configuration
         return -1, rc.message if OpenNebula.is_error?(rc)
 
         conf = rc
-        remote_dir = conf['SCRIPTS_REMOTE_DIR']
+        sync_manager = HostSyncManager.new(conf)
 
         # Verify the existence of REMOTES_LOCATION
         if !File.directory? REMOTES_LOCATION
@@ -363,21 +363,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
                     print_update_info(total - size, total, host['NAME'])
 
-                    if options[:ssh]
-                        sync_cmd = "ssh #{host['NAME']}" \
-                                   " rm -rf '#{remote_dir}' 2>/dev/null;" \
-                                   " mkdir -p '#{remote_dir}' 2>/dev/null &&" \
-                                   " scp -rp #{REMOTES_LOCATION}/*" \
-                                   " #{host['NAME']}:#{remote_dir} 2> /dev/null"
-                    else
-                        sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}/" \
-                                   " #{host['NAME']}:#{remote_dir}/"
-                    end
-
                     retries = 3
 
                     begin
-                        `#{sync_cmd} 2>/dev/null`
+                        copy_method = options[:ssh] ? :ssh : :rsync
+                        rc = sync_manager.update_remotes(host['NAME'],
+                                                         nil,
+                                                         copy_method)
                     rescue IOError
                         # Workaround for broken Ruby 2.5
                         # https://github.com/OpenNebula/one/issues/3229
@@ -387,7 +379,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                         end
                     end
 
-                    if $CHILD_STATUS.nil? || !$CHILD_STATUS.success?
+                    if rc != 0
                         error_lock.synchronize do
                             host_errors << host['NAME']
                         end

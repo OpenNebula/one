@@ -119,7 +119,7 @@ for GEMFILE in \
     "/usr/share/one/Gemfile"
 do
     if [ -f "${GEMFILE}" ]; then
-        bundle install --system --gemfile="${GEMFILE}" >/dev/null
+        bundle install --system --gemfile="${GEMFILE}"
 
         echo 'Successfully done!'
         exit 0
