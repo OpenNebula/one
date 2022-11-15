@@ -36,10 +36,9 @@ require_relative './kvm'
 #   OUTSTAND_OPS: number of aio_reads before issuing a aio_flush commnand
 #-------------------------------------------------------------------------------
 LOG_FILE     = nil
-QEMU_IO_OPEN = "-t none -i native -o driver=qcow2"
+QEMU_IO_OPEN = '-t none -i native -o driver=qcow2'
 IO_ASYNC     = false
 OUTSTAND_OPS = 8
-
 
 # rubocop:disable Style/ClassVars
 
@@ -49,9 +48,9 @@ OUTSTAND_OPS = 8
 module Command
 
     def log(message)
-      return unless LOG_FILE
-      File.write(LOG_FILE, "#{Time.now.strftime("%H:%M:%S.%L")} #{message}\n",
-                 mode: 'a' )
+        return unless LOG_FILE
+
+        File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", { :mode => 'a' })
     end
 
     def cmd(command, args, opts = {})
@@ -65,10 +64,9 @@ module Command
 
         log("[CMD]: #{command} #{args}")
 
-        out, err, rc = Open3.capture3("#{command} #{args}",
-                                      :stdin_data => opts[:stdin_data])
+        out, err, rc = Open3.capture3("#{command} #{args}", :stdin_data => opts[:stdin_data])
 
-        log("[CMD]: DONE")
+        log('[CMD]: DONE')
 
         if rc.exitstatus != 0
             raise StandardError, "Error executing '#{command} #{args}':\n#{out} #{err}"
@@ -184,7 +182,7 @@ class QemuImg
         # Get extents from NBD server
         # ----------------------------------------------------------------------
         exts = if !map || map.empty?
-                   # TODO change pattern to include zero
+                   # TODO: change pattern to include zero
                    extents(uri, '', 'data')
                else
                    extents(uri, map, 'dirty')
