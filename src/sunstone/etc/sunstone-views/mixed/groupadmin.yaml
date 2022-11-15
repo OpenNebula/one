@@ -727,6 +727,7 @@ tabs:
     panel_tabs:
       backup_info_tab: true
       backup_vms_tab: true
+      backup_increments_tab: true
     table_columns:
       - 0 # Checkbox
       - 1 # ID

@@ -78,7 +78,9 @@ define(function(require) {
       $("#" + DIALOG_ID + "Form", dialog).submit(function() {
         var sel_elems = Sunstone.getDataTable(VMS_TAB_ID).elements();
   
-        var extra_info = {};
+        var extra_info = {
+          "reset":$("#cb_backup_reset", dialog).prop("checked")
+        };
   
         var targetDS = that.datastoreTable.retrieveResourceTableSelect();
         extra_info["dst_id"] = targetDS;

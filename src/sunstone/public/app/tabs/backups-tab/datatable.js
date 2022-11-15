@@ -20,7 +20,6 @@ define(function(require) {
    */
 
   var ImageCommonDataTable = require("tabs/images-tab/datatable-common");
-
   var Locale = require("utils/locale");
   var Humanize = require("utils/humanize");
   var OpenNebulaImage = require("opennebula/image");

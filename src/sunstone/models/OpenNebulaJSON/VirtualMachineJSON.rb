@@ -135,7 +135,7 @@ module OpenNebulaJSON
             when 'sg_detach'
                 sg_detach(action_hash['params'])
             when 'backup'
-                backup(action_hash['params']['dst_id'].to_i)
+                backup(action_hash['params']['dst_id'].to_i, action_hash['params']['reset'])
             else
                 error_msg = "#{action_hash['perform']} action not " \
                             ' available for this resource'

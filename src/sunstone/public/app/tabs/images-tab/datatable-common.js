@@ -107,6 +107,14 @@ define(function(require) {
     var element = element_json.IMAGE;
 
     var type = OpenNebulaImage.typeStr(element.TYPE);
+    if (type === Locale.tr("BACKUP")) {
+      if (element.BACKUP_INCREMENTS.INCREMENT){
+        type = Locale.tr("INCREMENTAL")
+      }
+      else {
+        type = Locale.tr("FULL")
+      }
+    }
     var state = OpenNebulaImage.stateStr(element.STATE);
 
     var search = {

@@ -882,6 +882,7 @@ const vmApi = oneApi.injectEndpoints({
        * @param {object} params - Request parameters
        * @param {string} params.id - Virtual machine id
        * @param {number} params.dsId - Backup Datastore id
+       * @param {boolean} params.reset - Backup reset
        * @returns {number} Virtual machine id
        * @throws Fails when response isn't code 200
        */

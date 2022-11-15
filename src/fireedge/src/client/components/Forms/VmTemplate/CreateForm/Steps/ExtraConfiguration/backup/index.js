@@ -13,41 +13,48 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, object } from 'yup'
-import { getValidationFromFields, arrayToOptions } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import PropTypes from 'prop-types'
+import { RefreshDouble as BackupIcon } from 'iconoir-react'
 
-const DS_ID = {
-  name: 'dsId',
-  label: T.BackupDatastore,
-  type: INPUT_TYPES.SELECT,
-  values: () => {
-    const { data: datastores = [] } = useGetDatastoresQuery()
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-    return arrayToOptions(
-      datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
-      {
-        addEmpty: false,
-        getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
-        getValue: ({ ID } = {}) => ID,
-      }
-    )
-  },
-  validation: number()
-    .positive()
-    .required()
-    .default(() => undefined),
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import {
+  SECTIONS,
+  FIELDS,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
+import { T } from 'client/constants'
+
+const Backup = () => (
+  <>
+    {SECTIONS.map(({ id, ...section }) => (
+      <FormWithSchema
+        key={id}
+        id={EXTRA_ID}
+        cy={`${EXTRA_ID}-${id}`}
+        {...section}
+      />
+    ))}
+  </>
+)
+
+Backup.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
 }
 
-const RESET = {
-  name: 'reset',
-  label: T.Reset,
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean(),
-  grid: { xs: 12, md: 6 },
+Backup.displayName = 'Backup'
+
+/** @type {TabType} */
+const TAB = {
+  id: 'backup',
+  name: T.Backup,
+  icon: BackupIcon,
+  Content: Backup,
+  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
 }
 
-export const FIELDS = [DS_ID, RESET]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export default TAB

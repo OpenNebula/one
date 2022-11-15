@@ -14,32 +14,19 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal large" data-reveal>
-  <div class="row">
-    <h3 class="subheader">{{tr "Backup VM"}}</h3>
-  </div>
-  <div class="confirm-resources-header"></div>
-  <form id="{{dialogId}}Form" action="" class="custom creation">
-    <div class="row">
-      <fieldset>
-        <div class="backup_reset">
-          <label>
-            <input type="checkbox" id="cb_backup_reset" style="margin-left: 15px"> {{tr "Reset"}}
-          </label>
-        </div>
-        <legend>{{tr "Datastore to restore"}}</legend>
-        <div class="columns large-12">
-          <div class="large-12 columns">
-          </div>
-          {{{datastoreTableSelectHTML}}}
-        </div>
-      </fieldset>
+<div id="backup-increment-{{id}}" class="backup-increment">
+    <div class="backup-increment-id">
+        #{{id}}
     </div>
-    <div class="form_buttons row">
-      <button class="button radius right" id="vm_backup_button" value="VM.backup">{{tr "Backup"}}</button>
+    <div class="backup-increment-data">
+        <div class="backup-increment-date">
+            <i class="fas fa-calendar-alt"></i> {{date}}
+        </div>
+        <div class="backup-increment-size">
+            <b>{{tr "Size"}}</b>: {{size}}
+        </div>
+        <div class="backup-increment-type">
+            <b>{{tr "Type"}}</b>: {{type}}
+        </div>
     </div>
-    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </form>
 </div>

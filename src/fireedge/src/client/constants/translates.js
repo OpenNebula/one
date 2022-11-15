@@ -688,6 +688,14 @@ module.exports = {
   DatastorePolicyExpressionConcept: `
     This field sets which attribute will be used to
     sort the suitable datastores for this VM`,
+  /* VM Template schema - Backup */
+  BackupVolatileDisksQuestion: 'Backup volatile disks?',
+  FSFreeze: 'FS Freeze',
+  HowManyBackupsQuestion: 'How many backups do you want to keep?',
+  QEMUAgent: 'QEMU Agent',
+  FSFreezeConcept: `
+    How the FS is freeze for running VMs. When
+    possible backups are crash consistent`,
   /* VM Template schema - OS & CPU */
   /* VM Template schema - OS & CPU - boot */
   Boot: 'Boot',

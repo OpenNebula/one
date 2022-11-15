@@ -688,6 +688,10 @@ module.exports = {
           from: postBody,
           default: 0,
         },
+        reset: {
+          from: postBody,
+          default: 0,
+        },
       },
     },
     [VM_POOL_INFO]: {

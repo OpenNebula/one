@@ -38,7 +38,8 @@ define(function(require) {
   var idsElements = {
     backup_volatile: "#backup-volatile",
     fs_freeze: "#fs-freeze",
-    keep_last: "#keep-last"
+    keep_last: "#keep-last",
+    mode: "#mode"
   }
 
   /*
@@ -84,6 +85,7 @@ define(function(require) {
     var backupVolatile = $(idsElements.backup_volatile, context).is(':checked');
     var fsFreeze = _getValue(idsElements.fs_freeze, context);
     var keepLast = _getValue(idsElements.keep_last, context);
+    var mode = _getValue(idsElements.mode, context);
 
     if (backupVolatile){
       backupConfigJSON['BACKUP_VOLATILE'] = 'YES'
@@ -95,6 +97,10 @@ define(function(require) {
 
     if (keepLast !== ''){
       backupConfigJSON['KEEP_LAST'] = keepLast
+    }
+
+    if (mode !== '-'){
+      backupConfigJSON['MODE'] = mode
     }
 
     return { 'BACKUP_CONFIG' : backupConfigJSON}
@@ -121,6 +127,9 @@ define(function(require) {
       }
       if(configs && configs.KEEP_LAST){
         _fillBootValue(idsElements.keep_last, context, configs.KEEP_LAST);
+      }
+      if(configs && configs.MODE){
+        _fillBootValue(idsElements.mode, context, configs.MODE);
       }
     }
   }

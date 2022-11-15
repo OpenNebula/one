@@ -285,6 +285,7 @@ define(function(require) {
     var compatible_sys_ds = $('#compatible_sys_ds', dialog).val();
     var restic_password = $('#restic_password', dialog).val();
     var restic_sftp_server = $('#restic_sftp_server', dialog).val();
+    var restic_sftp_user = $('#restic_sftp_user', dialog).val();
     var restic_ionice = $('#restic_ionice', dialog).val();
     var restic_nice = $('#restic_nice', dialog).val();
     var restic_bwlimit = $('#restic_bwlimit', dialog).val();
@@ -385,6 +386,9 @@ define(function(require) {
 
     if (restic_sftp_server)
         ds_obj.datastore.restic_sftp_server = restic_sftp_server;
+
+    if (restic_sftp_user)
+        ds_obj.datastore.restic_sftp_user = restic_sftp_user;
         
     if (restic_ionice)
         ds_obj.datastore.restic_ionice = restic_ionice;
@@ -457,12 +461,12 @@ define(function(require) {
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('label[for="restic_password"]', dialog).parent().hide();
     $('label[for="restic_sftp_server"]', dialog).parent().hide();
+    $('label[for="restic_sftp_user"]', dialog).parent().hide();
     $('label[for="restic_ionice"]', dialog).parent().hide();
     $('label[for="restic_nice"]', dialog).parent().hide();
     $('label[for="restic_bwlimit"]', dialog).parent().hide();
     $('label[for="restic_compression"]', dialog).parent().hide();
     $('label[for="restic_connections"]', dialog).parent().hide();
-    $('label[for="restic_sftp_server"]', dialog).parent().hide();
     $('label[for="rsync_host"]', dialog).parent().hide();
     $('label[for="rsync_user"]', dialog).parent().hide();
 
@@ -496,12 +500,12 @@ define(function(require) {
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().show();
     $('label[for="restic_password"]', dialog).parent().show();
     $('label[for="restic_sftp_server"]', dialog).parent().show();
+    $('label[for="restic_sftp_user"]', dialog).parent().show();
     $('label[for="restic_ionice"]', dialog).parent().show();
     $('label[for="restic_nice"]', dialog).parent().show();
     $('label[for="restic_bwlimit"]', dialog).parent().show();
     $('label[for="restic_compression"]', dialog).parent().show();
     $('label[for="restic_connections"]', dialog).parent().show();
-    $('label[for="restic_sftp_server"]', dialog).parent().show();
     $('label[for="rsync_host"]', dialog).parent().show();
     $('label[for="rsync_user"]', dialog).parent().show();
 
@@ -614,12 +618,12 @@ define(function(require) {
     $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
     $('label[for="restic_password"]', dialog).parent().fadeIn();
     $('label[for="restic_sftp_server"]', dialog).parent().fadeIn();
+    $('label[for="restic_sftp_user"]', dialog).parent().fadeIn();
     $('label[for="restic_ionice"]', dialog).parent().fadeIn();
     $('label[for="restic_nice"]', dialog).parent().fadeIn();
     $('label[for="restic_bwlimit"]', dialog).parent().fadeIn();
     $('label[for="restic_compression"]', dialog).parent().fadeIn();
     $('label[for="restic_connections"]', dialog).parent().fadeIn();
-    $('label[for="restic_sftp_server"]', dialog).parent().fadeIn();
   }
 
   function _selectRsync(dialog) {

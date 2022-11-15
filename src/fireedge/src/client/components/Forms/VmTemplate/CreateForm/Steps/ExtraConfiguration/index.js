@@ -31,6 +31,7 @@ import Booting from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraCo
 import Context from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context'
 import InputOutput from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput'
 import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa'
+import Backup from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup'
 
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
@@ -58,6 +59,7 @@ export const TABS = [
   ScheduleAction,
   Placement,
   Numa,
+  Backup,
 ]
 
 const Content = ({ data, setFormData }) => {

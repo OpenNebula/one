@@ -16,6 +16,7 @@
 import * as ACTIONS from 'client/constants/actions'
 // eslint-disable-next-line no-unused-vars
 import { Permissions, LockInfo } from 'client/constants/common'
+import { T } from 'client/constants'
 
 /**
  * @typedef VmTemplate
@@ -104,4 +105,17 @@ export const TEMPLATE_LOGOS = {
   Ubuntu: 'images/logos/ubuntu.png',
   'Windows xp': 'images/logos/windowsxp.png',
   'Windows 10': 'images/logos/windows8.png',
+}
+
+/** @enum {string} FS freeze options type */
+export const FS_FREEZE_OPTIONS = {
+  [T.None]: 'NONE',
+  [T.QEMUAgent]: 'QEMU-AGENT',
+  [T.Suspend]: 'SUSPEND',
+}
+
+/** @enum {string} Backup mode options type */
+export const BACKUP_MODE_OPTIONS = {
+  [T.Full]: 'FULL',
+  [T.Increment]: 'INCREMENT',
 }

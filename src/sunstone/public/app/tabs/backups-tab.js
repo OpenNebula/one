@@ -30,6 +30,7 @@ define(function(require) {
   var _panels = [
     require('./backups-tab/panels/info'),
     require('./backups-tab/panels/vms'),
+    require('./backups-tab/panels/increments'),
   ];
 
   var _panelsHooks = [

@@ -102,6 +102,7 @@ dialogs:
     placement: true
     sched_action: true
     booting: true
+    backup: true
   create_dialog:
     ownership: true
     capacity: true
@@ -125,3 +126,4 @@ dialogs:
       not_on:
         - vcenter
         - kvm
+    backup: true
