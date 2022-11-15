@@ -16,7 +16,12 @@
 import { string, boolean, number } from 'yup'
 
 import { Field, Section, arrayToOptions } from 'client/utils'
-import { T, INPUT_TYPES, FS_FREEZE_OPTIONS } from 'client/constants'
+import {
+  T,
+  INPUT_TYPES,
+  FS_FREEZE_OPTIONS,
+  BACKUP_MODE_OPTIONS,
+} from 'client/constants'
 
 const BACKUP_VOLATILE_FIELD = {
   name: 'BACKUP_CONFIG.BACKUP_VOLATILE',
@@ -70,11 +75,21 @@ const MODE_FIELD = {
 const SECTIONS = [
   {
     id: 'backup-configuration',
-    fields: [BACKUP_VOLATILE_FIELD, FS_FREEZE_FIELD, KEEP_LAST_FIELD, MODE_FIELD],
+    fields: [
+      BACKUP_VOLATILE_FIELD,
+      FS_FREEZE_FIELD,
+      KEEP_LAST_FIELD,
+      MODE_FIELD,
+    ],
   },
 ]
 
 /** @type {Field[]} List of Placement fields */
-const FIELDS = [BACKUP_VOLATILE_FIELD, FS_FREEZE_FIELD, KEEP_LAST_FIELD, MODE_FIELD]
+const FIELDS = [
+  BACKUP_VOLATILE_FIELD,
+  FS_FREEZE_FIELD,
+  KEEP_LAST_FIELD,
+  MODE_FIELD,
+]
 
 export { SECTIONS, FIELDS }

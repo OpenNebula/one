@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, object } from 'yup'
+import { number, object, boolean } from 'yup'
 import { getValidationFromFields, arrayToOptions } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
