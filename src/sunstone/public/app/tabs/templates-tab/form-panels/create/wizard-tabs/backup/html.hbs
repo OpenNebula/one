@@ -22,13 +22,13 @@
       <br/>
     </div>
     <div class="row">
-      <div class="small-12 medium-4 columns">
+      <div class="small-12 columns">
         <input type="checkbox" id="backup-volatile">
         <label for="backup-volatile">
           {{tr "Backup volatile disks?"}}
         </label>
       </div>
-      <div class="small-12 medium-4 columns">
+      <div class="small-12 columns">
         <label for="fs-freeze">
           {{tr "FS Freeze"}}
           {{{tip (tr "How the FS is freeze for running VMs. When possible backups are crash consistent")}}}
@@ -40,14 +40,13 @@
           <option value="SUSPEND">{{tr "Suspend"}}</option>
         </select>
       </div>
-      <div class="small-12 medium-4 columns">
+      <div class="small-12 columns">
         <label for="keep-last">
           {{tr "How many backups do you want to keep?"}}
         </label>
         <input type="number" id="keep-last" class="disabled_firecracker">
       </div>
-    </div>
-    <div class="small-12 medium-4 columns">
+      <div class="small-12 columns">
         <label for="mode">
           {{tr "Mode"}}
         </label>
@@ -57,5 +56,6 @@
           <option value="INCREMENT">{{tr "Increment"}}</option>
         </select>
       </div>
+    </div>
   </div>
 </div>
